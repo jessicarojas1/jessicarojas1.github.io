@@ -3,9 +3,9 @@ $breadcrumbs = $breadcrumbs ?? [['Incidents', '/incident'], ['SLA Report', null]
 // SLA badge helper
 function slaBadge(string $status): string {
     $map = [
-        'on_track' => ['success',  'var(--success)', 'On Track'],
-        'at_risk'  => ['warning',  'var(--warning)', 'At Risk'],
-        'breached' => ['danger',   'var(--danger)', 'Breached'],
+        'on_track' => ['success',  '#059669', 'On Track'],
+        'at_risk'  => ['warning',  '#d97706', 'At Risk'],
+        'breached' => ['danger',   '#dc2626', 'Breached'],
         'met'      => ['met',      '#71717a', 'Met'],
         'n/a'      => ['muted',    '#a1a1aa', 'N/A'],
     ];
@@ -28,7 +28,7 @@ foreach ($incidents as $inc) {
     $ackCounts[$inc['ack_sla_status']]     = ($ackCounts[$inc['ack_sla_status']] ?? 0) + 1;
     $resCounts[$inc['resolve_sla_status']] = ($resCounts[$inc['resolve_sla_status']] ?? 0) + 1;
 }
-$sevColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium' => '#0284c7', 'low' => 'var(--success)'];
+$sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7', 'low' => '#059669'];
 ?>
 
 <div class="page-header">
@@ -90,12 +90,12 @@ $sevColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px">
   <?php
   $chips = [
-    ['label' => 'Ack On Track',  'count' => $ackCounts['on_track'],  'color' => 'var(--success)'],
-    ['label' => 'Ack At Risk',   'count' => $ackCounts['at_risk'],   'color' => 'var(--warning)'],
-    ['label' => 'Ack Breached',  'count' => $ackCounts['breached'],  'color' => 'var(--danger)'],
-    ['label' => 'Res On Track',  'count' => $resCounts['on_track'],  'color' => 'var(--success)'],
-    ['label' => 'Res At Risk',   'count' => $resCounts['at_risk'],   'color' => 'var(--warning)'],
-    ['label' => 'Res Breached',  'count' => $resCounts['breached'],  'color' => 'var(--danger)'],
+    ['label' => 'Ack On Track',  'count' => $ackCounts['on_track'],  'color' => '#059669'],
+    ['label' => 'Ack At Risk',   'count' => $ackCounts['at_risk'],   'color' => '#d97706'],
+    ['label' => 'Ack Breached',  'count' => $ackCounts['breached'],  'color' => '#dc2626'],
+    ['label' => 'Res On Track',  'count' => $resCounts['on_track'],  'color' => '#059669'],
+    ['label' => 'Res At Risk',   'count' => $resCounts['at_risk'],   'color' => '#d97706'],
+    ['label' => 'Res Breached',  'count' => $resCounts['breached'],  'color' => '#dc2626'],
   ];
   foreach ($chips as $chip): ?>
   <div class="card" style="padding:16px;text-align:center;border-top:3px solid <?= $chip['color'] ?>">
@@ -141,7 +141,7 @@ $sevColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium
             $ageH = $inc['age_hours'];
             $ageStr = $ageH >= 48 ? round($ageH / 24, 1) . ' days' : $ageH . ' hrs';
           ?>
-          <tr style="border-top:1px solid var(--border);<?= ($inc['ack_sla_status'] === 'breached' || $inc['resolve_sla_status'] === 'breached') ? 'background:var(--danger-tint);' : '' ?>">
+          <tr style="border-top:1px solid var(--border);<?= ($inc['ack_sla_status'] === 'breached' || $inc['resolve_sla_status'] === 'breached') ? 'background:var(--danger-subtle);' : '' ?>">
             <td style="padding:10px 14px">
               <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;background:<?= $sc ?>20;color:<?= $sc ?>;border:1px solid <?= $sc ?>40">
                 <?= ucfirst(Security::h($inc['severity'])) ?>

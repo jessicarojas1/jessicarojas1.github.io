@@ -1,6 +1,8 @@
 <?php
 // Variables: $campaign, $attested, $pending
-$breadcrumbs = [['Policies', '/policy'], ['Campaigns', '/policy/campaigns'], [Security::h($campaign['name'] ?? 'Campaign'), null]];
+$pageTitle    = 'Campaign';
+$activeModule = 'policy';
+$breadcrumbs  = [['Policies', '/policy'], ['Campaign', null]];
 $totalUsers  = count($attested) + count($pending);
 $attestedCnt = count($attested);
 $pendingCnt  = count($pending);
@@ -74,7 +76,7 @@ $barColor    = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 
             <div class="text-muted text-sm">Pending</div>
           </div>
         </div>
-        <div style="background:var(--border);border-radius:999px;height:10px;overflow:hidden">
+        <div style="background:var(--bg-subtle);border-radius:999px;height:10px;overflow:hidden">
           <div style="width:<?= $pct ?>%;background:<?= $barColor ?>;height:100%;border-radius:999px;transition:width .3s"></div>
         </div>
         <div style="text-align:center;margin-top:8px;font-weight:600;color:<?= $barColor ?>"><?= $pct ?>% complete</div>

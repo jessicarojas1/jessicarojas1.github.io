@@ -1,6 +1,6 @@
 <?php
-$tierColors   = ['critical'=>'var(--danger)','high'=>'var(--warning)','medium'=>'#0284c7','low'=>'var(--success)'];
-$statusColors = ['active'=>'var(--success)','inactive'=>'#71717a','under_review'=>'var(--warning)','terminated'=>'var(--danger)'];
+$tierColors   = ['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669'];
+$statusColors = ['active'=>'#059669','inactive'=>'#71717a','under_review'=>'#d97706','terminated'=>'#dc2626'];
 $tierColor    = $tierColors[$vendor['risk_tier']] ?? '#71717a';
 $stColor      = $statusColors[$vendor['status']] ?? '#71717a';
 $pageTitle    = 'Vendor: ' . Security::h($vendor['vendor_code']);
@@ -14,7 +14,7 @@ ob_start();
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <h1 class="page-title" style="margin:0"><?= Security::h($vendor['name']) ?></h1>
       <?php if (!empty($vendor['vendor_code'])): ?>
-        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($vendor['vendor_code']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($vendor['vendor_code']) ?></span>
       <?php endif; ?>
       <span class="status-chip" style="background:<?= $tierColor ?>20;color:<?= $tierColor ?>;border:1px solid <?= $tierColor ?>40;"><?= ucfirst(Security::h($vendor['risk_tier'])) ?> Risk</span>
       <span class="status-chip" style="background:<?= $stColor ?>20;color:<?= $stColor ?>;border:1px solid <?= $stColor ?>40;"><?= ucfirst(str_replace('_',' ',Security::h($vendor['status']))) ?></span>
@@ -62,8 +62,8 @@ ob_start();
       </div>
       <div class="card-body">
         <?php if ($assessments): foreach ($assessments as $a):
-          $aColors=['planned'=>'#71717a','in_progress'=>'var(--warning)','completed'=>'var(--success)','overdue'=>'var(--danger)'];
-          $rColors=['critical'=>'var(--danger)','high'=>'var(--warning)','medium'=>'#0284c7','low'=>'var(--success)','acceptable'=>'var(--success)'];
+          $aColors=['planned'=>'#71717a','in_progress'=>'#d97706','completed'=>'#059669','overdue'=>'#dc2626'];
+          $rColors=['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669','acceptable'=>'#059669'];
           $ac = $aColors[$a['status']] ?? '#71717a';
           $rc = $rColors[$a['risk_rating'] ?? ''] ?? '#71717a';
         ?>
@@ -184,12 +184,12 @@ $contracts = Database::fetchAll(
       <tbody>
         <?php foreach ($contracts as $vc):
           $vcStatusMap = [
-            'active'     => ['color'=>'var(--success)','bg'=>'#dcfce7','label'=>'Active'],
-            'draft'      => ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>'Draft'],
-            'expired'    => ['color'=>'var(--danger)','bg'=>'#fee2e2','label'=>'Expired'],
-            'terminated' => ['color'=>'#a1a1aa','bg'=>'#f9fafb','label'=>'Terminated'],
+            'active'     => ['color'=>'var(--success)','bg'=>'var(--success-subtle)','label'=>'Active'],
+            'draft'      => ['color'=>'var(--text-muted)','bg'=>'var(--bg-subtle)','label'=>'Draft'],
+            'expired'    => ['color'=>'var(--danger)','bg'=>'var(--danger-subtle)','label'=>'Expired'],
+            'terminated' => ['color'=>'var(--text-muted)','bg'=>'var(--surface-alt)','label'=>'Terminated'],
           ];
-          $vcBadge = $vcStatusMap[$vc['status']] ?? ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>ucfirst($vc['status'])];
+          $vcBadge = $vcStatusMap[$vc['status']] ?? ['color'=>'var(--text-muted)','bg'=>'var(--bg-subtle)','label'=>ucfirst($vc['status'])];
           $vcDaysLeft = $vc['end_date'] ? (int)ceil((strtotime($vc['end_date']) - time()) / 86400) : null;
           $vcEndColor = ($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 30) ? 'var(--danger)'
                       : (($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 60) ? 'var(--warning)' : 'inherit');
@@ -226,8 +226,8 @@ $contracts = Database::fetchAll(
       </tbody>
     </table>
     <?php else: ?>
-    <div style="text-align:center;padding:32px 20px;color:var(--text-muted)">
-      <i class="bi bi-file-earmark-text" style="font-size:32px;display:block;margin-bottom:10px"></i>
+    <div class="empty-state-sm">
+      <i class="bi bi-file-earmark-text" style="font-size:32px"></i>
       <p style="margin:0;font-size:14px">No contracts on file.</p>
       <?php if (Auth::can('vendor.write')): ?>
         <a href="/vendor/<?= (int)$vendor['id'] ?>/contract/create" class="btn btn-primary btn-sm" style="margin-top:12px">

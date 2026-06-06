@@ -15,6 +15,8 @@ from app.core.config import settings
 from app.core.database import SessionLocal, engine
 from app.core.database import Base
 from app.core.logging import configure_logging
+from app.core.pages import PAGES
+from app.core.permissions import default_level_for
 from app.core.rbac import ROLE_PERMISSIONS, Role as RoleEnum
 from app.core.security import hash_password
 from app.models import (  # noqa: F401 - ensure metadata is populated
@@ -28,6 +30,7 @@ from app.models import (  # noqa: F401 - ensure metadata is populated
     NcStatus,
     Nonconformance,
     Role,
+    RolePagePermission,
     Supplier,
     SupplierStatus,
     User,
@@ -61,6 +64,40 @@ def seed_roles(db: Session) -> dict[str, Role]:
     return existing
 
 
+def seed_permissions(db: Session, roles: dict[str, Role]) -> None:
+    """Populate the role/page permission matrix with static defaults.
+
+    Idempotent: inserts a :class:`RolePagePermission` for every (role, page) pair
+    using :func:`default_level_for`, but only when no row exists for that pair.
+    Existing (possibly admin-customized) rows are never overwritten.
+    """
+    existing: set[tuple[int, str]] = {
+        (rp.role_id, rp.page_key)
+        for rp in db.execute(select(RolePagePermission)).scalars().all()
+    }
+    added = 0
+    for role_name, role in roles.items():
+        try:
+            role_enum = RoleEnum(role_name)
+        except ValueError:
+            continue
+        for page in PAGES:
+            key = page["key"]
+            if (role.id, key) in existing:
+                continue
+            db.add(
+                RolePagePermission(
+                    role_id=role.id,
+                    page_key=key,
+                    level=default_level_for(role_enum, key),
+                )
+            )
+            added += 1
+    if added:
+        db.flush()
+        logger.info("seeded %d role/page permission defaults", added)
+
+
 def seed_admin(db: Session, roles: dict[str, Role]) -> User | None:
     if not settings.ADMIN_AUTO_CREATE:
         logger.info("ADMIN_AUTO_CREATE disabled; skipping admin bootstrap.")
@@ -72,6 +109,17 @@ def seed_admin(db: Session, roles: dict[str, Role]) -> User | None:
     email = settings.ADMIN_EMAIL.lower()
     admin = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
     if admin:
+        # Demo/dev only (production returns above): keep the admin login usable by
+        # re-syncing the password to the configured value, re-activating, and
+        # ensuring the admin role — so changing ADMIN_PASSWORD and redeploying
+        # always lets you sign in.
+        admin.hashed_password = hash_password(settings.ADMIN_PASSWORD)
+        admin.is_active = True
+        admin_role = roles[RoleEnum.ADMIN.value]
+        if admin_role not in admin.roles:
+            admin.roles = [*admin.roles, admin_role]
+        db.flush()
+        logger.info("re-synced admin user %s password", email)
         return admin
     admin = User(
         email=email,
@@ -189,10 +237,20 @@ def run() -> None:
     Base.metadata.create_all(bind=engine)
 
     with SessionLocal() as db:
+        # Commit the essentials (roles + admin) FIRST and on their own, so a
+        # problem seeding optional demo data can never roll back the admin
+        # account and lock everyone out.
         roles = seed_roles(db)
         admin = seed_admin(db, roles)
-        seed_demo(db, admin)
+        seed_permissions(db, roles)
         db.commit()
+
+        try:
+            seed_demo(db, admin)
+            db.commit()
+        except Exception:  # noqa: BLE001 - demo data is best-effort
+            db.rollback()
+            logger.exception("demo data seeding failed (non-fatal); continuing")
     logger.info("seed complete")
 
 

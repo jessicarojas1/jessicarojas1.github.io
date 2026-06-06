@@ -10,12 +10,12 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError, WorkflowError
-from app.core.rbac import Permission, require_permission
 from app.models.capa import (
     Capa,
     CapaAction,
@@ -46,6 +46,7 @@ from app.services.crud import (
     paginate,
     request_context,
 )
+from app.services.notifications import notify_assignment
 from app.services.signatures import create_signature
 from app.services.workflow import StateMachine, require_states
 
@@ -86,7 +87,7 @@ def list_capas(
     owner_id: int | None = Query(None),
     overdue: bool | None = Query(None),
     search: str | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.CAPA_READ)),
+    _: CurrentUser = Depends(require_page("capa", "view")),
 ) -> Page[CapaList]:
     stmt = base_select(Capa)
     if status_filter:
@@ -114,7 +115,7 @@ def create_capa(
     body: CapaCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CAPA_WRITE)),
+    actor: CurrentUser = Depends(require_page("capa", "edit")),
 ) -> Capa:
     data = body.model_dump()
     ncr_id = data.pop("nonconformance_id", None)
@@ -145,6 +146,15 @@ def create_capa(
         after=capa,
         **request_context(request),
     )
+    if capa.owner_id:
+        notify_assignment(
+            db,
+            user_id=capa.owner_id,
+            title=f"CAPA {capa.capa_number} assigned to you",
+            message=capa.title,
+            entity_type=ENTITY,
+            entity_id=capa.id,
+        )
     db.commit()
     db.refresh(capa)
     return capa
@@ -154,7 +164,7 @@ def create_capa(
 def get_capa(
     capa_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.CAPA_READ)),
+    _: CurrentUser = Depends(require_page("capa", "view")),
 ) -> Capa:
     return get_or_404(db, Capa, capa_id, name="CAPA")
 
@@ -165,12 +175,13 @@ def update_capa(
     body: CapaUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CAPA_WRITE)),
+    actor: CurrentUser = Depends(require_page("capa", "edit")),
 ) -> Capa:
     capa = get_or_404(db, Capa, capa_id, name="CAPA")
     if capa.status in (CapaStatus.CLOSED, CapaStatus.CANCELLED):
         raise WorkflowError("Cannot edit a closed or cancelled CAPA.")
     before = audit.snapshot(capa)
+    prev_owner = capa.owner_id
     for key, value in body.model_dump(exclude_unset=True).items():
         setattr(capa, key, value)
     capa.updated_by = actor.id
@@ -186,6 +197,15 @@ def update_capa(
         after=capa,
         **request_context(request),
     )
+    if capa.owner_id and capa.owner_id != prev_owner:
+        notify_assignment(
+            db,
+            user_id=capa.owner_id,
+            title=f"CAPA {capa.capa_number} assigned to you",
+            message=capa.title,
+            entity_type=ENTITY,
+            entity_id=capa.id,
+        )
     db.commit()
     db.refresh(capa)
     return capa
@@ -197,7 +217,7 @@ def change_status(
     body: CapaStatusChange,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CAPA_WRITE)),
+    actor: CurrentUser = Depends(require_page("capa", "edit")),
 ) -> Capa:
     capa = get_or_404(db, Capa, capa_id, name="CAPA")
     CAPA_FSM.assert_transition(capa.status, body.status)
@@ -234,7 +254,7 @@ def add_action(
     body: CapaActionCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CAPA_WRITE)),
+    actor: CurrentUser = Depends(require_page("capa", "edit")),
 ) -> CapaAction:
     capa = get_or_404(db, Capa, capa_id, name="CAPA")
     action = CapaAction(
@@ -268,7 +288,7 @@ def update_action(
     body: CapaActionUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CAPA_WRITE)),
+    actor: CurrentUser = Depends(require_page("capa", "edit")),
 ) -> CapaAction:
     action = db.get(CapaAction, action_id)
     if action is None or action.capa_id != capa_id:
@@ -303,7 +323,7 @@ def verify_effectiveness(
     body: CapaEffectivenessVerify,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CAPA_CLOSE)),
+    actor: CurrentUser = Depends(require_page("capa", "edit")),
 ) -> Capa:
     capa = get_or_404(db, Capa, capa_id, name="CAPA")
     require_states(capa.status, {CapaStatus.VERIFICATION}, action="verify effectiveness")
@@ -337,7 +357,7 @@ def close_capa(
     body: CapaClose,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CAPA_CLOSE)),
+    actor: CurrentUser = Depends(require_page("capa", "edit")),
 ) -> Capa:
     """Close-out requires verified effectiveness and an e-signature (Part 11)."""
     capa = get_or_404(db, Capa, capa_id, name="CAPA")

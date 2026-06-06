@@ -155,7 +155,7 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', n
           </div>
 
           <!-- Live score display -->
-          <div style="text-align:center;padding:20px 16px;margin:8px 0;border-radius:12px;background:#fafbfc;border:1px solid var(--border-light);">
+          <div style="text-align:center;padding:20px 16px;margin:8px 0;border-radius:12px;background:var(--surface-alt);border:1px solid var(--border-light);">
             <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;">Threat Score (L × I)</div>
             <div id="scoreDisplay" style="font-size:52px;font-weight:800;line-height:1;transition:color .2s;">9</div>
             <div id="scoreLabel" style="font-size:12px;font-weight:600;margin-top:6px;transition:color .2s;">Medium</div>
@@ -193,10 +193,10 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', n
         <div class="card-body" style="font-size:13px;">
           <?php
           $guide = [
-              ['1 – 4',  'var(--success-subtle)', 'var(--primary)', 'Low',      'Minimal risk. Unlikely to occur or negligible impact.'],
-              ['5 – 9',  'var(--warning-subtle)', 'var(--warning)', 'Medium',   'Moderate risk. Should be monitored and controlled.'],
-              ['10 – 16','#fff7ed', '#ea580c', 'High',     'Significant risk. Requires active mitigation.'],
-              ['17 – 25','var(--danger-subtle)', 'var(--danger)', 'Critical', 'Severe risk. Immediate treatment required.'],
+              ['1 – 4',  'var(--success-subtle)', 'var(--primary)',  'Low',      'Minimal risk. Unlikely to occur or negligible impact.'],
+              ['5 – 9',  'var(--warning-subtle)', 'var(--warning)',  'Medium',   'Moderate risk. Should be monitored and controlled.'],
+              ['10 – 16','var(--warning-subtle)', 'var(--orange)',   'High',     'Significant risk. Requires active mitigation.'],
+              ['17 – 25','var(--danger-subtle)',  'var(--danger)',   'Critical', 'Severe risk. Immediate treatment required.'],
           ];
           foreach ($guide as [$range, $bg, $color, $label, $desc]):
           ?>
@@ -218,10 +218,10 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', n
 <script nonce="<?= Security::nonce() ?>">
 (function() {
     function scoreColor(s) {
-        if (s <= 4)  return 'var(--primary)';
-        if (s <= 9)  return 'var(--warning)';
+        if (s <= 4)  return '#16a34a';
+        if (s <= 9)  return '#d97706';
         if (s <= 16) return '#ea580c';
-        return 'var(--danger)';
+        return '#dc2626';
     }
     function scoreLabel(s) {
         if (s <= 4)  return 'Low';

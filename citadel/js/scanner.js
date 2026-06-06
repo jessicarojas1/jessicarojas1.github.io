@@ -46,6 +46,53 @@
     return findings;
   }
 
+  // Data-flow taint with intra-file propagation: variables assigned from a
+  // user-input source, then propagated across subsequent assignments (var2 =
+  // f(var1)) so a tainted value is tracked across statements (multi-hop).
+  const TAINT_SRC = /\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*[^;\n]{0,80}?(req\.(query|params|body|cookies|headers)|request\.(GET|POST|args|form|values|json)|\$_(GET|POST|REQUEST|COOKIE|FILES)|params\[|getParameter|os\.environ|sys\.argv|process\.argv|input\(|fmt\.Scan|Console\.ReadLine|location\.(hash|search|href)|document\.(cookie|referrer))/;
+  const ASSIGN = /^[^=\n]{0,120}?\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*(.+)$/;
+  function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function taintedVars(content) {
+    const set = new Set();
+    const lines = content.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].match(TAINT_SRC);
+      if (m && m[1]) set.add(m[1]);
+    }
+    if (!set.size) return set;
+    // Propagate up to 4 hops: var = <expr referencing a tainted var> → tainted.
+    for (let pass = 0; pass < 4; pass++) {
+      let grew = false;
+      for (let i = 0; i < lines.length; i++) {
+        const a = lines[i].match(ASSIGN);
+        if (!a || !a[1] || set.has(a[1])) continue;
+        const rhs = a[2];
+        for (const v of set) {
+          if (new RegExp('\\b' + escRe(v) + '\\b').test(rhs)) { set.add(a[1]); grew = true; break; }
+        }
+        if (set.size > 400) { grew = false; break; }
+      }
+      if (!grew) break;
+    }
+    return set;
+  }
+  function markTaint(content, findings) {
+    if (!findings.length) return;
+    const vars = taintedVars(content);
+    if (!vars.size) return;
+    const arr = [...vars];
+    findings.forEach(f => {
+      if (!f.snippet) return;
+      for (const v of arr) {
+        if (new RegExp('\\b' + v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(f.snippet)) {
+          f.tainted = true;
+          if (f.confidence !== 'high') f.confidence = 'high';
+          break;
+        }
+      }
+    });
+  }
+
   function detectDeployment(entries) {
     const signals = [];
     const add = (tech, file, detail) => signals.push({ tech, file, detail });
@@ -156,7 +203,9 @@
 
     for (const e of entries) {
       if (e.content) {
-        findings = findings.concat(runRules(e));
+        const fr = runRules(e);
+        markTaint(e.content, fr);
+        findings = findings.concat(fr);
         // secrets (entropy)
         CITADEL.secrets.scan(e.content, e.lang).forEach(s => findings.push(Object.assign({ file: e.path }, s)));
         // SBOM

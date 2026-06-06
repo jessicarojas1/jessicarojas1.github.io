@@ -15,9 +15,8 @@
   --danger:  #dc2626;
   --info:    #0284c7;
   --orange:  #f97316;
-  --purple:  #7c3aed;
+  --purple:  #8b5cf6;
   --indigo:  #6366f1;
-  --neutral: #71717a;
 
   /* Sidebar */
   --sidebar-bg:            #0f172a;
@@ -37,39 +36,24 @@
   --border:        #d0d7de;
   --border-light:  #e8ebee;
 
-  /* Semantic subtle backgrounds + border tints */
-  --success-subtle:   #f0fdf4;
-  --warning-subtle:   #fffbeb;
-  --danger-subtle:    #fef2f2;
-  --info-subtle:      #eff6ff;
-  --moderate-subtle:  #eff6ff;
-  --success-border:   #86efac;
-  --warning-border:   #fcd34d;
-  --danger-border:    #fca5a5;
-  --info-border:      #bfdbfe;
-  --moderate-border:  #93c5fd;
-  --info-text:        #1d4ed8;
-  --moderate:         #2563eb;
-  --moderate-text:    #1d4ed8;
-
-  /* Alpha tints (for background: and border: inline uses) */
-  --primary-tint:    rgba(22,163,74,.09);
-  --danger-tint:     rgba(220,38,38,.09);
-  --warning-tint:    rgba(217,119,6,.09);
-  --success-tint:    rgba(5,150,105,.09);
-  --info-tint:       rgba(2,132,199,.09);
-  --orange-tint:     rgba(249,115,22,.09);
-  --purple-tint:     rgba(124,58,237,.09);
-  --secondary-tint:  rgba(82,82,91,.09);
-  --primary-ring:    rgba(22,163,74,.25);
-  --danger-ring:     rgba(220,38,38,.25);
-  --warning-ring:    rgba(217,119,6,.25);
-  --success-ring:    rgba(5,150,105,.25);
+  /* Semantic subtle backgrounds */
+  --success-subtle: #f0fdf4;
+  --warning-subtle: #fffbeb;
+  --danger-subtle:  #fef2f2;
+  --info-subtle:    #eff6ff;
 
   /* Text */
   --text:        #0d1117;
   --text-muted:  #57606a;
   --text-light:  #8b949e;
+
+  /* Terminal / code-display (always dark regardless of theme) */
+  --terminal-bg:          #111111;
+  --terminal-text:        #a5f3fc;
+  --surface-2:            #111111;
+  --code-green-bg:        #1c2a1b;
+  --code-green-text:      #86efac;
+  --code-green-accent:    #6ee7b7;
 
   /* Misc */
   --radius:    12px;
@@ -1464,21 +1448,6 @@ input[type="range"] {
 .modal-header button { border: none; background: none; cursor: pointer; font-size: 18px; color: var(--text-muted); }
 .modal-body { padding: 24px; }
 
-/* Audit item status — dot + select */
-.audit-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; display:inline-block; }
-.audit-dot.s-compliant      { background: var(--success); }
-.audit-dot.s-partial        { background: var(--warning); }
-.audit-dot.s-non_compliant  { background: var(--danger); }
-.audit-dot.s-not_assessed   { background: var(--text-muted); }
-.audit-dot.s-not_applicable { background: var(--text-light); }
-
-.audit-status-sel { border-radius:99px; padding:4px 10px; font-size:12px; font-weight:600; cursor:pointer; appearance:none; -webkit-appearance:none; outline:none; border:1px solid; }
-.audit-status-sel.s-not_assessed   { background:var(--bg-subtle);     color:var(--text-muted); border-color:var(--border); }
-.audit-status-sel.s-not_applicable { background:var(--bg-subtle);     color:var(--text-muted); border-color:var(--border); }
-.audit-status-sel.s-compliant      { background:var(--success-subtle); color:var(--success);    border-color:var(--success); }
-.audit-status-sel.s-partial        { background:var(--warning-subtle); color:var(--warning);    border-color:var(--warning); }
-.audit-status-sel.s-non_compliant  { background:var(--danger-subtle);  color:var(--danger);     border-color:var(--danger); }
-
 /* AEGIS dialog panels (.um-*) — avoids Bootstrap .modal{display:none} conflict */
 .um-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1050; display:flex; align-items:center; justify-content:center; padding:20px; }
 .um-dialog  { background:var(--card-bg); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); width:100%; max-width:580px; max-height:90vh; overflow-y:auto; border:1px solid var(--border); position:relative; }
@@ -1845,35 +1814,10 @@ html[data-theme="dark"] {
   --border-light:  #21262d;
 
   /* Semantic subtle backgrounds — dark variants */
-  --success-subtle:   rgba(16, 185, 129, 0.12);
-  --warning-subtle:   rgba(245, 158, 11, 0.12);
-  --danger-subtle:    rgba(248, 113, 113, 0.12);
-  --info-subtle:      rgba(56, 189, 248, 0.12);
-  --moderate-subtle:  rgba(96, 165, 250, 0.12);
-
-  /* Semantic border colors — dark variants */
-  --success-border:   #34d399;
-  --warning-border:   #fbbf24;
-  --danger-border:    #f87171;
-  --info-border:      #93c5fd;
-  --moderate-border:  #60a5fa;
-  --info-text:        #60a5fa;
-  --moderate:         #60a5fa;
-  --moderate-text:    #60a5fa;
-
-  /* Alpha tints — dark variants (slightly more opaque for visibility) */
-  --primary-tint:    rgba(63,185,80,.12);
-  --danger-tint:     rgba(248,113,113,.12);
-  --warning-tint:    rgba(245,158,11,.12);
-  --success-tint:    rgba(16,185,129,.12);
-  --info-tint:       rgba(56,189,248,.12);
-  --orange-tint:     rgba(251,146,60,.12);
-  --purple-tint:     rgba(167,139,250,.12);
-  --secondary-tint:  rgba(139,148,158,.12);
-  --primary-ring:    rgba(63,185,80,.30);
-  --danger-ring:     rgba(248,113,113,.30);
-  --warning-ring:    rgba(245,158,11,.30);
-  --success-ring:    rgba(16,185,129,.30);
+  --success-subtle: rgba(16, 185, 129, 0.12);
+  --warning-subtle: rgba(245, 158, 11, 0.12);
+  --danger-subtle:  rgba(248, 113, 113, 0.12);
+  --info-subtle:    rgba(56, 189, 248, 0.12);
 
   --text:        #e6edf3;
   --text-muted:  #8b949e;
@@ -1892,7 +1836,6 @@ html[data-theme="dark"] {
   --orange:  #fb923c;
   --purple:  #a78bfa;
   --indigo:  #818cf8;
-  --neutral: #a1a1aa;
 
   --sidebar-bg: #080e1a;
   --sidebar-text:          #94a3b8;
@@ -2159,13 +2102,6 @@ html[data-theme="dark"] .auth-form-card { background: var(--card-bg); }
 
 /* Semantic colors — brighter in dark mode for readable inline text */
 html[data-theme="dark"] { --success: #10b981; --warning: #f59e0b; --danger: #f87171; --info: #38bdf8; }
-/* Subtle tint backgrounds for dark mode chips/badges */
-html[data-theme="dark"] {
-  --success-subtle: rgba(16,185,129,.15);
-  --warning-subtle: rgba(245,158,11,.15);
-  --danger-subtle:  rgba(248,113,113,.15);
-  --info-subtle:    rgba(56,189,248,.15);
-}
 
 /* Rich text editor */
 html[data-theme="dark"] .rich-editor { background: var(--bg-subtle); color: var(--text); }

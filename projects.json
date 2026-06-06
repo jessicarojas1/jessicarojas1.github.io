@@ -4,7 +4,7 @@
     "description": "Enterprise Quality Management System for aerospace, manufacturing & defense — AS9100D / ISO 9001, CMMC 2.0 L2, DFARS / NIST 800-171 — fully deployable to AWS GovCloud and Azure Government. 13 modules (documents, NCR/MRB, CAPA 8D, audits, supplier quality, calibration, training, change control, risk, FAI/AS9102, management review, complaints, KPIs). FastAPI + PostgreSQL API with immutable audit trail & 21 CFR Part 11 e-signatures, React/TypeScript SPA, and Terraform + Kubernetes IaC for both government clouds.",
     "image": "assets/images/sentinel_qms.png",
     "tags": ["QMS", "AS9100", "CMMC", "NIST 800-171", "FastAPI", "React", "Terraform", "AWS GovCloud", "Azure Gov"],
-    "link": "sentinel-qms/README.md"
+    "link": "https://sentinel-qms.onrender.com"
   },
   {
     "title": "Compliance Tracker",

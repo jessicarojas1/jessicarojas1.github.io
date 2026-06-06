@@ -1,6 +1,6 @@
 <?php
-$csrf = Security::generateCsrfToken();
-$breadcrumbs = [['ODP', '/odp'], [Security::h($package['name'] ?? 'Package'), null]];
+$csrf        = Security::generateCsrfToken();
+$breadcrumbs = [['SSP', '/ssp'], ['ODP', '/odp'], ['Package', null]];
 ?>
 <div class="page-header">
   <div>

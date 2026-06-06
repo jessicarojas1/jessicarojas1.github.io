@@ -1,21 +1,21 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Playbooks', null]];
 $categoryColors = [
     'general'         => 'var(--primary)',
     'ransomware'      => 'var(--danger)',
     'data_breach'     => 'var(--warning)',
-    'ddos'            => '#0284c7',
+    'ddos'            => 'var(--info)',
     'phishing'        => 'var(--secondary)',
     'insider_threat'  => '#db2777',
-    'system_failure'  => '#71717a',
+    'system_failure'  => 'var(--text-muted)',
     'compliance'      => 'var(--success)',
 ];
 $severityColors = [
     'critical' => 'var(--danger)',
     'high'     => 'var(--warning)',
-    'medium'   => '#0284c7',
+    'medium'   => 'var(--info)',
     'low'      => 'var(--success)',
 ];
-$breadcrumbs = [['Playbooks', null]];
 ?>
 <div class="page-header">
   <div>
@@ -49,10 +49,10 @@ $breadcrumbs = [['Playbooks', null]];
       $sevColor = $severityColors[strtolower($pb['severity_filter'] ?? '')] ?? null;
       $isActive = (bool)$pb['is_active'];
     ?>
-      <div class="card" style="border-left:4px solid <?= $isActive ? $catColor : '#a1a1aa' ?>;position:relative">
+      <div class="card" style="border-left:4px solid <?= $isActive ? $catColor : 'var(--text-muted)' ?>;position:relative">
         <?php if (!$isActive): ?>
           <div style="position:absolute;top:10px;right:10px">
-            <span class="status-chip" style="background:#a1a1aa20;color:var(--text-muted);border:1px solid #a1a1aa40;font-size:10px">Inactive</span>
+            <span class="status-chip" style="background:var(--text-muted)20;color:var(--text-muted);border:1px solid var(--text-muted)40;font-size:10px">Inactive</span>
           </div>
         <?php endif; ?>
         <div class="card-body">

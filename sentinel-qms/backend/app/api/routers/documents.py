@@ -8,12 +8,12 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError, WorkflowError
-from app.core.rbac import Permission, require_permission
 from app.models.document import (
     Document,
     DocumentApproval,
@@ -57,7 +57,7 @@ def list_documents(
     status_filter: DocumentStatus | None = Query(None, alias="status"),
     doc_type: DocumentType | None = Query(None),
     search: str | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.DOCUMENT_READ)),
+    _: CurrentUser = Depends(require_page("documents", "view")),
 ) -> Page[DocumentList]:
     stmt = base_select(Document)
     if status_filter:
@@ -79,7 +79,7 @@ def create_document(
     body: DocumentCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.DOCUMENT_WRITE)),
+    actor: CurrentUser = Depends(require_page("documents", "edit")),
 ) -> Document:
     doc = Document(
         **body.model_dump(),
@@ -109,7 +109,7 @@ def create_document(
 def get_document(
     doc_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.DOCUMENT_READ)),
+    _: CurrentUser = Depends(require_page("documents", "view")),
 ) -> Document:
     return get_or_404(db, Document, doc_id, name="Document")
 
@@ -120,7 +120,7 @@ def update_document(
     body: DocumentUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.DOCUMENT_WRITE)),
+    actor: CurrentUser = Depends(require_page("documents", "edit")),
 ) -> Document:
     doc = get_or_404(db, Document, doc_id, name="Document")
     if doc.status == DocumentStatus.OBSOLETE:
@@ -154,7 +154,7 @@ def create_revision(
     body: RevisionCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.DOCUMENT_WRITE)),
+    actor: CurrentUser = Depends(require_page("documents", "edit")),
 ) -> DocumentRevision:
     doc = get_or_404(db, Document, doc_id, name="Document")
     revision = DocumentRevision(
@@ -191,7 +191,7 @@ def approve_revision(
     body: ApprovalDecision,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.DOCUMENT_APPROVE)),
+    actor: CurrentUser = Depends(require_page("documents", "edit")),
 ) -> DocumentApproval:
     """Approve/reject a revision with an e-signature; makes it effective on approval."""
     revision = db.get(DocumentRevision, revision_id)
@@ -258,7 +258,7 @@ def obsolete_document(
     doc_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.DOCUMENT_APPROVE)),
+    actor: CurrentUser = Depends(require_page("documents", "edit")),
 ) -> Document:
     doc = get_or_404(db, Document, doc_id, name="Document")
     doc.status = DocumentStatus.OBSOLETE
@@ -285,7 +285,7 @@ def soft_delete_document(
     doc_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.DOCUMENT_WRITE)),
+    actor: CurrentUser = Depends(require_page("documents", "edit")),
 ) -> Document:
     doc = get_or_404(db, Document, doc_id, name="Document")
     doc.soft_delete(actor.id)

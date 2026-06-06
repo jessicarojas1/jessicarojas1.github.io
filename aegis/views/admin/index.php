@@ -19,7 +19,7 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $userCount ?></div><div class="stat-label">Total Users</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--primary-dark))"><i class="bi bi-key-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--success))"><i class="bi bi-key-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $apiKeyCount ?></div><div class="stat-label">Active API Keys</div></div>
   </div>
   <div class="stat-card">

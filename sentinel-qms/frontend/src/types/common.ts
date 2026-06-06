@@ -58,3 +58,65 @@ export interface ElectronicSignature {
 }
 
 export type Iso8601 = string;
+
+/* ------------------------------------------------------------------ */
+/* Global search                                                       */
+/* ------------------------------------------------------------------ */
+export interface SearchResult {
+  type: string;
+  id: number;
+  number: string;
+  title: string;
+  url: string;
+}
+
+export interface SearchResponse {
+  results: SearchResult[];
+}
+
+/* ------------------------------------------------------------------ */
+/* Notifications                                                       */
+/* ------------------------------------------------------------------ */
+export interface NotificationItem {
+  id: number;
+  title?: string;
+  message?: string;
+  entity_type?: string | null;
+  entity_id?: number | null;
+  url?: string | null;
+  is_read: boolean;
+  created_at: Iso8601;
+}
+
+/* ------------------------------------------------------------------ */
+/* Audit logs (admin)                                                 */
+/* ------------------------------------------------------------------ */
+export interface AuditLogEntry {
+  id: number;
+  actor_id: number | null;
+  actor_email: string | null;
+  action: string;
+  entity_type: string;
+  entity_id: number | null;
+  created_at: Iso8601;
+  before?: unknown;
+  after?: unknown;
+  changes?: unknown;
+}
+
+/* ------------------------------------------------------------------ */
+/* Analytics trends                                                   */
+/* ------------------------------------------------------------------ */
+export interface TrendPoint {
+  month: string;
+  opened: number;
+  closed: number;
+}
+
+export interface AnalyticsTrends {
+  ncr_trend: TrendPoint[];
+  capa_trend: TrendPoint[];
+  open_by_module: Record<string, number>;
+  nc_by_severity: Record<string, number>;
+  audit_findings_by_type: Record<string, number>;
+}

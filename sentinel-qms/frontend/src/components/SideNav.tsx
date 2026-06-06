@@ -2,13 +2,19 @@ import { NavLink } from 'react-router-dom';
 import { NAV_GROUPS } from '@/lib/nav';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/rbac';
+import { usePagePerms } from '@/lib/permissions';
 
 export function SideNav({ open, onNavigate }: { open: boolean; onNavigate: () => void }) {
   const { user } = useAuth();
+  const { canView } = usePagePerms();
 
   const groups = NAV_GROUPS.map((group) => ({
     ...group,
-    items: group.items.filter((item) => can(user?.roles, item.capability)),
+    items: group.items.filter((item) =>
+      // Prefer the dynamic page-permission check; fall back to the static
+      // capability when an item has no page key (lockout-safe).
+      item.page ? canView(item.page) : can(user?.roles, item.capability),
+    ),
   })).filter((group) => group.items.length > 0);
 
   return (

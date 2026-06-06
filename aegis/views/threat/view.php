@@ -4,17 +4,17 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['Threat', null]
 
 $catConfig = [
     'people'     => ['label' => 'People',     'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.05)', 'icon' => 'bi-person-fill'],
-    'process'    => ['label' => 'Process',    'color' => 'var(--moderate)', 'bg' => 'var(--info-subtle)', 'icon' => 'bi-diagram-3-fill'],
+    'process'    => ['label' => 'Process',    'color' => '#2563eb', 'bg' => '#eff6ff', 'icon' => 'bi-diagram-3-fill'],
     'technology' => ['label' => 'Technology', 'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)', 'icon' => 'bi-cpu-fill'],
-    'natural'    => ['label' => 'Natural',    'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'icon' => 'bi-cloud-lightning-rain-fill'],
+    'natural'    => ['label' => 'Natural',    'color' => '#16a34a', 'bg' => '#f0fdf4', 'icon' => 'bi-cloud-lightning-rain-fill'],
     'regulatory' => ['label' => 'Regulatory', 'color' => '#ea580c', 'bg' => '#fff7ed', 'icon' => 'bi-file-earmark-ruled-fill'],
     'financial'  => ['label' => 'Financial',  'color' => '#ca8a04', 'bg' => '#fefce8', 'icon' => 'bi-currency-dollar'],
 ];
 
 $statusConfig = [
-    'active'    => ['label' => 'Active',    'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)'],
-    'mitigated' => ['label' => 'Mitigated', 'color' => 'var(--moderate)', 'bg' => 'var(--info-subtle)'],
-    'accepted'  => ['label' => 'Accepted',  'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
+    'active'    => ['label' => 'Active',    'color' => '#16a34a', 'bg' => '#f0fdf4'],
+    'mitigated' => ['label' => 'Mitigated', 'color' => '#2563eb', 'bg' => '#eff6ff'],
+    'accepted'  => ['label' => 'Accepted',  'color' => '#d97706', 'bg' => '#fffbeb'],
     'retired'   => ['label' => 'Retired',   'color' => '#71717a', 'bg' => '#f9fafb'],
 ];
 
@@ -30,13 +30,13 @@ $score      = $likelihood * $impact;
 function threatViewScoreColor(int $score): string {
     if ($score <= 4)  return 'var(--primary)';
     if ($score <= 9)  return 'var(--warning)';
-    if ($score <= 16) return '#ea580c';
+    if ($score <= 16) return 'var(--orange)';
     return 'var(--danger)';
 }
 function threatViewScoreBg(int $score): string {
     if ($score <= 4)  return 'var(--success-subtle)';
     if ($score <= 9)  return 'var(--warning-subtle)';
-    if ($score <= 16) return '#fff7ed';
+    if ($score <= 16) return 'var(--warning-subtle)';
     return 'var(--danger-subtle)';
 }
 function threatViewScoreLabel(int $score): string {
@@ -72,7 +72,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
         <?= Security::h($threat['title']) ?>
       </h1>
       <?php if (!empty($threat['threat_number'])): ?>
-        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($threat['threat_number']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($threat['threat_number']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">
@@ -317,10 +317,10 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
               <?php foreach ($linkedRisks as $r):
                 $rs = (int)($r['inherent_score'] ?? 0);
                 if ($rs > 16)     { $rc = 'var(--danger)'; }
-                elseif ($rs > 9)  { $rc = '#ea580c'; }
+                elseif ($rs > 9)  { $rc = 'var(--orange)'; }
                 elseif ($rs > 4)  { $rc = 'var(--warning)'; }
                 else              { $rc = 'var(--primary)'; }
-                $rStColors = ['open'=>'var(--primary)','in_progress'=>'var(--moderate)','mitigated'=>'#7c3aed','accepted'=>'var(--warning)','closed'=>'#64748b'];
+                $rStColors = ['open'=>'var(--primary)','in_progress'=>'var(--info)','mitigated'=>'var(--purple)','accepted'=>'var(--warning)','closed'=>'var(--text-muted)'];
                 $rStColor = $rStColors[$r['status'] ?? ''] ?? '#64748b';
               ?>
                 <tr>
@@ -355,7 +355,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             </tbody>
           </table>
         <?php else: ?>
-          <div class="empty-state-sm">
+          <div class="empty-state-sm" style="padding:28px 24px;text-align:center;">
             <i class="bi bi-shield-check" style="font-size:32px;color:var(--text-light);display:block;margin-bottom:8px;"></i>
             <p style="color:var(--text-muted);margin:0;">No risks linked to this threat yet.</p>
             <?php if (Auth::can('risk.write') && !empty($unlinkdRisks)): ?>
@@ -430,7 +430,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             elseif ($rs > 4) $risksByLevel['Medium']++;
             else             $risksByLevel['Low']++;
         }
-        $lvlColors = ['Critical'=>'var(--danger)','High'=>'#ea580c','Medium'=>'var(--warning)','Low'=>'var(--primary)'];
+        $lvlColors = ['Critical'=>'var(--danger)','High'=>'var(--orange)','Medium'=>'var(--warning)','Low'=>'var(--primary)'];
         foreach ($risksByLevel as $lvl => $cnt):
             if ($cnt === 0) continue;
         ?>
@@ -458,7 +458,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
     function scoreColor(s) {
         if (s <= 4)  return 'var(--primary)';
         if (s <= 9)  return 'var(--warning)';
-        if (s <= 16) return '#ea580c';
+        if (s <= 16) return 'var(--orange)';
         return 'var(--danger)';
     }
     window.updateEditScore = function() {

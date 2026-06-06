@@ -8,6 +8,7 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { AttachmentsCard, DataList, DetailState } from '@/components/detail';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
@@ -63,12 +64,14 @@ export default function DocumentDetailPage() {
             subtitle={`${doc.title} · Rev ${doc.current_revision}`}
             breadcrumbs={[{ label: 'Documents', to: '/documents' }, { label: doc.document_number }]}
             actions={
-              canApprove &&
-              pendingApproval && (
-                <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
-                  <Stamp size={16} /> Approve & Release
-                </button>
-              )
+              <>
+                <PrintButton />
+                {canApprove && pendingApproval && (
+                  <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
+                    <Stamp size={16} /> Approve & Release
+                  </button>
+                )}
+              </>
             }
           />
 

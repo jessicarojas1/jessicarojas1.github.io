@@ -53,6 +53,7 @@ from app.models.mgmt_review import (
     ManagementReviewInput,
     ReviewStatus,
 )
+from app.models.permission import RolePagePermission
 from app.models.nonconformance import (
     DispositionType,
     NcSeverity,
@@ -101,6 +102,7 @@ __all__ = [
     "ElectronicSignature",
     "Attachment",
     "Notification",
+    "RolePagePermission",
     "user_roles",
     "Document",
     "DocumentRevision",

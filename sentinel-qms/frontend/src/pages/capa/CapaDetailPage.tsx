@@ -8,6 +8,7 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { AttachmentsCard, DataList, DetailState } from '@/components/detail';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
@@ -59,12 +60,14 @@ export default function CapaDetailPage() {
             subtitle={capa.title}
             breadcrumbs={[{ label: 'CAPA', to: '/capa' }, { label: capa.capa_number }]}
             actions={
-              canClose &&
-              capa.status !== 'closed' && (
-                <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
-                  <ShieldCheck size={16} /> Close & Sign
-                </button>
-              )
+              <>
+                <PrintButton />
+                {canClose && capa.status !== 'closed' && (
+                  <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
+                    <ShieldCheck size={16} /> Close & Sign
+                  </button>
+                )}
+              </>
             }
           />
 

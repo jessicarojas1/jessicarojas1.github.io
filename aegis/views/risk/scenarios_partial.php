@@ -10,11 +10,11 @@ $baseL     = (int)$risk['likelihood'];
 $baseI     = (int)$risk['impact'];
 
 $typeMeta = [
-    'stress'       => ['label'=>'Stress',        'color'=>'var(--danger)', 'bg'=>'var(--danger-subtle)', 'border'=>'var(--danger-border)', 'icon'=>'bi-graph-up-arrow'],
+    'stress'       => ['label'=>'Stress',        'color'=>'#dc2626', 'bg'=>'#fef2f2', 'border'=>'#fca5a5', 'icon'=>'bi-graph-up-arrow'],
     'base'         => ['label'=>'Base',           'color'=>'#71717a', 'bg'=>'#f4f4f5', 'border'=>'#d4d4d8', 'icon'=>'bi-circle-fill'],
-    'optimistic'   => ['label'=>'Optimistic',     'color'=>'var(--primary)', 'bg'=>'var(--success-subtle)', 'border'=>'var(--success-border)', 'icon'=>'bi-graph-down-arrow'],
+    'optimistic'   => ['label'=>'Optimistic',     'color'=>'#16a34a', 'bg'=>'#f0fdf4', 'border'=>'#86efac', 'icon'=>'bi-graph-down-arrow'],
     'catastrophic' => ['label'=>'Catastrophic',   'color'=>'#111111', 'bg'=>'#f9fafb', 'border'=>'#a1a1aa', 'icon'=>'bi-exclamation-octagon-fill'],
-    'regulatory'   => ['label'=>'Regulatory',     'color'=>'var(--moderate)', 'bg'=>'var(--info-subtle)', 'border'=>'var(--moderate-border)', 'icon'=>'bi-bank'],
+    'regulatory'   => ['label'=>'Regulatory',     'color'=>'#2563eb', 'bg'=>'#eff6ff', 'border'=>'#93c5fd', 'icon'=>'bi-bank'],
 ];
 
 function scenPartialLevel(int $s): string {
@@ -141,7 +141,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           <td style="padding:12px;text-align:center;white-space:nowrap">
             <?php if ($delta > 0): ?>
               <span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;
-                           padding:3px 8px;border-radius:20px;background:var(--danger-tint);color:var(--danger)">
+                           padding:3px 8px;border-radius:20px;background:var(--danger-subtle);color:var(--danger)">
                 <i class="bi bi-arrow-up"></i> +<?= $delta ?>
               </span>
             <?php elseif ($delta < 0): ?>
@@ -212,7 +212,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
       </span>
       <?php if ($totalFinancial > 0): ?>
       <span>
-        <i class="bi bi-currency-dollar" style="color:var(--primary)"></i>
+        <i class="bi bi-currency-dollar" style="color:var(--success)"></i>
         <strong style="color:var(--text)">Total financial exposure:</strong>
         $<?= number_format($totalFinancial, 0) ?>
       </span>

@@ -1,6 +1,8 @@
 <?php
 // Variables: $records (completed attestations), $pending (campaigns awaiting user attestation)
-$breadcrumbs = [['My Attestations', null]];
+$pageTitle    = 'My Attestations';
+$activeModule = 'policy';
+$breadcrumbs  = [['Policies', '/policy'], ['My Attestations', null]];
 ?>
 
 <div class="page-header">
@@ -13,7 +15,7 @@ $breadcrumbs = [['My Attestations', null]];
 
 <!-- Pending / action-required section -->
 <?php if ($pending): ?>
-  <div class="card" style="border:2px solid var(--warning-border);margin-bottom:24px">
+  <div class="card" style="border:2px solid var(--warning);margin-bottom:24px">
     <div class="card-header" style="background:var(--warning-subtle)">
       <h3 class="card-title" style="color:var(--warning)">
         <i class="bi bi-exclamation-triangle-fill" style="color:var(--warning)"></i>
@@ -95,7 +97,7 @@ $breadcrumbs = [['My Attestations', null]];
         </tbody>
       </table>
     <?php else: ?>
-      <div class="empty-state">
+      <div class="empty-state" style="padding:40px 24px">
         <div class="empty-icon"><i class="bi bi-pen"></i></div>
         <h3>No attestations yet</h3>
         <p>When you attest a policy, it will appear here as a permanent record.</p>

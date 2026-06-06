@@ -64,6 +64,7 @@ export default function RiskListPage() {
           sort={ctl.sort}
           order={ctl.order}
           onSortChange={ctl.onSortChange}
+          exportFilename="risk-register"
           filters={
             <div className="field">
               <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>

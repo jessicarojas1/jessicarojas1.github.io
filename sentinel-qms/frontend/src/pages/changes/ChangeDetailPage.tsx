@@ -8,6 +8,7 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
@@ -59,11 +60,14 @@ export default function ChangeDetailPage() {
             subtitle={chg.title}
             breadcrumbs={[{ label: 'Change Control', to: '/changes' }, { label: chg.change_number }]}
             actions={
-              canApprove && pending && (
-                <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
-                  <Stamp size={16} /> Approve & Sign
-                </button>
-              )
+              <>
+                <PrintButton />
+                {canApprove && pending && (
+                  <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
+                    <Stamp size={16} /> Approve & Sign
+                  </button>
+                )}
+              </>
             }
           />
 

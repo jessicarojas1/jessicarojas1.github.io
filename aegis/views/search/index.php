@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Search', null]];
 /**
  * views/search/index.php — Global search results page.
  *

@@ -55,38 +55,38 @@ ob_start();
       <?php
       $templates = [
         // Risks
-        ['Risk Review Reminder',              'Sends alert when risk review date is approaching',                  'risk_review_due',               'var(--danger)', 'Risks'],
+        ['Risk Review Reminder',              'Sends alert when risk review date is approaching',                  'risk_review_due',               '#ef4444', 'Risks'],
         ['New Risk Notification',             'Notifies admins when a critical risk is logged',                    'risk_created_critical',         '#f97316', 'Risks'],
-        ['Risk Treatment Overdue',            'Escalates when a risk treatment plan passes its deadline',          'treatment_overdue',             'var(--danger)', 'Risks'],
+        ['Risk Treatment Overdue',            'Escalates when a risk treatment plan passes its deadline',          'treatment_overdue',             '#dc2626', 'Risks'],
         ['Risk Status Changed',               'Alerts owner when a risk status transition occurs',                 'risk_status_changed',           '#9a3412', 'Risks'],
-        ['Residual Risk Threshold Exceeded',  'Alerts when residual risk score exceeds acceptable threshold',      'residual_risk_exceeded',        'var(--danger)', 'Risks'],
+        ['Residual Risk Threshold Exceeded',  'Alerts when residual risk score exceeds acceptable threshold',      'residual_risk_exceeded',        '#ef4444', 'Risks'],
         // Policies
-        ['Policy Expiry Alert',               'Notifies owner when policy review date is due',                    'policy_review_due',             'var(--warning)', 'Policies'],
-        ['Policy Acknowledgment Required',    'Notifies staff when a new policy requires acknowledgment',          'policy_published',              'var(--success)', 'Policies'],
+        ['Policy Expiry Alert',               'Notifies owner when policy review date is due',                    'policy_review_due',             '#d97706', 'Policies'],
+        ['Policy Acknowledgment Required',    'Notifies staff when a new policy requires acknowledgment',          'policy_published',              '#059669', 'Policies'],
         ['Policy Acknowledgment Overdue',     'Escalates when a user has not acknowledged a published policy',     'policy_attest_overdue',         '#b45309', 'Policies'],
         ['Policy Archived',                   'Notifies owner and admin when a policy is archived',               'policy_archived',               '#6b7280', 'Policies'],
         // Audits
-        ['Audit Overdue Alert',               'Escalates when an audit passes its scheduled date',                'audit_overdue',                 'var(--danger)', 'Audits'],
+        ['Audit Overdue Alert',               'Escalates when an audit passes its scheduled date',                'audit_overdue',                 '#dc2626', 'Audits'],
         ['Audit Finding Assigned',            'Notifies assignee when a new audit finding is created',            'audit_finding_created',         '#6366f1', 'Audits'],
-        ['Audit Completed',                   'Notifies stakeholders when an audit is marked complete',           'audit_completed',               'var(--success)', 'Audits'],
-        ['Audit Finding Overdue',             'Escalates when an audit finding remediation is past due',          'audit_finding_overdue',         'var(--danger)', 'Audits'],
+        ['Audit Completed',                   'Notifies stakeholders when an audit is marked complete',           'audit_completed',               '#059669', 'Audits'],
+        ['Audit Finding Overdue',             'Escalates when an audit finding remediation is past due',          'audit_finding_overdue',         '#dc2626', 'Audits'],
         // Compliance
         ['Compliance Drop Alert',             'Alerts when compliance score drops below threshold',               'compliance_score_drop',         '#7c3aed', 'Compliance'],
-        ['Control Implementation Deadline',   'Notifies owner when a control implementation is due',             'control_due',                   'var(--warning)', 'Compliance'],
-        ['Control Marked Non-Compliant',      'Alerts admin when a control assessment fails',                    'control_failed',                'var(--danger)', 'Compliance'],
+        ['Control Implementation Deadline',   'Notifies owner when a control implementation is due',             'control_due',                   '#d97706', 'Compliance'],
+        ['Control Marked Non-Compliant',      'Alerts admin when a control assessment fails',                    'control_failed',                '#dc2626', 'Compliance'],
         ['Gap Analysis Updated',              'Notifies compliance team when a gap analysis is submitted',       'gap_analysis_submitted',        '#7c3aed', 'Compliance'],
         // Change Management
-        ['Change Request Submitted',          'Notifies CAB members when a change request is submitted',         'change_submitted',              'var(--moderate)', 'Changes'],
-        ['Emergency Change Alert',            'Immediately alerts management when an emergency change is filed', 'emergency_change',              'var(--danger)', 'Changes'],
+        ['Change Request Submitted',          'Notifies CAB members when a change request is submitted',         'change_submitted',              '#2563eb', 'Changes'],
+        ['Emergency Change Alert',            'Immediately alerts management when an emergency change is filed', 'emergency_change',              '#dc2626', 'Changes'],
         ['Change Implementation Due',         'Reminds implementer when a change implementation date is near',  'change_due',                    '#f97316', 'Changes'],
-        ['Change Rejected',                   'Notifies submitter when a change request is rejected by CAB',    'change_rejected',               'var(--danger)', 'Changes'],
+        ['Change Rejected',                   'Notifies submitter when a change request is rejected by CAB',    'change_rejected',               '#ef4444', 'Changes'],
         // Incidents
-        ['Incident Escalation',               'Alerts management when a critical incident is created',           'incident_created_critical',     'var(--danger)', 'Incidents'],
+        ['Incident Escalation',               'Alerts management when a critical incident is created',           'incident_created_critical',     '#dc2626', 'Incidents'],
         ['Incident Resolution Reminder',      'Notifies team when an incident is approaching its SLA',           'incident_overdue_sla',          '#f97316', 'Incidents'],
-        ['Incident Closed',                   'Notifies requester and owner when an incident is resolved',       'incident_closed',               'var(--success)', 'Incidents'],
+        ['Incident Closed',                   'Notifies requester and owner when an incident is resolved',       'incident_closed',               '#059669', 'Incidents'],
         ['Incident Pattern Detected',         'Alerts when more than N incidents share the same root cause',     'incident_pattern',              '#9a3412', 'Incidents'],
         // Issues
-        ['Critical Issue Created',            'Alerts management immediately when a critical issue is logged',   'issue_created_critical',        'var(--danger)', 'Issues'],
+        ['Critical Issue Created',            'Alerts management immediately when a critical issue is logged',   'issue_created_critical',        '#dc2626', 'Issues'],
         ['Issue SLA Overdue',                 'Escalates when an issue is not resolved within its SLA window',  'issue_sla_overdue',             '#f97316', 'Issues'],
         ['Issue Assigned',                    'Notifies user when an issue is assigned to them',                'issue_assigned',                '#6366f1', 'Issues'],
         // Vendors
@@ -102,7 +102,7 @@ ob_start();
         // BCP/DRP
         ['BCP Exercise Due',                  'Reminds BCP owner when a scheduled tabletop or DR exercise is due','bcp_exercise_due',            '#be185d', 'BCP/DRP'],
         ['BCP Annual Review Due',             'Alerts management when the annual BCP/DRP review is approaching', 'bcp_review_due',               '#9d174d', 'BCP/DRP'],
-        ['DR Test Failed',                    'Immediately alerts CISO/management when a DR test fails',         'dr_test_failed',               'var(--danger)', 'BCP/DRP'],
+        ['DR Test Failed',                    'Immediately alerts CISO/management when a DR test fails',         'dr_test_failed',               '#dc2626', 'BCP/DRP'],
         // Threats
         ['New Critical Threat',               'Alerts risk team when a critical threat is added to the register','threat_created_critical',      '#b91c1c', 'Threats'],
         ['Threat Status Changed',             'Notifies stakeholders when a threat status changes to mitigated', 'threat_status_changed',        '#991b1b', 'Threats'],
@@ -115,12 +115,12 @@ ob_start();
           <div class="wt-icon" style="background:<?= $color ?>20;color:<?= $color ?>"><i class="bi bi-lightning"></i></div>
           <div class="wt-body">
             <div class="wt-name">
-              <?= Security::h($name) ?>
-              <span class="badge" style="background:<?= $color ?>18;color:<?= $color ?>;margin-left:6px;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;vertical-align:middle"><?= Security::h($cat) ?></span>
+              <?= $name ?>
+              <span class="badge" style="background:<?= $color ?>18;color:<?= $color ?>;margin-left:6px;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;vertical-align:middle"><?= $cat ?></span>
             </div>
-            <div class="wt-desc"><?= Security::h($desc) ?></div>
+            <div class="wt-desc"><?= $desc ?></div>
           </div>
-          <button class="btn btn-ghost btn-sm" data-click="useTemplate" data-args='[<?= json_encode($name, JSON_HEX_TAG | JSON_HEX_AMP) ?>,<?= json_encode($trigger, JSON_HEX_TAG | JSON_HEX_AMP) ?>]'>Use</button>
+          <button class="btn btn-ghost btn-sm" data-click="useTemplate" data-args='[<?= htmlspecialchars(json_encode($name), ENT_QUOTES, 'UTF-8') ?>,<?= htmlspecialchars(json_encode($trigger), ENT_QUOTES, 'UTF-8') ?>]'>Use</button>
         </div>
       <?php endforeach; ?>
     </div>

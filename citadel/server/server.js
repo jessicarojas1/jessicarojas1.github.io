@@ -91,7 +91,7 @@ function rmrf(p) { try { fs.rmSync(p, { recursive: true, force: true }); } catch
 let _toolCache = null;
 async function toolStatus() {
   if (_toolCache) return _toolCache;
-  const names = ['semgrep', 'bandit', 'gitleaks', 'trivy', 'grype', 'syft', 'clamscan'];
+  const names = ['semgrep', 'bandit', 'gitleaks', 'trivy', 'grype', 'syft', 'clamscan', 'checkov', 'osv-scanner', 'hadolint', 'codeql'];
   const out = [];
   for (const n of names) out.push({ tool: n === 'clamscan' ? 'clamav' : n, available: await scanners.has(n) });
   _toolCache = out;
