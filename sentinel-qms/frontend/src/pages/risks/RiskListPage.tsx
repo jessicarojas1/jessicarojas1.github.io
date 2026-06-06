@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   ShieldAlert,
   Plus,
+  Upload,
   AlertOctagon,
   AlertTriangle,
   AlertCircle,
@@ -18,6 +19,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select } from '@/components/FormField';
+import { ImportModal } from '@/components/ImportModal';
 import { RiskHeatMap, rpnLevel, toBand, type MatrixLevel } from './RiskHeatMap';
 import { RiskCreateModal } from './RiskCreateModal';
 import type { Risk } from '@/types';
@@ -46,6 +48,7 @@ export default function RiskListPage() {
   const userName = useUserName();
   const { canEdit } = usePagePerms();
   const [createOpen, setCreateOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [activeCell, setActiveCell] = useState<string | null>(null);
   const { data, isLoading, error } = riskHooks.useList(ctl.params);
   const risks = data?.items ?? [];
@@ -92,9 +95,14 @@ export default function RiskListPage() {
         breadcrumbs={[{ label: 'Risk Register' }]}
         actions={
           canEdit('risks') && (
-            <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
-              <Plus size={16} /> Log Risk
-            </button>
+            <>
+              <button type="button" className="btn" onClick={() => setImportOpen(true)}>
+                <Upload size={16} /> Import
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
+                <Plus size={16} /> Log Risk
+              </button>
+            </>
           )
         }
       />
@@ -209,6 +217,14 @@ export default function RiskListPage() {
           setCreateOpen(false);
           navigate(`/risks/${id}`);
         }}
+      />
+
+      <ImportModal
+        resource="risks"
+        title="Import Risks"
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        listQueryKey={riskHooks.baseKey}
       />
     </>
   );

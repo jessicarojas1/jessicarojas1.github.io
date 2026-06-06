@@ -1086,3 +1086,49 @@ table.data-table {
 .comment-mention__chips { display: flex; flex-wrap: wrap; gap: 0.3rem; flex: 1; }
 .comment-mention__chips .doc-chip button { background: none; border: none; cursor: pointer; color: inherit; margin-left: 4px; }
 .comment-composer__row .btn { margin-left: auto; }
+
+/* ── Bulk CSV import result ──────────────────────────────────────────────── */
+.import-result {
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.import-result__summary {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+.import-result__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.import-result__stat--ok { color: var(--success); }
+.import-result__stat--fail { color: var(--danger); }
+.import-result__errors {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.import-result__error {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+.import-result__error:last-child { border-bottom: none; }
+.import-result__row {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.import-result__message { color: var(--danger); }

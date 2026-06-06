@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Wrench } from 'lucide-react';
+import { Plus, Upload, Wrench } from 'lucide-react';
 import { calibrationHooks } from '@/hooks';
 import { useListController } from '@/hooks/useListController';
 import { getErrorMessage } from '@/lib/api';
@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select } from '@/components/FormField';
+import { ImportModal } from '@/components/ImportModal';
 import { CalibrationCreateModal } from './CalibrationCreateModal';
 import type { Equipment } from '@/types';
 
@@ -28,6 +29,7 @@ export default function CalibrationListPage() {
   const ctl = useListController({ sort: 'next_due_date', order: 'asc' });
   const { canEdit } = usePagePerms();
   const [createOpen, setCreateOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const { data, isLoading, error } = calibrationHooks.useList(ctl.params);
 
   const columns: Column<Equipment>[] = [
@@ -47,9 +49,14 @@ export default function CalibrationListPage() {
         breadcrumbs={[{ label: 'Calibration' }]}
         actions={
           canEdit('calibration') && (
-            <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
-              <Plus size={16} /> New Equipment
-            </button>
+            <>
+              <button type="button" className="btn" onClick={() => setImportOpen(true)}>
+                <Upload size={16} /> Import
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
+                <Plus size={16} /> New Equipment
+              </button>
+            </>
           )
         }
       />
@@ -110,6 +117,14 @@ export default function CalibrationListPage() {
           setCreateOpen(false);
           navigate(`/calibration/${id}`);
         }}
+      />
+
+      <ImportModal
+        resource="calibration/equipment"
+        title="Import Equipment"
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        listQueryKey={calibrationHooks.baseKey}
       />
     </>
   );

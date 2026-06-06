@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Truck } from 'lucide-react';
+import { Plus, Truck, Upload } from 'lucide-react';
 import { supplierHooks } from '@/hooks';
 import { useListController } from '@/hooks/useListController';
 import { getErrorMessage } from '@/lib/api';
@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select } from '@/components/FormField';
+import { ImportModal } from '@/components/ImportModal';
 import { SupplierCreateModal } from './SupplierCreateModal';
 import type { Supplier } from '@/types';
 
@@ -17,6 +18,7 @@ export default function SupplierListPage() {
   const ctl = useListController({ sort: 'name', order: 'asc' });
   const { canEdit } = usePagePerms();
   const [createOpen, setCreateOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const { data, isLoading, error } = supplierHooks.useList(ctl.params);
 
   const columns: Column<Supplier>[] = [
@@ -36,9 +38,14 @@ export default function SupplierListPage() {
         breadcrumbs={[{ label: 'Suppliers' }]}
         actions={
           canEdit('suppliers') && (
-            <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
-              <Plus size={16} /> New Supplier
-            </button>
+            <>
+              <button type="button" className="btn" onClick={() => setImportOpen(true)}>
+                <Upload size={16} /> Import
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
+                <Plus size={16} /> New Supplier
+              </button>
+            </>
           )
         }
       />
@@ -85,6 +92,14 @@ export default function SupplierListPage() {
           setCreateOpen(false);
           navigate(`/suppliers/${id}`);
         }}
+      />
+
+      <ImportModal
+        resource="suppliers"
+        title="Import Suppliers"
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        listQueryKey={supplierHooks.baseKey}
       />
     </>
   );

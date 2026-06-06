@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -27,7 +27,7 @@ from app.models.supplier import (
     SupplierStatus,
 )
 from app.schemas.auth import CurrentUser
-from app.schemas.common import Page
+from app.schemas.common import ImportResult, Page
 from app.schemas.supplier import (
     AslEntryCreate,
     AslEntryRead,
@@ -41,7 +41,7 @@ from app.schemas.supplier import (
     SupplierRead,
     SupplierUpdate,
 )
-from app.services import numbering
+from app.services import csv_import, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -54,6 +54,32 @@ from app.services.crud import (
 router = APIRouter(prefix="/suppliers", tags=["suppliers"])
 
 ENTITY = "supplier"
+
+# Importable columns: required + common optional fields from SupplierCreate.
+_IMPORT_COLUMNS = [
+    "name",
+    "status",
+    "cage_code",
+    "duns_number",
+    "certification",
+    "cert_expiry",
+    "contact_name",
+    "contact_email",
+    "country",
+    "notes",
+]
+_IMPORT_EXAMPLE = [
+    "Acme Aerospace Inc.",
+    "approved",
+    "1A2B3",
+    "123456789",
+    "AS9100D",
+    "2027-12-31",
+    "Jane Doe",
+    "jane@acme.example",
+    "USA",
+    "Primary fastener supplier",
+]
 
 
 def _grade_for(score: float) -> str:
@@ -116,6 +142,53 @@ def create_supplier(
     db.commit()
     db.refresh(supplier)
     return supplier
+
+
+# ── Bulk CSV import ───────────────────────────────────────────────────────────
+# Declared before /{supplier_id} so the literal paths are not shadowed.
+
+
+@router.get("/import/template")
+def supplier_import_template(
+    _: CurrentUser = Depends(require_page("suppliers", "edit")),
+):
+    return csv_import.template_response(
+        "suppliers_import_template.csv", _IMPORT_COLUMNS, _IMPORT_EXAMPLE
+    )
+
+
+@router.post("/import", response_model=ImportResult)
+def supplier_import(
+    request: Request,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
+) -> ImportResult:
+    def build_and_insert(row: dict[str, str]) -> None:
+        data = {col: csv_import.clean(row.get(col)) for col in _IMPORT_COLUMNS}
+        body = SupplierCreate(**{k: v for k, v in data.items() if v is not None})
+        supplier = Supplier(
+            **body.model_dump(),
+            supplier_code=numbering.next_number(db, Supplier, "supplier_code", "SUP"),
+            created_by=actor.id,
+            updated_by=actor.id,
+        )
+        db.add(supplier)
+        db.flush()
+
+    result = csv_import.import_rows(file, build_and_insert)
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="import",
+        entity_type=ENTITY,
+        entity_id=None,
+        after={"created": result.created, "failed": result.failed},
+        **request_context(request),
+    )
+    db.commit()
+    return result
 
 
 @router.get("/{supplier_id}", response_model=SupplierRead)
