@@ -9,8 +9,12 @@ from sqlalchemy.orm import Session
 from app.models.audit_mgmt import Audit, AuditFinding, AuditStatus, FindingStatus
 from app.models.calibration import Equipment, EquipmentStatus
 from app.models.capa import Capa, CapaStatus
+from app.models.change import ChangeOrder, ChangeStatus
 from app.models.complaint import Complaint, ComplaintStatus
+from app.models.inspection import Inspection, InspectionResult
+from app.models.mgmt_review import ManagementReview, ReviewStatus
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
+from app.models.risk import Risk, RiskStatus
 from app.models.supplier import Supplier, SupplierRating, SupplierStatus
 
 
@@ -311,3 +315,105 @@ def dashboard_kpis(db: Session) -> dict:
         "supplier_performance": supplier_performance,
         "findings_by_clause": findings_by_clause,
     }
+
+
+_CHANGE_OPEN = [
+    ChangeStatus.DRAFT, ChangeStatus.SUBMITTED,
+    ChangeStatus.UNDER_REVIEW, ChangeStatus.APPROVED,
+]
+_RISK_OPEN = [
+    RiskStatus.IDENTIFIED, RiskStatus.ASSESSED, RiskStatus.TREATMENT_PLANNED,
+    RiskStatus.MITIGATING, RiskStatus.MONITORING,
+]
+_REVIEW_OPEN = [ReviewStatus.OPEN, ReviewStatus.SCHEDULED, ReviewStatus.IN_PROGRESS]
+
+
+def my_open_items(db: Session, user_id: int, *, limit: int = 60) -> list[dict]:
+    """Records assigned to / owned by the given user that are still open."""
+    today = _today()
+    items: list[dict] = []
+
+    def add(kind, rec, number_attr, title, due, url):
+        due_d = due
+        items.append(
+            {
+                "type": kind,
+                "id": rec.id,
+                "number": getattr(rec, number_attr, None) or f"#{rec.id}",
+                "title": title or "—",
+                "status": (rec.status.value if hasattr(rec.status, "value") else str(rec.status)),
+                "due_date": due_d.isoformat() if due_d else None,
+                "overdue": bool(due_d and due_d < today),
+                "url": url,
+            }
+        )
+
+    for r in db.execute(
+        select(Nonconformance).where(
+            Nonconformance.is_deleted.is_(False),
+            Nonconformance.assigned_to == user_id,
+            Nonconformance.status.in_(_NCR_OPEN),
+        )
+    ).scalars().all():
+        add("Nonconformance", r, "ncr_number", r.title, None, f"/nonconformances/{r.id}")
+
+    for r in db.execute(
+        select(Capa).where(
+            Capa.is_deleted.is_(False), Capa.owner_id == user_id,
+            Capa.status.in_(_CAPA_OPEN),
+        )
+    ).scalars().all():
+        add("CAPA", r, "capa_number", r.title, getattr(r, "due_date", None), f"/capa/{r.id}")
+
+    for r in db.execute(
+        select(Audit).where(
+            Audit.is_deleted.is_(False), Audit.lead_auditor_id == user_id,
+            Audit.status.in_(_AUDIT_OPEN),
+        )
+    ).scalars().all():
+        add("Audit", r, "audit_number", r.title, getattr(r, "planned_date", None), f"/audits/{r.id}")
+
+    for r in db.execute(
+        select(ChangeOrder).where(
+            ChangeOrder.is_deleted.is_(False), ChangeOrder.owner_id == user_id,
+            ChangeOrder.status.in_(_CHANGE_OPEN),
+        )
+    ).scalars().all():
+        add("Change", r, "change_number", r.title, getattr(r, "target_date", None), f"/changes/{r.id}")
+
+    for r in db.execute(
+        select(Risk).where(
+            Risk.is_deleted.is_(False), Risk.owner_id == user_id,
+            Risk.status.in_(_RISK_OPEN),
+        )
+    ).scalars().all():
+        add("Risk", r, "risk_number", r.title, getattr(r, "review_date", None), f"/risks/{r.id}")
+
+    for r in db.execute(
+        select(Complaint).where(
+            Complaint.is_deleted.is_(False), Complaint.assigned_to == user_id,
+            Complaint.status.in_(_COMPLAINT_OPEN),
+        )
+    ).scalars().all():
+        add("Complaint", r, "complaint_number", r.title, getattr(r, "due_date", None), f"/complaints/{r.id}")
+
+    for r in db.execute(
+        select(Inspection).where(
+            Inspection.is_deleted.is_(False), Inspection.inspector_id == user_id,
+            Inspection.result == InspectionResult.PENDING,
+        )
+    ).scalars().all():
+        add("Inspection", r, "inspection_number", getattr(r, "part_number", None), None, f"/inspections/{r.id}")
+
+    for r in db.execute(
+        select(ManagementReview).where(
+            ManagementReview.is_deleted.is_(False),
+            ManagementReview.chairperson_id == user_id,
+            ManagementReview.status.in_(_REVIEW_OPEN),
+        )
+    ).scalars().all():
+        add("Management Review", r, "review_number", r.title, getattr(r, "due_date", None), f"/mgmt-reviews/{r.id}")
+
+    # Overdue first, then soonest due, then those without a due date.
+    items.sort(key=lambda i: (not i["overdue"], i["due_date"] or "9999-99-99"))
+    return items[:limit]
