@@ -16,6 +16,15 @@ BEGIN;
 -- pgcrypto provides gen_random_uuid(); available on Render, RDS, Azure.
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+-- ---- Dedicated schema (SHARED-DATABASE SAFE) ------------------------
+-- All AeroMarkup objects live in their own "aeromarkup" namespace so this
+-- app can run inside a database shared with other apps (e.g. APEX) without
+-- colliding on common table names like "users" or "projects".
+-- The app connects with search_path = aeromarkup,public (see server.py),
+-- so queries stay unqualified while objects are isolated here.
+CREATE SCHEMA IF NOT EXISTS aeromarkup;
+SET search_path TO aeromarkup, public;
+
 -- ---- Reusable updated_at trigger function ---------------------------
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS trigger AS $$

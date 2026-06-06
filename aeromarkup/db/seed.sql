@@ -4,6 +4,9 @@
 -- =====================================================================
 BEGIN;
 
+-- Operate inside the app's dedicated schema (shared-database safe).
+SET search_path TO aeromarkup, public;
+
 INSERT INTO users (username, display_name, email, role)
 VALUES ('admin', 'Administrator', 'admin@example.gov', 'admin')
 ON CONFLICT (username) DO NOTHING;

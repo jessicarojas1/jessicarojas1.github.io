@@ -52,8 +52,17 @@ def db_enabled() -> bool:
 
 @contextmanager
 def get_conn():
-    """Yield a Postgres connection with dict rows, committing on success."""
-    conn = psycopg.connect(DATABASE_URL, row_factory=dict_row)
+    """Yield a Postgres connection with dict rows, committing on success.
+
+    search_path is pinned to the dedicated `aeromarkup` schema (then
+    `public` for shared extensions like pgcrypto) so this app is safe to
+    run inside a database shared with other applications.
+    """
+    conn = psycopg.connect(
+        DATABASE_URL,
+        row_factory=dict_row,
+        options="-c search_path=aeromarkup,public",
+    )
     try:
         yield conn
         conn.commit()
