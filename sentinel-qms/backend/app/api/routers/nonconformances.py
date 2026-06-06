@@ -11,6 +11,7 @@ from app.api.deps import (
     SortParams,
     pagination_params,
     require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
@@ -213,6 +214,7 @@ def change_status(
     "/{ncr_id}/dispositions",
     response_model=NonconformanceRead,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_perm("nonconformances.disposition"))],
 )
 def add_disposition(
     ncr_id: int,

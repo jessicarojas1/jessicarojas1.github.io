@@ -11,6 +11,7 @@ from app.api.deps import (
     SortParams,
     pagination_params,
     require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
@@ -294,7 +295,11 @@ def create_revision(
     return revision
 
 
-@router.post("/revisions/{revision_id}/approve", response_model=ApprovalRead)
+@router.post(
+    "/revisions/{revision_id}/approve",
+    response_model=ApprovalRead,
+    dependencies=[Depends(require_perm("documents.approve"))],
+)
 def approve_revision(
     revision_id: int,
     body: ApprovalDecision,

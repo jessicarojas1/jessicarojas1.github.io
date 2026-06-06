@@ -11,6 +11,7 @@ from app.api.deps import (
     SortParams,
     pagination_params,
     require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
@@ -351,7 +352,11 @@ def verify_effectiveness(
     return capa
 
 
-@router.post("/{capa_id}/close", response_model=CapaRead)
+@router.post(
+    "/{capa_id}/close",
+    response_model=CapaRead,
+    dependencies=[Depends(require_perm("capa.close"))],
+)
 def close_capa(
     capa_id: int,
     body: CapaClose,

@@ -82,6 +82,36 @@ def require_page(page_key: str, level: str = "view") -> Callable:
     return _checker
 
 
+def require_perm(permission: str) -> Callable:
+    """Dependency factory enforcing a granular ``"<module>.<action>"`` permission.
+
+    Allows the request when the user effectively holds ``permission`` (role
+    defaults UNION explicit grants, see :mod:`app.core.iam`) OR the user is an
+    admin. This is an additive granular check layered over the page-level
+    :func:`require_page` baseline; because admins always pass and role defaults
+    grant the right permissions to the right roles, normal behavior is unchanged.
+    """
+
+    def _checker(
+        request: Request,
+        db: Session = Depends(get_db),
+        _token: str | None = Depends(oauth2_scheme),
+    ) -> CurrentUser:
+        from app.core.iam import has_permission
+        from app.core.rbac import Role
+
+        user = resolve_current_user(request, db)
+        if Role.ADMIN.value in user.role_names:
+            return user
+        if not has_permission(db, user, permission):
+            raise PermissionDeniedError(
+                "Insufficient permissions for this operation."
+            )
+        return user
+
+    return _checker
+
+
 def get_db_user(db: Session, user_id: int) -> User | None:
     return db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
 
