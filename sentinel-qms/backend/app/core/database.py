@@ -3,10 +3,14 @@ from __future__ import annotations
 
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import settings
+
+# When sharing a database with other apps, isolate every Sentinel table in a
+# dedicated schema instead of ``public`` (set DB_SCHEMA). Empty = default.
+DB_SCHEMA = settings.DB_SCHEMA.strip()
 
 
 class Base(DeclarativeBase):
@@ -25,6 +29,20 @@ def _engine_kwargs() -> dict:
 
 
 engine = create_engine(settings.DATABASE_URL, **_engine_kwargs())
+
+# Route every connection to the dedicated schema (Postgres only). The schema is
+# created by the migration/bootstrap step; here we just point sessions at it so
+# all reads/writes resolve there, falling back to ``public`` for shared objects.
+if DB_SCHEMA and not settings.DATABASE_URL.startswith("sqlite"):
+
+    @event.listens_for(engine, "connect")
+    def _set_search_path(dbapi_connection, connection_record):  # noqa: ANN001
+        cursor = dbapi_connection.cursor()
+        try:
+            cursor.execute(f'SET search_path TO "{DB_SCHEMA}", public')
+        finally:
+            cursor.close()
+
 
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False, expire_on_commit=False)
 

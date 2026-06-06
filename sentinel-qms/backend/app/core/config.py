@@ -32,6 +32,10 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str = "postgresql+psycopg://sentinel:change_me@localhost:5432/sentinel_qms"
+    # Dedicated PostgreSQL schema to isolate all Sentinel tables. Defaults to a
+    # private schema because deployments commonly share a database with other
+    # apps; set to "public" to use the default schema. Ignored on SQLite (tests).
+    DB_SCHEMA: str = "sentinel_qms"
 
     # JWT
     JWT_SECRET: str = "insecure-development-secret-change-me-please-32+chars"
@@ -67,6 +71,16 @@ class Settings(BaseSettings):
     def _split_cors(cls, v: object) -> object:
         if isinstance(v, str):
             return [o.strip() for o in v.split(",") if o.strip()]
+        return v
+
+    @field_validator("DB_SCHEMA", mode="before")
+    @classmethod
+    def _safe_schema(cls, v: object) -> object:
+        # Only a plain identifier is allowed (it is interpolated into DDL/SET).
+        if isinstance(v, str):
+            v = v.strip()
+            if v and not v.replace("_", "").isalnum():
+                raise ValueError("DB_SCHEMA must be alphanumeric/underscore only")
         return v
 
     @field_validator("DATABASE_URL", mode="before")
