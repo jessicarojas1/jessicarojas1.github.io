@@ -1,4 +1,7 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$csrf        = Security::generateCsrfToken();
+$breadcrumbs = [['Compliance', '/compliance'], ['RACI', '/raci'], ['Matrix', null]];
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">RACI Matrix</h1>

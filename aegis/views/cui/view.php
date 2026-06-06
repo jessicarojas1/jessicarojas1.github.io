@@ -5,7 +5,7 @@
     <p class="page-subtitle">CUI Record</p>
   </div>
   <div style="display:flex;gap:10px;">
-    <button class="btn btn-secondary" id="btnOpenEditCui"><i class="bi bi-pencil"></i> Edit</button>
+    <button class="btn btn-secondary" data-show-modal="editModal"><i class="bi bi-pencil"></i> Edit</button>
     <form method="POST" action="/cui/<?= (int)$item['id'] ?>/delete" data-confirm="Delete this CUI record?" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i></button>
@@ -52,11 +52,11 @@
 </div>
 
 <!-- Edit Modal -->
-<div id="editModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:680px;max-height:90vh;overflow-y:auto;max-width:95vw;">
+<div id="editModal" class="um-overlay">
+  <div class="um-dialog" style="width:680px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Edit CUI Record</h3>
-      <button id="btnCloseEditCui" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="editModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/cui/<?= (int)$item['id'] ?>/update">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -89,7 +89,7 @@
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" id="btnCancelEditCui" class="btn btn-secondary">Cancel</button>
+        <button type="button" data-close-modal="editModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>

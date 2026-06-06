@@ -1,5 +1,6 @@
 <?php
 ob_start();
+$breadcrumbs = [['Compliance', '/compliance'], ['Scorecard', null]];
 ?>
 <style>
 @media print {
@@ -29,6 +30,17 @@ ob_start();
 .badge-not_started { background: #f4f4f5; color: var(--text-muted); }
 .domain-section { margin-bottom: 24px; page-break-before: auto; }
 </style>
+
+<div class="page-header no-print">
+  <div>
+    <h1 class="page-title">Compliance Scorecard</h1>
+    <p class="page-subtitle"><?= Security::h($package['name'] ?? '') ?></p>
+  </div>
+  <div class="page-actions">
+    <a href="/compliance/<?= $pkgId ?>" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Back to Package</a>
+    <button data-print class="btn btn-primary"><i class="bi bi-printer"></i> Print / Save PDF</button>
+  </div>
+</div>
 
 <!-- Print bar (hidden when printing) -->
 <div class="no-print" style="margin-bottom:16px">
@@ -67,15 +79,15 @@ ob_start();
         <div style="font-size:22px;font-weight:700"><?= $total ?></div>
         <div style="font-size:12px;margin-top:4px">Total Controls</div>
       </div>
-      <div class="score-chip" style="background:#dcfce7;color:#166534">
+      <div class="score-chip" style="background:var(--success-subtle);color:var(--success)">
         <div style="font-size:22px;font-weight:700"><?= $compliant ?></div>
         <div style="font-size:12px;margin-top:4px">Compliant</div>
       </div>
-      <div class="score-chip" style="background:#fee2e2;color:#991b1b">
+      <div class="score-chip" style="background:var(--danger-subtle);color:var(--danger)">
         <div style="font-size:22px;font-weight:700"><?= $nonCompliant ?></div>
         <div style="font-size:12px;margin-top:4px">Non-Compliant</div>
       </div>
-      <div class="score-chip" style="background:#fef9c3;color:#854d0e">
+      <div class="score-chip" style="background:var(--warning-subtle);color:var(--warning)">
         <div style="font-size:22px;font-weight:700"><?= $partial ?></div>
         <div style="font-size:12px;margin-top:4px">Partial</div>
       </div>
@@ -104,27 +116,27 @@ ob_start();
     ?>
     <div class="score-bar" title="Compliance distribution">
       <?php if ($wCompliant > 0): ?>
-        <div style="width:<?= $wCompliant ?>%;background:#059669" title="Compliant: <?= $compliant ?>"></div>
+        <div style="width:<?= $wCompliant ?>%;background:var(--success)" title="Compliant: <?= $compliant ?>"></div>
       <?php endif; ?>
       <?php if ($wPartial > 0): ?>
-        <div style="width:<?= $wPartial ?>%;background:#d97706" title="Partial: <?= $partial ?>"></div>
+        <div style="width:<?= $wPartial ?>%;background:var(--warning)" title="Partial: <?= $partial ?>"></div>
       <?php endif; ?>
       <?php if ($wNonCompliant > 0): ?>
-        <div style="width:<?= $wNonCompliant ?>%;background:#dc2626" title="Non-Compliant: <?= $nonCompliant ?>"></div>
+        <div style="width:<?= $wNonCompliant ?>%;background:var(--danger)" title="Non-Compliant: <?= $nonCompliant ?>"></div>
       <?php endif; ?>
       <?php if ($wNA > 0): ?>
-        <div style="width:<?= $wNA ?>%;background:#a1a1aa" title="Not Applicable: <?= $notApplicable ?>"></div>
+        <div style="width:<?= $wNA ?>%;background:var(--text-muted)" title="Not Applicable: <?= $notApplicable ?>"></div>
       <?php endif; ?>
       <?php if ($wNotAssessed > 0): ?>
-        <div style="width:<?= $wNotAssessed ?>%;background:#e4e4e7" title="Not Assessed: <?= $notAssessed ?>"></div>
+        <div style="width:<?= $wNotAssessed ?>%;background:var(--bg-subtle)" title="Not Assessed: <?= $notAssessed ?>"></div>
       <?php endif; ?>
     </div>
     <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-muted);margin-bottom:4px">
-      <span><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;margin-right:4px"></span>Compliant</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;margin-right:4px"></span>Partial</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:4px"></span>Non-Compliant</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:#a1a1aa;border-radius:2px;margin-right:4px"></span>Not Applicable</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:#e4e4e7;border-radius:2px;margin-right:4px"></span>Not Assessed</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--success);border-radius:2px;margin-right:4px"></span>Compliant</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--warning);border-radius:2px;margin-right:4px"></span>Partial</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--danger);border-radius:2px;margin-right:4px"></span>Non-Compliant</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--text-muted);border-radius:2px;margin-right:4px"></span>Not Applicable</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--bg-subtle);border-radius:2px;margin-right:4px"></span>Not Assessed</span>
     </div>
   </div>
 </div>

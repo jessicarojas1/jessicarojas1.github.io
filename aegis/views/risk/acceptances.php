@@ -55,13 +55,13 @@ if ($filterStatus !== '') {
 <!-- KPI Strip -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
 
-  <div class="card" style="border-left:4px solid #16a34a;">
+  <div class="card" style="border-left:4px solid var(--success);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-patch-check-fill" style="font-size:20px;color:#16a34a;"></i>
+        <i class="bi bi-patch-check-fill" style="font-size:20px;color:var(--success);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#16a34a;"><?= $activeCount ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--success);"><?= $activeCount ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Active</div>
       </div>
     </div>

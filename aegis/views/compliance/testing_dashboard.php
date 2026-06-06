@@ -1,4 +1,6 @@
 <?php
+$breadcrumbs = [['Compliance', '/compliance'], ['Testing Dashboard', null]];
+
 function ctResultBadge(string $result): string {
     return match($result) {
         'pass'       => '<span class="badge" style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40">Pass</span>',

@@ -1,5 +1,8 @@
 <?php
 // $policies = approved policies list (from controller)
+$pageTitle    = 'New Campaign';
+$activeModule = 'policy';
+$breadcrumbs  = [['Policies', '/policy'], ['New Campaign', null]];
 ?>
 
 <div class="page-header">
@@ -18,7 +21,7 @@
       <?= Security::csrfField() ?>
 
       <div class="form-group">
-        <label class="form-label" for="policy_id">Policy <span style="color:#dc2626">*</span></label>
+        <label class="form-label" for="policy_id">Policy <span style="color:var(--danger)">*</span></label>
         <?php if ($policies): ?>
           <select name="policy_id" id="policy_id" class="form-control" required>
             <option value="">— Select an approved policy —</option>
@@ -39,7 +42,7 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="title">Campaign Title <span style="color:#dc2626">*</span></label>
+        <label class="form-label" for="title">Campaign Title <span style="color:var(--danger)">*</span></label>
         <input type="text" name="title" id="title" class="form-control"
                placeholder="e.g. Attest: Acceptable Use Policy — Q1 2026" required
                value="<?= Security::h($_POST['title'] ?? '') ?>">

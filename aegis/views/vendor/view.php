@@ -134,7 +134,7 @@ ob_start();
 
     <?php if ($vendor['primary_contact'] || $vendor['contact_email']): ?>
     <div class="card">
-      <div class="card-header"><div class="card-header-left"><i class="bi bi-person-lines-fill" style="color:#d97706"></i><span class="card-title">Contact</span></div></div>
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-person-lines-fill" style="color:var(--warning)"></i><span class="card-title">Contact</span></div></div>
       <div class="card-body" style="font-size:14px;">
         <?php if ($vendor['primary_contact']): ?>
           <div style="margin-bottom:6px"><i class="bi bi-person" style="color:var(--text-muted)"></i> <?= Security::h($vendor['primary_contact']) ?></div>
@@ -158,7 +158,7 @@ $contracts = Database::fetchAll(
 <div class="card" style="margin-top:20px">
   <div class="card-header">
     <div class="card-header-left">
-      <i class="bi bi-file-earmark-text" style="color:#0284c7"></i>
+      <i class="bi bi-file-earmark-text" style="color:var(--info)"></i>
       <span class="card-title">Contracts</span>
     </div>
     <?php if (Auth::can('vendor.write')): ?>
@@ -191,11 +191,11 @@ $contracts = Database::fetchAll(
           ];
           $vcBadge = $vcStatusMap[$vc['status']] ?? ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>ucfirst($vc['status'])];
           $vcDaysLeft = $vc['end_date'] ? (int)ceil((strtotime($vc['end_date']) - time()) / 86400) : null;
-          $vcEndColor = ($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 30) ? '#dc2626'
-                      : (($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 60) ? '#d97706' : 'inherit');
+          $vcEndColor = ($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 30) ? 'var(--danger)'
+                      : (($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 60) ? 'var(--warning)' : 'inherit');
         ?>
         <tr>
-          <td style="font-weight:500"><?= Security::h($vc['title']) ?><?= $vc['contract_number'] ? ' <small style="color:#a1a1aa;font-weight:400">('.Security::h($vc['contract_number']).')</small>' : '' ?></td>
+          <td style="font-weight:500"><?= Security::h($vc['title']) ?><?= $vc['contract_number'] ? ' <small style="color:var(--text-muted);font-weight:400">('.Security::h($vc['contract_number']).')</small>' : '' ?></td>
           <td>
             <span class="status-chip" style="background:<?= $vcBadge['bg'] ?>;color:<?= $vcBadge['color'] ?>">
               <?= $vcBadge['label'] ?>
@@ -216,9 +216,9 @@ $contracts = Database::fetchAll(
           </td>
           <td style="text-align:center">
             <?php if ($vc['auto_renewal']): ?>
-              <span style="color:#059669" title="Auto-renews <?= (int)$vc['renewal_notice_days'] ?> days before expiry"><i class="bi bi-check-circle-fill"></i></span>
+              <span style="color:var(--success)" title="Auto-renews <?= (int)$vc['renewal_notice_days'] ?> days before expiry"><i class="bi bi-check-circle-fill"></i></span>
             <?php else: ?>
-              <span style="color:#d1d5db"><i class="bi bi-dash-circle"></i></span>
+              <span style="color:var(--border)"><i class="bi bi-dash-circle"></i></span>
             <?php endif; ?>
           </td>
         </tr>
@@ -226,8 +226,8 @@ $contracts = Database::fetchAll(
       </tbody>
     </table>
     <?php else: ?>
-    <div style="text-align:center;padding:32px 20px;color:#a1a1aa">
-      <i class="bi bi-file-earmark-text" style="font-size:32px;display:block;margin-bottom:10px"></i>
+    <div class="empty-state-sm">
+      <i class="bi bi-file-earmark-text" style="font-size:32px"></i>
       <p style="margin:0;font-size:14px">No contracts on file.</p>
       <?php if (Auth::can('vendor.write')): ?>
         <a href="/vendor/<?= (int)$vendor['id'] ?>/contract/create" class="btn btn-primary btn-sm" style="margin-top:12px">

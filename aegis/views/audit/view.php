@@ -74,15 +74,15 @@ ob_start();
     <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:8px;text-align:center">Findings</div>
     <div style="display:flex;flex-direction:column;gap:4px">
       <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
-        <span style="display:flex;align-items:center;gap:5px;color:#16a34a"><i class="bi bi-check-circle-fill"></i>Compliant</span>
+        <span style="display:flex;align-items:center;gap:5px;color:var(--success)"><i class="bi bi-check-circle-fill"></i>Compliant</span>
         <strong><?= $summary['compliant'] ?></strong>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
-        <span style="display:flex;align-items:center;gap:5px;color:#d97706"><i class="bi bi-dash-circle-fill"></i>Partial</span>
+        <span style="display:flex;align-items:center;gap:5px;color:var(--warning)"><i class="bi bi-dash-circle-fill"></i>Partial</span>
         <strong><?= $summary['partial'] ?></strong>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
-        <span style="display:flex;align-items:center;gap:5px;color:#dc2626"><i class="bi bi-x-circle-fill"></i>Non-Compliant</span>
+        <span style="display:flex;align-items:center;gap:5px;color:var(--danger)"><i class="bi bi-x-circle-fill"></i>Non-Compliant</span>
         <strong><?= $summary['non_compliant'] ?></strong>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">

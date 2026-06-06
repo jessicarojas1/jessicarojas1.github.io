@@ -219,11 +219,11 @@ const ctx = document.getElementById('trendChart').getContext('2d');
 new Chart(ctx, {
   type: 'line',
   data: {
-    labels: <?= json_encode($trendDates) ?>,
+    labels: <?= json_encode($trendDates, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
     datasets: [
-      { label: 'GRC Score',   data: <?= json_encode($trendGRC) ?>,  borderColor:'#1e3a5f', backgroundColor:'#1e3a5f20', tension:.3, fill:true },
-      { label: 'Compliance',  data: <?= json_encode($trendComp) ?>, borderColor:'#0284c7', backgroundColor:'transparent', tension:.3 },
-      { label: 'Risk Health', data: <?= json_encode($trendRisk) ?>, borderColor:'#d97706', backgroundColor:'transparent', tension:.3 },
+      { label: 'GRC Score',   data: <?= json_encode($trendGRC, JSON_HEX_TAG | JSON_HEX_AMP) ?>,  borderColor:'#1e3a5f', backgroundColor:'#1e3a5f20', tension:.3, fill:true },
+      { label: 'Compliance',  data: <?= json_encode($trendComp, JSON_HEX_TAG | JSON_HEX_AMP) ?>, borderColor:'var(--info)', backgroundColor:'transparent', tension:.3 },
+      { label: 'Risk Health', data: <?= json_encode($trendRisk, JSON_HEX_TAG | JSON_HEX_AMP) ?>, borderColor:'var(--warning)', backgroundColor:'transparent', tension:.3 },
     ]
   },
   options: {

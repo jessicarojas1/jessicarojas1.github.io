@@ -219,7 +219,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
 <!-- Cross-Framework Gaps -->
 <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
   <h2 style="font-size:15px;font-weight:700;margin:0;display:flex;align-items:center;gap:8px;color:var(--text)">
-    <i class="bi bi-diagram-3" style="color:#dc2626"></i>
+    <i class="bi bi-diagram-3" style="color:var(--danger)"></i>
     Controls Failing Across Multiple Frameworks
   </h2>
   <p style="font-size:12px;color:var(--text-muted);margin:0">Remediate these first for the broadest compliance impact.</p>

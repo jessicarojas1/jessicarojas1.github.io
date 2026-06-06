@@ -156,16 +156,16 @@ $_roadmapActiveFilters = (int)!empty($filterStatus) + (int)!empty($filterOwner) 
 <div style="display:flex;gap:20px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
   <span style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Legend:</span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
-    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:#ef4444;"></span>Past Due
+    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:var(--danger);"></span>Past Due
   </span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
-    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:#f97316;"></span>Due ≤30 days
+    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:var(--orange)"></span>Due ≤30 days
   </span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
     <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:var(--primary);"></span>On track
   </span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
-    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:#d1d5db;"></span>No due date
+    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:var(--border);"></span>No due date
   </span>
 </div>
 
@@ -249,7 +249,7 @@ foreach ($grouped as $level => $risks):
             <i class="bi bi-person"></i> <?= Security::h($r['owner_name'] ?? 'Unassigned') ?>
             <?php if ($dueDate): ?>
               · <i class="bi bi-calendar-event"></i>
-              <span style="color:<?= $daysUntil !== null && $daysUntil < 0 ? '#ef4444' : ($daysUntil !== null && $daysUntil <= 30 ? '#f97316' : 'var(--text-muted)') ?>;font-weight:600;">
+              <span style="color:<?= $daysUntil !== null && $daysUntil < 0 ? 'var(--danger)' : ($daysUntil !== null && $daysUntil <= 30 ? 'var(--orange)' : 'var(--text-muted)') ?>;font-weight:600;">
                 <?php if ($daysUntil !== null && $daysUntil < 0): ?>
                   Overdue by <?= abs($daysUntil) ?>d
                 <?php elseif ($daysUntil !== null): ?>

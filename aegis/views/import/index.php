@@ -199,7 +199,7 @@ $notes = [
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-const templates = <?= json_encode($templates) ?>;
+const templates = <?= json_encode($templates, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
 // Tab switching
 document.querySelectorAll('.import-tab-btn').forEach(function(btn) {

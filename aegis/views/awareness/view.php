@@ -1,4 +1,5 @@
 <?php ob_start();
+$breadcrumbs = [['Awareness', '/awareness'], ['Program', null]];
 $myAssignment = null;
 foreach ($assignments as $a) {
     if ((int)$a['user_id'] === Auth::id()) { $myAssignment = $a; break; }

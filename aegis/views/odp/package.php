@@ -1,4 +1,7 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$csrf        = Security::generateCsrfToken();
+$breadcrumbs = [['SSP', '/ssp'], ['ODP', '/odp'], ['Package', null]];
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">ODP Center — <?= Security::h($package['name']) ?></h1>

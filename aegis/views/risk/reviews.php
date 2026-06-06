@@ -62,19 +62,19 @@ ob_start();
 <!-- KPI Summary Row -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
 
-  <div class="card" style="border-left:4px solid #2563eb;">
+  <div class="card" style="border-left:4px solid var(--info);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--info-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-calendar-check" style="font-size:20px;color:#2563eb;"></i>
+        <i class="bi bi-calendar-check" style="font-size:20px;color:var(--info);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#2563eb;"><?= $planned ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--info);"><?= $planned ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Planned</div>
       </div>
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #d97706;">
+  <div class="card" style="border-left:4px solid var(--warning);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--warning-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-play-circle" style="font-size:20px;color:var(--warning);"></i>
@@ -86,25 +86,25 @@ ob_start();
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #16a34a;">
+  <div class="card" style="border-left:4px solid var(--success);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-check-circle-fill" style="font-size:20px;color:#16a34a;"></i>
+        <i class="bi bi-check-circle-fill" style="font-size:20px;color:var(--success);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#16a34a;"><?= $completed ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--success);"><?= $completed ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Completed</div>
       </div>
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #a1a1aa;">
+  <div class="card" style="border-left:4px solid var(--text-muted);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-x-circle" style="font-size:20px;color:#a1a1aa;"></i>
+        <i class="bi bi-x-circle" style="font-size:20px;color:var(--text-muted);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#a1a1aa;"><?= $cancelled ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--text-muted);"><?= $cancelled ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Cancelled</div>
       </div>
     </div>
@@ -193,7 +193,7 @@ ob_start();
               <?php endif; ?>
             </div>
             <div style="height:6px;background:var(--bg-secondary);border-radius:3px;overflow:hidden;">
-              <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#16a34a' : ($pct > 50 ? '#d97706' : 'var(--primary)') ?>;border-radius:3px;transition:width .3s;"></div>
+              <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? 'var(--success)' : ($pct > 50 ? 'var(--warning)' : 'var(--primary)') ?>;border-radius:3px;transition:width .3s;"></div>
             </div>
           </td>
           <td>

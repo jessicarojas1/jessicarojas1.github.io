@@ -1,4 +1,8 @@
-<?php ob_start(); ?>
+<?php
+$pageTitle    = 'Policy & Control Mapping';
+$activeModule = 'policy';
+$breadcrumbs  = [['Policies', '/policy'], ['Mapping', null]];
+ob_start(); ?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Policy &amp; Control Mapping</h1>

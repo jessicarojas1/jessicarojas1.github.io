@@ -4,6 +4,7 @@
  * All risk scenarios across the portfolio.
  * Variables: $scenarios, $countByType, $highestScore, $totalFinancial
  */
+$breadcrumbs = [['Risk Register', '/risk'], ['Scenarios', null]];
 $nonce = Security::nonce();
 
 $typeMeta = [

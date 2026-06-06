@@ -4,7 +4,7 @@
  * Create a risk scenario for a given risk.
  * Variables: $risk (risk record), $pageTitle, $activeModule, $breadcrumbs
  */
-
+$breadcrumbs = $breadcrumbs ?? [['Risk Register', '/risk'], ['Scenarios', null]];
 $nonce     = Security::nonce();
 $baseL     = (int)$risk['likelihood'];
 $baseI     = (int)$risk['impact'];

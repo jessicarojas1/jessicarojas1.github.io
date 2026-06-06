@@ -1,11 +1,12 @@
 <?php
+$breadcrumbs   = [['Compliance', '/compliance'], ['Test Control', null]];
 $flash_success = $_SESSION['flash_success'] ?? null;
 $flash_error   = $_SESSION['flash_error']   ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 function testResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40">Pass</span>',
+        'pass'       => '<span class="badge" style="background:#16a34a18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
         'fail'       => '<span class="badge" style="background:#dc262618;color:var(--danger);border:1px solid #dc262640">Fail</span>',
         'partial'    => '<span class="badge" style="background:#d9770618;color:var(--warning);border:1px solid #d9770640">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
@@ -91,7 +92,7 @@ function testResultBadge(string $result): string {
     <div class="card-header-left">
       <i class="bi bi-clock-history" style="color:var(--primary)"></i>
       <span class="card-title">Test History</span>
-      <span style="background:#e4e4e7;color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($history) ?></span>
+      <span style="background:var(--bg-subtle);color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($history) ?></span>
     </div>
   </div>
   <?php if ($history): ?>
@@ -117,8 +118,8 @@ function testResultBadge(string $result): string {
           <td>
             <?php if ($h['effectiveness'] !== null): ?>
             <div style="display:flex;align-items:center;gap:8px">
-              <div style="width:60px;height:6px;background:#e4e4e7;border-radius:3px;overflow:hidden">
-                <div style="width:<?= (int)$h['effectiveness'] ?>%;height:100%;background:<?= $h['effectiveness'] >= 75 ? '#16a34a' : ($h['effectiveness'] >= 40 ? '#d97706' : '#dc2626') ?>;border-radius:3px"></div>
+              <div style="width:60px;height:6px;background:var(--bg-subtle);border-radius:3px;overflow:hidden">
+                <div style="width:<?= (int)$h['effectiveness'] ?>%;height:100%;background:<?= $h['effectiveness'] >= 75 ? 'var(--primary)' : ($h['effectiveness'] >= 40 ? 'var(--warning)' : 'var(--danger)') ?>;border-radius:3px"></div>
               </div>
               <span style="font-size:12px;font-weight:600;color:var(--text)"><?= (int)$h['effectiveness'] ?>%</span>
             </div>
@@ -147,7 +148,7 @@ function testResultBadge(string $result): string {
   </div>
   <?php else: ?>
   <div class="card-body">
-    <div class="empty-state-sm" style="text-align:center;padding:24px;color:#a1a1aa">
+    <div class="empty-state-sm">
       <i class="bi bi-clipboard2-x" style="font-size:28px;display:block;margin-bottom:8px"></i>
       <p style="margin:0">No test results recorded yet. Use the form below to record the first test.</p>
     </div>
@@ -193,8 +194,8 @@ function testResultBadge(string $result): string {
                    min="0" max="100" placeholder="e.g. 85" style="flex:1"
                    data-input="updateEffBar" data-input-val="1">
             <div style="width:80px;text-align:center">
-              <div style="height:8px;background:#e4e4e7;border-radius:4px;overflow:hidden;margin-bottom:2px">
-                <div id="effBar" style="width:0%;height:100%;background:#16a34a;border-radius:4px;transition:width .2s"></div>
+              <div style="height:8px;background:var(--bg-subtle);border-radius:4px;overflow:hidden;margin-bottom:2px">
+                <div id="effBar" style="width:0%;height:100%;background:var(--primary);border-radius:4px;transition:width .2s"></div>
               </div>
               <span id="effLabel" style="font-size:11px;color:var(--text-muted)">—</span>
             </div>

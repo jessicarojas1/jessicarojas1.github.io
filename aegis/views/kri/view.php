@@ -232,7 +232,7 @@ function fmtNum(float $n): string {
           <div>
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">DIRECTION</div>
             <div style="font-size:14px;">
-              <i class="bi bi-arrow-<?= $dir === 'higher_worse' ? 'up' : 'down' ?>-circle" style="color:<?= $dir === 'higher_worse' ? '#dc2626' : '#d97706' ?>;"></i>
+              <i class="bi bi-arrow-<?= $dir === 'higher_worse' ? 'up' : 'down' ?>-circle" style="color:<?= $dir === 'higher_worse' ? 'var(--danger)' : 'var(--warning)' ?>;"></i>
               <?= $dir === 'higher_worse' ? 'Higher = worse' : 'Lower = worse' ?>
             </div>
           </div>
@@ -257,7 +257,7 @@ function fmtNum(float $n): string {
           <div>
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">STATUS</div>
             <div style="font-size:14px;">
-              <span style="background:<?= $kri['is_active'] ? '#16a34a' : '#64748b' ?>20;color:<?= $kri['is_active'] ? '#16a34a' : '#64748b' ?>;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">
+              <span style="background:<?= $kri['is_active'] ? 'var(--success-subtle)' : 'var(--bg-subtle)' ?>;color:<?= $kri['is_active'] ? 'var(--success)' : 'var(--text-muted)' ?>;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">
                 <?= $kri['is_active'] ? 'Active' : 'Inactive' ?>
               </span>
             </div>
@@ -290,8 +290,8 @@ function fmtNum(float $n): string {
           <tbody>
             <?php foreach ($values as $v):
               $vRag = kriValueRag((float)$v['value'], $green, $amber, $red, $dir);
-              $vColors = ['green'=>['#f0fdf4','#16a34a'],'amber'=>['#fffbeb','#d97706'],'red'=>['#fef2f2','#dc2626']];
-              [$vBg,$vColor] = $vColors[$vRag] ?? ['#f9fafb','#71717a'];
+              $vColors = ['green'=>['var(--success-subtle)','var(--success)'],'amber'=>['var(--warning-subtle)','var(--warning)'],'red'=>['var(--danger-subtle)','var(--danger)']];
+              [$vBg,$vColor] = $vColors[$vRag] ?? ['var(--surface-alt)','var(--text-muted)'];
               $vIcon = ['green'=>'bi-check-circle-fill','amber'=>'bi-exclamation-triangle-fill','red'=>'bi-exclamation-octagon-fill'][$vRag] ?? 'bi-dash-circle';
             ?>
               <tr>
@@ -373,7 +373,7 @@ function fmtNum(float $n): string {
         <h4 class="card-title"><i class="bi bi-bookmark-check"></i> Threshold Reference</h4>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;background:#16a34a18;border:1px solid #16a34a40;border-radius:8px;padding:10px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--success-subtle);border:1px solid var(--success)40;border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <i class="bi bi-circle-fill" style="color:var(--primary);font-size:12px;"></i>
             <span style="font-weight:600;color:var(--primary);">Green</span>
@@ -382,7 +382,7 @@ function fmtNum(float $n): string {
             <?= $dir === 'higher_worse' ? '&le;' : '&ge;' ?> <?= Security::h(fmtNum($green)) ?> <?= Security::h($kri['unit'] ?? '') ?>
           </span>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;background:#d9770618;border:1px solid #d9770640;border-radius:8px;padding:10px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--warning-subtle);border:1px solid var(--warning)40;border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <i class="bi bi-circle-fill" style="color:var(--warning);font-size:12px;"></i>
             <span style="font-weight:600;color:var(--warning);">Amber</span>
@@ -391,7 +391,7 @@ function fmtNum(float $n): string {
             <?= $dir === 'higher_worse' ? '&le;' : '&ge;' ?> <?= Security::h(fmtNum($amber)) ?> <?= Security::h($kri['unit'] ?? '') ?>
           </span>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;background:#dc262618;border:1px solid #dc262640;border-radius:8px;padding:10px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--danger-subtle);border:1px solid var(--danger)40;border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <i class="bi bi-circle-fill" style="color:var(--danger);font-size:12px;"></i>
             <span style="font-weight:600;color:var(--danger);">Red</span>
