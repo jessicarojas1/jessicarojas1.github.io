@@ -248,7 +248,7 @@ function updateEffBar(val) {
   }
   n = Math.max(0, Math.min(100, n));
   bar.style.width = n + '%';
-  bar.style.background = n >= 75 ? '#16a34a' : (n >= 40 ? '#d97706' : '#dc2626');
+  bar.style.background = n >= 75 ? 'var(--primary)' : (n >= 40 ? 'var(--warning)' : 'var(--danger)');
   lbl.textContent = n + '%';
 }
 </script>

@@ -3,7 +3,7 @@ $breadcrumbs = [['Compliance', '/compliance'], ['Testing Dashboard', null]];
 
 function ctResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40">Pass</span>',
+        'pass'       => '<span class="badge" style="background:#16a34a18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
         'fail'       => '<span class="badge" style="background:#dc262618;color:var(--danger);border:1px solid #dc262640">Fail</span>',
         'partial'    => '<span class="badge" style="background:#d9770618;color:var(--warning);border:1px solid #d9770640">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',

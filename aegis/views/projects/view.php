@@ -15,7 +15,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
     <p class="page-subtitle"><?= Security::h($project['title']) ?></p>
   </div>
   <div style="display:flex;gap:10px;">
-    <button id="btnOpenEdit" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
+    <button class="btn btn-secondary" data-show-modal="editModal"><i class="bi bi-pencil"></i> Edit</button>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/delete" data-confirm="Delete this project?" style="margin:0;">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i></button>
@@ -30,7 +30,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
     <div class="card">
       <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
         <h3 class="card-title">Tasks</h3>
-        <button id="btnOpenAddTask" class="btn btn-sm btn-secondary"><i class="bi bi-plus-lg"></i> Add Task</button>
+        <button class="btn btn-sm btn-secondary" data-show-modal="addTaskModal"><i class="bi bi-plus-lg"></i> Add Task</button>
       </div>
       <?php if ($taskCount > 0): ?>
       <div style="padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);">
@@ -88,7 +88,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
     <div class="card">
       <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
         <h3 class="card-title">Linked Items</h3>
-        <button id="btnOpenAddLink" class="btn btn-sm btn-secondary"><i class="bi bi-link-45deg"></i> Add Link</button>
+        <button class="btn btn-sm btn-secondary" data-show-modal="addLinkModal"><i class="bi bi-link-45deg"></i> Add Link</button>
       </div>
       <?php if (empty($links)): ?>
       <div class="card-body"><p style="color:var(--text-muted);font-size:0.875rem;">No linked items.</p></div>

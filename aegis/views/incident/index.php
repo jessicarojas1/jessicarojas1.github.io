@@ -23,22 +23,22 @@ ob_start();
     <div class="stat-label">Total Incidents</div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="color:#dc2626"><i class="bi bi-circle-fill"></i></div>
+    <div class="stat-icon" style="color:var(--danger)"><i class="bi bi-circle-fill"></i></div>
     <div class="stat-value"><?= (int)($summary['open'] ?? 0) ?></div>
     <div class="stat-label">Open</div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="color:#d97706"><i class="bi bi-search"></i></div>
+    <div class="stat-icon" style="color:var(--warning)"><i class="bi bi-search"></i></div>
     <div class="stat-value"><?= (int)($summary['investigating'] ?? 0) ?></div>
     <div class="stat-label">Investigating</div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="color:#0284c7"><i class="bi bi-shield-fill-check"></i></div>
+    <div class="stat-icon" style="color:var(--info)"><i class="bi bi-shield-fill-check"></i></div>
     <div class="stat-value"><?= (int)($summary['contained'] ?? 0) ?></div>
     <div class="stat-label">Contained</div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="color:#059669"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="color:var(--success)"><i class="bi bi-check-circle-fill"></i></div>
     <div class="stat-value"><?= (int)($summary['resolved'] ?? 0) ?></div>
     <div class="stat-label">Resolved / Closed</div>
   </div>

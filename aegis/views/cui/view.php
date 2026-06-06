@@ -94,12 +94,3 @@
     </form>
   </div>
 </div>
-<script nonce="<?= Security::nonce() ?>">
-var editModal = document.getElementById('editModal');
-document.getElementById('btnOpenEditCui').addEventListener('click', function(){ editModal.style.display = 'flex'; });
-document.getElementById('btnCloseEditCui').addEventListener('click', function(){ editModal.style.display = 'none'; });
-document.getElementById('btnCancelEditCui').addEventListener('click', function(){ editModal.style.display = 'none'; });
-document.querySelectorAll('[data-confirm]').forEach(function(el) {
-  el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
-});
-</script>

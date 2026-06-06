@@ -5,6 +5,9 @@
  * Variables provided by ApprovalController::templates():
  *   $templates  array  — rows from approval_templates
  */
+$pageTitle    = 'Approval Templates';
+$activeModule = 'approval';
+$breadcrumbs  = [['Approvals', '/approval'], ['Templates', null]];
 $flash_success = $_SESSION['flash_success'] ?? null;
 $flash_error   = $_SESSION['flash_error']   ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
@@ -82,7 +85,7 @@ $entityTypeLabels = [
               <?php if ($isActive): ?>
                 <span class="badge badge-success">Active</span>
               <?php else: ?>
-                <span class="badge" style="background:#f3f4f6;color:var(--text-muted)">Inactive</span>
+                <span class="badge" style="background:var(--bg-subtle);color:var(--text-muted)">Inactive</span>
               <?php endif; ?>
             </td>
             <td class="text-muted text-sm">

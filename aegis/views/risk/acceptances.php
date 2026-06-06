@@ -79,7 +79,7 @@ if ($filterStatus !== '') {
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #71717a;">
+  <div class="card" style="border-left:4px solid var(--text-muted);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-calendar-x-fill" style="font-size:20px;color:var(--text-muted);"></i>
@@ -91,7 +91,7 @@ if ($filterStatus !== '') {
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #dc2626;">
+  <div class="card" style="border-left:4px solid var(--danger);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--danger-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-x-circle-fill" style="font-size:20px;color:var(--danger);"></i>
@@ -252,7 +252,7 @@ if ($filterStatus !== '') {
             <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
               <button type="button"
                       class="btn btn-sm"
-                      style="background:#dc262618;color:var(--danger);border:1px solid #dc262640;"
+                      style="background:var(--danger-subtle);color:var(--danger);border:1px solid var(--danger)40;"
                       data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>"
                       title="Revoke">
                 <i class="bi bi-x-circle"></i> Revoke
@@ -295,7 +295,7 @@ if ($filterStatus !== '') {
                 <div style="display:flex;gap:8px;flex-shrink:0;">
                   <button type="button" class="btn btn-ghost btn-sm"
                           data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>">Cancel</button>
-                  <button type="submit" class="btn btn-sm" style="background:#dc2626;color:#fff;border:none;">
+                  <button type="submit" class="btn btn-sm btn-danger">
                     <i class="bi bi-x-circle-fill"></i> Confirm Revoke
                   </button>
                 </div>
