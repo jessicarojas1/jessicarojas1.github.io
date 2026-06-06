@@ -654,13 +654,13 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
             <span class="score-badge" style="background:<?= $sc2_cl ?>18;color:<?= $sc2_cl ?>;"><?= $sc2 ?></span>
           </td>
           <td style="padding:10px 12px;font-size:12px;"><?= Security::h($ur['owner_name'] ?? '—') ?></td>
-          <td style="padding:10px 12px;font-size:12px;font-weight:600;color:#059669;"><?= date('j M Y', strtotime($ur['review_date'])) ?></td>
+          <td style="padding:10px 12px;font-size:12px;font-weight:600;color:var(--success);"><?= date('j M Y', strtotime($ur['review_date'])) ?></td>
         </tr>
         <?php endforeach; ?>
       </tbody>
     </table>
     <?php else: ?>
-    <p style="text-align:center;color:#a1a1aa;padding:24px;">No risk reviews due in the next 30 days.</p>
+    <p style="text-align:center;color:var(--text-muted);padding:24px;">No risk reviews due in the next 30 days.</p>
     <?php endif; ?>
   </div>
 </div>

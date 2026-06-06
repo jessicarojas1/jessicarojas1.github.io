@@ -72,7 +72,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
         <?= Security::h($threat['title']) ?>
       </h1>
       <?php if (!empty($threat['threat_number'])): ?>
-        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($threat['threat_number']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($threat['threat_number']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">
