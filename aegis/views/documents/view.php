@@ -2,7 +2,7 @@
 $breadcrumbs  = $breadcrumbs  ?? [['Documents', '/documents'], ['Document', null]];
 $statusColors = ['draft'=>'#6b7280','under_review'=>'var(--warning)','approved'=>'#3b82f6','published'=>'var(--success)','archived'=>'#9ca3af','expired'=>'var(--danger)'];
 $classColors  = ['public'=>'var(--success)','internal'=>'#3b82f6','confidential'=>'var(--warning)','restricted'=>'var(--danger)'];
-$canEdit = Auth::can('policy.write');
+$canEdit = Auth::can('policy.edit');
 ?>
 <div class="page-header">
   <div>

@@ -7,7 +7,7 @@ ob_start();
     <h1 class="page-title">Business Continuity Plans</h1>
     <p class="page-subtitle">DR plans, RTO/RPO targets and tabletop exercises</p>
   </div>
-  <?php if (Auth::can('policy.write')): ?>
+  <?php if (Auth::can('bcp.edit')): ?>
     <a href="/bcp/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New BCP Plan</a>
   <?php endif; ?>
 </div>

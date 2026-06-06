@@ -12,7 +12,7 @@ ob_start();
     <p class="page-subtitle">Manage your standards and compliance frameworks</p>
   </div>
   <div class="page-actions" id="pageActions">
-    <?php if ($packages && Auth::can('compliance.write')): ?>
+    <?php if ($packages && Auth::can('compliance.assess')): ?>
     <!-- Delete selected (hidden until checkboxes selected) -->
     <form method="POST" action="/compliance/delete-selected" id="deleteSelectedForm"
           data-confirm="Delete selected package(s) and all their controls? This cannot be undone.">
@@ -44,7 +44,7 @@ ob_start();
   $color     = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)');
 ?>
   <div class="package-card" id="pkgcard-<?= $pkg['id'] ?>">
-    <?php if (Auth::can('compliance.write')): ?>
+    <?php if (Auth::can('compliance.assess')): ?>
     <label class="pkg-select-label">
       <input type="checkbox" class="pkg-checkbox" value="<?= $pkg['id'] ?>"
              data-change="updateSelection" aria-label="Select <?= Security::h($pkg['name']) ?>">

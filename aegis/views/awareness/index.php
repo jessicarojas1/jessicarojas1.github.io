@@ -11,7 +11,7 @@ ob_start();
     <p class="page-subtitle">Security awareness programs and completion tracking</p>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('compliance.write')): ?>
+    <?php if (Auth::can('awareness.manage')): ?>
     <a href="/awareness/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Program</a>
     <?php endif; ?>
   </div>

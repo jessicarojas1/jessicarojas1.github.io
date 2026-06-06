@@ -14,7 +14,7 @@ $basisLabels = [
   </div>
   <div class="page-actions">
     <a href="/privacy/requests" class="btn btn-ghost"><i class="bi bi-inbox-fill"></i> Subject Requests <?= count(array_filter($dsr, fn($r) => $r['status']==='open')) > 0 ? '<span class="badge badge-red">'.count(array_filter($dsr, fn($r) => $r['status']==='open')).'</span>' : '' ?></a>
-    <?php if (Auth::can('compliance.write')): ?>
+    <?php if (Auth::can('compliance.assess')): ?>
     <a href="/privacy/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Activity</a>
     <?php endif; ?>
   </div>

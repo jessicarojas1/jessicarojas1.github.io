@@ -18,7 +18,7 @@ ob_start();
     <p class="page-subtitle">Created <?= date('M j, Y g:ia', strtotime($issue['created_at'])) ?><?= $issue['due_date'] ? ' · Due ' . date('M j, Y', strtotime($issue['due_date'])) : '' ?></p>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('issue.write')): ?>
+    <?php if (Auth::can('issue.edit')): ?>
       <button data-show-modal="editModal" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
     <?php endif; ?>
   </div>
@@ -130,7 +130,7 @@ ob_start();
 </div>
 
 <!-- Edit Modal -->
-<?php if (Auth::can('issue.write')): ?>
+<?php if (Auth::can('issue.edit')): ?>
 <div class="um-overlay" id="editModal" style="display:none">
   <div class="um-dialog" style="max-width:600px;width:100%">
     <div class="um-header">

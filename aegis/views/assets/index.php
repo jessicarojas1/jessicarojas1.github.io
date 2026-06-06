@@ -10,7 +10,7 @@
     <p class="page-subtitle">Manage and track all organizational assets</p>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('asset.create')): ?>
       <a href="/assets/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Asset</a>
     <?php endif; ?>
   </div>
@@ -230,7 +230,7 @@ function criticalityBadge(string $crit): string {
             <td colspan="8" class="empty-row">
               <div class="empty-state-sm">
                 <i class="bi bi-hdd-stack"></i>
-                <p>No assets found. <?php if (Auth::can('risk.write')): ?><a href="/assets/create">Add your first asset</a>.<?php endif; ?></p>
+                <p>No assets found. <?php if (Auth::can('asset.create')): ?><a href="/assets/create">Add your first asset</a>.<?php endif; ?></p>
               </div>
             </td>
           </tr>

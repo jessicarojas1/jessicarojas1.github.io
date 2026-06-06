@@ -22,7 +22,7 @@ ob_start();
     <p class="page-subtitle"><?= $vendor['category'] ? Security::h($vendor['category']) : '' ?><?= $vendor['country'] ? ' · ' . Security::h($vendor['country']) : '' ?></p>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('vendor.write')): ?>
+    <?php if (Auth::can('vendor.edit')): ?>
       <form method="POST" action="/vendor/<?= $vendor['id'] ?>/portal-link" style="display:inline">
         <?= Security::csrfField() ?>
         <button class="btn btn-secondary"><i class="bi bi-share"></i> Generate Assessment Link</button>
@@ -86,7 +86,7 @@ ob_start();
             <?php if ($a['findings']): ?>
               <p style="margin:8px 0 0;font-size:13px;white-space:pre-wrap"><?= Security::h($a['findings']) ?></p>
             <?php endif; ?>
-            <?php if (Auth::can('vendor.write') && $a['status'] !== 'completed'): ?>
+            <?php if (Auth::can('vendor.edit') && $a['status'] !== 'completed'): ?>
               <button data-click="showUpdateAssessModal" data-args='[<?= (int)$a['id'] ?>,"<?= Security::h($a['status']) ?>"]' class="btn btn-ghost" style="margin-top:8px;font-size:12px;padding:4px 10px"><i class="bi bi-pencil"></i> Update</button>
             <?php endif; ?>
           </div>
@@ -161,7 +161,7 @@ $contracts = Database::fetchAll(
       <i class="bi bi-file-earmark-text" style="color:var(--info)"></i>
       <span class="card-title">Contracts</span>
     </div>
-    <?php if (Auth::can('vendor.write')): ?>
+    <?php if (Auth::can('vendor.edit')): ?>
     <div class="card-header-right">
       <a href="/vendor/<?= (int)$vendor['id'] ?>/contract/create" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-lg"></i> Add Contract
@@ -229,7 +229,7 @@ $contracts = Database::fetchAll(
     <div style="text-align:center;padding:32px 20px;color:var(--text-muted)">
       <i class="bi bi-file-earmark-text" style="font-size:32px;display:block;margin-bottom:10px"></i>
       <p style="margin:0;font-size:14px">No contracts on file.</p>
-      <?php if (Auth::can('vendor.write')): ?>
+      <?php if (Auth::can('vendor.edit')): ?>
         <a href="/vendor/<?= (int)$vendor['id'] ?>/contract/create" class="btn btn-primary btn-sm" style="margin-top:12px">
           <i class="bi bi-plus-lg"></i> Add Contract
         </a>
@@ -240,7 +240,7 @@ $contracts = Database::fetchAll(
 </div>
 
 <!-- Edit Modal -->
-<?php if (Auth::can('vendor.write')): ?>
+<?php if (Auth::can('vendor.edit')): ?>
 <div class="um-overlay" id="editModal" style="display:none">
   <div class="um-dialog" style="max-width:680px;width:100%">
     <div class="um-header">

@@ -416,7 +416,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           $lh = $likelihoodMeta[$cause['likelihood_contribution']] ?? $likelihoodMeta['medium'];
         ?>
           <div class="bt-item-card">
-            <?php if (Auth::can('risk.write')): ?>
+            <?php if (Auth::can('risk.bowtie')): ?>
             <form method="POST" action="/risk-bowtie/cause/<?= (int)$cause['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" data-confirm-click="Remove this cause?">
@@ -449,7 +449,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           $btyp = $barrierTypeMeta[$bar['barrier_type']] ?? $barrierTypeMeta['control'];
         ?>
           <div class="bt-barrier-pill" style="--ring-color:<?= Security::h($eff['ring']) ?>">
-            <?php if (Auth::can('risk.write')): ?>
+            <?php if (Auth::can('risk.bowtie')): ?>
             <form method="POST" action="/risk-bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" data-confirm-click="Remove this barrier?">
@@ -512,7 +512,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           $btyp = $barrierTypeMeta[$bar['barrier_type']] ?? $barrierTypeMeta['control'];
         ?>
           <div class="bt-barrier-pill" style="--ring-color:<?= Security::h($eff['ring']) ?>">
-            <?php if (Auth::can('risk.write')): ?>
+            <?php if (Auth::can('risk.bowtie')): ?>
             <form method="POST" action="/risk-bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" data-confirm-click="Remove this barrier?">
@@ -545,7 +545,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           $sev = $severityMeta[$con['severity']] ?? $severityMeta['medium'];
         ?>
           <div class="bt-item-card">
-            <?php if (Auth::can('risk.write')): ?>
+            <?php if (Auth::can('risk.bowtie')): ?>
             <form method="POST" action="/risk-bowtie/consequence/<?= (int)$con['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" data-confirm-click="Remove this consequence?">
@@ -588,7 +588,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 <!-- ═══════════════════════════════════════════════════════════
      ADD ITEMS PANEL
 ════════════════════════════════════════════════════════════ -->
-<?php if (Auth::can('risk.write')): ?>
+<?php if (Auth::can('risk.bowtie')): ?>
 <div class="card">
   <div class="card-header">
     <h3 class="card-title"><i class="bi bi-plus-circle-fill"></i> Add Items</h3>
@@ -816,7 +816,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
   </div><!-- .card-body -->
 </div>
-<?php endif; // Auth::can('risk.write') ?>
+<?php endif; // Auth::can('risk.bowtie') ?>
 
 <!-- ── Bow-Tie Explainer (if empty) ─────────────────────────────── -->
 <?php if ($isEmpty): ?>

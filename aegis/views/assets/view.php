@@ -156,7 +156,7 @@ function riskScoreLevel(int $score): string {
     </div>
 
     <!-- Edit panel (collapsible, policy.write only) -->
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('asset.edit')): ?>
     <div class="card">
       <div class="card-header" style="cursor:pointer;" data-toggle-class="d-none" data-target="#editPanel">
         <h3 class="card-title"><i class="bi bi-pencil-square"></i> Edit Asset</h3>
@@ -280,7 +280,7 @@ function riskScoreLevel(int $score): string {
     <div class="card">
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-shield-exclamation"></i> Linked Risks</h3>
-        <?php if (Auth::can('risk.write')): ?>
+        <?php if (Auth::can('asset.edit')): ?>
           <button class="btn btn-primary btn-sm" data-show-modal="linkRiskModal">
             <i class="bi bi-plus-lg"></i> Link Risk
           </button>
@@ -294,7 +294,7 @@ function riskScoreLevel(int $score): string {
                 <th>Risk</th>
                 <th style="text-align:center;">Score</th>
                 <th>Status</th>
-                <?php if (Auth::can('risk.write')): ?><th style="width:50px;"></th><?php endif; ?>
+                <?php if (Auth::can('asset.edit')): ?><th style="width:50px;"></th><?php endif; ?>
               </tr>
             </thead>
             <tbody>
@@ -319,7 +319,7 @@ function riskScoreLevel(int $score): string {
                     </span>
                   </td>
                   <td><span class="badge badge-<?= Security::h($r['status']) ?>"><?= ucfirst(Security::h($r['status'])) ?></span></td>
-                  <?php if (Auth::can('risk.write')): ?>
+                  <?php if (Auth::can('asset.edit')): ?>
                     <td>
                       <form method="POST" action="/assets/<?= (int)$asset['id'] ?>/unlink-risk/<?= (int)$r['id'] ?>"
                             data-confirm="Unlink this risk from the asset?">
@@ -375,7 +375,7 @@ function riskScoreLevel(int $score): string {
 </div>
 
 <!-- Link Risk Modal -->
-<?php if (Auth::can('risk.write')): ?>
+<?php if (Auth::can('asset.edit')): ?>
 <div id="linkRiskModal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;">
   <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;width:100%;max-width:520px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:0;overflow:hidden;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);">
