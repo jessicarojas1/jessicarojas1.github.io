@@ -4,6 +4,7 @@ import {
   BookOpen,
   Boxes,
   ClipboardCheck,
+  FileBarChart,
   FileText,
   FlaskConical,
   GaugeCircle,
@@ -44,6 +45,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Dashboard', to: '/', icon: LayoutDashboard, capability: 'ncr.read', page: 'dashboard' },
       { label: 'Analytics', to: '/analytics', icon: TrendingUp, capability: 'ncr.read', page: 'analytics' },
+      { label: 'Reports', to: '/reports', icon: FileBarChart, capability: 'ncr.read', page: 'analytics' },
       { label: 'Documentation', to: '/docs', icon: BookOpen, capability: 'docs.read', page: 'documentation' },
     ],
   },
