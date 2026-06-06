@@ -40,6 +40,23 @@ Every project roadmap must include:
 - [ ] `database/schema.sql` updated to reflect all current migrations
 - [ ] Fix all findings before marking the milestone complete
 
+## User & Permission Management UI Standard
+
+When asked to build any user management, roles, or permissions UI, always deliver this level of depth:
+
+- **Two-pane IAM layout**: scrollable user list (left, ~300px) + permission editor (right, fills remaining space)
+- **User list**: live search filtering by name, user cards with avatar initial, name, department, role badge, click-to-select with active state
+- **Permission editor**: per-module accordions (first 3 open by default), each module shows colored icon + label + `N/total` granted count badge + Grant All / Clear All batch buttons
+- **Granular module × action permissions**: not just read/write/edit — specific actions per module (e.g. `risk.accept`, `risk.review`, `kri.record`, `vendor.contracts`, `bcp.exercise`, `policy.publish`, `audit.close`)
+- **Visual distinction**: green dot = role default, orange dot = explicit grant, gray = denied — never just a binary checkbox grid
+- **AJAX save**: POST via `fetch()`, return `{"ok":true,"csrf":"<rotated-token>"}` on success so client rotates CSRF in-memory; show toast notifications (success/error)
+- **Dirty tracking**: "Unsaved changes" indicator on save buttons; disable save during in-flight request
+- **Expand All / Collapse All** toolbar controls + live total permissions count
+- **Role defaults vs explicit grants**: always separate — role defaults are inherited from the role, explicit grants are stored in DB and override
+- **Backward-compat aliases**: old coarse strings (e.g. `module.write`) must map to arrays of granular strings via an `$aliases` property so existing code keeps working
+- **Controller coverage**: every controller method must call `Auth::requirePermission('module.action')` with the specific granular string
+- **View coverage**: every `Auth::can()` call in views must use the specific granular string
+
 ## Other Permanent Rules
 
 - **No inline event handlers** — CSP compliance required at all times
