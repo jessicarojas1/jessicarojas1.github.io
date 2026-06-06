@@ -65,6 +65,7 @@ RUN set -eux; \
         ca-certificates \
         curl \
         git \
+        gnupg \
         unzip; \
     rm -rf /var/lib/apt/lists/*
 
@@ -85,49 +86,75 @@ RUN set -eux; \
 
 # -----------------------------------------------------------------------------
 # Trivy (Aqua Security) — filesystem vulnerability + secret + IaC misconfig scan
-# Installed via the official install script, pinned to a version.
-# NOTE: the Trivy vuln DB downloads on first run; for offline/air-gapped use,
-# pre-pull with `trivy --download-db-only` at deploy time (see README).
+# Installed from Aqua's official APT repository (served from GitHub Pages, NOT
+# the GitHub API — so it is not rate-limited on shared CI/build IPs, and we don't
+# depend on a specific release shipping a binary asset).
+# NON-FATAL: if the repo is unreachable, the build still succeeds and the server
+# simply skips Trivy at runtime (Grype provides overlapping CVE coverage).
+# The Trivy vuln DB downloads on first run; pre-pull with `trivy --download-db-only`.
 # -----------------------------------------------------------------------------
 RUN set -eux; \
-    curl -sSfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
-        | sh -s -- -b /usr/local/bin "v${TRIVY_VERSION}"; \
-    trivy --version
+    ( set -e; \
+      curl -sfL https://aquasecurity.github.io/trivy-repo/deb/public.key \
+        | gpg --dearmor -o /usr/share/keyrings/trivy.gpg; \
+      echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" \
+        > /etc/apt/sources.list.d/trivy.list; \
+      apt-get update; \
+      apt-get install -y --no-install-recommends trivy; \
+      trivy --version ) \
+    || echo "[citadel] Trivy install skipped — Grype still provides CVE coverage"; \
+    rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------
 # Syft (Anchore) — Software Bill of Materials generation (CycloneDX / SPDX)
+# Direct pinned release tarball (avoids the API-driven install.sh). NON-FATAL.
 # -----------------------------------------------------------------------------
 RUN set -eux; \
-    curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
-        | sh -s -- -b /usr/local/bin "v${SYFT_VERSION}"; \
-    syft version
+    arch="$(dpkg --print-architecture)"; \
+    ( set -e; \
+      curl -sSfL -o /tmp/syft.tar.gz \
+        "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/syft_${SYFT_VERSION}_linux_${arch}.tar.gz"; \
+      tar -xzf /tmp/syft.tar.gz -C /usr/local/bin syft; \
+      chmod +x /usr/local/bin/syft; \
+      syft version ) \
+    || echo "[citadel] Syft install skipped — SBOM falls back to manifest parsing"; \
+    rm -f /tmp/syft.tar.gz
 
 # -----------------------------------------------------------------------------
 # Grype (Anchore) — vulnerability matching against an SBOM / directory
-# Grype's vuln DB also downloads on first run; pre-pull with `grype db update`.
+# Direct pinned release tarball. NON-FATAL. Grype's vuln DB downloads on first
+# run; pre-pull with `grype db update`.
 # -----------------------------------------------------------------------------
 RUN set -eux; \
-    curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh \
-        | sh -s -- -b /usr/local/bin "v${GRYPE_VERSION}"; \
-    grype version
+    arch="$(dpkg --print-architecture)"; \
+    ( set -e; \
+      curl -sSfL -o /tmp/grype.tar.gz \
+        "https://github.com/anchore/grype/releases/download/v${GRYPE_VERSION}/grype_${GRYPE_VERSION}_linux_${arch}.tar.gz"; \
+      tar -xzf /tmp/grype.tar.gz -C /usr/local/bin grype; \
+      chmod +x /usr/local/bin/grype; \
+      grype version ) \
+    || echo "[citadel] Grype install skipped — OSV/Trivy still provide CVE coverage"; \
+    rm -f /tmp/grype.tar.gz
 
 # -----------------------------------------------------------------------------
 # Gitleaks (GitHub release binary) — secrets / credential detection
-# Resolve the host arch to the upstream asset naming (x64 / arm64).
+# Direct pinned release tarball; resolve host arch to the upstream naming. NON-FATAL.
 # -----------------------------------------------------------------------------
 RUN set -eux; \
     arch="$(dpkg --print-architecture)"; \
     case "$arch" in \
         amd64) gl_arch="x64" ;; \
         arm64) gl_arch="arm64" ;; \
-        *) echo "unsupported arch: $arch" >&2; exit 1 ;; \
+        *) gl_arch="x64" ;; \
     esac; \
-    curl -sSfL -o /tmp/gitleaks.tar.gz \
+    ( set -e; \
+      curl -sSfL -o /tmp/gitleaks.tar.gz \
         "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_${gl_arch}.tar.gz"; \
-    tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks; \
-    rm -f /tmp/gitleaks.tar.gz; \
-    chmod +x /usr/local/bin/gitleaks; \
-    gitleaks version
+      tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks; \
+      chmod +x /usr/local/bin/gitleaks; \
+      gitleaks version ) \
+    || echo "[citadel] Gitleaks install skipped — entropy/Trivy secret scan still runs"; \
+    rm -f /tmp/gitleaks.tar.gz
 
 # -----------------------------------------------------------------------------
 # ClamAV — malware / signature scanning of uploaded files
