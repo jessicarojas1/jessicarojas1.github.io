@@ -213,6 +213,16 @@ html { scroll-behavior: smooth; }
 .grade-pill { color:#fff; font-weight:700; }
 .grade-pill.grade-a{background:#16a34a}.grade-pill.grade-b{background:#65a30d}.grade-pill.grade-c{background:#ca8a04}.grade-pill.grade-d{background:#ea580c}.grade-pill.grade-e{background:#dc2626}.grade-pill.grade-f{background:#991b1b}
 
+/* Engine / scanner status panel */
+.engine-status { display:flex; flex-wrap:wrap; gap:.5rem 1.4rem; padding:.7rem .9rem; background:var(--ct-surface); border:1px solid var(--bs-border-color); border-radius:12px; }
+.es-group { display:flex; flex-wrap:wrap; align-items:center; gap:.4rem; }
+.es-title { font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--bs-secondary-color); display:inline-flex; align-items:center; gap:.35rem; margin-right:.2rem; }
+.es-pill { display:inline-flex; align-items:center; gap:.35rem; font-size:.74rem; padding:.18rem .5rem; border-radius:999px; border:1px solid var(--bs-border-color); background:var(--bs-tertiary-bg); color:var(--bs-secondary-color); }
+.es-pill .es-dot { width:7px; height:7px; border-radius:50%; background:#6c757d; }
+.es-pill.on { color:var(--bs-body-color); border-color:color-mix(in srgb,#16a34a 40%,var(--bs-border-color)); }
+.es-pill.on .es-dot { background:#16a34a; box-shadow:0 0 6px #16a34a99; }
+.es-pill.off .es-dot { background:#64748b; }
+
 /* Hero live stats */
 .hero-stat { text-align:center; min-width:84px; }
 .hs-num { display:block; font-size:1.7rem; font-weight:800; color: var(--citadel-accent); line-height:1; }
