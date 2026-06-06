@@ -105,7 +105,7 @@ $notes = [
             <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
               <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
               <tbody style="color:var(--text);">
-                <tr><td style="padding:2px 8px 2px 0;font-family:monospace">csv_file</td><td style="padding:2px 8px 2px 0;">CSV (.csv) or plain text (.txt)</td><td style="padding:2px 8px 2px 0;">10 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr>
+                <tr><td style="padding:2px 8px 2px 0;font-family:monospace">csv_file</td><td style="padding:2px 8px 2px 0;">CSV (.csv) or plain text (.txt)</td><td style="padding:2px 8px 2px 0;">10 MB</td><td><strong style="color:var(--danger)">Yes</strong></td></tr>
               </tbody>
             </table>
             <div style="margin-top:5px;color:var(--text-muted);">Row 1 must be a header row. Download the template for the exact column layout expected.</div>

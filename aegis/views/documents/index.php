@@ -56,7 +56,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
         $expColor = '';
         if ($doc['expiry_date']) {
           $days = (strtotime($doc['expiry_date']) - time()) / 86400;
-          $expColor = $days < 0 ? 'color:#ef4444;font-weight:600' : ($days < 30 ? 'color:#f59e0b;font-weight:600' : '');
+          $expColor = $days < 0 ? 'color:var(--danger);font-weight:600' : ($days < 30 ? 'color:var(--warning);font-weight:600' : '');
         }
       ?>
         <tr>
