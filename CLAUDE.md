@@ -57,6 +57,20 @@ When asked to build any user management, roles, or permissions UI, always delive
 - **Controller coverage**: every controller method must call `Auth::requirePermission('module.action')` with the specific granular string
 - **View coverage**: every `Auth::can()` call in views must use the specific granular string
 
+## Settings & Branding Standard (Every App / Project)
+
+Every app and project **must** include a **Settings** area with a **Branding** section where the user can:
+- **Upload / set a logo via URL** (a logo URL field is required; also accept a file upload that is stored as a data URL so it works offline)
+- Set the **organization / app display name**
+- Optionally set an **accent/brand color**
+
+Branding must be **persisted** (localStorage / IndexedDB / DB as appropriate) and **applied live** across the app:
+- The logo replaces the default brand mark in the header/top bar
+- The display name replaces the default app name
+- The logo appears in any generated reports / PDF / print output and on login/landing screens
+
+Sanitize logo URLs (allow only `http(s)://` or `data:image/...`) and escape when injected into markup. Default gracefully to the built-in mark/name when no branding is set.
+
 ## Other Permanent Rules
 
 - **No inline event handlers** — CSP compliance required at all times

@@ -4,6 +4,7 @@
 import { openDB, getMeta, setMeta } from "./store.js";
 import { loadSession, currentUser, getClassification, setClassification, CLASSIFICATIONS } from "./session.js";
 import { onNetChange, checkReachable, netState } from "./api.js";
+import { applyBranding } from "./branding.js";
 import { icon } from "./icons.js";
 import { $, $$, el, esc } from "./ui.js";
 import { route, setNotFound, startRouter, navigate, parseHash } from "./router.js";
@@ -17,6 +18,7 @@ const NAV = [
   ["approvals", "Approvals", "approval"],
   ["audit", "Audit Trail", "audit"],
   ["admin", "Administration", "admin"],
+  ["settings", "Settings", "settings"],
 ];
 
 function shell() {
@@ -105,6 +107,8 @@ async function boot() {
   shell();
   paintUser();
   paintNet();
+  await applyBranding();
+  window.addEventListener("am:branding-changed", applyBranding);
 
   // classification banner
   const cls = await getClassification();
@@ -129,6 +133,7 @@ async function boot() {
   route("approvals", withView(V.renderApprovals));
   route("audit", withView(V.renderAudit));
   route("admin", withView(V.renderAdmin));
+  route("settings", withView(V.renderSettings));
   setNotFound(() => navigate("dashboard"));
   startRouter();
 

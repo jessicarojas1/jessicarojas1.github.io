@@ -45,6 +45,7 @@ const P = {
   lock: '<rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.5"/>',
   logout: '<path d="M15 12H4"/><path d="M9 7L4 12l5 5"/><path d="M14 4h5v16h-5"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-1.7-1l-.4-2.5h-3.9l-.4 2.5a7.6 7.6 0 0 0-1.7 1l-2.3-1-2 3.4L4.6 11a7.8 7.8 0 0 0 0 2l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 1.7 1l.4 2.5h3.9l.4-2.5a7.6 7.6 0 0 0 1.7-1l2.3 1 2-3.4z"/>',
 };
 
 export function icon(name, size = 18, stroke = 1.8) {
