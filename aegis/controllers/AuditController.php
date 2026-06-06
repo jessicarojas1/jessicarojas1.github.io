@@ -32,14 +32,14 @@ class AuditController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('audit.write');
+        Auth::requirePermission('audit.create');
         $packages = Database::fetchAll("SELECT cp.id, cp.name, s.code FROM compliance_packages cp LEFT JOIN standards s ON s.id = cp.standard_id WHERE cp.is_active = TRUE ORDER BY cp.name");
         $users    = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         require AEGIS_ROOT . '/views/audit/create.php';
     }
 
     public function create(): void {
-        Auth::requirePermission('audit.write');
+        Auth::requirePermission('audit.create');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -154,7 +154,7 @@ class AuditController {
     }
 
     public function updateItem(string $auditId, string $itemId): void {
-        Auth::requirePermission('audit.write');
+        Auth::requirePermission('audit.findings');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -227,7 +227,7 @@ class AuditController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('audit.write');
+        Auth::requirePermission('audit.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -247,7 +247,7 @@ class AuditController {
     }
 
     public function complete(string $id): void {
-        Auth::requirePermission('audit.write');
+        Auth::requirePermission('audit.close');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -269,7 +269,7 @@ class AuditController {
     }
 
     public function editForm(string $id): void {
-        Auth::requirePermission('audit.write');
+        Auth::requirePermission('audit.edit');
         $audit = Database::fetchOne("SELECT * FROM audits WHERE id = ?", [(int)$id]);
         if (!$audit) { http_response_code(404); return; }
         $packages = Database::fetchAll("SELECT cp.id, cp.name FROM compliance_packages cp WHERE is_active = TRUE");
@@ -278,7 +278,7 @@ class AuditController {
     }
 
     public function exportPackage(string $id): void {
-        Auth::requirePermission('audit.read');
+        Auth::requirePermission('audit.view');
         $id = (int)$id;
 
         $audit = Database::fetchOne(
@@ -405,7 +405,7 @@ class AuditController {
     }
 
     public function itemEvidence(string $auditId, string $itemId): void {
-        Auth::requirePermission('audit.read');
+        Auth::requirePermission('audit.view');
         header('Content-Type: application/json');
         $files = Database::fetchAll(
             "SELECT id, original_name, file_size, mime_type, created_at FROM evidence_files WHERE entity_type='audit_item' AND entity_id=? ORDER BY created_at DESC",

@@ -60,7 +60,7 @@ class AuditFindingController {
     }
 
     public function create(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('audit.findings');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -183,7 +183,7 @@ class AuditFindingController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('audit.findings');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -278,7 +278,7 @@ class AuditFindingController {
     }
 
     public function close(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('audit.findings');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -305,7 +305,7 @@ class AuditFindingController {
     }
 
     public function delete(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('audit.findings');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
