@@ -2,7 +2,7 @@
 class CalendarController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
 
         $today        = date('Y-m-d');
         $month        = (int)($_GET['month'] ?? date('n'));
@@ -30,7 +30,7 @@ class CalendarController {
     }
 
     public function feed(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
 
         $month = (int)($_GET['month'] ?? date('n'));
         $year  = (int)($_GET['year'] ?? date('Y'));

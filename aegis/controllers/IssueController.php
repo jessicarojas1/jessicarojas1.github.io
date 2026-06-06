@@ -4,7 +4,7 @@ declare(strict_types=1);
 class IssueController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('issue.view');
 
         $severity   = Security::sanitizeInput($_GET['severity']    ?? '');
         $status     = Security::sanitizeInput($_GET['status']      ?? '');
@@ -56,13 +56,13 @@ class IssueController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('issue.write');
+        Auth::requirePermission('issue.create');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         require AEGIS_ROOT . '/views/issue/create.php';
     }
 
     public function create(): void {
-        Auth::requirePermission('issue.write');
+        Auth::requirePermission('issue.create');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -118,7 +118,7 @@ class IssueController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('issue.view');
         $id = (int)$id;
 
         $issue = Database::fetchOne(
@@ -153,7 +153,7 @@ class IssueController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('issue.write');
+        Auth::requirePermission('issue.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -201,7 +201,7 @@ class IssueController {
     }
 
     public function addUpdate(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('issue.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

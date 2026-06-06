@@ -4,7 +4,7 @@ declare(strict_types=1);
 class KRIController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('kri.view');
         $kris = Database::fetchAll(
             "SELECT k.*,
                     u.name as owner_name,
@@ -79,7 +79,7 @@ class KRIController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('kri.view');
         $id = (int)$id;
         $kri = Database::fetchOne(
             "SELECT k.*, u.name as owner_name, r.title as risk_title
