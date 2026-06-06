@@ -22,6 +22,20 @@
   });
   applyThemeIcon();
 
+  /* ---------- Hero live stats ---------- */
+  (function () {
+    const hs = $('hero-stats'); if (!hs) return;
+    const cwe = new Set(CITADEL.rules.filter(r => r.cwe).map(r => r.cwe)).size;
+    const stats = [
+      [CITADEL.lang.count, 'languages'],
+      [CITADEL.rules.length, 'SAST rules'],
+      [CITADEL.frameworks.CATALOG.length, 'frameworks'],
+      [CITADEL.frameworks.catalogTotal(), 'controls'],
+      [cwe, 'CWEs']
+    ];
+    hs.innerHTML = stats.map(s => `<div class="hero-stat"><span class="hs-num">${s[0]}</span><span class="hs-lbl">${s[1]}</span></div>`).join('');
+  })();
+
   /* ---------- Hero framework chips ---------- */
   $('framework-chips').innerHTML = CITADEL.frameworks.CATALOG
     .map(f => `<span class="hero-chip" title="${f.desc.replace(/"/g, '')}">${f.name}</span>`).join('');
@@ -285,6 +299,8 @@
     if (e.target.closest('#exp-sarif')) return CITADEL.report.exportSarif();
     if (e.target.closest('#exp-poam')) return CITADEL.report.exportPoam();
     if (e.target.closest('#exp-ssp')) return CITADEL.report.exportSsp();
+    if (e.target.closest('#exp-junit')) return CITADEL.report.exportJUnit();
+    if (e.target.closest('#exp-prcomment')) return CITADEL.report.exportPrComment();
     if (e.target.closest('#exp-md')) return CITADEL.report.exportMarkdown();
     if (e.target.closest('#exp-pdf')) return CITADEL.report.exportPdf();
   });
