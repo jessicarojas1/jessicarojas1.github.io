@@ -1,10 +1,10 @@
 <?php
 $breadcrumbs  = $breadcrumbs  ?? [['Documents', null]];
 $statusColors = [
-  'draft'=>'#6b7280','under_review'=>'var(--warning)','approved'=>'#3b82f6',
-  'published'=>'var(--success)','archived'=>'#9ca3af','expired'=>'var(--danger)',
+  'draft'=>'var(--text-muted)','under_review'=>'var(--warning)','approved'=>'var(--info)',
+  'published'=>'var(--primary-light)','archived'=>'var(--text-muted)','expired'=>'var(--danger)',
 ];
-$classColors = ['public'=>'var(--success)','internal'=>'#3b82f6','confidential'=>'var(--warning)','restricted'=>'var(--danger)'];
+$classColors = ['public'=>'var(--primary-light)','internal'=>'var(--info)','confidential'=>'var(--warning)','restricted'=>'var(--danger)'];
 ?>
 <div class="page-header">
   <div>
@@ -12,30 +12,27 @@ $classColors = ['public'=>'var(--success)','internal'=>'#3b82f6','confidential'=
     <p class="page-subtitle">Version-controlled document library with classification and expiry tracking.</p>
   </div>
   <div>
-    <button class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#docFilters"><i class="bi bi-funnel-fill"></i> Filters</button>
     <a href="/documents/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Document</a>
   </div>
 </div>
 
 <!-- Filters -->
-<div class="filter-bar" id="docFilters">
-  <form method="GET">
-    <input type="text" name="q" class="form-control" placeholder="Search title…" value="<?= Security::h($_GET['q'] ?? '') ?>" style="max-width:240px">
-    <select name="status" class="form-control" style="max-width:160px">
-      <option value="">All Statuses</option>
-      <?php foreach (['draft','under_review','approved','published','archived','expired'] as $s): ?>
-        <option value="<?= $s ?>" <?= ($_GET['status'] ?? '') === $s ? 'selected' : '' ?>><?= ucfirst(str_replace('_',' ',$s)) ?></option>
-      <?php endforeach; ?>
-    </select>
-    <select name="classification" class="form-control" style="max-width:160px">
-      <option value="">All Classifications</option>
-      <?php foreach (['public','internal','confidential','restricted'] as $c): ?>
-        <option value="<?= $c ?>" <?= ($_GET['classification'] ?? '') === $c ? 'selected' : '' ?>><?= ucfirst($c) ?></option>
-      <?php endforeach; ?>
-    </select>
-    <button class="btn btn-primary btn-sm" type="submit">Apply</button>
-  </form>
-</div>
+<form method="GET" class="filter-bar" style="margin-bottom:16px">
+  <input type="text" name="q" class="form-control" placeholder="Search title…" value="<?= Security::h($_GET['q'] ?? '') ?>" style="max-width:240px">
+  <select name="status" class="form-control" style="max-width:160px">
+    <option value="">All Statuses</option>
+    <?php foreach (['draft','under_review','approved','published','archived','expired'] as $s): ?>
+      <option value="<?= $s ?>" <?= ($_GET['status'] ?? '') === $s ? 'selected' : '' ?>><?= ucfirst(str_replace('_',' ',$s)) ?></option>
+    <?php endforeach; ?>
+  </select>
+  <select name="classification" class="form-control" style="max-width:160px">
+    <option value="">All Classifications</option>
+    <?php foreach (['public','internal','confidential','restricted'] as $c): ?>
+      <option value="<?= $c ?>" <?= ($_GET['classification'] ?? '') === $c ? 'selected' : '' ?>><?= ucfirst($c) ?></option>
+    <?php endforeach; ?>
+  </select>
+  <button class="btn btn-secondary" type="submit"><i class="bi bi-search"></i></button>
+</form>
 
 <?php if (empty($documents)): ?>
   <div class="empty-state-sm"><i class="bi bi-file-earmark-text"></i><p>No documents found. Create your first document to start building the document library.</p></div>
@@ -68,12 +65,14 @@ $classColors = ['public'=>'var(--success)','internal'=>'#3b82f6','confidential'=
             <?php if ($doc['doc_number']): ?><div class="text-muted text-xs"><?= Security::h($doc['doc_number']) ?></div><?php endif; ?>
           </td>
           <td>
-            <span class="badge" style="background:<?= $classColors[$doc['classification']] ?? 'var(--text-muted)' ?>20;color:<?= $classColors[$doc['classification']] ?? 'var(--text-muted)' ?>">
+            <?php $cc = $classColors[$doc['classification']] ?? 'var(--text-muted)'; ?>
+            <span class="badge" style="background:color-mix(in srgb,<?= $cc ?> 20%,transparent);color:<?= $cc ?>">
               <?= Security::h(ucfirst($doc['classification'])) ?>
             </span>
           </td>
           <td>
-            <span class="badge" style="background:<?= $statusColors[$doc['status']] ?? 'var(--text-muted)' ?>20;color:<?= $statusColors[$doc['status']] ?? 'var(--text-muted)' ?>">
+            <?php $sc = $statusColors[$doc['status']] ?? 'var(--text-muted)'; ?>
+            <span class="badge" style="background:color-mix(in srgb,<?= $sc ?> 20%,transparent);color:<?= $sc ?>">
               <?= Security::h(ucfirst(str_replace('_',' ',$doc['status']))) ?>
             </span>
           </td>

@@ -2,7 +2,7 @@
 class MetricsController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('report.view');
 
         // Current snapshot (latest)
         $snapshot = Database::fetchOne(

@@ -9,11 +9,33 @@ import type { Attachment, AuditTrailEntry, Iso8601 } from './common';
 /* ------------------------------------------------------------------ */
 
 export type DocumentStatus =
-  | 'draft'
-  | 'in_review'
+  | 'concept'
+  | 'work_in_progress'
+  | 'peer_review'
+  | 'qa_review'
   | 'approved'
-  | 'effective'
   | 'obsolete';
+
+export type DocumentType =
+  | 'work_instruction'
+  | 'policy'
+  | 'process'
+  | 'procedure'
+  | 'form'
+  | 'guide';
+
+export type DocumentDepartment =
+  | 'ens'
+  | 'exec'
+  | 'qual'
+  | 'ilm'
+  | 'ins'
+  | 'ts'
+  | 'fin'
+  | 'ops';
+
+/** Workflow action accepted by POST /documents/{id}/transition. */
+export type DocumentTransitionAction = 'advance' | 'approve' | 'obsolete' | 'revise';
 
 export interface DocumentRevision {
   id: string;
@@ -30,14 +52,26 @@ export interface ControlledDocument {
   id: string;
   document_number: string;
   title: string;
-  doc_type: string;
+  doc_type: DocumentType;
   status: DocumentStatus;
+  department?: DocumentDepartment;
   description?: string;
   owner_id?: string;
+  approved_by?: string;
+  version?: string;
   current_revision?: string;
   effective_date?: Iso8601;
   next_review_date?: Iso8601;
+  last_review_date?: Iso8601;
   as9100_clause?: string;
+  // Fixed-template body sections.
+  purpose?: string;
+  scope?: string;
+  definitions?: string;
+  responsibilities?: string;
+  detail?: string;
+  revision_history?: string;
+  appendix?: string;
   created_at: Iso8601;
   updated_at: Iso8601;
   revisions?: DocumentRevision[];

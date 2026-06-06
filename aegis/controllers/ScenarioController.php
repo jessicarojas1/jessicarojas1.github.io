@@ -51,7 +51,7 @@ class ScenarioController {
 
     // ─────────────────────────────────────────── createForm ─────────────────
     public function createForm(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.scenarios');
         $riskId = (int)$riskId;
 
         $risk = Database::fetchOne(
@@ -82,7 +82,7 @@ class ScenarioController {
 
     // ─────────────────────────────────────────── create ─────────────────────
     public function create(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.scenarios');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
             return;
@@ -158,7 +158,7 @@ class ScenarioController {
 
     // ─────────────────────────────────────────── delete ─────────────────────
     public function delete(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.scenarios');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
             return;

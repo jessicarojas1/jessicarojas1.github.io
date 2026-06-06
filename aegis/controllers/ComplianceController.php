@@ -26,7 +26,7 @@ class ComplianceController {
     // ─── Manual Package Creation ───────────────────────────────────────────────
 
     public function createForm(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         $standards   = Database::fetchAll("SELECT * FROM standards WHERE is_active = TRUE ORDER BY name");
         $pageTitle   = 'Create Package';
         $activeModule = 'compliance';
@@ -35,7 +35,7 @@ class ComplianceController {
     }
 
     public function create(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $name        = Security::sanitizeInput($_POST['name'] ?? '');
@@ -61,7 +61,7 @@ class ComplianceController {
     }
 
     public function updatePackage(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $id = (int)$id;
         $name        = Security::sanitizeInput($_POST['name'] ?? '');
@@ -82,7 +82,7 @@ class ComplianceController {
     }
 
     public function deletePackage(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $id = (int)$id;
         $this->deletePackageById($id);
@@ -92,7 +92,7 @@ class ComplianceController {
     }
 
     public function deleteSelected(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $ids = array_map('intval', (array)($_POST['package_ids'] ?? []));
         $ids = array_filter($ids);
@@ -119,7 +119,7 @@ class ComplianceController {
     // ─── Domain Management ─────────────────────────────────────────────────────
 
     public function addDomain(string $pkgId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $pkgId = (int)$pkgId;
         $code  = Security::sanitizeInput($_POST['code'] ?? '');
@@ -140,7 +140,7 @@ class ComplianceController {
     }
 
     public function updateDomain(string $pkgId, string $domainId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $pkgId = (int)$pkgId; $domainId = (int)$domainId;
         $code  = Security::sanitizeInput($_POST['code'] ?? '');
@@ -157,7 +157,7 @@ class ComplianceController {
     }
 
     public function deleteDomain(string $pkgId, string $domainId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $pkgId = (int)$pkgId; $domainId = (int)$domainId;
         // child controls cascade via ON DELETE CASCADE on parent_id
@@ -169,7 +169,7 @@ class ComplianceController {
     // ─── Control Management ────────────────────────────────────────────────────
 
     public function addControl(string $pkgId, string $domainId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $pkgId = (int)$pkgId; $domainId = (int)$domainId;
         $code  = Security::sanitizeInput($_POST['code'] ?? '');
@@ -193,7 +193,7 @@ class ComplianceController {
     }
 
     public function updateControl(string $pkgId, string $ctrlId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $pkgId = (int)$pkgId; $ctrlId = (int)$ctrlId;
         $code  = Security::sanitizeInput($_POST['code'] ?? '');
@@ -211,7 +211,7 @@ class ComplianceController {
     }
 
     public function deleteControl(string $pkgId, string $ctrlId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $pkgId = (int)$pkgId; $ctrlId = (int)$ctrlId;
         Database::query("DELETE FROM compliance_objectives WHERE id=? AND package_id=? AND level=2", [$ctrlId, $pkgId]);
@@ -220,7 +220,7 @@ class ComplianceController {
     }
 
     public function bulkStatus(string $pkgId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             header('Content-Type: application/json');
             echo json_encode(['ok' => false, 'error' => 'Invalid CSRF token']);
@@ -262,7 +262,7 @@ class ComplianceController {
     }
 
     public function bulkAssess(string $pkgId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
         header('Content-Type: application/json');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             echo json_encode(['ok' => false, 'error' => 'Invalid CSRF token']); return;
@@ -335,7 +335,7 @@ class ComplianceController {
     }
 
     public function viewPackage(string $id): void {
-        Auth::requirePermission('compliance.read');
+        Auth::requirePermission('compliance.view');
         $id = (int)$id;
 
         $package = Database::fetchOne(
@@ -370,7 +370,7 @@ class ComplianceController {
     }
 
     public function viewObjective(string $pkgId, string $objId): void {
-        Auth::requirePermission('compliance.read');
+        Auth::requirePermission('compliance.view');
         $pkgId = (int)$pkgId;
         $objId = (int)$objId;
 
@@ -416,7 +416,7 @@ class ComplianceController {
     }
 
     public function updateObjective(string $pkgId, string $objId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); echo 'CSRF error'; return;
@@ -476,13 +476,13 @@ class ComplianceController {
     }
 
     public function importForm(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.import');
         $standards = Database::fetchAll("SELECT * FROM standards ORDER BY name");
         require AEGIS_ROOT . '/views/compliance/import.php';
     }
 
     public function import(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.import');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -533,7 +533,7 @@ class ComplianceController {
     }
 
     public function downloadCsvTemplate(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.import');
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="compliance_template.csv"');
         $out = fopen('php://output', 'w');
@@ -546,7 +546,7 @@ class ComplianceController {
     }
 
     public function downloadExcelTemplate(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.import');
         $rows = [
             ['package_name','package_version','package_description','domain_code','domain_title','control_code','control_title','control_description','control_additional_information'],
             ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.1','User Access Management','Ensure all user accounts are reviewed quarterly','Additional guidance or references here'],
@@ -579,7 +579,7 @@ class ComplianceController {
     }
 
     public function clearAll(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.import');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
@@ -593,7 +593,7 @@ class ComplianceController {
 
     // Add a single control to an existing package via POST form
     public function addSingleControl(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.import');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $pkgId  = (int)($_POST['package_id'] ?? 0);
@@ -977,7 +977,7 @@ class ComplianceController {
     }
 
     public function testControl(string $objId): void {
-        Auth::requirePermission('audit.write');
+        Auth::requirePermission('compliance.test');
         $objId = (int)$objId;
         $obj = Database::fetchOne(
             "SELECT co.*, cp.id as package_id, cp.name as package_name, s.name as standard_name
@@ -1006,7 +1006,7 @@ class ComplianceController {
     }
 
     public function saveTest(string $objId): void {
-        Auth::requirePermission('audit.write');
+        Auth::requirePermission('compliance.test');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $objId = (int)$objId;
         $obj = Database::fetchOne("SELECT id, package_id FROM compliance_objectives WHERE id=?", [$objId]);
@@ -1039,7 +1039,7 @@ class ComplianceController {
     }
 
     public function gapAnalysis(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.gap');
         // Per-package compliance stats
         $packages = Database::fetchAll(
             "SELECT cp.id, cp.name, s.name as standard_name, s.code as standard_code,
@@ -1094,7 +1094,7 @@ class ComplianceController {
     }
 
     public function testingDashboard(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.test');
         // Controls by result
         $summary = Database::fetchAll(
             "SELECT result, COUNT(*) as cnt FROM control_tests

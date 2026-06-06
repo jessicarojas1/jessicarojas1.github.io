@@ -24,10 +24,20 @@ After completing any UI work, spawn a UI audit agent covering:
 - **Dark mode**: no hardcoded hex colors in inline styles — use CSS custom properties (`var(--danger)`, `var(--success)`, `var(--warning)`, `var(--card-bg)`, etc.)
 - **Submit buttons**: no hardcoded `disabled` attribute on submit buttons
 
-### 3. These Checks Are Part of the Roadmap
+### 3. Database Schema File (Every Project)
+Every project that uses a database **must** maintain a `database/schema.sql` file that:
+- Is a **complete, idempotent** SQL script covering all tables, indexes, and seed data
+- Can be run against a fresh database to produce a fully functional schema
+- Uses `CREATE TABLE IF NOT EXISTS`, `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`, and `INSERT ... ON CONFLICT DO NOTHING` — never plain `CREATE` without `IF NOT EXISTS`
+- Is organized with section comments grouping tables by module
+- Includes a header comment explaining it is a manual-setup reference and pointing to the authoritative installer (e.g. `install.php`)
+- Is updated whenever a new migration is added — the schema file must always reflect the current state of all migrations combined
+
+### 4. These Checks Are Part of the Roadmap
 Every project roadmap must include:
 - [ ] Security & compliance audit (CSP, XSS, CSRF, SQLi, auth, uploads, redirects)
 - [ ] UI consistency check (handlers, modals, filters, empty states, dark mode, breadcrumbs)
+- [ ] `database/schema.sql` updated to reflect all current migrations
 - [ ] Fix all findings before marking the milestone complete
 
 ## Other Permanent Rules
@@ -38,3 +48,4 @@ Every project roadmap must include:
 - **Every section with file upload** must include a field reference key below it
 - **`Database::update()`** automatically appends `updated_at = NOW()` — never include `updated_at` in data arrays passed to it
 - **Never commit `.env`** — only `.env.example` with placeholder values
+- **`database/schema.sql` must be kept current** — update it whenever a migration is added; it must always represent the full, combined schema across all migrations

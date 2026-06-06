@@ -7,11 +7,10 @@ from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import Pagination, pagination_params
+from app.api.deps import Pagination, pagination_params, require_page
 from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import ConflictError, NotFoundError
-from app.core.rbac import Permission, require_permission
 from app.models.training import (
     CompetencyMatrixEntry,
     Personnel,
@@ -48,7 +47,7 @@ def list_personnel(
     db: Session = Depends(get_db),
     pagination: Pagination = Depends(pagination_params),
     search: str | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.TRAINING_READ)),
+    _: CurrentUser = Depends(require_page("training", "view")),
 ) -> Page[PersonnelRead]:
     stmt = base_select(Personnel).order_by(Personnel.id.desc())
     if search:
@@ -63,7 +62,7 @@ def create_personnel(
     body: PersonnelCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.TRAINING_WRITE)),
+    actor: CurrentUser = Depends(require_page("training", "edit")),
 ) -> Personnel:
     if db.execute(
         select(Personnel).where(Personnel.employee_id == body.employee_id)
@@ -93,7 +92,7 @@ def update_personnel(
     body: PersonnelUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.TRAINING_WRITE)),
+    actor: CurrentUser = Depends(require_page("training", "edit")),
 ) -> Personnel:
     person = get_or_404(db, Personnel, person_id, name="Personnel")
     before = audit.snapshot(person)
@@ -123,7 +122,7 @@ def update_personnel(
 @router.get("/courses", response_model=list[CourseRead])
 def list_courses(
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.TRAINING_READ)),
+    _: CurrentUser = Depends(require_page("training", "view")),
 ) -> list[TrainingCourse]:
     return db.execute(select(TrainingCourse).order_by(TrainingCourse.course_code)).scalars().all()
 
@@ -133,7 +132,7 @@ def create_course(
     body: CourseCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.TRAINING_WRITE)),
+    actor: CurrentUser = Depends(require_page("training", "edit")),
 ) -> TrainingCourse:
     if db.execute(
         select(TrainingCourse).where(TrainingCourse.course_code == body.course_code)
@@ -162,7 +161,7 @@ def update_course(
     course_id: int,
     body: CourseUpdate,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.TRAINING_WRITE)),
+    actor: CurrentUser = Depends(require_page("training", "edit")),
 ) -> TrainingCourse:
     course = get_or_404(db, TrainingCourse, course_id, name="Course")
     for key, value in body.model_dump(exclude_unset=True).items():
@@ -181,7 +180,7 @@ def assign_training(
     body: TrainingAssign,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.TRAINING_WRITE)),
+    actor: CurrentUser = Depends(require_page("training", "edit")),
 ) -> TrainingRecord:
     person = get_or_404(db, Personnel, body.personnel_id, name="Personnel")
     course = get_or_404(db, TrainingCourse, body.course_id, name="Course")
@@ -216,7 +215,7 @@ def update_record(
     body: TrainingRecordUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.TRAINING_WRITE)),
+    actor: CurrentUser = Depends(require_page("training", "edit")),
 ) -> TrainingRecord:
     record = db.get(TrainingRecord, record_id)
     if record is None:
@@ -255,7 +254,7 @@ def update_record(
 def personnel_records(
     person_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.TRAINING_READ)),
+    _: CurrentUser = Depends(require_page("training", "view")),
 ) -> list[TrainingRecord]:
     get_or_404(db, Personnel, person_id, name="Personnel")
     return (
@@ -276,7 +275,7 @@ def personnel_records(
 def add_competency(
     body: CompetencyCreate,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.TRAINING_WRITE)),
+    actor: CurrentUser = Depends(require_page("training", "edit")),
 ) -> CompetencyMatrixEntry:
     get_or_404(db, Personnel, body.personnel_id, name="Personnel")
     entry = CompetencyMatrixEntry(**body.model_dump(), created_by=actor.id, updated_by=actor.id)
@@ -291,7 +290,7 @@ def update_competency(
     entry_id: int,
     body: CompetencyUpdate,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.TRAINING_WRITE)),
+    actor: CurrentUser = Depends(require_page("training", "edit")),
 ) -> CompetencyMatrixEntry:
     entry = get_or_404(db, CompetencyMatrixEntry, entry_id, name="Competency entry")
     for key, value in body.model_dump(exclude_unset=True).items():
@@ -306,7 +305,7 @@ def update_competency(
 def personnel_competency(
     person_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.TRAINING_READ)),
+    _: CurrentUser = Depends(require_page("training", "view")),
 ) -> list[CompetencyMatrixEntry]:
     get_or_404(db, Personnel, person_id, name="Personnel")
     return (

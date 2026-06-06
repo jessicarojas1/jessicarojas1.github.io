@@ -64,6 +64,7 @@ export default function CapaListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="capa"
         filters={
           <>
             <div className="field">

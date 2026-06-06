@@ -7,10 +7,12 @@ import { queryClient } from './lib/queryClient';
 import { ThemeProvider } from './lib/theme';
 import { ToastProvider } from './lib/toast';
 import { AuthProvider } from './lib/auth';
+import { PagePermsProvider } from './lib/permissions';
 
 import './styles/theme.css';
 import './styles/layout.css';
 import './styles/components.css';
+import './styles/docs.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -19,7 +21,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <ToastProvider>
           <BrowserRouter>
             <AuthProvider>
-              <App />
+              <PagePermsProvider>
+                <App />
+              </PagePermsProvider>
             </AuthProvider>
           </BrowserRouter>
         </ToastProvider>

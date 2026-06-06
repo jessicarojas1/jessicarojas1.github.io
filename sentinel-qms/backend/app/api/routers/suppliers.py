@@ -12,12 +12,12 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError
-from app.core.rbac import Permission, require_permission
 from app.models.supplier import (
     ApprovedSupplierListEntry,
     ScarStatus,
@@ -73,7 +73,7 @@ def list_suppliers(
     sort: SortParams = Depends(sort_params),
     status_filter: SupplierStatus | None = Query(None, alias="status"),
     search: str | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ) -> Page[SupplierList]:
     stmt = base_select(Supplier)
     if status_filter:
@@ -93,7 +93,7 @@ def create_supplier(
     body: SupplierCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
 ) -> Supplier:
     supplier = Supplier(
         **body.model_dump(),
@@ -122,7 +122,7 @@ def create_supplier(
 def get_supplier(
     supplier_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ) -> Supplier:
     return get_or_404(db, Supplier, supplier_id, name="Supplier")
 
@@ -133,7 +133,7 @@ def update_supplier(
     body: SupplierUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
 ) -> Supplier:
     supplier = get_or_404(db, Supplier, supplier_id, name="Supplier")
     before = audit.snapshot(supplier)
@@ -162,7 +162,7 @@ def soft_delete_supplier(
     supplier_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
 ) -> Supplier:
     supplier = get_or_404(db, Supplier, supplier_id, name="Supplier")
     supplier.soft_delete(actor.id)
@@ -187,7 +187,7 @@ def soft_delete_supplier(
 def list_scars(
     supplier_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ) -> list[SupplierScar]:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     return (
@@ -209,7 +209,7 @@ def create_scar(
     body: ScarCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
 ) -> SupplierScar:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     scar = SupplierScar(
@@ -243,7 +243,7 @@ def update_scar(
     body: ScarUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
 ) -> SupplierScar:
     scar = db.get(SupplierScar, scar_id)
     if scar is None:
@@ -283,7 +283,7 @@ def add_asl_entry(
     body: AslEntryCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
 ) -> ApprovedSupplierListEntry:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     entry = ApprovedSupplierListEntry(
@@ -313,7 +313,7 @@ def add_asl_entry(
 def list_asl_entries(
     supplier_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ) -> list[ApprovedSupplierListEntry]:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     return (
@@ -338,7 +338,7 @@ def add_rating(
     body: RatingCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
 ) -> SupplierRating:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
 
@@ -384,7 +384,7 @@ def add_rating(
 def list_ratings(
     supplier_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ) -> list[SupplierRating]:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     return (

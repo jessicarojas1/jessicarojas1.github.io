@@ -21,7 +21,7 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $overallPct ?>%</div><div class="stat-label">Overall Compliance</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--primary-dark))"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),#047857)"><i class="bi bi-check-circle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $compliantCount ?></div><div class="stat-label">Compliant Controls</div></div>
   </div>
   <div class="stat-card">
@@ -29,7 +29,7 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $totalControls - $compliantCount ?></div><div class="stat-label">Gaps</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),var(--info))"><i class="bi bi-collection-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),#0369a1)"><i class="bi bi-collection-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= count($packages) ?></div><div class="stat-label">Active Packages</div></div>
   </div>
 </div>
@@ -129,7 +129,7 @@ ob_start();
   .sidebar,.topbar,.bottom-nav,.page-actions,.alert-panel,.alert-overlay{display:none!important}
   .main-content{margin:0!important;padding:0!important}
   .page-content{padding:0!important}
-  .card{box-shadow:none!important;border:1px solid var(--border)!important;break-inside:avoid}
+  .card{box-shadow:none!important;border:1px solid #e4e4e7!important;break-inside:avoid}
 }
 </style>
 

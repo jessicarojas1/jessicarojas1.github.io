@@ -55,6 +55,7 @@ COPY --chown=sentinel:sentinel backend/app ./app
 COPY --chown=sentinel:sentinel backend/alembic ./alembic
 COPY --chown=sentinel:sentinel backend/alembic.ini backend/gunicorn.conf.py ./
 COPY --chown=sentinel:sentinel --chmod=0755 backend/docker-entrypoint.sh ./docker-entrypoint.sh
+COPY --chown=sentinel:sentinel --chmod=0755 backend/scripts ./scripts
 COPY --chown=sentinel:sentinel --from=frontend /fe/dist ./static
 
 RUN mkdir -p /app/var/uploads && chown -R sentinel:sentinel /app/var /app/static

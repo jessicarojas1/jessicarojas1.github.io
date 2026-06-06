@@ -32,6 +32,7 @@ from app.models.change import (
 )
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
 from app.models.document import (
+    Department,
     Document,
     DocumentApproval,
     DocumentRevision,
@@ -53,6 +54,7 @@ from app.models.mgmt_review import (
     ManagementReviewInput,
     ReviewStatus,
 )
+from app.models.permission import RolePagePermission
 from app.models.nonconformance import (
     DispositionType,
     NcSeverity,
@@ -101,7 +103,9 @@ __all__ = [
     "ElectronicSignature",
     "Attachment",
     "Notification",
+    "RolePagePermission",
     "user_roles",
+    "Department",
     "Document",
     "DocumentRevision",
     "DocumentApproval",

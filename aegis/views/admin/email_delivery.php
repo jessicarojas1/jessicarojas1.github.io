@@ -127,7 +127,7 @@ $typeColors = [
     $qp = array_merge($_GET, ['page'=>$p]);
   ?>
     <a href="?<?= http_build_query($qp) ?>"
-       style="display:inline-block;padding:6px 12px;border-radius:6px;border:1px solid <?= $active?'var(--primary)':'var(--border)' ?>;background:<?= $active?'var(--primary)':'var(--bg-card)' ?>;color:<?= $active?'#fff':'inherit' ?>;text-decoration:none;font-size:13px;font-weight:<?= $active?'700':'400' ?>">
+       style="display:inline-block;padding:6px 12px;border-radius:6px;border:1px solid <?= $active?'var(--primary)':'var(--border)' ?>;background:<?= $active?'var(--primary)':'var(--bg-card)' ?>;color:<?= $active?'var(--card-bg)':'inherit' ?>;text-decoration:none;font-size:13px;font-weight:<?= $active?'700':'400' ?>">
       <?= $p ?>
     </a>
   <?php endfor; ?>

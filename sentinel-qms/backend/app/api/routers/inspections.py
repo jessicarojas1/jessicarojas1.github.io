@@ -8,12 +8,12 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError
-from app.core.rbac import Permission, require_permission
 from app.models.inspection import (
     FaiCharacteristic,
     FaiReport,
@@ -53,7 +53,7 @@ def list_inspections(
     sort: SortParams = Depends(sort_params),
     inspection_type: InspectionType | None = Query(None),
     result: InspectionResult | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.INSPECTION_READ)),
+    _: CurrentUser = Depends(require_page("inspections", "view")),
 ) -> Page[InspectionList]:
     stmt = base_select(Inspection)
     if inspection_type:
@@ -70,7 +70,7 @@ def create_inspection(
     body: InspectionCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.INSPECTION_WRITE)),
+    actor: CurrentUser = Depends(require_page("inspections", "edit")),
 ) -> Inspection:
     insp = Inspection(
         **body.model_dump(),
@@ -103,7 +103,7 @@ def create_inspection(
 def get_inspection(
     inspection_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.INSPECTION_READ)),
+    _: CurrentUser = Depends(require_page("inspections", "view")),
 ) -> Inspection:
     return get_or_404(db, Inspection, inspection_id, name="Inspection")
 
@@ -114,7 +114,7 @@ def update_inspection(
     body: InspectionUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.INSPECTION_WRITE)),
+    actor: CurrentUser = Depends(require_page("inspections", "edit")),
 ) -> Inspection:
     insp = get_or_404(db, Inspection, inspection_id, name="Inspection")
     before = audit.snapshot(insp)
@@ -143,7 +143,7 @@ def create_fai_report(
     body: FaiReportCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.INSPECTION_WRITE)),
+    actor: CurrentUser = Depends(require_page("inspections", "edit")),
 ) -> FaiReport:
     """Create an AS9102 First Article Inspection report with balloon characteristics."""
     if body.inspection_id is not None and db.get(Inspection, body.inspection_id) is None:
@@ -188,7 +188,7 @@ def create_fai_report(
 def get_fai_report(
     fai_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.INSPECTION_READ)),
+    _: CurrentUser = Depends(require_page("inspections", "view")),
 ) -> FaiReport:
     report = db.get(FaiReport, fai_id)
     if report is None:

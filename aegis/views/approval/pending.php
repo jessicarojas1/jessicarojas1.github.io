@@ -1,6 +1,8 @@
 <?php
-$statusColors = ['pending' => 'var(--warning)', 'approved' => 'var(--success)', 'rejected' => 'var(--danger)'];
-$breadcrumbs = [['Approvals', '/approvals'], ['Pending', null]];
+$pageTitle    = 'Pending Approvals';
+$activeModule = 'approval';
+$breadcrumbs  = [['Approvals', '/approval'], ['Pending', null]];
+$statusColors = ['pending' => '#f59e0b', 'approved' => '#22c55e', 'rejected' => '#ef4444'];
 ?>
 <div class="page-header">
   <div>

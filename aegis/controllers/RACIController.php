@@ -4,7 +4,7 @@ declare(strict_types=1);
 class RACIController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
         $packages = Database::fetchAll(
             "SELECT cp.id, cp.name, COALESCE(s.code,'CUSTOM') AS standard_code,
                     COUNT(DISTINCT co.id) FILTER (WHERE co.level=1) AS domain_count,
@@ -27,7 +27,7 @@ class RACIController {
     }
 
     public function view(int $packageId): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
         $package = Database::fetchOne(
             "SELECT cp.*, COALESCE(s.code,'CUSTOM') AS standard_code
              FROM compliance_packages cp LEFT JOIN standards s ON s.id=cp.standard_id
@@ -59,7 +59,7 @@ class RACIController {
     }
 
     public function save(int $packageId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.view');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         Database::query("DELETE FROM raci_assignments WHERE package_id=?", [$packageId]);
@@ -87,7 +87,7 @@ class RACIController {
     }
 
     public function responsibilityMatrix(int $packageId): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
         $package = Database::fetchOne(
             "SELECT cp.*, COALESCE(s.code,'CUSTOM') AS standard_code
              FROM compliance_packages cp LEFT JOIN standards s ON s.id=cp.standard_id
@@ -115,7 +115,7 @@ class RACIController {
     }
 
     public function saveResponsibility(int $packageId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.view');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $data = $_POST['srm'] ?? [];

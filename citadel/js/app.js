@@ -22,15 +22,116 @@
   });
   applyThemeIcon();
 
+  /* ---------- Access control (users & page-level permissions) ---------- */
+  const escH = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let _loginModal = null;
+  function loginModal() { if (!_loginModal && root.bootstrap) _loginModal = new root.bootstrap.Modal($('loginModal')); return _loginModal; }
+  function openLogin() {
+    const a = CITADEL.auth; const h = $('login-hint');
+    if (h) h.innerHTML = 'Demo admin — <code>' + escH(a.DEFAULT_ADMIN.email) + '</code> / <code>' + escH(a.DEFAULT_ADMIN.password) + '</code>';
+    const er = $('login-error'); if (er) er.classList.add('d-none');
+    const m = loginModal(); if (m) m.show();
+  }
+  function renderUserArea() {
+    const a = CITADEL.auth, ua = $('user-area'); if (!ua) return;
+    const u = a.current();
+    const adm = $('nav-admin'); if (adm) adm.classList.toggle('d-none', !(u && u.role === 'admin'));
+    ua.innerHTML = u
+      ? `<span class="badge bg-secondary">${escH(u.role)}</span><span class="small d-none d-sm-inline">${escH(u.name || u.email)}</span><button class="btn btn-sm btn-outline-secondary" id="logout-btn" title="Sign out"><i class="bi bi-box-arrow-right"></i></button>`
+      : `<button class="btn btn-sm btn-outline-primary" id="login-btn"><i class="bi bi-box-arrow-in-right"></i> Login</button>`;
+  }
+  function applyAccess() {
+    const a = CITADEL.auth, st = a.settings();
+    renderUserArea();
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      const restrict = st.enforce && !a.can(b.dataset.tab);
+      b.classList.toggle('d-none', restrict);
+    });
+    // deep-scan gate
+    const dt = $('deep-mode-toggle');
+    if (dt && st.enforce && !a.can('deepscan')) { dt.checked = false; dt.disabled = true; } else if (dt) { dt.disabled = false; }
+    // if the active tab is now restricted, switch to the first accessible one
+    const active = document.querySelector('.tab-btn.active');
+    if (st.enforce && active && active.classList.contains('d-none')) {
+      const first = document.querySelector('.tab-btn:not(.d-none)');
+      if (first) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('d-none'));
+        first.classList.add('active');
+        const panel = $(first.dataset.tab); if (panel) panel.classList.remove('d-none');
+      }
+    }
+  }
+  // Block a scan if access control is on and the user lacks the 'analyze' page.
+  function gateScan() {
+    const a = CITADEL.auth, st = a.settings();
+    if (!st.enforce) return true;
+    if (a.can('analyze')) return true;
+    if (!a.current()) { openLogin(); showProgress(100, 'Sign in required to run a scan.', ''); }
+    else { showProgress(100, 'Your account does not have permission to run scans.', ''); }
+    return false;
+  }
+  CITADEL.auth.ready.then(applyAccess);
+
+  /* ---------- Hero live stats ---------- */
+  (function () {
+    const hs = $('hero-stats'); if (!hs) return;
+    const cwe = new Set(CITADEL.rules.filter(r => r.cwe).map(r => r.cwe)).size;
+    const stats = [
+      [CITADEL.lang.count, 'languages'],
+      [CITADEL.rules.length, 'SAST rules'],
+      [CITADEL.frameworks.CATALOG.length, 'frameworks'],
+      [CITADEL.frameworks.catalogTotal(), 'controls'],
+      [cwe, 'CWEs']
+    ];
+    hs.innerHTML = stats.map(s => `<div class="hero-stat"><span class="hs-num">${s[0]}</span><span class="hs-lbl">${s[1]}</span></div>`).join('');
+  })();
+
   /* ---------- Hero framework chips ---------- */
   $('framework-chips').innerHTML = CITADEL.frameworks.CATALOG
     .map(f => `<span class="hero-chip" title="${f.desc.replace(/"/g, '')}">${f.name}</span>`).join('');
+
+  /* ---------- Frameworks section grid ---------- */
+  const fgrid = $('frameworks-grid');
+  if (fgrid) {
+    fgrid.innerHTML = CITADEL.frameworks.CATALOG.map(f => `
+      <div class="col-sm-6 col-lg-4 col-xl-3">
+        <a class="fw-tile" href="${f.url}" target="_blank" rel="noopener">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <span class="fw-tile-name">${f.name}</span>
+            <span class="badge framework-tag">${f.tag}</span>
+          </div>
+          <div class="fw-tile-ver">${f.version}</div>
+          <div class="fw-tile-desc">${f.desc.replace(/"/g, '')}</div>
+        </a>
+      </div>`).join('');
+  }
+
+  /* ---------- Engine / scanner status panel ---------- */
+  function renderEngineStatus(health) {
+    const el = $('engine-status'); if (!el) return;
+    const workerOn = (typeof Worker !== 'undefined');
+    const pill = (label, on, title) => `<span class="es-pill ${on ? 'on' : 'off'}" title="${title || ''}"><span class="es-dot"></span>${label}</span>`;
+    let html = `<div class="es-group"><span class="es-title"><i class="bi bi-cpu"></i> In-browser engine</span>
+      ${pill('Active', true, 'heuristic SAST + secrets + SBOM + OSV CVEs')}
+      ${pill(workerOn ? 'Web Worker' : 'Main thread', true, workerOn ? 'non-blocking background scanning' : 'inline scanning')}</div>`;
+    if (health && health.scanners) {
+      const scs = health.scanners.map(s => pill(s.tool, s.available, s.available ? 'online' : 'not installed')).join('');
+      html += `<div class="es-group"><span class="es-title"><i class="bi bi-hdd-network"></i> Backend scanners</span>${scs}
+        ${pill('AI fix', !!health.ai, health.ai ? 'Claude remediation on' : 'no API key')}</div>`;
+    } else {
+      html += `<div class="es-group"><span class="es-title"><i class="bi bi-hdd-network"></i> Backend</span>${pill('Not connected — client-side only', false, 'deploy the backend for deep scan')}</div>`;
+    }
+    el.innerHTML = html;
+  }
+  renderEngineStatus(null);
 
   /* ---------- Deep-scan mode (only if backend is present) ---------- */
   let deepMode = false, deepAvailable = false, aiAvailable = false;
   (async function initDeep() {
     const st = await CITADEL.api.available();
     if (!st) return;
+    renderEngineStatus(st);
     deepAvailable = true;
     aiAvailable = !!st.ai;
     CITADEL.report.setAi(aiAvailable);
@@ -47,6 +148,7 @@
   })();
 
   $('scan-url-btn').addEventListener('click', async () => {
+    if (!gateScan()) return;
     const url = $('repo-url').value.trim();
     if (!url) return;
     try {
@@ -132,6 +234,7 @@
     showProgress(100, mode === 'deep' ? 'Done (deep scan).' : 'Done.', report.findings.length + ' finding(s)');
     CITADEL.report.render(report);
     try { CITADEL.history.record(report); } catch (e) {}
+    applyAccess();
     $('results').classList.remove('d-none');
     hideProgress();
     $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -157,6 +260,7 @@
   }
 
   async function handleFiles(files) {
+    if (!gateScan()) return;
     if (deepMode && deepAvailable) return handleDeep(files);
     try {
       showProgress(5, 'Ingesting files…', files.length + ' item(s)');
@@ -171,18 +275,52 @@
   }
 
   async function runDemo() {
+    if (!gateScan()) return;
     showProgress(20, 'Building demo project…', 'synthetic vulnerable app');
     const entries = CITADEL.demo.buildEntries();
     await runScan(entries);
   }
 
+  // Web Worker: keeps the UI responsive on large repos. Falls back to inline.
+  let _worker;
+  function getWorker() {
+    if (_worker !== undefined) return _worker;
+    try { _worker = new Worker('js/worker.js'); _worker.onerror = function () {}; }
+    catch (e) { _worker = null; }
+    return _worker;
+  }
+  function scanInline(entries) {
+    let p = 45;
+    return CITADEL.scanner.scan(entries, (stage) => { p = Math.min(96, p + 7); showProgress(p, stage, ''); });
+  }
+  function scanViaWorker(entries) {
+    return new Promise((resolve, reject) => {
+      const w = getWorker();
+      if (!w) return reject(new Error('no worker'));
+      let p = 45, settled = false;
+      const onMsg = (e) => {
+        const m = e.data || {};
+        if (m.type === 'progress') { p = Math.min(96, p + 7); showProgress(p, m.stage, ''); }
+        else if (m.type === 'done') { cleanup(); resolve(m.report); }
+        else if (m.type === 'error' || m.type === 'fatal') { cleanup(); reject(new Error(m.message)); }
+      };
+      const onErr = () => { cleanup(); reject(new Error('worker error')); };
+      function cleanup() { if (settled) return; settled = true; w.removeEventListener('message', onMsg); w.removeEventListener('error', onErr); }
+      w.addEventListener('message', onMsg);
+      w.addEventListener('error', onErr);
+      try { w.postMessage({ type: 'scan', entries: entries }); } catch (e) { cleanup(); reject(e); }
+    });
+  }
   async function runScan(entries) {
     if (!entries.length) { showProgress(100, 'No analyzable files found.', ''); return; }
-    let p = 45;
-    const report = await CITADEL.scanner.scan(entries, (stage) => {
-      p = Math.min(96, p + 7);
-      showProgress(p, stage, '');
-    });
+    let report;
+    try {
+      showProgress(45, 'Analyzing…', getWorker() ? 'background worker' : '');
+      report = getWorker() ? await scanViaWorker(entries) : await scanInline(entries);
+    } catch (err) {
+      // Worker failed for any reason — degrade to inline scanning.
+      try { report = await scanInline(entries); } catch (e2) { showProgress(100, 'Scan error: ' + (e2.message || e2), ''); return; }
+    }
     finishScan(report, 'quick');
   }
 
@@ -190,6 +328,18 @@
 
   /* ---------- Tabs ---------- */
   document.addEventListener('click', (e) => {
+    // Auth controls
+    if (e.target.closest('#login-btn')) return openLogin();
+    if (e.target.closest('#logout-btn')) { CITADEL.auth.logout(); applyAccess(); return; }
+    if (e.target.closest('#login-submit')) {
+      const em = $('login-email').value, pw = $('login-password').value;
+      CITADEL.auth.loginByCreds(em, pw).then(u => {
+        if (u) { const m = loginModal(); if (m) m.hide(); $('login-password').value = ''; applyAccess(); }
+        else { const er = $('login-error'); if (er) { er.textContent = 'Invalid credentials or inactive account.'; er.classList.remove('d-none'); } }
+      });
+      return;
+    }
+
     const tab = e.target.closest('.tab-btn');
     if (tab) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -253,10 +403,24 @@
 
     // Exports
     if (e.target.closest('#exp-json')) return CITADEL.report.exportJson();
+    // Full control-list expander (Compliance tab)
+    const ce = e.target.closest('.ctrl-expand');
+    if (ce) {
+      const el = $('fwctrls-' + ce.dataset.fwctrls);
+      if (el) { if (!ce.dataset.orig) ce.dataset.orig = ce.textContent; const hidden = el.classList.toggle('d-none'); ce.textContent = hidden ? ce.dataset.orig : 'Hide controls'; }
+      return;
+    }
+    // Report tab + AI fix prompt
+    if (e.target.closest('#dl-report')) return CITADEL.report.downloadHtmlReport(CITADEL.report.current);
+    if (e.target.closest('#copy-aifix')) return CITADEL.report.copyAiFix();
+    if (e.target.closest('#dl-aifix')) return CITADEL.report.downloadAiFix();
+
     if (e.target.closest('#exp-sbom') || e.target.closest('#dl-sbom')) return CITADEL.report.exportSbom();
     if (e.target.closest('#exp-sarif')) return CITADEL.report.exportSarif();
     if (e.target.closest('#exp-poam')) return CITADEL.report.exportPoam();
     if (e.target.closest('#exp-ssp')) return CITADEL.report.exportSsp();
+    if (e.target.closest('#exp-junit')) return CITADEL.report.exportJUnit();
+    if (e.target.closest('#exp-prcomment')) return CITADEL.report.exportPrComment();
     if (e.target.closest('#exp-md')) return CITADEL.report.exportMarkdown();
     if (e.target.closest('#exp-pdf')) return CITADEL.report.exportPdf();
   });

@@ -10,11 +10,11 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
-from app.core.rbac import Permission, require_permission
 from app.models.change import ChangeOrder, ChangeStatus, ChangeType
 from app.schemas.auth import CurrentUser
 from app.schemas.change import (
@@ -35,6 +35,7 @@ from app.services.crud import (
     paginate,
     request_context,
 )
+from app.services.notifications import notify_assignment
 from app.services.signatures import create_signature
 from app.services.workflow import StateMachine
 
@@ -63,7 +64,7 @@ def list_changes(
     sort: SortParams = Depends(sort_params),
     status_filter: ChangeStatus | None = Query(None, alias="status"),
     change_type: ChangeType | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.CHANGE_READ)),
+    _: CurrentUser = Depends(require_page("changes", "view")),
 ) -> Page[ChangeOrderList]:
     stmt = base_select(ChangeOrder)
     if status_filter:
@@ -80,7 +81,7 @@ def create_change(
     body: ChangeOrderCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CHANGE_WRITE)),
+    actor: CurrentUser = Depends(require_page("changes", "edit")),
 ) -> ChangeOrder:
     co = ChangeOrder(
         **body.model_dump(),
@@ -102,6 +103,15 @@ def create_change(
         after=co,
         **request_context(request),
     )
+    if co.owner_id:
+        notify_assignment(
+            db,
+            user_id=co.owner_id,
+            title=f"Change {co.change_number} assigned to you",
+            message=co.title,
+            entity_type=ENTITY,
+            entity_id=co.id,
+        )
     db.commit()
     db.refresh(co)
     return co
@@ -111,7 +121,7 @@ def create_change(
 def get_change(
     change_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.CHANGE_READ)),
+    _: CurrentUser = Depends(require_page("changes", "view")),
 ) -> ChangeOrder:
     return get_or_404(db, ChangeOrder, change_id, name="Change order")
 
@@ -122,10 +132,11 @@ def update_change(
     body: ChangeOrderUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CHANGE_WRITE)),
+    actor: CurrentUser = Depends(require_page("changes", "edit")),
 ) -> ChangeOrder:
     co = get_or_404(db, ChangeOrder, change_id, name="Change order")
     before = audit.snapshot(co)
+    prev_owner = co.owner_id
     for key, value in body.model_dump(exclude_unset=True).items():
         setattr(co, key, value)
     co.updated_by = actor.id
@@ -141,6 +152,15 @@ def update_change(
         after=co,
         **request_context(request),
     )
+    if co.owner_id and co.owner_id != prev_owner:
+        notify_assignment(
+            db,
+            user_id=co.owner_id,
+            title=f"Change {co.change_number} assigned to you",
+            message=co.title,
+            entity_type=ENTITY,
+            entity_id=co.id,
+        )
     db.commit()
     db.refresh(co)
     return co
@@ -152,7 +172,7 @@ def change_status(
     body: ChangeStatusChange,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CHANGE_WRITE)),
+    actor: CurrentUser = Depends(require_page("changes", "edit")),
 ) -> ChangeOrder:
     co = get_or_404(db, ChangeOrder, change_id, name="Change order")
     CHANGE_FSM.assert_transition(co.status, body.status)
@@ -184,7 +204,7 @@ def approve_change(
     body: ChangeApproval,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CHANGE_WRITE)),
+    actor: CurrentUser = Depends(require_page("changes", "edit")),
 ) -> ChangeOrder:
     co = get_or_404(db, ChangeOrder, change_id, name="Change order")
     CHANGE_FSM.assert_transition(

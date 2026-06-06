@@ -4,14 +4,14 @@ declare(strict_types=1);
 class ExportController {
 
     private static array $exportTypes = [
-        'risks'       => ['label' => 'Risk Register',         'perm' => 'risk.read'],
-        'policies'    => ['label' => 'Policies',              'perm' => 'policy.read'],
-        'audits'      => ['label' => 'Audits',                'perm' => 'audit.read'],
-        'incidents'   => ['label' => 'Incidents',             'perm' => 'incident.read'],
-        'vendors'     => ['label' => 'Vendors',               'perm' => 'vendor.read'],
-        'controls'    => ['label' => 'Control Implementations','perm' => 'compliance.read'],
-        'assets'      => ['label' => 'Asset Inventory',       'perm' => 'read'],
-        'activity_log'=> ['label' => 'Activity Log',          'perm' => 'admin'],
+        'risks'       => ['label' => 'Risk Register',          'perm' => 'risk.view'],
+        'policies'    => ['label' => 'Policies',               'perm' => 'policy.view'],
+        'audits'      => ['label' => 'Audits',                 'perm' => 'audit.view'],
+        'incidents'   => ['label' => 'Incidents',              'perm' => 'incident.view'],
+        'vendors'     => ['label' => 'Vendors',                'perm' => 'vendor.view'],
+        'controls'    => ['label' => 'Control Implementations', 'perm' => 'compliance.view'],
+        'assets'      => ['label' => 'Asset Inventory',        'perm' => 'report.view'],
+        'activity_log'=> ['label' => 'Activity Log',           'perm' => 'admin'],
     ];
 
     public function index(): void {

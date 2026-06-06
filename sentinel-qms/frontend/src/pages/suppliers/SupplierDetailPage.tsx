@@ -4,6 +4,7 @@ import { supplierHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 
@@ -29,6 +30,7 @@ export default function SupplierDetailPage() {
             }
             subtitle={`Supplier code ${s.supplier_code}`}
             breadcrumbs={[{ label: 'Suppliers', to: '/suppliers' }, { label: s.name }]}
+            actions={<PrintButton />}
           />
 
           <div className="stack">

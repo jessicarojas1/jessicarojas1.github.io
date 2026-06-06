@@ -68,7 +68,7 @@ $urgent = array_filter($expiring, function($c) {
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
     <?php foreach ($expiring as $c):
       $daysLeft = (int)ceil((strtotime($c['end_date']) - time()) / 86400);
-      $urgency  = $daysLeft <= 14 ? 'var(--danger)' : ($daysLeft <= 30 ? 'var(--warning)' : '#0284c7');
+      $urgency  = $daysLeft <= 14 ? 'var(--danger)' : ($daysLeft <= 30 ? 'var(--warning)' : 'var(--info)');
     ?>
     <div class="card" style="border-left:3px solid <?= $urgency ?>;padding:0">
       <div class="card-body" style="padding:14px 16px">
@@ -78,7 +78,7 @@ $urgent = array_filter($expiring, function($c) {
             <div style="font-size:12px;color:var(--text-muted);margin-top:2px"><?= Security::h($c['vendor_name']) ?></div>
           </div>
           <?php if ($c['auto_renewal']): ?>
-          <span style="font-size:11px;background:var(--primary-tint);color:var(--primary);padding:2px 7px;border-radius:10px;white-space:nowrap;margin-left:8px">Auto-Renews</span>
+          <span style="font-size:11px;background:var(--primary)18;color:var(--primary);padding:2px 7px;border-radius:10px;white-space:nowrap;margin-left:8px">Auto-Renews</span>
           <?php endif; ?>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px">
@@ -131,12 +131,12 @@ $urgent = array_filter($expiring, function($c) {
         <tbody>
           <?php foreach ($contracts as $c):
             $statusMap = [
-              'active'     => ['color'=>'var(--success)','bg'=>'#dcfce7','label'=>'Active'],
-              'draft'      => ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>'Draft'],
-              'expired'    => ['color'=>'var(--danger)','bg'=>'#fee2e2','label'=>'Expired'],
-              'terminated' => ['color'=>'#a1a1aa','bg'=>'#f9fafb','label'=>'Terminated'],
+              'active'     => ['color'=>'var(--success)','bg'=>'var(--success-subtle)','label'=>'Active'],
+              'draft'      => ['color'=>'var(--text-muted)','bg'=>'var(--bg-subtle)','label'=>'Draft'],
+              'expired'    => ['color'=>'var(--danger)','bg'=>'var(--danger-subtle)','label'=>'Expired'],
+              'terminated' => ['color'=>'var(--text-muted)','bg'=>'var(--surface-alt)','label'=>'Terminated'],
             ];
-            $badge = $statusMap[$c['status']] ?? ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>ucfirst($c['status'])];
+            $badge = $statusMap[$c['status']] ?? ['color'=>'var(--text-muted)','bg'=>'var(--bg-subtle)','label'=>ucfirst($c['status'])];
           ?>
           <tr>
             <td style="font-weight:500"><?= Security::h($c['vendor_name']) ?></td>
@@ -181,8 +181,8 @@ $urgent = array_filter($expiring, function($c) {
       </table>
     </div>
     <?php else: ?>
-    <div style="text-align:center;padding:48px 20px;color:var(--text-muted)">
-      <i class="bi bi-file-earmark-text" style="font-size:40px;display:block;margin-bottom:12px"></i>
+    <div class="empty-state-sm">
+      <i class="bi bi-file-earmark-text" style="font-size:40px"></i>
       <p style="font-size:15px;margin:0">No contracts found.</p>
       <p style="font-size:13px;margin:8px 0 0">Add contracts from the vendor detail page.</p>
     </div>

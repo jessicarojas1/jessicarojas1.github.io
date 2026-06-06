@@ -1,18 +1,23 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GitPullRequestArrow } from 'lucide-react';
+import { GitPullRequestArrow, Plus } from 'lucide-react';
 import { changeHooks } from '@/hooks';
 import { useListController } from '@/hooks/useListController';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
+import { usePagePerms } from '@/lib/permissions';
 import { PageHeader } from '@/components/PageHeader';
 import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select } from '@/components/FormField';
+import { ChangeCreateModal } from './ChangeCreateModal';
 import type { ChangeRequest } from '@/types';
 
 export default function ChangeListPage() {
   const navigate = useNavigate();
   const ctl = useListController();
+  const { canEdit } = usePagePerms();
+  const [createOpen, setCreateOpen] = useState(false);
   const { data, isLoading, error } = changeHooks.useList(ctl.params);
 
   const columns: Column<ChangeRequest>[] = [
@@ -32,6 +37,13 @@ export default function ChangeListPage() {
         icon={<GitPullRequestArrow size={22} />}
         subtitle="Engineering change notices/orders (ECN/ECO), deviations, and waivers."
         breadcrumbs={[{ label: 'Change Control' }]}
+        actions={
+          canEdit('changes') && (
+            <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
+              <Plus size={16} /> New Change
+            </button>
+          )
+        }
       />
       <DataTable
         columns={columns}
@@ -50,6 +62,7 @@ export default function ChangeListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="change-control"
         filters={
           <>
             <div className="field">

@@ -8,7 +8,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      // process.cwd() is the project root when Vite runs (avoids ESM __dirname).
+      '@': path.resolve(process.cwd(), './src'),
     },
   },
   server: {

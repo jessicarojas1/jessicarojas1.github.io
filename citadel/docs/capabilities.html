@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self';">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../theme.css" />
+  <link rel="stylesheet" href="../css/citadel.css" />
+  <title>CITADEL — Capabilities &amp; Language Coverage</title>
+  <style>
+    .caps-wrap{max-width:1040px;margin:0 auto;padding:0 1rem}
+    .caps-section{padding:2rem 0;border-bottom:1px solid var(--bs-border-color)}
+    .lang-cat{margin-bottom:1.4rem}
+    .lang-cat h6{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--bs-secondary-color);border-left:3px solid var(--citadel-accent);padding-left:.5rem;margin-bottom:.6rem}
+    .lang-chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;padding:.25rem .55rem;border:1px solid var(--bs-border-color);border-radius:999px;background:var(--bs-body-bg);margin:.15rem}
+    .lang-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .lang-chip .mini{font-size:.6rem;padding:.05rem .3rem;border-radius:4px;font-weight:700}
+    .mini.sast{background:#0ea5e9;color:#fff}.mini.sbom{background:#16a34a;color:#fff}.mini.exec{background:#fd7e14;color:#fff}
+    .stat-big{font-size:2.2rem;font-weight:800;color:var(--citadel-accent);line-height:1}
+    .cap-row{display:flex;gap:.7rem;padding:.6rem 0;border-bottom:1px dashed var(--bs-border-color)}
+    .cap-row i{font-size:1.2rem;color:var(--citadel-accent);flex-shrink:0}
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg sticky-top citadel-bar">
+    <div class="container-fluid px-3 px-lg-4">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="../index.html">
+        <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0ea5e9"/><path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>
+        <span>CITADEL <span class="text-body-secondary fw-normal">/ capabilities</span></span>
+      </a>
+      <div class="ms-auto d-flex gap-2">
+        <a class="btn btn-sm btn-outline-secondary" href="index.html"><i class="bi bi-diagram-3"></i> Architecture</a>
+        <a class="btn btn-sm btn-outline-secondary" href="../index.html"><i class="bi bi-arrow-left"></i> Analyzer</a>
+        <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="citadel-hero text-center">
+    <div class="container">
+      <span class="badge rounded-pill citadel-pill mb-3"><i class="bi bi-stack"></i> Enterprise coverage</span>
+      <h1 class="display-6 fw-bold">Capabilities &amp; Language Coverage</h1>
+      <p class="lead mx-auto" style="max-width:780px">CITADEL analyzes <strong id="h-langs">…</strong> programming, scripting, query, IaC and markup languages, plus executables, bytecode &amp; archives — mapping every finding to <strong id="h-fw">…</strong> compliance frameworks (<strong id="h-controls">…</strong> controls).</p>
+    </div>
+  </section>
+
+  <div class="container py-4"><div class="caps-wrap">
+
+    <section class="caps-section">
+      <div class="row text-center g-3">
+        <div class="col-6 col-md-3"><div class="stat-big" id="s-langs">…</div><div class="small text-body-secondary">Languages &amp; formats</div></div>
+        <div class="col-6 col-md-3"><div class="stat-big" id="s-rules">…</div><div class="small text-body-secondary">SAST rules</div></div>
+        <div class="col-6 col-md-3"><div class="stat-big" id="s-fw">…</div><div class="small text-body-secondary">Frameworks</div></div>
+        <div class="col-6 col-md-3"><div class="stat-big" id="s-controls">…</div><div class="small text-body-secondary">Controls catalogued</div></div>
+      </div>
+    </section>
+
+    <section class="caps-section">
+      <h2 class="fw-bold mb-3">Analysis capabilities</h2>
+      <div id="cap-list"></div>
+    </section>
+
+    <section class="caps-section">
+      <h2 class="fw-bold mb-1">Language &amp; format coverage</h2>
+      <p class="text-body-secondary small">
+        <span class="lang-chip"><span class="mini sast">SAST</span></span> language-specific rules ·
+        <span class="lang-chip"><span class="mini sbom">SBOM</span></span> dependency manifest parsed ·
+        <span class="lang-chip"><span class="mini exec">EXE</span></span> compiled/bytecode binary analysis.
+        Universal rules (secrets, weak crypto, injection, TLS, IaC) run on <em>every</em> text language regardless of badges.
+      </p>
+      <div id="lang-matrix" class="mt-3"></div>
+    </section>
+
+    <section class="caps-section">
+      <h2 class="fw-bold mb-3">Executables, bytecode &amp; archives</h2>
+      <div id="exec-list" class="d-flex flex-wrap gap-2"></div>
+      <p class="small text-body-secondary mt-3">Binary analysis covers format detection, Shannon-entropy (packing), printable-string extraction, embedded-secret/URL/IP discovery, and suspicious-capability indicators (process injection, persistence, anti-debug, keylogging, network/download). ClamAV signature scanning is added on the deep-scan backend.</p>
+    </section>
+
+    <section class="caps-section">
+      <h2 class="fw-bold mb-1">Weakness coverage</h2>
+      <p class="text-body-secondary small">The specific <strong>CWE Top 25</strong> and <strong>OWASP Top 10</strong> weaknesses the engine detects (via its rules and the control cross-walk).</p>
+      <div id="coverage"></div>
+    </section>
+
+    <section class="caps-section" style="border-bottom:0">
+      <h2 class="fw-bold mb-3">Compliance frameworks</h2>
+      <p class="text-body-secondary">Findings are cross-walked to the controls of every standard below. See the <a href="index.html#frameworks">control cross-walk</a> for detail.</p>
+      <div id="fw-list" class="d-flex flex-wrap gap-2"></div>
+    </section>
+
+  </div></div>
+
+  <footer class="citadel-footer text-center py-4"><div class="container small text-body-secondary">CITADEL — enterprise source-code, executable &amp; script compliance review.</div></footer>
+
+  <script src="../js/languages.js"></script>
+  <script src="../js/frameworks.js"></script>
+  <script src="../js/controls-federal.js"></script>
+  <script src="../js/controls-appsec.js"></script>
+  <script src="../js/controls-extra.js"></script>
+  <script src="../js/rules.js"></script>
+  <script src="../js/sbom.js"></script>
+  <script src="../js/binary.js"></script>
+  <script>
+  (function () {
+    var C = window.CITADEL;
+    // theme toggle
+    function icon(){var t=document.documentElement.getAttribute('data-bs-theme');var i=document.querySelector('#themeToggleBtn .theme-icon');if(i)i.textContent=t==='dark'?'☀️':'🌙';}
+    document.getElementById('themeToggleBtn').addEventListener('click',function(){var c=document.documentElement.getAttribute('data-bs-theme');var n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-bs-theme',n);try{localStorage.setItem('bsTheme',n);}catch(e){}icon();});icon();
+
+    var LANGS = C.lang.LANGS, CATS = C.lang.CATS;
+    var RULES = C.rules || [];
+    var SBOM_ECO = {}; // language name -> true if it has a manifest ecosystem
+    // Map sbom manifest ecosystems to representative languages.
+    var ecoLang = { npm:['JavaScript','TypeScript'], pypi:['Python'], maven:['Java','Kotlin','Scala','Groovy'], golang:['Go'], gem:['Ruby'], composer:['PHP'], cargo:['Rust'], nuget:['C#','F#','Visual Basic'] };
+    Object.keys(ecoLang).forEach(function(e){ ecoLang[e].forEach(function(l){ SBOM_ECO[l]=true; }); });
+
+    // language -> count of language-specific SAST rules
+    var sastByLang = {}, universal = 0;
+    RULES.forEach(function(r){
+      if (r.langs === '*') { universal++; return; }
+      (r.langs||[]).forEach(function(l){ sastByLang[l]=(sastByLang[l]||0)+1; });
+    });
+    var execLangs = { JavaScript:0 }; // n/a; exec handled separately
+
+    // Stats
+    document.getElementById('h-langs').textContent = C.lang.count;
+    document.getElementById('s-langs').textContent = C.lang.count;
+    document.getElementById('s-rules').textContent = RULES.length;
+    document.getElementById('s-fw').textContent = C.frameworks.CATALOG.length;
+    document.getElementById('h-fw').textContent = C.frameworks.CATALOG.length;
+    var totalControls = C.frameworks.catalogTotal ? C.frameworks.catalogTotal() : 0;
+    document.getElementById('s-controls').textContent = totalControls;
+    document.getElementById('h-controls').textContent = totalControls;
+
+    // Capabilities list
+    var caps = [
+      ['bug-fill','SAST (Static Application Security Testing)', RULES.length + ' heuristic rules + Semgrep/Bandit on the backend — injection, XSS, crypto, deserialization, SSRF, traversal, IaC misconfig and more across all code-bearing languages.'],
+      ['key-fill','Secrets & credential detection','Entropy + pattern matching for API keys, tokens, private keys and passwords; Gitleaks/Trivy on the backend.'],
+      ['box-seam-fill','SBOM & live CVEs','CycloneDX SBOM from 8 package ecosystems, cross-checked against OSV.dev for real CVEs; Syft/Grype/Trivy on the backend.'],
+      ['cpu-fill','Executable & bytecode analysis','PE/ELF/Mach-O/WASM/DEX/Java-class detection, entropy/packing, string & capability indicators; ClamAV malware scan on the backend.'],
+      ['clipboard-check-fill','Compliance mapping','Every finding mapped to the exact controls across ' + C.frameworks.CATALOG.length + ' frameworks (' + totalControls + ' controls catalogued).'],
+      ['award-fill','Quality, licenses & deployment','Maintainability index, comment density, license detection (copyleft flags), and Docker/K8s/Terraform/CI deployment detection.'],
+      ['robot','AI-assisted remediation','Per-finding “Explain & fix” via Claude (backend), plus a generated copy-paste fix prompt enumerating every issue.'],
+      ['download','Reports & CI/CD','Report tab + downloadable HTML/JSON/SARIF/CycloneDX/POA&M/SSP/Markdown/PDF, a CLI, and a GitHub Action for code scanning.']
+    ];
+    document.getElementById('cap-list').innerHTML = caps.map(function(c){
+      return '<div class="cap-row"><i class="bi bi-'+c[0]+'"></i><div><strong>'+c[1]+'</strong><div class="small text-body-secondary">'+c[2]+'</div></div></div>';
+    }).join('');
+
+    // Language matrix grouped by category
+    var byCat = {};
+    LANGS.forEach(function(l){ (byCat[l.c]=byCat[l.c]||[]).push(l); });
+    var execNote = { WebAssembly:1, Java:1, Kotlin:1, Scala:1, Groovy:1, Clojure:1 }; // produce analyzable binaries/bytecode
+    var html = '';
+    Object.keys(CATS).forEach(function(cat){
+      var list = byCat[cat]; if (!list) return;
+      html += '<div class="lang-cat"><h6>'+CATS[cat].label+' · '+list.length+'</h6>';
+      html += list.map(function(l){
+        var badges = '';
+        if (sastByLang[l.n]) badges += '<span class="mini sast" title="'+sastByLang[l.n]+' language-specific SAST rules">SAST</span>';
+        if (SBOM_ECO[l.n]) badges += ' <span class="mini sbom" title="dependency manifest parsed">SBOM</span>';
+        return '<span class="lang-chip"><span class="lang-dot" style="background:'+(l.col||CATS[cat].color)+'"></span>'+l.n+(l.code?'':' <span class="text-body-secondary" style="font-size:.65rem">(data)</span>')+(badges?' '+badges:'')+'</span>';
+      }).join('');
+      html += '</div>';
+    });
+    document.getElementById('lang-matrix').innerHTML = html;
+
+    // Executable formats
+    var formats = ['PE / Windows (.exe/.dll)','ELF (Linux/Unix)','Mach-O (macOS/iOS)','Java class','WebAssembly (.wasm)','Android DEX','LLVM bitcode','Python bytecode (.pyc)','ZIP / JAR / APK / Office','7-Zip','TAR','GZIP / BZIP2 / XZ','RAR','Microsoft Cabinet','PDF','Shebang scripts'];
+    document.getElementById('exec-list').innerHTML = formats.map(function(f){ return '<span class="lang-chip"><i class="bi bi-file-earmark-binary"></i> '+f+'</span>'; }).join('');
+
+    // Weakness coverage: CWEs the engine detects (rules + control cross-walk)
+    var engineCwe = new Set();
+    RULES.forEach(function(r){ if (r.cwe) String(r.cwe).match(/CWE-\d+/gi)?.forEach(function(c){ engineCwe.add(c.toUpperCase()); }); });
+    var MAP = C.frameworks.MAP, CATS2 = C.frameworks.CATEGORIES;
+    var owaspCovered = new Set();
+    Object.keys(CATS2).forEach(function(cat){
+      var m = MAP[cat] || {};
+      (m.cwe || []).forEach(function(c){ var mm = String(c).match(/CWE-\d+/i); if (mm) engineCwe.add(mm[0].toUpperCase()); });
+      (m.owasp || []).forEach(function(o){ owaspCovered.add(String(o).split(/\s+/)[0]); });
+    });
+    function chips(items, isCovered){
+      return items.map(function(it){
+        var on = isCovered(it.id);
+        return '<span class="lang-chip" style="'+(on?'border-color:color-mix(in srgb,#16a34a 50%,var(--bs-border-color))':'opacity:.5')+'"><span class="lang-dot" style="background:'+(on?'#16a34a':'#6c757d')+'"></span><code style="font-size:.72rem">'+it.id+'</code> '+it.title.slice(0,30)+'</span>';
+      }).join('');
+    }
+    var cwe25 = (C.controlCatalog.cwe && C.controlCatalog.cwe.families[0].controls) || [];
+    var owasp10 = (C.controlCatalog.owasp && C.controlCatalog.owasp.families[0].controls) || [];
+    var cweHit = cwe25.filter(function(c){ return engineCwe.has(c.id.toUpperCase()); }).length;
+    var owHit = owasp10.filter(function(o){ return owaspCovered.has(o.id); }).length;
+    document.getElementById('coverage').innerHTML =
+      '<h6 class="mt-2">CWE Top 25 — <span style="color:#16a34a">'+cweHit+' / '+cwe25.length+'</span> detected</h6><div class="mb-3">'+chips(cwe25, function(id){return engineCwe.has(id.toUpperCase());})+'</div>'+
+      '<h6>OWASP Top 10 — <span style="color:#16a34a">'+owHit+' / '+owasp10.length+'</span> covered</h6><div>'+chips(owasp10, function(id){return owaspCovered.has(id);})+'</div>'+
+      '<p class="small text-body-secondary mt-2">Total distinct CWEs referenced by the engine: <strong>'+engineCwe.size+'</strong>.</p>';
+
+    // Frameworks
+    document.getElementById('fw-list').innerHTML = C.frameworks.CATALOG.map(function(f){
+      var n = C.frameworks.catalog ? C.frameworks.catalog(f.id) : null;
+      var tot = n ? n.families.reduce(function(a,fm){return a+(fm.controls?fm.controls.length:0);},0) : 0;
+      return '<a class="lang-chip" href="'+f.url+'" target="_blank" rel="noopener" style="text-decoration:none"><span class="badge framework-tag">'+f.tag+'</span> '+f.name+(tot?' <span class="text-body-secondary" style="font-size:.7rem">'+tot+'</span>':'')+'</a>';
+    }).join('');
+  })();
+  </script>
+</body>
+</html>

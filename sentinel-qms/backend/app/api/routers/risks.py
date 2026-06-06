@@ -8,11 +8,11 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
-from app.core.rbac import Permission, require_permission
 from app.models.risk import Risk, RiskCategory, RiskStatus
 from app.schemas.auth import CurrentUser
 from app.schemas.common import Page
@@ -46,7 +46,7 @@ def list_risks(
     status_filter: RiskStatus | None = Query(None, alias="status"),
     category: RiskCategory | None = Query(None),
     min_rpn: int | None = Query(None, ge=1),
-    _: CurrentUser = Depends(require_permission(Permission.RISK_READ)),
+    _: CurrentUser = Depends(require_page("risks", "view")),
 ) -> Page[RiskList]:
     stmt = base_select(Risk)
     if status_filter:
@@ -65,7 +65,7 @@ def create_risk(
     body: RiskCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.RISK_WRITE)),
+    actor: CurrentUser = Depends(require_page("risks", "edit")),
 ) -> Risk:
     risk = Risk(
         **body.model_dump(),
@@ -96,7 +96,7 @@ def create_risk(
 def get_risk(
     risk_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.RISK_READ)),
+    _: CurrentUser = Depends(require_page("risks", "view")),
 ) -> Risk:
     return get_or_404(db, Risk, risk_id, name="Risk")
 
@@ -107,7 +107,7 @@ def update_risk(
     body: RiskUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.RISK_WRITE)),
+    actor: CurrentUser = Depends(require_page("risks", "edit")),
 ) -> Risk:
     risk = get_or_404(db, Risk, risk_id, name="Risk")
     before = audit.snapshot(risk)
@@ -142,7 +142,7 @@ def soft_delete_risk(
     risk_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.RISK_WRITE)),
+    actor: CurrentUser = Depends(require_page("risks", "edit")),
 ) -> Risk:
     risk = get_or_404(db, Risk, risk_id, name="Risk")
     risk.soft_delete(actor.id)

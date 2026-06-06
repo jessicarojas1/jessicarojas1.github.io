@@ -1,44 +1,88 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FileText, Stamp } from 'lucide-react';
+import {
+  ArrowRight,
+  Ban,
+  CheckCircle2,
+  FileText,
+  PencilLine,
+  RotateCcw,
+} from 'lucide-react';
 import { documentHooks } from '@/hooks';
-import { useAuth } from '@/lib/auth';
-import { can } from '@/lib/rbac';
+import { usePagePerms } from '@/lib/permissions';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
-import { AttachmentsCard, DataList, DetailState } from '@/components/detail';
-import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
+import { DataList, DetailState } from '@/components/detail';
+import { DocumentFormModal } from './DocumentFormModal';
+import {
+  WORKFLOW_STAGES,
+  departmentLabel,
+  docTypeLabel,
+} from './documentOptions';
+import type { ControlledDocument, DocumentTransitionAction } from '@/types';
+
+const TEMPLATE_SECTIONS: { key: keyof ControlledDocument; label: string }[] = [
+  { key: 'purpose', label: 'Purpose' },
+  { key: 'scope', label: 'Scope' },
+  { key: 'definitions', label: 'Definitions' },
+  { key: 'responsibilities', label: 'Responsibilities' },
+  { key: 'detail', label: 'Detail' },
+  { key: 'revision_history', label: 'Revision History' },
+  { key: 'appendix', label: 'Appendix' },
+];
+
+function StageStepper({ status }: { status: string }) {
+  // Index of the current stage; -1 if obsolete (terminal, off the linear path).
+  const activeIdx = WORKFLOW_STAGES.findIndex((s) => s.value === status);
+  return (
+    <div className="row" style={{ gap: 4, flexWrap: 'wrap', alignItems: 'center' }}>
+      {WORKFLOW_STAGES.map((stage, i) => {
+        const done = activeIdx > -1 && i < activeIdx;
+        const current = i === activeIdx;
+        const tone = done ? 'success' : current ? 'primary' : 'neutral';
+        return (
+          <span key={stage.value} className="row" style={{ gap: 4, alignItems: 'center' }}>
+            <span
+              className={`badge badge--${tone}${current ? '' : ' badge--no-dot'}`}
+              aria-current={current ? 'step' : undefined}
+            >
+              {stage.label}
+            </span>
+            {i < WORKFLOW_STAGES.length - 1 && (
+              <ArrowRight size={14} style={{ color: 'var(--text-muted, #888)' }} aria-hidden />
+            )}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function DocumentDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
   const { notify } = useToast();
+  const { canEdit } = usePagePerms();
   const { data: doc, isLoading, error } = documentHooks.useDetail(id);
-  // Approval is performed per-revision: POST /documents/revisions/{revision_id}/approve
-  const approve = documentHooks.useAction('approve');
-  const [sigOpen, setSigOpen] = useState(false);
+  const transition = documentHooks.useAction<{ action: DocumentTransitionAction }>('transition');
+  const [editOpen, setEditOpen] = useState(false);
 
-  const canApprove = can(user?.roles, 'documents.approve');
-  const pendingRevision = doc?.revisions?.find(
-    (r) => r.status === 'in_review' || r.status === 'draft',
-  );
-  const pendingApproval = Boolean(pendingRevision);
+  const mayEdit = canEdit('documents');
+  const status = doc?.status;
+  const canAdvance =
+    status === 'concept' || status === 'work_in_progress' || status === 'peer_review';
+  const canApprove = status === 'qa_review';
+  const canRevise = status === 'approved';
+  const isTerminal = status === 'obsolete';
 
-  const handleSign = async (sig: SignaturePayload) => {
-    if (!pendingRevision) return;
+  const runTransition = async (action: DocumentTransitionAction, msg: string) => {
+    if (!id) return;
     try {
-      await approve.mutateAsync({
-        id: `revisions/${pendingRevision.id}`,
-        payload: {
-          decision: 'approved',
-          signature: { meaning: sig.meaning, reason: sig.reason, password: sig.password },
-        },
-      });
-      notify('Document revision approved', 'success');
-      setSigOpen(false);
+      await transition.mutateAsync({ id, payload: { action } });
+      notify(msg, 'success');
     } catch (err) {
       notify(getErrorMessage(err), 'danger');
     }
@@ -60,89 +104,114 @@ export default function DocumentDetailPage() {
                 <StatusBadge status={doc.status} />
               </span>
             }
-            subtitle={`${doc.title} · Rev ${doc.current_revision}`}
+            subtitle={`${doc.title} · Rev ${doc.current_revision ?? '—'}`}
             breadcrumbs={[{ label: 'Documents', to: '/documents' }, { label: doc.document_number }]}
             actions={
-              canApprove &&
-              pendingApproval && (
-                <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
-                  <Stamp size={16} /> Approve & Release
-                </button>
-              )
+              <>
+                <PrintButton />
+                {mayEdit && !isTerminal && (
+                  <button type="button" className="btn" onClick={() => setEditOpen(true)}>
+                    <PencilLine size={16} /> Edit
+                  </button>
+                )}
+                {mayEdit && canAdvance && (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={transition.isPending}
+                    onClick={() => runTransition('advance', 'Document advanced to next stage')}
+                  >
+                    <ArrowRight size={16} /> Advance
+                  </button>
+                )}
+                {mayEdit && canApprove && (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={transition.isPending}
+                    onClick={() => runTransition('approve', 'Document approved')}
+                  >
+                    <CheckCircle2 size={16} /> Approve
+                  </button>
+                )}
+                {mayEdit && canRevise && (
+                  <button
+                    type="button"
+                    className="btn"
+                    disabled={transition.isPending}
+                    onClick={() => runTransition('revise', 'Document returned to Work In Progress')}
+                  >
+                    <RotateCcw size={16} /> Revise
+                  </button>
+                )}
+                {mayEdit && !isTerminal && (
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    disabled={transition.isPending}
+                    onClick={() => runTransition('obsolete', 'Document marked obsolete')}
+                  >
+                    <Ban size={16} /> Mark Obsolete
+                  </button>
+                )}
+              </>
             }
           />
 
+          <div className="card" style={{ marginBottom: 16 }}>
+            <div className="card__header"><div className="card__title">Approval Workflow</div></div>
+            <div className="card__body">
+              <StageStepper status={doc.status} />
+            </div>
+          </div>
+
           <div className="detail-grid">
-            <div className="card">
-              <div className="card__header">
-                <div className="card__title">Revision History</div>
-              </div>
-              <div className="table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Rev</th>
-                      <th>Change Summary</th>
-                      <th>Status</th>
-                      <th>Effective</th>
-                      <th>Created</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {doc.revisions?.length ? (
-                      doc.revisions.map((rev) => (
-                        <tr key={rev.id}>
-                          <td className="mono">{rev.revision}</td>
-                          <td>{rev.change_summary ?? '—'}</td>
-                          <td>
-                            <StatusBadge status={rev.status} />
-                          </td>
-                          <td>{formatDate(rev.effective_date)}</td>
-                          <td>{formatDate(rev.created_at)}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr className="empty-row">
-                        <td colSpan={5}>
-                          <div className="empty-state-sm">No revision history.</div>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+            <div className="stack">
+              {TEMPLATE_SECTIONS.map((section) => {
+                const value = doc[section.key] as string | undefined;
+                return (
+                  <div className="card" key={section.key}>
+                    <div className="card__header">
+                      <div className="card__title">{section.label}</div>
+                    </div>
+                    <div className="card__body">
+                      <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+                        {value && value.trim() ? value : <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="stack">
               <div className="card">
-                <div className="card__header">
-                  <div className="card__title">Document</div>
-                </div>
+                <div className="card__header"><div className="card__title">Document</div></div>
                 <div className="card__body">
                   <DataList
                     items={[
-                      { label: 'Type', value: doc.doc_type },
+                      { label: 'Type', value: docTypeLabel(doc.doc_type) },
+                      { label: 'Department', value: departmentLabel(doc.department) },
+                      { label: 'Revision', value: doc.current_revision ?? '—' },
+                      { label: 'Version', value: doc.version ?? '—' },
                       { label: 'Owner', value: doc.owner_id ?? '—' },
+                      { label: 'Approved By', value: doc.approved_by ?? '—' },
                       { label: 'AS9100 Clause', value: doc.as9100_clause ?? '—' },
-                      { label: 'Current Rev', value: doc.current_revision ?? '—' },
                       { label: 'Effective', value: formatDate(doc.effective_date) },
+                      { label: 'Last Review', value: formatDate(doc.last_review_date) },
                       { label: 'Next Review', value: formatDate(doc.next_review_date) },
                     ]}
                   />
                 </div>
               </div>
-              <AttachmentsCard attachments={doc.attachments} />
             </div>
           </div>
 
-          <SignatureModal
-            open={sigOpen}
-            title="Approve Document"
-            meaning="Approval"
-            submitLabel="Approve & Release"
-            loading={approve.isPending}
-            onClose={() => setSigOpen(false)}
-            onSign={handleSign}
+          <DocumentFormModal
+            open={editOpen}
+            onClose={() => setEditOpen(false)}
+            onSaved={() => setEditOpen(false)}
+            document={doc}
           />
         </>
       )}

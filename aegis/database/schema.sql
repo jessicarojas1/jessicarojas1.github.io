@@ -374,6 +374,12 @@ CREATE TABLE IF NOT EXISTS rate_limits (
     blocked_until TIMESTAMP
 );
 
+-- Granular page-level permissions (Migration 021+).
+-- module: one of risk, compliance, audit, policy, incident, vendor, issue, asset, change,
+--         bcp, threat, awareness, report, kri, ssp, automation, approval
+-- permission: one of view, create, edit, delete, accept, review, treatment, scenarios,
+--             bowtie, export, assess, import, test, gap, findings, close, publish, attest,
+--             playbook, questionnaire, contracts, approve, exercise, manage, record
 CREATE TABLE IF NOT EXISTS user_permissions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,

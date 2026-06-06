@@ -1,7 +1,9 @@
 # CITADEL
 
-**Code Inspection, Threat Analysis & Deployment Evaluation Lab** — a source-code and
-executable **security & compliance review platform**.
+**Code Inspection, Threat Analysis & Deployment Evaluation Lab** — an enterprise
+source-code, executable & script **security & compliance review platform** covering
+**117 languages & formats** (see **[CAPABILITIES.md](CAPABILITIES.md)** / **[LANGUAGES.md](LANGUAGES.md)**
+or the in-app [capabilities page](docs/capabilities.html)).
 
 Upload source code, archives (`.zip`/`.jar`/`.apk`), or executables and CITADEL runs static
 analysis, secrets detection, SBOM generation, and binary inspection — then maps every finding

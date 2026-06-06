@@ -4,6 +4,7 @@ import { inspectionHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 
@@ -29,6 +30,7 @@ export default function InspectionDetailPage() {
             }
             subtitle={`${insp.part_number ?? ''}${insp.fai_report?.part_name ? ` — ${insp.fai_report.part_name}` : ''}`}
             breadcrumbs={[{ label: 'Inspections', to: '/inspections' }, { label: insp.inspection_number }]}
+            actions={<PrintButton />}
           />
 
           <div className="detail-grid">

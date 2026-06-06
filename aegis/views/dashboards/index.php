@@ -7,7 +7,7 @@ $csrf = Security::generateCsrfToken();
     <h1 class="page-title">Custom Dashboards</h1>
     <p class="page-subtitle">Build personalized views with configurable widgets</p>
   </div>
-  <button class="btn btn-primary" id="btnOpenCreate" data-show-modal="createModal"><i class="bi bi-plus-lg"></i> New Dashboard</button>
+  <button class="btn btn-primary" data-show-modal="createModal"><i class="bi bi-plus-lg"></i> New Dashboard</button>
 </div>
 
 <?php if (empty($dashboards)): ?>
@@ -15,7 +15,7 @@ $csrf = Security::generateCsrfToken();
   <i class="bi bi-layout-wtf" style="font-size:3rem;color:var(--text-muted);"></i>
   <h3 style="margin:16px 0 8px;">No Dashboards Yet</h3>
   <p style="color:var(--text-muted);margin-bottom:20px;">Create a custom dashboard and add widgets to monitor your GRC metrics.</p>
-  <button class="btn btn-primary" id="btnOpenCreate2" data-show-modal="createModal">Create First Dashboard</button>
+  <button class="btn btn-primary" data-show-modal="createModal">Create First Dashboard</button>
 </div>
 <?php else: ?>
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
@@ -47,11 +47,11 @@ $csrf = Security::generateCsrfToken();
 <?php endif; ?>
 
 <!-- Create Modal -->
-<div class="um-overlay" id="createModal">
-  <div class="um-dialog">
+<div id="createModal" class="um-overlay">
+  <div class="um-dialog" style="width:480px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">New Dashboard</h3>
-      <button id="btnCloseCreate" data-close-modal="createModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="createModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/dashboards/create">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -65,7 +65,7 @@ $csrf = Security::generateCsrfToken();
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Create Dashboard</button>
-        <button type="button" id="btnCancelCreate" data-close-modal="createModal" class="btn btn-secondary">Cancel</button>
+        <button type="button" data-close-modal="createModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>

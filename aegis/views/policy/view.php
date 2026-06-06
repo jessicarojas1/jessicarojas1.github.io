@@ -12,7 +12,7 @@ ob_start();
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
       <h1 class="page-title" style="margin:0"><?= Security::h($policy['title']) ?></h1>
       <?php if (!empty($policy['policy_number'])): ?>
-        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($policy['policy_number']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--info-subtle);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($policy['policy_number']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">
@@ -188,7 +188,7 @@ $totalUsers = Database::fetchOne("SELECT COUNT(*) as cnt FROM users WHERE is_act
       <div style="width:<?= $pct ?>%;background:<?= $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)') ?>;height:100%;border-radius:999px;transition:width .3s"></div>
     </div>
     <div class="text-muted text-sm" style="margin-top:6px"><?= $pct ?>% completion</div>
-    <?php if (Auth::can('policy.write')): ?>
+    <?php if (Auth::can('policy.edit')): ?>
       <div style="margin-top:12px">
         <a href="/policy/attestations" class="btn btn-ghost btn-sm"><i class="bi bi-people"></i> Manage Campaigns</a>
       </div>

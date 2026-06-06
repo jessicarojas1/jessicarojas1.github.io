@@ -166,7 +166,7 @@ ob_start();
         <div class="card-body" style="padding:14px 16px;">
           <div style="display:flex;flex-direction:column;gap:12px;">
             <div>
-              <div style="font-weight:600;font-size:12px;color:var(--moderate);">Periodic</div>
+              <div style="font-weight:600;font-size:12px;color:var(--info);">Periodic</div>
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Scheduled regular reviews (monthly, quarterly, annual) of the risk register.</div>
             </div>
             <div>
@@ -207,7 +207,7 @@ ob_start();
 </form>
 
 <style nonce="<?= Security::nonce() ?>">
-.required::after { content: ' *'; color: var(--danger); }
+.required::after { content: ' *'; color: #dc2626; }
 </style>
 <script nonce="<?= Security::nonce() ?>">
 var typeDescs = {

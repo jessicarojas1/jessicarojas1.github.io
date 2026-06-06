@@ -3,9 +3,9 @@ $breadcrumbs = [['Compliance', '/compliance'], ['Testing Dashboard', null]];
 
 function ctResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:var(--primary-tint);color:var(--primary);border:1px solid var(--primary-ring)">Pass</span>',
-        'fail'       => '<span class="badge" style="background:var(--danger-tint);color:var(--danger);border:1px solid var(--danger-ring)">Fail</span>',
-        'partial'    => '<span class="badge" style="background:var(--warning-tint);color:var(--warning);border:1px solid var(--warning-ring)">Partial</span>',
+        'pass'       => '<span class="badge" style="background:var(--success-subtle);color:var(--primary);border:1px solid var(--success)">Pass</span>',
+        'fail'       => '<span class="badge" style="background:var(--danger-subtle);color:var(--danger);border:1px solid var(--danger)">Fail</span>',
+        'partial'    => '<span class="badge" style="background:var(--warning-subtle);color:var(--warning);border:1px solid var(--warning)">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
@@ -35,15 +35,15 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
 
 <!-- Stat chips -->
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
-  <div style="flex:1;min-width:120px;background:var(--primary-tint);border:1px solid var(--primary-ring);border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:var(--success-subtle);border:1px solid var(--success);border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--primary);line-height:1"><?= $cntPass ?></div>
     <div style="font-size:13px;color:var(--primary);margin-top:4px;font-weight:600">Pass</div>
   </div>
-  <div style="flex:1;min-width:120px;background:var(--danger-subtle);border:1px solid rgba(220,38,38,.5);border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:var(--danger-subtle);border:1px solid var(--danger);border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--danger);line-height:1"><?= $cntFail ?></div>
     <div style="font-size:13px;color:var(--danger);margin-top:4px;font-weight:600">Fail</div>
   </div>
-  <div style="flex:1;min-width:120px;background:var(--warning-subtle);border:1px solid #fcd34d80;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:var(--warning-subtle);border:1px solid var(--warning);border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--warning);line-height:1"><?= $cntPartial ?></div>
     <div style="font-size:13px;color:var(--warning);margin-top:4px;font-weight:600">Partial</div>
   </div>
@@ -52,9 +52,9 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div style="font-size:13px;color:var(--text-muted);margin-top:4px;font-weight:600">Not Tested</div>
   </div>
   <?php if ($cntTotal > 0): ?>
-  <div style="flex:1;min-width:140px;background:var(--info-subtle);border:1px solid rgba(37,99,235,.5);border-radius:12px;padding:16px 20px;text-align:center">
-    <div style="font-size:32px;font-weight:700;color:var(--moderate);line-height:1"><?= $cntTotal > 0 ? round($cntPass / $cntTotal * 100) : 0 ?>%</div>
-    <div style="font-size:13px;color:var(--moderate);margin-top:4px;font-weight:600">Pass Rate</div>
+  <div style="flex:1;min-width:140px;background:var(--info-subtle);border:1px solid var(--info);border-radius:12px;padding:16px 20px;text-align:center">
+    <div style="font-size:32px;font-weight:700;color:var(--info);line-height:1"><?= $cntTotal > 0 ? round($cntPass / $cntTotal * 100) : 0 ?>%</div>
+    <div style="font-size:13px;color:var(--info);margin-top:4px;font-weight:600">Pass Rate</div>
   </div>
   <?php endif; ?>
 </div>
@@ -109,7 +109,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div class="card-header-left">
       <i class="bi bi-clock-history" style="color:var(--primary)"></i>
       <span class="card-title">Recent Tests</span>
-      <span style="background:var(--border);color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($recent) ?></span>
+      <span style="background:var(--bg-subtle);color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($recent) ?></span>
     </div>
   </div>
   <?php if ($recent): ?>
@@ -150,7 +150,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
             <td>
               <?php if ($r['effectiveness'] !== null): ?>
               <div style="display:flex;align-items:center;gap:8px">
-                <div style="flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+                <div style="flex:1;height:8px;background:var(--bg-subtle);border-radius:4px;overflow:hidden">
                   <div style="width:<?= (int)$r['effectiveness'] ?>%;height:100%;background:<?= $r['effectiveness'] >= 75 ? 'var(--primary)' : ($r['effectiveness'] >= 40 ? 'var(--warning)' : 'var(--danger)') ?>;border-radius:4px"></div>
                 </div>
                 <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap"><?= (int)$r['effectiveness'] ?>%</span>

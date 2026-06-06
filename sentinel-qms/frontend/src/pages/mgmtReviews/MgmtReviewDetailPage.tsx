@@ -4,6 +4,7 @@ import { mgmtReviewHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 import type { ReviewInput } from '@/types';
@@ -52,6 +53,7 @@ export default function MgmtReviewDetailPage() {
             }
             subtitle={mr.title}
             breadcrumbs={[{ label: 'Management Review', to: '/mgmt-reviews' }, { label: mr.review_number }]}
+            actions={<PrintButton />}
           />
 
           <div className="detail-grid">

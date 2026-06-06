@@ -4,7 +4,7 @@ declare(strict_types=1);
 class AwarenessController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('awareness.view');
         $programs = Database::fetchAll(
             "SELECT ap.*,
                     u.name AS created_by_name,
@@ -23,7 +23,7 @@ class AwarenessController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('awareness.manage');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name");
         $pageTitle    = 'New Awareness Program';
         $activeModule = 'awareness';
@@ -32,7 +32,7 @@ class AwarenessController {
     }
 
     public function create(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('awareness.manage');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $title = trim(Security::sanitizeInput($_POST['title'] ?? ''));
@@ -79,7 +79,7 @@ class AwarenessController {
     }
 
     public function view(int $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('awareness.view');
         $program = Database::fetchOne(
             "SELECT ap.*, u.name AS created_by_name
              FROM awareness_programs ap
@@ -105,7 +105,7 @@ class AwarenessController {
     }
 
     public function complete(int $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('awareness.view');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         Database::query(
@@ -118,7 +118,7 @@ class AwarenessController {
     }
 
     public function assign(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('awareness.manage');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $userIds = array_filter(array_map('intval', (array)($_POST['user_ids'] ?? [])));
@@ -134,7 +134,7 @@ class AwarenessController {
     }
 
     public function delete(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('awareness.manage');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         Database::query("DELETE FROM awareness_programs WHERE id=?", [$id]);
         Auth::log('awareness_deleted', 'awareness_programs', $id, []);

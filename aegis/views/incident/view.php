@@ -1,6 +1,6 @@
 <?php
-$sevColors = ['critical'=>'var(--danger)','high'=>'var(--warning)','medium'=>'#0284c7','low'=>'var(--success)'];
-$statusColors = ['open'=>'var(--danger)','investigating'=>'var(--warning)','contained'=>'var(--secondary)','resolved'=>'var(--success)','closed'=>'#71717a'];
+$sevColors = ['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669'];
+$statusColors = ['open'=>'#dc2626','investigating'=>'#d97706','contained'=>'var(--secondary)','resolved'=>'#059669','closed'=>'#71717a'];
 $sevColor = $sevColors[$incident['severity']] ?? '#71717a';
 $stColor  = $statusColors[$incident['status']] ?? '#71717a';
 $pageTitle    = 'Incident: ' . $incident['incident_number'];
@@ -36,11 +36,11 @@ $slaBadgeStyle = function(string $status): string {
     $map = [
         'on_track' => ['var(--success)', 'On Track'],
         'at_risk'  => ['var(--warning)', 'At Risk'],
-        'breached' => ['var(--danger)', 'Breached'],
-        'met'      => ['#71717a', 'Met'],
-        'n/a'      => ['#a1a1aa', 'N/A'],
+        'breached' => ['var(--danger)',  'Breached'],
+        'met'      => ['var(--text-muted)', 'Met'],
+        'n/a'      => ['var(--text-muted)', 'N/A'],
     ];
-    [$color, $label] = $map[$status] ?? ['#a1a1aa', ucfirst($status)];
+    [$color, $label] = $map[$status] ?? ['var(--text-muted)', ucfirst($status)];
     $extra = $status === 'met' ? 'text-decoration:line-through;' : '';
     return '<span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;'
          . 'background:' . $color . '20;color:' . $color . ';border:1px solid ' . $color . '40;' . $extra . '">'
@@ -61,7 +61,7 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
   </div>
   <div class="page-actions">
     <?php if (in_array($incident['status'], ['open','investigating','contained'])): ?>
-      <?php if (Auth::can('incident.write')): ?>
+      <?php if (Auth::can('incident.edit')): ?>
         <button data-show-modal="editModal" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
         <?php if ($incident['status'] !== 'closed'): ?>
           <form method="post" action="/incident/<?= $incident['id'] ?>/close" style="display:inline" data-confirm="Close this incident?">
@@ -139,7 +139,7 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
     </div>
 
     <!-- Acknowledge button (if not yet acknowledged and incident is open) -->
-    <?php if (!$acknowledgedAt && in_array($incident['status'], ['open','investigating','contained']) && Auth::can('incident.write')): ?>
+    <?php if (!$acknowledgedAt && in_array($incident['status'], ['open','investigating','contained']) && Auth::can('incident.edit')): ?>
     <form method="POST" action="/incident/<?= (int)$incident['id'] ?>/acknowledge" style="display:inline">
       <?= Security::csrfField() ?>
       <button type="submit" class="btn btn-primary btn-sm">
@@ -202,8 +202,8 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                 <strong style="font-size:13px"><?= Security::h($upd['user_name'] ?? 'System') ?></strong>
                 <span style="font-size:11px;color:var(--text-muted)"><?= date('M j, Y g:ia', strtotime($upd['created_at'])) ?></span>
-                <?php $typeColors=['status_change'=>'var(--secondary)','containment'=>'var(--warning)','resolution'=>'var(--success)','assignment'=>'#0284c7','comment'=>'#71717a']; ?>
-                <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'#71717a') ?>20;color:<?= ($typeColors[$upd['update_type']]??'#71717a') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
+                <?php $typeColors=['status_change'=>'var(--secondary)','containment'=>'var(--warning)','resolution'=>'var(--success)','assignment'=>'var(--info)','comment'=>'var(--text-muted)']; ?>
+                <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'var(--text-muted)') ?>20;color:<?= ($typeColors[$upd['update_type']]??'var(--text-muted)') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
               </div>
               <p style="margin:0;white-space:pre-wrap;font-size:13px"><?= Security::h($upd['content']) ?></p>
             </div>
@@ -315,11 +315,11 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
               </div>
               <div style="display:flex;align-items:center;gap:10px">
                 <?php if ($isComplete): ?>
-                  <span class="status-chip" style="background:var(--success-tint);color:var(--success);border:1px solid var(--success-ring)">
+                  <span class="status-chip" style="background:var(--success)20;color:var(--success);border:1px solid var(--success)40">
                     <i class="bi bi-check-circle-fill"></i> Complete
                   </span>
                 <?php else: ?>
-                  <span class="status-chip" style="background:var(--warning-tint);color:var(--warning);border:1px solid var(--warning-ring)">In Progress</span>
+                  <span class="status-chip" style="background:var(--warning)20;color:var(--warning);border:1px solid var(--warning)40">In Progress</span>
                 <?php endif; ?>
                 <span style="font-size:12px;color:var(--text-muted)"><?= $doneSteps ?>/<?= $totalSteps ?> steps</span>
                 <i class="bi bi-chevron-down" id="pb-chevron-<?= (int)$run['id'] ?>" style="color:var(--text-muted);transition:transform .2s"></i>
@@ -339,7 +339,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
                 <div class="pb-step-row" id="pb-step-row-<?= (int)$run['id'] ?>-<?= (int)$step['id'] ?>"
                      style="padding:10px 16px;display:flex;gap:12px;align-items:flex-start;<?= $stepIdx > 0 ? 'border-top:1px solid var(--border-light)' : '' ?>;<?= $completed ? 'opacity:.7' : '' ?>">
                   <div style="flex-shrink:0;margin-top:2px">
-                    <?php if (!$isComplete && !$completed && Auth::can('incident.write')): ?>
+                    <?php if (!$isComplete && !$completed && Auth::can('incident.edit')): ?>
                       <button
                         type="button"
                         class="pb-complete-btn"
@@ -351,7 +351,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
                       ></button>
                     <?php elseif ($completed): ?>
                       <div style="width:20px;height:20px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center">
-                        <i class="bi bi-check" style="color:#fff;font-size:11px"></i>
+                        <i class="bi bi-check" style="color:var(--card-bg);font-size:11px"></i>
                       </div>
                     <?php else: ?>
                       <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border)"></div>
@@ -400,7 +400,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
       <?php endif; ?>
 
       <!-- Start a new playbook run -->
-      <?php if (!empty($availablePlaybooks) && Auth::can('incident.write')): ?>
+      <?php if (!empty($availablePlaybooks) && Auth::can('incident.edit')): ?>
         <div style="border-top:1px solid var(--border);padding-top:16px">
           <form method="post" action="/incident/<?= (int)$incident['id'] ?>/playbook/start" id="pb-start-form">
             <?= Security::csrfField() ?>
@@ -481,7 +481,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
         var rowEl = document.getElementById('pb-step-row-' + runId + '-' + stepId);
         if (rowEl) {
           var btnWrap = rowEl.querySelector('.pb-complete-btn').parentNode;
-          btnWrap.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center"><i class="bi bi-check" style="color:#fff;font-size:11px"></i></div>';
+          btnWrap.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center"><i class="bi bi-check" style="color:var(--card-bg);font-size:11px"></i></div>';
           var titleEl = rowEl.querySelector('div[style*="font-weight"]');
           if (titleEl) {
             titleEl.style.textDecoration = 'line-through';
@@ -511,7 +511,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
 </script>
 
 <!-- Edit Modal -->
-<?php if (Auth::can('incident.write')): ?>
+<?php if (Auth::can('incident.edit')): ?>
 <div class="um-overlay" id="editModal" style="display:none">
   <div class="um-dialog" style="max-width:640px;width:100%">
     <div class="um-header">

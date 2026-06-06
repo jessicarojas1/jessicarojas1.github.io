@@ -1,6 +1,7 @@
 """Shared FastAPI dependencies: current user, DB session, pagination."""
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from fastapi import Depends, Query, Request
@@ -8,7 +9,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.exceptions import AuthenticationError
+from app.core.exceptions import AuthenticationError, PermissionDeniedError
+from app.core.permissions import effective_levels, level_at_least
 from app.core.security import ACCESS_TOKEN_TYPE, decode_token, oauth2_scheme
 from app.models.user import User
 from app.schemas.auth import CurrentUser
@@ -53,6 +55,31 @@ def get_current_user(
 ) -> CurrentUser:
     """FastAPI dependency yielding the authenticated principal."""
     return resolve_current_user(request, db)
+
+
+def require_page(page_key: str, level: str = "view") -> Callable:
+    """Dependency factory enforcing a minimum effective level for ``page_key``.
+
+    The user's effective level is resolved per :mod:`app.core.permissions`
+    (DB rows override; static fallback fills gaps). Raises 403 when the level is
+    below ``level``. Returns the :class:`CurrentUser`.
+    """
+
+    def _checker(
+        request: Request,
+        db: Session = Depends(get_db),
+        _token: str | None = Depends(oauth2_scheme),
+    ) -> CurrentUser:
+        user = resolve_current_user(request, db)
+        levels = effective_levels(db, user)
+        actual = levels.get(page_key, "none")
+        if not level_at_least(actual, level):
+            raise PermissionDeniedError(
+                "Insufficient permissions for this operation."
+            )
+        return user
+
+    return _checker
 
 
 def get_db_user(db: Session, user_id: int) -> User | None:

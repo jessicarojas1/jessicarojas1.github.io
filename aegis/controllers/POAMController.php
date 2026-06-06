@@ -7,7 +7,7 @@ class POAMController {
     // GET /poam
     // ──────────────────────────────────────────────────
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
 
         $items = Database::fetchAll(
             "SELECT pi.*, cp.name AS package_name,
@@ -48,7 +48,7 @@ class POAMController {
     // POST /poam/generate
     // ──────────────────────────────────────────────────
     public function generate(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -132,7 +132,7 @@ class POAMController {
     // POST /poam/create  — manual single-item create
     // ──────────────────────────────────────────────────
     public function create(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -171,7 +171,7 @@ class POAMController {
     // POST /poam/import  — CSV bulk import
     // ──────────────────────────────────────────────────
     public function importCsv(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -286,7 +286,7 @@ class POAMController {
     // GET /poam/{id}
     // ──────────────────────────────────────────────────
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         $id = (int)$id;
 
         $item = Database::fetchOne(
@@ -337,7 +337,7 @@ class POAMController {
     // POST /poam/{id}/update
     // ──────────────────────────────────────────────────
     public function update(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -387,7 +387,7 @@ class POAMController {
     // POST /poam/{id}/delete
     // ──────────────────────────────────────────────────
     public function delete(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -405,7 +405,7 @@ class POAMController {
     // POST /poam/{id}/milestone/add
     // ──────────────────────────────────────────────────
     public function addMilestone(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -443,7 +443,7 @@ class POAMController {
     // POST /poam/{id}/milestone/{milestoneId}/complete
     // ──────────────────────────────────────────────────
     public function completeMilestone(string $id, string $milestoneId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

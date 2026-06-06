@@ -9,10 +9,10 @@ function acceptFormScoreLevel(int $s): string {
     return $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
 }
 function acceptFormScoreColor(int $s): string {
-    return $s > 14 ? 'var(--danger)' : ($s > 9 ? '#f97316' : ($s > 4 ? 'var(--warning)' : 'var(--success)'));
+    return $s > 14 ? '#ef4444' : ($s > 9 ? '#f97316' : ($s > 4 ? '#f59e0b' : '#22c55e'));
 }
 function acceptFormScoreBg(int $s): string {
-    return $s > 14 ? 'var(--danger-subtle)' : ($s > 9 ? '#fff7ed' : ($s > 4 ? 'var(--warning-subtle)' : 'var(--success-subtle)'));
+    return $s > 14 ? '#fef2f2' : ($s > 9 ? '#fff7ed' : ($s > 4 ? '#fffbeb' : '#f0fdf4'));
 }
 
 $scoreLevel = acceptFormScoreLevel($score);
@@ -31,10 +31,10 @@ if (!empty($risk['treatment_strategies'])) {
     }
 }
 $strategyLabels = [
-    'mitigate' => ['label' => 'Mitigate', 'icon' => 'bi-shield-fill-check',   'color' => 'var(--moderate)'],
+    'mitigate' => ['label' => 'Mitigate', 'icon' => 'bi-shield-fill-check',   'color' => '#2563eb'],
     'accept'   => ['label' => 'Accept',   'icon' => 'bi-check-circle-fill',    'color' => '#b45309'],
     'transfer' => ['label' => 'Transfer', 'icon' => 'bi-arrow-left-right',     'color' => 'var(--secondary)'],
-    'avoid'    => ['label' => 'Avoid',    'icon' => 'bi-x-octagon-fill',       'color' => 'var(--danger)'],
+    'avoid'    => ['label' => 'Avoid',    'icon' => 'bi-x-octagon-fill',       'color' => '#dc2626'],
 ];
 
 // Pre-fill values (fresh form or renew)
@@ -94,7 +94,7 @@ ob_start();
               <?php endif; ?>
               <!-- Score badge -->
               <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;background:<?= $scoreColor ?>18;color:<?= $scoreColor ?>;border:1px solid <?= $scoreColor ?>40;">
-                Score <?= $score ?> &mdash; <?= Security::h($scoreLevel) ?>
+                Score <?= $score ?> &mdash; <?= $scoreLevel ?>
               </span>
             </div>
             <?php if (!empty($strategies)): ?>
@@ -232,7 +232,7 @@ ob_start();
       <div class="card-body" style="padding:16px;">
 
         <div style="margin-bottom:14px;">
-          <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:4px;">
+          <div style="font-size:12px;font-weight:700;color:var(--success);margin-bottom:4px;">
             <i class="bi bi-check-circle-fill"></i> When to Accept
           </div>
           <ul style="font-size:12px;line-height:1.6;color:var(--text-muted);margin:0;padding-left:16px;">
@@ -244,7 +244,7 @@ ob_start();
         </div>
 
         <div style="margin-bottom:14px;">
-          <div style="font-size:12px;font-weight:700;color:var(--moderate);margin-bottom:4px;">
+          <div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:4px;">
             <i class="bi bi-shield-fill-check"></i> When to Mitigate Instead
           </div>
           <ul style="font-size:12px;line-height:1.6;color:var(--text-muted);margin:0;padding-left:16px;">
@@ -276,7 +276,7 @@ ob_start();
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="font-size:32px;font-weight:800;color:<?= $scoreColor ?>;line-height:1;"><?= $score ?></div>
           <div>
-            <div style="font-size:14px;font-weight:700;color:<?= $scoreColor ?>;"><?= Security::h($scoreLevel) ?></div>
+            <div style="font-size:14px;font-weight:700;color:<?= $scoreColor ?>;"><?= $scoreLevel ?></div>
             <div style="font-size:11px;color:var(--text-muted);">Inherent risk score</div>
           </div>
         </div>
