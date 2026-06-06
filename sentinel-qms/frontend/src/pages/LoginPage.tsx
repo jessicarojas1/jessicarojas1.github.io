@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { AlertCircle, Boxes, LogIn } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/api';
-import { CuiBanner } from '@/components/CuiBanner';
 import { FormField, TextInput } from '@/components/FormField';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -45,9 +44,8 @@ export default function LoginPage() {
 
   return (
     <div className="login-shell">
-      <CuiBanner position="top" />
       <div className="login-main">
-        <div style={{ position: 'absolute', top: 'calc(var(--cui-h) + 12px)', right: 16 }}>
+        <div style={{ position: 'absolute', top: 12, right: 16 }}>
           <ThemeToggle />
         </div>
         <div className="login-card">
@@ -101,7 +99,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <CuiBanner position="bottom" />
     </div>
   );
 }

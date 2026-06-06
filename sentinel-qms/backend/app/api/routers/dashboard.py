@@ -26,7 +26,7 @@ def summary(
     db: Session = Depends(get_db),
     _: CurrentUser = Depends(require_permission(Permission.DASHBOARD_READ)),
 ) -> DashboardSummary:
-    return DashboardSummary(**kpi.dashboard_summary(db))
+    return DashboardSummary(**kpi.dashboard_kpis(db))
 
 
 @router.get("/nonconformances", response_model=NcrKpi)
