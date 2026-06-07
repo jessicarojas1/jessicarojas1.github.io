@@ -6,9 +6,11 @@ import { syncDrawing, pushNcr, pushApproval, netState } from "./api.js";
 import { icon } from "./icons.js";
 import { $, $$, el, esc, modal, toast, pill, fmtDate, fmtDay, timeAgo, formValues } from "./ui.js";
 import { Editor } from "./canvas.js";
+import { Viewer3D } from "./viewer3d.js";
 import { navigate } from "./router.js";
 import { flattenPNG, renderInto, renderDiff, diffSnapshots } from "./snapshot.js";
 import { getBranding, setBranding, safeLogo } from "./branding.js";
+import { donut, bars } from "./charts.js";
 
 /* =================================================================
    Seeding — give a brand-new (offline) device realistic demo content.
@@ -32,6 +34,13 @@ export async function ensureSeed() {
     units: "in", scale_ratio: null, status: "draft", classification: "CUI", version: 1,
     created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
   await put("drawings", drawing);
+
+  const model3d = { id: uid(), client_uid: uid(), project_id: project.id,
+    title: "Wing Assembly – 3D Model", drawing_number: "MDL-22041-3D", revision: "A",
+    view_kind: "3d", model_data: null, model_format: null, units: "in",
+    status: "draft", classification: "CUI", version: 1,
+    created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+  await put("drawings", model3d);
 
   const ncr = { id: uid(), client_uid: uid(), project_id: project.id, drawing_id: drawing.id,
     ncr_number: "NCR-2026-0001", title: "Fastener edge distance below minimum",
@@ -78,6 +87,11 @@ export async function renderDashboard(host) {
       <div class="kpi-trend">${icon(ic, 16)} <span class="muted">live</span></div>
     </div>`;
 
+  const STATUS_COLOR = { draft: "#5b6678", in_review: "#ffcc00", approved: "#3ad07a", released: "#3ba7ff", obsolete: "#8c97a9" };
+  const SEV_COLOR = { critical: "#ff4d4d", major: "#ff5811", minor: "#8c97a9" };
+  const statusSegs = Object.keys(STATUS_COLOR).map((s) => ({ label: s, color: STATUS_COLOR[s], value: drawings.filter((d) => (d.status || "draft") === s).length })).filter((s) => s.value);
+  const sevRows = ["critical", "major", "minor"].map((s) => ({ label: s, color: SEV_COLOR[s], value: openNcr.filter((n) => n.severity === s).length }));
+
   host.innerHTML = `
     ${header("Mission Dashboard", "Program lifecycle status at a glance")}
     <div class="kpi-grid">
@@ -86,6 +100,10 @@ export async function renderDashboard(host) {
       ${kpi("Open NCRs", openNcr.length, "kpi-warn", "ncr")}
       ${kpi("Critical NCRs", critical.length, "kpi-danger", "alert")}
       ${kpi("In Review", inReview.length, "kpi-success", "approval")}
+    </div>
+    <div class="grid-2" style="margin-top:var(--s5)">
+      ${card("Drawings by Status", statusSegs.length ? donut(statusSegs) : empty("No drawings yet."))}
+      ${card("Open NCRs by Severity", bars(sevRows))}
     </div>
     <div class="grid-2" style="margin-top:var(--s5)">
       ${card("Recent Activity", renderActivity(audit))}
@@ -218,6 +236,7 @@ export async function renderProject(host, id) {
 async function newDrawingModal(host, project) {
   const body = el(`<div class="form-grid">
     <div class="field" style="grid-column:1/-1"><label>Title <span class="required">*</span></label><input class="input" data-name="title"></div>
+    <div class="field"><label>Type</label><select class="select" data-name="view_kind"><option value="2d">2D markup</option><option value="3d">3D model (STL / OBJ)</option></select></div>
     <div class="field"><label>Drawing Number</label><input class="input" data-name="drawing_number"></div>
     <div class="field"><label>Revision</label><input class="input" data-name="revision" value="A"></div>
     <div class="field"><label>Units</label><select class="select" data-name="units"><option>in</option><option>mm</option><option>cm</option><option>ft</option></select></div>
@@ -230,6 +249,7 @@ async function newDrawingModal(host, project) {
     const v = formValues(body);
     if (!v.title) return toast("Title is required", "error");
     const d = { id: uid(), client_uid: uid(), project_id: project.id, ...v,
+      view_kind: v.view_kind || "2d",
       background_kind: "blank", width: 1600, height: 1200, scale_ratio: null,
       status: "draft", version: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
     await put("drawings", d);
@@ -246,6 +266,8 @@ export async function renderEditor(host, drawingId) {
   if (!d) { host.innerHTML = header("Drawing not found", ""); return; }
   const project = await get("projects", d.project_id);
 
+  if (d.view_kind === "3d") return render3DEditor(host, d, project);
+
   const wf = [];
   if (d.status === "draft" && can("drawing.submit")) wf.push(`<button class="btn btn-outline" data-wf="submit">Submit for Review</button>`);
   if (d.status === "in_review" && can("drawing.approve")) wf.push(`<button class="btn btn-success" data-wf="approve">${icon("check", 15)} Approve &amp; Sign</button>`);
@@ -256,6 +278,7 @@ export async function renderEditor(host, drawingId) {
       `${pill(d.status || "draft")}
        <button class="btn btn-ghost" data-back>${icon("chevron", 16)} Project</button>
        ${wf.join("")}
+       <button class="btn btn-ghost" data-fai>${icon("balloon", 15)} Characteristics</button>
        <button class="btn btn-ghost" data-revisions>${icon("layers", 15)} Revisions</button>
        <button class="btn btn-ghost" data-report>${icon("download", 15)} Report PDF</button>
        <button class="btn btn-primary" data-sync>${icon("sync", 15)} Sync</button>`)}
@@ -279,6 +302,7 @@ export async function renderEditor(host, drawingId) {
     } catch (e) { toast(e.message, "error", 5000); }
   });
   $("[data-report]", host).addEventListener("click", () => buildReport(d, project));
+  $("[data-fai]", host).addEventListener("click", () => characteristicsModal(d));
   $("[data-revisions]", host).addEventListener("click", () => revisionsModal(d, () => renderEditor(host, drawingId)));
   $$("[data-wf]", host).forEach((b) => b.addEventListener("click", () => signAction("drawing", d.id, b.dataset.wf, async (newStatus) => {
     if (newStatus) {
@@ -288,6 +312,36 @@ export async function renderEditor(host, drawingId) {
     }
     renderEditor(host, drawingId);
   })));
+}
+
+async function render3DEditor(host, d, project) {
+  host.innerHTML = `
+    ${header(`${d.drawing_number || d.title}`, `${project ? project.name + " · " : ""}3D model${d.model_name ? " · " + d.model_name : ""}`,
+      `<span class="pill pill-review">3D</span>
+       <button class="btn btn-ghost" data-back>${icon("chevron", 16)} Project</button>
+       <button class="btn btn-primary" data-sync>${icon("sync", 15)} Sync</button>`)}
+    <div class="editor-host" style="height:calc(100vh - var(--topbar) - var(--cui-h)*2 - 120px);min-height:480px"></div>`;
+  const viewerHost = $(".editor-host", host);
+  const viewer = new Viewer3D(viewerHost, d, {
+    onDirty: () => setMeta("dirty_" + d.id, true),
+    onCapture: async (dataUrl) => {
+      const nd = { id: uid(), client_uid: uid(), project_id: d.project_id, view_kind: "2d",
+        title: `${d.drawing_number || d.title} — view`, drawing_number: d.drawing_number, revision: d.revision || "A",
+        background_kind: "image", background_data: dataUrl, width: 1600, height: 1200,
+        units: d.units || "in", status: "draft", classification: d.classification || "CUI", version: 1,
+        created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+      await put("drawings", nd);
+      await logAudit("drawing.capture3d", "drawing", nd.id, { from: d.id });
+      toast("Captured view → opening 2D markup", "success");
+      navigate("editor/" + nd.id);
+    },
+  });
+  await viewer.mount();
+  $("[data-back]", host).addEventListener("click", () => { viewer.destroy && viewer.destroy(); navigate("project/" + d.project_id); });
+  $("[data-sync]", host).addEventListener("click", async () => {
+    try { await syncDrawing(d); await logAudit("drawing.sync", "drawing", d.id, {}); toast("Synced", "success"); }
+    catch (e) { toast(e.message, "error", 5000); }
+  });
 }
 
 /* =================================================================
@@ -327,6 +381,8 @@ async function buildReport(drawing, project) {
   const logo = safeLogo(brand.logo_url);
   const measures = (snap.strokes || []).filter((s) => s.kind === "measure");
   const notes = (snap.annotations || []).filter((a) => a.kind === "note");
+  const balloons = (snap.annotations || []).filter((a) => a.kind === "balloon")
+    .sort((a, b) => (+(a.meta && a.meta.number) || 0) - (+(b.meta && b.meta.number) || 0));
   const linkedNcr = ncrs.filter((n) => n.drawing_id === drawing.id);
   const when = fmtDate(new Date().toISOString());
 
@@ -361,6 +417,14 @@ async function buildReport(drawing, project) {
     }))}
     <h3 style="margin:14px 0 6px">Notes</h3>
     ${tbl(["#", "Note"], notes.map((n, i) => `<tr><td>${i + 1}</td><td>${esc(n.text || "")}</td></tr>`))}
+    <h3 style="margin:14px 0 6px">Characteristics (FAI / AS9102)</h3>
+    ${tbl(["#", "Zone", "Requirement", "Type", "Nominal", "+Tol", "-Tol", "Actual", "Result"], balloons.map((bln) => {
+      const m = bln.meta || {};
+      return `<tr><td class="mono">${esc(String(m.number || ""))}</td><td>${esc(m.zone || "")}</td>
+        <td>${esc(m.requirement || "")}</td><td>${esc(m.char_type || "")}</td><td>${esc(m.nominal || "")}</td>
+        <td>${esc(m.tol_plus || "")}</td><td>${esc(m.tol_minus || "")}</td><td>${esc(m.actual || "")}</td>
+        <td>${esc(m.result || "")}</td></tr>`;
+    }))}
     <h3 style="margin:14px 0 6px">Linked Nonconformances</h3>
     ${tbl(["NCR", "Title", "Severity", "Status", "Disposition"], linkedNcr.map((n) =>
       `<tr><td class="mono">${esc(n.ncr_number)}</td><td>${esc(n.title)}</td><td>${esc(n.severity)}</td><td>${esc(n.status)}</td><td>${esc(n.disposition || "—")}</td></tr>`))}
@@ -375,6 +439,44 @@ async function buildReport(drawing, project) {
   window.addEventListener("afterprint", cleanup);
   setTimeout(() => window.print(), 120);
   setTimeout(cleanup, 120000); // safety net if afterprint never fires
+}
+
+/* AS9102-style characteristic ballooning: edit metadata for each balloon. */
+async function characteristicsModal(drawing) {
+  const balloons = (await byIndex("annotations", "drawing_id", drawing.id))
+    .filter((a) => (a.kind || a.type) === "balloon")
+    .sort((a, b) => (+(a.meta && a.meta.number) || 0) - (+(b.meta && b.meta.number) || 0));
+  const cols = [["zone", "Zone"], ["requirement", "Requirement"], ["char_type", "Type"],
+    ["nominal", "Nominal"], ["tol_plus", "+Tol"], ["tol_minus", "-Tol"], ["actual", "Actual"]];
+  const body = el(`<div>
+    <p class="muted" style="margin-top:0">Place numbered <strong>balloons</strong> on the drawing (Balloon tool), then record the
+      requirement and inspection result for each characteristic. Exported in the PDF report.</p>
+    ${balloons.length ? `<div class="table-wrap"><table class="table"><thead><tr>
+      <th>#</th>${cols.map((c) => `<th>${c[1]}</th>`).join("")}<th>Result</th></tr></thead><tbody>
+      ${balloons.map((b) => { const m = b.meta || {}; return `<tr data-row="${b.id}">
+        <td class="mono">${esc(String(m.number || ""))}</td>
+        ${cols.map((c) => `<td><input class="input" style="min-width:90px" data-f="${c[0]}" value="${esc(m[c[0]] || "")}"></td>`).join("")}
+        <td><select class="select" data-f="result">
+          ${["", "pass", "fail", "na"].map((r) => `<option ${m.result === r ? "selected" : ""}>${r}</option>`).join("")}</select></td>
+      </tr>`; }).join("")}
+    </tbody></table></div>` : empty("No balloons yet. Use the Balloon tool in the editor to add characteristics.")}
+  </div>`);
+  const foot = el(`<div><button class="btn btn-ghost" data-cancel>Close</button>
+    ${balloons.length ? `<button class="btn btn-primary" data-save>Save Characteristics</button>` : ""}</div>`);
+  const m = modal({ title: `Characteristics · ${drawing.drawing_number || drawing.title}`, body, footer: foot, width: 920 });
+  $("[data-cancel]", foot).addEventListener("click", m.close);
+  const sv = $("[data-save]", foot);
+  sv && sv.addEventListener("click", async () => {
+    for (const row of $$("[data-row]", body)) {
+      const b = balloons.find((x) => x.id === row.dataset.row); if (!b) continue;
+      b.meta = b.meta || {};
+      $$("[data-f]", row).forEach((inp) => { b.meta[inp.dataset.f] = inp.value; });
+      await put("annotations", b);
+    }
+    window.dispatchEvent(new CustomEvent("am:fai-changed"));
+    await logAudit("drawing.characteristics", "drawing", drawing.id, { count: balloons.length });
+    m.close(); toast("Characteristics saved", "success");
+  });
 }
 
 async function revisionsModal(drawing, onChange) {
