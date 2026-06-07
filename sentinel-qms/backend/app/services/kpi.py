@@ -13,7 +13,12 @@ from app.models.capa import Capa, CapaStatus
 from app.models.change import ChangeOrder, ChangeStatus
 from app.models.complaint import Complaint, ComplaintStatus
 from app.models.inspection import Inspection, InspectionResult
-from app.models.mgmt_review import ManagementReview, ReviewStatus
+from app.models.mgmt_review import (
+    ActionItem,
+    ActionItemStatus,
+    ManagementReview,
+    ReviewStatus,
+)
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.models.risk import Risk, RiskStatus
 from app.models.settings import OrgSettings
@@ -820,3 +825,94 @@ def my_open_items(db: Session, user_id: int, *, limit: int = 60) -> list[dict]:
     # Overdue first, then soonest due, then those without a due date.
     items.sort(key=lambda i: (not i["overdue"], i["due_date"] or "9999-99-99"))
     return items[:limit]
+
+
+# Fixed category labels for auto-compiled clause 9.3 management-review inputs.
+# Used to replace prior auto rows on re-run without touching manual inputs.
+MGMT_REVIEW_AUTO_CATEGORIES = [
+    "Status of Previous Actions",
+    "Customer Satisfaction & Complaints",
+    "Nonconformities & Corrective Actions",
+    "Internal Audit Results",
+    "External Provider (Supplier) Performance",
+    "Monitoring & Measurement (Calibration)",
+    "Risks & Opportunities",
+]
+
+
+def management_review_inputs(db: Session) -> list[dict]:
+    """Compile ISO 9001 / AS9100 clause 9.3.2 management-review inputs from
+    current QMS data. Returns ``{category, content, metric_value}`` rows.
+    """
+    ncr = open_ncr_metrics(db)
+    capa = capa_metrics(db)
+    findings = audit_finding_metrics(db)
+    suppliers = supplier_metrics(db)
+    complaints = complaint_metrics(db)
+    cal = calibration_metrics(db)
+
+    open_actions = _count(db, ActionItem, ActionItem.status != ActionItemStatus.COMPLETED)
+    open_risks = _count(db, Risk, Risk.status.in_(_RISK_OPEN))
+
+    by_type = ", ".join(f"{k}: {v}" for k, v in findings["open_by_type"].items()) or "none"
+    avg_q = suppliers["avg_quality_score"]
+    avg_otd = suppliers["avg_on_time_delivery"]
+    q_txt = avg_q if avg_q is not None else "n/a"
+    otd_txt = avg_otd if avg_otd is not None else "n/a"
+
+    return [
+        {
+            "category": "Status of Previous Actions",
+            "content": (
+                f"{open_actions} management-review action item(s) remain open from prior reviews "
+                "and require follow-up."
+            ),
+            "metric_value": f"{open_actions} open",
+        },
+        {
+            "category": "Customer Satisfaction & Complaints",
+            "content": (
+                f"{complaints['open_total']} open customer complaint(s)/RMA(s). Review customer "
+                "feedback and satisfaction trends."
+            ),
+            "metric_value": f"{complaints['open_total']} open",
+        },
+        {
+            "category": "Nonconformities & Corrective Actions",
+            "content": (
+                f"{ncr['open_total']} open nonconformance(s) ({ncr['critical_open']} critical); "
+                f"{capa['open_total']} open CAPA(s) with {capa['overdue']} overdue."
+            ),
+            "metric_value": f"{ncr['open_total']} NCR / {capa['open_total']} CAPA",
+        },
+        {
+            "category": "Internal Audit Results",
+            "content": f"{findings['open_findings']} open audit finding(s) by type — {by_type}.",
+            "metric_value": f"{findings['open_findings']} open",
+        },
+        {
+            "category": "External Provider (Supplier) Performance",
+            "content": (
+                f"{suppliers['approved_suppliers']} approved, "
+                f"{suppliers['disqualified_suppliers']} disqualified supplier(s). "
+                f"Avg quality {q_txt}, avg on-time delivery {otd_txt}."
+            ),
+            "metric_value": f"Q {q_txt} / OTD {otd_txt}",
+        },
+        {
+            "category": "Monitoring & Measurement (Calibration)",
+            "content": (
+                f"{cal['active_equipment']} active gauge(s): {cal['overdue']} overdue, "
+                f"{cal['due_soon']} due within {cal['due_within_days']} days."
+            ),
+            "metric_value": f"{cal['overdue']} overdue",
+        },
+        {
+            "category": "Risks & Opportunities",
+            "content": (
+                f"{open_risks} risk(s) currently open and under management; review effectiveness "
+                "of treatment actions and new opportunities."
+            ),
+            "metric_value": f"{open_risks} open",
+        },
+    ]
