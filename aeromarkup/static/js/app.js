@@ -27,7 +27,7 @@ function shell() {
     <div class="app">
       <header class="topbar">
         <button class="btn-icon" data-menu aria-label="Menu">${icon("menu", 20)}</button>
-        <div class="brand"><span class="brand-mark">${icon("plane", 20)}</span><span class="brand-name">AeroMarkup</span></div>
+        <a class="brand" href="#/dashboard" style="text-decoration:none;color:inherit" title="Home / Dashboard"><span class="brand-mark">${icon("plane", 20)}</span><span class="brand-name">AeroMarkup</span></a>
         <select class="classification-select" data-classification title="Document classification">
           ${CLASSIFICATIONS.map((c) => `<option>${c}</option>`).join("")}
         </select>
