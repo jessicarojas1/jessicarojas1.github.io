@@ -23,6 +23,7 @@ from app.core.security import hash_password
 from app.models import (  # noqa: F401 - ensure metadata is populated
     Capa,
     CapaStatus,
+    CoverageStatus,
     Department,
     Document,
     DocumentStatus,
@@ -34,6 +35,8 @@ from app.models import (  # noqa: F401 - ensure metadata is populated
     OrgSettings,
     Role,
     RolePagePermission,
+    Standard,
+    StandardRequirement,
     Supplier,
     SupplierStatus,
     User,
@@ -268,6 +271,102 @@ def seed_demo(db: Session, admin: User | None) -> None:
         logger.info("seeded demo equipment")
 
 
+# Standards seed: (code, name, description, [(clause, title, module_key, status), ...]).
+_C = CoverageStatus
+_STANDARDS_SEED = [
+    (
+        "AS9100D",
+        "AS9100 Rev D — Aviation, Space & Defense QMS",
+        "SAE AS9100D quality management system requirements for aerospace.",
+        [
+            ("4", "Context of the organization", "documents", _C.COVERED),
+            ("5", "Leadership", "mgmt_reviews", _C.COVERED),
+            ("6.1", "Actions to address risks and opportunities", "risks", _C.COVERED),
+            (
+                "7.1.5",
+                "Monitoring and measuring resources (calibration)",
+                "calibration",
+                _C.COVERED,
+            ),
+            ("7.2", "Competence (training)", "training", _C.COVERED),
+            ("7.5", "Documented information", "documents", _C.COVERED),
+            ("8.1.4", "Prevention of counterfeit parts", None, _C.GAP),
+            ("8.4", "Control of externally provided processes/products", "suppliers", _C.COVERED),
+            ("8.5.1.3", "Production process verification (FAI)", "inspections", _C.COVERED),
+            ("8.7", "Control of nonconforming outputs", "nonconformances", _C.COVERED),
+            ("9.2", "Internal audit", "audits", _C.COVERED),
+            ("9.3", "Management review", "mgmt_reviews", _C.COVERED),
+            ("10.2", "Nonconformity and corrective action", "capa", _C.COVERED),
+        ],
+    ),
+    (
+        "ISO9001",
+        "ISO 9001:2015 — Quality Management Systems",
+        "Baseline QMS requirements; AS9100 is built on this.",
+        [
+            ("7.1.5", "Monitoring and measuring resources", "calibration", _C.COVERED),
+            ("8.4", "Control of externally provided processes", "suppliers", _C.COVERED),
+            ("8.7", "Control of nonconforming outputs", "nonconformances", _C.COVERED),
+            ("9.2", "Internal audit", "audits", _C.COVERED),
+            ("9.3", "Management review", "mgmt_reviews", _C.COVERED),
+            ("10.2", "Nonconformity and corrective action", "capa", _C.COVERED),
+        ],
+    ),
+    (
+        "NADCAP",
+        "NADCAP — Special Process Accreditation",
+        "Supplier accreditation for special processes (heat treat, NDT, welding, chem).",
+        [
+            ("AC7004", "Quality system for special processors", "suppliers", _C.PARTIAL),
+            ("Process audits", "Special-process audit coverage", "audits", _C.PARTIAL),
+            ("Accreditation tracking", "Supplier NADCAP accreditation status", "suppliers", _C.GAP),
+        ],
+    ),
+    (
+        "NIST800-171",
+        "NIST SP 800-171 — Protecting CUI",
+        "Safeguarding Controlled Unclassified Information (pairs with CMMC).",
+        [
+            ("3.1", "Access control", None, _C.GAP),
+            ("3.3", "Audit and accountability", None, _C.PARTIAL),
+            ("3.12", "Security assessment", None, _C.GAP),
+        ],
+    ),
+    (
+        "AS9145",
+        "AS9145 — APQP & PPAP",
+        "Advanced Product Quality Planning and Production Part Approval Process.",
+        [
+            ("Phase 1-2", "Planning & product design", "changes", _C.GAP),
+            ("Phase 3", "Process design & development", None, _C.GAP),
+            ("PPAP", "Production part approval package", "inspections", _C.PARTIAL),
+            ("Control plan", "Control plan & PFMEA", "risks", _C.GAP),
+        ],
+    ),
+]
+
+
+def seed_standards(db: Session) -> None:
+    """Seed the standards-coverage matrix (idempotent — skips existing codes)."""
+    existing = {code for (code,) in db.execute(select(Standard.code)).all()}
+    for code, name, description, reqs in _STANDARDS_SEED:
+        if code in existing:
+            continue
+        std = Standard(code=code, name=name, description=description)
+        db.add(std)
+        db.flush()
+        for clause, title, module_key, status in reqs:
+            db.add(
+                StandardRequirement(
+                    standard_id=std.id,
+                    clause=clause,
+                    title=title,
+                    module_key=module_key,
+                    coverage_status=status,
+                )
+            )
+
+
 def run() -> None:
     configure_logging()
     # Create tables when running against a fresh database without migrations
@@ -282,6 +381,7 @@ def run() -> None:
         admin = seed_admin(db, roles)
         seed_permissions(db, roles)
         seed_org_settings(db)
+        seed_standards(db)
         db.commit()
 
         try:

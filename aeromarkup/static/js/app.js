@@ -2,7 +2,7 @@
    Builds the CUI-marked enterprise shell, wires the router to lifecycle
    views, and tracks identity + connectivity. Offline-first throughout. */
 import { openDB, getMeta, setMeta, all } from "./store.js";
-import { loadSession, currentUser, getClassification, setClassification, CLASSIFICATIONS } from "./session.js";
+import { loadSession, currentUser } from "./session.js";
 import { onNetChange, checkReachable, netState } from "./api.js";
 import { applyBranding } from "./branding.js";
 import { icon } from "./icons.js";
@@ -23,14 +23,10 @@ const NAV = [
 
 function shell() {
   document.body.innerHTML = `
-    <div class="cui-banner cui-top" data-cui>CUI</div>
     <div class="app">
       <header class="topbar">
         <button class="btn-icon" data-menu aria-label="Menu">${icon("menu", 20)}</button>
         <a class="brand" href="#/dashboard" style="text-decoration:none;color:inherit" title="Home / Dashboard"><span class="brand-mark">${icon("plane", 20)}</span><span class="brand-name">AeroMarkup</span></a>
-        <select class="classification-select" data-classification title="Document classification">
-          ${CLASSIFICATIONS.map((c) => `<option>${c}</option>`).join("")}
-        </select>
         <div style="flex:1"></div>
         <span class="badge badge-offline" data-net>Offline</span>
         <div class="user-chip" data-user>
@@ -53,8 +49,7 @@ function shell() {
         </div>
       </aside>
       <main class="main"><div class="view" id="view"></div></main>
-    </div>
-    <div class="cui-banner cui-bottom" data-cui>CUI</div>`;
+    </div>`;
 }
 
 function setActiveNav() {
@@ -147,14 +142,6 @@ async function boot() {
   await applyBranding();
   window.addEventListener("am:branding-changed", applyBranding);
 
-  // classification banner
-  const cls = await getClassification();
-  $("[data-classification]").value = cls;
-  $$("[data-cui]").forEach((b) => (b.textContent = cls === "UNCLASSIFIED" ? "UNCLASSIFIED" : cls));
-  $("[data-classification]").addEventListener("change", async (e) => {
-    await setClassification(e.target.value);
-    $$("[data-cui]").forEach((b) => (b.textContent = e.target.value === "UNCLASSIFIED" ? "UNCLASSIFIED" : e.target.value));
-  });
 
   // mobile menu
   $("[data-menu]").addEventListener("click", () => $("[data-sidebar]").classList.toggle("open"));

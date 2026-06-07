@@ -38,7 +38,7 @@ from app.schemas.mgmt_review import (
     ReviewRead,
     ReviewUpdate,
 )
-from app.services import numbering
+from app.services import kpi, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -154,6 +154,51 @@ def add_input(
     db.commit()
     db.refresh(item)
     return item
+
+
+@router.post(
+    "/{review_id}/auto-inputs",
+    response_model=list[ReviewInputRead],
+    status_code=status.HTTP_201_CREATED,
+)
+def compile_auto_inputs(
+    review_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_perm("mgmt_reviews.edit")),
+) -> list[ManagementReviewInput]:
+    """Auto-compile the ISO 9001 / AS9100 clause 9.3.2 review inputs from current
+    QMS data. Idempotent: replaces previously auto-generated rows (matched by
+    their fixed category labels) and leaves any manually-added inputs untouched.
+    """
+    get_or_404(db, ManagementReview, review_id, name="Management review")
+
+    # Remove prior auto rows so re-running refreshes rather than duplicates.
+    db.query(ManagementReviewInput).filter(
+        ManagementReviewInput.review_id == review_id,
+        ManagementReviewInput.category.in_(kpi.MGMT_REVIEW_AUTO_CATEGORIES),
+    ).delete(synchronize_session=False)
+
+    created = [
+        ManagementReviewInput(review_id=review_id, **row)
+        for row in kpi.management_review_inputs(db)
+    ]
+    db.add_all(created)
+    db.flush()
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="compile_auto_inputs",
+        entity_type=ENTITY,
+        entity_id=review_id,
+        after={"count": len(created)},
+        **request_context(request),
+    )
+    db.commit()
+    for item in created:
+        db.refresh(item)
+    return created
 
 
 @router.post(

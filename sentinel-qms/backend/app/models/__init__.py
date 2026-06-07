@@ -33,6 +33,15 @@ from app.models.change import (
 )
 from app.models.comment import Comment
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
+from app.models.counterfeit import (
+    AlertSource,
+    AlertStatus,
+    CounterfeitAlert,
+    PartSourcingRecord,
+    RiskLevel,
+    SourceType,
+    VerificationStatus,
+)
 from app.models.document import (
     Department,
     Document,
@@ -73,6 +82,7 @@ from app.models.risk import (
 )
 from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
+from app.models.standard import CoverageStatus, Standard, StandardRequirement
 from app.models.supplier import (
     ApprovedSupplierListEntry,
     ScarStatus,
@@ -176,4 +186,14 @@ __all__ = [
     "Comment",
     "OrgSettings",
     "SlaEscalation",
+    "Standard",
+    "StandardRequirement",
+    "CoverageStatus",
+    "PartSourcingRecord",
+    "CounterfeitAlert",
+    "SourceType",
+    "RiskLevel",
+    "VerificationStatus",
+    "AlertSource",
+    "AlertStatus",
 ]

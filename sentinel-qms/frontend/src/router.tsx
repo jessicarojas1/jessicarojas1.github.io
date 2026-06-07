@@ -7,6 +7,9 @@ import type { Capability } from './lib/rbac';
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ExecutiveDashboardPage = lazy(() => import('./pages/ExecutiveDashboardPage'));
+const StandardsPage = lazy(() => import('./pages/standards/StandardsPage'));
+const StandardDetailPage = lazy(() => import('./pages/standards/StandardDetailPage'));
+const CounterfeitPage = lazy(() => import('./pages/counterfeit/CounterfeitPage'));
 const DocumentationPage = lazy(() => import('./pages/docs/DocumentationPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -81,6 +84,14 @@ export function AppRouter() {
           <Route
             path="executive"
             element={<Guard page="dashboard" capability="ncr.read"><ExecutiveDashboardPage /></Guard>}
+          />
+          <Route path="standards">
+            <Route index element={<Guard page="standards" capability="ncr.read"><StandardsPage /></Guard>} />
+            <Route path=":id" element={<Guard page="standards" capability="ncr.read"><StandardDetailPage /></Guard>} />
+          </Route>
+          <Route
+            path="counterfeit"
+            element={<Guard page="suppliers" capability="suppliers.read"><CounterfeitPage /></Guard>}
           />
 
           <Route

@@ -119,6 +119,18 @@ The blueprint provisions the web service **and** a managed Postgres, and wires
 
 No env vars to set by hand — `DATABASE_URL` comes from the blueprint database.
 
+> **Production database note.** Render's **free PostgreSQL expires ~30 days**
+> after creation. For anything beyond a short pilot, move to a paid Render
+> Postgres or to a government-cloud managed database — the container is
+> identical, only `DATABASE_URL` changes:
+> - **AWS GovCloud:** RDS for PostgreSQL + ECS/Fargate — see
+>   [`deploy/aws-govcloud/`](deploy/aws-govcloud/).
+> - **Azure Government:** Azure Database for PostgreSQL Flexible Server +
+>   Container Apps — see [`deploy/azure-gov/`](deploy/azure-gov/).
+>
+> The app is offline-first, so an expired/unset database never breaks the UI —
+> it simply runs in local-only mode until `DATABASE_URL` is restored.
+
 ### 2) Local (Docker, mirrors the cloud topology)
 
 ```bash

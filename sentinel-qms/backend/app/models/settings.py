@@ -8,6 +8,7 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     Integer,
+    Numeric,
     String,
     Text,
     false,
@@ -88,4 +89,44 @@ class OrgSettings(Base, TimestampMixin):
     # the cross-worker dispatch lock via an atomic conditional UPDATE).
     report_schedule_last_sent_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
+    )
+
+    # ── Executive dashboard: KPI targets (RAG thresholds) ─────────────────────
+    kpi_target_open_ncrs: Mapped[float] = mapped_column(
+        Numeric(10, 2), default=10, server_default=text("10"), nullable=False
+    )
+    kpi_target_overdue_capas: Mapped[float] = mapped_column(
+        Numeric(10, 2), default=0, server_default=text("0"), nullable=False
+    )
+    kpi_target_open_findings: Mapped[float] = mapped_column(
+        Numeric(10, 2), default=5, server_default=text("5"), nullable=False
+    )
+    kpi_target_escapes: Mapped[float] = mapped_column(
+        Numeric(10, 2), default=3, server_default=text("3"), nullable=False
+    )
+    kpi_target_capa_on_time: Mapped[float] = mapped_column(
+        Numeric(10, 2), default=90, server_default=text("90"), nullable=False
+    )
+    kpi_target_supplier_quality: Mapped[float] = mapped_column(
+        Numeric(10, 2), default=95, server_default=text("95"), nullable=False
+    )
+    kpi_target_supplier_otd: Mapped[float] = mapped_column(
+        Numeric(10, 2), default=95, server_default=text("95"), nullable=False
+    )
+
+    # ── Cost of Quality: per-event unit costs (used to convert COQ counts to $) ─
+    coq_cost_ncr: Mapped[float] = mapped_column(
+        Numeric(12, 2), default=500, server_default=text("500"), nullable=False
+    )
+    coq_cost_complaint: Mapped[float] = mapped_column(
+        Numeric(12, 2), default=2000, server_default=text("2000"), nullable=False
+    )
+    coq_cost_inspection: Mapped[float] = mapped_column(
+        Numeric(12, 2), default=75, server_default=text("75"), nullable=False
+    )
+    coq_cost_audit: Mapped[float] = mapped_column(
+        Numeric(12, 2), default=1500, server_default=text("1500"), nullable=False
+    )
+    coq_cost_capa: Mapped[float] = mapped_column(
+        Numeric(12, 2), default=1200, server_default=text("1200"), nullable=False
     )

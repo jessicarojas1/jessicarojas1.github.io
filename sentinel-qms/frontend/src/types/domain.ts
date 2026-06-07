@@ -719,6 +719,10 @@ export interface CoqMonth {
   appraisal: number;
   internal_failure: number;
   external_failure: number;
+  prevention_cost: number;
+  appraisal_cost: number;
+  internal_failure_cost: number;
+  external_failure_cost: number;
 }
 
 export interface ClauseHeat {
@@ -739,6 +743,77 @@ export interface CalendarItem {
   status: 'overdue' | 'due_soon' | 'upcoming';
 }
 
+export type SourceType = 'ocm' | 'franchised' | 'independent' | 'broker' | 'other';
+export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+export type VerificationStatus = 'pending' | 'verified' | 'suspect' | 'rejected';
+export type AlertSource = 'gidep' | 'erai' | 'internal' | 'customer' | 'supplier' | 'other';
+export type AlertStatus = 'open' | 'under_assessment' | 'closed';
+
+export interface SourcingRecord {
+  id: number;
+  record_number: string;
+  part_number: string;
+  description: string | null;
+  supplier_id: number | null;
+  source_type: SourceType;
+  lot_date_code: string | null;
+  quantity: number | null;
+  coc_received: boolean;
+  traceability_to_oem: boolean;
+  inspection_method: string | null;
+  risk_level: RiskLevel;
+  status: VerificationStatus;
+  notes: string | null;
+}
+
+export interface CounterfeitAlert {
+  id: number;
+  alert_number: string;
+  source: AlertSource;
+  external_ref: string | null;
+  title: string;
+  part_numbers: string | null;
+  description: string | null;
+  alert_date: string | null;
+  status: AlertStatus;
+  impact_assessment: string | null;
+  affects_inventory: boolean;
+}
+
+export type CoverageStatus = 'covered' | 'partial' | 'gap' | 'not_applicable';
+
+export interface StandardRequirement {
+  id: number;
+  standard_id: number;
+  clause: string;
+  title: string;
+  module_key: string | null;
+  coverage_status: CoverageStatus;
+  evidence_note: string | null;
+}
+
+export interface CoverageSummary {
+  total: number;
+  covered: number;
+  partial: number;
+  gap: number;
+  not_applicable: number;
+  coverage_pct: number;
+}
+
+export interface StandardSummary {
+  id: number;
+  code: string;
+  name: string;
+  description: string | null;
+  is_active: boolean;
+  coverage: CoverageSummary;
+}
+
+export interface StandardDetail extends StandardSummary {
+  requirements: StandardRequirement[];
+}
+
 export interface ExecutiveDashboard {
   generated_at: string;
   kpis: ExecKpi[];
@@ -749,6 +824,11 @@ export interface ExecutiveDashboard {
     internal_failure: number;
     external_failure: number;
     total: number;
+    prevention_cost: number;
+    appraisal_cost: number;
+    internal_failure_cost: number;
+    external_failure_cost: number;
+    total_cost: number;
   };
   clause_heatmap: ClauseHeat[];
   compliance_calendar: CalendarItem[];

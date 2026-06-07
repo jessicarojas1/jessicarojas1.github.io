@@ -295,9 +295,10 @@ export async function renderEditor(host, drawingId) {
   $("[data-sync]", host).addEventListener("click", async () => {
     toast("Syncing…", "info", 1500);
     try {
-      await syncDrawing(d);
+      const r = await syncDrawing(d);
       await setMeta("dirty_" + d.id, false);
       await logAudit("drawing.sync", "drawing", d.id, {});
+      if (r && r.pulledModel) { toast("Pulled latest from server", "success"); return renderEditor(host, drawingId); }
       toast("Synced to server", "success");
     } catch (e) { toast(e.message, "error", 5000); }
   });
@@ -339,8 +340,12 @@ async function render3DEditor(host, d, project) {
   await viewer.mount();
   $("[data-back]", host).addEventListener("click", () => { viewer.destroy && viewer.destroy(); navigate("project/" + d.project_id); });
   $("[data-sync]", host).addEventListener("click", async () => {
-    try { await syncDrawing(d); await logAudit("drawing.sync", "drawing", d.id, {}); toast("Synced", "success"); }
-    catch (e) { toast(e.message, "error", 5000); }
+    try {
+      const r = await syncDrawing(d);
+      await logAudit("drawing.sync", "drawing", d.id, {});
+      if (r && r.pulledModel) { toast("Model pulled from server", "success"); return renderEditor(host, d.id); }
+      toast("Synced", "success");
+    } catch (e) { toast(e.message, "error", 5000); }
   });
 }
 
