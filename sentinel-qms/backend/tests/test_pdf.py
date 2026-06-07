@@ -79,6 +79,58 @@ def test_digest_pdf_is_valid(db_session, seeded):
     assert out[:5] == b"%PDF-"
 
 
+def test_audit_pdf_is_valid(db_session, seeded):
+    from app.models.audit_mgmt import Audit, AuditStatus, AuditType
+
+    _settings(db_session)
+    audit = Audit(
+        audit_number="AUD-0001",
+        title="Internal AS9100 audit",
+        audit_type=AuditType.INTERNAL,
+        status=AuditStatus.PLANNED,
+        standard="AS9100D",
+        lead_auditor_id=seeded["users"]["engineer"].id,
+    )
+    db_session.add(audit)
+    db_session.commit()
+    out = pdf.render_audit_pdf(db_session, audit)
+    assert out[:5] == b"%PDF-"
+
+
+def test_supplier_pdf_is_valid(db_session, seeded):
+    from app.models.supplier import Supplier, SupplierStatus
+
+    _settings(db_session)
+    supplier = Supplier(
+        supplier_code="SUP-0001",
+        name="Precision Forge Inc.",
+        status=SupplierStatus.APPROVED,
+        certification="AS9100",
+    )
+    db_session.add(supplier)
+    db_session.commit()
+    out = pdf.render_supplier_pdf(db_session, supplier)
+    assert out[:5] == b"%PDF-"
+
+
+def test_complaint_pdf_is_valid(db_session, seeded):
+    from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
+
+    _settings(db_session)
+    complaint = Complaint(
+        complaint_number="CMP-0001",
+        title="Late delivery",
+        description="Order arrived two weeks late.",
+        status=ComplaintStatus.RECEIVED,
+        severity=ComplaintSeverity.MEDIUM,
+        customer_name="Boeing",
+    )
+    db_session.add(complaint)
+    db_session.commit()
+    out = pdf.render_complaint_pdf(db_session, complaint)
+    assert out[:5] == b"%PDF-"
+
+
 def test_pdf_degrades_gracefully_on_bad_branding(db_session, seeded):
     # Unreachable SVG URL + invalid color must not break rendering.
     _settings(db_session, primary_color="not-a-color", logo_url="https://nope.invalid/l.svg")

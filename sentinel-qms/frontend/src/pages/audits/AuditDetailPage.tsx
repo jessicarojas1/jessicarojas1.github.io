@@ -6,6 +6,7 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
+import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 import { RecordSupplements } from '@/components/RecordSupplements';
@@ -59,7 +60,12 @@ export default function AuditDetailPage() {
               </>
             }
             breadcrumbs={[{ label: 'Audits', to: '/audits' }, { label: audit.audit_number }]}
-            actions={<PrintButton />}
+            actions={
+              <>
+                <PrintButton />
+                <PdfButton path={`/reports/audit/${audit.id}/pdf`} filename={`${audit.audit_number}.pdf`} />
+              </>
+            }
           />
 
           {/* KPI metadata bar */}

@@ -20,9 +20,12 @@ from io import BytesIO
 from fpdf import FPDF
 from sqlalchemy.orm import Session
 
+from app.models.audit_mgmt import Audit
 from app.models.capa import Capa
+from app.models.complaint import Complaint
 from app.models.nonconformance import Nonconformance
 from app.models.settings import OrgSettings
+from app.models.supplier import ScarStatus, Supplier
 from app.models.user import User
 from app.services import kpi
 
@@ -336,6 +339,121 @@ def render_capa_pdf(db: Session, capa: Capa) -> bytes:
             _kv(pdf, "Owner", _user_name(db, a.owner_id))
             _kv(pdf, "Due", _date(a.due_date))
             pdf.ln(1)
+
+    return _output(pdf)
+
+
+def render_audit_pdf(db: Session, audit: Audit) -> bytes:
+    """Render a single Audit record (with findings) as a branded PDF."""
+    pdf = _new_pdf(
+        db,
+        title=f"Audit {audit.audit_number}",
+        subtitle=audit.title or "",
+    )
+
+    _section(pdf, "Summary")
+    _kv(pdf, "Audit Number", audit.audit_number)
+    _kv(pdf, "Type", _enum(audit.audit_type))
+    _kv(pdf, "Status", _enum(audit.status))
+    _kv(pdf, "Standard", audit.standard)
+    _kv(pdf, "Lead Auditor", _user_name(db, audit.lead_auditor_id))
+    _kv(pdf, "Auditee Area", audit.auditee_area)
+    _kv(pdf, "Planned Date", _date(audit.planned_date))
+    _kv(pdf, "Actual Date", _date(audit.actual_date))
+
+    if audit.scope:
+        _section(pdf, "Scope")
+        pdf.set_font("Helvetica", "", 9)
+        pdf.multi_cell(0, 5, _safe(audit.scope), new_x="LMARGIN", new_y="NEXT")
+
+    findings = list(getattr(audit, "findings", []) or [])
+    if findings:
+        _section(pdf, f"Findings ({len(findings)})")
+        for f in findings:
+            _paragraph(
+                pdf,
+                f"{f.finding_number} - {_enum(f.finding_type)} [{_enum(f.status)}]",
+                f.description,
+            )
+            if f.clause_reference:
+                _kv(pdf, "Clause", f.clause_reference)
+            if f.evidence:
+                _kv(pdf, "Evidence", f.evidence)
+            _kv(pdf, "Response Due", _date(f.response_due_date))
+            pdf.ln(1)
+
+    return _output(pdf)
+
+
+def render_supplier_pdf(db: Session, supplier: Supplier) -> bytes:
+    """Render a single Supplier scorecard (profile, latest rating, open SCARs)."""
+    pdf = _new_pdf(
+        db,
+        title=f"Supplier {supplier.supplier_code}",
+        subtitle=supplier.name or "",
+    )
+
+    _section(pdf, "Profile")
+    _kv(pdf, "Supplier Code", supplier.supplier_code)
+    _kv(pdf, "Name", supplier.name)
+    _kv(pdf, "Status", _enum(supplier.status))
+    _kv(pdf, "CAGE Code", supplier.cage_code)
+    _kv(pdf, "Certification", supplier.certification)
+    _kv(pdf, "Cert Expiry", _date(supplier.cert_expiry))
+    _kv(pdf, "Country", supplier.country)
+    _kv(pdf, "Contact", supplier.contact_name)
+    _kv(pdf, "Contact Email", supplier.contact_email)
+
+    ratings = list(getattr(supplier, "ratings", []) or [])
+    if ratings:
+        latest = max(ratings, key=lambda r: (r.period or "", r.id))
+        _section(pdf, f"Latest Rating ({latest.period or '-'})")
+        _kv(pdf, "Quality Score", latest.quality_score)
+        _kv(pdf, "On-Time Delivery", latest.on_time_delivery)
+        _kv(pdf, "PPM Defects", latest.ppm_defects)
+        _kv(pdf, "Composite Score", latest.composite_score)
+        _kv(pdf, "Grade", latest.grade)
+
+    scars = [s for s in getattr(supplier, "scars", []) or [] if s.status != ScarStatus.CLOSED]
+    if scars:
+        _section(pdf, f"Open SCARs ({len(scars)})")
+        for s in scars:
+            _paragraph(pdf, f"{s.scar_number} [{_enum(s.status)}] - {s.title}", s.description)
+            _kv(pdf, "Response Due", _date(s.response_due_date))
+            pdf.ln(1)
+
+    return _output(pdf)
+
+
+def render_complaint_pdf(db: Session, complaint: Complaint) -> bytes:
+    """Render a single customer Complaint record as a branded PDF."""
+    pdf = _new_pdf(
+        db,
+        title=f"Complaint {complaint.complaint_number}",
+        subtitle=complaint.title or "",
+    )
+
+    _section(pdf, "Summary")
+    _kv(pdf, "Complaint Number", complaint.complaint_number)
+    _kv(pdf, "Status", _enum(complaint.status))
+    _kv(pdf, "Severity", _enum(complaint.severity))
+    _kv(pdf, "Customer", complaint.customer_name)
+    _kv(pdf, "Customer Contact", complaint.customer_contact)
+    _kv(pdf, "Part Number", complaint.part_number)
+    _kv(pdf, "Serial Number", complaint.serial_number)
+    _kv(pdf, "RMA", complaint.rma_number if complaint.is_rma else "No")
+    _kv(pdf, "Received", _date(complaint.received_date))
+    _kv(pdf, "Response Due", _date(complaint.response_due_date))
+    _kv(pdf, "Assigned To", _user_name(db, complaint.assigned_to))
+
+    _section(pdf, "Description")
+    pdf.set_font("Helvetica", "", 9)
+    pdf.multi_cell(0, 5, _safe(complaint.description or "-"), new_x="LMARGIN", new_y="NEXT")
+
+    if complaint.resolution:
+        _section(pdf, "Resolution")
+        pdf.set_font("Helvetica", "", 9)
+        pdf.multi_cell(0, 5, _safe(complaint.resolution), new_x="LMARGIN", new_y="NEXT")
 
     return _output(pdf)
 

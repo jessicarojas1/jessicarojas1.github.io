@@ -17,6 +17,7 @@ from app.core.exceptions import NotFoundError
 from app.core.rbac import Permission, require_permission
 from app.models.audit_mgmt import Audit, AuditFinding
 from app.models.capa import Capa, CapaStatus
+from app.models.complaint import Complaint
 from app.models.nonconformance import NcStatus, Nonconformance
 from app.models.supplier import ScarStatus, Supplier, SupplierRating, SupplierScar
 from app.schemas.auth import CurrentUser
@@ -285,6 +286,47 @@ def capa_pdf(
     if capa is None or capa.is_deleted:
         raise NotFoundError(f"CAPA {capa_id} not found.")
     return _pdf_response(pdf.render_capa_pdf(db, capa), f"{capa.capa_number}.pdf")
+
+
+@router.get("/audit/{audit_id}/pdf")
+def audit_pdf(
+    audit_id: int,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.AUDIT_READ)),
+) -> Response:
+    """Download a single audit record as a branded PDF. Requires audit:read."""
+    audit = db.get(Audit, audit_id)
+    if audit is None or audit.is_deleted:
+        raise NotFoundError(f"Audit {audit_id} not found.")
+    return _pdf_response(pdf.render_audit_pdf(db, audit), f"{audit.audit_number}.pdf")
+
+
+@router.get("/supplier/{supplier_id}/pdf")
+def supplier_pdf(
+    supplier_id: int,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+) -> Response:
+    """Download a single supplier scorecard as a branded PDF. Requires supplier:read."""
+    supplier = db.get(Supplier, supplier_id)
+    if supplier is None or supplier.is_deleted:
+        raise NotFoundError(f"Supplier {supplier_id} not found.")
+    return _pdf_response(pdf.render_supplier_pdf(db, supplier), f"{supplier.supplier_code}.pdf")
+
+
+@router.get("/complaint/{complaint_id}/pdf")
+def complaint_pdf(
+    complaint_id: int,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.COMPLAINT_READ)),
+) -> Response:
+    """Download a single customer complaint as a branded PDF. Requires complaint:read."""
+    complaint = db.get(Complaint, complaint_id)
+    if complaint is None or complaint.is_deleted:
+        raise NotFoundError(f"Complaint {complaint_id} not found.")
+    return _pdf_response(
+        pdf.render_complaint_pdf(db, complaint), f"{complaint.complaint_number}.pdf"
+    )
 
 
 @router.get("/digest/pdf")
