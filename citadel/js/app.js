@@ -137,6 +137,11 @@
     let data = null;
     try { data = await CITADEL.api.scansList(6); } catch (e) {}
     if (!data || !data.enabled || !(data.scans && data.scans.length)) { wrap.classList.add('d-none'); return; }
+    // Security-score trend across the recent scans (oldest → newest).
+    const spark = $('recent-spark');
+    if (spark && CITADEL.report && CITADEL.report.sparkline) {
+      spark.innerHTML = CITADEL.report.sparkline(data.scans.slice().reverse().map(s => s.security | 0), 110, 24);
+    }
     const gc = g => 'grade-' + String(g || '?').toLowerCase();
     list.innerHTML = data.scans.map(s =>
       '<button type="button" class="recent-item" data-open-recent="' + escH(s.id) + '">' +

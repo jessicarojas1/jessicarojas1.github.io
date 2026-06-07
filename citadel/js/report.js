@@ -507,12 +507,29 @@
   }
 
   function gradeCls(g) { return 'grade-' + String(g || '?').toLowerCase(); }
-  function renderServerHistory(el, list) {
-    if (!list.length) {
-      el.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>No scans recorded yet. Every scan you run is saved here and can be re-opened or downloaded at any time.</p></div>';
-      return;
-    }
-    const rows = list.map(h => `<tr>
+
+  // Tiny inline-SVG sparkline of numeric values (e.g. security score over time).
+  function sparkline(values, w, h) {
+    w = w || 130; h = h || 26; const pad = 3;
+    const vals = values.filter(v => typeof v === 'number');
+    if (vals.length < 2) return '';
+    const min = Math.min(...vals), max = Math.max(...vals), range = (max - min) || 1, n = vals.length;
+    const pts = vals.map((v, i) => {
+      const x = pad + (i / (n - 1)) * (w - 2 * pad);
+      const y = h - pad - ((v - min) / range) * (h - 2 * pad);
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    });
+    const last = vals[vals.length - 1];
+    const col = last >= 80 ? 'var(--bs-success,#16a34a)' : last >= 50 ? 'var(--bs-warning,#f59e0b)' : 'var(--bs-danger,#ef4444)';
+    const lp = pts[pts.length - 1].split(',');
+    return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
+      '<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + col + '" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + lp[0] + '" cy="' + lp[1] + '" r="2.4" fill="' + col + '"/></svg>';
+  }
+
+  let _histList = [];
+  function histRow(h) {
+    return `<tr>
       <td class="text-nowrap small">${esc(new Date(h.ts).toLocaleString())}</td>
       <td class="small">${esc(h.source || '')}${h.user ? ' <span class="text-body-secondary">· ' + esc(h.user) + '</span>' : ''}</td>
       <td><span class="badge grade-pill ${gradeCls(h.grade)}">${esc(h.grade)}</span></td>
@@ -524,24 +541,59 @@
         <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-html-scan="${esc(h.id)}" title="Download HTML report"><i class="bi bi-filetype-html"></i></button>
         <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-json-scan="${esc(h.id)}" title="Download JSON"><i class="bi bi-filetype-json"></i></button>
         <button class="btn btn-sm btn-outline-danger py-0 px-1" data-del-scan="${esc(h.id)}" title="Delete"><i class="bi bi-trash"></i></button>
-      </td></tr>`).join('');
+      </td></tr>`;
+  }
+  function renderHistRows(q) {
+    const tb = $('hist-tbody'); if (!tb) return;
+    q = (q || '').toLowerCase().trim();
+    const rows = _histList.filter(h => !q ||
+      (h.source || '').toLowerCase().includes(q) || (h.grade || '').toLowerCase().includes(q) ||
+      new Date(h.ts).toLocaleString().toLowerCase().includes(q));
+    tb.innerHTML = rows.length ? rows.map(histRow).join('') : '<tr><td colspan="7" class="text-center text-body-secondary py-3">No matches.</td></tr>';
+  }
+  function exportHistCsv() {
+    const cols = ['ts', 'source', 'grade', 'security', 'quality', 'findings', 'critical', 'high', 'files', 'user'];
+    const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const csv = cols.join(',') + '\r\n' + _histList.map(h => cols.map(c => q(h[c])).join(',')).join('\r\n');
+    download('citadel-scan-history-' + new Date().toISOString().slice(0, 10) + '.csv', csv, 'text/csv');
+  }
+  function renderServerHistory(el, list) {
+    _histList = list || [];
+    if (!_histList.length) {
+      el.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>No scans recorded yet. Every scan you run is saved here and can be re-opened or downloaded at any time.</p></div>';
+      return;
+    }
+    const chrono = _histList.slice().reverse();              // oldest → newest for the trend
+    const secs = chrono.map(s => s.security | 0);
+    const avg = Math.round(secs.reduce((a, b) => a + b, 0) / secs.length);
+    const spark = sparkline(secs);
     el.innerHTML = `
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-        <p class="text-body-secondary mb-0">${list.length} scan(s) saved on the server — open or download any of them anytime.</p>
-        <button class="btn btn-sm btn-outline-secondary" id="hist-refresh"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <p class="text-body-secondary mb-0">${_histList.length} scan(s) saved — open or download any anytime.</p>
+          ${spark ? `<span class="d-inline-flex align-items-center gap-2 small text-body-secondary" title="Security-score trend (oldest → newest)">${spark}<span>avg ${avg}</span></span>` : ''}
+        </div>
+        <div class="d-flex gap-2">
+          <input type="search" class="form-control form-control-sm" id="hist-search" placeholder="Filter scans…" style="max-width:200px" aria-label="Filter scans">
+          <button class="btn btn-sm btn-outline-secondary" id="hist-csv" title="Export history as CSV"><i class="bi bi-filetype-csv"></i> CSV</button>
+          <button class="btn btn-sm btn-outline-secondary" id="hist-refresh" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
+        </div>
       </div>
       <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
         <thead><tr><th>When</th><th>Source</th><th>Grade</th><th>Security</th><th>Findings</th><th>Crit+High</th><th class="text-end">Actions</th></tr></thead>
-        <tbody>${rows}</tbody></table></div>`;
+        <tbody id="hist-tbody"></tbody></table></div>`;
+    renderHistRows('');
     wireServerHistory(el);
   }
 
   function wireServerHistory(el) {
     if (el.dataset.wiredHist) return;
     el.dataset.wiredHist = '1';
+    el.addEventListener('input', (e) => { if (e.target.id === 'hist-search') renderHistRows(e.target.value); });
     el.addEventListener('click', async (e) => {
       const refresh = e.target.closest('#hist-refresh');
       if (refresh) { renderHistory('tab-history'); return; }
+      if (e.target.closest('#hist-csv')) { exportHistCsv(); return; }
       const open = e.target.closest('[data-open-scan]');
       const html = e.target.closest('[data-html-scan]');
       const json = e.target.closest('[data-json-scan]');
@@ -848,7 +900,7 @@ ul{padding-left:1.1rem}</style></head>
   }
 
   CITADEL.report = {
-    render, renderHistory, renderCompare, renderFindings, renderReport, renderAiFix, setAi,
+    render, renderHistory, renderCompare, renderFindings, renderReport, renderAiFix, setAi, sparkline,
     shownFinding, toggleSuppressedView, copyAiFix, downloadAiFix, downloadHtmlReport,
     exportJson, exportSbom, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp, exportJUnit, exportPrComment,
     get current() { return current; }
