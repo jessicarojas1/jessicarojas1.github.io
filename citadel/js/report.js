@@ -323,15 +323,20 @@
       </table></div>`;
   }
 
+  function licChipCls(l) { return l.tier === 'denied' ? 'bg-danger' : l.tier === 'review' ? 'bg-warning text-dark' : 'bg-success'; }
   function renderLicenses(r) {
     const lic = r.licenses;
     if (!lic || !lic.detected) return '';
-    const chip = (l) => `<span class="badge ${l.copyleft ? 'bg-warning text-dark' : 'bg-success'}" title="${esc(l.file)}">${esc(l.license)}</span>`;
+    const chip = (l) => `<span class="badge ${licChipCls(l)}" title="${esc(l.file)} · ${esc(l.tier || 'review')}">${esc(l.license)}</span>`;
+    const nd = (lic.denied || []).length, nr = (lic.review || []).length;
+    const verdict = nd ? `<span class="small text-danger ms-1">${nd} disallowed by policy</span>`
+      : nr ? `<span class="small text-warning ms-1">${nr} need review</span>`
+      : '<span class="small text-success ms-1">all policy-allowed</span>';
     return `<div class="card citadel-card mb-3"><div class="card-body py-2">
       <div class="d-flex flex-wrap gap-2 align-items-center">
-        <strong class="small"><i class="bi bi-card-checklist"></i> Licenses:</strong>
+        <strong class="small"><i class="bi bi-card-checklist"></i> License policy:</strong>
         ${lic.all.map(chip).join(' ')}
-        ${lic.copyleft.length ? `<span class="small text-warning ms-1">${lic.copyleft.length} copyleft — review distribution obligations</span>` : '<span class="small text-success ms-1">all permissive</span>'}
+        ${verdict}
       </div></div></div>`;
   }
 
@@ -796,7 +801,7 @@
         <h5 class="report-h">Dependencies, licenses &amp; deployment</h5>
         <ul class="report-list">
           <li><strong>${r.sbom.components.length}</strong> dependencies across ${[...new Set(r.sbom.components.map(c => c.ecosystem))].length} ecosystem(s); <strong>${cves.length}</strong> with known CVEs.</li>
-          <li>Licenses: ${lic && lic.detected ? lic.all.map(l => `<span class="badge ${l.copyleft ? 'bg-warning text-dark' : 'bg-success'}">${esc(l.license)}</span>`).join(' ') + (lic.copyleft.length ? ` — ${lic.copyleft.length} copyleft` : '') : 'none detected'}.</li>
+          <li>Licenses: ${lic && lic.detected ? lic.all.map(l => `<span class="badge ${licChipCls(l)}">${esc(l.license)}</span>`).join(' ') + ((lic.denied || []).length ? ` — ${lic.denied.length} disallowed by policy` : (lic.review || []).length ? ` — ${lic.review.length} need review` : '') : 'none detected'}.</li>
           <li>Deployment: ${r.deployment.length ? esc(r.deployment.map(d => d.tech).join(', ')) : 'no IaC/CI detected'}.</li>
           <li>Maintainability index: <strong>${r.quality.maintainability}/100</strong> (${r.quality.commentRatio}% comments).</li>
         </ul>
