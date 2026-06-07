@@ -19,6 +19,7 @@ import {
   Settings,
   ShieldAlert,
   ShieldCheck,
+  ShieldX,
   TrendingUp,
   Truck,
   Users,
@@ -74,6 +75,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Operations',
     items: [
       { label: 'Suppliers', to: '/suppliers', icon: Truck, capability: 'suppliers.read', page: 'suppliers' },
+      { label: 'Counterfeit Prevention', to: '/counterfeit', icon: ShieldX, capability: 'suppliers.read', page: 'suppliers' },
       { label: 'Calibration', to: '/calibration', icon: Wrench, capability: 'calibration.read', page: 'calibration' },
       { label: 'Training', to: '/training', icon: GraduationCap, capability: 'training.read', page: 'training' },
       { label: 'Management Review', to: '/mgmt-reviews', icon: GaugeCircle, capability: 'mgmt_reviews.read', page: 'mgmt_reviews' },
