@@ -73,6 +73,7 @@ from app.models.risk import (
 )
 from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
+from app.models.standard import CoverageStatus, Standard, StandardRequirement
 from app.models.supplier import (
     ApprovedSupplierListEntry,
     ScarStatus,
@@ -176,4 +177,7 @@ __all__ = [
     "Comment",
     "OrgSettings",
     "SlaEscalation",
+    "Standard",
+    "StandardRequirement",
+    "CoverageStatus",
 ]
