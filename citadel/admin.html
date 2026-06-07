@@ -76,6 +76,7 @@
           </div>
           <div id="login-error" class="alert alert-danger py-2 px-3 small d-none mb-2" role="alert"></div>
           <button type="submit" class="btn btn-primary w-100" id="login-btn-submit"><i class="bi bi-box-arrow-in-right"></i> Sign in</button>
+          <a class="btn btn-outline-secondary w-100 mt-2 d-none" id="login-sso" href="api/auth/oidc/start"><i class="bi bi-shield-lock"></i> Sign in with SSO</a>
         </form>
         <p class="small text-body-secondary mt-3 mb-0 text-center" id="login-hint"></p>
       </div>
@@ -391,6 +392,7 @@
       _me: null,
       _users: [],
       _settings: { enforce: false },
+      _sso: false,
 
       token() { try { return localStorage.getItem(JWT_KEY) || ''; } catch (e) { return ''; } },
       _setToken(t) { try { t ? localStorage.setItem(JWT_KEY, t) : localStorage.removeItem(JWT_KEY); } catch (e) {} },
@@ -466,6 +468,7 @@
             const health = await res.json().catch(() => null);
             if (health && health.auth && typeof health.auth === 'object') {
               this.mode = 'backend';
+              this._sso = !!health.auth.sso;
             }
           }
         } catch (e) { /* unreachable -> stay local */ }
@@ -652,6 +655,7 @@
       $('login-hint').textContent = DA.mode === 'backend'
         ? 'Sign in with your CITADEL administrator account.'
         : 'Demo admin — ' + DA.DEFAULT_ADMIN.email + ' / ' + DA.DEFAULT_ADMIN.password;
+      const ssoBtn = $('login-sso'); if (ssoBtn) ssoBtn.classList.toggle('d-none', !(DA.mode === 'backend' && DA._sso));
       const form = $('login-form');
       if (form.dataset.wired) return;
       form.dataset.wired = '1';

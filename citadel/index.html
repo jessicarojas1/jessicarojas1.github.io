@@ -80,8 +80,9 @@
           <div class="text-danger small d-none" id="login-error"></div>
           <div class="small text-body-secondary mt-2" id="login-hint"></div>
         </div>
-        <div class="modal-footer border-0">
-          <button class="btn btn-primary" id="login-submit"><i class="bi bi-box-arrow-in-right"></i> Sign in</button>
+        <div class="modal-footer border-0 d-flex flex-column align-items-stretch gap-2">
+          <button class="btn btn-primary w-100" id="login-submit"><i class="bi bi-box-arrow-in-right"></i> Sign in</button>
+          <a class="btn btn-outline-secondary w-100 d-none" id="login-sso" href="api/auth/oidc/start"><i class="bi bi-shield-lock"></i> Sign in with SSO</a>
         </div>
       </div>
     </div>

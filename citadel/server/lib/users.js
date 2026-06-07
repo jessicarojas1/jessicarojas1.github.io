@@ -182,6 +182,29 @@ function add({ name, email, role, password, permissions }) {
   };
   db.users.push(u); save(); return strip(u);
 }
+// Just-in-time provisioning for SSO/OIDC. Finds the user by email or creates one
+// (random password — they authenticate via the IdP, not a local password).
+function upsertSsoUser({ email, name, role }) {
+  const store = load();
+  email = String(email || '').trim().toLowerCase();
+  if (!email) throw new Error('SSO identity missing email.');
+  let u = store.users.find(x => x.email === email);
+  if (u) {
+    if (name && !u.name) u.name = name;
+    u.sso = true; if (!u.active) u.active = true; save();
+    return strip(u);
+  }
+  role = ROLES[role] ? role : 'viewer';
+  const salt = newSalt();
+  u = {
+    id: uid(), name: name || email, email, role, active: true, sso: true,
+    salt, pass: hashPw(crypto.randomBytes(24).toString('hex'), salt),
+    permissions: Object.assign({}, ROLES[role].perms),
+    createdAt: new Date().toISOString()
+  };
+  store.users.push(u); save();
+  return strip(u);
+}
 function update(id, patch) {
   const db = load(); const u = db.users.find(x => x.id === id); if (!u) throw new Error('User not found.');
   if ('name' in patch) u.name = patch.name;
@@ -266,7 +289,7 @@ function mfaStatus(id) { const u = getRaw(id); return { enabled: !!(u && u.mfaEn
 
 module.exports = {
   PAGES, ROLES, init, secret, settings, setSetting,
-  list, get, getByEmail: e => strip(getByEmail(e)), add, update, setPermission, remove, setPassword,
+  list, get, getByEmail: e => strip(getByEmail(e)), add, upsertSsoUser, update, setPermission, remove, setPassword,
   changeOwnPassword, verifyPassword, can,
   mfaEnabled, mfaBeginSetup, mfaEnable, mfaDisable, mfaVerify, mfaStatus,
   backend: () => (db.enabled() ? 'postgres' : 'file'), _file: FILE

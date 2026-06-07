@@ -29,7 +29,7 @@
   const escH = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   // When the deep-scan backend is present, authentication & permission checks
   // run server-side (JWT). Otherwise we fall back to the client-only store.
-  let backendMode = false, backendUser = null, backendEnforce = false;
+  let backendMode = false, backendUser = null, backendEnforce = false, ssoAvailable = false;
   function curUser() { return backendMode ? backendUser : CITADEL.auth.current(); }
   function aclEnforce() { return backendMode ? backendEnforce : CITADEL.auth.settings().enforce; }
   function aclCan(page) {
@@ -60,6 +60,7 @@
   }
   function openLogin() {
     resetLoginUi();
+    const sso = $('login-sso'); if (sso) sso.classList.toggle('d-none', !(backendMode && ssoAvailable));
     const h = $('login-hint');
     if (h) {
       if (backendMode) h.innerHTML = 'Sign in with your CITADEL account. Default admin — <code>admin@citadel.local</code> / <code>citadel-admin</code> (change after first login).';
@@ -183,6 +184,7 @@
     // Backend present → auth & permission checks are authoritative server-side.
     backendMode = true;
     backendEnforce = !!(st.auth && st.auth.enforce);
+    ssoAvailable = !!(st.auth && st.auth.sso);
     try { backendUser = await CITADEL.api.authMe(); } catch (e) { backendUser = null; }
     applyAccess();
     CITADEL.report.setAi(aiAvailable);

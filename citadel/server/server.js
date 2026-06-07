@@ -29,6 +29,7 @@ const sessions = require('./lib/sessions');
 const db = require('./lib/db');
 const log = require('./lib/log');
 const metrics = require('./lib/metrics');
+const oidc = require('./lib/oidc');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 // Locate the SPA. Local dev: server.js lives in citadel/server, so the app is
@@ -190,7 +191,7 @@ async function toolStatus() {
 app.get('/api/health', async (req, res) => {
   res.json({
     ok: true, version: '1.0', engine: 'deep', ai: ai.available(),
-    auth: { enforce: users.settings().enforce },
+    auth: { enforce: users.settings().enforce, sso: oidc.enabled() },
     store: { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled() },
     scanners: await toolStatus()
   });
@@ -298,6 +299,47 @@ app.post('/api/auth/mfa/disable', (req, res) => {
   users.mfaDisable(req.user.id);
   audit.record('mfa.disabled', { actor: req.user.email, ip: clientIp(req), detail: 'self', ok: true });
   res.json({ ok: true });
+});
+
+/* ---- OIDC SSO (Authorization Code + PKCE) ---- */
+const OIDC_POST_LOGIN = process.env.OIDC_POST_LOGIN || '/';
+// Begin SSO: redirect the browser to the identity provider.
+app.get('/api/auth/oidc/start', rateLimited('oidc', 30, 10 * 60000), async (req, res) => {
+  if (!oidc.enabled()) return res.status(404).json({ error: 'SSO is not configured.' });
+  try { res.redirect(await oidc.authUrl()); }
+  catch (e) { log.error('oidc start', { err: e.message }); res.status(502).json({ error: 'SSO provider unavailable.' }); }
+});
+// IdP redirects back here with ?code&state. Exchange, verify, JIT-provision, issue session.
+app.get('/api/auth/oidc/callback', async (req, res) => {
+  if (!oidc.enabled()) return res.status(404).send('SSO is not configured.');
+  const ip = clientIp(req);
+  try {
+    const { code, state, error } = req.query;
+    if (error) throw new Error('Provider returned: ' + String(error).slice(0, 80));
+    const s = oidc.takeState(String(state || ''));
+    if (!s || !code) throw new Error('Invalid or expired SSO state.');
+    const tokenSet = await oidc.exchangeCode(String(code), s.verifier);
+    const claims = await oidc.verifyIdToken(tokenSet.id_token, s.nonce);
+    const identity = oidc.mapIdentity(claims);
+    if (!identity) { audit.record('login.sso_denied', { actor: (claims && claims.email) || null, ip, detail: 'domain not allowed', ok: false }); return res.status(403).send('Your account is not permitted to sign in.'); }
+    const u = users.upsertSsoUser(identity);
+    const out = issueTokens(u, req);
+    metrics.inc('citadel_logins_total', { result: 'sso' });
+    audit.record('login.success', { actor: u.email, ip, detail: 'sso role=' + u.role, ok: true });
+    // Hand the tokens to the SPA via a same-origin page (not a URL fragment).
+    const nonce = crypto.randomBytes(16).toString('base64');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'nonce-" + nonce + "'");
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    const payload = JSON.stringify({ t: out.token, r: out.refreshToken, dest: OIDC_POST_LOGIN })
+      .replace(/</g, '\\u003c');
+    res.send('<!doctype html><meta charset="utf-8"><title>Signing in…</title>' +
+      '<body style="font:14px system-ui;padding:2rem">Signing you in…' +
+      '<script nonce="' + nonce + '">(function(){var d=' + payload + ';try{localStorage.setItem("citadel.jwt",d.t);localStorage.setItem("citadel.refresh",d.r);}catch(e){}location.replace(d.dest);})();</script></body>');
+  } catch (e) {
+    log.error('oidc callback', { err: e.message });
+    audit.record('login.sso_error', { ip, detail: e.message.slice(0, 120), ok: false });
+    res.status(400).send('SSO sign-in failed: ' + e.message);
+  }
 });
 app.get('/api/auth/settings', (req, res) => res.json(users.settings()));
 app.patch('/api/auth/settings', requireAdmin, (req, res) => {

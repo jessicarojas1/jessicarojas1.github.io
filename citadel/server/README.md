@@ -151,10 +151,29 @@ browser store is only a fallback for static hosting (GitHub Pages).
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `CITADEL_DATA_DIR` | `$CITADEL_TMP/citadel` | Where `users.json` + the JWT secret persist. Point at a persistent disk. |
-| `CITADEL_JWT_SECRET` | random (or seeded into the store) | HS256 signing key. Set/`generateValue` a stable one so sessions survive restarts. |
-| `CITADEL_ADMIN_EMAIL` | `admin@citadel.local` | First-boot admin email (only used when no admin exists yet). |
-| `CITADEL_ADMIN_PASSWORD` | `citadel-admin` | First-boot admin password — **change it after first login.** |
+| `CITADEL_DATA_DIR` | `$CITADEL_TMP/citadel` | Where `users.json` + the JWT secret persist (file mode). Point at a persistent disk. |
+| `DATABASE_URL` | — | When set, users/sessions/revocations/audit/settings persist to **Postgres** (durable + shared across instances). Falls back to the file store when unset. |
+| `CITADEL_JWT_SECRET` | random (or seeded into the store) | HS256 signing key. Set a stable one so sessions survive restarts. |
+| `CITADEL_ACCESS_TTL` / `CITADEL_REFRESH_TTL` | `1800` / `2592000` | Access-token (30 m) and refresh-token (30 d) lifetimes, in seconds. |
+| `CITADEL_ADMIN_EMAIL` / `CITADEL_ADMIN_PASSWORD` | `admin@citadel.local` / `citadel-admin` | First-boot admin. The default password is flagged **must-change**; change it on first login. |
+| `CITADEL_AUDIT_SINK_URL` / `CITADEL_AUDIT_SINK_TOKEN` | — | Forward every audit event to an HTTP collector (Splunk HEC / SIEM webhook). |
+
+**MFA (TOTP)** is self-service per user (Admin console → Settings → *Two-factor authentication*); no configuration required.
+
+**SSO / OIDC** — set these to enable "Sign in with SSO" (works with Entra ID, Okta, Google, Auth0, Keycloak — any OIDC provider):
+
+| Variable | Purpose |
+|---|---|
+| `OIDC_ISSUER` | Discovery base, e.g. `https://login.microsoftonline.com/<tenant>/v2.0` or `https://<org>.okta.com` |
+| `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` | Confidential client credentials from the IdP app registration |
+| `OIDC_REDIRECT_URI` | `https://<your-app>/api/auth/oidc/callback` (register this in the IdP) |
+| `OIDC_SCOPES` | Default `openid email profile` |
+| `OIDC_ADMIN_EMAILS` | Comma list mapped to the **admin** role on first login |
+| `OIDC_DEFAULT_ROLE` | Role for everyone else (default `viewer`) |
+| `OIDC_ALLOWED_DOMAINS` | Comma list of permitted email domains (others are rejected) |
+| `OIDC_POST_LOGIN` | Where to land after sign-in (default `/`) |
+
+Flow: Authorization Code + PKCE; the `id_token` signature is verified against the provider JWKS (RS256/PS256), and users are just-in-time provisioned by email. Sessions issued via SSO use the same access/refresh tokens as password login.
 
 > **Persistence.** The store writes to `CITADEL_DATA_DIR`. On a host with a
 > persistent volume (a paid Render disk, an Azure/AWS volume), accounts and the
