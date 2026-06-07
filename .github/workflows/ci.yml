@@ -43,6 +43,17 @@ jobs:
         working-directory: citadel/server
         run: npm test
 
+      # Accuracy gate: run the heuristic engine over the labeled benchmark corpus
+      # and fail the build if detection recall or precision regress. Current run is
+      # ~100% recall / ~95% precision; thresholds keep headroom while catching real
+      # regressions in the rules or engine. No external deps (engine is vm-loaded).
+      - name: Accuracy benchmark (gate)
+        working-directory: citadel
+        env:
+          FAIL_UNDER_RECALL: '0.9'
+          FAIL_UNDER_PRECISION: '0.9'
+        run: node benchmark/run.js
+
   # ---------------------------------------------------------------------------
   # Sentinel QMS frontend (Vite React + TS).
   # npm ci -> typecheck (tsc --noEmit) -> vitest. Lint is non-blocking: the repo
