@@ -5,6 +5,8 @@ import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PdfButton } from '@/components/PdfButton';
+import { RecordSupplements } from '@/components/RecordSupplements';
 import { DataList, DetailState } from '@/components/detail';
 import type { ApqpPhase, ApqpStatus, PpapElement, PpapElementStatus } from '@/types';
 import { PpapBar } from './ApqpListPage';
@@ -104,6 +106,13 @@ export default function ApqpDetailPage() {
               { label: 'APQP / PPAP', to: '/apqp' },
               { label: p.project_number },
             ]}
+            actions={
+              <PdfButton
+                path={`/reports/apqp/${p.id}/psw.pdf`}
+                filename={`${p.project_number}-PSW.pdf`}
+                label="PSW PDF"
+              />
+            }
           />
 
           <div className="detail-grid">
@@ -172,6 +181,12 @@ export default function ApqpDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements
+            entityType="apqp_project"
+            entityId={p.id}
+            canEditPage="inspections"
+          />
         </>
       )}
     </DetailState>
