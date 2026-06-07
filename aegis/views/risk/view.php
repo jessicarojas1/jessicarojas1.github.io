@@ -889,8 +889,8 @@ ob_start();
 </div><!-- /r-layout -->
 
 <!-- Approve Modal -->
-<div id="approveModal" style="display:none;position:fixed;inset:0;background:#00000060;z-index:9999;align-items:center;justify-content:center">
-  <div style="background:var(--bg-primary);border-radius:12px;padding:24px;width:420px;max-width:95vw">
+<div class="um-overlay" id="approveModal">
+  <div class="um-dialog">
     <h3 style="margin:0 0 12px">Approve Risk Assessment</h3>
     <form method="POST" action="/risk/<?= $risk['id'] ?>/approve">
       <?= Security::csrfField() ?>
@@ -906,8 +906,8 @@ ob_start();
 </div>
 
 <!-- Reject Modal -->
-<div id="rejectModal" style="display:none;position:fixed;inset:0;background:#00000060;z-index:9999;align-items:center;justify-content:center">
-  <div style="background:var(--bg-primary);border-radius:12px;padding:24px;width:420px;max-width:95vw">
+<div class="um-overlay" id="rejectModal">
+  <div class="um-dialog">
     <h3 style="margin:0 0 12px">Send Back for Revision</h3>
     <form method="POST" action="/risk/<?= $risk['id'] ?>/reject-review">
       <?= Security::csrfField() ?>
