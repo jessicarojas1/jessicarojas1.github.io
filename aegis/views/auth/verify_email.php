@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= $verified ? 'Email Verified' : 'Verification Failed' ?> — AEGIS GRC</title>
+<?php $__brandName = Branding::name(); $__brandLogo = Branding::logo(); ?>
+<title><?= $verified ? 'Email Verified' : 'Verification Failed' ?> — <?= Security::h($__brandName) ?></title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Inter,system-ui,sans-serif;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
@@ -17,13 +18,14 @@ p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
 .btn:hover{opacity:.9}
 .logo{font-size:13px;color:var(--text-muted);margin-top:32px;padding-top:24px;border-top:1px solid #f4f4f5}
 </style>
+<?= Branding::accentStyleTag() ?>
 </head>
 <body>
 <div class="card">
   <?php if ($verified): ?>
     <div class="icon success">&#10003;</div>
     <h1>Email Verified</h1>
-    <p>Your AEGIS GRC email address has been verified successfully. Your account is now active.</p>
+    <p>Your <?= Security::h($__brandName) ?> email address has been verified successfully. Your account is now active.</p>
     <a href="/login" class="btn">Log In</a>
   <?php else: ?>
     <div class="icon error">&#10007;</div>
@@ -31,7 +33,7 @@ p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
     <p>This verification link is invalid or has expired (links are valid for 24 hours). Please contact your administrator to resend a new verification email.</p>
     <a href="/login" class="btn">Back to Login</a>
   <?php endif; ?>
-  <div class="logo">AEGIS GRC &mdash; Enterprise Governance &amp; Compliance Platform</div>
+  <div class="logo"><?= Security::h($__brandName) ?> &mdash; Enterprise Governance &amp; Compliance Platform</div>
 </div>
 </body>
 </html>

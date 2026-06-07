@@ -9,7 +9,7 @@ ob_start();
   <div class="alert-box success" style="font-family:monospace">
     <i class="bi bi-key-fill"></i>
     <strong>API Key Created — copy now, it won't be shown again:</strong><br>
-    <code id="newKey" style="background:#111111;color:#a5f3fc;padding:8px 12px;border-radius:6px;display:block;margin-top:8px;font-size:14px;word-break:break-all"><?= Security::h($_SESSION['new_api_key']) ?></code>
+    <code id="newKey" style="background:var(--terminal-bg);color:var(--terminal-text);padding:8px 12px;border-radius:6px;display:block;margin-top:8px;font-size:14px;word-break:break-all"><?= Security::h($_SESSION['new_api_key']) ?></code>
     <button data-click="copyKey" class="btn btn-ghost btn-sm" style="margin-top:8px"><i class="bi bi-clipboard"></i> Copy</button>
     <?php unset($_SESSION['new_api_key']); ?>
   </div>

@@ -17,3 +17,27 @@ services:
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false
+
+  # CITADEL — source-code & executable security/compliance scanner (deep-scan backend).
+  # Docker image bundles the SPA + real scanners (Semgrep, Trivy, Syft, Grype,
+  # Gitleaks, Bandit, ClamAV). Build context MUST be the repo root.
+  # Needs >=2GB RAM (ClamAV loads a ~1.4GB signature DB) -> 'standard' or higher.
+  - type: web
+    name: citadel
+    runtime: docker
+    dockerfilePath: ./citadel/server/Dockerfile
+    dockerContext: .
+    plan: standard
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Stable HS256 signing secret for session JWTs. Set a fixed value in the
+      # dashboard so sessions survive redeploys (the free tier has no persistent
+      # disk, so the user store itself still resets on each deploy).
+      - key: CITADEL_JWT_SECRET
+        sync: false
+      # Optional: enables the AI "Explain & fix" feature. Set in the dashboard.
+      - key: ANTHROPIC_API_KEY
+        sync: false

@@ -16,7 +16,7 @@ class ChangeController {
     ];
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('change.view');
 
         $statusFilter = Security::sanitizeInput($_GET['status'] ?? '');
 
@@ -47,14 +47,14 @@ class ChangeController {
     }
 
     public function createForm(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('change.create');
 
         $activeModule = 'change';
         require AEGIS_ROOT . '/views/change/create.php';
     }
 
     public function create(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('change.create');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -121,7 +121,7 @@ class ChangeController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('change.view');
 
         $id = (int)$id;
 
@@ -161,7 +161,7 @@ class ChangeController {
             return;
         }
 
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('change.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -240,7 +240,7 @@ class ChangeController {
             return;
         }
 
-        Auth::requireAuth();
+        Auth::requirePermission('change.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -326,7 +326,7 @@ class ChangeController {
             return;
         }
 
-        Auth::requireAuth();
+        Auth::requirePermission('change.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -369,7 +369,7 @@ class ChangeController {
             return;
         }
 
-        Auth::requirePermission('audit.write');
+        Auth::requirePermission('change.approve');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

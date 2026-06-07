@@ -1,7 +1,6 @@
 <?php
-$breadcrumbs = [['Export', null]];
-ob_start();
-?>
+$breadcrumbs = $breadcrumbs ?? [['Export', null]];
+ob_start(); ?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Export Data</h1>

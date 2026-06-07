@@ -4,8 +4,12 @@ import { complaintHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
+import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
+import { UserName } from '@/components/UserName';
 
 export default function ComplaintDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +33,12 @@ export default function ComplaintDetailPage() {
             }
             subtitle={`${c.customer_name} · ${c.title}`}
             breadcrumbs={[{ label: 'Complaints', to: '/complaints' }, { label: c.complaint_number }]}
+            actions={
+              <>
+                <PrintButton />
+                <PdfButton path={`/reports/complaint/${c.id}/pdf`} filename={`${c.complaint_number}.pdf`} />
+              </>
+            }
           />
 
           <div className="detail-grid">
@@ -56,7 +66,7 @@ export default function ComplaintDetailPage() {
                       { label: 'Part Number', value: c.part_number ?? '—' },
                       { label: 'Serial Number', value: c.serial_number ?? '—' },
                       { label: 'RMA Number', value: c.rma_number ?? '—' },
-                      { label: 'Assigned To', value: c.assigned_to ?? 'Unassigned' },
+                      { label: 'Assigned To', value: c.assigned_to == null ? 'Unassigned' : <UserName id={c.assigned_to} /> },
                       { label: 'Received', value: formatDate(c.received_date) },
                       { label: 'Closed', value: formatDateTime(c.closed_at) },
                     ]}
@@ -76,6 +86,8 @@ export default function ComplaintDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="complaint" entityId={c.id} canEditPage="complaints" />
         </>
       )}
     </DetailState>

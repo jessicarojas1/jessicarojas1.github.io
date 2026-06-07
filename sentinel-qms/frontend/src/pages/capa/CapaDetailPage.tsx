@@ -8,8 +8,12 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
+import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
-import { AttachmentsCard, DataList, DetailState } from '@/components/detail';
+import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
+import { UserName } from '@/components/UserName';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
 import { EightDStepper } from './EightDStepper';
 
@@ -59,12 +63,15 @@ export default function CapaDetailPage() {
             subtitle={capa.title}
             breadcrumbs={[{ label: 'CAPA', to: '/capa' }, { label: capa.capa_number }]}
             actions={
-              canClose &&
-              capa.status !== 'closed' && (
-                <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
-                  <ShieldCheck size={16} /> Close & Sign
-                </button>
-              )
+              <>
+                <PrintButton />
+                <PdfButton path={`/reports/capa/${capa.id}/pdf`} filename={`${capa.capa_number}.pdf`} />
+                {canClose && capa.status !== 'closed' && (
+                  <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
+                    <ShieldCheck size={16} /> Close & Sign
+                  </button>
+                )}
+              </>
             }
           />
 
@@ -91,7 +98,7 @@ export default function CapaDetailPage() {
                   <DataList
                     items={[
                       { label: 'Type', value: humanize(capa.capa_type) },
-                      { label: 'Owner', value: capa.owner_id ?? '—' },
+                      { label: 'Owner', value: <UserName id={capa.owner_id} /> },
                       { label: 'Root Cause Method', value: capa.root_cause_method ?? '—' },
                       { label: 'Due', value: formatDate(capa.due_date) },
                       { label: 'Closed', value: formatDate(capa.closed_at) },
@@ -122,7 +129,7 @@ export default function CapaDetailPage() {
                         label: 'Verified',
                         value: <StatusBadge status={capa.effectiveness_verified ? 'verified' : 'pending'} />,
                       },
-                      { label: 'Verified By', value: capa.effectiveness_verified_by ?? '—' },
+                      { label: 'Verified By', value: <UserName id={capa.effectiveness_verified_by} /> },
                       { label: 'Verified At', value: formatDateTime(capa.effectiveness_verified_at) },
                     ]}
                   />
@@ -135,9 +142,10 @@ export default function CapaDetailPage() {
                 </div>
               </div>
 
-              <AttachmentsCard attachments={capa.attachments} />
             </div>
           </div>
+
+          <RecordSupplements entityType="capa" entityId={capa.id} canEditPage="capa" />
 
           <SignatureModal
             open={sigOpen}

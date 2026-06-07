@@ -42,7 +42,7 @@ ob_start();
   <div class="page-actions">
     <a href="/risk" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Risk Register</a>
     <button class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#reviewFilters"><i class="bi bi-funnel-fill"></i> Filters</button>
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.review')): ?>
     <a href="/risk/reviews/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Schedule Review</a>
     <?php endif; ?>
   </div>
@@ -142,7 +142,7 @@ ob_start();
           <div class="empty-state-sm">
             <i class="bi bi-clipboard2-check"></i>
             <?= $filterStatus ? 'No reviews match this filter.' : 'No review sessions yet.' ?>
-            <?php if (!$filterStatus && Auth::can('risk.write')): ?>
+            <?php if (!$filterStatus && Auth::can('risk.review')): ?>
               <a href="/risk/reviews/create">Schedule the first one</a>.
             <?php endif; ?>
           </div>

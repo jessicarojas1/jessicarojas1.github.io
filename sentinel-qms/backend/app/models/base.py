@@ -1,7 +1,8 @@
 """Shared SQLAlchemy mixins: timestamps, authorship, soft-delete."""
+
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import Boolean, DateTime, Integer, func
 from sqlalchemy.orm import Mapped, mapped_column
@@ -31,8 +32,6 @@ class SoftDeleteMixin:
     deleted_by: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     def soft_delete(self, actor_id: int | None = None) -> None:
-        from datetime import timezone as _tz
-
         self.is_deleted = True
-        self.deleted_at = datetime.now(_tz.utc)
+        self.deleted_at = datetime.now(UTC)
         self.deleted_by = actor_id

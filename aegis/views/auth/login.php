@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign In — AEGIS GRC</title>
+<?php $__brandName = Branding::name(); $__brandLogo = Branding::logo(); ?>
+<title>Sign In — <?= Security::h($__brandName) ?></title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css">
 <link rel="stylesheet" href="/public/css/app.css">
+<?= Branding::accentStyleTag() ?>
 </head>
 <body class="auth-body">
 
@@ -15,9 +17,16 @@
   <div class="auth-left">
     <div class="auth-left-content">
       <div class="auth-brand">
-        <div class="auth-brand-icon"><i class="bi bi-shield-fill-check"></i></div>
+        <?php if ($__brandLogo): ?>
+          <img src="<?= Security::h($__brandLogo) ?>" alt="<?= Security::h($__brandName) ?> logo"
+               class="auth-brand-logo" data-logo-fallback
+               style="width:48px;height:48px;object-fit:contain;border-radius:10px">
+          <div class="auth-brand-icon brand-logo-fallback" style="display:none"><i class="bi bi-shield-fill-check"></i></div>
+        <?php else: ?>
+          <div class="auth-brand-icon"><i class="bi bi-shield-fill-check"></i></div>
+        <?php endif; ?>
         <div>
-          <div class="auth-brand-name">AEGIS GRC</div>
+          <div class="auth-brand-name"><?= Security::h($__brandName) ?></div>
           <div class="auth-brand-tagline">Enterprise Governance & Compliance Platform</div>
         </div>
       </div>
@@ -135,6 +144,21 @@ function togglePassword(id) {
     icon.className = 'bi bi-eye';
   }
 }
+// Branding logo fallback: if a configured logo fails to load, show the shield mark.
+document.querySelectorAll('img[data-logo-fallback]').forEach(function (img) {
+  img.addEventListener('error', function () {
+    img.style.display = 'none';
+    var fb = img.parentElement ? img.parentElement.querySelector('.brand-logo-fallback') : null;
+    if (fb) fb.style.display = '';
+  });
+});
+// data-click delegation (login page has no app.js)
+document.addEventListener('click', function (e) {
+  var el = e.target.closest('[data-click]');
+  if (!el) return;
+  var fn = window[el.getAttribute('data-click')];
+  if (typeof fn === 'function') fn(el.getAttribute('data-arg'));
+});
 </script>
 </body>
 </html>

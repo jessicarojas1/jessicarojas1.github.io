@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { CuiBanner } from './CuiBanner';
 import { TopBar } from './TopBar';
 import { SideNav } from './SideNav';
+import { PrintBrandHeader } from './PrintBrandHeader';
 
 export function Layout() {
   const [navOpen, setNavOpen] = useState(false);
 
   return (
     <div className="app-shell">
-      <CuiBanner position="top" />
       <TopBar onToggleNav={() => setNavOpen((o) => !o)} />
       <SideNav open={navOpen} onNavigate={() => setNavOpen(false)} />
       {navOpen && (
@@ -21,10 +20,10 @@ export function Layout() {
       )}
       <main className="content">
         <div className="content__inner">
+          <PrintBrandHeader />
           <Outlet />
         </div>
       </main>
-      <CuiBanner position="bottom" />
     </div>
   );
 }

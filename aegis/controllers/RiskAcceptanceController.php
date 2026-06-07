@@ -14,7 +14,7 @@ class RiskAcceptanceController {
 
     // ── index ─────────────────────────────────────────────────────────────────
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
 
         $acceptances = Database::fetchAll(
             "SELECT ra.*,
@@ -64,7 +64,7 @@ class RiskAcceptanceController {
 
     // ── createForm ────────────────────────────────────────────────────────────
     public function createForm(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.accept');
 
         $riskId = (int)$riskId;
         $risk   = Database::fetchOne(
@@ -110,7 +110,7 @@ class RiskAcceptanceController {
 
     // ── create ────────────────────────────────────────────────────────────────
     public function create(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.accept');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -220,7 +220,7 @@ class RiskAcceptanceController {
 
     // ── revoke ────────────────────────────────────────────────────────────────
     public function revoke(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.accept');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -262,7 +262,7 @@ class RiskAcceptanceController {
 
     // ── renew (GET — shows form pre-populated from existing acceptance) ────────
     public function renew(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.accept');
 
         $id = (int)$id;
         $oldAcceptance = Database::fetchOne(

@@ -9,9 +9,9 @@ $canDecide = $isMgr && $exception['status'] === 'pending';
 
 // Status colours
 $statusStyles = [
-    'pending'  => ['bg' => 'var(--warning-subtle)', 'fg' => 'var(--warning)', 'icon' => 'bi-hourglass-split'],
-    'approved' => ['bg' => 'var(--success-subtle)', 'fg' => 'var(--primary)', 'icon' => 'bi-shield-check'],
-    'rejected' => ['bg' => 'var(--danger-subtle)', 'fg' => 'var(--danger)', 'icon' => 'bi-x-circle'],
+    'pending'  => ['bg' => '#fffbeb', 'fg' => '#d97706', 'icon' => 'bi-hourglass-split'],
+    'approved' => ['bg' => '#f0fdf4', 'fg' => '#16a34a', 'icon' => 'bi-shield-check'],
+    'rejected' => ['bg' => '#fef2f2', 'fg' => '#dc2626', 'icon' => 'bi-x-circle'],
     'expired'  => ['bg' => '#f9fafb', 'fg' => '#71717a', 'icon' => 'bi-clock-history'],
 ];
 $sStyle = $statusStyles[$exception['status']] ?? ['bg' => '#f4f4f5', 'fg' => '#71717a', 'icon' => 'bi-question-circle'];
@@ -179,7 +179,7 @@ ob_start();
             <th style="padding:10px 16px;color:var(--text-muted);font-weight:600;text-align:left;">Residual Risk Ack.</th>
             <td style="padding:10px 16px;">
               <?php if ($exception['residual_risk_acknowledged']): ?>
-                <span style="color:var(--primary);font-weight:600;"><i class="bi bi-check-circle-fill"></i> Yes</span>
+                <span style="color:var(--success);font-weight:600;"><i class="bi bi-check-circle-fill"></i> Yes</span>
               <?php else: ?>
                 <span style="color:var(--text-muted);">No</span>
               <?php endif; ?>

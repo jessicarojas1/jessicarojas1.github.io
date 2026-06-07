@@ -1,4 +1,5 @@
 """Aggregate all ORM models so ``Base.metadata`` is fully populated on import."""
+
 from __future__ import annotations
 
 from app.models.audit_mgmt import (
@@ -30,14 +31,17 @@ from app.models.change import (
     ChangeStatus,
     ChangeType,
 )
+from app.models.comment import Comment
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
 from app.models.document import (
+    Department,
     Document,
     DocumentApproval,
     DocumentRevision,
     DocumentStatus,
     DocumentType,
 )
+from app.models.iam import UserPermissionGrant
 from app.models.inspection import (
     FaiCharacteristic,
     FaiReport,
@@ -60,12 +64,15 @@ from app.models.nonconformance import (
     Nonconformance,
     NonconformanceDisposition,
 )
+from app.models.permission import RolePagePermission, UserPagePermission
 from app.models.risk import (
     Risk,
     RiskCategory,
     RiskStatus,
     TreatmentStrategy,
 )
+from app.models.settings import OrgSettings
+from app.models.sla import SlaEscalation
 from app.models.supplier import (
     ApprovedSupplierListEntry,
     ScarStatus,
@@ -101,7 +108,11 @@ __all__ = [
     "ElectronicSignature",
     "Attachment",
     "Notification",
+    "RolePagePermission",
+    "UserPagePermission",
+    "UserPermissionGrant",
     "user_roles",
+    "Department",
     "Document",
     "DocumentRevision",
     "DocumentApproval",
@@ -162,4 +173,7 @@ __all__ = [
     "Complaint",
     "ComplaintStatus",
     "ComplaintSeverity",
+    "Comment",
+    "OrgSettings",
+    "SlaEscalation",
 ]

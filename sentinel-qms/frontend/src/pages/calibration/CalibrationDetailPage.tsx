@@ -4,8 +4,11 @@ import { calibrationHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
+import { UserName } from '@/components/UserName';
 
 export default function CalibrationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +32,7 @@ export default function CalibrationDetailPage() {
             }
             subtitle={`Asset ${eq.asset_tag}`}
             breadcrumbs={[{ label: 'Calibration', to: '/calibration' }, { label: eq.asset_tag }]}
+            actions={<PrintButton />}
           />
 
           <div className="detail-grid">
@@ -83,7 +87,7 @@ export default function CalibrationDetailPage() {
                     { label: 'Model', value: eq.model ?? '—' },
                     { label: 'Serial #', value: eq.serial_number ?? '—' },
                     { label: 'Location', value: eq.location ?? '—' },
-                    { label: 'Custodian', value: eq.custodian_id ?? '—' },
+                    { label: 'Custodian', value: <UserName id={eq.custodian_id} /> },
                     { label: 'Interval', value: `${eq.calibration_interval_days} days` },
                     { label: 'Last Calibrated', value: formatDate(eq.last_calibration_date) },
                     { label: 'Next Due', value: formatDate(eq.next_due_date) },
@@ -92,6 +96,8 @@ export default function CalibrationDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="equipment" entityId={eq.id} canEditPage="calibration" />
         </>
       )}
     </DetailState>

@@ -1,21 +1,19 @@
 <?php
-ob_start();
-$breadcrumbs = [['Policies', '/policy'], ['Control Mapping', null]];
-?>
+$pageTitle    = 'Policy & Control Mapping';
+$activeModule = 'policy';
+$breadcrumbs  = [['Policies', '/policy'], ['Mapping', null]];
+ob_start(); ?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Policy &amp; Control Mapping</h1>
     <p class="page-subtitle">View which controls every policy is mapped to across all compliance packages</p>
   </div>
-  <div class="page-actions">
-    <button class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#mappingFilters"><i class="bi bi-funnel-fill"></i> Filters</button>
-    <a href="/policy" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Policies</a>
-  </div>
+  <a href="/policy" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Policies</a>
 </div>
 
 <!-- Filter bar -->
-<div class="filter-bar" id="mappingFilters">
-  <form method="GET" action="/policy/mapping">
+<div class="card" style="margin-bottom:16px;padding:14px 16px;">
+  <form method="GET" action="/policy/mapping" style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
     <div>
       <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">COMPLIANCE PACKAGE</label>
       <select name="package" id="filterPackage" class="form-control" style="min-width:200px;height:32px;font-size:0.85rem;">
@@ -34,9 +32,8 @@ $breadcrumbs = [['Policies', '/policy'], ['Control Mapping', null]];
         <?php endforeach; ?>
       </select>
     </div>
-    <button type="submit" class="btn btn-primary btn-sm" style="align-self:flex-end;">Apply</button>
     <?php if (!empty($filterPackage) || !empty($filterPolicy)): ?>
-    <a href="/policy/mapping" class="btn btn-sm btn-ghost" style="align-self:flex-end;"><i class="bi bi-x-circle"></i> Clear</a>
+    <a href="/policy/mapping" class="btn btn-sm btn-secondary" style="align-self:flex-end;"><i class="bi bi-x-circle"></i> Clear</a>
     <?php endif; ?>
   </form>
 </div>
@@ -124,6 +121,10 @@ $breadcrumbs = [['Policies', '/policy'], ['Control Mapping', null]];
 </div>
 <?php endif; ?>
 
+<script nonce="<?= Security::nonce() ?>">
+document.getElementById('filterPackage').addEventListener('change', function(){ this.form.submit(); });
+document.getElementById('filterPolicy').addEventListener('change', function(){ this.form.submit(); });
+</script>
 <?php
 $content = ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php';

@@ -1,4 +1,5 @@
 """Attachment endpoints: upload, download, and metadata listing."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, File, Form, Request, Response, UploadFile, status
@@ -117,7 +118,5 @@ def download_attachment(
     return Response(
         content=data,
         media_type=attachment.content_type,
-        headers={
-            "Content-Disposition": f'attachment; filename="{attachment.original_filename}"'
-        },
+        headers={"Content-Disposition": f'attachment; filename="{attachment.original_filename}"'},
     )

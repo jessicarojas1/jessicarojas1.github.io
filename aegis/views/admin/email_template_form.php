@@ -24,10 +24,10 @@ ob_start();
 ?>
 
 <?php if ($flash_success): ?>
-  <div class="alert-box success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
+  <div class="alert alert-success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
 <?php endif; ?>
 <?php if ($flash_error): ?>
-  <div class="alert-box error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
+  <div class="alert alert-error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
 <?php endif; ?>
 
 <div class="page-header">
@@ -58,7 +58,7 @@ ob_start();
 
           <div class="form-group">
             <label class="form-label">Type</label>
-            <div style="padding:8px 12px;background:var(--bg-secondary,#f9fafb);border:1px solid var(--border,#e4e4e7);border-radius:6px;font-family:monospace;font-size:13px;color:var(--text-muted)">
+            <div style="padding:8px 12px;background:var(--bg-secondary,var(--surface-alt));border:1px solid var(--border);border-radius:6px;font-family:monospace;font-size:13px;color:var(--text-muted)">
               <?= Security::h($template['type'] ?? '') ?>
             </div>
             <span class="form-text">Template type is fixed and cannot be changed.</span>
@@ -95,7 +95,7 @@ ob_start();
             <span class="form-text">Optional plain-text fallback for email clients that do not render HTML.</span>
           </div>
 
-          <div style="display:flex;align-items:center;gap:10px;padding:14px 0;border-top:1px solid var(--border,#e4e4e7)">
+          <div style="display:flex;align-items:center;gap:10px;padding:14px 0;border-top:1px solid var(--border)">
             <label class="pill-toggle" title="Toggle active status">
               <input type="checkbox" id="tmpl_is_active" name="is_active" value="1"
                      <?= !empty($template['is_active']) ? 'checked' : '' ?>>
@@ -108,7 +108,7 @@ ob_start();
           </div>
 
         </div>
-        <div class="card-footer" style="padding:16px 20px;border-top:1px solid var(--border,#e4e4e7);display:flex;gap:10px;align-items:center">
+        <div class="card-footer" style="padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center">
           <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Template</button>
           <a href="/admin/email-templates" class="btn btn-ghost">Cancel</a>
           <button type="button" class="btn btn-secondary" style="margin-left:auto" data-click="openPreviewModal">
@@ -136,7 +136,7 @@ ob_start();
             <?php foreach ($variables as $varName => $varDesc):
               $placeholder = '{{' . $varName . '}}';
             ?>
-              <div style="border:1px solid var(--border,#e4e4e7);border-radius:6px;padding:8px 10px;background:var(--bg-secondary,#f9fafb)">
+              <div style="border:1px solid var(--border);border-radius:6px;padding:8px 10px;background:var(--bg-secondary,var(--surface-alt))">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
                   <code style="font-size:12px;color:var(--secondary);word-break:break-all"><?= Security::h($placeholder) ?></code>
                   <button type="button"
@@ -157,10 +157,10 @@ ob_start();
           <p style="font-size:13px;color:var(--text-muted);margin:0">No variables defined for this template type.</p>
         <?php endif; ?>
 
-        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border,#e4e4e7)">
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
           <p style="font-size:12px;font-weight:600;color:var(--text-muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:.04em">Syntax</p>
-          <div style="background:#1c2a1b;border-radius:6px;padding:10px 12px;font-family:monospace;font-size:12px;color:#86efac;overflow-x:auto">
-            <span style="color:#6ee7b7">{{variable_name}}</span>
+          <div style="background:var(--code-green-bg);border-radius:6px;padding:10px 12px;font-family:monospace;font-size:12px;color:var(--code-green-text);overflow-x:auto">
+            <span style="color:var(--code-green-accent)">{{variable_name}}</span>
           </div>
           <p style="font-size:11px;color:var(--text-muted);margin:6px 0 0">Variable names are case-sensitive and must match exactly.</p>
         </div>
@@ -171,18 +171,20 @@ ob_start();
 </div>
 
 <!-- Preview Modal -->
-<div class="um-overlay" id="previewModal">
-  <div class="um-dialog" style="max-width:820px;width:90vw;display:flex;flex-direction:column;max-height:90vh">
-    <div class="um-header">
-      <h3>Email Preview</h3>
-      <button type="button" class="um-close" data-close-modal="previewModal"><i class="bi bi-x-lg"></i></button>
+<div id="previewModal" class="um-overlay" style="display:none">
+  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;width:90vw;max-width:820px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <h3 style="margin:0;font-size:16px;font-weight:600">Email Preview</h3>
+      <button type="button" data-click="closePreviewModal" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);line-height:1">
+        <i class="bi bi-x-lg"></i>
+      </button>
     </div>
     <div id="previewLoading" style="padding:40px;text-align:center;color:var(--text-muted);display:none">
       <i class="bi bi-arrow-repeat" style="font-size:1.5rem;animation:spin 1s linear infinite"></i>
       <p style="margin:12px 0 0">Rendering preview…</p>
     </div>
     <div id="previewError" style="padding:20px;display:none">
-      <div class="alert-box error"></div>
+      <div class="alert alert-error"></div>
     </div>
     <iframe id="previewFrame" style="flex:1;border:none;border-radius:0 0 12px 12px;min-height:500px" sandbox="allow-same-origin"></iframe>
   </div>
@@ -213,12 +215,14 @@ function copyVar(text) {
 }
 
 function openPreviewModal() {
-    document.getElementById('previewModal').classList.add('open');
+    if (window.showModal) showModal('previewModal');
+    else document.getElementById('previewModal').style.display = 'flex';
     loadPreview();
 }
 
 function closePreviewModal() {
-    document.getElementById('previewModal').classList.remove('open');
+    if (window.closeModal) closeModal('previewModal');
+    else document.getElementById('previewModal').style.display = 'none';
     document.getElementById('previewFrame').src = 'about:blank';
 }
 

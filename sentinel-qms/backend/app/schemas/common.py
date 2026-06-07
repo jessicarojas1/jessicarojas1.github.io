@@ -1,4 +1,5 @@
 """Shared Pydantic schema primitives: ORM config, pagination, e-signature."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -43,6 +44,21 @@ class ESignatureIn(BaseModel):
 
 class MessageOut(BaseModel):
     detail: str
+
+
+class ImportRowError(BaseModel):
+    """A single row failure during a bulk CSV import."""
+
+    row: int
+    message: str
+
+
+class ImportResult(BaseModel):
+    """Outcome of a bulk CSV import: how many rows were created vs. failed."""
+
+    created: int = 0
+    failed: int = 0
+    errors: list[ImportRowError] = Field(default_factory=list)
 
 
 class AuditLogRead(ORMModel):

@@ -1,29 +1,11 @@
 <?php
 $breadcrumbs  = $breadcrumbs  ?? [['Compliance', '/compliance'], ['Gap Analysis', null]];
 // $packages, $gaps, $crossFramework provided by controller
-
-// Server-side filter application
-$filterFramework = $_GET['framework'] ?? '';
-$filterGapStatus = $_GET['gap_status'] ?? '';
-
-$displayedGaps = $gaps;
-if ($filterFramework !== '') {
-    $displayedGaps = array_values(array_filter($displayedGaps, fn($g) => ($g['standard_code'] ?? '') === $filterFramework));
-}
-if ($filterGapStatus !== '') {
-    $displayedGaps = array_values(array_filter($displayedGaps, function($g) use ($filterGapStatus) {
-        $isOverdue = $g['due_date'] && strtotime($g['due_date']) < time() && ($g['status'] ?? '') !== 'implemented';
-        $gapStatus = $isOverdue ? 'overdue' : (($g['status'] ?? '') ?: 'not_started');
-        return $gapStatus === $filterGapStatus;
-    }));
-}
-
 $totalGaps    = count($gaps);
 $overdueGaps  = count(array_filter($gaps, fn($g) => $g['due_date'] && strtotime($g['due_date']) < time() && ($g['status'] ?? '') !== 'implemented'));
 $notStarted   = count(array_filter($gaps, fn($g) => !$g['status'] || $g['status'] === 'not_started'));
 $inProgress   = count(array_filter($gaps, fn($g) => ($g['status'] ?? '') === 'in_progress'));
 $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
-$shownGaps    = count($displayedGaps);
 ?>
 
 <div class="page-header">
@@ -32,7 +14,6 @@ $shownGaps    = count($displayedGaps);
     <p class="page-subtitle">Cross-framework view of unimplemented and overdue controls.</p>
   </div>
   <div class="page-actions">
-    <button class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#gapFilters"><i class="bi bi-funnel-fill"></i> Filters</button>
     <button class="btn btn-ghost btn-sm" id="btnExportGapsCsv"><i class="bi bi-download"></i> Export CSV</button>
     <a href="/compliance" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Compliance</a>
   </div>
@@ -43,10 +24,10 @@ $shownGaps    = count($displayedGaps);
   <?php
   $kpis = [
     ['Total Gaps',      $totalGaps,    'bi-exclamation-circle', 'var(--warning)', 'rgba(217,119,6,.1)'],
-    ['Overdue',         $overdueGaps,  'bi-clock-fill',         'var(--danger)', 'rgba(220,38,38,.1)'],
-    ['Not Started',     $notStarted,   'bi-circle',             '#6b7280', 'rgba(107,114,128,.1)'],
-    ['In Progress',     $inProgress,   'bi-arrow-repeat',       'var(--moderate)', 'rgba(37,99,235,.1)'],
-    ['Packages Affected',$pkgsWithGaps,'bi-grid-3x3-gap',       '#7c3aed', 'rgba(124,58,237,.1)'],
+    ['Overdue',         $overdueGaps,  'bi-clock-fill',         'var(--danger)',  'rgba(220,38,38,.1)'],
+    ['Not Started',     $notStarted,   'bi-circle',             'var(--text-muted)', 'rgba(107,114,128,.1)'],
+    ['In Progress',     $inProgress,   'bi-arrow-repeat',       'var(--info)',    'rgba(37,99,235,.1)'],
+    ['Packages Affected',$pkgsWithGaps,'bi-grid-3x3-gap',       'var(--purple)',  'rgba(124,58,237,.1)'],
   ];
   foreach ($kpis as [$label, $val, $icon, $color, $bg]):
   ?>
@@ -80,7 +61,7 @@ $shownGaps    = count($displayedGaps);
   <div class="card" style="padding:0">
     <div class="card-body" style="padding:16px">
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
-        <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:var(--purple);padding:3px 8px;border-radius:6px;white-space:nowrap;margin-top:2px;flex-shrink:0">
+        <span style="font-size:11px;font-weight:700;background:var(--bg-subtle);color:var(--purple);padding:3px 8px;border-radius:6px;white-space:nowrap;margin-top:2px;flex-shrink:0">
           <?= Security::h($pkg['standard_code']) ?>
         </span>
         <div style="min-width:0">
@@ -98,7 +79,7 @@ $shownGaps    = count($displayedGaps);
         <span style="background:rgba(5,150,105,.12);color:var(--success);padding:2px 8px;border-radius:10px;font-weight:600">
           <i class="bi bi-check-circle-fill"></i> <?= $implemented ?> Done
         </span>
-        <span style="background:rgba(37,99,235,.12);color:var(--moderate);padding:2px 8px;border-radius:10px;font-weight:600">
+        <span style="background:rgba(37,99,235,.12);color:var(--info);padding:2px 8px;border-radius:10px;font-weight:600">
           <i class="bi bi-arrow-repeat"></i> <?= $inProg ?> In Progress
         </span>
         <span style="background:rgba(107,114,128,.1);color:var(--text-muted);padding:2px 8px;border-radius:10px;font-weight:600">
@@ -124,38 +105,37 @@ $shownGaps    = count($displayedGaps);
 <?php endif; ?>
 
 <!-- Gaps Table with filter bar -->
-<h2 style="font-size:15px;font-weight:700;margin:0 0 12px;display:flex;align-items:center;gap:8px;color:var(--text)">
-  <i class="bi bi-exclamation-triangle" style="color:var(--warning)"></i>
-  Control Gaps
-  <span style="font-size:12px;font-weight:500;color:var(--text-muted);background:var(--bg-secondary);padding:2px 10px;border-radius:10px;border:1px solid var(--border)">
-    <?= $shownGaps ?> gap<?= $shownGaps !== 1 ? 's' : '' ?>
-  </span>
-</h2>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+  <h2 style="font-size:15px;font-weight:700;margin:0;display:flex;align-items:center;gap:8px;color:var(--text)">
+    <i class="bi bi-exclamation-triangle" style="color:var(--warning)"></i>
+    Control Gaps
+    <span style="font-size:12px;font-weight:500;color:var(--text-muted);background:var(--bg-secondary);padding:2px 10px;border-radius:10px;border:1px solid var(--border)" id="gapCount">
+      <?= $totalGaps ?> gap<?= $totalGaps !== 1 ? 's' : '' ?>
+    </span>
+  </h2>
 
-<div class="filter-bar" id="gapFilters">
-  <form method="GET">
-    <select name="framework" class="form-control form-control-sm" style="width:auto;min-width:140px">
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <select id="filterFramework" class="form-control form-control-sm" style="width:auto;min-width:140px">
       <option value="">All Frameworks</option>
       <?php $uniqueStds = array_unique(array_column($gaps, 'standard_code'));
             sort($uniqueStds);
             foreach ($uniqueStds as $std): ?>
-        <option value="<?= Security::h($std) ?>" <?= ($_GET['framework'] ?? '') === $std ? 'selected' : '' ?>><?= Security::h($std) ?></option>
+        <option value="<?= Security::h($std) ?>"><?= Security::h($std) ?></option>
       <?php endforeach; ?>
     </select>
-    <select name="gap_status" class="form-control form-control-sm" style="width:auto;min-width:130px">
+    <select id="filterStatus" class="form-control form-control-sm" style="width:auto;min-width:130px">
       <option value="">All Statuses</option>
-      <option value="overdue" <?= ($_GET['gap_status'] ?? '') === 'overdue' ? 'selected' : '' ?>>Overdue</option>
-      <option value="in_progress" <?= ($_GET['gap_status'] ?? '') === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-      <option value="not_started" <?= ($_GET['gap_status'] ?? '') === 'not_started' ? 'selected' : '' ?>>Not Started</option>
+      <option value="overdue">Overdue</option>
+      <option value="in_progress">In Progress</option>
+      <option value="not_started">Not Started</option>
     </select>
-    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
-    <a href="/compliance/gap-analysis" class="btn btn-ghost btn-sm">Clear</a>
-  </form>
+    <button class="btn btn-ghost btn-sm" id="btnClearGapFilters">Clear</button>
+  </div>
 </div>
 
 <div class="card" style="margin-bottom:28px">
   <div class="card-body" style="padding:0">
-    <?php if ($displayedGaps): ?>
+    <?php if ($gaps): ?>
     <div style="overflow-x:auto">
       <table class="data-table" style="min-width:820px" id="gapsTable">
         <thead>
@@ -171,27 +151,29 @@ $shownGaps    = count($displayedGaps);
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($displayedGaps as $gap):
+          <?php foreach ($gaps as $gap):
             $isOverdue = $gap['due_date'] && strtotime($gap['due_date']) < time()
                          && ($gap['status'] ?? '') !== 'implemented';
             if ($isOverdue) {
               $statusLabel = 'Overdue';
-              $statusBg    = 'rgba(220,38,38,.12)';
+              $statusBg    = 'var(--danger-subtle)';
               $statusColor = 'var(--danger)';
             } elseif (($gap['status'] ?? '') === 'in_progress') {
               $statusLabel = 'In Progress';
-              $statusBg    = 'rgba(37,99,235,.12)';
-              $statusColor = 'var(--moderate)';
+              $statusBg    = 'var(--info-subtle)';
+              $statusColor = 'var(--info)';
             } else {
               $statusLabel = $gap['status'] ? ucwords(str_replace('_',' ',$gap['status'])) : 'Not Started';
-              $statusBg    = 'rgba(107,114,128,.1)';
+              $statusBg    = 'var(--bg-subtle)';
               $statusColor = 'var(--text-muted)';
             }
             $dueDateColor = ($gap['due_date'] && strtotime($gap['due_date']) < time()) ? 'var(--danger)' : 'var(--text)';
+            $gapStatus = $isOverdue ? 'overdue' : (($gap['status'] ?? '') ?: 'not_started');
           ?>
-          <tr>
+          <tr data-framework="<?= Security::h($gap['standard_code'] ?? '') ?>"
+              data-status="<?= Security::h($gapStatus) ?>">
             <td>
-              <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:var(--purple);padding:2px 7px;border-radius:5px">
+              <span style="font-size:11px;font-weight:700;background:var(--bg-subtle);color:var(--purple);padding:2px 7px;border-radius:5px">
                 <?= Security::h($gap['standard_code']) ?>
               </span>
             </td>
@@ -261,7 +243,7 @@ $shownGaps    = count($displayedGaps);
             $cfFrameworks  = explode(', ', $cf['frameworks'] ?? '');
             $cfCount       = (int)$cf['framework_count'];
             $cfImplemented = (int)$cf['implemented_in'];
-            $priority      = $cfCount >= 3 ? 'var(--danger)' : ($cfCount === 2 ? 'var(--warning)' : 'var(--text-secondary)');
+            $priority      = $cfCount >= 3 ? 'var(--danger)' : ($cfCount === 2 ? 'var(--warning)' : 'var(--text-muted)');
           ?>
           <tr>
             <td style="font-size:13px;font-weight:500">
@@ -272,7 +254,7 @@ $shownGaps    = count($displayedGaps);
             <td>
               <div style="display:flex;flex-wrap:wrap;gap:5px">
                 <?php foreach ($cfFrameworks as $fw): ?>
-                <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:var(--purple);padding:2px 7px;border-radius:5px">
+                <span style="font-size:11px;font-weight:700;background:var(--bg-subtle);color:var(--purple);padding:2px 7px;border-radius:5px">
                   <?= Security::h(trim($fw)) ?>
                 </span>
                 <?php endforeach; ?>
@@ -299,6 +281,36 @@ $shownGaps    = count($displayedGaps);
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
+// Client-side filtering
+var filterFw  = document.getElementById('filterFramework');
+var filterSt  = document.getElementById('filterStatus');
+var gapCount  = document.getElementById('gapCount');
+
+function applyGapFilter() {
+  var fw  = filterFw ? filterFw.value : '';
+  var st  = filterSt ? filterSt.value : '';
+  var rows = document.querySelectorAll('#gapsTable tbody tr');
+  var visible = 0;
+  rows.forEach(function(row) {
+    var rowFw = row.dataset.framework || '';
+    var rowSt = row.dataset.status || '';
+    var show  = (!fw || rowFw === fw) && (!st || rowSt === st);
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  if (gapCount) gapCount.textContent = visible + ' gap' + (visible !== 1 ? 's' : '');
+}
+
+if (filterFw) filterFw.addEventListener('change', applyGapFilter);
+if (filterSt) filterSt.addEventListener('change', applyGapFilter);
+
+var clearBtn = document.getElementById('btnClearGapFilters');
+if (clearBtn) clearBtn.addEventListener('click', function() {
+  if (filterFw) filterFw.value = '';
+  if (filterSt) filterSt.value = '';
+  applyGapFilter();
+});
+
 // CSV export
 document.getElementById('btnExportGapsCsv').addEventListener('click', function() {
   var rows = document.querySelectorAll('#gapsTable tbody tr');

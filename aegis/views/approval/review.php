@@ -1,10 +1,12 @@
 <?php
+$pageTitle    = 'Review';
+$activeModule = 'approval';
+$breadcrumbs  = [['Approvals', '/approval'], ['Review', null]];
 $statusIcons = [
     'approved' => '<i class="bi bi-check-circle-fill" style="color:var(--success)"></i>',
     'rejected' => '<i class="bi bi-x-circle-fill" style="color:var(--danger)"></i>',
     'pending'  => '<i class="bi bi-clock" style="color:var(--warning)"></i>',
 ];
-$breadcrumbs = [['Approvals', '/approvals'], ['Request #' . (int)($req['id'] ?? 0), null]];
 ?>
 <div class="page-header">
   <div>
@@ -36,7 +38,7 @@ $breadcrumbs = [['Approvals', '/approvals'], ['Request #' . (int)($req['id'] ?? 
           $status    = $step['decision'] ?? ($isDone ? 'approved' : ($isCurrent ? 'pending' : 'waiting'));
           $bgColor   = match($status) {
             'approved' => 'var(--success-subtle)', 'rejected' => 'var(--danger-subtle)',
-            'pending'  => 'var(--warning-subtle)', default    => '#f9fafb',
+            'pending'  => 'var(--warning-subtle)', default    => 'var(--surface-alt)',
           };
         ?>
         <div style="flex:1;padding:16px;background:<?= $bgColor ?>;border:1px solid var(--border);

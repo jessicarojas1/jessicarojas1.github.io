@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Two-Factor Authentication — AEGIS GRC</title>
+<?php $__brandName = Branding::name(); $__brandLogo = Branding::logo(); ?>
+<title>Two-Factor Authentication — <?= Security::h($__brandName) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css">
@@ -20,13 +21,20 @@
   .mfa-digits { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
   .mfa-digits input { width: 44px; height: 52px; text-align: center; font-size: 22px; font-weight: 700; border: 2px solid var(--border); border-radius: 8px; background: var(--bg-body); color: var(--text); transition: border-color 0.2s; }
   .mfa-digits input:focus { outline: none; border-color: var(--primary); }
+  .login-brand-logo { width: 56px; height: 56px; border-radius: 14px; object-fit: contain; margin-bottom: 12px; }
 </style>
+<?= Branding::accentStyleTag() ?>
 </head>
 <body>
 <div class="login-box">
   <div class="login-card">
     <div class="login-brand">
-      <div class="login-brand-icon"><i class="bi bi-shield-lock-fill"></i></div>
+      <?php if ($__brandLogo): ?>
+        <img src="<?= Security::h($__brandLogo) ?>" alt="<?= Security::h($__brandName) ?> logo" class="login-brand-logo" data-logo-fallback>
+        <div class="login-brand-icon brand-logo-fallback" style="display:none"><i class="bi bi-shield-lock-fill"></i></div>
+      <?php else: ?>
+        <div class="login-brand-icon"><i class="bi bi-shield-lock-fill"></i></div>
+      <?php endif; ?>
       <h1 class="login-title">Two-Factor Auth</h1>
       <p class="login-sub">Enter the 6-digit code from your authenticator app</p>
     </div>
@@ -96,6 +104,14 @@
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
+// Branding logo fallback: if a configured logo fails to load, show the shield mark.
+document.querySelectorAll('img[data-logo-fallback]').forEach(function (img) {
+  img.addEventListener('error', function () {
+    img.style.display = 'none';
+    var fb = img.parentElement ? img.parentElement.querySelector('.brand-logo-fallback') : null;
+    if (fb) fb.style.display = '';
+  });
+});
 function digitNext(el, idx) {
   const val = el.value.replace(/\D/g,'');
   el.value = val;

@@ -3,10 +3,12 @@
 // Variables provided by ReportController::riskDetail():
 //   $risks (array), $pageTitle, plus $_GET['status'] and $_GET['level'] for filter context
 
+$pageTitle    = $pageTitle ?? 'Risk Detail Report';
+$activeModule = 'report';
+$breadcrumbs  = [['Reports', '/report'], ['Risk Detail', null]];
 $risks        = $risks        ?? [];
 $filterStatus = Security::sanitizeInput($_GET['status'] ?? '');
 $filterLevel  = Security::sanitizeInput($_GET['level']  ?? '');
-$breadcrumbs  = [['Reports', '/report'], ['Risk Detail', null]];
 $reportDate   = date('F j, Y');
 $orgName      = Database::fetchOne("SELECT value FROM settings WHERE key='org_name'")['value'] ?? 'Organisation';
 
@@ -76,7 +78,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 
 .rd-stat {
   background: #fff;
-  border: 1px solid var(--border);
+  border: 1px solid #e4e4e7;
   border-radius: 10px;
   padding: 16px 14px;
   text-align: center;
@@ -86,7 +88,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 
 .rd-table-wrap {
   background: #fff;
-  border: 1px solid var(--border);
+  border: 1px solid #e4e4e7;
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 24px;
@@ -113,12 +115,12 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   text-align: left;
   font-weight: 700;
   color: var(--text-muted);
-  background: var(--surface-alt);
-  border-bottom: 1px solid var(--border);
+  background: #f9fafb;
+  border-bottom: 1px solid #e4e4e7;
   white-space: nowrap;
 }
 .rd-table thead th.center { text-align: center; }
-.rd-table tbody tr { border-bottom: 1px solid var(--border); }
+.rd-table tbody tr { border-bottom: 1px solid #f4f4f5; }
 .rd-table tbody tr:hover { background: #fafafa; }
 .rd-table tbody td { padding: 9px 10px; vertical-align: top; }
 .rd-table tbody td.center { text-align: center; }
@@ -155,7 +157,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   display: none;
   text-align: center;
   font-size: 11px;
-  color: var(--text-muted);
+  color: #a1a1aa;
   border-top: 1px solid #e4e4e7;
   padding-top: 12px;
   margin-top: 32px;
@@ -241,17 +243,17 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center;" class="no-print">
   <span style="font-size:13px;font-weight:600;color:var(--text-muted);">Filter:</span>
   <a href="/report/risk-detail"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? 'var(--primary)' : '#f4f4f5' ?>;color:<?= (!$filterLevel && !$filterStatus) ? '#fff' : '#52525b' ?>;text-decoration:none;font-weight:600;">All</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? 'var(--primary)' : 'var(--bg-subtle)' ?>;color:<?= (!$filterLevel && !$filterStatus) ? 'var(--card-bg)' : 'var(--text-muted)' ?>;text-decoration:none;font-weight:600;">All</a>
   <a href="/report/risk-detail?level=critical"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'critical' ? 'var(--danger)' : 'var(--danger-subtle)' ?>;color:<?= $filterLevel === 'critical' ? '#fff' : 'var(--danger)' ?>;text-decoration:none;font-weight:600;">Critical</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'critical' ? 'var(--danger)' : 'var(--danger-subtle)' ?>;color:<?= $filterLevel === 'critical' ? 'var(--card-bg)' : 'var(--danger)' ?>;text-decoration:none;font-weight:600;">Critical</a>
   <a href="/report/risk-detail?level=high"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'high' ? '#f97316' : '#fff7ed' ?>;color:<?= $filterLevel === 'high' ? '#fff' : '#ea580c' ?>;text-decoration:none;font-weight:600;">High</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'high' ? 'var(--orange)' : 'var(--warning-subtle)' ?>;color:<?= $filterLevel === 'high' ? 'var(--card-bg)' : 'var(--orange)' ?>;text-decoration:none;font-weight:600;">High</a>
   <a href="/report/risk-detail?status=open"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'open' ? '#0284c7' : '#f0f9ff' ?>;color:<?= $filterStatus === 'open' ? '#fff' : '#0284c7' ?>;text-decoration:none;font-weight:600;">Open</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'open' ? 'var(--info)' : 'var(--info-subtle)' ?>;color:<?= $filterStatus === 'open' ? 'var(--card-bg)' : 'var(--info)' ?>;text-decoration:none;font-weight:600;">Open</a>
   <a href="/report/risk-detail?status=in_treatment"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'in_treatment' ? 'var(--warning)' : 'var(--warning-subtle)' ?>;color:<?= $filterStatus === 'in_treatment' ? '#fff' : 'var(--warning)' ?>;text-decoration:none;font-weight:600;">In Treatment</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'in_treatment' ? 'var(--warning)' : 'var(--warning-subtle)' ?>;color:<?= $filterStatus === 'in_treatment' ? 'var(--card-bg)' : 'var(--warning)' ?>;text-decoration:none;font-weight:600;">In Treatment</a>
   <a href="/report/risk-detail?status=accepted"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'accepted' ? 'var(--secondary)' : 'rgba(55,65,81,.05)' ?>;color:<?= $filterStatus === 'accepted' ? '#fff' : 'var(--secondary)' ?>;text-decoration:none;font-weight:600;">Accepted</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'accepted' ? 'var(--secondary)' : 'rgba(55,65,81,.05)' ?>;color:<?= $filterStatus === 'accepted' ? 'var(--card-bg)' : 'var(--secondary)' ?>;text-decoration:none;font-weight:600;">Accepted</a>
 </div>
 
 <!-- ── Risk Register Table ────────────────────────────────────────────────── -->
@@ -285,18 +287,18 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         $lik     = (int)($r['likelihood']     ?? 0);
         $imp     = (int)($r['impact']         ?? 0);
 
-        if ($sc > 14)       { $sc_bg = 'var(--danger-subtle)'; $sc_cl = 'var(--danger)'; $lvl = 'CRITICAL'; $lvl_bg = 'var(--danger-subtle)'; $lvl_cl = 'var(--danger)'; }
-        elseif ($sc >= 10)  { $sc_bg = '#fff7ed'; $sc_cl = '#ea580c'; $lvl = 'HIGH';     $lvl_bg = '#fff7ed'; $lvl_cl = '#ea580c'; }
+        if ($sc > 14)       { $sc_bg = 'var(--danger-subtle)';  $sc_cl = 'var(--danger)';  $lvl = 'CRITICAL'; $lvl_bg = 'var(--danger-subtle)';  $lvl_cl = 'var(--danger)';  }
+        elseif ($sc >= 10)  { $sc_bg = 'var(--warning-subtle)'; $sc_cl = 'var(--orange)';  $lvl = 'HIGH';     $lvl_bg = 'var(--warning-subtle)'; $lvl_cl = 'var(--orange)';  }
         elseif ($sc >= 6)   { $sc_bg = 'var(--warning-subtle)'; $sc_cl = 'var(--warning)'; $lvl = 'MEDIUM';   $lvl_bg = 'var(--warning-subtle)'; $lvl_cl = 'var(--warning)'; }
-        else                { $sc_bg = 'var(--success-subtle)'; $sc_cl = 'var(--primary)'; $lvl = 'LOW';      $lvl_bg = 'var(--success-subtle)'; $lvl_cl = 'var(--primary)'; }
+        else                { $sc_bg = 'var(--success-subtle)'; $sc_cl = 'var(--success)'; $lvl = 'LOW';      $lvl_bg = 'var(--success-subtle)'; $lvl_cl = 'var(--success)'; }
 
-        if ($res > 14)      { $res_bg = 'var(--danger-subtle)'; $res_cl = 'var(--danger)'; }
-        elseif ($res >= 10) { $res_bg = '#fff7ed'; $res_cl = '#ea580c'; }
+        if ($res > 14)      { $res_bg = 'var(--danger-subtle)';  $res_cl = 'var(--danger)';  }
+        elseif ($res >= 10) { $res_bg = 'var(--warning-subtle)'; $res_cl = 'var(--orange)';  }
         elseif ($res >= 6)  { $res_bg = 'var(--warning-subtle)'; $res_cl = 'var(--warning)'; }
-        else                { $res_bg = 'var(--success-subtle)'; $res_cl = 'var(--primary)'; }
+        else                { $res_bg = 'var(--success-subtle)'; $res_cl = 'var(--success)'; }
 
-        $statusColors = ['open' => ['var(--info-subtle)','#1d4ed8'], 'in_treatment' => ['var(--warning-subtle)','var(--warning)'],
-                         'accepted' => ['rgba(55,65,81,.05)','var(--text-muted)'], 'closed' => ['#f9fafb','#71717a'],
+        $statusColors = ['open' => ['var(--info-subtle)','var(--info)'], 'in_treatment' => ['var(--warning-subtle)','var(--warning)'],
+                         'accepted' => ['rgba(55,65,81,.05)','var(--text-muted)'], 'closed' => ['var(--surface-alt)','var(--text-muted)'],
                          'transferred' => ['var(--success-subtle)','var(--success)']];
         $stColor = $statusColors[$r['status'] ?? ''] ?? ['#f9fafb','#52525b'];
 
@@ -337,7 +339,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
           <?php else: ?><span style="color:var(--border);">—</span><?php endif; ?>
         </td>
         <td style="white-space:nowrap;"><?= Security::h($r['owner_name'] ?? '—') ?></td>
-        <td style="white-space:nowrap;color:<?= $isOverdue ? 'var(--danger)' : '#52525b' ?>;">
+        <td style="white-space:nowrap;color:<?= $isOverdue ? 'var(--danger)' : 'var(--text-muted)' ?>;">
           <?= $reviewDt ?>
           <?php if ($isOverdue): ?>&nbsp;<i class="bi bi-exclamation-circle-fill" style="color:var(--danger);"></i><?php endif; ?>
         </td>
@@ -348,7 +350,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         </td>
         <td class="center">
           <?php if ($ctrlCnt > 0): ?>
-          <span style="display:inline-block;background:var(--info-subtle);color:var(--info-text);font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $ctrlCnt ?></span>
+          <span style="display:inline-block;background:var(--info-subtle);color:var(--info);font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $ctrlCnt ?></span>
           <?php else: ?><span style="color:var(--border);">0</span><?php endif; ?>
         </td>
       </tr>

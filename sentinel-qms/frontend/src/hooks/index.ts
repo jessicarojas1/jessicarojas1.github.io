@@ -32,3 +32,17 @@ export const userHooks = createResourceHooks<User>('users');
 
 export * from './useDashboard';
 export * from './useTraining';
+export * from './useSearch';
+export * from './useNotifications';
+export * from './useAnalytics';
+export * from './useReports';
+export * from './useAuditLogs';
+export * from './useActivity';
+export * from './useAttachments';
+export * from './useUsers';
+export * from './usePermissions';
+export * from './useUserLookup';
+export * from './useMyOpenItems';
+export * from './useComments';
+export * from './useSettings';
+export * from './useBranding';

@@ -4,7 +4,8 @@
 # Node 20 Express API that runs REAL open-source security scanners over uploaded
 # code and serves the CITADEL static SPA. Unlike the front-end-only demo image
 # under citadel/deploy/, this image bundles the full scanner toolchain:
-#   Semgrep, Bandit, Trivy, Syft, Grype, Gitleaks, ClamAV.
+#   Semgrep, Bandit, Trivy, Syft, Grype, Gitleaks, ClamAV, Checkov,
+#   OSV-Scanner, Hadolint, and (opt-in) CodeQL.
 #
 # BUILD CONTEXT: the *repository root*, so the image can COPY both the SPA
 # (citadel/) and the backend (citadel/server/). Build it with:
@@ -36,6 +37,14 @@ ARG TRIVY_VERSION=0.58.1
 ARG SYFT_VERSION=1.18.1
 ARG GRYPE_VERSION=0.87.0
 ARG GITLEAKS_VERSION=8.21.2
+ARG CHECKOV_VERSION=3.2.334
+ARG OSV_SCANNER_VERSION=1.9.2
+ARG HADOLINT_VERSION=2.12.0
+# CodeQL CLI bundle is multi-GB and OPT-IN (kept OUT of the default image).
+# Build with `--build-arg CITADEL_WITH_CODEQL=1` to bundle it; the runtime also
+# requires env CITADEL_ENABLE_CODEQL=1 for the codeql adapter to attempt a scan.
+ARG CITADEL_WITH_CODEQL=0
+ARG CODEQL_VERSION=2.20.3
 
 ENV NODE_ENV=production \
     PORT=8080 \
@@ -65,6 +74,7 @@ RUN set -eux; \
         ca-certificates \
         curl \
         git \
+        gnupg \
         unzip; \
     rm -rf /var/lib/apt/lists/*
 
@@ -75,6 +85,7 @@ RUN set -eux; \
 # on PATH (see ENV above), keeping system Python clean and tools isolated.
 #   Semgrep -> multi-language data-flow-aware static analysis (the core SAST).
 #   Bandit  -> Python-specific AST security linter.
+#   Checkov -> IaC misconfiguration scanner (Terraform/CFN/K8s/Dockerfile/ARM).
 # -----------------------------------------------------------------------------
 RUN set -eux; \
     python3 -m venv /opt/venv; \
@@ -83,51 +94,141 @@ RUN set -eux; \
         "semgrep==${SEMGREP_VERSION}" \
         "bandit==${BANDIT_VERSION}"
 
+# Checkov (Python IaC misconfig scanner). Separate NON-FATAL install so a
+# Checkov dependency-resolution hiccup can't break the core SAST layer above.
+RUN ( set -e; \
+      /opt/venv/bin/pip install --no-cache-dir "checkov==${CHECKOV_VERSION}"; \
+      checkov --version ) \
+    || echo "[citadel] Checkov install skipped — Trivy still provides IaC misconfig coverage"
+
 # -----------------------------------------------------------------------------
 # Trivy (Aqua Security) — filesystem vulnerability + secret + IaC misconfig scan
-# Installed via the official install script, pinned to a version.
-# NOTE: the Trivy vuln DB downloads on first run; for offline/air-gapped use,
-# pre-pull with `trivy --download-db-only` at deploy time (see README).
+# Installed from Aqua's official APT repository (served from GitHub Pages, NOT
+# the GitHub API — so it is not rate-limited on shared CI/build IPs, and we don't
+# depend on a specific release shipping a binary asset).
+# NON-FATAL: if the repo is unreachable, the build still succeeds and the server
+# simply skips Trivy at runtime (Grype provides overlapping CVE coverage).
+# The Trivy vuln DB downloads on first run; pre-pull with `trivy --download-db-only`.
 # -----------------------------------------------------------------------------
 RUN set -eux; \
-    curl -sSfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
-        | sh -s -- -b /usr/local/bin "v${TRIVY_VERSION}"; \
-    trivy --version
+    ( set -e; \
+      curl -sfL https://aquasecurity.github.io/trivy-repo/deb/public.key \
+        | gpg --dearmor -o /usr/share/keyrings/trivy.gpg; \
+      echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" \
+        > /etc/apt/sources.list.d/trivy.list; \
+      apt-get update; \
+      apt-get install -y --no-install-recommends trivy; \
+      trivy --version ) \
+    || echo "[citadel] Trivy install skipped — Grype still provides CVE coverage"; \
+    rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------
 # Syft (Anchore) — Software Bill of Materials generation (CycloneDX / SPDX)
+# Direct pinned release tarball (avoids the API-driven install.sh). NON-FATAL.
 # -----------------------------------------------------------------------------
 RUN set -eux; \
-    curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
-        | sh -s -- -b /usr/local/bin "v${SYFT_VERSION}"; \
-    syft version
+    arch="$(dpkg --print-architecture)"; \
+    ( set -e; \
+      curl -sSfL -o /tmp/syft.tar.gz \
+        "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/syft_${SYFT_VERSION}_linux_${arch}.tar.gz"; \
+      tar -xzf /tmp/syft.tar.gz -C /usr/local/bin syft; \
+      chmod +x /usr/local/bin/syft; \
+      syft version ) \
+    || echo "[citadel] Syft install skipped — SBOM falls back to manifest parsing"; \
+    rm -f /tmp/syft.tar.gz
 
 # -----------------------------------------------------------------------------
 # Grype (Anchore) — vulnerability matching against an SBOM / directory
-# Grype's vuln DB also downloads on first run; pre-pull with `grype db update`.
+# Direct pinned release tarball. NON-FATAL. Grype's vuln DB downloads on first
+# run; pre-pull with `grype db update`.
 # -----------------------------------------------------------------------------
 RUN set -eux; \
-    curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh \
-        | sh -s -- -b /usr/local/bin "v${GRYPE_VERSION}"; \
-    grype version
+    arch="$(dpkg --print-architecture)"; \
+    ( set -e; \
+      curl -sSfL -o /tmp/grype.tar.gz \
+        "https://github.com/anchore/grype/releases/download/v${GRYPE_VERSION}/grype_${GRYPE_VERSION}_linux_${arch}.tar.gz"; \
+      tar -xzf /tmp/grype.tar.gz -C /usr/local/bin grype; \
+      chmod +x /usr/local/bin/grype; \
+      grype version ) \
+    || echo "[citadel] Grype install skipped — OSV/Trivy still provide CVE coverage"; \
+    rm -f /tmp/grype.tar.gz
 
 # -----------------------------------------------------------------------------
 # Gitleaks (GitHub release binary) — secrets / credential detection
-# Resolve the host arch to the upstream asset naming (x64 / arm64).
+# Direct pinned release tarball; resolve host arch to the upstream naming. NON-FATAL.
 # -----------------------------------------------------------------------------
 RUN set -eux; \
     arch="$(dpkg --print-architecture)"; \
     case "$arch" in \
         amd64) gl_arch="x64" ;; \
         arm64) gl_arch="arm64" ;; \
-        *) echo "unsupported arch: $arch" >&2; exit 1 ;; \
+        *) gl_arch="x64" ;; \
     esac; \
-    curl -sSfL -o /tmp/gitleaks.tar.gz \
+    ( set -e; \
+      curl -sSfL -o /tmp/gitleaks.tar.gz \
         "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_${gl_arch}.tar.gz"; \
-    tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks; \
-    rm -f /tmp/gitleaks.tar.gz; \
-    chmod +x /usr/local/bin/gitleaks; \
-    gitleaks version
+      tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks; \
+      chmod +x /usr/local/bin/gitleaks; \
+      gitleaks version ) \
+    || echo "[citadel] Gitleaks install skipped — entropy/Trivy secret scan still runs"; \
+    rm -f /tmp/gitleaks.tar.gz
+
+# -----------------------------------------------------------------------------
+# OSV-Scanner (Google OSV) — lockfile/manifest vulnerability scanning.
+# Direct pinned release BINARY (asset like osv-scanner_linux_amd64). NON-FATAL.
+# -----------------------------------------------------------------------------
+RUN set -eux; \
+    arch="$(dpkg --print-architecture)"; \
+    case "$arch" in \
+        amd64) osv_arch="amd64" ;; \
+        arm64) osv_arch="arm64" ;; \
+        *) osv_arch="amd64" ;; \
+    esac; \
+    ( set -e; \
+      curl -sSfL -o /usr/local/bin/osv-scanner \
+        "https://github.com/google/osv-scanner/releases/download/v${OSV_SCANNER_VERSION}/osv-scanner_linux_${osv_arch}"; \
+      chmod +x /usr/local/bin/osv-scanner; \
+      osv-scanner --version ) \
+    || echo "[citadel] OSV-Scanner install skipped — Trivy/Grype still provide CVE coverage"
+
+# -----------------------------------------------------------------------------
+# Hadolint — Dockerfile linter. Direct pinned release BINARY
+# (asset hadolint-Linux-x86_64 / hadolint-Linux-arm64). NON-FATAL.
+# -----------------------------------------------------------------------------
+RUN set -eux; \
+    arch="$(dpkg --print-architecture)"; \
+    case "$arch" in \
+        amd64) hl_arch="x86_64" ;; \
+        arm64) hl_arch="arm64" ;; \
+        *) hl_arch="x86_64" ;; \
+    esac; \
+    ( set -e; \
+      curl -sSfL -o /usr/local/bin/hadolint \
+        "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-Linux-${hl_arch}"; \
+      chmod +x /usr/local/bin/hadolint; \
+      hadolint --version ) \
+    || echo "[citadel] Hadolint install skipped — Dockerfile lint findings degrade gracefully"
+
+# -----------------------------------------------------------------------------
+# CodeQL CLI bundle (deep dataflow SAST) — OPT-IN, multi-GB, kept OUT of the
+# default image. Enable at build time with `--build-arg CITADEL_WITH_CODEQL=1`;
+# the runtime ALSO needs env CITADEL_ENABLE_CODEQL=1 for the codeql adapter to
+# attempt a scan. The bundle ships the CLI + standard query packs. NON-FATAL.
+# -----------------------------------------------------------------------------
+RUN set -eux; \
+    if [ "${CITADEL_WITH_CODEQL}" = "1" ]; then \
+      ( set -e; \
+        curl -sSfL -o /tmp/codeql.tar.gz \
+          "https://github.com/github/codeql-action/releases/download/codeql-bundle-v${CODEQL_VERSION}/codeql-bundle-linux64.tar.gz"; \
+        mkdir -p /opt/codeql-bundle; \
+        tar -xzf /tmp/codeql.tar.gz -C /opt/codeql-bundle; \
+        ln -sf /opt/codeql-bundle/codeql/codeql /usr/local/bin/codeql; \
+        codeql --version ) \
+      || echo "[citadel] CodeQL install skipped — opt-in dataflow SAST unavailable"; \
+      rm -f /tmp/codeql.tar.gz; \
+    else \
+      echo "[citadel] CodeQL not bundled (build with --build-arg CITADEL_WITH_CODEQL=1 to enable)"; \
+    fi
 
 # -----------------------------------------------------------------------------
 # ClamAV — malware / signature scanning of uploaded files
@@ -151,8 +252,16 @@ RUN set -eux; \
 WORKDIR /app
 
 # Copy the backend manifest first to maximize Docker layer caching on deps.
+# OpenTelemetry tracing deps are OPTIONAL and bulky (~40MB); the default image
+# omits them. Build with `--build-arg CITADEL_WITH_TRACING=1` to include them,
+# then enable at runtime via OTEL_EXPORTER_OTLP_ENDPOINT (or CITADEL_TRACING).
+ARG CITADEL_WITH_TRACING=0
 COPY citadel/server/package*.json ./
-RUN npm ci --omit=dev --no-audit --no-fund
+RUN if [ "${CITADEL_WITH_TRACING}" = "1" ]; then \
+      npm ci --omit=dev --no-audit --no-fund; \
+    else \
+      npm ci --omit=dev --omit=optional --no-audit --no-fund; \
+    fi
 
 # The SPA the server serves (one level "up" from server/ in the source tree).
 # It lands at /app/citadel so server.js can serve it as the static root.

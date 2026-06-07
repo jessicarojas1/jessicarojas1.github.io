@@ -4,7 +4,7 @@ declare(strict_types=1);
 class PlaybookController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('incident.playbook');
         $playbooks = Database::fetchAll(
             "SELECT p.*, u.name as creator_name,
                     COUNT(DISTINCT ps.id) as step_count,
@@ -25,7 +25,7 @@ class PlaybookController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.playbook');
         $pageTitle    = 'New Playbook';
         $activeModule = 'playbooks';
         $breadcrumbs  = [['Playbooks', '/playbooks'], ['New', null]];
@@ -36,7 +36,7 @@ class PlaybookController {
     }
 
     public function create(): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.playbook');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $title    = trim(Security::sanitizeInput($_POST['title'] ?? ''));
         $category = Security::sanitizeInput($_POST['category'] ?? 'general');
@@ -76,7 +76,7 @@ class PlaybookController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('incident.playbook');
         $id = (int)$id;
         $playbook = Database::fetchOne(
             "SELECT p.*, u.name as creator_name FROM playbooks p
@@ -104,7 +104,7 @@ class PlaybookController {
 
     // Attach a playbook to an incident and start a run
     public function startRun(string $incidentId): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.playbook');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $incidentId = (int)$incidentId;
         $playbookId = (int)($_POST['playbook_id'] ?? 0);
@@ -127,7 +127,7 @@ class PlaybookController {
 
     // Complete a step in a run
     public function completeStep(string $runId): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.playbook');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $runId  = (int)$runId;
         $stepId = (int)($_POST['step_id'] ?? 0);
@@ -158,7 +158,7 @@ class PlaybookController {
     }
 
     public function toggle(string $id): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.playbook');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $id = (int)$id;
         Database::query("UPDATE playbooks SET is_active = NOT is_active WHERE id=?", [$id]);

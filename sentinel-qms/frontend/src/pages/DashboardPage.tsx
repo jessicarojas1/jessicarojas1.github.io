@@ -23,13 +23,54 @@ import {
   Star,
   Wrench,
 } from 'lucide-react';
-import { useDashboard } from '@/hooks';
+import { Link } from 'react-router-dom';
+import { useDashboard, useMyOpenItems } from '@/hooks';
 import { useAuth } from '@/lib/auth';
 import { KpiCard } from '@/components/KpiCard';
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
+import { StatusBadge } from '@/components/StatusBadge';
 import { CHART_COLORS, PIE_COLORS, tooltipStyle } from '@/lib/charts';
 import { getErrorMessage } from '@/lib/api';
+
+function MyOpenItemsCard() {
+  const { data, isLoading } = useMyOpenItems();
+  return (
+    <div className="card">
+      <div className="card__header">
+        <div className="card__title">My Open Items</div>
+      </div>
+      <div className="card__body">
+        {isLoading ? (
+          <div className="loading-block"><span className="spinner" /></div>
+        ) : !data || data.length === 0 ? (
+          <div className="empty-state-sm">Nothing assigned to you right now — you're all caught up.</div>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Type</th><th>Record</th><th>Title</th><th>Status</th><th>Due</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((it) => (
+                <tr key={`${it.type}-${it.id}`}>
+                  <td className="text-sm muted">{it.type}</td>
+                  <td><Link to={it.url}>{it.number}</Link></td>
+                  <td className="text-truncate" style={{ maxWidth: 320 }}>{it.title}</td>
+                  <td><StatusBadge status={it.status} /></td>
+                  <td className={it.overdue ? 'cell-overdue' : ''}>
+                    {it.due_date ?? '—'}{it.overdue ? ' · Overdue' : ''}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -93,6 +134,8 @@ export default function DashboardPage() {
               tone="primary"
             />
           </div>
+
+          <MyOpenItemsCard />
 
           <div className="chart-grid">
             <div className="card">

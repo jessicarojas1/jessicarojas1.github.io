@@ -1,5 +1,6 @@
-<?php ob_start();
-$breadcrumbs = [['Privacy', '/privacy'], ['Requests', '/privacy/requests'], [Security::h($record['name'] ?? 'Request'), null]];
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Privacy', '/privacy'], ['Record', null]];
+ob_start();
 $basisLabels = [
   'consent'=>'Consent','legitimate_interest'=>'Legitimate Interest','contract'=>'Contract',
   'legal_obligation'=>'Legal Obligation','vital_interests'=>'Vital Interests','public_task'=>'Public Task'
@@ -13,7 +14,7 @@ $basisLabels = [
   </div>
   <div class="page-actions">
     <a href="/privacy" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Back</a>
-    <?php if (Auth::can('compliance.write')): ?>
+    <?php if (Auth::can('compliance.assess')): ?>
     <form method="POST" action="/privacy/<?= (int)$record['id'] ?>/delete"
           data-confirm="Delete this processing activity record?">
       <?= Security::csrfField() ?>
@@ -24,7 +25,7 @@ $basisLabels = [
 </div>
 
 <?php if (!empty($_SESSION['flash_success'])): ?>
-  <div class="alert-box success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div>
+  <div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div>
   <?php unset($_SESSION['flash_success']); ?>
 <?php endif; ?>
 

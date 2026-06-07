@@ -4,15 +4,15 @@
  * All risk scenarios across the portfolio.
  * Variables: $scenarios, $countByType, $highestScore, $totalFinancial
  */
-$nonce = Security::nonce();
 $breadcrumbs = [['Risk Register', '/risk'], ['Scenarios', null]];
+$nonce = Security::nonce();
 
 $typeMeta = [
-    'stress'       => ['label'=>'Stress',        'color'=>'var(--danger)','bg'=>'var(--danger-subtle)','border'=>'var(--danger-border)','icon'=>'bi-graph-up-arrow'],
+    'stress'       => ['label'=>'Stress',        'color'=>'#dc2626','bg'=>'#fef2f2','border'=>'#fca5a5','icon'=>'bi-graph-up-arrow'],
     'base'         => ['label'=>'Base',           'color'=>'#71717a','bg'=>'#f4f4f5','border'=>'#d4d4d8','icon'=>'bi-circle-fill'],
-    'optimistic'   => ['label'=>'Optimistic',     'color'=>'var(--primary)','bg'=>'var(--success-subtle)','border'=>'var(--success-border)','icon'=>'bi-graph-down-arrow'],
+    'optimistic'   => ['label'=>'Optimistic',     'color'=>'#16a34a','bg'=>'#f0fdf4','border'=>'#86efac','icon'=>'bi-graph-down-arrow'],
     'catastrophic' => ['label'=>'Catastrophic',   'color'=>'#111111','bg'=>'#f9fafb','border'=>'#a1a1aa','icon'=>'bi-exclamation-octagon-fill'],
-    'regulatory'   => ['label'=>'Regulatory',     'color'=>'var(--moderate)','bg'=>'var(--info-subtle)','border'=>'var(--moderate-border)','icon'=>'bi-bank'],
+    'regulatory'   => ['label'=>'Regulatory',     'color'=>'#2563eb','bg'=>'#eff6ff','border'=>'#93c5fd','icon'=>'bi-bank'],
 ];
 
 function scIdxLevel(int $s): string {
@@ -59,14 +59,14 @@ function scIdxLevelClass(int $s): string {
   </div>
   <div class="sc-stat">
     <div class="num <?= $highestScore > 14 ? 'text-danger' : ($highestScore > 9 ? '' : '') ?>"
-         style="color:<?= $highestScore > 14 ? 'var(--danger)' : ($highestScore > 9 ? '#f97316' : ($highestScore > 4 ? 'var(--warning)' : 'var(--primary)')) ?>">
+         style="color:<?= $highestScore > 14 ? 'var(--danger)' : ($highestScore > 9 ? 'var(--orange)' : ($highestScore > 4 ? 'var(--warning)' : 'var(--success)')) ?>">
       <?= $highestScore ?>
     </div>
     <div class="lbl">Highest Scenario Score</div>
   </div>
   <?php if ($totalFinancial > 0): ?>
   <div class="sc-stat">
-    <div class="num" style="font-size:18px;color:var(--primary)">$<?= number_format($totalFinancial, 0) ?></div>
+    <div class="num" style="font-size:18px;color:var(--success)">$<?= number_format($totalFinancial, 0) ?></div>
     <div class="lbl">Total Financial Exposure</div>
   </div>
   <?php endif; ?>
@@ -163,7 +163,7 @@ function scIdxLevelClass(int $s): string {
 
           <td style="padding:10px 12px;text-align:center;white-space:nowrap">
             <?php if ($delta > 0): ?>
-              <span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--danger-tint);color:var(--danger)">
+              <span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--danger-subtle);color:var(--danger)">
                 <i class="bi bi-arrow-up"></i> +<?= $delta ?>
               </span>
             <?php elseif ($delta < 0): ?>

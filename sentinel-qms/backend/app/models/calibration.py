@@ -1,4 +1,5 @@
 """Calibration: Equipment (gages) and CalibrationRecord."""
+
 from __future__ import annotations
 
 import enum
@@ -41,9 +42,7 @@ class Equipment(Base, TimestampMixin, SoftDeleteMixin):
         default=EquipmentStatus.ACTIVE,
         nullable=False,
     )
-    calibration_interval_days: Mapped[int] = mapped_column(
-        Integer, default=365, nullable=False
-    )
+    calibration_interval_days: Mapped[int] = mapped_column(Integer, default=365, nullable=False)
     last_calibration_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     next_due_date: Mapped[date | None] = mapped_column(Date, nullable=True, index=True)
     custodian_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)

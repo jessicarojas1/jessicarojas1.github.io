@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ClipboardCheck } from 'lucide-react';
 import { capaHooks } from '@/hooks';
 import { useListController } from '@/hooks/useListController';
+import { useUserName } from '@/hooks/useUserLookup';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, isOverdue } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
@@ -13,6 +14,7 @@ import type { Capa } from '@/types';
 export default function CapaListPage() {
   const navigate = useNavigate();
   const ctl = useListController();
+  const userName = useUserName();
   const { data, isLoading, error } = capaHooks.useList(ctl.params);
 
   const columns: Column<Capa>[] = [
@@ -26,7 +28,7 @@ export default function CapaListPage() {
     { key: 'title', header: 'Title', sortable: true, render: (r) => <strong>{r.title}</strong> },
     { key: 'capa_type', header: 'Type', render: (r) => <StatusBadge status={r.capa_type} noDot /> },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
-    { key: 'owner_id', header: 'Owner', render: (r) => r.owner_id ?? '—' },
+    { key: 'owner_id', header: 'Owner', render: (r) => userName(r.owner_id) },
     {
       key: 'due_date',
       header: 'Due',
@@ -64,6 +66,7 @@ export default function CapaListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="capa"
         filters={
           <>
             <div className="field">

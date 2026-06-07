@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { AlertCircle, Boxes, LogIn } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/api';
-import { CuiBanner } from '@/components/CuiBanner';
+import { useBranding } from '@/hooks';
 import { FormField, TextInput } from '@/components/FormField';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -21,6 +21,11 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [serverError, setServerError] = useState<string | null>(null);
+  // Branding is best-effort here (endpoint requires auth); the localStorage
+  // cache from a prior session keeps the sign-in screen branded.
+  const branding = useBranding();
+  const brandName = branding.name;
+  const logoUrl = branding.logoUrl;
 
   const {
     register,
@@ -45,18 +50,21 @@ export default function LoginPage() {
 
   return (
     <div className="login-shell">
-      <CuiBanner position="top" />
       <div className="login-main">
-        <div style={{ position: 'absolute', top: 'calc(var(--cui-h) + 12px)', right: 16 }}>
+        <div style={{ position: 'absolute', top: 12, right: 16 }}>
           <ThemeToggle />
         </div>
         <div className="login-card">
           <div className="login-brand">
             <span className="logo-mark">
-              <Boxes size={22} />
+              {logoUrl ? (
+                <img src={logoUrl} alt="" className="logo-mark__img" />
+              ) : (
+                <Boxes size={22} />
+              )}
             </span>
             <div>
-              <h1 style={{ fontSize: 20 }}>Sentinel QMS</h1>
+              <h1 style={{ fontSize: 20 }}>{brandName}</h1>
               <div className="muted text-sm">Enterprise Quality Management</div>
             </div>
           </div>
@@ -101,7 +109,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <CuiBanner position="bottom" />
     </div>
   );
 }

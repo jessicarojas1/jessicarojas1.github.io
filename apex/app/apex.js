@@ -116,6 +116,106 @@ function toast(msg, kind = 'info') {
   setTimeout(() => t.remove(), 3500);
 }
 
+// ── Branding ───────────────────────────────────────────────────────
+// Server-side branding is shared (the backend value wins); a per-browser
+// localStorage copy is kept so the login screen and offline loads can brand
+// themselves before the network round-trip resolves.
+const BRANDING_DEFAULTS = { displayName: 'APEX', logoUrl: '', accentColor: '#6366f1' };
+const BRANDING_LS_KEY = 'apex_branding';
+
+const branding = {
+  current: { ...BRANDING_DEFAULTS },
+
+  // Only http(s):// or data:image/... are allowed; anything else degrades to ''.
+  sanitizeLogo(url) {
+    const u = String(url ?? '').trim();
+    if (u === '') return '';
+    if (/^https?:\/\//i.test(u)) return u;
+    if (/^data:image\/[a-z0-9.+-]+;base64,/i.test(u)) return u;
+    return '';
+  },
+  sanitizeAccent(c) {
+    const v = String(c ?? '').trim();
+    return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ? v.toLowerCase() : BRANDING_DEFAULTS.accentColor;
+  },
+  normalize(b) {
+    b = b || {};
+    const name = String(b.displayName ?? '').trim();
+    return {
+      displayName: name === '' ? BRANDING_DEFAULTS.displayName : name.slice(0, 120),
+      logoUrl:     this.sanitizeLogo(b.logoUrl),
+      accentColor: this.sanitizeAccent(b.accentColor),
+    };
+  },
+  readLocal() {
+    try { return this.normalize(JSON.parse(localStorage.getItem(BRANDING_LS_KEY) || '{}')); }
+    catch { return { ...BRANDING_DEFAULTS }; }
+  },
+  saveLocal(b) {
+    try { localStorage.setItem(BRANDING_LS_KEY, JSON.stringify(b)); } catch {}
+  },
+
+  apply(b) {
+    const v = this.normalize(b);
+    this.current = v;
+
+    // Accent → primary CSS custom property.
+    document.documentElement.style.setProperty('--accent', v.accentColor);
+
+    // Document title.
+    document.title = v.displayName + ' · Project Tracker';
+
+    // App header brand mark / text.
+    const logo = $('#brand-logo');
+    const mark = $('#brand-mark');
+    const text = $('#brand-text');
+    if (text) text.textContent = v.displayName;
+    if (logo && mark) {
+      if (v.logoUrl) {
+        logo.src = v.logoUrl;
+        logo.alt = v.displayName;
+        logo.classList.remove('d-none');
+        mark.classList.add('d-none');
+        // Broken/blocked logo URL → fall back to the built-in mark gracefully.
+        logo.onerror = () => { logo.classList.add('d-none'); mark.classList.remove('d-none'); };
+      } else {
+        logo.classList.add('d-none');
+        logo.removeAttribute('src');
+        mark.classList.remove('d-none');
+      }
+    }
+
+    // Login / landing screen.
+    const authName = $('#auth-title-name');
+    const authLogo = $('#auth-logo');
+    if (authName) authName.textContent = v.displayName;
+    if (authLogo) {
+      if (v.logoUrl) {
+        authLogo.src = v.logoUrl;
+        authLogo.alt = v.displayName;
+        authLogo.classList.remove('d-none');
+        authLogo.onerror = () => authLogo.classList.add('d-none');
+      } else {
+        authLogo.classList.add('d-none');
+        authLogo.removeAttribute('src');
+      }
+    }
+  },
+
+  // Apply the cached copy immediately (pre-network), then refresh from server.
+  init() {
+    this.apply(this.readLocal());
+  },
+  async refreshFromServer() {
+    try {
+      const r = await API.get('/settings/branding');
+      const v = this.normalize(r.data);
+      this.saveLocal(v);
+      this.apply(v);
+    } catch { /* keep local copy on failure */ }
+  },
+};
+
 // ── Auth flow ──────────────────────────────────────────────────────
 function renderIdentityGrid() {
   const grid = $('#identity-grid');
@@ -1116,6 +1216,126 @@ function renderAdmin(tab) {
     case 'labels':      return renderAdminLabels();
     case 'permissions': return renderAdminPermissions();
     case 'risk':        return renderAdminRiskMatrix();
+    case 'branding':    return renderAdminBranding();
+  }
+}
+
+async function renderAdminBranding() {
+  const c = $('#admin-content');
+  c.innerHTML = '<p style="color:var(--text-dim)">Loading…</p>';
+  try {
+    const r = await API.get('/settings/branding');
+    const b = branding.normalize(r.data);
+    c.innerHTML = '';
+    c.appendChild(el('div', { class: 'admin-section-head' },
+      el('h3', { class: 'admin-section-title' }, 'Branding'),
+      el('p', { style: 'color:var(--text-dim);font-size:.85rem;margin:0' },
+        'Customize the logo, name, and accent color shown across the app, on the sign-in screen, and in printed output.'),
+    ));
+
+    const form = el('form', { class: 'branding-form' });
+
+    // Live preview
+    const previewLogo = el('img', { class: 'brand-logo d-none', alt: '' });
+    const previewMark = el('span', { class: 'brand-mark', style: 'font-size:1.6rem' }, '▲');
+    const previewText = el('span', { class: 'brand-text', style: 'font-size:1.1rem' }, b.displayName);
+    const preview = el('div', { class: 'branding-preview' }, previewLogo, previewMark, previewText);
+
+    // Display name
+    const nameInp = el('input', { class: 'form-control', type: 'text', maxlength: '120', value: b.displayName, placeholder: 'APEX' });
+
+    // Logo URL
+    const logoInp = el('input', { class: 'form-control', type: 'text', value: b.logoUrl, placeholder: 'https://… or data:image/…' });
+
+    // Logo file upload → data: URL
+    const fileInp = el('input', { class: 'form-control', type: 'file', accept: 'image/*' });
+
+    // Accent color
+    const colorInp = el('input', { class: 'form-control form-control-color', type: 'color', value: branding.sanitizeAccent(b.accentColor) });
+
+    let logoUrl = b.logoUrl;
+
+    const updatePreview = () => {
+      const name = nameInp.value.trim() || BRANDING_DEFAULTS.displayName;
+      previewText.textContent = name;
+      const safe = branding.sanitizeLogo(logoUrl);
+      if (safe) {
+        previewLogo.src = safe;
+        previewLogo.classList.remove('d-none');
+        previewMark.classList.add('d-none');
+        previewLogo.onerror = () => { previewLogo.classList.add('d-none'); previewMark.classList.remove('d-none'); };
+      } else {
+        previewLogo.classList.add('d-none');
+        previewLogo.removeAttribute('src');
+        previewMark.classList.remove('d-none');
+      }
+      previewMark.style.color = branding.sanitizeAccent(colorInp.value);
+    };
+
+    nameInp.addEventListener('input', updatePreview);
+    colorInp.addEventListener('input', updatePreview);
+    logoInp.addEventListener('input', () => { logoUrl = logoInp.value; updatePreview(); });
+    fileInp.addEventListener('change', () => {
+      const file = fileInp.files && fileInp.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { toast('Please choose an image file', 'error'); return; }
+      if (file.size > 1024 * 1024) { toast('Image too large (max 1 MB)', 'error'); fileInp.value = ''; return; }
+      const reader = new FileReader();
+      reader.onload = () => { logoUrl = String(reader.result); logoInp.value = logoUrl; updatePreview(); };
+      reader.readAsDataURL(file);
+    });
+
+    const fieldLabel = (txt) => el('label', { class: 'form-label', style: 'margin-bottom:.25rem' }, txt);
+    const fieldRef   = (txt) => el('div', { class: 'branding-field-ref' }, txt);
+
+    form.append(
+      preview,
+      el('div', {}, fieldLabel('Display name'), nameInp),
+      el('div', {}, fieldLabel('Logo URL'), logoInp,
+        fieldRef('Field reference: logoUrl — paste an image URL (https://…) or a data:image/… URL.')),
+      el('div', {}, fieldLabel('Upload logo'), fileInp,
+        fieldRef('Field reference: logo file — stored inline as a data: URL so it works offline. Max 1 MB.')),
+      el('div', {}, fieldLabel('Accent color'), colorInp,
+        fieldRef('Field reference: accentColor — hex color applied to the --accent CSS variable.')),
+    );
+
+    const saveBtn = el('button', { class: 'btn btn-primary', type: 'button' }, 'Save Branding');
+    const resetBtn = el('button', { class: 'btn btn-outline-secondary', type: 'button', style: 'margin-left:.5rem' }, 'Reset to defaults');
+
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true;
+      try {
+        const payload = {
+          displayName: nameInp.value.trim(),
+          logoUrl:     branding.sanitizeLogo(logoUrl),
+          accentColor: branding.sanitizeAccent(colorInp.value),
+        };
+        const res = await API.post('/settings/branding', payload);
+        const saved = branding.normalize(res.data);
+        branding.saveLocal(saved);
+        branding.apply(saved);
+        toast('Branding saved', 'success');
+      } catch (e) {
+        toast(e.message, 'error');
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      nameInp.value = BRANDING_DEFAULTS.displayName;
+      logoInp.value = '';
+      logoUrl = '';
+      fileInp.value = '';
+      colorInp.value = BRANDING_DEFAULTS.accentColor;
+      updatePreview();
+    });
+
+    form.appendChild(el('div', { style: 'margin-top:.5rem' }, saveBtn, resetBtn));
+    c.appendChild(form);
+    updatePreview();
+  } catch (e) {
+    $('#admin-content').innerHTML = `<p style="color:var(--danger)">${esc(e.message)}</p>`;
   }
 }
 
@@ -1520,6 +1740,8 @@ async function submitProjectForm() {
 window.APEX = { showAuthGate };
 
 document.addEventListener('DOMContentLoaded', () => {
+  branding.init();              // apply cached branding instantly
+  branding.refreshFromServer(); // then sync from the server (public endpoint)
   bindUI();
   bootstrapSession();
 });

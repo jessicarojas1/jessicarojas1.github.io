@@ -4,7 +4,7 @@ declare(strict_types=1);
 class PrivacyController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         $records = Database::fetchAll(
             "SELECT pr.*, u.name AS created_by_name
              FROM privacy_records pr
@@ -31,7 +31,7 @@ class PrivacyController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
         $pageTitle    = 'New Processing Activity';
         $activeModule = 'privacy';
         $breadcrumbs  = [['Data Privacy', '/privacy'], ['New Activity', null]];
@@ -39,7 +39,7 @@ class PrivacyController {
     }
 
     public function create(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $name = trim(Security::sanitizeInput($_POST['name'] ?? ''));
@@ -77,7 +77,7 @@ class PrivacyController {
     }
 
     public function view(int $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         $record = Database::fetchOne(
             "SELECT pr.*, u.name AS created_by_name
              FROM privacy_records pr
@@ -93,7 +93,7 @@ class PrivacyController {
     }
 
     public function delete(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         Database::query("DELETE FROM privacy_records WHERE id=?", [$id]);
         Auth::log('privacy_record_deleted', 'privacy_records', $id, []);
@@ -104,7 +104,7 @@ class PrivacyController {
     // ── Data Subject Requests ────────────────────────────────────────────────
 
     public function requests(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         $requests = Database::fetchAll(
             "SELECT dsr.*, u.name AS assigned_name
              FROM data_subject_requests dsr
@@ -119,7 +119,7 @@ class PrivacyController {
     }
 
     public function createRequest(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $validTypes = ['access','erasure','rectification','portability','objection','restriction'];
@@ -140,7 +140,7 @@ class PrivacyController {
     }
 
     public function updateRequest(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $validStatuses = ['open','in_progress','completed','rejected'];

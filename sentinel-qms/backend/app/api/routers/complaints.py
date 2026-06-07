@@ -1,7 +1,8 @@
 """Customer complaint / RMA endpoints: CRUD with NCR/CAPA linkage."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
@@ -10,11 +11,12 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
-from app.core.rbac import Permission, require_permission
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
 from app.schemas.auth import CurrentUser
 from app.schemas.common import Page
@@ -49,7 +51,7 @@ def list_complaints(
     status_filter: ComplaintStatus | None = Query(None, alias="status"),
     severity: ComplaintSeverity | None = Query(None),
     is_rma: bool | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.COMPLAINT_READ)),
+    _: CurrentUser = Depends(require_page("complaints", "view")),
 ) -> Page[ComplaintList]:
     stmt = base_select(Complaint)
     if status_filter:
@@ -68,7 +70,7 @@ def create_complaint(
     body: ComplaintCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.COMPLAINT_WRITE)),
+    actor: CurrentUser = Depends(require_perm("complaints.create")),
 ) -> Complaint:
     complaint = Complaint(
         **body.model_dump(),
@@ -98,7 +100,7 @@ def create_complaint(
 def get_complaint(
     complaint_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.COMPLAINT_READ)),
+    _: CurrentUser = Depends(require_page("complaints", "view")),
 ) -> Complaint:
     return get_or_404(db, Complaint, complaint_id, name="Complaint")
 
@@ -109,7 +111,7 @@ def update_complaint(
     body: ComplaintUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.COMPLAINT_WRITE)),
+    actor: CurrentUser = Depends(require_perm("complaints.edit")),
 ) -> Complaint:
     complaint = get_or_404(db, Complaint, complaint_id, name="Complaint")
     before = audit.snapshot(complaint)
@@ -118,7 +120,7 @@ def update_complaint(
     for key, value in data.items():
         setattr(complaint, key, value)
     if new_status in _CLOSED and complaint.closed_at is None:
-        complaint.closed_at = datetime.now(timezone.utc)
+        complaint.closed_at = datetime.now(UTC)
     complaint.updated_by = actor.id
     db.flush()
     audit.record(
@@ -142,7 +144,7 @@ def soft_delete_complaint(
     complaint_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.COMPLAINT_WRITE)),
+    actor: CurrentUser = Depends(require_perm("complaints.edit")),
 ) -> Complaint:
     complaint = get_or_404(db, Complaint, complaint_id, name="Complaint")
     complaint.soft_delete(actor.id)

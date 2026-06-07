@@ -5,7 +5,7 @@ class VendorController {
 
     // ------------------------------------------------------------------ index
     public function index(): void {
-        Auth::requirePermission('vendor.read');
+        Auth::requirePermission('vendor.view');
 
         $tierFilter   = Security::sanitizeInput($_GET['risk_tier'] ?? '');
         $statusFilter = Security::sanitizeInput($_GET['status'] ?? '');
@@ -62,13 +62,13 @@ class VendorController {
 
     // ------------------------------------------------------------ createForm
     public function createForm(): void {
-        Auth::requirePermission('vendor.write');
+        Auth::requirePermission('vendor.create');
         require AEGIS_ROOT . '/views/vendor/create.php';
     }
 
     // --------------------------------------------------------------- create
     public function create(): void {
-        Auth::requirePermission('vendor.write');
+        Auth::requirePermission('vendor.create');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -138,7 +138,7 @@ class VendorController {
 
     // ------------------------------------------------------------------ view
     public function view(string $id): void {
-        Auth::requirePermission('vendor.read');
+        Auth::requirePermission('vendor.view');
         $id = (int)$id;
 
         $vendor = Database::fetchOne(
@@ -170,7 +170,7 @@ class VendorController {
 
     // --------------------------------------------------------------- update
     public function update(string $id): void {
-        Auth::requirePermission('vendor.write');
+        Auth::requirePermission('vendor.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -238,7 +238,7 @@ class VendorController {
 
     // -------------------------------------------------------- addAssessment
     public function addAssessment(string $id): void {
-        Auth::requirePermission('vendor.write');
+        Auth::requirePermission('vendor.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -287,7 +287,7 @@ class VendorController {
 
     // ------------------------------------------- generatePortalLink
     public function generatePortalLink(string $id): void {
-        Auth::requirePermission('vendor.write');
+        Auth::requirePermission('vendor.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -491,7 +491,7 @@ class VendorController {
 
     // --------------------------------------------------- contracts
     public function contracts(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('vendor.contracts');
         // Expiring soon (within 60 days)
         $expiring = Database::fetchAll(
             "SELECT vc.*, v.name as vendor_name FROM vendor_contracts vc
@@ -517,7 +517,7 @@ class VendorController {
 
     // --------------------------------------------------- createContract
     public function createContract(string $vendorId): void {
-        Auth::requirePermission('vendor.write');
+        Auth::requirePermission('vendor.contracts');
         $vendorId = (int)$vendorId;
         $vendor = Database::fetchOne("SELECT id, name FROM vendors WHERE id=?", [$vendorId]);
         if (!$vendor) { http_response_code(404); require AEGIS_ROOT.'/views/errors/404.php'; return; }
@@ -533,7 +533,7 @@ class VendorController {
 
     // --------------------------------------------------- saveContract
     public function saveContract(string $vendorId): void {
-        Auth::requirePermission('vendor.write');
+        Auth::requirePermission('vendor.contracts');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $vendorId = (int)$vendorId;
         $vendor = Database::fetchOne("SELECT id FROM vendors WHERE id=?", [$vendorId]);
@@ -569,7 +569,7 @@ class VendorController {
 
     // --------------------------------------------------- updateContract
     public function updateContract(string $id): void {
-        Auth::requirePermission('vendor.write');
+        Auth::requirePermission('vendor.contracts');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $id  = (int)$id;
         $contract = Database::fetchOne("SELECT * FROM vendor_contracts WHERE id=?", [$id]);
@@ -601,7 +601,7 @@ class VendorController {
 
     // --------------------------------------------------- updateAssessment
     public function updateAssessment(string $vendorId, string $assessId): void {
-        Auth::requirePermission('vendor.write');
+        Auth::requirePermission('vendor.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

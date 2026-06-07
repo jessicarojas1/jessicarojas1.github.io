@@ -172,7 +172,7 @@ ob_start();
   </div>
 
   <!-- Assign Panel (admin/policy.write) -->
-  <?php if (Auth::can('policy.write')): ?>
+  <?php if (Auth::can('vendor.questionnaire')): ?>
     <div class="card" style="flex:1;min-width:260px">
       <div class="card-header">
         <h2 class="card-title"><i class="bi bi-person-plus"></i> Assign</h2>

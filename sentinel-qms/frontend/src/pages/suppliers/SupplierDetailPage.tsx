@@ -4,8 +4,11 @@ import { supplierHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
+import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
 
 export default function SupplierDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +32,12 @@ export default function SupplierDetailPage() {
             }
             subtitle={`Supplier code ${s.supplier_code}`}
             breadcrumbs={[{ label: 'Suppliers', to: '/suppliers' }, { label: s.name }]}
+            actions={
+              <>
+                <PrintButton />
+                <PdfButton path={`/reports/supplier/${s.id}/pdf`} filename={`${s.supplier_code}.pdf`} />
+              </>
+            }
           />
 
           <div className="stack">
@@ -82,6 +91,8 @@ export default function SupplierDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="supplier" entityId={s.id} canEditPage="suppliers" />
         </>
       )}
     </DetailState>

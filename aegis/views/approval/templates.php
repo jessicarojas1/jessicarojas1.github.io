@@ -5,6 +5,9 @@
  * Variables provided by ApprovalController::templates():
  *   $templates  array  — rows from approval_templates
  */
+$pageTitle    = 'Approval Templates';
+$activeModule = 'approval';
+$breadcrumbs  = [['Approvals', '/approval'], ['Templates', null]];
 $flash_success = $_SESSION['flash_success'] ?? null;
 $flash_error   = $_SESSION['flash_error']   ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);

@@ -8,8 +8,11 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
+import { UserName } from '@/components/UserName';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
 
 export default function ChangeDetailPage() {
@@ -59,11 +62,14 @@ export default function ChangeDetailPage() {
             subtitle={chg.title}
             breadcrumbs={[{ label: 'Change Control', to: '/changes' }, { label: chg.change_number }]}
             actions={
-              canApprove && pending && (
-                <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
-                  <Stamp size={16} /> Approve & Sign
-                </button>
-              )
+              <>
+                <PrintButton />
+                {canApprove && pending && (
+                  <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
+                    <Stamp size={16} /> Approve & Sign
+                  </button>
+                )}
+              </>
             }
           />
 
@@ -102,8 +108,8 @@ export default function ChangeDetailPage() {
                   <DataList
                     items={[
                       { label: 'Type', value: chg.change_type.toUpperCase() },
-                      { label: 'Requested By', value: chg.requested_by ?? '—' },
-                      { label: 'Owner', value: chg.owner_id ?? '—' },
+                      { label: 'Requested By', value: <UserName id={chg.requested_by} /> },
+                      { label: 'Owner', value: <UserName id={chg.owner_id} /> },
                       { label: 'Priority', value: humanize(chg.priority) },
                       { label: 'Target Date', value: formatDate(chg.target_date) },
                       { label: 'Approved', value: formatDate(chg.approved_at) },
@@ -114,6 +120,8 @@ export default function ChangeDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="change_order" entityId={chg.id} canEditPage="changes" />
 
           <SignatureModal
             open={sigOpen}

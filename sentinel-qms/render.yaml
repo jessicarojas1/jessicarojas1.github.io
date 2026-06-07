@@ -35,12 +35,16 @@ services:
         fromDatabase:
           name: sentinel-qms-db
           property: connectionString
+      - key: DB_SCHEMA
+        value: sentinel_qms          # isolate tables (safe on a shared database)
       - key: JWT_SECRET
         generateValue: true
       - key: ENVIRONMENT
         value: development          # DEMO ONLY — enables the seeded admin login
       - key: LOG_LEVEL
         value: INFO
+      - key: WEB_CONCURRENCY
+        value: "2"                  # keep gunicorn within the 512 MB free instance
       - key: STORAGE_BACKEND
         value: local                # uploads live on ephemeral disk in the demo
       - key: AUTO_MIGRATE

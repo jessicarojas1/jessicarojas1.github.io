@@ -1,4 +1,5 @@
 """Dashboard KPI response schemas."""
+
 from __future__ import annotations
 
 from pydantic import BaseModel
@@ -39,7 +40,66 @@ class ComplaintKpi(BaseModel):
     open_total: int
 
 
+class DashboardKpis(BaseModel):
+    open_ncrs: int
+    open_capas: int
+    overdue_capas: int
+    calibration_due: int
+    calibration_overdue: int
+    open_audits: int
+    supplier_avg_rating: float
+    open_complaints: int
+
+
+class DashTrendPoint(BaseModel):
+    month: str
+    opened: int
+    closed: int
+
+
+class AgingBucket(BaseModel):
+    bucket: str
+    count: int
+
+
+class NameValue(BaseModel):
+    name: str
+    value: int
+
+
+class SupplierPerformance(BaseModel):
+    name: str
+    rating: float
+    otd: float
+
+
+class ClauseCount(BaseModel):
+    clause: str
+    count: int
+
+
 class DashboardSummary(BaseModel):
+    kpis: DashboardKpis
+    ncr_trend: list[DashTrendPoint]
+    capa_aging: list[AgingBucket]
+    calibration_status: list[NameValue]
+    supplier_performance: list[SupplierPerformance]
+    findings_by_clause: list[ClauseCount]
+
+
+class MyOpenItem(BaseModel):
+    type: str
+    id: int
+    number: str
+    title: str
+    status: str
+    due_date: str | None = None
+    overdue: bool
+    url: str
+
+
+# Legacy detailed aggregate (still available via the per-domain KPI endpoints).
+class DashboardDetail(BaseModel):
     nonconformances: NcrKpi
     capa: CapaKpi
     calibration: CalibrationKpi

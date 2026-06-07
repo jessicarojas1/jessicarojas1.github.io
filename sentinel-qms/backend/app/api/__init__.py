@@ -1,22 +1,32 @@
 """Aggregate all v1 routers under the configured API prefix."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter
 
 from app.api.routers import (
+    analytics,
     attachments,
+    audit_logs,
     audits,
     auth,
     calibration,
     capa,
     changes,
+    comments,
     complaints,
     dashboard,
     documents,
+    iam,
     inspections,
     mgmt_reviews,
     nonconformances,
+    notifications,
+    permissions,
+    reports,
     risks,
+    search,
+    settings,
     suppliers,
     training,
     users,
@@ -38,5 +48,14 @@ api_router.include_router(risks.router)
 api_router.include_router(inspections.router)
 api_router.include_router(mgmt_reviews.router)
 api_router.include_router(complaints.router)
+api_router.include_router(comments.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(attachments.router)
+api_router.include_router(search.router)
+api_router.include_router(audit_logs.router)
+api_router.include_router(analytics.router)
+api_router.include_router(reports.router)
+api_router.include_router(notifications.router)
+api_router.include_router(permissions.router)
+api_router.include_router(iam.router)
+api_router.include_router(settings.router)

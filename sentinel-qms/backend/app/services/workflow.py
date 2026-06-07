@@ -1,4 +1,5 @@
 """Generic state-machine helper for approval / lifecycle transitions."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable

@@ -1,4 +1,5 @@
 """Risk register: Risk with severity / likelihood / RPN and treatment."""
+
 from __future__ import annotations
 
 import enum

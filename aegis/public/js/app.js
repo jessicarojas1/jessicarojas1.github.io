@@ -1,5 +1,79 @@
 /* AEGIS GRC — app.js */
 
+// ── Branding logo fallback ───────────────────────────────────────────────────
+// If a configured logo (URL or data URI) fails to load, hide the broken <img>
+// and reveal the built-in shield mark so branding never breaks the UI.
+(function () {
+  document.querySelectorAll('img[data-logo-fallback]').forEach(function (img) {
+    img.addEventListener('error', function () {
+      img.style.display = 'none';
+      var fb = img.parentElement
+        ? img.parentElement.querySelector('.brand-logo-fallback')
+        : null;
+      if (fb) fb.style.display = '';
+    });
+  });
+})();
+
+// ── Settings → Branding live preview ─────────────────────────────────────────
+// Reflects the accent colour, display name and logo source into a small preview
+// without inline event handlers (CSP-safe). Elements are opt-in via IDs that
+// only exist on the branding settings page.
+(function () {
+  var accent = document.getElementById('brand_accent');
+  var accentText = document.getElementById('brand_accent_text');
+  var swatch = document.getElementById('brandAccentSwatch');
+  var nameInput = document.getElementById('org_name');
+  var namePrev = document.getElementById('brandPreviewName');
+  var logoUrl = document.getElementById('logo_url');
+  var logoPrev = document.getElementById('brandPreviewLogo');
+  var logoPrevIcon = document.getElementById('brandPreviewLogoIcon');
+
+  function setLogoPreview(src) {
+    if (!logoPrev || !logoPrevIcon) return;
+    var ok = /^data:image\//i.test(src) || /^https?:\/\//i.test(src);
+    if (src && ok) {
+      logoPrev.src = src;
+      logoPrev.style.display = '';
+      logoPrevIcon.style.display = 'none';
+    } else {
+      logoPrev.removeAttribute('src');
+      logoPrev.style.display = 'none';
+      logoPrevIcon.style.display = '';
+    }
+  }
+
+  if (accent) {
+    accent.addEventListener('input', function () {
+      if (accentText) accentText.value = accent.value;
+      if (swatch) swatch.style.background = accent.value;
+    });
+  }
+  if (accentText) {
+    accentText.addEventListener('input', function () {
+      var v = accentText.value.trim();
+      if (/^#?[0-9a-fA-F]{6}$/.test(v)) {
+        if (v[0] !== '#') v = '#' + v;
+        if (accent) accent.value = v;
+        if (swatch) swatch.style.background = v;
+      }
+    });
+  }
+  if (nameInput && namePrev) {
+    nameInput.addEventListener('input', function () {
+      namePrev.textContent = nameInput.value.trim() || 'AEGIS GRC';
+    });
+  }
+  if (logoUrl) {
+    logoUrl.addEventListener('input', function () {
+      setLogoPreview(logoUrl.value.trim());
+    });
+  }
+  if (logoPrev) {
+    logoPrev.addEventListener('error', function () { setLogoPreview(''); });
+  }
+})();
+
 // toggleSidebar is defined below in the mobile sidebar IIFE
 
 // Alert panel

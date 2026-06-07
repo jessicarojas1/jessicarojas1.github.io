@@ -1,4 +1,11 @@
 -- AEGIS GRC Database Schema (all tables created in the 'aegis' schema)
+--
+-- This file is a complete, idempotent, manual-setup REFERENCE: it can be run
+-- against a fresh database to produce a fully functional schema. It uses
+-- CREATE TABLE / INDEX IF NOT EXISTS and INSERT ... ON CONFLICT DO NOTHING so
+-- it is safe to re-run. The AUTHORITATIVE installer is install.php (which also
+-- seeds default settings and runs database/migrations/*); keep this file in
+-- sync with the combined state of all migrations whenever one is added.
 
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -374,6 +381,12 @@ CREATE TABLE IF NOT EXISTS rate_limits (
     blocked_until TIMESTAMP
 );
 
+-- Granular page-level permissions (Migration 021+).
+-- module: one of risk, compliance, audit, policy, incident, vendor, issue, asset, change,
+--         bcp, threat, awareness, report, kri, ssp, automation, approval
+-- permission: one of view, create, edit, delete, accept, review, treatment, scenarios,
+--             bowtie, export, assess, import, test, gap, findings, close, publish, attest,
+--             playbook, questionnaire, contracts, approve, exercise, manage, record
 CREATE TABLE IF NOT EXISTS user_permissions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -753,4 +766,16 @@ CREATE TABLE IF NOT EXISTS risk_scenarios (
     created_at            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_rs_risk_id ON risk_scenarios(risk_id);
+
+-- ─────────────────────────────────────────────
+-- Branding settings (Settings → Branding)
+-- Display name, logo (URL or data: URI) and primary accent colour.
+-- Empty defaults keep the UI on the built-in AEGIS mark/name/accent until set.
+-- ─────────────────────────────────────────────
+INSERT INTO settings (key, value, type, description) VALUES
+    ('org_name',           'My Organization', 'string', 'Organization / product display name (Branding)'),
+    ('company_logo_data',  '',                'string', 'Logo source — http(s):// URL or data:image/... URI (Branding)'),
+    ('company_logo_name',  '',                'string', 'Original logo filename / label (Branding)'),
+    ('brand_accent',       '',                'string', 'Primary brand accent colour as #RRGGBB hex (Branding)')
+ON CONFLICT (key) DO NOTHING;
 

@@ -1,17 +1,24 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Truck } from 'lucide-react';
+import { Plus, Truck, Upload } from 'lucide-react';
 import { supplierHooks } from '@/hooks';
 import { useListController } from '@/hooks/useListController';
 import { getErrorMessage } from '@/lib/api';
+import { usePagePerms } from '@/lib/permissions';
 import { PageHeader } from '@/components/PageHeader';
 import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select } from '@/components/FormField';
+import { ImportModal } from '@/components/ImportModal';
+import { SupplierCreateModal } from './SupplierCreateModal';
 import type { Supplier } from '@/types';
 
 export default function SupplierListPage() {
   const navigate = useNavigate();
   const ctl = useListController({ sort: 'name', order: 'asc' });
+  const { canEdit } = usePagePerms();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const { data, isLoading, error } = supplierHooks.useList(ctl.params);
 
   const columns: Column<Supplier>[] = [
@@ -29,6 +36,18 @@ export default function SupplierListPage() {
         icon={<Truck size={22} />}
         subtitle="Supplier qualification, scorecards, and corrective action requests (SCAR)."
         breadcrumbs={[{ label: 'Suppliers' }]}
+        actions={
+          canEdit('suppliers') && (
+            <>
+              <button type="button" className="btn" onClick={() => setImportOpen(true)}>
+                <Upload size={16} /> Import
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
+                <Plus size={16} /> New Supplier
+              </button>
+            </>
+          )
+        }
       />
       <DataTable
         columns={columns}
@@ -47,6 +66,7 @@ export default function SupplierListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="suppliers"
         filters={
           <div className="field">
             <Select
@@ -63,6 +83,23 @@ export default function SupplierListPage() {
             </Select>
           </div>
         }
+      />
+
+      <SupplierCreateModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={(id) => {
+          setCreateOpen(false);
+          navigate(`/suppliers/${id}`);
+        }}
+      />
+
+      <ImportModal
+        resource="suppliers"
+        title="Import Suppliers"
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        listQueryKey={supplierHooks.baseKey}
       />
     </>
   );

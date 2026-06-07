@@ -1,9 +1,11 @@
 """Dashboard KPI endpoints."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.core.rbac import Permission, require_permission
 from app.schemas.auth import CurrentUser
@@ -13,6 +15,7 @@ from app.schemas.dashboard import (
     CapaKpi,
     ComplaintKpi,
     DashboardSummary,
+    MyOpenItem,
     NcrKpi,
     SupplierKpi,
 )
@@ -26,7 +29,15 @@ def summary(
     db: Session = Depends(get_db),
     _: CurrentUser = Depends(require_permission(Permission.DASHBOARD_READ)),
 ) -> DashboardSummary:
-    return DashboardSummary(**kpi.dashboard_summary(db))
+    return DashboardSummary(**kpi.dashboard_kpis(db))
+
+
+@router.get("/my-open-items", response_model=list[MyOpenItem])
+def my_open_items(
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(get_current_user),
+) -> list[MyOpenItem]:
+    return [MyOpenItem(**i) for i in kpi.my_open_items(db, actor.id)]
 
 
 @router.get("/nonconformances", response_model=NcrKpi)

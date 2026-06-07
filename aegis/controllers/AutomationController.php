@@ -22,7 +22,7 @@ class AutomationController {
     ];
 
     public function index(): void {
-        Auth::requireAdmin();
+        Auth::requirePermission('automation.view');
         $rules = Database::fetchAll(
             "SELECT ar.*, u.name AS created_by_name,
                     COUNT(al.id) FILTER (WHERE al.triggered_at > NOW() - INTERVAL '7 days' AND al.status='success') AS recent_success,
@@ -46,7 +46,7 @@ class AutomationController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('automation.manage');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name");
         $triggerLabels = self::TRIGGER_LABELS;
         $actionLabels  = self::ACTION_LABELS;
@@ -60,7 +60,7 @@ class AutomationController {
     }
 
     public function create(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('automation.manage');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $name        = trim(Security::sanitizeInput($_POST['name'] ?? ''));
@@ -104,7 +104,7 @@ class AutomationController {
     }
 
     public function view(int $id): void {
-        Auth::requireAdmin();
+        Auth::requirePermission('automation.view');
         $rule = Database::fetchOne("SELECT ar.*, u.name AS created_by_name FROM automation_rules ar LEFT JOIN users u ON u.id=ar.created_by WHERE ar.id=?", [$id]);
         if (!$rule) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
         $rule['trigger_config'] = json_decode($rule['trigger_config'] ?: '{}', true);
@@ -122,7 +122,7 @@ class AutomationController {
     }
 
     public function toggle(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('automation.manage');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $rule = Database::fetchOne("SELECT is_active FROM automation_rules WHERE id=?", [$id]);
         if (!$rule) { http_response_code(404); return; }
@@ -131,7 +131,7 @@ class AutomationController {
     }
 
     public function delete(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('automation.manage');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         Database::query("DELETE FROM automation_rules WHERE id=?", [$id]);
         Auth::log('automation_rule_deleted', 'automation_rules', $id, []);
@@ -140,7 +140,7 @@ class AutomationController {
     }
 
     public function testRun(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('automation.manage');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $rule = Database::fetchOne("SELECT * FROM automation_rules WHERE id=?", [$id]);
         if (!$rule) { http_response_code(404); return; }

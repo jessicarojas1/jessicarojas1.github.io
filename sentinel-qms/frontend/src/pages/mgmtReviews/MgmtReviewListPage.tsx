@@ -1,18 +1,23 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GaugeCircle } from 'lucide-react';
+import { GaugeCircle, Plus } from 'lucide-react';
 import { mgmtReviewHooks } from '@/hooks';
 import { useListController } from '@/hooks/useListController';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
+import { usePagePerms } from '@/lib/permissions';
 import { PageHeader } from '@/components/PageHeader';
 import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select } from '@/components/FormField';
+import { MgmtReviewCreateModal } from './MgmtReviewCreateModal';
 import type { MgmtReview } from '@/types';
 
 export default function MgmtReviewListPage() {
   const navigate = useNavigate();
   const ctl = useListController({ sort: 'meeting_date', order: 'desc' });
+  const { canEdit } = usePagePerms();
+  const [createOpen, setCreateOpen] = useState(false);
   const { data, isLoading, error } = mgmtReviewHooks.useList(ctl.params);
 
   const columns: Column<MgmtReview>[] = [
@@ -30,6 +35,13 @@ export default function MgmtReviewListPage() {
         icon={<GaugeCircle size={22} />}
         subtitle="ISO 9001 / AS9100 management review meetings, inputs, outputs, and actions."
         breadcrumbs={[{ label: 'Management Review' }]}
+        actions={
+          canEdit('mgmt_reviews') && (
+            <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
+              <Plus size={16} /> New Management Review
+            </button>
+          )
+        }
       />
       <DataTable
         columns={columns}
@@ -48,6 +60,7 @@ export default function MgmtReviewListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="management-reviews"
         filters={
           <div className="field">
             <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>
@@ -58,6 +71,15 @@ export default function MgmtReviewListPage() {
             </Select>
           </div>
         }
+      />
+
+      <MgmtReviewCreateModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={(id) => {
+          setCreateOpen(false);
+          navigate(`/mgmt-reviews/${id}`);
+        }}
       />
     </>
   );

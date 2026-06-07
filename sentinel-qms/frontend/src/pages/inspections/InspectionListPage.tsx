@@ -1,18 +1,23 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FlaskConical } from 'lucide-react';
+import { FlaskConical, Plus } from 'lucide-react';
 import { inspectionHooks } from '@/hooks';
 import { useListController } from '@/hooks/useListController';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
+import { usePagePerms } from '@/lib/permissions';
 import { PageHeader } from '@/components/PageHeader';
 import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select } from '@/components/FormField';
+import { InspectionCreateModal } from './InspectionCreateModal';
 import type { Inspection } from '@/types';
 
 export default function InspectionListPage() {
   const navigate = useNavigate();
   const ctl = useListController({ sort: 'inspection_date', order: 'desc' });
+  const { canEdit } = usePagePerms();
+  const [createOpen, setCreateOpen] = useState(false);
   const { data, isLoading, error } = inspectionHooks.useList(ctl.params);
 
   const columns: Column<Inspection>[] = [
@@ -30,6 +35,13 @@ export default function InspectionListPage() {
         icon={<FlaskConical size={22} />}
         subtitle="First article inspection (FAI), in-process, receiving, and final inspections."
         breadcrumbs={[{ label: 'Inspections' }]}
+        actions={
+          canEdit('inspections') && (
+            <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
+              <Plus size={16} /> New Inspection
+            </button>
+          )
+        }
       />
       <DataTable
         columns={columns}
@@ -48,6 +60,7 @@ export default function InspectionListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="inspections"
         filters={
           <>
             <div className="field">
@@ -68,6 +81,15 @@ export default function InspectionListPage() {
             </div>
           </>
         }
+      />
+
+      <InspectionCreateModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={(id) => {
+          setCreateOpen(false);
+          navigate(`/inspections/${id}`);
+        }}
       />
     </>
   );

@@ -1,6 +1,8 @@
 """Storage backend abstraction: AWS GovCloud S3, Azure Gov Blob, or local disk."""
+
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import os
 import uuid
@@ -157,10 +159,9 @@ class AzureBlobStorage(StorageBackend):
 
         self.service = BlobServiceClient.from_connection_string(connection_string)
         self.container = container
-        try:
+        # Container may already exist.
+        with contextlib.suppress(Exception):
             self.service.create_container(container)
-        except Exception:  # noqa: BLE001 - container may already exist
-            pass
 
     def _client(self, key: str):
         return self.service.get_blob_client(container=self.container, blob=key)

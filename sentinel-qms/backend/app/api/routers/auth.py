@@ -1,12 +1,14 @@
 """Authentication endpoints: login, refresh, me, logout."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_current_user
 from app.core import audit
 from app.core.config import settings
 from app.core.database import get_db
@@ -18,7 +20,6 @@ from app.core.security import (
     decode_token,
     verify_password,
 )
-from app.api.deps import get_current_user
 from app.models.user import User
 from app.schemas.auth import (
     CurrentUser,
@@ -51,12 +52,12 @@ def login(
 ) -> Token:
     """Password-grant login. ``username`` is the user's email address."""
     identifier = body.username.lower()
-    user = db.execute(
-        select(User).where(User.email == identifier)
-    ).scalar_one_or_none()
+    user = db.execute(select(User).where(User.email == identifier)).scalar_one_or_none()
 
-    if user is None or not user.hashed_password or not verify_password(
-        body.password, user.hashed_password
+    if (
+        user is None
+        or not user.hashed_password
+        or not verify_password(body.password, user.hashed_password)
     ):
         # Audit the failed attempt without leaking which factor failed.
         audit.record(
@@ -73,7 +74,7 @@ def login(
     if not user.is_active:
         raise AuthenticationError("Account is disabled.")
 
-    user.last_login_at = datetime.now(timezone.utc)
+    user.last_login_at = datetime.now(UTC)
     audit.record(
         db,
         actor_id=user.id,

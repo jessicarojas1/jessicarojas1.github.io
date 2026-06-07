@@ -51,6 +51,7 @@ require __DIR__ . '/labels.php';
 require __DIR__ . '/sprints.php';
 require __DIR__ . '/history.php';
 require __DIR__ . '/notifications.php';
+require __DIR__ . '/settings.php';
 
 // Health check
 $router->get('/api/health', function () {

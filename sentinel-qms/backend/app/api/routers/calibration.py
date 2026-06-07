@@ -1,9 +1,10 @@
 """Calibration endpoints: equipment CRUD + record calibration + due/overdue query."""
+
 from __future__ import annotations
 
 from datetime import date, timedelta
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -11,11 +12,12 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
-from app.core.rbac import Permission, require_permission
 from app.models.calibration import (
     CalibrationRecord,
     CalibrationResult,
@@ -31,8 +33,8 @@ from app.schemas.calibration import (
     EquipmentRead,
     EquipmentUpdate,
 )
-from app.schemas.common import Page
-from app.services import numbering
+from app.schemas.common import ImportResult, Page
+from app.services import csv_import, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -46,6 +48,30 @@ router = APIRouter(prefix="/calibration", tags=["calibration"])
 
 ENTITY = "equipment"
 
+# Importable columns: required + common optional fields from EquipmentCreate.
+_IMPORT_COLUMNS = [
+    "name",
+    "equipment_type",
+    "manufacturer",
+    "model",
+    "serial_number",
+    "location",
+    "status",
+    "calibration_interval_days",
+    "last_calibration_date",
+]
+_IMPORT_EXAMPLE = [
+    "Digital Caliper 0-150mm",
+    "Caliper",
+    "Mitutoyo",
+    "CD-6 ASX",
+    "SN-00123",
+    "Inspection Lab",
+    "active",
+    "365",
+    "2026-01-15",
+]
+
 
 @router.get("/equipment", response_model=Page[EquipmentList])
 def list_equipment(
@@ -55,7 +81,7 @@ def list_equipment(
     status_filter: EquipmentStatus | None = Query(None, alias="status"),
     location: str | None = Query(None),
     search: str | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.CALIBRATION_READ)),
+    _: CurrentUser = Depends(require_page("calibration", "view")),
 ) -> Page[EquipmentList]:
     stmt = base_select(Equipment)
     if status_filter:
@@ -75,7 +101,7 @@ def due_or_overdue(
     within_days: int = Query(30, ge=0, le=365),
     overdue_only: bool = Query(False),
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.CALIBRATION_READ)),
+    _: CurrentUser = Depends(require_page("calibration", "view")),
 ) -> list[Equipment]:
     """Equipment whose calibration is overdue or due within ``within_days``."""
     today = date.today()
@@ -97,7 +123,7 @@ def create_equipment(
     body: EquipmentCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CALIBRATION_WRITE)),
+    actor: CurrentUser = Depends(require_perm("calibration.create")),
 ) -> Equipment:
     data = body.model_dump()
     last_cal = data.get("last_calibration_date")
@@ -108,9 +134,7 @@ def create_equipment(
         updated_by=actor.id,
     )
     if last_cal:
-        equipment.next_due_date = last_cal + timedelta(
-            days=equipment.calibration_interval_days
-        )
+        equipment.next_due_date = last_cal + timedelta(days=equipment.calibration_interval_days)
     db.add(equipment)
     db.flush()
     audit.record(
@@ -128,11 +152,62 @@ def create_equipment(
     return equipment
 
 
+# ── Bulk CSV import ───────────────────────────────────────────────────────────
+# Declared before /equipment/{equipment_id} so the literal paths are not shadowed.
+
+
+@router.get("/equipment/import/template")
+def equipment_import_template(
+    _: CurrentUser = Depends(require_page("calibration", "view")),
+):
+    return csv_import.template_response(
+        "equipment_import_template.csv", _IMPORT_COLUMNS, _IMPORT_EXAMPLE
+    )
+
+
+@router.post("/equipment/import", response_model=ImportResult)
+def equipment_import(
+    request: Request,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_perm("calibration.create")),
+) -> ImportResult:
+    def build_and_insert(row: dict[str, str]) -> None:
+        data = {col: csv_import.clean(row.get(col)) for col in _IMPORT_COLUMNS}
+        body = EquipmentCreate(**{k: v for k, v in data.items() if v is not None})
+        payload = body.model_dump()
+        last_cal = payload.get("last_calibration_date")
+        equipment = Equipment(
+            **payload,
+            asset_tag=numbering.next_number(db, Equipment, "asset_tag", "GAGE"),
+            created_by=actor.id,
+            updated_by=actor.id,
+        )
+        if last_cal:
+            equipment.next_due_date = last_cal + timedelta(days=equipment.calibration_interval_days)
+        db.add(equipment)
+        db.flush()
+
+    result = csv_import.import_rows(file, build_and_insert)
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="import",
+        entity_type=ENTITY,
+        entity_id=None,
+        after={"created": result.created, "failed": result.failed},
+        **request_context(request),
+    )
+    db.commit()
+    return result
+
+
 @router.get("/equipment/{equipment_id}", response_model=EquipmentRead)
 def get_equipment(
     equipment_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.CALIBRATION_READ)),
+    _: CurrentUser = Depends(require_page("calibration", "view")),
 ) -> Equipment:
     return get_or_404(db, Equipment, equipment_id, name="Equipment")
 
@@ -143,7 +218,7 @@ def update_equipment(
     body: EquipmentUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CALIBRATION_WRITE)),
+    actor: CurrentUser = Depends(require_perm("calibration.edit")),
 ) -> Equipment:
     equipment = get_or_404(db, Equipment, equipment_id, name="Equipment")
     before = audit.snapshot(equipment)
@@ -177,7 +252,7 @@ def record_calibration(
     body: CalibrationRecordCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CALIBRATION_WRITE)),
+    actor: CurrentUser = Depends(require_perm("calibration.record")),
 ) -> CalibrationRecord:
     equipment = get_or_404(db, Equipment, equipment_id, name="Equipment")
 
@@ -233,7 +308,7 @@ def record_calibration(
 def list_records(
     equipment_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.CALIBRATION_READ)),
+    _: CurrentUser = Depends(require_page("calibration", "view")),
 ) -> list[CalibrationRecord]:
     get_or_404(db, Equipment, equipment_id, name="Equipment")
     return (

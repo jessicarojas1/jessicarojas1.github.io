@@ -4,7 +4,7 @@ declare(strict_types=1);
 class KRIController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('kri.view');
         $kris = Database::fetchAll(
             "SELECT k.*,
                     u.name as owner_name,
@@ -36,7 +36,7 @@ class KRIController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('kri.manage');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name");
         $risks = Database::fetchAll("SELECT id, title FROM risks WHERE status='open' ORDER BY title");
         $pageTitle    = 'New KRI';
@@ -49,7 +49,7 @@ class KRIController {
     }
 
     public function create(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('kri.manage');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $title = trim(Security::sanitizeInput($_POST['title'] ?? ''));
         if (!$title) {
@@ -79,7 +79,7 @@ class KRIController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('kri.view');
         $id = (int)$id;
         $kri = Database::fetchOne(
             "SELECT k.*, u.name as owner_name, r.title as risk_title
@@ -103,7 +103,7 @@ class KRIController {
     }
 
     public function recordValue(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('kri.record');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $id  = (int)$id;
         $kri = Database::fetchOne("SELECT id FROM kris WHERE id=?", [$id]);
@@ -127,7 +127,7 @@ class KRIController {
     }
 
     public function toggle(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('kri.manage');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         Database::query("UPDATE kris SET is_active = NOT is_active WHERE id=?", [(int)$id]);
         header('Location: /kris');
