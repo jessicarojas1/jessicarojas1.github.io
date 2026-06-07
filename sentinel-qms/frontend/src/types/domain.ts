@@ -702,3 +702,54 @@ export interface DashboardSummary {
   supplier_performance: { name: string; rating: number; otd: number }[];
   findings_by_clause: { clause: string; count: number }[];
 }
+
+export interface ExecKpi {
+  key: string;
+  label: string;
+  value: number;
+  unit: string;
+  target: number | null;
+  direction: 'lower_better' | 'higher_better';
+  status: 'good' | 'warn' | 'bad' | 'neutral';
+}
+
+export interface CoqMonth {
+  month: string;
+  prevention: number;
+  appraisal: number;
+  internal_failure: number;
+  external_failure: number;
+}
+
+export interface ClauseHeat {
+  clause: string;
+  title: string;
+  major: number;
+  minor: number;
+  observation: number;
+  ofi: number;
+  total: number;
+}
+
+export interface CalendarItem {
+  type: string;
+  label: string;
+  date: string;
+  days_remaining: number;
+  status: 'overdue' | 'due_soon' | 'upcoming';
+}
+
+export interface ExecutiveDashboard {
+  generated_at: string;
+  kpis: ExecKpi[];
+  coq_trend: CoqMonth[];
+  coq_current: {
+    prevention: number;
+    appraisal: number;
+    internal_failure: number;
+    external_failure: number;
+    total: number;
+  };
+  clause_heatmap: ClauseHeat[];
+  compliance_calendar: CalendarItem[];
+}

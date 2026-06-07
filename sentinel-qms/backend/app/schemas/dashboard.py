@@ -87,6 +87,59 @@ class DashboardSummary(BaseModel):
     findings_by_clause: list[ClauseCount]
 
 
+class ExecKpi(BaseModel):
+    key: str
+    label: str
+    value: float
+    unit: str
+    target: float | None
+    direction: str
+    status: str
+
+
+class CoqMonth(BaseModel):
+    month: str
+    prevention: int
+    appraisal: int
+    internal_failure: int
+    external_failure: int
+
+
+class CoqCurrent(BaseModel):
+    prevention: int
+    appraisal: int
+    internal_failure: int
+    external_failure: int
+    total: int
+
+
+class ClauseHeat(BaseModel):
+    clause: str
+    title: str
+    major: int
+    minor: int
+    observation: int
+    ofi: int
+    total: int
+
+
+class CalendarItem(BaseModel):
+    type: str
+    label: str
+    date: str
+    days_remaining: int
+    status: str
+
+
+class ExecutiveDashboard(BaseModel):
+    generated_at: str
+    kpis: list[ExecKpi]
+    coq_trend: list[CoqMonth]
+    coq_current: CoqCurrent
+    clause_heatmap: list[ClauseHeat]
+    compliance_calendar: list[CalendarItem]
+
+
 class MyOpenItem(BaseModel):
     type: str
     id: int

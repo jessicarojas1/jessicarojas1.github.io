@@ -15,6 +15,7 @@ from app.schemas.dashboard import (
     CapaKpi,
     ComplaintKpi,
     DashboardSummary,
+    ExecutiveDashboard,
     MyOpenItem,
     NcrKpi,
     SupplierKpi,
@@ -30,6 +31,14 @@ def summary(
     _: CurrentUser = Depends(require_permission(Permission.DASHBOARD_READ)),
 ) -> DashboardSummary:
     return DashboardSummary(**kpi.dashboard_kpis(db))
+
+
+@router.get("/executive", response_model=ExecutiveDashboard)
+def executive(
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.DASHBOARD_READ)),
+) -> ExecutiveDashboard:
+    return ExecutiveDashboard(**kpi.executive_dashboard(db))
 
 
 @router.get("/my-open-items", response_model=list[MyOpenItem])
