@@ -1,7 +1,7 @@
 """Organization-wide settings & branding — a single-row (singleton) table."""
 from __future__ import annotations
 
-from sqlalchemy import Integer, String, Text
+from sqlalchemy import Boolean, Integer, String, Text, false
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -33,3 +33,13 @@ class OrgSettings(Base, TimestampMixin):
         Integer, default=365, nullable=False
     )
     timezone: Mapped[str] = mapped_column(String(64), default="UTC", nullable=False)
+
+    # ── Multi-channel notification delivery (admin-configurable) ──────────────
+    # Master toggle for outbound email delivery (SMTP host/credentials still come
+    # from env — see app.core.config). Teams/Slack webhook URLs configured here
+    # override the env fallbacks (TEAMS_WEBHOOK_URL / SLACK_WEBHOOK_URL).
+    notifications_email_enabled: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), nullable=False
+    )
+    teams_webhook_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    slack_webhook_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)

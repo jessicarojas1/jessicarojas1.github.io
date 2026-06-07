@@ -10,7 +10,13 @@ from app.core.database import get_db
 from app.core.rbac import Permission, require_permission
 from app.models.settings import OrgSettings
 from app.schemas.auth import CurrentUser
-from app.schemas.settings import OrgSettingsRead, OrgSettingsUpdate
+from app.schemas.settings import (
+    NotificationTestRequest,
+    NotificationTestResult,
+    OrgSettingsRead,
+    OrgSettingsUpdate,
+)
+from app.services import delivery
 from app.services.crud import request_context
 
 router = APIRouter(prefix="/settings", tags=["settings"])
@@ -72,3 +78,36 @@ def update_settings(
     db.commit()
     db.refresh(obj)
     return obj
+
+
+@router.post("/notifications/test", response_model=NotificationTestResult)
+def test_notification_channel(
+    payload: NotificationTestRequest,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_permission(Permission.USER_MANAGE)),
+) -> NotificationTestResult:
+    """Synchronously send a test message to one channel. Requires USER_MANAGE.
+
+    Email is sent to the current user's address; Teams/Slack go to the configured
+    webhook. Always returns 200 — a send failure is reported as ``ok=false`` with
+    a human-readable ``detail`` rather than raising.
+    """
+    cfg = delivery.resolve_channels(db)
+    title = "Sentinel QMS test notification"
+    body = (
+        f"This is a test {payload.channel} notification triggered by "
+        f"{actor.email} from Sentinel QMS settings."
+    )
+
+    if payload.channel == "email":
+        if not cfg.email_enabled:
+            return NotificationTestResult(
+                ok=False, detail="Email delivery is disabled in settings"
+            )
+        ok, detail = delivery.send_email(cfg, actor.email, title, body, None)
+    elif payload.channel == "teams":
+        ok, detail = delivery.send_teams(cfg, title, body, None)
+    else:  # slack
+        ok, detail = delivery.send_slack(cfg, title, body, None)
+
+    return NotificationTestResult(ok=ok, detail=detail)

@@ -1428,3 +1428,11 @@ table.data-table {
 .iam-action--explicit { background: var(--warning-soft, rgba(217,119,6,0.10)); }
 .iam-action--role { opacity: 0.85; cursor: default; }
 .iam-action:disabled { cursor: default; }
+
+/* Settings: notifications section */
+.form-field--span { grid-column: 1 / -1; }
+.checkbox-row { display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.88rem; }
+.checkbox-row .checkbox { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
+.settings-test-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.settings-test-hint { color: var(--text-muted, #8b95a7); font-size: 0.78rem; }
+.settings-test-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
