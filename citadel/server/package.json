@@ -2,11 +2,11 @@
   "name": "citadel-server",
   "version": "1.0.0",
   "private": true,
-  "description": "CITADEL deep-scan backend — runs real open-source security scanners (Semgrep, Bandit, Trivy, Syft, Grype, Gitleaks, ClamAV) and serves the CITADEL SPA.",
+  "description": "CITADEL deep-scan backend \u2014 runs real open-source security scanners (Semgrep, Bandit, Trivy, Syft, Grype, Gitleaks, ClamAV) and serves the CITADEL SPA.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/smoke.js"
+    "test": "node test/smoke.js && node --test test/lib.test.js test/api.test.js"
   },
   "engines": {
     "node": ">=18"
