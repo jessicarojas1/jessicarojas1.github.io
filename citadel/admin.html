@@ -62,16 +62,20 @@
           <p class="small text-body-secondary mb-0">CITADEL access control console</p>
         </div>
         <form id="login-form" autocomplete="on">
-          <div class="mb-2">
+          <div class="mb-2" id="login-creds">
             <label class="form-label small" for="login-email">Email</label>
             <input type="email" class="form-control" id="login-email" required autocomplete="username" placeholder="you@example.com">
           </div>
-          <div class="mb-2">
+          <div class="mb-2" id="login-passwrap">
             <label class="form-label small" for="login-password">Password</label>
             <input type="password" class="form-control" id="login-password" required autocomplete="current-password" placeholder="••••••••">
           </div>
+          <div class="mb-2 d-none" id="login-mfawrap">
+            <label class="form-label small" for="login-mfa-code">Authenticator code</label>
+            <input type="text" class="form-control" id="login-mfa-code" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit or backup code">
+          </div>
           <div id="login-error" class="alert alert-danger py-2 px-3 small d-none mb-2" role="alert"></div>
-          <button type="submit" class="btn btn-primary w-100"><i class="bi bi-box-arrow-in-right"></i> Sign in</button>
+          <button type="submit" class="btn btn-primary w-100" id="login-btn-submit"><i class="bi bi-box-arrow-in-right"></i> Sign in</button>
         </form>
         <p class="small text-body-secondary mt-3 mb-0 text-center" id="login-hint"></p>
       </div>
@@ -187,6 +191,33 @@
           <div id="pw-msg" class="small mt-2"></div>
         </div>
       </div>
+
+      <div class="card citadel-card mb-3 d-none" id="mfa-card">
+        <div class="card-body">
+          <h2 class="h6 mb-2"><i class="bi bi-shield-lock-fill"></i> Two-factor authentication (MFA)</h2>
+          <div id="mfa-status" class="small mb-2"></div>
+          <button class="btn btn-sm btn-outline-primary d-none" id="mfa-setup-btn"><i class="bi bi-plus-lg"></i> Set up authenticator app</button>
+          <div id="mfa-setup-area" class="d-none">
+            <p class="small text-body-secondary mb-1">Add the secret to your authenticator app (manual entry or via the link), then enter the 6-digit code to enable.</p>
+            <div class="mb-1 small">Secret: <code id="mfa-secret" class="user-select-all"></code></div>
+            <div class="mb-2"><a id="mfa-otpauth" class="small" target="_blank" rel="noopener">otpauth:// enrollment link</a></div>
+            <div class="input-group input-group-sm" style="max-width:300px">
+              <input type="text" class="form-control" id="mfa-code" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code">
+              <button class="btn btn-primary" id="mfa-enable-btn">Enable</button>
+            </div>
+          </div>
+          <div id="mfa-backup-area" class="d-none mt-2">
+            <p class="small text-success mb-1"><i class="bi bi-check-circle"></i> MFA enabled. Save these one-time backup codes — they won't be shown again:</p>
+            <pre id="mfa-backup-codes" class="small p-2 border rounded mb-0"></pre>
+          </div>
+          <div class="input-group input-group-sm d-none mt-2" id="mfa-disable-wrap" style="max-width:340px">
+            <input type="password" class="form-control" id="mfa-disable-pass" placeholder="Confirm password to disable">
+            <button class="btn btn-outline-danger" id="mfa-disable-btn">Disable MFA</button>
+          </div>
+          <div id="mfa-msg" class="small mt-2"></div>
+        </div>
+      </div>
+
       <div class="row g-3">
         <div class="col-lg-7">
           <div class="card citadel-card">
@@ -349,6 +380,7 @@
      * from the client auth.js so labels/columns are identical in both modes.
      * ===================================================================== */
     const JWT_KEY = 'citadel.jwt';
+    const REFRESH_KEY = 'citadel.refresh';
     const DA = {
       mode: 'local',
       // shared constants (identical in both modes)
@@ -362,8 +394,19 @@
 
       token() { try { return localStorage.getItem(JWT_KEY) || ''; } catch (e) { return ''; } },
       _setToken(t) { try { t ? localStorage.setItem(JWT_KEY, t) : localStorage.removeItem(JWT_KEY); } catch (e) {} },
+      _refreshTok() { try { return localStorage.getItem(REFRESH_KEY) || ''; } catch (e) { return ''; } },
+      _setRefresh(t) { try { t ? localStorage.setItem(REFRESH_KEY, t) : localStorage.removeItem(REFRESH_KEY); } catch (e) {} },
+      _setTokens(out) { if (out && out.token) this._setToken(out.token); if (out && out.refreshToken) this._setRefresh(out.refreshToken); },
+      async _refresh() {
+        const r = this._refreshTok(); if (!r) return false;
+        try {
+          const res = await fetch('api/auth/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: r }) });
+          if (!res.ok) { if (res.status === 401) { this._setToken(''); this._setRefresh(''); } return false; }
+          const j = await res.json(); if (j && j.token) { this._setToken(j.token); return true; } return false;
+        } catch (e) { return false; }
+      },
 
-      async _api(path, opts) {
+      async _api(path, opts, _retried) {
         opts = opts || {};
         const headers = Object.assign({}, opts.headers || {});
         if (opts.body != null) headers['Content-Type'] = 'application/json';
@@ -374,6 +417,10 @@
           headers,
           body: opts.body != null ? JSON.stringify(opts.body) : undefined
         });
+        // Transparently refresh an expired access token once.
+        if (res.status === 401 && !_retried && this._refreshTok()) {
+          if (await this._refresh()) return this._api(path, opts, true);
+        }
         let data = null;
         try { data = await res.json(); } catch (e) { data = null; }
         if (!res.ok) {
@@ -402,6 +449,10 @@
         if (this.mode !== 'backend') throw new Error('Password change requires the backend.');
         return this._api('api/auth/password', { method: 'POST', body: { current, next } });
       },
+      async mfaStatus() { return this._api('api/auth/mfa'); },
+      async mfaSetup() { return this._api('api/auth/mfa/setup', { method: 'POST' }); },
+      async mfaEnable(token) { return this._api('api/auth/mfa/enable', { method: 'POST', body: { token } }); },
+      async mfaDisable(password) { return this._api('api/auth/mfa/disable', { method: 'POST', body: { password } }); },
       async sessions() { if (this.mode !== 'backend') return null; return this._api('api/sessions'); },
       async revokeSession(jti) { if (this.mode !== 'backend') return; await this._api('api/sessions/' + encodeURIComponent(jti), { method: 'DELETE' }); },
       async revokeUserSessions(id) { if (this.mode !== 'backend') return; await this._api('api/users/' + encodeURIComponent(id) + '/revoke-sessions', { method: 'POST' }); },
@@ -449,23 +500,29 @@
       async login(email, password) {
         if (this.mode === 'backend') {
           const out = await this._api('api/auth/login', { method: 'POST', body: { email, password } });
-          const user = out && out.user;
-          if (!user || user.role !== 'admin') {
-            // not an administrator -> reject without persisting a session
-            const err = new Error('Invalid credentials or not an administrator.');
-            err.status = 401; throw err;
-          }
-          this._setToken(out.token);
-          this._me = user;
-          await this._refreshUsers();
-          return user;
+          if (out && out.mfaRequired) return { mfaRequired: true, mfaToken: out.mfaToken };
+          return this._completeLogin(out);
         }
         return auth.loginByCreds(email, password);
+      },
+      // Finish an MFA login with a TOTP/backup code.
+      async mfaVerify(mfaToken, code) {
+        const out = await this._api('api/auth/mfa/verify', { method: 'POST', body: { mfaToken, code } });
+        return this._completeLogin(out);
+      },
+      _completeLogin(out) {
+        const user = out && out.user;
+        if (!user || user.role !== 'admin') {
+          const err = new Error('Invalid credentials or not an administrator.'); err.status = 401; throw err;
+        }
+        this._setTokens(out);
+        this._me = user;
+        return this._refreshUsers().then(() => user);
       },
 
       logout() {
         if (this.mode === 'backend') {
-          this._setToken(''); this._me = null; this._users = [];
+          this._setToken(''); this._setRefresh(''); this._me = null; this._users = [];
         } else {
           auth.logout();
         }
@@ -590,6 +647,7 @@
     }
 
     /* ---------- login ---------- */
+    let _pendingMfa = null;
     function setupLogin() {
       $('login-hint').textContent = DA.mode === 'backend'
         ? 'Sign in with your CITADEL administrator account.'
@@ -601,19 +659,28 @@
         e.preventDefault();
         const err = $('login-error');
         err.classList.add('d-none');
-        const email = $('login-email').value.trim();
-        const password = $('login-password').value;
-        let user = null, serverMsg = '';
-        try { user = await DA.login(email, password); }
-        catch (ex) { user = null; serverMsg = ex && ex.message ? ex.message : ''; }
-        if (!user || user.role !== 'admin') {
-          if (user && user.role !== 'admin') DA.logout();
-          err.textContent = serverMsg || 'Invalid credentials or not an administrator.';
-          err.classList.remove('d-none');
-          return;
-        }
-        $('login-password').value = '';
-        render();
+        const fail = (msg) => { err.textContent = msg || 'Invalid credentials or not an administrator.'; err.classList.remove('d-none'); };
+        try {
+          let user;
+          if (_pendingMfa) {
+            user = await DA.mfaVerify(_pendingMfa, ($('login-mfa-code').value || '').trim());
+          } else {
+            const r = await DA.login($('login-email').value.trim(), $('login-password').value);
+            if (r && r.mfaRequired) {
+              _pendingMfa = r.mfaToken;
+              $('login-creds').classList.add('d-none'); $('login-passwrap').classList.add('d-none');
+              $('login-mfawrap').classList.remove('d-none');
+              $('login-btn-submit').innerHTML = '<i class="bi bi-shield-lock"></i> Verify';
+              $('login-hint').textContent = 'Enter the code from your authenticator app (or a backup code).';
+              $('login-mfa-code').focus();
+              return;
+            }
+            user = r;
+          }
+          if (!user || user.role !== 'admin') { DA.logout(); fail(); return; }
+          _pendingMfa = null; $('login-password').value = '';
+          render();
+        } catch (ex) { fail(ex && ex.message); }
       });
     }
 
@@ -1011,6 +1078,62 @@
       });
     }
 
+    /* ---------- MFA management ---------- */
+    async function renderMfa() {
+      const card = $('mfa-card'); if (!card) return;
+      const backend = DA.mode === 'backend';
+      card.classList.toggle('d-none', !backend);
+      if (!backend) return;
+      $('mfa-setup-area').classList.add('d-none');
+      $('mfa-backup-area').classList.add('d-none');
+      let st;
+      try { st = await DA.mfaStatus(); } catch (e) { return; }
+      const status = $('mfa-status');
+      if (st && st.enabled) {
+        status.innerHTML = '<span class="text-success"><i class="bi bi-shield-check"></i> Enabled</span> — ' + esc(String(st.backupRemaining)) + ' backup code(s) remaining.';
+        $('mfa-setup-btn').classList.add('d-none');
+        $('mfa-disable-wrap').classList.remove('d-none');
+      } else {
+        status.innerHTML = '<span class="text-body-secondary"><i class="bi bi-shield-slash"></i> Not enabled</span> — protect your admin account with an authenticator app.';
+        $('mfa-setup-btn').classList.remove('d-none');
+        $('mfa-disable-wrap').classList.add('d-none');
+      }
+    }
+    function wireMfa() {
+      const card = $('mfa-card'); if (!card || card.dataset.wired) return;
+      card.dataset.wired = '1';
+      const msg = (t, ok) => { const m = $('mfa-msg'); if (m) { m.className = 'small mt-2 ' + (ok ? 'text-success' : 'text-danger'); m.textContent = t; } };
+      $('mfa-setup-btn').addEventListener('click', async () => {
+        try {
+          const s = await DA.mfaSetup();
+          $('mfa-secret').textContent = s.secret;
+          const a = $('mfa-otpauth'); a.href = s.otpauth;
+          $('mfa-setup-area').classList.remove('d-none');
+          $('mfa-setup-btn').classList.add('d-none');
+          msg('', true);
+        } catch (e) { msg(e && e.message ? e.message : 'Could not start setup.'); }
+      });
+      $('mfa-enable-btn').addEventListener('click', async () => {
+        try {
+          const out = await DA.mfaEnable(($('mfa-code').value || '').trim());
+          $('mfa-backup-codes').textContent = (out.backupCodes || []).join('\n');
+          $('mfa-backup-area').classList.remove('d-none');
+          $('mfa-setup-area').classList.add('d-none');
+          $('mfa-code').value = '';
+          await renderMfa();
+          msg('MFA enabled.', true);
+        } catch (e) { msg(e && e.message ? e.message : 'Could not enable MFA.'); }
+      });
+      $('mfa-disable-btn').addEventListener('click', async () => {
+        try {
+          await DA.mfaDisable(($('mfa-disable-pass').value || ''));
+          $('mfa-disable-pass').value = '';
+          await renderMfa();
+          msg('MFA disabled.', true);
+        } catch (e) { msg(e && e.message ? e.message : 'Could not disable MFA.'); }
+      });
+    }
+
     /* ---------- Branding ---------- */
     function normHex(v) { return (v && /^#?[0-9a-fA-F]{3,6}$/.test(v)) ? (v[0] === '#' ? v : '#' + v) : ''; }
     function updateBrandPreview() {
@@ -1103,6 +1226,7 @@
       renderPerms(); wirePerms();
       renderSettings(); wireSettings();
       renderMyAccount(); wireMyAccount();
+      wireMfa(); renderMfa();
       renderBranding(); wireBranding();
       // Activity & Sessions tabs are backend-only (no server state in local mode).
       const backend = DA.mode === 'backend';

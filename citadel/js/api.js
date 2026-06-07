@@ -1,17 +1,22 @@
 /* CITADEL — Deep-scan API client.
  * When the SPA is served by the CITADEL backend (same origin), this enables
- * server-side scanning with real tools and JWT-based auth. On a static host
- * (e.g. GitHub Pages) the health probe fails and the app stays client-only.
- * window.CITADEL.api
+ * server-side scanning with real tools and JWT-based auth (short-lived access
+ * tokens + a refresh token, optional TOTP MFA). On a static host the health
+ * probe fails and the app stays client-only. window.CITADEL.api
  */
 (function (root) {
   'use strict';
   const CITADEL = root.CITADEL = root.CITADEL || {};
   let _status = null;
-  const TKEY = 'citadel.jwt';
+  const TKEY = 'citadel.jwt';        // access token
+  const RKEY = 'citadel.refresh';    // refresh token
 
   function getToken() { try { return localStorage.getItem(TKEY) || null; } catch (e) { return null; } }
   function setToken(t) { try { t ? localStorage.setItem(TKEY, t) : localStorage.removeItem(TKEY); } catch (e) {} }
+  function getRefresh() { try { return localStorage.getItem(RKEY) || null; } catch (e) { return null; } }
+  function setRefresh(t) { try { t ? localStorage.setItem(RKEY, t) : localStorage.removeItem(RKEY); } catch (e) {} }
+  function setTokens(j) { if (j && j.token) setToken(j.token); if (j && j.refreshToken) setRefresh(j.refreshToken); }
+  function clearTokens() { setToken(null); setRefresh(null); }
   function authHeader() { const t = getToken(); return t ? { Authorization: 'Bearer ' + t } : {}; }
 
   async function available() {
@@ -28,6 +33,32 @@
     } catch (e) { _status = false; return false; }
   }
 
+  // Exchange the refresh token for a fresh access token. Returns true on success.
+  async function refresh() {
+    const r = getRefresh();
+    if (!r) return false;
+    try {
+      const res = await fetch('api/auth/refresh', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: r })
+      });
+      if (!res.ok) { if (res.status === 401) clearTokens(); return false; }
+      const j = await res.json();
+      if (j && j.token) { setToken(j.token); return true; }
+      return false;
+    } catch (e) { return false; }
+  }
+
+  // fetch wrapper that transparently refreshes an expired access token once.
+  async function apiFetch(url, opts, retry) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers || {}, authHeader());
+    const res = await fetch(url, opts);
+    if (res.status === 401 && retry !== false && getRefresh()) {
+      if (await refresh()) { return apiFetch(url, opts, false); }
+    }
+    return res;
+  }
+
   // Throwing helper that preserves HTTP status for 401/403 handling.
   async function asJson(res, fallback) {
     if (!res.ok) {
@@ -38,13 +69,11 @@
     return res.json();
   }
 
-  // files: array of File. Appends each with its relative path so the server
-  // can rebuild the directory tree (multer reads originalname).
   async function scan(files, onProgress) {
     const fd = new FormData();
     for (const file of files) fd.append('files', file, file.webkitRelativePath || file.name);
     onProgress && onProgress('Uploading to scan service…');
-    const res = await fetch('api/scan', { method: 'POST', headers: authHeader(), body: fd });
+    const res = await apiFetch('api/scan', { method: 'POST', body: fd });
     const out = await asJson(res, 'Scan service error');
     onProgress && onProgress('Rendering report…');
     return out;
@@ -52,39 +81,54 @@
 
   async function scanUrl(url, onProgress) {
     onProgress && onProgress('Cloning & scanning repository…');
-    const res = await fetch('api/scan-url', {
-      method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, authHeader()), body: JSON.stringify({ url })
+    const res = await apiFetch('api/scan-url', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url })
     });
     return asJson(res, 'Scan service error');
   }
 
   async function explain(finding) {
-    const res = await fetch('api/explain', {
-      method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, authHeader()), body: JSON.stringify({ finding })
+    const res = await apiFetch('api/explain', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ finding })
     });
     return asJson(res, 'AI service error');
   }
 
   /* ---------- Auth ---------- */
+  // Returns { user } on success, { mfaRequired, mfaToken } when 2FA is needed,
+  // or null on bad credentials.
   async function authLogin(email, password) {
     const res = await fetch('api/auth/login', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
     });
     if (!res.ok) return null;
     const j = await res.json();
-    if (j && j.token) { setToken(j.token); return j.user; }
+    if (j && j.mfaRequired) return { mfaRequired: true, mfaToken: j.mfaToken };
+    if (j && j.token) { setTokens(j); return { user: j.user }; }
+    return null;
+  }
+  // Complete an MFA login. Returns the user on success, or null on a bad code.
+  async function authMfaVerify(mfaToken, code) {
+    const res = await fetch('api/auth/mfa/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mfaToken, code })
+    });
+    if (!res.ok) return null;
+    const j = await res.json();
+    if (j && j.token) { setTokens(j); return j.user; }
     return null;
   }
   async function authMe() {
-    if (!getToken()) return null;
-    try { const res = await fetch('api/auth/me', { headers: authHeader() }); if (!res.ok) { if (res.status === 401) setToken(null); return null; } return res.json(); }
-    catch (e) { return null; }
+    if (!getToken() && !getRefresh()) return null;
+    try {
+      const res = await apiFetch('api/auth/me');
+      if (!res.ok) { if (res.status === 401) clearTokens(); return null; }
+      return res.json();
+    } catch (e) { return null; }
   }
   async function authLogout() {
-    const t = getToken();
-    if (t) { try { await fetch('api/auth/logout', { method: 'POST', headers: authHeader() }); } catch (e) {} }
-    setToken(null);
+    if (getToken()) { try { await apiFetch('api/auth/logout', { method: 'POST' }); } catch (e) {} }
+    clearTokens();
   }
 
-  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMe, authLogout, getToken };
+  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authMe, authLogout, refresh, getToken, getRefresh };
 })(window);

@@ -11,6 +11,7 @@ const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 const db = require('./db');
+const totp = require('./totp');
 
 const DATA_DIR = process.env.CITADEL_DATA_DIR || path.join(process.env.CITADEL_TMP || os.tmpdir(), 'citadel');
 const FILE = path.join(DATA_DIR, 'users.json');
@@ -101,6 +102,8 @@ function rowToUser(r) {
     id: r.id, name: r.name, email: r.email, role: r.role, active: r.active,
     salt: r.salt, pass: r.pass, permissions: r.permissions || {},
     mustChange: !!r.must_change_password,
+    mfaEnabled: !!r.mfa_enabled, mfaSecret: r.mfa_secret || null,
+    mfaPending: r.mfa_pending || null, mfaBackup: r.mfa_backup || [],
     createdAt: (r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at)
   };
 }
@@ -121,12 +124,15 @@ async function syncPg() {
     ON CONFLICT(key) DO UPDATE SET value=$1`, [JSON.stringify(_db.settings || {})]);
   for (const u of _db.users) {
     await db.query(`INSERT INTO citadel_users
-      (id,name,email,role,active,salt,pass,permissions,must_change_password,created_at)
-      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      (id,name,email,role,active,salt,pass,permissions,must_change_password,mfa_enabled,mfa_secret,mfa_pending,mfa_backup,created_at)
+      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
       ON CONFLICT(id) DO UPDATE SET
-        name=$2,email=$3,role=$4,active=$5,salt=$6,pass=$7,permissions=$8,must_change_password=$9`,
+        name=$2,email=$3,role=$4,active=$5,salt=$6,pass=$7,permissions=$8,must_change_password=$9,
+        mfa_enabled=$10,mfa_secret=$11,mfa_pending=$12,mfa_backup=$13`,
       [u.id, u.name, u.email, u.role, u.active, u.salt, u.pass,
-       JSON.stringify(u.permissions || {}), !!u.mustChange, u.createdAt || new Date().toISOString()]);
+       JSON.stringify(u.permissions || {}), !!u.mustChange,
+       !!u.mfaEnabled, u.mfaSecret || null, u.mfaPending || null, JSON.stringify(u.mfaBackup || []),
+       u.createdAt || new Date().toISOString()]);
   }
   const ids = _db.users.map(u => u.id);
   if (ids.length) await db.query('DELETE FROM citadel_users WHERE NOT (id = ANY($1))', [ids]);
@@ -146,7 +152,12 @@ async function init() {
   return _db;
 }
 
-function strip(u) { if (!u) return null; const { pass, salt, ...rest } = u; return rest; }
+function strip(u) {
+  if (!u) return null;
+  const { pass, salt, mfaSecret, mfaPending, mfaBackup, ...rest } = u;
+  rest.mfaEnabled = !!u.mfaEnabled;          // expose status, never the secret/backup codes
+  return rest;
+}
 function secret() { return load().secret; }
 function settings() { return Object.assign({ enforce: false }, load().settings); }
 function setSetting(k, v) { const db = load(); db.settings[k] = v; save(); return settings(); }
@@ -217,8 +228,46 @@ function can(user, pageId) {
   return !!(user.permissions && user.permissions[pageId]);
 }
 
+/* ---------------- MFA (TOTP) ---------------- */
+function hashCode(c) { return crypto.createHash('sha256').update(String(c)).digest('hex'); }
+function mfaEnabled(id) { const u = getRaw(id); return !!(u && u.mfaEnabled); }
+
+// Step 1: mint a pending secret for enrollment (not active until verified).
+function mfaBeginSetup(id) {
+  const u = getRaw(id); if (!u) throw new Error('User not found.');
+  u.mfaPending = totp.generateSecret(); save();
+  return { secret: u.mfaPending, otpauth: totp.otpauthURL(u.mfaPending, u.email, 'CITADEL') };
+}
+// Step 2: verify a code against the pending secret, then activate + issue backup codes (shown once).
+function mfaEnable(id, token) {
+  const u = getRaw(id); if (!u) throw new Error('User not found.');
+  if (!u.mfaPending) throw new Error('Start MFA setup first.');
+  if (!totp.verify(u.mfaPending, token)) throw new Error('Invalid authenticator code.');
+  u.mfaSecret = u.mfaPending; u.mfaPending = null; u.mfaEnabled = true;
+  const plain = Array.from({ length: 10 }, () => crypto.randomBytes(5).toString('hex'));
+  u.mfaBackup = plain.map(hashCode);
+  save();
+  return { backupCodes: plain };
+}
+function mfaDisable(id) {
+  const u = getRaw(id); if (!u) throw new Error('User not found.');
+  u.mfaEnabled = false; u.mfaSecret = null; u.mfaPending = null; u.mfaBackup = []; save();
+}
+// Verify a TOTP code OR consume a one-time backup code.
+function mfaVerify(id, token) {
+  const u = getRaw(id); if (!u || !u.mfaEnabled) return false;
+  if (totp.verify(u.mfaSecret, token)) return true;
+  const h = hashCode(String(token || '').replace(/\s+/g, ''));
+  const idx = (u.mfaBackup || []).indexOf(h);
+  if (idx >= 0) { u.mfaBackup.splice(idx, 1); save(); return true; }   // single-use
+  return false;
+}
+function mfaStatus(id) { const u = getRaw(id); return { enabled: !!(u && u.mfaEnabled), backupRemaining: (u && u.mfaBackup ? u.mfaBackup.length : 0) }; }
+
 module.exports = {
   PAGES, ROLES, init, secret, settings, setSetting,
   list, get, getByEmail: e => strip(getByEmail(e)), add, update, setPermission, remove, setPassword,
-  changeOwnPassword, verifyPassword, can, backend: () => (db.enabled() ? 'postgres' : 'file'), _file: FILE
+  changeOwnPassword, verifyPassword, can,
+  mfaEnabled, mfaBeginSetup, mfaEnable, mfaDisable, mfaVerify, mfaStatus,
+  backend: () => (db.enabled() ? 'postgres' : 'file'), _file: FILE
 };

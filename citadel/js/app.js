@@ -39,9 +39,27 @@
     return !!(u.permissions && u.permissions[page]);
   }
 
-  let _loginModal = null;
+  let _loginModal = null, pendingMfa = null;
   function loginModal() { if (!_loginModal && root.bootstrap) _loginModal = new root.bootstrap.Modal($('loginModal')); return _loginModal; }
+  function resetLoginUi() {
+    pendingMfa = null;
+    const cr = $('login-creds-row'), pr = $('login-pass-row'), mr = $('login-mfa-row');
+    if (cr) cr.classList.remove('d-none'); if (pr) pr.classList.remove('d-none');
+    if (mr) mr.classList.add('d-none');
+    if ($('login-password')) $('login-password').value = '';
+    if ($('login-mfa-code')) $('login-mfa-code').value = '';
+    const b = $('login-submit'); if (b) b.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Sign in';
+  }
+  function showMfaStep() {
+    const cr = $('login-creds-row'), pr = $('login-pass-row'), mr = $('login-mfa-row');
+    if (cr) cr.classList.add('d-none'); if (pr) pr.classList.add('d-none');
+    if (mr) mr.classList.remove('d-none');
+    const h = $('login-hint'); if (h) h.textContent = 'Enter the 6-digit code from your authenticator app (or a backup code).';
+    const b = $('login-submit'); if (b) b.innerHTML = '<i class="bi bi-shield-lock"></i> Verify';
+    const c = $('login-mfa-code'); if (c) c.focus();
+  }
   function openLogin() {
+    resetLoginUi();
     const h = $('login-hint');
     if (h) {
       if (backendMode) h.innerHTML = 'Sign in with your CITADEL account. Default admin — <code>admin@citadel.local</code> / <code>citadel-admin</code> (change after first login).';
@@ -368,13 +386,29 @@
       applyAccess(); return;
     }
     if (e.target.closest('#login-submit')) {
-      const em = $('login-email').value, pw = $('login-password').value;
-      const fail = () => { const er = $('login-error'); if (er) { er.textContent = 'Invalid credentials or inactive account.'; er.classList.remove('d-none'); } };
-      const ok = (u) => { const m = loginModal(); if (m) m.hide(); $('login-password').value = ''; applyAccess(); };
-      const p = backendMode
-        ? CITADEL.api.authLogin(em, pw).then(u => { if (u) backendUser = u; return u; })
-        : CITADEL.auth.loginByCreds(em, pw);
-      p.then(u => { if (u) ok(u); else fail(); }).catch(fail);
+      const er = $('login-error');
+      const showErr = (msg) => { if (er) { er.textContent = msg; er.classList.remove('d-none'); } };
+      if (er) er.classList.add('d-none');
+      const finishOk = (u) => { backendUser = u; const m = loginModal(); if (m) m.hide(); resetLoginUi(); applyAccess(); };
+      if (!backendMode) {
+        CITADEL.auth.loginByCreds($('login-email').value, $('login-password').value)
+          .then(u => u ? finishOk(u) : showErr('Invalid credentials or inactive account.'))
+          .catch(() => showErr('Invalid credentials or inactive account.'));
+        return;
+      }
+      (async () => {
+        try {
+          if (pendingMfa) {
+            const u = await CITADEL.api.authMfaVerify(pendingMfa, ($('login-mfa-code').value || '').trim());
+            if (u) finishOk(u); else showErr('Invalid authenticator code.');
+            return;
+          }
+          const r = await CITADEL.api.authLogin($('login-email').value, $('login-password').value);
+          if (!r) { showErr('Invalid credentials or inactive account.'); return; }
+          if (r.mfaRequired) { pendingMfa = r.mfaToken; showMfaStep(); return; }
+          finishOk(r.user);
+        } catch (e2) { showErr('Sign-in failed. Please try again.'); }
+      })();
       return;
     }
 

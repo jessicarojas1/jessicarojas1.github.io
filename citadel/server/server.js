@@ -61,6 +61,22 @@ function clientIp(req) {
   return xff || req.ip || (req.socket && req.socket.remoteAddress) || 'unknown';
 }
 
+// Token lifetimes. Short-lived access tokens + a long-lived refresh token so a
+// leaked access token expires fast; the SPA silently refreshes.
+const ACCESS_TTL = parseInt(process.env.CITADEL_ACCESS_TTL || '1800', 10);        // 30 min
+const REFRESH_TTL = parseInt(process.env.CITADEL_REFRESH_TTL || String(30 * 86400), 10); // 30 days
+const MFA_TTL = parseInt(process.env.CITADEL_MFA_TTL || '300', 10);              // 5 min step-up window
+
+// Issue a session + access/refresh token pair for a verified user.
+function issueTokens(u, req) {
+  const jti = crypto.randomBytes(12).toString('hex');
+  const now = Math.floor(Date.now() / 1000);
+  sessions.register({ jti, userId: u.id, email: u.email, role: u.role, ip: clientIp(req), ua: req.headers['user-agent'], iat: now, exp: now + REFRESH_TTL });
+  const token = jwt.sign({ sub: u.id, role: u.role, email: u.email, jti, typ: 'access' }, users.secret(), ACCESS_TTL);
+  const refreshToken = jwt.sign({ sub: u.id, jti, typ: 'refresh' }, users.secret(), REFRESH_TTL);
+  return { token, refreshToken, expiresIn: ACCESS_TTL, user: u };
+}
+
 // Reusable fixed-window limiter middleware keyed by IP + route bucket.
 function rateLimited(bucket, max, windowMs) {
   return (req, res, next) => {
@@ -94,7 +110,9 @@ app.use((req, res, next) => {
   const m = h.match(/^Bearer\s+(.+)$/i);
   if (m) {
     const p = jwt.verify(m[1], users.secret());
-    if (p && p.sub && !(p.jti && sessions.isRevoked(p.jti))) {
+    // Only access tokens authenticate API calls (refresh/mfa tokens must not).
+    // Legacy tokens without a typ are still honored during rollout.
+    if (p && p.sub && (!p.typ || p.typ === 'access') && !(p.jti && sessions.isRevoked(p.jti))) {
       req.user = users.get(p.sub);
       if (req.user && p.jti) {
         sessions.register({ jti: p.jti, userId: p.sub, email: p.email, role: p.role, ip: clientIp(req), ua: req.headers['user-agent'], iat: p.iat, exp: p.exp });
@@ -205,13 +223,45 @@ app.post('/api/auth/login', rateLimited('login', 20, 15 * 60000), (req, res) => 
     return res.status(401).json(body);
   }
   rateLimit.clearFails(lockKey);
-  const jti = crypto.randomBytes(12).toString('hex');
-  const token = jwt.sign({ sub: u.id, role: u.role, email: u.email, jti }, users.secret());
-  const now = Math.floor(Date.now() / 1000);
-  sessions.register({ jti, userId: u.id, email: u.email, role: u.role, ip, ua: req.headers['user-agent'], iat: now, exp: now + 43200 });
+  // Password OK. If MFA is enabled, return a short-lived step-up token instead of
+  // a session — the client must POST a TOTP/backup code to /api/auth/mfa/verify.
+  if (users.mfaEnabled(u.id)) {
+    const mfaToken = jwt.sign({ sub: u.id, typ: 'mfa' }, users.secret(), MFA_TTL);
+    audit.record('login.mfa_required', { actor: u.email, ip, detail: 'role=' + u.role, ok: true });
+    return res.json({ mfaRequired: true, mfaToken });
+  }
   metrics.inc('citadel_logins_total', { result: 'success' });
   audit.record('login.success', { actor: u.email, ip, detail: 'role=' + u.role, ok: true });
-  res.json({ token, user: u });
+  res.json(issueTokens(u, req));
+});
+
+// Step-up: complete an MFA login with a TOTP code or a one-time backup code.
+app.post('/api/auth/mfa/verify', rateLimited('mfa', 20, 15 * 60000), (req, res) => {
+  const ip = clientIp(req);
+  const p = jwt.verify((req.body && req.body.mfaToken) || '', users.secret());
+  if (!p || p.typ !== 'mfa' || !p.sub) return res.status(401).json({ error: 'MFA session expired — sign in again.' });
+  const u = users.get(p.sub);
+  if (!u || !u.active) return res.status(401).json({ error: 'Account unavailable.' });
+  if (!users.mfaVerify(p.sub, (req.body && req.body.code) || '')) {
+    metrics.inc('citadel_logins_total', { result: 'mfa_failure' });
+    audit.record('login.mfa_failure', { actor: u.email, ip, detail: 'bad code', ok: false });
+    return res.status(401).json({ error: 'Invalid authenticator code.' });
+  }
+  metrics.inc('citadel_logins_total', { result: 'success' });
+  audit.record('login.success', { actor: u.email, ip, detail: 'mfa', ok: true });
+  res.json(issueTokens(u, req));
+});
+
+// Exchange a valid refresh token for a fresh access token (same session jti).
+app.post('/api/auth/refresh', rateLimited('refresh', 60, 15 * 60000), (req, res) => {
+  const p = jwt.verify((req.body && req.body.refreshToken) || '', users.secret());
+  if (!p || p.typ !== 'refresh' || !p.sub || !p.jti) return res.status(401).json({ error: 'Invalid refresh token.' });
+  if (sessions.isRevoked(p.jti)) return res.status(401).json({ error: 'Session revoked.' });
+  const u = users.get(p.sub);
+  if (!u || !u.active) return res.status(401).json({ error: 'Account unavailable.' });
+  sessions.register({ jti: p.jti, userId: u.id, email: u.email, role: u.role, ip: clientIp(req), ua: req.headers['user-agent'] });
+  const token = jwt.sign({ sub: u.id, role: u.role, email: u.email, jti: p.jti, typ: 'access' }, users.secret(), ACCESS_TTL);
+  res.json({ token, expiresIn: ACCESS_TTL });
 });
 app.get('/api/auth/me', (req, res) => { if (!req.user) return res.status(401).json({ error: 'Not authenticated.' }); res.json(req.user); });
 // Self-service password change (also clears the must-change flag on the default admin).
@@ -223,6 +273,31 @@ app.post('/api/auth/password', (req, res) => {
     audit.record('user.password', { actor: req.user.email, ip: clientIp(req), detail: 'self change', ok: true });
     res.json({ ok: true });
   } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+/* ---- MFA (TOTP) self-service ---- */
+app.get('/api/auth/mfa', (req, res) => { if (!req.user) return res.status(401).json({ error: 'Not authenticated.' }); res.json(users.mfaStatus(req.user.id)); });
+app.post('/api/auth/mfa/setup', (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Not authenticated.' });
+  try { res.json(users.mfaBeginSetup(req.user.id)); } catch (e) { res.status(400).json({ error: e.message }); }
+});
+app.post('/api/auth/mfa/enable', (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Not authenticated.' });
+  try {
+    const out = users.mfaEnable(req.user.id, (req.body && req.body.token) || '');
+    audit.record('mfa.enabled', { actor: req.user.email, ip: clientIp(req), detail: 'totp', ok: true });
+    res.json(out);   // { backupCodes: [...] } — shown once
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+// Disabling MFA requires re-confirming the password (a hijacked session alone can't drop 2FA).
+app.post('/api/auth/mfa/disable', (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Not authenticated.' });
+  if (!users.verifyPassword(req.user.email, (req.body && req.body.password) || '')) {
+    return res.status(401).json({ error: 'Password confirmation failed.' });
+  }
+  users.mfaDisable(req.user.id);
+  audit.record('mfa.disabled', { actor: req.user.email, ip: clientIp(req), detail: 'self', ok: true });
+  res.json({ ok: true });
 });
 app.get('/api/auth/settings', (req, res) => res.json(users.settings()));
 app.patch('/api/auth/settings', requireAdmin, (req, res) => {

@@ -74,6 +74,12 @@ CREATE TABLE IF NOT EXISTS citadel_audit (
 );
 CREATE INDEX IF NOT EXISTS citadel_audit_ts_idx ON citadel_audit (seq DESC);
 CREATE INDEX IF NOT EXISTS citadel_sessions_user_idx ON citadel_sessions (user_id);
+
+-- MFA columns (idempotent for upgrades of an existing citadel_users table).
+ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_enabled boolean NOT NULL DEFAULT false;
+ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_secret  text;
+ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_pending text;
+ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_backup  jsonb NOT NULL DEFAULT '[]'::jsonb;
 `;
 
 async function init() {

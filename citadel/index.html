@@ -71,8 +71,12 @@
         <div class="modal-header border-0"><h5 class="modal-title"><i class="bi bi-shield-lock"></i> Sign in</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
         <div class="modal-body">
-          <div class="mb-2"><label class="form-label small">Email</label><input type="email" class="form-control" id="login-email" autocomplete="username"></div>
-          <div class="mb-2"><label class="form-label small">Password</label><input type="password" class="form-control" id="login-password" autocomplete="current-password"></div>
+          <div class="mb-2" id="login-creds-row"><label class="form-label small">Email</label><input type="email" class="form-control" id="login-email" autocomplete="username"></div>
+          <div class="mb-2" id="login-pass-row"><label class="form-label small">Password</label><input type="password" class="form-control" id="login-password" autocomplete="current-password"></div>
+          <div class="mb-2 d-none" id="login-mfa-row">
+            <label class="form-label small">Authenticator code</label>
+            <input type="text" class="form-control" id="login-mfa-code" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code or backup code">
+          </div>
           <div class="text-danger small d-none" id="login-error"></div>
           <div class="small text-body-secondary mt-2" id="login-hint"></div>
         </div>
