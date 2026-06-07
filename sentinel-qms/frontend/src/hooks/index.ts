@@ -31,6 +31,7 @@ export const complaintHooks = createResourceHooks<Complaint>('complaints');
 export const userHooks = createResourceHooks<User>('users');
 
 export * from './useDashboard';
+export * from './useStandards';
 export * from './useTraining';
 export * from './useSearch';
 export * from './useNotifications';
