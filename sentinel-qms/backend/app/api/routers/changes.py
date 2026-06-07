@@ -1,7 +1,8 @@
 """Change order (ECN/ECO) endpoints: CRUD + status workflow + approval."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
@@ -180,7 +181,7 @@ def change_status(
     before = {"status": co.status.value}
     co.status = body.status
     if body.status == ChangeStatus.IMPLEMENTED:
-        co.implemented_at = datetime.now(timezone.utc)
+        co.implemented_at = datetime.now(UTC)
     co.updated_by = actor.id
     db.flush()
     audit.record(
@@ -226,7 +227,7 @@ def approve_change(
     if body.decision == "approved":
         co.status = ChangeStatus.APPROVED
         co.approved_by = actor.id
-        co.approved_at = datetime.now(timezone.utc)
+        co.approved_at = datetime.now(UTC)
         co.signature_id = sig.id
     else:
         co.status = ChangeStatus.REJECTED

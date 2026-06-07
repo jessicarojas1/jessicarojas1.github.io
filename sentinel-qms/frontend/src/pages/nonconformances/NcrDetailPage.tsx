@@ -9,6 +9,7 @@ import { formatDate, formatDateTime, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
+import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 import { RecordSupplements } from '@/components/RecordSupplements';
@@ -63,6 +64,7 @@ export default function NcrDetailPage() {
             actions={
               <>
                 <PrintButton />
+                <PdfButton path={`/reports/ncr/${ncr.id}/pdf`} filename={`${ncr.ncr_number}.pdf`} />
                 {canDisposition && (
                   <>
                     {!disposition && ncr.status !== 'closed' && (

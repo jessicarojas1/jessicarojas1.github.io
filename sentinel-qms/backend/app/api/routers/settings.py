@@ -1,4 +1,5 @@
 """Organization settings & branding endpoints (singleton row)."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request
@@ -11,12 +12,15 @@ from app.core.rbac import Permission, require_permission
 from app.models.settings import OrgSettings
 from app.schemas.auth import CurrentUser
 from app.schemas.settings import (
+    DigestSendRequest,
+    DigestSendResult,
     NotificationTestRequest,
     NotificationTestResult,
     OrgSettingsRead,
     OrgSettingsUpdate,
+    SlaSweepResult,
 )
-from app.services import delivery
+from app.services import delivery, report_digest, sla
 from app.services.crud import request_context
 
 router = APIRouter(prefix="/settings", tags=["settings"])
@@ -101,9 +105,7 @@ def test_notification_channel(
 
     if payload.channel == "email":
         if not cfg.email_enabled:
-            return NotificationTestResult(
-                ok=False, detail="Email delivery is disabled in settings"
-            )
+            return NotificationTestResult(ok=False, detail="Email delivery is disabled in settings")
         ok, detail = delivery.send_email(cfg, actor.email, title, body, None)
     elif payload.channel == "teams":
         ok, detail = delivery.send_teams(cfg, title, body, None)
@@ -111,3 +113,36 @@ def test_notification_channel(
         ok, detail = delivery.send_slack(cfg, title, body, None)
 
     return NotificationTestResult(ok=ok, detail=detail)
+
+
+@router.post("/sla/run", response_model=SlaSweepResult)
+def run_sla_sweep_now(
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.USER_MANAGE)),
+) -> SlaSweepResult:
+    """Run the SLA escalation sweep immediately. Requires USER_MANAGE.
+
+    Idempotent — only records that have crossed a new threshold since the last
+    run are escalated.
+    """
+    summary = sla.run_sla_sweep(db)
+    return SlaSweepResult(**summary)
+
+
+@router.post("/reports/send-digest", response_model=DigestSendResult)
+def send_report_digest_now(
+    payload: DigestSendRequest,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.USER_MANAGE)),
+) -> DigestSendResult:
+    """Send the report digest now to the configured (or supplied) recipients.
+
+    Requires USER_MANAGE. Bypasses the schedule cadence; always returns 200 with
+    ``ok`` reflecting whether at least one email was sent.
+    """
+    result = report_digest.send_digest_now(db, recipients=payload.recipients)
+    return DigestSendResult(
+        ok=bool(result.get("ok")),
+        sent=int(result.get("sent", 0)),
+        detail=str(result.get("detail", "")),
+    )

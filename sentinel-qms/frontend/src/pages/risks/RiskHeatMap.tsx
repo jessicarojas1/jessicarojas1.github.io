@@ -1,4 +1,5 @@
 import type { Risk } from '@/types';
+import { bandLevel, toBand, type MatrixLevel } from './riskMatrix';
 
 /**
  * AEGIS-style 5×5 risk matrix (heat map).
@@ -7,31 +8,9 @@ import type { Risk } from '@/types';
  * 5×5 likelihood × impact grid we bucket each 1–10 value into 5 bands of two
  * (1–2 → band 1 … 9–10 → band 5). Each cell is coloured by its risk score
  * (band row × band col, 1–25) using AEGIS green→yellow→orange→red bands and
- * shows the count of risks that fall inside it.
+ * shows the count of risks that fall inside it. Band/level helpers live in
+ * ./riskMatrix so this file exports only the component.
  */
-
-export type MatrixLevel = 'low' | 'medium' | 'high' | 'critical';
-
-/** 1–10 scale value → 1–5 band. */
-export function toBand(value: number): number {
-  return Math.min(5, Math.max(1, Math.ceil(value / 2)));
-}
-
-/** Cell score (1–25) → AEGIS risk level. */
-export function bandLevel(score: number): MatrixLevel {
-  if (score > 14) return 'critical';
-  if (score > 9) return 'high';
-  if (score > 4) return 'medium';
-  return 'low';
-}
-
-/** RPN (1–1000) → AEGIS-style level, used by summary cards / table. */
-export function rpnLevel(rpn: number): MatrixLevel {
-  if (rpn >= 200) return 'critical';
-  if (rpn >= 100) return 'high';
-  if (rpn >= 40) return 'medium';
-  return 'low';
-}
 
 const LEVEL_VAR: Record<MatrixLevel, string> = {
   low: 'var(--success)',

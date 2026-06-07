@@ -1,4 +1,5 @@
 """Inspection & First Article (AS9102): Inspection, FaiReport, characteristics."""
+
 from __future__ import annotations
 
 import enum
@@ -85,13 +86,13 @@ class FaiReport(Base, TimestampMixin):
     )
     supplier_id: Mapped[int | None] = mapped_column(ForeignKey("suppliers.id"), nullable=True)
     baseline_part_number: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    disposition: Mapped[str | None] = mapped_column(String(32), nullable=True)  # complete/incomplete
+    disposition: Mapped[str | None] = mapped_column(
+        String(32), nullable=True
+    )  # complete/incomplete
     prepared_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
     fai_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
-    inspection: Mapped[Inspection | None] = relationship(
-        "Inspection", back_populates="fai_report"
-    )
+    inspection: Mapped[Inspection | None] = relationship("Inspection", back_populates="fai_report")
     characteristics: Mapped[list[FaiCharacteristic]] = relationship(
         "FaiCharacteristic",
         back_populates="fai_report",
@@ -120,6 +121,4 @@ class FaiCharacteristic(Base):
     result: Mapped[str | None] = mapped_column(String(16), nullable=True)  # pass/fail
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    fai_report: Mapped[FaiReport] = relationship(
-        "FaiReport", back_populates="characteristics"
-    )
+    fai_report: Mapped[FaiReport] = relationship("FaiReport", back_populates="characteristics")

@@ -8,6 +8,7 @@ Crucially, an *un-provisioned* (role, page) pair (no DB row) resolves to its
 static default, never to a hard "none" — guaranteeing backward compatibility for
 deployments and tests that never seed page permissions.
 """
+
 from __future__ import annotations
 
 from sqlalchemy import select
@@ -49,9 +50,11 @@ def user_explicit_levels(db: Session, user_id: int) -> dict[str, str]:
     """Per-user override levels (only pages that have an explicit row)."""
     from app.models.permission import UserPagePermission
 
-    rows = db.execute(
-        select(UserPagePermission).where(UserPagePermission.user_id == user_id)
-    ).scalars().all()
+    rows = (
+        db.execute(select(UserPagePermission).where(UserPagePermission.user_id == user_id))
+        .scalars()
+        .all()
+    )
     return {r.page_key: r.level for r in rows}
 
 
@@ -68,15 +71,17 @@ def role_derived_levels(db: Session, user) -> dict[str, str]:  # noqa: ANN001
     role_rows = db.execute(
         select(RoleModel.id, RoleModel.name).where(RoleModel.name.in_(role_names))
     ).all()
-    id_to_name = {rid: rname for rid, rname in role_rows}
+    id_to_name = dict(role_rows)
     role_ids = list(id_to_name)
 
     # DB overrides keyed by (role_id, page_key).
     db_levels: dict[tuple[int, str], str] = {}
     if role_ids:
-        for rp in db.execute(
-            select(RolePagePermission).where(RolePagePermission.role_id.in_(role_ids))
-        ).scalars().all():
+        for rp in (
+            db.execute(select(RolePagePermission).where(RolePagePermission.role_id.in_(role_ids)))
+            .scalars()
+            .all()
+        ):
             db_levels[(rp.role_id, rp.page_key)] = rp.level
 
     # Map role names to the Role enum (for static defaults). Unknown names skip.

@@ -1,7 +1,8 @@
 """Management review endpoints: CRUD + inputs + action items."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
@@ -204,7 +205,7 @@ def update_action_item(
         raise NotFoundError(f"Action item {item_id} not found.")
     data = body.model_dump(exclude_unset=True)
     if data.get("status") == ActionItemStatus.COMPLETED and item.completed_at is None:
-        item.completed_at = datetime.now(timezone.utc)
+        item.completed_at = datetime.now(UTC)
     for key, value in data.items():
         setattr(item, key, value)
     item.updated_by = actor.id

@@ -1,4 +1,5 @@
 """Request-id, security-headers, and lightweight request-logging middleware."""
+
 from __future__ import annotations
 
 import logging

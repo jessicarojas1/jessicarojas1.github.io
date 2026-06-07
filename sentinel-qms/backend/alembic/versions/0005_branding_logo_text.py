@@ -9,6 +9,7 @@ which easily exceeds the original ``VARCHAR(1024)``. This migration widens
 ``org_settings.logo_url`` to an unbounded ``TEXT`` column. The connection is
 routed at the dedicated schema when one is configured — mirrors 0004.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence

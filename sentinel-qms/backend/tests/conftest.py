@@ -1,4 +1,5 @@
 """Pytest fixtures: in-memory SQLite DB, seeded roles/users, and auth clients."""
+
 from __future__ import annotations
 
 import os
@@ -7,6 +8,8 @@ os.environ.setdefault("DATABASE_URL", "sqlite+pysqlite:///:memory:")
 os.environ.setdefault("JWT_SECRET", "test-secret-key-please-only-for-tests-32chars")
 os.environ.setdefault("ENVIRONMENT", "development")
 os.environ.setdefault("ADMIN_AUTO_CREATE", "false")
+# The background scheduler must never spin up during tests.
+os.environ.setdefault("RUN_SCHEDULER", "false")
 
 import pytest
 from fastapi.testclient import TestClient
@@ -15,7 +18,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base, get_db
-from app.core.rbac import ROLE_PERMISSIONS, Role as RoleEnum
+from app.core.rbac import ROLE_PERMISSIONS
+from app.core.rbac import Role as RoleEnum
 from app.core.security import hash_password
 from app.main import app
 from app.models import Role, User
@@ -106,8 +110,7 @@ def client(db_session):
 def _login(client: TestClient, email: str, password: str) -> str:
     resp = client.post(
         "/api/v1/auth/login",
-        data={"username": email, "password": password},
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        json={"username": email, "password": password},
     )
     assert resp.status_code == 200, resp.text
     return resp.json()["access_token"]

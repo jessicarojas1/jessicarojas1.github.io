@@ -1,5 +1,8 @@
 """Comment / collaboration endpoints: threaded notes with @mentions."""
+
 from __future__ import annotations
+
+import contextlib
 
 from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy import select
@@ -66,7 +69,8 @@ def create_comment(
     for mentioned_id in dict.fromkeys(payload.mentions):
         if mentioned_id == actor.id:
             continue
-        try:
+        # Mention notification must never break the comment.
+        with contextlib.suppress(Exception):
             notify_assignment(
                 db,
                 user_id=mentioned_id,
@@ -75,8 +79,6 @@ def create_comment(
                 entity_type=payload.entity_type,
                 entity_id=payload.entity_id,
             )
-        except Exception:  # noqa: BLE001 — mention notification must never break the comment
-            pass
 
     audit.record(
         db,

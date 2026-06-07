@@ -1,22 +1,36 @@
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { AlertCircle, Image as ImageIcon, Info, Save, Send, Settings, Upload } from 'lucide-react';
+import {
+  AlertCircle,
+  Clock,
+  Image as ImageIcon,
+  Info,
+  Play,
+  Save,
+  Send,
+  Settings,
+  ShieldAlert,
+  Upload,
+} from 'lucide-react';
 import {
   useOrgSettings,
   useUpdateSettings,
   useTestNotification,
+  useRunSlaSweep,
+  useSendDigest,
   sanitizeAccent,
   sanitizeLogoUrl,
   DEFAULT_BRANDING,
   type OrgSettingsUpdate,
   type NotificationChannel,
+  type ReportFrequency,
 } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { usePagePerms } from '@/lib/permissions';
 import { PageHeader } from '@/components/PageHeader';
 import { BrandIcon } from '@/lib/nav';
-import { FormField, TextInput } from '@/components/FormField';
+import { FormField, Select, TextInput } from '@/components/FormField';
 
 interface FormValues {
   organization_name: string;
@@ -29,6 +43,14 @@ interface FormValues {
   notifications_email_enabled: boolean;
   teams_webhook_url: string;
   slack_webhook_url: string;
+  sla_enabled: boolean;
+  sla_capa_due_soon_days: number;
+  sla_ncr_minor_days: number;
+  sla_ncr_major_days: number;
+  sla_ncr_critical_days: number;
+  report_schedule_enabled: boolean;
+  report_schedule_frequency: ReportFrequency;
+  report_schedule_recipients: string;
 }
 
 // Uploaded logos are stored inline as data: URLs; cap the source file so we do
@@ -49,6 +71,8 @@ export default function SettingsPage() {
   const { data, isLoading, error } = useOrgSettings();
   const update = useUpdateSettings();
   const test = useTestNotification();
+  const runSla = useRunSlaSweep();
+  const sendDigest = useSendDigest();
   const [testing, setTesting] = useState<NotificationChannel | null>(null);
   const { notify } = useToast();
   const { canEdit } = usePagePerms();
@@ -80,6 +104,14 @@ export default function SettingsPage() {
       notifications_email_enabled: false,
       teams_webhook_url: '',
       slack_webhook_url: '',
+      sla_enabled: true,
+      sla_capa_due_soon_days: 7,
+      sla_ncr_minor_days: 30,
+      sla_ncr_major_days: 14,
+      sla_ncr_critical_days: 7,
+      report_schedule_enabled: false,
+      report_schedule_frequency: 'weekly',
+      report_schedule_recipients: '',
     },
   });
 
@@ -97,6 +129,14 @@ export default function SettingsPage() {
       notifications_email_enabled: data.notifications_email_enabled ?? false,
       teams_webhook_url: data.teams_webhook_url ?? '',
       slack_webhook_url: data.slack_webhook_url ?? '',
+      sla_enabled: data.sla_enabled ?? true,
+      sla_capa_due_soon_days: data.sla_capa_due_soon_days ?? 7,
+      sla_ncr_minor_days: data.sla_ncr_minor_days ?? 30,
+      sla_ncr_major_days: data.sla_ncr_major_days ?? 14,
+      sla_ncr_critical_days: data.sla_ncr_critical_days ?? 7,
+      report_schedule_enabled: data.report_schedule_enabled ?? false,
+      report_schedule_frequency: data.report_schedule_frequency ?? 'weekly',
+      report_schedule_recipients: data.report_schedule_recipients ?? '',
     });
     setLogoValue(data.logo_url ?? '');
     setColorValue(data.primary_color ?? '');
@@ -161,6 +201,14 @@ export default function SettingsPage() {
       notifications_email_enabled: values.notifications_email_enabled,
       teams_webhook_url: values.teams_webhook_url.trim() || null,
       slack_webhook_url: values.slack_webhook_url.trim() || null,
+      sla_enabled: values.sla_enabled,
+      sla_capa_due_soon_days: Number(values.sla_capa_due_soon_days),
+      sla_ncr_minor_days: Number(values.sla_ncr_minor_days),
+      sla_ncr_major_days: Number(values.sla_ncr_major_days),
+      sla_ncr_critical_days: Number(values.sla_ncr_critical_days),
+      report_schedule_enabled: values.report_schedule_enabled,
+      report_schedule_frequency: values.report_schedule_frequency,
+      report_schedule_recipients: values.report_schedule_recipients.trim() || null,
     };
     try {
       await update.mutateAsync(payload);
@@ -179,6 +227,37 @@ export default function SettingsPage() {
       notify(getErrorMessage(err), 'danger');
     } finally {
       setTesting(null);
+    }
+  };
+
+  const runSlaSweep = async () => {
+    try {
+      const r = await runSla.mutateAsync();
+      if (!r.enabled) {
+        notify('SLA escalation is disabled — enable and save first', 'info');
+        return;
+      }
+      const total =
+        r.capa_overdue + r.capa_due_soon + r.capa_action_overdue + r.ncr_overdue;
+      notify(
+        total === 0
+          ? 'SLA sweep complete — no new escalations'
+          : `SLA sweep sent ${total} escalation${total === 1 ? '' : 's'} ` +
+              `(${r.capa_overdue} overdue CAPA, ${r.capa_due_soon} due-soon CAPA, ` +
+              `${r.capa_action_overdue} action, ${r.ncr_overdue} NCR)`,
+        'success',
+      );
+    } catch (err) {
+      notify(getErrorMessage(err), 'danger');
+    }
+  };
+
+  const sendDigestNow = async () => {
+    try {
+      const r = await sendDigest.mutateAsync(undefined);
+      notify(r.detail || (r.ok ? 'Digest sent' : 'Digest not sent'), r.ok ? 'success' : 'danger');
+    } catch (err) {
+      notify(getErrorMessage(err), 'danger');
     }
   };
 
@@ -438,6 +517,172 @@ export default function SettingsPage() {
                     >
                       {testing === 'slack' ? <span className="spinner" /> : <Send size={14} />}
                       Test Slack
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <h2 className="settings-section-title">
+                <ShieldAlert size={16} /> SLA Escalation
+              </h2>
+              <p className="field-hint" style={{ marginTop: -4, marginBottom: 12 }}>
+                Automatically notify owners and quality managers when CAPAs and NCRs breach
+                (or approach) their service-level windows. The sweep runs on a schedule on the
+                server; use “Run sweep now” to trigger it on demand.
+              </p>
+              <div className="form-grid">
+                <FormField
+                  label="SLA escalation"
+                  htmlFor="st-sla-enabled"
+                  className="form-field--span"
+                  hint="Master switch for all SLA escalation notifications."
+                >
+                  <label className="checkbox-row" htmlFor="st-sla-enabled">
+                    <input
+                      id="st-sla-enabled"
+                      type="checkbox"
+                      className="checkbox"
+                      {...register('sla_enabled')}
+                    />
+                    <span>Send SLA escalation notifications</span>
+                  </label>
+                </FormField>
+                <FormField
+                  label="CAPA due-soon reminder (days)"
+                  htmlFor="st-sla-due-soon"
+                  hint="Warn this many days before a CAPA due date."
+                >
+                  <TextInput
+                    id="st-sla-due-soon"
+                    type="number"
+                    min={0}
+                    {...register('sla_capa_due_soon_days', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField
+                  label="NCR SLA — critical (days)"
+                  htmlFor="st-sla-crit"
+                  hint="Escalate critical NCRs open longer than this."
+                >
+                  <TextInput
+                    id="st-sla-crit"
+                    type="number"
+                    min={0}
+                    {...register('sla_ncr_critical_days', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="NCR SLA — major (days)" htmlFor="st-sla-major">
+                  <TextInput
+                    id="st-sla-major"
+                    type="number"
+                    min={0}
+                    {...register('sla_ncr_major_days', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="NCR SLA — minor (days)" htmlFor="st-sla-minor">
+                  <TextInput
+                    id="st-sla-minor"
+                    type="number"
+                    min={0}
+                    {...register('sla_ncr_minor_days', { valueAsNumber: true })}
+                  />
+                </FormField>
+              </div>
+
+              {writable && (
+                <div className="settings-test-row">
+                  <span className="settings-test-hint">
+                    Runs the sweep against saved settings — save changes above first.
+                  </span>
+                  <div className="settings-test-buttons">
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={runSlaSweep}
+                      disabled={runSla.isPending}
+                    >
+                      {runSla.isPending ? <span className="spinner" /> : <Play size={14} />}
+                      Run sweep now
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <h2 className="settings-section-title">
+                <Clock size={16} /> Scheduled Reports
+              </h2>
+              <p className="field-hint" style={{ marginTop: -4, marginBottom: 12 }}>
+                Email a periodic quality digest (open NCRs/CAPAs, overdue items, calibration,
+                supplier rating) to the recipients below. Requires email delivery to be
+                configured above.
+              </p>
+              <div className="form-grid">
+                <FormField
+                  label="Scheduled digest"
+                  htmlFor="st-report-enabled"
+                  className="form-field--span"
+                  hint="Turn the recurring report email on or off."
+                >
+                  <label className="checkbox-row" htmlFor="st-report-enabled">
+                    <input
+                      id="st-report-enabled"
+                      type="checkbox"
+                      className="checkbox"
+                      {...register('report_schedule_enabled')}
+                    />
+                    <span>Email a recurring quality digest</span>
+                  </label>
+                </FormField>
+                <FormField label="Frequency" htmlFor="st-report-freq">
+                  <Select id="st-report-freq" {...register('report_schedule_frequency')}>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </Select>
+                </FormField>
+                <FormField
+                  label="Last sent"
+                  htmlFor="st-report-last"
+                  hint="Most recent successful digest send."
+                >
+                  <TextInput
+                    id="st-report-last"
+                    readOnly
+                    value={
+                      data?.report_schedule_last_sent_at
+                        ? new Date(data.report_schedule_last_sent_at).toLocaleString()
+                        : 'Never'
+                    }
+                  />
+                </FormField>
+                <FormField
+                  label="Recipients"
+                  htmlFor="st-report-recipients"
+                  className="form-field--span"
+                  hint="Comma- or newline-separated email addresses."
+                >
+                  <TextInput
+                    id="st-report-recipients"
+                    {...register('report_schedule_recipients')}
+                    placeholder="quality@example.com, ops@example.com"
+                  />
+                </FormField>
+              </div>
+
+              {writable && (
+                <div className="settings-test-row">
+                  <span className="settings-test-hint">
+                    Sends the digest now to the saved recipients — save changes above first.
+                  </span>
+                  <div className="settings-test-buttons">
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={sendDigestNow}
+                      disabled={sendDigest.isPending}
+                    >
+                      {sendDigest.isPending ? <span className="spinner" /> : <Send size={14} />}
+                      Send digest now
                     </button>
                   </div>
                 </div>

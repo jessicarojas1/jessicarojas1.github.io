@@ -1,7 +1,8 @@
 """Customer complaint / RMA endpoints: CRUD with NCR/CAPA linkage."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
@@ -119,7 +120,7 @@ def update_complaint(
     for key, value in data.items():
         setattr(complaint, key, value)
     if new_status in _CLOSED and complaint.closed_at is None:
-        complaint.closed_at = datetime.now(timezone.utc)
+        complaint.closed_at = datetime.now(UTC)
     complaint.updated_by = actor.id
     db.flush()
     audit.record(

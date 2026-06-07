@@ -29,6 +29,7 @@ export type MyPermissions = Record<string, 'view' | 'edit'>;
  * `read`/`write` set to `null` means "no capability gate" — any authenticated
  * user may view/edit (e.g. the static Documentation page).
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const PAGE_FALLBACK_CAPS: Record<
   string,
   { read: Capability | null; write: Capability | null }

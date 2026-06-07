@@ -1,4 +1,5 @@
 """Core identity, audit, e-signature, attachment, and notification models."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -38,9 +39,7 @@ class Role(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     description: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
-    users: Mapped[list[User]] = relationship(
-        "User", secondary=user_roles, back_populates="roles"
-    )
+    users: Mapped[list[User]] = relationship("User", secondary=user_roles, back_populates="roles")
 
 
 class User(Base, TimestampMixin):
@@ -74,7 +73,9 @@ class AuditLog(Base):
         Index("ix_audit_actor_ts", "actor_id", "created_at"),
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    # SQLite (tests) only auto-increments INTEGER PRIMARY KEY, not BIGINT, so
+    # fall back to Integer there; Postgres keeps a true BIGINT identity column.
+    id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
     actor_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     actor_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     action: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -95,12 +96,16 @@ class ElectronicSignature(Base):
     __tablename__ = "electronic_signatures"
     __table_args__ = (Index("ix_esig_entity", "entity_type", "entity_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    # SQLite (tests) only auto-increments INTEGER PRIMARY KEY, not BIGINT, so
+    # fall back to Integer there; Postgres keeps a true BIGINT identity column.
+    id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
     entity_type: Mapped[str] = mapped_column(String(64), nullable=False)
     entity_id: Mapped[str] = mapped_column(String(64), nullable=False)
     signer_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     signer_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    meaning: Mapped[str] = mapped_column(String(128), nullable=False)  # approved/reviewed/dispositioned
+    meaning: Mapped[str] = mapped_column(
+        String(128), nullable=False
+    )  # approved/reviewed/dispositioned
     reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     signed_hash: Mapped[str | None] = mapped_column(String(128), nullable=True)
     signed_at: Mapped[datetime] = mapped_column(
@@ -130,7 +135,9 @@ class Notification(Base):
     __tablename__ = "notifications"
     __table_args__ = (Index("ix_notif_user_read", "user_id", "is_read"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    # SQLite (tests) only auto-increments INTEGER PRIMARY KEY, not BIGINT, so
+    # fall back to Integer there; Postgres keeps a true BIGINT identity column.
+    id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     body: Mapped[str | None] = mapped_column(Text, nullable=True)

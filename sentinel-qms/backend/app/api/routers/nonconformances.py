@@ -1,7 +1,8 @@
 """Nonconformance (NCR) endpoints: CRUD + status workflow + MRB disposition."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
@@ -81,9 +82,7 @@ def list_ncrs(
         stmt = stmt.where(Nonconformance.supplier_id == supplier_id)
     if search:
         like = f"%{search}%"
-        stmt = stmt.where(
-            Nonconformance.ncr_number.ilike(like) | Nonconformance.title.ilike(like)
-        )
+        stmt = stmt.where(Nonconformance.ncr_number.ilike(like) | Nonconformance.title.ilike(like))
     stmt = apply_sort(stmt, Nonconformance, sort)
     items, total = paginate(db, stmt, Nonconformance, pagination)
     return Page[NonconformanceList](items=items, **page_meta(total, pagination))
@@ -191,7 +190,7 @@ def change_status(
     before = {"status": ncr.status.value}
     ncr.status = body.status
     if body.status == NcStatus.CLOSED:
-        ncr.closed_at = datetime.now(timezone.utc)
+        ncr.closed_at = datetime.now(UTC)
     ncr.updated_by = actor.id
     db.flush()
     audit.record(

@@ -1,4 +1,5 @@
 """Notification read schema (derives a SPA url from entity_type/entity_id)."""
+
 from __future__ import annotations
 
 from datetime import datetime

@@ -1,9 +1,11 @@
 """Custom application exceptions and FastAPI exception handlers."""
+
 from __future__ import annotations
 
 import logging
 
 from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -67,7 +69,10 @@ def _problem(request: Request, status_code: int, code: str, message: str, **extr
             **extra,
         }
     }
-    return JSONResponse(status_code=status_code, content=body)
+    # jsonable_encoder coerces non-JSON-native values that can appear in
+    # validation errors (raw request bytes, Decimals, exception ctx) so a bad
+    # request never escalates from a 4xx into a serialization 500.
+    return JSONResponse(status_code=status_code, content=jsonable_encoder(body))
 
 
 def register_exception_handlers(app: FastAPI) -> None:

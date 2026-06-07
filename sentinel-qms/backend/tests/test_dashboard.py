@@ -1,4 +1,5 @@
 """Dashboard KPI aggregation tests."""
+
 from __future__ import annotations
 
 
@@ -7,16 +8,18 @@ def test_dashboard_summary_shape(client, seeded, auth_headers):
     resp = client.get("/api/v1/dashboard/summary", headers=headers)
     assert resp.status_code == 200, resp.text
     body = resp.json()
+    # Matches the DashboardSummary contract consumed by the frontend dashboard.
     for key in (
-        "nonconformances",
-        "capa",
-        "calibration",
-        "audit_findings",
-        "suppliers",
-        "complaints",
-        "generated_at",
+        "kpis",
+        "ncr_trend",
+        "capa_aging",
+        "calibration_status",
+        "supplier_performance",
+        "findings_by_clause",
     ):
         assert key in body
+    for kpi_key in ("open_ncrs", "open_capas", "overdue_capas", "open_audits", "open_complaints"):
+        assert kpi_key in body["kpis"]
 
 
 def test_open_ncr_count_reflects_data(client, seeded, auth_headers):

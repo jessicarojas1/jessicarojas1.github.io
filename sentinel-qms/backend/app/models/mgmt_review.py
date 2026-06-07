@@ -1,4 +1,5 @@
 """Management review: ManagementReview, ManagementReviewInput, ActionItem."""
+
 from __future__ import annotations
 
 import enum
@@ -55,7 +56,9 @@ class ManagementReviewInput(Base):
     review_id: Mapped[int] = mapped_column(
         ForeignKey("management_reviews.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    category: Mapped[str] = mapped_column(String(128), nullable=False)  # audit results, NCR trends...
+    category: Mapped[str] = mapped_column(
+        String(128), nullable=False
+    )  # audit results, NCR trends...
     content: Mapped[str] = mapped_column(Text, nullable=False)
     metric_value: Mapped[str | None] = mapped_column(String(128), nullable=True)
 

@@ -5,6 +5,7 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
+import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 import { RecordSupplements } from '@/components/RecordSupplements';
@@ -32,7 +33,12 @@ export default function ComplaintDetailPage() {
             }
             subtitle={`${c.customer_name} · ${c.title}`}
             breadcrumbs={[{ label: 'Complaints', to: '/complaints' }, { label: c.complaint_number }]}
-            actions={<PrintButton />}
+            actions={
+              <>
+                <PrintButton />
+                <PdfButton path={`/reports/complaint/${c.id}/pdf`} filename={`${c.complaint_number}.pdf`} />
+              </>
+            }
           />
 
           <div className="detail-grid">

@@ -1,4 +1,5 @@
 """In-app notification API, scoped to the authenticated user."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query

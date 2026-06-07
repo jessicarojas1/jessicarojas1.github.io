@@ -1,4 +1,5 @@
 """Gunicorn configuration: Uvicorn workers for the FastAPI app."""
+
 from __future__ import annotations
 
 import multiprocessing

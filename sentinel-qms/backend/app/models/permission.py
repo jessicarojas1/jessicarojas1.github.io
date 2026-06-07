@@ -5,6 +5,7 @@ given page (by ``page_key`` from :mod:`app.core.pages`). When no row exists for 
 (role, page) pair the effective-permission helpers fall back to the static
 mapping in :mod:`app.core.rbac`, so the system is never hard-locked.
 """
+
 from __future__ import annotations
 
 from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
@@ -16,9 +17,7 @@ from app.models.base import TimestampMixin
 
 class RolePagePermission(Base, TimestampMixin):
     __tablename__ = "role_page_permissions"
-    __table_args__ = (
-        UniqueConstraint("role_id", "page_key", name="uq_role_page"),
-    )
+    __table_args__ = (UniqueConstraint("role_id", "page_key", name="uq_role_page"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     role_id: Mapped[int] = mapped_column(
@@ -37,9 +36,7 @@ class UserPagePermission(Base, TimestampMixin):
     """
 
     __tablename__ = "user_page_permissions"
-    __table_args__ = (
-        UniqueConstraint("user_id", "page_key", name="uq_user_page"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", "page_key", name="uq_user_page"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(

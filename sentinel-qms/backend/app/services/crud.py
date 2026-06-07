@@ -1,4 +1,5 @@
 """Generic CRUD + listing helpers shared by routers (DRY base)."""
+
 from __future__ import annotations
 
 from typing import Any, TypeVar
@@ -32,7 +33,7 @@ def get_or_404(db: Session, model: type[ModelT], pk: int, *, name: str = "Record
 
 
 def apply_sort(stmt, model, sort: SortParams | None, *, default_col: str = "id"):
-    col_name = (sort.sort_by if sort and sort.sort_by else default_col)
+    col_name = sort.sort_by if sort and sort.sort_by else default_col
     column = getattr(model, col_name, None)
     if column is None:
         column = getattr(model, default_col)
@@ -51,9 +52,7 @@ def paginate(
     """Return (items, total) for a SELECT statement with offset pagination."""
     count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
     total = int(db.execute(count_stmt).scalar_one())
-    rows = (
-        db.execute(stmt.offset(pagination.offset).limit(pagination.limit)).scalars().all()
-    )
+    rows = db.execute(stmt.offset(pagination.offset).limit(pagination.limit)).scalars().all()
     return list(rows), total
 
 
