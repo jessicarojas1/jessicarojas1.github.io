@@ -26,6 +26,9 @@ const jwt = require('./lib/jwt');
 const rateLimit = require('./lib/ratelimit');
 const audit = require('./lib/audit');
 const sessions = require('./lib/sessions');
+const db = require('./lib/db');
+const log = require('./lib/log');
+const metrics = require('./lib/metrics');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 // Locate the SPA. Local dev: server.js lives in citadel/server, so the app is
@@ -44,6 +47,13 @@ const upload = multer({ dest: path.join(TMP_ROOT, 'uploads'), limits: { fileSize
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', true);   // honour X-Forwarded-For behind Render/ALB so client IPs are real
+app.use(metrics.httpMiddleware());
+
+// Prometheus metrics scrape endpoint (gauges registered once).
+metrics.gauge('citadel_active_sessions', () => sessions.stats().active);
+metrics.gauge('citadel_uptime_seconds', () => Math.floor(process.uptime()));
+metrics.gauge('citadel_resident_memory_bytes', () => process.memoryUsage().rss);
+app.get('/metrics', (req, res) => { res.set('Content-Type', 'text/plain; version=0.0.4'); res.send(metrics.render()); });
 
 // Best-effort client IP (first hop of X-Forwarded-For, else the socket address).
 function clientIp(req) {
@@ -160,7 +170,12 @@ async function toolStatus() {
 }
 
 app.get('/api/health', async (req, res) => {
-  res.json({ ok: true, version: '1.0', engine: 'deep', ai: ai.available(), auth: { enforce: users.settings().enforce }, scanners: await toolStatus() });
+  res.json({
+    ok: true, version: '1.0', engine: 'deep', ai: ai.available(),
+    auth: { enforce: users.settings().enforce },
+    store: { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled() },
+    scanners: await toolStatus()
+  });
 });
 
 app.use(express.json({ limit: '256kb' }));
@@ -183,6 +198,7 @@ app.post('/api/auth/login', rateLimited('login', 20, 15 * 60000), (req, res) => 
   const u = users.verifyPassword(email, password);
   if (!u) {
     const f = rateLimit.fail(lockKey);
+    metrics.inc('citadel_logins_total', { result: 'failure' });
     audit.record(f.locked ? 'login.locked' : 'login.failure', { actor: email || null, ip, detail: 'failed attempt #' + f.fails, ok: false });
     const body = { error: 'Invalid credentials or inactive account.' };
     if (f.locked) { res.setHeader('Retry-After', String(f.retryAfter)); return res.status(429).json(Object.assign(body, { error: 'Too many failed attempts. Try again later.', retryAfter: f.retryAfter })); }
@@ -193,10 +209,21 @@ app.post('/api/auth/login', rateLimited('login', 20, 15 * 60000), (req, res) => 
   const token = jwt.sign({ sub: u.id, role: u.role, email: u.email, jti }, users.secret());
   const now = Math.floor(Date.now() / 1000);
   sessions.register({ jti, userId: u.id, email: u.email, role: u.role, ip, ua: req.headers['user-agent'], iat: now, exp: now + 43200 });
+  metrics.inc('citadel_logins_total', { result: 'success' });
   audit.record('login.success', { actor: u.email, ip, detail: 'role=' + u.role, ok: true });
   res.json({ token, user: u });
 });
 app.get('/api/auth/me', (req, res) => { if (!req.user) return res.status(401).json({ error: 'Not authenticated.' }); res.json(req.user); });
+// Self-service password change (also clears the must-change flag on the default admin).
+app.post('/api/auth/password', (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Not authenticated.' });
+  const { current, next } = req.body || {};
+  try {
+    users.changeOwnPassword(req.user.id, current || '', next || '');
+    audit.record('user.password', { actor: req.user.email, ip: clientIp(req), detail: 'self change', ok: true });
+    res.json({ ok: true });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
 app.get('/api/auth/settings', (req, res) => res.json(users.settings()));
 app.patch('/api/auth/settings', requireAdmin, (req, res) => {
   const out = users.setSetting('enforce', !!(req.body && req.body.enforce));
@@ -228,9 +255,10 @@ app.patch('/api/branding', requireAdmin, (req, res) => {
 });
 
 // Read-only security audit trail (most recent first; optional ?type= prefix filter).
-app.get('/api/audit', requireAdmin, (req, res) => {
-  const n = Math.min(parseInt(req.query.limit, 10) || 200, 500);
-  res.json({ stats: audit.stats(), events: audit.list(n, req.query.type || null) });
+app.get('/api/audit', requireAdmin, async (req, res) => {
+  const n = Math.min(parseInt(req.query.limit, 10) || 200, 1000);
+  const [stats, events] = await Promise.all([audit.stats(), audit.list(n, req.query.type || null)]);
+  res.json({ stats, events });
 });
 
 /* ---------------- Sessions ---------------- */
@@ -307,9 +335,11 @@ app.post('/api/scan', rateLimited('scan', 20, 10 * 60000), requirePerm('analyze'
     work = buildWorkdir(req.files);
     const scannerResult = await scanners.runAll(work);
     const report = await engine.analyzeDir(work, scannerResult);
+    metrics.inc('citadel_scans_total', { mode: 'upload' });
     res.json(report);
   } catch (err) {
-    console.error('[citadel] scan error:', err.message);
+    metrics.inc('citadel_scan_errors_total');
+    log.error('scan failed', { err: err.message });
     res.status(500).json({ error: 'Scan failed: ' + err.message });
   } finally {
     if (work) rmrf(work);
@@ -321,7 +351,22 @@ app.use(express.static(APP_DIR, {
   setHeaders(res, fp) { if (fp.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache'); }
 }));
 
-app.listen(PORT, () => {
-  console.log(`[citadel] deep-scan backend on :${PORT} — serving SPA from ${APP_DIR}`);
-  toolStatus().then(t => console.log('[citadel] scanners:', t.map(x => `${x.tool}=${x.available ? 'on' : 'off'}`).join(' ')));
-});
+// Bootstrap durable state (Postgres schema + load) BEFORE accepting traffic, so
+// the synchronous auth path always reads a populated cache. Degrades to the
+// in-memory/file store when DATABASE_URL is unset or the DB is briefly down.
+(async function start() {
+  try {
+    if (db.enabled()) { await db.init(); log.info('postgres connected', { store: 'postgres' }); }
+    await users.init();
+    await sessions.init();
+  } catch (e) {
+    log.error('bootstrap failed; continuing with in-memory store', { err: e.message });
+  }
+  app.listen(PORT, () => {
+    log.info('deep-scan backend listening', {
+      port: PORT, appDir: APP_DIR, userStore: users.backend(),
+      auditSink: audit.sinkEnabled(), ai: ai.available()
+    });
+    toolStatus().then(t => log.info('scanners', { tools: t.reduce((o, x) => (o[x.tool] = x.available, o), {}) }));
+  });
+})();

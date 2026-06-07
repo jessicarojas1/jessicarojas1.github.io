@@ -1,13 +1,16 @@
 'use strict';
 /* CITADEL backend — persisted user store + page-level RBAC.
- * JSON-file backed (CITADEL_DATA_DIR, default under the scratch dir). Passwords
- * are scrypt-hashed. Seeds a default admin and a stable JWT secret on first run.
+ * Durable store: Postgres when DATABASE_URL is set (shared across instances),
+ * otherwise a JSON file under CITADEL_DATA_DIR (free-tier default). Either way an
+ * in-memory cache backs the synchronous read API; mutations write through to the
+ * durable store. Passwords are scrypt-hashed. Seeds a default admin + JWT secret.
  * Mirrors the client PAGES/ROLES so the same permission ids apply end to end.
  */
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
+const db = require('./db');
 
 const DATA_DIR = process.env.CITADEL_DATA_DIR || path.join(process.env.CITADEL_TMP || os.tmpdir(), 'citadel');
 const FILE = path.join(DATA_DIR, 'users.json');
@@ -46,41 +49,101 @@ function newSalt() { return crypto.randomBytes(16).toString('hex'); }
 function uid() { return 'u' + Date.now().toString(36) + crypto.randomBytes(3).toString('hex'); }
 
 let _db = null;
-function load() {
-  if (_db) return _db;
-  try { _db = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch (e) { _db = null; }
-  if (!_db || !Array.isArray(_db.users)) _db = { users: [], settings: { enforce: false }, secret: null };
+
+// Seed a fresh store skeleton: JWT secret + default admin (flagged to force a
+// password change when the publicly-known default is used).
+function seed(dbObj) {
   let changed = false;
-  if (!_db.secret) { _db.secret = process.env.CITADEL_JWT_SECRET || crypto.randomBytes(32).toString('hex'); changed = true; }
-  if (!_db.settings) { _db.settings = { enforce: false }; changed = true; }
-  if (!_db.users.some(u => u.role === 'admin')) {
+  if (!dbObj.secret) { dbObj.secret = process.env.CITADEL_JWT_SECRET || crypto.randomBytes(32).toString('hex'); changed = true; }
+  if (!dbObj.settings) { dbObj.settings = { enforce: false }; changed = true; }
+  if (!dbObj.users.some(u => u.role === 'admin')) {
     const email = (process.env.CITADEL_ADMIN_EMAIL || 'admin@citadel.local').toLowerCase();
+    const usingDefault = !process.env.CITADEL_ADMIN_PASSWORD;
     const pw = process.env.CITADEL_ADMIN_PASSWORD || 'citadel-admin';
-    if (!process.env.CITADEL_ADMIN_PASSWORD && process.env.NODE_ENV === 'production') {
+    if (usingDefault && process.env.NODE_ENV === 'production') {
       console.warn('[citadel] SECURITY: seeding the DEFAULT admin password in production. ' +
         'Set CITADEL_ADMIN_PASSWORD (and change it after first login) — the default is publicly known.');
     }
     const salt = newSalt();
-    _db.users.unshift({
+    dbObj.users.unshift({
       id: uid(), name: 'Administrator', email, role: 'admin', active: true,
       salt, pass: hashPw(pw, salt), permissions: Object.assign({}, ROLES.admin.perms),
-      createdAt: new Date().toISOString()
+      mustChange: usingDefault, createdAt: new Date().toISOString()
     });
     changed = true;
   }
-  if (changed) save();
+  return changed;
+}
+
+/* ---- File-backed path (no DATABASE_URL) ---- */
+function loadFile() {
+  if (_db) return _db;
+  try { _db = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch (e) { _db = null; }
+  if (!_db || !Array.isArray(_db.users)) _db = { users: [], settings: { enforce: false }, secret: null };
+  if (seed(_db)) saveFile();
   return _db;
 }
 let _warnedSave = false;
-function save() {
+function saveFile() {
   try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(_db, null, 2)); }
   catch (e) {
     if (!_warnedSave) {
       _warnedSave = true;
       console.warn('[citadel] WARNING: cannot persist user store to ' + FILE + ' (' + e.code + '). ' +
-        'Accounts and the JWT secret will reset on restart. Set CITADEL_DATA_DIR to a writable persistent disk.');
+        'Accounts and the JWT secret will reset on restart. Set CITADEL_DATA_DIR to a writable persistent disk or DATABASE_URL.');
     }
   }
+}
+
+/* ---- Postgres path (DATABASE_URL set) — durable, shared across instances ---- */
+function rowToUser(r) {
+  return {
+    id: r.id, name: r.name, email: r.email, role: r.role, active: r.active,
+    salt: r.salt, pass: r.pass, permissions: r.permissions || {},
+    mustChange: !!r.must_change_password,
+    createdAt: (r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at)
+  };
+}
+async function loadPg() {
+  const s = await db.query('SELECT key, value FROM citadel_settings');
+  let secret = null; const settingsRow = {};
+  for (const r of s.rows) { if (r.key === 'secret') secret = r.value && r.value.v; else if (r.key === 'app') Object.assign(settingsRow, r.value || {}); }
+  const u = await db.query('SELECT * FROM citadel_users ORDER BY created_at');
+  _db = { users: u.rows.map(rowToUser), settings: Object.assign({ enforce: false }, settingsRow), secret };
+  if (seed(_db)) await syncPg();   // persist a freshly-seeded secret/admin
+  return _db;
+}
+// Full write-through of the (small) user set + settings + secret. Idempotent.
+async function syncPg() {
+  await db.query(`INSERT INTO citadel_settings(key,value) VALUES('secret',$1)
+    ON CONFLICT(key) DO UPDATE SET value=$1`, [JSON.stringify({ v: _db.secret })]);
+  await db.query(`INSERT INTO citadel_settings(key,value) VALUES('app',$1)
+    ON CONFLICT(key) DO UPDATE SET value=$1`, [JSON.stringify(_db.settings || {})]);
+  for (const u of _db.users) {
+    await db.query(`INSERT INTO citadel_users
+      (id,name,email,role,active,salt,pass,permissions,must_change_password,created_at)
+      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      ON CONFLICT(id) DO UPDATE SET
+        name=$2,email=$3,role=$4,active=$5,salt=$6,pass=$7,permissions=$8,must_change_password=$9`,
+      [u.id, u.name, u.email, u.role, u.active, u.salt, u.pass,
+       JSON.stringify(u.permissions || {}), !!u.mustChange, u.createdAt || new Date().toISOString()]);
+  }
+  const ids = _db.users.map(u => u.id);
+  if (ids.length) await db.query('DELETE FROM citadel_users WHERE NOT (id = ANY($1))', [ids]);
+  else await db.query('DELETE FROM citadel_users');
+}
+
+function load() { return _db || loadFile(); }
+// Mutation persistence: PG write-through (fire-and-forget) or file save.
+function save() {
+  if (db.enabled()) { syncPg().catch(e => console.error(JSON.stringify({ level: 'error', src: 'users', msg: 'pg sync failed', err: e.message }))); }
+  else { saveFile(); }
+}
+
+// One-time async bootstrap; must be awaited before serving requests.
+async function init() {
+  if (db.enabled()) { await loadPg(); } else { loadFile(); }
+  return _db;
 }
 
 function strip(u) { if (!u) return null; const { pass, salt, ...rest } = u; return rest; }
@@ -129,8 +192,16 @@ function remove(id) {
   db.users = db.users.filter(x => x.id !== id); save();
 }
 function setPassword(id, password) {
-  const db = load(); const u = db.users.find(x => x.id === id); if (!u) throw new Error('User not found.');
-  u.salt = newSalt(); u.pass = hashPw(password, u.salt); save();
+  const store = load(); const u = store.users.find(x => x.id === id); if (!u) throw new Error('User not found.');
+  if (!password || String(password).length < 8) throw new Error('Password must be at least 8 characters.');
+  u.salt = newSalt(); u.pass = hashPw(password, u.salt); u.mustChange = false; save();
+}
+// Self-service change: verify the current password, then set a new one.
+function changeOwnPassword(id, current, next) {
+  const store = load(); const u = store.users.find(x => x.id === id); if (!u) throw new Error('User not found.');
+  const h = hashPw(current, u.salt); const a = Buffer.from(h), b = Buffer.from(u.pass);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw new Error('Current password is incorrect.');
+  setPassword(id, next);
 }
 function verifyPassword(email, password) {
   const u = getByEmail(email);
@@ -147,7 +218,7 @@ function can(user, pageId) {
 }
 
 module.exports = {
-  PAGES, ROLES, secret, settings, setSetting,
+  PAGES, ROLES, init, secret, settings, setSetting,
   list, get, getByEmail: e => strip(getByEmail(e)), add, update, setPermission, remove, setPassword,
-  verifyPassword, can, _file: FILE
+  changeOwnPassword, verifyPassword, can, backend: () => (db.enabled() ? 'postgres' : 'file'), _file: FILE
 };
