@@ -21,7 +21,7 @@ if (file_exists($envFile)) {
 }
 
 try {
-    $pdo = Nexus\Database::pdo();
+    $pdo = Apex\Database::pdo();
     $row = $pdo->query("SELECT to_regclass('public.users') AS t")->fetchColumn();
     if ($row === null) {
         echo "[migrate] Applying schema…\n";
