@@ -88,6 +88,10 @@ Requirements:
 
 ## Other Permanent Rules
 
+- **Header logo links home** — in every app/project, the top-left logo / brand
+  mark in the header must be a clickable link to the app's default
+  home/dashboard screen (e.g. wrap it in `<a href="<home>">`, or a router link
+  for SPAs). Clicking the logo always returns the user to home/dashboard.
 - **No inline event handlers** — CSP compliance required at all times
 - **Always push to production (main branch)** after completing work
 - **Always spawn multiple agents in parallel** for independent subtasks
