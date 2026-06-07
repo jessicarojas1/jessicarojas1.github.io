@@ -21,6 +21,7 @@ from io import BytesIO
 from fpdf import FPDF
 from sqlalchemy.orm import Session
 
+from app.models.apqp import ApqpProject
 from app.models.audit_mgmt import Audit
 from app.models.capa import Capa
 from app.models.complaint import Complaint
@@ -394,6 +395,52 @@ def render_audit_pdf(db: Session, audit: Audit) -> bytes:
                 _kv(pdf, "Evidence", f.evidence)
             _kv(pdf, "Response Due", _date(f.response_due_date))
             pdf.ln(1)
+
+    return _output(pdf)
+
+
+def render_psw_pdf(db: Session, project: ApqpProject) -> bytes:
+    """Render an AS9145 Part Submission Warrant (PSW) for an APQP project."""
+    pdf = _new_pdf(
+        db,
+        title=f"Part Submission Warrant - {project.project_number}",
+        subtitle=f"{project.part_number} - {project.part_name}",
+    )
+
+    supplier_name = "-"
+    if project.supplier_id is not None:
+        sup = db.get(Supplier, project.supplier_id)
+        if sup is not None:
+            supplier_name = sup.name
+
+    _section(pdf, "Part Information")
+    _kv(pdf, "Project Number", project.project_number)
+    _kv(pdf, "Part Number", project.part_number)
+    _kv(pdf, "Part Name", project.part_name)
+    _kv(pdf, "Customer", project.customer)
+    _kv(pdf, "Supplier", supplier_name)
+    _kv(pdf, "Submission Level", project.submission_level)
+    _kv(pdf, "APQP Phase", _enum(project.current_phase))
+    _kv(pdf, "Project Status", _enum(project.status))
+    _kv(pdf, "Target Date", _date(project.target_date))
+
+    elements = list(getattr(project, "elements", []) or [])
+    applicable = [e for e in elements if _enum(e.status) != "Not Applicable"]
+    approved = [e for e in elements if _enum(e.status) == "Approved"]
+    _section(pdf, "PPAP Status")
+    _kv(pdf, "Elements", len(elements))
+    _kv(pdf, "Applicable", len(applicable))
+    _kv(pdf, "Approved", len(approved))
+    pct = round(len(approved) / len(applicable) * 100, 1) if applicable else 100.0
+    _kv(pdf, "Approved %", f"{pct}%")
+
+    if elements:
+        _section(pdf, f"PPAP Submission Package ({len(elements)})")
+        for e in elements:
+            _kv(pdf, e.name, _enum(e.status))
+
+    if project.notes:
+        _paragraph(pdf, "Notes", project.notes)
 
     return _output(pdf)
 

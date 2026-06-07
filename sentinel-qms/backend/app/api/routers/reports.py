@@ -16,6 +16,7 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError
 from app.core.rbac import Permission, require_permission
+from app.models.apqp import ApqpProject
 from app.models.audit_mgmt import Audit, AuditFinding
 from app.models.capa import Capa, CapaStatus
 from app.models.complaint import Complaint
@@ -321,6 +322,19 @@ def complaint_pdf(
     return _pdf_response(
         pdf.render_complaint_pdf(db, complaint), f"{complaint.complaint_number}.pdf"
     )
+
+
+@router.get("/apqp/{project_id}/psw.pdf")
+def apqp_psw_pdf(
+    project_id: int,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.INSPECTION_READ)),
+) -> Response:
+    """Download an AS9145 Part Submission Warrant (PSW) PDF. Requires inspection:read."""
+    project = db.get(ApqpProject, project_id)
+    if project is None or project.is_deleted:
+        raise NotFoundError(f"APQP project {project_id} not found.")
+    return _pdf_response(pdf.render_psw_pdf(db, project), f"{project.project_number}-PSW.pdf")
 
 
 @router.get("/digest/pdf")
