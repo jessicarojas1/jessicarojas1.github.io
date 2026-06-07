@@ -18,5 +18,10 @@
     "ioredis": "^5.11.1",
     "multer": "^1.4.5-lts.1",
     "pg": "^8.21.0"
+  },
+  "optionalDependencies": {
+    "@opentelemetry/auto-instrumentations-node": "^0.76.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.218.0",
+    "@opentelemetry/sdk-node": "^0.218.0"
   }
 }

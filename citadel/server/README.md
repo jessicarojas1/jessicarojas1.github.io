@@ -157,6 +157,14 @@ browser store is only a fallback for static hosting (GitHub Pages).
 | `CITADEL_ACCESS_TTL` / `CITADEL_REFRESH_TTL` | `1800` / `2592000` | Access-token (30 m) and refresh-token (30 d) lifetimes, in seconds. |
 | `CITADEL_ADMIN_EMAIL` / `CITADEL_ADMIN_PASSWORD` | `admin@citadel.local` / `citadel-admin` | First-boot admin. The default password is flagged **must-change**; change it on first login. |
 | `CITADEL_AUDIT_SINK_URL` / `CITADEL_AUDIT_SINK_TOKEN` | — | Forward every audit event to an HTTP collector (Splunk HEC / SIEM webhook). |
+| `REDIS_URL` | — | When set, rate limiting + brute-force lockout use **Redis** (shared across instances for horizontal scaling). Falls back to an in-memory limiter when unset. |
+
+**Observability.** Logs are structured JSON lines; Prometheus metrics are at
+`GET /metrics`. **Tracing** is optional OpenTelemetry: set
+`OTEL_EXPORTER_OTLP_ENDPOINT` (export to Jaeger/Tempo/Datadog/Honeycomb) or
+`CITADEL_TRACING=console` for local debug. The OTel packages are optional and
+omitted from the default image — build the container with
+`--build-arg CITADEL_WITH_TRACING=1` to include them.
 
 **MFA (TOTP)** is self-service per user (Admin console → Settings → *Two-factor authentication*); no configuration required.
 

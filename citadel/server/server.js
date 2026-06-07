@@ -9,6 +9,7 @@
  * Uploaded code is treated as untrusted: it is only ever READ by scanners,
  * never executed, and is deleted as soon as the scan completes.
  */
+require('./lib/tracing');   // optional OpenTelemetry — must load before express/http/pg
 const express = require('express');
 const multer = require('multer');
 const AdmZip = require('adm-zip');

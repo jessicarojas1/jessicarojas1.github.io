@@ -252,8 +252,16 @@ RUN set -eux; \
 WORKDIR /app
 
 # Copy the backend manifest first to maximize Docker layer caching on deps.
+# OpenTelemetry tracing deps are OPTIONAL and bulky (~40MB); the default image
+# omits them. Build with `--build-arg CITADEL_WITH_TRACING=1` to include them,
+# then enable at runtime via OTEL_EXPORTER_OTLP_ENDPOINT (or CITADEL_TRACING).
+ARG CITADEL_WITH_TRACING=0
 COPY citadel/server/package*.json ./
-RUN npm ci --omit=dev --no-audit --no-fund
+RUN if [ "${CITADEL_WITH_TRACING}" = "1" ]; then \
+      npm ci --omit=dev --no-audit --no-fund; \
+    else \
+      npm ci --omit=dev --omit=optional --no-audit --no-fund; \
+    fi
 
 # The SPA the server serves (one level "up" from server/ in the source tree).
 # It lands at /app/citadel so server.js can serve it as the static root.
