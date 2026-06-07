@@ -15,6 +15,7 @@ from app.api.routers import (
     changes,
     comments,
     complaints,
+    counterfeit,
     dashboard,
     documents,
     iam,
@@ -61,3 +62,4 @@ api_router.include_router(permissions.router)
 api_router.include_router(iam.router)
 api_router.include_router(settings.router)
 api_router.include_router(standards.router)
+api_router.include_router(counterfeit.router)

@@ -1560,3 +1560,23 @@ table.data-table {
 .cov-pill--partial { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
 .cov-pill--gap { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
 .cov-pill--not_applicable { background: color-mix(in srgb, var(--text-faint) 18%, transparent); color: var(--text-muted); }
+
+/* ---- Counterfeit prevention ---- */
+.cfp-risk, .cfp-status {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: capitalize;
+}
+.cfp-risk--low { background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
+.cfp-risk--medium { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+.cfp-risk--high { background: color-mix(in srgb, var(--danger) 16%, transparent); color: var(--danger); }
+.cfp-risk--critical { background: var(--danger); color: #fff; }
+.cfp-status--verified { background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
+.cfp-status--pending, .cfp-status--open { background: color-mix(in srgb, var(--text-faint) 18%, transparent); color: var(--text-muted); }
+.cfp-status--under_assessment { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+.cfp-status--suspect { background: color-mix(in srgb, var(--warning) 22%, transparent); color: var(--warning); }
+.cfp-status--rejected { background: color-mix(in srgb, var(--danger) 16%, transparent); color: var(--danger); }
+.cfp-status--closed { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); }

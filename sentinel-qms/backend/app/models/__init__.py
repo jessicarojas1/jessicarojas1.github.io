@@ -33,6 +33,15 @@ from app.models.change import (
 )
 from app.models.comment import Comment
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
+from app.models.counterfeit import (
+    AlertSource,
+    AlertStatus,
+    CounterfeitAlert,
+    PartSourcingRecord,
+    RiskLevel,
+    SourceType,
+    VerificationStatus,
+)
 from app.models.document import (
     Department,
     Document,
@@ -180,4 +189,11 @@ __all__ = [
     "Standard",
     "StandardRequirement",
     "CoverageStatus",
+    "PartSourcingRecord",
+    "CounterfeitAlert",
+    "SourceType",
+    "RiskLevel",
+    "VerificationStatus",
+    "AlertSource",
+    "AlertStatus",
 ]

@@ -743,6 +743,43 @@ export interface CalendarItem {
   status: 'overdue' | 'due_soon' | 'upcoming';
 }
 
+export type SourceType = 'ocm' | 'franchised' | 'independent' | 'broker' | 'other';
+export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+export type VerificationStatus = 'pending' | 'verified' | 'suspect' | 'rejected';
+export type AlertSource = 'gidep' | 'erai' | 'internal' | 'customer' | 'supplier' | 'other';
+export type AlertStatus = 'open' | 'under_assessment' | 'closed';
+
+export interface SourcingRecord {
+  id: number;
+  record_number: string;
+  part_number: string;
+  description: string | null;
+  supplier_id: number | null;
+  source_type: SourceType;
+  lot_date_code: string | null;
+  quantity: number | null;
+  coc_received: boolean;
+  traceability_to_oem: boolean;
+  inspection_method: string | null;
+  risk_level: RiskLevel;
+  status: VerificationStatus;
+  notes: string | null;
+}
+
+export interface CounterfeitAlert {
+  id: number;
+  alert_number: string;
+  source: AlertSource;
+  external_ref: string | null;
+  title: string;
+  part_numbers: string | null;
+  description: string | null;
+  alert_date: string | null;
+  status: AlertStatus;
+  impact_assessment: string | null;
+  affects_inventory: boolean;
+}
+
 export type CoverageStatus = 'covered' | 'partial' | 'gap' | 'not_applicable';
 
 export interface StandardRequirement {
