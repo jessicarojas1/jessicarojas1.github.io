@@ -80,14 +80,16 @@ function issueTokens(u, req) {
 
 // Reusable fixed-window limiter middleware keyed by IP + route bucket.
 function rateLimited(bucket, max, windowMs) {
-  return (req, res, next) => {
-    const r = rateLimit.limit(bucket + ':' + clientIp(req), max, windowMs);
-    res.setHeader('X-RateLimit-Remaining', String(r.remaining));
-    if (!r.ok) {
-      res.setHeader('Retry-After', String(r.retryAfter));
-      audit.record('ratelimit.block', { ip: clientIp(req), detail: bucket + ' (' + max + '/' + Math.round(windowMs / 1000) + 's)', ok: false });
-      return res.status(429).json({ error: 'Too many requests — slow down and retry shortly.', retryAfter: r.retryAfter });
-    }
+  return async (req, res, next) => {
+    try {
+      const r = await rateLimit.limit(bucket + ':' + clientIp(req), max, windowMs);
+      res.setHeader('X-RateLimit-Remaining', String(r.remaining));
+      if (!r.ok) {
+        res.setHeader('Retry-After', String(r.retryAfter));
+        audit.record('ratelimit.block', { ip: clientIp(req), detail: bucket + ' (' + max + '/' + Math.round(windowMs / 1000) + 's)', ok: false });
+        return res.status(429).json({ error: 'Too many requests — slow down and retry shortly.', retryAfter: r.retryAfter });
+      }
+    } catch (e) { /* fail open */ }
     next();
   };
 }
@@ -192,7 +194,7 @@ app.get('/api/health', async (req, res) => {
   res.json({
     ok: true, version: '1.0', engine: 'deep', ai: ai.available(),
     auth: { enforce: users.settings().enforce, sso: oidc.enabled() },
-    store: { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled() },
+    store: { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled(), rateLimit: rateLimit.backend() },
     scanners: await toolStatus()
   });
 });
@@ -201,13 +203,13 @@ app.use(express.json({ limit: '256kb' }));
 
 /* ---------------- Auth & user management ---------------- */
 // Login: IP rate-limit (blunt) + per-(email,IP) brute-force lockout (targeted).
-app.post('/api/auth/login', rateLimited('login', 20, 15 * 60000), (req, res) => {
+app.post('/api/auth/login', rateLimited('login', 20, 15 * 60000), async (req, res) => {
   const ip = clientIp(req);
   const email = String((req.body && req.body.email) || '').trim().toLowerCase();
   const password = (req.body && req.body.password) || '';
   const lockKey = 'login:' + email + '|' + ip;
 
-  const lock = rateLimit.lockState(lockKey);
+  const lock = await rateLimit.lockState(lockKey);
   if (lock.locked) {
     audit.record('login.locked', { actor: email || null, ip, detail: 'attempt while locked', ok: false });
     res.setHeader('Retry-After', String(lock.retryAfter));
@@ -216,14 +218,14 @@ app.post('/api/auth/login', rateLimited('login', 20, 15 * 60000), (req, res) => 
 
   const u = users.verifyPassword(email, password);
   if (!u) {
-    const f = rateLimit.fail(lockKey);
+    const f = await rateLimit.fail(lockKey);
     metrics.inc('citadel_logins_total', { result: 'failure' });
     audit.record(f.locked ? 'login.locked' : 'login.failure', { actor: email || null, ip, detail: 'failed attempt #' + f.fails, ok: false });
     const body = { error: 'Invalid credentials or inactive account.' };
     if (f.locked) { res.setHeader('Retry-After', String(f.retryAfter)); return res.status(429).json(Object.assign(body, { error: 'Too many failed attempts. Try again later.', retryAfter: f.retryAfter })); }
     return res.status(401).json(body);
   }
-  rateLimit.clearFails(lockKey);
+  await rateLimit.clearFails(lockKey);
   // Password OK. If MFA is enabled, return a short-lived step-up token instead of
   // a session — the client must POST a TOTP/backup code to /api/auth/mfa/verify.
   if (users.mfaEnabled(u.id)) {

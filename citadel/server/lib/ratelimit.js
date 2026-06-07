@@ -1,46 +1,49 @@
 'use strict';
-/* CITADEL — in-memory rate limiting + brute-force lockout (no dependencies).
+/* CITADEL — rate limiting + brute-force lockout.
  *
- * Two primitives, both backed by plain Maps so they work on the free tier with
- * no external store. State is per-process and resets on deploy/restart — which
- * is fine: limits are short-lived by design.
+ * Backend: Redis when REDIS_URL is set (shared across instances — correct under
+ * horizontal scaling), otherwise in-memory Maps (per-process; fine on a single
+ * instance / free tier). All functions are async and fail OPEN on a backend
+ * error so a Redis blip can't lock everyone out.
  *
  *   limit(key, max, windowMs)   fixed-window request counter -> { ok, retryAfter, remaining }
  *   fail(key, opts)             record a failed auth attempt -> { locked, retryAfter, fails }
  *   clearFails(key)             reset the failure counter after a success
- *   lockState(key, opts)        read-only lock check without recording -> { locked, retryAfter }
+ *   lockState(key)              read-only lock check -> { locked, retryAfter }
  */
-const _buckets = new Map();   // key -> { count, resetAt }
-const _fails = new Map();     // key -> { fails, firstAt, lockedUntil }
-
-let _lastSweep = 0;
-function sweep(now) {
-  if (now - _lastSweep < 60000) return;       // at most once a minute
-  _lastSweep = now;
-  for (const [k, b] of _buckets) if (b.resetAt <= now) _buckets.delete(k);
-  for (const [k, f] of _fails) {
-    if ((f.lockedUntil || 0) <= now && (now - f.firstAt) > 3600000) _fails.delete(k);
+let redis = null;
+if (process.env.REDIS_URL) {
+  try {
+    const Redis = require('ioredis');
+    const tls = /^rediss:/i.test(process.env.REDIS_URL) ? { rejectUnauthorized: false } : undefined;
+    redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, enableOfflineQueue: false, tls });
+    redis.on('error', (e) => console.error(JSON.stringify({ level: 'error', src: 'ratelimit', msg: 'redis error', err: e.message })));
+  } catch (e) {
+    console.error(JSON.stringify({ level: 'error', src: 'ratelimit', msg: 'ioredis unavailable; using in-memory limiter', err: e.message }));
   }
 }
+function backend() { return redis ? 'redis' : 'memory'; }
 
-// Fixed-window limiter. Returns ok=false with retryAfter (seconds) when exceeded.
-function limit(key, max, windowMs) {
-  const now = Date.now();
-  sweep(now);
+/* ---------------- in-memory fallback ---------------- */
+const _buckets = new Map();   // key -> { count, resetAt }
+const _fails = new Map();     // key -> { fails, firstAt, lockedUntil }
+let _lastSweep = 0;
+function sweep(now) {
+  if (now - _lastSweep < 60000) return;
+  _lastSweep = now;
+  for (const [k, b] of _buckets) if (b.resetAt <= now) _buckets.delete(k);
+  for (const [k, f] of _fails) if ((f.lockedUntil || 0) <= now && (now - f.firstAt) > 3600000) _fails.delete(k);
+}
+function memLimit(key, max, windowMs) {
+  const now = Date.now(); sweep(now);
   let b = _buckets.get(key);
   if (!b || b.resetAt <= now) { b = { count: 0, resetAt: now + windowMs }; _buckets.set(key, b); }
   b.count += 1;
-  const remaining = Math.max(0, max - b.count);
   if (b.count > max) return { ok: false, retryAfter: Math.ceil((b.resetAt - now) / 1000), remaining: 0 };
-  return { ok: true, retryAfter: 0, remaining };
+  return { ok: true, retryAfter: 0, remaining: Math.max(0, max - b.count) };
 }
-
-// Brute-force tracker. After `maxFails` failures inside `windowMs`, lock the key
-// for `lockMs`. Subsequent calls while locked extend nothing but report the lock.
-function fail(key, opts) {
-  const o = Object.assign({ maxFails: 5, windowMs: 15 * 60000, lockMs: 15 * 60000 }, opts || {});
-  const now = Date.now();
-  sweep(now);
+function memFail(key, o) {
+  const now = Date.now(); sweep(now);
   let f = _fails.get(key);
   if (!f || (now - f.firstAt) > o.windowMs) { f = { fails: 0, firstAt: now, lockedUntil: 0 }; _fails.set(key, f); }
   f.fails += 1;
@@ -48,14 +51,45 @@ function fail(key, opts) {
   const locked = (f.lockedUntil || 0) > now;
   return { locked, retryAfter: locked ? Math.ceil((f.lockedUntil - now) / 1000) : 0, fails: f.fails };
 }
-
-function clearFails(key) { _fails.delete(key); }
-
-function lockState(key) {
+function memLockState(key) {
   const now = Date.now();
   const f = _fails.get(key);
   const locked = !!(f && (f.lockedUntil || 0) > now);
   return { locked, retryAfter: locked ? Math.ceil((f.lockedUntil - now) / 1000) : 0 };
 }
 
-module.exports = { limit, fail, clearFails, lockState };
+/* ---------------- public async API ---------------- */
+async function limit(key, max, windowMs) {
+  if (!redis) return memLimit(key, max, windowMs);
+  try {
+    const k = 'rl:' + key;
+    const n = await redis.incr(k);
+    if (n === 1) await redis.pexpire(k, windowMs);
+    if (n > max) { const ttl = await redis.pttl(k); return { ok: false, retryAfter: Math.ceil((ttl > 0 ? ttl : windowMs) / 1000), remaining: 0 }; }
+    return { ok: true, retryAfter: 0, remaining: Math.max(0, max - n) };
+  } catch (e) { return { ok: true, retryAfter: 0, remaining: max }; }   // fail open
+}
+async function fail(key, opts) {
+  const o = Object.assign({ maxFails: 5, windowMs: 15 * 60000, lockMs: 15 * 60000 }, opts || {});
+  if (!redis) return memFail(key, o);
+  try {
+    const fk = 'rlf:' + key, lk = 'rll:' + key;
+    const n = await redis.incr(fk);
+    if (n === 1) await redis.pexpire(fk, o.windowMs);
+    if (n >= o.maxFails) { await redis.set(lk, '1', 'PX', o.lockMs); return { locked: true, retryAfter: Math.ceil(o.lockMs / 1000), fails: n }; }
+    const ttl = await redis.pttl(lk);
+    if (ttl > 0) return { locked: true, retryAfter: Math.ceil(ttl / 1000), fails: n };
+    return { locked: false, retryAfter: 0, fails: n };
+  } catch (e) { return { locked: false, retryAfter: 0, fails: 0 }; }
+}
+async function clearFails(key) {
+  if (!redis) { _fails.delete(key); return; }
+  try { await redis.del('rlf:' + key, 'rll:' + key); } catch (e) {}
+}
+async function lockState(key) {
+  if (!redis) return memLockState(key);
+  try { const ttl = await redis.pttl('rll:' + key); if (ttl > 0) return { locked: true, retryAfter: Math.ceil(ttl / 1000) }; return { locked: false, retryAfter: 0 }; }
+  catch (e) { return { locked: false, retryAfter: 0 }; }
+}
+
+module.exports = { limit, fail, clearFails, lockState, backend };
