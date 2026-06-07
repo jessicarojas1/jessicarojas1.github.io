@@ -172,10 +172,43 @@
     }
   }
 
+  // Print-only branding header: doc pages hide the navbar on print, so stamp the
+  // logo + name at the top of the printed/PDF page. Built via DOM (XSS-safe) and
+  // injected once; hidden on screen, shown only in @media print.
+  function applyPrintHeader(branding) {
+    if (!document.body) return;
+    var name = (branding.name || '').trim() || DEFAULTS.name;
+    var logo = sanitizeLogoUrl(branding.logoUrl);
+    if (!document.getElementById('isms-print-style')) {
+      var st = document.createElement('style');
+      st.id = 'isms-print-style';
+      st.textContent = '#isms-print-brand{display:none}@media print{#isms-print-brand{display:flex;align-items:center;gap:.5rem;padding:0 0 .5rem;margin-bottom:.75rem;border-bottom:2px solid var(--bs-primary)}#isms-print-brand img{max-height:34px;max-width:200px}#isms-print-brand .ipb-name{font-weight:700;font-size:1.1rem}}';
+      (document.head || document.body).appendChild(st);
+    }
+    var el = document.getElementById('isms-print-brand');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'isms-print-brand';
+      el.setAttribute('aria-hidden', 'true');
+      document.body.insertBefore(el, document.body.firstChild);
+    }
+    el.textContent = '';
+    if (logo) {
+      var img = document.createElement('img');
+      img.src = logo; img.alt = '';
+      el.appendChild(img);
+    }
+    var sp = document.createElement('span');
+    sp.className = 'ipb-name';
+    sp.textContent = name;
+    el.appendChild(sp);
+  }
+
   function applyAll(branding) {
     applyAccent(branding.accent);
     applyName(branding.name);
     applyBrandMark(branding);
+    applyPrintHeader(branding);
   }
 
   /* ── Settings form wiring (only where the form exists) ────── */
