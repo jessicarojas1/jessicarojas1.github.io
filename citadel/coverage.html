@@ -79,6 +79,7 @@
         <div class="col-md-6 col-lg-4"><div class="cap-card"><i class="bi bi-person-vcard-fill"></i><h6>PII &amp; sensitive data</h6><p>Detects exposed personal/regulated data — SSNs, payment cards, IBANs, health (PHI) identifiers, JWTs — mapped to GDPR, HIPAA, PCI&nbsp;DSS &amp; SOC&nbsp;2.</p></div></div>
         <div class="col-md-6 col-lg-4"><div class="cap-card"><i class="bi bi-hdd-network-fill"></i><h6>API &amp; OpenAPI security</h6><p>Flags insecure API specs — auth disabled (security:[]), HTTP servers, API keys in the query string, Basic auth, JWT "none", and GraphQL introspection.</p></div></div>
         <div class="col-md-6 col-lg-4"><div class="cap-card"><i class="bi bi-box-seam-fill"></i><h6>SBOM &amp; live CVEs</h6><p>CycloneDX SBOM from your manifests, cross-checked against the OSV.dev advisory database for real CVEs.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="cap-card"><i class="bi bi-diagram-2-fill"></i><h6>CI/CD pipeline security</h6><p>GitHub Actions / GitLab CI checks — pull_request_target, script injection via untrusted input, secrets echoed to logs, write-all tokens, mutable action refs, debug-trace leaks.</p></div></div>
         <div class="col-md-6 col-lg-4"><div class="cap-card"><i class="bi bi-cpu-fill"></i><h6>Binary analysis</h6><p>PE/ELF/Mach-O detection, entropy/packing, string extraction &amp; suspicious-capability indicators (ClamAV on the backend).</p></div></div>
         <div class="col-md-6 col-lg-4"><div class="cap-card"><i class="bi bi-clipboard-check-fill"></i><h6>Compliance mapping</h6><p>Every finding cross-walked to the exact controls it implicates across 20+ frameworks.</p></div></div>
         <div class="col-md-6 col-lg-4"><div class="cap-card"><i class="bi bi-award-fill"></i><h6>Quality &amp; licenses</h6><p>Maintainability index, comment density, oversized files, and a license-policy gate (flags GPL/AGPL/SSPL &amp; restricted licenses).</p></div></div>
@@ -121,6 +122,7 @@
   <script src="js/rules-pii.js"></script>
   <script src="js/rules-iac.js"></script>
   <script src="js/rules-api.js"></script>
+  <script src="js/rules-cicd.js"></script>
   <script>
     (function () {
       'use strict';

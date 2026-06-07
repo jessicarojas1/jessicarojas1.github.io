@@ -157,6 +157,7 @@ browser store is only a fallback for static hosting (GitHub Pages).
 | `CITADEL_ACCESS_TTL` / `CITADEL_REFRESH_TTL` | `1800` / `2592000` | Access-token (30 m) and refresh-token (30 d) lifetimes, in seconds. |
 | `CITADEL_ADMIN_EMAIL` / `CITADEL_ADMIN_PASSWORD` | `admin@citadel.local` / `citadel-admin` | First-boot admin. The default password is flagged **must-change**; change it on first login. |
 | `CITADEL_AUDIT_SINK_URL` / `CITADEL_AUDIT_SINK_TOKEN` | — | Forward every audit event to an HTTP collector (Splunk HEC / SIEM webhook). |
+| `CITADEL_NOTIFY_URL` / `CITADEL_NOTIFY_TOKEN` / `CITADEL_NOTIFY_ON` | After each scan whose worst severity meets `CITADEL_NOTIFY_ON` (critical\|high\|medium\|low\|any, default critical), POST a Slack-compatible summary to the webhook. |
 | `REDIS_URL` | — | When set, rate limiting + brute-force lockout use **Redis** (shared across instances for horizontal scaling). Falls back to an in-memory limiter when unset. |
 
 **Observability.** Logs are structured JSON lines; Prometheus metrics are at

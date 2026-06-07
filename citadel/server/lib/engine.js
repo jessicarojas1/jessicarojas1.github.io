@@ -19,7 +19,7 @@ const APP_JS = process.env.CITADEL_APP_DIR
 // Mirror the SPA's load order (index.html): the full ruleset is rules.js plus
 // the rules-extra / rules-mobile packs (which append to CITADEL.rules). Loading
 // only rules.js made the server engine run ~57 of 226 rules — keep these in sync.
-const MODULES = ['languages.js', 'frameworks.js', 'rules.js', 'rules-extra.js', 'rules-mobile.js', 'rules-pii.js', 'rules-iac.js', 'rules-api.js', 'secrets.js', 'sbom.js', 'binary.js', 'scanner.js'];
+const MODULES = ['languages.js', 'frameworks.js', 'rules.js', 'rules-extra.js', 'rules-mobile.js', 'rules-pii.js', 'rules-iac.js', 'rules-api.js', 'rules-cicd.js', 'secrets.js', 'sbom.js', 'binary.js', 'scanner.js'];
 
 let _win = null;
 function loadEngine() {
@@ -34,7 +34,7 @@ function loadEngine() {
   for (const m of MODULES) {
     let code;
     try { code = fs.readFileSync(path.join(APP_JS, m), 'utf8'); }
-    catch (e) { if (/^rules-(extra|mobile|pii|iac|api)\.js$/.test(m)) continue; throw e; }   // rule packs are optional
+    catch (e) { if (/^rules-(extra|mobile|pii|iac|api|cicd)\.js$/.test(m)) continue; throw e; }   // rule packs are optional
     vm.runInContext(code, sandbox, { filename: m });
   }
   _win = sandbox;

@@ -32,6 +32,7 @@ const log = require('./lib/log');
 const metrics = require('./lib/metrics');
 const oidc = require('./lib/oidc');
 const scans = require('./lib/scans');
+const notify = require('./lib/notify');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 // Locate the SPA. Local dev: server.js lives in citadel/server, so the app is
@@ -196,7 +197,7 @@ app.get('/api/health', async (req, res) => {
   res.json({
     ok: true, version: '1.0', engine: 'deep', ai: ai.available(),
     auth: { enforce: users.settings().enforce, sso: oidc.enabled() },
-    store: { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled(), rateLimit: rateLimit.backend() },
+    store: { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled(), rateLimit: rateLimit.backend(), notify: notify.enabled() },
     scanners: await toolStatus()
   });
 });
@@ -446,6 +447,7 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('
     const report = await engine.analyzeDir(work, scannerResult);
     report.meta.source = url;
     scans.record(report, { user: req.user, source: url }).catch(() => {});
+    notify.scanComplete(report, { user: req.user, source: url });
     res.json(report);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -474,6 +476,7 @@ app.post('/api/scan', rateLimited('scan', 20, 10 * 60000), requirePerm('analyze'
     const report = await engine.analyzeDir(work, scannerResult);
     metrics.inc('citadel_scans_total', { mode: 'upload' });
     scans.record(report, { user: req.user, source: req.files.length + ' file(s)' }).catch(() => {});
+    notify.scanComplete(report, { user: req.user, source: req.files.length + ' file(s)' });
     res.json(report);
   } catch (err) {
     metrics.inc('citadel_scan_errors_total');
