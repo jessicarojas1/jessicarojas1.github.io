@@ -1436,3 +1436,82 @@ table.data-table {
 .settings-test-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
 .settings-test-hint { color: var(--text-muted, #8b95a7); font-size: 0.78rem; }
 .settings-test-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* ---- Executive dashboard ---- */
+.card__subtitle {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+.exec-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.exec-kpi {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--text-faint);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+.exec-kpi--good { border-left-color: var(--success); }
+.exec-kpi--warn { border-left-color: var(--warning); }
+.exec-kpi--bad { border-left-color: var(--danger); }
+.exec-kpi__value { font-size: 26px; font-weight: 700; line-height: 1.1; }
+.exec-kpi__label { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+.exec-kpi__target { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+
+/* Clause findings heatmap */
+.heat-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.heat-table th, .heat-table td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+.heat-table thead th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-faint); }
+.heat-table td { text-align: center; font-weight: 600; }
+.heat-table th[scope="row"] { font-weight: 500; color: var(--text); }
+.heat-clause__num {
+  display: inline-block;
+  min-width: 20px;
+  font-weight: 700;
+  color: var(--text-faint);
+}
+.heat-total { font-weight: 700; }
+.heat-cell.heat-l0 { color: var(--text-faint); }
+.heat-major.heat-l1 { background: color-mix(in srgb, var(--danger) 14%, transparent); }
+.heat-major.heat-l2 { background: color-mix(in srgb, var(--danger) 30%, transparent); }
+.heat-major.heat-l3 { background: color-mix(in srgb, var(--danger) 48%, transparent); }
+.heat-major.heat-l4 { background: color-mix(in srgb, var(--danger) 66%, transparent); color: #fff; }
+.heat-minor.heat-l1 { background: color-mix(in srgb, var(--warning) 14%, transparent); }
+.heat-minor.heat-l2 { background: color-mix(in srgb, var(--warning) 30%, transparent); }
+.heat-minor.heat-l3 { background: color-mix(in srgb, var(--warning) 48%, transparent); }
+.heat-minor.heat-l4 { background: color-mix(in srgb, var(--warning) 66%, transparent); }
+.heat-obs.heat-l1, .heat-ofi.heat-l1 { background: color-mix(in srgb, var(--info, #1f6fb2) 12%, transparent); }
+.heat-obs.heat-l2, .heat-ofi.heat-l2 { background: color-mix(in srgb, var(--info, #1f6fb2) 26%, transparent); }
+.heat-obs.heat-l3, .heat-ofi.heat-l3,
+.heat-obs.heat-l4, .heat-ofi.heat-l4 { background: color-mix(in srgb, var(--info, #1f6fb2) 40%, transparent); }
+
+/* Compliance calendar */
+.cal-list { display: flex; flex-direction: column; }
+.cal-row {
+  display: grid;
+  grid-template-columns: 92px 130px 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.cal-row:last-child { border-bottom: 0; }
+.cal-badge {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+.cal-overdue { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
+.cal-due_soon { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+.cal-upcoming { background: var(--nav-hover-bg, rgba(128,140,160,0.15)); color: var(--text-muted); }
+.cal-type { color: var(--text-faint); font-size: 12px; }
+.cal-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-date { color: var(--text-muted); font-variant-numeric: tabular-nums; }

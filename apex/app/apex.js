@@ -200,6 +200,22 @@ const branding = {
         authLogo.removeAttribute('src');
       }
     }
+
+    // Print / report / PDF header.
+    const printName = $('#print-brand-name');
+    const printLogo = $('#print-brand-logo');
+    if (printName) printName.textContent = v.displayName;
+    if (printLogo) {
+      if (v.logoUrl) {
+        printLogo.src = v.logoUrl;
+        printLogo.alt = v.displayName;
+        printLogo.classList.remove('d-none');
+        printLogo.onerror = () => printLogo.classList.add('d-none');
+      } else {
+        printLogo.classList.add('d-none');
+        printLogo.removeAttribute('src');
+      }
+    }
   },
 
   // Apply the cached copy immediately (pre-network), then refresh from server.

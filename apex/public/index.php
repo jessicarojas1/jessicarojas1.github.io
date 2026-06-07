@@ -69,6 +69,12 @@
   <!-- ── APP SHELL ──────────────────────────────────────────────── -->
   <div id="app" class="app-shell d-none">
 
+    <!-- Branded header for print / PDF output (screen-hidden, kept in sync by branding.apply) -->
+    <div class="print-brand" id="print-brand" aria-hidden="true">
+      <img class="print-brand-logo d-none" id="print-brand-logo" alt="" />
+      <span class="print-brand-name" id="print-brand-name">APEX</span>
+    </div>
+
     <!-- Top header — always visible -->
     <header class="app-header">
       <div class="brand" id="brand-home" style="cursor:pointer">

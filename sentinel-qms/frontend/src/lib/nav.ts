@@ -3,6 +3,7 @@ import {
   Award,
   BookOpen,
   Boxes,
+  Briefcase,
   ClipboardCheck,
   FileBarChart,
   FileText,
@@ -44,6 +45,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Overview',
     items: [
       { label: 'Dashboard', to: '/', icon: LayoutDashboard, capability: 'ncr.read', page: 'dashboard' },
+      { label: 'Executive', to: '/executive', icon: Briefcase, capability: 'ncr.read', page: 'dashboard' },
       { label: 'Analytics', to: '/analytics', icon: TrendingUp, capability: 'ncr.read', page: 'analytics' },
       { label: 'Reports', to: '/reports', icon: FileBarChart, capability: 'ncr.read', page: 'analytics' },
       { label: 'Documentation', to: '/docs', icon: BookOpen, capability: 'docs.read', page: 'documentation' },

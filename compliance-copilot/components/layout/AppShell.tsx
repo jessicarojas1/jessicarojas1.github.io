@@ -31,13 +31,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         'fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 flex flex-col transition-transform duration-200',
         open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       )}>
-        {/* Logo */}
+        {/* Logo — links home (dashboard) */}
         <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-800">
-          <BrandMark size={32} />
-          <div className="min-w-0">
-            <div className="text-sm font-bold text-slate-100 truncate">{branding.displayName}</div>
-            <div className="text-xs text-slate-500">{tagline}</div>
-          </div>
+          <Link
+            href="/"
+            onClick={() => setOpen(false)}
+            aria-label={`${branding.displayName} home`}
+            className="flex items-center gap-3 min-w-0 group"
+          >
+            <BrandMark size={32} />
+            <span className="min-w-0">
+              <span className="block text-sm font-bold text-slate-100 truncate group-hover:text-white">{branding.displayName}</span>
+              <span className="block text-xs text-slate-500">{tagline}</span>
+            </span>
+          </Link>
           <button className="ml-auto md:hidden text-slate-400" onClick={() => setOpen(false)}>
             <X className="w-5 h-5" />
           </button>
