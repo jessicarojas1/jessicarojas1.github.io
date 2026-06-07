@@ -9,16 +9,16 @@ metadata so it stays exactly in sync with the ORM definitions (FKs, indexes,
 unique constraints, and enum types included). Subsequent migrations should be
 authored as explicit, incremental diffs.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
 
 from alembic import op
 
-from app.core.database import Base
-
 # Ensure every model is imported so Base.metadata is fully populated.
 import app.models  # noqa: F401
+from app.core.database import Base
 
 # revision identifiers, used by Alembic.
 revision: str = "0001_initial"

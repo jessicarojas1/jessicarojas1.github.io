@@ -3,6 +3,7 @@
 Run with ``python -m app.seed``.  Safe to run repeatedly — it upserts by natural
 key and skips records that already exist.
 """
+
 from __future__ import annotations
 
 import logging
@@ -12,12 +13,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.database import SessionLocal, engine
-from app.core.database import Base
+from app.core.database import Base, SessionLocal, engine
 from app.core.logging import configure_logging
 from app.core.pages import PAGES
 from app.core.permissions import default_level_for
-from app.core.rbac import ROLE_PERMISSIONS, Role as RoleEnum
+from app.core.rbac import ROLE_PERMISSIONS
+from app.core.rbac import Role as RoleEnum
 from app.core.security import hash_password
 from app.models import (  # noqa: F401 - ensure metadata is populated
     Capa,
@@ -68,9 +69,7 @@ def seed_roles(db: Session) -> dict[str, Role]:
 
 def seed_org_settings(db: Session) -> None:
     """Ensure the singleton organization settings row exists (idempotent)."""
-    existing = db.get(OrgSettings, 1) or db.execute(
-        select(OrgSettings)
-    ).scalars().first()
+    existing = db.get(OrgSettings, 1) or db.execute(select(OrgSettings)).scalars().first()
     if existing is None:
         db.add(OrgSettings(id=1))
         db.flush()
@@ -85,8 +84,7 @@ def seed_permissions(db: Session, roles: dict[str, Role]) -> None:
     Existing (possibly admin-customized) rows are never overwritten.
     """
     existing: set[tuple[int, str]] = {
-        (rp.role_id, rp.page_key)
-        for rp in db.execute(select(RolePagePermission)).scalars().all()
+        (rp.role_id, rp.page_key) for rp in db.execute(select(RolePagePermission)).scalars().all()
     }
     added = 0
     for role_name, role in roles.items():

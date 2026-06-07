@@ -15,6 +15,7 @@ Unlike the table-creating migrations that precede it, this one ALTERs an
 existing table, so it issues schema-aware, idempotent ``ALTER TABLE ... ADD
 COLUMN IF NOT EXISTS`` statements (safe to re-run) rather than ``create_all``.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -22,10 +23,9 @@ from collections.abc import Sequence
 from alembic import op
 from sqlalchemy import text
 
-from app.core.database import Base
-
 # Ensure every model is imported so Base.metadata is fully populated.
 import app.models  # noqa: F401
+from app.core.database import Base
 
 # revision identifiers, used by Alembic.
 revision: str = "0007_notification_settings"

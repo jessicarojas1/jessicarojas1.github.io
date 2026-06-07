@@ -1,11 +1,11 @@
 """User and role administration (Admin only)."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request, status
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
-from pydantic import BaseModel, Field
 
 from app.api.deps import Pagination, get_current_user, pagination_params, require_page
 from app.core import audit

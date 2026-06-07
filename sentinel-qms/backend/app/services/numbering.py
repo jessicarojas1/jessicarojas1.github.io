@@ -1,7 +1,8 @@
 """Auto record numbering, e.g. NCR-2026-0001, CAPA-2026-0001 — unique per type/year."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -11,7 +12,7 @@ _SEQUENCE_CONFIG: dict[str, str] = {}
 
 
 def _current_year() -> int:
-    return datetime.now(timezone.utc).year
+    return datetime.now(UTC).year
 
 
 def next_number(db: Session, model, number_attr: str, prefix: str, *, width: int = 4) -> str:

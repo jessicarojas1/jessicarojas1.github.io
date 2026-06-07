@@ -1,8 +1,9 @@
 """21 CFR Part 11 electronic-signature capture and verification."""
+
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
@@ -36,8 +37,11 @@ def create_signature(
                 "Electronic signature requires re-authentication with your password."
             )
 
-    signed_at = datetime.now(timezone.utc)
-    material = f"{actor.id}|{actor.email}|{entity_type}|{entity_id}|{payload.meaning}|{signed_at.isoformat()}"
+    signed_at = datetime.now(UTC)
+    material = (
+        f"{actor.id}|{actor.email}|{entity_type}|{entity_id}"
+        f"|{payload.meaning}|{signed_at.isoformat()}"
+    )
     signed_hash = hashlib.sha256(material.encode("utf-8")).hexdigest()
 
     sig = ElectronicSignature(

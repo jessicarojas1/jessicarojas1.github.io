@@ -1,4 +1,5 @@
 """Risk register endpoints: CRUD with automatic RPN computation."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status

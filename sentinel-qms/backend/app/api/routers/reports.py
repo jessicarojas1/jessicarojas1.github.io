@@ -3,18 +3,22 @@
 All aggregation is performed in Python over fetched rows so the endpoints stay
 portable across PostgreSQL and SQLite (no DB-specific date functions).
 """
+
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
+from app.core.exceptions import NotFoundError
+from app.core.rbac import Permission, require_permission
 from app.models.audit_mgmt import Audit, AuditFinding
 from app.models.capa import Capa, CapaStatus
+from app.models.complaint import Complaint
 from app.models.nonconformance import NcStatus, Nonconformance
 from app.models.supplier import ScarStatus, Supplier, SupplierRating, SupplierScar
 from app.schemas.auth import CurrentUser
@@ -28,6 +32,7 @@ from app.schemas.report import (
     SupplierScorecardReport,
     SupplierScorecardRow,
 )
+from app.services import pdf
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -43,7 +48,7 @@ _CAPA_OPEN = {
 
 
 def _today() -> date:
-    return datetime.now(timezone.utc).date()
+    return datetime.now(UTC).date()
 
 
 def _enum_label(value) -> str:
@@ -85,9 +90,7 @@ def ncr_summary(
     _: CurrentUser = Depends(get_current_user),
 ) -> NcrSummaryReport:
     rows = (
-        db.execute(
-            select(Nonconformance).where(Nonconformance.is_deleted.is_(False))
-        )
+        db.execute(select(Nonconformance).where(Nonconformance.is_deleted.is_(False)))
         .scalars()
         .all()
     )
@@ -96,8 +99,8 @@ def ncr_summary(
     window_set = set(window)
     by_status: dict[str, int] = {}
     by_severity: dict[str, int] = {}
-    opened = {k: 0 for k in window}
-    closed = {k: 0 for k in window}
+    opened = dict.fromkeys(window, 0)
+    closed = dict.fromkeys(window, 0)
     total_open = 0
 
     for r in rows:
@@ -176,11 +179,7 @@ def supplier_scorecard(
     db: Session = Depends(get_db),
     _: CurrentUser = Depends(get_current_user),
 ) -> SupplierScorecardReport:
-    suppliers = (
-        db.execute(select(Supplier).where(Supplier.is_deleted.is_(False)))
-        .scalars()
-        .all()
-    )
+    suppliers = db.execute(select(Supplier).where(Supplier.is_deleted.is_(False))).scalars().all()
 
     # Aggregate ratings (avg quality + avg OTD, rating count) per supplier.
     rating_q: dict[int, list[float]] = {}
@@ -224,9 +223,7 @@ def audit_summary(
     db: Session = Depends(get_db),
     _: CurrentUser = Depends(get_current_user),
 ) -> AuditSummaryReport:
-    audits = (
-        db.execute(select(Audit).where(Audit.is_deleted.is_(False))).scalars().all()
-    )
+    audits = db.execute(select(Audit).where(Audit.is_deleted.is_(False))).scalars().all()
 
     by_type: dict[str, int] = {}
     by_status: dict[str, int] = {}
@@ -245,3 +242,91 @@ def audit_summary(
         findings_by_type=[LabelCount(label=k, count=v) for k, v in findings_by_type.items()],
         total=len(audits),
     )
+
+
+# ── Branded PDF exports ─────────────────────────────────────────────────────
+
+
+def _pdf_response(data: bytes, filename: str) -> Response:
+    """Wrap PDF bytes in an attachment response."""
+    return Response(
+        content=data,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.get("/ncr/{ncr_id}/pdf")
+def ncr_pdf(
+    ncr_id: int,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.NCR_READ)),
+) -> Response:
+    """Download a single NCR record as a branded PDF. Requires ncr:read."""
+    ncr = db.get(Nonconformance, ncr_id)
+    if ncr is None or ncr.is_deleted:
+        raise NotFoundError(f"Nonconformance {ncr_id} not found.")
+    return _pdf_response(pdf.render_ncr_pdf(db, ncr), f"{ncr.ncr_number}.pdf")
+
+
+@router.get("/capa/{capa_id}/pdf")
+def capa_pdf(
+    capa_id: int,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.CAPA_READ)),
+) -> Response:
+    """Download a single CAPA record as a branded PDF. Requires capa:read."""
+    capa = db.get(Capa, capa_id)
+    if capa is None or capa.is_deleted:
+        raise NotFoundError(f"CAPA {capa_id} not found.")
+    return _pdf_response(pdf.render_capa_pdf(db, capa), f"{capa.capa_number}.pdf")
+
+
+@router.get("/audit/{audit_id}/pdf")
+def audit_pdf(
+    audit_id: int,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.AUDIT_READ)),
+) -> Response:
+    """Download a single audit record as a branded PDF. Requires audit:read."""
+    audit = db.get(Audit, audit_id)
+    if audit is None or audit.is_deleted:
+        raise NotFoundError(f"Audit {audit_id} not found.")
+    return _pdf_response(pdf.render_audit_pdf(db, audit), f"{audit.audit_number}.pdf")
+
+
+@router.get("/supplier/{supplier_id}/pdf")
+def supplier_pdf(
+    supplier_id: int,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+) -> Response:
+    """Download a single supplier scorecard as a branded PDF. Requires supplier:read."""
+    supplier = db.get(Supplier, supplier_id)
+    if supplier is None or supplier.is_deleted:
+        raise NotFoundError(f"Supplier {supplier_id} not found.")
+    return _pdf_response(pdf.render_supplier_pdf(db, supplier), f"{supplier.supplier_code}.pdf")
+
+
+@router.get("/complaint/{complaint_id}/pdf")
+def complaint_pdf(
+    complaint_id: int,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.COMPLAINT_READ)),
+) -> Response:
+    """Download a single customer complaint as a branded PDF. Requires complaint:read."""
+    complaint = db.get(Complaint, complaint_id)
+    if complaint is None or complaint.is_deleted:
+        raise NotFoundError(f"Complaint {complaint_id} not found.")
+    return _pdf_response(
+        pdf.render_complaint_pdf(db, complaint), f"{complaint.complaint_number}.pdf"
+    )
+
+
+@router.get("/digest/pdf")
+def digest_pdf(
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_permission(Permission.DASHBOARD_READ)),
+) -> Response:
+    """Download the organization-wide quality digest as a branded PDF."""
+    return _pdf_response(pdf.render_digest_pdf(db), "quality-digest.pdf")

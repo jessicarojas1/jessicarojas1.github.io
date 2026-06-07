@@ -36,8 +36,8 @@ export function IamUserManager() {
   const [draft, setDraft] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState<Set<string>>(new Set());
 
-  const users = usersQ.data ?? [];
-  const modules = catalogQ.data ?? [];
+  const users = useMemo(() => usersQ.data ?? [], [usersQ.data]);
+  const modules = useMemo(() => catalogQ.data ?? [], [catalogQ.data]);
   const selected = useMemo(() => users.find((u) => u.id === selectedId) ?? null, [users, selectedId]);
 
   const filtered = useMemo(() => {

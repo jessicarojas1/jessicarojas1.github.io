@@ -1,4 +1,5 @@
 """Document control endpoints: CRUD + revisions + approval workflow + transitions."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -72,9 +73,7 @@ def list_documents(
         stmt = stmt.where(Document.doc_type == doc_type)
     if search:
         like = f"%{search}%"
-        stmt = stmt.where(
-            Document.document_number.ilike(like) | Document.title.ilike(like)
-        )
+        stmt = stmt.where(Document.document_number.ilike(like) | Document.title.ilike(like))
     stmt = apply_sort(stmt, Document, sort)
     items, total = paginate(db, stmt, Document, pagination)
     return Page[DocumentList](items=items, **page_meta(total, pagination))
@@ -195,9 +194,7 @@ def transition_document(
     elif action == "advance":
         nxt = next_stage(current)
         if nxt is None:
-            raise WorkflowError(
-                f"Document cannot advance from '{current.value}'."
-            )
+            raise WorkflowError(f"Document cannot advance from '{current.value}'.")
         target = nxt
 
     if target is None:
@@ -217,15 +214,11 @@ def transition_document(
         target = DocumentStatus.WORK_IN_PROGRESS
     elif target == DocumentStatus.APPROVED:
         if current != DocumentStatus.QA_REVIEW:
-            raise WorkflowError(
-                "A document must clear QA Review before it can be approved."
-            )
+            raise WorkflowError("A document must clear QA Review before it can be approved.")
     else:
         # Linear forward step only.
         if next_stage(current) != target:
-            raise WorkflowError(
-                f"Illegal transition: '{current.value}' -> '{target.value}'."
-            )
+            raise WorkflowError(f"Illegal transition: '{current.value}' -> '{target.value}'.")
 
     doc.status = target
     if target == DocumentStatus.APPROVED:

@@ -1,4 +1,5 @@
 """Audit management: Audit, AuditFinding, AuditChecklistItem (AS9100)."""
+
 from __future__ import annotations
 
 import enum
@@ -46,7 +47,9 @@ class Audit(Base, TimestampMixin, SoftDeleteMixin):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     audit_number: Mapped[str] = mapped_column(String(32), unique=True, nullable=False, index=True)
     title: Mapped[str] = mapped_column(String(512), nullable=False)
-    audit_type: Mapped[AuditType] = mapped_column(Enum(AuditType, name="audit_type"), nullable=False)
+    audit_type: Mapped[AuditType] = mapped_column(
+        Enum(AuditType, name="audit_type"), nullable=False
+    )
     status: Mapped[AuditStatus] = mapped_column(
         Enum(AuditStatus, name="audit_status"), default=AuditStatus.PLANNED, nullable=False
     )

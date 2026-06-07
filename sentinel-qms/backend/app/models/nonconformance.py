@@ -1,4 +1,5 @@
 """Nonconformance (NCR) and MRB disposition models."""
+
 from __future__ import annotations
 
 import enum
@@ -62,7 +63,9 @@ class Nonconformance(Base, TimestampMixin, SoftDeleteMixin):
     quantity_affected: Mapped[int | None] = mapped_column(Integer, nullable=True)
     estimated_cost: Mapped[float | None] = mapped_column(Numeric(14, 2), nullable=True)
 
-    source: Mapped[str | None] = mapped_column(String(64), nullable=True)  # receiving/in-process/customer
+    source: Mapped[str | None] = mapped_column(
+        String(64), nullable=True
+    )  # receiving/in-process/customer
     detected_at: Mapped[date | None] = mapped_column(Date, nullable=True)
     work_order: Mapped[str | None] = mapped_column(String(128), nullable=True)
 

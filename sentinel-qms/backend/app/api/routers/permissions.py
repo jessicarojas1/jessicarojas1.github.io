@@ -11,6 +11,7 @@ Levels are the ordered strings ``"none" < "view" < "edit"``. An un-provisioned
 (role, page) cell is filled with its static default (never hard "none"), so the
 editor always shows the *real* effective matrix.
 """
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request
@@ -31,7 +32,8 @@ from app.core.permissions import (
 )
 from app.core.rbac import Role as RoleEnum
 from app.models.permission import RolePagePermission, UserPagePermission
-from app.models.user import Role as RoleModel, User as UserModel
+from app.models.user import Role as RoleModel
+from app.models.user import User as UserModel
 from app.schemas.auth import CurrentUser
 from app.services.crud import request_context
 
@@ -108,9 +110,7 @@ def update_role_matrix(
 ) -> dict[str, dict[str, str]]:
     before = _full_matrix(db)
 
-    roles = {
-        r.name: r for r in db.execute(select(RoleModel)).scalars().all()
-    }
+    roles = {r.name: r for r in db.execute(select(RoleModel)).scalars().all()}
 
     for role_name, pages in body.matrix.items():
         role = roles.get(role_name)
@@ -130,11 +130,7 @@ def update_role_matrix(
                 )
             ).scalar_one_or_none()
             if existing is None:
-                db.add(
-                    RolePagePermission(
-                        role_id=role.id, page_key=page_key, level=level
-                    )
-                )
+                db.add(RolePagePermission(role_id=role.id, page_key=page_key, level=level))
             else:
                 existing.level = level
 
@@ -193,9 +189,7 @@ def get_user_matrix(
     db: Session = Depends(get_db),
     _: CurrentUser = Depends(require_page("permissions", "view")),
 ) -> list[UserPermissionRow]:
-    users = db.execute(
-        select(UserModel).order_by(UserModel.full_name)
-    ).scalars().all()
+    users = db.execute(select(UserModel).order_by(UserModel.full_name)).scalars().all()
     return [_user_row(db, u) for u in users]
 
 

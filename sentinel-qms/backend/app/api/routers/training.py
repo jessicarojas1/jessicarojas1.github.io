@@ -1,4 +1,5 @@
 """Training endpoints: personnel + courses + assignments + competency matrix."""
+
 from __future__ import annotations
 
 from datetime import date, timedelta
@@ -310,9 +311,7 @@ def personnel_competency(
     get_or_404(db, Personnel, person_id, name="Personnel")
     return (
         db.execute(
-            select(CompetencyMatrixEntry).where(
-                CompetencyMatrixEntry.personnel_id == person_id
-            )
+            select(CompetencyMatrixEntry).where(CompetencyMatrixEntry.personnel_id == person_id)
         )
         .scalars()
         .all()

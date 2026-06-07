@@ -9,6 +9,7 @@ and branding. Only this single table is created (from the current declarative
 metadata), and the connection is routed at the dedicated schema when one is
 configured — mirrors 0003_comments.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -16,10 +17,9 @@ from collections.abc import Sequence
 from alembic import op
 from sqlalchemy import text
 
-from app.core.database import Base
-
 # Ensure every model is imported so Base.metadata is fully populated.
 import app.models  # noqa: F401
+from app.core.database import Base
 from app.models.settings import OrgSettings
 
 # revision identifiers, used by Alembic.
@@ -44,9 +44,7 @@ def upgrade() -> None:
         bind.execute(text(f'SET search_path TO "{schema}", public'))
 
     # Create ONLY the org_settings table from the current declarative metadata.
-    Base.metadata.create_all(
-        bind=bind, tables=[OrgSettings.__table__], checkfirst=True
-    )
+    Base.metadata.create_all(bind=bind, tables=[OrgSettings.__table__], checkfirst=True)
 
 
 def downgrade() -> None:

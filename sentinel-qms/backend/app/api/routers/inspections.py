@@ -1,4 +1,5 @@
 """Inspection endpoints: CRUD + FAI/AS9102 reports with characteristics."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query, Request, status
@@ -75,9 +76,7 @@ def create_inspection(
 ) -> Inspection:
     insp = Inspection(
         **body.model_dump(),
-        inspection_number=numbering.next_number(
-            db, Inspection, "inspection_number", "INSP"
-        ),
+        inspection_number=numbering.next_number(db, Inspection, "inspection_number", "INSP"),
         result=InspectionResult.PENDING,
         inspector_id=actor.id,
         created_by=actor.id,

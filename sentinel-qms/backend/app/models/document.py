@@ -1,4 +1,5 @@
 """Document control: Document, DocumentRevision, DocumentApproval."""
+
 from __future__ import annotations
 
 import enum
@@ -83,7 +84,9 @@ class Document(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "documents"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    document_number: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
+    document_number: Mapped[str] = mapped_column(
+        String(64), unique=True, nullable=False, index=True
+    )
     title: Mapped[str] = mapped_column(String(512), nullable=False)
     doc_type: Mapped[DocumentType] = mapped_column(DOCUMENT_TYPE_ENUM, nullable=False)
     status: Mapped[DocumentStatus] = mapped_column(

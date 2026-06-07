@@ -9,6 +9,7 @@ import { formatDate, formatDateTime, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
+import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 import { RecordSupplements } from '@/components/RecordSupplements';
@@ -64,6 +65,7 @@ export default function CapaDetailPage() {
             actions={
               <>
                 <PrintButton />
+                <PdfButton path={`/reports/capa/${capa.id}/pdf`} filename={`${capa.capa_number}.pdf`} />
                 {canClose && capa.status !== 'closed' && (
                   <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
                     <ShieldCheck size={16} /> Close & Sign

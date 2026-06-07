@@ -1,4 +1,5 @@
 """Audit management endpoints: CRUD + findings + checklist + link finding->CAPA."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query, Request, status
@@ -156,9 +157,7 @@ def add_finding(
     rec = get_or_404(db, Audit, audit_id, name="Audit")
     seq = (
         db.execute(
-            select(func.count()).select_from(AuditFinding).where(
-                AuditFinding.audit_id == audit_id
-            )
+            select(func.count()).select_from(AuditFinding).where(AuditFinding.audit_id == audit_id)
         ).scalar_one()
         + 1
     )

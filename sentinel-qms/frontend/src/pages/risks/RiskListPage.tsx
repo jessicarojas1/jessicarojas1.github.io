@@ -20,7 +20,8 @@ import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select } from '@/components/FormField';
 import { ImportModal } from '@/components/ImportModal';
-import { RiskHeatMap, rpnLevel, toBand, type MatrixLevel } from './RiskHeatMap';
+import { RiskHeatMap } from './RiskHeatMap';
+import { rpnLevel, toBand, type MatrixLevel } from './riskMatrix';
 import { RiskCreateModal } from './RiskCreateModal';
 import type { Risk } from '@/types';
 
@@ -51,7 +52,7 @@ export default function RiskListPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [activeCell, setActiveCell] = useState<string | null>(null);
   const { data, isLoading, error } = riskHooks.useList(ctl.params);
-  const risks = data?.items ?? [];
+  const risks = useMemo(() => data?.items ?? [], [data]);
 
   // AEGIS-style severity-level summary (by inherent RPN level) + status tallies.
   const summary = useMemo(() => {

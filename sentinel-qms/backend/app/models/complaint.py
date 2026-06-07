@@ -1,4 +1,5 @@
 """Customer complaint / RMA, linked to NCR and CAPA."""
+
 from __future__ import annotations
 
 import enum

@@ -1,4 +1,5 @@
 """CAPA 8D workflow, effectiveness verification, and close-out tests."""
+
 from __future__ import annotations
 
 
@@ -15,9 +16,7 @@ def _create_capa(client, headers):
 
 
 def _advance(client, headers, capa_id, status):
-    return client.post(
-        f"/api/v1/capa/{capa_id}/status", json={"status": status}, headers=headers
-    )
+    return client.post(f"/api/v1/capa/{capa_id}/status", json={"status": status}, headers=headers)
 
 
 def test_full_8d_workflow_to_close(client, seeded, auth_headers):

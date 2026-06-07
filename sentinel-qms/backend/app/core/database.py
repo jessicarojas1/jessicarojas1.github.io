@@ -1,4 +1,5 @@
 """Database engine, session factory, declarative Base, and FastAPI dependency."""
+
 from __future__ import annotations
 
 from collections.abc import Generator

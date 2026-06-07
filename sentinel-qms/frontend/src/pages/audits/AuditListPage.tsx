@@ -21,7 +21,7 @@ export default function AuditListPage() {
   const { canEdit } = usePagePerms();
   const [createOpen, setCreateOpen] = useState(false);
   const { data, isLoading, error } = auditHooks.useList(ctl.params);
-  const audits = data?.items ?? [];
+  const audits = useMemo(() => data?.items ?? [], [data]);
 
   // AEGIS-style status summary.
   const summary = useMemo(() => {

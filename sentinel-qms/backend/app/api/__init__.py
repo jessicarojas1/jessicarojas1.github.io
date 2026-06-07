@@ -1,4 +1,5 @@
 """Aggregate all v1 routers under the configured API prefix."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter

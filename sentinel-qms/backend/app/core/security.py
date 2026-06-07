@@ -1,8 +1,9 @@
 """Password hashing and JWT (access + refresh) token management."""
+
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi.security import OAuth2PasswordBearer
@@ -40,7 +41,7 @@ def _create_token(
     expires_delta: timedelta,
     extra: dict[str, Any] | None = None,
 ) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload: dict[str, Any] = {
         "sub": str(subject),
         "type": token_type,

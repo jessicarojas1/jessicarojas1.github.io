@@ -1,7 +1,8 @@
 """Analytics / trends API: monthly time series and current open counts."""
+
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
@@ -24,21 +25,32 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 
 _NCR_OPEN = [NcStatus.OPEN, NcStatus.UNDER_REVIEW, NcStatus.DISPOSITIONED]
 _CAPA_OPEN = [
-    CapaStatus.OPEN, CapaStatus.CONTAINMENT, CapaStatus.ROOT_CAUSE,
-    CapaStatus.ACTION_PLAN, CapaStatus.IMPLEMENTATION, CapaStatus.VERIFICATION,
+    CapaStatus.OPEN,
+    CapaStatus.CONTAINMENT,
+    CapaStatus.ROOT_CAUSE,
+    CapaStatus.ACTION_PLAN,
+    CapaStatus.IMPLEMENTATION,
+    CapaStatus.VERIFICATION,
 ]
 _AUDIT_OPEN = [AuditStatus.PLANNED, AuditStatus.IN_PROGRESS, AuditStatus.REPORTING]
 _COMPLAINT_OPEN = [
-    ComplaintStatus.RECEIVED, ComplaintStatus.UNDER_INVESTIGATION,
+    ComplaintStatus.RECEIVED,
+    ComplaintStatus.UNDER_INVESTIGATION,
     ComplaintStatus.AWAITING_CUSTOMER,
 ]
 _CHANGE_OPEN = [
-    ChangeStatus.DRAFT, ChangeStatus.SUBMITTED, ChangeStatus.UNDER_REVIEW,
-    ChangeStatus.APPROVED, ChangeStatus.IMPLEMENTED,
+    ChangeStatus.DRAFT,
+    ChangeStatus.SUBMITTED,
+    ChangeStatus.UNDER_REVIEW,
+    ChangeStatus.APPROVED,
+    ChangeStatus.IMPLEMENTED,
 ]
 _RISK_OPEN = [
-    RiskStatus.IDENTIFIED, RiskStatus.ASSESSED, RiskStatus.TREATMENT_PLANNED,
-    RiskStatus.MITIGATING, RiskStatus.MONITORING,
+    RiskStatus.IDENTIFIED,
+    RiskStatus.ASSESSED,
+    RiskStatus.TREATMENT_PLANNED,
+    RiskStatus.MITIGATING,
+    RiskStatus.MONITORING,
 ]
 
 
@@ -50,7 +62,7 @@ def _month_key(value: datetime | date | None) -> str | None:
 
 def _month_window(months: int) -> list[str]:
     """Return the last ``months`` month keys, oldest first, including current."""
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(UTC).date()
     year, month = today.year, today.month
     keys: list[str] = []
     for _ in range(months):
@@ -71,8 +83,8 @@ def _trend(
 ) -> list[TrendPoint]:
     """Build {opened, closed} per month for a model with created_at/status."""
     has_closed_at = hasattr(model, "closed_at")
-    opened: dict[str, int] = {k: 0 for k in months}
-    closed: dict[str, int] = {k: 0 for k in months}
+    opened: dict[str, int] = dict.fromkeys(months, 0)
+    closed: dict[str, int] = dict.fromkeys(months, 0)
     window = set(months)
 
     stmt = select(model)
