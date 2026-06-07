@@ -1,0 +1,99 @@
+{
+  "ts": "2026-06-07T04:18:53.586Z",
+  "counts": {
+    "vulnerable": 19,
+    "safe": 21,
+    "tp": 17,
+    "fn": 2,
+    "fpFiles": 6
+  },
+  "metrics": {
+    "recall": 0.8947368421052632,
+    "recallLoose": 0.9473684210526315,
+    "precision": 0.7391304347826086,
+    "specificity": 0.7142857142857143,
+    "f1": 0.8095238095238095
+  },
+  "perCategory": {
+    "injection": {
+      "total": 7,
+      "hit": 6
+    },
+    "xss": {
+      "total": 2,
+      "hit": 2
+    },
+    "secrets": {
+      "total": 1,
+      "hit": 1
+    },
+    "crypto": {
+      "total": 2,
+      "hit": 2
+    },
+    "random": {
+      "total": 1,
+      "hit": 1
+    },
+    "deserialization": {
+      "total": 2,
+      "hit": 2
+    },
+    "ssrf": {
+      "total": 1,
+      "hit": 1
+    },
+    "path-traversal": {
+      "total": 1,
+      "hit": 1
+    },
+    "transport": {
+      "total": 1,
+      "hit": 1
+    },
+    "config": {
+      "total": 1,
+      "hit": 0
+    }
+  },
+  "misses": [
+    {
+      "file": "vuln/k8s_privileged.yaml",
+      "cwe": "CWE-250",
+      "sawAnything": false,
+      "saw": ""
+    },
+    {
+      "file": "vuln/Dockerfile.bad",
+      "cwe": "CWE-78",
+      "sawAnything": true,
+      "saw": "docker-curl-pipe/CWE-494, docker-latest-tag/CWE-1104"
+    }
+  ],
+  "falsePositives": [
+    {
+      "file": "safe/sqli_param.py",
+      "fired": "py-format-sql"
+    },
+    {
+      "file": "safe/shell_false.py",
+      "fired": "os-command"
+    },
+    {
+      "file": "safe/xss_escaped.php",
+      "fired": "php-echo-get"
+    },
+    {
+      "file": "safe/secure_random.go",
+      "fired": "go-math-rand-token"
+    },
+    {
+      "file": "safe/path_basename.js",
+      "fired": "path-traversal"
+    },
+    {
+      "file": "safe/comment_decoy.py",
+      "fired": "sql-concat"
+    }
+  ]
+}
