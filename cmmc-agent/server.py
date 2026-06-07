@@ -348,9 +348,8 @@ UI_HTML = r"""<!DOCTYPE html>
 
     <!-- Input -->
     <div class="input-bar">
-      <textarea id="msgInput" placeholder="Ask about your compliance posture…" rows="1"
-                onkeydown="handleKey(event)"></textarea>
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+      <textarea id="msgInput" placeholder="Ask about your compliance posture…" rows="1"></textarea>
+      <button class="send-btn" id="sendBtn">
         <i class="bi bi-send-fill"></i> Send
       </button>
     </div>
@@ -522,6 +521,10 @@ SAMPLE_PROMPTS.forEach(p => {
   btn.onclick = () => { document.getElementById('msgInput').value = p; sendMessage(); };
   chips.appendChild(btn);
 });
+
+// Input wiring (no inline handlers — CSP-clean)
+document.getElementById('msgInput').addEventListener('keydown', handleKey);
+document.getElementById('sendBtn').addEventListener('click', sendMessage);
 
 // Help modal
 document.getElementById('helpBtn').addEventListener('click', () => {
