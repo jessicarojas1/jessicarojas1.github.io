@@ -28,6 +28,20 @@ export interface OrgSettings {
   report_schedule_frequency: ReportFrequency;
   report_schedule_recipients: string | null;
   report_schedule_last_sent_at: string | null;
+  // Executive dashboard KPI targets.
+  kpi_target_open_ncrs: number;
+  kpi_target_overdue_capas: number;
+  kpi_target_open_findings: number;
+  kpi_target_escapes: number;
+  kpi_target_capa_on_time: number;
+  kpi_target_supplier_quality: number;
+  kpi_target_supplier_otd: number;
+  // Cost of Quality per-event unit costs.
+  coq_cost_ncr: number;
+  coq_cost_complaint: number;
+  coq_cost_inspection: number;
+  coq_cost_audit: number;
+  coq_cost_capa: number;
 }
 
 /** Notification channels that can be test-fired. */

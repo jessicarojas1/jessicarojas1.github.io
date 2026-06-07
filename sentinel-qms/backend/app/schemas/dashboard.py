@@ -103,6 +103,10 @@ class CoqMonth(BaseModel):
     appraisal: int
     internal_failure: int
     external_failure: int
+    prevention_cost: float
+    appraisal_cost: float
+    internal_failure_cost: float
+    external_failure_cost: float
 
 
 class CoqCurrent(BaseModel):
@@ -111,6 +115,11 @@ class CoqCurrent(BaseModel):
     internal_failure: int
     external_failure: int
     total: int
+    prevention_cost: float
+    appraisal_cost: float
+    internal_failure_cost: float
+    external_failure_cost: float
+    total_cost: float
 
 
 class ClauseHeat(BaseModel):

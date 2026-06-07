@@ -10,6 +10,7 @@ import {
   Send,
   Settings,
   ShieldAlert,
+  Target,
   Upload,
 } from 'lucide-react';
 import {
@@ -51,6 +52,18 @@ interface FormValues {
   report_schedule_enabled: boolean;
   report_schedule_frequency: ReportFrequency;
   report_schedule_recipients: string;
+  kpi_target_open_ncrs: number;
+  kpi_target_overdue_capas: number;
+  kpi_target_open_findings: number;
+  kpi_target_escapes: number;
+  kpi_target_capa_on_time: number;
+  kpi_target_supplier_quality: number;
+  kpi_target_supplier_otd: number;
+  coq_cost_ncr: number;
+  coq_cost_complaint: number;
+  coq_cost_inspection: number;
+  coq_cost_audit: number;
+  coq_cost_capa: number;
 }
 
 // Uploaded logos are stored inline as data: URLs; cap the source file so we do
@@ -112,6 +125,18 @@ export default function SettingsPage() {
       report_schedule_enabled: false,
       report_schedule_frequency: 'weekly',
       report_schedule_recipients: '',
+      kpi_target_open_ncrs: 10,
+      kpi_target_overdue_capas: 0,
+      kpi_target_open_findings: 5,
+      kpi_target_escapes: 3,
+      kpi_target_capa_on_time: 90,
+      kpi_target_supplier_quality: 95,
+      kpi_target_supplier_otd: 95,
+      coq_cost_ncr: 500,
+      coq_cost_complaint: 2000,
+      coq_cost_inspection: 75,
+      coq_cost_audit: 1500,
+      coq_cost_capa: 1200,
     },
   });
 
@@ -137,6 +162,18 @@ export default function SettingsPage() {
       report_schedule_enabled: data.report_schedule_enabled ?? false,
       report_schedule_frequency: data.report_schedule_frequency ?? 'weekly',
       report_schedule_recipients: data.report_schedule_recipients ?? '',
+      kpi_target_open_ncrs: data.kpi_target_open_ncrs ?? 10,
+      kpi_target_overdue_capas: data.kpi_target_overdue_capas ?? 0,
+      kpi_target_open_findings: data.kpi_target_open_findings ?? 5,
+      kpi_target_escapes: data.kpi_target_escapes ?? 3,
+      kpi_target_capa_on_time: data.kpi_target_capa_on_time ?? 90,
+      kpi_target_supplier_quality: data.kpi_target_supplier_quality ?? 95,
+      kpi_target_supplier_otd: data.kpi_target_supplier_otd ?? 95,
+      coq_cost_ncr: data.coq_cost_ncr ?? 500,
+      coq_cost_complaint: data.coq_cost_complaint ?? 2000,
+      coq_cost_inspection: data.coq_cost_inspection ?? 75,
+      coq_cost_audit: data.coq_cost_audit ?? 1500,
+      coq_cost_capa: data.coq_cost_capa ?? 1200,
     });
     setLogoValue(data.logo_url ?? '');
     setColorValue(data.primary_color ?? '');
@@ -209,6 +246,18 @@ export default function SettingsPage() {
       report_schedule_enabled: values.report_schedule_enabled,
       report_schedule_frequency: values.report_schedule_frequency,
       report_schedule_recipients: values.report_schedule_recipients.trim() || null,
+      kpi_target_open_ncrs: Number(values.kpi_target_open_ncrs),
+      kpi_target_overdue_capas: Number(values.kpi_target_overdue_capas),
+      kpi_target_open_findings: Number(values.kpi_target_open_findings),
+      kpi_target_escapes: Number(values.kpi_target_escapes),
+      kpi_target_capa_on_time: Number(values.kpi_target_capa_on_time),
+      kpi_target_supplier_quality: Number(values.kpi_target_supplier_quality),
+      kpi_target_supplier_otd: Number(values.kpi_target_supplier_otd),
+      coq_cost_ncr: Number(values.coq_cost_ncr),
+      coq_cost_complaint: Number(values.coq_cost_complaint),
+      coq_cost_inspection: Number(values.coq_cost_inspection),
+      coq_cost_audit: Number(values.coq_cost_audit),
+      coq_cost_capa: Number(values.coq_cost_capa),
     };
     try {
       await update.mutateAsync(payload);
@@ -687,6 +736,123 @@ export default function SettingsPage() {
                   </div>
                 </div>
               )}
+
+              <h2 className="settings-section-title">
+                <Target size={16} /> Executive KPIs &amp; Cost of Quality
+              </h2>
+              <p className="field-hint" style={{ marginTop: -4, marginBottom: 12 }}>
+                Targets drive the red/amber/green status on the Executive dashboard. Per-event unit
+                costs convert the event-based Cost of Quality into dollars.
+              </p>
+              <div className="form-grid">
+                <FormField label="Target — open NCRs (max)" htmlFor="st-kpi-ncr">
+                  <TextInput
+                    id="st-kpi-ncr"
+                    type="number"
+                    min={0}
+                    {...register('kpi_target_open_ncrs', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="Target — overdue CAPAs (max)" htmlFor="st-kpi-capa">
+                  <TextInput
+                    id="st-kpi-capa"
+                    type="number"
+                    min={0}
+                    {...register('kpi_target_overdue_capas', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="Target — open findings (max)" htmlFor="st-kpi-find">
+                  <TextInput
+                    id="st-kpi-find"
+                    type="number"
+                    min={0}
+                    {...register('kpi_target_open_findings', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="Target — customer escapes / 90d (max)" htmlFor="st-kpi-esc">
+                  <TextInput
+                    id="st-kpi-esc"
+                    type="number"
+                    min={0}
+                    {...register('kpi_target_escapes', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="Target — on-time CAPA closure (% min)" htmlFor="st-kpi-ontime">
+                  <TextInput
+                    id="st-kpi-ontime"
+                    type="number"
+                    min={0}
+                    max={100}
+                    {...register('kpi_target_capa_on_time', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="Target — supplier quality (% min)" htmlFor="st-kpi-sq">
+                  <TextInput
+                    id="st-kpi-sq"
+                    type="number"
+                    min={0}
+                    max={100}
+                    {...register('kpi_target_supplier_quality', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="Target — supplier OTD (% min)" htmlFor="st-kpi-otd">
+                  <TextInput
+                    id="st-kpi-otd"
+                    type="number"
+                    min={0}
+                    max={100}
+                    {...register('kpi_target_supplier_otd', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField
+                  label="COQ — internal failure / NCR ($)"
+                  htmlFor="st-coq-ncr"
+                  hint="Average cost per nonconformance."
+                >
+                  <TextInput
+                    id="st-coq-ncr"
+                    type="number"
+                    min={0}
+                    {...register('coq_cost_ncr', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField
+                  label="COQ — external failure / complaint ($)"
+                  htmlFor="st-coq-complaint"
+                  hint="Average cost per customer complaint / RMA."
+                >
+                  <TextInput
+                    id="st-coq-complaint"
+                    type="number"
+                    min={0}
+                    {...register('coq_cost_complaint', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="COQ — appraisal / inspection ($)" htmlFor="st-coq-insp">
+                  <TextInput
+                    id="st-coq-insp"
+                    type="number"
+                    min={0}
+                    {...register('coq_cost_inspection', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="COQ — appraisal / audit ($)" htmlFor="st-coq-audit">
+                  <TextInput
+                    id="st-coq-audit"
+                    type="number"
+                    min={0}
+                    {...register('coq_cost_audit', { valueAsNumber: true })}
+                  />
+                </FormField>
+                <FormField label="COQ — prevention / CAPA ($)" htmlFor="st-coq-capa">
+                  <TextInput
+                    id="st-coq-capa"
+                    type="number"
+                    min={0}
+                    {...register('coq_cost_capa', { valueAsNumber: true })}
+                  />
+                </FormField>
+              </div>
 
               {writable && (
                 <div className="settings-actions">

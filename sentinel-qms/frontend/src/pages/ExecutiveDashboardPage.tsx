@@ -21,6 +21,16 @@ function fmtKpi(k: ExecKpi): string {
   return k.unit ? `${v}${k.unit}` : v;
 }
 
+/** Compact USD formatting (e.g. $12.5k) for Cost of Quality. */
+function fmtMoney(n: number): string {
+  return n.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  });
+}
+
 function ExecKpiTile({ k }: { k: ExecKpi }) {
   const arrow = k.direction === 'higher_better' ? '≥' : '≤';
   return (
@@ -144,23 +154,29 @@ export default function ExecutiveDashboardPage() {
           <div className="chart-grid">
             <div className="card">
               <div className="card__header">
-                <div className="card__title">Cost of Quality (event-based)</div>
+                <div className="card__title">Cost of Quality</div>
                 <div className="card__subtitle">
-                  Prevention + Appraisal vs Internal + External failures, by month
+                  This month: {fmtMoney(data.coq_current.total_cost)} · unit costs configurable in
+                  Settings
                 </div>
               </div>
               <div className="card__body">
                 <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={data.coq_trend} margin={{ left: -18, right: 8, top: 8 }}>
+                  <BarChart data={data.coq_trend} margin={{ left: 6, right: 8, top: 8 }}>
                     <CartesianGrid stroke={CHART_COLORS.grid} vertical={false} />
                     <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="var(--text-faint)" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="var(--text-faint)" />
-                    <Tooltip contentStyle={tooltipStyle} />
+                    <YAxis
+                      tick={{ fontSize: 11 }}
+                      stroke="var(--text-faint)"
+                      tickFormatter={(v) => fmtMoney(Number(v))}
+                      width={64}
+                    />
+                    <Tooltip contentStyle={tooltipStyle} formatter={(v) => fmtMoney(Number(v))} />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Bar dataKey="prevention" stackId="coq" name="Prevention" fill={CHART_COLORS.success} />
-                    <Bar dataKey="appraisal" stackId="coq" name="Appraisal" fill={CHART_COLORS.info} />
-                    <Bar dataKey="internal_failure" stackId="coq" name="Internal failure" fill={CHART_COLORS.warning} />
-                    <Bar dataKey="external_failure" stackId="coq" name="External failure" fill={CHART_COLORS.danger} />
+                    <Bar dataKey="prevention_cost" stackId="coq" name="Prevention" fill={CHART_COLORS.success} />
+                    <Bar dataKey="appraisal_cost" stackId="coq" name="Appraisal" fill={CHART_COLORS.info} />
+                    <Bar dataKey="internal_failure_cost" stackId="coq" name="Internal failure" fill={CHART_COLORS.warning} />
+                    <Bar dataKey="external_failure_cost" stackId="coq" name="External failure" fill={CHART_COLORS.danger} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

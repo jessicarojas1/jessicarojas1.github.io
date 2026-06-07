@@ -719,6 +719,10 @@ export interface CoqMonth {
   appraisal: number;
   internal_failure: number;
   external_failure: number;
+  prevention_cost: number;
+  appraisal_cost: number;
+  internal_failure_cost: number;
+  external_failure_cost: number;
 }
 
 export interface ClauseHeat {
@@ -749,6 +753,11 @@ export interface ExecutiveDashboard {
     internal_failure: number;
     external_failure: number;
     total: number;
+    prevention_cost: number;
+    appraisal_cost: number;
+    internal_failure_cost: number;
+    external_failure_cost: number;
+    total_cost: number;
   };
   clause_heatmap: ClauseHeat[];
   compliance_calendar: CalendarItem[];
