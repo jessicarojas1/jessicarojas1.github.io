@@ -165,6 +165,28 @@
 
     <!-- Access Settings tab -->
     <section class="tab-panel d-none" id="tab-settings">
+      <div id="must-change-banner" class="alert alert-warning d-none" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> You're signed in with the default password. Please change it below.
+      </div>
+      <div class="card citadel-card mb-3" id="my-account-card">
+        <div class="card-body">
+          <h2 class="h6 mb-3"><i class="bi bi-key-fill"></i> My password</h2>
+          <form id="pw-form" class="row g-2 align-items-end" autocomplete="off">
+            <div class="col-12 col-md-4">
+              <label class="form-label small" for="pw-current">Current password</label>
+              <input type="password" class="form-control form-control-sm" id="pw-current" autocomplete="current-password" required>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label small" for="pw-next">New password</label>
+              <input type="password" class="form-control form-control-sm" id="pw-next" autocomplete="new-password" minlength="8" required>
+            </div>
+            <div class="col-12 col-md-4 d-grid">
+              <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i> Update password</button>
+            </div>
+          </form>
+          <div id="pw-msg" class="small mt-2"></div>
+        </div>
+      </div>
       <div class="row g-3">
         <div class="col-lg-7">
           <div class="card citadel-card">
@@ -376,6 +398,10 @@
       },
 
       // Active sessions (backend only). Returns { stats, sessions } or null.
+      async changePassword(current, next) {
+        if (this.mode !== 'backend') throw new Error('Password change requires the backend.');
+        return this._api('api/auth/password', { method: 'POST', body: { current, next } });
+      },
       async sessions() { if (this.mode !== 'backend') return null; return this._api('api/sessions'); },
       async revokeSession(jti) { if (this.mode !== 'backend') return; await this._api('api/sessions/' + encodeURIComponent(jti), { method: 'DELETE' }); },
       async revokeUserSessions(id) { if (this.mode !== 'backend') return; await this._api('api/users/' + encodeURIComponent(id) + '/revoke-sessions', { method: 'POST' }); },
@@ -957,6 +983,34 @@
       }
     }
 
+    /* ---------- My account (self password change) ---------- */
+    function renderMyAccount() {
+      const card = $('my-account-card'); const banner = $('must-change-banner');
+      const backend = DA.mode === 'backend';
+      if (card) card.classList.toggle('d-none', !backend);
+      const me = DA.current();
+      if (banner) banner.classList.toggle('d-none', !(backend && me && me.mustChange));
+    }
+    function wireMyAccount() {
+      const form = $('pw-form');
+      if (!form || form.dataset.wired) return;
+      form.dataset.wired = '1';
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = $('pw-msg');
+        const cur = $('pw-current').value, next = $('pw-next').value;
+        try {
+          await DA.changePassword(cur, next);
+          if (msg) { msg.className = 'small mt-2 text-success'; msg.textContent = 'Password updated.'; }
+          form.reset();
+          if (DA._me) DA._me.mustChange = false;   // refresh local flag
+          const banner = $('must-change-banner'); if (banner) banner.classList.add('d-none');
+        } catch (ex) {
+          if (msg) { msg.className = 'small mt-2 text-danger'; msg.textContent = (ex && ex.message) || 'Could not change password.'; }
+        }
+      });
+    }
+
     /* ---------- Branding ---------- */
     function normHex(v) { return (v && /^#?[0-9a-fA-F]{3,6}$/.test(v)) ? (v[0] === '#' ? v : '#' + v) : ''; }
     function updateBrandPreview() {
@@ -1048,6 +1102,7 @@
       renderUsers(); wireUsers();
       renderPerms(); wirePerms();
       renderSettings(); wireSettings();
+      renderMyAccount(); wireMyAccount();
       renderBranding(); wireBranding();
       // Activity & Sessions tabs are backend-only (no server state in local mode).
       const backend = DA.mode === 'backend';
