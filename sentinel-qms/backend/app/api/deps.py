@@ -1,4 +1,5 @@
 """Shared FastAPI dependencies: current user, DB session, pagination."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -74,9 +75,7 @@ def require_page(page_key: str, level: str = "view") -> Callable:
         levels = effective_levels(db, user)
         actual = levels.get(page_key, "none")
         if not level_at_least(actual, level):
-            raise PermissionDeniedError(
-                "Insufficient permissions for this operation."
-            )
+            raise PermissionDeniedError("Insufficient permissions for this operation.")
         return user
 
     return _checker
@@ -104,9 +103,7 @@ def require_perm(permission: str) -> Callable:
         if Role.ADMIN.value in user.role_names:
             return user
         if not has_permission(db, user, permission):
-            raise PermissionDeniedError(
-                "Insufficient permissions for this operation."
-            )
+            raise PermissionDeniedError("Insufficient permissions for this operation.")
         return user
 
     return _checker

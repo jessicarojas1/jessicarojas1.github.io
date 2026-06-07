@@ -1,4 +1,5 @@
 """Threaded comments / collaboration notes attachable to any record."""
+
 from __future__ import annotations
 
 from sqlalchemy import ForeignKey, Integer, String, Text
@@ -16,6 +17,4 @@ class Comment(Base, TimestampMixin):
     entity_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
-    parent_id: Mapped[int | None] = mapped_column(
-        ForeignKey("comments.id"), nullable=True
-    )
+    parent_id: Mapped[int | None] = mapped_column(ForeignKey("comments.id"), nullable=True)

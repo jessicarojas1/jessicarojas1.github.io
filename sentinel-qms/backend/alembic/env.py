@@ -1,4 +1,5 @@
 """Alembic migration environment for Sentinel QMS."""
+
 from __future__ import annotations
 
 from logging.config import fileConfig
@@ -6,11 +7,10 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool, text
 
-from app.core.config import settings
-from app.core.database import Base
-
 # Import the models package so every table is registered on Base.metadata.
 import app.models  # noqa: F401
+from app.core.config import settings
+from app.core.database import Base
 
 config = context.config
 

@@ -9,6 +9,7 @@ Effective configuration is resolved from the :class:`OrgSettings` singleton
 (admin-editable) with env fallbacks for the webhook URLs; SMTP host/credentials
 are read from :mod:`app.core.config` (env only — secrets are not admin-editable).
 """
+
 from __future__ import annotations
 
 import json
@@ -67,8 +68,12 @@ def resolve_channels(db: Session) -> ChannelConfig:
         org = db.query(OrgSettings).order_by(OrgSettings.id.asc()).first()
 
     email_enabled = bool(getattr(org, "notifications_email_enabled", False))
-    teams_url = (getattr(org, "teams_webhook_url", None) or "").strip() or settings.TEAMS_WEBHOOK_URL
-    slack_url = (getattr(org, "slack_webhook_url", None) or "").strip() or settings.SLACK_WEBHOOK_URL
+    teams_url = (
+        getattr(org, "teams_webhook_url", None) or ""
+    ).strip() or settings.TEAMS_WEBHOOK_URL
+    slack_url = (
+        getattr(org, "slack_webhook_url", None) or ""
+    ).strip() or settings.SLACK_WEBHOOK_URL
 
     return ChannelConfig(
         email_enabled=email_enabled,

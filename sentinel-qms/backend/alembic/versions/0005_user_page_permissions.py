@@ -9,6 +9,7 @@ that layer on top of role permissions. Only this single table is created from
 the current declarative metadata, routed at the dedicated schema when one is
 configured — mirrors 0004_org_settings.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -16,10 +17,9 @@ from collections.abc import Sequence
 from alembic import op
 from sqlalchemy import text
 
-from app.core.database import Base
-
 # Ensure every model is imported so Base.metadata is fully populated.
 import app.models  # noqa: F401
+from app.core.database import Base
 from app.models.permission import UserPagePermission
 
 # revision identifiers, used by Alembic.
@@ -41,9 +41,7 @@ def upgrade() -> None:
         bind.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{schema}"'))
         bind.execute(text(f'SET search_path TO "{schema}", public'))
 
-    Base.metadata.create_all(
-        bind=bind, tables=[UserPagePermission.__table__], checkfirst=True
-    )
+    Base.metadata.create_all(bind=bind, tables=[UserPagePermission.__table__], checkfirst=True)
 
 
 def downgrade() -> None:

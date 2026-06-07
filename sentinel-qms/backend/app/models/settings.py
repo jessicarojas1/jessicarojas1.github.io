@@ -1,4 +1,5 @@
 """Organization-wide settings & branding — a single-row (singleton) table."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -37,9 +38,7 @@ class OrgSettings(Base, TimestampMixin):
     logo_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     primary_color: Mapped[str | None] = mapped_column(String(32), nullable=True)
     support_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    default_review_cycle_days: Mapped[int] = mapped_column(
-        Integer, default=365, nullable=False
-    )
+    default_review_cycle_days: Mapped[int] = mapped_column(Integer, default=365, nullable=False)
     calibration_default_interval_days: Mapped[int] = mapped_column(
         Integer, default=365, nullable=False
     )

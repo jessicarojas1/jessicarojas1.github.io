@@ -1,4 +1,5 @@
 """Engineering change management: ChangeOrder (ECN/ECO workflow)."""
+
 from __future__ import annotations
 
 import enum

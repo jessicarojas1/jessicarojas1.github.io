@@ -6,6 +6,7 @@ record is escalated at most once per level. The unique constraint on
 multiple web workers: the worker that wins the INSERT owns the escalation and
 sends the notification; a concurrent worker hits the constraint and skips.
 """
+
 from __future__ import annotations
 
 from datetime import datetime

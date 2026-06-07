@@ -1,4 +1,5 @@
 """Calibration endpoints: equipment CRUD + record calibration + due/overdue query."""
+
 from __future__ import annotations
 
 from datetime import date, timedelta
@@ -133,9 +134,7 @@ def create_equipment(
         updated_by=actor.id,
     )
     if last_cal:
-        equipment.next_due_date = last_cal + timedelta(
-            days=equipment.calibration_interval_days
-        )
+        equipment.next_due_date = last_cal + timedelta(days=equipment.calibration_interval_days)
     db.add(equipment)
     db.flush()
     audit.record(
@@ -185,9 +184,7 @@ def equipment_import(
             updated_by=actor.id,
         )
         if last_cal:
-            equipment.next_due_date = last_cal + timedelta(
-                days=equipment.calibration_interval_days
-            )
+            equipment.next_due_date = last_cal + timedelta(days=equipment.calibration_interval_days)
         db.add(equipment)
         db.flush()
 

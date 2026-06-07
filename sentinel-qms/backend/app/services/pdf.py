@@ -8,6 +8,7 @@ Branding degrades gracefully: a missing/broken/SVG logo falls back to the
 text-only header, and a bad accent color falls back to the default brand blue,
 so a document is always produced.
 """
+
 from __future__ import annotations
 
 import base64
@@ -111,8 +112,15 @@ def _load_logo(logo_url: str | None) -> BytesIO | None:
 class _BrandedPDF(FPDF):
     """FPDF subclass that renders a branded header band and paginated footer."""
 
-    def __init__(self, *, org_name: str, title: str, subtitle: str,
-                 accent: tuple[int, int, int], logo: BytesIO | None) -> None:
+    def __init__(
+        self,
+        *,
+        org_name: str,
+        title: str,
+        subtitle: str,
+        accent: tuple[int, int, int],
+        logo: BytesIO | None,
+    ) -> None:
         super().__init__(orientation="P", unit="mm", format="A4")
         self._org_name = _safe(org_name)
         self._title = _safe(title)
@@ -166,6 +174,7 @@ class _BrandedPDF(FPDF):
 
 # ── Layout primitives ───────────────────────────────────────────────────────
 
+
 def _section(pdf: _BrandedPDF, label: str) -> None:
     pdf.ln(1)
     r, g, b = pdf._accent
@@ -187,8 +196,9 @@ def _kv(pdf: _BrandedPDF, label: str, value: object) -> None:
     pdf.cell(45, 6, _safe(label), new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 9)
     pdf.set_text_color(*_INK)
-    pdf.multi_cell(0, 6, _safe(value if value not in (None, "") else "-"),
-                   new_x="LMARGIN", new_y="NEXT")
+    pdf.multi_cell(
+        0, 6, _safe(value if value not in (None, "") else "-"), new_x="LMARGIN", new_y="NEXT"
+    )
 
 
 def _paragraph(pdf: _BrandedPDF, label: str, value: object) -> None:
@@ -197,8 +207,9 @@ def _paragraph(pdf: _BrandedPDF, label: str, value: object) -> None:
     pdf.cell(0, 6, _safe(label), new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "", 9)
     pdf.set_text_color(*_INK)
-    pdf.multi_cell(0, 5, _safe(value if value not in (None, "") else "-"),
-                   new_x="LMARGIN", new_y="NEXT")
+    pdf.multi_cell(
+        0, 5, _safe(value if value not in (None, "") else "-"), new_x="LMARGIN", new_y="NEXT"
+    )
     pdf.ln(1)
 
 
@@ -216,6 +227,7 @@ def _date(value: object) -> str:
 
 
 # ── Shared branding context ─────────────────────────────────────────────────
+
 
 def _get_settings(db: Session) -> OrgSettings | None:
     org = db.get(OrgSettings, 1)
@@ -241,8 +253,7 @@ def _user_name(db: Session, user_id: int | None) -> str:
 
 def _new_pdf(db: Session, *, title: str, subtitle: str) -> _BrandedPDF:
     name, accent, logo = _branding(db)
-    pdf = _BrandedPDF(org_name=name, title=title, subtitle=subtitle,
-                      accent=accent, logo=logo)
+    pdf = _BrandedPDF(org_name=name, title=title, subtitle=subtitle, accent=accent, logo=logo)
     pdf.alias_nb_pages()
     pdf.add_page()
     return pdf
@@ -253,6 +264,7 @@ def _output(pdf: _BrandedPDF) -> bytes:
 
 
 # ── Document renderers ──────────────────────────────────────────────────────
+
 
 def render_ncr_pdf(db: Session, ncr: Nonconformance) -> bytes:
     """Render a single Nonconformance (NCR) record as a branded PDF."""
@@ -293,7 +305,8 @@ def render_ncr_pdf(db: Session, ncr: Nonconformance) -> bytes:
             _kv(
                 pdf,
                 "Customer Approval",
-                "Approved" if d.customer_approved
+                "Approved"
+                if d.customer_approved
                 else ("Required" if d.customer_approval_required else "N/A"),
             )
             pdf.ln(2)

@@ -15,6 +15,7 @@ SLA windows are admin-configurable on :class:`OrgSettings`:
   ``created_at``) exceeds the per-severity window
   (``sla_ncr_minor_days`` / ``major`` / ``critical``).
 """
+
 from __future__ import annotations
 
 import logging
@@ -73,11 +74,7 @@ def _claim(db: Session, entity_type: str, entity_id: str | int, level: str) -> b
     """
     nested = db.begin_nested()
     try:
-        db.add(
-            SlaEscalation(
-                entity_type=entity_type, entity_id=str(entity_id), level=level
-            )
-        )
+        db.add(SlaEscalation(entity_type=entity_type, entity_id=str(entity_id), level=level))
         db.flush()
         nested.commit()
         return True
@@ -180,11 +177,7 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
 
     # ── CAPAs ────────────────────────────────────────────────────────────────
     capas = (
-        db.execute(
-            select(Capa).where(
-                Capa.is_deleted.is_(False), Capa.status.in_(_CAPA_OPEN)
-            )
-        )
+        db.execute(select(Capa).where(Capa.is_deleted.is_(False), Capa.status.in_(_CAPA_OPEN)))
         .scalars()
         .all()
     )
@@ -228,11 +221,7 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
 
     # ── CAPA actions ───────────────────────────────────────────────────────--
     actions = (
-        db.execute(
-            select(CapaAction).where(CapaAction.status.in_(_ACTION_OPEN))
-        )
-        .scalars()
-        .all()
+        db.execute(select(CapaAction).where(CapaAction.status.in_(_ACTION_OPEN))).scalars().all()
     )
     for action in actions:
         due = _basis_date(action.due_date)
@@ -292,10 +281,7 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
                 recipient_ids=managers,
                 primary_user_id=ncr.assigned_to,
                 title=f"NCR {ncr.ncr_number} has breached its SLA",
-                body=(
-                    f"{ncr.title} — {sev} NCR open {age} days "
-                    f"(SLA {window} days)."
-                ),
+                body=(f"{ncr.title} — {sev} NCR open {age} days (SLA {window} days)."),
                 entity_type="nonconformance",
                 entity_id=ncr.id,
             )

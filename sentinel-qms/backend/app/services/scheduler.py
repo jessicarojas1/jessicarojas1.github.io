@@ -10,6 +10,7 @@ is safe to run this thread in every web worker — duplicate work is suppressed 
 the DB layer. The scheduler is started from the FastAPI lifespan and is disabled
 automatically under the test-suite (``RUN_SCHEDULER=false``).
 """
+
 from __future__ import annotations
 
 import logging

@@ -1,4 +1,5 @@
 """Branded PDF rendering tests (service-level, no HTTP)."""
+
 from __future__ import annotations
 
 import base64

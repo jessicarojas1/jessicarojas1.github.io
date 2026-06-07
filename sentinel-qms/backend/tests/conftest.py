@@ -1,4 +1,5 @@
 """Pytest fixtures: in-memory SQLite DB, seeded roles/users, and auth clients."""
+
 from __future__ import annotations
 
 import os
@@ -17,7 +18,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base, get_db
-from app.core.rbac import ROLE_PERMISSIONS, Role as RoleEnum
+from app.core.rbac import ROLE_PERMISSIONS
+from app.core.rbac import Role as RoleEnum
 from app.core.security import hash_password
 from app.main import app
 from app.models import Role, User

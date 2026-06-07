@@ -1,4 +1,5 @@
 """Immutable audit-log helper used by every state-changing endpoint."""
+
 from __future__ import annotations
 
 import logging
@@ -18,15 +19,15 @@ _REDACT = {"hashed_password", "password", "signed_hash"}
 
 
 def _jsonable(value: Any) -> Any:
-    if value is None or isinstance(value, (str, int, float, bool)):
+    if value is None or isinstance(value, str | int | float | bool):
         return value
-    if isinstance(value, (datetime, date)):
+    if isinstance(value, datetime | date):
         return value.isoformat()
     if isinstance(value, Decimal):
         return float(value)
     if isinstance(value, Enum):
         return value.value
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         return [_jsonable(v) for v in value]
     if isinstance(value, dict):
         return {k: _jsonable(v) for k, v in value.items()}

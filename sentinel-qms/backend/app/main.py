@@ -1,4 +1,5 @@
 """FastAPI application factory for the Sentinel QMS API."""
+
 from __future__ import annotations
 
 import os
@@ -28,6 +29,7 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         scheduler.stop()
+
 
 OPENAPI_DESCRIPTION = """
 Sentinel QMS — Enterprise Quality Management System API.
@@ -100,6 +102,7 @@ def create_app() -> FastAPI:
     if settings.SERVE_FRONTEND and os.path.isdir(static_dir):
         _mount_spa(app, static_dir)
     else:
+
         @app.get("/", tags=["system"])
         def root() -> dict:
             return {
@@ -129,11 +132,7 @@ def _mount_spa(app: FastAPI, static_dir: str) -> None:
         if full_path.startswith("api/"):
             raise HTTPException(status_code=404, detail="Not Found")
         candidate = os.path.normpath(os.path.join(static_dir, full_path))
-        if (
-            full_path
-            and candidate.startswith(static_dir)
-            and os.path.isfile(candidate)
-        ):
+        if full_path and candidate.startswith(static_dir) and os.path.isfile(candidate):
             return FileResponse(candidate)
         return FileResponse(index_file)
 

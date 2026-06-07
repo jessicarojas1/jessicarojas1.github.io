@@ -9,6 +9,7 @@ conditional UPDATE of ``report_schedule_last_sent_at`` — only the worker whose
 UPDATE affects a row proceeds to send, so the digest goes out at most once per
 period even with multiple web workers all ticking.
 """
+
 from __future__ import annotations
 
 import logging
@@ -157,8 +158,8 @@ def send_digest_now(
     org = _get_settings(db)
     if org is None:
         return {"ok": False, "sent": 0, "detail": "No organization settings found"}
-    targets = recipients if recipients is not None else parse_recipients(
-        org.report_schedule_recipients
+    targets = (
+        recipients if recipients is not None else parse_recipients(org.report_schedule_recipients)
     )
     if not targets:
         return {"ok": False, "sent": 0, "detail": "No valid recipients configured"}

@@ -12,6 +12,7 @@ Endpoints
 * ``GET  /iam/users``          — per-user breakdown (require_page permissions/view).
 * ``PUT  /iam/users/{id}``     — replace a user's EXPLICIT grants (permissions/edit).
 """
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request
@@ -102,9 +103,7 @@ def list_iam_users(
     db: Session = Depends(get_db),
     _: CurrentUser = Depends(require_page("permissions", "view")),
 ) -> list[IamUserRow]:
-    users = db.execute(
-        select(UserModel).order_by(UserModel.full_name)
-    ).scalars().all()
+    users = db.execute(select(UserModel).order_by(UserModel.full_name)).scalars().all()
     return [_user_row(db, u) for u in users]
 
 
@@ -127,11 +126,11 @@ def update_iam_user(
 
     before = _user_row(db, user).model_dump()
 
-    current_rows = db.execute(
-        select(UserPermissionGrant).where(
-            UserPermissionGrant.user_id == user_id
-        )
-    ).scalars().all()
+    current_rows = (
+        db.execute(select(UserPermissionGrant).where(UserPermissionGrant.user_id == user_id))
+        .scalars()
+        .all()
+    )
     current = {r.permission: r for r in current_rows}
 
     # Insert missing grants.

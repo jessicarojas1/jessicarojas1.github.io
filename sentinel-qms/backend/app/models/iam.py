@@ -7,6 +7,7 @@ of the user's role defaults (additive: granted if the role grants it OR the user
 is explicitly granted it). This is independent of the page-level
 :class:`~app.models.permission.UserPagePermission` overrides, which keep working.
 """
+
 from __future__ import annotations
 
 from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
@@ -18,9 +19,7 @@ from app.models.base import TimestampMixin
 
 class UserPermissionGrant(Base, TimestampMixin):
     __tablename__ = "user_permission_grants"
-    __table_args__ = (
-        UniqueConstraint("user_id", "permission", name="uq_user_permission"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", "permission", name="uq_user_permission"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(

@@ -1,4 +1,5 @@
 """Global cross-module search endpoint."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -39,23 +40,55 @@ class _Target:
 # Each searchable module: which columns identify the record + the SPA route +
 # the read permission required to surface it. Mirrors the list endpoints.
 _TARGETS: list[_Target] = [
-    _Target("nonconformance", Nonconformance, "ncr_number", "title",
-            "/nonconformances/{id}", Permission.NCR_READ),
+    _Target(
+        "nonconformance",
+        Nonconformance,
+        "ncr_number",
+        "title",
+        "/nonconformances/{id}",
+        Permission.NCR_READ,
+    ),
     _Target("capa", Capa, "capa_number", "title", "/capa/{id}", Permission.CAPA_READ),
-    _Target("document", Document, "document_number", "title",
-            "/documents/{id}", Permission.DOCUMENT_READ),
-    _Target("supplier", Supplier, "supplier_code", "name",
-            "/suppliers/{id}", Permission.SUPPLIER_READ),
+    _Target(
+        "document",
+        Document,
+        "document_number",
+        "title",
+        "/documents/{id}",
+        Permission.DOCUMENT_READ,
+    ),
+    _Target(
+        "supplier", Supplier, "supplier_code", "name", "/suppliers/{id}", Permission.SUPPLIER_READ
+    ),
     _Target("audit", Audit, "audit_number", "title", "/audits/{id}", Permission.AUDIT_READ),
-    _Target("complaint", Complaint, "complaint_number", "title",
-            "/complaints/{id}", Permission.COMPLAINT_READ),
+    _Target(
+        "complaint",
+        Complaint,
+        "complaint_number",
+        "title",
+        "/complaints/{id}",
+        Permission.COMPLAINT_READ,
+    ),
     _Target("risk", Risk, "risk_number", "title", "/risks/{id}", Permission.RISK_READ),
-    _Target("change", ChangeOrder, "change_number", "title",
-            "/changes/{id}", Permission.CHANGE_READ),
-    _Target("inspection", Inspection, "inspection_number", "inspection_type",
-            "/inspections/{id}", Permission.INSPECTION_READ),
-    _Target("equipment", Equipment, "asset_tag", "name",
-            "/calibration/{id}", Permission.CALIBRATION_READ),
+    _Target(
+        "change", ChangeOrder, "change_number", "title", "/changes/{id}", Permission.CHANGE_READ
+    ),
+    _Target(
+        "inspection",
+        Inspection,
+        "inspection_number",
+        "inspection_type",
+        "/inspections/{id}",
+        Permission.INSPECTION_READ,
+    ),
+    _Target(
+        "equipment",
+        Equipment,
+        "asset_tag",
+        "name",
+        "/calibration/{id}",
+        Permission.CALIBRATION_READ,
+    ),
 ]
 
 

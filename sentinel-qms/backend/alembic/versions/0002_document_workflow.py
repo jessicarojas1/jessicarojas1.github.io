@@ -20,6 +20,7 @@ All DROPs are guarded (IF EXISTS / CASCADE) and schema-qualified when a
 dedicated schema is configured, so this works whether or not a dedicated schema
 is in use and is safe to re-run.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -27,10 +28,9 @@ from collections.abc import Sequence
 from alembic import op
 from sqlalchemy import text
 
-from app.core.database import Base
-
 # Ensure every model is imported so Base.metadata is fully populated.
 import app.models  # noqa: F401
+from app.core.database import Base
 
 # revision identifiers, used by Alembic.
 revision: str = "0002_document_workflow"

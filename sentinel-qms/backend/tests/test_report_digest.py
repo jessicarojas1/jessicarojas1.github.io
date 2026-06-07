@@ -1,4 +1,5 @@
 """Scheduled report digest tests (service-level, no HTTP / no SMTP)."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta

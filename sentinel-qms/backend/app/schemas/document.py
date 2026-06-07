@@ -1,4 +1,5 @@
 """Document control schemas."""
+
 from __future__ import annotations
 
 from datetime import date, datetime
@@ -81,9 +82,7 @@ class TransitionRequest(BaseModel):
     Actions: ``advance`` (next stage), ``approve``, ``obsolete``, ``revise``.
     """
 
-    action: str | None = Field(
-        default=None, pattern="^(advance|approve|obsolete|revise)$"
-    )
+    action: str | None = Field(default=None, pattern="^(advance|approve|obsolete|revise)$")
     to_status: DocumentStatus | None = None
 
 

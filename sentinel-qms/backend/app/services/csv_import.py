@@ -4,11 +4,12 @@ Uses only the stdlib ``csv`` module (no new dependencies). Callers supply the
 list of importable columns (with an example row) for the template, and a
 per-row builder/inserter for the import itself.
 """
+
 from __future__ import annotations
 
 import csv
 import io
-from typing import Callable
+from collections.abc import Callable
 
 from fastapi import Response, UploadFile
 
@@ -30,10 +31,7 @@ def template_response(filename: str, columns: list[str], example: list[str]) -> 
 
 def _read_rows(file: UploadFile) -> list[dict[str, str]]:
     raw = file.file.read()
-    if isinstance(raw, bytes):
-        text = raw.decode("utf-8-sig")
-    else:
-        text = raw
+    text = raw.decode("utf-8-sig") if isinstance(raw, bytes) else raw
     reader = csv.DictReader(io.StringIO(text))
     return list(reader)
 

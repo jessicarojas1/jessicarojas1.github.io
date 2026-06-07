@@ -1,7 +1,8 @@
 """CAPA endpoints: CRUD + 8D actions + status workflow + effectiveness close-out."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
@@ -249,7 +250,9 @@ def change_status(
     return capa
 
 
-@router.post("/{capa_id}/actions", response_model=CapaActionRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{capa_id}/actions", response_model=CapaActionRead, status_code=status.HTTP_201_CREATED
+)
 def add_action(
     capa_id: int,
     body: CapaActionCreate,
@@ -297,7 +300,7 @@ def update_action(
     before = audit.snapshot(action)
     data = body.model_dump(exclude_unset=True)
     if data.get("status") == CapaActionStatus.COMPLETED and action.completed_at is None:
-        action.completed_at = datetime.now(timezone.utc)
+        action.completed_at = datetime.now(UTC)
     for key, value in data.items():
         setattr(action, key, value)
     action.updated_by = actor.id
@@ -331,7 +334,7 @@ def verify_effectiveness(
     capa.effectiveness_verified = body.effective
     capa.effectiveness_notes = body.notes
     capa.effectiveness_verified_by = actor.id
-    capa.effectiveness_verified_at = datetime.now(timezone.utc)
+    capa.effectiveness_verified_at = datetime.now(UTC)
     capa.updated_by = actor.id
     if not body.effective:
         # Effectiveness failed — return to implementation for further action.
@@ -379,7 +382,7 @@ def close_capa(
     )
     capa.d8_closure = body.d8_closure
     capa.status = CapaStatus.CLOSED
-    capa.closed_at = datetime.now(timezone.utc)
+    capa.closed_at = datetime.now(UTC)
     capa.closure_signature_id = sig.id
     capa.updated_by = actor.id
     db.flush()

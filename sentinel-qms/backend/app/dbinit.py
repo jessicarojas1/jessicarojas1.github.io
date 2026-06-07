@@ -13,6 +13,7 @@ operator action and therefore works in any environment.
 
 This module never loads demo records.
 """
+
 from __future__ import annotations
 
 import logging

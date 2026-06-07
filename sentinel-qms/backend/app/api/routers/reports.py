@@ -3,6 +3,7 @@
 All aggregation is performed in Python over fetched rows so the endpoints stay
 portable across PostgreSQL and SQLite (no DB-specific date functions).
 """
+
 from __future__ import annotations
 
 from datetime import UTC, date, datetime
@@ -89,9 +90,7 @@ def ncr_summary(
     _: CurrentUser = Depends(get_current_user),
 ) -> NcrSummaryReport:
     rows = (
-        db.execute(
-            select(Nonconformance).where(Nonconformance.is_deleted.is_(False))
-        )
+        db.execute(select(Nonconformance).where(Nonconformance.is_deleted.is_(False)))
         .scalars()
         .all()
     )
@@ -180,11 +179,7 @@ def supplier_scorecard(
     db: Session = Depends(get_db),
     _: CurrentUser = Depends(get_current_user),
 ) -> SupplierScorecardReport:
-    suppliers = (
-        db.execute(select(Supplier).where(Supplier.is_deleted.is_(False)))
-        .scalars()
-        .all()
-    )
+    suppliers = db.execute(select(Supplier).where(Supplier.is_deleted.is_(False))).scalars().all()
 
     # Aggregate ratings (avg quality + avg OTD, rating count) per supplier.
     rating_q: dict[int, list[float]] = {}
@@ -228,9 +223,7 @@ def audit_summary(
     db: Session = Depends(get_db),
     _: CurrentUser = Depends(get_current_user),
 ) -> AuditSummaryReport:
-    audits = (
-        db.execute(select(Audit).where(Audit.is_deleted.is_(False))).scalars().all()
-    )
+    audits = db.execute(select(Audit).where(Audit.is_deleted.is_(False))).scalars().all()
 
     by_type: dict[str, int] = {}
     by_status: dict[str, int] = {}
@@ -252,6 +245,7 @@ def audit_summary(
 
 
 # ── Branded PDF exports ─────────────────────────────────────────────────────
+
 
 def _pdf_response(data: bytes, filename: str) -> Response:
     """Wrap PDF bytes in an attachment response."""

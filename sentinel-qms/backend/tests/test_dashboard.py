@@ -1,4 +1,5 @@
 """Dashboard KPI aggregation tests."""
+
 from __future__ import annotations
 
 

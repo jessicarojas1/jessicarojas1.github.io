@@ -5,6 +5,7 @@ Microsoft Teams + Slack) is fanned out, in the background, via
 :mod:`app.services.delivery` so a misconfigured/unreachable channel can never
 break the calling request.
 """
+
 from __future__ import annotations
 
 import logging
@@ -13,7 +14,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.rbac import Role
-from app.models.user import Notification, Role as RoleModel, User
+from app.models.user import Notification, User
+from app.models.user import Role as RoleModel
 from app.schemas.notification import notification_url
 from app.services import delivery
 
@@ -44,9 +46,7 @@ def notify_user(
     if send_email:
         recipient = db.get(User, user_id)
         cfg = delivery.resolve_channels(db)
-        link = notification_url(
-            entity_type, str(entity_id) if entity_id is not None else None
-        )
+        link = notification_url(entity_type, str(entity_id) if entity_id is not None else None)
         delivery.dispatch_notification(
             recipient_email=recipient.email if recipient is not None else None,
             title=title,

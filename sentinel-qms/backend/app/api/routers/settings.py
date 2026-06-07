@@ -1,4 +1,5 @@
 """Organization settings & branding endpoints (singleton row)."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request
@@ -104,9 +105,7 @@ def test_notification_channel(
 
     if payload.channel == "email":
         if not cfg.email_enabled:
-            return NotificationTestResult(
-                ok=False, detail="Email delivery is disabled in settings"
-            )
+            return NotificationTestResult(ok=False, detail="Email delivery is disabled in settings")
         ok, detail = delivery.send_email(cfg, actor.email, title, body, None)
     elif payload.channel == "teams":
         ok, detail = delivery.send_teams(cfg, title, body, None)

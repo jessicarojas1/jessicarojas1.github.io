@@ -1,4 +1,5 @@
 """Shared Pydantic schema primitives: ORM config, pagination, e-signature."""
+
 from __future__ import annotations
 
 from datetime import datetime

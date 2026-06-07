@@ -24,6 +24,7 @@ re-run and respect the dedicated ``DB_SCHEMA``):
    unique constraint on ``(entity_type, entity_id, level)`` so each record is
    escalated at most once per level and the sweep stays race-safe.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence

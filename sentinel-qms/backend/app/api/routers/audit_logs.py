@@ -1,4 +1,5 @@
 """Audit-trail viewer API (admin only)."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query

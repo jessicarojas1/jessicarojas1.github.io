@@ -1,4 +1,5 @@
 """Application configuration loaded from environment variables."""
+
 from __future__ import annotations
 
 from functools import lru_cache
@@ -114,9 +115,9 @@ class Settings(BaseSettings):
         # explicit driver, so pin it to psycopg (v3) which is what we ship.
         if isinstance(v, str):
             if v.startswith("postgres://"):
-                return "postgresql+psycopg://" + v[len("postgres://"):]
+                return "postgresql+psycopg://" + v[len("postgres://") :]
             if v.startswith("postgresql://"):
-                return "postgresql+psycopg://" + v[len("postgresql://"):]
+                return "postgresql+psycopg://" + v[len("postgresql://") :]
         return v
 
     @property

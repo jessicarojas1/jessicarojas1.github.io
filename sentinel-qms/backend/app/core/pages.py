@@ -9,6 +9,7 @@ This is the single source of truth for:
 
 Permission LEVELS are the ordered strings ``"none" < "view" < "edit"``.
 """
+
 from __future__ import annotations
 
 from typing import TypedDict

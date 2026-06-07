@@ -1,7 +1,8 @@
 """Supplier endpoints: CRUD + SCAR + ASL + ratings/scorecard."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
@@ -107,9 +108,7 @@ def list_suppliers(
         stmt = stmt.where(Supplier.status == status_filter)
     if search:
         like = f"%{search}%"
-        stmt = stmt.where(
-            Supplier.name.ilike(like) | Supplier.supplier_code.ilike(like)
-        )
+        stmt = stmt.where(Supplier.name.ilike(like) | Supplier.supplier_code.ilike(like))
     stmt = apply_sort(stmt, Supplier, sort)
     items, total = paginate(db, stmt, Supplier, pagination)
     return Page[SupplierList](items=items, **page_meta(total, pagination))
@@ -275,9 +274,7 @@ def list_scars(
     )
 
 
-@router.post(
-    "/{supplier_id}/scars", response_model=ScarRead, status_code=status.HTTP_201_CREATED
-)
+@router.post("/{supplier_id}/scars", response_model=ScarRead, status_code=status.HTTP_201_CREATED)
 def create_scar(
     supplier_id: int,
     body: ScarCreate,
@@ -325,7 +322,7 @@ def update_scar(
     before = audit.snapshot(scar)
     data = body.model_dump(exclude_unset=True)
     if data.get("status") == ScarStatus.CLOSED and scar.closed_at is None:
-        scar.closed_at = datetime.now(timezone.utc)
+        scar.closed_at = datetime.now(UTC)
     for key, value in data.items():
         setattr(scar, key, value)
     scar.updated_by = actor.id
@@ -349,9 +346,7 @@ def update_scar(
 # ── Approved Supplier List ──────────────────────────────────────────────────
 
 
-@router.post(
-    "/{supplier_id}/asl", response_model=AslEntryRead, status_code=status.HTTP_201_CREATED
-)
+@router.post("/{supplier_id}/asl", response_model=AslEntryRead, status_code=status.HTTP_201_CREATED)
 def add_asl_entry(
     supplier_id: int,
     body: AslEntryCreate,
