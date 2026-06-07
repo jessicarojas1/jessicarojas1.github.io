@@ -16,6 +16,7 @@ from app.models.inspection import Inspection, InspectionResult
 from app.models.mgmt_review import ManagementReview, ReviewStatus
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.models.risk import Risk, RiskStatus
+from app.models.settings import OrgSettings
 from app.models.supplier import Supplier, SupplierRating, SupplierStatus
 
 
@@ -387,6 +388,12 @@ def executive_dashboard(db: Session) -> dict:
     months = _month_series(6)
     window = set(months)
 
+    settings = db.get(OrgSettings, 1) or db.query(OrgSettings).order_by(OrgSettings.id).first()
+
+    def _cfg(attr: str, default: float) -> float:
+        val = getattr(settings, attr, None) if settings is not None else None
+        return float(val) if val is not None else float(default)
+
     def _counts_by_month(model):
         counts = dict.fromkeys(months, 0)
         stmt = select(model)
@@ -404,24 +411,51 @@ def executive_dashboard(db: Session) -> dict:
     internal = _counts_by_month(Nonconformance)
     external = _counts_by_month(Complaint)
 
-    coq_trend = [
-        {
+    # Per-event unit costs convert event counts into a dollar Cost of Quality.
+    c_capa = _cfg("coq_cost_capa", 1200)
+    c_insp = _cfg("coq_cost_inspection", 75)
+    c_audit = _cfg("coq_cost_audit", 1500)
+    c_ncr = _cfg("coq_cost_ncr", 500)
+    c_complaint = _cfg("coq_cost_complaint", 2000)
+
+    def _coq_row(m: str) -> dict:
+        appraisal = inspections[m] + audits[m]
+        return {
             "month": m,
             "prevention": prevention[m],
-            "appraisal": inspections[m] + audits[m],
+            "appraisal": appraisal,
             "internal_failure": internal[m],
             "external_failure": external[m],
+            "prevention_cost": round(prevention[m] * c_capa, 2),
+            "appraisal_cost": round(inspections[m] * c_insp + audits[m] * c_audit, 2),
+            "internal_failure_cost": round(internal[m] * c_ncr, 2),
+            "external_failure_cost": round(external[m] * c_complaint, 2),
         }
-        for m in months
-    ]
+
+    coq_trend = [_coq_row(m) for m in months]
     last = months[-1]
+    _cur = _coq_row(last)
     coq_current = {
-        "prevention": prevention[last],
-        "appraisal": inspections[last] + audits[last],
-        "internal_failure": internal[last],
-        "external_failure": external[last],
+        "prevention": _cur["prevention"],
+        "appraisal": _cur["appraisal"],
+        "internal_failure": _cur["internal_failure"],
+        "external_failure": _cur["external_failure"],
+        "total": _cur["prevention"]
+        + _cur["appraisal"]
+        + _cur["internal_failure"]
+        + _cur["external_failure"],
+        "prevention_cost": _cur["prevention_cost"],
+        "appraisal_cost": _cur["appraisal_cost"],
+        "internal_failure_cost": _cur["internal_failure_cost"],
+        "external_failure_cost": _cur["external_failure_cost"],
+        "total_cost": round(
+            _cur["prevention_cost"]
+            + _cur["appraisal_cost"]
+            + _cur["internal_failure_cost"]
+            + _cur["external_failure_cost"],
+            2,
+        ),
     }
-    coq_current["total"] = sum(coq_current.values())
 
     # ---- AS9100 clause findings heatmap (open findings by clause × type) ----
     type_key = {
@@ -556,16 +590,33 @@ def executive_dashboard(db: Session) -> dict:
     avg_otd = db.execute(select(func.avg(SupplierRating.on_time_delivery))).scalar()
 
     kpis = [
-        _exec_kpi("open_ncrs", "Open Nonconformances", open_ncrs, target=10),
-        _exec_kpi("overdue_capas", "Overdue CAPAs", overdue_capas, target=0),
-        _exec_kpi("open_findings", "Open Audit Findings", open_findings, target=5),
-        _exec_kpi("escapes_90d", "Customer Escapes (90d)", escapes, target=3),
+        _exec_kpi(
+            "open_ncrs", "Open Nonconformances", open_ncrs, target=_cfg("kpi_target_open_ncrs", 10)
+        ),
+        _exec_kpi(
+            "overdue_capas",
+            "Overdue CAPAs",
+            overdue_capas,
+            target=_cfg("kpi_target_overdue_capas", 0),
+        ),
+        _exec_kpi(
+            "open_findings",
+            "Open Audit Findings",
+            open_findings,
+            target=_cfg("kpi_target_open_findings", 5),
+        ),
+        _exec_kpi(
+            "escapes_90d",
+            "Customer Escapes (90d)",
+            escapes,
+            target=_cfg("kpi_target_escapes", 3),
+        ),
         _exec_kpi(
             "capa_on_time",
             "On-time CAPA Closure",
             on_time_rate,
             unit="%",
-            target=90,
+            target=_cfg("kpi_target_capa_on_time", 90),
             direction="higher_better",
         ),
         _exec_kpi(
@@ -573,7 +624,7 @@ def executive_dashboard(db: Session) -> dict:
             "Supplier Quality",
             float(avg_q) if avg_q is not None else 0.0,
             unit="%",
-            target=95,
+            target=_cfg("kpi_target_supplier_quality", 95),
             direction="higher_better",
         ),
         _exec_kpi(
@@ -581,7 +632,7 @@ def executive_dashboard(db: Session) -> dict:
             "Supplier On-time Delivery",
             float(avg_otd) if avg_otd is not None else 0.0,
             unit="%",
-            target=95,
+            target=_cfg("kpi_target_supplier_otd", 95),
             direction="higher_better",
         ),
     ]

@@ -42,6 +42,20 @@ class OrgSettingsRead(ORMModel):
     report_schedule_frequency: ReportFrequency = "weekly"
     report_schedule_recipients: str | None = None
     report_schedule_last_sent_at: datetime | None = None
+    # Executive dashboard KPI targets.
+    kpi_target_open_ncrs: float = 10
+    kpi_target_overdue_capas: float = 0
+    kpi_target_open_findings: float = 5
+    kpi_target_escapes: float = 3
+    kpi_target_capa_on_time: float = 90
+    kpi_target_supplier_quality: float = 95
+    kpi_target_supplier_otd: float = 95
+    # Cost of Quality per-event unit costs.
+    coq_cost_ncr: float = 500
+    coq_cost_complaint: float = 2000
+    coq_cost_inspection: float = 75
+    coq_cost_audit: float = 1500
+    coq_cost_capa: float = 1200
 
 
 class OrgSettingsUpdate(BaseModel):
@@ -66,6 +80,20 @@ class OrgSettingsUpdate(BaseModel):
     report_schedule_enabled: bool | None = None
     report_schedule_frequency: ReportFrequency | None = None
     report_schedule_recipients: str | None = Field(default=None, max_length=8192)
+    # Executive dashboard KPI targets (>= 0).
+    kpi_target_open_ncrs: float | None = Field(default=None, ge=0)
+    kpi_target_overdue_capas: float | None = Field(default=None, ge=0)
+    kpi_target_open_findings: float | None = Field(default=None, ge=0)
+    kpi_target_escapes: float | None = Field(default=None, ge=0)
+    kpi_target_capa_on_time: float | None = Field(default=None, ge=0, le=100)
+    kpi_target_supplier_quality: float | None = Field(default=None, ge=0, le=100)
+    kpi_target_supplier_otd: float | None = Field(default=None, ge=0, le=100)
+    # Cost of Quality per-event unit costs (>= 0).
+    coq_cost_ncr: float | None = Field(default=None, ge=0)
+    coq_cost_complaint: float | None = Field(default=None, ge=0)
+    coq_cost_inspection: float | None = Field(default=None, ge=0)
+    coq_cost_audit: float | None = Field(default=None, ge=0)
+    coq_cost_capa: float | None = Field(default=None, ge=0)
 
     @field_validator("logo_url")
     @classmethod
