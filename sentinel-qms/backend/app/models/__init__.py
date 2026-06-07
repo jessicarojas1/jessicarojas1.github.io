@@ -2,6 +2,13 @@
 
 from __future__ import annotations
 
+from app.models.apqp import (
+    ApqpPhase,
+    ApqpProject,
+    ApqpStatus,
+    PpapElement,
+    PpapElementStatus,
+)
 from app.models.audit_mgmt import (
     Audit,
     AuditChecklistItem,
@@ -196,4 +203,9 @@ __all__ = [
     "VerificationStatus",
     "AlertSource",
     "AlertStatus",
+    "ApqpProject",
+    "PpapElement",
+    "ApqpPhase",
+    "ApqpStatus",
+    "PpapElementStatus",
 ]

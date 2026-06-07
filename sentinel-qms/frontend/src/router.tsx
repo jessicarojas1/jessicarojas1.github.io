@@ -10,6 +10,8 @@ const ExecutiveDashboardPage = lazy(() => import('./pages/ExecutiveDashboardPage
 const StandardsPage = lazy(() => import('./pages/standards/StandardsPage'));
 const StandardDetailPage = lazy(() => import('./pages/standards/StandardDetailPage'));
 const CounterfeitPage = lazy(() => import('./pages/counterfeit/CounterfeitPage'));
+const ApqpListPage = lazy(() => import('./pages/apqp/ApqpListPage'));
+const ApqpDetailPage = lazy(() => import('./pages/apqp/ApqpDetailPage'));
 const DocumentationPage = lazy(() => import('./pages/docs/DocumentationPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -93,6 +95,10 @@ export function AppRouter() {
             path="counterfeit"
             element={<Guard page="suppliers" capability="suppliers.read"><CounterfeitPage /></Guard>}
           />
+          <Route path="apqp">
+            <Route index element={<Guard page="inspections" capability="inspections.read"><ApqpListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="inspections" capability="inspections.read"><ApqpDetailPage /></Guard>} />
+          </Route>
 
           <Route
             path="docs"

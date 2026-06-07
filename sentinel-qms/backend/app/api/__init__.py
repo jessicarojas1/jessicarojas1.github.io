@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from app.api.routers import (
     analytics,
+    apqp,
     attachments,
     audit_logs,
     audits,
@@ -63,3 +64,4 @@ api_router.include_router(iam.router)
 api_router.include_router(settings.router)
 api_router.include_router(standards.router)
 api_router.include_router(counterfeit.router)
+api_router.include_router(apqp.router)

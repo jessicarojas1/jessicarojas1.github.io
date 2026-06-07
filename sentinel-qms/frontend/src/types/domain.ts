@@ -743,6 +743,56 @@ export interface CalendarItem {
   status: 'overdue' | 'due_soon' | 'upcoming';
 }
 
+export type ApqpPhase =
+  | 'planning'
+  | 'product_design'
+  | 'process_design'
+  | 'validation'
+  | 'production';
+export type ApqpStatus = 'active' | 'on_hold' | 'complete' | 'cancelled';
+export type PpapElementStatus =
+  | 'not_started'
+  | 'in_progress'
+  | 'submitted'
+  | 'approved'
+  | 'rejected'
+  | 'not_applicable';
+
+export interface PpapElement {
+  id: number;
+  project_id: number;
+  element_key: string;
+  name: string;
+  status: PpapElementStatus;
+  notes: string | null;
+}
+
+export interface PpapProgress {
+  total: number;
+  approved: number;
+  applicable: number;
+  approved_pct: number;
+}
+
+export interface ApqpProject {
+  id: number;
+  project_number: string;
+  part_number: string;
+  part_name: string;
+  customer: string | null;
+  supplier_id: number | null;
+  current_phase: ApqpPhase;
+  status: ApqpStatus;
+  submission_level: number;
+  target_date: string | null;
+  ppap: PpapProgress;
+}
+
+export interface ApqpDetail extends ApqpProject {
+  notes: string | null;
+  elements: PpapElement[];
+}
+
 export type SourceType = 'ocm' | 'franchised' | 'independent' | 'broker' | 'other';
 export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 export type VerificationStatus = 'pending' | 'verified' | 'suspect' | 'rejected';
