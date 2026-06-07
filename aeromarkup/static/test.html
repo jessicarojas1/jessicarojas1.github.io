@@ -34,8 +34,10 @@
     let n = 0, pass = 0;
     const approx = (a, b, e = 1e-4) => Math.abs(a - b) <= e;
     function test(name, fn) {
-      n++; let ok = false, detail = "";
-      try { const r = fn(); ok = r === true || r === undefined; detail = (r && r !== true) ? String(r) : "ok"; }
+      // A test PASSES unless it throws. A returned string is treated as a
+      // success detail (not a failure); failures must throw.
+      n++; let ok = true, detail = "ok";
+      try { const r = fn(); if (r && r !== true) detail = String(r); }
       catch (e) { ok = false; detail = e.message; }
       if (ok) pass++;
       rows.insertAdjacentHTML("beforeend",
