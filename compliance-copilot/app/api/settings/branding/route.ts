@@ -38,6 +38,20 @@ export async function GET() {
 
 // PUT /api/settings/branding — upserts the shared branding.
 export async function PUT(req: NextRequest) {
+  // This app ships without a user-auth layer, so the shared (org-wide) branding
+  // write is gated by an optional admin token: when BRANDING_ADMIN_TOKEN is set,
+  // callers must send it as `Authorization: Bearer <token>`. When unset, the route
+  // stays open (single-user/demo default) — set the env var in any shared
+  // deployment to prevent anonymous branding changes (defacement).
+  const adminToken = process.env.BRANDING_ADMIN_TOKEN;
+  if (adminToken) {
+    const auth = req.headers.get('authorization') || '';
+    const provided = /^bearer\s+/i.test(auth) ? auth.replace(/^bearer\s+/i, '').trim() : '';
+    if (provided !== adminToken) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+    }
+  }
+
   let body: Partial<Branding>;
   try {
     body = await req.json();

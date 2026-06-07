@@ -5,7 +5,7 @@ import { Palette, Upload, Link2, Type, Check, AlertCircle, RotateCcw } from 'luc
 import { useBranding } from '@/components/branding/BrandingProvider';
 import {
   Branding, DEFAULT_BRANDING, BRAND_TAGLINE,
-  sanitizeLogoUrl, sanitizeAccentColor,
+  sanitizeLogoUrl, sanitizeAccentColor, ADMIN_TOKEN_KEY,
 } from '@/lib/branding';
 
 const MAX_LOGO_BYTES = 512 * 1024; // 512 KB cap for inline data: URLs.
@@ -24,6 +24,22 @@ export default function SettingsPage() {
   const [saveState, setSaveState] = useState<SaveState>({ kind: 'idle' });
   const [logoError, setLogoError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const [adminToken, setAdminToken] = useState('');
+
+  // Load any saved admin token (only needed when the server sets BRANDING_ADMIN_TOKEN).
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try { setAdminToken(window.localStorage.getItem(ADMIN_TOKEN_KEY) || ''); } catch { /* ignore */ }
+  }, []);
+
+  function onAdminTokenChange(value: string) {
+    setAdminToken(value);
+    if (typeof window === 'undefined') return;
+    try {
+      if (value) window.localStorage.setItem(ADMIN_TOKEN_KEY, value);
+      else window.localStorage.removeItem(ADMIN_TOKEN_KEY);
+    } catch { /* ignore */ }
+  }
 
   // Keep the form in sync with loaded branding until the user edits it.
   useEffect(() => {
@@ -247,6 +263,27 @@ export default function SettingsPage() {
             <p className="text-xs text-slate-500 mt-1">
               Applied live via the <code className="text-slate-400">--brand-accent</code> CSS variable
               (primary buttons, active nav, logo mark).
+            </p>
+          </div>
+
+          {/* Admin token — only required when the deployment sets BRANDING_ADMIN_TOKEN */}
+          <div>
+            <label htmlFor="brand-admin-token" className="label flex items-center gap-1.5">
+              <Type className="w-3.5 h-3.5" /> Admin token <span className="text-slate-500 font-normal">(optional)</span>
+            </label>
+            <input
+              id="brand-admin-token"
+              type="password"
+              autoComplete="off"
+              className="input font-mono"
+              value={adminToken}
+              onChange={(e) => onAdminTokenChange(e.target.value)}
+              placeholder="Only needed if this deployment requires it"
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              When the server sets <code className="text-slate-400">BRANDING_ADMIN_TOKEN</code>, this token
+              authorizes saving the shared (org-wide) branding. Stored only in this browser and sent as a
+              Bearer token. Leave blank for single-user / local use.
             </p>
           </div>
 

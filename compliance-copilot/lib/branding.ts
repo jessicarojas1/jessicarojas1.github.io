@@ -26,6 +26,10 @@ export const BRAND_TAGLINE = 'CMMC / NIST 800-171';
 
 const STORAGE_KEY = 'cc.branding.v1';
 
+/** localStorage key holding the admin token used to authorize shared writes
+ *  (only needed when the server sets BRANDING_ADMIN_TOKEN). */
+export const ADMIN_TOKEN_KEY = 'cc.admin_token';
+
 /**
  * Validate a logo URL. Only http(s):// and data:image/... are allowed to
  * prevent javascript:, vbscript:, file:, and other dangerous schemes.
@@ -124,9 +128,16 @@ export async function fetchServerBranding(): Promise<Branding | null> {
  */
 export async function saveServerBranding(b: Branding): Promise<boolean> {
   try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    // When the deployment sets BRANDING_ADMIN_TOKEN, the server requires this
+    // token to authorize the shared write. Stored per-browser in localStorage.
+    if (typeof window !== 'undefined') {
+      const token = window.localStorage.getItem(ADMIN_TOKEN_KEY);
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+    }
     const res = await fetch('/api/settings/branding', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(normalizeBranding(b)),
     });
     if (!res.ok) return false;

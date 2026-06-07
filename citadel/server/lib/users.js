@@ -56,6 +56,10 @@ function load() {
   if (!_db.users.some(u => u.role === 'admin')) {
     const email = (process.env.CITADEL_ADMIN_EMAIL || 'admin@citadel.local').toLowerCase();
     const pw = process.env.CITADEL_ADMIN_PASSWORD || 'citadel-admin';
+    if (!process.env.CITADEL_ADMIN_PASSWORD && process.env.NODE_ENV === 'production') {
+      console.warn('[citadel] SECURITY: seeding the DEFAULT admin password in production. ' +
+        'Set CITADEL_ADMIN_PASSWORD (and change it after first login) — the default is publicly known.');
+    }
     const salt = newSalt();
     _db.users.unshift({
       id: uid(), name: 'Administrator', email, role: 'admin', active: true,

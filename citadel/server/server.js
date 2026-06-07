@@ -212,8 +212,11 @@ app.patch('/api/branding', requireAdmin, (req, res) => {
   const url = typeof b.logoUrl === 'string' ? b.logoUrl.trim() : '';
   const accent = typeof b.accent === 'string' ? b.accent.trim() : '';
   // Allow public https(/http) URLs or inline data: image URIs (file uploads).
+  // SVG is intentionally excluded: an SVG can carry script and, while an <img>
+  // never executes it, accepting it would be a latent stored-XSS vector if a
+  // logo is ever inlined. Raster formats only.
   const isHttp = /^https?:\/\/\S+$/i.test(url);
-  const isDataImg = /^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=\s]+$/i.test(url);
+  const isDataImg = /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=\s]+$/i.test(url);
   const clean = {
     logoUrl: isHttp ? url.slice(0, 500) : (isDataImg ? url.slice(0, 200000) : ''),
     orgName: (typeof b.orgName === 'string' ? b.orgName.trim() : '').slice(0, 80),
