@@ -51,8 +51,19 @@ const M = {
   },
 };
 
+/* exported pure helpers (also used by the headless self-test, test.html) */
+export const vec = V;
+export const mat = M;
+export function rayTriangle(o, d, a, b, c) {
+  const e1 = V.sub(b, a), e2 = V.sub(c, a), pv = V.cross(d, e2), det = V.dot(e1, pv);
+  if (Math.abs(det) < 1e-7) return null; const inv = 1 / det;
+  const tv = V.sub(o, a), u = V.dot(tv, pv) * inv; if (u < 0 || u > 1) return null;
+  const qv = V.cross(tv, e1), v = V.dot(d, qv) * inv; if (v < 0 || u + v > 1) return null;
+  const t = V.dot(e2, qv) * inv; return t > 1e-4 ? t : null;
+}
+
 /* ───────────── mesh builders / parsers ───────────── */
-function meshFromTris(tris) {
+export function meshFromTris(tris) {
   // tris: flat array of triangles [[ax,ay,az],[bx,by,bz],[cx,cy,cz]]
   const pos = [], nor = [];
   let min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
@@ -70,7 +81,7 @@ function meshFromTris(tris) {
   return { position: new Float32Array(pos), normal: new Float32Array(nor), triCount: tris.length, size };
 }
 
-function parseSTL(buf) {
+export function parseSTL(buf) {
   const dv = new DataView(buf);
   // ASCII?
   const head = new TextDecoder().decode(new Uint8Array(buf, 0, Math.min(buf.byteLength, 256))).trim();
@@ -88,7 +99,7 @@ function parseSTL(buf) {
   return meshFromTris(tris);
 }
 
-function parseOBJ(text) {
+export function parseOBJ(text) {
   const vs = [], tris = [];
   for (const line of text.split("\n")) {
     const p = line.trim().split(/\s+/);
@@ -101,7 +112,7 @@ function parseOBJ(text) {
   return meshFromTris(tris);
 }
 
-function sampleAircraft() {
+export function sampleAircraft() {
   // low-poly airframe from boxes (fuselage, wings, tail) so the viewer always
   // has something relevant to show / annotate.
   const tris = [];
@@ -367,13 +378,7 @@ export class Viewer3D {
     this.pins.push(pin); put("annotations", pin); this.opts.onDirty && this.opts.onDirty();
     this.selected = pin.id; this._render(); this._renderPanel(); this._editPin(pin);
   }
-  _rayTri(o, d, a, b, c) {
-    const e1 = V.sub(b, a), e2 = V.sub(c, a), pv = V.cross(d, e2), det = V.dot(e1, pv);
-    if (Math.abs(det) < 1e-7) return null; const inv = 1 / det;
-    const tv = V.sub(o, a), u = V.dot(tv, pv) * inv; if (u < 0 || u > 1) return null;
-    const qv = V.cross(tv, e1), v = V.dot(d, qv) * inv; if (v < 0 || u + v > 1) return null;
-    const t = V.dot(e2, qv) * inv; return t > 1e-4 ? t : null;
-  }
+  _rayTri(o, d, a, b, c) { return rayTriangle(o, d, a, b, c); }
 
   /* pin editing */
   _editPin(pin) {

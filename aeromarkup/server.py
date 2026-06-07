@@ -727,13 +727,19 @@ def sync():
             row = conn.execute(
                 """INSERT INTO drawings
                      (project_id, title, background_kind, background_data,
-                      background_name, width, height, client_uid)
+                      background_name, width, height, client_uid,
+                      view_kind, model_format, model_name, model_data)
                    VALUES (%(pid)s, %(title)s, COALESCE(%(bk)s,'blank'),
                            %(bd)s, %(bn)s, COALESCE(%(w)s,1600),
-                           COALESCE(%(h)s,1200), %(cuid)s)
+                           COALESCE(%(h)s,1200), %(cuid)s,
+                           COALESCE(%(vk)s,'2d'), %(mf)s, %(mn)s, %(md)s)
                    ON CONFLICT (client_uid) DO UPDATE
                      SET title = EXCLUDED.title,
                          background_data = EXCLUDED.background_data,
+                         view_kind = EXCLUDED.view_kind,
+                         model_format = EXCLUDED.model_format,
+                         model_name = EXCLUDED.model_name,
+                         model_data = EXCLUDED.model_data,
                          version = drawings.version + 1
                    RETURNING id""",
                 {
@@ -745,6 +751,10 @@ def sync():
                     "w": drawing.get("width"),
                     "h": drawing.get("height"),
                     "cuid": drawing["client_uid"],
+                    "vk": drawing.get("view_kind"),
+                    "mf": drawing.get("model_format"),
+                    "mn": drawing.get("model_name"),
+                    "md": drawing.get("model_data"),
                 },
             ).fetchone()
             drawing_id = row["id"]
