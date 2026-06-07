@@ -16,6 +16,25 @@
   --danger:       #ef4444;
   --warning:      #f59e0b;
   --info:         #3b82f6;
+  /* The accent is the app's primary brand color. Branding overrides --accent
+     live (see branding.apply in apex.js); mapping Bootstrap's primary to it
+     keeps prominent buttons/links in sync with the chosen brand color. */
+  --bs-primary:        var(--accent);
+  --bs-primary-rgb:    99, 102, 241;
+  --bs-link-color:     var(--accent);
+}
+
+/* Primary buttons follow the brand accent rather than Bootstrap's stock indigo. */
+.btn-primary {
+  --bs-btn-bg:            var(--accent);
+  --bs-btn-border-color:  var(--accent);
+  --bs-btn-hover-bg:      var(--accent);
+  --bs-btn-hover-border-color: var(--accent);
+  --bs-btn-active-bg:     var(--accent);
+  --bs-btn-active-border-color: var(--accent);
+  --bs-btn-disabled-bg:   var(--accent);
+  --bs-btn-disabled-border-color: var(--accent);
+  filter: none;
 }
 
 html, body {
@@ -178,9 +197,18 @@ body { margin: 0; }
 .branding-field-ref { font-size: .72rem; color: var(--text-dim); margin-top: .25rem; }
 
 /* ── Print / report output ────────────────────────────────────────── */
+/* Print / report header — branded with the active logo + display name.
+   Hidden on screen, revealed only when printing (Ctrl/Cmd-P → Save as PDF). */
+.print-brand { display: none; }
 @media print {
-  .print-brand { display: flex; align-items: center; gap: .6rem; margin-bottom: 1rem; }
-  .print-brand img { height: 36px; width: auto; }
+  .print-brand {
+    display: flex; align-items: center; gap: .6rem;
+    margin-bottom: 1rem; padding-bottom: .6rem;
+    border-bottom: 1px solid var(--border);
+    color: #000;
+  }
+  .print-brand img  { height: 36px; width: auto; max-width: 200px; object-fit: contain; }
+  .print-brand .print-brand-name { font-weight: 800; letter-spacing: .12em; font-size: 1.1rem; }
 }
 
 .app-nav { display: flex; gap: .25rem; }
