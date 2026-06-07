@@ -87,6 +87,7 @@
     // deep-scan gate
     const dt = $('deep-mode-toggle');
     if (dt && enforce && !aclCan('deepscan')) { dt.checked = false; dt.disabled = true; } else if (dt) { dt.disabled = false; }
+    const navHist = $('nav-history'); if (navHist) navHist.classList.toggle('d-none', enforce && !aclCan('tab-history'));
     // if the active tab is now restricted, switch to the first accessible one
     const active = document.querySelector('.tab-btn.active');
     if (enforce && active && active.classList.contains('d-none')) {
@@ -107,6 +108,17 @@
     if (!curUser()) { openLogin(); showProgress(100, 'Sign in required to run a scan.', ''); }
     else { showProgress(100, 'Your account does not have permission to run scans.', ''); }
     return false;
+  }
+  // Open the History view from the top menu bar (without needing a fresh scan).
+  function openHistory() {
+    const results = $('results'); if (results) results.classList.remove('d-none');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('d-none'));
+    const hbtn = document.querySelector('.tab-btn[data-tab="tab-history"]');
+    if (hbtn) hbtn.classList.add('active');
+    const panel = $('tab-history'); if (panel) panel.classList.remove('d-none');
+    if (CITADEL.report && CITADEL.report.renderHistory) CITADEL.report.renderHistory('tab-history');
+    if (results) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   // If a scan endpoint rejects us (server-side enforcement), reflect it in the UI.
   function handleAuthError(err) {
@@ -133,11 +145,12 @@
     hs.innerHTML = stats.map(s => `<div class="hero-stat"><span class="hs-num">${s[0]}</span><span class="hs-lbl">${s[1]}</span></div>`).join('');
   })();
 
-  /* ---------- Hero framework chips ---------- */
-  $('framework-chips').innerHTML = CITADEL.frameworks.CATALOG
+  /* ---------- Hero framework chips (only if present — moved to coverage.html) ---------- */
+  const fchips = $('framework-chips');
+  if (fchips) fchips.innerHTML = CITADEL.frameworks.CATALOG
     .map(f => `<span class="hero-chip" title="${f.desc.replace(/"/g, '')}">${f.name}</span>`).join('');
 
-  /* ---------- Frameworks section grid ---------- */
+  /* ---------- Frameworks section grid (only if present — moved to coverage.html) ---------- */
   const fgrid = $('frameworks-grid');
   if (fgrid) {
     fgrid.innerHTML = CITADEL.frameworks.CATALOG.map(f => `
@@ -382,6 +395,7 @@
   /* ---------- Tabs ---------- */
   document.addEventListener('click', (e) => {
     // Auth controls
+    if (e.target.closest('#nav-history')) { e.preventDefault(); openHistory(); return; }
     if (e.target.closest('#login-btn')) return openLogin();
     if (e.target.closest('#logout-btn')) {
       if (backendMode) { CITADEL.api.authLogout(); backendUser = null; } else { CITADEL.auth.logout(); }
@@ -676,4 +690,7 @@
     h = h.replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>');
     return '<p>' + h + '</p>';
   }
+
+  // Deep-link: open History directly (e.g. from the Coverage page's menu).
+  if (location.hash === '#history') { try { openHistory(); } catch (e) {} }
 })(window);
