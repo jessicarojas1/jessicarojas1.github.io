@@ -18,7 +18,7 @@
     { "file": "vuln/path_traversal.js", "cwe": "CWE-22",  "category": "path-traversal",   "desc": "file read from unsanitized path" },
     { "file": "vuln/insecure_tls.js",   "cwe": "CWE-295", "category": "transport",        "desc": "TLS verification disabled" },
     { "file": "vuln/k8s_privileged.yaml","cwe": "CWE-250","category": "config",           "desc": "privileged container" },
-    { "file": "vuln/Dockerfile.bad",    "cwe": "CWE-78",  "category": "injection",        "desc": "curl | sh in RUN" }
+    { "file": "vuln/Dockerfile.bad",    "cwe": "CWE-494", "category": "supply-chain",      "desc": "curl | sh in RUN (download without integrity check)" }
   ],
   "safe": [
     { "file": "safe/sqli_param.py",       "category": "injection",       "desc": "parameterized query" },

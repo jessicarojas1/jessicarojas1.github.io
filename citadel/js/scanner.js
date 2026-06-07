@@ -33,7 +33,13 @@
       let m, hits = 0;
       while ((m = re.exec(content)) !== null && hits < 50) {
         hits++;
-        // Skip matches inside obvious comment lines for noisy quality rules
+        // Skip matches that sit on a fully-commented line (commented-out code is
+        // not a live vulnerability) — except secrets, which leak even in comments.
+        if (rule.category !== 'secrets') {
+          const ls = content.lastIndexOf('\n', m.index) + 1;
+          let le = content.indexOf('\n', m.index); if (le === -1) le = content.length;
+          if (COMMENT_RE.test(content.slice(ls, le))) { if (m.index === re.lastIndex) re.lastIndex++; continue; }
+        }
         findings.push({
           ruleId: rule.id, name: rule.name, category: rule.category,
           severity: rule.severity, cwe: rule.cwe, confidence: rule.confidence,

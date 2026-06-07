@@ -43,16 +43,33 @@ claims. For an authoritative number, point `CORPUS_DIR` at one of those suites
 (the harness is corpus-agnostic). Treat these figures as a *floor for regressions*,
 not a marketing claim.
 
-## Baseline results
+## Results & what the benchmark caught
 
-See `results.json` (regenerated on every run). The first committed baseline
-exposed concrete, fixable issues — which is exactly the point of having this:
+See `results.json` (regenerated on every run). The first run did its job — it
+exposed concrete bugs, which were then fixed and re-measured:
 
-- **Recall 89.5% (CWE-strict) / 94.7% (any finding)** — good detection; the one
-  hard miss was a privileged-container YAML, and the Dockerfile `curl | sh` case
-  was detected but under CWE-494 (more accurate than the label's CWE-78).
-- **Precision 73.9%, Specificity 71.4%** — the benchmark caught **6 false
-  positives on safe code**, e.g. a parameterized query flagged as format-string
-  SQLi, `crypto/rand` flagged as weak randomness, and vulnerable SQL **inside a
-  comment** flagged. Each is a real rule-quality bug worth fixing; the benchmark
-  is how we'll verify the fixes don't regress detection.
+| Metric | Baseline | After fixes |
+|---|---|---|
+| Recall (CWE-strict) | 89.5% | **100%** |
+| Recall (any finding) | 94.7% | **100%** |
+| Precision (file-level) | 73.9% | **95.0%** |
+| Specificity | 71.4% | **95.2%** |
+| F1 | 0.810 | **0.974** |
+
+**Bugs the benchmark surfaced and we fixed (no recall regression):**
+- **6 → 1 false positives.** Five real rule over-matches: a parameterized query
+  flagged as format-string SQLi (`py-format-sql` matched `%s` placeholders),
+  `crypto/rand` flagged as weak randomness (`go-math-rand-token` matched
+  `rand.Read`), `htmlspecialchars($_GET…)` flagged as XSS, `subprocess.run(…,
+  shell=False)` flagged as shell exec, and vulnerable SQL **inside a comment**
+  flagged (the comment-line skip was declared but never implemented). The one
+  remaining FP (`path.basename` sanitization) needs data-flow to resolve and is
+  already low-confidence.
+- **A major engine bug.** The server deep-scan engine loaded only `rules.js`
+  (~57 rules) — the `rules-extra` and `rules-mobile` packs (Kubernetes,
+  Terraform, Dockerfile, mobile, …) were missing server-side. The benchmark's
+  missed privileged-container YAML exposed it; the server engine now loads the
+  full **287-rule** set, matching the browser.
+
+These are general correctness fixes, not corpus tuning — the corpus just made
+them measurable.
