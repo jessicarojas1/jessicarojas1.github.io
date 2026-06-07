@@ -6,6 +6,7 @@ import { syncDrawing, pushNcr, pushApproval, netState } from "./api.js";
 import { icon } from "./icons.js";
 import { $, $$, el, esc, modal, toast, pill, fmtDate, fmtDay, timeAgo, formValues } from "./ui.js";
 import { Editor } from "./canvas.js";
+import { Viewer3D } from "./viewer3d.js";
 import { navigate } from "./router.js";
 import { flattenPNG, renderInto, renderDiff, diffSnapshots } from "./snapshot.js";
 import { getBranding, setBranding, safeLogo } from "./branding.js";
@@ -33,6 +34,13 @@ export async function ensureSeed() {
     units: "in", scale_ratio: null, status: "draft", classification: "CUI", version: 1,
     created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
   await put("drawings", drawing);
+
+  const model3d = { id: uid(), client_uid: uid(), project_id: project.id,
+    title: "Wing Assembly – 3D Model", drawing_number: "MDL-22041-3D", revision: "A",
+    view_kind: "3d", model_data: null, model_format: null, units: "in",
+    status: "draft", classification: "CUI", version: 1,
+    created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+  await put("drawings", model3d);
 
   const ncr = { id: uid(), client_uid: uid(), project_id: project.id, drawing_id: drawing.id,
     ncr_number: "NCR-2026-0001", title: "Fastener edge distance below minimum",
@@ -228,6 +236,7 @@ export async function renderProject(host, id) {
 async function newDrawingModal(host, project) {
   const body = el(`<div class="form-grid">
     <div class="field" style="grid-column:1/-1"><label>Title <span class="required">*</span></label><input class="input" data-name="title"></div>
+    <div class="field"><label>Type</label><select class="select" data-name="view_kind"><option value="2d">2D markup</option><option value="3d">3D model (STL / OBJ)</option></select></div>
     <div class="field"><label>Drawing Number</label><input class="input" data-name="drawing_number"></div>
     <div class="field"><label>Revision</label><input class="input" data-name="revision" value="A"></div>
     <div class="field"><label>Units</label><select class="select" data-name="units"><option>in</option><option>mm</option><option>cm</option><option>ft</option></select></div>
@@ -240,6 +249,7 @@ async function newDrawingModal(host, project) {
     const v = formValues(body);
     if (!v.title) return toast("Title is required", "error");
     const d = { id: uid(), client_uid: uid(), project_id: project.id, ...v,
+      view_kind: v.view_kind || "2d",
       background_kind: "blank", width: 1600, height: 1200, scale_ratio: null,
       status: "draft", version: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
     await put("drawings", d);
@@ -255,6 +265,8 @@ export async function renderEditor(host, drawingId) {
   const d = await get("drawings", drawingId);
   if (!d) { host.innerHTML = header("Drawing not found", ""); return; }
   const project = await get("projects", d.project_id);
+
+  if (d.view_kind === "3d") return render3DEditor(host, d, project);
 
   const wf = [];
   if (d.status === "draft" && can("drawing.submit")) wf.push(`<button class="btn btn-outline" data-wf="submit">Submit for Review</button>`);
@@ -300,6 +312,36 @@ export async function renderEditor(host, drawingId) {
     }
     renderEditor(host, drawingId);
   })));
+}
+
+async function render3DEditor(host, d, project) {
+  host.innerHTML = `
+    ${header(`${d.drawing_number || d.title}`, `${project ? project.name + " · " : ""}3D model${d.model_name ? " · " + d.model_name : ""}`,
+      `<span class="pill pill-review">3D</span>
+       <button class="btn btn-ghost" data-back>${icon("chevron", 16)} Project</button>
+       <button class="btn btn-primary" data-sync>${icon("sync", 15)} Sync</button>`)}
+    <div class="editor-host" style="height:calc(100vh - var(--topbar) - var(--cui-h)*2 - 120px);min-height:480px"></div>`;
+  const viewerHost = $(".editor-host", host);
+  const viewer = new Viewer3D(viewerHost, d, {
+    onDirty: () => setMeta("dirty_" + d.id, true),
+    onCapture: async (dataUrl) => {
+      const nd = { id: uid(), client_uid: uid(), project_id: d.project_id, view_kind: "2d",
+        title: `${d.drawing_number || d.title} — view`, drawing_number: d.drawing_number, revision: d.revision || "A",
+        background_kind: "image", background_data: dataUrl, width: 1600, height: 1200,
+        units: d.units || "in", status: "draft", classification: d.classification || "CUI", version: 1,
+        created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+      await put("drawings", nd);
+      await logAudit("drawing.capture3d", "drawing", nd.id, { from: d.id });
+      toast("Captured view → opening 2D markup", "success");
+      navigate("editor/" + nd.id);
+    },
+  });
+  await viewer.mount();
+  $("[data-back]", host).addEventListener("click", () => { viewer.destroy && viewer.destroy(); navigate("project/" + d.project_id); });
+  $("[data-sync]", host).addEventListener("click", async () => {
+    try { await syncDrawing(d); await logAudit("drawing.sync", "drawing", d.id, {}); toast("Synced", "success"); }
+    catch (e) { toast(e.message, "error", 5000); }
+  });
 }
 
 /* =================================================================

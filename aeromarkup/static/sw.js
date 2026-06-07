@@ -1,12 +1,12 @@
 /* AeroMarkup service worker — offline app-shell cache.
    Cache-first for the shell (so the tool launches air-gapped); /api/* always
    hits the network and fails soft so the offline-first UI never blocks. */
-const CACHE = "aeromarkup-v3";
+const CACHE = "aeromarkup-v4";
 const SHELL = [
   "./", "index.html", "app.css", "editor.css", "manifest.webmanifest", "icon.svg",
   "js/app.js", "js/router.js", "js/store.js", "js/session.js", "js/audit.js",
   "js/api.js", "js/ui.js", "js/icons.js", "js/canvas.js", "js/snapshot.js",
-  "js/charts.js", "js/branding.js", "js/views.js",
+  "js/charts.js", "js/branding.js", "js/viewer3d.js", "js/views.js",
 ];
 
 self.addEventListener("install", (e) => {

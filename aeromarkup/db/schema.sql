@@ -157,6 +157,13 @@ ALTER TABLE drawings ADD COLUMN IF NOT EXISTS units          text NOT NULL DEFAU
 ALTER TABLE drawings ADD COLUMN IF NOT EXISTS scale_ratio    real;  -- real units / canvas px
 ALTER TABLE drawings ADD COLUMN IF NOT EXISTS status         text NOT NULL DEFAULT 'draft';
 ALTER TABLE drawings ADD COLUMN IF NOT EXISTS classification text NOT NULL DEFAULT 'CUI';
+-- 3D model support (STL / OBJ import + 3D pin annotations)
+ALTER TABLE drawings ADD COLUMN IF NOT EXISTS view_kind     text NOT NULL DEFAULT '2d';
+ALTER TABLE drawings ADD COLUMN IF NOT EXISTS model_format  text;
+ALTER TABLE drawings ADD COLUMN IF NOT EXISTS model_name    text;
+ALTER TABLE drawings ADD COLUMN IF NOT EXISTS model_data    text;  -- data URL / object-store key
+ALTER TABLE drawings DROP CONSTRAINT IF EXISTS drawings_view_kind_check;
+ALTER TABLE drawings ADD CONSTRAINT drawings_view_kind_check CHECK (view_kind IN ('2d','3d'));
 ALTER TABLE drawings DROP CONSTRAINT IF EXISTS drawings_units_check;
 ALTER TABLE drawings ADD CONSTRAINT drawings_units_check
   CHECK (units IN ('in','mm','cm','ft'));
@@ -210,7 +217,8 @@ CREATE TABLE IF NOT EXISTS annotations (
   drawing_id  uuid NOT NULL REFERENCES drawings(id) ON DELETE CASCADE,
   layer_id    uuid REFERENCES layers(id) ON DELETE SET NULL,
   kind        text NOT NULL DEFAULT 'note'
-                CHECK (kind IN ('note','arrow','callout','rect','ellipse','line','text','measure','pin')),
+                CHECK (kind IN ('note','arrow','callout','rect','ellipse','line','text','measure','pin',
+                                'cloud','area','angle','stamp','balloon','pin3d')),
   -- geometry: anchor + optional target (for arrows/pointers), in canvas px
   x           real NOT NULL DEFAULT 0,
   y           real NOT NULL DEFAULT 0,
@@ -229,6 +237,11 @@ CREATE TABLE IF NOT EXISTS annotations (
   updated_at  timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_annotations_drawing ON annotations(drawing_id);
+-- broaden annotation kinds for pre-existing installs (shapes/stamps/balloons/3D pins sync here)
+ALTER TABLE annotations DROP CONSTRAINT IF EXISTS annotations_kind_check;
+ALTER TABLE annotations ADD CONSTRAINT annotations_kind_check
+  CHECK (kind IN ('note','arrow','callout','rect','ellipse','line','text','measure','pin',
+                  'cloud','area','angle','stamp','balloon','pin3d'));
 
 -- ---------------------------------------------------------------------
 -- attachments — extra reference photos/files pinned to a drawing

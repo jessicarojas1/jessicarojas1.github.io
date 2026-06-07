@@ -131,7 +131,8 @@ export class Editor {
   async _loadItems() {
     const s = await byIndex("strokes", "drawing_id", this.drawing.id);
     const a = await byIndex("annotations", "drawing_id", this.drawing.id);
-    this.items = [...s, ...a].map((r) => { r.type = typeOf(r); if (!r.layer_id && this.layers[0]) r.layer_id = this.layers[0].id; return r; });
+    this.items = [...s, ...a].filter((r) => typeOf(r) !== "pin3d")
+      .map((r) => { r.type = typeOf(r); if (!r.layer_id && this.layers[0]) r.layer_id = this.layers[0].id; return r; });
   }
   layerById(id) { return this.layers.find((l) => l.id === id); }
   _layerVisible(it) { const l = this.layerById(it.layer_id); return !l || l.visible; }
