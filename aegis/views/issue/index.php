@@ -218,8 +218,8 @@ $_filterCount = count(array_filter([
           </tr>
         <?php endforeach; else: ?>
           <tr>
-            <td colspan="8" style="text-align:center;padding:3rem">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;color:var(--text-muted)">
+            <td class="empty-row" colspan="8">
+              <div class="empty-state-sm">
                 <i class="bi bi-check2-circle" style="font-size:2.5rem"></i>
                 <p style="margin:0;font-size:1rem;font-weight:500">No issues found</p>
                 <p style="margin:0;font-size:.875rem">

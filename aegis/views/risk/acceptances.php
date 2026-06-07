@@ -293,7 +293,7 @@ if ($filterStatus !== '') {
                 <div style="display:flex;gap:8px;flex-shrink:0;">
                   <button type="button" class="btn btn-ghost btn-sm"
                           data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>">Cancel</button>
-                  <button type="submit" class="btn btn-sm" style="background:var(--danger);color:#fff;border:none;">
+                  <button type="submit" class="btn btn-sm" style="background:var(--danger);color:white;border:none;">
                     <i class="bi bi-x-circle-fill"></i> Confirm Revoke
                   </button>
                 </div>

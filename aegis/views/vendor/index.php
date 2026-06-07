@@ -220,8 +220,8 @@ $_filterCount = count(array_filter([
           </tr>
         <?php endforeach; else: ?>
           <tr>
-            <td colspan="9" style="text-align:center;padding:48px 24px;color:var(--text-muted)">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <td class="empty-row" colspan="9">
+              <div class="empty-state-sm">
                 <i class="bi bi-buildings" style="font-size:32px;color:var(--border)"></i>
                 <p style="margin:0;font-size:15px">No vendors found.</p>
                 <?php if (Auth::can('vendor.write')): ?>
