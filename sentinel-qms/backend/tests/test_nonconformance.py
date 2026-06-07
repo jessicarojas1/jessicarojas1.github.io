@@ -95,7 +95,16 @@ def test_invalid_status_transition(client, seeded, auth_headers):
 
 
 def test_soft_delete_hides_record(client, seeded, auth_headers):
-    headers = auth_headers("engineer")
+    # Soft-delete of a controlled NCR is privileged: only Quality Manager/Admin
+    # hold ``nonconformances.delete`` (a Quality Engineer is correctly denied).
+    headers = auth_headers("manager")
     ncr_id = _create_ncr(client, headers).json()["id"]
     assert client.delete(f"/api/v1/nonconformances/{ncr_id}", headers=headers).status_code == 200
     assert client.get(f"/api/v1/nonconformances/{ncr_id}", headers=headers).status_code == 404
+
+
+def test_soft_delete_denied_for_engineer(client, seeded, auth_headers):
+    # Regression guard: the engineer role must NOT be able to delete NCRs.
+    eng = auth_headers("engineer")
+    ncr_id = _create_ncr(client, eng).json()["id"]
+    assert client.delete(f"/api/v1/nonconformances/{ncr_id}", headers=eng).status_code == 403

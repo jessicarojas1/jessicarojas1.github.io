@@ -108,8 +108,7 @@ def client(db_session):
 def _login(client: TestClient, email: str, password: str) -> str:
     resp = client.post(
         "/api/v1/auth/login",
-        data={"username": email, "password": password},
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        json={"username": email, "password": password},
     )
     assert resp.status_code == 200, resp.text
     return resp.json()["access_token"]

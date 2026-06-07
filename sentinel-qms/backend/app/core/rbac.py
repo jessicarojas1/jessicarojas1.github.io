@@ -6,6 +6,8 @@ from enum import Enum
 
 from fastapi import Depends, HTTPException, Request, status
 
+from app.core.database import get_db
+
 
 class Role(str, Enum):
     ADMIN = "Admin"
@@ -123,19 +125,15 @@ def require_permission(*perms: Permission) -> Callable:
     return _checker
 
 
-def _db_dep():  # noqa: ANN001
-    from app.core.database import get_db
-
-    yield from get_db()
-
-
 def _lazy_current_user(
     request: Request,
-    db=Depends(_db_dep),  # noqa: ANN001
+    db=Depends(get_db),  # noqa: ANN001
 ):
-    """Indirection so rbac does not import deps at module load (avoids cycle).
+    """Resolve the principal, delegating to ``app.api.deps``.
 
-    Delegates to the real resolver in ``app.api.deps``.
+    ``resolve_current_user`` is imported lazily to avoid an rbac<->deps import
+    cycle at module load. ``get_db`` is depended on directly (not via a wrapper)
+    so test/dependency overrides of ``get_db`` apply here too.
     """
     from app.api.deps import resolve_current_user
 
