@@ -23,6 +23,7 @@ import {
   TrendingUp,
   Truck,
   Users,
+  Workflow,
   Wrench,
 } from 'lucide-react';
 import type { Capability } from './rbac';
@@ -69,6 +70,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Change Control', to: '/changes', icon: GitPullRequestArrow, capability: 'changes.read', page: 'changes' },
       { label: 'Audits', to: '/audits', icon: ScrollText, capability: 'audits.read', page: 'audits' },
       { label: 'Inspections / FAI', to: '/inspections', icon: FlaskConical, capability: 'inspections.read', page: 'inspections' },
+      { label: 'APQP / PPAP', to: '/apqp', icon: Workflow, capability: 'inspections.read', page: 'inspections' },
     ],
   },
   {
