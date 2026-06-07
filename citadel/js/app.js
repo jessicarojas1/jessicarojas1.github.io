@@ -120,6 +120,33 @@
     if (CITADEL.report && CITADEL.report.renderHistory) CITADEL.report.renderHistory('tab-history');
     if (results) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  // Load a saved scan's full report and show it (shared by Recent + History).
+  async function openScanById(id) {
+    try {
+      const report = await CITADEL.api.scanGet(id);
+      CITADEL.report.render(report);
+      const results = $('results'); if (results) results.classList.remove('d-none');
+      const rep = document.querySelector('.tab-btn[data-tab="tab-report"]'); if (rep) rep.click();
+      if (results) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) {}
+  }
+  // Dashboard "Recent scans" widget (only when durable server history is present).
+  async function loadRecentActivity() {
+    const wrap = $('recent-activity'), list = $('recent-list');
+    if (!wrap || !list || !backendMode || !CITADEL.api.scansList) return;
+    let data = null;
+    try { data = await CITADEL.api.scansList(6); } catch (e) {}
+    if (!data || !data.enabled || !(data.scans && data.scans.length)) { wrap.classList.add('d-none'); return; }
+    const gc = g => 'grade-' + String(g || '?').toLowerCase();
+    list.innerHTML = data.scans.map(s =>
+      '<button type="button" class="recent-item" data-open-recent="' + escH(s.id) + '">' +
+        '<span class="badge grade-pill ' + gc(s.grade) + '">' + escH(s.grade) + '</span>' +
+        '<span class="recent-src">' + escH(s.source || 'scan') + '</span>' +
+        '<span class="recent-meta">' + escH(new Date(s.ts).toLocaleString()) + ' · ' + (s.findings | 0) + ' findings' +
+          (((s.critical | 0) + (s.high | 0)) ? ' · ' + ((s.critical | 0) + (s.high | 0)) + ' crit/high' : '') + '</span>' +
+      '</button>').join('');
+    wrap.classList.remove('d-none');
+  }
   // If a scan endpoint rejects us (server-side enforcement), reflect it in the UI.
   function handleAuthError(err) {
     if (err && (err.status === 401 || err.status === 403)) {
@@ -200,6 +227,7 @@
     ssoAvailable = !!(st.auth && st.auth.sso);
     try { backendUser = await CITADEL.api.authMe(); } catch (e) { backendUser = null; }
     applyAccess();
+    loadRecentActivity();
     CITADEL.report.setAi(aiAvailable);
     $('deep-mode-row').classList.remove('d-none');
     $('url-scan-row').classList.remove('d-none');
@@ -301,6 +329,7 @@
     CITADEL.report.render(report);
     try { CITADEL.history.record(report); } catch (e) {}
     applyAccess();
+    if (mode === 'deep') setTimeout(loadRecentActivity, 600);   // server has just persisted it
     $('results').classList.remove('d-none');
     hideProgress();
     $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -395,7 +424,16 @@
   /* ---------- Tabs ---------- */
   document.addEventListener('click', (e) => {
     // Auth controls
+    // On mobile, collapse the expanded menu after picking a real nav item (not
+    // the Docs dropdown toggle) so the page is visible again.
+    if (e.target.closest('.navbar-collapse .nav-link:not(.dropdown-toggle), .navbar-collapse .dropdown-item')) {
+      const col = $('citadelNav');
+      if (col && col.classList.contains('show') && root.bootstrap) root.bootstrap.Collapse.getOrCreateInstance(col).hide();
+    }
     if (e.target.closest('#nav-history')) { e.preventDefault(); openHistory(); return; }
+    if (e.target.closest('#recent-viewall')) { e.preventDefault(); openHistory(); return; }
+    const recOpen = e.target.closest('[data-open-recent]');
+    if (recOpen) { e.preventDefault(); openScanById(recOpen.getAttribute('data-open-recent')); return; }
     if (e.target.closest('#login-btn')) return openLogin();
     if (e.target.closest('#logout-btn')) {
       if (backendMode) { CITADEL.api.authLogout(); backendUser = null; } else { CITADEL.auth.logout(); }

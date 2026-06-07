@@ -154,6 +154,17 @@
       <!-- Engine / scanner status -->
       <div id="engine-status" class="engine-status mt-3"></div>
 
+      <!-- Recent scans (dashboard widget — shown when durable history exists) -->
+      <div id="recent-activity" class="card citadel-card mt-3 d-none">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-uppercase text-body-secondary small fw-bold mb-0"><i class="bi bi-clock-history"></i> Recent scans</h6>
+            <a href="#" class="small" id="recent-viewall">View all history →</a>
+          </div>
+          <div id="recent-list" class="recent-list"></div>
+        </div>
+      </div>
+
       <!-- Scan a public repo by URL (shown when the backend is available) -->
       <div id="url-scan-row" class="d-none mt-3">
         <div class="input-group">

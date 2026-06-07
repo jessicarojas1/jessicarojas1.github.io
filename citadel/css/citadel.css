@@ -367,3 +367,18 @@ html { scroll-behavior: smooth; }
   .tab-panel { page-break-inside:avoid; margin-bottom:1.5rem; }
   body { background:#fff; }
 }
+
+/* ---- Recent scans dashboard widget ---- */
+.recent-list { display:flex; flex-direction:column; gap:.4rem; }
+.recent-item {
+  display:flex; align-items:center; gap:.6rem; width:100%; text-align:left;
+  background: var(--ct-surface-2, var(--bs-tertiary-bg));
+  border:1px solid var(--bs-border-color); border-radius:10px;
+  padding:.5rem .7rem; color: var(--bs-body-color);
+  transition: border-color .15s ease, transform .05s ease;
+}
+.recent-item:hover { border-color: var(--citadel-accent); }
+.recent-item:active { transform: translateY(1px); }
+.recent-src { font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px; }
+.recent-meta { margin-left:auto; color: var(--bs-secondary-color); font-size:.8rem; white-space:nowrap; }
+@media (max-width: 575px) { .recent-meta { display:none; } }

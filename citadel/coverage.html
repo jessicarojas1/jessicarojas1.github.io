@@ -164,6 +164,14 @@
         icon();
       });
       icon();
+
+      // Collapse the mobile menu after picking a nav item.
+      document.addEventListener('click', function (e) {
+        if (e.target.closest('.navbar-collapse .nav-link:not(.dropdown-toggle), .navbar-collapse .dropdown-item')) {
+          var col = document.getElementById('citadelNav');
+          if (col && col.classList.contains('show') && window.bootstrap) window.bootstrap.Collapse.getOrCreateInstance(col).hide();
+        }
+      });
     })();
   </script>
 </body>
