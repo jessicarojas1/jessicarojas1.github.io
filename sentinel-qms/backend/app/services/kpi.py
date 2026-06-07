@@ -7,7 +7,7 @@ from datetime import date, timedelta
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models.audit_mgmt import Audit, AuditFinding, AuditStatus, FindingStatus
+from app.models.audit_mgmt import Audit, AuditFinding, AuditStatus, FindingStatus, FindingType
 from app.models.calibration import Equipment, EquipmentStatus
 from app.models.capa import Capa, CapaStatus
 from app.models.change import ChangeOrder, ChangeStatus
@@ -329,6 +329,270 @@ def dashboard_kpis(db: Session) -> dict:
         "calibration_status": calibration_status,
         "supplier_performance": supplier_performance,
         "findings_by_clause": findings_by_clause,
+    }
+
+
+# AS9100D / ISO 9001 top-level clauses, used by the findings heatmap.
+_AS9100_CLAUSES = {
+    "4": "Context of the Organization",
+    "5": "Leadership",
+    "6": "Planning",
+    "7": "Support",
+    "8": "Operation",
+    "9": "Performance Evaluation",
+    "10": "Improvement",
+}
+
+
+def _as_date(value):
+    if value is None:
+        return None
+    return value.date() if hasattr(value, "date") else value
+
+
+def _exec_kpi(key, label, value, *, unit="", target=None, direction="lower_better"):
+    """Build an executive KPI with a RAG status computed against its target.
+
+    ``direction`` is ``lower_better`` (e.g. open NCRs) or ``higher_better``
+    (e.g. on-time closure %). Targets are sensible defaults; they are intended
+    to become configurable later.
+    """
+    status = "neutral"
+    if target is not None:
+        if direction == "lower_better":
+            status = "good" if value <= target else "warn" if value <= target * 1.5 else "bad"
+        else:
+            status = "good" if value >= target else "warn" if value >= target * 0.9 else "bad"
+    return {
+        "key": key,
+        "label": label,
+        "value": round(float(value), 1),
+        "unit": unit,
+        "target": target,
+        "direction": direction,
+        "status": status,
+    }
+
+
+def executive_dashboard(db: Session) -> dict:
+    """Executive-altitude posture: KPIs vs target, event-based Cost of Quality,
+    an AS9100 clause findings heatmap, and an upcoming compliance calendar.
+
+    The Cost of Quality is *event-based* (counts of quality events bucketed into
+    the four classic COQ categories) — a recognized proxy when monetary cost
+    data is not captured. Monetary weighting can be layered on later.
+    """
+    today = _today()
+    since = today - timedelta(days=90)
+    months = _month_series(6)
+    window = set(months)
+
+    def _counts_by_month(model):
+        counts = dict.fromkeys(months, 0)
+        stmt = select(model)
+        if hasattr(model, "is_deleted"):
+            stmt = stmt.where(model.is_deleted.is_(False))
+        for row in db.execute(stmt).scalars().all():
+            mk = _month_key(getattr(row, "created_at", None))
+            if mk in window:
+                counts[mk] += 1
+        return counts
+
+    prevention = _counts_by_month(Capa)
+    inspections = _counts_by_month(Inspection)
+    audits = _counts_by_month(Audit)
+    internal = _counts_by_month(Nonconformance)
+    external = _counts_by_month(Complaint)
+
+    coq_trend = [
+        {
+            "month": m,
+            "prevention": prevention[m],
+            "appraisal": inspections[m] + audits[m],
+            "internal_failure": internal[m],
+            "external_failure": external[m],
+        }
+        for m in months
+    ]
+    last = months[-1]
+    coq_current = {
+        "prevention": prevention[last],
+        "appraisal": inspections[last] + audits[last],
+        "internal_failure": internal[last],
+        "external_failure": external[last],
+    }
+    coq_current["total"] = sum(coq_current.values())
+
+    # ---- AS9100 clause findings heatmap (open findings by clause × type) ----
+    type_key = {
+        FindingType.MAJOR_NC: "major",
+        FindingType.MINOR_NC: "minor",
+        FindingType.OBSERVATION: "observation",
+        FindingType.OFI: "ofi",
+    }
+    heat = {c: {"major": 0, "minor": 0, "observation": 0, "ofi": 0} for c in _AS9100_CLAUSES}
+    heat["Other"] = {"major": 0, "minor": 0, "observation": 0, "ofi": 0}
+    for f in (
+        db.execute(select(AuditFinding).where(AuditFinding.status != FindingStatus.CLOSED))
+        .scalars()
+        .all()
+    ):
+        ref = (f.clause_reference or "").strip()
+        top = ref.split(".")[0] if ref else ""
+        bucket = top if top in _AS9100_CLAUSES else "Other"
+        heat[bucket][type_key.get(f.finding_type, "observation")] += 1
+
+    clause_heatmap = []
+    for c in [*_AS9100_CLAUSES, "Other"]:
+        cell = heat[c]
+        total = sum(cell.values())
+        if c == "Other" and total == 0:
+            continue
+        clause_heatmap.append(
+            {
+                "clause": c,
+                "title": _AS9100_CLAUSES.get(c, "Other / Unspecified"),
+                **cell,
+                "total": total,
+            }
+        )
+
+    # ---- Compliance calendar (next 90 days + anything overdue) ----
+    calendar: list[dict] = []
+
+    def _add(kind: str, label: str, value) -> None:
+        d = _as_date(value)
+        if d is None or (d - today).days > 90:
+            return
+        days = (d - today).days
+        status = "overdue" if days < 0 else "due_soon" if days <= 30 else "upcoming"
+        calendar.append(
+            {
+                "type": kind,
+                "label": label,
+                "date": d.isoformat(),
+                "days_remaining": days,
+                "status": status,
+            }
+        )
+
+    for s in (
+        db.execute(
+            select(Supplier).where(
+                Supplier.is_deleted.is_(False), Supplier.cert_expiry.is_not(None)
+            )
+        )
+        .scalars()
+        .all()
+    ):
+        _add("Supplier cert", f"{s.name} — {s.certification or 'certification'}", s.cert_expiry)
+    for e in (
+        db.execute(
+            select(Equipment).where(
+                Equipment.status == EquipmentStatus.ACTIVE, Equipment.next_due_date.is_not(None)
+            )
+        )
+        .scalars()
+        .all()
+    ):
+        _add("Calibration", f"{e.asset_tag} — {e.name}", e.next_due_date)
+    for a in (
+        db.execute(
+            select(Audit).where(
+                Audit.is_deleted.is_(False),
+                Audit.status.in_(_AUDIT_OPEN),
+                Audit.planned_date.is_not(None),
+            )
+        )
+        .scalars()
+        .all()
+    ):
+        _add("Audit", f"{a.audit_number} — {a.title}", a.planned_date)
+    for c in (
+        db.execute(
+            select(Capa).where(
+                Capa.is_deleted.is_(False), Capa.status.in_(_CAPA_OPEN), Capa.due_date.is_not(None)
+            )
+        )
+        .scalars()
+        .all()
+    ):
+        _add("CAPA", f"{c.capa_number} — {c.title}", c.due_date)
+
+    calendar.sort(key=lambda x: x["date"])
+    compliance_calendar = calendar[:40]
+
+    # ---- Executive KPIs vs target ----
+    open_ncrs = _count(db, Nonconformance, Nonconformance.status.in_(_NCR_OPEN))
+    overdue_capas = _count(
+        db, Capa, Capa.status.in_(_CAPA_OPEN), Capa.due_date.is_not(None), Capa.due_date < today
+    )
+    open_findings = _count(db, AuditFinding, AuditFinding.status != FindingStatus.CLOSED)
+
+    escapes = sum(
+        1
+        for c in db.execute(select(Complaint).where(Complaint.is_deleted.is_(False)))
+        .scalars()
+        .all()
+        if (cd := _as_date(getattr(c, "created_at", None))) is not None and cd >= since
+    )
+
+    closed_n = on_time = 0
+    for c in (
+        db.execute(select(Capa).where(Capa.is_deleted.is_(False), Capa.status == CapaStatus.CLOSED))
+        .scalars()
+        .all()
+    ):
+        cl = _as_date(getattr(c, "closed_at", None))
+        if cl is None or cl < since:
+            continue
+        closed_n += 1
+        due = _as_date(getattr(c, "due_date", None))
+        if due is None or cl <= due:
+            on_time += 1
+    on_time_rate = (on_time / closed_n * 100) if closed_n else 100.0
+
+    avg_q = db.execute(select(func.avg(SupplierRating.quality_score))).scalar()
+    avg_otd = db.execute(select(func.avg(SupplierRating.on_time_delivery))).scalar()
+
+    kpis = [
+        _exec_kpi("open_ncrs", "Open Nonconformances", open_ncrs, target=10),
+        _exec_kpi("overdue_capas", "Overdue CAPAs", overdue_capas, target=0),
+        _exec_kpi("open_findings", "Open Audit Findings", open_findings, target=5),
+        _exec_kpi("escapes_90d", "Customer Escapes (90d)", escapes, target=3),
+        _exec_kpi(
+            "capa_on_time",
+            "On-time CAPA Closure",
+            on_time_rate,
+            unit="%",
+            target=90,
+            direction="higher_better",
+        ),
+        _exec_kpi(
+            "supplier_quality",
+            "Supplier Quality",
+            float(avg_q) if avg_q is not None else 0.0,
+            unit="%",
+            target=95,
+            direction="higher_better",
+        ),
+        _exec_kpi(
+            "supplier_otd",
+            "Supplier On-time Delivery",
+            float(avg_otd) if avg_otd is not None else 0.0,
+            unit="%",
+            target=95,
+            direction="higher_better",
+        ),
+    ]
+
+    return {
+        "generated_at": today.isoformat(),
+        "kpis": kpis,
+        "coq_trend": coq_trend,
+        "coq_current": coq_current,
+        "clause_heatmap": clause_heatmap,
+        "compliance_calendar": compliance_calendar,
     }
 
 

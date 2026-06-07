@@ -41,3 +41,30 @@ def test_calibration_kpi(client, seeded, auth_headers):
     resp = client.get("/api/v1/dashboard/calibration", headers=headers)
     assert resp.status_code == 200
     assert "overdue" in resp.json()
+
+
+def test_executive_dashboard_shape(client, seeded, auth_headers):
+    headers = auth_headers("manager")
+    resp = client.get("/api/v1/dashboard/executive", headers=headers)
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    for key in (
+        "generated_at",
+        "kpis",
+        "coq_trend",
+        "coq_current",
+        "clause_heatmap",
+        "compliance_calendar",
+    ):
+        assert key in body
+    assert isinstance(body["kpis"], list) and len(body["kpis"]) >= 1
+    kpi0 = body["kpis"][0]
+    for k in ("key", "label", "value", "target", "direction", "status"):
+        assert k in kpi0
+    assert set(body["coq_current"]) >= {
+        "prevention",
+        "appraisal",
+        "internal_failure",
+        "external_failure",
+        "total",
+    }
