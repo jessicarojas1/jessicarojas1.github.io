@@ -46,6 +46,20 @@ const P = {
   eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.5"/>',
   logout: '<path d="M15 12H4"/><path d="M9 7L4 12l5 5"/><path d="M14 4h5v16h-5"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.5-2-3.4-2.3 1a7.6 7.6 0 0 0-1.7-1l-.4-2.5h-3.9l-.4 2.5a7.6 7.6 0 0 0-1.7 1l-2.3-1-2 3.4L4.6 11a7.8 7.8 0 0 0 0 2l-2 1.5 2 3.4 2.3-1a7.6 7.6 0 0 0 1.7 1l.4 2.5h3.9l.4-2.5a7.6 7.6 0 0 0 1.7-1l2.3 1 2-3.4z"/>',
+  cursor: '<path d="M5 3l6 16 2.2-6.2L19.4 11z"/>',
+  text: '<path d="M5 6V4h14v2"/><path d="M12 4v16"/><path d="M9 20h6"/>',
+  cloud: '<path d="M6 16a3 3 0 0 1 .3-6 4.5 4.5 0 0 1 8.7-1.2A3.5 3.5 0 0 1 18 16z"/>',
+  stamp: '<path d="M9 11V7a3 3 0 0 1 6 0v4"/><path d="M5 11h14l-1.5 5H6.5z"/><path d="M5 20h14"/>',
+  balloon: '<circle cx="12" cy="10" r="7"/><path d="M9.5 9a2.5 2.5 0 1 1 3.2 2.4c-.5.2-.7.5-.7 1.1"/><path d="M12 21v-4"/>',
+  angle: '<path d="M4 20h16"/><path d="M4 20L18 6"/><path d="M9 20a8 8 0 0 1 2.5-5.8"/>',
+  area: '<path d="M4 6l6-2 10 3-3 11-9 2-4-9z"/><path d="M4 6l6 7 7-9M10 13l-3 6"/>',
+  grid: '<path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>',
+  magnet: '<path d="M6 4v7a6 6 0 0 0 12 0V4"/><path d="M6 8h4M14 8h4"/><path d="M6 4H10M14 4h4"/>',
+  copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  command: '<path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/>',
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .8-1 1.7"/><path d="M12 17h.01"/>',
+  front: '<rect x="7" y="7" width="10" height="10" rx="1"/><path d="M4 14V4h10"/>',
+  back: '<rect x="4" y="4" width="10" height="10" rx="1"/><path d="M10 20h10V10"/>',
 };
 
 export function icon(name, size = 18, stroke = 1.8) {

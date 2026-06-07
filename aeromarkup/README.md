@@ -17,7 +17,9 @@ phone, **with or without internet**.
 |--------|--------------|
 | **Dashboard** | Live KPIs — projects, drawings, open/critical NCRs, items in review — plus an activity feed |
 | **Projects** | Programs, projects, tail/part/serial/work-order metadata, classification |
-| **Drawing Editor** | Pressure-sensitive markup, shapes, pointers, notes, pins, **dimensioned measurement with scale calibration**, layers, revision/status workflow, **revision compare** (side-by-side + overlay diff), and **PDF redline report** export |
+| **Drawing Editor** | Pressure-sensitive ink, shapes, **revision clouds**, text, notes, pins, **QA stamps**, and **FAI balloons**; **selection model** (move / edit / duplicate / delete / z-order / marquee); **layers** (visibility / lock / color); **grid + snap + ortho**; **linear / angle / area measurement** with scale calibration; status bar; keyboard shortcuts; **revision compare** (side-by-side + overlay diff); and **PDF redline report** |
+| **AS9102 Characteristics** | Balloon a drawing and record each characteristic (zone, requirement, type, nominal, tolerance, actual, result); exported in the PDF report |
+| **Command palette** | Ctrl/⌘ K to jump to any project, drawing, or section |
 | **Nonconformance (NCR)** | Raise, triage, and **disposition** defects (use-as-is / rework / repair / scrap / RTV) with severity + status workflow |
 | **Inspections** | Quality inspection records (AS9100-style) with pass/fail items |
 | **Approvals** | Review queue + **electronic signatures** (submit → approve → release), hashed and recorded |

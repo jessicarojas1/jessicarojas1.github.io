@@ -9,6 +9,7 @@ import { Editor } from "./canvas.js";
 import { navigate } from "./router.js";
 import { flattenPNG, renderInto, renderDiff, diffSnapshots } from "./snapshot.js";
 import { getBranding, setBranding, safeLogo } from "./branding.js";
+import { donut, bars } from "./charts.js";
 
 /* =================================================================
    Seeding — give a brand-new (offline) device realistic demo content.
@@ -78,6 +79,11 @@ export async function renderDashboard(host) {
       <div class="kpi-trend">${icon(ic, 16)} <span class="muted">live</span></div>
     </div>`;
 
+  const STATUS_COLOR = { draft: "#5b6678", in_review: "#ffcc00", approved: "#3ad07a", released: "#3ba7ff", obsolete: "#8c97a9" };
+  const SEV_COLOR = { critical: "#ff4d4d", major: "#ff5811", minor: "#8c97a9" };
+  const statusSegs = Object.keys(STATUS_COLOR).map((s) => ({ label: s, color: STATUS_COLOR[s], value: drawings.filter((d) => (d.status || "draft") === s).length })).filter((s) => s.value);
+  const sevRows = ["critical", "major", "minor"].map((s) => ({ label: s, color: SEV_COLOR[s], value: openNcr.filter((n) => n.severity === s).length }));
+
   host.innerHTML = `
     ${header("Mission Dashboard", "Program lifecycle status at a glance")}
     <div class="kpi-grid">
@@ -86,6 +92,10 @@ export async function renderDashboard(host) {
       ${kpi("Open NCRs", openNcr.length, "kpi-warn", "ncr")}
       ${kpi("Critical NCRs", critical.length, "kpi-danger", "alert")}
       ${kpi("In Review", inReview.length, "kpi-success", "approval")}
+    </div>
+    <div class="grid-2" style="margin-top:var(--s5)">
+      ${card("Drawings by Status", statusSegs.length ? donut(statusSegs) : empty("No drawings yet."))}
+      ${card("Open NCRs by Severity", bars(sevRows))}
     </div>
     <div class="grid-2" style="margin-top:var(--s5)">
       ${card("Recent Activity", renderActivity(audit))}
@@ -256,6 +266,7 @@ export async function renderEditor(host, drawingId) {
       `${pill(d.status || "draft")}
        <button class="btn btn-ghost" data-back>${icon("chevron", 16)} Project</button>
        ${wf.join("")}
+       <button class="btn btn-ghost" data-fai>${icon("balloon", 15)} Characteristics</button>
        <button class="btn btn-ghost" data-revisions>${icon("layers", 15)} Revisions</button>
        <button class="btn btn-ghost" data-report>${icon("download", 15)} Report PDF</button>
        <button class="btn btn-primary" data-sync>${icon("sync", 15)} Sync</button>`)}
@@ -279,6 +290,7 @@ export async function renderEditor(host, drawingId) {
     } catch (e) { toast(e.message, "error", 5000); }
   });
   $("[data-report]", host).addEventListener("click", () => buildReport(d, project));
+  $("[data-fai]", host).addEventListener("click", () => characteristicsModal(d));
   $("[data-revisions]", host).addEventListener("click", () => revisionsModal(d, () => renderEditor(host, drawingId)));
   $$("[data-wf]", host).forEach((b) => b.addEventListener("click", () => signAction("drawing", d.id, b.dataset.wf, async (newStatus) => {
     if (newStatus) {
@@ -327,6 +339,8 @@ async function buildReport(drawing, project) {
   const logo = safeLogo(brand.logo_url);
   const measures = (snap.strokes || []).filter((s) => s.kind === "measure");
   const notes = (snap.annotations || []).filter((a) => a.kind === "note");
+  const balloons = (snap.annotations || []).filter((a) => a.kind === "balloon")
+    .sort((a, b) => (+(a.meta && a.meta.number) || 0) - (+(b.meta && b.meta.number) || 0));
   const linkedNcr = ncrs.filter((n) => n.drawing_id === drawing.id);
   const when = fmtDate(new Date().toISOString());
 
@@ -361,6 +375,14 @@ async function buildReport(drawing, project) {
     }))}
     <h3 style="margin:14px 0 6px">Notes</h3>
     ${tbl(["#", "Note"], notes.map((n, i) => `<tr><td>${i + 1}</td><td>${esc(n.text || "")}</td></tr>`))}
+    <h3 style="margin:14px 0 6px">Characteristics (FAI / AS9102)</h3>
+    ${tbl(["#", "Zone", "Requirement", "Type", "Nominal", "+Tol", "-Tol", "Actual", "Result"], balloons.map((bln) => {
+      const m = bln.meta || {};
+      return `<tr><td class="mono">${esc(String(m.number || ""))}</td><td>${esc(m.zone || "")}</td>
+        <td>${esc(m.requirement || "")}</td><td>${esc(m.char_type || "")}</td><td>${esc(m.nominal || "")}</td>
+        <td>${esc(m.tol_plus || "")}</td><td>${esc(m.tol_minus || "")}</td><td>${esc(m.actual || "")}</td>
+        <td>${esc(m.result || "")}</td></tr>`;
+    }))}
     <h3 style="margin:14px 0 6px">Linked Nonconformances</h3>
     ${tbl(["NCR", "Title", "Severity", "Status", "Disposition"], linkedNcr.map((n) =>
       `<tr><td class="mono">${esc(n.ncr_number)}</td><td>${esc(n.title)}</td><td>${esc(n.severity)}</td><td>${esc(n.status)}</td><td>${esc(n.disposition || "—")}</td></tr>`))}
@@ -375,6 +397,44 @@ async function buildReport(drawing, project) {
   window.addEventListener("afterprint", cleanup);
   setTimeout(() => window.print(), 120);
   setTimeout(cleanup, 120000); // safety net if afterprint never fires
+}
+
+/* AS9102-style characteristic ballooning: edit metadata for each balloon. */
+async function characteristicsModal(drawing) {
+  const balloons = (await byIndex("annotations", "drawing_id", drawing.id))
+    .filter((a) => (a.kind || a.type) === "balloon")
+    .sort((a, b) => (+(a.meta && a.meta.number) || 0) - (+(b.meta && b.meta.number) || 0));
+  const cols = [["zone", "Zone"], ["requirement", "Requirement"], ["char_type", "Type"],
+    ["nominal", "Nominal"], ["tol_plus", "+Tol"], ["tol_minus", "-Tol"], ["actual", "Actual"]];
+  const body = el(`<div>
+    <p class="muted" style="margin-top:0">Place numbered <strong>balloons</strong> on the drawing (Balloon tool), then record the
+      requirement and inspection result for each characteristic. Exported in the PDF report.</p>
+    ${balloons.length ? `<div class="table-wrap"><table class="table"><thead><tr>
+      <th>#</th>${cols.map((c) => `<th>${c[1]}</th>`).join("")}<th>Result</th></tr></thead><tbody>
+      ${balloons.map((b) => { const m = b.meta || {}; return `<tr data-row="${b.id}">
+        <td class="mono">${esc(String(m.number || ""))}</td>
+        ${cols.map((c) => `<td><input class="input" style="min-width:90px" data-f="${c[0]}" value="${esc(m[c[0]] || "")}"></td>`).join("")}
+        <td><select class="select" data-f="result">
+          ${["", "pass", "fail", "na"].map((r) => `<option ${m.result === r ? "selected" : ""}>${r}</option>`).join("")}</select></td>
+      </tr>`; }).join("")}
+    </tbody></table></div>` : empty("No balloons yet. Use the Balloon tool in the editor to add characteristics.")}
+  </div>`);
+  const foot = el(`<div><button class="btn btn-ghost" data-cancel>Close</button>
+    ${balloons.length ? `<button class="btn btn-primary" data-save>Save Characteristics</button>` : ""}</div>`);
+  const m = modal({ title: `Characteristics · ${drawing.drawing_number || drawing.title}`, body, footer: foot, width: 920 });
+  $("[data-cancel]", foot).addEventListener("click", m.close);
+  const sv = $("[data-save]", foot);
+  sv && sv.addEventListener("click", async () => {
+    for (const row of $$("[data-row]", body)) {
+      const b = balloons.find((x) => x.id === row.dataset.row); if (!b) continue;
+      b.meta = b.meta || {};
+      $$("[data-f]", row).forEach((inp) => { b.meta[inp.dataset.f] = inp.value; });
+      await put("annotations", b);
+    }
+    window.dispatchEvent(new CustomEvent("am:fai-changed"));
+    await logAudit("drawing.characteristics", "drawing", drawing.id, { count: balloons.length });
+    m.close(); toast("Characteristics saved", "success");
+  });
 }
 
 async function revisionsModal(drawing, onChange) {
