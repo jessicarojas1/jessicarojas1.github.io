@@ -106,8 +106,13 @@ def send_email(
     title: str,
     body: str | None,
     link: str | None,
+    attachments: list[tuple[bytes, str, str]] | None = None,
 ) -> tuple[bool, str]:
-    """Send a plaintext email via stdlib smtplib. Returns (ok, detail)."""
+    """Send a plaintext email via stdlib smtplib. Returns (ok, detail).
+
+    ``attachments`` is an optional list of ``(data, filename, mime_type)`` tuples
+    (e.g. a generated PDF); ``mime_type`` is ``"maintype/subtype"``.
+    """
     if not cfg.smtp_host:
         return False, "SMTP not configured"
     if not to_email:
@@ -121,6 +126,14 @@ def send_email(
         if link:
             text = f"{text}\n\n{link}".strip()
         msg.set_content(text or title)
+        for data, filename, mime in attachments or []:
+            maintype, _, subtype = mime.partition("/")
+            msg.add_attachment(
+                data,
+                maintype=maintype or "application",
+                subtype=subtype or "octet-stream",
+                filename=filename,
+            )
 
         with smtplib.SMTP(cfg.smtp_host, cfg.smtp_port, timeout=_HTTP_TIMEOUT) as smtp:
             if cfg.smtp_use_tls:

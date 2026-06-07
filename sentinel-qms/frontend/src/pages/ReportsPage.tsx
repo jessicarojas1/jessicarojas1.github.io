@@ -24,6 +24,7 @@ import {
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { PrintButton } from '@/components/PrintButton';
+import { PdfButton } from '@/components/PdfButton';
 import { CHART_COLORS, PIE_COLORS, tooltipStyle } from '@/lib/charts';
 import { getErrorMessage } from '@/lib/api';
 
@@ -493,6 +494,9 @@ export default function ReportsPage() {
         icon={<FileBarChart size={22} />}
         subtitle="Generate quality reports, export to CSV, or print/save as PDF."
         breadcrumbs={[{ label: 'Reports' }]}
+        actions={
+          <PdfButton path="/reports/digest/pdf" filename="quality-digest.pdf" label="Digest PDF" />
+        }
       />
 
       <div className="report-selector no-print">

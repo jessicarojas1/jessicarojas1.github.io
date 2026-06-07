@@ -101,8 +101,26 @@ def build_digest(db: Session, *, now: datetime | None = None) -> tuple[str, str]
     return subject, "\n".join(lines)
 
 
+def _build_pdf_attachment(db: Session, now: datetime | None) -> list[tuple[bytes, str, str]]:
+    """Build the digest PDF attachment list; never fail the email over a PDF."""
+    try:
+        # Imported lazily so the digest text path has no hard PDF dependency.
+        from app.services import pdf
+
+        data = pdf.render_digest_pdf(db, now=now)
+        stamp = _now(now).strftime("%Y-%m-%d")
+        return [(data, f"quality-digest-{stamp}.pdf", "application/pdf")]
+    except Exception:  # noqa: BLE001 — attachment is best-effort
+        logger.warning("digest PDF generation failed; sending text-only", exc_info=True)
+        return []
+
+
 def _send_to_recipients(
-    db: Session, recipients: list[str], subject: str, body: str
+    db: Session,
+    recipients: list[str],
+    subject: str,
+    body: str,
+    attachments: list[tuple[bytes, str, str]] | None = None,
 ) -> tuple[int, list[str]]:
     """Email the digest to each recipient. Returns ``(sent_count, errors)``."""
     cfg = delivery.resolve_channels(db)
@@ -111,7 +129,7 @@ def _send_to_recipients(
     sent = 0
     errors: list[str] = []
     for email in recipients:
-        ok, detail = delivery.send_email(cfg, email, subject, body, None)
+        ok, detail = delivery.send_email(cfg, email, subject, body, None, attachments)
         if ok:
             sent += 1
         else:
@@ -146,7 +164,8 @@ def send_digest_now(
         return {"ok": False, "sent": 0, "detail": "No valid recipients configured"}
 
     subject, body = build_digest(db, now=now)
-    sent, errors = _send_to_recipients(db, targets, subject, body)
+    attachments = _build_pdf_attachment(db, now)
+    sent, errors = _send_to_recipients(db, targets, subject, body, attachments)
     if sent:
         org.report_schedule_last_sent_at = _now(now)
         db.commit()
@@ -187,7 +206,8 @@ def maybe_send_scheduled(db: Session, *, now: datetime | None = None) -> dict:
     db.refresh(org)
     targets = parse_recipients(org.report_schedule_recipients)
     subject, body = build_digest(db, now=now)
-    sent, errors = _send_to_recipients(db, targets, subject, body)
+    attachments = _build_pdf_attachment(db, now)
+    sent, errors = _send_to_recipients(db, targets, subject, body, attachments)
     if errors:
         logger.warning("report digest send had errors: %s", "; ".join(errors))
     return {"sent": sent, "claimed": True, "errors": errors}
