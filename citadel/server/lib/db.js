@@ -75,6 +75,24 @@ CREATE TABLE IF NOT EXISTS citadel_audit (
 CREATE INDEX IF NOT EXISTS citadel_audit_ts_idx ON citadel_audit (seq DESC);
 CREATE INDEX IF NOT EXISTS citadel_sessions_user_idx ON citadel_sessions (user_id);
 
+CREATE TABLE IF NOT EXISTS citadel_scans (
+  id        bigserial PRIMARY KEY,
+  ts        timestamptz NOT NULL DEFAULT now(),
+  user_id   text,
+  user_email text,
+  source    text,
+  engine    text,
+  grade     text,
+  security  int,
+  quality   int,
+  findings  int,
+  critical  int,
+  high      int,
+  files     int,
+  report    jsonb NOT NULL
+);
+CREATE INDEX IF NOT EXISTS citadel_scans_ts_idx ON citadel_scans (id DESC);
+
 -- MFA columns (idempotent for upgrades of an existing citadel_users table).
 ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_enabled boolean NOT NULL DEFAULT false;
 ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_secret  text;

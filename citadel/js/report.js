@@ -493,9 +493,82 @@
   function setAi(on) { aiOn = !!on; }
 
   /* ---------- History panel ---------- */
-  function renderHistory(targetId) {
+  // History tab: prefer durable server-side history (when the backend + DB are
+  // present), else the per-browser localStorage view.
+  async function renderHistory(targetId) {
     const el = $(targetId || 'tab-history');
     if (!el) return;
+    if (CITADEL.api && CITADEL.api.scansList) {
+      let data = null;
+      try { data = await CITADEL.api.scansList(200); } catch (e) {}
+      if (data && data.enabled) { renderServerHistory(el, data.scans || []); return; }
+    }
+    renderLocalHistory(el);
+  }
+
+  function gradeCls(g) { return 'grade-' + String(g || '?').toLowerCase(); }
+  function renderServerHistory(el, list) {
+    if (!list.length) {
+      el.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>No scans recorded yet. Every scan you run is saved here and can be re-opened or downloaded at any time.</p></div>';
+      return;
+    }
+    const rows = list.map(h => `<tr>
+      <td class="text-nowrap small">${esc(new Date(h.ts).toLocaleString())}</td>
+      <td class="small">${esc(h.source || '')}${h.user ? ' <span class="text-body-secondary">· ' + esc(h.user) + '</span>' : ''}</td>
+      <td><span class="badge grade-pill ${gradeCls(h.grade)}">${esc(h.grade)}</span></td>
+      <td>${h.security | 0}</td>
+      <td>${h.findings | 0}</td>
+      <td class="text-danger">${(h.critical | 0) + (h.high | 0)}</td>
+      <td class="text-end text-nowrap">
+        <button class="btn btn-sm btn-outline-primary py-0 px-1" data-open-scan="${esc(h.id)}" title="Open report"><i class="bi bi-box-arrow-up-right"></i></button>
+        <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-html-scan="${esc(h.id)}" title="Download HTML report"><i class="bi bi-filetype-html"></i></button>
+        <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-json-scan="${esc(h.id)}" title="Download JSON"><i class="bi bi-filetype-json"></i></button>
+        <button class="btn btn-sm btn-outline-danger py-0 px-1" data-del-scan="${esc(h.id)}" title="Delete"><i class="bi bi-trash"></i></button>
+      </td></tr>`).join('');
+    el.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <p class="text-body-secondary mb-0">${list.length} scan(s) saved on the server — open or download any of them anytime.</p>
+        <button class="btn btn-sm btn-outline-secondary" id="hist-refresh"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+      </div>
+      <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
+        <thead><tr><th>When</th><th>Source</th><th>Grade</th><th>Security</th><th>Findings</th><th>Crit+High</th><th class="text-end">Actions</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>`;
+    wireServerHistory(el);
+  }
+
+  function wireServerHistory(el) {
+    if (el.dataset.wiredHist) return;
+    el.dataset.wiredHist = '1';
+    el.addEventListener('click', async (e) => {
+      const refresh = e.target.closest('#hist-refresh');
+      if (refresh) { renderHistory('tab-history'); return; }
+      const open = e.target.closest('[data-open-scan]');
+      const html = e.target.closest('[data-html-scan]');
+      const json = e.target.closest('[data-json-scan]');
+      const del = e.target.closest('[data-del-scan]');
+      try {
+        if (open) {
+          const r = await CITADEL.api.scanGet(open.getAttribute('data-open-scan'));
+          render(r);
+          const results = $('results'); if (results) results.classList.remove('d-none');
+          const tabBtn = document.querySelector('.tab-btn[data-tab="tab-report"]'); if (tabBtn) tabBtn.click();
+          if (results) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (html) {
+          const r = await CITADEL.api.scanGet(html.getAttribute('data-html-scan'));
+          render(r); downloadHtmlReport(r);
+        } else if (json) {
+          const r = await CITADEL.api.scanGet(json.getAttribute('data-json-scan'));
+          download('citadel-report-' + (r.meta && r.meta.scannedAt || 'scan') + '.json', JSON.stringify(r, null, 2), 'application/json');
+        } else if (del) {
+          if (!window.confirm('Delete this saved scan?')) return;
+          await CITADEL.api.scanDelete(del.getAttribute('data-del-scan'));
+          renderHistory('tab-history');
+        }
+      } catch (ex) { window.alert(ex && ex.message ? ex.message : 'Action failed.'); }
+    });
+  }
+
+  function renderLocalHistory(el) {
     const hist = CITADEL.history.list();
     if (!hist.length) { el.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>No scan history yet. Each scan you run is recorded here (locally) so you can track trend and compare runs.</p></div>'; return; }
     const opts = hist.map(h => `<option value="${h.id}">${esc(h.label)} — ${h.grade} (${h.security})</option>`).join('');

@@ -130,5 +130,17 @@
     clearTokens();
   }
 
-  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authMe, authLogout, refresh, getToken, getRefresh };
+  /* ---------- Scan history (durable) ---------- */
+  // Returns { enabled, scans:[summary...] } or { enabled:false } if unreachable.
+  async function scansList(limit) {
+    try {
+      const res = await apiFetch('api/scans' + (limit ? '?limit=' + limit : ''));
+      if (!res.ok) return { enabled: false, scans: [] };
+      return res.json();
+    } catch (e) { return { enabled: false, scans: [] }; }
+  }
+  async function scanGet(id) { const res = await apiFetch('api/scans/' + encodeURIComponent(id)); return asJson(res, 'Could not load scan'); }
+  async function scanDelete(id) { const res = await apiFetch('api/scans/' + encodeURIComponent(id), { method: 'DELETE' }); return asJson(res, 'Could not delete scan'); }
+
+  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authMe, authLogout, refresh, scansList, scanGet, scanDelete, getToken, getRefresh };
 })(window);

@@ -31,6 +31,7 @@ const db = require('./lib/db');
 const log = require('./lib/log');
 const metrics = require('./lib/metrics');
 const oidc = require('./lib/oidc');
+const scans = require('./lib/scans');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 // Locate the SPA. Local dev: server.js lives in citadel/server, so the app is
@@ -381,6 +382,21 @@ app.get('/api/audit', requireAdmin, async (req, res) => {
   res.json({ stats, events });
 });
 
+/* ---------------- Scan history (durable, requires DATABASE_URL) ---------------- */
+app.get('/api/scans', requirePerm('tab-history'), async (req, res) => {
+  res.json({ enabled: scans.enabled(), scans: await scans.list(parseInt(req.query.limit, 10) || 100) });
+});
+app.get('/api/scans/:id', requirePerm('tab-history'), async (req, res) => {
+  const report = await scans.get(req.params.id);
+  if (!report) return res.status(404).json({ error: 'Scan not found.' });
+  res.json(report);
+});
+app.delete('/api/scans/:id', requirePerm('tab-history'), async (req, res) => {
+  await scans.remove(req.params.id);
+  audit.record('scan.delete', { actor: req.user && req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true });
+  res.json({ ok: true });
+});
+
 /* ---------------- Sessions ---------------- */
 // Log out the current session (revokes this token server-side).
 app.post('/api/auth/logout', (req, res) => {
@@ -429,6 +445,7 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('
     const scannerResult = await scanners.runAll(work);
     const report = await engine.analyzeDir(work, scannerResult);
     report.meta.source = url;
+    scans.record(report, { user: req.user, source: url }).catch(() => {});
     res.json(report);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -456,6 +473,7 @@ app.post('/api/scan', rateLimited('scan', 20, 10 * 60000), requirePerm('analyze'
     const scannerResult = await scanners.runAll(work);
     const report = await engine.analyzeDir(work, scannerResult);
     metrics.inc('citadel_scans_total', { mode: 'upload' });
+    scans.record(report, { user: req.user, source: req.files.length + ' file(s)' }).catch(() => {});
     res.json(report);
   } catch (err) {
     metrics.inc('citadel_scan_errors_total');
