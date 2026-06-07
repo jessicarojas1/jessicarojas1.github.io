@@ -3,7 +3,7 @@
    best-effort. When the backend is reachable they persist to PostgreSQL and
    reconcile multi-device edits; offline, every call no-ops and data stays
    safely local. Nothing here ever blocks the UI. */
-import { byIndex, getMeta, setMeta } from "./store.js";
+import { byIndex, getMeta, setMeta, put } from "./store.js";
 
 let _online = navigator.onLine;
 let _reachable = false;
@@ -77,7 +77,21 @@ export async function syncDrawing(drawing) {
     annotations: [...strokes.filter((s) => s.kind), ...annotations],
   });
   if (data.cursor != null) await setMeta("cursor_" + drawing.id, data.cursor);
-  return data; // { changes: [...] } for the caller to merge
+
+  // Pull a 3D model / background uploaded on another device if we don't have it.
+  const sd = data.drawing;
+  if (sd) {
+    let changed = false;
+    if (sd.model_data && !drawing.model_data) {
+      drawing.model_data = sd.model_data; drawing.model_format = sd.model_format;
+      drawing.model_name = sd.model_name; drawing.view_kind = sd.view_kind || drawing.view_kind; changed = true;
+    }
+    if (sd.background_data && !drawing.background_data) {
+      drawing.background_data = sd.background_data; drawing.background_kind = sd.background_kind || "image"; changed = true;
+    }
+    if (changed) { drawing.updated_at = new Date().toISOString(); await put("drawings", drawing); data.pulledModel = true; }
+  }
+  return data; // { changes: [...], drawing, pulledModel } for the caller to merge
 }
 
 async function deviceId() {

@@ -837,8 +837,19 @@ def sync():
             ).fetchone()
             cursor = cur["c"]
 
+        # Return the canonical drawing meta so other devices can pull the
+        # 2D background or 3D model that was uploaded elsewhere.
+        drawing_meta = None
+        if drawing_id:
+            drawing_meta = conn.execute(
+                """SELECT id, title, view_kind, background_kind, background_data,
+                          model_format, model_name, model_data, width, height
+                   FROM drawings WHERE id = %s""",
+                (drawing_id,),
+            ).fetchone()
+
     return jsonify({"ok": True, "drawing_id": drawing_id,
-                    "cursor": cursor, "changes": changes})
+                    "cursor": cursor, "changes": changes, "drawing": drawing_meta})
 
 
 # ── Boot ─────────────────────────────────────────────────────────────

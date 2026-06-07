@@ -1,7 +1,7 @@
 /* AeroMarkup service worker — offline app-shell cache.
    Cache-first for the shell (so the tool launches air-gapped); /api/* always
    hits the network and fails soft so the offline-first UI never blocks. */
-const CACHE = "aeromarkup-v5";
+const CACHE = "aeromarkup-v6";
 const SHELL = [
   "./", "index.html", "app.css", "editor.css", "manifest.webmanifest", "icon.svg",
   "js/app.js", "js/router.js", "js/store.js", "js/session.js", "js/audit.js",
