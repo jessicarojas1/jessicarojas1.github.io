@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Bell,
   ChevronDown,
@@ -63,7 +63,7 @@ export function TopBar({ onToggleNav }: { onToggleNav: () => void }) {
         <Menu size={18} />
       </button>
 
-      <div className="topbar__brand">
+      <Link to="/" className="topbar__brand" aria-label={`${brandName} — go to dashboard`}>
         <span className="logo-mark">
           {logoUrl ? (
             <img src={logoUrl} alt="" className="logo-mark__img" />
@@ -72,7 +72,7 @@ export function TopBar({ onToggleNav }: { onToggleNav: () => void }) {
           )}
         </span>
         {brandName}
-      </div>
+      </Link>
 
       <GlobalSearch />
 
