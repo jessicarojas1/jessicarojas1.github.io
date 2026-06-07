@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +17,17 @@ from app.core.database import engine
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import RequestContextMiddleware, SecurityHeadersMiddleware
+from app.services import scheduler
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Start the background scheduler on boot; stop it on shutdown."""
+    scheduler.start()
+    try:
+        yield
+    finally:
+        scheduler.stop()
 
 OPENAPI_DESCRIPTION = """
 Sentinel QMS — Enterprise Quality Management System API.
@@ -43,6 +55,7 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
         contact={"name": "Sentinel QMS Team"},
         license_info={"name": "Proprietary"},
+        lifespan=lifespan,
     )
 
     # Middleware (executed bottom-up: security headers wrap, context is outermost).

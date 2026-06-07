@@ -79,6 +79,16 @@ class Settings(BaseSettings):
     SMTP_FROM: str = ""
     SMTP_USE_TLS: bool = True
 
+    # Background scheduler (in-process): runs the SLA escalation sweep and the
+    # scheduled report digest. Disabled automatically under the test-suite. Set
+    # RUN_SCHEDULER=false to turn it off (e.g. when running a dedicated worker).
+    RUN_SCHEDULER: bool = True
+    # How often the scheduler wakes, in seconds (default 15 minutes). Each tick
+    # runs the SLA sweep (idempotent) and checks whether a digest is due.
+    SCHEDULER_INTERVAL_SECONDS: int = 900
+    # Public base URL used to build deep links in outbound notifications/digests.
+    APP_BASE_URL: str = ""
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def _split_cors(cls, v: object) -> object:

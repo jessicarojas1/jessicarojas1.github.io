@@ -7,6 +7,8 @@ os.environ.setdefault("DATABASE_URL", "sqlite+pysqlite:///:memory:")
 os.environ.setdefault("JWT_SECRET", "test-secret-key-please-only-for-tests-32chars")
 os.environ.setdefault("ENVIRONMENT", "development")
 os.environ.setdefault("ADMIN_AUTO_CREATE", "false")
+# The background scheduler must never spin up during tests.
+os.environ.setdefault("RUN_SCHEDULER", "false")
 
 import pytest
 from fastapi.testclient import TestClient

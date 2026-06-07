@@ -58,6 +58,7 @@ from app.models.mgmt_review import (
 )
 from app.models.permission import RolePagePermission, UserPagePermission
 from app.models.settings import OrgSettings
+from app.models.sla import SlaEscalation
 from app.models.nonconformance import (
     DispositionType,
     NcSeverity,
@@ -173,4 +174,5 @@ __all__ = [
     "ComplaintSeverity",
     "Comment",
     "OrgSettings",
+    "SlaEscalation",
 ]
