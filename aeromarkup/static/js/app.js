@@ -23,7 +23,6 @@ const NAV = [
 
 function shell() {
   document.body.innerHTML = `
-    <div class="cui-banner cui-top" data-cui>CUI</div>
     <div class="app">
       <header class="topbar">
         <button class="btn-icon" data-menu aria-label="Menu">${icon("menu", 20)}</button>
@@ -53,8 +52,7 @@ function shell() {
         </div>
       </aside>
       <main class="main"><div class="view" id="view"></div></main>
-    </div>
-    <div class="cui-banner cui-bottom" data-cui>CUI</div>`;
+    </div>`;
 }
 
 function setActiveNav() {
@@ -147,14 +145,9 @@ async function boot() {
   await applyBranding();
   window.addEventListener("am:branding-changed", applyBranding);
 
-  // classification banner
-  const cls = await getClassification();
-  $("[data-classification]").value = cls;
-  $$("[data-cui]").forEach((b) => (b.textContent = cls === "UNCLASSIFIED" ? "UNCLASSIFIED" : cls));
-  $("[data-classification]").addEventListener("change", async (e) => {
-    await setClassification(e.target.value);
-    $$("[data-cui]").forEach((b) => (b.textContent = e.target.value === "UNCLASSIFIED" ? "UNCLASSIFIED" : e.target.value));
-  });
+  // document classification (used to label drawings / PDF reports)
+  $("[data-classification]").value = await getClassification();
+  $("[data-classification]").addEventListener("change", (e) => setClassification(e.target.value));
 
   // mobile menu
   $("[data-menu]").addEventListener("click", () => $("[data-sidebar]").classList.toggle("open"));

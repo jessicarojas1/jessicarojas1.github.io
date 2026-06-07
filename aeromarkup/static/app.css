@@ -46,7 +46,7 @@
   --rail:         56px;
   --sidebar:      232px;
   --topbar:       54px;
-  --cui-h:        26px;
+  --cui-h:        0px;   /* CUI banners removed; keep var so layout math stays valid */
 
   /* Spacing scale */
   --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
