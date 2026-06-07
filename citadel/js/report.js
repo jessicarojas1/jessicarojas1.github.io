@@ -528,9 +528,12 @@
   }
 
   let _histList = [];
+  let _baselineId = (function () { try { return localStorage.getItem('citadel.baseline') || null; } catch (e) { return null; } })();
+  function setBaseline(id) { _baselineId = id; try { id ? localStorage.setItem('citadel.baseline', id) : localStorage.removeItem('citadel.baseline'); } catch (e) {} }
   function histRow(h) {
+    const isBase = _baselineId === h.id;
     return `<tr>
-      <td class="text-nowrap small">${esc(new Date(h.ts).toLocaleString())}</td>
+      <td class="text-nowrap small">${esc(new Date(h.ts).toLocaleString())}${isBase ? ' <span class="badge text-bg-warning">baseline</span>' : ''}</td>
       <td class="small">${esc(h.source || '')}${h.user ? ' <span class="text-body-secondary">· ' + esc(h.user) + '</span>' : ''}</td>
       <td><span class="badge grade-pill ${gradeCls(h.grade)}">${esc(h.grade)}</span></td>
       <td>${h.security | 0}</td>
@@ -538,10 +541,53 @@
       <td class="text-danger">${(h.critical | 0) + (h.high | 0)}</td>
       <td class="text-end text-nowrap">
         <button class="btn btn-sm btn-outline-primary py-0 px-1" data-open-scan="${esc(h.id)}" title="Open report"><i class="bi bi-box-arrow-up-right"></i></button>
+        ${(_baselineId && !isBase) ? `<button class="btn btn-sm btn-outline-info py-0 px-1" data-diff-scan="${esc(h.id)}" title="Compare to baseline"><i class="bi bi-arrow-left-right"></i></button>` : ''}
+        <button class="btn btn-sm ${isBase ? 'btn-warning' : 'btn-outline-secondary'} py-0 px-1" data-baseline-scan="${esc(h.id)}" title="${isBase ? 'Clear baseline' : 'Set as baseline for diffs'}"><i class="bi bi-flag${isBase ? '-fill' : ''}"></i></button>
         <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-html-scan="${esc(h.id)}" title="Download HTML report"><i class="bi bi-filetype-html"></i></button>
         <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-json-scan="${esc(h.id)}" title="Download JSON"><i class="bi bi-filetype-json"></i></button>
         <button class="btn btn-sm btn-outline-danger py-0 px-1" data-del-scan="${esc(h.id)}" title="Delete"><i class="bi bi-trash"></i></button>
       </td></tr>`;
+  }
+  // Finding-level diff between a baseline scan and another scan.
+  async function renderDiff(targetId) {
+    const panel = $('hist-diff'); if (!panel || !_baselineId) return;
+    panel.classList.remove('d-none');
+    panel.innerHTML = '<div class="small text-body-secondary py-2"><span class="spinner-border spinner-border-sm"></span> Comparing…</div>';
+    let base, cur;
+    try { [base, cur] = await Promise.all([CITADEL.api.scanGet(_baselineId), CITADEL.api.scanGet(targetId)]); }
+    catch (e) { panel.innerHTML = '<div class="text-danger small">Could not load scans to compare.</div>'; return; }
+    const key = f => (f.ruleId || '') + '::' + (f.file || '') + '::' + (f.line || 0);
+    const baseKeys = new Set((base.findings || []).map(key));
+    const curKeys = new Set((cur.findings || []).map(key));
+    const added = (cur.findings || []).filter(f => !baseKeys.has(key(f)));
+    const fixed = (base.findings || []).filter(f => !curKeys.has(key(f)));
+    const unchanged = (cur.findings || []).length - added.length;
+    const sevOrder = ['critical', 'high', 'medium', 'low', 'info'];
+    const srt = a => a.slice().sort((x, y) => sevOrder.indexOf(x.severity) - sevOrder.indexOf(y.severity));
+    const li = f => `<li><span class="badge sev-badge" style="background:${SEV_COLOR[f.severity] || '#6b7280'}">${esc(f.severity)}</span> ${esc(f.name)} <span class="text-body-secondary">· ${esc((f.file || '').split('/').pop())}${f.line ? ':' + f.line : ''}</span></li>`;
+    const baseScan = _histList.find(s => s.id === _baselineId);
+    panel.innerHTML = `
+      <div class="card citadel-card"><div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0"><i class="bi bi-arrow-left-right"></i> Diff vs baseline ${baseScan ? '<span class="text-body-secondary small">(' + esc(new Date(baseScan.ts).toLocaleDateString()) + ')</span>' : ''}</h6>
+          <button class="btn btn-sm btn-outline-secondary py-0 px-1" id="hist-diff-close" title="Close"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="d-flex gap-3 flex-wrap mb-2">
+          <span class="badge text-bg-danger">${added.length} new</span>
+          <span class="badge text-bg-success">${fixed.length} fixed</span>
+          <span class="badge text-bg-secondary">${unchanged} unchanged</span>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="fw-semibold small text-danger mb-1">New findings (regressions)</div>
+            <ul class="diff-list small">${added.length ? srt(added).slice(0, 100).map(li).join('') : '<li class="text-body-secondary">None — no new findings 🎉</li>'}</ul>
+          </div>
+          <div class="col-md-6">
+            <div class="fw-semibold small text-success mb-1">Fixed since baseline</div>
+            <ul class="diff-list small">${fixed.length ? srt(fixed).slice(0, 100).map(li).join('') : '<li class="text-body-secondary">None</li>'}</ul>
+          </div>
+        </div>
+      </div></div>`;
   }
   function renderHistRows(q) {
     const tb = $('hist-tbody'); if (!tb) return;
@@ -579,9 +625,11 @@
           <button class="btn btn-sm btn-outline-secondary" id="hist-refresh" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
         </div>
       </div>
+      ${_baselineId ? '<div class="small text-body-secondary mb-2"><i class="bi bi-flag-fill text-warning"></i> A baseline is set — use the <i class="bi bi-arrow-left-right"></i> button on any scan to see what\'s <span class="text-danger">new</span> or <span class="text-success">fixed</span> since then.</div>' : '<div class="small text-body-secondary mb-2"><i class="bi bi-flag"></i> Tip: flag a scan as <strong>baseline</strong>, then diff later scans against it to catch regressions.</div>'}
       <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
         <thead><tr><th>When</th><th>Source</th><th>Grade</th><th>Security</th><th>Findings</th><th>Crit+High</th><th class="text-end">Actions</th></tr></thead>
-        <tbody id="hist-tbody"></tbody></table></div>`;
+        <tbody id="hist-tbody"></tbody></table></div>
+      <div id="hist-diff" class="mt-3 d-none"></div>`;
     renderHistRows('');
     wireServerHistory(el);
   }
@@ -594,6 +642,11 @@
       const refresh = e.target.closest('#hist-refresh');
       if (refresh) { renderHistory('tab-history'); return; }
       if (e.target.closest('#hist-csv')) { exportHistCsv(); return; }
+      if (e.target.closest('#hist-diff-close')) { const p = $('hist-diff'); if (p) { p.classList.add('d-none'); p.innerHTML = ''; } return; }
+      const base = e.target.closest('[data-baseline-scan]');
+      if (base) { const id = base.getAttribute('data-baseline-scan'); setBaseline(_baselineId === id ? null : id); renderHistory('tab-history'); return; }
+      const diff = e.target.closest('[data-diff-scan]');
+      if (diff) { renderDiff(diff.getAttribute('data-diff-scan')); const p = $('hist-diff'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return; }
       const open = e.target.closest('[data-open-scan]');
       const html = e.target.closest('[data-html-scan]');
       const json = e.target.closest('[data-json-scan]');
