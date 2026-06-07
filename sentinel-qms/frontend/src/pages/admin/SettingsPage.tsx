@@ -1,7 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { AlertCircle, Info, Save, Settings } from 'lucide-react';
-import { useOrgSettings, useUpdateSettings, type OrgSettingsUpdate } from '@/hooks';
+import { AlertCircle, Info, Save, Send, Settings } from 'lucide-react';
+import {
+  useOrgSettings,
+  useUpdateSettings,
+  useTestNotification,
+  type OrgSettingsUpdate,
+  type NotificationChannel,
+} from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { usePagePerms } from '@/lib/permissions';
@@ -16,11 +22,16 @@ interface FormValues {
   default_review_cycle_days: number;
   calibration_default_interval_days: number;
   timezone: string;
+  notifications_email_enabled: boolean;
+  teams_webhook_url: string;
+  slack_webhook_url: string;
 }
 
 export default function SettingsPage() {
   const { data, isLoading, error } = useOrgSettings();
   const update = useUpdateSettings();
+  const test = useTestNotification();
+  const [testing, setTesting] = useState<NotificationChannel | null>(null);
   const { notify } = useToast();
   const { canEdit } = usePagePerms();
   // Reuse the Users page permission as the admin gate for org settings.
@@ -40,6 +51,9 @@ export default function SettingsPage() {
       default_review_cycle_days: 365,
       calibration_default_interval_days: 365,
       timezone: 'UTC',
+      notifications_email_enabled: false,
+      teams_webhook_url: '',
+      slack_webhook_url: '',
     },
   });
 
@@ -54,6 +68,9 @@ export default function SettingsPage() {
       default_review_cycle_days: data.default_review_cycle_days ?? 365,
       calibration_default_interval_days: data.calibration_default_interval_days ?? 365,
       timezone: data.timezone ?? 'UTC',
+      notifications_email_enabled: data.notifications_email_enabled ?? false,
+      teams_webhook_url: data.teams_webhook_url ?? '',
+      slack_webhook_url: data.slack_webhook_url ?? '',
     });
   }, [data, reset]);
 
@@ -67,6 +84,9 @@ export default function SettingsPage() {
       default_review_cycle_days: Number(values.default_review_cycle_days),
       calibration_default_interval_days: Number(values.calibration_default_interval_days),
       timezone: values.timezone.trim() || undefined,
+      notifications_email_enabled: values.notifications_email_enabled,
+      teams_webhook_url: values.teams_webhook_url.trim() || null,
+      slack_webhook_url: values.slack_webhook_url.trim() || null,
     };
     try {
       await update.mutateAsync(payload);
@@ -75,6 +95,18 @@ export default function SettingsPage() {
       notify(getErrorMessage(err), 'danger');
     }
   });
+
+  const sendTest = async (channel: NotificationChannel) => {
+    setTesting(channel);
+    try {
+      const result = await test.mutateAsync(channel);
+      notify(result.detail || (result.ok ? 'Test sent' : 'Test failed'), result.ok ? 'success' : 'danger');
+    } catch (err) {
+      notify(getErrorMessage(err), 'danger');
+    } finally {
+      setTesting(null);
+    }
+  };
 
   return (
     <>
@@ -165,6 +197,85 @@ export default function SettingsPage() {
                   <TextInput id="st-tz" {...register('timezone')} placeholder="UTC" />
                 </FormField>
               </div>
+
+              <h2 className="settings-section-title">Notifications</h2>
+              <div className="form-grid">
+                <FormField
+                  label="Email notifications"
+                  htmlFor="st-notif-email"
+                  className="form-field--span"
+                  hint="SMTP server credentials are configured via environment variables on the server. This toggle only turns email sending on or off."
+                >
+                  <label className="checkbox-row" htmlFor="st-notif-email">
+                    <input
+                      id="st-notif-email"
+                      type="checkbox"
+                      className="checkbox"
+                      {...register('notifications_email_enabled')}
+                    />
+                    <span>Send notifications by email</span>
+                  </label>
+                </FormField>
+                <FormField
+                  label="Microsoft Teams webhook URL"
+                  htmlFor="st-teams"
+                  className="form-field--span"
+                >
+                  <TextInput
+                    id="st-teams"
+                    {...register('teams_webhook_url')}
+                    placeholder="https://outlook.office.com/webhook/..."
+                  />
+                </FormField>
+                <FormField
+                  label="Slack webhook URL"
+                  htmlFor="st-slack"
+                  className="form-field--span"
+                >
+                  <TextInput
+                    id="st-slack"
+                    {...register('slack_webhook_url')}
+                    placeholder="https://hooks.slack.com/services/..."
+                  />
+                </FormField>
+              </div>
+
+              {writable && (
+                <div className="settings-test-row">
+                  <span className="settings-test-hint">
+                    Tests use the saved configuration — save first if you changed a webhook above.
+                  </span>
+                  <div className="settings-test-buttons">
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => sendTest('email')}
+                      disabled={testing !== null}
+                    >
+                      {testing === 'email' ? <span className="spinner" /> : <Send size={14} />}
+                      Test Email
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => sendTest('teams')}
+                      disabled={testing !== null}
+                    >
+                      {testing === 'teams' ? <span className="spinner" /> : <Send size={14} />}
+                      Test Teams
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => sendTest('slack')}
+                      disabled={testing !== null}
+                    >
+                      {testing === 'slack' ? <span className="spinner" /> : <Send size={14} />}
+                      Test Slack
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {writable && (
                 <div className="settings-actions">

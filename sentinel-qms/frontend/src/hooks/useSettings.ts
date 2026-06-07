@@ -11,6 +11,18 @@ export interface OrgSettings {
   default_review_cycle_days: number;
   calibration_default_interval_days: number;
   timezone: string;
+  notifications_email_enabled: boolean;
+  teams_webhook_url: string | null;
+  slack_webhook_url: string | null;
+}
+
+/** Notification channels that can be test-fired. */
+export type NotificationChannel = 'email' | 'teams' | 'slack';
+
+/** Result of a notification test send. */
+export interface NotificationTestResult {
+  ok: boolean;
+  detail: string;
 }
 
 /** Fields accepted by PUT /settings — all optional. */
@@ -41,6 +53,19 @@ export function useUpdateSettings() {
     onSuccess: (data) => {
       qc.setQueryData(KEY, data);
       qc.invalidateQueries({ queryKey: KEY });
+    },
+  });
+}
+
+/** Fire a test notification on a channel (admin only). Never throws on send failure. */
+export function useTestNotification() {
+  return useMutation<NotificationTestResult, unknown, NotificationChannel>({
+    mutationFn: async (channel) => {
+      const { data } = await api.post<NotificationTestResult>(
+        '/settings/notifications/test',
+        { channel },
+      );
+      return data;
     },
   });
 }

@@ -69,6 +69,8 @@ class Settings(BaseSettings):
     # Outbound notifications (all optional — empty disables that channel).
     # Microsoft Teams incoming webhook (Connector / Workflow URL).
     TEAMS_WEBHOOK_URL: str = ""
+    # Slack incoming webhook URL.
+    SLACK_WEBHOOK_URL: str = ""
     # SMTP email dispatch.
     SMTP_HOST: str = ""
     SMTP_PORT: int = 587
