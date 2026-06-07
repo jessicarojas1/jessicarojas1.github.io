@@ -708,6 +708,31 @@ table.data-table {
     break-inside: avoid;
   }
   a { color: #000 !important; text-decoration: none; }
+
+  /* Branded report/print header — shown only when printing. */
+  .print-brand-header {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #000;
+  }
+  .print-brand-header__img {
+    max-height: 32px;
+    max-width: 160px;
+    object-fit: contain;
+  }
+  .print-brand-header__name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000 !important;
+  }
+}
+
+/* Branded report/print header is hidden on screen (print-only). */
+.print-brand-header {
+  display: none;
 }
 
 /* ---- User admin row actions ---- */
@@ -1159,10 +1184,86 @@ table.data-table {
 }
 .settings-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 12px;
   margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border);
+}
+
+/* ---- Branding preview + inputs ---- */
+.branding-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  margin-bottom: 1rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.branding-preview__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.branding-preview__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.branding-preview__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.branding-preview__meta strong {
+  font-size: 1rem;
+}
+.branding-preview__accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.branding-preview__swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border-strong);
+}
+
+.logo-upload {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.logo-upload__input {
+  display: none;
+}
+
+.color-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.color-field__picker {
+  width: 42px;
+  height: 38px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  flex: 0 0 auto;
 }
 
 /* Branding logo rendered in the brand marks (top bar / login). */

@@ -64,10 +64,25 @@ create table if not exists poam_items (
   updated_at           timestamptz default now()
 );
 
+-- App settings (key/value) — used for shared Branding (logo, name, accent).
+-- Written via /api/settings/branding using the service role key.
+create table if not exists app_settings (
+  key        text primary key,
+  value      jsonb not null default '{}'::jsonb,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
 -- RLS policies (enable after auth setup)
-alter table controls   enable row level security;
-alter table evidence   enable row level security;
-alter table poam_items enable row level security;
+alter table controls     enable row level security;
+alter table evidence     enable row level security;
+alter table poam_items   enable row level security;
+alter table app_settings enable row level security;
+
+-- Branding is readable by authenticated users; writes go through the
+-- service-role API route (bypasses RLS), so only a read policy is needed.
+create policy "Authenticated users can read app_settings"
+  on app_settings for select to authenticated using (true);
 
 -- Allow authenticated users to read all
 create policy "Authenticated users can read controls"
@@ -89,6 +104,7 @@ returns trigger as $$
 begin new.updated_at = now(); return new; end;
 $$ language plpgsql;
 
-create trigger trg_controls_updated   before update on controls   for each row execute function update_updated_at();
-create trigger trg_evidence_updated   before update on evidence   for each row execute function update_updated_at();
-create trigger trg_poam_updated       before update on poam_items for each row execute function update_updated_at();
+create trigger trg_controls_updated     before update on controls     for each row execute function update_updated_at();
+create trigger trg_evidence_updated     before update on evidence     for each row execute function update_updated_at();
+create trigger trg_poam_updated         before update on poam_items   for each row execute function update_updated_at();
+create trigger trg_app_settings_updated before update on app_settings for each row execute function update_updated_at();

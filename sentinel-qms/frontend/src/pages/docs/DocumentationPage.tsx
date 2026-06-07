@@ -25,7 +25,7 @@ import { PageHeader } from '@/components/PageHeader';
 
 interface ModuleDoc {
   name: string;
-  icon: ComponentType<{ size?: number }>;
+  icon: ComponentType<{ size?: number | string }>;
   std: string;
   purpose: string;
   fields: string;
@@ -156,7 +156,7 @@ const MODULES: ModuleDoc[] = [
 
 interface Concept {
   name: string;
-  icon: ComponentType<{ size?: number }>;
+  icon: ComponentType<{ size?: number | string }>;
   text: string;
 }
 

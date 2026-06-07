@@ -46,7 +46,7 @@ export function AuditCreateModal({
   const submit = handleSubmit(async (values) => {
     try {
       const leadId = values.lead_auditor_id?.trim();
-      const payload: Partial<Audit> & { lead_auditor_id?: number } = {
+      const payload: Omit<Partial<Audit>, 'lead_auditor_id'> & { lead_auditor_id?: number } = {
         title: values.title,
         audit_type: values.audit_type,
         standard: values.standard || undefined,
@@ -55,7 +55,8 @@ export function AuditCreateModal({
         lead_auditor_id: leadId ? Number(leadId) : undefined,
         planned_date: values.planned_date || undefined,
       };
-      const created = (await create.mutateAsync(payload)) as Audit;
+      // lead_auditor_id is a numeric FK on the wire; Audit types it as a string, so cast.
+      const created = (await create.mutateAsync(payload as unknown as Partial<Audit>)) as Audit;
       notify(`Audit ${created.audit_number ?? ''} scheduled`, 'success');
       reset();
       onCreated(created.id);

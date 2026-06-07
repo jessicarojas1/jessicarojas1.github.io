@@ -13,12 +13,12 @@ import { useAuth } from '@/lib/auth';
 import { formatDateTime, humanize, initials } from '@/lib/format';
 import { ROLE_LABELS } from '@/types';
 import {
+  useBranding,
   useDebounced,
   useGlobalSearch,
   useMarkAllRead,
   useMarkRead,
   useNotifications,
-  useOrgSettings,
   useUnreadCount,
 } from '@/hooks';
 import { ThemeToggle } from './ThemeToggle';
@@ -27,13 +27,13 @@ import { BrandIcon } from '@/lib/nav';
 export function TopBar({ onToggleNav }: { onToggleNav: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { data: settings } = useOrgSettings();
+  const branding = useBranding();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Resilient branding: fall back to the static brand while loading / on error.
-  const brandName = settings?.organization_name || 'Sentinel QMS';
-  const logoUrl = settings?.logo_url || null;
+  // Resilient, sanitized branding: falls back to defaults while loading / on error.
+  const brandName = branding.name;
+  const logoUrl = branding.logoUrl;
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {

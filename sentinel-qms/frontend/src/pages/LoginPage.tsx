@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { AlertCircle, Boxes, LogIn } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/api';
-import { useOrgSettings } from '@/hooks';
+import { useBranding } from '@/hooks';
 import { FormField, TextInput } from '@/components/FormField';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -21,10 +21,11 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [serverError, setServerError] = useState<string | null>(null);
-  // Branding is best-effort here (endpoint requires auth); fall back to static.
-  const { data: settings } = useOrgSettings();
-  const brandName = settings?.organization_name || 'Sentinel QMS';
-  const logoUrl = settings?.logo_url || null;
+  // Branding is best-effort here (endpoint requires auth); the localStorage
+  // cache from a prior session keeps the sign-in screen branded.
+  const branding = useBranding();
+  const brandName = branding.name;
+  const logoUrl = branding.logoUrl;
 
   const {
     register,

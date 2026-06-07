@@ -59,17 +59,32 @@ When asked to build any user management, roles, or permissions UI, always delive
 
 ## Settings & Branding Standard (Every App / Project)
 
-Every app and project **must** include a **Settings** area with a **Branding** section where the user can:
-- **Upload / set a logo via URL** (a logo URL field is required; also accept a file upload that is stored as a data URL so it works offline)
-- Set the **organization / app display name**
-- Optionally set an **accent/brand color**
+Every app or project — new or existing, moving forward — **must** include a
+**Settings** area that contains a **Branding** section where the user can:
 
-Branding must be **persisted** (localStorage / IndexedDB / DB as appropriate) and **applied live** across the app:
-- The logo replaces the default brand mark in the header/top bar
-- The display name replaces the default app name
-- The logo appears in any generated reports / PDF / print output and on login/landing screens
+- **Set a logo via URL** (a `logoUrl` text field — paste an image URL). Also
+  accept a **file upload stored as a `data:` URL** so it works offline.
+- Set the **organization / product display name** (text).
+- Set a **primary accent / brand color** (color picker, applied via a CSS custom property).
 
-Sanitize logo URLs (allow only `http(s)://` or `data:image/...`) and escape when injected into markup. Default gracefully to the built-in mark/name when no branding is set.
+Branding must be **persisted** and **applied live** across the app:
+- Persist wherever the app stores settings: server-side settings when a backend
+  exists (shared), and `localStorage` / IndexedDB for static/front-end-only
+  hosting (per-browser). The backend value wins when both are present.
+- The logo replaces the default brand mark in the header/top bar; the display
+  name replaces the default app name (header + document `<title>`); the accent
+  color overrides the app's primary CSS custom property.
+- The logo also appears in any generated reports / PDF / print output and on
+  login/landing screens.
+
+Requirements:
+- Provide sensible empty-state defaults (the app's built-in logo/name/accent) so
+  unset branding never breaks the UI; a bad/broken logo URL degrades gracefully
+  to the default mark.
+- **Sanitize** logo URLs (allow only `http(s)://` or `data:image/...`) and escape
+  user-supplied strings when injected into markup.
+- Follow all existing rules: no inline event handlers, and never hardcode colors
+  that should be the accent var.
 
 ## Other Permanent Rules
 

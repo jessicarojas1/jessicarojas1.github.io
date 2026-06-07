@@ -359,8 +359,10 @@ html { scroll-behavior: smooth; }
 }
 
 /* ---------- Print ---------- */
+#print-brand { display:none; }
 @media print {
   .citadel-bar, .citadel-hero, #intake-section, .citadel-tabs, .citadel-footer, #themeToggleBtn, .skip-link { display:none !important; }
+  #print-brand { display:flex !important; align-items:center; gap:.5rem; padding:0 0 .6rem; margin-bottom:1rem; border-bottom:3px solid var(--citadel-accent); }
   .tab-panel.d-none { display:block !important; }
   .tab-panel { page-break-inside:avoid; margin-bottom:1.5rem; }
   body { background:#fff; }

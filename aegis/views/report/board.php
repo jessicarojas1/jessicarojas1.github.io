@@ -316,10 +316,17 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
 <!-- ── Cover ─────────────────────────────────────────────────────────────── -->
 <div class="bp-cover">
   <div class="bp-cover-inner">
+    <?php $__bpLogo = Branding::logo(); $__bpName = Branding::name(); ?>
     <div class="bp-logo">
-      <div class="bp-logo-icon"><i class="bi bi-shield-fill-check"></i></div>
+      <?php if ($__bpLogo): ?>
+        <img src="<?= Security::h($__bpLogo) ?>" alt="<?= Security::h($__bpName) ?> logo" class="bp-logo-img" data-logo-fallback
+             style="width:44px;height:44px;object-fit:contain;border-radius:8px">
+        <div class="bp-logo-icon brand-logo-fallback" style="display:none"><i class="bi bi-shield-fill-check"></i></div>
+      <?php else: ?>
+        <div class="bp-logo-icon"><i class="bi bi-shield-fill-check"></i></div>
+      <?php endif; ?>
       <div>
-        <div class="bp-logo-text">AEGIS GRC</div>
+        <div class="bp-logo-text"><?= Security::h($__bpName) ?></div>
         <div class="bp-logo-sub">Governance · Risk · Compliance</div>
       </div>
     </div>

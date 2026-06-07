@@ -1,7 +1,10 @@
 <?php
 $breadcrumbs = $breadcrumbs ?? [['Reports', null], ['Compliance Report', null]];
 ob_start();
+$reportTitle = 'Compliance Status Report';
 ?>
+
+<?php require AEGIS_ROOT . '/views/report/_print_header.php'; ?>
 
 <div class="page-header">
   <div>

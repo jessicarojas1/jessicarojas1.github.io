@@ -10,7 +10,7 @@ import { getErrorMessage } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { ROLE_LABELS, type Role } from '@/types';
 
-const ICONS: Record<string, ComponentType<{ size?: number }>> = {
+const ICONS: Record<string, ComponentType<{ size?: number | string }>> = {
   'shield-alert': ShieldAlert, 'clipboard-check': ClipboardCheck,
   'message-warning': MessageSquareWarning, 'file-text': FileText,
   'git-pull-request': GitPullRequestArrow, 'scroll-text': ScrollText,

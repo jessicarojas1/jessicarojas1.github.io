@@ -1,13 +1,16 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Download, BarChart3, CheckSquare, AlertTriangle } from 'lucide-react';
+import { useMemo } from 'react';
+import { Download, BarChart3, AlertTriangle, Printer } from 'lucide-react';
 import { SEED_CONTROLS, SEED_EVIDENCE } from '@/lib/data';
-import { computeSummary, statusLabel, statusColor, formatDate } from '@/lib/utils';
+import { computeSummary } from '@/lib/utils';
 import { StatusBadge } from '@/components/controls/StatusBadge';
 import { PriorityBadge } from '@/components/controls/PriorityBadge';
+import { useBranding } from '@/components/branding/BrandingProvider';
+import { BrandMark } from '@/components/branding/BrandMark';
 
 export default function ReportsPage() {
+  const { branding, tagline } = useBranding();
   const summary = useMemo(() => computeSummary(SEED_CONTROLS), []);
   const poamItems = useMemo(() => SEED_CONTROLS.filter(c =>
     c.notes && (c.status === 'not_implemented' || c.status === 'partially_implemented')
@@ -43,12 +46,24 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* Branded report header — visible on screen and in print/PDF output. */}
+      <div className="flex items-center gap-3 pb-4 border-b border-slate-800">
+        <BrandMark size={40} />
+        <div className="min-w-0">
+          <div className="text-base font-bold text-slate-100 truncate">{branding.displayName}</div>
+          <div className="text-xs text-slate-500">{tagline} — Compliance Assessment Report</div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between flex-wrap gap-3 no-print">
         <div>
           <h1 className="text-2xl font-bold text-slate-100">Reports & Export</h1>
           <p className="text-sm text-slate-400 mt-1">Assessment summary as of {new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</p>
         </div>
         <div className="flex gap-2">
+          <button className="btn-secondary flex items-center gap-2" onClick={() => window.print()}>
+            <Printer className="w-4 h-4" /> Print / PDF
+          </button>
           <button className="btn-secondary flex items-center gap-2" onClick={exportCSV}>
             <Download className="w-4 h-4" /> Export CSV
           </button>

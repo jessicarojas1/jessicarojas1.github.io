@@ -204,6 +204,26 @@ app.patch('/api/auth/settings', requireAdmin, (req, res) => {
   res.json(out);
 });
 
+/* ---------------- Branding (shared logo / name / accent) ---------------- */
+// Public read so the served SPA can theme itself; admin-only write (full replace).
+app.get('/api/branding', (req, res) => res.json(users.settings().branding || {}));
+app.patch('/api/branding', requireAdmin, (req, res) => {
+  const b = req.body || {};
+  const url = typeof b.logoUrl === 'string' ? b.logoUrl.trim() : '';
+  const accent = typeof b.accent === 'string' ? b.accent.trim() : '';
+  // Allow public https(/http) URLs or inline data: image URIs (file uploads).
+  const isHttp = /^https?:\/\/\S+$/i.test(url);
+  const isDataImg = /^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=\s]+$/i.test(url);
+  const clean = {
+    logoUrl: isHttp ? url.slice(0, 500) : (isDataImg ? url.slice(0, 200000) : ''),
+    orgName: (typeof b.orgName === 'string' ? b.orgName.trim() : '').slice(0, 80),
+    accent: /^#?[0-9a-fA-F]{3,8}$/.test(accent) ? (accent[0] === '#' ? accent : '#' + accent) : ''
+  };
+  users.setSetting('branding', clean);
+  audit.record('settings.change', { actor: req.user.email, ip: clientIp(req), detail: 'branding', ok: true });
+  res.json(clean);
+});
+
 // Read-only security audit trail (most recent first; optional ?type= prefix filter).
 app.get('/api/audit', requireAdmin, (req, res) => {
   const n = Math.min(parseInt(req.query.limit, 10) || 200, 500);

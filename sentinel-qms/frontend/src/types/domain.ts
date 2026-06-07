@@ -680,7 +680,7 @@ export interface AuditLogRecord {
 /* Dashboard                                                            */
 /* ------------------------------------------------------------------ */
 
-export interface TrendPoint {
+export interface DashboardTrendPoint {
   period: string;
   value: number;
 }
@@ -696,7 +696,7 @@ export interface DashboardSummary {
     supplier_avg_rating: number;
     open_complaints: number;
   };
-  ncr_trend: TrendPoint[];
+  ncr_trend: DashboardTrendPoint[];
   capa_aging: { bucket: string; count: number }[];
   calibration_status: { name: string; value: number }[];
   supplier_performance: { name: string; rating: number; otd: number }[];

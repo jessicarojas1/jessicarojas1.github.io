@@ -3,7 +3,10 @@ $breadcrumbs = $breadcrumbs ?? [['Reports', null], ['Executive', null]];
 ob_start();
 $scoreColor = $grcScore >= 80 ? 'var(--success)' : ($grcScore >= 60 ? 'var(--warning)' : 'var(--danger)');
 $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 'At Risk');
+$reportTitle = 'Executive Summary';
 ?>
+
+<?php require AEGIS_ROOT . '/views/report/_print_header.php'; ?>
 
 <div class="page-header">
   <div>

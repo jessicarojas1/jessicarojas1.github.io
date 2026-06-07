@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://api.osv.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://api.osv.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="../favicon.ico" />
@@ -16,16 +16,22 @@
 <body>
   <a href="#main" class="skip-link">Skip to main content</a>
 
+  <!-- Print-only branding header (navbar is hidden in print/PDF) -->
+  <div id="print-brand" aria-hidden="true"></div>
+
   <!-- Top bar -->
   <nav class="navbar navbar-expand-lg sticky-top citadel-bar" aria-label="CITADEL navigation">
     <div class="container-fluid px-3 px-lg-4">
       <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.html">
-        <svg width="28" height="28" viewBox="0 0 40 40" aria-hidden="true">
-          <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
-          <path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
-          <path d="M14.5 20.5 l4 4 l7.5 -8.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>CITADEL</span>
+        <img id="brand-logo" alt="" class="d-none" style="height:28px;width:auto;border-radius:6px;object-fit:contain">
+        <span id="brand-mark" class="d-flex">
+          <svg width="28" height="28" viewBox="0 0 40 40" aria-hidden="true">
+            <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
+            <path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
+            <path d="M14.5 20.5 l4 4 l7.5 -8.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span id="brand-name">CITADEL</span>
       </a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#citadelNav" aria-controls="citadelNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -244,6 +250,7 @@
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/branding.js"></script>
   <script src="js/languages.js"></script>
   <script src="js/frameworks.js"></script>
   <script src="js/controls-federal.js"></script>

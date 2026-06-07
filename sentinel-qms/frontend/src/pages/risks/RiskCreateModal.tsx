@@ -74,7 +74,7 @@ export function RiskCreateModal({
   const submit = handleSubmit(async (values) => {
     try {
       const ownerId = values.owner_id?.trim();
-      const payload: Partial<Risk> & { owner_id?: number } = {
+      const payload: Omit<Partial<Risk>, 'owner_id'> & { owner_id?: number } = {
         title: values.title,
         category: values.category,
         description: values.description,
@@ -86,7 +86,8 @@ export function RiskCreateModal({
         owner_id: ownerId ? Number(ownerId) : undefined,
         review_date: values.review_date || undefined,
       };
-      const created = (await create.mutateAsync(payload)) as Risk;
+      // owner_id is a numeric FK on the wire; Risk types it as a string, so cast.
+      const created = (await create.mutateAsync(payload as unknown as Partial<Risk>)) as Risk;
       notify(`Risk ${created.risk_number ?? ''} logged`, 'success');
       reset();
       onCreated(created.id);

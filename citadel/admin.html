@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https: data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="../favicon.ico" />
@@ -30,12 +30,15 @@
   <nav class="navbar navbar-expand-lg sticky-top citadel-bar" aria-label="CITADEL admin navigation">
     <div class="container-fluid px-3 px-lg-4">
       <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.html">
-        <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true">
-          <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
-          <path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
-          <path d="M14.5 20.5 l4 4 l7.5 -8.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>CITADEL <span class="text-body-secondary fw-normal">/ admin</span></span>
+        <img id="brand-logo" alt="" class="d-none" style="height:26px;width:auto;border-radius:6px;object-fit:contain">
+        <span id="brand-mark" class="d-flex">
+          <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true">
+            <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
+            <path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
+            <path d="M14.5 20.5 l4 4 l7.5 -8.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span><span id="brand-name">CITADEL</span> <span class="text-body-secondary fw-normal">/ admin</span></span>
       </a>
       <div class="ms-auto d-flex align-items-center gap-2">
         <span class="badge text-bg-secondary d-none" id="mode-badge" title="Active data store"></span>
@@ -196,6 +199,52 @@
           </div>
         </div>
       </div>
+
+      <div class="card citadel-card mt-3">
+        <div class="card-body">
+          <h2 class="h6 mb-1"><i class="bi bi-palette-fill"></i> Branding</h2>
+          <p class="small text-body-secondary mb-3">Set your organization logo, name and accent colour. Applied across the analyzer and this console. Stored on the server when available (shared), otherwise per-browser.</p>
+          <div class="row g-3 align-items-start">
+            <div class="col-lg-8">
+              <div class="row g-2">
+                <div class="col-12">
+                  <label class="form-label small" for="brand-logo-url">Logo URL</label>
+                  <input type="url" class="form-control form-control-sm" id="brand-logo-url" placeholder="https://example.com/logo.png">
+                  <div class="d-flex align-items-center gap-2 mt-1">
+                    <input type="file" class="form-control form-control-sm" id="brand-logo-file" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" style="max-width:260px">
+                    <span class="form-text mb-0">Paste a public https URL, or upload a small image (embedded inline). Blank = built-in mark.</span>
+                  </div>
+                </div>
+                <div class="col-12 col-md-7">
+                  <label class="form-label small" for="brand-org-name">Organization / product name</label>
+                  <input type="text" class="form-control form-control-sm" id="brand-org-name" maxlength="80" placeholder="CITADEL">
+                </div>
+                <div class="col-12 col-md-5">
+                  <label class="form-label small" for="brand-accent">Accent colour</label>
+                  <input type="color" class="form-control form-control-sm form-control-color" id="brand-accent" value="#22b8ff" title="Primary accent colour">
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2 mt-3">
+                <button class="btn btn-primary btn-sm" id="brand-save"><i class="bi bi-check-lg"></i> Save branding</button>
+                <button class="btn btn-outline-secondary btn-sm" id="brand-reset"><i class="bi bi-arrow-counterclockwise"></i> Reset to default</button>
+                <span class="small text-success d-none" id="brand-saved"><i class="bi bi-check-circle"></i> Saved</span>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label small d-block">Preview</label>
+              <div class="d-flex align-items-center gap-2 p-3 rounded border" style="background:var(--ct-surface, var(--bs-body-bg))">
+                <img id="brand-preview-logo" alt="" class="d-none" style="height:32px;width:auto;border-radius:6px;object-fit:contain">
+                <svg id="brand-preview-mark" width="32" height="32" viewBox="0 0 40 40" aria-hidden="true">
+                  <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
+                  <path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
+                  <path d="M14.5 20.5 l4 4 l7.5 -8.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="fw-bold" id="brand-preview-name">CITADEL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Activity / Audit tab (backend mode only) -->
@@ -263,6 +312,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/branding.js"></script>
   <script>
   (function () {
     'use strict';
@@ -907,6 +957,62 @@
       }
     }
 
+    /* ---------- Branding ---------- */
+    function normHex(v) { return (v && /^#?[0-9a-fA-F]{3,6}$/.test(v)) ? (v[0] === '#' ? v : '#' + v) : ''; }
+    function updateBrandPreview() {
+      const u = $('brand-logo-url'), n = $('brand-org-name');
+      const pn = $('brand-preview-name'); if (pn) pn.textContent = (n && n.value.trim()) || 'CITADEL';
+      const img = $('brand-preview-logo'), mark = $('brand-preview-mark');
+      if (img) {
+        const url = u && u.value.trim();
+        if (url) {
+          img.onerror = function () { img.classList.add('d-none'); if (mark) mark.classList.remove('d-none'); };
+          img.onload = function () { img.classList.remove('d-none'); if (mark) mark.classList.add('d-none'); };
+          img.src = url;
+        } else { img.removeAttribute('src'); img.classList.add('d-none'); if (mark) mark.classList.remove('d-none'); }
+      }
+    }
+    function renderBranding() {
+      if (!window.CITADEL || !CITADEL.branding) return;
+      const b = CITADEL.branding.get();
+      if ($('brand-logo-url')) $('brand-logo-url').value = b.logoUrl || '';
+      if ($('brand-org-name')) $('brand-org-name').value = (b.orgName && b.orgName !== 'CITADEL') ? b.orgName : '';
+      if ($('brand-accent')) $('brand-accent').value = normHex(b.accent) || '#22b8ff';
+      updateBrandPreview();
+    }
+    async function saveBranding(b) {
+      CITADEL.branding.set(b); CITADEL.branding.apply(b);
+      if (DA.mode === 'backend') { try { await CITADEL.branding.saveToBackend(b, { Authorization: 'Bearer ' + DA.token() }); } catch (e) {} }
+    }
+    function wireBranding() {
+      const u = $('brand-logo-url'), n = $('brand-org-name'), a = $('brand-accent');
+      [u, n, a].forEach((el) => { if (el && !el.dataset.wiredPv) { el.dataset.wiredPv = '1'; el.addEventListener('input', updateBrandPreview); } });
+      const file = $('brand-logo-file');
+      if (file && !file.dataset.wired) {
+        file.dataset.wired = '1';
+        file.addEventListener('change', () => {
+          const f = file.files && file.files[0]; if (!f) return;
+          if (f.size > 180 * 1024) { window.alert('Image is too large (max ~180 KB). Use a URL for larger logos.'); file.value = ''; return; }
+          const reader = new FileReader();
+          reader.onload = () => { if (u) { u.value = String(reader.result || ''); updateBrandPreview(); } };
+          reader.readAsDataURL(f);
+        });
+      }
+      const save = $('brand-save');
+      if (save && !save.dataset.wired) {
+        save.dataset.wired = '1';
+        save.addEventListener('click', async () => {
+          await saveBranding({ logoUrl: u ? u.value.trim() : '', orgName: n ? n.value.trim() : '', accent: a ? a.value : '' });
+          const sv = $('brand-saved'); if (sv) { sv.classList.remove('d-none'); setTimeout(() => sv.classList.add('d-none'), 1800); }
+        });
+      }
+      const reset = $('brand-reset');
+      if (reset && !reset.dataset.wired) {
+        reset.dataset.wired = '1';
+        reset.addEventListener('click', async () => { await saveBranding({ logoUrl: '', orgName: '', accent: '' }); renderBranding(); });
+      }
+    }
+
     /* ---------- logout ---------- */
     $('logout-btn').addEventListener('click', () => {
       DA.logout();
@@ -942,6 +1048,7 @@
       renderUsers(); wireUsers();
       renderPerms(); wirePerms();
       renderSettings(); wireSettings();
+      renderBranding(); wireBranding();
       // Activity & Sessions tabs are backend-only (no server state in local mode).
       const backend = DA.mode === 'backend';
       const navAudit = $('nav-audit'); if (navAudit) navAudit.classList.toggle('d-none', !backend);
@@ -953,6 +1060,7 @@
     (async function boot() {
       if (!auth) { document.body.innerHTML = '<div class="container py-5">Access control API failed to load.</div>'; return; }
       try { await DA.init(); } catch (e) { /* fall through; render handles unauthenticated state */ }
+      if (window.CITADEL && CITADEL.branding) { CITADEL.branding.apply(); try { await CITADEL.branding.syncFromBackend(); } catch (e) {} }
       render();
     })();
   })();
