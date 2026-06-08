@@ -14,6 +14,8 @@ const ApqpListPage = lazy(() => import('./pages/apqp/ApqpListPage'));
 const ApqpDetailPage = lazy(() => import('./pages/apqp/ApqpDetailPage'));
 const FodPage = lazy(() => import('./pages/fod/FodPage'));
 const ConcessionsPage = lazy(() => import('./pages/concessions/ConcessionsPage'));
+const CustomersPage = lazy(() => import('./pages/customers/CustomersPage'));
+const ContractDetailPage = lazy(() => import('./pages/customers/ContractDetailPage'));
 const DocumentationPage = lazy(() => import('./pages/docs/DocumentationPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -109,6 +111,10 @@ export function AppRouter() {
             path="concessions"
             element={<Guard page="nonconformances" capability="ncr.read"><ConcessionsPage /></Guard>}
           />
+          <Route path="customers">
+            <Route index element={<Guard page="suppliers" capability="suppliers.read"><CustomersPage /></Guard>} />
+            <Route path="contracts/:id" element={<Guard page="suppliers" capability="suppliers.read"><ContractDetailPage /></Guard>} />
+          </Route>
 
           <Route
             path="docs"

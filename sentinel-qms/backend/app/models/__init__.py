@@ -50,6 +50,15 @@ from app.models.counterfeit import (
     SourceType,
     VerificationStatus,
 )
+from app.models.customer import (
+    Contract,
+    ContractRequirement,
+    ContractStatus,
+    Customer,
+    CustomerStatus,
+    FlowDownStatus,
+    FlowDownTo,
+)
 from app.models.document import (
     Department,
     Document,
@@ -218,4 +227,11 @@ __all__ = [
     "Concession",
     "ConcessionType",
     "ConcessionStatus",
+    "Customer",
+    "Contract",
+    "ContractRequirement",
+    "CustomerStatus",
+    "ContractStatus",
+    "FlowDownTo",
+    "FlowDownStatus",
 ]

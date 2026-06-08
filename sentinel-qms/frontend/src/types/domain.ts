@@ -832,6 +832,52 @@ export interface CounterfeitAlert {
   ncr_id: number | null;
 }
 
+export type CustomerStatus = 'active' | 'inactive';
+export type ContractStatus = 'active' | 'on_hold' | 'closed';
+export type FlowDownTo = 'internal' | 'supplier' | 'both';
+export type FlowDownStatus = 'open' | 'flowed_down' | 'verified' | 'not_applicable';
+
+export interface Customer {
+  id: number;
+  code: string;
+  name: string;
+  cage_code: string | null;
+  country: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  status: CustomerStatus;
+  notes: string | null;
+  contract_count: number;
+}
+
+export interface ContractRequirement {
+  id: number;
+  contract_id: number;
+  clause: string | null;
+  description: string;
+  flow_down_to: FlowDownTo;
+  status: FlowDownStatus;
+}
+
+export interface ContractSummary {
+  id: number;
+  contract_number: string;
+  customer_id: number;
+  title: string;
+  dpas_rating: string | null;
+  itar_controlled: boolean;
+  status: ContractStatus;
+  start_date: string | null;
+  end_date: string | null;
+}
+
+export interface ContractDetail extends ContractSummary {
+  dfars_clauses: string | null;
+  value: number | null;
+  notes: string | null;
+  requirements: ContractRequirement[];
+}
+
 export type ConcessionType = 'deviation' | 'waiver' | 'concession';
 export type ConcessionStatus =
   | 'draft'
