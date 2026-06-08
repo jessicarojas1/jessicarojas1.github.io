@@ -18,6 +18,7 @@ from app.api.routers import (
     complaints,
     concessions,
     counterfeit,
+    customers,
     dashboard,
     documents,
     fod,
@@ -71,3 +72,4 @@ api_router.include_router(apqp.router)
 api_router.include_router(fod.router)
 api_router.include_router(concessions.router)
 api_router.include_router(signatures.router)
+api_router.include_router(customers.router)

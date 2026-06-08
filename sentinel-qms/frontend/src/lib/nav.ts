@@ -4,6 +4,7 @@ import {
   BookOpen,
   Boxes,
   Briefcase,
+  Building2,
   ClipboardCheck,
   FileBarChart,
   FileCheck2,
@@ -81,6 +82,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Operations',
     items: [
       { label: 'Suppliers', to: '/suppliers', icon: Truck, capability: 'suppliers.read', page: 'suppliers' },
+      { label: 'Customers & Contracts', to: '/customers', icon: Building2, capability: 'suppliers.read', page: 'suppliers' },
       { label: 'Counterfeit Prevention', to: '/counterfeit', icon: ShieldX, capability: 'suppliers.read', page: 'suppliers' },
       { label: 'Calibration', to: '/calibration', icon: Wrench, capability: 'calibration.read', page: 'calibration' },
       { label: 'Training', to: '/training', icon: GraduationCap, capability: 'training.read', page: 'training' },
