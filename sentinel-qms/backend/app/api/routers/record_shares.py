@@ -1,8 +1,11 @@
 """Record shares — a "Shared with Me" inbox of read-only record pointers.
 
-All endpoints require authentication. A share is a reference only; following it
-still goes through the app's normal per-record permissions, so sharing never
-grants new access or exposes anything publicly.
+All endpoints require authentication. A share *delegates* the sharer's own read
+access: only a user who can view a record's module may share it, and the share
+then grants the named recipient read-only access to that single record (e.g. so
+a Customer with no module access can view exactly what was shared with them).
+Sharing never exposes anything publicly and never lets a user share a record
+they could not themselves view.
 """
 
 from __future__ import annotations
@@ -13,7 +16,8 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import NotFoundError, PermissionDeniedError, ValidationAppError
+from app.core.permissions import effective_levels, level_at_least
 from app.models.apqp import ApqpProject
 from app.models.audit_mgmt import Audit
 from app.models.capa import Capa
@@ -27,6 +31,25 @@ from app.schemas.record_share import ShareCreate, ShareRead
 from app.services import pdf
 
 router = APIRouter(prefix="/shares", tags=["shares"])
+
+# entity_type -> the page whose "view" level authorizes sharing that record.
+# Sharing is a delegation of one's own read access, so a user may only share a
+# record they can themselves view. Unmapped types are not shareable (fail-closed)
+# — this is what keeps a limited/Customer account from self-issuing a share to
+# exfiltrate a record it has no module access to.
+_SHARE_VIEW_PAGE: dict[str, str] = {
+    "nonconformance": "nonconformances",
+    "capa": "capa",
+    "document": "documents",
+    "audit": "audits",
+    "complaint": "complaints",
+    "supplier": "suppliers",
+    "risk": "risks",
+    "change_order": "changes",
+    "inspection": "inspections",
+    "management_review": "mgmt_reviews",
+    "apqp_project": "inspections",
+}
 
 # Shared records that can be rendered as a branded PDF for read-only viewing.
 # (model, renderer, filename builder)
@@ -60,6 +83,17 @@ def create_share(
     db: Session = Depends(get_db),
     actor: CurrentUser = Depends(get_current_user),
 ) -> RecordShare:
+    # A share delegates the sharer's own read access — so the sharer must be able
+    # to view the record's module. This is the authorization gate for the whole
+    # feature: without it, any authenticated user (incl. a Customer with no module
+    # access) could self-issue a share and read the record's PDF.
+    page_key = _SHARE_VIEW_PAGE.get(body.entity_type)
+    if page_key is None:
+        raise ValidationAppError(f"Records of type '{body.entity_type}' cannot be shared.")
+    levels = effective_levels(db, actor)
+    if not level_at_least(levels.get(page_key, "none"), "view"):
+        raise PermissionDeniedError("You can only share records you have permission to view.")
+
     recipient = db.get(User, body.shared_with_user_id)
     if recipient is None or not recipient.is_active:
         raise NotFoundError(f"User {body.shared_with_user_id} not found.")

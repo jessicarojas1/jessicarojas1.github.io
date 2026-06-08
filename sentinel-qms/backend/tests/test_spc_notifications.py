@@ -57,6 +57,28 @@ def test_violation_notifies_kc_owner(client, seeded, auth_headers, db_session):
     assert owned[0].entity_id == str(kid)
 
 
+def test_kc_owner_must_have_inspection_access(client, seeded, auth_headers):
+    """A KC owner receives violation notifications with part data, so a Customer
+    (no inspection access) must not be assignable as owner; a quality user is."""
+    h = auth_headers("manager")
+    customer_id = seeded["users"]["customer"].id
+    rejected = client.post(
+        "/api/v1/key-characteristics",
+        json={"part_number": "PN-X", "characteristic": "dia", "owner_id": customer_id},
+        headers=h,
+    )
+    assert rejected.status_code == 422, rejected.text
+
+    engineer_id = seeded["users"]["engineer"].id
+    ok = client.post(
+        "/api/v1/key-characteristics",
+        json={"part_number": "PN-Y", "characteristic": "dia", "owner_id": engineer_id},
+        headers=h,
+    )
+    assert ok.status_code == 201, ok.text
+    assert ok.json()["owner_id"] == engineer_id
+
+
 def test_violation_notifies_quality_team_when_unowned(client, seeded, auth_headers, db_session):
     h = auth_headers("manager")
     kid = client.post(
