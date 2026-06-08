@@ -479,7 +479,11 @@
             try {
               this._me = await this._api('api/auth/me');
               if (this._me && this._me.role === 'admin') {
-                await this._refreshUsers();
+                // A must-change admin can't load /api/users yet (403). Keep the
+                // session and enter the console so the change-password form is
+                // reachable — don't drop the token (that bounced the user back to
+                // a fresh admin login from the main page).
+                if (!this._me.mustChange) await this._refreshUsers();
               } else {
                 // valid token but not an admin -> drop session
                 this._me = null; this._setToken('');
@@ -520,6 +524,12 @@
         }
         this._setTokens(out);
         this._me = user;
+        // A must-change admin can't call /api/users yet (it returns 403 until the
+        // password is rotated). Enter the console anyway so the change-password
+        // form is reachable; the user list loads after the rotation. Without this
+        // the login screen just shows "you must change your password" with no way
+        // to actually change it — a dead end.
+        if (user.mustChange) return Promise.resolve(user);
         return this._refreshUsers().then(() => user);
       },
 
@@ -1076,6 +1086,9 @@
           form.reset();
           if (DA._me) DA._me.mustChange = false;   // refresh local flag
           const banner = $('must-change-banner'); if (banner) banner.classList.add('d-none');
+          // The mustChange gate is now lifted — load users (which were blocked at
+          // login) and re-render so the console is fully functional.
+          try { await DA._refreshUsers(); render(); } catch (e) {}
         } catch (ex) {
           if (msg) { msg.className = 'small mt-2 text-danger'; msg.textContent = (ex && ex.message) || 'Could not change password.'; }
         }
@@ -1237,6 +1250,12 @@
       const navAudit = $('nav-audit'); if (navAudit) navAudit.classList.toggle('d-none', !backend);
       const navSessions = $('nav-sessions'); if (navSessions) navSessions.classList.toggle('d-none', !backend);
       if (backend) { wireAudit(); renderAudit(); wireSessions(); renderSessions(); }
+      // Default-password admin: jump straight to the Settings tab where the
+      // change-password form + banner live, so the required action is in view.
+      if (me.mustChange) {
+        const t = $('admin-tabs') && $('admin-tabs').querySelector('.tab-btn[data-tab="tab-settings"]');
+        if (t) t.click();
+      }
     }
 
     /* ---------- boot ---------- */
