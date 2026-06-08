@@ -47,6 +47,12 @@
       re: /\.setHttpOnly\s*\(\s*false\s*\)/,
       remediation: 'Enable HttpOnly (setHttpOnly(true)) so client-side script cannot read session/auth cookies, limiting XSS-driven theft.' },
 
+    /* ---- Insecure randomness for security-sensitive values ---- */
+    { id: 'java-weak-random', name: 'Insecure java.util.Random / Math.random for security value', category: 'random',
+      severity: 'medium', cwe: 'CWE-330', langs: JVM, confidence: 'medium',
+      re: /\bnew\s+(?:java\.util\.)?Random\s*\(|\bMath\.random\s*\(\s*\)/,
+      remediation: 'Use java.security.SecureRandom for tokens, IDs, salts, nonces or keys — java.util.Random / Math.random() are statistically predictable.' },
+
     /* ---- XPath injection (taint-gated) ---- */
     // The tainted value usually lands in an `expression` string that is then
     // passed to xp.evaluate(expr,...) / xp.compile(expr) — taint-gating keeps

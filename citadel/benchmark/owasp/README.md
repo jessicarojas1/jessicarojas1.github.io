@@ -27,17 +27,22 @@ sink line carries a user-tainted variable (intra-file taint in `scanner.js`):
 | Category | TPR | FPR | Precision | Score |
 |---|---:|---:|---:|---:|
 | securecookie | 100% | 0% | 100% | **100** |
+| weakrand | 100% | 0% | 100% | **100** |
 | crypto | 100% | 23% | 83% | **77** |
 | hash | 69% | 0% | 100% | **69** |
 | xpathi | 87% | 45% | 59% | **42** |
 | xss | 61% | 30% | 70% | **30** |
-| weakrand | 11% | 0% | 100% | 11 |
 | pathtraver | 56% | 47% | 54% | 9 |
 | cmdi | 74% | 76% | 49% | −2 |
 | sqli | 89% | 89% | 54% | ~0 |
 | ldapi | 100% | 100% | 46% | 0 |
 | trustbound | 0% | 0% | — | 0 |
-| **Overall** | **62.0%** | **37.4%** | **63.9%** | **24.6** (F1 0.629) |
+| **Overall** | **75.6%** | **37.4%** | **68.4%** | **38.3** (F1 0.718) |
+
+A `weakrand` rule (`new java.util.Random()` / `Math.random()`, which the safe
+cases avoid by using `SecureRandom`) took that category from 11→**100** at zero
+false positives. Because it's the largest category (493 cases), it lifted both
+overall recall **and** precision.
 
 A second pass added **statement-local sanitizer awareness**: when a tainted value
 appears only inside a recognized neutralizer (ESAPI/OWASP encoders, `escapeHtml`,
@@ -46,9 +51,11 @@ appears only inside a recognized neutralizer (ESAPI/OWASP encoders, `escapeHtml`
 34% → 30%** (precision 68% → 70%) with recall unchanged.
 
 Movement vs. the pre-pack baseline (recall 42.8% / precision 62.7% / FPR 27.2% /
-F1 0.508 / Youden 15.6): **recall +19.2 pts, F1 +0.12, Youden +8.4, precision
-held flat.** The overall FPR rose ~11 pts — the honest cost of detecting four vuln
-classes the engine was previously blind to without full data-flow.
+F1 0.508 / Youden 15.6): **recall +32.8 pts, precision +5.7 pts, F1 +0.21,
+Youden +22.7.** The overall FPR rose ~10 pts vs. baseline — the honest cost of
+detecting five vuln classes (xss, pathtraver, securecookie, xpathi, weakrand) the
+engine was previously blind to without full data-flow; precision still went *up*
+because the new detectors (securecookie/weakrand at 100/0) are high-precision.
 
 ## How to read this honestly
 
