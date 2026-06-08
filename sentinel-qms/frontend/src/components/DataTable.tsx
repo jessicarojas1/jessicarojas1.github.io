@@ -10,6 +10,7 @@ import {
   Search,
 } from 'lucide-react';
 import { EmptyState } from './EmptyState';
+import { SavedViewsMenu } from './SavedViewsMenu';
 
 export interface Column<T> {
   key: string;
@@ -54,6 +55,10 @@ export interface DataTableProps<T> {
    * extension); ".csv" is appended automatically.
    */
   exportFilename?: string;
+  /** When set with viewParams/onApplyView, shows the per-user Saved Views menu. */
+  viewKey?: string;
+  viewParams?: Record<string, unknown>;
+  onApplyView?: (params: Record<string, unknown>) => void;
 }
 
 /** Coerce a rendered cell value into a plain string for CSV output. */
@@ -124,12 +129,20 @@ export function DataTable<T>({
   emptyTitle = 'No records found',
   emptyDescription = 'Try adjusting your search or filters.',
   exportFilename,
+  viewKey,
+  viewParams,
+  onApplyView,
 }: DataTableProps<T>) {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const showViews = Boolean(viewKey && viewParams && onApplyView);
   const totalPages = total != null ? Math.max(1, Math.ceil(total / pageSize)) : 1;
   const showToolbar =
-    Boolean(onSearchChange) || Boolean(filters) || Boolean(toolbarActions) || Boolean(exportFilename);
+    Boolean(onSearchChange) ||
+    Boolean(filters) ||
+    Boolean(toolbarActions) ||
+    Boolean(exportFilename) ||
+    showViews;
 
   const handleSort = (col: Column<T>) => {
     if (!col.sortable || !onSortChange) return;
@@ -158,6 +171,9 @@ export function DataTable<T>({
               </div>
             )}
             <div className="row" style={{ marginLeft: 'auto', gap: 8 }}>
+              {showViews && (
+                <SavedViewsMenu pageKey={viewKey!} current={viewParams!} onApply={onApplyView!} />
+              )}
               {filters && (
                 <button
                   type="button"
