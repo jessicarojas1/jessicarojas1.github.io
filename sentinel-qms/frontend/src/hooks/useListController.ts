@@ -42,6 +42,26 @@ export function useListController(initial?: Partial<ListParams>) {
     [page, pageSize, search, sort, order, filters],
   );
 
+  /** Serializable preset of the current view (for saving). */
+  const viewParams = useMemo<Record<string, unknown>>(
+    () => ({ search: search || undefined, sort, order, ...filters }),
+    [search, sort, order, filters],
+  );
+
+  /** Apply a saved preset back onto the controller. */
+  const applyView = (p: Record<string, unknown>) => {
+    const { search: s, sort: so, order: o, page: _p, page_size: _ps, ...rest } = p;
+    setSearchRaw(typeof s === 'string' ? s : '');
+    setSort(typeof so === 'string' ? so : 'created_at');
+    setOrder(o === 'asc' ? 'asc' : 'desc');
+    const nextFilters: Record<string, string> = {};
+    for (const [k, v] of Object.entries(rest)) {
+      if (v != null && v !== '') nextFilters[k] = String(v);
+    }
+    setFilters(nextFilters);
+    setPage(1);
+  };
+
   return {
     params,
     page,
@@ -50,6 +70,8 @@ export function useListController(initial?: Partial<ListParams>) {
     sort,
     order,
     filters,
+    viewParams,
+    applyView,
     setPage,
     setSearch,
     onSortChange,

@@ -67,6 +67,9 @@ export default function CapaListPage() {
         total={data?.total}
         onPageChange={ctl.setPage}
         exportFilename="capa"
+        viewKey="capa"
+        viewParams={ctl.viewParams}
+        onApplyView={ctl.applyView}
         filters={
           <>
             <div className="field">

@@ -67,6 +67,9 @@ export default function SupplierListPage() {
         total={data?.total}
         onPageChange={ctl.setPage}
         exportFilename="suppliers"
+        viewKey="suppliers"
+        viewParams={ctl.viewParams}
+        onApplyView={ctl.applyView}
         filters={
           <div className="field">
             <Select

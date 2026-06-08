@@ -32,6 +32,7 @@ from app.api.routers import (
     permissions,
     reports,
     risks,
+    saved_views,
     search,
     settings,
     signatures,
@@ -79,3 +80,4 @@ api_router.include_router(customers.router)
 api_router.include_router(audit_programs.router)
 api_router.include_router(msa.router)
 api_router.include_router(spc.router)
+api_router.include_router(saved_views.router)

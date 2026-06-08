@@ -130,6 +130,9 @@ export default function AuditListPage() {
           order={ctl.order}
           onSortChange={ctl.onSortChange}
           exportFilename="audits"
+          viewKey="audits"
+          viewParams={ctl.viewParams}
+          onApplyView={ctl.applyView}
           filters={
             <>
               <div className="field">

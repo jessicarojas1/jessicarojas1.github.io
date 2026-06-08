@@ -99,6 +99,9 @@ export default function NcrListPage() {
         total={data?.total}
         onPageChange={ctl.setPage}
         exportFilename="nonconformances"
+        viewKey="nonconformances"
+        viewParams={ctl.viewParams}
+        onApplyView={ctl.applyView}
         filters={
           <>
             <div className="field">

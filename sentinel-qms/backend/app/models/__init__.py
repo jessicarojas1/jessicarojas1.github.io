@@ -105,6 +105,7 @@ from app.models.risk import (
     RiskStatus,
     TreatmentStrategy,
 )
+from app.models.saved_view import SavedView
 from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
 from app.models.spc import KcClass, KeyCharacteristic, Measurement
@@ -252,4 +253,5 @@ __all__ = [
     "KeyCharacteristic",
     "Measurement",
     "KcClass",
+    "SavedView",
 ]
