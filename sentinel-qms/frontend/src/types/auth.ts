@@ -5,7 +5,8 @@ export type Role =
   | 'auditor'
   | 'supplier_quality'
   | 'operator'
-  | 'read_only';
+  | 'read_only'
+  | 'customer';
 
 export const ROLE_LABELS: Record<Role, string> = {
   admin: 'Administrator',
@@ -15,6 +16,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   supplier_quality: 'Supplier Quality',
   operator: 'Operator',
   read_only: 'Read-Only',
+  customer: 'Customer',
 };
 
 export interface User {

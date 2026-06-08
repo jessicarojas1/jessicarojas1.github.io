@@ -52,6 +52,7 @@ _ROLE_DESCRIPTIONS = {
     RoleEnum.SUPPLIER_QUALITY: "Manages supplier performance, SCARs, and the ASL.",
     RoleEnum.OPERATOR: "Reports nonconformances and records inspections.",
     RoleEnum.READ_ONLY: "Read-only visibility across modules.",
+    RoleEnum.CUSTOMER: "External stakeholder; sees only records shared with them.",
 }
 
 

@@ -1,7 +1,8 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { usePagePerms } from './lib/permissions';
 import type { Capability } from './lib/rbac';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -79,6 +80,19 @@ function Guard({
   );
 }
 
+/** Landing for "/": customers (no dashboard access) go to their shared inbox. */
+function HomeLanding() {
+  const { canView } = usePagePerms();
+  if (!canView('dashboard')) {
+    return <Navigate to="/shared" replace />;
+  }
+  return (
+    <Guard page="dashboard" capability="ncr.read">
+      <DashboardPage />
+    </Guard>
+  );
+}
+
 export function AppRouter() {
   return (
     <Suspense fallback={<PageFallback />}>
@@ -92,7 +106,7 @@ export function AppRouter() {
             </Guard>
           }
         >
-          <Route index element={<Guard page="dashboard" capability="ncr.read"><DashboardPage /></Guard>} />
+          <Route index element={<HomeLanding />} />
           <Route
             path="executive"
             element={<Guard page="dashboard" capability="ncr.read"><ExecutiveDashboardPage /></Guard>}

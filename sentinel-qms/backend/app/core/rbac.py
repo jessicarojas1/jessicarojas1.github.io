@@ -18,6 +18,7 @@ class Role(str, Enum):
     SUPPLIER_QUALITY = "Supplier Quality"
     OPERATOR = "Operator"
     READ_ONLY = "Read-Only"
+    CUSTOMER = "Customer"
 
 
 class Permission(str, Enum):
@@ -103,6 +104,10 @@ ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
         Permission.INSPECTION_WRITE,
     },
     Role.READ_ONLY: set(_READ_ALL),
+    # Customer: an external stakeholder with NO standing module access. They see
+    # only records explicitly shared with them via "Shared with Me" (the shares
+    # endpoints are gated by share ownership, not by these permissions).
+    Role.CUSTOMER: set(),
 }
 
 

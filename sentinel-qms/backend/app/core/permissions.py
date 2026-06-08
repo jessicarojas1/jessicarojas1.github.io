@@ -32,6 +32,13 @@ def default_level_for(role: Role, page_key: str) -> str:
       write permission but the role can read it).
     * "none" otherwise.
     """
+    # Customers have no standing page access — their only surface is the
+    # "Shared with Me" route, which is gated by share ownership rather than the
+    # page matrix. Returning "none" here also stops pages whose read permission
+    # is ``None`` (e.g. Documentation) from leaking into the customer's nav.
+    if role == Role.CUSTOMER:
+        return "none"
+
     read_perm, write_perm = PAGE_DEFAULT_PERMS.get(page_key, (None, None))
     granted = ROLE_PERMISSIONS.get(role, set())
 

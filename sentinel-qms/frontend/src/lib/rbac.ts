@@ -120,6 +120,8 @@ const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
     'training.read',
   ],
   read_only: [...ALL_READ],
+  // Customer: no module capabilities — access is limited to "Shared with Me".
+  customer: [],
 };
 
 export function can(roles: Role[] | undefined, capability: Capability): boolean {
