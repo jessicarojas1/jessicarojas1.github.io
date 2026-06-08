@@ -60,6 +60,9 @@ export interface SlaSweepResult {
   capa_due_soon: number;
   capa_action_overdue: number;
   ncr_overdue: number;
+  audit_overdue?: number;
+  calibration_overdue?: number;
+  concession_expired?: number;
 }
 
 /** Result of a manual report-digest send. */
