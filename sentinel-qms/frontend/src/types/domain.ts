@@ -832,6 +832,32 @@ export interface CounterfeitAlert {
   ncr_id: number | null;
 }
 
+export type ConcessionType = 'deviation' | 'waiver' | 'concession';
+export type ConcessionStatus =
+  | 'draft'
+  | 'submitted'
+  | 'under_review'
+  | 'approved'
+  | 'rejected'
+  | 'expired'
+  | 'closed';
+
+export interface Concession {
+  id: number;
+  concession_number: string;
+  concession_type: ConcessionType;
+  title: string;
+  part_number: string | null;
+  description: string;
+  justification: string | null;
+  quantity: number | null;
+  status: ConcessionStatus;
+  supplier_id: number | null;
+  customer_approval_required: boolean;
+  customer_approved: boolean;
+  expiry_date: string | null;
+}
+
 export type FodRisk = 'low' | 'medium' | 'high';
 export type FodSeverity = 'low' | 'medium' | 'high' | 'critical';
 export type FodStatus = 'open' | 'investigating' | 'contained' | 'closed';

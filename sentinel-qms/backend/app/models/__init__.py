@@ -40,6 +40,7 @@ from app.models.change import (
 )
 from app.models.comment import Comment
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
+from app.models.concession import Concession, ConcessionStatus, ConcessionType
 from app.models.counterfeit import (
     AlertSource,
     AlertStatus,
@@ -214,4 +215,7 @@ __all__ = [
     "FodRisk",
     "FodSeverity",
     "FodStatus",
+    "Concession",
+    "ConcessionType",
+    "ConcessionStatus",
 ]

@@ -13,6 +13,7 @@ const CounterfeitPage = lazy(() => import('./pages/counterfeit/CounterfeitPage')
 const ApqpListPage = lazy(() => import('./pages/apqp/ApqpListPage'));
 const ApqpDetailPage = lazy(() => import('./pages/apqp/ApqpDetailPage'));
 const FodPage = lazy(() => import('./pages/fod/FodPage'));
+const ConcessionsPage = lazy(() => import('./pages/concessions/ConcessionsPage'));
 const DocumentationPage = lazy(() => import('./pages/docs/DocumentationPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -103,6 +104,10 @@ export function AppRouter() {
           <Route
             path="fod"
             element={<Guard page="inspections" capability="inspections.read"><FodPage /></Guard>}
+          />
+          <Route
+            path="concessions"
+            element={<Guard page="nonconformances" capability="ncr.read"><ConcessionsPage /></Guard>}
           />
 
           <Route
