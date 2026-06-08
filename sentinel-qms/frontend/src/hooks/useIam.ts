@@ -18,6 +18,7 @@ export interface IamUser {
   roles: string[];
   role_default: string[];
   explicit: string[];
+  denied: string[];
   effective: string[];
 }
 
@@ -45,9 +46,10 @@ export function useIamUsers() {
 export function useSaveUserGrants() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (args: { userId: number; granted: string[] }) => {
+    mutationFn: async (args: { userId: number; granted: string[]; denied?: string[] }) => {
       const { data } = await api.put<IamUser>(`/iam/users/${args.userId}`, {
         granted: args.granted,
+        denied: args.denied ?? [],
       });
       return data;
     },

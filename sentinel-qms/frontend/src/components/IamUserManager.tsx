@@ -34,6 +34,7 @@ export function IamUserManager() {
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [draft, setDraft] = useState<Set<string>>(new Set());
+  const [denied, setDenied] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState<Set<string>>(new Set());
 
   const users = useMemo(() => usersQ.data ?? [], [usersQ.data]);
@@ -52,7 +53,10 @@ export function IamUserManager() {
 
   // Seed draft + default-open first 3 modules when selection changes.
   useEffect(() => {
-    if (selected) setDraft(new Set(selected.explicit));
+    if (selected) {
+      setDraft(new Set(selected.explicit));
+      setDenied(new Set(selected.denied ?? []));
+    }
   }, [selected]);
   useEffect(() => {
     if (modules.length && open.size === 0) setOpen(new Set(modules.slice(0, 3).map((m) => m.key)));
@@ -60,33 +64,56 @@ export function IamUserManager() {
 
   const roleDefault = useMemo(() => new Set(selected?.role_default ?? []), [selected]);
 
+  const sameSet = (a: Set<string>, b: Iterable<string>) => {
+    const bset = new Set(b);
+    if (a.size !== bset.size) return false;
+    for (const p of a) if (!bset.has(p)) return false;
+    return true;
+  };
+
   const dirty = useMemo(() => {
     if (!selected) return false;
-    const orig = new Set(selected.explicit);
-    if (orig.size !== draft.size) return true;
-    for (const p of draft) if (!orig.has(p)) return true;
-    return false;
-  }, [draft, selected]);
+    return !sameSet(draft, selected.explicit) || !sameSet(denied, selected.denied ?? []);
+  }, [draft, denied, selected]);
+
+  /** A permission is effectively granted if (role default or explicit) and not denied. */
+  const isGranted = (perm: string) =>
+    (roleDefault.has(perm) || draft.has(perm)) && !denied.has(perm);
 
   const totalGranted = useMemo(() => {
     let n = 0;
     for (const m of modules) for (const a of m.actions) {
-      const perm = `${m.key}.${a.key}`;
-      if (roleDefault.has(perm) || draft.has(perm)) n += 1;
+      if (isGranted(`${m.key}.${a.key}`)) n += 1;
     }
     return n;
-  }, [modules, roleDefault, draft]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modules, roleDefault, draft, denied]);
 
+  // Clicking cycles a permission between on and off. Role-granted perms turn off
+  // via a deny; explicitly-granted perms turn off by dropping the grant.
   const toggle = (perm: string) => {
-    if (roleDefault.has(perm)) return; // granted by role — locked on
+    if (roleDefault.has(perm)) {
+      setDenied((prev) => {
+        const next = new Set(prev);
+        next.has(perm) ? next.delete(perm) : next.add(perm);
+        return next;
+      });
+      return;
+    }
     setDraft((prev) => {
       const next = new Set(prev);
       next.has(perm) ? next.delete(perm) : next.add(perm);
       return next;
     });
+    setDenied((prev) => {
+      if (!prev.has(perm)) return prev;
+      const next = new Set(prev);
+      next.delete(perm);
+      return next;
+    });
   };
 
-  const grantAll = (m: IamModule) =>
+  const grantAll = (m: IamModule) => {
     setDraft((prev) => {
       const next = new Set(prev);
       for (const a of m.actions) {
@@ -95,18 +122,33 @@ export function IamUserManager() {
       }
       return next;
     });
+    setDenied((prev) => {
+      const next = new Set(prev);
+      for (const a of m.actions) next.delete(`${m.key}.${a.key}`);
+      return next;
+    });
+  };
 
-  const clearAll = (m: IamModule) =>
+  const clearAll = (m: IamModule) => {
     setDraft((prev) => {
       const next = new Set(prev);
       for (const a of m.actions) next.delete(`${m.key}.${a.key}`);
       return next;
     });
+    setDenied((prev) => {
+      const next = new Set(prev);
+      for (const a of m.actions) {
+        const perm = `${m.key}.${a.key}`;
+        if (roleDefault.has(perm)) next.add(perm); // deny role-granted to clear it
+      }
+      return next;
+    });
+  };
 
   const onSave = async () => {
     if (!selected) return;
     try {
-      await save.mutateAsync({ userId: selected.id, granted: [...draft] });
+      await save.mutateAsync({ userId: selected.id, granted: [...draft], denied: [...denied] });
       notify(`Permissions updated for ${selected.full_name}`, 'success');
     } catch (err) {
       notify(getErrorMessage(err), 'danger');
@@ -164,16 +206,14 @@ export function IamUserManager() {
             <div className="iam-legend">
               <span><i className="perm-dot perm-dot--role" /> Granted by role</span>
               <span><i className="perm-dot perm-dot--explicit" /> Explicit grant</span>
+              <span><i className="perm-dot perm-dot--denied" /> Denied (overrides role)</span>
               <span><i className="perm-dot perm-dot--none" /> Not granted</span>
             </div>
 
             <div className="iam-modules">
               {modules.map((m) => {
                 const Icon = ICONS[m.icon] ?? Shield;
-                const grantedCount = m.actions.filter((a) => {
-                  const perm = `${m.key}.${a.key}`;
-                  return roleDefault.has(perm) || draft.has(perm);
-                }).length;
+                const grantedCount = m.actions.filter((a) => isGranted(`${m.key}.${a.key}`)).length;
                 const isOpen = open.has(m.key);
                 return (
                   <div key={m.key} className="iam-module">
@@ -196,12 +236,25 @@ export function IamUserManager() {
                           const perm = `${m.key}.${a.key}`;
                           const byRole = roleDefault.has(perm);
                           const byExplicit = draft.has(perm);
-                          const state = byRole ? 'role' : byExplicit ? 'explicit' : 'none';
+                          const isDenied = denied.has(perm);
+                          const state = isDenied
+                            ? 'denied'
+                            : byRole
+                              ? 'role'
+                              : byExplicit
+                                ? 'explicit'
+                                : 'none';
+                          const title = isDenied
+                            ? 'Denied — overrides role grant (click to restore)'
+                            : byRole
+                              ? 'Granted by role (click to deny)'
+                              : byExplicit
+                                ? 'Explicitly granted (click to remove)'
+                                : 'Not granted (click to grant)';
                           return (
                             <button key={a.key} type="button"
                               className={`iam-action iam-action--${state}`}
-                              title={byRole ? 'Granted by role (inherited)' : byExplicit ? 'Explicitly granted' : 'Not granted'}
-                              disabled={byRole}
+                              title={title}
                               onClick={() => toggle(perm)}>
                               <i className={`perm-dot perm-dot--${state}`} />
                               <span>{a.label}</span>

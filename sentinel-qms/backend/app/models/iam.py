@@ -10,7 +10,7 @@ is explicitly granted it). This is independent of the page-level
 
 from __future__ import annotations
 
-from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -26,3 +26,6 @@ class UserPermissionGrant(Base, TimestampMixin):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     permission: Mapped[str] = mapped_column(String(128), nullable=False)
+    # When True this row DENIES the permission (overrides a role default), so an
+    # admin can unassign a permission the user's role would otherwise grant.
+    deny: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

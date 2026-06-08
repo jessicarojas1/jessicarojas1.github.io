@@ -1412,6 +1412,7 @@ table.data-table {
 .perm-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
 .perm-dot--role { background: var(--success, #16a34a); }
 .perm-dot--explicit { background: var(--warning, #d97706); }
+.perm-dot--denied { background: var(--danger, #b3261e); }
 .perm-dot--none { background: var(--border-strong, #6b7280); opacity: 0.5; }
 
 .iam-modules { display: flex; flex-direction: column; gap: 0.4rem; }
@@ -1426,7 +1427,9 @@ table.data-table {
 .iam-action { display: flex; align-items: center; gap: 0.45rem; padding: 0.35rem 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg, transparent); cursor: pointer; font-size: 0.8rem; text-align: left; }
 .iam-action:hover:not(:disabled) { border-color: var(--primary); }
 .iam-action--explicit { background: var(--warning-soft, rgba(217,119,6,0.10)); }
-.iam-action--role { opacity: 0.85; cursor: default; }
+.iam-action--role { opacity: 0.9; }
+.iam-action--denied { background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.iam-action--denied span { text-decoration: line-through; opacity: 0.8; }
 .iam-action:disabled { cursor: default; }
 
 /* Settings: notifications section */

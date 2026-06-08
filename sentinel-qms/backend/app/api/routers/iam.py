@@ -30,7 +30,7 @@ from app.core.iam import (
     ModuleDef,
     effective_permissions,
     role_default_permissions,
-    user_explicit_permissions,
+    user_grant_rows,
 )
 from app.models.iam import UserPermissionGrant
 from app.models.user import User as UserModel
@@ -57,20 +57,23 @@ class IamUserRow(BaseModel):
     roles: list[str]
     role_default: list[str]
     explicit: list[str]
+    denied: list[str]
     effective: list[str]
 
 
 class UserGrantsUpdate(BaseModel):
-    """Body for PUT /iam/users/{id}: the FULL set of EXPLICIT grants (replace)."""
+    """Body for PUT /iam/users/{id}: the FULL set of explicit grants + denies
+    (replace). ``denied`` removes a permission the user's role would grant."""
 
     granted: list[str]
+    denied: list[str] = []
 
 
 def _user_row(db: Session, user: UserModel) -> IamUserRow:
     role_names = list(user.role_names)
     role_default = role_default_permissions(role_names)
-    explicit = user_explicit_permissions(db, user.id)
-    effective = role_default | explicit
+    explicit, denied = user_grant_rows(db, user.id)
+    effective = (role_default | explicit) - denied
     return IamUserRow(
         id=user.id,
         full_name=user.full_name,
@@ -78,6 +81,7 @@ def _user_row(db: Session, user: UserModel) -> IamUserRow:
         roles=role_names,
         role_default=sorted(role_default),
         explicit=sorted(explicit),
+        denied=sorted(denied),
         effective=sorted(effective),
     )
 
@@ -119,10 +123,19 @@ def update_iam_user(
     if user is None:
         raise NotFoundError(f"Unknown user: {user_id}.")
 
-    desired = set(body.granted)
-    for perm in desired:
+    granted = set(body.granted)
+    denied = set(body.denied)
+    for perm in granted | denied:
         if perm not in PERMISSION_SET:
             raise ValidationAppError(f"Unknown permission: {perm}.")
+    # A permission can't be simultaneously granted and denied.
+    conflict = granted & denied
+    if conflict:
+        raise ValidationAppError(f"Permission both granted and denied: {sorted(conflict)}.")
+
+    # desired maps each explicit permission -> deny flag.
+    desired: dict[str, bool] = dict.fromkeys(granted, False)
+    desired.update(dict.fromkeys(denied, True))
 
     before = _user_row(db, user).model_dump()
 
@@ -133,12 +146,17 @@ def update_iam_user(
     )
     current = {r.permission: r for r in current_rows}
 
-    # Insert missing grants.
-    for perm in desired - set(current):
-        db.add(UserPermissionGrant(user_id=user_id, permission=perm))
-    # Delete removed grants.
-    for perm in set(current) - desired:
-        db.delete(current[perm])
+    # Upsert desired rows (insert new, flip deny on changed).
+    for perm, deny in desired.items():
+        row = current.get(perm)
+        if row is None:
+            db.add(UserPermissionGrant(user_id=user_id, permission=perm, deny=deny))
+        elif row.deny != deny:
+            row.deny = deny
+    # Delete rows no longer desired.
+    for perm, row in current.items():
+        if perm not in desired:
+            db.delete(row)
 
     db.flush()
     db.refresh(user)
