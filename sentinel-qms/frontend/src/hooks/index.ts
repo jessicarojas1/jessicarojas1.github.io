@@ -36,6 +36,7 @@ export * from './useCounterfeit';
 export * from './useApqp';
 export * from './useFod';
 export * from './useConcessions';
+export * from './useSignatures';
 export * from './useTraining';
 export * from './useSearch';
 export * from './useNotifications';

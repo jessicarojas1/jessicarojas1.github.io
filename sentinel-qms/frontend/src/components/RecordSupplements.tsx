@@ -1,6 +1,7 @@
 import { ActivityTimelineCard } from './ActivityTimeline';
 import { AttachmentsPanelCard } from './AttachmentsPanel';
 import { CommentsPanelCard } from './CommentsPanel';
+import { SignaturesPanelCard } from './SignaturesPanel';
 
 export interface RecordSupplementsProps {
   /** Backend audit-log / attachment entity_type for this module. */
@@ -34,6 +35,7 @@ export function RecordSupplements({
         entityId={entityId}
         canEditPage={canEditPage}
       />
+      <SignaturesPanelCard entityType={entityType} entityId={entityId} />
     </div>
   );
 }
