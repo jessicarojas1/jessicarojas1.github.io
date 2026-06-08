@@ -17,8 +17,10 @@ from app.api.deps import (
 )
 from app.core import audit
 from app.core.database import get_db
+from app.core.exceptions import ConflictError
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
 from app.schemas.auth import CurrentUser
+from app.schemas.capa import CapaLinkResult
 from app.schemas.common import Page
 from app.schemas.complaint import (
     ComplaintCreate,
@@ -26,7 +28,7 @@ from app.schemas.complaint import (
     ComplaintRead,
     ComplaintUpdate,
 )
-from app.services import numbering
+from app.services import capa_factory, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -103,6 +105,39 @@ def get_complaint(
     _: CurrentUser = Depends(require_page("complaints", "view")),
 ) -> Complaint:
     return get_or_404(db, Complaint, complaint_id, name="Complaint")
+
+
+@router.post("/{complaint_id}/create-capa", response_model=CapaLinkResult)
+def create_capa_from_complaint(
+    complaint_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_perm("capa.create")),
+) -> CapaLinkResult:
+    """Open a corrective CAPA pre-filled from this complaint and link them."""
+    complaint = get_or_404(db, Complaint, complaint_id, name="Complaint")
+    if complaint.capa_id is not None:
+        raise ConflictError("A CAPA is already linked to this complaint.")
+    capa = capa_factory.create_linked_capa(
+        db,
+        actor.id,
+        title=f"CAPA for {complaint.complaint_number}: {complaint.title}",
+        problem=complaint.description,
+    )
+    complaint.capa_id = capa.id
+    complaint.updated_by = actor.id
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="create_capa",
+        entity_type=ENTITY,
+        entity_id=complaint.id,
+        after={"capa_id": capa.id},
+        **request_context(request),
+    )
+    db.commit()
+    return CapaLinkResult(capa_id=capa.id, capa_number=capa.capa_number)
 
 
 @router.patch("/{complaint_id}", response_model=ComplaintRead)

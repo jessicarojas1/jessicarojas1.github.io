@@ -85,6 +85,11 @@ class CapaStatusChange(BaseModel):
     status: CapaStatus
 
 
+class CapaLinkResult(BaseModel):
+    capa_id: int
+    capa_number: str
+
+
 class CapaEffectivenessVerify(BaseModel):
     effective: bool
     notes: str | None = None

@@ -1,8 +1,12 @@
 import { useMemo } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { ScrollText } from 'lucide-react';
 import { auditHooks } from '@/hooks';
-import { getErrorMessage } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
+import { can } from '@/lib/rbac';
+import { useToast } from '@/lib/toast';
+import { api, getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
@@ -23,6 +27,24 @@ const FINDING_TONE: Record<FindingType, string> = {
 export default function AuditDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: audit, isLoading, error } = auditHooks.useDetail(id);
+  const { user } = useAuth();
+  const { notify } = useToast();
+  const qc = useQueryClient();
+  const canCreateCapa = can(user?.roles, 'capa.write');
+
+  const createCapa = useMutation({
+    mutationFn: async (findingId: string) =>
+      (
+        await api.post<{ capa_id: number; capa_number: string }>(
+          `/audits/findings/${findingId}/create-capa`,
+        )
+      ).data,
+    onSuccess: (res) => {
+      notify(`Created ${res.capa_number}`, 'success');
+      qc.invalidateQueries({ queryKey: ['audits'] });
+    },
+    onError: (err) => notify(getErrorMessage(err), 'danger'),
+  });
 
   // AEGIS-style findings tally by type.
   const findingSummary = useMemo(() => {
@@ -129,7 +151,24 @@ export default function AuditDetailPage() {
                           <td className="mono">{f.clause_reference ?? '—'}</td>
                           <td>{f.description}</td>
                           <td><StatusBadge status={f.status} /></td>
-                          <td className="mono">{f.capa_id ? `#${f.capa_id}` : '—'}</td>
+                          <td>
+                            {f.capa_id ? (
+                              <a className="mono" href={`/capa/${f.capa_id}`}>
+                                #{f.capa_id}
+                              </a>
+                            ) : canCreateCapa ? (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-secondary"
+                                onClick={() => createCapa.mutate(f.id)}
+                                disabled={createCapa.isPending}
+                              >
+                                Create CAPA
+                              </button>
+                            ) : (
+                              '—'
+                            )}
+                          </td>
                         </tr>
                       ))
                     ) : (
