@@ -173,6 +173,19 @@ test('java pack: taint-gated XSS fires only when the sink carries user input', a
   assert.equal(cwes(safe).has('CWE-79'), false, 'literal-arg writer must not flag XSS');
 });
 
+test('java pack: a recognized sanitizer on the data path clears taint (no XSS)', async () => {
+  const C = loadEngine();
+  // param is encoded before reaching the writer → statement-local sanitizer
+  // clearing must stop taint propagating to `safe`, so no XSS is reported.
+  const rep = await C.scanner.scan([javaEntry(
+    'String param = request.getHeader("x");\nString safe = org.owasp.esapi.ESAPI.encoder().encodeForHTML(param);\nresponse.getWriter().write(safe);\n')]);
+  assert.equal(cwes(rep).has('CWE-79'), false, 'encoded value must not be treated as tainted');
+  // numeric coercion is also a neutralizer
+  const num = await C.scanner.scan([javaEntry(
+    'String p = request.getParameter("id");\nint id = Integer.parseInt(p);\nresponse.getWriter().write("" + id);\n')]);
+  assert.equal(cwes(num).has('CWE-79'), false, 'numeric-coerced value is not injectable');
+});
+
 test('java pack: insecure-cookie + path-traversal detection', async () => {
   const C = loadEngine();
   const cookie = await C.scanner.scan([javaEntry('c.setSecure(false);\nresponse.addCookie(c);\n')]);

@@ -30,14 +30,20 @@ sink line carries a user-tainted variable (intra-file taint in `scanner.js`):
 | crypto | 100% | 23% | 83% | **77** |
 | hash | 69% | 0% | 100% | **69** |
 | xpathi | 87% | 45% | 59% | **42** |
-| xss | 61% | 34% | 68% | **27** |
+| xss | 61% | 30% | 70% | **30** |
 | weakrand | 11% | 0% | 100% | 11 |
 | pathtraver | 56% | 47% | 54% | 9 |
 | cmdi | 74% | 76% | 49% | −2 |
 | sqli | 89% | 89% | 54% | ~0 |
 | ldapi | 100% | 100% | 46% | 0 |
 | trustbound | 0% | 0% | — | 0 |
-| **Overall** | **62.0%** | **38.0%** | **63.6%** | **24.0** (F1 0.628) |
+| **Overall** | **62.0%** | **37.4%** | **63.9%** | **24.6** (F1 0.629) |
+
+A second pass added **statement-local sanitizer awareness**: when a tainted value
+appears only inside a recognized neutralizer (ESAPI/OWASP encoders, `escapeHtml`,
+`Pattern.quote`, numeric coercion like `Integer.parseInt`, `htmlspecialchars`,
+…), taint no longer propagates to the assigned variable. This lifted **xss FPR
+34% → 30%** (precision 68% → 70%) with recall unchanged.
 
 Movement vs. the pre-pack baseline (recall 42.8% / precision 62.7% / FPR 27.2% /
 F1 0.508 / Youden 15.6): **recall +19.2 pts, F1 +0.12, Youden +8.4, precision
@@ -52,14 +58,19 @@ not full inter-procedural data-flow. OWASP Benchmark is designed to punish that:
 - **`securecookie` is now a clean 100/0** — it's a deterministic config flag
   (`setSecure(false)`), so a regex nails it with zero false positives.
 - **Taint gating works** where the source and sink share a statement-local flow:
-  `xss` (61/34) and `xpathi` (87/45) became genuine discriminators because the
+  `xss` (61/30) and `xpathi` (87/45) became genuine discriminators because the
   rules drop sinks whose argument is a literal/sanitized constant.
 - **`pathtraver` stays modest (56/47)** — Benchmark's safe variants use a
   dead-branch ternary (`bar = cond ? "constant" : param`) that intra-file taint
   can't constant-fold, so some safe cases still flag. Better than the 0 it was.
-- **Still high-FP on `cmdi`/`sqli`/`ldapi`**: the dangerous sink is found but a
-  sanitized input can't be distinguished from an unsanitized one across helper
-  calls. Expected for a non-inter-procedural engine.
+- **`cmdi`/`sqli` FPs did *not* yield to sanitizer recognition** — we measured
+  it: their safe cases almost never neutralize input statement-locally. They use
+  the same control-flow obfuscation (always-true dead branches, constant-map
+  `put`/`get` round-trips) the engine can't constant-fold, and the ESAPI calls
+  present in those files are *logging boilerplate*, not on the data path to the
+  sink. Taint-gating the broad `sql-concat`/`os-command` rules was tried and
+  *reverted*: it cost more real cross-line recall than it saved in FPs. Closing
+  these honestly needs inter-procedural data-flow — i.e. the backend's CodeQL.
 - **`trustbound` left uncovered on purpose** — a rule for it scored 54/56 (≈coin
   flip); shipping a non-discriminating detector just to pad the aggregate would
   be dishonest, so it was dropped.
@@ -73,9 +84,11 @@ first pass, not a replacement for taint analysis.
 
 1. ~~Add Java rules for the zero categories~~ — **done** (xss, pathtraver,
    securecookie, xpathi via the taint-gated pack).
-2. Reduce remaining injection false positives by recognizing common sanitizers /
-   encoders (ESAPI, OWASP Encoder, `PreparedStatement`) on the data-flow path —
-   the next lever for `cmdi`/`sqli`/`pathtraver`.
-3. Add Java `weakrand` (`new java.util.Random()`) and tighten `ldapi`.
-4. For authoritative results on data-flow-dependent categories, rely on the
-   backend's Semgrep/CodeQL pass.
+2. ~~Recognize statement-local sanitizers/encoders to cut injection FPs~~ —
+   **done** for the encoder-on-the-path case (lifted xss FPR 34→30). Measured and
+   found it does *not* help `cmdi`/`sqli` (control-flow obfuscation, not
+   sanitizers — see above).
+3. The remaining `cmdi`/`sqli`/`pathtraver` FPs need inter-procedural data-flow
+   (dead-branch / constant-propagation). Out of scope for the heuristic layer;
+   the backend's Semgrep/CodeQL pass is the authoritative answer here.
+4. Add Java `weakrand` (`new java.util.Random()`) and tighten `ldapi`.

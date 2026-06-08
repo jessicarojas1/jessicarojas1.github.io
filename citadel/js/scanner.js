@@ -60,6 +60,12 @@
   // f(var1)) so a tainted value is tracked across statements (multi-hop).
   const TAINT_SRC = /\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*[^;\n]{0,80}?(req\.(query|params|body|cookies|headers)|request\.(GET|POST|args|form|values|json)|\$_(GET|POST|REQUEST|COOKIE|FILES)|params\[|getParameter|getHeader|getCookies|getQueryString|nextElement\(\)|\.getValue\(\)|os\.environ|sys\.argv|process\.argv|input\(|fmt\.Scan|Console\.ReadLine|location\.(hash|search|href)|document\.(cookie|referrer))/;
   const ASSIGN = /^[^=\n]{0,120}?\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*(.+)$/;
+  // Recognized neutralizers: output encoders, escapers, numeric/boolean coercion
+  // and allowlist checks. If a tainted value appears only inside one of these
+  // calls on the right-hand side, the assigned variable is treated as clean —
+  // this is sound (statement-local) sanitizer awareness, unlike guessing at
+  // control flow. Used to STOP taint propagation across a sanitizing assignment.
+  const SANITIZER_CALL = /\b(?:encodeFor[A-Za-z]+|esapi[A-Za-z.]*encoder|escapeHtml\w*|escapeXml\w*|escapeSql\w*|escapeJava\w*|escapeEcmaScript|forHtml\w*|forJavaScript|forUri\w*|forSql|parseInt|parseLong|parseShort|parseDouble|parseFloat|parseBoolean|toInt|toLong|Integer\.valueOf|Long\.valueOf|Pattern\.quote|htmlspecialchars|htmlentities|escapeshellarg|escapeshellcmd|mysqli_real_escape_string|pg_escape_string|DOMPurify\.sanitize|sanitizeHtml)\s*\([^;]*?\)/g;
   function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
   function taintedVars(content) {
     const set = new Set();
@@ -69,15 +75,18 @@
       if (m && m[1]) set.add(m[1]);
     }
     if (!set.size) return set;
-    // Propagate up to 4 hops: var = <expr referencing a tainted var> → tainted.
+    // Propagate up to 4 hops: var = <expr referencing a tainted var> → tainted,
+    // unless the tainted var only appears wrapped in a sanitizer call (then the
+    // assignment cleans it and taint does not flow forward).
     for (let pass = 0; pass < 4; pass++) {
       let grew = false;
       for (let i = 0; i < lines.length; i++) {
         const a = lines[i].match(ASSIGN);
         if (!a || !a[1] || set.has(a[1])) continue;
         const rhs = a[2];
+        const stripped = rhs.replace(SANITIZER_CALL, '');   // drop sanitized sub-exprs
         for (const v of set) {
-          if (new RegExp('\\b' + escRe(v) + '\\b').test(rhs)) { set.add(a[1]); grew = true; break; }
+          if (new RegExp('\\b' + escRe(v) + '\\b').test(stripped)) { set.add(a[1]); grew = true; break; }
         }
         if (set.size > 400) { grew = false; break; }
       }
