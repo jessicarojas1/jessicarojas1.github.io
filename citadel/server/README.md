@@ -163,7 +163,9 @@ browser store is only a fallback for static hosting (GitHub Pages).
 | `CITADEL_NOTIFY_URL` / `CITADEL_NOTIFY_TOKEN` / `CITADEL_NOTIFY_ON` | After each scan whose worst severity meets `CITADEL_NOTIFY_ON` (critical\|high\|medium\|low\|any, default critical), POST a Slack-compatible summary to the webhook. |
 | `REDIS_URL` | — | When set, rate limiting + brute-force lockout use **Redis** (shared across instances for horizontal scaling). Falls back to an in-memory limiter when unset. |
 | `CITADEL_SCAN_TIMEOUT_MS` | `30000` | Wall-clock deadline for the heuristic SAST pass. On `/api/scan` and `/api/scan-url` it runs in an **isolated worker thread** that is terminated if it exceeds this — a defense against catastrophic-backtracking (ReDoS) inputs. On timeout the scan still completes with the external-scanner findings and a `meta.warnings` note. |
-| `CITADEL_SCAN_ISOLATION` | `0` | Set `1` to force worker isolation for the heuristic pass everywhere (the server already isolates upload/URL scans regardless). |
+| `CITADEL_SCAN_ISOLATION` | auto | `1` forces worker isolation everywhere, `0` disables it. **Auto (default):** the server isolates upload/URL scans only when the host has enough RAM — worker isolation loads a second copy of the engine and can OOM a small instance (a 512 MB free tier), which surfaces as a **502**. |
+| `CITADEL_ISOLATION_MIN_MEM_MB` | `900` | Below this total RAM, auto mode runs the heuristic pass in-process instead of a worker, to avoid OOM on small instances. |
+| `CITADEL_MAX_TOTAL_BYTES` | `67108864` (64 MB) | Per-scan memory budget for loaded file content. Past this, files are still counted but not read into memory/scanned — bounds memory on very large repos. |
 
 **Observability.** Logs are structured JSON lines; Prometheus metrics are at
 `GET /metrics`. **Tracing** is optional OpenTelemetry: set

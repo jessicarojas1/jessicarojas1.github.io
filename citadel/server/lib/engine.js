@@ -7,6 +7,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const vm = require('vm');
 
 // Local dev: lib/ is citadel/server/lib, shared modules at citadel/js (../../js).
@@ -43,6 +44,10 @@ function loadEngine() {
 
 const SKIP = /(^|\/)(node_modules|\.git|vendor|dist|build|\.venv|venv|__pycache__|\.next|target|\.idea|\.vscode)(\/|$)/i;
 const MAX_TEXT = 2 * 1024 * 1024;
+// Cap the total bytes we hold in memory for one scan so a large repo can't OOM a
+// small instance (e.g. a 512MB free tier). Past the budget, files are still
+// listed/counted but their content is not loaded or scanned.
+const MAX_TOTAL_BYTES = parseInt(process.env.CITADEL_MAX_TOTAL_BYTES || String(64 * 1024 * 1024), 10);
 
 function walk(dir, base, out) {
   let items = [];
@@ -73,6 +78,7 @@ function ingestDir(dir) {
   const files = walk(dir, dir, []);
   const entries = [];
   const dec = new TextDecoder('utf-8', { fatal: false });
+  let loaded = 0;
   for (const full of files) {
     const rel = path.relative(dir, full).split(path.sep).join('/');
     let buf;
@@ -81,8 +87,14 @@ function ingestDir(dir) {
     const text = isProbablyText(rel, bytes, CITADEL);
     const lang = CITADEL.lang.detect(rel);
     const entry = { path: rel, size: bytes.length, isBinary: !text, lang, content: null, bytes: null };
-    if (text && bytes.length <= MAX_TEXT) entry.content = dec.decode(bytes);
-    else entry.bytes = bytes;
+    // Load content/bytes only while under the per-scan memory budget; otherwise
+    // keep the entry as metadata only so totals stay accurate without OOM risk.
+    if (loaded < MAX_TOTAL_BYTES) {
+      if (text && bytes.length <= MAX_TEXT) { entry.content = dec.decode(bytes); loaded += bytes.length; }
+      else if (!text) { entry.bytes = bytes; loaded += bytes.length; }
+    } else {
+      entry.truncated = true;
+    }
     entries.push(entry);
   }
   return entries;
@@ -152,7 +164,16 @@ function runHeuristicIsolated(dir, timeoutMs) {
 async function analyzeDir(dir, scannerResult, onStage, opts) {
   opts = opts || {};
   const CITADEL = loadEngine();
-  const isolate = opts.isolate || process.env.CITADEL_SCAN_ISOLATION === '1';
+  // Worker isolation loads a SECOND copy of the engine, so it roughly doubles
+  // scan-time memory. On a small instance (free tier) that can OOM the process
+  // and surface as a 502. Decide: explicit env wins; otherwise isolate only when
+  // the host has enough RAM (CITADEL_ISOLATION_MIN_MEM_MB, default 900MB).
+  const explicit = process.env.CITADEL_SCAN_ISOLATION;
+  const lowMem = os.totalmem() < parseInt(process.env.CITADEL_ISOLATION_MIN_MEM_MB || '900', 10) * 1024 * 1024;
+  let isolate;
+  if (explicit === '1') isolate = true;
+  else if (explicit === '0') isolate = false;
+  else isolate = !!opts.isolate && !lowMem;
   const timeoutMs = opts.timeoutMs || parseInt(process.env.CITADEL_SCAN_TIMEOUT_MS || '30000', 10);
   onStage && onStage(isolate ? 'Running heuristic engine (isolated)…' : 'Running heuristic engine…');
   const hr = isolate ? await runHeuristicIsolated(dir, timeoutMs) : await runHeuristicInProcess(dir);

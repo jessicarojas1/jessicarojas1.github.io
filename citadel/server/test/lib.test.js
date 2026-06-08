@@ -215,6 +215,7 @@ test('schema.sql covers every table/column in the canonical db.js SCHEMA', () =>
 test('engine: isolated heuristic scan runs in a worker and degrades on timeout', async () => {
   const fsx = require('fs'), osx = require('os'), px = require('path');
   const engine = require('../lib/engine');
+  process.env.CITADEL_SCAN_ISOLATION = '1';   // force isolation regardless of runner RAM
   const dir = fsx.mkdtempSync(px.join(osx.tmpdir(), 'citadel-iso-'));
   fsx.writeFileSync(px.join(dir, 'v.java'), 'java.security.MessageDigest.getInstance("MD5");\nc.setSecure(false);\n');
   // normal isolated run finds the same issues as in-process
@@ -225,6 +226,7 @@ test('engine: isolated heuristic scan runs in a worker and degrades on timeout',
   const slow = await engine.analyzeDir(dir, { findings: [] }, null, { isolate: true, timeoutMs: 1 });
   assert.ok((slow.meta.warnings || []).some(w => /terminated|ReDoS|timed/i.test(w)));
   assert.ok(slow.scoring && slow.scoring.grade);   // still produces a valid report
+  delete process.env.CITADEL_SCAN_ISOLATION;
 });
 
 /* ---------------- Remediation auto-fixes + SARIF ---------------- */
