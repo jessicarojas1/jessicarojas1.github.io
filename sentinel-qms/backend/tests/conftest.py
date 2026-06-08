@@ -88,6 +88,9 @@ def seeded(db_session):
         "readonly": _make_user(
             db_session, roles, "ro@test.local", RoleEnum.READ_ONLY, "ReadPass123!"
         ),
+        "customer": _make_user(
+            db_session, roles, "cust@test.local", RoleEnum.CUSTOMER, "CustPass123!"
+        ),
     }
     db_session.commit()
     return {"roles": roles, "users": users}
@@ -124,6 +127,7 @@ def auth_headers(client, seeded):
         "engineer": ("qe@test.local", "EngPass123!"),
         "manager": ("qm@test.local", "MgrPass123!"),
         "readonly": ("ro@test.local", "ReadPass123!"),
+        "customer": ("cust@test.local", "CustPass123!"),
     }
 
     def _factory(role_key: str = "engineer") -> dict[str, str]:

@@ -450,6 +450,8 @@ ROLE_DEFAULT_PERMISSIONS: dict[Role, set[str]] = {
     Role.SUPPLIER_QUALITY: _SUPPLIER_QUALITY,
     Role.OPERATOR: _OPERATOR,
     Role.READ_ONLY: _READ_ONLY,
+    # Customer: no standing granular grants — access is via shared records only.
+    Role.CUSTOMER: set(),
 }
 
 
