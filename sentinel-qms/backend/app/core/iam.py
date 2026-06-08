@@ -504,26 +504,32 @@ def role_default_permissions(role_names: list[str]) -> set[str]:
     return perms
 
 
-def user_explicit_permissions(db: Session, user_id: int) -> set[str]:
-    """Explicit per-user grants from :class:`UserPermissionGrant` rows."""
+def user_grant_rows(db: Session, user_id: int) -> tuple[set[str], set[str]]:
+    """Return ``(granted, denied)`` explicit per-user permission sets."""
     from app.models.iam import UserPermissionGrant
 
-    rows = (
-        db.execute(
-            select(UserPermissionGrant.permission).where(UserPermissionGrant.user_id == user_id)
+    rows = db.execute(
+        select(UserPermissionGrant.permission, UserPermissionGrant.deny).where(
+            UserPermissionGrant.user_id == user_id
         )
-        .scalars()
-        .all()
-    )
-    return set(rows)
+    ).all()
+    granted = {perm for perm, deny in rows if not deny}
+    denied = {perm for perm, deny in rows if deny}
+    return granted, denied
+
+
+def user_explicit_permissions(db: Session, user_id: int) -> set[str]:
+    """Explicit per-user *grants* (deny rows excluded). Back-compat helper."""
+    return user_grant_rows(db, user_id)[0]
 
 
 def effective_permissions(db: Session, user) -> set[str]:  # noqa: ANN001
-    """Role defaults UNION explicit user grants (AEGIS-style additive)."""
+    """(Role defaults UNION explicit grants) MINUS explicit denies."""
     perms = role_default_permissions(list(getattr(user, "role_names", []) or []))
     user_id = getattr(user, "id", None)
     if user_id is not None:
-        perms |= user_explicit_permissions(db, int(user_id))
+        granted, denied = user_grant_rows(db, int(user_id))
+        perms = (perms | granted) - denied
     return perms
 
 
