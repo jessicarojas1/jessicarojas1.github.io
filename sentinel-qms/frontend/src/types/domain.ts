@@ -941,4 +941,5 @@ export interface ExecutiveDashboard {
   compliance_calendar: CalendarItem[];
   counterfeit: { suspect_parts: number; open_alerts: number };
   standards_coverage: { code: string; coverage_pct: number }[];
+  fod: { open_events: number; trend: { month: string; count: number }[] };
 }

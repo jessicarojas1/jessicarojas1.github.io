@@ -65,6 +65,7 @@ class ScarRead(ORMModel):
     description: str
     status: ScarStatus
     nonconformance_id: int | None
+    capa_id: int | None
     issued_date: date | None
     response_due_date: date | None
     supplier_response: str | None

@@ -18,6 +18,7 @@ from app.models.counterfeit import (
     PartSourcingRecord,
     VerificationStatus,
 )
+from app.models.fod import FodEvent, FodStatus
 from app.models.inspection import Inspection, InspectionResult
 from app.models.mgmt_review import (
     ActionItem,
@@ -679,6 +680,18 @@ def executive_dashboard(db: Session) -> dict:
         pct = round((covered + 0.5 * partial) / applicable * 100, 1) if applicable else 100.0
         standards_coverage.append({"code": s.code, "coverage_pct": pct})
 
+    # ---- FOD posture: open events + 6-month event trend ----
+    fod_open = _count(db, FodEvent, FodEvent.status != FodStatus.CLOSED)
+    fod_counts = dict.fromkeys(months, 0)
+    for row in db.execute(select(FodEvent).where(FodEvent.is_deleted.is_(False))).scalars().all():
+        mk = _month_key(getattr(row, "created_at", None))
+        if mk in window:
+            fod_counts[mk] += 1
+    fod = {
+        "open_events": fod_open,
+        "trend": [{"month": m, "count": fod_counts[m]} for m in months],
+    }
+
     return {
         "generated_at": today.isoformat(),
         "kpis": kpis,
@@ -688,6 +701,7 @@ def executive_dashboard(db: Session) -> dict:
         "compliance_calendar": compliance_calendar,
         "counterfeit": counterfeit,
         "standards_coverage": standards_coverage,
+        "fod": fod,
     }
 
 
