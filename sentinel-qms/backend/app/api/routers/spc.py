@@ -10,8 +10,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.database import get_db
-from app.core.exceptions import NotFoundError
-from app.core.rbac import Permission, Role, require_permission
+from app.core.exceptions import NotFoundError, ValidationAppError
+from app.core.rbac import Permission, Role, permissions_for_roles, require_permission
 from app.models.spc import KeyCharacteristic, Measurement
 from app.models.user import User
 from app.schemas.auth import CurrentUser
@@ -41,6 +41,19 @@ def _owner_name(db: Session, owner_id: int | None) -> str | None:
         return None
     owner = db.get(User, owner_id)
     return owner.full_name if owner is not None else None
+
+
+def _validate_owner(db: Session, owner_id: int | None) -> None:
+    """A KC owner receives violation notifications carrying part/characteristic
+    data, so the target must be an active internal user who may view inspections
+    (excludes Customers and any account without inspection access)."""
+    if owner_id is None:
+        return
+    owner = db.get(User, owner_id)
+    if owner is None or not owner.is_active:
+        raise ValidationAppError(f"User {owner_id} not found.")
+    if Permission.INSPECTION_READ not in permissions_for_roles(owner.role_names):
+        raise ValidationAppError("Owner must be a user with inspection access.")
 
 
 def _measurement_values(db: Session, kc_id: int) -> list[float]:
@@ -137,6 +150,7 @@ def create_kc(
     db: Session = Depends(get_db),
     actor: CurrentUser = Depends(_WRITE),
 ) -> dict:
+    _validate_owner(db, body.owner_id)
     kc = KeyCharacteristic(
         **body.model_dump(),
         kc_number=numbering.next_number(db, KeyCharacteristic, "kc_number", "KC"),
@@ -166,7 +180,10 @@ def update_kc(
     actor: CurrentUser = Depends(_WRITE),
 ) -> dict:
     kc = _get(db, kc_id)
-    for key, value in body.model_dump(exclude_unset=True).items():
+    data = body.model_dump(exclude_unset=True)
+    if "owner_id" in data:
+        _validate_owner(db, data["owner_id"])
+    for key, value in data.items():
         setattr(kc, key, value)
     kc.updated_by = actor.id
     db.commit()

@@ -12,6 +12,7 @@ const ROLES: Role[] = [
   'supplier_quality',
   'operator',
   'read_only',
+  'customer',
 ];
 
 const CAPABILITY_GROUPS: { label: string; capabilities: { key: Capability; label: string }[] }[] = [
