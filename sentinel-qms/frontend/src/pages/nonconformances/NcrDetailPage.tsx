@@ -23,10 +23,25 @@ export default function NcrDetailPage() {
   const { notify } = useToast();
   const { data: ncr, isLoading, error } = ncrHooks.useDetail(id);
   const changeStatus = ncrHooks.useAction('status');
+  const createCapa = ncrHooks.useAction<undefined, { capa_id: number; capa_number: string }>(
+    'create-capa',
+  );
   const [dispOpen, setDispOpen] = useState(false);
   const [closeOpen, setCloseOpen] = useState(false);
 
   const canDisposition = can(user?.roles, 'ncr.disposition');
+  const canCreateCapa = can(user?.roles, 'capa.write');
+
+  const handleCreateCapa = () => {
+    if (!id) return;
+    createCapa.mutate(
+      { id },
+      {
+        onSuccess: (res) => notify(`Created ${res.capa_number}`, 'success'),
+        onError: (err) => notify(getErrorMessage(err), 'danger'),
+      },
+    );
+  };
   const disposition = ncr?.dispositions?.[ncr.dispositions.length - 1];
 
   const handleClose = async () => {
@@ -149,6 +164,15 @@ export default function NcrDetailPage() {
                         label: 'CAPA',
                         value: ncr.capa_id ? (
                           <a href={`/capa/${ncr.capa_id}`}>View linked CAPA</a>
+                        ) : canCreateCapa ? (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-secondary"
+                            onClick={handleCreateCapa}
+                            disabled={createCapa.isPending}
+                          >
+                            Create CAPA
+                          </button>
                         ) : (
                           'None'
                         ),

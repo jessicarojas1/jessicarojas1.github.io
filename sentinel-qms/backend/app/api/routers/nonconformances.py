@@ -17,6 +17,7 @@ from app.api.deps import (
 )
 from app.core import audit
 from app.core.database import get_db
+from app.core.exceptions import ConflictError
 from app.models.nonconformance import (
     NcSeverity,
     NcStatus,
@@ -24,6 +25,7 @@ from app.models.nonconformance import (
     NonconformanceDisposition,
 )
 from app.schemas.auth import CurrentUser
+from app.schemas.capa import CapaLinkResult
 from app.schemas.common import Page
 from app.schemas.nonconformance import (
     DispositionCreate,
@@ -33,7 +35,7 @@ from app.schemas.nonconformance import (
     NonconformanceRead,
     NonconformanceUpdate,
 )
-from app.services import numbering
+from app.services import capa_factory, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -135,6 +137,41 @@ def get_ncr(
     _: CurrentUser = Depends(require_page("nonconformances", "view")),
 ) -> Nonconformance:
     return get_or_404(db, Nonconformance, ncr_id, name="NCR")
+
+
+@router.post("/{ncr_id}/create-capa", response_model=CapaLinkResult)
+def create_capa_from_ncr(
+    ncr_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_perm("capa.create")),
+) -> CapaLinkResult:
+    """Open a corrective CAPA pre-filled from this NCR and link them. Conflicts
+    if a CAPA is already linked, so no duplicate is created."""
+    ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
+    if ncr.capa_id is not None:
+        raise ConflictError("A CAPA is already linked to this NCR.")
+    capa = capa_factory.create_linked_capa(
+        db,
+        actor.id,
+        title=f"CAPA for {ncr.ncr_number}: {ncr.title}",
+        problem=ncr.description,
+        supplier_id=ncr.supplier_id,
+    )
+    ncr.capa_id = capa.id
+    ncr.updated_by = actor.id
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="create_capa",
+        entity_type=ENTITY,
+        entity_id=ncr.id,
+        after={"capa_id": capa.id},
+        **request_context(request),
+    )
+    db.commit()
+    return CapaLinkResult(capa_id=capa.id, capa_number=capa.capa_number)
 
 
 @router.patch("/{ncr_id}", response_model=NonconformanceRead)

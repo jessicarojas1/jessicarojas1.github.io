@@ -1,6 +1,9 @@
 import { useParams } from 'react-router-dom';
 import { MessageSquareWarning } from 'lucide-react';
 import { complaintHooks } from '@/hooks';
+import { useAuth } from '@/lib/auth';
+import { can } from '@/lib/rbac';
+import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
@@ -14,6 +17,23 @@ import { UserName } from '@/components/UserName';
 export default function ComplaintDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: c, isLoading, error } = complaintHooks.useDetail(id);
+  const { user } = useAuth();
+  const { notify } = useToast();
+  const createCapa = complaintHooks.useAction<undefined, { capa_id: number; capa_number: string }>(
+    'create-capa',
+  );
+  const canCreateCapa = can(user?.roles, 'capa.write');
+
+  const handleCreateCapa = () => {
+    if (!id) return;
+    createCapa.mutate(
+      { id },
+      {
+        onSuccess: (res) => notify(`Created ${res.capa_number}`, 'success'),
+        onError: (err) => notify(getErrorMessage(err), 'danger'),
+      },
+    );
+  };
 
   return (
     <DetailState
@@ -79,7 +99,23 @@ export default function ComplaintDetailPage() {
                   <DataList
                     items={[
                       { label: 'NCR', value: c.nonconformance_id ? <a href={`/nonconformances/${c.nonconformance_id}`}>View NCR</a> : 'None' },
-                      { label: 'CAPA', value: c.capa_id ? <a href={`/capa/${c.capa_id}`}>View CAPA</a> : 'None' },
+                      {
+                        label: 'CAPA',
+                        value: c.capa_id ? (
+                          <a href={`/capa/${c.capa_id}`}>View CAPA</a>
+                        ) : canCreateCapa ? (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-secondary"
+                            onClick={handleCreateCapa}
+                            disabled={createCapa.isPending}
+                          >
+                            Create CAPA
+                          </button>
+                        ) : (
+                          'None'
+                        ),
+                      },
                     ]}
                   />
                 </div>

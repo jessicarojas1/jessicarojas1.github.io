@@ -16,7 +16,7 @@ from app.api.deps import (
 )
 from app.core import audit as audit_log
 from app.core.database import get_db
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import ConflictError, NotFoundError
 from app.models.audit_mgmt import (
     Audit,
     AuditChecklistItem,
@@ -39,8 +39,9 @@ from app.schemas.audit_mgmt import (
     FindingUpdate,
 )
 from app.schemas.auth import CurrentUser
+from app.schemas.capa import CapaLinkResult
 from app.schemas.common import Page
-from app.services import numbering
+from app.services import capa_factory, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -248,6 +249,42 @@ def link_finding_to_capa(
     db.commit()
     db.refresh(finding)
     return finding
+
+
+@router.post("/findings/{finding_id}/create-capa", response_model=CapaLinkResult)
+def create_capa_from_finding(
+    finding_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_perm("capa.create")),
+) -> CapaLinkResult:
+    """Open a corrective CAPA pre-filled from an audit finding and link them."""
+    finding = db.get(AuditFinding, finding_id)
+    if finding is None:
+        raise NotFoundError(f"Finding {finding_id} not found.")
+    if finding.capa_id is not None:
+        raise ConflictError("A CAPA is already linked to this finding.")
+    capa = capa_factory.create_linked_capa(
+        db,
+        actor.id,
+        title=f"CAPA for finding {finding.finding_number}",
+        problem=finding.description,
+    )
+    finding.capa_id = capa.id
+    finding.status = FindingStatus.RESPONSE_SUBMITTED
+    finding.updated_by = actor.id
+    audit_log.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="create_capa",
+        entity_type=ENTITY,
+        entity_id=finding.audit_id,
+        after={"finding_id": finding.id, "capa_id": capa.id},
+        **request_context(request),
+    )
+    db.commit()
+    return CapaLinkResult(capa_id=capa.id, capa_number=capa.capa_number)
 
 
 @router.post(
