@@ -40,6 +40,7 @@ export * from './useSignatures';
 export * from './useCustomers';
 export * from './useAuditPrograms';
 export * from './useMsa';
+export * from './useSpc';
 export * from './useTraining';
 export * from './useSearch';
 export * from './useNotifications';
