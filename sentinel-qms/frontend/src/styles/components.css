@@ -1712,3 +1712,5 @@ table.data-table {
 .spc-violation-list { margin: 0; padding-left: 18px; font-size: 13px; }
 .spc-violation-list li { margin-bottom: 4px; }
 .spc-violation-pt { font-weight: 700; color: var(--danger); }
+.kc-owner-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.kc-owner-label { font-weight: 600; }

@@ -119,3 +119,14 @@ def detect_violations(values: list[float]) -> list[dict]:
                 )
                 break
     return out
+
+
+def new_violations(before: list[dict], after: list[dict]) -> list[dict]:
+    """Control-chart violations present in ``after`` but not ``before``.
+
+    Keyed by ``(rule, index)`` so a freshly-flagged point — whether the new
+    measurement itself or a historical point that crossed a recomputed limit —
+    counts as new, while violations that merely persist do not re-fire.
+    """
+    seen = {(v["rule"], v["index"]) for v in before}
+    return [v for v in after if (v["rule"], v["index"]) not in seen]

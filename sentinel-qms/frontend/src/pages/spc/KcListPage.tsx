@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCreateKc, useKeyCharacteristics } from '@/hooks';
+import { useCreateKc, useKeyCharacteristics, useUserLookup } from '@/hooks';
 import { usePagePerms } from '@/lib/permissions';
 import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
@@ -29,6 +29,8 @@ export default function KcListPage() {
   const [usl, setUsl] = useState('');
   const [lsl, setLsl] = useState('');
   const [kcClass, setKcClass] = useState<KcClass>('major');
+  const [ownerId, setOwnerId] = useState('');
+  const { list: users } = useUserLookup();
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +42,7 @@ export default function KcListPage() {
         usl: usl.trim() === '' ? null : Number(usl),
         lsl: lsl.trim() === '' ? null : Number(lsl),
         kc_class: kcClass,
+        owner_id: ownerId === '' ? null : Number(ownerId),
       },
       {
         onSuccess: () => {
@@ -47,6 +50,7 @@ export default function KcListPage() {
           setCharacteristic('');
           setUsl('');
           setLsl('');
+          setOwnerId('');
           notify('Key characteristic added', 'success');
         },
         onError: (err) => notify(getErrorMessage(err), 'danger'),
@@ -70,6 +74,10 @@ export default function KcListPage() {
           <select className="input" value={kcClass} onChange={(e) => setKcClass(e.target.value as KcClass)} aria-label="Class">
             {CLASSES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
+          <select className="input" value={ownerId} onChange={(e) => setOwnerId(e.target.value)} aria-label="Owner">
+            <option value="">Owner (unassigned)</option>
+            {users.filter((u) => u.is_active).map((u) => <option key={u.id} value={u.id}>{u.full_name || u.email}</option>)}
+          </select>
           <button type="submit" className="btn btn-primary btn-sm" disabled={create.isPending}>Add KC</button>
         </form>
       )}
@@ -85,7 +93,7 @@ export default function KcListPage() {
           <div className="table-wrap">
             <table className="data-table">
               <thead>
-                <tr><th>KC</th><th>Part</th><th>Characteristic</th><th>Class</th><th>Spec</th><th>n</th><th>Cpk</th></tr>
+                <tr><th>KC</th><th>Part</th><th>Characteristic</th><th>Class</th><th>Owner</th><th>Spec</th><th>n</th><th>Cpk</th></tr>
               </thead>
               <tbody>
                 {data.map((kc) => (
@@ -94,6 +102,7 @@ export default function KcListPage() {
                     <td className="mono">{kc.part_number}</td>
                     <td>{kc.characteristic}</td>
                     <td><span className={`cfp-risk cfp-risk--${kc.kc_class === 'critical' ? 'critical' : kc.kc_class === 'major' ? 'high' : 'medium'}`}>{kc.kc_class}</span></td>
+                    <td>{kc.owner_name ?? '—'}</td>
                     <td className="mono">{kc.lsl ?? '—'} / {kc.usl ?? '—'}</td>
                     <td>{kc.capability.count}</td>
                     <td>
