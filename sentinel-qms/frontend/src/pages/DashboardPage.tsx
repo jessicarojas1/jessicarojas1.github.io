@@ -23,8 +23,10 @@ import {
   Star,
   Wrench,
 } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useDashboard, useMyOpenItems } from '@/hooks';
+import { SlidersHorizontal } from 'lucide-react';
+import { DASHBOARD_WIDGETS, useDashboard, useDashboardWidgets, useMyOpenItems } from '@/hooks';
 import { useAuth } from '@/lib/auth';
 import { KpiCard } from '@/components/KpiCard';
 import { PageHeader } from '@/components/PageHeader';
@@ -72,15 +74,54 @@ function MyOpenItemsCard() {
   );
 }
 
+function CustomizeMenu({
+  isVisible,
+  toggle,
+}: {
+  isVisible: (k: string) => boolean;
+  toggle: (k: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="saved-views">
+      <button
+        type="button"
+        className="btn btn-sm no-print"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+      >
+        <SlidersHorizontal size={14} /> Customize
+      </button>
+      {open && (
+        <div className="saved-views__menu" role="menu">
+          {DASHBOARD_WIDGETS.map((w) => (
+            <label key={w.key} className="saved-views__apply" style={{ cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={isVisible(w.key)}
+                onChange={() => toggle(w.key)}
+              />{' '}
+              {w.label}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const { data, isLoading, error } = useDashboard();
+  const widgets = useDashboardWidgets();
 
   return (
     <>
       <PageHeader
         title="Quality Dashboard"
         subtitle={`Welcome back, ${user?.full_name?.split(' ')[0] ?? 'colleague'}. Enterprise quality posture at a glance.`}
+        actions={<CustomizeMenu isVisible={widgets.isVisible} toggle={widgets.toggle} />}
       />
 
       {isLoading ? (
@@ -99,6 +140,7 @@ export default function DashboardPage() {
         </div>
       ) : data ? (
         <div className="stack">
+          {widgets.isVisible('kpis') && (
           <div className="kpi-grid">
             <KpiCard icon={ShieldAlert} value={data.kpis.open_ncrs} label="Open Nonconformances" tone="danger" />
             <KpiCard icon={ClipboardCheck} value={data.kpis.open_capas} label="Open CAPAs" tone="primary" />
@@ -134,10 +176,12 @@ export default function DashboardPage() {
               tone="primary"
             />
           </div>
+          )}
 
-          <MyOpenItemsCard />
+          {widgets.isVisible('my_open_items') && <MyOpenItemsCard />}
 
           <div className="chart-grid">
+            {widgets.isVisible('ncr_trend') && (
             <div className="card">
               <div className="card__header">
                 <div className="card__title">Open NCR Trend</div>
@@ -168,7 +212,9 @@ export default function DashboardPage() {
                 </ResponsiveContainer>
               </div>
             </div>
+            )}
 
+            {widgets.isVisible('capa_aging') && (
             <div className="card">
               <div className="card__header">
                 <div className="card__title">CAPA Aging</div>
@@ -192,7 +238,9 @@ export default function DashboardPage() {
                 </ResponsiveContainer>
               </div>
             </div>
+            )}
 
+            {widgets.isVisible('calibration_status') && (
             <div className="card">
               <div className="card__header">
                 <div className="card__title">Calibration Status</div>
@@ -218,7 +266,9 @@ export default function DashboardPage() {
                 </ResponsiveContainer>
               </div>
             </div>
+            )}
 
+            {widgets.isVisible('findings_by_clause') && (
             <div className="card">
               <div className="card__header">
                 <div className="card__title">Audit Findings by Clause</div>
@@ -245,8 +295,10 @@ export default function DashboardPage() {
                 </ResponsiveContainer>
               </div>
             </div>
+            )}
           </div>
 
+          {widgets.isVisible('supplier_performance') && (
           <div className="card">
             <div className="card__header">
               <div className="card__title">Supplier Performance</div>
@@ -265,6 +317,7 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </div>
           </div>
+          )}
         </div>
       ) : null}
     </>
