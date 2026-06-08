@@ -207,8 +207,13 @@ function upsertSsoUser({ email, name, role }) {
 }
 function update(id, patch) {
   const db = load(); const u = db.users.find(x => x.id === id); if (!u) throw new Error('User not found.');
-  if ('name' in patch) u.name = patch.name;
-  if ('email' in patch) u.email = String(patch.email).trim().toLowerCase();
+  if ('name' in patch) u.name = String(patch.name || '').trim() || u.name;
+  if ('email' in patch) {
+    const email = String(patch.email).trim().toLowerCase();
+    if (!email || !email.includes('@')) throw new Error('A valid email is required.');
+    if (db.users.some(x => x.id !== id && x.email === email)) throw new Error('A user with that email already exists.');
+    u.email = email;
+  }
   if ('role' in patch && ROLES[patch.role]) { u.role = patch.role; if (patch.resetPerms) u.permissions = Object.assign({}, ROLES[patch.role].perms); }
   if ('active' in patch) u.active = !!patch.active;
   if ('permissions' in patch && patch.permissions) u.permissions = patch.permissions;
