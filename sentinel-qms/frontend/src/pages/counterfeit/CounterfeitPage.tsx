@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FilePlus2, Trash2 } from 'lucide-react';
+import { FilePlus2, Trash2, Upload } from 'lucide-react';
 import {
   useCounterfeitAlerts,
   useCreateAlert,
@@ -17,6 +17,7 @@ import { usePagePerms } from '@/lib/permissions';
 import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
 import { PageHeader } from '@/components/PageHeader';
+import { ImportModal } from '@/components/ImportModal';
 import type {
   AlertSource,
   AlertStatus,
@@ -188,6 +189,7 @@ function AlertsSection({ writable }: { writable: boolean }) {
   const [title, setTitle] = useState('');
   const [source, setSource] = useState<AlertSource>('gidep');
   const [ref, setRef] = useState('');
+  const [importOpen, setImportOpen] = useState(false);
 
   const onRaise = (id: number) =>
     raiseNcr.mutate(id, {
@@ -217,9 +219,23 @@ function AlertsSection({ writable }: { writable: boolean }) {
   return (
     <div className="card">
       <div className="card__header">
-        <div className="card__title">Counterfeit Alerts (GIDEP / ERAI)</div>
-        <div className="card__subtitle">External & internal alerts with impact assessment</div>
+        <div>
+          <div className="card__title">Counterfeit Alerts (GIDEP / ERAI)</div>
+          <div className="card__subtitle">External & internal alerts with impact assessment</div>
+        </div>
+        {writable && (
+          <button type="button" className="btn btn-sm" onClick={() => setImportOpen(true)}>
+            <Upload size={14} /> Import CSV
+          </button>
+        )}
       </div>
+      <ImportModal
+        resource="counterfeit/alerts"
+        title="Import counterfeit alerts"
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        listQueryKey={['counterfeit']}
+      />
       <div className="table-wrap">
         <table className="data-table">
           <thead>

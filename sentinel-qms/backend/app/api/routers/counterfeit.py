@@ -8,10 +8,11 @@ from __future__ import annotations
 
 from datetime import date
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import ConflictError, NotFoundError
 from app.core.rbac import Permission, require_permission
@@ -23,6 +24,7 @@ from app.models.counterfeit import (
 )
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.schemas.auth import CurrentUser
+from app.schemas.common import ImportResult
 from app.schemas.counterfeit import (
     AlertCreate,
     AlertRead,
@@ -32,7 +34,8 @@ from app.schemas.counterfeit import (
     SourcingRead,
     SourcingUpdate,
 )
-from app.services import numbering
+from app.services import csv_import, numbering
+from app.services.crud import request_context
 
 router = APIRouter(prefix="/counterfeit", tags=["counterfeit"])
 
@@ -213,6 +216,72 @@ def create_alert(
     db.commit()
     db.refresh(alert)
     return alert
+
+
+# ── Bulk alert import (e.g. GIDEP/ERAI exports) ──────────────────────────────
+# Declared before /alerts/{alert_id} so the literal path is not shadowed.
+_ALERT_IMPORT_COLUMNS = [
+    "title",
+    "source",
+    "external_ref",
+    "part_numbers",
+    "description",
+    "alert_date",
+    "affects_inventory",
+]
+_ALERT_IMPORT_EXAMPLE = [
+    "Suspect microcontrollers",
+    "gidep",
+    "GIDEP-2026-ABC",
+    "XC7Z020, XC7Z010",
+    "Marking discrepancies reported",
+    "2026-05-01",
+    "true",
+]
+
+
+@router.get("/alerts/import/template")
+def alert_import_template(
+    _: CurrentUser = Depends(_READ),
+):
+    return csv_import.template_response(
+        "counterfeit_alerts_import_template.csv", _ALERT_IMPORT_COLUMNS, _ALERT_IMPORT_EXAMPLE
+    )
+
+
+@router.post("/alerts/import", response_model=ImportResult)
+def alert_import(
+    request: Request,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(_WRITE),
+) -> ImportResult:
+    def build_and_insert(row: dict[str, str]) -> None:
+        data = {col: csv_import.clean(row.get(col)) for col in _ALERT_IMPORT_COLUMNS}
+        body = AlertCreate(**{k: v for k, v in data.items() if v is not None})
+        alert = CounterfeitAlert(
+            **body.model_dump(),
+            alert_number=numbering.next_number(db, CounterfeitAlert, "alert_number", "CFA"),
+            status=AlertStatus.OPEN,
+            created_by=actor.id,
+            updated_by=actor.id,
+        )
+        db.add(alert)
+        db.flush()
+
+    result = csv_import.import_rows(file, build_and_insert)
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="import",
+        entity_type="counterfeit_alert",
+        entity_id=None,
+        after={"created": result.created, "failed": result.failed},
+        **request_context(request),
+    )
+    db.commit()
+    return result
 
 
 def _get_alert(db: Session, alert_id: int) -> CounterfeitAlert:

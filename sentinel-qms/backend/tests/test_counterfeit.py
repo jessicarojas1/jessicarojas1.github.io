@@ -107,3 +107,26 @@ def test_raise_ncr_from_alert(client, seeded, auth_headers):
     assert r.json()["ncr_number"].startswith("NCR-")
     alert = client.get(f"/api/v1/counterfeit/alerts/{aid}", headers=mgr).json()
     assert alert["ncr_id"] == r.json()["ncr_id"]
+
+
+def test_alert_csv_import(client, seeded, auth_headers):
+    h = auth_headers("manager")
+    csv_body = (
+        "title,source,external_ref,part_numbers,description,alert_date,affects_inventory\n"
+        "Suspect FPGAs,gidep,GIDEP-1,XC7;XC8,Marking issue,2026-05-01,true\n"
+        "Fake caps,erai,ERAI-9,CAP-1,Counterfeit reported,,false\n"
+    )
+    resp = client.post(
+        "/api/v1/counterfeit/alerts/import",
+        files={"file": ("alerts.csv", csv_body, "text/csv")},
+        headers=h,
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["created"] == 2
+    alerts = client.get("/api/v1/counterfeit/alerts", headers=h).json()
+    titles = {a["title"] for a in alerts}
+    assert {"Suspect FPGAs", "Fake caps"} <= titles
+    # template downloads
+    tmpl = client.get("/api/v1/counterfeit/alerts/import/template", headers=h)
+    assert tmpl.status_code == 200
+    assert "title" in tmpl.text
