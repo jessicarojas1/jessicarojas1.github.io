@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
+from app.models.capa import Capa, CapaStatus
+from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.models.settings import OrgSettings
 from app.services import report_digest
 
@@ -15,6 +17,37 @@ def _settings(db, **overrides):
     db.add(org)
     db.commit()
     return org
+
+
+def _overdue_capa(db, **overrides):
+    capa = Capa(
+        capa_number=overrides.pop("capa_number", "CAPA-9001"),
+        title="Bore oversize",
+        d2_problem_description="Bores oversize across lots.",
+        status=CapaStatus.OPEN,
+        due_date=overrides.pop("due_date", date.today() - timedelta(days=5)),
+    )
+    for k, v in overrides.items():
+        setattr(capa, k, v)
+    db.add(capa)
+    db.commit()
+    return capa
+
+
+def _overdue_ncr(db, **overrides):
+    ncr = Nonconformance(
+        ncr_number=overrides.pop("ncr_number", "NCR-9001"),
+        title="Surface defect",
+        description="Scratch found at receiving.",
+        severity=overrides.pop("severity", NcSeverity.CRITICAL),
+        status=NcStatus.OPEN,
+        detected_at=overrides.pop("detected_at", datetime.now(UTC) - timedelta(days=60)),
+    )
+    for k, v in overrides.items():
+        setattr(ncr, k, v)
+    db.add(ncr)
+    db.commit()
+    return ncr
 
 
 def test_parse_recipients_dedupes_and_validates():
@@ -30,6 +63,35 @@ def test_build_digest_includes_org_name(db_session, seeded):
     assert "Acme QMS" in subject
     assert "Open NCRs" in body
     assert "Open CAPAs" in body
+
+
+def test_overdue_items_lists_capas_and_ncrs_most_overdue_first(db_session, seeded):
+    _settings(db_session)
+    _overdue_capa(db_session, capa_number="CAPA-9001", due_date=date.today() - timedelta(days=3))
+    _overdue_ncr(db_session, ncr_number="NCR-9001")  # critical, 60d old -> deeply overdue
+
+    items = report_digest.overdue_items(db_session)
+    labels = [it["label"] for it in items]
+    assert any("CAPA-9001" in label_ for label_ in labels)
+    assert any("NCR-9001" in label_ for label_ in labels)
+    # Sorted most-overdue first: every entry has a positive day count, descending.
+    days = [it["days"] for it in items]
+    assert all(d > 0 for d in days)
+    assert days == sorted(days, reverse=True)
+
+
+def test_build_digest_includes_overdue_section(db_session, seeded):
+    _settings(db_session)
+    _overdue_capa(db_session)
+    _, body = report_digest.build_digest(db_session)
+    assert "Overdue & SLA breaches" in body
+    assert "CAPA-9001" in body
+
+
+def test_build_digest_omits_overdue_section_when_clean(db_session, seeded):
+    _settings(db_session)
+    _, body = report_digest.build_digest(db_session)
+    assert "Overdue & SLA breaches" not in body
 
 
 def test_digest_due_respects_enabled_and_cadence(db_session, seeded):

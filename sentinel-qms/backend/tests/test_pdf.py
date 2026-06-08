@@ -80,6 +80,25 @@ def test_digest_pdf_is_valid(db_session, seeded):
     assert out[:5] == b"%PDF-"
 
 
+def test_digest_pdf_renders_overdue_section(db_session, seeded):
+    from datetime import date, timedelta
+
+    _settings(db_session)
+    db_session.add(
+        Capa(
+            capa_number="CAPA-PDF-1",
+            title="Overdue corrective action",
+            d2_problem_description="Late.",
+            status=CapaStatus.OPEN,
+            capa_type=CapaType.CORRECTIVE,
+            due_date=date.today() - timedelta(days=4),
+        )
+    )
+    db_session.commit()
+    out = pdf.render_digest_pdf(db_session)
+    assert out[:5] == b"%PDF-"
+
+
 def test_audit_pdf_is_valid(db_session, seeded):
     from app.models.audit_mgmt import Audit, AuditStatus, AuditType
 
