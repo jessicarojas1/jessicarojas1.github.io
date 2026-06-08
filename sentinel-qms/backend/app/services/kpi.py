@@ -5,13 +5,19 @@ from __future__ import annotations
 from datetime import date, timedelta
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.audit_mgmt import Audit, AuditFinding, AuditStatus, FindingStatus, FindingType
 from app.models.calibration import Equipment, EquipmentStatus
 from app.models.capa import Capa, CapaStatus
 from app.models.change import ChangeOrder, ChangeStatus
 from app.models.complaint import Complaint, ComplaintStatus
+from app.models.counterfeit import (
+    AlertStatus,
+    CounterfeitAlert,
+    PartSourcingRecord,
+    VerificationStatus,
+)
 from app.models.inspection import Inspection, InspectionResult
 from app.models.mgmt_review import (
     ActionItem,
@@ -22,6 +28,7 @@ from app.models.mgmt_review import (
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.models.risk import Risk, RiskStatus
 from app.models.settings import OrgSettings
+from app.models.standard import CoverageStatus, Standard
 from app.models.supplier import Supplier, SupplierRating, SupplierStatus
 
 
@@ -642,6 +649,36 @@ def executive_dashboard(db: Session) -> dict:
         ),
     ]
 
+    # ---- Counterfeit prevention posture ----
+    suspect_parts = _count(
+        db, PartSourcingRecord, PartSourcingRecord.status == VerificationStatus.SUSPECT
+    )
+    open_alerts = _count(
+        db,
+        CounterfeitAlert,
+        CounterfeitAlert.status.in_([AlertStatus.OPEN, AlertStatus.UNDER_ASSESSMENT]),
+    )
+    counterfeit = {"suspect_parts": suspect_parts, "open_alerts": open_alerts}
+
+    # ---- Standards coverage per framework ----
+    standards_coverage = []
+    for s in (
+        db.execute(
+            select(Standard)
+            .options(selectinload(Standard.requirements))
+            .where(Standard.is_active.is_(True))
+            .order_by(Standard.code)
+        )
+        .scalars()
+        .all()
+    ):
+        reqs = list(s.requirements)
+        applicable = sum(1 for r in reqs if r.coverage_status != CoverageStatus.NOT_APPLICABLE)
+        covered = sum(1 for r in reqs if r.coverage_status == CoverageStatus.COVERED)
+        partial = sum(1 for r in reqs if r.coverage_status == CoverageStatus.PARTIAL)
+        pct = round((covered + 0.5 * partial) / applicable * 100, 1) if applicable else 100.0
+        standards_coverage.append({"code": s.code, "coverage_pct": pct})
+
     return {
         "generated_at": today.isoformat(),
         "kpis": kpis,
@@ -649,6 +686,8 @@ def executive_dashboard(db: Session) -> dict:
         "coq_current": coq_current,
         "clause_heatmap": clause_heatmap,
         "compliance_calendar": compliance_calendar,
+        "counterfeit": counterfeit,
+        "standards_coverage": standards_coverage,
     }
 
 

@@ -1606,3 +1606,17 @@ table.data-table {
 .ppap-status--submitted, .ppap-status--in_progress { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
 .ppap-status--rejected { background: color-mix(in srgb, var(--danger) 16%, transparent); color: var(--danger); }
 .ppap-status--not_started, .ppap-status--not_applicable { background: color-mix(in srgb, var(--text-faint) 18%, transparent); color: var(--text-muted); }
+
+/* ---- Executive dashboard: link cards + stat tiles + standards coverage rows ---- */
+.exec-link-card { text-decoration: none; color: inherit; transition: border-color 0.15s ease; }
+.exec-link-card:hover { border-color: var(--primary); text-decoration: none; }
+.exec-stat-row { display: flex; gap: var(--space-4); }
+.exec-stat { flex: 1; }
+.exec-stat__value { font-size: 30px; font-weight: 700; line-height: 1; }
+.exec-stat__value.is-bad { color: var(--danger); }
+.exec-stat__value.is-warn { color: var(--warning); }
+.exec-stat__label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.std-cov-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 12.5px; }
+.std-cov-row__code { width: 92px; font-weight: 600; }
+.std-cov-row .cov-bar { flex: 1; }
+.std-cov-row__pct { width: 44px; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-muted); }

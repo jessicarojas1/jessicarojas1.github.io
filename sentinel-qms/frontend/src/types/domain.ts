@@ -884,4 +884,6 @@ export interface ExecutiveDashboard {
   };
   clause_heatmap: ClauseHeat[];
   compliance_calendar: CalendarItem[];
+  counterfeit: { suspect_parts: number; open_alerts: number };
+  standards_coverage: { code: string; coverage_pct: number }[];
 }

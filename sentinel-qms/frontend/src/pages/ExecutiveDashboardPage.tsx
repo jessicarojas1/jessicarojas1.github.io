@@ -8,13 +8,20 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { CalendarClock } from 'lucide-react';
+import { CalendarClock, ShieldCheck, ShieldX } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useExecutiveDashboard } from '@/hooks';
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { CHART_COLORS, tooltipStyle } from '@/lib/charts';
 import { getErrorMessage } from '@/lib/api';
 import type { CalendarItem, ClauseHeat, ExecKpi } from '@/types';
+
+function covTone(pct: number): string {
+  if (pct >= 90) return 'good';
+  if (pct >= 60) return 'warn';
+  return 'bad';
+}
 
 function fmtKpi(k: ExecKpi): string {
   const v = Number.isInteger(k.value) ? String(k.value) : k.value.toFixed(1);
@@ -191,6 +198,60 @@ export default function ExecutiveDashboardPage() {
                 <ClauseHeatmap rows={data.clause_heatmap} />
               </div>
             </div>
+          </div>
+
+          <div className="chart-grid">
+            <Link to="/counterfeit" className="card exec-link-card">
+              <div className="card__header">
+                <div className="card__title">
+                  <ShieldX size={16} /> Counterfeit Prevention
+                </div>
+                <div className="card__subtitle">Suspect parts &amp; open GIDEP/ERAI alerts</div>
+              </div>
+              <div className="card__body">
+                <div className="exec-stat-row">
+                  <div className="exec-stat">
+                    <div className={`exec-stat__value ${data.counterfeit.suspect_parts ? 'is-bad' : ''}`}>
+                      {data.counterfeit.suspect_parts}
+                    </div>
+                    <div className="exec-stat__label">Suspect parts</div>
+                  </div>
+                  <div className="exec-stat">
+                    <div className={`exec-stat__value ${data.counterfeit.open_alerts ? 'is-warn' : ''}`}>
+                      {data.counterfeit.open_alerts}
+                    </div>
+                    <div className="exec-stat__label">Open alerts</div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            <Link to="/standards" className="card exec-link-card">
+              <div className="card__header">
+                <div className="card__title">
+                  <ShieldCheck size={16} /> Standards Coverage
+                </div>
+                <div className="card__subtitle">Audit readiness per framework</div>
+              </div>
+              <div className="card__body">
+                {data.standards_coverage.length === 0 ? (
+                  <div className="empty-state-sm">No standards configured.</div>
+                ) : (
+                  data.standards_coverage.map((s) => (
+                    <div key={s.code} className="std-cov-row">
+                      <span className="std-cov-row__code">{s.code}</span>
+                      <span className="cov-bar">
+                        <span
+                          className={`cov-bar__fill cov-${covTone(s.coverage_pct)}`}
+                          style={{ width: `${s.coverage_pct}%` }}
+                        />
+                      </span>
+                      <span className="std-cov-row__pct">{s.coverage_pct}%</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Link>
           </div>
 
           <div className="card">
