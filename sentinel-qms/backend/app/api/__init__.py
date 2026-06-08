@@ -31,6 +31,7 @@ from app.api.routers import (
     risks,
     search,
     settings,
+    signatures,
     standards,
     suppliers,
     training,
@@ -69,3 +70,4 @@ api_router.include_router(counterfeit.router)
 api_router.include_router(apqp.router)
 api_router.include_router(fod.router)
 api_router.include_router(concessions.router)
+api_router.include_router(signatures.router)

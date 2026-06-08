@@ -42,6 +42,20 @@ class ESignatureIn(BaseModel):
     password: str | None = Field(default=None, max_length=256)
 
 
+class ESignatureRead(ORMModel):
+    """A persisted 21 CFR Part 11 electronic signature (read/manifest view)."""
+
+    id: int
+    entity_type: str
+    entity_id: str
+    signer_id: int
+    signer_name: str
+    meaning: str
+    reason: str | None
+    signed_hash: str | None
+    signed_at: datetime
+
+
 class MessageOut(BaseModel):
     detail: str
 
