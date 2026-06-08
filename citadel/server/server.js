@@ -591,9 +591,15 @@ app.post('/api/scan', rateLimited('scan', 20, 10 * 60000), requirePerm('analyze'
   }
 });
 
-/* ---------------- Static SPA ---------------- */
+/* ---------------- Static SPA ----------------
+ * HTML, JS and CSS are served `no-cache` (revalidate via ETag every load) so a
+ * deploy can never leave a client running a stale bundle — e.g. an old app.js
+ * that predates a UI feature like the admin/IAM nav reveal. Other assets
+ * (images/fonts) keep the default heuristic caching. */
 app.use(express.static(APP_DIR, {
-  setHeaders(res, fp) { if (fp.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache'); }
+  setHeaders(res, fp) {
+    if (/\.(html|js|css)$/i.test(fp)) res.setHeader('Cache-Control', 'no-cache');
+  }
 }));
 
 // Bootstrap durable state (Postgres schema + load) BEFORE accepting traffic, so
