@@ -14,16 +14,23 @@ from __future__ import annotations
 
 import logging
 import re
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
-from sqlalchemy import or_, update
+from sqlalchemy import or_, select, update
 from sqlalchemy.orm import Session
 
 from app.core.config import settings as app_settings
+from app.models.calibration import Equipment
+from app.models.capa import Capa
+from app.models.nonconformance import NcSeverity, Nonconformance
 from app.models.settings import OrgSettings
 from app.services import delivery, kpi
+from app.services.sla import _CAPA_OPEN, _NCR_OPEN, _basis_date
 
 logger = logging.getLogger("app.notifications")
+
+# Most overdue items to spell out individually in the digest before summarising.
+_OVERDUE_DETAIL_LIMIT = 12
 
 # Frequency -> minimum days between sends.
 _FREQUENCY_DAYS = {"daily": 1, "weekly": 7, "monthly": 30}
@@ -69,6 +76,77 @@ def parse_recipients(raw: str | None) -> list[str]:
     return out
 
 
+def overdue_items(db: Session, *, now: datetime | None = None) -> list[dict]:
+    """Concrete overdue records driving today's SLA signals, most overdue first.
+
+    Each entry is ``{"label": str, "days": int}`` where ``days`` is how far past
+    the due date / SLA window the record sits. Covers overdue CAPAs (by due
+    date), NCRs (by per-severity SLA window) and calibration (by next-due date).
+    Read-only — this never escalates or claims, unlike the SLA sweep.
+    """
+    org = _get_settings(db)
+    today = _now(now).date()
+    items: list[dict] = []
+
+    def _days(due: date | None) -> int | None:
+        return (today - due).days if due is not None and due < today else None
+
+    capas = (
+        db.execute(select(Capa).where(Capa.is_deleted.is_(False), Capa.status.in_(_CAPA_OPEN)))
+        .scalars()
+        .all()
+    )
+    for capa in capas:
+        days = _days(_basis_date(capa.due_date))
+        if days is not None:
+            items.append({"label": f"CAPA {capa.capa_number} — {capa.title}", "days": days})
+
+    sla_windows = {
+        NcSeverity.MINOR: org.sla_ncr_minor_days if org else 30,
+        NcSeverity.MAJOR: org.sla_ncr_major_days if org else 14,
+        NcSeverity.CRITICAL: org.sla_ncr_critical_days if org else 7,
+    }
+    ncrs = (
+        db.execute(
+            select(Nonconformance).where(
+                Nonconformance.is_deleted.is_(False),
+                Nonconformance.status.in_(_NCR_OPEN),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for ncr in ncrs:
+        window = sla_windows.get(ncr.severity)
+        basis = _basis_date(ncr.detected_at) or _basis_date(ncr.created_at)
+        if window is None or basis is None:
+            continue
+        age = (today - basis).days
+        if age > window:
+            items.append(
+                {"label": f"NCR {ncr.ncr_number} — {ncr.title}", "days": age - window}
+            )
+
+    equipment = (
+        db.execute(
+            select(Equipment).where(
+                Equipment.is_deleted.is_(False),
+                Equipment.next_due_date.is_not(None),
+                Equipment.next_due_date < today,
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for eq in equipment:
+        days = _days(eq.next_due_date)
+        if days is not None:
+            items.append({"label": f"Calibration {eq.asset_tag} — {eq.name}", "days": days})
+
+    items.sort(key=lambda it: it["days"], reverse=True)
+    return items
+
+
 def build_digest(db: Session, *, now: datetime | None = None) -> tuple[str, str]:
     """Return ``(subject, body)`` for the current QMS digest."""
     org = _get_settings(db)
@@ -93,6 +171,17 @@ def build_digest(db: Session, *, now: datetime | None = None) -> tuple[str, str]
         "Suppliers",
         f"  • Avg quality rating:   {k.get('supplier_avg_rating', 0)}",
     ]
+
+    overdue = overdue_items(db, now=now)
+    if overdue:
+        lines += ["", f"Overdue & SLA breaches ({len(overdue)})"]
+        for item in overdue[:_OVERDUE_DETAIL_LIMIT]:
+            days = item["days"]
+            lines.append(f"  • {item['label']} ({days} day{'s' if days != 1 else ''} overdue)")
+        remaining = len(overdue) - _OVERDUE_DETAIL_LIMIT
+        if remaining > 0:
+            lines.append(f"  • …and {remaining} more")
+
     base_url = app_settings.APP_BASE_URL.strip().rstrip("/")
     if base_url:
         lines += ["", f"Open the dashboard: {base_url}/dashboard"]

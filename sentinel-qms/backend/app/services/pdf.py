@@ -29,7 +29,7 @@ from app.models.nonconformance import Nonconformance
 from app.models.settings import OrgSettings
 from app.models.supplier import ScarStatus, Supplier
 from app.models.user import User
-from app.services import kpi
+from app.services import kpi, report_digest
 
 logger = logging.getLogger("app.pdf")
 
@@ -537,5 +537,15 @@ def render_digest_pdf(db: Session, *, now: datetime | None = None) -> bytes:
 
     _section(pdf, "Suppliers")
     _kv(pdf, "Average Quality Rating", k.get("supplier_avg_rating", 0))
+
+    overdue = report_digest.overdue_items(db, now=now)
+    if overdue:
+        _section(pdf, f"Overdue & SLA Breaches ({len(overdue)})")
+        for item in overdue[: report_digest._OVERDUE_DETAIL_LIMIT]:
+            days = item["days"]
+            _kv(pdf, f"{days} day{'s' if days != 1 else ''}", item["label"])
+        remaining = len(overdue) - report_digest._OVERDUE_DETAIL_LIMIT
+        if remaining > 0:
+            _kv(pdf, "More", f"and {remaining} more overdue item(s)")
 
     return _output(pdf)
