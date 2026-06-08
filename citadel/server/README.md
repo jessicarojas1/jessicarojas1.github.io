@@ -159,6 +159,8 @@ browser store is only a fallback for static hosting (GitHub Pages).
 | `CITADEL_AUDIT_SINK_URL` / `CITADEL_AUDIT_SINK_TOKEN` | — | Forward every audit event to an HTTP collector (Splunk HEC / SIEM webhook). |
 | `CITADEL_NOTIFY_URL` / `CITADEL_NOTIFY_TOKEN` / `CITADEL_NOTIFY_ON` | After each scan whose worst severity meets `CITADEL_NOTIFY_ON` (critical\|high\|medium\|low\|any, default critical), POST a Slack-compatible summary to the webhook. |
 | `REDIS_URL` | — | When set, rate limiting + brute-force lockout use **Redis** (shared across instances for horizontal scaling). Falls back to an in-memory limiter when unset. |
+| `CITADEL_SCAN_TIMEOUT_MS` | `30000` | Wall-clock deadline for the heuristic SAST pass. On `/api/scan` and `/api/scan-url` it runs in an **isolated worker thread** that is terminated if it exceeds this — a defense against catastrophic-backtracking (ReDoS) inputs. On timeout the scan still completes with the external-scanner findings and a `meta.warnings` note. |
+| `CITADEL_SCAN_ISOLATION` | `0` | Set `1` to force worker isolation for the heuristic pass everywhere (the server already isolates upload/URL scans regardless). |
 
 **Observability.** Logs are structured JSON lines; Prometheus metrics are at
 `GET /metrics`. **Tracing** is optional OpenTelemetry: set

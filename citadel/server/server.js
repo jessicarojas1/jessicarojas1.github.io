@@ -515,7 +515,7 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('
         (err) => err ? reject(new Error('Clone failed (is the repository public?).')) : resolve());
     });
     const scannerResult = await scanners.runAll(work);
-    const report = await engine.analyzeDir(work, scannerResult);
+    const report = await engine.analyzeDir(work, scannerResult, null, { isolate: true });
     report.meta.source = url;
     scans.record(report, { user: req.user, source: url }).catch(() => {});
     notify.scanComplete(report, { user: req.user, source: url });
@@ -544,7 +544,7 @@ app.post('/api/scan', rateLimited('scan', 20, 10 * 60000), requirePerm('analyze'
   try {
     work = buildWorkdir(req.files);
     const scannerResult = await scanners.runAll(work);
-    const report = await engine.analyzeDir(work, scannerResult);
+    const report = await engine.analyzeDir(work, scannerResult, null, { isolate: true });
     metrics.inc('citadel_scans_total', { mode: 'upload' });
     scans.record(report, { user: req.user, source: req.files.length + ' file(s)' }).catch(() => {});
     notify.scanComplete(report, { user: req.user, source: req.files.length + ' file(s)' });

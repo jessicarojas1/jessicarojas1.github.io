@@ -197,6 +197,22 @@ test('java pack: insecure-cookie + path-traversal detection', async () => {
   assert.ok(cwes(trav).has('CWE-22'), 'tainted File() should flag path traversal');
 });
 
+/* ---------------- ReDoS isolation (worker + timeout) ---------------- */
+test('engine: isolated heuristic scan runs in a worker and degrades on timeout', async () => {
+  const fsx = require('fs'), osx = require('os'), px = require('path');
+  const engine = require('../lib/engine');
+  const dir = fsx.mkdtempSync(px.join(osx.tmpdir(), 'citadel-iso-'));
+  fsx.writeFileSync(px.join(dir, 'v.java'), 'java.security.MessageDigest.getInstance("MD5");\nc.setSecure(false);\n');
+  // normal isolated run finds the same issues as in-process
+  const ok = await engine.analyzeDir(dir, { findings: [] }, null, { isolate: true, timeoutMs: 15000 });
+  assert.ok(ok.findings.length >= 1);
+  assert.equal((ok.meta.warnings || []).length, 0);
+  // an impossibly tight deadline terminates the worker and degrades gracefully
+  const slow = await engine.analyzeDir(dir, { findings: [] }, null, { isolate: true, timeoutMs: 1 });
+  assert.ok((slow.meta.warnings || []).some(w => /terminated|ReDoS|timed/i.test(w)));
+  assert.ok(slow.scoring && slow.scoring.grade);   // still produces a valid report
+});
+
 /* ---------------- Remediation auto-fixes + SARIF ---------------- */
 test('remediate: offers safe mechanical fixes, declines when nothing to do', () => {
   global.window = global;
