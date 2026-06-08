@@ -15,6 +15,7 @@ import {
   GitPullRequestArrow,
   GraduationCap,
   History,
+  Inbox,
   KeyRound,
   LayoutDashboard,
   LineChart,
@@ -38,8 +39,9 @@ export interface NavItem {
   label: string;
   to: string;
   icon: LucideIcon;
-  /** Static capability used as the lockout-safe fallback. */
-  capability: Capability;
+  /** Static capability used as the lockout-safe fallback. Omit for items any
+   *  authenticated user may see (e.g. a personal inbox). */
+  capability?: Capability;
   /** Dynamic page key, gated via usePagePerms().canView. */
   page?: string;
 }
@@ -56,6 +58,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Dashboard', to: '/', icon: LayoutDashboard, capability: 'ncr.read', page: 'dashboard' },
       { label: 'Executive', to: '/executive', icon: Briefcase, capability: 'ncr.read', page: 'dashboard' },
       { label: 'Analytics', to: '/analytics', icon: TrendingUp, capability: 'ncr.read', page: 'analytics' },
+      { label: 'Shared with Me', to: '/shared', icon: Inbox },
       { label: 'Reports', to: '/reports', icon: FileBarChart, capability: 'ncr.read', page: 'analytics' },
       { label: 'Documentation', to: '/docs', icon: BookOpen, capability: 'docs.read', page: 'documentation' },
     ],

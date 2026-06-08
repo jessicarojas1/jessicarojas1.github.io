@@ -10,6 +10,7 @@ import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { PdfButton } from '@/components/PdfButton';
+import { ShareButton } from '@/components/ShareButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 import { RecordSupplements } from '@/components/RecordSupplements';
@@ -80,6 +81,7 @@ export default function NcrDetailPage() {
               <>
                 <PrintButton />
                 <PdfButton path={`/reports/ncr/${ncr.id}/pdf`} filename={`${ncr.ncr_number}.pdf`} />
+                <ShareButton entityType="nonconformance" entityId={ncr.id} label={`${ncr.ncr_number} — ${ncr.title}`} />
                 {canDisposition && (
                   <>
                     {!disposition && ncr.status !== 'closed' && (

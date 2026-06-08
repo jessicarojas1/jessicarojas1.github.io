@@ -22,7 +22,11 @@ export function SideNav({ open, onNavigate }: { open: boolean; onNavigate: () =>
     items: group.items.filter((item) =>
       // Prefer the dynamic page-permission check; fall back to the static
       // capability when an item has no page key (lockout-safe).
-      item.page ? canView(item.page) : can(user?.roles, item.capability),
+      item.page
+        ? canView(item.page)
+        : item.capability
+          ? can(user?.roles, item.capability)
+          : true,
     ),
   })).filter((group) => group.items.length > 0);
 
