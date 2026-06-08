@@ -205,6 +205,7 @@
         <div class="finding-body d-none" id="finding-body-${i}">
           <div class="finding-loc"><i class="bi bi-file-earmark-code"></i> ${esc(f.file || '—')}${f.line ? ':' + f.line : ''}</div>
           ${f.snippet ? `<pre class="finding-snippet">${esc(f.snippet)}</pre>` : ''}
+          ${fixDiff(f)}
           <div class="finding-meta">
             <span><strong>Category:</strong> ${esc(CITADEL.frameworks.CATEGORIES[f.category] || f.category)}</span>
             <span><strong>Confidence:</strong> ${esc(f.confidence || 'n/a')}</span>
@@ -226,6 +227,19 @@
   }
   function shownFinding(i) { return current && current._shown ? current._shown[i] : null; }
   function toggleSuppressedView() { showSuppressed = !showSuppressed; renderFindings(current); }
+
+  // Concrete suggested fix (red/green one-line diff) when remediate.js offers a
+  // safe mechanical rewrite for this finding; otherwise nothing (the textual
+  // remediation guidance below still renders).
+  function fixDiff(f) {
+    if (!(CITADEL.remediate && CITADEL.remediate.fix)) return '';
+    const fx = CITADEL.remediate.fix(f); if (!fx) return '';
+    return `<div class="finding-fixdiff">
+        <div class="fixdiff-title"><i class="bi bi-magic"></i> Suggested fix — ${esc(fx.title)}</div>
+        <pre class="fixdiff"><span class="diff-del">- ${esc(fx.original.trim())}</span>
+<span class="diff-add">+ ${esc(fx.replacement.trim())}</span></pre>
+      </div>`;
+  }
 
   function mappedControls(cat) {
     const m = CITADEL.frameworks.MAP[cat] || {};

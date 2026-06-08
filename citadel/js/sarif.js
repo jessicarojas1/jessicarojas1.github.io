@@ -58,6 +58,26 @@
           }
         }];
       }
+      // Stable identity so code-scanning can track a finding across runs.
+      r.partialFingerprints = { citadel: fingerprint(f) };
+      // Attach a concrete auto-fix when one is available and we have an exact
+      // line region (full source line) to replace — GitHub renders these as
+      // one-click suggested changes.
+      const fx = remediateFix(f);
+      if (fx && fx.exact && file && f.line) {
+        r.fixes = [{
+          description: { text: fx.title },
+          artifactChanges: [{
+            artifactLocation: { uri: file },
+            replacements: [{
+              deletedRegion: { startLine: Math.max(1, f.line | 0), startColumn: 1, endColumn: fx.original.length + 1 },
+              insertedContent: { text: fx.replacement }
+            }]
+          }]
+        }];
+      } else if (fx) {
+        r.properties.suggestedFix = { title: fx.title, replacement: fx.replacement };
+      }
       return r;
     });
 
@@ -88,6 +108,21 @@
     if (!cwe) return 'https://cwe.mitre.org/';
     const m = String(cwe).match(/\d+/);
     return m ? `https://cwe.mitre.org/data/definitions/${m[0]}.html` : 'https://cwe.mitre.org/';
+  }
+
+  // Use the remediation module if it's loaded (it may not be in minimal Node
+  // contexts); never let a missing dependency break SARIF generation.
+  function remediateFix(f) {
+    try { return CITADEL.remediate && CITADEL.remediate.fix ? CITADEL.remediate.fix(f) : null; }
+    catch (e) { return null; }
+  }
+  // A small, stable hash of rule + location + code, independent of line drift in
+  // unrelated parts of the file (uses the trimmed snippet, not the line number).
+  function fingerprint(f) {
+    const s = [f.ruleId || f.category || '', (f.file || '').replace(/^.*!\//, ''), (f.snippet || '').trim()].join('|');
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+    return h.toString(16);
   }
 
   CITADEL.sarif = { fromReport };

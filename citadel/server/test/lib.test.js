@@ -197,6 +197,30 @@ test('java pack: insecure-cookie + path-traversal detection', async () => {
   assert.ok(cwes(trav).has('CWE-22'), 'tainted File() should flag path traversal');
 });
 
+/* ---------------- Remediation auto-fixes + SARIF ---------------- */
+test('remediate: offers safe mechanical fixes, declines when nothing to do', () => {
+  global.window = global;
+  const rem = require('../../js/remediate.js');
+  const cookie = rem.fix({ ruleId: 'java-cookie-insecure', lineText: '    c.setSecure(false);', snippet: 'c.setSecure(false);' });
+  assert.ok(cookie && cookie.replacement.includes('setSecure(true)') && cookie.exact === true);
+  const hash = rem.fix({ lineText: 'MessageDigest.getInstance("MD5")', snippet: 'MessageDigest.getInstance("MD5")' });
+  assert.ok(hash && /SHA-256/.test(hash.replacement));
+  assert.equal(rem.fix({ lineText: 'int x = safeCall();', snippet: 'int x = safeCall();' }), null);
+});
+test('sarif: emits fixes + partialFingerprints for fixable findings', () => {
+  global.window = global;
+  require('../../js/remediate.js');
+  const sarif = require('../../js/sarif.js');
+  const log = sarif.fromReport({ findings: [
+    { ruleId: 'java-cookie-insecure', severity: 'medium', cwe: 'CWE-614', file: 'A.java', line: 5,
+      lineText: 'c.setSecure(false);', snippet: 'c.setSecure(false);' }
+  ] });
+  const r = log.runs[0].results[0];
+  assert.ok(r.partialFingerprints && r.partialFingerprints.citadel);
+  assert.ok(r.fixes && r.fixes[0].artifactChanges[0].replacements[0].insertedContent.text.includes('setSecure(true)'));
+  assert.equal(log.runs[0].tool.driver.name, 'CITADEL');
+});
+
 /* ---------------- License policy (via the browser engine) ---------------- */
 test('license policy: tiers denied/review/allowed', () => {
   const tier = loadEngine().scanner.licenseTier;
