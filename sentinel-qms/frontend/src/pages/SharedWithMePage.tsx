@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
-import { shareLink, useDeleteShare, useMyShares } from '@/hooks';
+import { SHARE_PDF_TYPES, shareLink, useDeleteShare, useMyShares } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PdfButton } from '@/components/PdfButton';
 import { EmptyState } from '@/components/EmptyState';
 import { UserName } from '@/components/UserName';
 
@@ -41,7 +42,10 @@ export default function SharedWithMePage() {
                       <td><UserName id={s.shared_by_user_id} /></td>
                       <td>{s.note ?? '—'}</td>
                       <td>{formatDate(s.created_at ?? null)}</td>
-                      <td>
+                      <td className="row" style={{ gap: 6 }}>
+                        {SHARE_PDF_TYPES.has(s.entity_type) && (
+                          <PdfButton path={`/shares/${s.id}/pdf`} filename={`${s.label}.pdf`} label="PDF" />
+                        )}
                         <button type="button" className="btn btn-icon btn-ghost" aria-label="Remove" onClick={() => remove.mutate(s.id)}>
                           <Trash2 size={15} />
                         </button>
