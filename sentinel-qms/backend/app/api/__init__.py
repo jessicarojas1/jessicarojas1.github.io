@@ -16,6 +16,7 @@ from app.api.routers import (
     changes,
     comments,
     complaints,
+    concessions,
     counterfeit,
     dashboard,
     documents,
@@ -67,3 +68,4 @@ api_router.include_router(standards.router)
 api_router.include_router(counterfeit.router)
 api_router.include_router(apqp.router)
 api_router.include_router(fod.router)
+api_router.include_router(concessions.router)

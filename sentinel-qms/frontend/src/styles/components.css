@@ -1624,3 +1624,19 @@ table.data-table {
 /* FOD event statuses (reuse counterfeit pill base) */
 .cfp-status--investigating { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
 .cfp-status--contained { background: color-mix(in srgb, var(--info, #1f6fb2) 18%, transparent); color: var(--info, #1f6fb2); }
+
+/* ---- Concession statuses ---- */
+.con-status {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: capitalize;
+}
+.con-status--draft { background: color-mix(in srgb, var(--text-faint) 18%, transparent); color: var(--text-muted); }
+.con-status--submitted, .con-status--under_review { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+.con-status--approved { background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
+.con-status--rejected { background: color-mix(in srgb, var(--danger) 16%, transparent); color: var(--danger); }
+.con-status--expired { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); }
+.con-status--closed { background: color-mix(in srgb, var(--success) 12%, transparent); color: var(--success); }
