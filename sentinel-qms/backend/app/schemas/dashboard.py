@@ -140,6 +140,16 @@ class CalendarItem(BaseModel):
     status: str
 
 
+class CounterfeitSummary(BaseModel):
+    suspect_parts: int
+    open_alerts: int
+
+
+class StandardCoverage(BaseModel):
+    code: str
+    coverage_pct: float
+
+
 class ExecutiveDashboard(BaseModel):
     generated_at: str
     kpis: list[ExecKpi]
@@ -147,6 +157,8 @@ class ExecutiveDashboard(BaseModel):
     coq_current: CoqCurrent
     clause_heatmap: list[ClauseHeat]
     compliance_calendar: list[CalendarItem]
+    counterfeit: CounterfeitSummary
+    standards_coverage: list[StandardCoverage]
 
 
 class MyOpenItem(BaseModel):
