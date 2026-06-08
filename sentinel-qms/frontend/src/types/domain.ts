@@ -832,6 +832,46 @@ export interface CounterfeitAlert {
   ncr_id: number | null;
 }
 
+export type KcClass = 'critical' | 'major' | 'minor';
+
+export interface SpcCapability {
+  count: number;
+  mean: number | null;
+  std: number | null;
+  cp: number | null;
+  cpk: number | null;
+  ucl: number | null;
+  lcl: number | null;
+  min: number | null;
+  max: number | null;
+}
+
+export interface KcMeasurement {
+  id: number;
+  kc_id: number;
+  value: number;
+  measured_at: string | null;
+  operator: string | null;
+}
+
+export interface KcSummary {
+  id: number;
+  kc_number: string;
+  part_number: string;
+  characteristic: string;
+  nominal: number | null;
+  usl: number | null;
+  lsl: number | null;
+  unit: string | null;
+  kc_class: KcClass;
+  capability: SpcCapability;
+}
+
+export interface KcDetail extends KcSummary {
+  notes: string | null;
+  measurements: KcMeasurement[];
+}
+
 export type MsaType = 'gage_rr' | 'bias' | 'linearity' | 'stability';
 export type MsaResult = 'acceptable' | 'marginal' | 'unacceptable' | 'pending';
 

@@ -14,6 +14,8 @@ const ApqpListPage = lazy(() => import('./pages/apqp/ApqpListPage'));
 const ApqpDetailPage = lazy(() => import('./pages/apqp/ApqpDetailPage'));
 const FodPage = lazy(() => import('./pages/fod/FodPage'));
 const MsaPage = lazy(() => import('./pages/msa/MsaPage'));
+const KcListPage = lazy(() => import('./pages/spc/KcListPage'));
+const KcDetailPage = lazy(() => import('./pages/spc/KcDetailPage'));
 const ConcessionsPage = lazy(() => import('./pages/concessions/ConcessionsPage'));
 const CustomersPage = lazy(() => import('./pages/customers/CustomersPage'));
 const ContractDetailPage = lazy(() => import('./pages/customers/ContractDetailPage'));
@@ -114,6 +116,10 @@ export function AppRouter() {
             path="msa"
             element={<Guard page="calibration" capability="calibration.read"><MsaPage /></Guard>}
           />
+          <Route path="key-characteristics">
+            <Route index element={<Guard page="inspections" capability="inspections.read"><KcListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="inspections" capability="inspections.read"><KcDetailPage /></Guard>} />
+          </Route>
           <Route
             path="concessions"
             element={<Guard page="nonconformances" capability="ncr.read"><ConcessionsPage /></Guard>}

@@ -35,6 +35,7 @@ from app.api.routers import (
     search,
     settings,
     signatures,
+    spc,
     standards,
     suppliers,
     training,
@@ -77,3 +78,4 @@ api_router.include_router(signatures.router)
 api_router.include_router(customers.router)
 api_router.include_router(audit_programs.router)
 api_router.include_router(msa.router)
+api_router.include_router(spc.router)

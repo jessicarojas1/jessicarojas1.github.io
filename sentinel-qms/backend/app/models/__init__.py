@@ -107,6 +107,7 @@ from app.models.risk import (
 )
 from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
+from app.models.spc import KcClass, KeyCharacteristic, Measurement
 from app.models.standard import CoverageStatus, Standard, StandardRequirement
 from app.models.supplier import (
     ApprovedSupplierListEntry,
@@ -248,4 +249,7 @@ __all__ = [
     "MsaStudy",
     "MsaType",
     "MsaResult",
+    "KeyCharacteristic",
+    "Measurement",
+    "KcClass",
 ]
