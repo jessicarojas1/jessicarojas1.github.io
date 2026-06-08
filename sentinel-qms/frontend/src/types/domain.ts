@@ -833,6 +833,17 @@ export interface CounterfeitAlert {
   ncr_id: number | null;
 }
 
+export interface RecordShare {
+  id: number;
+  entity_type: string;
+  entity_id: string;
+  label: string;
+  shared_with_user_id: number;
+  shared_by_user_id: number;
+  note: string | null;
+  created_at?: string | null;
+}
+
 export interface ParetoBucket {
   label: string;
   count: number;

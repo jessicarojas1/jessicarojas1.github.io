@@ -99,6 +99,7 @@ from app.models.nonconformance import (
     NonconformanceDisposition,
 )
 from app.models.permission import RolePagePermission, UserPagePermission
+from app.models.record_share import RecordShare
 from app.models.risk import (
     Risk,
     RiskCategory,
@@ -254,4 +255,5 @@ __all__ = [
     "Measurement",
     "KcClass",
     "SavedView",
+    "RecordShare",
 ]

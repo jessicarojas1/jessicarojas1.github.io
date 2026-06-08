@@ -43,6 +43,7 @@ export * from './useMsa';
 export * from './useSpc';
 export * from './useSavedViews';
 export * from './useDashboardWidgets';
+export * from './useShares';
 export * from './useTraining';
 export * from './useSearch';
 export * from './useNotifications';
