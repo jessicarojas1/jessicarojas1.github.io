@@ -18,6 +18,12 @@ from app.models.audit_mgmt import (
     FindingStatus,
     FindingType,
 )
+from app.models.audit_program import (
+    AuditProgram,
+    AuditProgramItem,
+    ProgramItemStatus,
+    ProgramStatus,
+)
 from app.models.base import SoftDeleteMixin, TimestampMixin
 from app.models.calibration import (
     CalibrationRecord,
@@ -234,4 +240,8 @@ __all__ = [
     "ContractStatus",
     "FlowDownTo",
     "FlowDownStatus",
+    "AuditProgram",
+    "AuditProgramItem",
+    "ProgramStatus",
+    "ProgramItemStatus",
 ]

@@ -16,6 +16,8 @@ const FodPage = lazy(() => import('./pages/fod/FodPage'));
 const ConcessionsPage = lazy(() => import('./pages/concessions/ConcessionsPage'));
 const CustomersPage = lazy(() => import('./pages/customers/CustomersPage'));
 const ContractDetailPage = lazy(() => import('./pages/customers/ContractDetailPage'));
+const AuditProgramsPage = lazy(() => import('./pages/auditPrograms/AuditProgramsPage'));
+const AuditProgramDetailPage = lazy(() => import('./pages/auditPrograms/AuditProgramDetailPage'));
 const DocumentationPage = lazy(() => import('./pages/docs/DocumentationPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -114,6 +116,10 @@ export function AppRouter() {
           <Route path="customers">
             <Route index element={<Guard page="suppliers" capability="suppliers.read"><CustomersPage /></Guard>} />
             <Route path="contracts/:id" element={<Guard page="suppliers" capability="suppliers.read"><ContractDetailPage /></Guard>} />
+          </Route>
+          <Route path="audit-programs">
+            <Route index element={<Guard page="audits" capability="audits.read"><AuditProgramsPage /></Guard>} />
+            <Route path=":id" element={<Guard page="audits" capability="audits.read"><AuditProgramDetailPage /></Guard>} />
           </Route>
 
           <Route
