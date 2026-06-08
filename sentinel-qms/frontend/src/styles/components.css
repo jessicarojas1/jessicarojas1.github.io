@@ -1620,3 +1620,7 @@ table.data-table {
 .std-cov-row__code { width: 92px; font-weight: 600; }
 .std-cov-row .cov-bar { flex: 1; }
 .std-cov-row__pct { width: 44px; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-muted); }
+
+/* FOD event statuses (reuse counterfeit pill base) */
+.cfp-status--investigating { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+.cfp-status--contained { background: color-mix(in srgb, var(--info, #1f6fb2) 18%, transparent); color: var(--info, #1f6fb2); }

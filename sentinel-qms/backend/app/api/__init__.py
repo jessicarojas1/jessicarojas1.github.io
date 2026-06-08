@@ -19,6 +19,7 @@ from app.api.routers import (
     counterfeit,
     dashboard,
     documents,
+    fod,
     iam,
     inspections,
     mgmt_reviews,
@@ -65,3 +66,4 @@ api_router.include_router(settings.router)
 api_router.include_router(standards.router)
 api_router.include_router(counterfeit.router)
 api_router.include_router(apqp.router)
+api_router.include_router(fod.router)

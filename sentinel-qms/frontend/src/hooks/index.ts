@@ -34,6 +34,7 @@ export * from './useDashboard';
 export * from './useStandards';
 export * from './useCounterfeit';
 export * from './useApqp';
+export * from './useFod';
 export * from './useTraining';
 export * from './useSearch';
 export * from './useNotifications';
