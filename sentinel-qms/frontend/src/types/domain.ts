@@ -9,11 +9,33 @@ import type { Attachment, AuditTrailEntry, Iso8601 } from './common';
 /* ------------------------------------------------------------------ */
 
 export type DocumentStatus =
-  | 'draft'
-  | 'in_review'
+  | 'concept'
+  | 'work_in_progress'
+  | 'peer_review'
+  | 'qa_review'
   | 'approved'
-  | 'effective'
   | 'obsolete';
+
+export type DocumentType =
+  | 'work_instruction'
+  | 'policy'
+  | 'process'
+  | 'procedure'
+  | 'form'
+  | 'guide';
+
+export type DocumentDepartment =
+  | 'ens'
+  | 'exec'
+  | 'qual'
+  | 'ilm'
+  | 'ins'
+  | 'ts'
+  | 'fin'
+  | 'ops';
+
+/** Workflow action accepted by POST /documents/{id}/transition. */
+export type DocumentTransitionAction = 'advance' | 'approve' | 'obsolete' | 'revise';
 
 export interface DocumentRevision {
   id: string;
@@ -30,14 +52,26 @@ export interface ControlledDocument {
   id: string;
   document_number: string;
   title: string;
-  doc_type: string;
+  doc_type: DocumentType;
   status: DocumentStatus;
+  department?: DocumentDepartment;
   description?: string;
   owner_id?: string;
+  approved_by?: string;
+  version?: string;
   current_revision?: string;
   effective_date?: Iso8601;
   next_review_date?: Iso8601;
+  last_review_date?: Iso8601;
   as9100_clause?: string;
+  // Fixed-template body sections.
+  purpose?: string;
+  scope?: string;
+  definitions?: string;
+  responsibilities?: string;
+  detail?: string;
+  revision_history?: string;
+  appendix?: string;
   created_at: Iso8601;
   updated_at: Iso8601;
   revisions?: DocumentRevision[];
@@ -608,10 +642,45 @@ export interface Complaint {
 }
 
 /* ------------------------------------------------------------------ */
+/* Attachments / evidence (matches backend AttachmentRead)             */
+/* ------------------------------------------------------------------ */
+
+export interface AttachmentRecord {
+  id: number;
+  entity_type: string;
+  entity_id: string;
+  original_filename: string;
+  content_type: string;
+  size_bytes: number;
+  checksum_sha256?: string | null;
+  storage_backend: string;
+  uploaded_by?: number | null;
+  created_at?: Iso8601 | null;
+}
+
+/* ------------------------------------------------------------------ */
+/* Record-scoped audit log (matches backend AuditLogRead)              */
+/* ------------------------------------------------------------------ */
+
+export interface AuditLogRecord {
+  id: number;
+  actor_id: number | null;
+  actor_email: string | null;
+  action: string;
+  entity_type: string;
+  entity_id: string | null;
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
+  ip_address?: string | null;
+  request_id?: string | null;
+  created_at: Iso8601;
+}
+
+/* ------------------------------------------------------------------ */
 /* Dashboard                                                            */
 /* ------------------------------------------------------------------ */
 
-export interface TrendPoint {
+export interface DashboardTrendPoint {
   period: string;
   value: number;
 }
@@ -627,9 +696,394 @@ export interface DashboardSummary {
     supplier_avg_rating: number;
     open_complaints: number;
   };
-  ncr_trend: TrendPoint[];
+  ncr_trend: DashboardTrendPoint[];
   capa_aging: { bucket: string; count: number }[];
   calibration_status: { name: string; value: number }[];
   supplier_performance: { name: string; rating: number; otd: number }[];
   findings_by_clause: { clause: string; count: number }[];
+}
+
+export interface ExecKpi {
+  key: string;
+  label: string;
+  value: number;
+  unit: string;
+  target: number | null;
+  direction: 'lower_better' | 'higher_better';
+  status: 'good' | 'warn' | 'bad' | 'neutral';
+}
+
+export interface CoqMonth {
+  month: string;
+  prevention: number;
+  appraisal: number;
+  internal_failure: number;
+  external_failure: number;
+  prevention_cost: number;
+  appraisal_cost: number;
+  internal_failure_cost: number;
+  external_failure_cost: number;
+}
+
+export interface ClauseHeat {
+  clause: string;
+  title: string;
+  major: number;
+  minor: number;
+  observation: number;
+  ofi: number;
+  total: number;
+}
+
+export interface CalendarItem {
+  type: string;
+  label: string;
+  date: string;
+  days_remaining: number;
+  status: 'overdue' | 'due_soon' | 'upcoming';
+}
+
+export type ApqpPhase =
+  | 'planning'
+  | 'product_design'
+  | 'process_design'
+  | 'validation'
+  | 'production';
+export type ApqpStatus = 'active' | 'on_hold' | 'complete' | 'cancelled';
+export type PpapElementStatus =
+  | 'not_started'
+  | 'in_progress'
+  | 'submitted'
+  | 'approved'
+  | 'rejected'
+  | 'not_applicable';
+
+export interface PpapElement {
+  id: number;
+  project_id: number;
+  element_key: string;
+  name: string;
+  status: PpapElementStatus;
+  notes: string | null;
+}
+
+export interface PpapProgress {
+  total: number;
+  approved: number;
+  applicable: number;
+  approved_pct: number;
+}
+
+export interface ApqpProject {
+  id: number;
+  project_number: string;
+  part_number: string;
+  part_name: string;
+  customer: string | null;
+  supplier_id: number | null;
+  current_phase: ApqpPhase;
+  status: ApqpStatus;
+  submission_level: number;
+  target_date: string | null;
+  ppap: PpapProgress;
+}
+
+export interface ApqpDetail extends ApqpProject {
+  notes: string | null;
+  elements: PpapElement[];
+}
+
+export type SourceType = 'ocm' | 'franchised' | 'independent' | 'broker' | 'other';
+export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+export type VerificationStatus = 'pending' | 'verified' | 'suspect' | 'rejected';
+export type AlertSource = 'gidep' | 'erai' | 'internal' | 'customer' | 'supplier' | 'other';
+export type AlertStatus = 'open' | 'under_assessment' | 'closed';
+
+export interface SourcingRecord {
+  id: number;
+  record_number: string;
+  part_number: string;
+  description: string | null;
+  supplier_id: number | null;
+  source_type: SourceType;
+  lot_date_code: string | null;
+  quantity: number | null;
+  coc_received: boolean;
+  traceability_to_oem: boolean;
+  inspection_method: string | null;
+  risk_level: RiskLevel;
+  status: VerificationStatus;
+  notes: string | null;
+  ncr_id: number | null;
+}
+
+export interface CounterfeitAlert {
+  id: number;
+  alert_number: string;
+  source: AlertSource;
+  external_ref: string | null;
+  title: string;
+  part_numbers: string | null;
+  description: string | null;
+  alert_date: string | null;
+  status: AlertStatus;
+  impact_assessment: string | null;
+  affects_inventory: boolean;
+  ncr_id: number | null;
+}
+
+export interface ParetoBucket {
+  label: string;
+  count: number;
+  cumulative_pct: number;
+}
+
+export interface ParetoResponse {
+  dimension: string;
+  total: number;
+  buckets: ParetoBucket[];
+}
+
+export type KcClass = 'critical' | 'major' | 'minor';
+
+export interface SpcCapability {
+  count: number;
+  mean: number | null;
+  std: number | null;
+  cp: number | null;
+  cpk: number | null;
+  ucl: number | null;
+  lcl: number | null;
+  min: number | null;
+  max: number | null;
+}
+
+export interface KcMeasurement {
+  id: number;
+  kc_id: number;
+  value: number;
+  measured_at: string | null;
+  operator: string | null;
+}
+
+export interface KcSummary {
+  id: number;
+  kc_number: string;
+  part_number: string;
+  characteristic: string;
+  nominal: number | null;
+  usl: number | null;
+  lsl: number | null;
+  unit: string | null;
+  kc_class: KcClass;
+  capability: SpcCapability;
+}
+
+export interface KcDetail extends KcSummary {
+  notes: string | null;
+  measurements: KcMeasurement[];
+}
+
+export type MsaType = 'gage_rr' | 'bias' | 'linearity' | 'stability';
+export type MsaResult = 'acceptable' | 'marginal' | 'unacceptable' | 'pending';
+
+export interface MsaStudy {
+  id: number;
+  study_number: string;
+  equipment_id: number | null;
+  characteristic: string;
+  study_type: MsaType;
+  num_parts: number | null;
+  num_operators: number | null;
+  num_trials: number | null;
+  grr_percent: number | null;
+  ndc: number | null;
+  result: MsaResult;
+  study_date: string | null;
+  notes: string | null;
+}
+
+export type ProgramStatus = 'draft' | 'active' | 'closed';
+export type ProgramItemStatus = 'planned' | 'scheduled' | 'completed' | 'cancelled';
+
+export interface AuditProgramItem {
+  id: number;
+  program_id: number;
+  area: string;
+  clause_reference: string | null;
+  planned_period: string | null;
+  lead_auditor_id: number | null;
+  status: ProgramItemStatus;
+  audit_id: number | null;
+}
+
+export interface AuditProgramSummary {
+  id: number;
+  name: string;
+  year: number;
+  status: ProgramStatus;
+  progress: { total: number; completed: number; completed_pct: number };
+}
+
+export interface AuditProgramDetail extends AuditProgramSummary {
+  objectives: string | null;
+  items: AuditProgramItem[];
+}
+
+export type CustomerStatus = 'active' | 'inactive';
+export type ContractStatus = 'active' | 'on_hold' | 'closed';
+export type FlowDownTo = 'internal' | 'supplier' | 'both';
+export type FlowDownStatus = 'open' | 'flowed_down' | 'verified' | 'not_applicable';
+
+export interface Customer {
+  id: number;
+  code: string;
+  name: string;
+  cage_code: string | null;
+  country: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  status: CustomerStatus;
+  notes: string | null;
+  contract_count: number;
+}
+
+export interface ContractRequirement {
+  id: number;
+  contract_id: number;
+  clause: string | null;
+  description: string;
+  flow_down_to: FlowDownTo;
+  status: FlowDownStatus;
+}
+
+export interface ContractSummary {
+  id: number;
+  contract_number: string;
+  customer_id: number;
+  title: string;
+  dpas_rating: string | null;
+  itar_controlled: boolean;
+  status: ContractStatus;
+  start_date: string | null;
+  end_date: string | null;
+}
+
+export interface ContractDetail extends ContractSummary {
+  dfars_clauses: string | null;
+  value: number | null;
+  notes: string | null;
+  requirements: ContractRequirement[];
+}
+
+export type ConcessionType = 'deviation' | 'waiver' | 'concession';
+export type ConcessionStatus =
+  | 'draft'
+  | 'submitted'
+  | 'under_review'
+  | 'approved'
+  | 'rejected'
+  | 'expired'
+  | 'closed';
+
+export interface Concession {
+  id: number;
+  concession_number: string;
+  concession_type: ConcessionType;
+  title: string;
+  part_number: string | null;
+  description: string;
+  justification: string | null;
+  quantity: number | null;
+  status: ConcessionStatus;
+  supplier_id: number | null;
+  customer_approval_required: boolean;
+  customer_approved: boolean;
+  expiry_date: string | null;
+}
+
+export type FodRisk = 'low' | 'medium' | 'high';
+export type FodSeverity = 'low' | 'medium' | 'high' | 'critical';
+export type FodStatus = 'open' | 'investigating' | 'contained' | 'closed';
+
+export interface FodZone {
+  id: number;
+  code: string;
+  name: string;
+  risk_level: FodRisk;
+  description: string | null;
+  is_active: boolean;
+}
+
+export interface FodEvent {
+  id: number;
+  event_number: string;
+  zone_id: number | null;
+  title: string;
+  description: string | null;
+  object_type: string | null;
+  location: string | null;
+  severity: FodSeverity;
+  status: FodStatus;
+  discovered_date: string | null;
+  root_cause: string | null;
+  corrective_action: string | null;
+  ncr_id: number | null;
+}
+
+export type CoverageStatus = 'covered' | 'partial' | 'gap' | 'not_applicable';
+
+export interface StandardRequirement {
+  id: number;
+  standard_id: number;
+  clause: string;
+  title: string;
+  module_key: string | null;
+  coverage_status: CoverageStatus;
+  evidence_note: string | null;
+}
+
+export interface CoverageSummary {
+  total: number;
+  covered: number;
+  partial: number;
+  gap: number;
+  not_applicable: number;
+  coverage_pct: number;
+}
+
+export interface StandardSummary {
+  id: number;
+  code: string;
+  name: string;
+  description: string | null;
+  is_active: boolean;
+  coverage: CoverageSummary;
+}
+
+export interface StandardDetail extends StandardSummary {
+  requirements: StandardRequirement[];
+}
+
+export interface ExecutiveDashboard {
+  generated_at: string;
+  kpis: ExecKpi[];
+  coq_trend: CoqMonth[];
+  coq_current: {
+    prevention: number;
+    appraisal: number;
+    internal_failure: number;
+    external_failure: number;
+    total: number;
+    prevention_cost: number;
+    appraisal_cost: number;
+    internal_failure_cost: number;
+    external_failure_cost: number;
+    total_cost: number;
+  };
+  clause_heatmap: ClauseHeat[];
+  compliance_calendar: CalendarItem[];
+  counterfeit: { suspect_parts: number; open_alerts: number };
+  standards_coverage: { code: string; coverage_pct: number }[];
+  fod: { open_events: number; trend: { month: string; count: number }[] };
 }

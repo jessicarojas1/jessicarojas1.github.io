@@ -13,7 +13,7 @@ ob_start();
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
       <h1 class="page-title" style="margin:0"><?= Security::h($audit['name']) ?></h1>
       <?php if (!empty($audit['audit_number'])): ?>
-        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($audit['audit_number']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--info)40;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($audit['audit_number']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">
@@ -128,7 +128,11 @@ ob_start();
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
             <span style="font-family:monospace;font-size:11px;font-weight:700;background:var(--bg-subtle);border:1px solid var(--border);padding:1px 7px;border-radius:4px;color:var(--text-muted)"><?= Security::h($item['code']) ?></span>
             <!-- Status indicator dot -->
-            <span class="audit-dot s-<?= Security::h($item['status']) ?>"></span>
+            <?php
+            $dotColors = ['compliant'=>'var(--success)','partial'=>'var(--warning)','non_compliant'=>'var(--danger)','not_assessed'=>'var(--text-muted)','not_applicable'=>'var(--text-muted)'];
+            $dotColor = $dotColors[$item['status']] ?? 'var(--text-muted)';
+            ?>
+            <span style="width:8px;height:8px;border-radius:50%;background:<?= $dotColor ?>;flex-shrink:0;display:inline-block"></span>
           </div>
           <!-- Title — truncated with expand -->
           <div class="audit-ctrl-title" style="font-size:13px;font-weight:600;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer" data-click="toggleCtrlTitle" data-arg="<?= $item['id'] ?>">
@@ -137,7 +141,12 @@ ob_start();
         </div>
         <!-- Right: status select + edit button -->
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <select class="audit-status-sel s-<?= Security::h($item['status']) ?> status-select-inline" data-change="saveAuditItem" data-args='[<?= $item['id'] ?>,<?= $audit['id'] ?>]' data-item="<?= $item['id'] ?>">
+          <?php
+          $statusBgs = ['not_assessed'=>['var(--surface-alt)','var(--text-muted)'],'compliant'=>['var(--success-subtle)','var(--success)'],'partial'=>['var(--warning-subtle)','var(--warning)'],'non_compliant'=>['var(--danger-subtle)','var(--danger)'],'not_applicable'=>['var(--bg-subtle)','var(--text-muted)']];
+          [$sBg,$sFg] = $statusBgs[$item['status']] ?? ['var(--surface-alt)','var(--text-muted)'];
+          ?>
+          <select class="status-select-inline" data-change="saveAuditItem" data-args='[<?= $item['id'] ?>,<?= $audit['id'] ?>]' data-item="<?= $item['id'] ?>"
+                  style="background:<?= $sBg ?>;color:<?= $sFg ?>;border:1px solid <?= $sFg ?>44;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none">
             <?php foreach (['not_assessed'=>'Not Assessed','compliant'=>'Compliant','partial'=>'Partial','non_compliant'=>'Non-Compliant','not_applicable'=>'N/A'] as $val=>$label): ?>
               <option value="<?= $val ?>" <?= $item['status']===$val?'selected':'' ?>><?= $label ?></option>
             <?php endforeach; ?>
@@ -341,9 +350,11 @@ function saveAuditItem(itemId, auditId) {
     .then(data => {
       const row = document.getElementById('item-' + itemId);
       row.className = 'audit-item-row item-' + data.status;
-      select.className = select.className.replace(/\bs-\S+/g, '').trim() + ' s-' + data.status;
-      const dot = row.querySelector('.audit-dot');
-      if (dot) dot.className = 'audit-dot s-' + data.status;
+      const statusBgs = {not_assessed:['#f9fafb','#6b7280'],compliant:['#f0fdf4','#16a34a'],partial:['#fffbeb','#d97706'],non_compliant:['#fef2f2','#dc2626'],not_applicable:['#f4f4f5','#71717a']};
+      const [bg,fg] = statusBgs[data.status] || ['#f9fafb','#6b7280'];
+      select.style.background = bg;
+      select.style.color = fg;
+      select.style.borderColor = fg + '44';
     });
 }
 
@@ -393,6 +404,8 @@ function saveFinding(e, itemId, auditId) {
     progress.textContent = '0/' + selects.length + ' updated...';
 
     var done = 0;
+    var statusBgs = {not_assessed:['#f9fafb','#6b7280'],compliant:['#f0fdf4','#16a34a'],partial:['#fffbeb','#d97706'],non_compliant:['#fef2f2','#dc2626'],not_applicable:['#f4f4f5','#71717a']};
+
     selects.forEach(function(select) {
       var itemId = select.getAttribute('data-item');
       var fd = new FormData();
@@ -402,13 +415,12 @@ function saveFinding(e, itemId, auditId) {
         .then(function(r) { return r.json(); })
         .then(function(data) {
           select.value = data.status;
-          select.className = select.className.replace(/\bs-\S+/g, '').trim() + ' s-' + data.status;
+          var bg = statusBgs[data.status] || ['#f9fafb','#6b7280'];
+          select.style.background = bg[0];
+          select.style.color = bg[1];
+          select.style.borderColor = bg[1] + '44';
           var row = document.getElementById('item-' + itemId);
-          if (row) {
-            row.className = 'audit-item-row item-' + data.status;
-            var dot = row.querySelector('.audit-dot');
-            if (dot) dot.className = 'audit-dot s-' + data.status;
-          }
+          if (row) row.className = 'audit-item-row item-' + data.status;
           var panel = document.getElementById('finding-' + itemId);
           if (panel) { var fi = panel.querySelector('.finding-status-input'); if(fi) fi.value = data.status; }
           done++;

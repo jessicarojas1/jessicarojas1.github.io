@@ -1,0 +1,156 @@
+name: CI
+
+# PR-blocking CI for this heterogeneous monorepo. Each app gets its own job so a
+# failure in one is isolated from the others. Jobs run in parallel.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same ref (e.g. when a PR is pushed to again).
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # CITADEL backend (Node/Express) + SPA bundle.
+  # npm ci (has lockfile) -> node --check across server + js -> smoke test.
+  # ---------------------------------------------------------------------------
+  node-citadel:
+    name: CITADEL (Node 20)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: citadel/server/package-lock.json
+
+      - name: Install (npm ci)
+        working-directory: citadel/server
+        run: npm ci
+
+      - name: Syntax check (node --check) server + js
+        run: bash citadel/scripts/ci-node-check.sh
+
+      - name: Smoke test
+        working-directory: citadel/server
+        run: npm test
+
+      # Accuracy gate: run the heuristic engine over the labeled benchmark corpus
+      # and fail the build if detection recall or precision regress. Current run is
+      # ~100% recall / ~95% precision; thresholds keep headroom while catching real
+      # regressions in the rules or engine. No external deps (engine is vm-loaded).
+      - name: Accuracy benchmark (gate)
+        working-directory: citadel
+        env:
+          FAIL_UNDER_RECALL: '0.9'
+          FAIL_UNDER_PRECISION: '0.9'
+        run: node benchmark/run.js
+
+  # ---------------------------------------------------------------------------
+  # Sentinel QMS frontend (Vite React + TS).
+  # npm ci -> typecheck (tsc --noEmit) -> vitest. Lint is non-blocking: the repo
+  # currently ships no ESLint config, so `npm run lint` errors out (see note).
+  # ---------------------------------------------------------------------------
+  ts-sentinel:
+    name: Sentinel QMS frontend (Node 20)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: sentinel-qms/frontend/package-lock.json
+
+      - name: Install (npm ci)
+        working-directory: sentinel-qms/frontend
+        run: npm ci
+
+      - name: Typecheck
+        working-directory: sentinel-qms/frontend
+        run: npm run typecheck
+
+      - name: Test (vitest)
+        working-directory: sentinel-qms/frontend
+        run: npm run test
+
+      # Non-blocking: no eslint config in the repo yet, so lint currently fails.
+      # Once a flat/legacy ESLint config is added, drop continue-on-error.
+      - name: Lint (non-blocking)
+        working-directory: sentinel-qms/frontend
+        continue-on-error: true
+        run: npm run lint
+
+  # ---------------------------------------------------------------------------
+  # Compliance Copilot (Next.js + TS). npm ci (has lockfile) -> tsc --noEmit.
+  # ---------------------------------------------------------------------------
+  ts-compliance:
+    name: Compliance Copilot (Node 20)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: compliance-copilot/package-lock.json
+
+      - name: Install (npm ci)
+        working-directory: compliance-copilot
+        run: npm ci
+
+      - name: Typecheck (tsc --noEmit)
+        working-directory: compliance-copilot
+        run: npx tsc --noEmit
+
+  # ---------------------------------------------------------------------------
+  # PHP lint (php -l) over every .php in aegis/ and apex/. Parallel via xargs.
+  # ---------------------------------------------------------------------------
+  php-lint:
+    name: PHP lint (8.2)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: none
+          coverage: none
+
+      - name: Lint all .php in aegis/ and apex/
+        run: |
+          find aegis apex -name '*.php' -print0 \
+            | xargs -0 -r -n1 -P4 php -l
+
+  # ---------------------------------------------------------------------------
+  # Python compile-check (py_compile) over the Streamlit dashboard, the Sentinel
+  # FastAPI backend, and the other small Python apps. No heavy deps installed —
+  # this only confirms the sources parse/compile.
+  # ---------------------------------------------------------------------------
+  py-lint:
+    name: Python compile-check (3.12)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: py_compile all .py (excluding caches)
+        run: |
+          find business-insight-dashboard sentinel-qms/backend aeromarkup cmmc-agent \
+            -name '*.py' -not -path '*/__pycache__/*' -print0 \
+            | xargs -0 -r python -m py_compile
+          echo "py_compile passed"

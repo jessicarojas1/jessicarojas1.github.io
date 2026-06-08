@@ -28,7 +28,7 @@ ob_start();
 <div class="filter-toolbar">
   <div style="display:flex;gap:6px;flex-wrap:wrap;">
     <?php foreach ([''=>'All','draft'=>'Draft','under_review'=>'Under Review','published'=>'Published'] as $k=>$l): ?>
-    <a href="?<?= http_build_query(array_merge($_GET, ['status'=>$k])) ?>" class="btn btn-sm <?= ($status??'')===$k?'btn-primary':'btn-secondary' ?>"><?= $l ?></a>
+    <a href="?<?= htmlspecialchars(http_build_query(array_merge($_GET, ['status' => $k])), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm <?= ($status??'')===$k?'btn-primary':'btn-secondary' ?>"><?= $l ?></a>
     <?php endforeach; ?>
   </div>
 

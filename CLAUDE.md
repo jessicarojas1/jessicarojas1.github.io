@@ -24,17 +24,78 @@ After completing any UI work, spawn a UI audit agent covering:
 - **Dark mode**: no hardcoded hex colors in inline styles — use CSS custom properties (`var(--danger)`, `var(--success)`, `var(--warning)`, `var(--card-bg)`, etc.)
 - **Submit buttons**: no hardcoded `disabled` attribute on submit buttons
 
-### 3. These Checks Are Part of the Roadmap
+### 3. Database Schema File (Every Project)
+Every project that uses a database **must** maintain a `database/schema.sql` file that:
+- Is a **complete, idempotent** SQL script covering all tables, indexes, and seed data
+- Can be run against a fresh database to produce a fully functional schema
+- Uses `CREATE TABLE IF NOT EXISTS`, `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`, and `INSERT ... ON CONFLICT DO NOTHING` — never plain `CREATE` without `IF NOT EXISTS`
+- Is organized with section comments grouping tables by module
+- Includes a header comment explaining it is a manual-setup reference and pointing to the authoritative installer (e.g. `install.php`)
+- Is updated whenever a new migration is added — the schema file must always reflect the current state of all migrations combined
+
+### 4. These Checks Are Part of the Roadmap
 Every project roadmap must include:
 - [ ] Security & compliance audit (CSP, XSS, CSRF, SQLi, auth, uploads, redirects)
 - [ ] UI consistency check (handlers, modals, filters, empty states, dark mode, breadcrumbs)
+- [ ] `database/schema.sql` updated to reflect all current migrations
 - [ ] Fix all findings before marking the milestone complete
+
+## User & Permission Management UI Standard
+
+When asked to build any user management, roles, or permissions UI, always deliver this level of depth:
+
+- **Two-pane IAM layout**: scrollable user list (left, ~300px) + permission editor (right, fills remaining space)
+- **User list**: live search filtering by name, user cards with avatar initial, name, department, role badge, click-to-select with active state
+- **Permission editor**: per-module accordions (first 3 open by default), each module shows colored icon + label + `N/total` granted count badge + Grant All / Clear All batch buttons
+- **Granular module × action permissions**: not just read/write/edit — specific actions per module (e.g. `risk.accept`, `risk.review`, `kri.record`, `vendor.contracts`, `bcp.exercise`, `policy.publish`, `audit.close`)
+- **Visual distinction**: green dot = role default, orange dot = explicit grant, gray = denied — never just a binary checkbox grid
+- **AJAX save**: POST via `fetch()`, return `{"ok":true,"csrf":"<rotated-token>"}` on success so client rotates CSRF in-memory; show toast notifications (success/error)
+- **Dirty tracking**: "Unsaved changes" indicator on save buttons; disable save during in-flight request
+- **Expand All / Collapse All** toolbar controls + live total permissions count
+- **Role defaults vs explicit grants**: always separate — role defaults are inherited from the role, explicit grants are stored in DB and override
+- **Backward-compat aliases**: old coarse strings (e.g. `module.write`) must map to arrays of granular strings via an `$aliases` property so existing code keeps working
+- **Controller coverage**: every controller method must call `Auth::requirePermission('module.action')` with the specific granular string
+- **View coverage**: every `Auth::can()` call in views must use the specific granular string
+
+## Settings & Branding Standard (Every App / Project)
+
+Every app or project — new or existing, moving forward — **must** include a
+**Settings** area that contains a **Branding** section where the user can:
+
+- **Set a logo via URL** (a `logoUrl` text field — paste an image URL). Also
+  accept a **file upload stored as a `data:` URL** so it works offline.
+- Set the **organization / product display name** (text).
+- Set a **primary accent / brand color** (color picker, applied via a CSS custom property).
+
+Branding must be **persisted** and **applied live** across the app:
+- Persist wherever the app stores settings: server-side settings when a backend
+  exists (shared), and `localStorage` / IndexedDB for static/front-end-only
+  hosting (per-browser). The backend value wins when both are present.
+- The logo replaces the default brand mark in the header/top bar; the display
+  name replaces the default app name (header + document `<title>`); the accent
+  color overrides the app's primary CSS custom property.
+- The logo also appears in any generated reports / PDF / print output and on
+  login/landing screens.
+
+Requirements:
+- Provide sensible empty-state defaults (the app's built-in logo/name/accent) so
+  unset branding never breaks the UI; a bad/broken logo URL degrades gracefully
+  to the default mark.
+- **Sanitize** logo URLs (allow only `http(s)://` or `data:image/...`) and escape
+  user-supplied strings when injected into markup.
+- Follow all existing rules: no inline event handlers, and never hardcode colors
+  that should be the accent var.
 
 ## Other Permanent Rules
 
+- **Header logo links home** — in every app/project, the top-left logo / brand
+  mark in the header must be a clickable link to the app's default
+  home/dashboard screen (e.g. wrap it in `<a href="<home>">`, or a router link
+  for SPAs). Clicking the logo always returns the user to home/dashboard.
 - **No inline event handlers** — CSP compliance required at all times
 - **Always push to production (main branch)** after completing work
 - **Always spawn multiple agents in parallel** for independent subtasks
 - **Every section with file upload** must include a field reference key below it
 - **`Database::update()`** automatically appends `updated_at = NOW()` — never include `updated_at` in data arrays passed to it
 - **Never commit `.env`** — only `.env.example` with placeholder values
+- **`database/schema.sql` must be kept current** — update it whenever a migration is added; it must always represent the full, combined schema across all migrations

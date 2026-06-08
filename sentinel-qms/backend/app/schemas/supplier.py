@@ -1,10 +1,11 @@
 """Supplier, SCAR, ASL, and rating schemas."""
+
 from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 from app.models.supplier import ScarStatus, SupplierStatus
 from app.schemas.common import ORMModel
@@ -18,7 +19,7 @@ class SupplierBase(BaseModel):
     certification: str | None = Field(default=None, max_length=128)
     cert_expiry: date | None = None
     contact_name: str | None = Field(default=None, max_length=255)
-    contact_email: EmailStr | None = None
+    contact_email: str | None = None
     country: str | None = Field(default=None, max_length=64)
     notes: str | None = None
 
@@ -35,7 +36,7 @@ class SupplierUpdate(BaseModel):
     certification: str | None = Field(default=None, max_length=128)
     cert_expiry: date | None = None
     contact_name: str | None = Field(default=None, max_length=255)
-    contact_email: EmailStr | None = None
+    contact_email: str | None = None
     country: str | None = Field(default=None, max_length=64)
     notes: str | None = None
 
@@ -64,6 +65,7 @@ class ScarRead(ORMModel):
     description: str
     status: ScarStatus
     nonconformance_id: int | None
+    capa_id: int | None
     issued_date: date | None
     response_due_date: date | None
     supplier_response: str | None

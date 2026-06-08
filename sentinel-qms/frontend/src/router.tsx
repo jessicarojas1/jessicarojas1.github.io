@@ -6,6 +6,22 @@ import type { Capability } from './lib/rbac';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ExecutiveDashboardPage = lazy(() => import('./pages/ExecutiveDashboardPage'));
+const StandardsPage = lazy(() => import('./pages/standards/StandardsPage'));
+const StandardDetailPage = lazy(() => import('./pages/standards/StandardDetailPage'));
+const CounterfeitPage = lazy(() => import('./pages/counterfeit/CounterfeitPage'));
+const ApqpListPage = lazy(() => import('./pages/apqp/ApqpListPage'));
+const ApqpDetailPage = lazy(() => import('./pages/apqp/ApqpDetailPage'));
+const FodPage = lazy(() => import('./pages/fod/FodPage'));
+const MsaPage = lazy(() => import('./pages/msa/MsaPage'));
+const KcListPage = lazy(() => import('./pages/spc/KcListPage'));
+const KcDetailPage = lazy(() => import('./pages/spc/KcDetailPage'));
+const ConcessionsPage = lazy(() => import('./pages/concessions/ConcessionsPage'));
+const CustomersPage = lazy(() => import('./pages/customers/CustomersPage'));
+const ContractDetailPage = lazy(() => import('./pages/customers/ContractDetailPage'));
+const AuditProgramsPage = lazy(() => import('./pages/auditPrograms/AuditProgramsPage'));
+const AuditProgramDetailPage = lazy(() => import('./pages/auditPrograms/AuditProgramDetailPage'));
+const DocumentationPage = lazy(() => import('./pages/docs/DocumentationPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 const NcrListPage = lazy(() => import('./pages/nonconformances/NcrListPage'));
@@ -32,6 +48,11 @@ const ComplaintListPage = lazy(() => import('./pages/complaints/ComplaintListPag
 const ComplaintDetailPage = lazy(() => import('./pages/complaints/ComplaintDetailPage'));
 const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
 const RolesPage = lazy(() => import('./pages/admin/RolesPage'));
+const PermissionsPage = lazy(() => import('./pages/admin/PermissionsPage'));
+const AuditTrailPage = lazy(() => import('./pages/admin/AuditTrailPage'));
+const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
+const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 
 function PageFallback() {
   return (
@@ -41,8 +62,20 @@ function PageFallback() {
   );
 }
 
-function Guard({ capability, children }: { capability?: Capability; children: ReactNode }) {
-  return <ProtectedRoute capability={capability}>{children}</ProtectedRoute>;
+function Guard({
+  capability,
+  page,
+  children,
+}: {
+  capability?: Capability;
+  page?: string;
+  children: ReactNode;
+}) {
+  return (
+    <ProtectedRoute capability={capability} page={page}>
+      {children}
+    </ProtectedRoute>
+  );
 }
 
 export function AppRouter() {
@@ -58,71 +91,129 @@ export function AppRouter() {
             </Guard>
           }
         >
-          <Route index element={<DashboardPage />} />
+          <Route index element={<Guard page="dashboard" capability="ncr.read"><DashboardPage /></Guard>} />
+          <Route
+            path="executive"
+            element={<Guard page="dashboard" capability="ncr.read"><ExecutiveDashboardPage /></Guard>}
+          />
+          <Route path="standards">
+            <Route index element={<Guard page="standards" capability="ncr.read"><StandardsPage /></Guard>} />
+            <Route path=":id" element={<Guard page="standards" capability="ncr.read"><StandardDetailPage /></Guard>} />
+          </Route>
+          <Route
+            path="counterfeit"
+            element={<Guard page="suppliers" capability="suppliers.read"><CounterfeitPage /></Guard>}
+          />
+          <Route path="apqp">
+            <Route index element={<Guard page="inspections" capability="inspections.read"><ApqpListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="inspections" capability="inspections.read"><ApqpDetailPage /></Guard>} />
+          </Route>
+          <Route
+            path="fod"
+            element={<Guard page="inspections" capability="inspections.read"><FodPage /></Guard>}
+          />
+          <Route
+            path="msa"
+            element={<Guard page="calibration" capability="calibration.read"><MsaPage /></Guard>}
+          />
+          <Route path="key-characteristics">
+            <Route index element={<Guard page="inspections" capability="inspections.read"><KcListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="inspections" capability="inspections.read"><KcDetailPage /></Guard>} />
+          </Route>
+          <Route
+            path="concessions"
+            element={<Guard page="nonconformances" capability="ncr.read"><ConcessionsPage /></Guard>}
+          />
+          <Route path="customers">
+            <Route index element={<Guard page="suppliers" capability="suppliers.read"><CustomersPage /></Guard>} />
+            <Route path="contracts/:id" element={<Guard page="suppliers" capability="suppliers.read"><ContractDetailPage /></Guard>} />
+          </Route>
+          <Route path="audit-programs">
+            <Route index element={<Guard page="audits" capability="audits.read"><AuditProgramsPage /></Guard>} />
+            <Route path=":id" element={<Guard page="audits" capability="audits.read"><AuditProgramDetailPage /></Guard>} />
+          </Route>
+
+          <Route
+            path="docs"
+            element={<Guard page="documentation" capability="docs.read"><DocumentationPage /></Guard>}
+          />
+
+          <Route
+            path="analytics"
+            element={<Guard page="analytics" capability="ncr.read"><AnalyticsPage /></Guard>}
+          />
+
+          <Route
+            path="reports"
+            element={<Guard page="analytics" capability="ncr.read"><ReportsPage /></Guard>}
+          />
 
           <Route path="nonconformances">
-            <Route index element={<Guard capability="ncr.read"><NcrListPage /></Guard>} />
-            <Route path=":id" element={<Guard capability="ncr.read"><NcrDetailPage /></Guard>} />
+            <Route index element={<Guard page="nonconformances" capability="ncr.read"><NcrListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="nonconformances" capability="ncr.read"><NcrDetailPage /></Guard>} />
           </Route>
 
           <Route path="capa">
-            <Route index element={<Guard capability="capa.read"><CapaListPage /></Guard>} />
-            <Route path=":id" element={<Guard capability="capa.read"><CapaDetailPage /></Guard>} />
+            <Route index element={<Guard page="capa" capability="capa.read"><CapaListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="capa" capability="capa.read"><CapaDetailPage /></Guard>} />
           </Route>
 
           <Route path="documents">
-            <Route index element={<Guard capability="documents.read"><DocumentListPage /></Guard>} />
-            <Route path=":id" element={<Guard capability="documents.read"><DocumentDetailPage /></Guard>} />
+            <Route index element={<Guard page="documents" capability="documents.read"><DocumentListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="documents" capability="documents.read"><DocumentDetailPage /></Guard>} />
           </Route>
 
           <Route path="audits">
-            <Route index element={<Guard capability="audits.read"><AuditListPage /></Guard>} />
-            <Route path=":id" element={<Guard capability="audits.read"><AuditDetailPage /></Guard>} />
+            <Route index element={<Guard page="audits" capability="audits.read"><AuditListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="audits" capability="audits.read"><AuditDetailPage /></Guard>} />
           </Route>
 
           <Route path="suppliers">
-            <Route index element={<Guard capability="suppliers.read"><SupplierListPage /></Guard>} />
-            <Route path=":id" element={<Guard capability="suppliers.read"><SupplierDetailPage /></Guard>} />
+            <Route index element={<Guard page="suppliers" capability="suppliers.read"><SupplierListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="suppliers" capability="suppliers.read"><SupplierDetailPage /></Guard>} />
           </Route>
 
           <Route path="calibration">
-            <Route index element={<Guard capability="calibration.read"><CalibrationListPage /></Guard>} />
-            <Route path=":id" element={<Guard capability="calibration.read"><CalibrationDetailPage /></Guard>} />
+            <Route index element={<Guard page="calibration" capability="calibration.read"><CalibrationListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="calibration" capability="calibration.read"><CalibrationDetailPage /></Guard>} />
           </Route>
 
           <Route
             path="training"
-            element={<Guard capability="training.read"><TrainingListPage /></Guard>}
+            element={<Guard page="training" capability="training.read"><TrainingListPage /></Guard>}
           />
 
           <Route path="changes">
-            <Route index element={<Guard capability="changes.read"><ChangeListPage /></Guard>} />
-            <Route path=":id" element={<Guard capability="changes.read"><ChangeDetailPage /></Guard>} />
+            <Route index element={<Guard page="changes" capability="changes.read"><ChangeListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="changes" capability="changes.read"><ChangeDetailPage /></Guard>} />
           </Route>
 
           <Route
             path="risks"
-            element={<Guard capability="risks.read"><RiskListPage /></Guard>}
+            element={<Guard page="risks" capability="risks.read"><RiskListPage /></Guard>}
           />
 
           <Route path="inspections">
-            <Route index element={<Guard capability="inspections.read"><InspectionListPage /></Guard>} />
-            <Route path=":id" element={<Guard capability="inspections.read"><InspectionDetailPage /></Guard>} />
+            <Route index element={<Guard page="inspections" capability="inspections.read"><InspectionListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="inspections" capability="inspections.read"><InspectionDetailPage /></Guard>} />
           </Route>
 
           <Route path="mgmt-reviews">
-            <Route index element={<Guard capability="mgmt_reviews.read"><MgmtReviewListPage /></Guard>} />
-            <Route path=":id" element={<Guard capability="mgmt_reviews.read"><MgmtReviewDetailPage /></Guard>} />
+            <Route index element={<Guard page="mgmt_reviews" capability="mgmt_reviews.read"><MgmtReviewListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="mgmt_reviews" capability="mgmt_reviews.read"><MgmtReviewDetailPage /></Guard>} />
           </Route>
 
           <Route path="complaints">
-            <Route index element={<Guard capability="complaints.read"><ComplaintListPage /></Guard>} />
-            <Route path=":id" element={<Guard capability="complaints.read"><ComplaintDetailPage /></Guard>} />
+            <Route index element={<Guard page="complaints" capability="complaints.read"><ComplaintListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="complaints" capability="complaints.read"><ComplaintDetailPage /></Guard>} />
           </Route>
 
           <Route path="admin">
-            <Route path="users" element={<Guard capability="admin.users"><UsersPage /></Guard>} />
-            <Route path="roles" element={<Guard capability="admin.roles"><RolesPage /></Guard>} />
+            <Route path="users" element={<Guard page="users" capability="admin.users"><UsersPage /></Guard>} />
+            <Route path="roles" element={<Guard page="roles" capability="admin.roles"><RolesPage /></Guard>} />
+            <Route path="permissions" element={<Guard page="permissions" capability="admin.roles"><PermissionsPage /></Guard>} />
+            <Route path="audit-trail" element={<Guard page="audit_trail" capability="admin.users"><AuditTrailPage /></Guard>} />
+            <Route path="settings" element={<Guard capability="admin.users"><SettingsPage /></Guard>} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

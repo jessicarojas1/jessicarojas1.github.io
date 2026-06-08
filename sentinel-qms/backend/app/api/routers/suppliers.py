@@ -1,10 +1,11 @@
 """Supplier endpoints: CRUD + SCAR + ASL + ratings/scorecard."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -12,12 +13,13 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
-from app.core.exceptions import NotFoundError
-from app.core.rbac import Permission, require_permission
+from app.core.exceptions import ConflictError, NotFoundError
 from app.models.supplier import (
     ApprovedSupplierListEntry,
     ScarStatus,
@@ -27,7 +29,8 @@ from app.models.supplier import (
     SupplierStatus,
 )
 from app.schemas.auth import CurrentUser
-from app.schemas.common import Page
+from app.schemas.capa import CapaLinkResult
+from app.schemas.common import ImportResult, Page
 from app.schemas.supplier import (
     AslEntryCreate,
     AslEntryRead,
@@ -41,7 +44,7 @@ from app.schemas.supplier import (
     SupplierRead,
     SupplierUpdate,
 )
-from app.services import numbering
+from app.services import capa_factory, csv_import, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -54,6 +57,32 @@ from app.services.crud import (
 router = APIRouter(prefix="/suppliers", tags=["suppliers"])
 
 ENTITY = "supplier"
+
+# Importable columns: required + common optional fields from SupplierCreate.
+_IMPORT_COLUMNS = [
+    "name",
+    "status",
+    "cage_code",
+    "duns_number",
+    "certification",
+    "cert_expiry",
+    "contact_name",
+    "contact_email",
+    "country",
+    "notes",
+]
+_IMPORT_EXAMPLE = [
+    "Acme Aerospace Inc.",
+    "approved",
+    "1A2B3",
+    "123456789",
+    "AS9100D",
+    "2027-12-31",
+    "Jane Doe",
+    "jane@acme.example",
+    "USA",
+    "Primary fastener supplier",
+]
 
 
 def _grade_for(score: float) -> str:
@@ -73,16 +102,14 @@ def list_suppliers(
     sort: SortParams = Depends(sort_params),
     status_filter: SupplierStatus | None = Query(None, alias="status"),
     search: str | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ) -> Page[SupplierList]:
     stmt = base_select(Supplier)
     if status_filter:
         stmt = stmt.where(Supplier.status == status_filter)
     if search:
         like = f"%{search}%"
-        stmt = stmt.where(
-            Supplier.name.ilike(like) | Supplier.supplier_code.ilike(like)
-        )
+        stmt = stmt.where(Supplier.name.ilike(like) | Supplier.supplier_code.ilike(like))
     stmt = apply_sort(stmt, Supplier, sort)
     items, total = paginate(db, stmt, Supplier, pagination)
     return Page[SupplierList](items=items, **page_meta(total, pagination))
@@ -93,7 +120,7 @@ def create_supplier(
     body: SupplierCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_perm("suppliers.create")),
 ) -> Supplier:
     supplier = Supplier(
         **body.model_dump(),
@@ -118,11 +145,58 @@ def create_supplier(
     return supplier
 
 
+# ── Bulk CSV import ───────────────────────────────────────────────────────────
+# Declared before /{supplier_id} so the literal paths are not shadowed.
+
+
+@router.get("/import/template")
+def supplier_import_template(
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
+):
+    return csv_import.template_response(
+        "suppliers_import_template.csv", _IMPORT_COLUMNS, _IMPORT_EXAMPLE
+    )
+
+
+@router.post("/import", response_model=ImportResult)
+def supplier_import(
+    request: Request,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_perm("suppliers.create")),
+) -> ImportResult:
+    def build_and_insert(row: dict[str, str]) -> None:
+        data = {col: csv_import.clean(row.get(col)) for col in _IMPORT_COLUMNS}
+        body = SupplierCreate(**{k: v for k, v in data.items() if v is not None})
+        supplier = Supplier(
+            **body.model_dump(),
+            supplier_code=numbering.next_number(db, Supplier, "supplier_code", "SUP"),
+            created_by=actor.id,
+            updated_by=actor.id,
+        )
+        db.add(supplier)
+        db.flush()
+
+    result = csv_import.import_rows(file, build_and_insert)
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="import",
+        entity_type=ENTITY,
+        entity_id=None,
+        after={"created": result.created, "failed": result.failed},
+        **request_context(request),
+    )
+    db.commit()
+    return result
+
+
 @router.get("/{supplier_id}", response_model=SupplierRead)
 def get_supplier(
     supplier_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ) -> Supplier:
     return get_or_404(db, Supplier, supplier_id, name="Supplier")
 
@@ -133,7 +207,7 @@ def update_supplier(
     body: SupplierUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_perm("suppliers.edit")),
 ) -> Supplier:
     supplier = get_or_404(db, Supplier, supplier_id, name="Supplier")
     before = audit.snapshot(supplier)
@@ -162,7 +236,7 @@ def soft_delete_supplier(
     supplier_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_perm("suppliers.edit")),
 ) -> Supplier:
     supplier = get_or_404(db, Supplier, supplier_id, name="Supplier")
     supplier.soft_delete(actor.id)
@@ -187,7 +261,7 @@ def soft_delete_supplier(
 def list_scars(
     supplier_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ) -> list[SupplierScar]:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     return (
@@ -201,15 +275,13 @@ def list_scars(
     )
 
 
-@router.post(
-    "/{supplier_id}/scars", response_model=ScarRead, status_code=status.HTTP_201_CREATED
-)
+@router.post("/{supplier_id}/scars", response_model=ScarRead, status_code=status.HTTP_201_CREATED)
 def create_scar(
     supplier_id: int,
     body: ScarCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_perm("suppliers.scar")),
 ) -> SupplierScar:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     scar = SupplierScar(
@@ -243,7 +315,7 @@ def update_scar(
     body: ScarUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_perm("suppliers.scar")),
 ) -> SupplierScar:
     scar = db.get(SupplierScar, scar_id)
     if scar is None:
@@ -251,7 +323,7 @@ def update_scar(
     before = audit.snapshot(scar)
     data = body.model_dump(exclude_unset=True)
     if data.get("status") == ScarStatus.CLOSED and scar.closed_at is None:
-        scar.closed_at = datetime.now(timezone.utc)
+        scar.closed_at = datetime.now(UTC)
     for key, value in data.items():
         setattr(scar, key, value)
     scar.updated_by = actor.id
@@ -272,18 +344,53 @@ def update_scar(
     return scar
 
 
+@router.post("/scars/{scar_id}/create-capa", response_model=CapaLinkResult)
+def create_capa_from_scar(
+    scar_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_perm("capa.create")),
+) -> CapaLinkResult:
+    """Open a corrective CAPA pre-filled from a SCAR and link them. Conflicts if
+    a CAPA is already linked, so no duplicate is created."""
+    scar = db.get(SupplierScar, scar_id)
+    if scar is None:
+        raise NotFoundError(f"SCAR {scar_id} not found.")
+    if scar.capa_id is not None:
+        raise ConflictError("A CAPA is already linked to this SCAR.")
+    capa = capa_factory.create_linked_capa(
+        db,
+        actor.id,
+        title=f"CAPA for {scar.scar_number}: {scar.title}",
+        problem=scar.description,
+        supplier_id=scar.supplier_id,
+    )
+    scar.capa_id = capa.id
+    scar.updated_by = actor.id
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="create_capa",
+        entity_type="supplier_scar",
+        entity_id=scar.id,
+        after={"capa_id": capa.id},
+        **request_context(request),
+    )
+    db.commit()
+    return CapaLinkResult(capa_id=capa.id, capa_number=capa.capa_number)
+
+
 # ── Approved Supplier List ──────────────────────────────────────────────────
 
 
-@router.post(
-    "/{supplier_id}/asl", response_model=AslEntryRead, status_code=status.HTTP_201_CREATED
-)
+@router.post("/{supplier_id}/asl", response_model=AslEntryRead, status_code=status.HTTP_201_CREATED)
 def add_asl_entry(
     supplier_id: int,
     body: AslEntryCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_perm("suppliers.edit")),
 ) -> ApprovedSupplierListEntry:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     entry = ApprovedSupplierListEntry(
@@ -313,7 +420,7 @@ def add_asl_entry(
 def list_asl_entries(
     supplier_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ) -> list[ApprovedSupplierListEntry]:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     return (
@@ -338,7 +445,7 @@ def add_rating(
     body: RatingCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.SUPPLIER_WRITE)),
+    actor: CurrentUser = Depends(require_perm("suppliers.rate")),
 ) -> SupplierRating:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
 
@@ -384,7 +491,7 @@ def add_rating(
 def list_ratings(
     supplier_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ) -> list[SupplierRating]:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     return (

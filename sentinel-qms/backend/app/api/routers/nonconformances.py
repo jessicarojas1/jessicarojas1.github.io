@@ -1,7 +1,8 @@
 """Nonconformance (NCR) endpoints: CRUD + status workflow + MRB disposition."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
@@ -10,11 +11,13 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
-from app.core.rbac import Permission, require_permission
+from app.core.exceptions import ConflictError
 from app.models.nonconformance import (
     NcSeverity,
     NcStatus,
@@ -22,6 +25,7 @@ from app.models.nonconformance import (
     NonconformanceDisposition,
 )
 from app.schemas.auth import CurrentUser
+from app.schemas.capa import CapaLinkResult
 from app.schemas.common import Page
 from app.schemas.nonconformance import (
     DispositionCreate,
@@ -31,7 +35,7 @@ from app.schemas.nonconformance import (
     NonconformanceRead,
     NonconformanceUpdate,
 )
-from app.services import numbering
+from app.services import capa_factory, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -40,7 +44,7 @@ from app.services.crud import (
     paginate,
     request_context,
 )
-from app.services.notifications import notify_user
+from app.services.notifications import notify_assignment
 from app.services.signatures import create_signature
 from app.services.workflow import StateMachine
 
@@ -69,7 +73,7 @@ def list_ncrs(
     severity: NcSeverity | None = Query(None),
     supplier_id: int | None = Query(None),
     search: str | None = Query(None, description="Match NCR number or title"),
-    _: CurrentUser = Depends(require_permission(Permission.NCR_READ)),
+    _: CurrentUser = Depends(require_page("nonconformances", "view")),
 ) -> Page[NonconformanceList]:
     stmt = base_select(Nonconformance)
     if status_filter:
@@ -80,9 +84,7 @@ def list_ncrs(
         stmt = stmt.where(Nonconformance.supplier_id == supplier_id)
     if search:
         like = f"%{search}%"
-        stmt = stmt.where(
-            Nonconformance.ncr_number.ilike(like) | Nonconformance.title.ilike(like)
-        )
+        stmt = stmt.where(Nonconformance.ncr_number.ilike(like) | Nonconformance.title.ilike(like))
     stmt = apply_sort(stmt, Nonconformance, sort)
     items, total = paginate(db, stmt, Nonconformance, pagination)
     return Page[NonconformanceList](items=items, **page_meta(total, pagination))
@@ -93,7 +95,7 @@ def create_ncr(
     body: NonconformanceCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.NCR_WRITE)),
+    actor: CurrentUser = Depends(require_perm("nonconformances.create")),
 ) -> Nonconformance:
     ncr = Nonconformance(
         **body.model_dump(),
@@ -115,12 +117,11 @@ def create_ncr(
         **request_context(request),
     )
     if ncr.assigned_to:
-        notify_user(
+        notify_assignment(
             db,
             user_id=ncr.assigned_to,
             title=f"NCR {ncr.ncr_number} assigned to you",
-            body=ncr.title,
-            category="ncr",
+            message=ncr.title,
             entity_type=ENTITY,
             entity_id=ncr.id,
         )
@@ -133,9 +134,44 @@ def create_ncr(
 def get_ncr(
     ncr_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.NCR_READ)),
+    _: CurrentUser = Depends(require_page("nonconformances", "view")),
 ) -> Nonconformance:
     return get_or_404(db, Nonconformance, ncr_id, name="NCR")
+
+
+@router.post("/{ncr_id}/create-capa", response_model=CapaLinkResult)
+def create_capa_from_ncr(
+    ncr_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_perm("capa.create")),
+) -> CapaLinkResult:
+    """Open a corrective CAPA pre-filled from this NCR and link them. Conflicts
+    if a CAPA is already linked, so no duplicate is created."""
+    ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
+    if ncr.capa_id is not None:
+        raise ConflictError("A CAPA is already linked to this NCR.")
+    capa = capa_factory.create_linked_capa(
+        db,
+        actor.id,
+        title=f"CAPA for {ncr.ncr_number}: {ncr.title}",
+        problem=ncr.description,
+        supplier_id=ncr.supplier_id,
+    )
+    ncr.capa_id = capa.id
+    ncr.updated_by = actor.id
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="create_capa",
+        entity_type=ENTITY,
+        entity_id=ncr.id,
+        after={"capa_id": capa.id},
+        **request_context(request),
+    )
+    db.commit()
+    return CapaLinkResult(capa_id=capa.id, capa_number=capa.capa_number)
 
 
 @router.patch("/{ncr_id}", response_model=NonconformanceRead)
@@ -144,14 +180,24 @@ def update_ncr(
     body: NonconformanceUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.NCR_WRITE)),
+    actor: CurrentUser = Depends(require_perm("nonconformances.edit")),
 ) -> Nonconformance:
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
     before = audit.snapshot(ncr)
+    prev_assignee = ncr.assigned_to
     for key, value in body.model_dump(exclude_unset=True).items():
         setattr(ncr, key, value)
     ncr.updated_by = actor.id
     db.flush()
+    if ncr.assigned_to and ncr.assigned_to != prev_assignee:
+        notify_assignment(
+            db,
+            user_id=ncr.assigned_to,
+            title=f"NCR {ncr.ncr_number} assigned to you",
+            message=ncr.title,
+            entity_type=ENTITY,
+            entity_id=ncr.id,
+        )
     audit.record(
         db,
         actor_id=actor.id,
@@ -174,14 +220,14 @@ def change_status(
     body: NcStatusChange,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.NCR_WRITE)),
+    actor: CurrentUser = Depends(require_perm("nonconformances.edit")),
 ) -> Nonconformance:
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
     NCR_FSM.assert_transition(ncr.status, body.status)
     before = {"status": ncr.status.value}
     ncr.status = body.status
     if body.status == NcStatus.CLOSED:
-        ncr.closed_at = datetime.now(timezone.utc)
+        ncr.closed_at = datetime.now(UTC)
     ncr.updated_by = actor.id
     db.flush()
     audit.record(
@@ -204,13 +250,14 @@ def change_status(
     "/{ncr_id}/dispositions",
     response_model=NonconformanceRead,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_perm("nonconformances.disposition"))],
 )
 def add_disposition(
     ncr_id: int,
     body: DispositionCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.NCR_DISPOSITION)),
+    actor: CurrentUser = Depends(require_page("nonconformances", "edit")),
 ) -> Nonconformance:
     """Record an MRB disposition with a captured 21 CFR Part 11 e-signature."""
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
@@ -266,7 +313,7 @@ def soft_delete_ncr(
     ncr_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.NCR_WRITE)),
+    actor: CurrentUser = Depends(require_perm("nonconformances.delete")),
 ) -> Nonconformance:
     """Soft-delete only — controlled records are never hard-deleted."""
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")

@@ -1,4 +1,5 @@
 """CAPA (8D) schemas."""
+
 from __future__ import annotations
 
 from datetime import date, datetime
@@ -82,6 +83,11 @@ class CapaUpdate(BaseModel):
 
 class CapaStatusChange(BaseModel):
     status: CapaStatus
+
+
+class CapaLinkResult(BaseModel):
+    capa_id: int
+    capa_number: str
 
 
 class CapaEffectivenessVerify(BaseModel):

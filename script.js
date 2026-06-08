@@ -744,3 +744,103 @@ function initNodeCanvas() {
     run();
   }
 })();
+
+/* ── Settings & Branding (site-wide) ─────────────────────────────
+   Lets the user set a logo (URL or uploaded data: URL), site/app name,
+   and accent color. Persisted to localStorage and applied live on every
+   page. CSP-safe: no inline handlers; uploaded logos are data: URLs.   */
+(function brandingModule() {
+  var KEY = 'jr_branding';
+  function safeLogo(u) { u = (u || '').trim(); return /^(https?:\/\/|data:image\/)/i.test(u) ? u : ''; }
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function save(b) { localStorage.setItem(KEY, JSON.stringify(b)); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function apply() {
+    var b = load();
+    var brand = document.querySelector('.navbar-brand');
+    if (brand) {
+      var logo = safeLogo(b.logo_url), name = b.site_name;
+      if (logo) {
+        brand.innerHTML = '<img src="' + esc(logo) + '" alt="logo" style="height:30px;width:auto;object-fit:contain;vertical-align:middle">'
+          + (name ? ' <span class="fw-bold align-middle">' + esc(name) + '</span>' : '');
+      } else if (name) {
+        brand.innerHTML = '<span class="fw-bold">' + esc(name) + '</span>';
+      }
+    }
+    if (b.accent) {
+      document.documentElement.style.setProperty('--bs-primary', b.accent);
+      document.documentElement.style.setProperty('--brand-accent', b.accent);
+    }
+    injectNav();
+  }
+
+  function injectNav() {
+    var list = document.querySelector('.navbar-nav');
+    if (list && !document.getElementById('nav-settings-link')) {
+      var li = document.createElement('li');
+      li.className = 'nav-item'; li.id = 'nav-settings-link';
+      li.innerHTML = '<a class="nav-link" href="settings.html">Settings</a>';
+      list.appendChild(li);
+    }
+  }
+
+  function brandToast(msg, kind) {
+    var t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:' + (kind === 'error' ? '#dc3545' : 'var(--bs-primary,#ff5811)')
+      + ';color:#fff;padding:10px 16px;border-radius:8px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.35);font-weight:600';
+    document.body.appendChild(t);
+    setTimeout(function () { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(function () { t.remove(); }, 320); }, 2400);
+  }
+
+  function initSettingsPage() {
+    var root = document.getElementById('branding-settings');
+    if (!root) return;
+    var b = load();
+    var nameEl = root.querySelector('[data-b="site_name"]');
+    var urlEl = root.querySelector('[data-b="logo_url"]');
+    var accentEl = root.querySelector('[data-b="accent"]');
+    var fileEl = root.querySelector('[data-b="file"]');
+    var prevImg = root.querySelector('[data-prev-img]');
+    var prevName = root.querySelector('[data-prev-name]');
+    nameEl.value = b.site_name || '';
+    urlEl.value = b.logo_url || '';
+    if (b.accent) accentEl.value = b.accent;
+
+    function refresh() {
+      var logo = safeLogo(urlEl.value);
+      prevName.textContent = nameEl.value || 'JRojas';
+      if (logo) { prevImg.src = logo; prevImg.style.display = ''; } else { prevImg.style.display = 'none'; }
+    }
+    nameEl.addEventListener('input', refresh);
+    urlEl.addEventListener('input', refresh);
+    fileEl.addEventListener('change', function (e) {
+      var f = e.target.files[0]; if (!f) return;
+      if (!/^image\//.test(f.type)) { brandToast('Please choose an image file', 'error'); return; }
+      var r = new FileReader();
+      r.onload = function () { urlEl.value = r.result; refresh(); };
+      r.readAsDataURL(f);
+    });
+    root.querySelector('[data-save]').addEventListener('click', function () {
+      save({ site_name: nameEl.value.trim(), logo_url: urlEl.value.trim(), accent: accentEl.value });
+      apply();
+      brandToast('Branding saved');
+    });
+    root.querySelector('[data-reset]').addEventListener('click', function () {
+      if (!confirm('Reset branding to defaults?')) return;
+      localStorage.removeItem(KEY);
+      location.reload();
+    });
+    refresh();
+  }
+
+  function run() { apply(); initSettingsPage(); }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else { run(); }
+})();

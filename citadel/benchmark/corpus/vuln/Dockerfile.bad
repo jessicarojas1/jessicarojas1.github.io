@@ -1,0 +1,2 @@
+FROM ubuntu:latest
+RUN curl http://example.com/install.sh | sh

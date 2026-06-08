@@ -54,7 +54,7 @@ function threatScoreBg(int $score): string {
     <p class="page-subtitle">Catalog of threat sources linked to organizational risks</p>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('threat.create')): ?>
       <a href="/threats/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Threat</a>
     <?php endif; ?>
   </div>
@@ -212,7 +212,7 @@ $_threatActiveFilters = (int)!empty($filter) + (int)!empty($statusF);
               <div class="empty-state-sm">
                 <i class="bi bi-shield-exclamation" style="font-size:36px;color:var(--text-light);"></i>
                 <p style="margin-top:8px;">No threats found.
-                  <?php if (Auth::can('risk.write')): ?>
+                  <?php if (Auth::can('threat.create')): ?>
                     <a href="/threats/create">Add the first threat</a>.
                   <?php endif; ?>
                 </p>

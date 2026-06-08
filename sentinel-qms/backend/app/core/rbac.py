@@ -1,10 +1,13 @@
 """Role-Based Access Control: roles, permissions, and FastAPI dependencies."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
 from enum import Enum
 
 from fastapi import Depends, HTTPException, Request, status
+
+from app.core.database import get_db
 
 
 class Role(str, Enum):
@@ -52,10 +55,18 @@ class Permission(str, Enum):
 
 # Every authenticated user can read most modules; writes are restricted.
 _READ_ALL = {
-    Permission.DOCUMENT_READ, Permission.NCR_READ, Permission.CAPA_READ,
-    Permission.AUDIT_READ, Permission.SUPPLIER_READ, Permission.CALIBRATION_READ,
-    Permission.TRAINING_READ, Permission.CHANGE_READ, Permission.RISK_READ,
-    Permission.INSPECTION_READ, Permission.MGMT_REVIEW_READ, Permission.COMPLAINT_READ,
+    Permission.DOCUMENT_READ,
+    Permission.NCR_READ,
+    Permission.CAPA_READ,
+    Permission.AUDIT_READ,
+    Permission.SUPPLIER_READ,
+    Permission.CALIBRATION_READ,
+    Permission.TRAINING_READ,
+    Permission.CHANGE_READ,
+    Permission.RISK_READ,
+    Permission.INSPECTION_READ,
+    Permission.MGMT_REVIEW_READ,
+    Permission.COMPLAINT_READ,
     Permission.DASHBOARD_READ,
 }
 
@@ -64,19 +75,32 @@ ALL_PERMISSIONS = set(Permission)
 ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
     Role.ADMIN: ALL_PERMISSIONS,
     Role.QUALITY_MANAGER: ALL_PERMISSIONS - {Permission.USER_MANAGE},
-    Role.QUALITY_ENGINEER: _READ_ALL | {
-        Permission.DOCUMENT_WRITE, Permission.NCR_WRITE, Permission.NCR_DISPOSITION,
-        Permission.CAPA_WRITE, Permission.CAPA_CLOSE, Permission.AUDIT_WRITE,
-        Permission.CALIBRATION_WRITE, Permission.CHANGE_WRITE, Permission.RISK_WRITE,
-        Permission.INSPECTION_WRITE, Permission.COMPLAINT_WRITE,
+    Role.QUALITY_ENGINEER: _READ_ALL
+    | {
+        Permission.DOCUMENT_WRITE,
+        Permission.NCR_WRITE,
+        Permission.NCR_DISPOSITION,
+        Permission.CAPA_WRITE,
+        Permission.CAPA_CLOSE,
+        Permission.AUDIT_WRITE,
+        Permission.CALIBRATION_WRITE,
+        Permission.CHANGE_WRITE,
+        Permission.RISK_WRITE,
+        Permission.INSPECTION_WRITE,
+        Permission.COMPLAINT_WRITE,
         Permission.DOCUMENT_APPROVE,
     },
     Role.AUDITOR: _READ_ALL | {Permission.AUDIT_WRITE},
-    Role.SUPPLIER_QUALITY: _READ_ALL | {
-        Permission.SUPPLIER_WRITE, Permission.NCR_WRITE, Permission.CAPA_WRITE,
+    Role.SUPPLIER_QUALITY: _READ_ALL
+    | {
+        Permission.SUPPLIER_WRITE,
+        Permission.NCR_WRITE,
+        Permission.CAPA_WRITE,
     },
-    Role.OPERATOR: _READ_ALL | {
-        Permission.NCR_WRITE, Permission.INSPECTION_WRITE,
+    Role.OPERATOR: _READ_ALL
+    | {
+        Permission.NCR_WRITE,
+        Permission.INSPECTION_WRITE,
     },
     Role.READ_ONLY: set(_READ_ALL),
 }
@@ -123,19 +147,15 @@ def require_permission(*perms: Permission) -> Callable:
     return _checker
 
 
-def _db_dep():  # noqa: ANN001
-    from app.core.database import get_db
-
-    yield from get_db()
-
-
 def _lazy_current_user(
     request: Request,
-    db=Depends(_db_dep),  # noqa: ANN001
+    db=Depends(get_db),  # noqa: ANN001
 ):
-    """Indirection so rbac does not import deps at module load (avoids cycle).
+    """Resolve the principal, delegating to ``app.api.deps``.
 
-    Delegates to the real resolver in ``app.api.deps``.
+    ``resolve_current_user`` is imported lazily to avoid an rbac<->deps import
+    cycle at module load. ``get_db`` is depended on directly (not via a wrapper)
+    so test/dependency overrides of ``get_db`` apply here too.
     """
     from app.api.deps import resolve_current_user
 

@@ -62,6 +62,9 @@
     { id:'cmmc',   name:'CMMC', version:'2.0 (L1–L2)', tag:'DoD',
       url:'https://dodcio.defense.gov/cmmc/',
       desc:'Cybersecurity Maturity Model Certification for the DIB.' },
+    { id:'cmmi',   name:'CMMI-DEV', version:'v2.0', tag:'Process',
+      url:'https://cmmiinstitute.com/',
+      desc:'Capability Maturity Model Integration — development process maturity (practice areas).' },
     { id:'iso',    name:'ISO/IEC 27001', version:'2022', tag:'ISMS',
       url:'https://www.iso.org/standard/27001',
       desc:'Information security management system — Annex A controls.' },
@@ -259,6 +262,26 @@
     }
   };
 
+  /* CMMI-DEV v2.0 practice areas implicated per weakness category. CMMI is a
+   * process-maturity model (not a security control set), so findings map to the
+   * engineering/management practice areas responsible for catching them. */
+  const CODE_PA = ['TS Technical Solution', 'VV Verification & Validation', 'PR Peer Reviews'];
+  const CMMI_PA = {
+    injection: CODE_PA, xss: CODE_PA, crypto: CODE_PA, secrets: CODE_PA, authn: CODE_PA,
+    authz: CODE_PA, deserialization: CODE_PA, ssrf: CODE_PA, 'path-traversal': CODE_PA,
+    xxe: CODE_PA, 'input-validation': CODE_PA, session: CODE_PA, transport: CODE_PA,
+    'file-upload': CODE_PA, random: CODE_PA,
+    'error-handling': ['VV Verification & Validation', 'CAR Causal Analysis & Resolution'],
+    logging: ['MC Monitor and Control', 'MPM Managing Performance & Measurement'],
+    config: ['CM Configuration Management'],
+    deps: ['CM Configuration Management', 'RSK Risk & Opportunity Management'],
+    'supply-chain': ['SAM Supplier Agreement Management', 'RSK Risk & Opportunity Management'],
+    malware: ['VV Verification & Validation', 'RSK Risk & Opportunity Management'],
+    privacy: ['RDM Requirements Development & Management', 'TS Technical Solution'],
+    quality: ['PQA Process Quality Assurance', 'PR Peer Reviews', 'VV Verification & Validation']
+  };
+  Object.keys(MAP).forEach(cat => { if (CMMI_PA[cat]) MAP[cat].cmmi = CMMI_PA[cat]; });
+
   /* Compute per-framework posture from a list of findings.
    * Returns array sorted by impact. */
   function posture(findings) {
@@ -289,13 +312,23 @@
       if (b.sev.critical > 0 || weighted >= 30) status = 'fail';
       else if (b.sev.high > 0 || weighted >= 10) status = 'partial';
       else if (total > 0) status = 'partial';
+      const cat = (CITADEL.controlCatalog || {})[f.id];
+      const totalControls = cat ? cat.families.reduce((a, fam) => a + (fam.controls ? fam.controls.length : 0), 0) : 0;
       return {
         id: f.id, name: f.name, version: f.version, tag: f.tag, url: f.url, desc: f.desc,
         controls: ctrlList, controlCount: ctrlList.length, findings: total,
+        totalControls, catalog: cat || null,
         severity: b.sev, status
       };
     }).sort((a, z) => z.findings - a.findings || z.controlCount - a.controlCount);
   }
 
-  CITADEL.frameworks = { CATALOG, CATEGORIES, MAP, posture };
+  // Full control catalog accessor + flat control count across all frameworks.
+  function catalog(fwId) { return (CITADEL.controlCatalog || {})[fwId] || null; }
+  function catalogTotal() {
+    const c = CITADEL.controlCatalog || {};
+    return Object.keys(c).reduce((a, k) => a + c[k].families.reduce((s, f) => s + (f.controls ? f.controls.length : 0), 0), 0);
+  }
+
+  CITADEL.frameworks = { CATALOG, CATEGORIES, MAP, posture, catalog, catalogTotal };
 })(window);

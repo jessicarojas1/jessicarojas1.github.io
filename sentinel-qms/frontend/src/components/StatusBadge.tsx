@@ -16,6 +16,11 @@ const STATUS_TONE: Record<string, Tone> = {
   in_review: 'info',
   under_review: 'info',
   in_progress: 'info',
+  // document control workflow
+  concept: 'neutral',
+  work_in_progress: 'info',
+  peer_review: 'info',
+  qa_review: 'warning',
   completed: 'success',
   pending: 'warning',
   // ncr

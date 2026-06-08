@@ -158,7 +158,7 @@ nexus/
 │       ├── sprints.php        # /api/projects/{id}/sprints
 │       ├── history.php        # /api/tickets/{id}/history
 │       └── notifications.php  # /api/notifications/*
-├── src/                       # PHP classes (Nexus\* namespace)
+├── src/                       # PHP classes (Apex\* namespace)
 │   ├── Database.php
 │   ├── Auth.php
 │   ├── Response.php

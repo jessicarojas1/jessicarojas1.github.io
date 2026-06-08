@@ -1,7 +1,7 @@
 <?php
 class BCPController {
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('bcp.view');
         $plans = Database::fetchAll(
             "SELECT bp.*, u.name AS owner_name,
                (SELECT COUNT(*) FROM bcp_exercises be WHERE be.plan_id = bp.id) AS exercise_count,
@@ -16,7 +16,7 @@ class BCPController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('bcp.edit');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         $pageTitle    = 'New BCP Plan';
         $activeModule = 'bcp';
@@ -25,7 +25,7 @@ class BCPController {
     }
 
     public function create(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('bcp.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); echo 'CSRF error'; return;
         }
@@ -74,7 +74,7 @@ class BCPController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('bcp.view');
         $id = (int)$id;
         $plan = Database::fetchOne(
             "SELECT bp.*, u.name AS owner_name FROM bcp_plans bp LEFT JOIN users u ON u.id = bp.owner_id WHERE bp.id = ?",
@@ -94,7 +94,7 @@ class BCPController {
     }
 
     public function addExercise(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('bcp.exercise');
         $id = (int)$id;
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); echo 'CSRF error'; return;
@@ -127,7 +127,7 @@ class BCPController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('bcp.edit');
         $id = (int)$id;
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); echo 'CSRF error'; return;

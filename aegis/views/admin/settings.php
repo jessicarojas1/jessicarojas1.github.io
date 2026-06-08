@@ -2,7 +2,7 @@
 $flash_success = $_SESSION['flash_success'] ?? null;
 $flash_error   = $_SESSION['flash_error']   ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
-$breadcrumbs = [['Admin', '/admin'], ['System Settings', null]];
+$breadcrumbs = [['Admin', '/admin'], ['Settings', null]];
 ob_start();
 ?>
 
@@ -17,10 +17,10 @@ ob_start();
 </div>
 
 <?php if ($flash_success): ?>
-  <div class="alert-box success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
+  <div class="alert alert-success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
 <?php endif; ?>
 <?php if ($flash_error): ?>
-  <div class="alert-box error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
+  <div class="alert alert-error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
 <?php endif; ?>
 
 <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;max-width:1100px;align-items:start">
@@ -32,10 +32,10 @@ ob_start();
         <form method="post" action="/admin/settings/save">
           <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
 
-          <div class="form-group">
-            <label class="form-label" for="org_name">Organization Name</label>
-            <input type="text" id="org_name" name="org_name" class="form-control" value="<?= Security::h($settings['org_name']['value'] ?? '') ?>" placeholder="Your Organization">
-          </div>
+          <p style="margin:0 0 14px;color:var(--text-muted);font-size:13px">
+            The organization display name and logo are managed in the
+            <a href="#branding" class="table-link">Branding</a> section below.
+          </p>
 
           <div class="form-row">
             <div class="form-group" style="flex:1">
@@ -76,19 +76,80 @@ ob_start();
     </div>
 
     <!-- Branding -->
-    <div class="card">
-      <div class="card-header"><div class="card-header-left"><i class="bi bi-image" style="color:var(--primary)"></i><span class="card-title">Branding</span></div></div>
+    <div class="card" id="branding">
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-palette-fill" style="color:var(--primary)"></i><span class="card-title">Branding</span></div></div>
       <div class="card-body">
         <?php
-        $logoData = $settings['company_logo_data']['value'] ?? '';
-        $logoName = $settings['company_logo_name']['value'] ?? '';
+        $logoData   = $settings['company_logo_data']['value'] ?? '';
+        $logoName   = $settings['company_logo_name']['value'] ?? '';
+        $brandName  = ($settings['org_name']['value'] ?? '') !== '' ? $settings['org_name']['value'] : Branding::DEFAULT_NAME;
+        $brandAccent = Branding::sanitizeColor($settings['brand_accent']['value'] ?? '') ?: Branding::DEFAULT_ACCENT;
+        $brandLogo   = Branding::sanitizeLogo($logoData);
         ?>
-        <?php if ($logoData): ?>
+
+        <p style="margin:0 0 16px;color:var(--text-muted);font-size:13px">
+          Customize the display name, logo and accent colour shown in the sidebar, login screen,
+          document title and printed reports. Leave a field blank to use the AEGIS default.
+        </p>
+
+        <!-- Live preview -->
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-secondary);margin-bottom:16px">
+          <img id="brandPreviewLogo"
+               src="<?= $brandLogo ? Security::h($brandLogo) : '' ?>"
+               alt="Logo preview" data-logo-fallback
+               style="width:40px;height:40px;object-fit:contain;border-radius:8px;<?= $brandLogo ? '' : 'display:none' ?>">
+          <div id="brandPreviewLogoIcon" class="brand-logo-fallback"
+               style="width:40px;height:40px;border-radius:8px;display:<?= $brandLogo ? 'none' : 'flex' ?>;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-size:20px">
+            <i class="bi bi-shield-fill-check"></i>
+          </div>
+          <div>
+            <div id="brandPreviewName" style="font-weight:700;font-size:15px;color:var(--text)"><?= Security::h($brandName) ?></div>
+            <div style="font-size:11px;color:var(--text-muted)">Live preview</div>
+          </div>
+          <span id="brandAccentSwatch" style="margin-left:auto;width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:<?= Security::h($brandAccent) ?>"></span>
+        </div>
+
+        <form method="post" action="/admin/settings/branding/save">
+          <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
+
+          <div class="form-group">
+            <label class="form-label" for="org_name">Display Name</label>
+            <input type="text" id="org_name" name="org_name" class="form-control"
+                   value="<?= Security::h($settings['org_name']['value'] ?? '') ?>" placeholder="<?= Security::h(Branding::DEFAULT_NAME) ?>" maxlength="120">
+            <span class="form-text">Replaces the app name in the sidebar, browser tab title and report headers.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="brand_accent">Accent Colour</label>
+            <div style="display:flex;align-items:center;gap:10px">
+              <input type="color" id="brand_accent" name="brand_accent" class="form-control"
+                     value="<?= Security::h($brandAccent) ?>" style="max-width:64px;height:38px;padding:4px">
+              <input type="text" id="brand_accent_text" class="form-control"
+                     value="<?= Security::h($brandAccent) ?>" placeholder="#16a34a" style="max-width:140px;font-family:monospace">
+            </div>
+            <span class="form-text">Overrides the primary accent (buttons, links, highlights) across the app.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="logo_url">Logo URL</label>
+            <input type="text" id="logo_url" name="logo_url" class="form-control"
+                   placeholder="https://example.com/logo.png"
+                   value="<?= (str_starts_with($brandLogo, 'http')) ? Security::h($brandLogo) : '' ?>">
+            <span class="form-text">Paste an image link (<code>http(s)://</code>) or a <code>data:image/...</code> URI. Saving this overrides the uploaded logo.</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Branding</button>
+        </form>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:18px 0">
+
+        <?php if ($brandLogo): ?>
         <div style="margin-bottom:16px;">
           <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">Current Logo</div>
-          <img src="<?= htmlspecialchars($logoData, ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>"
-               alt="Company Logo"
+          <img src="<?= Security::h($brandLogo) ?>"
+               alt="Company Logo" data-logo-fallback
                style="max-height:80px;max-width:240px;border:1px solid var(--border);border-radius:6px;padding:8px;background:var(--card-bg);">
+          <div class="brand-logo-fallback" style="display:none;font-size:0.78rem;color:var(--text-muted)">Logo source could not be loaded.</div>
           <?php if ($logoName): ?>
           <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;"><?= Security::h($logoName) ?></div>
           <?php endif; ?>
@@ -98,35 +159,37 @@ ob_start();
         <form method="post" action="/admin/settings/upload-logo" enctype="multipart/form-data">
           <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
           <div class="form-group">
-            <label class="form-label" for="logo_file">Upload Company Logo</label>
+            <label class="form-label" for="logo_file">Upload Logo (stored offline as a data: URI)</label>
             <input type="file" id="logo_file" name="logo_file" class="form-control"
-                   accept=".jpg,.jpeg,.png,.gif,.webp,.svg">
-            <span class="form-text">Accepted formats: JPG, PNG, GIF, WEBP, SVG &nbsp;·&nbsp; Max size: 2 MB</span>
+                   accept=".jpg,.jpeg,.png,.gif,.webp">
+            <span class="form-text">Accepted formats: JPG, PNG, GIF, WEBP &nbsp;·&nbsp; Max size: 2 MB. Stored in the database so it works offline.</span>
           </div>
-          <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Upload Logo</button>
+          <button type="submit" class="btn btn-secondary"><i class="bi bi-upload"></i> Upload Logo</button>
         </form>
 
-        <?php if ($logoData): ?>
+        <?php if ($brandLogo): ?>
         <form method="post" action="/admin/settings/remove-logo" style="margin-top:12px;">
           <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
           <button type="submit" class="btn btn-danger btn-sm"
-                  data-confirm-click="Remove the current company logo?">
+                  data-confirm-click="Remove the current logo?">
             <i class="bi bi-trash"></i> Remove Logo
           </button>
         </form>
         <?php endif; ?>
 
-        <!-- Logo Upload — Field Reference -->
+        <!-- Branding — Field Reference -->
         <div style="margin-top:16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:0.78rem;">
-          <div style="font-weight:600;color:var(--text);margin-bottom:4px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Logo Upload — Field Reference</div>
+          <div style="font-weight:600;color:var(--text);margin-bottom:4px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Branding — Field Reference</div>
           <table style="width:100%;border-collapse:collapse;font-size:0.75rem;">
-            <thead><tr><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Field</th><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Type</th><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Required</th></tr></thead>
+            <thead><tr><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Field</th><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Type</th><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Stored as</th></tr></thead>
             <tbody>
-              <tr><td style="padding:2px 6px;font-family:monospace;">logo_file</td><td style="padding:2px 6px;">file (image/jpeg, image/png, image/gif, image/webp, image/svg+xml)</td><td style="padding:2px 6px;">Yes</td></tr>
-              <tr><td style="padding:2px 6px;font-family:monospace;">csrf_token</td><td style="padding:2px 6px;">string (CSRF token)</td><td style="padding:2px 6px;">Yes</td></tr>
+              <tr><td style="padding:2px 6px;font-family:monospace;">org_name</td><td style="padding:2px 6px;">text</td><td style="padding:2px 6px;font-family:monospace;">settings.org_name</td></tr>
+              <tr><td style="padding:2px 6px;font-family:monospace;">brand_accent</td><td style="padding:2px 6px;">color (#RRGGBB hex)</td><td style="padding:2px 6px;font-family:monospace;">settings.brand_accent</td></tr>
+              <tr><td style="padding:2px 6px;font-family:monospace;">logo_url</td><td style="padding:2px 6px;">text (http(s):// or data:image/...)</td><td style="padding:2px 6px;font-family:monospace;">settings.company_logo_data</td></tr>
+              <tr><td style="padding:2px 6px;font-family:monospace;">logo_file</td><td style="padding:2px 6px;">file (image/jpeg, png, gif, webp; ≤2 MB)</td><td style="padding:2px 6px;font-family:monospace;">settings.company_logo_data (data: URI)</td></tr>
+              <tr><td style="padding:2px 6px;font-family:monospace;">csrf_token</td><td style="padding:2px 6px;">string (CSRF token)</td><td style="padding:2px 6px;">—</td></tr>
             </tbody>
           </table>
-          <div style="margin-top:4px;color:var(--text-muted);">Stored as: base64 data URI in <code>company_logo_data</code> setting; original filename in <code>company_logo_name</code>.</div>
         </div>
       </div>
     </div>

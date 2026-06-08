@@ -1,4 +1,5 @@
 """Training & competency: Personnel, TrainingCourse, TrainingRecord, CompetencyMatrixEntry."""
+
 from __future__ import annotations
 
 import enum
@@ -95,9 +96,7 @@ class TrainingRecord(Base, TimestampMixin):
 
 class CompetencyMatrixEntry(Base, TimestampMixin):
     __tablename__ = "competency_matrix"
-    __table_args__ = (
-        UniqueConstraint("personnel_id", "skill", name="uq_competency_person_skill"),
-    )
+    __table_args__ = (UniqueConstraint("personnel_id", "skill", name="uq_competency_person_skill"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     personnel_id: Mapped[int] = mapped_column(

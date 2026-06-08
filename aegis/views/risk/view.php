@@ -98,7 +98,7 @@ ob_start();
   </div>
   <div class="page-actions" style="flex-shrink:0">
     <span class="risk-badge-lg risk-<?= strtolower($level) ?>" style="font-size:14px;padding:6px 14px"><?= $level ?> · <?= $score ?></span>
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.edit')): ?>
       <a href="/risk/<?= $risk['id'] ?>/exception/create" class="btn btn-warning btn-sm"><i class="bi bi-shield-exclamation"></i> Exception</a>
     <?php endif; ?>
     <a href="/risk/dashboard" class="btn btn-ghost btn-sm"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
@@ -112,7 +112,7 @@ ob_start();
   <div class="r-main">
 
     <!-- ── Assessment Form ────────────────────────────────────────────────── -->
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.edit')): ?>
     <div class="card">
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-sliders"></i> Risk Assessment</h3>
@@ -315,7 +315,7 @@ ob_start();
     <div class="card">
       <div class="card-header"><h3 class="card-title"><i class="bi bi-currency-dollar"></i> Financial Exposure</h3></div>
       <div class="card-body">
-        <?php if (Auth::can('risk.write')): ?>
+        <?php if (Auth::can('risk.edit')): ?>
         <form method="POST" action="/risk/<?= $risk['id'] ?>/update">
           <?= Security::csrfField() ?>
           <?php /* Pass through required fields unchanged */ ?>
@@ -391,7 +391,7 @@ ob_start();
       </div>
     </div>
 
-    <?php endif; /* Auth::can('risk.write') */ ?>
+    <?php endif; /* Auth::can('risk.edit') */ ?>
 
     <!-- ── Linked Controls ────────────────────────────────────────────────── -->
     <div class="card">
@@ -418,7 +418,7 @@ ob_start();
                 </span>
               </td>
               <td>
-                <?php if (Auth::can('risk.write')): ?>
+                <?php if (Auth::can('risk.edit')): ?>
                 <form method="POST" action="/risk/control-link/<?= $lc['id'] ?>/remove" style="display:inline">
                   <?= Security::csrfField() ?>
                   <button class="btn btn-sm btn-ghost text-danger" data-confirm-click="Remove this control link?" title="Unlink"><i class="bi bi-x-lg"></i></button>
@@ -436,7 +436,7 @@ ob_start();
       </div>
       <?php endif; ?>
 
-      <?php if (Auth::can('risk.write') && !empty($availableControls)): ?>
+      <?php if (Auth::can('risk.edit') && !empty($availableControls)): ?>
       <div class="card-body" style="border-top:1px solid var(--border)">
         <form method="POST" action="/risk/<?= $risk['id'] ?>/link-control">
           <?= Security::csrfField() ?>
@@ -504,7 +504,7 @@ ob_start();
               </div>
             </div>
           </div>
-          <?php if (Auth::can('risk.write')): ?>
+          <?php if (Auth::can('risk.edit')): ?>
           <form method="POST" action="/risk/response-action/<?= $ra['id'] ?>/update" style="display:flex;gap:6px;align-items:center;flex-shrink:0">
             <?= Security::csrfField() ?>
             <select name="status" class="form-control form-control-sm" style="font-size:11px;padding:2px 6px;width:auto">
@@ -524,7 +524,7 @@ ob_start();
       <div class="card-body" style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">No response actions yet.</div>
       <?php endif; ?>
 
-      <?php if (Auth::can('risk.write')): ?>
+      <?php if (Auth::can('risk.edit')): ?>
       <div class="card-body" style="border-top:1px solid var(--border)">
         <div style="font-size:12px;font-weight:600;margin-bottom:10px"><i class="bi bi-plus-circle"></i> Add Response Action</div>
         <form method="POST" action="/risk/<?= $risk['id'] ?>/response-action">
@@ -587,7 +587,7 @@ ob_start();
     <div class="card">
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-kanban-fill"></i> Treatment Plans</h3>
-        <?php if (Auth::can('risk.write')): ?><a href="/risk/<?= (int)$risk['id'] ?>/treatment/create" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Add Plan</a><?php endif; ?>
+        <?php if (Auth::can('risk.treatment')): ?><a href="/risk/<?= (int)$risk['id'] ?>/treatment/create" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Add Plan</a><?php endif; ?>
       </div>
       <div class="card-body" style="padding:0">
         <table class="data-table">
@@ -620,7 +620,7 @@ ob_start();
       </div>
     </div>
     <?php else: ?>
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.treatment')): ?>
     <div style="text-align:center;padding:6px">
       <a href="/risk/<?= (int)$risk['id'] ?>/treatment/create" class="btn btn-sm btn-secondary"><i class="bi bi-kanban-fill"></i> Create Treatment Plan</a>
     </div>
@@ -723,7 +723,7 @@ ob_start();
     <?php endif; ?>
 
     <!-- Related Risks -->
-    <?php if (!empty($relatedRisks) || Auth::can('risk.write')): ?>
+    <?php if (!empty($relatedRisks) || Auth::can('risk.edit')): ?>
     <div class="card">
       <div class="card-header"><h3 class="card-title"><i class="bi bi-link-45deg"></i> Related Risks</h3></div>
       <div class="card-body">
@@ -734,7 +734,7 @@ ob_start();
             <a href="/risk/<?= (int)$rr['related_risk_id'] ?>" style="font-size:12px;font-weight:500;display:block"><?= Security::h($rr['related_risk_code']) ?> <?= Security::h(mb_strimwidth($rr['related_title'], 0, 30, '…')) ?></a>
             <span style="font-size:10px;color:var(--text-muted)"><?= ucfirst(str_replace('_',' ',$rr['link_type'])) ?></span>
           </div>
-          <?php if (Auth::can('risk.write')): ?>
+          <?php if (Auth::can('risk.edit')): ?>
           <form method="POST" action="/risk/related-link/<?= $rr['id'] ?>/remove" style="display:inline">
             <?= Security::csrfField() ?>
             <button class="btn btn-sm btn-ghost" style="padding:1px 5px" title="Remove"><i class="bi bi-x"></i></button>
@@ -744,7 +744,7 @@ ob_start();
         <?php endforeach; ?>
         <?php if (empty($relatedRisks)): ?><p class="text-muted" style="font-size:12px;margin:0">No related risks linked.</p><?php endif; ?>
 
-        <?php if (Auth::can('risk.write') && !empty($allRisks)): ?>
+        <?php if (Auth::can('risk.edit') && !empty($allRisks)): ?>
         <form method="POST" action="/risk/<?= $risk['id'] ?>/link-related" style="margin-top:12px">
           <?= Security::csrfField() ?>
           <div class="form-row" style="gap:6px">
@@ -767,11 +767,11 @@ ob_start();
     <?php endif; ?>
 
     <!-- Acceptance Certificate -->
-    <?php if ($activeAcceptance || Auth::can('risk.write')): ?>
+    <?php if ($activeAcceptance || Auth::can('risk.accept')): ?>
     <div class="card">
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-patch-check-fill" style="color:var(--primary)"></i> Risk Acceptance</h3>
-        <?php if (Auth::can('risk.write')): ?>
+        <?php if (Auth::can('risk.accept')): ?>
           <a href="/risk/<?= (int)$risk['id'] ?>/accept" class="btn btn-ghost btn-sm"><i class="bi bi-plus-lg"></i> Issue</a>
         <?php endif; ?>
       </div>
@@ -889,8 +889,8 @@ ob_start();
 </div><!-- /r-layout -->
 
 <!-- Approve Modal -->
-<div id="approveModal" style="display:none;position:fixed;inset:0;background:#00000060;z-index:9999;align-items:center;justify-content:center">
-  <div style="background:var(--bg-primary);border-radius:12px;padding:24px;width:420px;max-width:95vw">
+<div class="um-overlay" id="approveModal">
+  <div class="um-dialog">
     <h3 style="margin:0 0 12px">Approve Risk Assessment</h3>
     <form method="POST" action="/risk/<?= $risk['id'] ?>/approve">
       <?= Security::csrfField() ?>
@@ -906,8 +906,8 @@ ob_start();
 </div>
 
 <!-- Reject Modal -->
-<div id="rejectModal" style="display:none;position:fixed;inset:0;background:#00000060;z-index:9999;align-items:center;justify-content:center">
-  <div style="background:var(--bg-primary);border-radius:12px;padding:24px;width:420px;max-width:95vw">
+<div class="um-overlay" id="rejectModal">
+  <div class="um-dialog">
     <h3 style="margin:0 0 12px">Send Back for Revision</h3>
     <form method="POST" action="/risk/<?= $risk['id'] ?>/reject-review">
       <?= Security::csrfField() ?>

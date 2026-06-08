@@ -5,16 +5,16 @@ $breadcrumbs  = [['Issues', null]];
 ob_start();
 
 $severityColors = [
-    'critical' => 'var(--danger)',
+    'critical' => '#ef4444',
     'high'     => '#f97316',
-    'medium'   => 'var(--warning)',
-    'low'      => 'var(--success)',
+    'medium'   => '#f59e0b',
+    'low'      => '#22c55e',
 ];
 $statusColors = [
     'open'           => '#3b82f6',
     'in_progress'    => '#8b5cf6',
-    'pending_review' => 'var(--warning)',
-    'resolved'       => 'var(--success)',
+    'pending_review' => '#f59e0b',
+    'resolved'       => '#22c55e',
     'closed'         => '#6b7280',
     'wont_fix'       => '#9ca3af',
 ];
@@ -42,35 +42,35 @@ $statusColors = [
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--info-subtle);color:var(--info)"><i class="bi bi-list-ul"></i></div>
+    <div class="stat-icon" style="background:var(--info)20;color:var(--info)"><i class="bi bi-list-ul"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['total'] ?? 0) ?></div>
       <div class="stat-label">Total Issues</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--info-subtle);color:var(--info)"><i class="bi bi-circle-fill"></i></div>
+    <div class="stat-icon" style="background:var(--info)20;color:var(--info)"><i class="bi bi-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['open'] ?? 0) ?></div>
       <div class="stat-label">Open</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--purple-tint);color:var(--purple)"><i class="bi bi-arrow-repeat"></i></div>
+    <div class="stat-icon" style="background:var(--purple)20;color:var(--purple)"><i class="bi bi-arrow-repeat"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['in_progress'] ?? 0) ?></div>
       <div class="stat-label">In Progress</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--danger-tint);color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:var(--danger)20;color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['critical'] ?? 0) ?></div>
       <div class="stat-label">Critical</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--orange-tint);color:var(--orange)"><i class="bi bi-clock-fill"></i></div>
+    <div class="stat-icon" style="background:var(--orange)20;color:var(--orange)"><i class="bi bi-clock-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['overdue'] ?? 0) ?></div>
       <div class="stat-label">Overdue</div>
@@ -172,8 +172,8 @@ $_filterCount = count(array_filter([
           $isOverdue = $issue['due_date']
             && strtotime($issue['due_date']) < time()
             && !in_array($issue['status'], ['resolved', 'closed', 'wont_fix']);
-          $sevColor = $severityColors[$issue['severity']] ?? 'var(--text-muted)';
-          $stColor  = $statusColors[$issue['status']]    ?? 'var(--text-muted)';
+          $sevColor = $severityColors[$issue['severity']] ?? '#6b7280';
+          $stColor  = $statusColors[$issue['status']]    ?? '#6b7280';
         ?>
           <tr>
             <td>
@@ -209,7 +209,7 @@ $_filterCount = count(array_filter([
             </td>
             <td>
               <?php if ($issue['source_type']): ?>
-                <span class="status-chip" style="background:rgba(107,114,128,.08);color:var(--text-muted);border:1px solid rgba(107,114,128,.25);font-size:.75rem">
+                <span class="status-chip" style="background:var(--text-muted)20;color:var(--text-muted);border:1px solid var(--text-muted)40;font-size:.75rem">
                   <?= Security::h(ucfirst($issue['source_type'])) ?>
                 </span>
               <?php else: ?>—<?php endif; ?>
@@ -218,8 +218,8 @@ $_filterCount = count(array_filter([
           </tr>
         <?php endforeach; else: ?>
           <tr>
-            <td colspan="8" style="text-align:center;padding:3rem">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;color:var(--text-muted)">
+            <td class="empty-row" colspan="8">
+              <div class="empty-state-sm">
                 <i class="bi bi-check2-circle" style="font-size:2.5rem"></i>
                 <p style="margin:0;font-size:1rem;font-weight:500">No issues found</p>
                 <p style="margin:0;font-size:.875rem">

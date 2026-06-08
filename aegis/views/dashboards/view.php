@@ -44,7 +44,7 @@ $widgetTypes = [
   <div style="display:flex;gap:10px;align-items:center;">
     <?php if ($dashboard['is_shared']): ?><span class="badge badge-info">Shared</span><?php endif; ?>
     <?php if ($isOwner): ?>
-    <button id="btnOpenWidget" class="btn btn-secondary btn-sm" data-show-modal="addWidgetModal"><i class="bi bi-plus-lg"></i> Add Widget</button>
+    <button class="btn btn-secondary btn-sm" data-show-modal="addWidgetModal"><i class="bi bi-plus-lg"></i> Add Widget</button>
     <form method="POST" action="/dashboards/<?= (int)$dashboard['id'] ?>/delete" data-confirm="Delete this dashboard?" style="margin:0;">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
@@ -60,7 +60,7 @@ $widgetTypes = [
   <h3 style="margin:16px 0 8px;">No Widgets Yet</h3>
   <?php if ($isOwner): ?>
   <p style="color:var(--text-muted);margin-bottom:20px;">Add widgets to build your custom view.</p>
-  <button class="btn btn-primary" id="btnOpenWidget2" data-show-modal="addWidgetModal">Add First Widget</button>
+  <button class="btn btn-primary" data-show-modal="addWidgetModal">Add First Widget</button>
   <?php else: ?>
   <p style="color:var(--text-muted);">This dashboard has no widgets.</p>
   <?php endif; ?>
@@ -156,7 +156,7 @@ $widgetTypes = [
       <?php elseif ($w['widget_type'] === 'audit_status' && is_array($w['data'])): ?>
         <?php if (empty($w['data'])): ?><p style="color:var(--text-muted);font-size:0.875rem;">No audits.</p>
         <?php else: ?>
-        <?php $statusColors=['planned'=>'#6366f1','in_progress'=>'var(--warning)','completed'=>'var(--success)','cancelled'=>'#6b7280','on_hold'=>'#f97316']; ?>
+        <?php $statusColors=['planned'=>'var(--indigo,#6366f1)','in_progress'=>'var(--warning)','completed'=>'var(--primary-light)','cancelled'=>'var(--text-muted)','on_hold'=>'var(--orange)']; ?>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <?php foreach ($w['data'] as $row): $clr=$statusColors[$row['status']] ?? 'var(--text-muted)'; ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
@@ -173,7 +173,7 @@ $widgetTypes = [
         <div style="display:flex;flex-direction:column;gap:8px;">
           <?php foreach ($w['data'] as $pol):
             $daysLeft = $pol['next_review_date'] ? (int)((strtotime($pol['next_review_date'])-time())/86400) : 999;
-            $urgColor = $daysLeft <= 7 ? 'var(--danger)' : ($daysLeft <= 14 ? 'var(--warning)' : '#6b7280');
+            $urgColor = $daysLeft <= 7 ? 'var(--danger)' : ($daysLeft <= 14 ? 'var(--warning)' : 'var(--text-muted)');
           ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <a href="/policy/<?= (int)$pol['id'] ?>" style="font-size:0.875rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= Security::h($pol['title']) ?></a>
@@ -213,7 +213,7 @@ $widgetTypes = [
             } else {
                 $status = $val <= $red ? 'red' : ($val <= $yel ? 'yellow' : 'green');
             }
-            $statusColor = ['red'=>'var(--danger)','yellow'=>'var(--warning)','green'=>'var(--success)'][$status];
+            $statusColor = ['red'=>'var(--danger)','yellow'=>'var(--warning)','green'=>'var(--primary-light)'][$status];
           ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <a href="/kri/<?= (int)$kri['id'] ?>" style="font-size:0.875rem;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= Security::h($kri['title']) ?></a>
@@ -228,7 +228,7 @@ $widgetTypes = [
       <?php elseif ($w['widget_type'] === 'poam_tracker' && is_array($w['data'])): ?>
         <?php if (empty($w['data'])): ?><p style="color:var(--text-muted);font-size:0.875rem;">No POA&Ms.</p>
         <?php else: ?>
-        <?php $poamColors=['open'=>'var(--danger)','in_progress'=>'var(--warning)','completed'=>'var(--success)','closed'=>'#6b7280','on_hold'=>'#f97316']; ?>
+        <?php $poamColors=['open'=>'var(--danger)','in_progress'=>'var(--warning)','completed'=>'var(--primary-light)','closed'=>'var(--text-muted)','on_hold'=>'var(--orange)']; ?>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <?php foreach ($w['data'] as $row): $clr=$poamColors[$row['status']] ?? 'var(--text-muted)'; ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
@@ -266,7 +266,7 @@ $widgetTypes = [
       <?php elseif ($w['widget_type'] === 'asset_criticality' && is_array($w['data'])): ?>
         <?php if (empty($w['data'])): ?><p style="color:var(--text-muted);font-size:0.875rem;">No assets.</p>
         <?php else: ?>
-        <?php $critColors=['critical'=>'var(--danger)','high'=>'#f97316','medium'=>'var(--warning)','low'=>'var(--success)'];
+        <?php $critColors=['critical'=>'var(--danger)','high'=>'var(--orange)','medium'=>'var(--warning)','low'=>'var(--primary-light)'];
               $total = array_sum(array_column($w['data'],'count')); ?>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <?php foreach ($w['data'] as $row):
@@ -319,7 +319,7 @@ $widgetTypes = [
             <tbody>
             <?php foreach ($w['data'] as $r):
               $s = (int)($r['inherent_score'] ?? $r['score'] ?? 0);
-              $sClr = $s >= 15 ? 'var(--danger)' : ($s >= 10 ? '#f97316' : ($s >= 5 ? 'var(--warning)' : 'var(--success)'));
+              $sClr = $s >= 15 ? 'var(--danger)' : ($s >= 10 ? 'var(--orange)' : ($s >= 5 ? 'var(--warning)' : 'var(--primary-light)'));
             ?>
             <tr style="border-top:1px solid var(--border);">
               <td style="padding:5px 6px;"><a href="/risk/<?= (int)$r['id'] ?>" style="max-width:160px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= Security::h($r['title']) ?></a></td>
@@ -336,7 +336,7 @@ $widgetTypes = [
       <?php elseif ($w['widget_type'] === 'incident_heatmap' && is_array($w['data'])): ?>
         <?php if (empty($w['data'])): ?><p style="color:var(--text-muted);font-size:0.875rem;">No incidents.</p>
         <?php else: ?>
-        <?php $sevColors=['critical'=>'var(--danger)','high'=>'#f97316','medium'=>'var(--warning)','low'=>'var(--success)']; ?>
+        <?php $sevColors=['critical'=>'var(--danger)','high'=>'var(--orange)','medium'=>'var(--warning)','low'=>'var(--primary-light)']; ?>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <?php foreach ($w['data'] as $row): $clr=$sevColors[$row['severity']] ?? 'var(--text-muted)'; ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
@@ -361,11 +361,11 @@ $widgetTypes = [
 
 <?php if ($isOwner): ?>
 <!-- Add Widget Modal -->
-<div class="um-overlay" id="addWidgetModal">
-  <div class="um-dialog">
+<div id="addWidgetModal" class="um-overlay">
+  <div class="um-dialog" style="width:460px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Add Widget</h3>
-      <button id="btnCloseWidget" data-close-modal="addWidgetModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="addWidgetModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/dashboards/<?= (int)$dashboard['id'] ?>/add-widget">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -391,7 +391,7 @@ $widgetTypes = [
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Add Widget</button>
-        <button type="button" id="btnCancelWidget" data-close-modal="addWidgetModal" class="btn btn-secondary">Cancel</button>
+        <button type="button" data-close-modal="addWidgetModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>

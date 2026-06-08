@@ -5,37 +5,37 @@
 
 $score = (int)($risk['inherent_score'] ?? 0);
 $scoreLevel = $score > 14 ? 'Critical' : ($score > 9 ? 'High' : ($score > 4 ? 'Medium' : 'Low'));
-$scoreBg    = $score > 14 ? 'var(--danger-subtle)' : ($score > 9 ? '#fff7ed' : ($score > 4 ? 'var(--warning-subtle)' : 'var(--success-subtle)'));
-$scoreColor = $score > 14 ? 'var(--danger)' : ($score > 9 ? '#ea580c' : ($score > 4 ? 'var(--warning)' : 'var(--primary)'));
+$scoreBg    = $score > 14 ? '#fef2f2' : ($score > 9 ? '#fff7ed' : ($score > 4 ? '#fffbeb' : '#f0fdf4'));
+$scoreColor = $score > 14 ? '#dc2626' : ($score > 9 ? '#ea580c' : ($score > 4 ? '#d97706' : '#16a34a'));
 
 $causeTypeMeta = [
-    'threat'          => ['label' => 'Threat',        'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)', 'icon' => 'bi-exclamation-octagon-fill'],
-    'vulnerability'   => ['label' => 'Vulnerability', 'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)', 'icon' => 'bi-shield-slash-fill'],
+    'threat'          => ['label' => 'Threat',        'color' => '#dc2626', 'bg' => '#fef2f2', 'icon' => 'bi-exclamation-octagon-fill'],
+    'vulnerability'   => ['label' => 'Vulnerability', 'color' => '#d97706', 'bg' => '#fffbeb', 'icon' => 'bi-shield-slash-fill'],
     'hazard'          => ['label' => 'Hazard',         'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-biohazard'],
     'event'           => ['label' => 'Event',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-lightning-fill'],
 ];
 
 $consequenceTypeMeta = [
-    'financial'      => ['label' => 'Financial',     'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)', 'icon' => 'bi-cash-coin'],
-    'operational'    => ['label' => 'Operational',   'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)', 'icon' => 'bi-gear-fill'],
+    'financial'      => ['label' => 'Financial',     'color' => '#dc2626', 'bg' => '#fef2f2', 'icon' => 'bi-cash-coin'],
+    'operational'    => ['label' => 'Operational',   'color' => '#d97706', 'bg' => '#fffbeb', 'icon' => 'bi-gear-fill'],
     'reputational'   => ['label' => 'Reputational',  'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-star-fill'],
     'legal'          => ['label' => 'Legal',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-balance-scale'],
-    'safety'         => ['label' => 'Safety',         'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'icon' => 'bi-heart-pulse-fill'],
+    'safety'         => ['label' => 'Safety',         'color' => '#16a34a', 'bg' => '#f0fdf4', 'icon' => 'bi-heart-pulse-fill'],
     'impact'         => ['label' => 'Impact',         'color' => '#71717a', 'bg' => '#f4f4f5', 'icon' => 'bi-arrow-down-circle-fill'],
 ];
 
 $severityMeta = [
-    'low'      => ['label' => 'Low',      'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)'],
-    'medium'   => ['label' => 'Medium',   'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
+    'low'      => ['label' => 'Low',      'color' => '#16a34a', 'bg' => '#f0fdf4'],
+    'medium'   => ['label' => 'Medium',   'color' => '#d97706', 'bg' => '#fffbeb'],
     'high'     => ['label' => 'High',     'color' => '#ea580c', 'bg' => '#fff7ed'],
-    'critical' => ['label' => 'Critical', 'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)'],
+    'critical' => ['label' => 'Critical', 'color' => '#dc2626', 'bg' => '#fef2f2'],
 ];
 
 $effectivenessMeta = [
-    'degraded'    => ['label' => 'Degraded',    'color' => 'var(--danger)', 'ring' => 'var(--danger-border)'],
-    'partial'     => ['label' => 'Partial',     'color' => 'var(--warning)', 'ring' => 'var(--warning-border)'],
-    'substantial' => ['label' => 'Substantial', 'color' => 'var(--moderate)', 'ring' => 'var(--moderate-border)'],
-    'full'        => ['label' => 'Full',        'color' => 'var(--primary)', 'ring' => 'var(--success-border)'],
+    'degraded'    => ['label' => 'Degraded',    'color' => '#dc2626', 'ring' => '#fca5a5'],
+    'partial'     => ['label' => 'Partial',     'color' => '#d97706', 'ring' => '#fcd34d'],
+    'substantial' => ['label' => 'Substantial', 'color' => '#2563eb', 'ring' => '#93c5fd'],
+    'full'        => ['label' => 'Full',        'color' => '#16a34a', 'ring' => '#86efac'],
 ];
 
 $barrierTypeMeta = [
@@ -47,9 +47,9 @@ $barrierTypeMeta = [
 ];
 
 $likelihoodMeta = [
-    'low'    => ['label' => 'Low',    'color' => 'var(--primary)'],
-    'medium' => ['label' => 'Medium', 'color' => 'var(--warning)'],
-    'high'   => ['label' => 'High',   'color' => 'var(--danger)'],
+    'low'    => ['label' => 'Low',    'color' => '#16a34a'],
+    'medium' => ['label' => 'Medium', 'color' => '#d97706'],
+    'high'   => ['label' => 'High',   'color' => '#dc2626'],
 ];
 
 $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && empty($rightBarriers);
@@ -133,14 +133,14 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--text-muted);
+    color: #a1a1aa;
     padding: 2px 4px;
     border-radius: 4px;
     font-size: 11px;
     line-height: 1;
     transition: color .12s, background .12s;
 }
-.bt-item-delete:hover { color: var(--danger); background: var(--danger-tint); }
+.bt-item-delete:hover { color: #dc2626; background: #dc262618; }
 
 /* Arrow connector zones */
 .bt-arrow-zone {
@@ -238,7 +238,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--text-muted);
+    color: #a1a1aa;
     margin-bottom: 8px;
 }
 .bt-event-title {
@@ -276,7 +276,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-funnel-line {
     position: absolute;
     height: 2px;
-    background: var(--border);
+    background: #d4d4d8;
     width: 100%;
     top: 50%;
     transform: translateY(-50%);
@@ -390,7 +390,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
   <?php if ($isEmpty): ?>
   <div class="bt-empty">
-    <i class="bi bi-diagram-2" style="font-size:36px;color:var(--border);display:block;margin-bottom:12px"></i>
+    <i class="bi bi-diagram-2" style="font-size:36px;color:var(--bg-subtle);display:block;margin-bottom:12px"></i>
     <h3>No Bow-Tie Elements Yet</h3>
     <p>
       A <strong>bow-tie diagram</strong> maps the causes (left side) and consequences (right side) of a risk event,
@@ -406,7 +406,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (A) Causes Column ───────────────────────────── -->
       <div class="bt-causes-col">
-        <div class="bt-col-header" style="color:var(--danger);background:var(--danger-tint);border:1px solid var(--danger-ring)">
+        <div class="bt-col-header" style="color:var(--danger);background:var(--danger-subtle);border:1px solid color-mix(in srgb,var(--danger) 25%,transparent)">
           <i class="bi bi-exclamation-triangle-fill"></i> Threat / Cause
         </div>
         <?php if (empty($causes)): ?>
@@ -416,7 +416,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           $lh = $likelihoodMeta[$cause['likelihood_contribution']] ?? $likelihoodMeta['medium'];
         ?>
           <div class="bt-item-card">
-            <?php if (Auth::can('risk.write')): ?>
+            <?php if (Auth::can('risk.bowtie')): ?>
             <form method="POST" action="/risk-bowtie/cause/<?= (int)$cause['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" data-confirm-click="Remove this cause?">
@@ -439,7 +439,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (B) Left Barriers ───────────────────────────── -->
       <div class="bt-barriers-col">
-        <div class="bt-col-header" style="color:var(--moderate);background:var(--moderate-subtle);border:1px solid var(--moderate-border)">
+        <div class="bt-col-header" style="color:var(--info);background:var(--info-subtle);border:1px solid color-mix(in srgb,var(--info) 25%,transparent)">
           <i class="bi bi-shield-fill-check"></i> Preventive Controls
         </div>
         <?php if (empty($leftBarriers)): ?>
@@ -449,7 +449,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           $btyp = $barrierTypeMeta[$bar['barrier_type']] ?? $barrierTypeMeta['control'];
         ?>
           <div class="bt-barrier-pill" style="--ring-color:<?= Security::h($eff['ring']) ?>">
-            <?php if (Auth::can('risk.write')): ?>
+            <?php if (Auth::can('risk.bowtie')): ?>
             <form method="POST" action="/risk-bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" data-confirm-click="Remove this barrier?">
@@ -473,8 +473,8 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <!-- ── (C) Funnel Left ─────────────────────────────── -->
       <div class="bt-funnel-left">
         <div style="position:relative;width:100%;display:flex;align-items:center">
-          <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--border),var(--neutral))"></div>
-          <div style="width:0;height:0;border-left:8px solid #71717a;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--bg-subtle),var(--text-muted))"></div>
+          <div style="width:0;height:0;border-left:8px solid var(--text-muted);border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
         </div>
       </div>
 
@@ -495,14 +495,14 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <!-- ── (E) Funnel Right ────────────────────────────── -->
       <div class="bt-funnel-right">
         <div style="position:relative;width:100%;display:flex;align-items:center">
-          <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--neutral),var(--border))"></div>
-          <div style="width:0;height:0;border-left:8px solid var(--border);border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--text-muted),var(--bg-subtle))"></div>
+          <div style="width:0;height:0;border-left:8px solid var(--bg-subtle);border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
         </div>
       </div>
 
       <!-- ── (F) Right Barriers ──────────────────────────── -->
       <div class="bt-barriers-col">
-        <div class="bt-col-header" style="color:var(--primary);background:var(--primary-tint);border:1px solid var(--primary-ring)">
+        <div class="bt-col-header" style="color:var(--success);background:var(--success-subtle);border:1px solid color-mix(in srgb,var(--success) 25%,transparent)">
           <i class="bi bi-arrow-counterclockwise"></i> Recovery Controls
         </div>
         <?php if (empty($rightBarriers)): ?>
@@ -512,7 +512,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           $btyp = $barrierTypeMeta[$bar['barrier_type']] ?? $barrierTypeMeta['control'];
         ?>
           <div class="bt-barrier-pill" style="--ring-color:<?= Security::h($eff['ring']) ?>">
-            <?php if (Auth::can('risk.write')): ?>
+            <?php if (Auth::can('risk.bowtie')): ?>
             <form method="POST" action="/risk-bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" data-confirm-click="Remove this barrier?">
@@ -545,7 +545,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           $sev = $severityMeta[$con['severity']] ?? $severityMeta['medium'];
         ?>
           <div class="bt-item-card">
-            <?php if (Auth::can('risk.write')): ?>
+            <?php if (Auth::can('risk.bowtie')): ?>
             <form method="POST" action="/risk-bowtie/consequence/<?= (int)$con['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" data-confirm-click="Remove this consequence?">
@@ -588,7 +588,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 <!-- ═══════════════════════════════════════════════════════════
      ADD ITEMS PANEL
 ════════════════════════════════════════════════════════════ -->
-<?php if (Auth::can('risk.write')): ?>
+<?php if (Auth::can('risk.bowtie')): ?>
 <div class="card">
   <div class="card-header">
     <h3 class="card-title"><i class="bi bi-plus-circle-fill"></i> Add Items</h3>
@@ -601,28 +601,28 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>
         Causes
         <?php if (!empty($causes)): ?>
-          <span style="background:var(--danger-tint);color:var(--danger);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($causes) ?></span>
+          <span style="background:var(--danger-subtle);color:var(--danger);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($causes) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="left-barriers" role="tab" aria-selected="false">
-        <i class="bi bi-shield-fill-check" style="color:var(--moderate)"></i>
+        <i class="bi bi-shield-fill-check" style="color:var(--info)"></i>
         Left Barriers
         <?php if (!empty($leftBarriers)): ?>
-          <span style="background:var(--moderate-subtle);color:var(--moderate);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($leftBarriers) ?></span>
+          <span style="background:var(--info-subtle);color:var(--info);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($leftBarriers) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="right-barriers" role="tab" aria-selected="false">
-        <i class="bi bi-arrow-counterclockwise" style="color:var(--primary)"></i>
+        <i class="bi bi-arrow-counterclockwise" style="color:var(--success)"></i>
         Right Barriers
         <?php if (!empty($rightBarriers)): ?>
-          <span style="background:var(--primary-tint);color:var(--primary);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($rightBarriers) ?></span>
+          <span style="background:var(--success-subtle);color:var(--success);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($rightBarriers) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="consequences" role="tab" aria-selected="false">
         <i class="bi bi-arrow-down-circle-fill" style="color:var(--secondary)"></i>
         Consequences
         <?php if (!empty($consequences)): ?>
-          <span style="background:var(--secondary-tint);color:var(--secondary);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($consequences) ?></span>
+          <span style="background:var(--secondary)18;color:var(--secondary);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($consequences) ?></span>
         <?php endif; ?>
       </button>
     </div>
@@ -816,7 +816,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
   </div><!-- .card-body -->
 </div>
-<?php endif; // Auth::can('risk.write') ?>
+<?php endif; // Auth::can('risk.bowtie') ?>
 
 <!-- ── Bow-Tie Explainer (if empty) ─────────────────────────────── -->
 <?php if ($isEmpty): ?>

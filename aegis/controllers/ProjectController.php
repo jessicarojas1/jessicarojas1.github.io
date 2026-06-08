@@ -4,7 +4,7 @@ declare(strict_types=1);
 class ProjectController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
 
         $projects = Database::fetchAll(
             "SELECT gp.*, u.name AS lead_name,
@@ -36,7 +36,7 @@ class ProjectController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.edit');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         $pageTitle    = 'New GRC Project';
         $activeModule = 'projects';
@@ -48,7 +48,7 @@ class ProjectController {
     }
 
     public function create(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -99,7 +99,7 @@ class ProjectController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
         $id = (int)$id;
 
         $project = Database::fetchOne(
@@ -143,7 +143,7 @@ class ProjectController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -187,7 +187,7 @@ class ProjectController {
     }
 
     public function delete(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -205,7 +205,7 @@ class ProjectController {
     }
 
     public function addTask(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -240,7 +240,7 @@ class ProjectController {
     }
 
     public function completeTask(string $id, string $taskId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -262,7 +262,7 @@ class ProjectController {
     }
 
     public function deleteTask(string $id, string $taskId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -284,7 +284,7 @@ class ProjectController {
     }
 
     public function addLink(string $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -315,7 +315,7 @@ class ProjectController {
     }
 
     public function removeLink(string $id, string $linkId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('risk.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

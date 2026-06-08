@@ -50,6 +50,10 @@ export default function ComplaintListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="complaints"
+        viewKey="complaints"
+        viewParams={ctl.viewParams}
+        onApplyView={ctl.applyView}
         filters={
           <div className="field">
             <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>

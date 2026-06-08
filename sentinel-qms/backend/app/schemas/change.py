@@ -1,4 +1,5 @@
 """Change order (ECN/ECO) schemas."""
+
 from __future__ import annotations
 
 from datetime import date, datetime

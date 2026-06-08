@@ -1,4 +1,11 @@
-"""Notification creation with an email-delivery stub."""
+"""Notification creation plus best-effort multi-channel dispatch.
+
+In-app :class:`Notification` rows are always created; outbound delivery (Email +
+Microsoft Teams + Slack) is fanned out, in the background, via
+:mod:`app.services.delivery` so a misconfigured/unreachable channel can never
+break the calling request.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -7,7 +14,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.rbac import Role
-from app.models.user import Notification, Role as RoleModel, User
+from app.models.user import Notification, User
+from app.models.user import Role as RoleModel
+from app.schemas.notification import notification_url
+from app.services import delivery
 
 logger = logging.getLogger("app.notifications")
 
@@ -34,7 +44,16 @@ def notify_user(
     db.add(notif)
     db.flush()
     if send_email:
-        _send_email_stub(db, user_id, title, body)
+        recipient = db.get(User, user_id)
+        cfg = delivery.resolve_channels(db)
+        link = notification_url(entity_type, str(entity_id) if entity_id is not None else None)
+        delivery.dispatch_notification(
+            recipient_email=recipient.email if recipient is not None else None,
+            title=title,
+            body=body,
+            link=link,
+            cfg=cfg,
+        )
     return notif
 
 
@@ -76,12 +95,41 @@ def notify_roles(
     return created
 
 
-def _send_email_stub(db: Session, user_id: int, title: str, body: str | None) -> None:
-    """Stub: in production, enqueue to SES / Azure Communication Services.
+def notify_assignment(
+    db: Session,
+    *,
+    user_id: int,
+    title: str,
+    message: str | None = None,
+    entity_type: str | None = None,
+    entity_id: str | int | None = None,
+) -> Notification:
+    """Create an in-app notification and best-effort dispatch to all channels.
 
-    Intentionally logs only — no external network calls in this deployment.
+    External dispatch is backgrounded and best-effort so a misconfigured or
+    unreachable channel can never break the calling request (assignment must
+    still succeed).
     """
-    logger.info(
-        "email_stub",
-        extra={"user_id": user_id, "subject": title, "has_body": bool(body)},
+    notif = Notification(
+        user_id=user_id,
+        title=title,
+        body=message,
+        category="assignment",
+        entity_type=entity_type,
+        entity_id=str(entity_id) if entity_id is not None else None,
     )
+    db.add(notif)
+    db.flush()
+
+    link = notification_url(entity_type, str(entity_id) if entity_id is not None else None)
+    recipient = db.get(User, user_id)
+    cfg = delivery.resolve_channels(db)
+    delivery.dispatch_notification(
+        recipient_email=recipient.email if recipient is not None else None,
+        title=title,
+        body=message,
+        link=link,
+        cfg=cfg,
+    )
+
+    return notif

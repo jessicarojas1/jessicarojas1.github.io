@@ -16,7 +16,10 @@ const APP_JS = process.env.CITADEL_APP_DIR
   : (fs.existsSync(path.resolve(__dirname, '../../js/scanner.js'))
       ? path.resolve(__dirname, '../../js')
       : path.resolve(__dirname, '../citadel/js'));
-const MODULES = ['languages.js', 'frameworks.js', 'rules.js', 'secrets.js', 'sbom.js', 'binary.js', 'scanner.js'];
+// Mirror the SPA's load order (index.html): the full ruleset is rules.js plus
+// the rules-extra / rules-mobile packs (which append to CITADEL.rules). Loading
+// only rules.js made the server engine run ~57 of 226 rules — keep these in sync.
+const MODULES = ['languages.js', 'frameworks.js', 'rules.js', 'rules-extra.js', 'rules-mobile.js', 'rules-pii.js', 'rules-iac.js', 'rules-api.js', 'rules-cicd.js', 'rules-java.js', 'secrets.js', 'sbom.js', 'binary.js', 'scanner.js'];
 
 let _win = null;
 function loadEngine() {
@@ -29,7 +32,9 @@ function loadEngine() {
   sandbox.window = sandbox;            // modules attach to window.CITADEL
   vm.createContext(sandbox);
   for (const m of MODULES) {
-    const code = fs.readFileSync(path.join(APP_JS, m), 'utf8');
+    let code;
+    try { code = fs.readFileSync(path.join(APP_JS, m), 'utf8'); }
+    catch (e) { if (/^rules-(extra|mobile|pii|iac|api|cicd|java)\.js$/.test(m)) continue; throw e; }   // rule packs are optional
     vm.runInContext(code, sandbox, { filename: m });
   }
   _win = sandbox;
@@ -95,12 +100,64 @@ function dedupe(findings) {
   return out;
 }
 
-/* Produce the unified report from an extracted directory. */
-async function analyzeDir(dir, scannerResult, onStage) {
+// A safe, empty heuristic result used when the isolated pass times out or fails,
+// so a deep scan still completes (with the external-scanner findings only).
+function emptyBase() {
+  return {
+    findings: [], languages: { total: 0, languages: [], primary: 'Unknown' },
+    sbom: { components: [], doc: null }, binaries: [],
+    quality: { maintainability: 0, commentRatio: 0, loc: 0, codeLines: 0, totalFiles: 0 },
+    deployment: [], licenses: []
+  };
+}
+
+// In-process heuristic pass (default; used by CLI/benchmarks/tests).
+async function runHeuristicInProcess(dir) {
   const CITADEL = loadEngine();
   const entries = ingestDir(dir);
-  onStage && onStage('Running heuristic engine…');
   const base = await CITADEL.scanner.scan(entries, () => {});
+  return { base, fileCount: entries.filter(e => !e.archive).length, totalBytes: entries.reduce((a, e) => a + e.size, 0) };
+}
+
+// Isolated heuristic pass: runs the regex/taint SAST in a worker thread and
+// enforces a wall-clock deadline. Terminating the worker is the only reliable
+// way to stop a catastrophic-backtracking (ReDoS) regex. On timeout/failure we
+// degrade gracefully to scanner-only findings instead of hanging the request.
+function runHeuristicIsolated(dir, timeoutMs) {
+  return new Promise((resolve) => {
+    const { Worker } = require('worker_threads');
+    let done = false;
+    const finish = (v) => { if (done) return; done = true; try { w.terminate(); } catch (e) {} clearTimeout(timer); resolve(v); };
+    let w;
+    const timer = setTimeout(() => finish({
+      degraded: true, base: emptyBase(), fileCount: 0, totalBytes: 0,
+      warning: 'heuristic scan exceeded ' + timeoutMs + 'ms and was terminated (possible ReDoS input); returned external-scanner findings only'
+    }), timeoutMs);
+    try {
+      w = new Worker(path.join(__dirname, 'scanWorker.js'), { workerData: { dir } });
+    } catch (e) {
+      return finish({ degraded: true, base: emptyBase(), fileCount: 0, totalBytes: 0, warning: 'heuristic worker failed to start: ' + e.message });
+    }
+    w.on('message', (msg) => finish(msg && msg.ok
+      ? { base: msg.base, fileCount: msg.fileCount, totalBytes: msg.totalBytes }
+      : { degraded: true, base: emptyBase(), fileCount: 0, totalBytes: 0, warning: 'heuristic worker error: ' + (msg && msg.error) }));
+    w.on('error', (err) => finish({ degraded: true, base: emptyBase(), fileCount: 0, totalBytes: 0, warning: 'heuristic worker crashed: ' + err.message }));
+  });
+}
+
+/* Produce the unified report from an extracted directory.
+ * opts.isolate (or env CITADEL_SCAN_ISOLATION=1) runs the heuristic pass in a
+ * worker with a timeout (opts.timeoutMs or CITADEL_SCAN_TIMEOUT_MS, default 30s)
+ * — recommended for the multi-tenant server where inputs are untrusted. */
+async function analyzeDir(dir, scannerResult, onStage, opts) {
+  opts = opts || {};
+  const CITADEL = loadEngine();
+  const isolate = opts.isolate || process.env.CITADEL_SCAN_ISOLATION === '1';
+  const timeoutMs = opts.timeoutMs || parseInt(process.env.CITADEL_SCAN_TIMEOUT_MS || '30000', 10);
+  onStage && onStage(isolate ? 'Running heuristic engine (isolated)…' : 'Running heuristic engine…');
+  const hr = isolate ? await runHeuristicIsolated(dir, timeoutMs) : await runHeuristicInProcess(dir);
+  const base = hr.base;
+  if (hr.warning) { (scannerResult.warnings = scannerResult.warnings || []).push(hr.warning); onStage && onStage(hr.warning); }
 
   // tag heuristic findings with a source for the UI
   base.findings.forEach(f => { if (!f.source) f.source = 'heuristic'; });
@@ -119,10 +176,11 @@ async function analyzeDir(dir, scannerResult, onStage) {
   return {
     meta: {
       scannedAt: new Date().toISOString(),
-      fileCount: entries.filter(e => !e.archive).length,
-      totalBytes: entries.reduce((a, e) => a + e.size, 0),
+      fileCount: hr.fileCount,
+      totalBytes: hr.totalBytes,
       engine: 'deep',
-      scanners: scannerResult.tools || []
+      scanners: scannerResult.tools || [],
+      warnings: scannerResult.warnings || []
     },
     languages: base.languages,
     findings: merged,

@@ -352,7 +352,7 @@ if (!empty($trendData)) {
   </div>
   <div class="page-actions">
     <a href="/risk" class="btn btn-ghost"><i class="bi bi-list-ul"></i> Risk Register</a>
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.create')): ?>
     <a href="/risk/create" class="btn btn-danger"><i class="bi bi-plus-lg"></i> Log Risk</a>
     <?php endif; ?>
   </div>
@@ -371,7 +371,7 @@ if (!empty($trendData)) {
   </div>
 
   <!-- Critical -->
-  <div class="rdash-kpi" style="border-top:3px solid #ef4444">
+  <div class="rdash-kpi" style="border-top:3px solid var(--danger)">
     <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></span>
     <span class="kpi-num" style="color:var(--danger)"><?= (int)($summary['critical'] ?? 0) ?></span>
     <span class="kpi-lbl">Critical</span>
@@ -385,14 +385,14 @@ if (!empty($trendData)) {
   </div>
 
   <!-- In Review -->
-  <div class="rdash-kpi" style="border-top:3px solid #f97316">
+  <div class="rdash-kpi" style="border-top:3px solid var(--orange)">
     <span class="kpi-icon" style="color:var(--orange)"><i class="bi bi-eye-fill"></i></span>
     <span class="kpi-num" style="color:var(--orange)"><?= (int)($summary['in_review'] ?? 0) ?></span>
     <span class="kpi-lbl">In Review</span>
   </div>
 
   <!-- Overdue Reviews -->
-  <div class="rdash-kpi" style="border-top:3px solid #ef4444">
+  <div class="rdash-kpi" style="border-top:3px solid var(--danger)">
     <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-alarm-fill"></i></span>
     <span class="kpi-num" style="color:var(--danger)">
       <?php if (($summary['overdue_reviews'] ?? 0) > 0): ?>
@@ -404,21 +404,21 @@ if (!empty($trendData)) {
   </div>
 
   <!-- Approved -->
-  <div class="rdash-kpi" style="border-top:3px solid #22c55e">
+  <div class="rdash-kpi" style="border-top:3px solid var(--success)">
     <span class="kpi-icon" style="color:var(--success)"><i class="bi bi-patch-check-fill"></i></span>
     <span class="kpi-num" style="color:var(--success)"><?= (int)($summary['approved'] ?? 0) ?></span>
     <span class="kpi-lbl">Approved</span>
   </div>
 
   <!-- Actions Overdue -->
-  <div class="rdash-kpi" style="border-top:3px solid #ef4444">
+  <div class="rdash-kpi" style="border-top:3px solid var(--danger)">
     <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-lightning-fill"></i></span>
     <span class="kpi-num" style="color:<?= $actionsOverdue > 0 ? 'var(--danger)' : 'inherit' ?>"><?= $actionsOverdue ?></span>
     <span class="kpi-lbl">Actions Overdue</span>
   </div>
 
   <!-- No Controls -->
-  <div class="rdash-kpi" style="border-top:3px solid #f59e0b">
+  <div class="rdash-kpi" style="border-top:3px solid var(--warning)">
     <span class="kpi-icon" style="color:var(--warning)"><i class="bi bi-shield-x"></i></span>
     <span class="kpi-num" style="color:<?= $uncontrolledCount > 0 ? 'var(--warning)' : 'inherit' ?>"><?= $uncontrolledCount ?></span>
     <span class="kpi-lbl">No Controls</span>
@@ -715,7 +715,7 @@ if (!empty($trendData)) {
             <div style="font-size:10px;color:var(--text-muted)"><?= Security::h($uc['category_name']) ?></div>
           <?php endif; ?>
         </div>
-        <?php if (Auth::can('risk.write')): ?>
+        <?php if (Auth::can('risk.edit')): ?>
         <a href="/risk/<?= (int)$uc['id'] ?>" style="flex-shrink:0;font-size:11px;font-weight:600;color:var(--primary);text-decoration:none;white-space:nowrap;padding:3px 8px;border-radius:6px;border:1px solid #c7d2fe;background:rgba(11,97,4,.06)">
           <i class="bi bi-link-45deg"></i> Link Controls
         </a>

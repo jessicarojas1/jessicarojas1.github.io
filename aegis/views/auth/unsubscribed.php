@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unsubscribed — AEGIS GRC</title>
+<?php $__brandName = Branding::name(); $__brandLogo = Branding::logo(); ?>
+<title>Unsubscribed — <?= Security::h($__brandName) ?></title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Inter,system-ui,sans-serif;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
@@ -16,6 +17,7 @@ p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
 .btn-ghost{background:transparent;color:var(--primary);border:1px solid var(--primary);margin-left:8px}
 .logo{font-size:13px;color:var(--text-muted);margin-top:32px;padding-top:24px;border-top:1px solid #f4f4f5}
 </style>
+<?= Branding::accentStyleTag() ?>
 </head>
 <body>
 <div class="card">
@@ -27,7 +29,7 @@ p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
     <div class="icon">&#10003;</div>
     <h1>Unsubscribed</h1>
     <?php if ($notificationType === 'all'): ?>
-      <p>You have been unsubscribed from <strong>all AEGIS notification emails</strong>.</p>
+      <p>You have been unsubscribed from <strong>all <?= Security::h($__brandName) ?> notification emails</strong>.</p>
     <?php else: ?>
       <div class="type-badge"><?= Security::h(ucwords(str_replace('_',' ',$notificationType))) ?></div>
       <p>You have been unsubscribed from <strong><?= Security::h(str_replace('_',' ',$notificationType)) ?></strong> notification emails.</p>
@@ -36,7 +38,7 @@ p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
   <?php endif; ?>
   <a href="/login" class="btn">Log In</a>
   <a href="/profile/notifications" class="btn btn-ghost">Preferences</a>
-  <div class="logo">AEGIS GRC &mdash; Enterprise Governance &amp; Compliance Platform</div>
+  <div class="logo"><?= Security::h($__brandName) ?> &mdash; Enterprise Governance &amp; Compliance Platform</div>
 </div>
 </body>
 </html>

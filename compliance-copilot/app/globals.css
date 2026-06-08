@@ -4,7 +4,12 @@
 @tailwind utilities;
 
 @layer base {
-  :root { --sidebar-width: 256px; }
+  :root {
+    --sidebar-width: 256px;
+    /* Primary brand accent — overridden live by Settings → Branding.
+       Defaults to Tailwind brand-600 / blue-600. */
+    --brand-accent: #2563eb;
+  }
   body {
     @apply bg-slate-950 text-slate-100 font-sans antialiased;
   }
@@ -16,8 +21,16 @@
     @apply bg-slate-900 border border-slate-800 rounded-xl;
   }
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    background: var(--brand-accent);
   }
+  .btn-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+  /* Accent helpers driven by the live brand accent variable. */
+  .accent-bg { background: var(--brand-accent); }
+  .accent-text { color: var(--brand-accent); }
+  .accent-border { border-color: var(--brand-accent); }
   .btn-secondary {
     @apply bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium px-4 py-2 rounded-lg transition-colors border border-slate-700;
   }
@@ -38,5 +51,21 @@
   }
   .table-row {
     @apply border-b border-slate-800 hover:bg-slate-800/50 transition-colors;
+  }
+}
+
+/* Print / PDF: hide chrome and toolbar, keep the branded report header. */
+@media print {
+  aside,
+  header,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .md\:ml-64 {
+    margin-left: 0 !important;
   }
 }

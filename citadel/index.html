@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://api.osv.dev; worker-src blob:; object-src 'none'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://api.osv.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="../favicon.ico" />
@@ -16,38 +16,93 @@
 <body>
   <a href="#main" class="skip-link">Skip to main content</a>
 
+  <!-- Print-only branding header (navbar is hidden in print/PDF) -->
+  <div id="print-brand" aria-hidden="true"></div>
+
   <!-- Top bar -->
   <nav class="navbar navbar-expand-lg sticky-top citadel-bar" aria-label="CITADEL navigation">
     <div class="container-fluid px-3 px-lg-4">
       <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.html">
-        <svg width="28" height="28" viewBox="0 0 40 40" aria-hidden="true">
-          <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
-          <path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
-          <path d="M14.5 20.5 l4 4 l7.5 -8.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>CITADEL</span>
+        <img id="brand-logo" alt="" class="d-none" style="height:28px;width:auto;border-radius:6px;object-fit:contain">
+        <span id="brand-mark" class="d-flex">
+          <svg width="28" height="28" viewBox="0 0 40 40" aria-hidden="true">
+            <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
+            <path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
+            <path d="M14.5 20.5 l4 4 l7.5 -8.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span id="brand-name">CITADEL</span>
       </a>
-      <div class="d-flex align-items-center gap-2 ms-auto flex-wrap">
-        <a class="btn btn-sm btn-outline-secondary" href="docs/index.html"><i class="bi bi-journal-text"></i> Docs</a>
-        <a class="btn btn-sm btn-outline-secondary d-none d-sm-inline-flex" href="../projects.html"><i class="bi bi-grid"></i> Projects</a>
-        <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#citadelNav" aria-controls="citadelNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="citadelNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="#intake-section"><i class="bi bi-upload"></i> Analyze</a></li>
+          <li class="nav-item"><a class="nav-link" href="coverage.html"><i class="bi bi-grid-3x3-gap-fill"></i> Coverage</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" id="nav-history"><i class="bi bi-clock-history"></i> History</a></li>
+          <li class="nav-item d-none" id="nav-admin"><a class="nav-link" href="admin.html"><i class="bi bi-people-fill"></i> Admin</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-journal-text"></i> Docs</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="docs/how-it-works.html"><i class="bi bi-journal-check"></i> How it works (guide)</a></li>
+              <li><a class="dropdown-item" href="docs/capabilities.html"><i class="bi bi-stack"></i> Capabilities &amp; languages</a></li>
+              <li><a class="dropdown-item" href="docs/index.html"><i class="bi bi-diagram-3"></i> Architecture &amp; modules</a></li>
+              <li><a class="dropdown-item" href="docs/index.html#frameworks"><i class="bi bi-list-check"></i> Framework catalog</a></li>
+              <li><a class="dropdown-item" href="https://github.com/jessicarojas1/jessicarojas1.github.io/blob/main/citadel/CI.md" target="_blank" rel="noopener"><i class="bi bi-git"></i> CI/CD &amp; GitHub Action</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Deploy</h6></li>
+              <li><a class="dropdown-item" href="https://github.com/jessicarojas1/jessicarojas1.github.io/blob/main/citadel/server/README.md" target="_blank" rel="noopener"><i class="bi bi-box"></i> Backend (Docker / Render)</a></li>
+              <li><a class="dropdown-item" href="https://github.com/jessicarojas1/jessicarojas1.github.io/blob/main/citadel/deploy/azure-gov/README.md" target="_blank" rel="noopener"><i class="bi bi-microsoft"></i> Azure Government</a></li>
+              <li><a class="dropdown-item" href="https://github.com/jessicarojas1/jessicarojas1.github.io/blob/main/citadel/deploy/aws-gov/README.md" target="_blank" rel="noopener"><i class="bi bi-amazon"></i> AWS GovCloud</a></li>
+            </ul>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2" id="user-area"></div>
+        <button class="btn btn-sm btn-outline-secondary ms-2" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
       </div>
     </div>
   </nav>
+
+  <!-- Login modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content citadel-card">
+        <div class="modal-header border-0"><h5 class="modal-title"><i class="bi bi-shield-lock"></i> Sign in</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+        <div class="modal-body">
+          <div class="mb-2" id="login-creds-row"><label class="form-label small">Email</label><input type="email" class="form-control" id="login-email" autocomplete="username"></div>
+          <div class="mb-2" id="login-pass-row"><label class="form-label small">Password</label><input type="password" class="form-control" id="login-password" autocomplete="current-password"></div>
+          <div class="mb-2 d-none" id="login-mfa-row">
+            <label class="form-label small">Authenticator code</label>
+            <input type="text" class="form-control" id="login-mfa-code" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code or backup code">
+          </div>
+          <div class="text-danger small d-none" id="login-error"></div>
+          <div class="small text-body-secondary mt-2" id="login-hint"></div>
+        </div>
+        <div class="modal-footer border-0 d-flex flex-column align-items-stretch gap-2">
+          <button class="btn btn-primary w-100" id="login-submit"><i class="bi bi-box-arrow-in-right"></i> Sign in</button>
+          <a class="btn btn-outline-secondary w-100 d-none" id="login-sso" href="api/auth/oidc/start"><i class="bi bi-shield-lock"></i> Sign in with SSO</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <main id="main">
     <!-- Hero -->
     <section class="citadel-hero text-center">
       <div class="container">
         <span class="badge rounded-pill citadel-pill mb-3"><i class="bi bi-shield-lock"></i> 100% client-side · nothing leaves your browser</span>
-        <h1 class="display-5 fw-bold">Source Code &amp; Executable Compliance Review</h1>
-        <p class="lead mx-auto" style="max-width:760px">
-          CITADEL ingests source code, archives, and executables and runs static analysis,
-          secrets detection, SBOM generation, and binary inspection — then maps every finding
-          to <strong>CMMC, NIST 800-171/53, NIST SSDF, ISO 27001, SOC 2, OWASP, PCI&nbsp;DSS, HIPAA, FedRAMP</strong>
-          and <strong>20+</strong> security &amp; compliance frameworks.
+        <h1 class="display-5 fw-bold">Enterprise Source-Code, Executable &amp; Script Review</h1>
+        <p class="lead mx-auto" style="max-width:720px">
+          Drop in source code, a <code>.zip</code>, or an executable — CITADEL runs SAST, secrets,
+          SBOM &amp; live-CVE checks and binary analysis locally, then maps findings to 20+ compliance frameworks.
         </p>
-        <div class="d-flex flex-wrap gap-2 justify-content-center mt-3" id="framework-chips"></div>
+        <div class="hero-stats d-flex flex-wrap gap-3 justify-content-center my-3" id="hero-stats"></div>
+        <div class="mt-2">
+          <a href="#intake-section" class="btn btn-primary"><i class="bi bi-upload"></i> Analyze now</a>
+          <a href="coverage.html" class="btn btn-outline-secondary ms-2"><i class="bi bi-grid-3x3-gap-fill"></i> See what it checks</a>
+        </div>
       </div>
     </section>
 
@@ -96,6 +151,23 @@
         </div>
       </div>
 
+      <!-- Engine / scanner status -->
+      <div id="engine-status" class="engine-status mt-3"></div>
+
+      <!-- Recent scans (dashboard widget — shown when durable history exists) -->
+      <div id="recent-activity" class="card citadel-card mt-3 d-none">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+            <h6 class="text-uppercase text-body-secondary small fw-bold mb-0"><i class="bi bi-clock-history"></i> Recent scans</h6>
+            <div class="d-flex align-items-center gap-3">
+              <span id="recent-spark" title="Security-score trend (oldest → newest)"></span>
+              <a href="#" class="small" id="recent-viewall">View all history →</a>
+            </div>
+          </div>
+          <div id="recent-list" class="recent-list"></div>
+        </div>
+      </div>
+
       <!-- Scan a public repo by URL (shown when the backend is available) -->
       <div id="url-scan-row" class="d-none mt-3">
         <div class="input-group">
@@ -125,24 +197,28 @@
 
       <!-- Tabs -->
       <ul class="nav citadel-tabs mb-3" id="result-tabs" role="tablist">
-        <li><button class="tab-btn active" data-tab="tab-overview"><i class="bi bi-speedometer2"></i> Overview</button></li>
+        <li><button class="tab-btn active" data-tab="tab-report"><i class="bi bi-file-earmark-text-fill"></i> Report</button></li>
+        <li><button class="tab-btn" data-tab="tab-overview"><i class="bi bi-speedometer2"></i> Overview</button></li>
         <li><button class="tab-btn" data-tab="tab-findings"><i class="bi bi-bug"></i> Findings <span class="badge bg-secondary" id="findings-count">0</span></button></li>
         <li><button class="tab-btn" data-tab="tab-compliance"><i class="bi bi-clipboard-check"></i> Compliance</button></li>
         <li><button class="tab-btn" data-tab="tab-sbom"><i class="bi bi-box-seam"></i> SBOM</button></li>
         <li><button class="tab-btn" data-tab="tab-binary"><i class="bi bi-cpu"></i> Binaries</button></li>
         <li><button class="tab-btn" data-tab="tab-quality"><i class="bi bi-award"></i> Quality</button></li>
         <li><button class="tab-btn" data-tab="tab-deploy"><i class="bi bi-rocket-takeoff"></i> Deployment</button></li>
+        <li><button class="tab-btn" data-tab="tab-aifix"><i class="bi bi-robot"></i> AI Fix Prompt</button></li>
         <li><button class="tab-btn" data-tab="tab-history"><i class="bi bi-clock-history"></i> History</button></li>
         <li><button class="tab-btn" data-tab="tab-export"><i class="bi bi-download"></i> Export</button></li>
       </ul>
 
-      <div class="tab-panel" id="tab-overview"></div>
+      <div class="tab-panel" id="tab-report"></div>
+      <div class="tab-panel d-none" id="tab-overview"></div>
       <div class="tab-panel d-none" id="tab-findings"></div>
       <div class="tab-panel d-none" id="tab-compliance"></div>
       <div class="tab-panel d-none" id="tab-sbom"></div>
       <div class="tab-panel d-none" id="tab-binary"></div>
       <div class="tab-panel d-none" id="tab-quality"></div>
       <div class="tab-panel d-none" id="tab-deploy"></div>
+      <div class="tab-panel d-none" id="tab-aifix"></div>
       <div class="tab-panel d-none" id="tab-history"></div>
       <div class="tab-panel d-none" id="tab-export"></div>
     </section>
@@ -157,17 +233,31 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/branding.js"></script>
   <script src="js/languages.js"></script>
   <script src="js/frameworks.js"></script>
+  <script src="js/controls-federal.js"></script>
+  <script src="js/controls-appsec.js"></script>
+  <script src="js/controls-extra.js"></script>
   <script src="js/rules.js"></script>
+  <script src="js/rules-extra.js"></script>
+  <script src="js/rules-mobile.js"></script>
+  <script src="js/rules-pii.js"></script>
+  <script src="js/rules-iac.js"></script>
+  <script src="js/rules-api.js"></script>
+  <script src="js/rules-cicd.js"></script>
+  <script src="js/rules-java.js"></script>
   <script src="js/secrets.js"></script>
   <script src="js/sbom.js"></script>
   <script src="js/binary.js"></script>
   <script src="js/ingest.js"></script>
   <script src="js/scanner.js"></script>
   <script src="js/report.js"></script>
+  <script src="js/remediate.js"></script>
   <script src="js/sarif.js"></script>
   <script src="js/osv.js"></script>
   <script src="js/history.js"></script>

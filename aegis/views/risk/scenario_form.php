@@ -4,7 +4,7 @@
  * Create a risk scenario for a given risk.
  * Variables: $risk (risk record), $pageTitle, $activeModule, $breadcrumbs
  */
-
+$breadcrumbs = $breadcrumbs ?? [['Risk Register', '/risk'], ['Scenarios', null]];
 $nonce     = Security::nonce();
 $baseL     = (int)$risk['likelihood'];
 $baseI     = (int)$risk['impact'];
@@ -14,7 +14,7 @@ function scenarioLevelStr(int $s): string {
     return $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
 }
 function scenarioLevelColor(int $s): string {
-    return $s > 14 ? 'var(--danger)' : ($s > 9 ? '#f97316' : ($s > 4 ? 'var(--warning)' : 'var(--success)'));
+    return $s > 14 ? '#ef4444' : ($s > 9 ? '#f97316' : ($s > 4 ? '#f59e0b' : '#22c55e'));
 }
 function scenarioLevelClass(int $s): string {
     return $s > 14 ? 'risk-critical' : ($s > 9 ? 'risk-high' : ($s > 4 ? 'risk-medium' : 'risk-low'));
@@ -29,8 +29,8 @@ function scenarioLevelClass(int $s): string {
 .preview-label{color:var(--text-muted);font-weight:500}
 .preview-score{font-size:22px;font-weight:900;line-height:1}
 .preview-delta{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px}
-.delta-up{background:var(--danger-tint);color:var(--danger)}
-.delta-down{background:var(--success-subtle);color:var(--success)}
+.delta-up{background:#dc262618;color:var(--danger)}
+.delta-down{background:#d1fae5;color:var(--success)}
 .delta-neutral{background:var(--bg-secondary);color:var(--text-muted)}
 .multiplier-group{display:flex;flex-direction:column;gap:6px}
 .mult-row{display:flex;align-items:center;gap:12px}
@@ -100,10 +100,10 @@ function scenarioLevelClass(int $s): string {
               $selectedType = $_POST['scenario_type'] ?? 'stress';
               $typeMeta = [
                   'base'          => ['label'=>'Base',         'icon'=>'bi-circle-fill',          'color'=>'#71717a','bg'=>'#f4f4f5'],
-                  'stress'        => ['label'=>'Stress',       'icon'=>'bi-graph-up-arrow',        'color'=>'var(--danger)','bg'=>'var(--danger-subtle)'],
-                  'optimistic'    => ['label'=>'Optimistic',   'icon'=>'bi-graph-down-arrow',      'color'=>'var(--primary)','bg'=>'var(--success-subtle)'],
+                  'stress'        => ['label'=>'Stress',       'icon'=>'bi-graph-up-arrow',        'color'=>'#dc2626','bg'=>'#fef2f2'],
+                  'optimistic'    => ['label'=>'Optimistic',   'icon'=>'bi-graph-down-arrow',      'color'=>'#16a34a','bg'=>'#f0fdf4'],
                   'catastrophic'  => ['label'=>'Catastrophic', 'icon'=>'bi-exclamation-octagon-fill','color'=>'#111111','bg'=>'#f9fafb'],
-                  'regulatory'    => ['label'=>'Regulatory',   'icon'=>'bi-bank',                  'color'=>'var(--moderate)','bg'=>'var(--info-subtle)'],
+                  'regulatory'    => ['label'=>'Regulatory',   'icon'=>'bi-bank',                  'color'=>'#2563eb','bg'=>'#eff6ff'],
               ];
               foreach ($typeMeta as $val => $meta):
                   $checked = ($selectedType === $val) ? 'checked' : '';
@@ -271,7 +271,7 @@ function scenarioLevelClass(int $s): string {
             <tbody>
               <tr>
                 <td><strong>0.1–0.5</strong></td>
-                <td style="color:var(--primary)">Much less severe</td>
+                <td style="color:var(--success)">Much less severe</td>
                 <td>Controls highly effective</td>
               </tr>
               <tr>

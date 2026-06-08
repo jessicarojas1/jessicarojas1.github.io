@@ -1,4 +1,5 @@
 """Corrective & Preventive Action (CAPA) with 8D problem-solving structure."""
+
 from __future__ import annotations
 
 import enum
@@ -65,7 +66,9 @@ class Capa(Base, TimestampMixin, SoftDeleteMixin):
     d3_containment: Mapped[str | None] = mapped_column(Text, nullable=True)
     # D4 — Root cause
     d4_root_cause: Mapped[str | None] = mapped_column(Text, nullable=True)
-    root_cause_method: Mapped[str | None] = mapped_column(String(64), nullable=True)  # 5why/fishbone
+    root_cause_method: Mapped[str | None] = mapped_column(
+        String(64), nullable=True
+    )  # 5why/fishbone
     # D5 — Permanent corrective action (chosen)
     d5_corrective_action: Mapped[str | None] = mapped_column(Text, nullable=True)
     # D6 — Implement & validate

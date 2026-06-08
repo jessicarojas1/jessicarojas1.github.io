@@ -23,6 +23,8 @@
   function render(report) {
     current = report;
     renderScorecard(report);
+    renderReport(report);
+    renderAiFix(report);
     renderOverview(report);
     renderFindings(report);
     renderCompliance(report);
@@ -196,12 +198,14 @@
           <span class="sev-dot" style="background:${SEV_COLOR[f.severity]}"></span>
           <span class="finding-name">${esc(f.name)}${isSup ? ' <span class="badge bg-secondary">suppressed</span>' : ''}</span>
           <span class="badge sev-badge" style="background:${SEV_COLOR[f.severity]}">${f.severity}</span>
+          ${f.tainted ? '<span class="badge bg-warning text-dark" title="User input flows into this sink (data-flow taint)">tainted</span>' : ''}
           <span class="text-body-secondary small ms-auto d-none d-md-inline">${esc(f.source || 'heuristic')} · ${esc(f.cwe || '')}</span>
           <i class="bi bi-chevron-down finding-chev"></i>
         </div>
         <div class="finding-body d-none" id="finding-body-${i}">
           <div class="finding-loc"><i class="bi bi-file-earmark-code"></i> ${esc(f.file || '—')}${f.line ? ':' + f.line : ''}</div>
           ${f.snippet ? `<pre class="finding-snippet">${esc(f.snippet)}</pre>` : ''}
+          ${fixDiff(f)}
           <div class="finding-meta">
             <span><strong>Category:</strong> ${esc(CITADEL.frameworks.CATEGORIES[f.category] || f.category)}</span>
             <span><strong>Confidence:</strong> ${esc(f.confidence || 'n/a')}</span>
@@ -224,6 +228,19 @@
   function shownFinding(i) { return current && current._shown ? current._shown[i] : null; }
   function toggleSuppressedView() { showSuppressed = !showSuppressed; renderFindings(current); }
 
+  // Concrete suggested fix (red/green one-line diff) when remediate.js offers a
+  // safe mechanical rewrite for this finding; otherwise nothing (the textual
+  // remediation guidance below still renders).
+  function fixDiff(f) {
+    if (!(CITADEL.remediate && CITADEL.remediate.fix)) return '';
+    const fx = CITADEL.remediate.fix(f); if (!fx) return '';
+    return `<div class="finding-fixdiff">
+        <div class="fixdiff-title"><i class="bi bi-magic"></i> Suggested fix — ${esc(fx.title)}</div>
+        <pre class="fixdiff"><span class="diff-del">- ${esc(fx.original.trim())}</span>
+<span class="diff-add">+ ${esc(fx.replacement.trim())}</span></pre>
+      </div>`;
+  }
+
   function mappedControls(cat) {
     const m = CITADEL.frameworks.MAP[cat] || {};
     const keys = Object.keys(m).slice(0, 8);
@@ -236,11 +253,34 @@
   }
 
   /* ---------- Compliance ---------- */
+  // Set of implicated control IDs (leading token of each mapped control string).
+  function implicatedSet(p) {
+    const s = new Set();
+    p.controls.forEach(cc => s.add(String(cc.id).split(/\s+/)[0]));
+    return s;
+  }
+  // Full control catalog for a framework, with implicated controls highlighted.
+  function fullControlsHtml(p, idx) {
+    const cat = p.catalog;
+    if (!cat || !cat.families) return '';
+    const impl = implicatedSet(p);
+    const fams = cat.families.map(fam => {
+      const rows = (fam.controls || []).map(ctrl => {
+        const hit = impl.has(ctrl.id);
+        return `<li class="${hit ? 'ctrl-hit' : ''}"><code>${esc(ctrl.id)}</code> ${esc(ctrl.title)}${hit ? ' <i class="bi bi-exclamation-triangle-fill text-warning" title="implicated by a finding"></i>' : ''}</li>`;
+      }).join('');
+      return `<div class="ctrl-fam"><div class="ctrl-fam-name">${esc(fam.id)} — ${esc(fam.name)}</div><ul class="ctrl-full-list">${rows}</ul></div>`;
+    }).join('');
+    return `<div class="full-controls d-none" id="fwctrls-${idx}">
+      ${cat.note ? `<p class="small text-body-secondary mb-2"><i class="bi bi-info-circle"></i> ${esc(cat.note)}</p>` : ''}
+      ${fams}</div>`;
+  }
   function renderCompliance(r) {
-    const cards = r.posture.map(p => {
+    const cards = r.posture.map((p, idx) => {
       const statusClass = p.status === 'fail' ? 'status-fail' : p.status === 'partial' ? 'status-partial' : 'status-pass';
       const statusTxt = p.findings === 0 ? 'No mapped findings' : p.status === 'fail' ? 'At Risk' : p.status === 'partial' ? 'Gaps Found' : 'OK';
       const ctrls = p.controls.slice(0, 6).map(cc => `<li><code>${esc(cc.id)}</code> <span class="text-body-secondary">×${cc.count}</span></li>`).join('');
+      const totalLbl = p.totalControls ? `${p.controlCount} of ${p.totalControls}` : `${p.controlCount}`;
       return `<div class="col-md-6 col-xl-4">
         <div class="card citadel-card compliance-card ${statusClass} h-100"><div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-1">
@@ -249,14 +289,15 @@
           </div>
           <div class="text-body-secondary small mb-2">${esc(p.version)} — ${esc(p.desc)}</div>
           <div class="compliance-status">${statusTxt}</div>
-          ${p.findings ? `<div class="small text-body-secondary mb-1">${p.findings} finding(s) · ${p.controlCount} control(s)</div>
+          ${p.findings ? `<div class="small text-body-secondary mb-1">${p.findings} finding(s) · ${totalLbl} control(s) implicated</div>
             <ul class="ctrl-list">${ctrls}${p.controls.length > 6 ? `<li class="text-body-secondary">+${p.controls.length - 6} more…</li>` : ''}</ul>` :
-            '<div class="text-success small"><i class="bi bi-check-circle"></i> No findings implicate this framework.</div>'}
+            `<div class="text-success small mb-1"><i class="bi bi-check-circle"></i> No findings implicate this framework.</div>`}
+          ${p.totalControls ? `<button class="btn btn-sm btn-link p-0 ctrl-expand" data-fwctrls="${idx}">View all ${p.totalControls} controls</button>${fullControlsHtml(p, idx)}` : ''}
         </div></div>
       </div>`;
     }).join('');
     $('tab-compliance').innerHTML = `
-      <p class="text-body-secondary">Each finding is cross-walked to the specific controls it implicates across <strong>${r.posture.length}</strong> frameworks. Status reflects the weighted severity of mapped findings.</p>
+      <p class="text-body-secondary">Each finding is cross-walked to the specific controls it implicates across <strong>${r.posture.length}</strong> frameworks (<strong>${CITADEL.frameworks.catalogTotal()}</strong> controls catalogued). Expand any framework to see its full control set with implicated controls flagged.</p>
       <div class="row g-3">${cards}</div>`;
   }
 
@@ -296,15 +337,20 @@
       </table></div>`;
   }
 
+  function licChipCls(l) { return l.tier === 'denied' ? 'bg-danger' : l.tier === 'review' ? 'bg-warning text-dark' : 'bg-success'; }
   function renderLicenses(r) {
     const lic = r.licenses;
     if (!lic || !lic.detected) return '';
-    const chip = (l) => `<span class="badge ${l.copyleft ? 'bg-warning text-dark' : 'bg-success'}" title="${esc(l.file)}">${esc(l.license)}</span>`;
+    const chip = (l) => `<span class="badge ${licChipCls(l)}" title="${esc(l.file)} · ${esc(l.tier || 'review')}">${esc(l.license)}</span>`;
+    const nd = (lic.denied || []).length, nr = (lic.review || []).length;
+    const verdict = nd ? `<span class="small text-danger ms-1">${nd} disallowed by policy</span>`
+      : nr ? `<span class="small text-warning ms-1">${nr} need review</span>`
+      : '<span class="small text-success ms-1">all policy-allowed</span>';
     return `<div class="card citadel-card mb-3"><div class="card-body py-2">
       <div class="d-flex flex-wrap gap-2 align-items-center">
-        <strong class="small"><i class="bi bi-card-checklist"></i> Licenses:</strong>
+        <strong class="small"><i class="bi bi-card-checklist"></i> License policy:</strong>
         ${lic.all.map(chip).join(' ')}
-        ${lic.copyleft.length ? `<span class="small text-warning ms-1">${lic.copyleft.length} copyleft — review distribution obligations</span>` : '<span class="small text-success ms-1">all permissive</span>'}
+        ${verdict}
       </div></div></div>`;
   }
 
@@ -383,6 +429,8 @@
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-sbom"><i class="bi bi-box-seam"></i><span>SBOM<br><small>CycloneDX 1.5</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-poam"><i class="bi bi-list-check"></i><span>POA&amp;M<br><small>CSV</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-ssp"><i class="bi bi-file-earmark-text"></i><span>Control appendix<br><small>SSP · Markdown</small></span></button></div>
+        <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-junit"><i class="bi bi-filetype-xml"></i><span>JUnit<br><small>CI test report</small></span></button></div>
+        <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-prcomment"><i class="bi bi-chat-left-text"></i><span>PR comment<br><small>Markdown</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-md"><i class="bi bi-filetype-md"></i><span>Summary<br><small>Markdown</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-pdf"><i class="bi bi-printer"></i><span>Printable<br><small>PDF / print</small></span></button></div>
       </div>
@@ -464,9 +512,187 @@
   function setAi(on) { aiOn = !!on; }
 
   /* ---------- History panel ---------- */
-  function renderHistory(targetId) {
+  // History tab: prefer durable server-side history (when the backend + DB are
+  // present), else the per-browser localStorage view.
+  async function renderHistory(targetId) {
     const el = $(targetId || 'tab-history');
     if (!el) return;
+    if (CITADEL.api && CITADEL.api.scansList) {
+      let data = null;
+      try { data = await CITADEL.api.scansList(200); } catch (e) {}
+      if (data && data.enabled) { renderServerHistory(el, data.scans || []); return; }
+    }
+    renderLocalHistory(el);
+  }
+
+  function gradeCls(g) { return 'grade-' + String(g || '?').toLowerCase(); }
+
+  // Tiny inline-SVG sparkline of numeric values (e.g. security score over time).
+  function sparkline(values, w, h) {
+    w = w || 130; h = h || 26; const pad = 3;
+    const vals = values.filter(v => typeof v === 'number');
+    if (vals.length < 2) return '';
+    const min = Math.min(...vals), max = Math.max(...vals), range = (max - min) || 1, n = vals.length;
+    const pts = vals.map((v, i) => {
+      const x = pad + (i / (n - 1)) * (w - 2 * pad);
+      const y = h - pad - ((v - min) / range) * (h - 2 * pad);
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    });
+    const last = vals[vals.length - 1];
+    const col = last >= 80 ? 'var(--bs-success,#16a34a)' : last >= 50 ? 'var(--bs-warning,#f59e0b)' : 'var(--bs-danger,#ef4444)';
+    const lp = pts[pts.length - 1].split(',');
+    return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
+      '<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + col + '" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + lp[0] + '" cy="' + lp[1] + '" r="2.4" fill="' + col + '"/></svg>';
+  }
+
+  let _histList = [];
+  let _baselineId = (function () { try { return localStorage.getItem('citadel.baseline') || null; } catch (e) { return null; } })();
+  function setBaseline(id) { _baselineId = id; try { id ? localStorage.setItem('citadel.baseline', id) : localStorage.removeItem('citadel.baseline'); } catch (e) {} }
+  function histRow(h) {
+    const isBase = _baselineId === h.id;
+    return `<tr>
+      <td class="text-nowrap small">${esc(new Date(h.ts).toLocaleString())}${isBase ? ' <span class="badge text-bg-warning">baseline</span>' : ''}</td>
+      <td class="small">${esc(h.source || '')}${h.user ? ' <span class="text-body-secondary">· ' + esc(h.user) + '</span>' : ''}</td>
+      <td><span class="badge grade-pill ${gradeCls(h.grade)}">${esc(h.grade)}</span></td>
+      <td>${h.security | 0}</td>
+      <td>${h.findings | 0}</td>
+      <td class="text-danger">${(h.critical | 0) + (h.high | 0)}</td>
+      <td class="text-end text-nowrap">
+        <button class="btn btn-sm btn-outline-primary py-0 px-1" data-open-scan="${esc(h.id)}" title="Open report"><i class="bi bi-box-arrow-up-right"></i></button>
+        ${(_baselineId && !isBase) ? `<button class="btn btn-sm btn-outline-info py-0 px-1" data-diff-scan="${esc(h.id)}" title="Compare to baseline"><i class="bi bi-arrow-left-right"></i></button>` : ''}
+        <button class="btn btn-sm ${isBase ? 'btn-warning' : 'btn-outline-secondary'} py-0 px-1" data-baseline-scan="${esc(h.id)}" title="${isBase ? 'Clear baseline' : 'Set as baseline for diffs'}"><i class="bi bi-flag${isBase ? '-fill' : ''}"></i></button>
+        <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-html-scan="${esc(h.id)}" title="Download HTML report"><i class="bi bi-filetype-html"></i></button>
+        <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-json-scan="${esc(h.id)}" title="Download JSON"><i class="bi bi-filetype-json"></i></button>
+        <button class="btn btn-sm btn-outline-danger py-0 px-1" data-del-scan="${esc(h.id)}" title="Delete"><i class="bi bi-trash"></i></button>
+      </td></tr>`;
+  }
+  // Finding-level diff between a baseline scan and another scan.
+  async function renderDiff(targetId) {
+    const panel = $('hist-diff'); if (!panel || !_baselineId) return;
+    panel.classList.remove('d-none');
+    panel.innerHTML = '<div class="small text-body-secondary py-2"><span class="spinner-border spinner-border-sm"></span> Comparing…</div>';
+    let base, cur;
+    try { [base, cur] = await Promise.all([CITADEL.api.scanGet(_baselineId), CITADEL.api.scanGet(targetId)]); }
+    catch (e) { panel.innerHTML = '<div class="text-danger small">Could not load scans to compare.</div>'; return; }
+    const key = f => (f.ruleId || '') + '::' + (f.file || '') + '::' + (f.line || 0);
+    const baseKeys = new Set((base.findings || []).map(key));
+    const curKeys = new Set((cur.findings || []).map(key));
+    const added = (cur.findings || []).filter(f => !baseKeys.has(key(f)));
+    const fixed = (base.findings || []).filter(f => !curKeys.has(key(f)));
+    const unchanged = (cur.findings || []).length - added.length;
+    const sevOrder = ['critical', 'high', 'medium', 'low', 'info'];
+    const srt = a => a.slice().sort((x, y) => sevOrder.indexOf(x.severity) - sevOrder.indexOf(y.severity));
+    const li = f => `<li><span class="badge sev-badge" style="background:${SEV_COLOR[f.severity] || '#6b7280'}">${esc(f.severity)}</span> ${esc(f.name)} <span class="text-body-secondary">· ${esc((f.file || '').split('/').pop())}${f.line ? ':' + f.line : ''}</span></li>`;
+    const baseScan = _histList.find(s => s.id === _baselineId);
+    panel.innerHTML = `
+      <div class="card citadel-card"><div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0"><i class="bi bi-arrow-left-right"></i> Diff vs baseline ${baseScan ? '<span class="text-body-secondary small">(' + esc(new Date(baseScan.ts).toLocaleDateString()) + ')</span>' : ''}</h6>
+          <button class="btn btn-sm btn-outline-secondary py-0 px-1" id="hist-diff-close" title="Close"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="d-flex gap-3 flex-wrap mb-2">
+          <span class="badge text-bg-danger">${added.length} new</span>
+          <span class="badge text-bg-success">${fixed.length} fixed</span>
+          <span class="badge text-bg-secondary">${unchanged} unchanged</span>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="fw-semibold small text-danger mb-1">New findings (regressions)</div>
+            <ul class="diff-list small">${added.length ? srt(added).slice(0, 100).map(li).join('') : '<li class="text-body-secondary">None — no new findings 🎉</li>'}</ul>
+          </div>
+          <div class="col-md-6">
+            <div class="fw-semibold small text-success mb-1">Fixed since baseline</div>
+            <ul class="diff-list small">${fixed.length ? srt(fixed).slice(0, 100).map(li).join('') : '<li class="text-body-secondary">None</li>'}</ul>
+          </div>
+        </div>
+      </div></div>`;
+  }
+  function renderHistRows(q) {
+    const tb = $('hist-tbody'); if (!tb) return;
+    q = (q || '').toLowerCase().trim();
+    const rows = _histList.filter(h => !q ||
+      (h.source || '').toLowerCase().includes(q) || (h.grade || '').toLowerCase().includes(q) ||
+      new Date(h.ts).toLocaleString().toLowerCase().includes(q));
+    tb.innerHTML = rows.length ? rows.map(histRow).join('') : '<tr><td colspan="7" class="text-center text-body-secondary py-3">No matches.</td></tr>';
+  }
+  function exportHistCsv() {
+    const cols = ['ts', 'source', 'grade', 'security', 'quality', 'findings', 'critical', 'high', 'files', 'user'];
+    const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const csv = cols.join(',') + '\r\n' + _histList.map(h => cols.map(c => q(h[c])).join(',')).join('\r\n');
+    download('citadel-scan-history-' + new Date().toISOString().slice(0, 10) + '.csv', csv, 'text/csv');
+  }
+  function renderServerHistory(el, list) {
+    _histList = list || [];
+    if (!_histList.length) {
+      el.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>No scans recorded yet. Every scan you run is saved here and can be re-opened or downloaded at any time.</p></div>';
+      return;
+    }
+    const chrono = _histList.slice().reverse();              // oldest → newest for the trend
+    const secs = chrono.map(s => s.security | 0);
+    const avg = Math.round(secs.reduce((a, b) => a + b, 0) / secs.length);
+    const spark = sparkline(secs);
+    el.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <p class="text-body-secondary mb-0">${_histList.length} scan(s) saved — open or download any anytime.</p>
+          ${spark ? `<span class="d-inline-flex align-items-center gap-2 small text-body-secondary" title="Security-score trend (oldest → newest)">${spark}<span>avg ${avg}</span></span>` : ''}
+        </div>
+        <div class="d-flex gap-2">
+          <input type="search" class="form-control form-control-sm" id="hist-search" placeholder="Filter scans…" style="max-width:200px" aria-label="Filter scans">
+          <button class="btn btn-sm btn-outline-secondary" id="hist-csv" title="Export history as CSV"><i class="bi bi-filetype-csv"></i> CSV</button>
+          <button class="btn btn-sm btn-outline-secondary" id="hist-refresh" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
+        </div>
+      </div>
+      ${_baselineId ? '<div class="small text-body-secondary mb-2"><i class="bi bi-flag-fill text-warning"></i> A baseline is set — use the <i class="bi bi-arrow-left-right"></i> button on any scan to see what\'s <span class="text-danger">new</span> or <span class="text-success">fixed</span> since then.</div>' : '<div class="small text-body-secondary mb-2"><i class="bi bi-flag"></i> Tip: flag a scan as <strong>baseline</strong>, then diff later scans against it to catch regressions.</div>'}
+      <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
+        <thead><tr><th>When</th><th>Source</th><th>Grade</th><th>Security</th><th>Findings</th><th>Crit+High</th><th class="text-end">Actions</th></tr></thead>
+        <tbody id="hist-tbody"></tbody></table></div>
+      <div id="hist-diff" class="mt-3 d-none"></div>`;
+    renderHistRows('');
+    wireServerHistory(el);
+  }
+
+  function wireServerHistory(el) {
+    if (el.dataset.wiredHist) return;
+    el.dataset.wiredHist = '1';
+    el.addEventListener('input', (e) => { if (e.target.id === 'hist-search') renderHistRows(e.target.value); });
+    el.addEventListener('click', async (e) => {
+      const refresh = e.target.closest('#hist-refresh');
+      if (refresh) { renderHistory('tab-history'); return; }
+      if (e.target.closest('#hist-csv')) { exportHistCsv(); return; }
+      if (e.target.closest('#hist-diff-close')) { const p = $('hist-diff'); if (p) { p.classList.add('d-none'); p.innerHTML = ''; } return; }
+      const base = e.target.closest('[data-baseline-scan]');
+      if (base) { const id = base.getAttribute('data-baseline-scan'); setBaseline(_baselineId === id ? null : id); renderHistory('tab-history'); return; }
+      const diff = e.target.closest('[data-diff-scan]');
+      if (diff) { renderDiff(diff.getAttribute('data-diff-scan')); const p = $('hist-diff'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return; }
+      const open = e.target.closest('[data-open-scan]');
+      const html = e.target.closest('[data-html-scan]');
+      const json = e.target.closest('[data-json-scan]');
+      const del = e.target.closest('[data-del-scan]');
+      try {
+        if (open) {
+          const r = await CITADEL.api.scanGet(open.getAttribute('data-open-scan'));
+          render(r);
+          const results = $('results'); if (results) results.classList.remove('d-none');
+          const tabBtn = document.querySelector('.tab-btn[data-tab="tab-report"]'); if (tabBtn) tabBtn.click();
+          if (results) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (html) {
+          const r = await CITADEL.api.scanGet(html.getAttribute('data-html-scan'));
+          render(r); downloadHtmlReport(r);
+        } else if (json) {
+          const r = await CITADEL.api.scanGet(json.getAttribute('data-json-scan'));
+          download('citadel-report-' + (r.meta && r.meta.scannedAt || 'scan') + '.json', JSON.stringify(r, null, 2), 'application/json');
+        } else if (del) {
+          if (!window.confirm('Delete this saved scan?')) return;
+          await CITADEL.api.scanDelete(del.getAttribute('data-del-scan'));
+          renderHistory('tab-history');
+        }
+      } catch (ex) { window.alert(ex && ex.message ? ex.message : 'Action failed.'); }
+    });
+  }
+
+  function renderLocalHistory(el) {
     const hist = CITADEL.history.list();
     if (!hist.length) { el.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>No scan history yet. Each scan you run is recorded here (locally) so you can track trend and compare runs.</p></div>'; return; }
     const opts = hist.map(h => `<option value="${h.id}">${esc(h.label)} — ${h.grade} (${h.security})</option>`).join('');
@@ -518,10 +744,237 @@
     </div><p class="small text-body-secondary mt-2">Delta = "${esc(cmp.a.label)}" minus "${esc(cmp.b.label)}". Green = improvement.</p>`;
   }
 
+  /* ---------- Consolidated Report tab ---------- */
+  function verdictOf(r) {
+    const s = r.scoring.sev;
+    if (s.critical > 0) return { label: 'NOT READY FOR AUTHORIZATION', cls: 'text-danger' };
+    if (s.high > 0) return { label: 'CONDITIONAL — remediate high-severity items', cls: 'text-warning' };
+    if (r.scoring.security >= 85) return { label: 'STRONG POSTURE', cls: 'text-success' };
+    return { label: 'MODERATE — review medium findings', cls: 'text-warning' };
+  }
+  function cveList(r) {
+    return r.findings.filter(f => f.source === 'osv' || ((f.source === 'trivy' || f.source === 'grype') && f.category === 'deps'));
+  }
+  function renderReport(r) {
+    const s = r.scoring, v = verdictOf(r);
+    const sorted = r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
+    const cves = cveList(r);
+    const sevRow = SEV_ORDER.map(k => `<span class="rep-sev"><span class="dot" style="background:${SEV_COLOR[k]}"></span>${c(k)}: <strong>${s.sev[k] || 0}</strong></span>`).join('');
+    const topFindings = sorted.slice(0, 12).map(f => `<tr>
+        <td><span class="badge sev-badge" style="background:${SEV_COLOR[f.severity]}">${f.severity}</span></td>
+        <td>${esc(f.name)}</td><td class="text-body-secondary">${esc(f.cwe || '')}</td>
+        <td><code>${esc((f.file || '').split('/').pop())}${f.line ? ':' + f.line : ''}</code></td>
+      </tr>`).join('');
+    const impacted = r.posture.filter(p => p.findings > 0);
+    const fwRows = impacted.map(p => `<tr>
+        <td>${esc(p.name)} <span class="text-body-secondary small">${esc(p.version)}</span></td>
+        <td><span class="badge ${p.status === 'fail' ? 'bg-danger' : p.status === 'partial' ? 'bg-warning text-dark' : 'bg-success'}">${p.status === 'fail' ? 'At Risk' : p.status === 'partial' ? 'Gaps' : 'OK'}</span></td>
+        <td class="text-center">${p.controlCount}${p.totalControls ? ' / ' + p.totalControls : ''}</td>
+        <td class="text-center">${p.findings}</td>
+      </tr>`).join('');
+    const lic = r.licenses;
+
+    $('tab-report').innerHTML = `
+      <div class="report-doc">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+          <div>
+            <h3 class="mb-1">Security &amp; Compliance Report</h3>
+            <div class="text-body-secondary small">
+              ${esc(new Date(r.meta.scannedAt).toLocaleString())} ·
+              ${r.meta.engine === 'deep' ? 'Deep scan (real scanners)' : 'Quick scan (heuristics + OSV)'} ·
+              ${r.meta.fileCount} files · ${r.quality.loc.toLocaleString()} LOC · ${esc(r.languages.primary)}
+              ${r.meta.source ? '· <code>' + esc(r.meta.source) + '</code>' : ''}
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-primary" id="dl-report"><i class="bi bi-download"></i> Download full report</button>
+            <button class="btn btn-sm btn-outline-primary" id="exp-pdf"><i class="bi bi-printer"></i> Print / PDF</button>
+          </div>
+        </div>
+
+        <div class="report-verdict ${v.cls}"><i class="bi bi-${s.sev.critical ? 'x-octagon-fill' : s.sev.high ? 'exclamation-triangle-fill' : 'check-circle-fill'}"></i> ${v.label}</div>
+
+        <div class="row g-3 my-1">
+          <div class="col-6 col-md-3"><div class="rep-metric"><div class="rep-val">${s.grade}</div><div class="rep-lbl">Security grade</div></div></div>
+          <div class="col-6 col-md-3"><div class="rep-metric"><div class="rep-val">${s.security}</div><div class="rep-lbl">Security / 100</div></div></div>
+          <div class="col-6 col-md-3"><div class="rep-metric"><div class="rep-val text-danger">${cves.length}</div><div class="rep-lbl">Known CVEs</div></div></div>
+          <div class="col-6 col-md-3"><div class="rep-metric"><div class="rep-val">${r.findings.length}</div><div class="rep-lbl">Total findings</div></div></div>
+        </div>
+
+        <h5 class="report-h">Vulnerabilities &amp; findings</h5>
+        <div class="rep-sevrow mb-2">${sevRow}</div>
+        ${cves.length ? `<p class="small"><i class="bi bi-shield-exclamation text-danger"></i> <strong>${cves.length}</strong> known vulnerabilit${cves.length === 1 ? 'y' : 'ies'} matched against live advisories (${cves.filter(f => f.severity === 'critical').length} critical, ${cves.filter(f => f.severity === 'high').length} high).</p>` : '<p class="small text-success"><i class="bi bi-check-circle"></i> No known CVEs matched in dependencies.</p>'}
+        ${sorted.length ? `<div class="table-responsive"><table class="table table-sm citadel-table"><thead><tr><th>Sev</th><th>Issue</th><th>CWE</th><th>Location</th></tr></thead><tbody>${topFindings}</tbody></table></div>
+          ${sorted.length > 12 ? `<p class="small text-body-secondary">Showing top 12 of ${sorted.length}. Full list in the <strong>Findings</strong> tab; AI fix instructions in <strong>AI Fix Prompt</strong>.</p>` : ''}` : '<p class="text-success">No findings.</p>'}
+
+        ${hotspotsHtml(r)}
+
+        <h5 class="report-h">Compliance posture</h5>
+        ${impacted.length ? `<div class="table-responsive"><table class="table table-sm citadel-table"><thead><tr><th>Framework</th><th>Status</th><th class="text-center">Controls hit / total</th><th class="text-center">Findings</th></tr></thead><tbody>${fwRows}</tbody></table></div>` : '<p class="text-success">No findings implicate any framework control.</p>'}
+
+        <h5 class="report-h">Dependencies, licenses &amp; deployment</h5>
+        <ul class="report-list">
+          <li><strong>${r.sbom.components.length}</strong> dependencies across ${[...new Set(r.sbom.components.map(c => c.ecosystem))].length} ecosystem(s); <strong>${cves.length}</strong> with known CVEs.</li>
+          <li>Licenses: ${lic && lic.detected ? lic.all.map(l => `<span class="badge ${licChipCls(l)}">${esc(l.license)}</span>`).join(' ') + ((lic.denied || []).length ? ` — ${lic.denied.length} disallowed by policy` : (lic.review || []).length ? ` — ${lic.review.length} need review` : '') : 'none detected'}.</li>
+          <li>Deployment: ${r.deployment.length ? esc(r.deployment.map(d => d.tech).join(', ')) : 'no IaC/CI detected'}.</li>
+          <li>Maintainability index: <strong>${r.quality.maintainability}/100</strong> (${r.quality.commentRatio}% comments).</li>
+        </ul>
+
+        <div class="report-cta"><i class="bi bi-robot"></i> Want an AI to fix these? The <strong>AI Fix Prompt</strong> tab gives you exact, copy-paste wording listing every issue for Claude or any coding assistant.</div>
+      </div>`;
+  }
+
+  /* ---------- AI fix prompt ---------- */
+  function buildFixPrompt(r) {
+    const s = r.scoring;
+    const sorted = r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
+    let p = '';
+    p += `You are a senior application-security engineer. Fix ALL of the security and compliance issues listed below in this codebase. For each issue, apply a minimal, correct fix that preserves existing behavior, follows the language's secure-coding best practices, and does not introduce new vulnerabilities. Work in priority order: CRITICAL first, then HIGH, MEDIUM, and LOW.\n\n`;
+    p += `Project context: ${r.meta.fileCount} files, primary language ${r.languages.primary}`;
+    if (r.languages.languages.length > 1) p += ` (also ${r.languages.languages.slice(1, 5).map(l => l.lang).join(', ')})`;
+    p += `. Current security grade ${s.grade} (${s.security}/100). `;
+    p += `${r.findings.length} issues: ${s.sev.critical} critical, ${s.sev.high} high, ${s.sev.medium} medium, ${s.sev.low} low.\n\n`;
+    p += `For each fix: (1) show the file and a unified diff or before/after snippet, (2) briefly explain why it resolves the weakness, (3) note any follow-up (rotate a leaked secret, upgrade a dependency, add a test). After all fixes, summarize residual risk and recommend a re-scan.\n\n`;
+    p += `=== ISSUES (${r.findings.length}) ===\n`;
+    let lastSev = '';
+    sorted.forEach((f, i) => {
+      if (f.severity !== lastSev) { p += `\n--- ${f.severity.toUpperCase()} ---\n`; lastSev = f.severity; }
+      p += `\n${i + 1}. ${f.name}${f.cwe ? ' [' + f.cwe + ']' : ''}\n`;
+      p += `   Location: ${f.file || 'n/a'}${f.line ? ':' + f.line : ''}\n`;
+      if (f.snippet) p += `   Flagged code: ${String(f.snippet).slice(0, 200)}\n`;
+      p += `   Category: ${CITADEL.frameworks.CATEGORIES[f.category] || f.category}\n`;
+      p += `   Required fix: ${f.remediation || 'Remediate per secure-coding guidance.'}\n`;
+      const m = CITADEL.frameworks.MAP[f.category] || {};
+      const refs = Object.keys(m).slice(0, 4).map(k => {
+        const fw = CITADEL.frameworks.CATALOG.find(x => x.id === k);
+        return (fw ? fw.name : k) + ' ' + m[k][0];
+      });
+      if (refs.length) p += `   Compliance: ${refs.join('; ')}\n`;
+    });
+    p += `\n=== END ISSUES ===\n`;
+    p += `\nApply every fix above. Do not skip low-severity items. If a fix requires a decision (e.g. which library to adopt), state the options and pick the most secure sensible default.\n`;
+    return p;
+  }
+  function renderAiFix(r) {
+    const prompt = buildFixPrompt(r);
+    $('tab-aifix').innerHTML = `
+      <p class="text-body-secondary">Copy this prompt into <strong>Claude</strong> (or any coding assistant) alongside your code — it enumerates <strong>every</strong> finding with its location, the required fix, and the compliance controls it affects, and instructs the AI to fix them all in priority order.</p>
+      <div class="d-flex flex-wrap gap-2 mb-2">
+        <button class="btn btn-sm btn-primary" id="copy-aifix"><i class="bi bi-clipboard"></i> Copy prompt</button>
+        <button class="btn btn-sm btn-outline-primary" id="dl-aifix"><i class="bi bi-download"></i> Download .txt</button>
+        ${aiOn ? '<span class="badge align-self-center" style="background:#10b981">Backend AI is on — use the per-finding “Explain &amp; fix” in Findings for inline help</span>' : ''}
+      </div>
+      <textarea id="aifix-text" class="form-control aifix-box" rows="22" readonly>${esc(prompt)}</textarea>`;
+  }
+  function copyAiFix() {
+    const t = $('aifix-text'); if (!t) return;
+    t.select(); t.setSelectionRange(0, t.value.length);
+    try { navigator.clipboard.writeText(t.value); } catch (e) { try { document.execCommand('copy'); } catch (e2) {} }
+    const b = $('copy-aifix'); if (b) { const o = b.innerHTML; b.innerHTML = '<i class="bi bi-check2"></i> Copied'; setTimeout(() => { b.innerHTML = o; }, 1500); }
+  }
+  function downloadAiFix() { download('citadel-ai-fix-prompt.txt', current ? buildFixPrompt(current) : '', 'text/plain'); }
+
+  /* ---------- Full standalone HTML report download ---------- */
+  function downloadHtmlReport(r) {
+    const tmp = document.getElementById('tab-report');
+    const body = tmp ? tmp.innerHTML.replace(/<button[\s\S]*?<\/button>/g, '') : '';
+    const brand = (CITADEL.branding ? CITADEL.branding.get() : { orgName: 'CITADEL', logoUrl: '', accent: '' });
+    const org = esc(brand.orgName || 'CITADEL');
+    const accent = /^#[0-9a-fA-F]{3,8}$/.test(brand.accent || '') ? brand.accent : '#0ea5e9';
+    const logo = (brand.logoUrl && /^(https?:|data:image\/)/i.test(brand.logoUrl))
+      ? `<img src="${esc(brand.logoUrl)}" alt="${org} logo" style="height:40px;width:auto;vertical-align:middle;margin-right:.6rem">` : '';
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${org} Report — ${esc(r.meta.scannedAt)}</title>
+<style>body{font-family:system-ui,Segoe UI,Roboto,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1f2937;line-height:1.5}
+h3{margin:0 0 .3rem}h5{margin:1.6rem 0 .5rem;border-bottom:2px solid ${accent};padding-bottom:.2rem}
+table{border-collapse:collapse;width:100%;font-size:.85rem;margin:.5rem 0}th,td{border:1px solid #e5e7eb;padding:.35rem .5rem;text-align:left}
+th{background:#f3f4f6}code{background:#f3f4f6;padding:.05rem .3rem;border-radius:3px;font-size:.85em}
+.badge{display:inline-block;padding:.15rem .4rem;border-radius:4px;color:#fff;font-size:.72rem}
+.bg-danger{background:#dc3545}.bg-warning{background:#ffc107;color:#000}.bg-success{background:#16a34a}.sev-badge{text-transform:uppercase}
+.report-verdict{font-weight:700;font-size:1.05rem;margin:.6rem 0;padding:.6rem .8rem;border-radius:8px;background:#f3f4f6}
+.text-danger{color:#dc3545}.text-warning{color:#b45309}.text-success{color:#16a34a}.text-body-secondary,.small{color:#6b7280}
+.rep-metric{border:1px solid #e5e7eb;border-radius:8px;padding:.6rem;text-align:center;display:inline-block;min-width:120px;margin:.2rem}
+.rep-val{font-size:1.6rem;font-weight:700}.rep-lbl{font-size:.72rem;color:#6b7280}.rep-sev{margin-right:1rem}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:3px}
+.report-cta{margin-top:1.2rem;padding:.7rem .9rem;border-left:3px solid #10b981;background:#ecfdf5;border-radius:0 8px 8px 0;font-size:.9rem}
+.rep-brand{display:flex;align-items:center;border-bottom:3px solid ${accent};padding-bottom:.6rem;margin-bottom:1rem}
+.rep-brand h1{font-size:1.4rem;margin:0}
+ul{padding-left:1.1rem}</style></head>
+<body><div class="rep-brand">${logo}<h1>${org} <span style="font-weight:400;color:#6b7280;font-size:1rem">— Security &amp; Compliance Report</span></h1></div>
+<div class="report-doc">${body}</div>
+<hr><p class="small">Generated by ${org} (powered by CITADEL) — heuristic + scanner analysis for triage &amp; education. Verify findings before acting.</p>
+</body></html>`;
+    download('citadel-report.html', html, 'text/html');
+  }
+
+  function setAi(on) { aiOn = !!on; }
+
+  /* ---------- Risk hotspots (riskiest files) ---------- */
+  const RISK_W = { critical: 25, high: 10, medium: 4, low: 1, info: 0 };
+  function hotspots(r) {
+    const by = {};
+    r.findings.forEach(f => {
+      const file = (f.file || 'unknown').replace(/^.*!\//, '');
+      const h = by[file] || (by[file] = { file, score: 0, n: 0, critical: 0, high: 0 });
+      h.score += RISK_W[f.severity] || 0; h.n++;
+      if (f.severity === 'critical') h.critical++; if (f.severity === 'high') h.high++;
+    });
+    return Object.values(by).sort((a, b) => b.score - a.score || b.n - a.n).slice(0, 10);
+  }
+  function hotspotsHtml(r) {
+    const hs = hotspots(r);
+    if (!hs.length) return '';
+    const max = hs[0].score || 1;
+    const rows = hs.map(h => `<div class="hotspot">
+      <div class="hotspot-bar-wrap"><div class="hotspot-bar" style="width:${Math.max(6, Math.round(h.score / max * 100))}%"></div></div>
+      <div class="hotspot-meta"><code>${esc(h.file)}</code><span class="text-body-secondary small">${h.n} finding(s)${h.critical ? ' · ' + h.critical + ' critical' : ''}${h.high ? ' · ' + h.high + ' high' : ''} · risk ${h.score}</span></div>
+    </div>`).join('');
+    return `<h5 class="report-h">Risk hotspots</h5>
+      <p class="small text-body-secondary">Files ranked by weighted risk (critical×25, high×10, medium×4, low×1) — fix these first.</p>
+      <div class="hotspots">${rows}</div>`;
+  }
+
+  /* ---------- CI exporters: JUnit XML + PR-comment Markdown ---------- */
+  function xmlEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function exportJUnit() {
+    const r = current;
+    const sorted = r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
+    const fails = sorted.filter(f => ['critical', 'high', 'medium'].includes(f.severity)).length;
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += `<testsuites name="CITADEL" tests="${sorted.length}" failures="${fails}">\n`;
+    xml += `  <testsuite name="security-compliance" tests="${sorted.length}" failures="${fails}" timestamp="${xmlEsc(r.meta.scannedAt)}">\n`;
+    sorted.forEach(f => {
+      const cls = (f.category || 'finding');
+      const nm = `${f.severity.toUpperCase()}: ${f.name}${f.cwe ? ' (' + f.cwe + ')' : ''} @ ${(f.file || '')}${f.line ? ':' + f.line : ''}`;
+      const fail = ['critical', 'high', 'medium'].includes(f.severity);
+      xml += `    <testcase classname="${xmlEsc(cls)}" name="${xmlEsc(nm)}">`;
+      if (fail) {
+        xml += `\n      <failure type="${xmlEsc(f.severity)}" message="${xmlEsc(f.name)}">${xmlEsc((f.snippet ? f.snippet + '\n' : '') + 'Fix: ' + (f.remediation || ''))}</failure>\n    `;
+      }
+      xml += `</testcase>\n`;
+    });
+    xml += '  </testsuite>\n</testsuites>\n';
+    download('citadel-junit.xml', xml, 'application/xml');
+  }
+  function exportPrComment() {
+    const r = current, s = r.scoring;
+    const cves = cveList(r);
+    let md = `## 🛡️ CITADEL Security & Compliance Report\n\n`;
+    md += `**Grade ${s.grade}** · Security ${s.security}/100 · ${r.findings.length} findings · ${cves.length} known CVEs\n\n`;
+    md += `| Severity | Count |\n|---|---|\n`;
+    SEV_ORDER.forEach(k => { if (s.sev[k]) md += `| ${c(k)} | ${s.sev[k]} |\n`; });
+    const top = r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity)).slice(0, 15);
+    md += `\n<details><summary>Top ${top.length} findings</summary>\n\n`;
+    top.forEach(f => { md += `- **[${f.severity.toUpperCase()}]** ${f.name} ${f.cwe ? '(' + f.cwe + ')' : ''} — \`${(f.file || '').split('/').pop()}${f.line ? ':' + f.line : ''}\`\n`; });
+    md += `\n</details>\n\n`;
+    const hit = r.posture.filter(p => p.findings > 0).slice(0, 6).map(p => p.name).join(', ');
+    md += `**Frameworks impacted:** ${hit || 'none'}.\n\n`;
+    md += `_Generated by CITADEL · ${s.sev.critical ? '🔴 blocking — critical issues present' : s.sev.high ? '🟠 review required' : '🟢 no blocking issues'}_\n`;
+    download('citadel-pr-comment.md', md, 'text/markdown');
+  }
+
   CITADEL.report = {
-    render, renderHistory, renderCompare, renderFindings, setAi,
-    shownFinding, toggleSuppressedView,
-    exportJson, exportSbom, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp,
+    render, renderHistory, renderCompare, renderFindings, renderReport, renderAiFix, setAi, sparkline,
+    shownFinding, toggleSuppressedView, copyAiFix, downloadAiFix, downloadHtmlReport,
+    exportJson, exportSbom, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp, exportJUnit, exportPrComment,
     get current() { return current; }
   };
 })(window);

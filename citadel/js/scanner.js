@@ -33,17 +33,92 @@
       let m, hits = 0;
       while ((m = re.exec(content)) !== null && hits < 50) {
         hits++;
-        // Skip matches inside obvious comment lines for noisy quality rules
-        findings.push({
+        const ls = content.lastIndexOf('\n', m.index) + 1;
+        let le = content.indexOf('\n', m.index); if (le === -1) le = content.length;
+        const fullLine = content.slice(ls, le);
+        // Skip matches that sit on a fully-commented line (commented-out code is
+        // not a live vulnerability) — except secrets and PII, which leak even in comments.
+        if (rule.category !== 'secrets' && rule.category !== 'privacy' && COMMENT_RE.test(fullLine)) {
+          if (m.index === re.lastIndex) re.lastIndex++; continue;
+        }
+        const f = {
           ruleId: rule.id, name: rule.name, category: rule.category,
           severity: rule.severity, cwe: rule.cwe, confidence: rule.confidence,
           file: path, line: lineOf(content, m.index), snippet: snippetAt(content, m.index),
-          remediation: rule.remediation
-        });
+          remediation: rule.remediation,
+          // Internal hint: taint-gated rules only survive if the matched sink
+          // carries a user-tainted variable (set by markTaint). Stripped there.
+          _requireTaint: !!rule.requireTaint
+        };
+        // Carry the full (untrimmed) source line + match column when it's short
+        // enough to drive an exact, safe auto-fix region (see remediate.js / SARIF).
+        if (fullLine.length <= 400) { f.lineText = fullLine; f.col = m.index - ls; }
+        findings.push(f);
         if (m.index === re.lastIndex) re.lastIndex++;
       }
     });
     return findings;
+  }
+
+  // Data-flow taint with intra-file propagation: variables assigned from a
+  // user-input source, then propagated across subsequent assignments (var2 =
+  // f(var1)) so a tainted value is tracked across statements (multi-hop).
+  const TAINT_SRC = /\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*[^;\n]{0,80}?(req\.(query|params|body|cookies|headers)|request\.(GET|POST|args|form|values|json)|\$_(GET|POST|REQUEST|COOKIE|FILES)|params\[|getParameter|getHeader|getCookies|getQueryString|nextElement\(\)|\.getValue\(\)|os\.environ|sys\.argv|process\.argv|input\(|fmt\.Scan|Console\.ReadLine|location\.(hash|search|href)|document\.(cookie|referrer))/;
+  const ASSIGN = /^[^=\n]{0,120}?\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*(.+)$/;
+  // Recognized neutralizers: output encoders, escapers, numeric/boolean coercion
+  // and allowlist checks. If a tainted value appears only inside one of these
+  // calls on the right-hand side, the assigned variable is treated as clean —
+  // this is sound (statement-local) sanitizer awareness, unlike guessing at
+  // control flow. Used to STOP taint propagation across a sanitizing assignment.
+  const SANITIZER_CALL = /\b(?:encodeFor[A-Za-z]+|esapi[A-Za-z.]*encoder|escapeHtml\w*|escapeXml\w*|escapeSql\w*|escapeJava\w*|escapeEcmaScript|forHtml\w*|forJavaScript|forUri\w*|forSql|parseInt|parseLong|parseShort|parseDouble|parseFloat|parseBoolean|toInt|toLong|Integer\.valueOf|Long\.valueOf|Pattern\.quote|htmlspecialchars|htmlentities|escapeshellarg|escapeshellcmd|mysqli_real_escape_string|pg_escape_string|DOMPurify\.sanitize|sanitizeHtml)\s*\([^;]*?\)/g;
+  function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function taintedVars(content) {
+    const set = new Set();
+    const lines = content.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].match(TAINT_SRC);
+      if (m && m[1]) set.add(m[1]);
+    }
+    if (!set.size) return set;
+    // Propagate up to 4 hops: var = <expr referencing a tainted var> → tainted,
+    // unless the tainted var only appears wrapped in a sanitizer call (then the
+    // assignment cleans it and taint does not flow forward).
+    for (let pass = 0; pass < 4; pass++) {
+      let grew = false;
+      for (let i = 0; i < lines.length; i++) {
+        const a = lines[i].match(ASSIGN);
+        if (!a || !a[1] || set.has(a[1])) continue;
+        const rhs = a[2];
+        const stripped = rhs.replace(SANITIZER_CALL, '');   // drop sanitized sub-exprs
+        for (const v of set) {
+          if (new RegExp('\\b' + escRe(v) + '\\b').test(stripped)) { set.add(a[1]); grew = true; break; }
+        }
+        if (set.size > 400) { grew = false; break; }
+      }
+      if (!grew) break;
+    }
+    return set;
+  }
+  // Marks findings whose snippet references a user-tainted variable, then drops
+  // taint-gated findings (rules with requireTaint) that never reached a tainted
+  // sink — this is what suppresses the "sanitized / literal-argument" safe
+  // variants the regex alone can't tell apart. Returns the surviving findings.
+  function markTaint(content, findings) {
+    if (!findings.length) return findings;
+    const arr = [...taintedVars(content)];
+    findings.forEach(f => {
+      if (!f.snippet || !arr.length) return;
+      for (const v of arr) {
+        if (new RegExp('\\b' + v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(f.snippet)) {
+          f.tainted = true;
+          if (f.confidence !== 'high') f.confidence = 'high';
+          break;
+        }
+      }
+    });
+    const kept = findings.filter(f => !(f._requireTaint && !f.tainted));
+    kept.forEach(f => { delete f._requireTaint; });
+    return kept;
   }
 
   function detectDeployment(entries) {
@@ -156,7 +231,8 @@
 
     for (const e of entries) {
       if (e.content) {
-        findings = findings.concat(runRules(e));
+        const fr = markTaint(e.content, runRules(e));
+        findings = findings.concat(fr);
         // secrets (entropy)
         CITADEL.secrets.scan(e.content, e.lang).forEach(s => findings.push(Object.assign({ file: e.path }, s)));
         // SBOM
@@ -188,13 +264,19 @@
     stage('Detecting deployment & IaC…');
     const deployment = detectDeployment(entries);
 
-    stage('Detecting licenses…');
+    stage('Checking license policy…');
     const licenses = detectLicenses(entries);
-    licenses.copyleft.forEach(l => findings.push({
-      ruleId: 'license-copyleft', name: 'Copyleft license: ' + l.license, category: 'supply-chain',
-      severity: 'low', cwe: 'CWE-1357', confidence: 'medium', file: l.file, line: 0,
+    licenses.denied.forEach(l => findings.push({
+      ruleId: 'license-denied', name: 'Disallowed license: ' + l.license, category: 'supply-chain',
+      severity: 'high', cwe: 'CWE-1357', confidence: 'medium', file: l.file, line: 0,
       snippet: l.license, source: 'heuristic',
-      remediation: 'Copyleft terms may impose source-disclosure obligations on distribution — confirm compatibility with your licensing policy.'
+      remediation: 'This license is on the policy deny-list (strong/network copyleft, e.g. GPL/AGPL/SSPL, or a restricted source-available license). It can impose source-disclosure or use restrictions incompatible with proprietary distribution — replace the component or obtain a written exception.'
+    }));
+    licenses.review.forEach(l => findings.push({
+      ruleId: 'license-review', name: 'License needs policy review: ' + l.license, category: 'supply-chain',
+      severity: 'low', cwe: 'CWE-1357', confidence: 'low', file: l.file, line: 0,
+      snippet: l.license, source: 'heuristic',
+      remediation: 'Weak-copyleft / reciprocal license — confirm compatibility with your licensing policy before distribution.'
     }));
 
     stage('Scoring & grading…');
@@ -210,49 +292,76 @@
     };
   }
 
-  const COPYLEFT = /\b(GPL|AGPL|LGPL|MPL|EPL|CDDL|EUPL|OSL|CECILL)\b/;
-  const PERMISSIVE = /\b(MIT|Apache(-2\.0)?|BSD(-2|-3)?|ISC|Unlicense|0BSD|Zlib|BSL)\b/;
-  function classifyLicense(text) {
+  /* License policy. Default tiers reflect a typical proprietary-distribution
+     policy. Override by setting CITADEL.licensePolicy = { deny:[...], review:[...] }
+     (substring/keyword match, case-insensitive) before scanning. */
+  function policy() { return (CITADEL.licensePolicy) || {}; }
+  function listHit(list, t) { return Array.isArray(list) && list.some(k => t.includes(String(k).toUpperCase())); }
+  // Return 'denied' | 'review' | 'allowed' | null for a license id/text.
+  function licenseTier(text) {
     const t = String(text).toUpperCase();
-    if (/\bAGPL|AFFERO/.test(t)) return { id: 'AGPL', copyleft: true };
-    if (/\bLGPL/.test(t)) return { id: 'LGPL', copyleft: true };
-    if (/\bGPL|GNU GENERAL PUBLIC/.test(t)) return { id: 'GPL', copyleft: true };
-    if (/\bMPL|MOZILLA PUBLIC/.test(t)) return { id: 'MPL', copyleft: true };
-    if (/\bEPL|ECLIPSE PUBLIC/.test(t)) return { id: 'EPL', copyleft: true };
-    if (/\bAPACHE/.test(t)) return { id: 'Apache-2.0', copyleft: false };
-    if (/\bMIT LICENSE|PERMISSION IS HEREBY GRANTED/.test(t)) return { id: 'MIT', copyleft: false };
-    if (/\bBSD/.test(t)) return { id: 'BSD', copyleft: false };
-    if (/\bISC LICENSE/.test(t)) return { id: 'ISC', copyleft: false };
+    const p = policy();
+    if (listHit(p.deny, t)) return 'denied';
+    if (listHit(p.review, t)) return 'review';
+    if (listHit(p.allow, t)) return 'allowed';
+    // Strong / network copyleft + restricted source-available → denied.
+    if (/\bAGPL|AFFERO|\bSSPL|\bBUSL|BUSINESS SOURCE|COMMONS CLAUSE|CC-?BY-?NC|CC-?BY-?ND/.test(t)) return 'denied';
+    if (/\bLGPL/.test(t)) return 'review';
+    if (/\bGPL|GNU GENERAL PUBLIC/.test(t)) return 'denied';
+    // Weak copyleft / reciprocal → review.
+    if (/\bMPL|MOZILLA|\bEPL|ECLIPSE|\bCDDL|\bEUPL|\bOSL|OPEN SOFTWARE|CECILL|MS-?RL|RECIPROCAL/.test(t)) return 'review';
+    // Permissive → allowed.
+    if (/\bMIT|APACHE|\bBSD|\bISC|UNLICENSE|0BSD|ZLIB|BOOST|BSL-1|PERMISSION IS HEREBY GRANTED/.test(t)) return 'allowed';
     return null;
+  }
+  function licenseId(text) {
+    const t = String(text).toUpperCase();
+    if (/AGPL|AFFERO/.test(t)) return 'AGPL';   if (/\bSSPL/.test(t)) return 'SSPL';
+    if (/BUSL|BUSINESS SOURCE/.test(t)) return 'BUSL'; if (/COMMONS CLAUSE/.test(t)) return 'Commons-Clause';
+    if (/CC-?BY-?NC/.test(t)) return 'CC-BY-NC'; if (/CC-?BY-?ND/.test(t)) return 'CC-BY-ND';
+    if (/LGPL/.test(t)) return 'LGPL';          if (/\bGPL|GNU GENERAL PUBLIC/.test(t)) return 'GPL';
+    if (/MPL|MOZILLA/.test(t)) return 'MPL';    if (/EPL|ECLIPSE/.test(t)) return 'EPL';
+    if (/CDDL/.test(t)) return 'CDDL';          if (/EUPL/.test(t)) return 'EUPL';
+    if (/OSL|OPEN SOFTWARE/.test(t)) return 'OSL';
+    if (/APACHE/.test(t)) return 'Apache-2.0';  if (/MIT|PERMISSION IS HEREBY GRANTED/.test(t)) return 'MIT';
+    if (/\bBSD/.test(t)) return 'BSD';          if (/\bISC\b/.test(t)) return 'ISC';
+    return null;
+  }
+  function classifyLicense(text) {
+    const id = licenseId(text); if (!id) return null;
+    return { id, tier: licenseTier(id) || 'review' };
   }
   // Detect licenses from LICENSE/COPYING files and SPDX-License-Identifier tags.
   function detectLicenses(entries) {
-    const found = {};            // id -> { license, file, copyleft }
+    const found = {};            // id -> { license, file, tier }
     const spdxRe = /SPDX-License-Identifier:\s*([A-Za-z0-9.\-+ ]+)/;
     entries.forEach(e => {
       const base = e.path.split('/').pop().toLowerCase();
       const isLicenseFile = /^(license|licence|copying|unlicense)(\.|$)/.test(base);
-      if (e.content) {
-        if (isLicenseFile) {
-          const c = classifyLicense(e.content.slice(0, 4000));
-          if (c) found[c.id] = found[c.id] || { license: c.id, file: e.path, copyleft: c.copyleft };
-        }
-        const m = e.content.match(spdxRe);
-        if (m) {
-          const id = m[1].trim().split(/\s/)[0];
-          const copyleft = COPYLEFT.test(id);
-          if (PERMISSIVE.test(id) || copyleft) found[id] = found[id] || { license: id, file: e.path, copyleft };
-        }
+      if (!e.content) return;
+      if (isLicenseFile) {
+        const c = classifyLicense(e.content.slice(0, 4000));
+        if (c) found[c.id] = found[c.id] || { license: c.id, file: e.path, tier: c.tier };
+      }
+      const m = e.content.match(spdxRe);
+      if (m) {
+        const raw = m[1].trim().split(/\s/)[0];
+        const tier = licenseTier(raw);
+        if (tier) found[raw] = found[raw] || { license: raw, file: e.path, tier };
       }
     });
     const all = Object.values(found);
+    const byTier = t => all.filter(l => l.tier === t);
     return {
       all,
-      copyleft: all.filter(l => l.copyleft),
-      permissive: all.filter(l => !l.copyleft),
+      denied: byTier('denied'),
+      review: byTier('review'),
+      allowed: byTier('allowed'),
+      copyleft: all.filter(l => l.tier === 'denied' || l.tier === 'review'),   // backward-compat
+      permissive: byTier('allowed'),
       detected: all.length > 0
     };
   }
 
-  CITADEL.scanner = { scan, SEV_WEIGHT, grade, score, quality, languageStats, detectDeployment, detectLicenses };
+  CITADEL.scanner = { scan, SEV_WEIGHT, grade, score, quality, languageStats, detectDeployment, detectLicenses, licenseTier };
 })(window);

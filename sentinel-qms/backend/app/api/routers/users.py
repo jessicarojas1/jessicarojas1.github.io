@@ -1,24 +1,36 @@
 """User and role administration (Admin only)."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request, status
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import Pagination, pagination_params
+from app.api.deps import Pagination, get_current_user, pagination_params, require_page
 from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import ConflictError, NotFoundError
-from app.core.rbac import Permission, require_permission
 from app.core.security import hash_password
 from app.models.user import Role, User
-from app.schemas.auth import CurrentUser, RoleRead, UserCreate, UserRead, UserUpdate
+from app.schemas.auth import (
+    CurrentUser,
+    RoleRead,
+    UserCreate,
+    UserLookup,
+    UserRead,
+    UserUpdate,
+)
 from app.schemas.common import MessageOut, Page
 from app.services.crud import page_meta, request_context
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 ENTITY = "user"
+
+
+class PasswordReset(BaseModel):
+    password: str = Field(..., min_length=12, max_length=256)
 
 
 def _apply_roles(db: Session, user: User, role_names: list[str]) -> None:
@@ -33,7 +45,7 @@ def _apply_roles(db: Session, user: User, role_names: list[str]) -> None:
 @router.get("/roles", response_model=list[RoleRead])
 def list_roles(
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.USER_MANAGE)),
+    _: CurrentUser = Depends(require_page("roles", "view")),
 ) -> list[Role]:
     return db.execute(select(Role).order_by(Role.name)).scalars().all()
 
@@ -42,7 +54,7 @@ def list_roles(
 def list_users(
     db: Session = Depends(get_db),
     pagination: Pagination = Depends(pagination_params),
-    _: CurrentUser = Depends(require_permission(Permission.USER_MANAGE)),
+    _: CurrentUser = Depends(require_page("users", "view")),
 ) -> Page[UserRead]:
     base = select(User).order_by(User.id.desc())
     total = len(db.execute(select(User.id)).scalars().all())
@@ -55,7 +67,7 @@ def create_user(
     body: UserCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.USER_MANAGE)),
+    actor: CurrentUser = Depends(require_page("users", "edit")),
 ) -> User:
     email = body.email.lower()
     if db.execute(select(User).where(User.email == email)).scalar_one_or_none():
@@ -90,11 +102,24 @@ def create_user(
     return user
 
 
+@router.get("/lookup", response_model=list[UserLookup])
+def lookup_users(
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(get_current_user),
+) -> list[User]:
+    """Lightweight directory for resolving user IDs to display names.
+
+    Available to ANY authenticated user (not admin-gated) so non-admin pages can
+    render owner/assignee/approver names instead of raw numeric IDs.
+    """
+    return db.execute(select(User).order_by(User.full_name)).scalars().all()
+
+
 @router.get("/{user_id}", response_model=UserRead)
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.USER_MANAGE)),
+    _: CurrentUser = Depends(require_page("users", "view")),
 ) -> User:
     user = db.get(User, user_id)
     if user is None:
@@ -108,7 +133,7 @@ def update_user(
     body: UserUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.USER_MANAGE)),
+    actor: CurrentUser = Depends(require_page("users", "edit")),
 ) -> User:
     user = db.get(User, user_id)
     if user is None:
@@ -148,7 +173,7 @@ def deactivate_user(
     user_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.USER_MANAGE)),
+    actor: CurrentUser = Depends(require_page("users", "edit")),
 ) -> MessageOut:
     """Users are deactivated, never hard-deleted (retain audit linkage)."""
     user = db.get(User, user_id)
@@ -169,3 +194,30 @@ def deactivate_user(
     )
     db.commit()
     return MessageOut(detail=f"User {user_id} deactivated.")
+
+
+@router.post("/{user_id}/reset-password", response_model=MessageOut)
+def reset_password(
+    user_id: int,
+    body: PasswordReset,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_page("users", "edit")),
+) -> MessageOut:
+    """Admin-set a new password for a user (does not require the old one)."""
+    user = db.get(User, user_id)
+    if user is None:
+        raise NotFoundError(f"User {user_id} not found.")
+    user.hashed_password = hash_password(body.password)
+    user.updated_by = actor.id
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="reset_password",
+        entity_type=ENTITY,
+        entity_id=user.id,
+        **request_context(request),
+    )
+    db.commit()
+    return MessageOut(detail=f"Password reset for user {user_id}.")

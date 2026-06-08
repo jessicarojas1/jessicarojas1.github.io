@@ -9,7 +9,7 @@
 class ImportController {
 
     public function index(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.import');
         $pageTitle    = 'Bulk Import';
         $activeModule = 'bulk_import';
         $breadcrumbs  = [['Import', null]];
@@ -20,7 +20,7 @@ class ImportController {
     }
 
     public function upload(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.import');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
@@ -47,6 +47,13 @@ class ImportController {
         $mime  = $finfo->file($file['tmp_name']);
         if (!in_array($mime, ['text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel'], true)) {
             $_SESSION['flash_error'] = 'Invalid file content type. Only CSV files are accepted.';
+            header('Location: /import'); exit;
+        }
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime  = $finfo->file($file['tmp_name']);
+        if (!in_array($mime, ['text/plain', 'text/csv', 'application/csv', 'application/vnd.ms-excel'])) {
+            $_SESSION['flash_error'] = 'Invalid file type. Only CSV files are accepted.';
             header('Location: /import'); exit;
         }
 

@@ -121,6 +121,95 @@ calls `/api/scan` instead of analyzing locally.
 
 ---
 
+## Authentication & access control
+
+When the deep-scan backend is present, the SPA authenticates against it with
+**JWT sessions** and permission checks are enforced **server-side** — the
+browser store is only a fallback for static hosting (GitHub Pages).
+
+- **User store** — `lib/users.js`, a JSON file at `CITADEL_DATA_DIR` (default
+  under `CITADEL_TMP`). Passwords are **scrypt**-hashed with per-user salts. On
+  first run it seeds an admin and a JWT signing secret.
+- **Sessions** — `lib/jwt.js` issues compact **HS256** JWTs (12 h expiry)
+  signed with `CITADEL_JWT_SECRET`. The SPA sends `Authorization: Bearer <jwt>`.
+- **Enforcement** — page-level permissions (mirroring the client's catalog) are
+  checked on every protected route. `/api/scan` requires `analyze`,
+  `/api/scan-url` requires `deepscan`, `/api/explain` requires `tab-aifix`;
+  user-management and access-settings routes are admin-only. When the global
+  *enforce* toggle is **off** (default), scans are open; flip it on in the Admin
+  console once accounts are set up.
+
+| Route | Method | Auth |
+|---|---|---|
+| `/api/auth/login` | POST | public — returns `{ token, user }` |
+| `/api/auth/me` | GET | Bearer token |
+| `/api/auth/settings` | GET / PATCH | GET any · PATCH admin |
+| `/api/users` `…/:id` `…/:id/password` | GET/POST/PATCH/DELETE | admin |
+| `/api/scan` · `/api/scan-url` · `/api/explain` | POST | permission-gated when enforce is on |
+
+**Auth-related environment variables**
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `CITADEL_DATA_DIR` | `$CITADEL_TMP/citadel` | Where `users.json` + the JWT secret persist (file mode). Point at a persistent disk. |
+| `DATABASE_URL` | — | When set, users/sessions/revocations/audit/settings persist to **Postgres** (durable + shared across instances). Falls back to the file store when unset. Schema is created on boot; a manual reference lives at `citadel/database/schema.sql`. |
+| `PGSSL` / `PGSSL_VERIFY` / `PGSSL_CA` | auto / off / — | TLS to Postgres. TLS auto-enables for managed providers; certificate **verification is opt-in** via `PGSSL_VERIFY=1` or by supplying the provider CA in `PGSSL_CA` (PEM string or path). Default is permissive (`rejectUnauthorized:false`) so managed chains keep working. |
+| `REDIS_TLS_VERIFY` / `REDIS_TLS_CA` | off / — | Same opt-in TLS verification for a `rediss://` `REDIS_URL`. |
+| `CITADEL_ALLOW_OPEN` | — | Set `1` to silence the startup warning that fires when auth **enforcement is off** on a production-looking deploy (the API is open to anyone in that state — enable enforcement for real multi-user use). |
+| `CITADEL_JWT_SECRET` | random (or seeded into the store) | HS256 signing key. Set a stable one so sessions survive restarts. |
+| `CITADEL_ACCESS_TTL` / `CITADEL_REFRESH_TTL` | `1800` / `2592000` | Access-token (30 m) and refresh-token (30 d) lifetimes, in seconds. |
+| `CITADEL_ADMIN_EMAIL` / `CITADEL_ADMIN_PASSWORD` | `admin@citadel.local` / `citadel-admin` | First-boot admin. The default password is flagged **must-change**; change it on first login. |
+| `CITADEL_AUDIT_SINK_URL` / `CITADEL_AUDIT_SINK_TOKEN` | — | Forward every audit event to an HTTP collector (Splunk HEC / SIEM webhook). |
+| `CITADEL_NOTIFY_URL` / `CITADEL_NOTIFY_TOKEN` / `CITADEL_NOTIFY_ON` | After each scan whose worst severity meets `CITADEL_NOTIFY_ON` (critical\|high\|medium\|low\|any, default critical), POST a Slack-compatible summary to the webhook. |
+| `REDIS_URL` | — | When set, rate limiting + brute-force lockout use **Redis** (shared across instances for horizontal scaling). Falls back to an in-memory limiter when unset. |
+| `CITADEL_SCAN_TIMEOUT_MS` | `30000` | Wall-clock deadline for the heuristic SAST pass. On `/api/scan` and `/api/scan-url` it runs in an **isolated worker thread** that is terminated if it exceeds this — a defense against catastrophic-backtracking (ReDoS) inputs. On timeout the scan still completes with the external-scanner findings and a `meta.warnings` note. |
+| `CITADEL_SCAN_ISOLATION` | `0` | Set `1` to force worker isolation for the heuristic pass everywhere (the server already isolates upload/URL scans regardless). |
+
+**Observability.** Logs are structured JSON lines; Prometheus metrics are at
+`GET /metrics`. **Tracing** is optional OpenTelemetry: set
+`OTEL_EXPORTER_OTLP_ENDPOINT` (export to Jaeger/Tempo/Datadog/Honeycomb) or
+`CITADEL_TRACING=console` for local debug. The OTel packages are optional and
+omitted from the default image — build the container with
+`--build-arg CITADEL_WITH_TRACING=1` to include them.
+
+**MFA (TOTP)** is self-service per user (Admin console → Settings → *Two-factor authentication*); no configuration required.
+
+**SSO / OIDC** — set these to enable "Sign in with SSO" (works with Entra ID, Okta, Google, Auth0, Keycloak — any OIDC provider):
+
+| Variable | Purpose |
+|---|---|
+| `OIDC_ISSUER` | Discovery base, e.g. `https://login.microsoftonline.com/<tenant>/v2.0` or `https://<org>.okta.com` |
+| `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` | Confidential client credentials from the IdP app registration |
+| `OIDC_REDIRECT_URI` | `https://<your-app>/api/auth/oidc/callback` (register this in the IdP) |
+| `OIDC_SCOPES` | Default `openid email profile` |
+| `OIDC_ADMIN_EMAILS` | Comma list mapped to the **admin** role on first login |
+| `OIDC_DEFAULT_ROLE` | Role for everyone else (default `viewer`) |
+| `OIDC_ALLOWED_DOMAINS` | Comma list of permitted email domains (others are rejected) |
+| `OIDC_POST_LOGIN` | Where to land after sign-in (default `/`) |
+
+Flow: Authorization Code + PKCE; the `id_token` signature is verified against the provider JWKS (RS256/PS256), and users are just-in-time provisioned by email. Sessions issued via SSO use the same access/refresh tokens as password login.
+
+> **Persistence.** The store writes to `CITADEL_DATA_DIR`. On a host with a
+> persistent volume (a paid Render disk, an Azure/AWS volume), accounts and the
+> JWT secret survive restarts. On an **ephemeral filesystem (e.g. Render's free
+> tier)** there is no persistent disk: the store resets on every deploy, so the
+> seeded admin and any users you create are recreated each time. Set a fixed
+> `CITADEL_JWT_SECRET` in the dashboard to at least keep issued sessions valid
+> across redeploys; durable accounts require a persistent volume.
+
+```bash
+# Log in and call a gated endpoint
+TOKEN=$(curl -sS -X POST http://localhost:8080/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@citadel.local","password":"citadel-admin"}' | jq -r .token)
+
+curl -sS -X POST http://localhost:8080/api/scan \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "files=@./my-project.zip" -o report.json
+```
+
+---
+
 ## Build & run locally
 
 Everything is built from the **repository root** because the image copies both
@@ -194,10 +283,22 @@ services:
         value: production
       - key: PORT
         value: "8080"
+      # Set a fixed value in the dashboard so JWT sessions survive redeploys.
+      - key: CITADEL_JWT_SECRET
+        sync: false
 ```
 
 Render terminates TLS for you and routes to port 8080. The container's own
 healthcheck and Render's `/api/health` probe are complementary.
+
+> **Account persistence.** Render's filesystem is ephemeral, so the user store
+> resets on every deploy/restart and the server logs a `cannot persist user
+> store` warning. To keep accounts durable, attach a **persistent disk** (paid
+> tiers) and point `CITADEL_DATA_DIR` at its mount path — e.g. a 1 GB disk at
+> `/var/lib/citadel` with `CITADEL_DATA_DIR=/var/lib/citadel`. The container
+> runs as numeric `USER 10001`, so Render chowns the disk mount to that UID with
+> no extra setup. On the **free tier** (no disks), set a fixed
+> `CITADEL_JWT_SECRET` so at least issued sessions survive redeploys.
 
 ---
 

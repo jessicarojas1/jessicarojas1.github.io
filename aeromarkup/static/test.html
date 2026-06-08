@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AeroMarkup — Self Test</title>
+  <style>
+    body { font: 14px/1.5 -apple-system, Segoe UI, Roboto, sans-serif; background: #0a0d12; color: #e7ecf4; margin: 0; padding: 24px; }
+    h1 { font-size: 1.2rem; }
+    .sum { padding: 10px 14px; border-radius: 8px; font-weight: 700; margin: 12px 0; display: inline-block; }
+    .ok { background: rgba(58,208,122,.15); color: #3ad07a; border: 1px solid rgba(58,208,122,.4); }
+    .bad { background: rgba(255,77,77,.15); color: #ff4d4d; border: 1px solid rgba(255,77,77,.4); }
+    table { border-collapse: collapse; width: 100%; max-width: 820px; }
+    td, th { border: 1px solid #232c3a; padding: 6px 10px; text-align: left; font-variant-numeric: tabular-nums; }
+    th { background: #161c27; }
+    .p { color: #3ad07a; font-weight: 700; }
+    .f { color: #ff4d4d; font-weight: 700; }
+    .muted { color: #8c97a9; }
+    canvas { border: 1px solid #232c3a; border-radius: 8px; margin-top: 16px; background: #0f1420; }
+  </style>
+</head>
+<body>
+  <h1>AeroMarkup — Headless Self-Test</h1>
+  <p class="muted">Exercises the pure 3D math, STL/OBJ parsers, ray-cast, and the WebGL pipeline. No interaction required.</p>
+  <div id="summary"></div>
+  <table><thead><tr><th>#</th><th>Test</th><th>Result</th><th>Detail</th></tr></thead><tbody id="rows"></tbody></table>
+  <h2 style="font-size:1rem;margin-top:24px">WebGL render smoke test</h2>
+  <canvas id="gl" width="320" height="220"></canvas>
+
+  <script type="module">
+    import { mat, vec, parseSTL, parseOBJ, sampleAircraft, rayTriangle, meshFromTris } from "./js/viewer3d.js";
+
+    const rows = document.getElementById("rows");
+    let n = 0, pass = 0;
+    const approx = (a, b, e = 1e-4) => Math.abs(a - b) <= e;
+    function test(name, fn) {
+      // A test PASSES unless it throws. A returned string is treated as a
+      // success detail (not a failure); failures must throw.
+      n++; let ok = true, detail = "ok";
+      try { const r = fn(); if (r && r !== true) detail = String(r); }
+      catch (e) { ok = false; detail = e.message; }
+      if (ok) pass++;
+      rows.insertAdjacentHTML("beforeend",
+        `<tr><td>${n}</td><td>${name}</td><td class="${ok ? "p" : "f"}">${ok ? "PASS" : "FAIL"}</td><td class="muted">${detail}</td></tr>`);
+    }
+
+    // ---- matrix math ----
+    test("mat.invert(identity) ≈ identity", () => {
+      const I = mat.mul(mat.perspective(1, 1, 0.1, 10), mat.invert(mat.perspective(1, 1, 0.1, 10)));
+      for (let i = 0; i < 16; i++) { const exp = (i % 5 === 0) ? 1 : 0; if (!approx(I[i], exp, 1e-3)) throw new Error("off at " + i + "=" + I[i]); }
+      return true;
+    });
+    test("mat.invert(P·V)·(P·V) ≈ identity", () => {
+      const pv = mat.mul(mat.perspective(Math.PI / 4, 1.5, 0.1, 100), mat.lookAt([3, 4, 5], [0, 0, 0], [0, 1, 0]));
+      const I = mat.mul(mat.invert(pv), pv);
+      for (let i = 0; i < 16; i++) { const exp = (i % 5 === 0) ? 1 : 0; if (!approx(I[i], exp, 1e-2)) throw new Error("off at " + i + "=" + I[i].toFixed(4)); }
+      return true;
+    });
+
+    // ---- vector math ----
+    test("vec.cross / dot / norm", () => {
+      const c = vec.cross([1, 0, 0], [0, 1, 0]); if (!approx(c[2], 1)) throw new Error("cross z=" + c[2]);
+      if (!approx(vec.dot([1, 2, 3], [4, 5, 6]), 32)) throw new Error("dot");
+      if (!approx(vec.len(vec.norm([0, 3, 4])), 1)) throw new Error("norm");
+      return true;
+    });
+
+    // ---- ray/triangle (Möller–Trumbore) ----
+    test("rayTriangle hits front-facing tri at t=5", () => {
+      const t = rayTriangle([0, 0, 5], [0, 0, -1], [-1, -1, 0], [1, -1, 0], [0, 1, 0]);
+      if (t == null || !approx(t, 5, 1e-3)) throw new Error("t=" + t);
+      return true;
+    });
+    test("rayTriangle misses when off to the side", () => {
+      const t = rayTriangle([10, 10, 5], [0, 0, -1], [-1, -1, 0], [1, -1, 0], [0, 1, 0]);
+      if (t != null) throw new Error("expected miss, got " + t);
+      return true;
+    });
+
+    // ---- STL binary parse ----
+    test("parseSTL (binary, 1 triangle)", () => {
+      const buf = new ArrayBuffer(84 + 50);
+      const dv = new DataView(buf);
+      dv.setUint32(80, 1, true);
+      const f = (off, ...vals) => vals.forEach((v, i) => dv.setFloat32(off + i * 4, v, true));
+      f(84, 0, 0, 1);                 // normal
+      f(96, 0, 0, 0, 2, 0, 0, 0, 2, 0); // v0,v1,v2
+      const m = parseSTL(buf);
+      if (m.triCount !== 1) throw new Error("triCount=" + m.triCount);
+      if (m.position.length !== 9) throw new Error("pos len=" + m.position.length);
+      if (m.size <= 0) throw new Error("size=" + m.size);
+      return "triCount=1, size=" + m.size.toFixed(3);
+    });
+
+    // ---- OBJ parse ----
+    test("parseOBJ (quad → 2 tris)", () => {
+      const obj = "v 0 0 0\nv 1 0 0\nv 1 1 0\nv 0 1 0\nf 1 2 3 4\n";
+      const m = parseOBJ(obj);
+      if (m.triCount !== 2) throw new Error("triCount=" + m.triCount);
+      return "2 triangles";
+    });
+    test("parseOBJ (negative indices)", () => {
+      const obj = "v 0 0 0\nv 1 0 0\nv 0 1 0\nf -3 -2 -1\n";
+      if (parseOBJ(obj).triCount !== 1) throw new Error("neg idx failed");
+      return true;
+    });
+
+    // ---- sample model + mesh builder ----
+    test("sampleAircraft mesh is well-formed", () => {
+      const m = sampleAircraft();
+      if (m.triCount <= 0) throw new Error("no tris");
+      if (m.position.length % 9 !== 0) throw new Error("pos not multiple of 9");
+      if (m.position.length / 3 !== m.normal.length / 3) throw new Error("normal count mismatch");
+      return m.triCount + " triangles";
+    });
+    test("meshFromTris centers at origin", () => {
+      const m = meshFromTris([[[0, 0, 0], [10, 0, 0], [10, 10, 0]]]);
+      let cx = 0, cy = 0; for (let i = 0; i < m.position.length; i += 3) { cx += m.position[i]; cy += m.position[i + 1]; }
+      const nv = m.position.length / 3;
+      // centroid of centered geometry should sit near origin-ish (bbox-centered)
+      if (Math.abs(cx / nv) > 6 || Math.abs(cy / nv) > 6) throw new Error("not centered");
+      return true;
+    });
+
+    // ---- WebGL pipeline smoke test ----
+    test("WebGL renders sample model (non-blank)", () => {
+      const cv = document.getElementById("gl");
+      const gl = cv.getContext("webgl", { preserveDrawingBuffer: true });
+      if (!gl) return "WebGL unavailable in this browser (viewer will show a message)";
+      const vs = `attribute vec3 aPos; uniform mat4 uM; void main(){ gl_Position = uM*vec4(aPos,1.0); }`;
+      const fs = `precision mediump float; void main(){ gl_FragColor = vec4(0.45,0.6,1.0,1.0); }`;
+      const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+      const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error("link: " + gl.getProgramInfoLog(p));
+      gl.useProgram(p);
+      const m = sampleAircraft();
+      const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, m.position, gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(p, "aPos"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 0, 0);
+      const pv = mat.mul(mat.perspective(Math.PI / 4, cv.width / cv.height, 0.1, 100), mat.lookAt([6, 5, 8], [0, 0, 0], [0, 1, 0]));
+      gl.uniformMatrix4fv(gl.getUniformLocation(p, "uM"), false, pv);
+      gl.clearColor(0.06, 0.08, 0.11, 1); gl.enable(gl.DEPTH_TEST); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.viewport(0, 0, cv.width, cv.height);
+      gl.drawArrays(gl.TRIANGLES, 0, m.position.length / 3);
+      const px = new Uint8Array(4 * cv.width * cv.height); gl.readPixels(0, 0, cv.width, cv.height, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      let nonBg = 0; for (let i = 0; i < px.length; i += 4) if (px[i] > 90 || px[i + 1] > 90) nonBg++;
+      if (nonBg < 50) throw new Error("nothing drawn (" + nonBg + " px)");
+      return nonBg + " model pixels drawn";
+    });
+
+    const sum = document.getElementById("summary");
+    sum.className = "sum " + (pass === n ? "ok" : "bad");
+    sum.textContent = `${pass} / ${n} tests passed`;
+  </script>
+</body>
+</html>

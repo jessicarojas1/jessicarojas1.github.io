@@ -1,4 +1,5 @@
 """Supplier quality: Supplier, SupplierScar, ApprovedSupplierListEntry, SupplierRating."""
+
 from __future__ import annotations
 
 import enum
@@ -85,6 +86,8 @@ class SupplierScar(Base, TimestampMixin):
     nonconformance_id: Mapped[int | None] = mapped_column(
         ForeignKey("nonconformances.id"), nullable=True
     )
+    # Set when a CAPA has been raised from this SCAR.
+    capa_id: Mapped[int | None] = mapped_column(ForeignKey("capas.id"), nullable=True)
     issued_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     response_due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     supplier_response: Mapped[str | None] = mapped_column(Text, nullable=True)

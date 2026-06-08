@@ -120,16 +120,20 @@ function validateOpts(opts) {
  */
 function loadSarifBuilder() {
   // Local dev: server/cli.js -> ../js. Container: /app/cli.js -> /app/citadel/js.
-  const candidates = [
-    process.env.CITADEL_APP_DIR && path.join(process.env.CITADEL_APP_DIR, 'js', 'sarif.js'),
-    path.resolve(__dirname, '..', 'js', 'sarif.js'),
-    path.resolve(__dirname, 'citadel', 'js', 'sarif.js')
+  const dirs = [
+    process.env.CITADEL_APP_DIR && path.join(process.env.CITADEL_APP_DIR, 'js'),
+    path.resolve(__dirname, '..', 'js'),
+    path.resolve(__dirname, 'citadel', 'js')
   ].filter(Boolean);
-  const sarifPath = candidates.find(p => fs.existsSync(p));
-  if (!sarifPath) return null;
+  const jsDir = dirs.find(d => fs.existsSync(path.join(d, 'sarif.js')));
+  if (!jsDir) return null;
   try {
     global.window = global.window || global;
-    const code = fs.readFileSync(sarifPath, 'utf8');
+    // Load the remediation module first so SARIF can attach suggested fixes;
+    // it's optional, so a missing file must not abort SARIF loading.
+    const remPath = path.join(jsDir, 'remediate.js');
+    if (fs.existsSync(remPath)) { try { (0, eval)(fs.readFileSync(remPath, 'utf8')); } catch (e) {} }
+    const code = fs.readFileSync(path.join(jsDir, 'sarif.js'), 'utf8');
     // eslint-disable-next-line no-eval
     (0, eval)(code);
     const sarif = (global.CITADEL && global.CITADEL.sarif) ||

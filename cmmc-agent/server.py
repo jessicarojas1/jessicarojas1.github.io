@@ -105,6 +105,69 @@ def mark():
     return jsonify({"message": result})
 
 
+# ── Settings / Branding ─────────────────────────────────────────────────────────
+SETTINGS_FILE = Path(__file__).parent / "settings.json"
+
+DEFAULT_BRANDING = {
+    "appName": "CMMC 2.0 Compliance Agent",
+    "logoUrl": "",
+    "accent": "#0d6efd",
+}
+
+
+def _load_branding():
+    if SETTINGS_FILE.exists():
+        try:
+            data = json.loads(SETTINGS_FILE.read_text())
+            return {**DEFAULT_BRANDING, **(data.get("branding") or {})}
+        except (ValueError, OSError):
+            pass
+    return dict(DEFAULT_BRANDING)
+
+
+def _sanitize_logo_url(url):
+    """Allow only http(s):// or data:image/... URLs; otherwise drop."""
+    if not isinstance(url, str):
+        return ""
+    u = url.strip()
+    low = u.lower()
+    if low.startswith("http://") or low.startswith("https://") or low.startswith("data:image/"):
+        return u
+    return ""
+
+
+@app.get("/api/settings")
+def get_settings():
+    return jsonify({"branding": _load_branding()})
+
+
+@app.post("/api/settings")
+def post_settings():
+    data = request.get_json(force=True, silent=True) or {}
+    incoming = data.get("branding") or {}
+    current = _load_branding()
+
+    name = incoming.get("appName")
+    if isinstance(name, str) and name.strip():
+        current["appName"] = name.strip()[:120]
+
+    if "logoUrl" in incoming:
+        current["logoUrl"] = _sanitize_logo_url(incoming.get("logoUrl"))
+
+    accent = incoming.get("accent")
+    if isinstance(accent, str) and accent.strip():
+        a = accent.strip()
+        if len(a) <= 32 and all(c.isalnum() or c in "#(),.% " for c in a):
+            current["accent"] = a
+
+    try:
+        SETTINGS_FILE.write_text(json.dumps({"branding": current}, indent=2))
+    except OSError as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+    return jsonify({"ok": True, "branding": current})
+
+
 # ── Embedded UI ───────────────────────────────────────────────────────────────
 UI_HTML = r"""<!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
@@ -191,9 +254,25 @@ UI_HTML = r"""<!DOCTYPE html>
   .refresh-btn { background:none; border:none; color:#8b949e; cursor:pointer; padding:.2rem .4rem;
                  border-radius:.3rem; font-size:.8rem; }
   .refresh-btn:hover { color:var(--accent); background:#21262d; }
+  /* Print / report branding header (hidden on screen, shown on print) */
+  .print-brand { display:none; }
+  @media print {
+    .print-brand { display:flex !important; align-items:center; gap:.6rem;
+                   padding:0 0 .75rem; margin-bottom:.75rem; border-bottom:2px solid var(--accent2);
+                   color:#000; }
+    .print-brand img { height:40px; width:auto; }
+    .print-brand .print-name { font-weight:700; font-size:1.1rem; }
+    body { overflow:visible !important; height:auto !important; }
+    .sidebar, .input-bar, .app-header { display:none !important; }
+  }
 </style>
 </head>
 <body>
+<!-- Print / report branding header -->
+<div class="print-brand" id="printBrand">
+  <img id="printBrandLogo" alt=""/>
+  <span class="print-name" id="printBrandName">CMMC 2.0 Compliance Agent</span>
+</div>
 <div class="app">
 
   <!-- Sidebar -->
@@ -232,12 +311,20 @@ UI_HTML = r"""<!DOCTYPE html>
   <div class="main">
     <!-- Header -->
     <div class="app-header">
-      <i class="bi bi-robot" style="color:var(--accent2);font-size:1.2rem"></i>
-      <div>
-        <div class="title">CMMC 2.0 Compliance Agent</div>
-        <div class="subtitle">Powered by Claude · NIST 800-171 · All 110 practices</div>
-      </div>
+      <a href="/" id="brandLink" class="d-flex align-items-center gap-2 text-decoration-none"
+         style="color:inherit" title="Home">
+        <i class="bi bi-robot" id="brandIcon" style="color:var(--accent2);font-size:1.2rem"></i>
+        <img id="brandLogo" alt="" style="display:none;height:28px;width:auto;border-radius:.25rem"/>
+        <div>
+          <div class="title" id="brandName">CMMC 2.0 Compliance Agent</div>
+          <div class="subtitle">Powered by Claude · NIST 800-171 · All 110 practices</div>
+        </div>
+      </a>
       <div class="ms-auto d-flex gap-2">
+        <button class="btn btn-sm btn-outline-secondary" id="settingsBtn" title="Settings"
+                style="font-size:.75rem;padding:.25rem .55rem">
+          <i class="bi bi-gear"></i>
+        </button>
         <button class="btn btn-sm btn-outline-secondary" id="clearBtn" title="Clear conversation"
                 style="font-size:.75rem;padding:.25rem .55rem">
           <i class="bi bi-trash"></i>
@@ -261,9 +348,8 @@ UI_HTML = r"""<!DOCTYPE html>
 
     <!-- Input -->
     <div class="input-bar">
-      <textarea id="msgInput" placeholder="Ask about your compliance posture…" rows="1"
-                onkeydown="handleKey(event)"></textarea>
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+      <textarea id="msgInput" placeholder="Ask about your compliance posture…" rows="1"></textarea>
+      <button class="send-btn" id="sendBtn">
         <i class="bi bi-send-fill"></i> Send
       </button>
     </div>
@@ -350,6 +436,66 @@ UI_HTML = r"""<!DOCTYPE html>
   </div>
 </div>
 
+<!-- Settings / Branding Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-modal="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:#161b22;border:1px solid #30363d">
+      <div class="modal-header" style="border-color:#30363d">
+        <h5 class="modal-title"><i class="bi bi-gear me-2" style="color:var(--accent)"></i>Settings</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="font-size:.875rem">
+        <h6 class="fw-bold mb-3" style="color:var(--accent)"><i class="bi bi-palette me-1"></i>Branding</h6>
+
+        <div class="mb-3">
+          <label class="form-label" for="brandNameInput" style="font-size:.8rem">Display name</label>
+          <input type="text" class="form-control form-control-sm" id="brandNameInput"
+                 style="background:#0d1117;border-color:#30363d;color:#e6edf3"
+                 placeholder="CMMC 2.0 Compliance Agent" maxlength="120">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="brandLogoUrlInput" style="font-size:.8rem">Logo URL</label>
+          <input type="text" class="form-control form-control-sm" id="brandLogoUrlInput"
+                 style="background:#0d1117;border-color:#30363d;color:#e6edf3"
+                 placeholder="https://… or data:image/…">
+          <div class="d-flex align-items-center gap-2 mt-2">
+            <label class="btn btn-sm btn-outline-secondary mb-0" for="brandLogoFile" style="font-size:.75rem">
+              <i class="bi bi-upload"></i> Upload file
+            </label>
+            <input type="file" id="brandLogoFile" accept="image/*" style="display:none">
+            <button class="btn btn-sm btn-outline-secondary" id="brandLogoClear" style="font-size:.75rem">
+              <i class="bi bi-x-lg"></i> Clear
+            </button>
+            <img id="brandLogoPreview" alt="logo preview"
+                 style="display:none;height:32px;width:auto;border-radius:.25rem;margin-left:auto;background:#0d1117">
+          </div>
+          <div style="font-size:.68rem;color:#8b949e;margin-top:.35rem">
+            Field reference: <code>logoUrl</code> — paste an image URL, or upload a file (stored offline as a data: URL).
+            Only <code>http(s)://</code> and <code>data:image/…</code> are allowed.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="brandAccentInput" style="font-size:.8rem">Accent color</label>
+          <div class="d-flex align-items-center gap-2">
+            <input type="color" class="form-control form-control-color" id="brandAccentInput"
+                   value="#0d6efd" style="background:#0d1117;border-color:#30363d;width:48px;height:34px">
+            <span id="brandAccentHex" style="font-size:.8rem;color:#8b949e">#0d6efd</span>
+          </div>
+        </div>
+
+        <div id="brandSaveStatus" style="font-size:.72rem;color:#8b949e;min-height:1rem"></div>
+      </div>
+      <div class="modal-footer" style="border-color:#30363d">
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="brandResetBtn">Reset to defaults</button>
+        <button type="button" class="btn btn-sm" id="brandSaveBtn"
+                style="background:var(--accent2);color:#fff">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
   integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmR6yxBvFf/AQgDLRFrS5dQ1LAv" crossorigin="anonymous"></script>
 <script>
@@ -375,6 +521,10 @@ SAMPLE_PROMPTS.forEach(p => {
   btn.onclick = () => { document.getElementById('msgInput').value = p; sendMessage(); };
   chips.appendChild(btn);
 });
+
+// Input wiring (no inline handlers — CSP-clean)
+document.getElementById('msgInput').addEventListener('keydown', handleKey);
+document.getElementById('sendBtn').addEventListener('click', sendMessage);
 
 // Help modal
 document.getElementById('helpBtn').addEventListener('click', () => {
@@ -528,6 +678,182 @@ async function loadDashboard() {
 
 document.getElementById('refreshBtn').addEventListener('click', loadDashboard);
 loadDashboard();
+
+// ── Settings / Branding ─────────────────────────────────────────────────────
+const BRAND_DEFAULTS = { appName: 'CMMC 2.0 Compliance Agent', logoUrl: '', accent: '#0d6efd' };
+const BRAND_KEY = 'cmmc.branding';
+let brandState = { ...BRAND_DEFAULTS };
+
+function sanitizeLogoUrl(url) {
+  if (typeof url !== 'string') return '';
+  const u = url.trim();
+  const low = u.toLowerCase();
+  if (low.startsWith('http://') || low.startsWith('https://') || low.startsWith('data:image/')) return u;
+  return '';
+}
+
+function loadLocalBranding() {
+  try {
+    const raw = localStorage.getItem(BRAND_KEY);
+    if (raw) return { ...BRAND_DEFAULTS, ...JSON.parse(raw) };
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+function saveLocalBranding(b) {
+  try { localStorage.setItem(BRAND_KEY, JSON.stringify(b)); } catch (e) { /* ignore */ }
+}
+
+// Apply branding live to the DOM (escapes user strings via textContent / sanitized attrs)
+function applyBranding(b) {
+  brandState = { ...BRAND_DEFAULTS, ...(b || {}) };
+  const name = brandState.appName || BRAND_DEFAULTS.appName;
+  const accent = brandState.accent || BRAND_DEFAULTS.accent;
+  const logo = sanitizeLogoUrl(brandState.logoUrl);
+
+  document.getElementById('brandName').textContent = name;
+  document.title = name;
+  document.documentElement.style.setProperty('--accent2', accent);
+
+  const icon = document.getElementById('brandIcon');
+  const img = document.getElementById('brandLogo');
+  if (logo) {
+    img.src = logo;
+    img.onload = () => { img.style.display = ''; icon.style.display = 'none'; };
+    img.onerror = () => { img.style.display = 'none'; icon.style.display = ''; }; // graceful fallback
+  } else {
+    img.removeAttribute('src');
+    img.style.display = 'none';
+    icon.style.display = '';
+  }
+
+  // Print / report branding header
+  const pName = document.getElementById('printBrandName');
+  const pLogo = document.getElementById('printBrandLogo');
+  if (pName) pName.textContent = name;
+  if (pLogo) {
+    if (logo) { pLogo.src = logo; pLogo.style.display = ''; }
+    else { pLogo.removeAttribute('src'); pLogo.style.display = 'none'; }
+  }
+}
+
+// Init branding: backend wins over localStorage, both fall back to defaults
+async function initBranding() {
+  const local = loadLocalBranding();
+  if (local) applyBranding(local);
+  try {
+    const res = await fetch('/api/settings');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.branding) {
+        applyBranding(data.branding);
+        saveLocalBranding(brandState); // cache backend value locally
+      }
+    }
+  } catch (e) { /* offline: keep local/default */ }
+}
+
+// Populate the settings form from current state
+function fillSettingsForm() {
+  document.getElementById('brandNameInput').value = brandState.appName || '';
+  document.getElementById('brandLogoUrlInput').value = brandState.logoUrl || '';
+  const accent = brandState.accent || BRAND_DEFAULTS.accent;
+  document.getElementById('brandAccentInput').value = accent;
+  document.getElementById('brandAccentHex').textContent = accent;
+  updateLogoPreview(brandState.logoUrl);
+  document.getElementById('brandSaveStatus').textContent = '';
+}
+
+function updateLogoPreview(url) {
+  const prev = document.getElementById('brandLogoPreview');
+  const clean = sanitizeLogoUrl(url);
+  if (clean) {
+    prev.src = clean;
+    prev.style.display = '';
+    prev.onerror = () => { prev.style.display = 'none'; };
+  } else {
+    prev.removeAttribute('src');
+    prev.style.display = 'none';
+  }
+}
+
+document.getElementById('settingsBtn').addEventListener('click', () => {
+  fillSettingsForm();
+  new bootstrap.Modal(document.getElementById('settingsModal')).show();
+});
+
+document.getElementById('brandAccentInput').addEventListener('input', (e) => {
+  document.getElementById('brandAccentHex').textContent = e.target.value;
+});
+
+document.getElementById('brandLogoUrlInput').addEventListener('input', (e) => {
+  updateLogoPreview(e.target.value);
+});
+
+document.getElementById('brandLogoFile').addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.getElementById('brandLogoUrlInput').value = reader.result; // data: URL, offline-safe
+    updateLogoPreview(reader.result);
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('brandLogoClear').addEventListener('click', () => {
+  document.getElementById('brandLogoUrlInput').value = '';
+  document.getElementById('brandLogoFile').value = '';
+  updateLogoPreview('');
+});
+
+document.getElementById('brandResetBtn').addEventListener('click', () => {
+  brandState = { ...BRAND_DEFAULTS };
+  fillSettingsForm();
+});
+
+document.getElementById('brandSaveBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('brandSaveBtn');
+  const statusEl = document.getElementById('brandSaveStatus');
+  const next = {
+    appName: (document.getElementById('brandNameInput').value || '').trim() || BRAND_DEFAULTS.appName,
+    logoUrl: sanitizeLogoUrl(document.getElementById('brandLogoUrlInput').value),
+    accent: document.getElementById('brandAccentInput').value || BRAND_DEFAULTS.accent,
+  };
+
+  applyBranding(next);
+  saveLocalBranding(brandState);
+
+  btn.disabled = true;
+  statusEl.style.color = '#8b949e';
+  statusEl.textContent = 'Saving…';
+  try {
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ branding: next }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.branding) { applyBranding(data.branding); saveLocalBranding(brandState); }
+      statusEl.style.color = '#198754';
+      statusEl.textContent = 'Saved — applied across the app.';
+    } else {
+      statusEl.style.color = '#ffc107';
+      statusEl.textContent = 'Saved locally (server unavailable).';
+    }
+  } catch (e) {
+    statusEl.style.color = '#ffc107';
+    statusEl.textContent = 'Saved locally (offline).';
+  }
+  btn.disabled = false;
+});
+
+// Expose current logo for report/print output
+function brandingLogoUrl() { return sanitizeLogoUrl(brandState.logoUrl); }
+function brandingName() { return brandState.appName || BRAND_DEFAULTS.appName; }
+
+initBranding();
 </script>
 </body>
 </html>"""

@@ -4,8 +4,11 @@ import { inspectionHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
+import { UserName } from '@/components/UserName';
 
 export default function InspectionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +32,7 @@ export default function InspectionDetailPage() {
             }
             subtitle={`${insp.part_number ?? ''}${insp.fai_report?.part_name ? ` — ${insp.fai_report.part_name}` : ''}`}
             breadcrumbs={[{ label: 'Inspections', to: '/inspections' }, { label: insp.inspection_number }]}
+            actions={<PrintButton />}
           />
 
           <div className="detail-grid">
@@ -79,7 +83,7 @@ export default function InspectionDetailPage() {
                     { label: 'Type', value: humanize(insp.inspection_type) },
                     { label: 'Revision', value: insp.fai_report?.part_revision ?? '—' },
                     { label: 'Drawing #', value: insp.fai_report?.drawing_number ?? '—' },
-                    { label: 'Inspector', value: insp.inspector_id ?? '—' },
+                    { label: 'Inspector', value: <UserName id={insp.inspector_id} /> },
                     { label: 'Result', value: <StatusBadge status={insp.result} /> },
                     { label: 'Inspected', value: formatDate(insp.inspection_date) },
                   ]}
@@ -87,6 +91,8 @@ export default function InspectionDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="inspection" entityId={insp.id} canEditPage="inspections" />
         </>
       )}
     </DetailState>

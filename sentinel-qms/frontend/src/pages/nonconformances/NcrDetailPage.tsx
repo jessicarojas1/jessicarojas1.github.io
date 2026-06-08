@@ -8,13 +8,12 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
+import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
-import {
-  AttachmentsCard,
-  AuditTrailCard,
-  DataList,
-  DetailState,
-} from '@/components/detail';
+import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
+import { UserName } from '@/components/UserName';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DispositionModal } from './DispositionModal';
 
@@ -24,10 +23,25 @@ export default function NcrDetailPage() {
   const { notify } = useToast();
   const { data: ncr, isLoading, error } = ncrHooks.useDetail(id);
   const changeStatus = ncrHooks.useAction('status');
+  const createCapa = ncrHooks.useAction<undefined, { capa_id: number; capa_number: string }>(
+    'create-capa',
+  );
   const [dispOpen, setDispOpen] = useState(false);
   const [closeOpen, setCloseOpen] = useState(false);
 
   const canDisposition = can(user?.roles, 'ncr.disposition');
+  const canCreateCapa = can(user?.roles, 'capa.write');
+
+  const handleCreateCapa = () => {
+    if (!id) return;
+    createCapa.mutate(
+      { id },
+      {
+        onSuccess: (res) => notify(`Created ${res.capa_number}`, 'success'),
+        onError: (err) => notify(getErrorMessage(err), 'danger'),
+      },
+    );
+  };
   const disposition = ncr?.dispositions?.[ncr.dispositions.length - 1];
 
   const handleClose = async () => {
@@ -63,20 +77,24 @@ export default function NcrDetailPage() {
               { label: ncr.ncr_number },
             ]}
             actions={
-              canDisposition && (
-                <>
-                  {!disposition && ncr.status !== 'closed' && (
-                    <button type="button" className="btn btn-primary" onClick={() => setDispOpen(true)}>
-                      <Gavel size={16} /> Disposition
-                    </button>
-                  )}
-                  {disposition && ncr.status !== 'closed' && (
-                    <button type="button" className="btn" onClick={() => setCloseOpen(true)}>
-                      <CheckCircle2 size={16} /> Close NCR
-                    </button>
-                  )}
-                </>
-              )
+              <>
+                <PrintButton />
+                <PdfButton path={`/reports/ncr/${ncr.id}/pdf`} filename={`${ncr.ncr_number}.pdf`} />
+                {canDisposition && (
+                  <>
+                    {!disposition && ncr.status !== 'closed' && (
+                      <button type="button" className="btn btn-primary" onClick={() => setDispOpen(true)}>
+                        <Gavel size={16} /> Disposition
+                      </button>
+                    )}
+                    {disposition && ncr.status !== 'closed' && (
+                      <button type="button" className="btn" onClick={() => setCloseOpen(true)}>
+                        <CheckCircle2 size={16} /> Close NCR
+                      </button>
+                    )}
+                  </>
+                )}
+              </>
             }
           />
 
@@ -98,7 +116,7 @@ export default function NcrDetailPage() {
                       { label: 'Qty Affected', value: ncr.quantity_affected ?? '—' },
                       { label: 'Work Order', value: ncr.work_order ?? '—' },
                       { label: 'Detected', value: formatDateTime(ncr.detected_at) },
-                      { label: 'Assigned To', value: ncr.assigned_to ?? 'Unassigned' },
+                      { label: 'Assigned To', value: ncr.assigned_to == null ? 'Unassigned' : <UserName id={ncr.assigned_to} /> },
                     ]}
                   />
                 </div>
@@ -146,6 +164,15 @@ export default function NcrDetailPage() {
                         label: 'CAPA',
                         value: ncr.capa_id ? (
                           <a href={`/capa/${ncr.capa_id}`}>View linked CAPA</a>
+                        ) : canCreateCapa ? (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-secondary"
+                            onClick={handleCreateCapa}
+                            disabled={createCapa.isPending}
+                          >
+                            Create CAPA
+                          </button>
                         ) : (
                           'None'
                         ),
@@ -156,10 +183,10 @@ export default function NcrDetailPage() {
                   />
                 </div>
               </div>
-              <AttachmentsCard attachments={ncr.attachments} />
-              <AuditTrailCard entries={ncr.audit_trail} />
             </div>
           </div>
+
+          <RecordSupplements entityType="nonconformance" entityId={ncr.id} canEditPage="nonconformances" />
 
           {id && <DispositionModal open={dispOpen} ncrId={id} onClose={() => setDispOpen(false)} />}
           <ConfirmDialog

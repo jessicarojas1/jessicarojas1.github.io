@@ -7,13 +7,26 @@ Run:
     streamlit run app.py
 """
 
+import html
+
 import streamlit as st
 import pandas as pd
 
+# Branding is loaded before set_page_config so the persisted display name can
+# be used as the browser tab title. (load_branding does not call any Streamlit
+# API that must follow set_page_config.)
+from modules.branding import (
+    load_branding, get_branding, apply_accent_css,
+    render_sidebar_brand, render_settings_ui,
+    DEFAULT_NAME, DEFAULT_ICON,
+)
+
+_brand_boot = load_branding()
+
 # ── Must be the very first Streamlit call ────────────────────────────────────
 st.set_page_config(
-    page_title="Business Insight Dashboard",
-    page_icon="📊",
+    page_title=_brand_boot.get("name", DEFAULT_NAME),
+    page_icon=DEFAULT_ICON,
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
@@ -33,6 +46,11 @@ from modules.insights import generate_insights
 
 inject_css()
 
+# Seed session_state from the boot-time load, then apply the live accent CSS.
+st.session_state.setdefault("branding", _brand_boot)
+branding = get_branding()
+apply_accent_css(branding.get("accent"))
+
 PLOTLY_CONFIG = dict(
     displayModeBar=False,
     responsive=True,
@@ -43,19 +61,7 @@ PLOTLY_CONFIG = dict(
 # ─────────────────────────────────────────────────────────────────────────────
 
 with st.sidebar:
-    st.markdown(
-        """
-        <div style="padding:8px 0 20px;">
-          <div style="font-size:1.4rem;font-weight:700;color:#F3F4F6;letter-spacing:-0.02em;">
-            📊 Business Insight
-          </div>
-          <div style="font-size:0.75rem;color:#6B7280;margin-top:2px;">
-            Instant analytics · No code required
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    render_sidebar_brand(branding)
 
     uploaded_file = st.file_uploader(
         "Upload your CSV",
@@ -102,19 +108,39 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
+    st.divider()
+
+    # ── Settings → Branding ───────────────────────────────────────────────
+    with st.expander("⚙ Settings · Branding", expanded=False):
+        branding = render_settings_ui()
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Landing screen (no file uploaded)
 # ─────────────────────────────────────────────────────────────────────────────
 
 if not uploaded_file:
+    _brand_name = html.escape(branding.get("name", DEFAULT_NAME))
+    _brand_logo = branding.get("logo", "")
+    if _brand_logo:
+        # Logo on the landing screen; degrades to the icon if it fails to load.
+        try:
+            lc1, lc2, lc3 = st.columns([2, 1, 2])
+            with lc2:
+                st.image(_brand_logo, use_container_width=True)
+        except Exception:
+            pass
+        _landing_mark = ""
+    else:
+        _landing_mark = f'<div style="font-size:3.5rem;margin-bottom:20px;">{DEFAULT_ICON}</div>'
+
     st.markdown(
-        """
-        <div style="text-align:center;padding:60px 20px 20px;">
-          <div style="font-size:3.5rem;margin-bottom:20px;">📊</div>
+        f"""
+        <div style="text-align:center;padding:40px 20px 20px;">
+          {_landing_mark}
           <h1 style="font-size:2rem;font-weight:700;color:#F3F4F6;margin-bottom:12px;
                      letter-spacing:-0.03em;">
-            Business Insight Dashboard
+            {_brand_name}
           </h1>
           <p style="font-size:1rem;color:#9CA3AF;max-width:520px;margin:0 auto 32px;
                     line-height:1.65;">
@@ -189,6 +215,17 @@ try:
 except ValueError as e:
     st.error(f"Could not load file: {e}")
     st.stop()
+
+# Visible page header carrying the (branded) display name.
+st.markdown(
+    f"""
+    <div style="padding:8px 0 4px;">
+      <h1 style="font-size:1.6rem;font-weight:700;color:#F3F4F6;margin:0;
+                 letter-spacing:-0.02em;">{html.escape(branding.get("name", DEFAULT_NAME))}</h1>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 found   = available_columns(col_map)
 missing = missing_columns(col_map)
@@ -462,9 +499,9 @@ st.divider()
 # ─────────────────────────────────────────────────────────────────────────────
 
 st.markdown(
-    """
+    f"""
     <div style="text-align:center;padding:24px 0 8px;color:#374151;font-size:0.72rem;">
-      Business Insight Dashboard &nbsp;·&nbsp; Built with Streamlit &amp; Plotly
+      {html.escape(branding.get("name", DEFAULT_NAME))} &nbsp;·&nbsp; Built with Streamlit &amp; Plotly
       &nbsp;·&nbsp; Data processed locally — nothing is stored or transmitted
     </div>
     """,

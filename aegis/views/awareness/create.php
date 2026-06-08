@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+ob_start();
+$breadcrumbs = [['Awareness', '/awareness'], ['New Program', null]];
+?>
 
 <div class="page-header">
   <div>

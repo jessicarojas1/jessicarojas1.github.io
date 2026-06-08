@@ -1,0 +1,3 @@
+database:
+  password: ${DB_PASSWORD}
+api_key: ${API_KEY}

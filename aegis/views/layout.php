@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= Security::h($pageTitle ?? 'AEGIS GRC') ?> — AEGIS GRC</title>
+<?php $__brandName = Branding::name(); ?>
+<title><?= Security::h($pageTitle ?? $__brandName) ?> — <?= Security::h($__brandName) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -13,6 +14,7 @@
 <meta name="theme-color" content="var(--primary)">
 <meta name="csrf-token" content="<?= Security::generateCsrfToken() ?>">
 <script nonce="<?= Security::nonce() ?>">(function(){var t=localStorage.getItem('aegis-theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
+<?= Branding::accentStyleTag() ?>
 </head>
 <body>
 
@@ -21,18 +23,17 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <a href="/" class="sidebar-brand" style="text-decoration:none">
-    <?php
-    $__logoSetting = null;
-    try { $__logoSetting = Database::fetchOne("SELECT value FROM settings WHERE key='company_logo_data'"); } catch(Throwable) {}
-    $__logoData = $__logoSetting['value'] ?? '';
-    ?>
+    <?php $__logoData = Branding::logo(); ?>
     <?php if ($__logoData): ?>
-      <img src="<?= Security::h($__logoData) ?>" alt="Logo" style="width:36px;height:36px;object-fit:contain;border-radius:8px">
+      <img src="<?= Security::h($__logoData) ?>" alt="<?= Security::h($__brandName) ?> logo"
+           class="brand-logo-img" data-logo-fallback
+           style="width:36px;height:36px;object-fit:contain;border-radius:8px">
+      <div class="brand-icon brand-logo-fallback" style="display:none"><i class="bi bi-shield-fill-check"></i></div>
     <?php else: ?>
       <div class="brand-icon"><i class="bi bi-shield-fill-check"></i></div>
     <?php endif; ?>
     <div class="brand-text">
-      <span class="brand-name">AEGIS GRC</span>
+      <span class="brand-name"><?= Security::h($__brandName) ?></span>
       <span class="brand-sub">Enterprise Governance &amp; Compliance Platform</span>
     </div>
   </a>

@@ -10,11 +10,11 @@ $baseL     = (int)$risk['likelihood'];
 $baseI     = (int)$risk['impact'];
 
 $typeMeta = [
-    'stress'       => ['label'=>'Stress',        'color'=>'var(--danger)', 'bg'=>'var(--danger-subtle)', 'border'=>'var(--danger-border)', 'icon'=>'bi-graph-up-arrow'],
+    'stress'       => ['label'=>'Stress',        'color'=>'#dc2626', 'bg'=>'#fef2f2', 'border'=>'#fca5a5', 'icon'=>'bi-graph-up-arrow'],
     'base'         => ['label'=>'Base',           'color'=>'#71717a', 'bg'=>'#f4f4f5', 'border'=>'#d4d4d8', 'icon'=>'bi-circle-fill'],
-    'optimistic'   => ['label'=>'Optimistic',     'color'=>'var(--primary)', 'bg'=>'var(--success-subtle)', 'border'=>'var(--success-border)', 'icon'=>'bi-graph-down-arrow'],
+    'optimistic'   => ['label'=>'Optimistic',     'color'=>'#16a34a', 'bg'=>'#f0fdf4', 'border'=>'#86efac', 'icon'=>'bi-graph-down-arrow'],
     'catastrophic' => ['label'=>'Catastrophic',   'color'=>'#111111', 'bg'=>'#f9fafb', 'border'=>'#a1a1aa', 'icon'=>'bi-exclamation-octagon-fill'],
-    'regulatory'   => ['label'=>'Regulatory',     'color'=>'var(--moderate)', 'bg'=>'var(--info-subtle)', 'border'=>'var(--moderate-border)', 'icon'=>'bi-bank'],
+    'regulatory'   => ['label'=>'Regulatory',     'color'=>'#2563eb', 'bg'=>'#eff6ff', 'border'=>'#93c5fd', 'icon'=>'bi-bank'],
 ];
 
 function scenPartialLevel(int $s): string {
@@ -42,7 +42,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
 <div class="card" style="margin-top:20px" id="risk-scenarios-section">
   <div class="card-header">
     <h3 class="card-title"><i class="bi bi-diagram-3-fill"></i> Risk Scenarios</h3>
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.scenarios')): ?>
     <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-sm btn-secondary">
       <i class="bi bi-plus-lg"></i> Add Scenario
     </a>
@@ -61,7 +61,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
       stress, optimistic, regulatory change, or catastrophic failure. Each scenario
       applies likelihood and impact multipliers to produce a projected score.
     </p>
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.scenarios')): ?>
     <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-primary btn-sm">
       <i class="bi bi-plus-lg"></i> Create First Scenario
     </a>
@@ -79,7 +79,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">vs Base</th>
           <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Financial Est.</th>
           <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Probability</th>
-          <?php if (Auth::can('risk.write')): ?>
+          <?php if (Auth::can('risk.scenarios')): ?>
           <th style="padding:10px 12px;width:36px"></th>
           <?php endif; ?>
         </tr>
@@ -141,7 +141,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           <td style="padding:12px;text-align:center;white-space:nowrap">
             <?php if ($delta > 0): ?>
               <span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;
-                           padding:3px 8px;border-radius:20px;background:var(--danger-tint);color:var(--danger)">
+                           padding:3px 8px;border-radius:20px;background:var(--danger-subtle);color:var(--danger)">
                 <i class="bi bi-arrow-up"></i> +<?= $delta ?>
               </span>
             <?php elseif ($delta < 0): ?>
@@ -179,7 +179,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           </td>
 
           <!-- Delete -->
-          <?php if (Auth::can('risk.write')): ?>
+          <?php if (Auth::can('risk.scenarios')): ?>
           <td style="padding:12px 10px;text-align:center">
             <form method="POST" action="/risk-scenarios/<?= (int)$sc['id'] ?>/delete"
                   data-confirm="Delete scenario &#39;<?= Security::h($sc['name']) ?>&#39;?">
@@ -212,7 +212,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
       </span>
       <?php if ($totalFinancial > 0): ?>
       <span>
-        <i class="bi bi-currency-dollar" style="color:var(--primary)"></i>
+        <i class="bi bi-currency-dollar" style="color:var(--success)"></i>
         <strong style="color:var(--text)">Total financial exposure:</strong>
         $<?= number_format($totalFinancial, 0) ?>
       </span>

@@ -1,6 +1,14 @@
 """Aggregate all ORM models so ``Base.metadata`` is fully populated on import."""
+
 from __future__ import annotations
 
+from app.models.apqp import (
+    ApqpPhase,
+    ApqpProject,
+    ApqpStatus,
+    PpapElement,
+    PpapElementStatus,
+)
 from app.models.audit_mgmt import (
     Audit,
     AuditChecklistItem,
@@ -9,6 +17,12 @@ from app.models.audit_mgmt import (
     AuditType,
     FindingStatus,
     FindingType,
+)
+from app.models.audit_program import (
+    AuditProgram,
+    AuditProgramItem,
+    ProgramItemStatus,
+    ProgramStatus,
 )
 from app.models.base import SoftDeleteMixin, TimestampMixin
 from app.models.calibration import (
@@ -30,14 +44,37 @@ from app.models.change import (
     ChangeStatus,
     ChangeType,
 )
+from app.models.comment import Comment
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
+from app.models.concession import Concession, ConcessionStatus, ConcessionType
+from app.models.counterfeit import (
+    AlertSource,
+    AlertStatus,
+    CounterfeitAlert,
+    PartSourcingRecord,
+    RiskLevel,
+    SourceType,
+    VerificationStatus,
+)
+from app.models.customer import (
+    Contract,
+    ContractRequirement,
+    ContractStatus,
+    Customer,
+    CustomerStatus,
+    FlowDownStatus,
+    FlowDownTo,
+)
 from app.models.document import (
+    Department,
     Document,
     DocumentApproval,
     DocumentRevision,
     DocumentStatus,
     DocumentType,
 )
+from app.models.fod import FodEvent, FodRisk, FodSeverity, FodStatus, FodZone
+from app.models.iam import UserPermissionGrant
 from app.models.inspection import (
     FaiCharacteristic,
     FaiReport,
@@ -53,6 +90,7 @@ from app.models.mgmt_review import (
     ManagementReviewInput,
     ReviewStatus,
 )
+from app.models.msa import MsaResult, MsaStudy, MsaType
 from app.models.nonconformance import (
     DispositionType,
     NcSeverity,
@@ -60,12 +98,18 @@ from app.models.nonconformance import (
     Nonconformance,
     NonconformanceDisposition,
 )
+from app.models.permission import RolePagePermission, UserPagePermission
 from app.models.risk import (
     Risk,
     RiskCategory,
     RiskStatus,
     TreatmentStrategy,
 )
+from app.models.saved_view import SavedView
+from app.models.settings import OrgSettings
+from app.models.sla import SlaEscalation
+from app.models.spc import KcClass, KeyCharacteristic, Measurement
+from app.models.standard import CoverageStatus, Standard, StandardRequirement
 from app.models.supplier import (
     ApprovedSupplierListEntry,
     ScarStatus,
@@ -101,7 +145,11 @@ __all__ = [
     "ElectronicSignature",
     "Attachment",
     "Notification",
+    "RolePagePermission",
+    "UserPagePermission",
+    "UserPermissionGrant",
     "user_roles",
+    "Department",
     "Document",
     "DocumentRevision",
     "DocumentApproval",
@@ -162,4 +210,48 @@ __all__ = [
     "Complaint",
     "ComplaintStatus",
     "ComplaintSeverity",
+    "Comment",
+    "OrgSettings",
+    "SlaEscalation",
+    "Standard",
+    "StandardRequirement",
+    "CoverageStatus",
+    "PartSourcingRecord",
+    "CounterfeitAlert",
+    "SourceType",
+    "RiskLevel",
+    "VerificationStatus",
+    "AlertSource",
+    "AlertStatus",
+    "ApqpProject",
+    "PpapElement",
+    "ApqpPhase",
+    "ApqpStatus",
+    "PpapElementStatus",
+    "FodZone",
+    "FodEvent",
+    "FodRisk",
+    "FodSeverity",
+    "FodStatus",
+    "Concession",
+    "ConcessionType",
+    "ConcessionStatus",
+    "Customer",
+    "Contract",
+    "ContractRequirement",
+    "CustomerStatus",
+    "ContractStatus",
+    "FlowDownTo",
+    "FlowDownStatus",
+    "AuditProgram",
+    "AuditProgramItem",
+    "ProgramStatus",
+    "ProgramItemStatus",
+    "MsaStudy",
+    "MsaType",
+    "MsaResult",
+    "KeyCharacteristic",
+    "Measurement",
+    "KcClass",
+    "SavedView",
 ]

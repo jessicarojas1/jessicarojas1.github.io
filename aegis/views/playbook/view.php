@@ -1,18 +1,19 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Playbooks', '/playbook'], ['Playbook', null]];
 $categoryColors = [
     'general'         => 'var(--primary)',
     'ransomware'      => 'var(--danger)',
     'data_breach'     => 'var(--warning)',
-    'ddos'            => '#0284c7',
+    'ddos'            => 'var(--info)',
     'phishing'        => 'var(--secondary)',
     'insider_threat'  => '#db2777',
-    'system_failure'  => '#71717a',
+    'system_failure'  => 'var(--text-muted)',
     'compliance'      => 'var(--success)',
 ];
 $severityColors = [
     'critical' => 'var(--danger)',
     'high'     => 'var(--warning)',
-    'medium'   => '#0284c7',
+    'medium'   => 'var(--info)',
     'low'      => 'var(--success)',
 ];
 $catKey   = strtolower(str_replace([' ','-'], '_', $playbook['category']));
@@ -20,7 +21,6 @@ $catColor = $categoryColors[$catKey] ?? 'var(--primary)';
 $catLabel = ucwords(str_replace('_', ' ', $playbook['category']));
 $isActive = (bool)$playbook['is_active'];
 $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? null;
-$breadcrumbs = [['Playbooks', '/playbook'], [Security::h($playbook['title'] ?? 'Playbook'), null]];
 ?>
 
 <div class="page-header">
@@ -35,13 +35,13 @@ $breadcrumbs = [['Playbooks', '/playbook'], [Security::h($playbook['title'] ?? '
           <?= Security::h(ucfirst($playbook['severity_filter'])) ?> severity
         </span>
       <?php endif; ?>
-      <span class="status-chip" style="background:<?= $isActive ? '#05966920' : '#a1a1aa20' ?>;color:<?= $isActive ? 'var(--success)' : '#a1a1aa' ?>;border:1px solid <?= $isActive ? 'var(--success-ring)' : '#a1a1aa40' ?>">
+      <span class="status-chip" style="background:<?= $isActive ? 'color-mix(in srgb,var(--success) 20%,transparent)' : 'color-mix(in srgb,var(--text-muted) 20%,transparent)' ?>;color:<?= $isActive ? 'var(--success)' : 'var(--text-muted)' ?>;border:1px solid <?= $isActive ? 'color-mix(in srgb,var(--success) 40%,transparent)' : 'color-mix(in srgb,var(--text-muted) 40%,transparent)' ?>">
         <?= $isActive ? 'Active' : 'Inactive' ?>
       </span>
     </div>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('incident.write')): ?>
+    <?php if (Auth::can('incident.playbook')): ?>
       <form method="post" action="/playbooks/<?= (int)$playbook['id'] ?>/toggle" style="display:inline"
             data-confirm="<?= $isActive ? 'Deactivate' : 'Activate' ?> this playbook?">
         <?= Security::csrfField() ?>
@@ -160,9 +160,9 @@ $breadcrumbs = [['Playbooks', '/playbook'], [Security::h($playbook['title'] ?? '
                   <td class="text-sm text-muted"><?= $run['completed_at'] ? date('M j, Y g:ia', strtotime($run['completed_at'])) : '—' ?></td>
                   <td>
                     <?php if ($run['completed_at']): ?>
-                      <span class="status-chip" style="background:var(--success-tint);color:var(--success);border:1px solid var(--success-ring)">Complete</span>
+                      <span class="status-chip" style="background:color-mix(in srgb,var(--success) 20%,transparent);color:var(--success);border:1px solid color-mix(in srgb,var(--success) 40%,transparent)">Complete</span>
                     <?php else: ?>
-                      <span class="status-chip" style="background:var(--warning-tint);color:var(--warning);border:1px solid var(--warning-ring)">In Progress</span>
+                      <span class="status-chip" style="background:var(--warning)20;color:var(--warning);border:1px solid var(--warning)40">In Progress</span>
                     <?php endif; ?>
                   </td>
                 </tr>
@@ -189,10 +189,10 @@ $breadcrumbs = [['Playbooks', '/playbook'], [Security::h($playbook['title'] ?? '
         <table style="width:100%;border-collapse:collapse;font-size:13px">
           <?php $rows = [
             ['Category',      Security::h($catLabel)],
-            ['Severity Filter', $playbook['severity_filter'] ? '<span class="status-chip" style="background:' . ($sevColor??'#71717a') . '20;color:' . ($sevColor??'#71717a') . '">' . Security::h(ucfirst($playbook['severity_filter'])) . '</span>' : 'Any'],
+            ['Severity Filter', $playbook['severity_filter'] ? '<span class="status-chip" style="background:' . ($sevColor??'var(--text-muted)') . '20;color:' . ($sevColor??'var(--text-muted)') . '">' . Security::h(ucfirst($playbook['severity_filter'])) . '</span>' : 'Any'],
             ['Steps',         count($steps)],
             ['Runs',          count($runs)],
-            ['Status',        $isActive ? '<span class="status-chip" style="background:var(--success-tint);color:var(--success)">Active</span>' : '<span class="status-chip" style="background:#a1a1aa20;color:var(--text-muted)">Inactive</span>'],
+            ['Status',        $isActive ? '<span class="status-chip" style="background:color-mix(in srgb,var(--success) 20%,transparent);color:var(--success)">Active</span>' : '<span class="status-chip" style="background:color-mix(in srgb,var(--text-muted) 20%,transparent);color:var(--text-muted)">Inactive</span>'],
             ['Created By',    Security::h($playbook['creator_name'] ?? '—')],
             ['Created',       date('M j, Y', strtotime($playbook['created_at']))],
             ['Updated',       date('M j, Y', strtotime($playbook['updated_at']))],

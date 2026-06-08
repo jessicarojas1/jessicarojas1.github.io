@@ -1,4 +1,5 @@
 """Audit management endpoints: CRUD + findings + checklist + link finding->CAPA."""
+
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query, Request, status
@@ -9,12 +10,13 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit as audit_log
 from app.core.database import get_db
-from app.core.exceptions import NotFoundError
-from app.core.rbac import Permission, require_permission
+from app.core.exceptions import ConflictError, NotFoundError
 from app.models.audit_mgmt import (
     Audit,
     AuditChecklistItem,
@@ -37,8 +39,9 @@ from app.schemas.audit_mgmt import (
     FindingUpdate,
 )
 from app.schemas.auth import CurrentUser
+from app.schemas.capa import CapaLinkResult
 from app.schemas.common import Page
-from app.services import numbering
+from app.services import capa_factory, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -60,7 +63,7 @@ def list_audits(
     sort: SortParams = Depends(sort_params),
     status_filter: AuditStatus | None = Query(None, alias="status"),
     audit_type: AuditType | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.AUDIT_READ)),
+    _: CurrentUser = Depends(require_page("audits", "view")),
 ) -> Page[AuditList]:
     stmt = base_select(Audit)
     if status_filter:
@@ -77,7 +80,7 @@ def create_audit(
     body: AuditCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_perm("audits.create")),
 ) -> Audit:
     rec = Audit(
         **body.model_dump(),
@@ -107,7 +110,7 @@ def create_audit(
 def get_audit(
     audit_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.AUDIT_READ)),
+    _: CurrentUser = Depends(require_page("audits", "view")),
 ) -> Audit:
     return get_or_404(db, Audit, audit_id, name="Audit")
 
@@ -118,7 +121,7 @@ def update_audit(
     body: AuditUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_perm("audits.edit")),
 ) -> Audit:
     rec = get_or_404(db, Audit, audit_id, name="Audit")
     before = audit_log.snapshot(rec)
@@ -150,14 +153,12 @@ def add_finding(
     body: FindingCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_perm("audits.conduct")),
 ) -> AuditFinding:
     rec = get_or_404(db, Audit, audit_id, name="Audit")
     seq = (
         db.execute(
-            select(func.count()).select_from(AuditFinding).where(
-                AuditFinding.audit_id == audit_id
-            )
+            select(func.count()).select_from(AuditFinding).where(AuditFinding.audit_id == audit_id)
         ).scalar_one()
         + 1
     )
@@ -192,7 +193,7 @@ def update_finding(
     body: FindingUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_perm("audits.conduct")),
 ) -> AuditFinding:
     finding = db.get(AuditFinding, finding_id)
     if finding is None:
@@ -224,7 +225,7 @@ def link_finding_to_capa(
     body: FindingLinkCapa,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_perm("audits.edit")),
 ) -> AuditFinding:
     finding = db.get(AuditFinding, finding_id)
     if finding is None:
@@ -250,6 +251,42 @@ def link_finding_to_capa(
     return finding
 
 
+@router.post("/findings/{finding_id}/create-capa", response_model=CapaLinkResult)
+def create_capa_from_finding(
+    finding_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_perm("capa.create")),
+) -> CapaLinkResult:
+    """Open a corrective CAPA pre-filled from an audit finding and link them."""
+    finding = db.get(AuditFinding, finding_id)
+    if finding is None:
+        raise NotFoundError(f"Finding {finding_id} not found.")
+    if finding.capa_id is not None:
+        raise ConflictError("A CAPA is already linked to this finding.")
+    capa = capa_factory.create_linked_capa(
+        db,
+        actor.id,
+        title=f"CAPA for finding {finding.finding_number}",
+        problem=finding.description,
+    )
+    finding.capa_id = capa.id
+    finding.status = FindingStatus.RESPONSE_SUBMITTED
+    finding.updated_by = actor.id
+    audit_log.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="create_capa",
+        entity_type=ENTITY,
+        entity_id=finding.audit_id,
+        after={"finding_id": finding.id, "capa_id": capa.id},
+        **request_context(request),
+    )
+    db.commit()
+    return CapaLinkResult(capa_id=capa.id, capa_number=capa.capa_number)
+
+
 @router.post(
     "/{audit_id}/checklist", response_model=ChecklistItemRead, status_code=status.HTTP_201_CREATED
 )
@@ -257,7 +294,7 @@ def add_checklist_item(
     audit_id: int,
     body: ChecklistItemCreate,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_perm("audits.conduct")),
 ) -> AuditChecklistItem:
     get_or_404(db, Audit, audit_id, name="Audit")
     item = AuditChecklistItem(audit_id=audit_id, **body.model_dump())
