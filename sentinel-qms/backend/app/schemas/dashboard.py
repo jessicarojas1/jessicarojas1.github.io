@@ -150,6 +150,16 @@ class StandardCoverage(BaseModel):
     coverage_pct: float
 
 
+class FodTrendPoint(BaseModel):
+    month: str
+    count: int
+
+
+class FodSummary(BaseModel):
+    open_events: int
+    trend: list[FodTrendPoint]
+
+
 class ExecutiveDashboard(BaseModel):
     generated_at: str
     kpis: list[ExecKpi]
@@ -159,6 +169,7 @@ class ExecutiveDashboard(BaseModel):
     compliance_calendar: list[CalendarItem]
     counterfeit: CounterfeitSummary
     standards_coverage: list[StandardCoverage]
+    fod: FodSummary
 
 
 class MyOpenItem(BaseModel):

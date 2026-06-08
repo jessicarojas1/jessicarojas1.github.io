@@ -57,11 +57,13 @@ def test_executive_dashboard_shape(client, seeded, auth_headers):
         "compliance_calendar",
         "counterfeit",
         "standards_coverage",
+        "fod",
     ):
         assert key in body
     assert isinstance(body["kpis"], list) and len(body["kpis"]) >= 1
     assert set(body["counterfeit"]) == {"suspect_parts", "open_alerts"}
     assert isinstance(body["standards_coverage"], list)
+    assert set(body["fod"]) == {"open_events", "trend"}
     kpi0 = body["kpis"][0]
     for k in ("key", "label", "value", "target", "direction", "status"):
         assert k in kpi0

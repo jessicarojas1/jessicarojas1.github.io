@@ -8,7 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { CalendarClock, ShieldCheck, ShieldX } from 'lucide-react';
+import { CalendarClock, ShieldCheck, ShieldX, Trash } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useExecutiveDashboard } from '@/hooks';
 import { PageHeader } from '@/components/PageHeader';
@@ -250,6 +250,30 @@ export default function ExecutiveDashboardPage() {
                     </div>
                   ))
                 )}
+              </div>
+            </Link>
+
+            <Link to="/fod" className="card exec-link-card">
+              <div className="card__header">
+                <div className="card__title">
+                  <Trash size={16} /> FOD Events
+                </div>
+                <div className="card__subtitle">Open events &amp; 6-month trend</div>
+              </div>
+              <div className="card__body">
+                <div className="exec-stat" style={{ marginBottom: 8 }}>
+                  <div className={`exec-stat__value ${data.fod.open_events ? 'is-warn' : ''}`}>
+                    {data.fod.open_events}
+                  </div>
+                  <div className="exec-stat__label">Open events</div>
+                </div>
+                <ResponsiveContainer width="100%" height={70}>
+                  <BarChart data={data.fod.trend} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
+                    <XAxis dataKey="month" hide />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Bar dataKey="count" name="FOD events" fill={CHART_COLORS.warning} radius={[2, 2, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </Link>
           </div>

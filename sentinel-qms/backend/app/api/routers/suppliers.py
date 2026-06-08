@@ -19,7 +19,7 @@ from app.api.deps import (
 )
 from app.core import audit
 from app.core.database import get_db
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import ConflictError, NotFoundError
 from app.models.supplier import (
     ApprovedSupplierListEntry,
     ScarStatus,
@@ -29,6 +29,7 @@ from app.models.supplier import (
     SupplierStatus,
 )
 from app.schemas.auth import CurrentUser
+from app.schemas.capa import CapaLinkResult
 from app.schemas.common import ImportResult, Page
 from app.schemas.supplier import (
     AslEntryCreate,
@@ -43,7 +44,7 @@ from app.schemas.supplier import (
     SupplierRead,
     SupplierUpdate,
 )
-from app.services import csv_import, numbering
+from app.services import capa_factory, csv_import, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -341,6 +342,43 @@ def update_scar(
     db.commit()
     db.refresh(scar)
     return scar
+
+
+@router.post("/scars/{scar_id}/create-capa", response_model=CapaLinkResult)
+def create_capa_from_scar(
+    scar_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_perm("capa.create")),
+) -> CapaLinkResult:
+    """Open a corrective CAPA pre-filled from a SCAR and link them. Conflicts if
+    a CAPA is already linked, so no duplicate is created."""
+    scar = db.get(SupplierScar, scar_id)
+    if scar is None:
+        raise NotFoundError(f"SCAR {scar_id} not found.")
+    if scar.capa_id is not None:
+        raise ConflictError("A CAPA is already linked to this SCAR.")
+    capa = capa_factory.create_linked_capa(
+        db,
+        actor.id,
+        title=f"CAPA for {scar.scar_number}: {scar.title}",
+        problem=scar.description,
+        supplier_id=scar.supplier_id,
+    )
+    scar.capa_id = capa.id
+    scar.updated_by = actor.id
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="create_capa",
+        entity_type="supplier_scar",
+        entity_id=scar.id,
+        after={"capa_id": capa.id},
+        **request_context(request),
+    )
+    db.commit()
+    return CapaLinkResult(capa_id=capa.id, capa_number=capa.capa_number)
 
 
 # ── Approved Supplier List ──────────────────────────────────────────────────
