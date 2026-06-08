@@ -97,6 +97,38 @@ class TrainingRecordRead(ORMModel):
     created_at: datetime | None = None
 
 
+class TrainingRecordListItem(BaseModel):
+    """Flattened training record for the list view (joined personnel/course)."""
+
+    id: int
+    employee_id: str
+    employee_name: str
+    course: str
+    course_code: str | None
+    status: TrainingStatus
+    assigned_at: date | None
+    completed_at: date | None
+    due_date: date | None
+    score: str | None
+
+
+class CompetencyCell(BaseModel):
+    competency: str
+    level: int
+
+
+class CompetencyRow(BaseModel):
+    employee_id: str
+    employee_name: str
+    department: str | None = None
+    cells: list[CompetencyCell]
+
+
+class CompetencyMatrix(BaseModel):
+    competencies: list[str]
+    rows: list[CompetencyRow]
+
+
 class CompetencyCreate(BaseModel):
     personnel_id: int
     skill: str = Field(..., min_length=1, max_length=255)
