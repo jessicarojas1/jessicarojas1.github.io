@@ -19,6 +19,16 @@ export const SHARE_ROUTES: Record<string, string> = {
   apqp_project: '/apqp',
 };
 
+/** Entity types that have a branded read-only PDF available via the share. */
+export const SHARE_PDF_TYPES = new Set([
+  'nonconformance',
+  'capa',
+  'audit',
+  'supplier',
+  'complaint',
+  'apqp_project',
+]);
+
 export function shareLink(s: RecordShare): string | null {
   const base = SHARE_ROUTES[s.entity_type];
   return base ? `${base}/${s.entity_id}` : null;
