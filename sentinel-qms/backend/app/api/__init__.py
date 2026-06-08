@@ -26,6 +26,7 @@ from app.api.routers import (
     iam,
     inspections,
     mgmt_reviews,
+    msa,
     nonconformances,
     notifications,
     permissions,
@@ -75,3 +76,4 @@ api_router.include_router(concessions.router)
 api_router.include_router(signatures.router)
 api_router.include_router(customers.router)
 api_router.include_router(audit_programs.router)
+api_router.include_router(msa.router)

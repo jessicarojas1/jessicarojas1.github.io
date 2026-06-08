@@ -832,6 +832,25 @@ export interface CounterfeitAlert {
   ncr_id: number | null;
 }
 
+export type MsaType = 'gage_rr' | 'bias' | 'linearity' | 'stability';
+export type MsaResult = 'acceptable' | 'marginal' | 'unacceptable' | 'pending';
+
+export interface MsaStudy {
+  id: number;
+  study_number: string;
+  equipment_id: number | null;
+  characteristic: string;
+  study_type: MsaType;
+  num_parts: number | null;
+  num_operators: number | null;
+  num_trials: number | null;
+  grr_percent: number | null;
+  ndc: number | null;
+  result: MsaResult;
+  study_date: string | null;
+  notes: string | null;
+}
+
 export type ProgramStatus = 'draft' | 'active' | 'closed';
 export type ProgramItemStatus = 'planned' | 'scheduled' | 'completed' | 'cancelled';
 

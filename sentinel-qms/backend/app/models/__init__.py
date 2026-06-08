@@ -90,6 +90,7 @@ from app.models.mgmt_review import (
     ManagementReviewInput,
     ReviewStatus,
 )
+from app.models.msa import MsaResult, MsaStudy, MsaType
 from app.models.nonconformance import (
     DispositionType,
     NcSeverity,
@@ -244,4 +245,7 @@ __all__ = [
     "AuditProgramItem",
     "ProgramStatus",
     "ProgramItemStatus",
+    "MsaStudy",
+    "MsaType",
+    "MsaResult",
 ]

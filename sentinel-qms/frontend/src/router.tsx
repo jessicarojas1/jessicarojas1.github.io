@@ -13,6 +13,7 @@ const CounterfeitPage = lazy(() => import('./pages/counterfeit/CounterfeitPage')
 const ApqpListPage = lazy(() => import('./pages/apqp/ApqpListPage'));
 const ApqpDetailPage = lazy(() => import('./pages/apqp/ApqpDetailPage'));
 const FodPage = lazy(() => import('./pages/fod/FodPage'));
+const MsaPage = lazy(() => import('./pages/msa/MsaPage'));
 const ConcessionsPage = lazy(() => import('./pages/concessions/ConcessionsPage'));
 const CustomersPage = lazy(() => import('./pages/customers/CustomersPage'));
 const ContractDetailPage = lazy(() => import('./pages/customers/ContractDetailPage'));
@@ -108,6 +109,10 @@ export function AppRouter() {
           <Route
             path="fod"
             element={<Guard page="inspections" capability="inspections.read"><FodPage /></Guard>}
+          />
+          <Route
+            path="msa"
+            element={<Guard page="calibration" capability="calibration.read"><MsaPage /></Guard>}
           />
           <Route
             path="concessions"
