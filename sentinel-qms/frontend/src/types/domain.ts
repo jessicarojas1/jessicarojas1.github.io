@@ -832,6 +832,18 @@ export interface CounterfeitAlert {
   ncr_id: number | null;
 }
 
+export interface ParetoBucket {
+  label: string;
+  count: number;
+  cumulative_pct: number;
+}
+
+export interface ParetoResponse {
+  dimension: string;
+  total: number;
+  buckets: ParetoBucket[];
+}
+
 export type KcClass = 'critical' | 'major' | 'minor';
 
 export interface SpcCapability {

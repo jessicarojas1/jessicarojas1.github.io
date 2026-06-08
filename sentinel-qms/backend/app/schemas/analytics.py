@@ -17,3 +17,15 @@ class AnalyticsTrends(BaseModel):
     open_by_module: dict[str, int]
     nc_by_severity: dict[str, int]
     audit_findings_by_type: dict[str, int]
+
+
+class ParetoBucket(BaseModel):
+    label: str
+    count: int
+    cumulative_pct: float
+
+
+class ParetoResponse(BaseModel):
+    dimension: str
+    total: int
+    buckets: list[ParetoBucket]
