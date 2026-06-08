@@ -24,6 +24,10 @@ function verify(token, secret) {
   try {
     const parts = String(token).split('.');
     if (parts.length !== 3) return null;
+    // Pin the algorithm: only HS256 is ever issued. Rejecting any other alg here
+    // forecloses alg-confusion if an asymmetric path is ever added.
+    const header = JSON.parse(fromB64url(parts[0]).toString('utf8'));
+    if (header.alg !== 'HS256') return null;
     const data = parts[0] + '.' + parts[1];
     const expected = crypto.createHmac('sha256', secret).update(data).digest();
     const got = fromB64url(parts[2]);

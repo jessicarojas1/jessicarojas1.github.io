@@ -19,6 +19,8 @@ const path = require('path');
 const crypto = require('crypto');
 
 const { execFile } = require('child_process');
+const dns = require('dns').promises;
+const net = require('net');
 const scanners = require('./lib/scanners');
 const engine = require('./lib/engine');
 const ai = require('./lib/ai');
@@ -50,7 +52,10 @@ fs.mkdirSync(TMP_ROOT, { recursive: true });
 const upload = multer({ dest: path.join(TMP_ROOT, 'uploads'), limits: { fileSize: MAX_UPLOAD, files: 5000 } });
 const app = express();
 app.disable('x-powered-by');
-app.set('trust proxy', true);   // honour X-Forwarded-For behind Render/ALB so client IPs are real
+// Trust a FIXED number of front proxies (default 1 — Render/ALB). Trusting the
+// whole X-Forwarded-For chain (`true`) let clients spoof their IP and bypass the
+// rate-limit/lockout. Set TRUST_PROXY_HOPS to your proxy depth.
+app.set('trust proxy', parseInt(process.env.TRUST_PROXY_HOPS || '1', 10));
 app.use(metrics.httpMiddleware());
 
 // Prometheus metrics scrape endpoint (gauges registered once).
@@ -59,10 +64,10 @@ metrics.gauge('citadel_uptime_seconds', () => Math.floor(process.uptime()));
 metrics.gauge('citadel_resident_memory_bytes', () => process.memoryUsage().rss);
 app.get('/metrics', (req, res) => { res.set('Content-Type', 'text/plain; version=0.0.4'); res.send(metrics.render()); });
 
-// Best-effort client IP (first hop of X-Forwarded-For, else the socket address).
+// Client IP as computed by Express from the TRUSTED proxy hops (not the raw,
+// client-spoofable X-Forwarded-For). Used for rate-limit + lockout keys.
 function clientIp(req) {
-  const xff = (req.headers['x-forwarded-for'] || '').split(',')[0].trim();
-  return xff || req.ip || (req.socket && req.socket.remoteAddress) || 'unknown';
+  return req.ip || (req.socket && req.socket.remoteAddress) || 'unknown';
 }
 
 // Token lifetimes. Short-lived access tokens + a long-lived refresh token so a
@@ -128,9 +133,19 @@ app.use((req, res, next) => {
   }
   next();
 });
+// A logged-in user flagged must-change (e.g. the default-cred admin) can only
+// change its password — block every other protected route until it does.
+function mustChangeBlocked(req, res) {
+  if (req.user && req.user.mustChange) {
+    res.status(403).json({ error: 'You must change your password before using this resource.', mustChange: true });
+    return true;
+  }
+  return false;
+}
 // Permission gate: open when enforce is off; else require auth + the page perm.
 function requirePerm(page) {
   return (req, res, next) => {
+    if (mustChangeBlocked(req, res)) return;
     if (!users.settings().enforce) return next();
     if (!req.user) return res.status(401).json({ error: 'Sign in required.' });
     if (!users.can(req.user, page)) return res.status(403).json({ error: 'You do not have permission for this action.' });
@@ -139,6 +154,7 @@ function requirePerm(page) {
 }
 function requireAdmin(req, res, next) {
   if (!req.user) return res.status(401).json({ error: 'Sign in required.' });
+  if (mustChangeBlocked(req, res)) return;
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Administrator only.' });
   next();
 }
@@ -150,21 +166,30 @@ function safeJoin(base, target) {
   return p;
 }
 
+// Decompression-bomb guards: cap total uncompressed bytes + entry count.
+const MAX_UNZIP_BYTES = parseInt(process.env.CITADEL_MAX_UNZIP_BYTES || String(500 * 1024 * 1024), 10);
+const MAX_UNZIP_ENTRIES = parseInt(process.env.CITADEL_MAX_UNZIP_ENTRIES || '50000', 10);
+
 function buildWorkdir(files) {
   const work = path.join(TMP_ROOT, 'scan-' + crypto.randomBytes(8).toString('hex'));
   fs.mkdirSync(work, { recursive: true });
+  let totalBytes = 0, totalEntries = 0;
   for (const file of files) {
     const orig = file.originalname || path.basename(file.path);
     if (/\.(zip|jar|war|apk|nupkg)$/i.test(orig)) {
       try {
         const zip = new AdmZip(file.path);
-        zip.getEntries().forEach(e => {
-          if (e.isDirectory) return;
+        for (const e of zip.getEntries()) {
+          if (e.isDirectory) continue;
+          if (++totalEntries > MAX_UNZIP_ENTRIES) throw new Error('archive has too many entries');
+          totalBytes += (e.header && e.header.size) || 0;     // declared uncompressed size
+          if (totalBytes > MAX_UNZIP_BYTES) throw new Error('archive decompresses beyond the size limit');
           const dest = safeJoin(work, e.entryName);
           fs.mkdirSync(path.dirname(dest), { recursive: true });
           fs.writeFileSync(dest, e.getData());
-        });
+        }
       } catch (err) {
+        if (/too many entries|size limit/.test(err.message)) { rmrf(work); throw new Error('Upload rejected: ' + err.message + '.'); }
         // not a valid zip — keep the raw file for binary analysis
         const dest = safeJoin(work, orig);
         fs.mkdirSync(path.dirname(dest), { recursive: true });
@@ -308,19 +333,32 @@ app.post('/api/auth/mfa/disable', (req, res) => {
 
 /* ---- OIDC SSO (Authorization Code + PKCE) ---- */
 const OIDC_POST_LOGIN = process.env.OIDC_POST_LOGIN || '/';
-// Begin SSO: redirect the browser to the identity provider.
+function cookie(req, name) {
+  const m = (req.headers.cookie || '').match(new RegExp('(?:^|;\\s*)' + name + '=([^;]+)'));
+  return m ? decodeURIComponent(m[1]) : '';
+}
+// Begin SSO: redirect the browser to the identity provider, binding `state` to a
+// browser cookie so the callback can prove the same browser started the flow.
 app.get('/api/auth/oidc/start', rateLimited('oidc', 30, 10 * 60000), async (req, res) => {
   if (!oidc.enabled()) return res.status(404).json({ error: 'SSO is not configured.' });
-  try { res.redirect(await oidc.authUrl()); }
-  catch (e) { log.error('oidc start', { err: e.message }); res.status(502).json({ error: 'SSO provider unavailable.' }); }
+  try {
+    const { url, state } = await oidc.authUrl();
+    res.setHeader('Set-Cookie', 'citadel_oidc_state=' + encodeURIComponent(state) +
+      '; Path=/api/auth/oidc; HttpOnly; Secure; SameSite=Lax; Max-Age=600');
+    res.redirect(url);
+  } catch (e) { log.error('oidc start', { err: e.message }); res.status(502).json({ error: 'SSO provider unavailable.' }); }
 });
 // IdP redirects back here with ?code&state. Exchange, verify, JIT-provision, issue session.
 app.get('/api/auth/oidc/callback', async (req, res) => {
   if (!oidc.enabled()) return res.status(404).send('SSO is not configured.');
+  res.setHeader('Cache-Control', 'no-store');
   const ip = clientIp(req);
   try {
     const { code, state, error } = req.query;
     if (error) throw new Error('Provider returned: ' + String(error).slice(0, 80));
+    // CSRF: the state from the IdP must match the one bound to this browser.
+    if (!state || cookie(req, 'citadel_oidc_state') !== String(state)) throw new Error('SSO state mismatch.');
+    res.setHeader('Set-Cookie', 'citadel_oidc_state=; Path=/api/auth/oidc; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
     const s = oidc.takeState(String(state || ''));
     if (!s || !code) throw new Error('Invalid or expired SSO state.');
     const tokenSet = await oidc.exchangeCode(String(code), s.verifier);
@@ -384,16 +422,18 @@ app.get('/api/audit', requireAdmin, async (req, res) => {
 });
 
 /* ---------------- Scan history (durable, requires DATABASE_URL) ---------------- */
+// Non-admins are scoped to their own scans (no cross-user IDOR by sequential id).
+function scanScope(req) { return req.user ? { userId: req.user.id, isAdmin: req.user.role === 'admin' } : null; }
 app.get('/api/scans', requirePerm('tab-history'), async (req, res) => {
-  res.json({ enabled: scans.enabled(), scans: await scans.list(parseInt(req.query.limit, 10) || 100) });
+  res.json({ enabled: scans.enabled(), scans: await scans.list(parseInt(req.query.limit, 10) || 100, scanScope(req)) });
 });
 app.get('/api/scans/:id', requirePerm('tab-history'), async (req, res) => {
-  const report = await scans.get(req.params.id);
+  const report = await scans.get(req.params.id, scanScope(req));
   if (!report) return res.status(404).json({ error: 'Scan not found.' });
   res.json(report);
 });
 app.delete('/api/scans/:id', requirePerm('tab-history'), async (req, res) => {
-  await scans.remove(req.params.id);
+  await scans.remove(req.params.id, scanScope(req));
   audit.record('scan.delete', { actor: req.user && req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true });
   res.json({ ok: true });
 });
@@ -428,6 +468,31 @@ app.patch('/api/users/:id', requireAdmin, (req, res) => { try { const u = users.
 app.delete('/api/users/:id', requireAdmin, (req, res) => { try { users.remove(req.params.id); audit.record('user.remove', { actor: req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true }); res.json({ ok: true }); } catch (e) { res.status(400).json({ error: e.message }); } });
 app.post('/api/users/:id/password', requireAdmin, (req, res) => { try { users.setPassword(req.params.id, (req.body && req.body.password) || ''); audit.record('user.password', { actor: req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true }); res.json({ ok: true }); } catch (e) { res.status(400).json({ error: e.message }); } });
 
+// Is an IP literal inside a private / loopback / link-local / metadata range?
+function isPrivateIp(ip) {
+  if (net.isIPv4(ip)) {
+    const o = ip.split('.').map(Number);
+    return o[0] === 10 || o[0] === 127 || o[0] === 0 ||
+      (o[0] === 169 && o[1] === 254) ||                 // link-local + AWS/GCP/Azure metadata
+      (o[0] === 172 && o[1] >= 16 && o[1] <= 31) ||      // RFC1918
+      (o[0] === 192 && o[1] === 168) ||
+      (o[0] === 100 && o[1] >= 64 && o[1] <= 127);       // RFC6598 CGNAT
+  }
+  const v = ip.toLowerCase().replace(/^::ffff:/, '');
+  if (net.isIPv4(v)) return isPrivateIp(v);
+  return v === '::1' || v === '::' || v.startsWith('fe80') || v.startsWith('fc') || v.startsWith('fd');
+}
+// SSRF guard: resolve the host and reject if ANY address is internal (defeats
+// DNS rebinding by resolving once and refusing internal targets).
+async function ssrfBlocked(hostname) {
+  if (isPrivateIp(hostname)) return true;                // IP literal
+  if (/^(localhost|metadata|metadata\.google\.internal)$/i.test(hostname)) return true;
+  try {
+    const addrs = await dns.lookup(hostname, { all: true });
+    return addrs.some(a => isPrivateIp(a.address));
+  } catch (e) { return true; }                           // unresolvable → block
+}
+
 // Scan a public Git repository by URL (shallow clone, read-only).
 // Heavy (clone + full scanner fan-out): throttle to protect the free-tier box.
 app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('deepscan'), async (req, res) => {
@@ -436,10 +501,16 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('
   if (!/^https:\/\/[\w.-]+\/[\w./~-]+?(\.git)?$/.test(url) || url.length > 300) {
     return res.status(400).json({ error: 'Provide a valid public https Git URL.' });
   }
+  let host;
+  try { host = new URL(url).hostname; } catch (e) { return res.status(400).json({ error: 'Invalid URL.' }); }
+  if (await ssrfBlocked(host)) {
+    audit.record('scan.ssrf_blocked', { actor: req.user && req.user.email, ip: clientIp(req), detail: host, ok: false });
+    return res.status(400).json({ error: 'That host is not allowed (internal/metadata addresses are blocked).' });
+  }
   const work = path.join(TMP_ROOT, 'clone-' + crypto.randomBytes(8).toString('hex'));
   try {
     await new Promise((resolve, reject) => {
-      execFile('git', ['clone', '--depth', '1', '--single-branch', url, work],
+      execFile('git', ['-c', 'http.followRedirects=false', 'clone', '--depth', '1', '--single-branch', url, work],
         { timeout: 120000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } },
         (err) => err ? reject(new Error('Clone failed (is the repository public?).')) : resolve());
     });

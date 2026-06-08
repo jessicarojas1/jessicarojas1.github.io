@@ -38,6 +38,12 @@ test('jwt: rejects tampered payload', () => {
 test('jwt: rejects wrong secret', () => { assert.equal(jwt.verify(jwt.sign({ sub: 'u' }, 'a', 60), 'b'), null); });
 test('jwt: rejects expired', () => { assert.equal(jwt.verify(jwt.sign({ sub: 'u' }, 'a', -5), 'a'), null); });
 test('jwt: rejects malformed', () => { assert.equal(jwt.verify('not.a.jwt', 'a'), null); });
+test('jwt: rejects non-HS256 alg header (alg pinning)', () => {
+  const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  // a token whose header claims alg:none — must be rejected even if "signature" is empty
+  const forged = b64({ alg: 'none', typ: 'JWT' }) + '.' + b64({ sub: 'attacker' }) + '.';
+  assert.equal(jwt.verify(forged, 'secret'), null);
+});
 
 /* ---------------- TOTP / MFA ---------------- */
 test('totp: verifies its own code, rejects wrong/garbage', () => {

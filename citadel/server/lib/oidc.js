@@ -72,7 +72,7 @@ async function authUrl() {
     response_type: 'code', client_id: CFG.clientId, redirect_uri: CFG.redirectUri,
     scope: CFG.scopes, state, nonce, code_challenge: challenge, code_challenge_method: 'S256'
   });
-  return meta.authorization_endpoint + '?' + p.toString();
+  return { url: meta.authorization_endpoint + '?' + p.toString(), state };
 }
 
 async function exchangeCode(code, verifier) {
@@ -96,8 +96,11 @@ async function verifyIdToken(idToken, expectedNonce) {
   const payload = JSON.parse(fromB64url(parts[1]).toString('utf8'));
   if (!/^(RS|PS)256$/.test(header.alg || '')) throw new Error('Unsupported id_token alg: ' + header.alg);
   const keys = await jwks();
-  const jwk = keys.find(k => k.kid === header.kid) || keys.find(k => k.kty === 'RSA');
-  if (!jwk) throw new Error('No matching JWKS key');
+  // Require a kid match (don't silently fall back to "any RSA key"); the single
+  // -key case is the only safe exception when the provider omits kid.
+  const rsa = keys.filter(k => k.kty === 'RSA');
+  const jwk = keys.find(k => k.kid === header.kid) || (rsa.length === 1 ? rsa[0] : null);
+  if (!jwk) throw new Error('No matching JWKS key for kid ' + (header.kid || '(none)'));
   const pub = crypto.createPublicKey({ key: jwk, format: 'jwk' });
   const algo = header.alg === 'PS256'
     ? { key: pub, padding: crypto.constants.RSA_PKCS1_PSS_PADDING, saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST }

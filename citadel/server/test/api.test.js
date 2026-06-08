@@ -71,6 +71,28 @@ test('admin-only routes require an admin token', async () => {
   assert.equal((await api('/api/audit')).status, 401);
 });
 
+test('scan-url blocks SSRF to internal/metadata hosts', async () => {
+  for (const url of ['https://localhost/x.git', 'https://169.254.169.254/latest.git', 'https://127.0.0.1/r.git']) {
+    const r = await json('/api/scan-url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+    assert.equal(r.status, 400, url);
+    assert.match(r.body.error, /not allowed|internal|metadata|valid public/i);
+  }
+});
+
+test('default-cred admin must change password before sensitive routes', async () => {
+  const l = await json('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@citadel.local', password: 'citadel-admin' }) });
+  assert.equal(l.body.user.mustChange, true);
+  // admin route blocked with 403 mustChange until the password is rotated
+  const u = await json('/api/users', { headers: authed(l.body.token) });
+  assert.equal(u.status, 403); assert.equal(u.body.mustChange, true);
+  // changing the password lifts the block
+  await json('/api/auth/password', { method: 'POST', headers: authed(l.body.token, { 'Content-Type': 'application/json' }), body: JSON.stringify({ current: 'citadel-admin', next: 'RotatedStrong1' }) });
+  const l2 = await json('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@citadel.local', password: 'RotatedStrong1' }) });
+  assert.equal((await api('/api/users', { headers: authed(l2.body.token) })).status, 200);
+  // restore the well-known password so later tests stay consistent (mustChange now cleared)
+  await json('/api/auth/password', { method: 'POST', headers: authed(l2.body.token, { 'Content-Type': 'application/json' }), body: JSON.stringify({ current: 'RotatedStrong1', next: 'citadel-admin' }) });
+});
+
 test('scan an uploaded file returns a report with findings', async () => {
   const fd = new FormData();
   fd.append('files', new Blob(['const x = eval(userInput);\ndb.query("SELECT * FROM t WHERE id=" + id);\n'], { type: 'text/javascript' }), 'vuln.js');
