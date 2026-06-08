@@ -781,6 +781,7 @@ export interface ApqpProject {
   part_name: string;
   customer: string | null;
   supplier_id: number | null;
+  contract_id: number | null;
   current_phase: ApqpPhase;
   status: ApqpStatus;
   submission_level: number;

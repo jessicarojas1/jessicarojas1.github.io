@@ -36,6 +36,7 @@ class ApqpCreate(BaseModel):
     part_name: str = Field(..., min_length=1, max_length=255)
     customer: str | None = Field(default=None, max_length=255)
     supplier_id: int | None = None
+    contract_id: int | None = None
     submission_level: int = Field(default=3, ge=1, le=5)
     target_date: date | None = None
     notes: str | None = None
@@ -46,6 +47,7 @@ class ApqpUpdate(BaseModel):
     part_name: str | None = Field(default=None, min_length=1, max_length=255)
     customer: str | None = Field(default=None, max_length=255)
     supplier_id: int | None = None
+    contract_id: int | None = None
     current_phase: ApqpPhase | None = None
     status: ApqpStatus | None = None
     submission_level: int | None = Field(default=None, ge=1, le=5)
@@ -60,6 +62,7 @@ class ApqpList(ORMModel):
     part_name: str
     customer: str | None
     supplier_id: int | None
+    contract_id: int | None
     current_phase: ApqpPhase
     status: ApqpStatus
     submission_level: int
