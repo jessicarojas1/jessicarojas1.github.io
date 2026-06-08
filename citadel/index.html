@@ -173,9 +173,10 @@
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-git"></i></span>
           <input type="url" class="form-control" id="repo-url" placeholder="https://github.com/owner/repo — scan a public repository">
+          <input type="text" class="form-control" id="repo-subpath" style="max-width:220px" placeholder="subfolder (optional) e.g. citadel">
           <button class="btn btn-primary" id="scan-url-btn"><i class="bi bi-search"></i> Scan repo</button>
         </div>
-        <div class="form-text">The backend shallow-clones the public repo, runs the real scanners, and never executes the code.</div>
+        <div class="form-text">The backend shallow-clones the public repo, runs the real scanners, and never executes the code. For a large monorepo, set a <strong>subfolder</strong> to scan just one project (faster, lighter).</div>
       </div>
 
       <!-- Progress -->

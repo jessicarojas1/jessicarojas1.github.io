@@ -79,10 +79,13 @@
     return out;
   }
 
-  async function scanUrl(url, onProgress) {
+  async function scanUrl(url, subpath, onProgress) {
+    // Back-compat: allow scanUrl(url, onProgress) with no subpath.
+    if (typeof subpath === 'function') { onProgress = subpath; subpath = ''; }
     onProgress && onProgress('Cloning & scanning repository…');
     const res = await apiFetch('api/scan-url', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url })
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, subpath: subpath || '' })
     });
     return asJson(res, 'Scan service error');
   }

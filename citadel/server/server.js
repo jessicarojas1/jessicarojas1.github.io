@@ -515,6 +515,13 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('
   if (!/^https:\/\/[\w.-]+\/[\w./~-]+?(\.git)?$/.test(url) || url.length > 300) {
     return res.status(400).json({ error: 'Provide a valid public https Git URL.' });
   }
+  // Optional subpath: scan just one folder of a large monorepo (e.g. "citadel")
+  // so we don't ingest the whole repo on a small instance. Format-validate here
+  // (pure string check); it is resolved + confined to the clone after cloning.
+  const subpath = String((req.body && req.body.subpath) || '').trim().replace(/^\/+|\/+$/g, '');
+  if (subpath && (subpath.length > 300 || subpath.includes('\0') || /(^|\/)\.\.(\/|$)/.test(subpath))) {
+    return res.status(400).json({ error: 'Invalid subpath.' });
+  }
   let host;
   try { host = new URL(url).hostname; } catch (e) { return res.status(400).json({ error: 'Invalid URL.' }); }
   if (await ssrfBlocked(host)) {
@@ -528,11 +535,23 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('
         { timeout: 120000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } },
         (err) => err ? reject(new Error('Clone failed (is the repository public?).')) : resolve());
     });
-    const scannerResult = await scanners.runAll(work);
-    const report = await engine.analyzeDir(work, scannerResult, null, { isolate: true });
-    report.meta.source = url;
-    scans.record(report, { user: req.user, source: url }).catch(() => {});
-    notify.scanComplete(report, { user: req.user, source: url });
+    // Resolve + confine the subpath to the clone (defense-in-depth against
+    // symlink/traversal escapes), then require it to be a real directory.
+    let scanRoot = work;
+    if (subpath) {
+      const resolved = path.resolve(work, subpath);
+      const rel = path.relative(work, resolved);
+      if (rel.startsWith('..') || path.isAbsolute(rel)) throw new Error('Subpath escapes the repository.');
+      let st = null; try { st = fs.statSync(resolved); } catch (e) {}
+      if (!st || !st.isDirectory()) throw new Error('Subpath "' + subpath + '" is not a folder in the repository.');
+      scanRoot = resolved;
+    }
+    const source = url + (subpath ? ' (/' + subpath + ')' : '');
+    const scannerResult = await scanners.runAll(scanRoot);
+    const report = await engine.analyzeDir(scanRoot, scannerResult, null, { isolate: true });
+    report.meta.source = source;
+    scans.record(report, { user: req.user, source }).catch(() => {});
+    notify.scanComplete(report, { user: req.user, source });
     res.json(report);
   } catch (err) {
     res.status(500).json({ error: err.message });

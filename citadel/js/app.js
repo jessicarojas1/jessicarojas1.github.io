@@ -250,9 +250,11 @@
     if (!gateScan()) return;
     const url = $('repo-url').value.trim();
     if (!url) return;
+    const subEl = $('repo-subpath');
+    const subpath = subEl ? subEl.value.trim() : '';
     try {
-      let p = 20; showProgress(p, 'Cloning & scanning repository…', url);
-      const report = await CITADEL.api.scanUrl(url, (s) => { p = Math.min(90, p + 20); showProgress(p, s, ''); });
+      let p = 20; showProgress(p, 'Cloning & scanning repository…', url + (subpath ? ' /' + subpath : ''));
+      const report = await CITADEL.api.scanUrl(url, subpath, (s) => { p = Math.min(90, p + 20); showProgress(p, s, ''); });
       finishScan(report, 'deep');
     } catch (err) { if (!handleAuthError(err)) showProgress(100, 'Repo scan failed: ' + (err.message || err), ''); }
   });

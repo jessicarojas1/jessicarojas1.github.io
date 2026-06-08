@@ -79,6 +79,15 @@ test('scan-url blocks SSRF to internal/metadata hosts', async () => {
   }
 });
 
+test('scan-url rejects a traversal subpath (before any clone)', async () => {
+  for (const subpath of ['../etc', 'a/../../b', '..']) {
+    const r = await json('/api/scan-url', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: 'https://github.com/owner/repo', subpath }) });
+    assert.equal(r.status, 400, subpath);
+    assert.match(r.body.error, /invalid subpath/i);
+  }
+});
+
 test('default-cred admin must change password before sensitive routes', async () => {
   const l = await json('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@citadel.local', password: 'citadel-admin' }) });
   assert.equal(l.body.user.mustChange, true);
