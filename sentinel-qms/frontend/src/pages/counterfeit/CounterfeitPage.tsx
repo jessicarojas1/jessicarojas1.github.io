@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { FilePlus2, Trash2 } from 'lucide-react';
 import {
   useCounterfeitAlerts,
   useCreateAlert,
   useCreateSourcing,
   useDeleteAlert,
   useDeleteSourcing,
+  useRaiseNcrForAlert,
+  useRaiseNcrForSourcing,
   useSourcingRecords,
   useUpdateAlert,
   useUpdateSourcing,
@@ -32,15 +35,48 @@ const ALERT_STATUSES: AlertStatus[] = ['open', 'under_assessment', 'closed'];
 
 const label = (s: string) => s.replace(/_/g, ' ');
 
+function NcrCell({
+  ncrId,
+  writable,
+  pending,
+  onRaise,
+}: {
+  ncrId: number | null;
+  writable: boolean;
+  pending: boolean;
+  onRaise: () => void;
+}) {
+  if (ncrId) {
+    return (
+      <Link to={`/nonconformances/${ncrId}`} className="link-btn">
+        View NCR
+      </Link>
+    );
+  }
+  if (!writable) return <>—</>;
+  return (
+    <button type="button" className="btn btn-sm btn-secondary" onClick={onRaise} disabled={pending}>
+      <FilePlus2 size={13} /> Raise NCR
+    </button>
+  );
+}
+
 function SourcingSection({ writable }: { writable: boolean }) {
   const { data, isLoading } = useSourcingRecords();
   const create = useCreateSourcing();
   const update = useUpdateSourcing();
   const remove = useDeleteSourcing();
+  const raiseNcr = useRaiseNcrForSourcing();
   const { notify } = useToast();
   const [part, setPart] = useState('');
   const [source, setSource] = useState<SourceType>('ocm');
   const [risk, setRisk] = useState<RiskLevel>('medium');
+
+  const onRaise = (id: number) =>
+    raiseNcr.mutate(id, {
+      onSuccess: (res) => notify(`Raised ${res.ncr_number}`, 'success'),
+      onError: (err) => notify(getErrorMessage(err), 'danger'),
+    });
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,12 +113,13 @@ function SourcingSection({ writable }: { writable: boolean }) {
               <th>CoC</th>
               <th>OEM trace</th>
               <th>Status</th>
+              <th>NCR</th>
               {writable && <th aria-label="actions" />}
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={8}><span className="spinner" /> Loading…</td></tr>
+              <tr><td colSpan={9}><span className="spinner" /> Loading…</td></tr>
             ) : data && data.length ? (
               data.map((r) => (
                 <tr key={r.id}>
@@ -107,6 +144,9 @@ function SourcingSection({ writable }: { writable: boolean }) {
                       <span className={`cfp-status cfp-status--${r.status}`}>{label(r.status)}</span>
                     )}
                   </td>
+                  <td>
+                    <NcrCell ncrId={r.ncr_id} writable={writable} pending={raiseNcr.isPending} onRaise={() => onRaise(r.id)} />
+                  </td>
                   {writable && (
                     <td>
                       <button type="button" className="btn btn-icon btn-ghost" aria-label="Delete" onClick={() => remove.mutate(r.id)}>
@@ -117,7 +157,7 @@ function SourcingSection({ writable }: { writable: boolean }) {
                 </tr>
               ))
             ) : (
-              <tr className="empty-row"><td colSpan={8}><div className="empty-state-sm">No sourcing records.</div></td></tr>
+              <tr className="empty-row"><td colSpan={9}><div className="empty-state-sm">No sourcing records.</div></td></tr>
             )}
           </tbody>
         </table>
@@ -143,10 +183,17 @@ function AlertsSection({ writable }: { writable: boolean }) {
   const create = useCreateAlert();
   const update = useUpdateAlert();
   const remove = useDeleteAlert();
+  const raiseNcr = useRaiseNcrForAlert();
   const { notify } = useToast();
   const [title, setTitle] = useState('');
   const [source, setSource] = useState<AlertSource>('gidep');
   const [ref, setRef] = useState('');
+
+  const onRaise = (id: number) =>
+    raiseNcr.mutate(id, {
+      onSuccess: (res) => notify(`Raised ${res.ncr_number}`, 'success'),
+      onError: (err) => notify(getErrorMessage(err), 'danger'),
+    });
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,12 +230,13 @@ function AlertsSection({ writable }: { writable: boolean }) {
               <th>Title</th>
               <th>Inv.</th>
               <th>Status</th>
+              <th>NCR</th>
               {writable && <th aria-label="actions" />}
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={7}><span className="spinner" /> Loading…</td></tr>
+              <tr><td colSpan={8}><span className="spinner" /> Loading…</td></tr>
             ) : data && data.length ? (
               data.map((a) => (
                 <tr key={a.id}>
@@ -210,6 +258,9 @@ function AlertsSection({ writable }: { writable: boolean }) {
                       <span className={`cfp-status cfp-status--${a.status}`}>{label(a.status)}</span>
                     )}
                   </td>
+                  <td>
+                    <NcrCell ncrId={a.ncr_id} writable={writable} pending={raiseNcr.isPending} onRaise={() => onRaise(a.id)} />
+                  </td>
                   {writable && (
                     <td>
                       <button type="button" className="btn btn-icon btn-ghost" aria-label="Delete" onClick={() => remove.mutate(a.id)}>
@@ -220,7 +271,7 @@ function AlertsSection({ writable }: { writable: boolean }) {
                 </tr>
               ))
             ) : (
-              <tr className="empty-row"><td colSpan={7}><div className="empty-state-sm">No alerts logged.</div></td></tr>
+              <tr className="empty-row"><td colSpan={8}><div className="empty-state-sm">No alerts logged.</div></td></tr>
             )}
           </tbody>
         </table>

@@ -6,12 +6,14 @@ supplier-quality RBAC: reads require SUPPLIER_READ, writes SUPPLIER_WRITE.
 
 from __future__ import annotations
 
+from datetime import date
+
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import ConflictError, NotFoundError
 from app.core.rbac import Permission, require_permission
 from app.models.counterfeit import (
     AlertStatus,
@@ -19,11 +21,13 @@ from app.models.counterfeit import (
     PartSourcingRecord,
     VerificationStatus,
 )
+from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.schemas.auth import CurrentUser
 from app.schemas.counterfeit import (
     AlertCreate,
     AlertRead,
     AlertUpdate,
+    NcrLinkResult,
     SourcingCreate,
     SourcingRead,
     SourcingUpdate,
@@ -34,6 +38,36 @@ router = APIRouter(prefix="/counterfeit", tags=["counterfeit"])
 
 _READ = require_permission(Permission.SUPPLIER_READ)
 _WRITE = require_permission(Permission.SUPPLIER_WRITE)
+# Raising an NCR creates a nonconformance, so require NCR write rights.
+_RAISE_NCR = require_permission(Permission.NCR_WRITE)
+
+
+def _create_ncr(
+    db: Session,
+    actor_id: int,
+    *,
+    title: str,
+    description: str,
+    part_number: str | None = None,
+    supplier_id: int | None = None,
+) -> Nonconformance:
+    """Create an OPEN, CRITICAL counterfeit-sourced NCR and return it."""
+    ncr = Nonconformance(
+        ncr_number=numbering.next_number(db, Nonconformance, "ncr_number", "NCR"),
+        title=title[:512],
+        description=description,
+        severity=NcSeverity.CRITICAL,
+        status=NcStatus.OPEN,
+        part_number=part_number,
+        supplier_id=supplier_id,
+        source="counterfeit",
+        detected_at=date.today(),
+        created_by=actor_id,
+        updated_by=actor_id,
+    )
+    db.add(ncr)
+    db.flush()
+    return ncr
 
 
 # ---- Part sourcing records ----
@@ -114,6 +148,40 @@ def delete_sourcing(
     return rec
 
 
+@router.post("/sourcing/{record_id}/raise-ncr", response_model=NcrLinkResult)
+def raise_ncr_for_sourcing(
+    record_id: int,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(_RAISE_NCR),
+) -> NcrLinkResult:
+    """Raise a nonconformance from a suspect sourcing record and link it back."""
+    rec = _get_sourcing(db, record_id)
+    if rec.ncr_id is not None:
+        raise ConflictError("An NCR has already been raised for this sourcing record.")
+    desc = (
+        f"Suspect/counterfeit part raised from sourcing record {rec.record_number}.\n"
+        f"Part: {rec.part_number}\n"
+        f"Source type: {rec.source_type.value}\n"
+        f"Lot/date code: {rec.lot_date_code or '-'}\n"
+        f"Risk level: {rec.risk_level.value}\n"
+        f"Certificate of conformance: {'yes' if rec.coc_received else 'no'}\n"
+        f"OEM traceability: {'yes' if rec.traceability_to_oem else 'no'}"
+    )
+    ncr = _create_ncr(
+        db,
+        actor.id,
+        title=f"Suspect counterfeit part: {rec.part_number}",
+        description=desc,
+        part_number=rec.part_number,
+        supplier_id=rec.supplier_id,
+    )
+    rec.ncr_id = ncr.id
+    rec.status = VerificationStatus.SUSPECT
+    rec.updated_by = actor.id
+    db.commit()
+    return NcrLinkResult(ncr_id=ncr.id, ncr_number=ncr.ncr_number)
+
+
 # ---- Counterfeit alerts (GIDEP / ERAI) ----
 @router.get("/alerts", response_model=list[AlertRead])
 def list_alerts(
@@ -190,3 +258,31 @@ def delete_alert(
     db.commit()
     db.refresh(alert)
     return alert
+
+
+@router.post("/alerts/{alert_id}/raise-ncr", response_model=NcrLinkResult)
+def raise_ncr_for_alert(
+    alert_id: int,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(_RAISE_NCR),
+) -> NcrLinkResult:
+    """Raise a nonconformance from a counterfeit alert and link it back."""
+    alert = _get_alert(db, alert_id)
+    if alert.ncr_id is not None:
+        raise ConflictError("An NCR has already been raised for this alert.")
+    desc = (
+        f"Counterfeit alert {alert.alert_number} ({alert.source.value.upper()}).\n"
+        f"Reference: {alert.external_ref or '-'}\n"
+        f"Affected part numbers: {alert.part_numbers or '-'}\n"
+        f"Impact assessment: {alert.impact_assessment or '-'}"
+    )
+    ncr = _create_ncr(
+        db,
+        actor.id,
+        title=f"Counterfeit alert: {alert.title}",
+        description=desc,
+    )
+    alert.ncr_id = ncr.id
+    alert.updated_by = actor.id
+    db.commit()
+    return NcrLinkResult(ncr_id=ncr.id, ncr_number=ncr.ncr_number)
