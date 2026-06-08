@@ -13,6 +13,7 @@ from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import ConflictError, NotFoundError
 from app.models.training import (
+    CompetencyLevel,
     CompetencyMatrixEntry,
     Personnel,
     TrainingCourse,
@@ -23,6 +24,7 @@ from app.schemas.auth import CurrentUser
 from app.schemas.common import Page
 from app.schemas.training import (
     CompetencyCreate,
+    CompetencyMatrix,
     CompetencyRead,
     CompetencyUpdate,
     CourseCreate,
@@ -32,12 +34,104 @@ from app.schemas.training import (
     PersonnelRead,
     PersonnelUpdate,
     TrainingAssign,
+    TrainingRecordListItem,
     TrainingRecordRead,
     TrainingRecordUpdate,
 )
 from app.services.crud import base_select, get_or_404, page_meta, paginate, request_context
 
+# CompetencyLevel -> 0..4 for the matrix grid.
+_LEVEL_TO_INT = {
+    CompetencyLevel.NONE: 0,
+    CompetencyLevel.AWARENESS: 1,
+    CompetencyLevel.PRACTITIONER: 2,
+    CompetencyLevel.EXPERT: 3,
+    CompetencyLevel.TRAINER: 4,
+}
+
 router = APIRouter(prefix="/training", tags=["training"])
+
+
+# ── Training records (flat list for the Records tab) ─────────────────────────
+@router.get("", response_model=Page[TrainingRecordListItem])
+def list_training_records(
+    db: Session = Depends(get_db),
+    pagination: Pagination = Depends(pagination_params),
+    search: str | None = Query(None),
+    status_filter: TrainingStatus | None = Query(None, alias="status"),
+    _: CurrentUser = Depends(require_page("training", "view")),
+) -> Page[TrainingRecordListItem]:
+    stmt = (
+        select(TrainingRecord, Personnel, TrainingCourse)
+        .join(Personnel, TrainingRecord.personnel_id == Personnel.id)
+        .join(TrainingCourse, TrainingRecord.course_id == TrainingCourse.id)
+    )
+    if status_filter:
+        stmt = stmt.where(TrainingRecord.status == status_filter)
+    if search:
+        like = f"%{search}%"
+        stmt = stmt.where(
+            Personnel.full_name.ilike(like)
+            | Personnel.employee_id.ilike(like)
+            | TrainingCourse.title.ilike(like)
+            | TrainingCourse.course_code.ilike(like)
+        )
+    stmt = stmt.order_by(TrainingRecord.id.desc())
+    rows = db.execute(stmt).all()
+    total = len(rows)
+    page_rows = rows[pagination.offset : pagination.offset + pagination.limit]
+    items = [
+        TrainingRecordListItem(
+            id=rec.id,
+            employee_id=person.employee_id,
+            employee_name=person.full_name,
+            course=course.title,
+            course_code=course.course_code,
+            status=rec.status,
+            assigned_at=rec.assigned_date,
+            completed_at=rec.completion_date,
+            due_date=rec.expiry_date,
+            score=rec.score,
+        )
+        for rec, person, course in page_rows
+    ]
+    return Page[TrainingRecordListItem](items=items, **page_meta(total, pagination))
+
+
+# ── Competency matrix (people x skills grid) ─────────────────────────────────
+@router.get("/competency-matrix", response_model=CompetencyMatrix)
+def competency_matrix(
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_page("training", "view")),
+) -> CompetencyMatrix:
+    entries = (
+        db.execute(
+            select(CompetencyMatrixEntry, Personnel)
+            .join(Personnel, CompetencyMatrixEntry.personnel_id == Personnel.id)
+            .where(Personnel.is_deleted.is_(False))
+        )
+        .all()
+    )
+    skills = sorted({e.skill for e, _ in entries})
+    by_person: dict[int, dict] = {}
+    for entry, person in entries:
+        row = by_person.setdefault(
+            person.id,
+            {
+                "employee_id": person.employee_id,
+                "employee_name": person.full_name,
+                "department": person.department,
+                "cells": [],
+            },
+        )
+        row["cells"].append(
+            {"competency": entry.skill, "level": _LEVEL_TO_INT.get(entry.current_level, 0)}
+        )
+    rows = [
+        {**row, "employee_name": row["employee_name"]}
+        for row in sorted(by_person.values(), key=lambda r: r["employee_name"])
+    ]
+    return CompetencyMatrix(competencies=skills, rows=rows)
 
 
 # ── Personnel ───────────────────────────────────────────────────────────────
