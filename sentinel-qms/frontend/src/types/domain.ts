@@ -888,6 +888,8 @@ export interface KcSummary {
   lsl: number | null;
   unit: string | null;
   kc_class: KcClass;
+  owner_id: number | null;
+  owner_name: string | null;
   capability: SpcCapability;
 }
 

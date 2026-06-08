@@ -45,7 +45,7 @@ export function useUserLookup() {
     return result;
   }, [query.data]);
 
-  return { map, isLoading: query.isLoading, toUserKey };
+  return { map, list: query.data ?? [], isLoading: query.isLoading, toUserKey };
 }
 
 /**

@@ -45,6 +45,7 @@ class KcCreate(BaseModel):
     unit: str | None = Field(default=None, max_length=32)
     kc_class: KcClass = KcClass.MAJOR
     notes: str | None = None
+    owner_id: int | None = None
 
 
 class KcUpdate(BaseModel):
@@ -56,6 +57,7 @@ class KcUpdate(BaseModel):
     unit: str | None = Field(default=None, max_length=32)
     kc_class: KcClass | None = None
     notes: str | None = None
+    owner_id: int | None = None
 
 
 class KcList(ORMModel):
@@ -68,6 +70,8 @@ class KcList(ORMModel):
     lsl: float | None
     unit: str | None
     kc_class: KcClass
+    owner_id: int | None = None
+    owner_name: str | None = None
     capability: Capability
 
 

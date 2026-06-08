@@ -29,6 +29,15 @@ export function useCreateKc() {
   });
 }
 
+export function useUpdateKc(kcId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: Partial<KcSummary>) =>
+      (await api.patch<KcDetail>(`/key-characteristics/${kcId}`, payload)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+  });
+}
+
 export function useAddMeasurement(kcId: number) {
   const qc = useQueryClient();
   return useMutation({

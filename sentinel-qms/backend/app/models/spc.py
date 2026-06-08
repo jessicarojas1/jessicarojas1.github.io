@@ -38,6 +38,8 @@ class KeyCharacteristic(Base, TimestampMixin, SoftDeleteMixin):
         Enum(KcClass, name="kc_class"), default=KcClass.MAJOR, nullable=False
     )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Owner notified when a new control-chart violation appears.
+    owner_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     measurements: Mapped[list[Measurement]] = relationship(
         "Measurement",

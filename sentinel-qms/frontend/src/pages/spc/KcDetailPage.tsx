@@ -15,6 +15,8 @@ import {
   useAddMeasurement,
   useDeleteMeasurement,
   useKeyCharacteristic,
+  useUpdateKc,
+  useUserLookup,
 } from '@/hooks';
 import { usePagePerms } from '@/lib/permissions';
 import { useToast } from '@/lib/toast';
@@ -39,11 +41,23 @@ export default function KcDetailPage() {
   const { data: kc, isLoading, error } = useKeyCharacteristic(id);
   const add = useAddMeasurement(Number(id));
   const remove = useDeleteMeasurement();
+  const update = useUpdateKc(Number(id));
+  const { list: users } = useUserLookup();
   const { canEdit } = usePagePerms();
   const { notify } = useToast();
   const writable = canEdit('inspections');
   const [value, setValue] = useState('');
   const violIdx = new Set((kc?.violations ?? []).map((v) => v.index));
+
+  const changeOwner = (ownerId: string) => {
+    update.mutate(
+      { owner_id: ownerId === '' ? null : Number(ownerId) },
+      {
+        onSuccess: () => notify('Owner updated', 'success'),
+        onError: (err) => notify(getErrorMessage(err), 'danger'),
+      },
+    );
+  };
 
   const addMeas = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,6 +92,30 @@ export default function KcDetailPage() {
             <Stat label="Mean" value={kc.capability.mean} />
             <Stat label="Std Dev" value={kc.capability.std} />
             <Stat label="Samples" value={kc.capability.count} />
+          </div>
+
+          <div className="card">
+            <div className="card__body kc-owner-row">
+              <span className="kc-owner-label">Owner</span>
+              {writable ? (
+                <select
+                  className="input"
+                  value={kc.owner_id ?? ''}
+                  onChange={(e) => changeOwner(e.target.value)}
+                  disabled={update.isPending}
+                  aria-label="Owner"
+                  style={{ maxWidth: 280 }}
+                >
+                  <option value="">Unassigned (notify quality team)</option>
+                  {users.filter((u) => u.is_active).map((u) => (
+                    <option key={u.id} value={u.id}>{u.full_name || u.email}</option>
+                  ))}
+                </select>
+              ) : (
+                <span>{kc.owner_name ?? 'Unassigned'}</span>
+              )}
+              <span className="muted text-sm">Notified when a new control-chart violation appears.</span>
+            </div>
           </div>
 
           {kc.violations.length > 0 && (
