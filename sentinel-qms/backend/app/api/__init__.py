@@ -9,6 +9,7 @@ from app.api.routers import (
     apqp,
     attachments,
     audit_logs,
+    audit_programs,
     audits,
     auth,
     calibration,
@@ -73,3 +74,4 @@ api_router.include_router(fod.router)
 api_router.include_router(concessions.router)
 api_router.include_router(signatures.router)
 api_router.include_router(customers.router)
+api_router.include_router(audit_programs.router)

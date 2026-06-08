@@ -832,6 +832,33 @@ export interface CounterfeitAlert {
   ncr_id: number | null;
 }
 
+export type ProgramStatus = 'draft' | 'active' | 'closed';
+export type ProgramItemStatus = 'planned' | 'scheduled' | 'completed' | 'cancelled';
+
+export interface AuditProgramItem {
+  id: number;
+  program_id: number;
+  area: string;
+  clause_reference: string | null;
+  planned_period: string | null;
+  lead_auditor_id: number | null;
+  status: ProgramItemStatus;
+  audit_id: number | null;
+}
+
+export interface AuditProgramSummary {
+  id: number;
+  name: string;
+  year: number;
+  status: ProgramStatus;
+  progress: { total: number; completed: number; completed_pct: number };
+}
+
+export interface AuditProgramDetail extends AuditProgramSummary {
+  objectives: string | null;
+  items: AuditProgramItem[];
+}
+
 export type CustomerStatus = 'active' | 'inactive';
 export type ContractStatus = 'active' | 'on_hold' | 'closed';
 export type FlowDownTo = 'internal' | 'supplier' | 'both';
