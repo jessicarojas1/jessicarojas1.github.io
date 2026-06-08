@@ -61,6 +61,7 @@ class SourcingRead(ORMModel):
     risk_level: RiskLevel
     status: VerificationStatus
     notes: str | None
+    ncr_id: int | None
 
 
 # ---- Counterfeit alerts (GIDEP/ERAI) ----
@@ -99,3 +100,9 @@ class AlertRead(ORMModel):
     status: AlertStatus
     impact_assessment: str | None
     affects_inventory: bool
+    ncr_id: int | None
+
+
+class NcrLinkResult(BaseModel):
+    ncr_id: int
+    ncr_number: str

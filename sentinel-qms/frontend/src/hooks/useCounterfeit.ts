@@ -75,3 +75,26 @@ export function useDeleteAlert() {
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   });
 }
+
+interface NcrLinkResult {
+  ncr_id: number;
+  ncr_number: string;
+}
+
+export function useRaiseNcrForSourcing() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) =>
+      (await api.post<NcrLinkResult>(`/counterfeit/sourcing/${id}/raise-ncr`)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+  });
+}
+
+export function useRaiseNcrForAlert() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) =>
+      (await api.post<NcrLinkResult>(`/counterfeit/alerts/${id}/raise-ncr`)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+  });
+}

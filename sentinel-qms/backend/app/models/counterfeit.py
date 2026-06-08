@@ -82,6 +82,8 @@ class PartSourcingRecord(Base, TimestampMixin, SoftDeleteMixin):
         nullable=False,
     )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Set when an NCR has been raised from this suspect part.
+    ncr_id: Mapped[int | None] = mapped_column(ForeignKey("nonconformances.id"), nullable=True)
 
 
 class CounterfeitAlert(Base, TimestampMixin, SoftDeleteMixin):
@@ -103,3 +105,5 @@ class CounterfeitAlert(Base, TimestampMixin, SoftDeleteMixin):
     )
     impact_assessment: Mapped[str | None] = mapped_column(Text, nullable=True)
     affects_inventory: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Set when an NCR has been raised from this alert.
+    ncr_id: Mapped[int | None] = mapped_column(ForeignKey("nonconformances.id"), nullable=True)

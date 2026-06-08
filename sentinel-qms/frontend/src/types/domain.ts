@@ -814,6 +814,7 @@ export interface SourcingRecord {
   risk_level: RiskLevel;
   status: VerificationStatus;
   notes: string | null;
+  ncr_id: number | null;
 }
 
 export interface CounterfeitAlert {
@@ -828,6 +829,7 @@ export interface CounterfeitAlert {
   status: AlertStatus;
   impact_assessment: string | null;
   affects_inventory: boolean;
+  ncr_id: number | null;
 }
 
 export type CoverageStatus = 'covered' | 'partial' | 'gap' | 'not_applicable';
