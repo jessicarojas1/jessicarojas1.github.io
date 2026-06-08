@@ -1,5 +1,5 @@
-import { useParams } from 'react-router-dom';
-import { useApqpProject, useUpdateApqp, useUpdatePpapElement } from '@/hooks';
+import { Link, useParams } from 'react-router-dom';
+import { useApqpProject, useContracts, useUpdateApqp, useUpdatePpapElement } from '@/hooks';
 import { usePagePerms } from '@/lib/permissions';
 import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
@@ -81,6 +81,11 @@ export default function ApqpDetailPage() {
   const { canEdit } = usePagePerms();
   const { notify } = useToast();
   const writable = canEdit('inspections');
+  const { data: contracts } = useContracts();
+  const contractLabel = (cid: number | null) => {
+    const c = contracts?.find((x) => x.id === cid);
+    return c ? `${c.contract_number} — ${c.title}` : null;
+  };
 
   const patchProject = (payload: Record<string, unknown>) => {
     if (!id) return;
@@ -148,6 +153,16 @@ export default function ApqpDetailPage() {
                     items={[
                       { label: 'Phase', value: PHASE_LABELS[p.current_phase] },
                       { label: 'Customer', value: p.customer ?? '—' },
+                      {
+                        label: 'Contract',
+                        value: p.contract_id ? (
+                          <Link to={`/customers/contracts/${p.contract_id}`} className="link-btn">
+                            {contractLabel(p.contract_id) ?? `#${p.contract_id}`}
+                          </Link>
+                        ) : (
+                          '—'
+                        ),
+                      },
                       { label: 'Target date', value: formatDate(p.target_date) },
                     ]}
                   />
@@ -173,6 +188,20 @@ export default function ApqpDetailPage() {
                       >
                         {PROJECT_STATUSES.map((s) => (
                           <option key={s} value={s}>{label(s)}</option>
+                        ))}
+                      </select>
+                      <label className="field-label" htmlFor="apqp-contract">Contract</label>
+                      <select
+                        id="apqp-contract"
+                        className="input"
+                        value={p.contract_id ?? ''}
+                        onChange={(e) =>
+                          patchProject({ contract_id: e.target.value ? Number(e.target.value) : null })
+                        }
+                      >
+                        <option value="">— None —</option>
+                        {(contracts ?? []).map((c) => (
+                          <option key={c.id} value={c.id}>{c.contract_number} — {c.title}</option>
                         ))}
                       </select>
                     </div>

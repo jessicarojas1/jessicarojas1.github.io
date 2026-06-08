@@ -50,3 +50,25 @@ def test_write_requires_inspection_write(client, seeded, auth_headers):
     )
     assert resp.status_code == 403
     assert client.get("/api/v1/apqp", headers=auth_headers("readonly")).status_code == 200
+
+
+def test_apqp_contract_link(client, seeded, auth_headers):
+    h = auth_headers("manager")
+    cust = client.post(
+        "/api/v1/customers", json={"code": "C-APQP", "name": "Cust"}, headers=h
+    ).json()["id"]
+    con = client.post(
+        "/api/v1/customers/contracts",
+        json={"contract_number": "K-1", "customer_id": cust, "title": "T"},
+        headers=h,
+    ).json()["id"]
+    pid = client.post(
+        "/api/v1/apqp",
+        json={"part_number": "PN-K", "part_name": "Part", "contract_id": con},
+        headers=h,
+    ).json()["id"]
+    detail = client.get(f"/api/v1/apqp/{pid}", headers=h).json()
+    assert detail["contract_id"] == con
+    # can be re-linked / cleared via patch
+    upd = client.patch(f"/api/v1/apqp/{pid}", json={"contract_id": None}, headers=h)
+    assert upd.json()["contract_id"] is None

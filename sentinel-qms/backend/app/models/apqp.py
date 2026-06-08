@@ -73,6 +73,7 @@ class ApqpProject(Base, TimestampMixin, SoftDeleteMixin):
     part_name: Mapped[str] = mapped_column(String(255), nullable=False)
     customer: Mapped[str | None] = mapped_column(String(255), nullable=True)
     supplier_id: Mapped[int | None] = mapped_column(ForeignKey("suppliers.id"), nullable=True)
+    contract_id: Mapped[int | None] = mapped_column(ForeignKey("contracts.id"), nullable=True)
     current_phase: Mapped[ApqpPhase] = mapped_column(
         Enum(ApqpPhase, name="apqp_phase"), default=ApqpPhase.PLANNING, nullable=False
     )

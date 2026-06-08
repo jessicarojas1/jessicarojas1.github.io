@@ -56,6 +56,7 @@ def _to_list(p: ApqpProject) -> dict:
         "part_name": p.part_name,
         "customer": p.customer,
         "supplier_id": p.supplier_id,
+        "contract_id": p.contract_id,
         "current_phase": p.current_phase,
         "status": p.status,
         "submission_level": p.submission_level,
