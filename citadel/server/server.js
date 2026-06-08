@@ -213,7 +213,13 @@ async function toolStatus() {
   if (_toolCache) return _toolCache;
   const names = ['semgrep', 'bandit', 'gitleaks', 'trivy', 'grype', 'syft', 'clamscan', 'checkov', 'osv-scanner', 'hadolint', 'codeql'];
   const out = [];
-  for (const n of names) out.push({ tool: n === 'clamscan' ? 'clamav' : n, available: await scanners.has(n) });
+  for (const n of names) {
+    // CodeQL also requires the runtime opt-in env; report it as available only
+    // when it will actually run, so /api/health doesn't overclaim coverage.
+    const present = await scanners.has(n);
+    const available = n === 'codeql' ? (present && process.env.CITADEL_ENABLE_CODEQL === '1') : present;
+    out.push({ tool: n === 'clamscan' ? 'clamav' : n, available });
+  }
   _toolCache = out;
   return out;
 }

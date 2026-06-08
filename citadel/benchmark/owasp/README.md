@@ -87,6 +87,16 @@ backend** runs **Semgrep + CodeQL**, which DO perform inter-procedural data-flow
 and score far higher on this benchmark — the heuristic engine is a zero-setup
 first pass, not a replacement for taint analysis.
 
+**Where CodeQL actually runs (be precise):** the CodeQL bundle is multi-GB and is
+**not** in the default image — it is opt-in at build (`--build-arg
+CITADEL_WITH_CODEQL=1`) *and* at runtime (`CITADEL_ENABLE_CODEQL=1`). So on a
+small PaaS / free tier it does **not** run, and `/api/health` reports `codeql`
+as unavailable there (it now reflects the runtime gate, not just the binary).
+The realistic place to get the authoritative injection answer is **CI**: the
+CITADEL GitHub Action takes `codeql: "true"`, which builds the bundle into the
+image and enables the adapter on a GitHub-hosted runner that has the disk/RAM
+for it.
+
 ## Takeaways / improvement backlog
 
 1. ~~Add Java rules for the zero categories~~ — **done** (xss, pathtraver,

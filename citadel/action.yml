@@ -15,6 +15,14 @@
 #       format: sarif
 #       output: citadel-results.sarif
 #       fail-on: high
+#       codeql: "true"          # opt-in deep data-flow SAST (slow, large image)
+#
+# CodeQL note: the heuristic engine is a fast first pass; `codeql: true` adds
+# inter-procedural taint analysis — the authoritative answer for injection
+# categories (SQLi/cmdi/path-traversal) that regex+intra-file taint can only
+# approximate. It is OFF by default because the CLI bundle is multi-GB and the
+# per-language database build is slow; GitHub-hosted runners have enough
+# disk/RAM, tiny PaaS hosts (e.g. free tiers) do not.
 #
 # Build context note: the Dockerfile COPYs `citadel/server/` to `/app/`, so
 # cli.js ends up at /app/cli.js inside the image. The image is built from the
@@ -45,6 +53,16 @@ inputs:
     description: "Fail the build when findings reach this severity: critical | high | medium | low | none."
     required: false
     default: "high"
+  codeql:
+    description: >-
+      Enable CodeQL deep data-flow SAST (true|false). Bundles the multi-GB CodeQL
+      CLI into the image and runs it at scan time — this adds inter-procedural
+      taint analysis (the authoritative answer for injection categories the
+      heuristic engine can only approximate). Slow: expect a large download +
+      per-language database build. Needs a runner with enough disk/RAM (the
+      GitHub-hosted runners are sufficient); not viable on tiny hosts.
+    required: false
+    default: "false"
 
 outputs:
   results-file:
@@ -66,9 +84,17 @@ runs:
       run: |
         set -euo pipefail
         REPO_ROOT="$(cd "${{ github.action_path }}/.." && pwd)"
+        # Opt-in CodeQL: bundle the CLI into the image only when requested (it is
+        # multi-GB, so the default build stays lean).
+        CODEQL_BUILD_ARG=""
+        if [ "${{ inputs.codeql }}" = "true" ]; then
+          CODEQL_BUILD_ARG="--build-arg CITADEL_WITH_CODEQL=1"
+          echo "CodeQL deep data-flow SAST: ENABLED (image will be large)."
+        fi
         echo "::group::Building CITADEL image from ${REPO_ROOT}"
         docker build \
           -f "${REPO_ROOT}/citadel/server/Dockerfile" \
+          ${CODEQL_BUILD_ARG} \
           -t citadel-scan \
           "${REPO_ROOT}"
         echo "::endgroup::"
@@ -87,11 +113,15 @@ runs:
       shell: bash
       run: |
         set -uo pipefail
+        # Turn on the CodeQL adapter at runtime when the image was built with it.
+        CODEQL_RUN_ENV=""
+        if [ "${{ inputs.codeql }}" = "true" ]; then CODEQL_RUN_ENV="-e CITADEL_ENABLE_CODEQL=1"; fi
         echo "::group::Running CITADEL scan"
         set +e
         docker run --rm \
           -v "${GITHUB_WORKSPACE}:/scan" \
           -w /scan \
+          ${CODEQL_RUN_ENV} \
           citadel-scan \
           node /app/cli.js "/scan/${{ inputs.path }}" \
             --format "${{ inputs.format }}" \
