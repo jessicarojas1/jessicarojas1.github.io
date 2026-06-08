@@ -26,7 +26,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.rbac import Role
+from app.models.audit_mgmt import Audit, AuditStatus
+from app.models.calibration import Equipment, EquipmentStatus
 from app.models.capa import Capa, CapaAction, CapaActionStatus, CapaStatus
+from app.models.concession import Concession, ConcessionStatus
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
@@ -167,6 +170,9 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
         "capa_due_soon": 0,
         "capa_action_overdue": 0,
         "ncr_overdue": 0,
+        "audit_overdue": 0,
+        "calibration_overdue": 0,
+        "concession_expired": 0,
     }
     if not org or not org.sla_enabled:
         return summary
@@ -287,5 +293,97 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
             )
             db.commit()
             summary["ncr_overdue"] += 1
+
+    # ── Audits past their planned date ───────────────────────────────────────
+    audit_open = (AuditStatus.PLANNED, AuditStatus.IN_PROGRESS, AuditStatus.REPORTING)
+    audits = (
+        db.execute(
+            select(Audit).where(Audit.is_deleted.is_(False), Audit.status.in_(audit_open))
+        )
+        .scalars()
+        .all()
+    )
+    for audit in audits:
+        due = _basis_date(audit.planned_date)
+        if due is None or due >= today:
+            continue
+        if _claim(db, "audit", audit.id, "overdue"):
+            days = (today - due).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=audit.lead_auditor_id,
+                title=f"Audit {audit.audit_number} is overdue",
+                body=(
+                    f"{audit.title} — planned {due.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} overdue)."
+                ),
+                entity_type="audit",
+                entity_id=audit.id,
+            )
+            db.commit()
+            summary["audit_overdue"] += 1
+
+    # ── Calibrations past their due date ─────────────────────────────────────
+    equipment = (
+        db.execute(
+            select(Equipment).where(
+                Equipment.is_deleted.is_(False),
+                Equipment.status == EquipmentStatus.ACTIVE,
+                Equipment.next_due_date.is_not(None),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for eq in equipment:
+        due = _basis_date(eq.next_due_date)
+        if due is None or due >= today:
+            continue
+        if _claim(db, "equipment", eq.id, "overdue"):
+            days = (today - due).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=None,
+                title=f"Calibration overdue: {eq.asset_tag}",
+                body=(
+                    f"{eq.name} — calibration due {due.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} overdue)."
+                ),
+                entity_type="equipment",
+                entity_id=eq.id,
+            )
+            db.commit()
+            summary["calibration_overdue"] += 1
+
+    # ── Concessions that have passed their expiry ────────────────────────────
+    concessions = (
+        db.execute(
+            select(Concession).where(
+                Concession.is_deleted.is_(False),
+                Concession.status == ConcessionStatus.APPROVED,
+                Concession.expiry_date.is_not(None),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for con in concessions:
+        exp = _basis_date(con.expiry_date)
+        if exp is None or exp >= today:
+            continue
+        if _claim(db, "concession", con.id, "expired"):
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=None,
+                title=f"Concession {con.concession_number} has expired",
+                body=f"{con.title} — expired {exp.isoformat()}; review or close.",
+                entity_type="concession",
+                entity_id=con.id,
+            )
+            db.commit()
+            summary["concession_expired"] += 1
 
     return summary

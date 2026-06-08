@@ -139,6 +139,9 @@ class SlaSweepResult(BaseModel):
     capa_due_soon: int = 0
     capa_action_overdue: int = 0
     ncr_overdue: int = 0
+    audit_overdue: int = 0
+    calibration_overdue: int = 0
+    concession_expired: int = 0
 
 
 class DigestSendRequest(BaseModel):
