@@ -102,6 +102,25 @@ test('default-cred admin must change password before sensitive routes', async ()
   await json('/api/auth/password', { method: 'POST', headers: authed(l2.body.token, { 'Content-Type': 'application/json' }), body: JSON.stringify({ current: 'RotatedStrong1', next: 'citadel-admin' }) });
 });
 
+test('admin password reset forces the target user to change it at next login', async () => {
+  // sign in as admin and clear its own must-change so it can manage users
+  const a = await json('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@citadel.local', password: 'citadel-admin' }) });
+  let tok = a.body.token;
+  await json('/api/auth/password', { method: 'POST', headers: authed(tok, { 'Content-Type': 'application/json' }), body: JSON.stringify({ current: 'citadel-admin', next: 'AdminStrong1' }) });
+  tok = (await json('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@citadel.local', password: 'AdminStrong1' }) })).body.token;
+  // create a user (logs in cleanly, no must-change)
+  const created = await json('/api/users', { method: 'POST', headers: authed(tok, { 'Content-Type': 'application/json' }), body: JSON.stringify({ name: 'Bob', email: 'bob@corp.com', role: 'viewer', password: 'BobInitial12' }) });
+  const id = created.body.id;
+  assert.ok(!(await json('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'bob@corp.com', password: 'BobInitial12' }) })).body.user.mustChange, 'a newly created user is not flagged must-change');
+  // admin resets Bob's password -> Bob must now change it
+  const reset = await json('/api/users/' + id + '/password', { method: 'POST', headers: authed(tok, { 'Content-Type': 'application/json' }), body: JSON.stringify({ password: 'TempReset123' }) });
+  assert.equal(reset.body.mustChange, true);
+  const bob = await json('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'bob@corp.com', password: 'TempReset123' }) });
+  assert.equal(bob.body.user.mustChange, true);
+  // restore the well-known admin password for later tests
+  await json('/api/auth/password', { method: 'POST', headers: authed(tok, { 'Content-Type': 'application/json' }), body: JSON.stringify({ current: 'AdminStrong1', next: 'citadel-admin' }) });
+});
+
 test('scan an uploaded file returns a report with findings', async () => {
   const fd = new FormData();
   fd.append('files', new Blob(['const x = eval(userInput);\ndb.query("SELECT * FROM t WHERE id=" + id);\n'], { type: 'text/javascript' }), 'vuln.js');

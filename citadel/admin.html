@@ -847,9 +847,17 @@
         }
         const resetPass = e.target.closest('[data-reset-pass]');
         if (resetPass) {
-          const pw = window.prompt('Enter a new password for this user:');
+          const id = resetPass.getAttribute('data-reset-pass');
+          const me = DA.current();
+          const isSelf = me && me.id === id;
+          const pw = window.prompt(isSelf
+            ? 'Enter your new password:'
+            : 'Enter a temporary password for this user. They will be required to set their own at next sign-in.');
           if (pw) {
-            try { await DA.setPassword(resetPass.getAttribute('data-reset-pass'), pw); window.alert('Password updated.'); }
+            try {
+              await DA.setPassword(id, pw);
+              window.alert(isSelf ? 'Password updated.' : 'Temporary password set. The user must change it at their next sign-in.');
+            }
             catch (ex) { window.alert(ex && ex.message ? ex.message : 'Could not update password.'); }
           }
           return;

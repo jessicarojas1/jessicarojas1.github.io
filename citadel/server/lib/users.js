@@ -230,10 +230,13 @@ function remove(id) {
   }
   db.users = db.users.filter(x => x.id !== id); save();
 }
-function setPassword(id, password) {
+function setPassword(id, password, forceChange) {
   const store = load(); const u = store.users.find(x => x.id === id); if (!u) throw new Error('User not found.');
   if (!password || String(password).length < 8) throw new Error('Password must be at least 8 characters.');
-  u.salt = newSalt(); u.pass = hashPw(password, u.salt); u.mustChange = false; save();
+  // forceChange (admin resetting someone else) flags must-change so the user
+  // sets their own password on next login and the admin never knows it. Self
+  // service (changeOwnPassword) leaves it cleared.
+  u.salt = newSalt(); u.pass = hashPw(password, u.salt); u.mustChange = !!forceChange; save();
 }
 // Self-service change: verify the current password, then set a new one.
 function changeOwnPassword(id, current, next) {
