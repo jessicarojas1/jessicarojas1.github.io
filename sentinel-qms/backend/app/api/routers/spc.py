@@ -23,7 +23,7 @@ from app.schemas.spc import (
     MeasurementRead,
 )
 from app.services import numbering
-from app.services.spc import capability
+from app.services.spc import capability, detect_violations
 
 router = APIRouter(prefix="/key-characteristics", tags=["spc"])
 
@@ -51,7 +51,12 @@ def _to_list(kc: KeyCharacteristic) -> dict:
 
 
 def _to_read(kc: KeyCharacteristic) -> dict:
-    return {**_to_list(kc), "notes": kc.notes, "measurements": list(kc.measurements)}
+    return {
+        **_to_list(kc),
+        "notes": kc.notes,
+        "measurements": list(kc.measurements),
+        "violations": detect_violations([m.value for m in kc.measurements]),
+    }
 
 
 def _get(db: Session, kc_id: int) -> KeyCharacteristic:
