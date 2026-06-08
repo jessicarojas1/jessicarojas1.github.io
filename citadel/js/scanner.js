@@ -44,7 +44,10 @@
           ruleId: rule.id, name: rule.name, category: rule.category,
           severity: rule.severity, cwe: rule.cwe, confidence: rule.confidence,
           file: path, line: lineOf(content, m.index), snippet: snippetAt(content, m.index),
-          remediation: rule.remediation
+          remediation: rule.remediation,
+          // Internal hint: taint-gated rules only survive if the matched sink
+          // carries a user-tainted variable (set by markTaint). Stripped there.
+          _requireTaint: !!rule.requireTaint
         });
         if (m.index === re.lastIndex) re.lastIndex++;
       }
@@ -55,7 +58,7 @@
   // Data-flow taint with intra-file propagation: variables assigned from a
   // user-input source, then propagated across subsequent assignments (var2 =
   // f(var1)) so a tainted value is tracked across statements (multi-hop).
-  const TAINT_SRC = /\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*[^;\n]{0,80}?(req\.(query|params|body|cookies|headers)|request\.(GET|POST|args|form|values|json)|\$_(GET|POST|REQUEST|COOKIE|FILES)|params\[|getParameter|os\.environ|sys\.argv|process\.argv|input\(|fmt\.Scan|Console\.ReadLine|location\.(hash|search|href)|document\.(cookie|referrer))/;
+  const TAINT_SRC = /\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*[^;\n]{0,80}?(req\.(query|params|body|cookies|headers)|request\.(GET|POST|args|form|values|json)|\$_(GET|POST|REQUEST|COOKIE|FILES)|params\[|getParameter|getHeader|getCookies|getQueryString|nextElement\(\)|\.getValue\(\)|os\.environ|sys\.argv|process\.argv|input\(|fmt\.Scan|Console\.ReadLine|location\.(hash|search|href)|document\.(cookie|referrer))/;
   const ASSIGN = /^[^=\n]{0,120}?\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*(.+)$/;
   function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
   function taintedVars(content) {
@@ -82,13 +85,15 @@
     }
     return set;
   }
+  // Marks findings whose snippet references a user-tainted variable, then drops
+  // taint-gated findings (rules with requireTaint) that never reached a tainted
+  // sink — this is what suppresses the "sanitized / literal-argument" safe
+  // variants the regex alone can't tell apart. Returns the surviving findings.
   function markTaint(content, findings) {
-    if (!findings.length) return;
-    const vars = taintedVars(content);
-    if (!vars.size) return;
-    const arr = [...vars];
+    if (!findings.length) return findings;
+    const arr = [...taintedVars(content)];
     findings.forEach(f => {
-      if (!f.snippet) return;
+      if (!f.snippet || !arr.length) return;
       for (const v of arr) {
         if (new RegExp('\\b' + v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(f.snippet)) {
           f.tainted = true;
@@ -97,6 +102,9 @@
         }
       }
     });
+    const kept = findings.filter(f => !(f._requireTaint && !f.tainted));
+    kept.forEach(f => { delete f._requireTaint; });
+    return kept;
   }
 
   function detectDeployment(entries) {
@@ -209,8 +217,7 @@
 
     for (const e of entries) {
       if (e.content) {
-        const fr = runRules(e);
-        markTaint(e.content, fr);
+        const fr = markTaint(e.content, runRules(e));
         findings = findings.concat(fr);
         // secrets (entropy)
         CITADEL.secrets.scan(e.content, e.lang).forEach(s => findings.push(Object.assign({ file: e.path }, s)));

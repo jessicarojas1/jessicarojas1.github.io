@@ -149,13 +149,44 @@ test('oidc: enabled + maps admin/default/denied', () => {
   assert.equal(oidc.mapIdentity({ name: 'no-email' }), null);
 });
 
-/* ---------------- License policy (via the browser engine) ---------------- */
-test('license policy: tiers denied/review/allowed', () => {
+/* ---------------- Java pack + taint-gating (via the browser engine) ---------------- */
+function loadEngine() {
   global.window = global;
   require('../../js/languages.js'); require('../../js/frameworks.js');
-  require('../../js/rules.js'); require('../../js/secrets.js');
-  require('../../js/sbom.js'); require('../../js/binary.js'); require('../../js/scanner.js');
-  const tier = global.CITADEL.scanner.licenseTier;
+  require('../../js/rules.js'); require('../../js/rules-java.js');
+  require('../../js/secrets.js'); require('../../js/sbom.js');
+  require('../../js/binary.js'); require('../../js/scanner.js');
+  return global.CITADEL;
+}
+const javaEntry = (content) => ({ path: 'T.java', lang: 'Java', size: content.length, content });
+const cwes = (rep) => new Set((rep.findings || []).map(f => f.cwe));
+
+test('java pack: taint-gated XSS fires only when the sink carries user input', async () => {
+  const C = loadEngine();
+  // tainted: request header flows straight into the response writer → XSS (CWE-79)
+  const vuln = await C.scanner.scan([javaEntry(
+    'String param = request.getHeader("x");\nresponse.getWriter().write(param);\n')]);
+  assert.ok(cwes(vuln).has('CWE-79'), 'tainted writer sink should flag CWE-79');
+  // safe: identical sink but the argument is a string literal → must be suppressed
+  const safe = await C.scanner.scan([javaEntry(
+    'String param = request.getHeader("x");\nresponse.getWriter().write("static literal");\n')]);
+  assert.equal(cwes(safe).has('CWE-79'), false, 'literal-arg writer must not flag XSS');
+});
+
+test('java pack: insecure-cookie + path-traversal detection', async () => {
+  const C = loadEngine();
+  const cookie = await C.scanner.scan([javaEntry('c.setSecure(false);\nresponse.addCookie(c);\n')]);
+  assert.ok(cwes(cookie).has('CWE-614'), 'setSecure(false) should flag CWE-614');
+  const okCookie = await C.scanner.scan([javaEntry('c.setSecure(true);\nresponse.addCookie(c);\n')]);
+  assert.equal(cwes(okCookie).has('CWE-614'), false, 'setSecure(true) must be clean');
+  const trav = await C.scanner.scan([javaEntry(
+    'String fn = request.getParameter("f");\nnew java.io.FileInputStream(new java.io.File(fn));\n')]);
+  assert.ok(cwes(trav).has('CWE-22'), 'tainted File() should flag path traversal');
+});
+
+/* ---------------- License policy (via the browser engine) ---------------- */
+test('license policy: tiers denied/review/allowed', () => {
+  const tier = loadEngine().scanner.licenseTier;
   assert.equal(tier('AGPL-3.0'), 'denied');
   assert.equal(tier('SSPL-1.0'), 'denied');
   assert.equal(tier('GPL-3.0'), 'denied');
