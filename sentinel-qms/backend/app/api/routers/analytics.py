@@ -18,7 +18,8 @@ from app.models.complaint import Complaint, ComplaintStatus
 from app.models.inspection import Inspection, InspectionResult
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.models.risk import Risk, RiskStatus
-from app.schemas.analytics import AnalyticsTrends, TrendPoint
+from app.models.supplier import Supplier
+from app.schemas.analytics import AnalyticsTrends, ParetoBucket, ParetoResponse, TrendPoint
 from app.schemas.auth import CurrentUser
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
@@ -165,3 +166,51 @@ def trends(
         nc_by_severity=nc_by_severity,
         audit_findings_by_type=findings_by_type,
     )
+
+
+@router.get("/pareto", response_model=ParetoResponse)
+def pareto(
+    dimension: str = Query("source", pattern="^(source|part|supplier|severity)$"),
+    limit: int = Query(12, ge=1, le=50),
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_page("analytics", "view")),
+) -> ParetoResponse:
+    """Pareto of nonconformances by a chosen driver (source/part/supplier/severity).
+
+    Buckets are sorted by descending count with a running cumulative percentage
+    over the grand total, so the vital few are obvious.
+    """
+    base = select(Nonconformance).where(Nonconformance.is_deleted.is_(False))
+    rows = db.execute(base).scalars().all()
+
+    supplier_names: dict[int, str] = {}
+    if dimension == "supplier":
+        supplier_names = {s.id: s.name for s in db.execute(select(Supplier)).scalars().all()}
+
+    def key_for(nc: Nonconformance) -> str:
+        if dimension == "part":
+            return nc.part_number or "Unspecified"
+        if dimension == "supplier":
+            return (
+                supplier_names.get(nc.supplier_id, "Unassigned") if nc.supplier_id else "Unassigned"
+            )
+        if dimension == "severity":
+            return nc.severity.value if hasattr(nc.severity, "value") else str(nc.severity)
+        return nc.source or "Unspecified"
+
+    counts: dict[str, int] = {}
+    for nc in rows:
+        k = key_for(nc)
+        counts[k] = counts.get(k, 0) + 1
+
+    total = sum(counts.values())
+    ordered = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)
+
+    buckets: list[ParetoBucket] = []
+    running = 0
+    for label, count in ordered[:limit]:
+        running += count
+        pct = round(running / total * 100, 1) if total else 0.0
+        buckets.append(ParetoBucket(label=label, count=count, cumulative_pct=pct))
+
+    return ParetoResponse(dimension=dimension, total=total, buckets=buckets)

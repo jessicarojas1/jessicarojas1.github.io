@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Legend,
   Line,
   LineChart,
@@ -14,12 +16,67 @@ import {
   YAxis,
 } from 'recharts';
 import { AlertTriangle, TrendingUp } from 'lucide-react';
-import { useAnalyticsTrends } from '@/hooks';
+import { useAnalyticsPareto, useAnalyticsTrends } from '@/hooks';
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { CHART_COLORS, PIE_COLORS, tooltipStyle } from '@/lib/charts';
 import { getErrorMessage } from '@/lib/api';
 import { humanize } from '@/lib/format';
+
+const PARETO_DIMENSIONS: { value: string; label: string }[] = [
+  { value: 'source', label: 'NCR source' },
+  { value: 'part', label: 'Part number' },
+  { value: 'supplier', label: 'Supplier' },
+  { value: 'severity', label: 'Severity' },
+];
+
+function ParetoSection() {
+  const [dimension, setDimension] = useState('source');
+  const { data, isLoading } = useAnalyticsPareto(dimension);
+  const rows = (data?.buckets ?? []).map((b) => ({
+    name: humanize(b.label),
+    count: b.count,
+    cumulative: b.cumulative_pct,
+  }));
+
+  return (
+    <div className="card" style={{ marginTop: 'var(--space-4)' }}>
+      <div className="card__header">
+        <div className="card__title">Pareto — Nonconformance Drivers</div>
+        <select
+          className="input input-sm"
+          value={dimension}
+          onChange={(e) => setDimension(e.target.value)}
+          aria-label="Pareto dimension"
+          style={{ maxWidth: 180 }}
+        >
+          {PARETO_DIMENSIONS.map((d) => (
+            <option key={d.value} value={d.value}>{d.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="card__body">
+        {isLoading ? (
+          <div className="empty-state-sm"><span className="spinner" /> Loading…</div>
+        ) : rows.length === 0 ? (
+          <EmptyState title="No data" description="No nonconformances to analyze yet." />
+        ) : (
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={rows} margin={{ left: -8, right: 8, top: 8 }}>
+              <CartesianGrid stroke={CHART_COLORS.grid} vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="var(--text-faint)" interval={0} angle={-20} textAnchor="end" height={60} />
+              <YAxis yAxisId="left" tick={{ fontSize: 11 }} stroke="var(--text-faint)" allowDecimals={false} />
+              <YAxis yAxisId="right" orientation="right" domain={[0, 100]} tick={{ fontSize: 11 }} stroke="var(--text-faint)" unit="%" />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Bar yAxisId="left" dataKey="count" name="Count" fill={CHART_COLORS.primary} radius={[3, 3, 0, 0]} />
+              <Line yAxisId="right" type="monotone" dataKey="cumulative" name="Cumulative %" stroke={CHART_COLORS.danger} strokeWidth={2} dot={{ r: 3 }} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </div>
+  );
+}
 
 /** Convert a Record<string,number> into recharts-friendly rows. */
 function toBars(record: Record<string, number> | undefined): { name: string; value: number }[] {
@@ -217,6 +274,8 @@ export default function AnalyticsPage() {
           </div>
         </div>
       ) : null}
+
+      {!isLoading && !error && <ParetoSection />}
     </>
   );
 }
