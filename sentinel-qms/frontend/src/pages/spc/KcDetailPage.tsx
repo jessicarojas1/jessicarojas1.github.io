@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Trash2 } from 'lucide-react';
+import { AlertTriangle, Trash2 } from 'lucide-react';
 import {
   useAddMeasurement,
   useDeleteMeasurement,
@@ -43,6 +43,7 @@ export default function KcDetailPage() {
   const { notify } = useToast();
   const writable = canEdit('inspections');
   const [value, setValue] = useState('');
+  const violIdx = new Set((kc?.violations ?? []).map((v) => v.index));
 
   const addMeas = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +80,26 @@ export default function KcDetailPage() {
             <Stat label="Samples" value={kc.capability.count} />
           </div>
 
+          {kc.violations.length > 0 && (
+            <div className="card spc-violations">
+              <div className="card__header">
+                <div className="card__title">
+                  <AlertTriangle size={16} /> Control Violations ({kc.violations.length})
+                </div>
+              </div>
+              <div className="card__body">
+                <ul className="spc-violation-list">
+                  {kc.violations.map((v, idx) => (
+                    <li key={`${v.rule}-${v.index}-${idx}`}>
+                      <span className="spc-violation-pt">#{v.index}</span> Rule {v.rule}: {v.description}{' '}
+                      (value {v.value})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
           <div className="card">
             <div className="card__header">
               <div className="card__title">Control Chart (Individuals)</div>
@@ -99,7 +120,27 @@ export default function KcDetailPage() {
                     {kc.capability.ucl != null && <ReferenceLine y={kc.capability.ucl} stroke={CHART_COLORS.warning} strokeDasharray="2 2" label={{ value: 'UCL', fontSize: 10, fill: CHART_COLORS.warning }} />}
                     {kc.capability.lcl != null && <ReferenceLine y={kc.capability.lcl} stroke={CHART_COLORS.warning} strokeDasharray="2 2" label={{ value: 'LCL', fontSize: 10, fill: CHART_COLORS.warning }} />}
                     {kc.capability.mean != null && <ReferenceLine y={kc.capability.mean} stroke={CHART_COLORS.accent} label={{ value: 'x̄', fontSize: 10, fill: CHART_COLORS.accent }} />}
-                    <Line type="monotone" dataKey="value" stroke={CHART_COLORS.primary} strokeWidth={2} dot={{ r: 3 }} name="Value" />
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke={CHART_COLORS.primary}
+                      strokeWidth={2}
+                      name="Value"
+                      dot={(props) => {
+                        const { cx, cy, payload, index } = props;
+                        const bad = violIdx.has(payload.i);
+                        return (
+                          <circle
+                            key={index}
+                            cx={cx}
+                            cy={cy}
+                            r={bad ? 5 : 3}
+                            fill={bad ? CHART_COLORS.danger : CHART_COLORS.primary}
+                            stroke={bad ? CHART_COLORS.danger : 'none'}
+                          />
+                        );
+                      }}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               )}

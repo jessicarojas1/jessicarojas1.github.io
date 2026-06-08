@@ -879,9 +879,17 @@ export interface KcSummary {
   capability: SpcCapability;
 }
 
+export interface SpcViolation {
+  rule: number;
+  index: number;
+  value: number;
+  description: string;
+}
+
 export interface KcDetail extends KcSummary {
   notes: string | null;
   measurements: KcMeasurement[];
+  violations: SpcViolation[];
 }
 
 export type MsaType = 'gage_rr' | 'bias' | 'linearity' | 'stability';

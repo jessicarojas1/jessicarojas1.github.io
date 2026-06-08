@@ -71,6 +71,14 @@ class KcList(ORMModel):
     capability: Capability
 
 
+class SpcViolation(BaseModel):
+    rule: int
+    index: int
+    value: float
+    description: str
+
+
 class KcRead(KcList):
     notes: str | None
     measurements: list[MeasurementRead]
+    violations: list[SpcViolation]

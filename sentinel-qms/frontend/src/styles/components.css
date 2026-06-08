@@ -1703,3 +1703,9 @@ table.data-table {
   font-size: 12.5px;
   text-align: left;
 }
+
+/* ---- SPC control violations ---- */
+.spc-violations { border-left: 3px solid var(--danger); }
+.spc-violation-list { margin: 0; padding-left: 18px; font-size: 13px; }
+.spc-violation-list li { margin-bottom: 4px; }
+.spc-violation-pt { font-weight: 700; color: var(--danger); }
