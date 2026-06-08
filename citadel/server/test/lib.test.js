@@ -197,6 +197,20 @@ test('java pack: insecure-cookie + path-traversal detection', async () => {
   assert.ok(cwes(trav).has('CWE-22'), 'tainted File() should flag path traversal');
 });
 
+/* ---------------- schema.sql stays in sync with db.js ---------------- */
+test('schema.sql covers every table/column in the canonical db.js SCHEMA', () => {
+  const fsx = require('fs'), px = require('path');
+  const db = require('../lib/db');
+  const sql = fsx.readFileSync(px.resolve(__dirname, '../../database/schema.sql'), 'utf8');
+  const tables = (db.SCHEMA.match(/CREATE TABLE IF NOT EXISTS (\w+)/g) || []).map(s => s.split(' ').pop());
+  assert.ok(tables.length >= 6);
+  for (const t of tables) assert.ok(sql.includes(t), 'schema.sql missing table ' + t);
+  // MFA ALTER columns must be reflected too (idempotent upgrade path).
+  for (const col of (db.SCHEMA.match(/ADD COLUMN IF NOT EXISTS (\w+)/g) || []).map(s => s.split(' ').pop())) {
+    assert.ok(sql.includes(col), 'schema.sql missing column ' + col);
+  }
+});
+
 /* ---------------- ReDoS isolation (worker + timeout) ---------------- */
 test('engine: isolated heuristic scan runs in a worker and degrades on timeout', async () => {
   const fsx = require('fs'), osx = require('os'), px = require('path');

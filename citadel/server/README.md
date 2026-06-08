@@ -152,7 +152,10 @@ browser store is only a fallback for static hosting (GitHub Pages).
 | Variable | Default | Purpose |
 |---|---|---|
 | `CITADEL_DATA_DIR` | `$CITADEL_TMP/citadel` | Where `users.json` + the JWT secret persist (file mode). Point at a persistent disk. |
-| `DATABASE_URL` | — | When set, users/sessions/revocations/audit/settings persist to **Postgres** (durable + shared across instances). Falls back to the file store when unset. |
+| `DATABASE_URL` | — | When set, users/sessions/revocations/audit/settings persist to **Postgres** (durable + shared across instances). Falls back to the file store when unset. Schema is created on boot; a manual reference lives at `citadel/database/schema.sql`. |
+| `PGSSL` / `PGSSL_VERIFY` / `PGSSL_CA` | auto / off / — | TLS to Postgres. TLS auto-enables for managed providers; certificate **verification is opt-in** via `PGSSL_VERIFY=1` or by supplying the provider CA in `PGSSL_CA` (PEM string or path). Default is permissive (`rejectUnauthorized:false`) so managed chains keep working. |
+| `REDIS_TLS_VERIFY` / `REDIS_TLS_CA` | off / — | Same opt-in TLS verification for a `rediss://` `REDIS_URL`. |
+| `CITADEL_ALLOW_OPEN` | — | Set `1` to silence the startup warning that fires when auth **enforcement is off** on a production-looking deploy (the API is open to anyone in that state — enable enforcement for real multi-user use). |
 | `CITADEL_JWT_SECRET` | random (or seeded into the store) | HS256 signing key. Set a stable one so sessions survive restarts. |
 | `CITADEL_ACCESS_TTL` / `CITADEL_REFRESH_TTL` | `1800` / `2592000` | Access-token (30 m) and refresh-token (30 d) lifetimes, in seconds. |
 | `CITADEL_ADMIN_EMAIL` / `CITADEL_ADMIN_PASSWORD` | `admin@citadel.local` / `citadel-admin` | First-boot admin. The default password is flagged **must-change**; change it on first login. |

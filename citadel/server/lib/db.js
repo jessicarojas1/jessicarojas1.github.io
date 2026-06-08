@@ -5,21 +5,39 @@
  * in-memory / JSON-file behavior (free-tier default) and this module reports
  * disabled — every caller falls back gracefully.
  *
- * Managed Postgres (Render/Supabase/RDS) generally requires TLS; we enable it
- * with rejectUnauthorized:false unless PGSSL=0. Tables are created on init().
+ * Managed Postgres (Render/Supabase/RDS) generally requires TLS. By default we
+ * enable TLS but do not verify the server certificate (rejectUnauthorized:false)
+ * because managed providers often present chains that don't resolve against the
+ * system trust store. For a verified connection set PGSSL_VERIFY=1 and/or supply
+ * the provider CA via PGSSL_CA (a PEM string or a path to a .pem file). Tables
+ * are created on init().
  */
 let Pool = null;
 try { ({ Pool } = require('pg')); } catch (e) { /* pg not installed -> stays disabled */ }
+const fs = require('fs');
 
 const URL = process.env.DATABASE_URL || '';
 let pool = null;
 
-if (URL && Pool) {
+// Build the pg `ssl` option from env. Verification is opt-in (PGSSL_VERIFY=1) or
+// implied when a CA is provided; otherwise we keep the permissive managed-PG
+// default so existing deployments don't break.
+function sslOption(url) {
   const wantSsl = process.env.PGSSL === '0' ? false
-    : (process.env.PGSSL === '1' || /sslmode=require/i.test(URL) || /\.(render\.com|supabase\.co|rds\.amazonaws\.com)/i.test(URL));
+    : (process.env.PGSSL === '1' || /sslmode=require/i.test(url) || /\.(render\.com|supabase\.co|rds\.amazonaws\.com)/i.test(url));
+  if (!wantSsl) return false;
+  let ca = process.env.PGSSL_CA || null;
+  if (ca && !/-----BEGIN/.test(ca)) { try { ca = fs.readFileSync(ca, 'utf8'); } catch (e) { ca = null; } }
+  const verify = process.env.PGSSL_VERIFY === '1' || !!ca;
+  const opt = { rejectUnauthorized: verify };
+  if (ca) opt.ca = ca;
+  return opt;
+}
+
+if (URL && Pool) {
   pool = new Pool({
     connectionString: URL,
-    ssl: wantSsl ? { rejectUnauthorized: false } : false,
+    ssl: sslOption(URL),
     max: parseInt(process.env.PG_POOL_MAX || '5', 10),
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 8000

@@ -3,8 +3,10 @@
  *
  * Backend: Redis when REDIS_URL is set (shared across instances — correct under
  * horizontal scaling), otherwise in-memory Maps (per-process; fine on a single
- * instance / free tier). All functions are async and fail OPEN on a backend
- * error so a Redis blip can't lock everyone out.
+ * instance / free tier). On a backend error the functions return their permissive
+ * default but set `error:true`, so a non-critical route can fail open while the
+ * login path can choose to fail CLOSED (deny) and not let a Redis outage open a
+ * brute-force window.
  *
  *   limit(key, max, windowMs)   fixed-window request counter -> { ok, retryAfter, remaining }
  *   fail(key, opts)             record a failed auth attempt -> { locked, retryAfter, fails }
@@ -15,7 +17,16 @@ let redis = null;
 if (process.env.REDIS_URL) {
   try {
     const Redis = require('ioredis');
-    const tls = /^rediss:/i.test(process.env.REDIS_URL) ? { rejectUnauthorized: false } : undefined;
+    // rediss:// uses TLS. Verification is opt-in (REDIS_TLS_VERIFY=1) or implied
+    // by a supplied CA (REDIS_TLS_CA: PEM string or path); default stays
+    // permissive so existing managed-Redis URLs keep working.
+    let tls;
+    if (/^rediss:/i.test(process.env.REDIS_URL)) {
+      let ca = process.env.REDIS_TLS_CA || null;
+      if (ca && !/-----BEGIN/.test(ca)) { try { ca = require('fs').readFileSync(ca, 'utf8'); } catch (e) { ca = null; } }
+      tls = { rejectUnauthorized: process.env.REDIS_TLS_VERIFY === '1' || !!ca };
+      if (ca) tls.ca = ca;
+    }
     redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, enableOfflineQueue: false, tls });
     redis.on('error', (e) => console.error(JSON.stringify({ level: 'error', src: 'ratelimit', msg: 'redis error', err: e.message })));
   } catch (e) {
@@ -80,7 +91,7 @@ async function fail(key, opts) {
     const ttl = await redis.pttl(lk);
     if (ttl > 0) return { locked: true, retryAfter: Math.ceil(ttl / 1000), fails: n };
     return { locked: false, retryAfter: 0, fails: n };
-  } catch (e) { return { locked: false, retryAfter: 0, fails: 0 }; }
+  } catch (e) { return { locked: false, retryAfter: 0, fails: 0, error: true }; }
 }
 async function clearFails(key) {
   if (!redis) { _fails.delete(key); return; }
@@ -89,7 +100,7 @@ async function clearFails(key) {
 async function lockState(key) {
   if (!redis) return memLockState(key);
   try { const ttl = await redis.pttl('rll:' + key); if (ttl > 0) return { locked: true, retryAfter: Math.ceil(ttl / 1000) }; return { locked: false, retryAfter: 0 }; }
-  catch (e) { return { locked: false, retryAfter: 0 }; }
+  catch (e) { return { locked: false, retryAfter: 0, error: true }; }   // caller may choose to fail closed
 }
 
 module.exports = { limit, fail, clearFails, lockState, backend };

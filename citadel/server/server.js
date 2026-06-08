@@ -238,6 +238,14 @@ app.post('/api/auth/login', rateLimited('login', 20, 15 * 60000), async (req, re
   const lockKey = 'login:' + email + '|' + ip;
 
   const lock = await rateLimit.lockState(lockKey);
+  // Fail CLOSED for auth: if the lockout backend is unreachable we cannot tell
+  // whether this principal is being brute-forced, so deny rather than open the
+  // window. (The generic per-route limiter still fails open for non-auth routes.)
+  if (lock.error) {
+    audit.record('login.limiter_unavailable', { actor: email || null, ip, detail: 'lockout backend error — failing closed', ok: false });
+    res.setHeader('Retry-After', '30');
+    return res.status(503).json({ error: 'Login temporarily unavailable — please retry shortly.', retryAfter: 30 });
+  }
   if (lock.locked) {
     audit.record('login.locked', { actor: email || null, ip, detail: 'attempt while locked', ok: false });
     res.setHeader('Retry-After', String(lock.retryAfter));
@@ -577,8 +585,16 @@ app.use(express.static(APP_DIR, {
   app.listen(PORT, () => {
     log.info('deep-scan backend listening', {
       port: PORT, appDir: APP_DIR, userStore: users.backend(),
-      auditSink: audit.sinkEnabled(), ai: ai.available()
+      auditSink: audit.sinkEnabled(), ai: ai.available(), enforce: users.settings().enforce
     });
+    // Loud warning if auth enforcement is OFF on what looks like a real deploy —
+    // the API is open to anyone in that state. Suppress on local/dev or when
+    // explicitly acknowledged with CITADEL_ALLOW_OPEN=1.
+    const looksProd = process.env.NODE_ENV === 'production' || !!process.env.RENDER || !!process.env.DATABASE_URL;
+    if (!users.settings().enforce && looksProd && process.env.CITADEL_ALLOW_OPEN !== '1') {
+      log.warn('AUTH ENFORCEMENT IS OFF — the scan/admin API is open to unauthenticated callers. ' +
+        'Enable it in Settings (or set enforce) for multi-user use; set CITADEL_ALLOW_OPEN=1 to silence this.', { enforce: false });
+    }
     toolStatus().then(t => log.info('scanners', { tools: t.reduce((o, x) => (o[x.tool] = x.available, o), {}) }));
   });
 })();
