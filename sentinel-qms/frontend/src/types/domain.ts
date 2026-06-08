@@ -832,6 +832,35 @@ export interface CounterfeitAlert {
   ncr_id: number | null;
 }
 
+export type FodRisk = 'low' | 'medium' | 'high';
+export type FodSeverity = 'low' | 'medium' | 'high' | 'critical';
+export type FodStatus = 'open' | 'investigating' | 'contained' | 'closed';
+
+export interface FodZone {
+  id: number;
+  code: string;
+  name: string;
+  risk_level: FodRisk;
+  description: string | null;
+  is_active: boolean;
+}
+
+export interface FodEvent {
+  id: number;
+  event_number: string;
+  zone_id: number | null;
+  title: string;
+  description: string | null;
+  object_type: string | null;
+  location: string | null;
+  severity: FodSeverity;
+  status: FodStatus;
+  discovered_date: string | null;
+  root_cause: string | null;
+  corrective_action: string | null;
+  ncr_id: number | null;
+}
+
 export type CoverageStatus = 'covered' | 'partial' | 'gap' | 'not_applicable';
 
 export interface StandardRequirement {

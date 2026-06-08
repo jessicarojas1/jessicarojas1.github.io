@@ -57,6 +57,7 @@ from app.models.document import (
     DocumentStatus,
     DocumentType,
 )
+from app.models.fod import FodEvent, FodRisk, FodSeverity, FodStatus, FodZone
 from app.models.iam import UserPermissionGrant
 from app.models.inspection import (
     FaiCharacteristic,
@@ -208,4 +209,9 @@ __all__ = [
     "ApqpPhase",
     "ApqpStatus",
     "PpapElementStatus",
+    "FodZone",
+    "FodEvent",
+    "FodRisk",
+    "FodSeverity",
+    "FodStatus",
 ]

@@ -18,6 +18,7 @@ import {
   ScrollText,
   Settings,
   ShieldAlert,
+  Trash,
   ShieldCheck,
   ShieldX,
   TrendingUp,
@@ -71,6 +72,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Audits', to: '/audits', icon: ScrollText, capability: 'audits.read', page: 'audits' },
       { label: 'Inspections / FAI', to: '/inspections', icon: FlaskConical, capability: 'inspections.read', page: 'inspections' },
       { label: 'APQP / PPAP', to: '/apqp', icon: Workflow, capability: 'inspections.read', page: 'inspections' },
+      { label: 'FOD Prevention', to: '/fod', icon: Trash, capability: 'inspections.read', page: 'inspections' },
     ],
   },
   {
