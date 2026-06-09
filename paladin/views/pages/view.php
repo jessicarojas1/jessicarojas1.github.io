@@ -45,7 +45,7 @@ ob_start();
       <div style="display:flex;flex-wrap:wrap;gap:6px">
         <?php foreach ($labels as $lb): ?>
           <span class="chip" style="border-left:3px solid <?= Security::h($lb['color']) ?>">
-            <a href="/search?q=<?= urlencode($lb['name']) ?>" style="text-decoration:none;color:inherit"><?= Security::h($lb['name']) ?></a>
+            <a href="/labels/<?= (int)$lb["id"] ?>" style="text-decoration:none;color:inherit"><?= Security::h($lb["name"]) ?></a>
             <?php if (Auth::can('page.edit')): ?><form method="POST" action="/pages/<?= (int)$page['id'] ?>/labels/<?= (int)$lb['id'] ?>/delete" style="display:inline;margin:0"><?= Security::csrfField() ?><button type="submit" class="btn-unstyled" style="border:none;background:none;cursor:pointer;color:var(--text-light);padding:0 0 0 4px" title="Remove label"><i class="bi bi-x"></i></button></form><?php endif; ?>
           </span>
         <?php endforeach; ?>
