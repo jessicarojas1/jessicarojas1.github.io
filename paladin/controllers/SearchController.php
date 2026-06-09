@@ -4,7 +4,7 @@ declare(strict_types=1);
 class SearchController {
 
     /** Allowed entity types for the optional ?type restriction. */
-    private const TYPES = ['documents', 'pages', 'processes', 'tasks', 'spaces'];
+    private const TYPES = ['documents', 'pages', 'blogs', 'comments', 'processes', 'tasks', 'spaces'];
 
     public function index(): void {
         Auth::requirePermission('search.view');
@@ -12,11 +12,16 @@ class SearchController {
         $type = Security::sanitizeInput($_GET['type'] ?? '');
         if ($type !== '' && !in_array($type, self::TYPES, true)) $type = '';
 
-        $results = ['documents' => [], 'pages' => [], 'processes' => [], 'tasks' => [], 'spaces' => []];
+        $results = array_fill_keys(self::TYPES, []);
         $total   = 0;
+
+        // Space-privacy fragment (aliased space "s"): open spaces, admins, or members.
+        $priv = "(s.id IS NULL OR s.is_private = FALSE OR ? = 'admin'
+                  OR EXISTS (SELECT 1 FROM space_members m WHERE m.space_id = s.id AND m.user_id = ?))";
 
         if ($q !== '') {
             $like = "%{$q}%";
+            $role = Auth::role(); $uid = Auth::id();
 
             if ($type === '' || $type === 'documents') {
                 $results['documents'] = Database::fetchAll(
@@ -28,12 +33,38 @@ class SearchController {
                 );
             }
             if ($type === '' || $type === 'pages') {
-                $results['pages'] = Database::fetchAll(
-                    "SELECT p.id, p.title, p.status, s.name AS space_name
+                $rows = Database::fetchAll(
+                    "SELECT p.id, p.title, p.status, p.owner_id, p.created_by, p.space_id, s.name AS space_name
                      FROM pages p LEFT JOIN spaces s ON s.id = p.space_id
-                     WHERE (p.title ILIKE ? OR p.body ILIKE ?) AND p.deleted_at IS NULL
-                     ORDER BY p.updated_at DESC LIMIT 25",
-                    [$like, $like]
+                     WHERE (p.title ILIKE ? OR p.body ILIKE ?) AND p.deleted_at IS NULL AND {$priv}
+                     ORDER BY p.updated_at DESC LIMIT 40",
+                    [$like, $like, $role, $uid]
+                );
+                // Honour per-page restrictions, then cap.
+                $results['pages'] = array_slice(array_values(array_filter($rows, fn($p) => PageAccess::canView($p))), 0, 25);
+            }
+            if ($type === '' || $type === 'blogs') {
+                $results['blogs'] = Database::fetchAll(
+                    "SELECT b.id, b.title, b.status, s.name AS space_name
+                     FROM blog_posts b LEFT JOIN spaces s ON s.id = b.space_id
+                     WHERE (b.title ILIKE ? OR b.body ILIKE ?) AND (b.status='published' OR b.author_id = ?) AND {$priv}
+                     ORDER BY b.published_at DESC NULLS LAST LIMIT 25",
+                    [$like, $like, $uid, $role, $uid]
+                );
+            }
+            if ($type === '' || $type === 'comments') {
+                $results['comments'] = Database::fetchAll(
+                    "SELECT c.id, c.entity_type, c.entity_id, c.body, u.name AS author
+                     FROM comments c
+                     LEFT JOIN users u ON u.id = c.user_id
+                     LEFT JOIN pages p ON c.entity_type='page' AND p.id = c.entity_id
+                     LEFT JOIN blog_posts bp ON c.entity_type='blog' AND bp.id = c.entity_id
+                     LEFT JOIN spaces s ON s.id = COALESCE(p.space_id, bp.space_id)
+                     WHERE c.body ILIKE ?
+                       AND (c.entity_type='page' AND p.deleted_at IS NULL OR c.entity_type<>'page')
+                       AND (c.entity_type='document' OR {$priv})
+                     ORDER BY c.created_at DESC LIMIT 25",
+                    [$like, $role, $uid]
                 );
             }
             if ($type === '' || $type === 'processes') {
