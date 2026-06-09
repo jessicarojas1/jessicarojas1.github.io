@@ -63,6 +63,7 @@ class PageController {
         ]);
         Database::insert('page_versions', ['page_id' => $id, 'version' => 1, 'title' => $title, 'body' => $body, 'change_note' => 'Created', 'edited_by' => Auth::id()]);
         Auth::log('create_page', 'pages', $id, ['title' => $title]);
+        PageTasks::sync($id, $body);
         $_SESSION['flash_success'] = 'Page created.';
         header('Location: /pages/' . $id);
     }
@@ -104,6 +105,7 @@ class PageController {
         ]);
         Database::insert('page_versions', ['page_id' => $id, 'version' => 1, 'title' => $title, 'body' => $body, 'change_note' => 'Imported from Markdown', 'edited_by' => Auth::id()]);
         Auth::log('import_page', 'pages', $id, ['title' => $title]);
+        PageTasks::sync($id, $body);
         if ($status === 'published') Webhook::dispatch('page.published', ['id' => $id, 'actor' => Auth::id()]);
         $_SESSION['flash_success'] = 'Page imported from Markdown.';
         header('Location: /pages/' . $id);
@@ -129,6 +131,8 @@ class PageController {
         );
         $canEditPage = PageAccess::canEdit($page);
         $allUsers = $canEditPage ? Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name") : [];
+        $pageTasks = PageTasks::forPage($id);
+        $taskUsers = $pageTasks ? Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name") : [];
         $pageLike = Reactions::one('page', $id);
         $comments = Database::fetchAll(
             "SELECT c.*, u.name AS user_name, r.name AS resolver_name
@@ -268,6 +272,7 @@ class PageController {
             'change_note' => Security::sanitizeInput($_POST['change_note'] ?? '') ?: 'Updated', 'edited_by' => Auth::id(),
         ]);
         Auth::log('update_page', 'pages', $id, ['version' => $newVersion]);
+        PageTasks::sync($id, $body);
         // Newly published this save → page.published; otherwise a plain update.
         if ($status === 'published' && $page['status'] !== 'published') {
             Webhook::dispatch('page.published', ['id' => $id, 'version' => $newVersion, 'actor' => Auth::id()]);
@@ -493,6 +498,63 @@ class PageController {
             Auth::log('move_page', 'pages', $id, ['dir' => $dir]);
         }
         header('Location: /spaces/' . (int)$page['space_id']);
+    }
+
+    // ── Inline tasks / action items ──────────────────────────────────────────
+    private function loadTask(int $taskId): ?array {
+        return Database::fetchOne(
+            "SELECT pt.*, p.space_id, p.deleted_at FROM page_tasks pt JOIN pages p ON p.id = pt.page_id WHERE pt.id = ?",
+            [$taskId]
+        );
+    }
+
+    public function toggleTask(int $taskId): void {
+        Auth::requirePermission('page.comment');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $t = $this->loadTask($taskId);
+        if (!$t || $t['deleted_at'] !== null) { http_response_code(404); return; }
+        $done = !in_array(strtolower((string)$t['done']), ['1','t','true'], true);
+        Database::query(
+            "UPDATE page_tasks SET done = ?, done_at = ?, done_by = ? WHERE id = ?",
+            [$done ? 't' : 'f', $done ? date('Y-m-d H:i:s') : null, $done ? Auth::id() : null, $taskId]
+        );
+        Auth::log('toggle_task', 'pages', (int)$t['page_id'], ['task' => $taskId, 'done' => $done]);
+        header('Location: ' . ($_POST['return'] ?? ('/pages/' . (int)$t['page_id'] . '#action-items')));
+    }
+
+    public function assignTask(int $taskId): void {
+        Auth::requirePermission('page.comment');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $t = $this->loadTask($taskId);
+        if (!$t || $t['deleted_at'] !== null) { http_response_code(404); return; }
+        $assignee = !empty($_POST['assignee_id']) ? (int)$_POST['assignee_id'] : null;
+        if ($assignee !== null && !Database::fetchOne("SELECT 1 FROM users WHERE id=? AND is_active=TRUE", [$assignee])) $assignee = null;
+        $due = Security::sanitizeInput($_POST['due_date'] ?? '');
+        Database::query("UPDATE page_tasks SET assignee_id = ?, due_date = ? WHERE id = ?",
+            [$assignee, $due !== '' ? $due : null, $taskId]);
+        if ($assignee && $assignee !== Auth::id()) {
+            Database::insert('alerts', [
+                'user_id' => $assignee, 'title' => 'Action item assigned',
+                'body' => 'You were assigned: "' . mb_strimwidth($t['text'], 0, 120, '…') . '"',
+                'severity' => 'info', 'link' => '/pages/' . (int)$t['page_id'] . '#action-items', 'is_read' => 'f',
+            ]);
+        }
+        Auth::log('assign_task', 'pages', (int)$t['page_id'], ['task' => $taskId]);
+        header('Location: /pages/' . (int)$t['page_id'] . '#action-items');
+    }
+
+    /** "My Action Items" — tasks assigned to the current user across pages. */
+    public function myActionItems(): void {
+        Auth::requireAuth();
+        $tasks = Database::fetchAll(
+            "SELECT pt.*, p.title AS page_title, s.name AS space_name
+             FROM page_tasks pt
+             JOIN pages p ON p.id = pt.page_id AND p.deleted_at IS NULL
+             LEFT JOIN spaces s ON s.id = p.space_id
+             WHERE pt.assignee_id = ? ORDER BY pt.done, pt.due_date NULLS LAST, pt.created_at",
+            [Auth::id()]
+        );
+        require PALADIN_ROOT . '/views/pages/action_items.php';
     }
 
     /**

@@ -38,6 +38,7 @@ $wValue = $wValue ?? '';
     <span class="wtb-sep"></span>
     <button type="button" class="wtb" data-cmd="insertUnorderedList" title="Bulleted list"><i class="bi bi-list-ul"></i></button>
     <button type="button" class="wtb" data-cmd="insertOrderedList" title="Numbered list"><i class="bi bi-list-ol"></i></button>
+    <button type="button" class="wtb" data-insert="task" title="Task / action item"><i class="bi bi-check2-square"></i></button>
     <button type="button" class="wtb" data-cmd="formatBlock" data-val="blockquote" title="Quote"><i class="bi bi-blockquote-left"></i></button>
     <button type="button" class="wtb" data-cmd="formatBlock" data-val="pre" title="Code block"><i class="bi bi-code-square"></i></button>
     <span class="wtb-sep"></span>
@@ -134,6 +135,7 @@ $wValue = $wValue ?? '';
           'panel-success': '<div class="panel panel-success"><div class="panel-icon"><i class="bi bi-check-circle-fill"></i></div><div class="panel-body"><p>Success — type your note here.</p></div></div><p></p>',
           'panel-warning': '<div class="panel panel-warning"><div class="panel-icon"><i class="bi bi-exclamation-triangle-fill"></i></div><div class="panel-body"><p>Warning — type your note here.</p></div></div><p></p>',
           'panel-note':    '<div class="panel panel-note"><div class="panel-icon"><i class="bi bi-sticky-fill"></i></div><div class="panel-body"><p>Note — type your note here.</p></div></div><p></p>',
+          'task':          '<ul class="task-list"><li>[ ] Action item — describe the task</li></ul><p></p>',
           'expand':        '<details><summary>Click to expand</summary><p>Hidden content…</p></details><p></p>',
           'status':        '<span class="lozenge lozenge-green">Done</span>&nbsp;',
           'toc':           '<div class="macro-toc"><div class="macro-toc-title">On this page</div></div><p></p>'
