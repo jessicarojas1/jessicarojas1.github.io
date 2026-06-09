@@ -1066,3 +1066,13 @@ document.addEventListener('click', function(e) {
     }).catch(function () { alert('Could not move the page.'); });
   });
 })();
+
+/* ── Auto-submit selects (e.g. filters) ───────────────────────────────────── */
+(function () {
+  document.querySelectorAll('select[data-auto-submit]').forEach(function (sel) {
+    sel.addEventListener('change', function () {
+      var f = sel.closest('form');
+      if (f) f.submit();
+    });
+  });
+})();

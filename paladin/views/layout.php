@@ -86,6 +86,7 @@
       <button type="button" class="nav-acc-header" data-acc="insights"><span>Insights</span><i class="bi bi-chevron-down nav-acc-chevron"></i></button>
       <div class="nav-acc-body" id="nav-acc-insights">
         <a href="/reports" class="nav-item <?= ($activeModule ?? '')==='reports'?'active':'' ?>"><i class="bi bi-bar-chart-line-fill"></i><span>Reports</span></a>
+        <a href="/activity" class="nav-item <?= ($activeModule ?? '')==='activity'?'active':'' ?>"><i class="bi bi-activity"></i><span>Activity</span></a>
         <a href="/search"  class="nav-item <?= ($activeModule ?? '')==='search'?'active':'' ?>"><i class="bi bi-search"></i><span>Search</span></a>
         <a href="/labels"  class="nav-item <?= ($activeModule ?? '')==='labels'?'active':'' ?>"><i class="bi bi-tags-fill"></i><span>Labels</span></a>
       </div>
@@ -207,6 +208,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmRONQ7+/O31fY0B+Mzgj+qVXq0" crossorigin="anonymous" nonce="<?= Security::nonce() ?>"></script>
 <script src="/public/vendor/chart.js/chart.umd.js" nonce="<?= Security::nonce() ?>"></script>
-<script src="/public/js/app.js?v=6" nonce="<?= Security::nonce() ?>"></script>
+<script src="/public/js/app.js?v=7" nonce="<?= Security::nonce() ?>"></script>
 </body>
 </html>
