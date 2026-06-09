@@ -98,6 +98,7 @@ $relLabels = ['related_process'=>'Process','related_risk'=>'Risk','related_contr
 
   <!-- Sidebar: metadata -->
   <div>
+    <?php $wfType='document'; $wfId=(int)$doc['id']; require PALADIN_ROOT . '/views/partials/workflow_status.php'; ?>
     <div class="card" style="margin-bottom:18px">
       <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-info-circle"></i> Metadata</span></div></div>
       <div class="card-body">
