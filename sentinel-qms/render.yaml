@@ -53,8 +53,7 @@ services:
         value: "1"
       - key: ADMIN_AUTO_CREATE
         value: "true"
-      - key: ADMIN_EMAIL
-        value: admin@sentinel-qms.local
-      # DEMO password — change this before sharing the link, and never reuse it.
-      - key: ADMIN_PASSWORD
-        value: Demo!Sentinel2026
+      # ADMIN_EMAIL and ADMIN_PASSWORD are intentionally NOT defined here — set
+      # them as secrets in the Render dashboard (Environment). No admin
+      # credentials are committed to the repo; if unset, admin bootstrap is
+      # skipped rather than falling back to a baked-in default.

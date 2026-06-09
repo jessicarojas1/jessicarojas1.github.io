@@ -121,6 +121,12 @@ def seed_admin(db: Session, roles: dict[str, Role]) -> User | None:
     if not settings.ADMIN_AUTO_CREATE:
         logger.info("ADMIN_AUTO_CREATE disabled; skipping admin bootstrap.")
         return None
+    if not settings.ADMIN_EMAIL or not settings.ADMIN_PASSWORD:
+        logger.warning(
+            "ADMIN_AUTO_CREATE enabled but ADMIN_EMAIL/ADMIN_PASSWORD are not set; "
+            "skipping admin bootstrap. Configure them in the environment."
+        )
+        return None
     if settings.is_production:
         logger.warning(
             "ENVIRONMENT=production with ADMIN_AUTO_CREATE enabled — provisioning "

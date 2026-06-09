@@ -49,9 +49,11 @@ class Settings(BaseSettings):
     OIDC_CLIENT_ID: str = ""
     OIDC_CLIENT_SECRET: str = ""
 
-    # Bootstrap admin
-    ADMIN_EMAIL: str = "admin@sentinel-qms.local"
-    ADMIN_PASSWORD: str = "ChangeMe!Admin123"
+    # Bootstrap admin — credentials come ONLY from the environment (e.g. the
+    # Render dashboard). No baked-in defaults, so no secret ever ships in the
+    # repo; when unset, admin bootstrap is simply skipped.
+    ADMIN_EMAIL: str | None = None
+    ADMIN_PASSWORD: str | None = None
     ADMIN_AUTO_CREATE: bool = True
 
     # Storage

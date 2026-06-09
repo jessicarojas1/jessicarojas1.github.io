@@ -42,6 +42,11 @@ def bootstrap_admin(db) -> None:
     admin_role = roles.get(RoleEnum.ADMIN.value)
     if admin_role is None:
         raise RuntimeError("ADMIN role missing — run seed_roles first.")
+    if not settings.ADMIN_EMAIL or not settings.ADMIN_PASSWORD:
+        raise RuntimeError(
+            "ADMIN_EMAIL / ADMIN_PASSWORD must be set in the environment to "
+            "create the bootstrap admin."
+        )
 
     email = settings.ADMIN_EMAIL.lower()
     existing = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
