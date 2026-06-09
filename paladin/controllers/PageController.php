@@ -121,6 +121,11 @@ class PageController {
         $versionCount = (int)(Database::fetchOne("SELECT COUNT(*) c FROM page_versions WHERE page_id=?", [$id])['c'] ?? 0);
         $isWatching = (bool)Database::fetchOne("SELECT 1 FROM watches WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
         $isFav = (bool)Database::fetchOne("SELECT 1 FROM favorites WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
+        $inlineComments = Database::fetchAll(
+            "SELECT ic.*, u.name AS user_name, r.name AS resolver_name
+             FROM inline_comments ic LEFT JOIN users u ON u.id=ic.user_id LEFT JOIN users r ON r.id=ic.resolved_by
+             WHERE ic.page_id=? ORDER BY ic.resolved, ic.created_at", [$id]
+        );
         $labels = Database::fetchAll(
             "SELECT t.id, t.name, t.color FROM entity_tags et JOIN tags t ON t.id=et.tag_id
              WHERE et.entity_type='page' AND et.entity_id=? ORDER BY t.name", [$id]
@@ -429,6 +434,62 @@ class PageController {
             Auth::log('move_page', 'pages', $id, ['dir' => $dir]);
         }
         header('Location: /spaces/' . (int)$page['space_id']);
+    }
+
+    // ── Inline (anchored) comments ───────────────────────────────────────────
+    public function addInlineComment(int $id): void {
+        Auth::requirePermission('page.comment');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $page = $this->guardView($id);
+        if (!$page) { http_response_code(404); return; }
+        $quote = trim((string)($_POST['quote'] ?? ''));
+        $body  = Security::sanitizeInput($_POST['body'] ?? '');
+        if ($quote === '' || $body === '') {
+            $_SESSION['flash_error'] = 'Select some text and write a comment.';
+            header('Location: /pages/' . $id); return;
+        }
+        $quote  = mb_substr($quote, 0, 1000);
+        $prefix = mb_substr(trim((string)($_POST['prefix'] ?? '')), -160);
+        $suffix = mb_substr(trim((string)($_POST['suffix'] ?? '')), 0, 160);
+        $cid = Database::insert('inline_comments', [
+            'page_id' => $id, 'user_id' => Auth::id(),
+            'quote' => $quote, 'prefix' => $prefix ?: null, 'suffix' => $suffix ?: null,
+            'body' => $body,
+        ]);
+        Auth::log('inline_comment_page', 'pages', $id, ['comment' => $cid]);
+        Mentions::process($body, 'page', $id, $page['title'] ?? null);
+        $_SESSION['flash_success'] = 'Inline comment added.';
+        header('Location: /pages/' . $id . '#ic-' . $cid);
+    }
+
+    public function resolveInlineComment(int $id): void {
+        Auth::requirePermission('page.comment');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $c = Database::fetchOne("SELECT * FROM inline_comments WHERE id=?", [$id]);
+        if (!$c) { http_response_code(404); return; }
+        if (!$this->guardView((int)$c['page_id'])) { http_response_code(403); return; }
+        if ((int)$c['user_id'] !== Auth::id() && !Auth::can('page.edit')) {
+            $_SESSION['flash_error'] = 'You can only resolve your own inline comments.';
+            header('Location: /pages/' . (int)$c['page_id']); return;
+        }
+        // inline_comments has no updated_at column, so avoid Database::update (which appends it).
+        Database::query("UPDATE inline_comments SET resolved = TRUE, resolved_by = ?, resolved_at = NOW() WHERE id = ?", [Auth::id(), $id]);
+        Auth::log('resolve_inline_comment', 'pages', (int)$c['page_id'], ['comment' => $id]);
+        header('Location: /pages/' . (int)$c['page_id']);
+    }
+
+    public function deleteInlineComment(int $id): void {
+        Auth::requirePermission('page.comment');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $c = Database::fetchOne("SELECT * FROM inline_comments WHERE id=?", [$id]);
+        if (!$c) { http_response_code(404); return; }
+        if ((int)$c['user_id'] !== Auth::id() && !Auth::can('page.edit')) {
+            $_SESSION['flash_error'] = 'You can only delete your own inline comments.';
+            header('Location: /pages/' . (int)$c['page_id']); return;
+        }
+        Database::query("DELETE FROM inline_comments WHERE id=?", [$id]);
+        Auth::log('delete_inline_comment', 'pages', (int)$c['page_id'], ['comment' => $id]);
+        header('Location: /pages/' . (int)$c['page_id']);
     }
 
     public function toggleWatch(int $id): void {

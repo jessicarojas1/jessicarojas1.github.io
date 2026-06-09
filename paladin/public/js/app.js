@@ -655,3 +655,152 @@ document.addEventListener('click', function(e) {
     } else if (src.select) { src.select(); try { document.execCommand('copy'); done(); } catch (e2) {} }
   });
 })();
+
+/* ── Inline (anchored) comments on pages ──────────────────────────────────── */
+(function () {
+  var root = document.querySelector('[data-inline-root]');
+  if (!root) return;
+
+  var addBtn  = document.getElementById('ic-add-btn');
+  var formWrap = document.getElementById('ic-form-wrap');
+  var qInput  = document.getElementById('ic-quote');
+  var pInput  = document.getElementById('ic-prefix');
+  var sInput  = document.getElementById('ic-suffix');
+  var preview = document.getElementById('ic-quote-preview');
+  var bodyEl  = document.getElementById('ic-body');
+  var cancel  = document.getElementById('ic-cancel');
+
+  // ── Highlight existing anchors ──
+  function highlightQuote(quote, prefix, id) {
+    if (!quote) return false;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var nodes = [], full = '', n;
+    while ((n = walker.nextNode())) { nodes.push({ node: n, start: full.length }); full += n.nodeValue; }
+    var idx = -1;
+    if (prefix) { var p = full.indexOf(prefix + quote); if (p >= 0) idx = p + prefix.length; }
+    if (idx < 0) idx = full.indexOf(quote);
+    if (idx < 0) return false;
+    var end = idx + quote.length;
+    for (var i = 0; i < nodes.length; i++) {
+      var ns = nodes[i].start, ne = ns + nodes[i].node.nodeValue.length;
+      if (idx >= ns && end <= ne) {
+        try {
+          var range = document.createRange();
+          range.setStart(nodes[i].node, idx - ns);
+          range.setEnd(nodes[i].node, end - ns);
+          var mark = document.createElement('mark');
+          mark.className = 'ic-highlight';
+          mark.setAttribute('data-ic-id', String(id));
+          range.surroundContents(mark);
+          return true;
+        } catch (e) { return false; }
+      }
+    }
+    return false; // spans element boundaries — skip highlight (still listed in sidebar)
+  }
+
+  var anchorsEl = document.getElementById('ic-anchors');
+  var found = {};
+  if (anchorsEl) {
+    var anchors = [];
+    try { anchors = JSON.parse(anchorsEl.textContent || '[]'); } catch (e) { anchors = []; }
+    anchors.forEach(function (a) { found[a.id] = highlightQuote(a.quote, a.prefix, a.id); });
+  }
+
+  // Mark sidebar items whose anchor couldn't be located as "outdated".
+  Object.keys(found).forEach(function (id) {
+    if (!found[id]) {
+      var item = document.querySelector('[data-ic-item="' + id + '"]');
+      if (item) {
+        var tag = document.createElement('span');
+        tag.className = 'badge badge-amber';
+        tag.style.marginLeft = '6px';
+        tag.textContent = 'outdated';
+        var q = item.querySelector('blockquote');
+        if (q) q.appendChild(tag);
+      }
+    }
+  });
+
+  function setActive(id, on) {
+    var mark = root.querySelector('mark.ic-highlight[data-ic-id="' + id + '"]');
+    var item = document.querySelector('[data-ic-item="' + id + '"]');
+    if (mark) mark.classList.toggle('ic-active', on);
+    if (item) item.classList.toggle('ic-active', on);
+  }
+
+  // Highlight ↔ sidebar linking
+  root.addEventListener('click', function (e) {
+    var mark = e.target.closest && e.target.closest('mark.ic-highlight');
+    if (!mark) return;
+    var id = mark.getAttribute('data-ic-id');
+    var item = document.getElementById('ic-' + id);
+    if (item) { item.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    setActive(id, true);
+    setTimeout(function () { setActive(id, false); }, 1600);
+  });
+  document.querySelectorAll('[data-ic-item]').forEach(function (item) {
+    item.addEventListener('mouseenter', function () { setActive(item.getAttribute('data-ic-item'), true); });
+    item.addEventListener('mouseleave', function () { setActive(item.getAttribute('data-ic-item'), false); });
+    item.addEventListener('click', function (e) {
+      if (e.target.closest('form')) return; // don't hijack resolve/delete buttons
+      var id = item.getAttribute('data-ic-item');
+      var mark = root.querySelector('mark.ic-highlight[data-ic-id="' + id + '"]');
+      if (mark) mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  // ── Selection → comment composer ──
+  if (!addBtn) return; // user lacks page.comment
+
+  var pending = null;
+
+  function clamp(s, max) { return s.length > max ? s.slice(s.length - max) : s; }
+
+  function captureSelection() {
+    var sel = window.getSelection();
+    if (!sel || sel.isCollapsed) return null;
+    var text = sel.toString().replace(/\s+/g, ' ').trim();
+    if (text.length < 2) return null;
+    var range = sel.getRangeAt(0);
+    if (!root.contains(range.commonAncestorContainer)) return null;
+    var prefix = '', suffix = '';
+    if (range.startContainer.nodeType === 3) prefix = clamp(range.startContainer.nodeValue.slice(0, range.startOffset), 60).trim();
+    if (range.endContainer.nodeType === 3)   suffix = range.endContainer.nodeValue.slice(range.endOffset, range.endOffset + 60).trim();
+    return { text: text, prefix: prefix, suffix: suffix, rect: range.getBoundingClientRect() };
+  }
+
+  function placeAt(el, rect) {
+    el.style.top = (window.scrollY + rect.bottom + 8) + 'px';
+    el.style.left = (window.scrollX + rect.left) + 'px';
+  }
+
+  root.addEventListener('mouseup', function () {
+    setTimeout(function () {
+      var cap = captureSelection();
+      if (!cap) { addBtn.hidden = true; return; }
+      pending = cap;
+      placeAt(addBtn, cap.rect);
+      addBtn.hidden = false;
+    }, 10);
+  });
+
+  addBtn.addEventListener('click', function () {
+    if (!pending) return;
+    qInput.value = pending.text;
+    pInput.value = pending.prefix;
+    sInput.value = pending.suffix;
+    preview.textContent = pending.text;
+    placeAt(formWrap, pending.rect);
+    addBtn.hidden = true;
+    formWrap.hidden = false;
+    bodyEl.focus();
+  });
+
+  cancel.addEventListener('click', function () { formWrap.hidden = true; pending = null; });
+
+  document.addEventListener('mousedown', function (e) {
+    if (formWrap.contains(e.target) || addBtn.contains(e.target) || root.contains(e.target)) return;
+    addBtn.hidden = true;
+  });
+})();
