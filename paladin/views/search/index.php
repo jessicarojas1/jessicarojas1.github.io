@@ -7,6 +7,8 @@ ob_start();
 $typeMeta = [
     'documents' => ['bi-file-earmark-text-fill', 'Documents', 'var(--primary)',   '/documents/'],
     'pages'     => ['bi-file-richtext-fill',     'Pages',     'var(--indigo)',    '/pages/'],
+    'blogs'     => ['bi-newspaper',              'Blog Posts','var(--purple)',    '/blog/'],
+    'comments'  => ['bi-chat-left-text-fill',    'Comments',  'var(--info)',      ''],
     'processes' => ['bi-diagram-3-fill',         'Processes', 'var(--info)',      '/processes/'],
     'tasks'     => ['bi-list-task',              'Tasks',     'var(--warning)',   '/tasks/'],
     'spaces'    => ['bi-collection-fill',        'Spaces',    'var(--purple)',    '/spaces/'],
@@ -95,6 +97,13 @@ $typeMeta = [
                     <td><a href="<?= Security::h($base) ?><?= (int)$row['id'] ?>" class="table-link"><?= Security::h($row['title']) ?></a></td>
                     <td class="form-hint"><?= Security::h($row['space_name'] ?: '—') ?></td>
                     <td style="text-align:right"><?= View::statusBadge($row['status']) ?></td>
+                  <?php elseif ($tk === 'blogs'): ?>
+                    <td><a href="<?= Security::h($base) ?><?= (int)$row['id'] ?>" class="table-link"><?= Security::h($row['title']) ?></a></td>
+                    <td class="form-hint"><?= Security::h($row['space_name'] ?: '—') ?></td>
+                    <td style="text-align:right"><?= View::statusBadge($row['status']) ?></td>
+                  <?php elseif ($tk === 'comments'): ?>
+                    <?php $cl = $row['entity_type']==='document' ? '/documents/' : ($row['entity_type']==='blog' ? '/blog/' : '/pages/'); ?>
+                    <td><a href="<?= Security::h($cl) ?><?= (int)$row['entity_id'] ?>#comments" class="table-link"><?= Security::h(mb_strimwidth(trim((string)$row['body']), 0, 90, '…')) ?></a><div class="form-hint"><?= Security::h($row['author'] ?: 'Someone') ?> · on <?= Security::h($row['entity_type']) ?></div></td>
                   <?php elseif ($tk === 'processes'): ?>
                     <td style="width:120px"><span class="chip"><?= Security::h($row['process_code']) ?></span></td>
                     <td><a href="<?= Security::h($base) ?><?= (int)$row['id'] ?>" class="table-link"><?= Security::h($row['name']) ?></a></td>
