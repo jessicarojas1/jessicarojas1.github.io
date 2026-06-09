@@ -129,6 +129,7 @@ $routes = [
 
         '/pages/create'              => ['PageController', 'createForm'],
         '/pages/templates'           => ['PageController', 'templateGallery'],
+        '/action-items'              => ['PageController', 'myActionItems'],
         '/pages/import'              => ['PageController', 'importForm'],
 
         '/documents'                 => ['DocumentController', 'index'],
@@ -297,6 +298,8 @@ $dynamicRoutes = [
         '#^/pages/(\d+)/restrictions/(\d+)/delete$#' => ['PageController', 'removeRestriction'],
         '#^/pages/(\d+)/move$#'             => ['PageController', 'move'],
         '#^/pages/(\d+)/reorder$#'          => ['PageController', 'reorder'],
+        '#^/tasks-inline/(\d+)/toggle$#'    => ['PageController', 'toggleTask'],
+        '#^/tasks-inline/(\d+)/assign$#'    => ['PageController', 'assignTask'],
         '#^/attachments/(\d+)/delete$#'     => ['AttachmentController', 'delete'],
         '#^/comments/(\d+)/resolve$#'       => ['CommentController', 'resolve'],
         '#^/comments/(\d+)/reopen$#'        => ['CommentController', 'reopen'],

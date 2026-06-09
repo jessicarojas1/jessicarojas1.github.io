@@ -53,6 +53,43 @@ ob_start();
       </div>
     <?php endif; ?>
 
+    <?php if (!empty($pageTasks)): $openTasks = array_filter($pageTasks, fn($t) => !in_array(strtolower((string)$t['done']), ['1','t','true'], true)); ?>
+    <div class="card" style="margin-top:18px" id="action-items">
+      <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-check2-square"></i> Action Items (<?= count($openTasks) ?> open)</span></div></div>
+      <div class="card-body" style="padding:0">
+        <table class="table" style="margin:0">
+          <tbody>
+          <?php foreach ($pageTasks as $t): $tdone = in_array(strtolower((string)$t['done']), ['1','t','true'], true);
+            $overdue = !$tdone && $t['due_date'] && strtotime($t['due_date']) < strtotime('today'); ?>
+            <tr>
+              <td style="width:34px;vertical-align:top">
+                <form method="POST" action="/tasks-inline/<?= (int)$t['id'] ?>/toggle" style="margin:0"><?= Security::csrfField() ?><input type="hidden" name="return" value="/pages/<?= (int)$page['id'] ?>#action-items"><button type="submit" class="btn-unstyled" title="<?= $tdone ? 'Mark not done' : 'Mark done' ?>" style="border:none;background:none;cursor:pointer;color:<?= $tdone ? 'var(--success)' : 'var(--text-light)' ?>;font-size:1.1rem"><i class="bi <?= $tdone ? 'bi-check-square-fill' : 'bi-square' ?>"></i></button></form>
+              </td>
+              <td>
+                <span style="<?= $tdone ? 'text-decoration:line-through;color:var(--text-muted)' : '' ?>"><?= Security::h($t['text']) ?></span>
+                <?php if (Auth::can('page.comment')): ?>
+                <form method="POST" action="/tasks-inline/<?= (int)$t['id'] ?>/assign" class="form-row" style="gap:6px;margin-top:6px;align-items:center">
+                  <?= Security::csrfField() ?>
+                  <select name="assignee_id" class="form-select" style="max-width:170px;padding:3px 6px;font-size:.82rem">
+                    <option value="">Unassigned</option>
+                    <?php foreach ($taskUsers as $u): ?><option value="<?= (int)$u['id'] ?>" <?= ((int)$t['assignee_id'] === (int)$u['id']) ? 'selected' : '' ?>><?= Security::h($u['name']) ?></option><?php endforeach; ?>
+                  </select>
+                  <input type="date" name="due_date" class="form-control" style="max-width:150px;padding:3px 6px;font-size:.82rem" value="<?= Security::h($t['due_date'] ? substr((string)$t['due_date'],0,10) : '') ?>">
+                  <button type="submit" class="btn btn-sm btn-ghost" title="Save assignee/due"><i class="bi bi-save"></i></button>
+                  <?php if ($overdue): ?><span class="badge badge-red">overdue</span><?php endif; ?>
+                </form>
+                <?php else: ?>
+                  <div class="form-hint"><?= $t['assignee_name'] ? Security::h($t['assignee_name']) : 'Unassigned' ?><?= $t['due_date'] ? ' · due ' . Security::h(View::fmtDate($t['due_date'])) : '' ?><?= $overdue ? ' <span class="badge badge-red">overdue</span>' : '' ?></div>
+                <?php endif; ?>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <?php endif; ?>
+
     <div class="card" style="margin-top:18px" id="comments">
       <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-chat-left-text"></i> Comments (<?= count($comments) ?>)</span></div></div>
       <div class="card-body">

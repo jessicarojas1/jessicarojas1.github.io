@@ -131,6 +131,7 @@
       <div class="nav-acc-body" id="nav-acc-account">
         <a href="/profile/notifications" class="nav-item <?= ($activeModule ?? '')==='profile_notifications'?'active':'' ?>"><i class="bi bi-bell-fill"></i><span>Notifications</span></a>
         <a href="/profile/favorites"     class="nav-item <?= ($activeModule ?? '')==='profile_favorites'?'active':'' ?>"><i class="bi bi-star-fill"></i><span>My Favorites</span></a>
+        <a href="/action-items"          class="nav-item <?= ($activeModule ?? '')==='action_items'?'active':'' ?>"><i class="bi bi-check2-square"></i><span>My Action Items</span></a>
         <a href="/profile/edit"          class="nav-item <?= ($activeModule ?? '')==='profile_edit'?'active':'' ?>"><i class="bi bi-person-fill-gear"></i><span>Edit Profile</span></a>
         <a href="/mfa/setup"             class="nav-item <?= ($activeModule ?? '')==='profile_mfa'?'active':'' ?>"><i class="bi bi-shield-lock-fill"></i><span>Two-Factor Auth</span></a>
         <a href="/profile/tokens"        class="nav-item <?= ($activeModule ?? '')==='profile_tokens'?'active':'' ?>"><i class="bi bi-key-fill"></i><span>Access Tokens</span></a>
