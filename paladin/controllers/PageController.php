@@ -49,6 +49,48 @@ class PageController {
         header('Location: /pages/' . $id);
     }
 
+    public function importForm(int $spaceId = 0): void {
+        Auth::requirePermission('page.create');
+        $spaceId = $spaceId ?: (int)($_GET['space'] ?? 0);
+        $space   = $spaceId ? $this->loadSpace($spaceId) : null;
+        $spaces  = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
+        $parents = $spaceId ? Database::fetchAll("SELECT id, title FROM pages WHERE space_id=? ORDER BY title", [$spaceId]) : [];
+        require PALADIN_ROOT . '/views/pages/import.php';
+    }
+
+    public function import(): void {
+        Auth::requirePermission('page.create');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $spaceId = (int)($_POST['space_id'] ?? 0);
+        $title   = Security::sanitizeInput($_POST['title'] ?? '');
+        $markdown = (string)($_POST['markdown'] ?? '');
+        if (!$spaceId || $title === '') { $_SESSION['flash_error'] = 'Space and title are required.'; header('Location: /pages/import'); return; }
+        if (!$this->loadSpace($spaceId)) { $_SESSION['flash_error'] = 'Invalid space.'; header('Location: /pages/import'); return; }
+        if (trim($markdown) === '') { $_SESSION['flash_error'] = 'Paste some Markdown to import.'; header('Location: /pages/import?space=' . $spaceId); return; }
+
+        $body   = Security::sanitizeHtml(Markdown::toHtml($markdown));
+        $status = (Auth::can('page.publish') && !empty($_POST['publish'])) ? 'published' : 'draft';
+        $parent = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
+
+        $id = Database::insert('pages', [
+            'space_id'   => $spaceId,
+            'parent_id'  => $parent,
+            'title'      => $title,
+            'slug'       => substr(preg_replace('/[^a-z0-9]+/', '-', strtolower($title)), 0, 200),
+            'body'       => $body,
+            'status'     => $status,
+            'owner_id'   => Auth::id(),
+            'created_by' => Auth::id(),
+            'published_at' => $status === 'published' ? date('Y-m-d H:i:s') : null,
+        ]);
+        Database::insert('page_versions', ['page_id' => $id, 'version' => 1, 'title' => $title, 'body' => $body, 'change_note' => 'Imported from Markdown', 'edited_by' => Auth::id()]);
+        Auth::log('import_page', 'pages', $id, ['title' => $title]);
+        if ($status === 'published') Webhook::dispatch('page.published', ['id' => $id, 'actor' => Auth::id()]);
+        $_SESSION['flash_success'] = 'Page imported from Markdown.';
+        header('Location: /pages/' . $id);
+    }
+
     public function view(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
