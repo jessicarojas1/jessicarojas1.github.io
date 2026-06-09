@@ -41,6 +41,58 @@ ob_start();
     </div>
   </div>
 
+  <!-- Labels -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-tags-fill"></i> Labels</span></div></div>
+    <div class="card-body">
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <?php foreach ($labels as $lb): ?>
+          <span class="chip" style="border-left:3px solid <?= Security::h($lb['color']) ?>">
+            <a href="/search?q=<?= urlencode($lb['name']) ?>" style="text-decoration:none;color:inherit"><?= Security::h($lb['name']) ?></a>
+            <?php if (Auth::can('page.edit')): ?><form method="POST" action="/pages/<?= (int)$page['id'] ?>/labels/<?= (int)$lb['id'] ?>/delete" style="display:inline;margin:0"><?= Security::csrfField() ?><button type="submit" class="btn-unstyled" style="border:none;background:none;cursor:pointer;color:var(--text-light);padding:0 0 0 4px" title="Remove label"><i class="bi bi-x"></i></button></form><?php endif; ?>
+          </span>
+        <?php endforeach; ?>
+        <?php if (!$labels): ?><span class="form-hint">No labels yet.</span><?php endif; ?>
+      </div>
+      <?php if (Auth::can('page.edit') && $allTags): ?>
+      <form method="POST" action="/pages/<?= (int)$page['id'] ?>/labels" class="form-row" style="gap:6px;margin-top:10px">
+        <?= Security::csrfField() ?>
+        <select name="tag_id" class="form-select" style="flex:1">
+          <?php foreach ($allTags as $tg): ?><option value="<?= (int)$tg['id'] ?>"><?= Security::h($tg['name']) ?></option><?php endforeach; ?>
+        </select>
+        <button class="btn btn-sm btn-ghost" type="submit"><i class="bi bi-plus-lg"></i></button>
+      </form>
+      <div class="form-hint" style="margin-top:6px">Manage the label vocabulary in <a href="/admin/tags">Admin → Tags</a>.</div>
+      <?php endif; ?>
+    </div>
+  </div>
+
+  <!-- Attachments -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-paperclip"></i> Attachments (<?= count($attachments) ?>)</span></div></div>
+    <div class="card-body">
+      <?php foreach ($attachments as $att): ?>
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light)">
+          <i class="bi bi-file-earmark"></i>
+          <div style="flex:1;min-width:0">
+            <a href="/attachments/<?= (int)$att['id'] ?>/download" class="table-link" style="word-break:break-all"><?= Security::h($att['original_name']) ?></a>
+            <div class="form-hint"><?= $att['file_size'] ? round($att['file_size']/1024) . ' KB' : '' ?> · <?= View::timeAgo($att['created_at']) ?></div>
+          </div>
+          <?php if (Auth::can('page.edit')): ?><form method="POST" action="/attachments/<?= (int)$att['id'] ?>/delete" style="margin:0" data-confirm="Remove this attachment?"><?= Security::csrfField() ?><button class="btn btn-sm btn-danger btn-unstyled" type="submit" style="border:none;background:none;color:var(--danger)"><i class="bi bi-trash"></i></button></form><?php endif; ?>
+        </div>
+      <?php endforeach; ?>
+      <?php if (!$attachments): ?><div class="empty-state-sm">No attachments.</div><?php endif; ?>
+      <?php if (Auth::can('page.edit')): ?>
+      <form method="POST" action="/pages/<?= (int)$page['id'] ?>/attachments" enctype="multipart/form-data" style="margin-top:10px">
+        <?= Security::csrfField() ?>
+        <input type="file" name="file" class="form-control" required>
+        <button class="btn btn-sm btn-primary btn-full" type="submit" style="margin-top:8px"><i class="bi bi-upload"></i> Upload</button>
+        <div class="form-hint" style="margin-top:4px">Field: <code>file</code> — type/size limits from Admin → Settings.</div>
+      </form>
+      <?php endif; ?>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-diagram-3"></i> Child Pages</span></div></div>
     <div class="card-body">
