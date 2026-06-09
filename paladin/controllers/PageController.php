@@ -67,7 +67,58 @@ class PageController {
         );
         $versionCount = (int)(Database::fetchOne("SELECT COUNT(*) c FROM page_versions WHERE page_id=?", [$id])['c'] ?? 0);
         $isWatching = (bool)Database::fetchOne("SELECT 1 FROM watches WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
+        $labels = Database::fetchAll(
+            "SELECT t.id, t.name, t.color FROM entity_tags et JOIN tags t ON t.id=et.tag_id
+             WHERE et.entity_type='page' AND et.entity_id=? ORDER BY t.name", [$id]
+        );
+        $allTags = Database::fetchAll("SELECT id, name, color FROM tags ORDER BY name");
+        $attachments = Database::fetchAll(
+            "SELECT a.*, u.name AS uploader FROM attachments a LEFT JOIN users u ON u.id=a.uploaded_by
+             WHERE a.entity_type='page' AND a.entity_id=? ORDER BY a.created_at DESC", [$id]
+        );
         require PALADIN_ROOT . '/views/pages/view.php';
+    }
+
+    /** Attach an existing tag to a page as a label. */
+    public function addLabel(int $id): void {
+        Auth::requirePermission('page.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        if (!Database::fetchOne("SELECT id FROM pages WHERE id=?", [$id])) { http_response_code(404); return; }
+        $tagId = (int)($_POST['tag_id'] ?? 0);
+        if ($tagId && Database::fetchOne("SELECT id FROM tags WHERE id=?", [$tagId])) {
+            try {
+                Database::insert('entity_tags', ['tag_id' => $tagId, 'entity_type' => 'page', 'entity_id' => $id]);
+                Auth::log('label_page', 'pages', $id, ['tag' => $tagId]);
+            } catch (Throwable) { /* already labelled (unique) */ }
+        }
+        header('Location: /pages/' . $id);
+    }
+
+    public function removeLabel(int $id, int $tagId): void {
+        Auth::requirePermission('page.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        Database::query("DELETE FROM entity_tags WHERE entity_type='page' AND entity_id=? AND tag_id=?", [$id, $tagId]);
+        Auth::log('unlabel_page', 'pages', $id, ['tag' => $tagId]);
+        header('Location: /pages/' . $id);
+    }
+
+    public function uploadAttachment(int $id): void {
+        Auth::requirePermission('page.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        if (!Database::fetchOne("SELECT id FROM pages WHERE id=?", [$id])) { http_response_code(404); return; }
+        if (empty($_FILES['file']['name'])) { $_SESSION['flash_error'] = 'Choose a file to attach.'; header('Location: /pages/' . $id); return; }
+        $up = Upload::handle($_FILES['file'], 'uploads/attachments');
+        if (!$up['ok']) { $_SESSION['flash_error'] = $up['error']; header('Location: /pages/' . $id); return; }
+        Database::insert('attachments', [
+            'entity_type' => 'page', 'entity_id' => $id,
+            'original_name' => $up['name'], 'stored_name' => $up['key'], 'mime_type' => $up['mime'],
+            'file_size' => $up['size'], 'file_hash' => $up['hash'],
+            'description' => Security::sanitizeInput($_POST['description'] ?? '') ?: null,
+            'uploaded_by' => Auth::id(),
+        ]);
+        Auth::log('attach_page', 'pages', $id);
+        $_SESSION['flash_success'] = 'Attachment uploaded.';
+        header('Location: /pages/' . $id);
     }
 
     private function ancestry(array $page): array {
