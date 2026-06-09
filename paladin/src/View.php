@@ -73,4 +73,10 @@ final class View {
         $cls = 'user-avatar' . ($size ? ' ' . $size : '');
         return '<div class="' . $cls . '">' . Security::h($initial) . '</div>';
     }
+
+    /** Escape comment text and highlight @mentions (CSP-safe). */
+    public static function mentionize(?string $text): string {
+        $safe = Security::h((string)$text);
+        return preg_replace('/@([A-Za-z0-9._-]{2,})/', '<span class="mention">@$1</span>', $safe);
+    }
 }

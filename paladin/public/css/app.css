@@ -2265,3 +2265,6 @@ html[data-theme="dark"] [style*="background:#f3f4f6"][style*="color:#6b7280"] { 
 .perm-module-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-secondary);font-weight:600}
 .perm-actions{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;padding:14px}
 .perm-chk{display:flex;align-items:center;gap:8px;font-size:.83rem}
+
+/* @mentions in comments */
+.mention{color:var(--primary);background:rgba(14,165,233,.12);border-radius:4px;padding:0 4px;font-weight:600;font-size:.95em}
