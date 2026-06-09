@@ -15,13 +15,17 @@ function renderTree(array $byParent, $parent, $depth = 0) {
     $last = count($siblings) - 1;
     echo '<ul' . ($depth === 0 ? ' class="page-tree"' : '') . '>';
     foreach ($siblings as $i => $p) {
-        echo '<li><div style="display:flex;align-items:center;gap:4px">';
-        echo '<a href="/pages/' . (int)$p['id'] . '" style="flex:1"><i class="bi bi-file-richtext"></i> ' . Security::h($p['title']) . ' ' . View::statusBadge($p['status']) . '</a>';
+        $pid = (int)$p['id'];
+        $par = $p['parent_id'] !== null ? (int)$p['parent_id'] : '';
+        echo '<li data-pt-node="' . $pid . '" data-pt-parent="' . $par . '">';
+        echo '<div class="pt-row" style="display:flex;align-items:center;gap:4px"' . ($canMove ? ' draggable="true"' : '') . '>';
+        if ($canMove) echo '<span class="pt-handle" style="cursor:grab;color:var(--text-light)" title="Drag to move"><i class="bi bi-grip-vertical"></i></span>';
+        echo '<a href="/pages/' . $pid . '" style="flex:1"><i class="bi bi-file-richtext"></i> ' . Security::h($p['title']) . ' ' . View::statusBadge($p['status']) . '</a>';
         if ($canMove && count($siblings) > 1) {
             $up = $i > 0 ? '' : ' disabled style="visibility:hidden"';
             $dn = $i < $last ? '' : ' disabled style="visibility:hidden"';
-            echo '<form method="POST" action="/pages/' . (int)$p['id'] . '/move" style="margin:0">' . $csrf . '<input type="hidden" name="dir" value="up"><button class="btn-unstyled" type="submit" title="Move up" style="border:none;background:none;cursor:pointer;color:var(--text-light);padding:0 2px"' . $up . '><i class="bi bi-chevron-up"></i></button></form>';
-            echo '<form method="POST" action="/pages/' . (int)$p['id'] . '/move" style="margin:0">' . $csrf . '<input type="hidden" name="dir" value="down"><button class="btn-unstyled" type="submit" title="Move down" style="border:none;background:none;cursor:pointer;color:var(--text-light);padding:0 2px"' . $dn . '><i class="bi bi-chevron-down"></i></button></form>';
+            echo '<form method="POST" action="/pages/' . $pid . '/move" style="margin:0">' . $csrf . '<input type="hidden" name="dir" value="up"><button class="btn-unstyled" type="submit" title="Move up" style="border:none;background:none;cursor:pointer;color:var(--text-light);padding:0 2px"' . $up . '><i class="bi bi-chevron-up"></i></button></form>';
+            echo '<form method="POST" action="/pages/' . $pid . '/move" style="margin:0">' . $csrf . '<input type="hidden" name="dir" value="down"><button class="btn-unstyled" type="submit" title="Move down" style="border:none;background:none;cursor:pointer;color:var(--text-light);padding:0 2px"' . $dn . '><i class="bi bi-chevron-down"></i></button></form>';
         }
         echo '</div>';
         renderTree($byParent, $p['id'], $depth + 1);
@@ -56,7 +60,12 @@ function renderTree(array $byParent, $parent, $depth = 0) {
   <div class="card">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-list-nested"></i> Page Tree</span></div></div>
     <div class="card-body">
-      <?php if ($pages): renderTree($byParent, 0); else: ?><div class="empty-state-sm">No pages yet.</div><?php endif; ?>
+      <?php if ($pages): ?>
+        <div data-page-tree data-space-id="<?= (int)$space['id'] ?>"<?= Auth::can('page.edit') ? ' data-can-edit="1"' : '' ?>>
+          <?php renderTree($byParent, 0); ?>
+        </div>
+        <?php if (Auth::can('page.edit')): ?><div class="form-hint" style="margin-top:8px"><i class="bi bi-grip-vertical"></i> Drag pages to reorder or re-nest them.</div><?php endif; ?>
+      <?php else: ?><div class="empty-state-sm">No pages yet.</div><?php endif; ?>
     </div>
     <div class="card-header" style="border-top:1px solid var(--border-light)"><div class="card-header-left"><span class="card-title"><i class="bi bi-people"></i> Members</span></div></div>
     <div class="card-body">

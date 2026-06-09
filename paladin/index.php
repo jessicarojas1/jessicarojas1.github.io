@@ -295,6 +295,7 @@ $dynamicRoutes = [
         '#^/pages/(\d+)/restrictions$#'     => ['PageController', 'addRestriction'],
         '#^/pages/(\d+)/restrictions/(\d+)/delete$#' => ['PageController', 'removeRestriction'],
         '#^/pages/(\d+)/move$#'             => ['PageController', 'move'],
+        '#^/pages/(\d+)/reorder$#'          => ['PageController', 'reorder'],
         '#^/attachments/(\d+)/delete$#'     => ['AttachmentController', 'delete'],
         '#^/comments/(\d+)/resolve$#'       => ['CommentController', 'resolve'],
         '#^/comments/(\d+)/reopen$#'        => ['CommentController', 'reopen'],
