@@ -42,6 +42,7 @@ function renderTree(array $byParent, $parent, $depth = 0) {
     <form method="POST" action="/spaces/<?= (int)$space['id'] ?>/favorite" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-ghost" type="submit"><i class="bi bi-star<?= $isFav?'-fill':'' ?>"></i> <?= $isFav?'Favorited':'Favorite' ?></button></form>
     <form method="POST" action="/spaces/<?= (int)$space['id'] ?>/watch" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-ghost" type="submit"><i class="bi bi-eye<?= $isWatching?'-fill':'' ?>"></i> <?= $isWatching?'Watching':'Watch' ?></button></form>
     <?php if (Auth::can('page.create')): ?><a href="/spaces/<?= (int)$space['id'] ?>/pages/create" class="btn btn-ghost"><i class="bi bi-plus-lg"></i> Page</a><?php endif; ?>
+    <a href="/spaces/<?= (int)$space['id'] ?>/blog" class="btn btn-ghost"><i class="bi bi-newspaper"></i> Blog</a>
     <?php if (Auth::can('space.edit')): ?><a href="/spaces/<?= (int)$space['id'] ?>/edit" class="btn btn-ghost"><i class="bi bi-pencil"></i> Edit</a><?php endif; ?>
   </div>
 </div>

@@ -144,6 +144,8 @@ $routes = [
         '/tasks'                     => ['TaskController', 'index'],
         '/tasks/create'              => ['TaskController', 'createForm'],
 
+        '/blog'                      => ['BlogController', 'index'],
+        '/blog/create'               => ['BlogController', 'createForm'],
         '/templates'                 => ['TemplateController', 'index'],
         '/templates/create'          => ['TemplateController', 'createForm'],
 
@@ -186,6 +188,7 @@ $routes = [
 
         '/tasks/create'              => ['TaskController', 'create'],
 
+        '/blog/create'               => ['BlogController', 'create'],
         '/templates/create'          => ['TemplateController', 'create'],
 
         '/profile/edit'              => ['ProfileController', 'update'],
@@ -224,6 +227,9 @@ $dynamicRoutes = [
         '#^/workflows/(\d+)/edit$#'          => ['WorkflowController', 'editForm'],
         '#^/approvals/(\d+)$#'               => ['ApprovalController', 'view'],
         '#^/tasks/(\d+)$#'                   => ['TaskController', 'view'],
+        '#^/blog/(\d+)$#'                    => ['BlogController', 'view'],
+        '#^/blog/(\d+)/edit$#'               => ['BlogController', 'editForm'],
+        '#^/spaces/(\d+)/blog$#'             => ['BlogController', 'space'],
         '#^/templates/(\d+)$#'               => ['TemplateController', 'view'],
         '#^/admin/users/(\d+)/permissions$#' => ['AdminController', 'permissions'],
         '#^/admin/roles/(\d+)/edit$#'        => ['AdminController', 'roleForm'],
@@ -270,6 +276,9 @@ $dynamicRoutes = [
         '#^/approvals/(\d+)/cancel$#'        => ['ApprovalController', 'cancel'],
         '#^/tasks/(\d+)/edit$#'              => ['TaskController', 'update'],
         '#^/tasks/(\d+)/complete$#'          => ['TaskController', 'complete'],
+        '#^/blog/(\d+)/edit$#'               => ['BlogController', 'update'],
+        '#^/blog/(\d+)/delete$#'             => ['BlogController', 'delete'],
+        '#^/blog/(\d+)/comment$#'            => ['BlogController', 'comment'],
         '#^/templates/(\d+)/delete$#'        => ['TemplateController', 'delete'],
         '#^/admin/users/(\d+)/update$#'      => ['AdminController', 'updateUser'],
         '#^/admin/users/(\d+)/toggle$#'      => ['AdminController', 'toggleUser'],

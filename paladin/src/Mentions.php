@@ -76,6 +76,7 @@ final class Mentions {
         return match ($entityType) {
             'page'     => '/pages/' . $entityId . '#comments',
             'document' => '/documents/' . $entityId . '#comments',
+            'blog'     => '/blog/' . $entityId . '#comments',
             'process'  => '/processes/' . $entityId,
             default    => '/',
         };

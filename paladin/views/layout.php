@@ -51,6 +51,7 @@
         <a href="/documents" class="nav-item <?= ($activeModule ?? '')==='documents'?'active':'' ?>"><i class="bi bi-file-earmark-text-fill"></i><span>Documents</span></a>
         <a href="/processes" class="nav-item <?= ($activeModule ?? '')==='processes'?'active':'' ?>"><i class="bi bi-diagram-3-fill"></i><span>Processes</span></a>
         <a href="/templates" class="nav-item <?= ($activeModule ?? '')==='templates'?'active':'' ?>"><i class="bi bi-files"></i><span>Templates</span></a>
+        <a href="/blog"      class="nav-item <?= ($activeModule ?? '')==='blog'?'active':'' ?>"><i class="bi bi-newspaper"></i><span>Blog</span></a>
       </div>
     </div>
 
