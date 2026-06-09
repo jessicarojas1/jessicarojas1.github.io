@@ -634,3 +634,24 @@ document.addEventListener('click', function(e) {
     toc.appendChild(ul);
   });
 })();
+
+// ── Copy-to-clipboard: [data-copy="#selector"] copies that field's value ──────
+(function () {
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-copy]');
+    if (!btn) return;
+    var sel = btn.getAttribute('data-copy');
+    var src = document.querySelector(sel);
+    if (!src) return;
+    var text = src.value !== undefined ? src.value : src.textContent;
+    var done = function () {
+      var old = btn.getAttribute('data-label') || btn.innerHTML;
+      btn.setAttribute('data-label', old);
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> Copied';
+      setTimeout(function () { btn.innerHTML = old; }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { src.select && src.select(); });
+    } else if (src.select) { src.select(); try { document.execCommand('copy'); done(); } catch (e2) {} }
+  });
+})();

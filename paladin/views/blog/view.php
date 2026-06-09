@@ -11,6 +11,7 @@ ob_start();
   </div>
   <div class="page-actions">
     <?php $likeType='blog'; $likeId=(int)$post['id']; $likeData=$postLike; require PALADIN_ROOT . '/views/partials/like.php'; ?>
+    <?php $shareType='blog'; $shareId=(int)$post['id']; $sharePath='/blog/'.(int)$post['id']; require PALADIN_ROOT . '/views/partials/share.php'; ?>
     <?php if (Auth::can('page.edit')): ?><a href="/blog/<?= (int)$post['id'] ?>/edit" class="btn btn-primary"><i class="bi bi-pencil"></i> Edit</a><?php endif; ?>
     <?php if (Auth::can('page.delete')): ?><form method="POST" action="/blog/<?= (int)$post['id'] ?>/delete" style="margin:0" data-confirm="Delete this blog post?"><?= Security::csrfField() ?><button class="btn btn-ghost btn-danger" type="submit"><i class="bi bi-trash"></i></button></form><?php endif; ?>
   </div>
