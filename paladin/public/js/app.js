@@ -1076,3 +1076,27 @@ document.addEventListener('click', function(e) {
     });
   });
 })();
+
+/* ── Top-bar dropdown menus (e.g. Create) ─────────────────────────────────── */
+(function () {
+  var toggles = document.querySelectorAll('[data-menu-toggle]');
+  if (!toggles.length) return;
+  function closeAll(except) {
+    document.querySelectorAll('.topbar-menu').forEach(function (m) { if (m !== except) m.hidden = true; });
+  }
+  toggles.forEach(function (btn) {
+    var menu = document.getElementById(btn.getAttribute('data-menu-toggle'));
+    if (!menu) return;
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var willOpen = menu.hidden;
+      closeAll(willOpen ? menu : null);
+      menu.hidden = !willOpen;
+    });
+  });
+  document.addEventListener('click', function () { closeAll(null); });
+  document.querySelectorAll('.topbar-menu-item').forEach(function (a) {
+    a.addEventListener('mouseenter', function () { a.style.background = 'var(--bg-secondary)'; });
+    a.addEventListener('mouseleave', function () { a.style.background = ''; });
+  });
+})();
