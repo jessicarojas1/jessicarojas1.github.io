@@ -25,7 +25,33 @@ ob_start();
 
 <div style="display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start">
   <div>
-    <div class="card"><div class="card-body"><div class="prose"><?= $page['body'] ?: '<p style="color:var(--text-muted)">This page has no content yet.</p>' ?></div></div></div>
+    <?php $icCanComment = Auth::can('page.comment'); ?>
+    <div class="card">
+      <div class="card-body">
+        <div class="prose" id="page-prose"<?= $icCanComment ? ' data-inline-root data-page-id="' . (int)$page['id'] . '"' : '' ?>><?= $page['body'] ?: '<p style="color:var(--text-muted)">This page has no content yet.</p>' ?></div>
+      </div>
+    </div>
+
+    <?php if ($icCanComment): ?>
+      <!-- Floating "Comment" button shown when text is selected -->
+      <button type="button" id="ic-add-btn" class="btn btn-sm btn-primary" hidden style="position:absolute;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.25)"><i class="bi bi-chat-left-quote"></i> Comment</button>
+
+      <!-- Inline-comment composer (revealed by the JS when a selection is captured) -->
+      <div id="ic-form-wrap" hidden style="position:absolute;z-index:51;width:300px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.25);padding:12px">
+        <form method="POST" action="/pages/<?= (int)$page['id'] ?>/inline-comment">
+          <?= Security::csrfField() ?>
+          <input type="hidden" name="quote"  id="ic-quote">
+          <input type="hidden" name="prefix" id="ic-prefix">
+          <input type="hidden" name="suffix" id="ic-suffix">
+          <blockquote id="ic-quote-preview" style="margin:0 0 8px;padding:4px 10px;border-left:3px solid var(--primary);font-size:.82rem;color:var(--text-muted);max-height:60px;overflow:auto"></blockquote>
+          <textarea name="body" id="ic-body" class="form-control" rows="3" placeholder="Comment on the selected text…" required style="font-size:.88rem"></textarea>
+          <div class="form-actions" style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end">
+            <button type="button" id="ic-cancel" class="btn btn-sm btn-light">Cancel</button>
+            <button type="submit" class="btn btn-sm btn-primary">Add comment</button>
+          </div>
+        </form>
+      </div>
+    <?php endif; ?>
 
     <div class="card" style="margin-top:18px" id="comments">
       <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-chat-left-text"></i> Comments (<?= count($comments) ?>)</span></div></div>
@@ -37,6 +63,34 @@ ob_start();
           require PALADIN_ROOT . '/views/partials/comments.php';
         ?>
       </div>
+    </div>
+  </div>
+
+  <!-- Inline comments -->
+  <?php $icOpen = array_filter($inlineComments, fn($c) => !$c['resolved']); ?>
+  <div class="card" style="margin-bottom:18px" id="inline-comments">
+    <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-chat-left-quote-fill"></i> Inline Comments (<?= count($icOpen) ?>)</span></div></div>
+    <div class="card-body" style="padding:10px">
+      <?php if (!$inlineComments): ?>
+        <div class="empty-state-sm"><i class="bi bi-chat-left-quote"></i><p>Select text in the page to comment on it.</p></div>
+      <?php endif; ?>
+      <?php foreach ($inlineComments as $c): ?>
+        <div class="ic-item<?= $c['resolved'] ? ' ic-resolved' : '' ?>" id="ic-<?= (int)$c['id'] ?>" data-ic-item="<?= (int)$c['id'] ?>" style="border:1px solid var(--border-light);border-radius:8px;padding:8px 10px;margin-bottom:8px;<?= $c['resolved'] ? 'opacity:.6' : 'cursor:pointer' ?>">
+          <blockquote style="margin:0 0 6px;padding:2px 8px;border-left:3px solid var(--primary);font-size:.78rem;color:var(--text-muted)"><?= Security::h(mb_strimwidth($c['quote'], 0, 90, '…')) ?></blockquote>
+          <div style="font-size:.88rem"><?= Security::h($c['body']) ?></div>
+          <div class="form-hint" style="margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:6px">
+            <span><?= Security::h($c['user_name']) ?> · <?= Security::h(View::timeAgo($c['created_at'])) ?><?php if ($c['resolved']): ?> · <span class="badge badge-green">resolved</span><?php endif; ?></span>
+            <span style="white-space:nowrap">
+              <?php if (!$c['resolved'] && (Auth::id() === (int)$c['user_id'] || Auth::can('page.edit'))): ?>
+                <form method="POST" action="/inline-comments/<?= (int)$c['id'] ?>/resolve" style="display:inline;margin:0"><?= Security::csrfField() ?><button type="submit" class="btn-unstyled" title="Resolve" style="border:none;background:none;cursor:pointer;color:var(--success);padding:0 2px"><i class="bi bi-check2-circle"></i></button></form>
+              <?php endif; ?>
+              <?php if (Auth::id() === (int)$c['user_id'] || Auth::can('page.edit')): ?>
+                <form method="POST" action="/inline-comments/<?= (int)$c['id'] ?>/delete" style="display:inline;margin:0" data-confirm="Delete this inline comment?"><?= Security::csrfField() ?><button type="submit" class="btn-unstyled" title="Delete" style="border:none;background:none;cursor:pointer;color:var(--danger);padding:0 2px"><i class="bi bi-trash"></i></button></form>
+              <?php endif; ?>
+            </span>
+          </div>
+        </div>
+      <?php endforeach; ?>
     </div>
   </div>
 
@@ -145,6 +199,15 @@ ob_start();
     <?php endif; ?>
   </div>
 </div>
+
+<?php if ($icCanComment): ?>
+<style nonce="<?= Security::nonce() ?>">
+  mark.ic-highlight{background:color-mix(in srgb, var(--primary) 22%, transparent);border-bottom:2px solid var(--primary);cursor:pointer;border-radius:2px}
+  mark.ic-highlight.ic-active{background:color-mix(in srgb, var(--warning) 38%, transparent);border-bottom-color:var(--warning)}
+  .ic-item.ic-active{outline:2px solid var(--primary);outline-offset:1px}
+</style>
+<script type="application/json" id="ic-anchors" nonce="<?= Security::nonce() ?>"><?= json_encode(array_map(fn($c) => ['id' => (int)$c['id'], 'quote' => $c['quote'], 'prefix' => $c['prefix']], array_values($icOpen)), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES) ?></script>
+<?php endif; ?>
 <?php
 $content = ob_get_clean();
 require PALADIN_ROOT . '/views/layout.php';
