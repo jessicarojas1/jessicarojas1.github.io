@@ -160,6 +160,8 @@ $routes = [
         '/admin/users'               => ['AdminController', 'users'],
         '/admin/users/create'        => ['AdminController', 'createUserForm'],
         '/admin/permissions'         => ['AdminController', 'permissions'],
+        '/admin/roles'               => ['AdminController', 'roles'],
+        '/admin/roles/create'        => ['AdminController', 'roleForm'],
         '/admin/branding'            => ['AdminController', 'branding'],
         '/admin/settings'            => ['AdminController', 'settings'],
         '/admin/tags'                => ['AdminController', 'tags'],
@@ -190,6 +192,7 @@ $routes = [
 
         '/admin/users/create'        => ['AdminController', 'createUser'],
         '/admin/permissions/save'    => ['AdminController', 'savePermissions'],
+        '/admin/roles/create'        => ['AdminController', 'createRole'],
         '/admin/branding'            => ['AdminController', 'saveBranding'],
         '/admin/settings'            => ['AdminController', 'saveSettings'],
         '/admin/tags'                => ['AdminController', 'createTag'],
@@ -220,6 +223,7 @@ $dynamicRoutes = [
         '#^/tasks/(\d+)$#'                   => ['TaskController', 'view'],
         '#^/templates/(\d+)$#'               => ['TemplateController', 'view'],
         '#^/admin/users/(\d+)/permissions$#' => ['AdminController', 'permissions'],
+        '#^/admin/roles/(\d+)/edit$#'        => ['AdminController', 'roleForm'],
     ],
     'POST' => [
         '#^/spaces/(\d+)/edit$#'             => ['SpaceController', 'update'],
@@ -257,6 +261,8 @@ $dynamicRoutes = [
         '#^/admin/users/(\d+)/update$#'      => ['AdminController', 'updateUser'],
         '#^/admin/users/(\d+)/toggle$#'      => ['AdminController', 'toggleUser'],
         '#^/admin/sessions/(\d+)/revoke$#'   => ['AdminController', 'revokeSessions'],
+        '#^/admin/roles/(\d+)/edit$#'        => ['AdminController', 'updateRole'],
+        '#^/admin/roles/(\d+)/delete$#'      => ['AdminController', 'deleteRole'],
     ],
 ];
 

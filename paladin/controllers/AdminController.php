@@ -62,7 +62,7 @@ class AdminController {
             $_SESSION['flash_error'] = 'A user with that email already exists.';
             header('Location: /admin/users/create'); return;
         }
-        if (!in_array($role, Auth::roleKeys(), true)) $role = 'viewer';
+        if (!Auth::roleExists($role)) $role = 'viewer';
 
         $pwErrors = Security::validatePasswordPolicy($password);
         if ($pwErrors) {
@@ -111,7 +111,7 @@ class AdminController {
             $_SESSION['flash_error'] = 'A user with that email already exists.';
             header('Location: /admin/users'); return;
         }
-        if (!in_array($role, Auth::roleKeys(), true)) $role = 'viewer';
+        if (!Auth::roleExists($role)) $role = 'viewer';
 
         Database::update('users', [
             'name'       => $name,
@@ -362,6 +362,114 @@ class AdminController {
         Auth::log('delete_tag', 'tags', $id);
         $_SESSION['flash_success'] = 'Tag deleted.';
         header('Location: /admin/tags');
+    }
+
+    // ── Custom Roles ─────────────────────────────────────────────────────────
+    public function roles(): void {
+        Auth::requireAdmin();
+        $custom = Database::fetchAll(
+            "SELECT cr.*, u.name AS creator,
+                    (SELECT COUNT(*) FROM custom_role_permissions p WHERE p.role_id = cr.id) AS perm_count,
+                    (SELECT COUNT(*) FROM users us WHERE us.role = cr.role_key) AS user_count
+             FROM custom_roles cr LEFT JOIN users u ON u.id = cr.created_by ORDER BY cr.name"
+        );
+        require PALADIN_ROOT . '/views/admin/roles.php';
+    }
+
+    public function roleForm(int $id = 0): void {
+        Auth::requireAdmin();
+        $role = null; $granted = [];
+        if ($id) {
+            $role = Database::fetchOne("SELECT * FROM custom_roles WHERE id = ?", [$id]);
+            if (!$role) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+            foreach (Database::fetchAll("SELECT module, permission FROM custom_role_permissions WHERE role_id = ?", [$id]) as $p) {
+                $granted[] = $p['module'] . '.' . $p['permission'];
+            }
+        }
+        $catalog = Auth::moduleCatalog();
+        require PALADIN_ROOT . '/views/admin/role_form.php';
+    }
+
+    public function createRole(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $name = Security::sanitizeInput($_POST['name'] ?? '');
+        if ($name === '') { $_SESSION['flash_error'] = 'Role name is required.'; header('Location: /admin/roles/create'); return; }
+        $key = $this->roleKeyFromName($name);
+        if (Auth::isBuiltinRole($key) || Database::fetchOne("SELECT 1 FROM custom_roles WHERE role_key = ?", [$key])) {
+            $_SESSION['flash_error'] = 'A role with a similar name already exists — choose a different name.';
+            header('Location: /admin/roles/create'); return;
+        }
+        $roleId = Database::insert('custom_roles', [
+            'role_key' => $key, 'name' => $name,
+            'description' => Security::sanitizeInput($_POST['description'] ?? '') ?: null,
+            'created_by' => Auth::id(),
+        ]);
+        $this->saveRolePermissions($roleId);
+        Auth::clearRoleCache();
+        Auth::log('create_role', 'custom_roles', $roleId, ['key' => $key]);
+        $_SESSION['flash_success'] = "Role '{$name}' created.";
+        header('Location: /admin/roles');
+    }
+
+    public function updateRole(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $role = Database::fetchOne("SELECT * FROM custom_roles WHERE id = ?", [$id]);
+        if (!$role) { http_response_code(404); return; }
+        $name = Security::sanitizeInput($_POST['name'] ?? '');
+        if ($name === '') { $_SESSION['flash_error'] = 'Role name is required.'; header('Location: /admin/roles/' . $id . '/edit'); return; }
+        // role_key is stable (users reference it) — only name/description/permissions change
+        Database::update('custom_roles', [
+            'name' => $name, 'description' => Security::sanitizeInput($_POST['description'] ?? '') ?: null,
+        ], 'id = ?', [$id]);
+        Database::query("DELETE FROM custom_role_permissions WHERE role_id = ?", [$id]);
+        $this->saveRolePermissions($id);
+        Auth::clearRoleCache();
+        Auth::log('update_role', 'custom_roles', $id);
+        $_SESSION['flash_success'] = 'Role updated.';
+        header('Location: /admin/roles');
+    }
+
+    public function deleteRole(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $role = Database::fetchOne("SELECT role_key, name FROM custom_roles WHERE id = ?", [$id]);
+        if (!$role) { http_response_code(404); return; }
+        $assigned = (int)(Database::fetchOne("SELECT COUNT(*) c FROM users WHERE role = ?", [$role['role_key']])['c'] ?? 0);
+        if ($assigned > 0) {
+            $_SESSION['flash_error'] = "Cannot delete '{$role['name']}' — {$assigned} user(s) still have this role. Reassign them first.";
+            header('Location: /admin/roles'); return;
+        }
+        Database::query("DELETE FROM custom_roles WHERE id = ?", [$id]); // perms cascade
+        Auth::clearRoleCache();
+        Auth::log('delete_role', 'custom_roles', $id);
+        $_SESSION['flash_success'] = 'Role deleted.';
+        header('Location: /admin/roles');
+    }
+
+    /** Derive a stable, unique-ish role_key from a display name. */
+    private function roleKeyFromName(string $name): string {
+        $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '_', $name));
+        $slug = trim($slug, '_');
+        $slug = substr($slug, 0, 32);
+        return 'cr_' . ($slug !== '' ? $slug : bin2hex(random_bytes(4)));
+    }
+
+    /** Persist the checked module.action permissions for a role, validated against the catalog. */
+    private function saveRolePermissions(int $roleId): void {
+        $catalog = Auth::moduleCatalog();
+        $perms = $_POST['perms'] ?? [];
+        if (!is_array($perms)) return;
+        $seen = [];
+        foreach ($perms as $p) {
+            if (!is_string($p) || !str_contains($p, '.')) continue;
+            [$module, $action] = explode('.', $p, 2);
+            if (!isset($catalog[$module]) || !in_array($action, $catalog[$module], true)) continue;
+            if (isset($seen[$p])) continue;
+            $seen[$p] = true;
+            Database::insert('custom_role_permissions', ['role_id' => $roleId, 'module' => $module, 'permission' => $action]);
+        }
     }
 
     // ── API Keys ─────────────────────────────────────────────────────────────

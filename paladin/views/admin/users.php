@@ -32,7 +32,7 @@ ob_start();
             <?= Security::csrfField() ?>
             <div class="form-group" style="margin:0;min-width:160px"><label class="form-label">Name</label><input type="text" name="name" class="form-control" value="<?= Security::h($usr['name']) ?>" required></div>
             <div class="form-group" style="margin:0;min-width:200px"><label class="form-label">Email</label><input type="email" name="email" class="form-control" value="<?= Security::h($usr['email']) ?>" required></div>
-            <div class="form-group" style="margin:0"><label class="form-label">Role</label><select name="role" class="form-select"><?php foreach (Auth::roleKeys() as $rk): ?><option value="<?= Security::h($rk) ?>" <?= $usr['role']===$rk?'selected':'' ?>><?= Security::h(Auth::roleLabel($rk)) ?></option><?php endforeach; ?></select></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Role</label><select name="role" class="form-select"><?php foreach (Auth::allRoleOptions() as $rk => $rl): ?><option value="<?= Security::h($rk) ?>" <?= $usr["role"]===$rk?"selected":"" ?>><?= Security::h($rl) ?></option><?php endforeach; ?></select></div>
             <div class="form-group" style="margin:0;min-width:140px"><label class="form-label">Department</label><input type="text" name="department" class="form-control" value="<?= Security::h($usr['department'] ?? '') ?>"></div>
             <div class="form-group" style="margin:0;min-width:140px"><label class="form-label">Title</label><input type="text" name="title" class="form-control" value="<?= Security::h($usr['title'] ?? '') ?>"></div>
             <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i> Save</button>

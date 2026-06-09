@@ -18,7 +18,7 @@ ob_start();
       </div>
       <div class="form-group"><label class="form-label" for="f_password">Password</label><input type="password" id="f_password" name="password" class="form-control" autocomplete="new-password" required><div class="form-hint">Must meet the configured password policy.</div></div>
       <div class="form-row">
-        <div class="form-group" style="flex:1"><label class="form-label" for="f_role">Role</label><select id="f_role" name="role" class="form-select"><?php foreach (Auth::roleKeys() as $rk): ?><option value="<?= Security::h($rk) ?>" <?= $rk==='viewer'?'selected':'' ?>><?= Security::h(Auth::roleLabel($rk)) ?></option><?php endforeach; ?></select></div>
+        <div class="form-group" style="flex:1"><label class="form-label" for="f_role">Role</label><select id="f_role" name="role" class="form-select"><?php foreach (Auth::allRoleOptions() as $rk => $rl): ?><option value="<?= Security::h($rk) ?>" <?= $rk==="viewer"?"selected":"" ?>><?= Security::h($rl) ?></option><?php endforeach; ?></select></div>
         <div class="form-group" style="flex:1"><label class="form-label" for="f_dept">Department</label><input type="text" id="f_dept" name="department" class="form-control"></div>
         <div class="form-group" style="flex:1"><label class="form-label" for="f_title">Title</label><input type="text" id="f_title" name="title" class="form-control"></div>
       </div>
