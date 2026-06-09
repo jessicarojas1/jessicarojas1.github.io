@@ -158,6 +158,7 @@ $routes = [
 
         '/profile/edit'              => ['ProfileController', 'editForm'],
         '/profile/notifications'     => ['ProfileController', 'notifications'],
+        '/profile/tokens'            => ['ProfileController', 'tokens'],
         '/mfa/setup'                 => ['ProfileController', 'mfaSetupForm'],
         '/mfa/verify'                => ['AuthController', 'mfaVerifyForm'],
 
@@ -175,6 +176,8 @@ $routes = [
         '/admin/sessions'            => ['AdminController', 'sessions'],
         '/admin/system'              => ['AdminController', 'system'],
         '/admin/shortcuts'           => ['AdminController', 'shortcuts'],
+        '/admin/webhooks'            => ['AdminController', 'webhooks'],
+        '/admin/retention'           => ['AdminController', 'retention'],
         '/docs'                      => ['DocsController', 'index'],
     ],
     'POST' => [
@@ -197,6 +200,7 @@ $routes = [
         '/templates/create'          => ['TemplateController', 'create'],
 
         '/profile/edit'              => ['ProfileController', 'update'],
+        '/profile/tokens'            => ['ProfileController', 'createToken'],
         '/mfa/setup'                 => ['ProfileController', 'mfaEnable'],
         '/mfa/disable'               => ['ProfileController', 'mfaDisable'],
         '/mfa/verify'                => ['AuthController', 'mfaVerify'],
@@ -209,6 +213,8 @@ $routes = [
         '/admin/tags'                => ['AdminController', 'createTag'],
         '/admin/shortcuts'           => ['AdminController', 'createShortcut'],
         '/admin/api-keys'            => ['AdminController', 'createApiKey'],
+        '/admin/webhooks'            => ['AdminController', 'createWebhook'],
+        '/admin/retention'           => ['AdminController', 'createRetention'],
 
         '/alerts/read-all'           => ['ProfileController', 'markAllRead'],
         '/searches/save'             => ['SearchController', 'save'],
@@ -306,6 +312,13 @@ $dynamicRoutes = [
         '#^/admin/users/(\d+)/toggle$#'      => ['AdminController', 'toggleUser'],
         '#^/admin/sessions/(\d+)/revoke$#'   => ['AdminController', 'revokeSessions'],
         '#^/admin/shortcuts/(\d+)/delete$#'  => ['AdminController', 'deleteShortcut'],
+        '#^/admin/webhooks/(\d+)/toggle$#'   => ['AdminController', 'toggleWebhook'],
+        '#^/admin/webhooks/(\d+)/test$#'     => ['AdminController', 'testWebhook'],
+        '#^/admin/webhooks/(\d+)/delete$#'   => ['AdminController', 'deleteWebhook'],
+        '#^/admin/retention/(\d+)/toggle$#'  => ['AdminController', 'toggleRetention'],
+        '#^/admin/retention/(\d+)/run$#'     => ['AdminController', 'runRetention'],
+        '#^/admin/retention/(\d+)/delete$#'  => ['AdminController', 'deleteRetention'],
+        '#^/profile/tokens/(\d+)/revoke$#'   => ['ProfileController', 'revokeToken'],
         '#^/admin/roles/(\d+)/edit$#'        => ['AdminController', 'updateRole'],
         '#^/admin/roles/(\d+)/delete$#'      => ['AdminController', 'deleteRole'],
     ],
