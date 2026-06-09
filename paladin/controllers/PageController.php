@@ -477,6 +477,55 @@ class PageController {
         header('Location: /spaces/' . (int)$page['space_id']);
     }
 
+    /**
+     * Drag-and-drop reorder/re-parent (AJAX). Body JSON:
+     * { "csrf": "...", "parent_id": <int|null>, "position": <int> }.
+     * Moves the page under parent_id (same space, no cycles) at the given
+     * 1-based position among its new siblings. Returns {ok, csrf}.
+     */
+    public function reorder(int $id): void {
+        Auth::requirePermission('page.edit');
+        header('Content-Type: application/json');
+        $body = json_decode(file_get_contents('php://input') ?: '', true);
+        if (!is_array($body) || !Security::validateCsrf((string)($body['csrf'] ?? ''))) {
+            http_response_code(403); echo json_encode(['ok' => false, 'error' => 'csrf']); return;
+        }
+        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ? AND deleted_at IS NULL", [$id]);
+        if (!$page || !PageAccess::canEdit($page)) { http_response_code(404); echo json_encode(['ok' => false]); return; }
+
+        $newParent = isset($body['parent_id']) && $body['parent_id'] !== null && $body['parent_id'] !== ''
+            ? (int)$body['parent_id'] : null;
+        if ($newParent !== null) {
+            $p = Database::fetchOne("SELECT id, space_id FROM pages WHERE id = ? AND deleted_at IS NULL", [$newParent]);
+            if (!$p || (int)$p['space_id'] !== (int)$page['space_id']) {
+                http_response_code(422); echo json_encode(['ok' => false, 'error' => 'Invalid parent.']); return;
+            }
+            // Cycle guard: a page cannot become a descendant of itself.
+            $cursor = $newParent; $guard = 0;
+            while ($cursor !== null && $guard++ < 1000) {
+                if ((int)$cursor === $id) { http_response_code(422); echo json_encode(['ok' => false, 'error' => 'Cannot move a page into its own subtree.']); return; }
+                $row = Database::fetchOne("SELECT parent_id FROM pages WHERE id = ?", [$cursor]);
+                $cursor = $row && $row['parent_id'] !== null ? (int)$row['parent_id'] : null;
+            }
+        }
+
+        $pos = max(1, (int)($body['position'] ?? 1));
+        // Re-sequence the destination sibling set with the moved page inserted at $pos.
+        $siblings = Database::fetchAll(
+            "SELECT id FROM pages WHERE space_id = ? AND parent_id IS NOT DISTINCT FROM ? AND deleted_at IS NULL AND id <> ?
+             ORDER BY position, title, id",
+            [$page['space_id'], $newParent, $id]
+        );
+        $ids = array_map(fn($r) => (int)$r['id'], $siblings);
+        $insertAt = min(max(0, $pos - 1), count($ids));
+        array_splice($ids, $insertAt, 0, [$id]);
+
+        Database::query("UPDATE pages SET parent_id = ? WHERE id = ?", [$newParent, $id]);
+        foreach ($ids as $i => $sid) { Database::query("UPDATE pages SET position = ? WHERE id = ?", [$i + 1, $sid]); }
+        Auth::log('reorder_page', 'pages', $id, ['parent' => $newParent, 'position' => $insertAt + 1]);
+        echo json_encode(['ok' => true, 'csrf' => Security::generateCsrfToken()]);
+    }
+
     // ── Inline (anchored) comments ───────────────────────────────────────────
     public function addInlineComment(int $id): void {
         Auth::requirePermission('page.comment');
