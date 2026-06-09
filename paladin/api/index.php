@@ -93,7 +93,102 @@ $DOC_LIST_FIELDS =
     'id, document_code, title, doc_type, status, classification, revision, ' .
     'space_id, owner_id, review_date, expiration_date, updated_at';
 
+// ── Write-capability helpers ────────────────────────────────────────────────
+// A token may write only if its scopes include 'write'; a session user must
+// hold the relevant create permission; a legacy admin-issued api_key may write.
+$canWrite = static function () use ($principal): bool {
+    if ($principal['type'] === 'token') {
+        $scopes = array_map('trim', explode(',', (string)($principal['user']['scopes'] ?? '')));
+        return in_array('write', $scopes, true);
+    }
+    if ($principal['type'] === 'session') {
+        return Auth::can('document.create') || Auth::can('page.create');
+    }
+    return $principal['type'] === 'api_key'; // privileged server key
+};
+$actorId = static function () use ($principal): ?int {
+    if (in_array($principal['type'], ['session', 'token'], true) && $principal['user']) {
+        $u = $principal['user'];
+        return isset($u['id']) ? (int)$u['id'] : (isset($u['user_id']) ? (int)$u['user_id'] : null);
+    }
+    return null;
+};
+$jsonBody = static function (): array {
+    $raw = file_get_contents('php://input') ?: '';
+    $d = json_decode($raw, true);
+    return is_array($d) ? $d : [];
+};
+
 try {
+    // ── WRITE: POST /v1/documents ────────────────────────────────────────────
+    if ($segments === ['v1', 'documents'] && $method === 'POST') {
+        if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
+        $b = $jsonBody();
+        $title = trim((string)($b['title'] ?? ''));
+        if ($title === '') { $sendError('title is required', 422); }
+        $docType = (string)($b['doc_type'] ?? 'policy');
+        $allowedTypes = ['policy','procedure','process','standard','guideline','work_instruction','plan','form','template','record','evidence','training'];
+        if (!in_array($docType, $allowedTypes, true)) { $docType = 'policy'; }
+        $code = DocNumbering::next($docType);
+        $id = Database::insert('documents', [
+            'document_code' => $code,
+            'title'         => Security::sanitizeInput($title),
+            'doc_type'      => $docType,
+            'space_id'      => !empty($b['space_id']) ? (int)$b['space_id'] : null,
+            'description'   => isset($b['description']) ? Security::sanitizeInput((string)$b['description']) : null,
+            'body'          => isset($b['body']) ? Security::sanitizeHtml((string)$b['body']) : null,
+            'status'        => 'draft',
+            'revision'      => '1.0',
+            'owner_id'      => $actorId(),
+            'created_by'    => $actorId(),
+        ]);
+        $doc = Database::fetchOne("SELECT {$DOC_LIST_FIELDS}, description FROM documents WHERE id = ?", [$id]);
+        $sendJson($doc, 201);
+    }
+
+    // ── WRITE: PATCH/PUT /v1/documents/{id} (metadata only) ──────────────────
+    if (($segments[0] ?? '') === 'v1' && ($segments[1] ?? '') === 'documents'
+        && isset($segments[2]) && $segments[2] !== '' && in_array($method, ['PATCH', 'PUT'], true)) {
+        if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
+        $id  = (int)$segments[2];
+        $doc = Database::fetchOne("SELECT id FROM documents WHERE id = ?", [$id]);
+        if (!$doc) { $sendError('Not found', 404); }
+        $b = $jsonBody();
+        $data = [];
+        if (isset($b['title']))           { $data['title']           = Security::sanitizeInput((string)$b['title']); }
+        if (isset($b['description']))     { $data['description']     = Security::sanitizeInput((string)$b['description']); }
+        if (isset($b['body']))            { $data['body']            = Security::sanitizeHtml((string)$b['body']); }
+        if (array_key_exists('review_date', $b))     { $data['review_date']     = $b['review_date'] ?: null; }
+        if (array_key_exists('expiration_date', $b)) { $data['expiration_date'] = $b['expiration_date'] ?: null; }
+        if (!$data) { $sendError('No updatable fields provided', 422); }
+        Database::update('documents', $data, 'id = ?', [$id]);
+        $sendJson(Database::fetchOne("SELECT {$DOC_LIST_FIELDS}, description FROM documents WHERE id = ?", [$id]));
+    }
+
+    // ── WRITE: POST /v1/pages ────────────────────────────────────────────────
+    if ($segments === ['v1', 'pages'] && $method === 'POST') {
+        if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
+        $b = $jsonBody();
+        $spaceId = (int)($b['space_id'] ?? 0);
+        $title   = trim((string)($b['title'] ?? ''));
+        if (!$spaceId || $title === '') { $sendError('space_id and title are required', 422); }
+        if (!Database::fetchOne("SELECT 1 FROM spaces WHERE id = ?", [$spaceId])) { $sendError('space not found', 422); }
+        $status = in_array(($b['status'] ?? 'draft'), ['draft', 'published'], true) ? $b['status'] : 'draft';
+        $body   = Security::sanitizeHtml((string)($b['body'] ?? ''));
+        $id = Database::insert('pages', [
+            'space_id'     => $spaceId,
+            'title'        => Security::sanitizeInput($title),
+            'slug'         => substr(preg_replace('/[^a-z0-9]+/', '-', strtolower($title)), 0, 200),
+            'body'         => $body,
+            'status'       => $status,
+            'owner_id'     => $actorId(),
+            'created_by'   => $actorId(),
+            'published_at' => $status === 'published' ? date('Y-m-d H:i:s') : null,
+        ]);
+        Database::insert('page_versions', ['page_id' => $id, 'version' => 1, 'title' => $title, 'body' => $body, 'change_note' => 'Created via API', 'edited_by' => $actorId()]);
+        $sendJson(Database::fetchOne("SELECT id, space_id, parent_id, title, slug, status, current_version, updated_at FROM pages WHERE id = ?", [$id]), 201);
+    }
+
     // ── /v1/health ─────────────────────────────────────────────────────────
     if ($segments === ['v1', 'health']) {
         $requireGet();
@@ -230,6 +325,25 @@ try {
             "SELECT id, title, entity_type, entity_id, status, current_step, requested_by, due_at
              FROM approval_requests WHERE status = 'pending' ORDER BY created_at DESC LIMIT 200"
         );
+        $sendJson(['data' => $rows, 'count' => count($rows)]);
+    }
+
+    // ── GET /v1/pages and /v1/pages/{id} ─────────────────────────────────────
+    if (($segments[0] ?? '') === 'v1' && ($segments[1] ?? '') === 'pages') {
+        $requireGet();
+        $fields = 'id, space_id, parent_id, title, slug, status, current_version, updated_at';
+        if (isset($segments[2]) && $segments[2] !== '') {
+            $row = Database::fetchOne("SELECT {$fields} FROM pages WHERE id = ?", [(int)$segments[2]]);
+            if (!$row) { $sendError('Not found', 404); }
+            $sendJson($row);
+        }
+        $where = []; $params = [];
+        if (isset($_GET['space_id']) && $_GET['space_id'] !== '') { $where[] = 'space_id = ?'; $params[] = (int)$_GET['space_id']; }
+        if (isset($_GET['status'])   && $_GET['status']   !== '') { $where[] = 'status = ?';   $params[] = (string)$_GET['status']; }
+        $sql = "SELECT {$fields} FROM pages";
+        if ($where) { $sql .= ' WHERE ' . implode(' AND ', $where); }
+        $sql .= ' ORDER BY updated_at DESC LIMIT 200';
+        $rows = Database::fetchAll($sql, $params);
         $sendJson(['data' => $rows, 'count' => count($rows)]);
     }
 
