@@ -179,6 +179,23 @@
         <i class="bi bi-search"></i>
         <input type="search" name="q" placeholder="Search the library…" aria-label="Search" value="<?= Security::h($_GET['q'] ?? '') ?>">
       </form>
+      <?php
+        $__create = [];
+        if (Auth::can('page.create'))     $__create[] = ['/pages/templates',   'bi-file-richtext',        'Page'];
+        if (Auth::can('document.create')) $__create[] = ['/documents/create',   'bi-file-earmark-text',    'Document'];
+        if (Auth::can('page.create'))     $__create[] = ['/blog/create',        'bi-newspaper',            'Blog post'];
+        if (Auth::can('space.create'))    $__create[] = ['/spaces/create',      'bi-collection',           'Space'];
+      ?>
+      <?php if ($__create): ?>
+      <div class="topbar-create" style="position:relative">
+        <button type="button" class="btn btn-sm btn-primary" data-menu-toggle="createMenu"><i class="bi bi-plus-lg"></i> Create</button>
+        <div id="createMenu" class="topbar-menu" hidden style="position:absolute;right:0;top:calc(100% + 6px);z-index:60;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.22);min-width:190px;padding:6px">
+          <?php foreach ($__create as [$href, $icon, $label]): ?>
+            <a href="<?= $href ?>" class="topbar-menu-item" style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;text-decoration:none;color:var(--text)"><i class="bi <?= $icon ?>" style="color:var(--primary)"></i> <?= $label ?></a>
+          <?php endforeach; ?>
+        </div>
+      </div>
+      <?php endif; ?>
       <button id="themeToggle" class="theme-toggle" title="Toggle dark mode" type="button"><i class="bi bi-moon-fill" id="themeIcon"></i></button>
       <?php
       try { $unreadAlerts = Database::fetchOne("SELECT COUNT(*) AS c FROM alerts WHERE user_id = ? AND is_read = FALSE", [Auth::id()])['c'] ?? 0; }
@@ -208,6 +225,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmRONQ7+/O31fY0B+Mzgj+qVXq0" crossorigin="anonymous" nonce="<?= Security::nonce() ?>"></script>
 <script src="/public/vendor/chart.js/chart.umd.js" nonce="<?= Security::nonce() ?>"></script>
-<script src="/public/js/app.js?v=7" nonce="<?= Security::nonce() ?>"></script>
+<script src="/public/js/app.js?v=8" nonce="<?= Security::nonce() ?>"></script>
 </body>
 </html>
