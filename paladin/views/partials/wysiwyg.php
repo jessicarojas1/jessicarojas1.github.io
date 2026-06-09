@@ -26,6 +26,15 @@ $wValue = $wValue ?? '';
     <span class="wtb-sep"></span>
     <button type="button" class="wtb" data-cmd="createLink" title="Insert link"><i class="bi bi-link-45deg"></i></button>
     <button type="button" class="wtb" data-cmd="insertTable" title="Insert table"><i class="bi bi-table"></i></button>
+    <button type="button" class="wtb" data-cmd="insertHorizontalRule" title="Divider"><i class="bi bi-dash-lg"></i></button>
+    <span class="wtb-sep"></span>
+    <button type="button" class="wtb" data-insert="panel-info" title="Info panel"><i class="bi bi-info-circle-fill" style="color:var(--info)"></i></button>
+    <button type="button" class="wtb" data-insert="panel-success" title="Success panel"><i class="bi bi-check-circle-fill" style="color:var(--success)"></i></button>
+    <button type="button" class="wtb" data-insert="panel-warning" title="Warning panel"><i class="bi bi-exclamation-triangle-fill" style="color:var(--warning)"></i></button>
+    <button type="button" class="wtb" data-insert="panel-note" title="Note panel"><i class="bi bi-sticky-fill" style="color:var(--indigo)"></i></button>
+    <button type="button" class="wtb" data-insert="expand" title="Expand section"><i class="bi bi-chevron-bar-expand"></i></button>
+    <button type="button" class="wtb" data-insert="status" title="Status lozenge"><i class="bi bi-tag-fill"></i></button>
+    <button type="button" class="wtb" data-insert="toc" title="Table of contents"><i class="bi bi-list-nested"></i></button>
     <span class="wtb-sep"></span>
     <button type="button" class="wtb wtb-toggle" data-toggle-html="1" title="Toggle HTML source"><i class="bi bi-braces"></i> HTML</button>
   </div>
@@ -59,9 +68,24 @@ $wValue = $wValue ?? '';
         showingHtml = !showingHtml;
         return;
       }
+      var ins = btn.getAttribute('data-insert');
+      surface.focus();
+      if (ins) {
+        var snippets = {
+          'panel-info':    '<div class="panel panel-info"><div class="panel-icon"><i class="bi bi-info-circle-fill"></i></div><div class="panel-body"><p>Info — type your note here.</p></div></div><p></p>',
+          'panel-success': '<div class="panel panel-success"><div class="panel-icon"><i class="bi bi-check-circle-fill"></i></div><div class="panel-body"><p>Success — type your note here.</p></div></div><p></p>',
+          'panel-warning': '<div class="panel panel-warning"><div class="panel-icon"><i class="bi bi-exclamation-triangle-fill"></i></div><div class="panel-body"><p>Warning — type your note here.</p></div></div><p></p>',
+          'panel-note':    '<div class="panel panel-note"><div class="panel-icon"><i class="bi bi-sticky-fill"></i></div><div class="panel-body"><p>Note — type your note here.</p></div></div><p></p>',
+          'expand':        '<details><summary>Click to expand</summary><p>Hidden content…</p></details><p></p>',
+          'status':        '<span class="lozenge lozenge-green">Done</span>&nbsp;',
+          'toc':           '<div class="macro-toc"><div class="macro-toc-title">On this page</div></div><p></p>'
+        };
+        if (snippets[ins]) { try { document.execCommand('insertHTML', false, snippets[ins]); } catch(e){} }
+        sync();
+        return;
+      }
       var cmd = btn.getAttribute('data-cmd');
       var val = btn.getAttribute('data-val') || null;
-      surface.focus();
       if (cmd === 'createLink') {
         var url = window.prompt('Link URL (https://…):', 'https://');
         if (url) { try { document.execCommand('createLink', false, url); } catch(e){} }
