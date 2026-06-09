@@ -111,6 +111,42 @@ class ReportController {
         require PALADIN_ROOT . '/views/report/acknowledgements.php';
     }
 
+    /** Page Properties Report — aggregate page properties across a label. */
+    public function pageProperties(): void {
+        Auth::requirePermission('report.view');
+        $labels = Database::fetchAll(
+            "SELECT t.id, t.name, COUNT(DISTINCT et.entity_id) AS pages
+             FROM tags t JOIN entity_tags et ON et.tag_id = t.id AND et.entity_type = 'page'
+             JOIN pages p ON p.id = et.entity_id AND p.deleted_at IS NULL
+             JOIN page_properties pp ON pp.page_id = p.id
+             GROUP BY t.id, t.name ORDER BY t.name"
+        );
+        $labelId = !empty($_GET['label']) ? (int)$_GET['label'] : (int)($labels[0]['id'] ?? 0);
+        $label   = $labelId ? Database::fetchOne("SELECT id, name FROM tags WHERE id = ?", [$labelId]) : null;
+
+        $columns = []; $rows = [];
+        if ($labelId) {
+            $pages = Database::fetchAll(
+                "SELECT p.id, p.title, s.name AS space_name
+                 FROM pages p JOIN entity_tags et ON et.entity_id = p.id AND et.entity_type = 'page'
+                 LEFT JOIN spaces s ON s.id = p.space_id
+                 WHERE et.tag_id = ? AND p.deleted_at IS NULL ORDER BY p.title",
+                [$labelId]
+            );
+            foreach ($pages as $pg) {
+                $props = Database::fetchAll("SELECT prop_key, prop_value FROM page_properties WHERE page_id = ? ORDER BY seq", [(int)$pg['id']]);
+                $map = [];
+                foreach ($props as $pr) {
+                    $k = $pr['prop_key'];
+                    if (!in_array($k, $columns, true)) $columns[] = $k;
+                    $map[$k] = $pr['prop_value'];
+                }
+                if ($map) $rows[] = ['page' => $pg, 'props' => $map];
+            }
+        }
+        require PALADIN_ROOT . '/views/report/page_properties.php';
+    }
+
     /**
      * Stream an array of rows as a CSV download. $mapper turns one DB row into a
      * flat array of cell values matching $header.

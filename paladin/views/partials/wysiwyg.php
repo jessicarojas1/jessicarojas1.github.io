@@ -53,6 +53,7 @@ $wValue = $wValue ?? '';
     <button type="button" class="wtb" data-insert="expand" title="Expand section"><i class="bi bi-chevron-bar-expand"></i></button>
     <button type="button" class="wtb" data-insert="status" title="Status lozenge"><i class="bi bi-tag-fill"></i></button>
     <button type="button" class="wtb" data-insert="toc" title="Table of contents"><i class="bi bi-list-nested"></i></button>
+    <button type="button" class="wtb" data-insert="props" title="Page properties (for reports)"><i class="bi bi-table"></i><i class="bi bi-key" style="font-size:.7em"></i></button>
     <span class="wtb-sep"></span>
     <button type="button" class="wtb wtb-toggle" data-toggle-html="1" title="Toggle HTML source"><i class="bi bi-braces"></i> HTML</button>
   </div>
@@ -138,7 +139,8 @@ $wValue = $wValue ?? '';
           'task':          '<ul class="task-list"><li>[ ] Action item — describe the task</li></ul><p></p>',
           'expand':        '<details><summary>Click to expand</summary><p>Hidden content…</p></details><p></p>',
           'status':        '<span class="lozenge lozenge-green">Done</span>&nbsp;',
-          'toc':           '<div class="macro-toc"><div class="macro-toc-title">On this page</div></div><p></p>'
+          'toc':           '<div class="macro-toc"><div class="macro-toc-title">On this page</div></div><p></p>',
+          'props':         '<table class="page-properties"><tbody><tr><th>Status</th><td>Draft</td></tr><tr><th>Owner</th><td>@</td></tr><tr><th>Due</th><td>YYYY-MM-DD</td></tr></tbody></table><p></p>'
         };
         if (snippets[ins]) { try { document.execCommand('insertHTML', false, snippets[ins]); } catch(e){} }
         sync();

@@ -55,6 +55,11 @@ foreach ($byStatus as $row) {
           <div class="card-title">Acknowledgement Coverage</div>
           <div class="form-hint">Read-receipt completeness for documents requiring acknowledgement.</div>
         </a>
+        <a href="/reports/page-properties" class="lib-card" style="text-decoration:none">
+          <div class="stat-icon" style="background:rgba(124,58,237,.12);color:#7c3aed"><i class="bi bi-table"></i></div>
+          <div class="card-title">Page Properties</div>
+          <div class="form-hint">Aggregate page-properties tables across every page sharing a label.</div>
+        </a>
       </div>
     </div>
   </div>
