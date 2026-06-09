@@ -88,6 +88,7 @@ class SpaceController {
         ]);
         Database::insert('space_members', ['space_id' => $id, 'user_id' => Auth::id(), 'role' => 'owner']);
         Auth::log('create_space', 'spaces', $id, ['space_key' => $key]);
+        Webhook::dispatch('space.created', ['id' => $id, 'key' => $key, 'name' => $name, 'actor' => Auth::id()]);
         $_SESSION['flash_success'] = "Space '{$name}' created.";
         header('Location: /spaces/' . $id);
     }

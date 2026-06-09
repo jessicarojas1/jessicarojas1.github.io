@@ -202,6 +202,12 @@ class PageController {
             'change_note' => Security::sanitizeInput($_POST['change_note'] ?? '') ?: 'Updated', 'edited_by' => Auth::id(),
         ]);
         Auth::log('update_page', 'pages', $id, ['version' => $newVersion]);
+        // Newly published this save → page.published; otherwise a plain update.
+        if ($status === 'published' && $page['status'] !== 'published') {
+            Webhook::dispatch('page.published', ['id' => $id, 'version' => $newVersion, 'actor' => Auth::id()]);
+        } else {
+            Webhook::dispatch('page.updated', ['id' => $id, 'version' => $newVersion, 'actor' => Auth::id()]);
+        }
         $_SESSION['flash_success'] = 'Page saved (v' . $newVersion . ').';
         header('Location: /pages/' . $id);
     }
@@ -212,6 +218,7 @@ class PageController {
         if (!$this->guardEdit($id)) return;
         Database::update('pages', ['status' => 'published', 'published_at' => date('Y-m-d H:i:s')], 'id = ?', [$id]);
         Auth::log('publish_page', 'pages', $id);
+        Webhook::dispatch('page.published', ['id' => $id, 'actor' => Auth::id()]);
         $_SESSION['flash_success'] = 'Page published.';
         header('Location: /pages/' . $id);
     }
@@ -282,6 +289,7 @@ class PageController {
             Auth::log('comment_page', 'pages', $id);
             $pg = Database::fetchOne("SELECT title FROM pages WHERE id=?", [$id]);
             Mentions::process($body, 'page', $id, $pg['title'] ?? null);
+            Webhook::dispatch('comment.created', ['entity_type' => 'page', 'entity_id' => $id, 'actor' => Auth::id()]);
         }
         header('Location: /pages/' . $id . '#comments');
     }

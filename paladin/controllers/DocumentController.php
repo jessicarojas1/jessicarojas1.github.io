@@ -208,6 +208,18 @@ class DocumentController {
         }
         Database::update('documents', $data, 'id=?', [$id]);
         Auth::log('document_transition', 'documents', $id, ['from' => $doc['status'], 'to' => $to]);
+        $event = match ($to) {
+            'approved'  => 'document.approved',
+            'published' => 'document.published',
+            'archived'  => 'document.archived',
+            default     => null,
+        };
+        if ($event !== null) {
+            Webhook::dispatch($event, [
+                'id' => $id, 'code' => $doc['document_code'], 'title' => $doc['title'],
+                'from' => $doc['status'], 'to' => $to, 'actor' => Auth::id(),
+            ]);
+        }
         $_SESSION['flash_success'] = 'Document moved to ' . str_replace('_', ' ', $to) . '.';
         header('Location: /documents/' . $id);
     }
@@ -288,6 +300,7 @@ class DocumentController {
             Auth::log('comment_document', 'documents', $id);
             $dc = Database::fetchOne("SELECT title FROM documents WHERE id=?", [$id]);
             Mentions::process($body, 'document', $id, $dc['title'] ?? null);
+            Webhook::dispatch('comment.created', ['entity_type' => 'document', 'entity_id' => $id, 'actor' => Auth::id()]);
         }
         header('Location: /documents/' . $id . '#comments');
     }

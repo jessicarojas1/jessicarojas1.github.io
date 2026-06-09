@@ -131,6 +131,7 @@ class BlogController {
             Auth::log('comment_blog', 'blog_posts', $id);
             $b = Database::fetchOne("SELECT title FROM blog_posts WHERE id=?", [$id]);
             Mentions::process($body, 'blog', $id, $b['title'] ?? null);
+            Webhook::dispatch('comment.created', ['entity_type' => 'blog', 'entity_id' => $id, 'actor' => Auth::id()]);
         }
         header('Location: /blog/' . $id . '#comments');
     }

@@ -105,6 +105,11 @@ class WorkflowRunController {
             'signed' => $signed ? 't' : 'f', 'comment' => Security::sanitizeInput($_POST['comment'] ?? '') ?: null,
         ]);
         Auth::log('workflow_transition', $type, $id, ['action' => $tr['action_label'], 'signed' => $signed]);
+        Webhook::dispatch('workflow.transitioned', [
+            'entity_type' => $type, 'entity_id' => $id,
+            'action' => $tr['action_label'], 'to_state_id' => (int)$tr['to_state_id'],
+            'signed' => $signed, 'actor' => Auth::id(),
+        ]);
         $_SESSION['flash_success'] = 'Moved via “' . $tr['action_label'] . '”.';
         header('Location: ' . $back);
     }
