@@ -92,6 +92,7 @@
         <a href="/admin"             class="nav-item <?= ($activeModule ?? '')==='admin'?'active':'' ?>"><i class="bi bi-speedometer2"></i><span>Overview</span></a>
         <a href="/admin/users"       class="nav-item <?= ($activeModule ?? '')==='admin_users'?'active':'' ?>"><i class="bi bi-people-fill"></i><span>Users</span></a>
         <a href="/admin/permissions" class="nav-item <?= ($activeModule ?? '')==='admin_permissions'?'active':'' ?>"><i class="bi bi-shield-lock-fill"></i><span>Permissions</span></a>
+        <a href="/admin/roles"       class="nav-item <?= ($activeModule ?? '')==='admin_roles'?'active':'' ?>"><i class="bi bi-person-badge-fill"></i><span>Roles</span></a>
         <a href="/workflows"         class="nav-item <?= ($activeModule ?? '')==='admin_workflows'?'active':'' ?>"><i class="bi bi-diagram-2-fill"></i><span>Workflows</span></a>
         <a href="/admin/branding"    class="nav-item <?= ($activeModule ?? '')==='admin_branding'?'active':'' ?>"><i class="bi bi-palette-fill"></i><span>Branding</span></a>
         <a href="/admin/settings"    class="nav-item <?= ($activeModule ?? '')==='admin_settings'?'active':'' ?>"><i class="bi bi-gear-fill"></i><span>Settings</span></a>

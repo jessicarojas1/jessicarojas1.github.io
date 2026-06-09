@@ -146,10 +146,12 @@ class Auth {
     public static function id(): ?int      { return $_SESSION['user']['id'] ?? null; }
     public static function role(): string  { return $_SESSION['user']['role'] ?? 'viewer'; }
 
-    /** Friendly label for a role key. */
+    private static ?array $customRolesCache = null;
+
+    /** Friendly label for a role key (built-in or custom). */
     public static function roleLabel(?string $role = null): string {
         $role = $role ?? self::role();
-        return [
+        $builtin = [
             'admin'             => 'System Administrator',
             'pal_admin'         => 'PALADIN Administrator',
             'compliance_admin'  => 'Compliance Administrator',
@@ -159,11 +161,59 @@ class Auth {
             'approver'          => 'Approver',
             'auditor'           => 'Auditor',
             'viewer'            => 'Viewer',
-        ][$role] ?? ucfirst(str_replace('_', ' ', $role));
+        ];
+        if (isset($builtin[$role])) return $builtin[$role];
+        $custom = self::customRoles();
+        if (isset($custom[$role])) return $custom[$role]['name'];
+        return ucfirst(str_replace('_', ' ', $role));
     }
 
     public static function roleKeys(): array {
         return ['admin','pal_admin','compliance_admin','space_owner','contributor','reviewer','approver','auditor','viewer'];
+    }
+
+    /** Built-in role key? (everything else is a custom role) */
+    public static function isBuiltinRole(string $role): bool {
+        return in_array($role, self::roleKeys(), true);
+    }
+
+    /**
+     * Custom roles map: role_key => ['id'=>int,'name'=>string,'description'=>string,
+     * 'perms'=>['module.action',...]]. Cached per request; never throws.
+     */
+    public static function customRoles(): array {
+        if (self::$customRolesCache !== null) return self::$customRolesCache;
+        $map = [];
+        try {
+            foreach (Database::fetchAll("SELECT id, role_key, name, description FROM custom_roles ORDER BY name") as $r) {
+                $map[$r['role_key']] = ['id' => (int)$r['id'], 'name' => $r['name'], 'description' => $r['description'], 'perms' => []];
+            }
+            if ($map) {
+                $byId = [];
+                foreach ($map as $k => $v) $byId[$v['id']] = $k;
+                foreach (Database::fetchAll("SELECT role_id, module, permission FROM custom_role_permissions") as $p) {
+                    $k = $byId[(int)$p['role_id']] ?? null;
+                    if ($k !== null) $map[$k]['perms'][] = $p['module'] . '.' . $p['permission'];
+                }
+            }
+        } catch (Throwable) { $map = []; }
+        return self::$customRolesCache = $map;
+    }
+
+    /** Clear the per-request custom-role cache (after create/update/delete). */
+    public static function clearRoleCache(): void { self::$customRolesCache = null; }
+
+    /** All assignable roles as role_key => label (built-in + custom), for dropdowns. */
+    public static function allRoleOptions(): array {
+        $opts = [];
+        foreach (self::roleKeys() as $k) $opts[$k] = self::roleLabel($k);
+        foreach (self::customRoles() as $k => $v) $opts[$k] = $v['name'] . ' (custom)';
+        return $opts;
+    }
+
+    /** Is this an assignable role (built-in or an existing custom role)? */
+    public static function roleExists(string $role): bool {
+        return self::isBuiltinRole($role) || isset(self::customRoles()[$role]);
     }
 
     /** Full module → actions catalog (drives the IAM permission editor). */
@@ -198,8 +248,12 @@ class Auth {
         ][$module] ?? ['bi-square', '#64748b'];
     }
 
-    /** Default granted module.action strings inherited from a role (read-only view). */
+    /** Default granted module.action strings inherited from a role (built-in or custom). */
     public static function roleDefaults(string $role): array {
+        if (!isset(self::$roleDefaults[$role]) && !self::isBuiltinRole($role)) {
+            $custom = self::customRoles();
+            return $custom[$role]['perms'] ?? [];
+        }
         $out = [];
         foreach (self::$roleDefaults[$role] ?? [] as $module => $actions) {
             foreach ($actions as $a) $out[] = $module . '.' . $a;
@@ -212,12 +266,17 @@ class Auth {
         if ($role === 'admin') return true;
         if ($permission === 'admin') return false;
 
-        // Flatten role defaults
+        // Flatten role defaults (built-in role) or load the custom role's perms
         $granted = [];
-        foreach (self::$roleDefaults[$role] ?? [] as $module => $actions) {
-            foreach ($actions as $action) {
-                $granted[] = $module . '.' . $action;
+        if (isset(self::$roleDefaults[$role])) {
+            foreach (self::$roleDefaults[$role] as $module => $actions) {
+                foreach ($actions as $action) {
+                    $granted[] = $module . '.' . $action;
+                }
             }
+        } elseif (!self::isBuiltinRole($role)) {
+            $custom = self::customRoles();
+            $granted = $custom[$role]['perms'] ?? [];
         }
 
         // Explicit DB grants (cached per request)
