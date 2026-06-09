@@ -624,6 +624,152 @@ class AdminController {
         header('Location: /admin/sessions');
     }
 
+    // ── Webhooks ─────────────────────────────────────────────────────────────
+    public function webhooks(): void {
+        Auth::requireAdmin();
+        $hooks = Database::fetchAll("SELECT * FROM webhooks ORDER BY created_at DESC");
+        $events = Webhook::EVENTS;
+        require PALADIN_ROOT . '/views/admin/webhooks.php';
+    }
+
+    public function createWebhook(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $name = Security::sanitizeInput($_POST['name'] ?? '');
+        $url  = trim((string)($_POST['url'] ?? ''));
+        if ($name === '' || !preg_match('#^https?://#i', $url)) {
+            $_SESSION['flash_error'] = 'A name and a valid http(s) URL are required.';
+            header('Location: /admin/webhooks'); return;
+        }
+        // Normalise the event selection: '*' (all) or a comma-separated allowlist.
+        $selected = (array)($_POST['events'] ?? []);
+        if (in_array('*', $selected, true) || $selected === []) {
+            $events = '*';
+        } else {
+            $valid  = array_keys(Webhook::EVENTS);
+            $events = implode(',', array_values(array_filter($selected, fn($e) => in_array($e, $valid, true))));
+            if ($events === '') $events = '*';
+        }
+        $secret = Security::sanitizeInput($_POST['secret'] ?? '');
+        $id = Database::insert('webhooks', [
+            'name'       => $name,
+            'url'        => $url,
+            'secret'     => $secret !== '' ? $secret : null,
+            'events'     => $events,
+            'is_active'  => 't',
+            'created_by' => Auth::id(),
+        ]);
+        Auth::log('create_webhook', 'webhooks', $id);
+        $_SESSION['flash_success'] = 'Webhook created.';
+        header('Location: /admin/webhooks');
+    }
+
+    public function toggleWebhook(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        Database::query("UPDATE webhooks SET is_active = NOT is_active, updated_at = NOW() WHERE id = ?", [$id]);
+        Auth::log('toggle_webhook', 'webhooks', $id);
+        header('Location: /admin/webhooks');
+    }
+
+    public function testWebhook(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $hook = Database::fetchOne("SELECT * FROM webhooks WHERE id = ?", [$id]);
+        if (!$hook) { http_response_code(404); return; }
+        $body = json_encode([
+            'event'     => 'ping',
+            'timestamp' => date('c'),
+            'data'      => ['message' => 'Test delivery from PALADIN'],
+        ], JSON_UNESCAPED_SLASHES);
+        $status = Webhook::deliver($hook, 'ping', (string)$body);
+        Auth::log('test_webhook', 'webhooks', $id);
+        $_SESSION[($status >= 200 && $status < 300) ? 'flash_success' : 'flash_error'] =
+            $status > 0 ? "Test delivered — endpoint returned HTTP {$status}." : 'Test failed — endpoint unreachable.';
+        header('Location: /admin/webhooks');
+    }
+
+    public function deleteWebhook(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        Database::query("DELETE FROM webhooks WHERE id = ?", [$id]);
+        Auth::log('delete_webhook', 'webhooks', $id);
+        $_SESSION['flash_success'] = 'Webhook deleted.';
+        header('Location: /admin/webhooks');
+    }
+
+    // ── Retention rules ──────────────────────────────────────────────────────
+    public function retention(): void {
+        Auth::requireAdmin();
+        $rules = Database::fetchAll(
+            "SELECT r.*, s.name AS space_name FROM retention_rules r
+             LEFT JOIN spaces s ON s.id = r.space_id ORDER BY r.created_at DESC"
+        );
+        // Live preview count per rule (read-only).
+        foreach ($rules as &$r) { $r['preview'] = Retention::preview($r); }
+        unset($r);
+        $spaces = Database::fetchAll("SELECT id, name FROM spaces WHERE is_archived = FALSE ORDER BY name");
+        require PALADIN_ROOT . '/views/admin/retention.php';
+    }
+
+    public function createRetention(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $name = Security::sanitizeInput($_POST['name'] ?? '');
+        $age  = max(1, (int)($_POST['age_days'] ?? 365));
+        if ($name === '') {
+            $_SESSION['flash_error'] = 'Give the rule a name.';
+            header('Location: /admin/retention'); return;
+        }
+        $type    = ($_POST['content_type'] ?? 'document') === 'page' ? 'page' : 'document';
+        $action  = ($_POST['action'] ?? 'archive') === 'notify' ? 'notify' : 'archive';
+        $spaceId = !empty($_POST['space_id']) ? (int)$_POST['space_id'] : null;
+        $docType = $type === 'document' ? (Security::sanitizeInput($_POST['doc_type'] ?? '') ?: null) : null;
+        $id = Database::insert('retention_rules', [
+            'name'         => $name,
+            'content_type' => $type,
+            'space_id'     => $spaceId,
+            'doc_type'     => $docType,
+            'age_days'     => $age,
+            'action'       => $action,
+            'is_active'    => 't',
+            'created_by'   => Auth::id(),
+        ]);
+        Auth::log('create_retention_rule', 'retention_rules', $id);
+        $_SESSION['flash_success'] = 'Retention rule created.';
+        header('Location: /admin/retention');
+    }
+
+    public function toggleRetention(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        Database::query("UPDATE retention_rules SET is_active = NOT is_active, updated_at = NOW() WHERE id = ?", [$id]);
+        Auth::log('toggle_retention_rule', 'retention_rules', $id);
+        header('Location: /admin/retention');
+    }
+
+    public function runRetention(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $rule = Database::fetchOne("SELECT * FROM retention_rules WHERE id = ?", [$id]);
+        if (!$rule) { http_response_code(404); return; }
+        $affected = Retention::apply($rule);
+        Database::update('retention_rules', ['last_run_at' => date('Y-m-d H:i:s'), 'last_affected' => $affected], 'id = ?', [$id]);
+        Auth::log('run_retention_rule', 'retention_rules', $id);
+        $verb = $rule['action'] === 'notify' ? 'notified' : 'archived';
+        $_SESSION['flash_success'] = "Retention rule ran — {$affected} item(s) {$verb}.";
+        header('Location: /admin/retention');
+    }
+
+    public function deleteRetention(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        Database::query("DELETE FROM retention_rules WHERE id = ?", [$id]);
+        Auth::log('delete_retention_rule', 'retention_rules', $id);
+        $_SESSION['flash_success'] = 'Retention rule deleted.';
+        header('Location: /admin/retention');
+    }
+
     // ── helpers ──────────────────────────────────────────────────────────────
     /** Upsert a single settings row. */
     private function setSetting(string $key, string $value): void {

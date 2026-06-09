@@ -81,6 +81,52 @@ class ProfileController {
         header('Location: /profile/notifications');
     }
 
+    // ── Personal Access Tokens (per-user API credentials) ───────────────────
+    public function tokens(): void {
+        Auth::requireAuth();
+        $tokens = Database::fetchAll(
+            "SELECT id, name, token_prefix, scopes, last_used, expires_at, is_active, created_at
+             FROM personal_access_tokens WHERE user_id = ? ORDER BY created_at DESC",
+            [Auth::id()]
+        );
+        require PALADIN_ROOT . '/views/profile/tokens.php';
+    }
+
+    public function createToken(): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $name = Security::sanitizeInput($_POST['name'] ?? '');
+        if ($name === '') {
+            $_SESSION['flash_error'] = 'Give your token a name.';
+            header('Location: /profile/tokens'); return;
+        }
+        $scope   = ($_POST['scopes'] ?? 'read') === 'write' ? 'read,write' : 'read';
+        $expires = Security::sanitizeInput($_POST['expires_at'] ?? '');
+        $t = Security::generatePersonalToken();
+        Database::insert('personal_access_tokens', [
+            'user_id'      => Auth::id(),
+            'name'         => $name,
+            'token_prefix' => $t['prefix'],
+            'token_hash'   => $t['hash'],
+            'scopes'       => $scope,
+            'is_active'    => 't',
+            'expires_at'   => $expires !== '' ? $expires : null,
+        ]);
+        Auth::log('create_token', 'personal_access_tokens', Auth::id());
+        $_SESSION['flash_success'] = 'Token created — copy it now, it will not be shown again: ' . $t['key'];
+        header('Location: /profile/tokens');
+    }
+
+    public function revokeToken(int $id): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        // Scope the delete to the current user — never let one user revoke another's token.
+        Database::query("DELETE FROM personal_access_tokens WHERE id = ? AND user_id = ?", [$id, Auth::id()]);
+        Auth::log('revoke_token', 'personal_access_tokens', $id);
+        $_SESSION['flash_success'] = 'Token revoked.';
+        header('Location: /profile/tokens');
+    }
+
     // ── Two-factor authentication (TOTP) ─────────────────────────────────────
     public function mfaSetupForm(): void {
         Auth::requireAuth();

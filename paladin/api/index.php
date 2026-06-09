@@ -45,7 +45,10 @@ if ($apiKey === '' && !empty($_SERVER['HTTP_X_API_KEY'])) {
 // ── Authentication ─────────────────────────────────────────────────────────
 $principal = null; // ['type' => 'session'|'api_key', 'user' => ?array]
 try {
-    if ($apiKey !== '' && Security::validateApiKey($apiKey)) {
+    $patUser = $apiKey !== '' ? Security::validatePersonalToken($apiKey) : null;
+    if ($patUser !== null) {
+        $principal = ['type' => 'token', 'user' => $patUser];
+    } elseif ($apiKey !== '' && Security::validateApiKey($apiKey)) {
         $principal = ['type' => 'api_key', 'user' => null];
     } elseif (Auth::check()) {
         $principal = ['type' => 'session', 'user' => Auth::user()];
@@ -105,13 +108,14 @@ try {
     // ── /v1/me ─────────────────────────────────────────────────────────────
     if ($segments === ['v1', 'me']) {
         $requireGet();
-        if ($principal['type'] === 'session' && $principal['user']) {
+        if (in_array($principal['type'], ['session', 'token'], true) && $principal['user']) {
             $u = $principal['user'];
             $sendJson([
-                'id'    => isset($u['id']) ? (int)$u['id'] : null,
+                'id'    => isset($u['id']) ? (int)$u['id'] : (isset($u['user_id']) ? (int)$u['user_id'] : null),
                 'name'  => $u['name'] ?? null,
                 'email' => $u['email'] ?? null,
                 'role'  => $u['role'] ?? null,
+                'auth'  => $principal['type'],
             ]);
         }
         $sendJson(['auth' => 'api_key']);

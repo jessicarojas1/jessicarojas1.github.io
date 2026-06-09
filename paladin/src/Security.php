@@ -253,6 +253,33 @@ class Security {
         return false;
     }
 
+    /** Mint a Personal Access Token (per-user API credential). */
+    public static function generatePersonalToken(): array {
+        $key = 'paladin_pat_' . bin2hex(random_bytes(32));
+        $prefix = substr($key, 0, 16);
+        $hash = hash_hmac('sha256', $key, $_ENV['JWT_SECRET'] ?? '');
+        return ['key' => $key, 'prefix' => $prefix, 'hash' => $hash];
+    }
+
+    /**
+     * Validate a Personal Access Token and return its owning user row (with the
+     * token's scopes), or null. Stamps last_used on success.
+     */
+    public static function validatePersonalToken(string $key): ?array {
+        if (!str_starts_with($key, 'paladin_pat_')) return null;
+        $hash = hash_hmac('sha256', $key, $_ENV['JWT_SECRET'] ?? '');
+        $row = Database::fetchOne(
+            "SELECT t.id AS token_id, u.id, u.id AS user_id, t.scopes, u.name, u.email, u.role, u.is_active
+             FROM personal_access_tokens t JOIN users u ON u.id = t.user_id
+             WHERE t.token_hash = ? AND t.is_active = TRUE
+               AND (t.expires_at IS NULL OR t.expires_at > NOW())",
+            [$hash]
+        );
+        if (!$row || empty($row['is_active'])) return null;
+        Database::query("UPDATE personal_access_tokens SET last_used = NOW() WHERE id = ?", [$row['token_id']]);
+        return $row;
+    }
+
     public static function checkRateLimit(string $identifier): bool {
         $cfg = require __DIR__ . '/../config/app.php';
         $r = $cfg['rate_limit'];
