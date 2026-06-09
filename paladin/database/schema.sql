@@ -680,6 +680,18 @@ CREATE TABLE IF NOT EXISTS attachments (
 );
 CREATE INDEX IF NOT EXISTS idx_attachments_entity ON attachments(entity_type, entity_id);
 
+-- Editor media (uploaded images embedded in rich content, served via /media/{id})
+CREATE TABLE IF NOT EXISTS media (
+    id            SERIAL PRIMARY KEY,
+    stored_key    VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255),
+    mime          VARCHAR(120) NOT NULL DEFAULT 'application/octet-stream',
+    size          INTEGER,
+    uploaded_by   INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at    TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_media_uploader ON media(uploaded_by);
+
 CREATE TABLE IF NOT EXISTS shortcut_links (
     id         SERIAL PRIMARY KEY,
     label      VARCHAR(80) NOT NULL,

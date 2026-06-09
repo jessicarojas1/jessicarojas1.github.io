@@ -14,10 +14,27 @@ $wValue = $wValue ?? '';
     <button type="button" class="wtb" data-cmd="bold" title="Bold"><i class="bi bi-type-bold"></i></button>
     <button type="button" class="wtb" data-cmd="italic" title="Italic"><i class="bi bi-type-italic"></i></button>
     <button type="button" class="wtb" data-cmd="underline" title="Underline"><i class="bi bi-type-underline"></i></button>
+    <button type="button" class="wtb" data-cmd="strikeThrough" title="Strikethrough"><i class="bi bi-type-strikethrough"></i></button>
     <span class="wtb-sep"></span>
-    <button type="button" class="wtb" data-cmd="formatBlock" data-val="h2" title="Heading"><i class="bi bi-type-h2"></i></button>
-    <button type="button" class="wtb" data-cmd="formatBlock" data-val="h3" title="Subheading"><i class="bi bi-type-h3"></i></button>
+    <select class="wtb wtb-block" data-block title="Text style" style="padding:5px 6px">
+      <option value="p">Paragraph</option>
+      <option value="h1">Title (H1)</option>
+      <option value="h2">Heading (H2)</option>
+      <option value="h3">Subheading (H3)</option>
+      <option value="h4">Heading 4</option>
+      <option value="h5">Heading 5</option>
+      <option value="h6">Heading 6</option>
+      <option value="blockquote">Quote</option>
+      <option value="pre">Code block</option>
+    </select>
+    <button type="button" class="wtb" data-cmd="formatBlock" data-val="h1" title="Title (H1)"><i class="bi bi-type-h1"></i></button>
+    <button type="button" class="wtb" data-cmd="formatBlock" data-val="h2" title="Heading (H2)"><i class="bi bi-type-h2"></i></button>
+    <button type="button" class="wtb" data-cmd="formatBlock" data-val="h3" title="Subheading (H3)"><i class="bi bi-type-h3"></i></button>
     <button type="button" class="wtb" data-cmd="formatBlock" data-val="p" title="Paragraph"><i class="bi bi-text-paragraph"></i></button>
+    <span class="wtb-sep"></span>
+    <button type="button" class="wtb" data-img-url title="Insert image by URL"><i class="bi bi-image"></i></button>
+    <button type="button" class="wtb" data-img-upload title="Upload an image"><i class="bi bi-upload"></i></button>
+    <input type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" data-img-file hidden>
     <span class="wtb-sep"></span>
     <button type="button" class="wtb" data-cmd="insertUnorderedList" title="Bulleted list"><i class="bi bi-list-ul"></i></button>
     <button type="button" class="wtb" data-cmd="insertOrderedList" title="Numbered list"><i class="bi bi-list-ol"></i></button>
@@ -60,8 +77,49 @@ $wValue = $wValue ?? '';
 
   function sync(){ if(!showingHtml){ source.value = surface.innerHTML; } }
 
+  var fileInput = wrap.querySelector('[data-img-file]');
+  var blockSel  = wrap.querySelector('[data-block]');
+
+  // Block-style dropdown (Title / Headings / Quote / Code).
+  if (blockSel) blockSel.addEventListener('change', function(){
+    surface.focus();
+    try { document.execCommand('formatBlock', false, blockSel.value); } catch(e){}
+    blockSel.selectedIndex = 0;
+    sync();
+  });
+
+  // Image upload → POST to /media/upload, insert the returned /media/{id} URL.
+  function uploadImage(file){
+    if (!file) return;
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    var fd = new FormData();
+    fd.append('image', file);
+    fd.append('csrf_token', meta ? meta.getAttribute('content') : '');
+    surface.focus();
+    fetch('/media/upload', { method:'POST', body: fd })
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if (j && j.csrf && meta) meta.setAttribute('content', j.csrf);
+        if (j && j.ok && j.url) { try { document.execCommand('insertImage', false, j.url); } catch(e){} sync(); }
+        else { alert((j && j.error) || 'Image upload failed.'); }
+      })
+      .catch(function(){ alert('Image upload failed.'); });
+  }
+  if (fileInput) fileInput.addEventListener('change', function(){
+    if (fileInput.files && fileInput.files[0]) uploadImage(fileInput.files[0]);
+    fileInput.value = '';
+  });
+
   wrap.querySelectorAll('.wtb').forEach(function(btn){
+    if (btn.tagName === 'SELECT' || btn.hasAttribute('data-img-file')) return;
     btn.addEventListener('click', function(){
+      if (btn.hasAttribute('data-img-url')) {
+        surface.focus();
+        var iurl = window.prompt('Image URL (https://…):', 'https://');
+        if (iurl) { try { document.execCommand('insertImage', false, iurl); } catch(e){} sync(); }
+        return;
+      }
+      if (btn.hasAttribute('data-img-upload')) { if (fileInput) fileInput.click(); return; }
       if (btn.hasAttribute('data-toggle-html')) {
         if (showingHtml) { surface.innerHTML = source.value; surface.style.display=''; source.style.display='none'; }
         else { source.value = surface.innerHTML; source.style.display=''; surface.style.display='none'; }

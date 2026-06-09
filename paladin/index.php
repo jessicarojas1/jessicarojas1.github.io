@@ -230,6 +230,7 @@ $routes = [
 
         '/alerts/read-all'           => ['ProfileController', 'markAllRead'],
         '/searches/save'             => ['SearchController', 'save'],
+        '/media/upload'              => ['MediaController', 'upload'],
         '/reactions/toggle'          => ['ReactionController', 'toggle'],
         '/share'                     => ['ShareController', 'send'],
         '/workflow/apply'            => ['WorkflowRunController', 'apply'],
@@ -247,6 +248,7 @@ $dynamicRoutes = [
         '#^/spaces/(\d+)/pages/create$#'     => ['PageController', 'createForm'],
         '#^/pages/(\d+)$#'                   => ['PageController', 'view'],
         '#^/attachments/(\d+)/download$#'    => ['AttachmentController', 'download'],
+        '#^/media/(\d+)$#'                   => ['MediaController', 'serve'],
         '#^/pages/(\d+)/edit$#'              => ['PageController', 'editForm'],
         '#^/pages/(\d+)/history$#'           => ['PageController', 'history'],
         '#^/pages/(\d+)/diff$#'              => ['PageController', 'diff'],
