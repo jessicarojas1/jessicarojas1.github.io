@@ -101,6 +101,27 @@ ob_start();
   </div>
 </div>
 
+<?php if (!empty($recentViews)): ?>
+<div class="card" style="margin-top:20px">
+  <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-clock-fill"></i> Recently Viewed</span></div></div>
+  <div class="card-body">
+    <div class="lib-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">
+      <?php foreach ($recentViews as $rv): ?>
+      <a href="<?= Security::h(Recent::url($rv['entity_type'], (int)$rv['entity_id'])) ?>" class="lib-card" style="padding:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="bi <?= Security::h(Recent::icon($rv['entity_type'])) ?>" style="font-size:1.2rem;color:var(--primary)"></i>
+          <div style="min-width:0">
+            <div style="font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?= Security::h($rv['title'] ?: ucfirst($rv['entity_type'])) ?></div>
+            <div class="form-hint"><?= Security::h(ucfirst($rv['entity_type'])) ?> · <?= View::timeAgo($rv['viewed_at']) ?></div>
+          </div>
+        </div>
+      </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</div>
+<?php endif; ?>
+
 <?php
 $content = ob_get_clean();
 require PALADIN_ROOT . '/views/layout.php';

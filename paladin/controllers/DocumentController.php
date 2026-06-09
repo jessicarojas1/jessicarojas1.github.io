@@ -80,6 +80,7 @@ class DocumentController {
         $docLike = Reactions::one('document', $id);
         $cReactions = Reactions::summary('comment', array_map(fn($c) => (int)$c['id'], $comments));
         $transitions = self::TRANSITIONS[$doc['status']] ?? [];
+        Recent::track('document', $id, $doc['title']);
         require PALADIN_ROOT . '/views/documents/view.php';
     }
 
