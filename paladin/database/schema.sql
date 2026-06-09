@@ -330,6 +330,18 @@ CREATE TABLE IF NOT EXISTS page_tasks (
 CREATE INDEX IF NOT EXISTS idx_page_tasks_page     ON page_tasks(page_id, seq);
 CREATE INDEX IF NOT EXISTS idx_page_tasks_assignee ON page_tasks(assignee_id, done);
 
+-- Page properties (Confluence "Page Properties" macro) for cross-page reports.
+CREATE TABLE IF NOT EXISTS page_properties (
+    id         SERIAL PRIMARY KEY,
+    page_id    INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
+    seq        INTEGER NOT NULL DEFAULT 0,
+    prop_key   VARCHAR(160) NOT NULL,
+    prop_value TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_page_properties_page ON page_properties(page_id);
+CREATE INDEX IF NOT EXISTS idx_page_properties_key  ON page_properties(prop_key);
+
 -- ============================================================================
 -- DOCUMENTS (controlled document management)
 -- ============================================================================

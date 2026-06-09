@@ -160,6 +160,7 @@ $routes = [
         '/reports/expiring'          => ['ReportController', 'expiring'],
         '/reports/approval-backlog'  => ['ReportController', 'approvalBacklog'],
         '/reports/acknowledgements'  => ['ReportController', 'acknowledgements'],
+        '/reports/page-properties'   => ['ReportController', 'pageProperties'],
 
         '/campaigns'                 => ['CampaignController', 'index'],
         '/campaigns/create'          => ['CampaignController', 'createForm'],

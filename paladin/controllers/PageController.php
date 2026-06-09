@@ -64,6 +64,7 @@ class PageController {
         Database::insert('page_versions', ['page_id' => $id, 'version' => 1, 'title' => $title, 'body' => $body, 'change_note' => 'Created', 'edited_by' => Auth::id()]);
         Auth::log('create_page', 'pages', $id, ['title' => $title]);
         PageTasks::sync($id, $body);
+        PageProps::sync($id, $body);
         $_SESSION['flash_success'] = 'Page created.';
         header('Location: /pages/' . $id);
     }
@@ -106,6 +107,7 @@ class PageController {
         Database::insert('page_versions', ['page_id' => $id, 'version' => 1, 'title' => $title, 'body' => $body, 'change_note' => 'Imported from Markdown', 'edited_by' => Auth::id()]);
         Auth::log('import_page', 'pages', $id, ['title' => $title]);
         PageTasks::sync($id, $body);
+        PageProps::sync($id, $body);
         if ($status === 'published') Webhook::dispatch('page.published', ['id' => $id, 'actor' => Auth::id()]);
         $_SESSION['flash_success'] = 'Page imported from Markdown.';
         header('Location: /pages/' . $id);
@@ -273,6 +275,7 @@ class PageController {
         ]);
         Auth::log('update_page', 'pages', $id, ['version' => $newVersion]);
         PageTasks::sync($id, $body);
+        PageProps::sync($id, $body);
         // Newly published this save → page.published; otherwise a plain update.
         if ($status === 'published' && $page['status'] !== 'published') {
             Webhook::dispatch('page.published', ['id' => $id, 'version' => $newVersion, 'actor' => Auth::id()]);
