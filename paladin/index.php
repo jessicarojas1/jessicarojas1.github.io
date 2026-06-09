@@ -174,6 +174,7 @@ $routes = [
         '/admin/logs'                => ['AdminController', 'logs'],
         '/admin/sessions'            => ['AdminController', 'sessions'],
         '/admin/system'              => ['AdminController', 'system'],
+        '/admin/shortcuts'           => ['AdminController', 'shortcuts'],
         '/docs'                      => ['DocsController', 'index'],
     ],
     'POST' => [
@@ -206,6 +207,7 @@ $routes = [
         '/admin/branding'            => ['AdminController', 'saveBranding'],
         '/admin/settings'            => ['AdminController', 'saveSettings'],
         '/admin/tags'                => ['AdminController', 'createTag'],
+        '/admin/shortcuts'           => ['AdminController', 'createShortcut'],
         '/admin/api-keys'            => ['AdminController', 'createApiKey'],
 
         '/alerts/read-all'           => ['ProfileController', 'markAllRead'],
@@ -303,6 +305,7 @@ $dynamicRoutes = [
         '#^/admin/users/(\d+)/update$#'      => ['AdminController', 'updateUser'],
         '#^/admin/users/(\d+)/toggle$#'      => ['AdminController', 'toggleUser'],
         '#^/admin/sessions/(\d+)/revoke$#'   => ['AdminController', 'revokeSessions'],
+        '#^/admin/shortcuts/(\d+)/delete$#'  => ['AdminController', 'deleteShortcut'],
         '#^/admin/roles/(\d+)/edit$#'        => ['AdminController', 'updateRole'],
         '#^/admin/roles/(\d+)/delete$#'      => ['AdminController', 'deleteRole'],
     ],

@@ -14,6 +14,7 @@
 <meta name="csrf-token" content="<?= Security::generateCsrfToken() ?>">
 <script nonce="<?= Security::nonce() ?>">(function(){var t=localStorage.getItem('paladin-theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
 <?= Branding::accentStyleTag() ?>
+<?php $__customCss = Branding::customCss(); if ($__customCss !== ''): ?><style nonce="<?= Security::nonce() ?>"><?= $__customCss ?></style><?php endif; ?>
 </head>
 <body>
 
@@ -99,10 +100,22 @@
         <a href="/admin/branding"    class="nav-item <?= ($activeModule ?? '')==='admin_branding'?'active':'' ?>"><i class="bi bi-palette-fill"></i><span>Branding</span></a>
         <a href="/admin/settings"    class="nav-item <?= ($activeModule ?? '')==='admin_settings'?'active':'' ?>"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
         <a href="/admin/tags"        class="nav-item <?= ($activeModule ?? '')==='admin_tags'?'active':'' ?>"><i class="bi bi-tags-fill"></i><span>Tags</span></a>
+        <a href="/admin/shortcuts"   class="nav-item <?= ($activeModule ?? '')==='admin_shortcuts'?'active':'' ?>"><i class="bi bi-link-45deg"></i><span>Shortcut Links</span></a>
         <a href="/admin/api-keys"    class="nav-item <?= ($activeModule ?? '')==='admin_api_keys'?'active':'' ?>"><i class="bi bi-key-fill"></i><span>API Keys</span></a>
         <a href="/admin/logs"        class="nav-item <?= ($activeModule ?? '')==='admin_logs'?'active':'' ?>"><i class="bi bi-journal-text"></i><span>Activity Logs</span></a>
         <a href="/admin/sessions"    class="nav-item <?= ($activeModule ?? '')==='admin_sessions'?'active':'' ?>"><i class="bi bi-hdd-network-fill"></i><span>Sessions</span></a>
         <a href="/admin/system"      class="nav-item <?= ($activeModule ?? '')==='admin_system'?'active':'' ?>"><i class="bi bi-cpu"></i><span>System Info</span></a>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php $__shortcuts = Branding::shortcutLinks(); if ($__shortcuts): ?>
+    <div class="nav-acc">
+      <button type="button" class="nav-acc-header" data-acc="shortcuts"><span>Shortcuts</span><i class="bi bi-chevron-down nav-acc-chevron"></i></button>
+      <div class="nav-acc-body" id="nav-acc-shortcuts">
+        <?php foreach ($__shortcuts as $sc): ?>
+          <a href="<?= Security::h($sc['url']) ?>" class="nav-item"<?= str_starts_with($sc['url'], 'http') ? ' target="_blank" rel="noopener"' : '' ?>><i class="bi <?= Security::h($sc['icon']) ?>"></i><span><?= Security::h($sc['label']) ?></span></a>
+        <?php endforeach; ?>
       </div>
     </div>
     <?php endif; ?>
@@ -119,6 +132,9 @@
   </nav>
 
   <div class="sidebar-footer">
+    <?php $__sbFooter = Branding::sidebarFooter(); if ($__sbFooter !== ''): ?>
+      <div style="font-size:.72rem;color:var(--sidebar-text);opacity:.8;padding:0 4px 8px;text-align:center"><?= Security::h($__sbFooter) ?></div>
+    <?php endif; ?>
     <div class="user-card">
       <div class="user-avatar"><?= strtoupper(substr((string)($u['name'] ?? '?'), 0, 1)) ?></div>
       <div class="user-info">

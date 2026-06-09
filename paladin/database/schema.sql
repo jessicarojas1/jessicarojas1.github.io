@@ -593,6 +593,15 @@ CREATE TABLE IF NOT EXISTS attachments (
 );
 CREATE INDEX IF NOT EXISTS idx_attachments_entity ON attachments(entity_type, entity_id);
 
+CREATE TABLE IF NOT EXISTS shortcut_links (
+    id         SERIAL PRIMARY KEY,
+    label      VARCHAR(80) NOT NULL,
+    url        VARCHAR(500) NOT NULL,
+    icon       VARCHAR(40) DEFAULT 'bi-link-45deg',
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS saved_searches (
     id         SERIAL PRIMARY KEY,
     user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -627,5 +636,7 @@ INSERT INTO settings (key, value, type, description) VALUES
     ('smtp_from',            '',                    'string',  'Default from address'),
     ('smtp_from_name',       'PALADIN',        'string',  'Default from name'),
     ('email_notifications',  '0',                   'boolean', 'Enable outbound email notifications'),
-    ('require_esignature',   '0',                   'boolean', 'Require e-signature on workflow transitions')
+    ('require_esignature',   '0',                   'boolean', 'Require e-signature on workflow transitions'),
+    ('custom_css',           '',                    'string',  'Admin-defined custom CSS injected site-wide'),
+    ('sidebar_footer',       '',                    'string',  'Short text shown in the sidebar footer')
 ON CONFLICT (key) DO NOTHING;

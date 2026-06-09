@@ -57,6 +57,16 @@ $__logo   = Branding::logo();
         </div>
         <?php endif; ?>
 
+        <hr style="border:none;border-top:1px solid var(--border-light);margin:18px 0">
+        <div class="form-group">
+          <label class="form-label" for="sidebar_footer"><i class="bi bi-card-text"></i> Sidebar footer text</label>
+          <input type="text" id="sidebar_footer" name="sidebar_footer" class="form-control" maxlength="160" value="<?= Security::h($sidebarFooter ?? '') ?>" placeholder="e.g. © 2026 GMRE, Inc. — Controlled">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="custom_css"><i class="bi bi-code-slash"></i> Custom CSS <span class="form-hint">(advanced — injected site-wide; use theme vars like <code>var(--primary)</code>)</span></label>
+          <textarea id="custom_css" name="custom_css" class="form-control" rows="6" style="font-family:ui-monospace,monospace;font-size:.85rem" placeholder=".page-title{letter-spacing:.02em}"><?= Security::h($customCss ?? '') ?></textarea>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Branding</button>
         </div>

@@ -23,6 +23,40 @@ final class Branding
     /** Per-request cache so repeated lookups hit the DB only once. */
     private static ?array $cache = null;
 
+    /** Admin custom CSS, sanitized for safe injection inside a nonce'd <style>. */
+    public static function customCss(): string
+    {
+        try { $row = Database::fetchOne("SELECT value FROM settings WHERE key = 'custom_css'"); }
+        catch (\Throwable) { return ''; }
+        $css = (string)($row['value'] ?? '');
+        if (trim($css) === '') return '';
+        // Defense-in-depth: no tag breakouts, no JS/expression/import in CSS.
+        $css = str_ireplace(['</style', '<script', 'javascript:', 'expression(', '@import'], '', $css);
+        return str_replace(['<', '>'], '', $css);
+    }
+
+    /** Short sidebar footer text (escape at the call site). */
+    public static function sidebarFooter(): string
+    {
+        try { $row = Database::fetchOne("SELECT value FROM settings WHERE key = 'sidebar_footer'"); }
+        catch (\Throwable) { return ''; }
+        return trim((string)($row['value'] ?? ''));
+    }
+
+    /** Active shortcut links for the sidebar (sanitized URLs). */
+    public static function shortcutLinks(): array
+    {
+        try { $rows = Database::fetchAll("SELECT label, url, icon FROM shortcut_links ORDER BY sort_order, id"); }
+        catch (\Throwable) { return []; }
+        $out = [];
+        foreach ($rows as $r) {
+            $url = trim((string)$r['url']);
+            if ($url === '' || (!preg_match('#^https?://#i', $url) && !str_starts_with($url, '/'))) continue;
+            $out[] = ['label' => $r['label'], 'url' => $url, 'icon' => $r['icon'] ?: 'bi-link-45deg'];
+        }
+        return $out;
+    }
+
     /**
      * Load the raw branding row map from the settings table (cached).
      * Never throws — on any DB error it returns an empty map and callers

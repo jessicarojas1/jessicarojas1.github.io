@@ -218,6 +218,8 @@ class AdminController {
     // ── Branding ─────────────────────────────────────────────────────────────
     public function branding(): void {
         Auth::requireAdmin();
+        $customCss = (Database::fetchOne("SELECT value FROM settings WHERE key='custom_css'")['value'] ?? '');
+        $sidebarFooter = (Database::fetchOne("SELECT value FROM settings WHERE key='sidebar_footer'")['value'] ?? '');
         require PALADIN_ROOT . '/views/admin/branding.php';
     }
 
@@ -256,10 +258,50 @@ class AdminController {
             }
         }
 
+        // Look & feel extras
+        if (isset($_POST['custom_css']))     $this->setSetting('custom_css', (string)$_POST['custom_css']);
+        if (isset($_POST['sidebar_footer'])) $this->setSetting('sidebar_footer', Security::sanitizeInput((string)$_POST['sidebar_footer']));
+
         Branding::clearCache();
         Auth::log('update_branding', 'settings', null);
         $_SESSION['flash_success'] = 'Branding updated.';
         header('Location: /admin/branding');
+    }
+
+    // ── Shortcut links ───────────────────────────────────────────────────────
+    public function shortcuts(): void {
+        Auth::requireAdmin();
+        $links = Database::fetchAll("SELECT * FROM shortcut_links ORDER BY sort_order, id");
+        require PALADIN_ROOT . '/views/admin/shortcuts.php';
+    }
+
+    public function createShortcut(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $label = Security::sanitizeInput($_POST['label'] ?? '');
+        $url   = trim((string)($_POST['url'] ?? ''));
+        if ($label === '' || $url === '') { $_SESSION['flash_error'] = 'Label and URL are required.'; header('Location: /admin/shortcuts'); return; }
+        if (!preg_match('#^https?://#i', $url) && !str_starts_with($url, '/')) {
+            $_SESSION['flash_error'] = 'URL must start with http(s):// or / (a site path).'; header('Location: /admin/shortcuts'); return;
+        }
+        $max = Database::fetchOne("SELECT COALESCE(MAX(sort_order),0) m FROM shortcut_links");
+        Database::insert('shortcut_links', [
+            'label' => $label, 'url' => substr($url, 0, 500),
+            'icon' => Security::sanitizeInput($_POST['icon'] ?? '') ?: 'bi-link-45deg',
+            'sort_order' => (int)$max['m'] + 1,
+        ]);
+        Auth::log('create_shortcut', 'shortcut_links', null);
+        $_SESSION['flash_success'] = 'Shortcut added.';
+        header('Location: /admin/shortcuts');
+    }
+
+    public function deleteShortcut(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        Database::query("DELETE FROM shortcut_links WHERE id = ?", [$id]);
+        Auth::log('delete_shortcut', 'shortcut_links', $id);
+        $_SESSION['flash_success'] = 'Shortcut removed.';
+        header('Location: /admin/shortcuts');
     }
 
     // ── Settings ─────────────────────────────────────────────────────────────
