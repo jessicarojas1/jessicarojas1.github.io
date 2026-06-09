@@ -34,9 +34,11 @@ class SpaceController {
         if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
 
         $pages = Database::fetchAll(
-            "SELECT id, parent_id, title, status, position FROM pages WHERE space_id = ? ORDER BY position, title",
+            "SELECT id, parent_id, title, status, position, owner_id, created_by FROM pages WHERE space_id = ? ORDER BY position, title",
             [$id]
         );
+        // Hide pages the current user is restricted from viewing
+        $pages = array_values(array_filter($pages, fn($p) => PageAccess::canView($p)));
         $documents = Database::fetchAll(
             "SELECT id, document_code, title, doc_type, status, revision, updated_at FROM documents WHERE space_id = ? ORDER BY updated_at DESC",
             [$id]
