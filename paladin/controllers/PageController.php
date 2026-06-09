@@ -70,7 +70,8 @@ class PageController {
         $canEditPage = PageAccess::canEdit($page);
         $allUsers = $canEditPage ? Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name") : [];
         $comments = Database::fetchAll(
-            "SELECT c.*, u.name AS user_name FROM comments c LEFT JOIN users u ON u.id=c.user_id
+            "SELECT c.*, u.name AS user_name, r.name AS resolver_name
+             FROM comments c LEFT JOIN users u ON u.id=c.user_id LEFT JOIN users r ON r.id=c.resolved_by
              WHERE c.entity_type='page' AND c.entity_id=? ORDER BY c.created_at", [$id]
         );
         $versionCount = (int)(Database::fetchOne("SELECT COUNT(*) c FROM page_versions WHERE page_id=?", [$id])['c'] ?? 0);
@@ -241,8 +242,12 @@ class PageController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         if (!$this->guardView($id)) return;
         $body = Security::sanitizeInput($_POST['body'] ?? '');
+        $parentId = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
+        if ($parentId && !Database::fetchOne("SELECT 1 FROM comments WHERE id=? AND entity_type='page' AND entity_id=? AND parent_id IS NULL", [$parentId, $id])) {
+            $parentId = null; // only reply to a top-level comment on this page
+        }
         if ($body !== '') {
-            Database::insert('comments', ['entity_type' => 'page', 'entity_id' => $id, 'user_id' => Auth::id(), 'body' => $body]);
+            Database::insert('comments', ['entity_type' => 'page', 'entity_id' => $id, 'user_id' => Auth::id(), 'parent_id' => $parentId, 'body' => $body]);
             Auth::log('comment_page', 'pages', $id);
             $pg = Database::fetchOne("SELECT title FROM pages WHERE id=?", [$id]);
             Mentions::process($body, 'page', $id, $pg['title'] ?? null);

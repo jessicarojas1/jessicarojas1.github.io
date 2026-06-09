@@ -72,7 +72,8 @@ class DocumentController {
         $myAck = Database::fetchOne("SELECT 1 FROM document_acknowledgements WHERE document_id=? AND user_id=? AND revision=?", [$id, Auth::id(), $doc['revision']]);
         $relations = Database::fetchAll("SELECT * FROM entity_relations WHERE source_type='document' AND source_id=? ORDER BY relation_type", [$id]);
         $comments = Database::fetchAll(
-            "SELECT c.*, u.name AS user_name FROM comments c LEFT JOIN users u ON u.id=c.user_id
+            "SELECT c.*, u.name AS user_name, r.name AS resolver_name
+             FROM comments c LEFT JOIN users u ON u.id=c.user_id LEFT JOIN users r ON r.id=c.resolved_by
              WHERE c.entity_type='document' AND c.entity_id=? ORDER BY c.created_at", [$id]
         );
         $approval = Database::fetchOne("SELECT * FROM approval_requests WHERE entity_type='document' AND entity_id=? ORDER BY id DESC LIMIT 1", [$id]);
@@ -269,8 +270,12 @@ class DocumentController {
         Auth::requirePermission('document.view');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $body = Security::sanitizeInput($_POST['body'] ?? '');
+        $parentId = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
+        if ($parentId && !Database::fetchOne("SELECT 1 FROM comments WHERE id=? AND entity_type='document' AND entity_id=? AND parent_id IS NULL", [$parentId, $id])) {
+            $parentId = null;
+        }
         if ($body !== '') {
-            Database::insert('comments', ['entity_type' => 'document', 'entity_id' => $id, 'user_id' => Auth::id(), 'body' => $body]);
+            Database::insert('comments', ['entity_type' => 'document', 'entity_id' => $id, 'user_id' => Auth::id(), 'parent_id' => $parentId, 'body' => $body]);
             Auth::log('comment_document', 'documents', $id);
             $dc = Database::fetchOne("SELECT title FROM documents WHERE id=?", [$id]);
             Mentions::process($body, 'document', $id, $dc['title'] ?? null);

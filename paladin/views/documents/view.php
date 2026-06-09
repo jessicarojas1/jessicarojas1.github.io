@@ -84,11 +84,12 @@ $relLabels = ['related_process'=>'Process','related_risk'=>'Risk','related_contr
     <div class="card" id="comments">
       <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-chat-left-text"></i> Discussion (<?= count($comments) ?>)</span></div></div>
       <div class="card-body">
-        <?php foreach ($comments as $c): ?>
-        <div class="comment"><?= View::avatar($c['user_name']) ?><div class="comment-body"><div class="comment-head"><span class="comment-author"><?= Security::h($c['user_name'] ?: 'User') ?></span><span class="comment-time"><?= View::timeAgo($c['created_at']) ?></span></div><div class="comment-text"><?= View::mentionize($c["body"]) ?></div></div></div>
-        <?php endforeach; ?>
-        <?php if (!$comments): ?><div class="empty-state-sm">No comments yet.</div><?php endif; ?>
-        <form method="POST" action="/documents/<?= (int)$doc['id'] ?>/comment" style="margin-top:14px"><?= Security::csrfField() ?><div class="form-group" style="margin:0"><textarea name="body" class="form-control" rows="2" placeholder="Add a comment or review note… use @name to notify a teammate" required></textarea></div><div style="margin-top:8px"><button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-send"></i> Comment</button></div></form>
+        <?php
+          $cEntityType = 'document'; $cEntityId = (int)$doc['id'];
+          $cAction = '/documents/' . (int)$doc['id'] . '/comment';
+          $cCanComment = Auth::can('document.view');
+          require PALADIN_ROOT . '/views/partials/comments.php';
+        ?>
       </div>
     </div>
   </div>

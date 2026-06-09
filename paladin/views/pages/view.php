@@ -27,17 +27,12 @@ ob_start();
     <div class="card" style="margin-top:18px" id="comments">
       <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-chat-left-text"></i> Comments (<?= count($comments) ?>)</span></div></div>
       <div class="card-body">
-        <?php foreach ($comments as $c): ?>
-        <div class="comment"><?= View::avatar($c['user_name']) ?><div class="comment-body"><div class="comment-head"><span class="comment-author"><?= Security::h($c['user_name'] ?: 'User') ?></span><span class="comment-time"><?= View::timeAgo($c['created_at']) ?></span></div><div class="comment-text"><?= View::mentionize($c["body"]) ?></div></div></div>
-        <?php endforeach; ?>
-        <?php if (!$comments): ?><div class="empty-state-sm">No comments yet.</div><?php endif; ?>
-        <?php if (Auth::can('page.comment')): ?>
-        <form method="POST" action="/pages/<?= (int)$page['id'] ?>/comment" style="margin-top:14px">
-          <?= Security::csrfField() ?>
-          <div class="form-group" style="margin:0"><textarea name="body" class="form-control" rows="2" placeholder="Add a comment… use @name to notify a teammate" required></textarea></div>
-          <div style="margin-top:8px"><button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-send"></i> Comment</button></div>
-        </form>
-        <?php endif; ?>
+        <?php
+          $cEntityType = 'page'; $cEntityId = (int)$page['id'];
+          $cAction = '/pages/' . (int)$page['id'] . '/comment';
+          $cCanComment = Auth::can('page.comment');
+          require PALADIN_ROOT . '/views/partials/comments.php';
+        ?>
       </div>
     </div>
   </div>

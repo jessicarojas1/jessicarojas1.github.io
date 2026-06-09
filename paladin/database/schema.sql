@@ -457,6 +457,8 @@ CREATE TABLE IF NOT EXISTS comments (
     user_id     INTEGER REFERENCES users(id),
     parent_id   INTEGER REFERENCES comments(id) ON DELETE CASCADE,
     body        TEXT NOT NULL,
+    resolved_at TIMESTAMP,
+    resolved_by INTEGER REFERENCES users(id),
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_comments_entity ON comments(entity_type, entity_id);

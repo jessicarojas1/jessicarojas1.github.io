@@ -2291,3 +2291,11 @@ html[data-theme="dark"] [style*="background:#f3f4f6"][style*="color:#6b7280"] { 
 .macro-toc ul{margin:0;padding-left:18px;list-style:none}
 .macro-toc li{margin:3px 0}.macro-toc li.toc-h3{margin-left:14px;font-size:.92em}
 .macro-toc a{color:var(--primary);text-decoration:none}.macro-toc a:hover{text-decoration:underline}
+
+/* ===== Threaded comments ===== */
+.thread{border-bottom:1px solid var(--border-light);padding:6px 0}
+.thread.resolved{opacity:.7}
+.thread-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 4px 50px}
+.thread-replies{margin-left:38px;border-left:2px solid var(--border-light);padding-left:10px}
+.reply-form{display:none;margin:6px 0 8px 50px}
+.reply-form.open{display:block}
