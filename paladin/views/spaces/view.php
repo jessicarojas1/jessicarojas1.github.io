@@ -9,9 +9,21 @@ $byParent = [];
 foreach ($pages as $p) { $byParent[$p['parent_id'] ?? 0][] = $p; }
 function renderTree(array $byParent, $parent, $depth = 0) {
     if (empty($byParent[$parent ?? 0])) return;
+    $canMove = Auth::can('page.edit');
+    $csrf = $canMove ? Security::csrfField() : '';
+    $siblings = $byParent[$parent ?? 0];
+    $last = count($siblings) - 1;
     echo '<ul' . ($depth === 0 ? ' class="page-tree"' : '') . '>';
-    foreach ($byParent[$parent ?? 0] as $p) {
-        echo '<li><a href="/pages/' . (int)$p['id'] . '"><i class="bi bi-file-richtext"></i> ' . Security::h($p['title']) . ' ' . View::statusBadge($p['status']) . '</a>';
+    foreach ($siblings as $i => $p) {
+        echo '<li><div style="display:flex;align-items:center;gap:4px">';
+        echo '<a href="/pages/' . (int)$p['id'] . '" style="flex:1"><i class="bi bi-file-richtext"></i> ' . Security::h($p['title']) . ' ' . View::statusBadge($p['status']) . '</a>';
+        if ($canMove && count($siblings) > 1) {
+            $up = $i > 0 ? '' : ' disabled style="visibility:hidden"';
+            $dn = $i < $last ? '' : ' disabled style="visibility:hidden"';
+            echo '<form method="POST" action="/pages/' . (int)$p['id'] . '/move" style="margin:0">' . $csrf . '<input type="hidden" name="dir" value="up"><button class="btn-unstyled" type="submit" title="Move up" style="border:none;background:none;cursor:pointer;color:var(--text-light);padding:0 2px"' . $up . '><i class="bi bi-chevron-up"></i></button></form>';
+            echo '<form method="POST" action="/pages/' . (int)$p['id'] . '/move" style="margin:0">' . $csrf . '<input type="hidden" name="dir" value="down"><button class="btn-unstyled" type="submit" title="Move down" style="border:none;background:none;cursor:pointer;color:var(--text-light);padding:0 2px"' . $dn . '><i class="bi bi-chevron-down"></i></button></form>';
+        }
+        echo '</div>';
         renderTree($byParent, $p['id'], $depth + 1);
         echo '</li>';
     }

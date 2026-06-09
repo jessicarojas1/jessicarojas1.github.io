@@ -296,4 +296,48 @@ class PageController {
         $_SESSION['flash_success'] = 'Restriction removed.';
         header('Location: /pages/' . $id);
     }
+
+    /** Printable / export-to-PDF view (clean, auto-opens the print dialog). */
+    public function printView(int $id): void {
+        Auth::requirePermission('page.view');
+        $page = Database::fetchOne(
+            "SELECT p.*, s.space_key, s.name AS space_name, o.name AS owner_name
+             FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id WHERE p.id=?",
+            [$id]
+        );
+        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        $labels = Database::fetchAll(
+            "SELECT t.name FROM entity_tags et JOIN tags t ON t.id=et.tag_id
+             WHERE et.entity_type='page' AND et.entity_id=? ORDER BY t.name", [$id]
+        );
+        Auth::log('export_page', 'pages', $id);
+        require PALADIN_ROOT . '/views/pages/print.php';
+    }
+
+    /** Reorder a page among its siblings (same space + parent). dir = up|down. */
+    public function move(int $id): void {
+        Auth::requirePermission('page.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $page = $this->guardEdit($id);
+        if (!$page) return;
+        $dir = ($_POST['dir'] ?? '') === 'up' ? 'up' : 'down';
+
+        // Normalize sibling positions to 1..n (stable order), then swap with neighbour
+        $siblings = Database::fetchAll(
+            "SELECT id FROM pages WHERE space_id = ? AND parent_id IS NOT DISTINCT FROM ?
+             ORDER BY position, title, id",
+            [$page['space_id'], $page['parent_id']]
+        );
+        $ids = array_map(fn($r) => (int)$r['id'], $siblings);
+        foreach ($ids as $i => $sid) { Database::query("UPDATE pages SET position = ? WHERE id = ?", [$i + 1, $sid]); }
+        $idx = array_search($id, $ids, true);
+        $swapWith = $dir === 'up' ? $idx - 1 : $idx + 1;
+        if ($idx !== false && isset($ids[$swapWith])) {
+            Database::query("UPDATE pages SET position = ? WHERE id = ?", [$swapWith + 1, $id]);
+            Database::query("UPDATE pages SET position = ? WHERE id = ?", [$idx + 1, $ids[$swapWith]]);
+            Auth::log('move_page', 'pages', $id, ['dir' => $dir]);
+        }
+        header('Location: /spaces/' . (int)$page['space_id']);
+    }
 }
