@@ -158,6 +158,8 @@ $routes = [
 
         '/profile/edit'              => ['ProfileController', 'editForm'],
         '/profile/notifications'     => ['ProfileController', 'notifications'],
+        '/mfa/setup'                 => ['ProfileController', 'mfaSetupForm'],
+        '/mfa/verify'                => ['AuthController', 'mfaVerifyForm'],
 
         '/admin'                     => ['AdminController', 'index'],
         '/admin/users'               => ['AdminController', 'users'],
@@ -194,6 +196,9 @@ $routes = [
         '/templates/create'          => ['TemplateController', 'create'],
 
         '/profile/edit'              => ['ProfileController', 'update'],
+        '/mfa/setup'                 => ['ProfileController', 'mfaEnable'],
+        '/mfa/disable'               => ['ProfileController', 'mfaDisable'],
+        '/mfa/verify'                => ['AuthController', 'mfaVerify'],
 
         '/admin/users/create'        => ['AdminController', 'createUser'],
         '/admin/permissions/save'    => ['AdminController', 'savePermissions'],
