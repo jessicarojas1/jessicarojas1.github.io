@@ -74,32 +74,34 @@ function ClauseHeatmap({ rows }: { rows: ClauseHeat[] }) {
     return <EmptyState title="No open findings" description="No open audit findings to map by clause." />;
   }
   return (
-    <table className="heat-table">
-      <thead>
-        <tr>
-          <th>Clause</th>
-          <th>Major</th>
-          <th>Minor</th>
-          <th>Obs.</th>
-          <th>OFI</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r.clause}>
-            <th scope="row">
-              <span className="heat-clause__num">{r.clause}</span> {r.title}
-            </th>
-            <HeatCell count={r.major} sev="major" />
-            <HeatCell count={r.minor} sev="minor" />
-            <HeatCell count={r.observation} sev="obs" />
-            <HeatCell count={r.ofi} sev="ofi" />
-            <td className="heat-total">{r.total}</td>
+    <div className="table-wrap">
+      <table className="heat-table">
+        <thead>
+          <tr>
+            <th>Clause</th>
+            <th>Major</th>
+            <th>Minor</th>
+            <th>Obs.</th>
+            <th>OFI</th>
+            <th>Total</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.clause}>
+              <th scope="row">
+                <span className="heat-clause__num">{r.clause}</span> {r.title}
+              </th>
+              <HeatCell count={r.major} sev="major" />
+              <HeatCell count={r.minor} sev="minor" />
+              <HeatCell count={r.observation} sev="obs" />
+              <HeatCell count={r.ofi} sev="ofi" />
+              <td className="heat-total">{r.total}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
