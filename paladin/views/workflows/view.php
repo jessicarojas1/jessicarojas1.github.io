@@ -30,30 +30,7 @@ ob_start();
 </div></div>
 
 <?php if (!empty($states)): ?>
-<div class="card" style="margin-top:18px">
-  <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-diagram-3-fill"></i> State Diagram</span></div>
-    <?php if (Auth::can('workflow.manage')): ?><a href="/workflows/<?= (int)$wf['id'] ?>/edit" class="btn btn-sm btn-ghost">Edit states</a><?php endif; ?></div>
-  <div class="card-body">
-    <?php
-      $byId = []; foreach ($states as $st) { $byId[(int)$st['id']] = $st; }
-      $outgoing = []; foreach ($transitions as $tr) { $outgoing[(int)$tr['from_state_id']][] = $tr; }
-    ?>
-    <div class="wf-flow">
-      <?php foreach ($states as $st): ?>
-        <div class="wf-node-wrap">
-          <div class="wf-node" style="background:<?= Security::h($st['color']) ?>"><?= Security::h($st['name']) ?><?php if ($st['is_initial']): ?> <i class="bi bi-play-fill" title="Initial"></i><?php endif; ?></div>
-          <?php if (!empty($outgoing[(int)$st['id']])): ?>
-            <div class="wf-trans">
-              <?php foreach ($outgoing[(int)$st['id']] as $tr): $to = $byId[(int)$tr['to_state_id']] ?? null; if (!$to) continue; ?>
-                <div class="wf-arrow"><span class="wf-action"><?= Security::h($tr['action_label']) ?></span> <i class="bi bi-arrow-right"></i> <span class="wf-chip" style="background:<?= Security::h($to['color']) ?>"><?= Security::h($to['name']) ?></span></div>
-              <?php endforeach; ?>
-            </div>
-          <?php endif; ?>
-        </div>
-      <?php endforeach; ?>
-    </div>
-  </div>
-</div>
+<?php $wfDiagramEditable = false; require PALADIN_ROOT . '/views/partials/workflow_diagram.php'; ?>
 <?php endif; ?>
 
 <?php if (!empty($assignedSpaces)): ?>

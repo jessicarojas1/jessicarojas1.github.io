@@ -310,6 +310,7 @@ $dynamicRoutes = [
         '#^/workflows/(\d+)/steps$#'         => ['WorkflowController', 'addStep'],
         '#^/workflows/(\d+)/steps/(\d+)/update$#' => ['WorkflowController', 'updateStep'],
         '#^/workflows/(\d+)/steps/(\d+)/delete$#' => ['WorkflowController', 'deleteStep'],
+        '#^/workflows/(\d+)/layout$#'             => ['WorkflowController', 'saveLayout'],
         '#^/workflows/(\d+)/states$#'             => ['WorkflowController', 'addState'],
         '#^/workflows/(\d+)/states/(\d+)/update$#' => ['WorkflowController', 'updateState'],
         '#^/workflows/(\d+)/states/(\d+)/delete$#' => ['WorkflowController', 'deleteState'],

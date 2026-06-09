@@ -804,3 +804,186 @@ document.addEventListener('click', function(e) {
     addBtn.hidden = true;
   });
 })();
+
+/* ── Workflow state-transition diagram (render + drag + connect) ───────────── */
+(function () {
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var W = 132, H = 46;
+
+  function el(name, attrs) {
+    var n = document.createElementNS(SVGNS, name);
+    for (var k in attrs) { if (attrs.hasOwnProperty(k)) n.setAttribute(k, attrs[k]); }
+    return n;
+  }
+  // Clip a ray from a node centre to the node's rectangle border.
+  function border(cx, cy, tx, ty) {
+    var dx = tx - cx, dy = ty - cy;
+    if (dx === 0 && dy === 0) return { x: cx, y: cy };
+    var sx = (W / 2) / Math.abs(dx || 1e-6), sy = (H / 2) / Math.abs(dy || 1e-6);
+    var s = Math.min(sx, sy);
+    return { x: cx + dx * s, y: cy + dy * s };
+  }
+
+  document.querySelectorAll('svg[data-wf-diagram]').forEach(function (svg) {
+    var wfId = svg.getAttribute('data-wf-id');
+    var editable = svg.getAttribute('data-wf-editable') === '1';
+    var dataEl = document.querySelector('script[data-wf-data="' + wfId + '"]');
+    if (!dataEl) return;
+    var data;
+    try { data = JSON.parse(dataEl.textContent || '{}'); } catch (e) { return; }
+    var states = data.states || [], transitions = data.transitions || [];
+    if (!states.length) return;
+
+    var nodesG = svg.querySelector('[data-wf-nodes]');
+    var edgesG = svg.querySelector('[data-wf-edges]');
+    var byId = {};
+
+    // Auto-layout any state missing a stored position (row-wrap).
+    var perRow = Math.max(1, Math.floor((svg.getAttribute('width') - 40) / (W + 70)));
+    states.forEach(function (s, i) {
+      byId[s.id] = s;
+      if (s.x === null || s.y === null || isNaN(s.x) || isNaN(s.y)) {
+        s.x = 30 + (i % perRow) * (W + 70);
+        s.y = 40 + Math.floor(i / perRow) * (H + 70);
+        s.autoplaced = true;
+      }
+    });
+
+    function drawEdges() {
+      edgesG.textContent = '';
+      transitions.forEach(function (t) {
+        var a = byId[t.from], b = byId[t.to];
+        if (!a || !b) return;
+        var ac = { x: a.x + W / 2, y: a.y + H / 2 }, bc = { x: b.x + W / 2, y: b.y + H / 2 };
+        if (t.from === t.to) {
+          // Self-loop
+          var lx = a.x + W / 2, ly = a.y;
+          var p = 'M ' + (lx - 18) + ' ' + ly + ' C ' + (lx - 40) + ' ' + (ly - 50) + ', ' + (lx + 40) + ' ' + (ly - 50) + ', ' + (lx + 18) + ' ' + ly;
+          edgesG.appendChild(el('path', { d: p, fill: 'none', stroke: 'var(--text-muted,#64748b)', 'stroke-width': '1.6', 'marker-end': 'url(#wf-arrow)' }));
+          addLabel(lx, ly - 46, t.label);
+          return;
+        }
+        var s1 = border(ac.x, ac.y, bc.x, bc.y);
+        var s2 = border(bc.x, bc.y, ac.x, ac.y);
+        // Offset opposing edges so A→B and B→A don't overlap.
+        var nx = -(s2.y - s1.y), ny = (s2.x - s1.x);
+        var nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
+        var off = (t.from < t.to) ? 18 : -18;
+        var mx = (s1.x + s2.x) / 2 + nx * off, my = (s1.y + s2.y) / 2 + ny * off;
+        var d = 'M ' + s1.x + ' ' + s1.y + ' Q ' + mx + ' ' + my + ' ' + s2.x + ' ' + s2.y;
+        edgesG.appendChild(el('path', { d: d, fill: 'none', stroke: 'var(--text-muted,#64748b)', 'stroke-width': '1.6', 'marker-end': 'url(#wf-arrow)' }));
+        addLabel(mx, my, t.label);
+      });
+    }
+    function addLabel(x, y, text) {
+      var pad = 4, w = (text || '').length * 6.4 + pad * 2;
+      edgesG.appendChild(el('rect', { x: x - w / 2, y: y - 9, width: w, height: 16, rx: 4, fill: 'var(--card-bg,#fff)', stroke: 'var(--border-light,#e2e8f0)' }));
+      var t = el('text', { x: x, y: y + 3, 'text-anchor': 'middle', 'font-size': '11', fill: 'var(--text,#0f172a)' });
+      t.textContent = text || '';
+      edgesG.appendChild(t);
+    }
+
+    function drawNodes() {
+      nodesG.textContent = '';
+      states.forEach(function (s) {
+        var g = el('g', { transform: 'translate(' + s.x + ',' + s.y + ')', 'data-state': s.id, style: editable ? 'cursor:grab' : '' });
+        g.appendChild(el('rect', { width: W, height: H, rx: 9, fill: s.color, opacity: '0.92', stroke: 'rgba(0,0,0,.18)' }));
+        if (s.isInitial) g.appendChild(el('circle', { cx: 12, cy: 12, r: 5, fill: '#fff', stroke: s.color, 'stroke-width': '1.5' }));
+        var t = el('text', { x: W / 2, y: H / 2 + 4, 'text-anchor': 'middle', 'font-size': '13', 'font-weight': '600', fill: '#fff' });
+        t.textContent = s.name;
+        g.appendChild(t);
+        nodesG.appendChild(g);
+      });
+    }
+
+    drawNodes();
+    drawEdges();
+    if (!editable) return;
+
+    // ── Drag to reposition ──
+    var dragging = null, saveTimer = null;
+    function svgPoint(evt) {
+      var pt = svg.createSVGPoint();
+      pt.x = evt.clientX; pt.y = evt.clientY;
+      var ctm = svg.getScreenCTM();
+      return ctm ? pt.matrixTransform(ctm.inverse()) : { x: evt.clientX, y: evt.clientY };
+    }
+    svg.addEventListener('pointerdown', function (e) {
+      var g = e.target.closest && e.target.closest('g[data-state]');
+      if (!g || connectMode) return;
+      var s = byId[g.getAttribute('data-state')];
+      var p = svgPoint(e);
+      dragging = { s: s, dx: p.x - s.x, dy: p.y - s.y, g: g };
+      g.setAttribute('style', 'cursor:grabbing');
+      svg.setPointerCapture(e.pointerId);
+    });
+    svg.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var p = svgPoint(e);
+      dragging.s.x = Math.max(0, Math.round(p.x - dragging.dx));
+      dragging.s.y = Math.max(0, Math.round(p.y - dragging.dy));
+      dragging.g.setAttribute('transform', 'translate(' + dragging.s.x + ',' + dragging.s.y + ')');
+      drawEdges();
+    });
+    svg.addEventListener('pointerup', function (e) {
+      if (!dragging) return;
+      dragging.g.setAttribute('style', 'cursor:grab');
+      dragging = null;
+      scheduleSave();
+    });
+
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(savePositions, 600);
+    }
+    function savePositions() {
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      var positions = {};
+      states.forEach(function (s) { positions[s.id] = { x: s.x, y: s.y }; });
+      fetch('/workflows/' + wfId + '/layout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ csrf: meta ? meta.getAttribute('content') : '', positions: positions })
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (j && j.csrf && meta) meta.setAttribute('content', j.csrf);
+      }).catch(function () {});
+    }
+
+    // ── Connect mode (click two states → create transition) ──
+    var connectMode = false, connectFrom = null;
+    var toggleBtn = document.querySelector('[data-wf-connect-toggle]');
+    var hint = document.querySelector('[data-wf-hint]');
+    var form = document.querySelector('[data-wf-connect-form]');
+    var autoBtn = document.querySelector('[data-wf-autolayout]');
+
+    function setHint(msg) { if (hint) hint.textContent = msg || ''; }
+    if (toggleBtn) toggleBtn.addEventListener('click', function () {
+      connectMode = !connectMode; connectFrom = null;
+      toggleBtn.classList.toggle('btn-primary', connectMode);
+      toggleBtn.classList.toggle('btn-light', !connectMode);
+      setHint(connectMode ? 'Click the source state…' : '');
+    });
+    svg.addEventListener('click', function (e) {
+      if (!connectMode) return;
+      var g = e.target.closest && e.target.closest('g[data-state]');
+      if (!g) return;
+      var id = g.getAttribute('data-state');
+      if (!connectFrom) { connectFrom = id; setHint('…now click the target state'); return; }
+      if (form) {
+        form.querySelector('[data-wf-from]').value = connectFrom;
+        form.querySelector('[data-wf-to]').value = id;
+        form.submit();
+      }
+    });
+    if (autoBtn) autoBtn.addEventListener('click', function () {
+      states.forEach(function (s, i) {
+        s.x = 30 + (i % perRow) * (W + 70);
+        s.y = 40 + Math.floor(i / perRow) * (H + 70);
+      });
+      drawNodes(); drawEdges(); savePositions();
+    });
+
+    // Persist any auto-placed positions once so the first load sticks.
+    if (states.some(function (s) { return s.autoplaced; })) scheduleSave();
+  });
+})();
