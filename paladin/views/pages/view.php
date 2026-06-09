@@ -6,7 +6,7 @@ ob_start();
 ?>
 <div class="page-header">
   <div>
-    <h1 class="page-title"><?= Security::h($page['title']) ?> <?= View::statusBadge($page['status']) ?></h1>
+    <h1 class="page-title"><?= Security::h($page['title']) ?> <?= View::statusBadge($page['status']) ?><?php if (!empty($restrictions)): ?> <span class="badge badge-gray" title="This page has access restrictions"><i class="bi bi-lock-fill"></i> Restricted</span><?php endif; ?></h1>
     <p class="page-subtitle">In <a href="/spaces/<?= (int)$page['space_id'] ?>"><?= Security::h($page['space_name']) ?></a> · Owner: <?= Security::h($page['owner_name'] ?: '—') ?> · v<?= (int)$page['current_version'] ?> · Updated <?= View::timeAgo($page['updated_at']) ?></p>
   </div>
   <div class="page-actions">
@@ -66,6 +66,39 @@ ob_start();
       <?php endif; ?>
     </div>
   </div>
+
+  <!-- Restrictions -->
+  <?php if ($canEditPage): ?>
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-lock-fill"></i> Restrictions</span></div></div>
+    <div class="card-body">
+      <?php if ($restrictions): ?>
+        <?php foreach ($restrictions as $r): ?>
+          <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-light)">
+            <span class="badge <?= $r['mode']==='edit'?'badge-orange':'badge-blue' ?>"><?= $r['mode']==='edit'?'Can edit':'Can view' ?></span>
+            <span style="flex:1;font-size:.85rem"><?= $r['principal_type']==='user' ? Security::h($r['user_name'] ?: ('User #' . $r['principal'])) : Security::h(Auth::roleLabel($r['principal'])) . ' <span class="form-hint">(role)</span>' ?></span>
+            <form method="POST" action="/pages/<?= (int)$page['id'] ?>/restrictions/<?= (int)$r['id'] ?>/delete" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-sm btn-danger btn-unstyled" type="submit" style="border:none;background:none;color:var(--danger)" title="Remove"><i class="bi bi-x"></i></button></form>
+          </div>
+        <?php endforeach; ?>
+      <?php else: ?>
+        <div class="form-hint">Open to everyone with space access. Add a restriction to limit who can view or edit.</div>
+      <?php endif; ?>
+      <form method="POST" action="/pages/<?= (int)$page['id'] ?>/restrictions" style="margin-top:10px">
+        <?= Security::csrfField() ?>
+        <div class="form-row" style="gap:6px">
+          <select name="mode" class="form-select" style="flex:0 0 100px"><option value="view">Can view</option><option value="edit">Can edit</option></select>
+          <select name="principal_type" class="form-select" style="flex:0 0 90px"><option value="user">User</option><option value="role">Role</option></select>
+        </div>
+        <div class="form-row" style="gap:6px;margin-top:6px">
+          <select name="principal_user" class="form-select" style="flex:1"><option value="">— user —</option><?php foreach ($allUsers as $au): ?><option value="<?= (int)$au['id'] ?>"><?= Security::h($au['name']) ?></option><?php endforeach; ?></select>
+          <select name="principal_role" class="form-select" style="flex:1"><option value="">— role —</option><?php foreach (Auth::allRoleOptions() as $rk=>$rl): if($rk==='admin') continue; ?><option value="<?= Security::h($rk) ?>"><?= Security::h($rl) ?></option><?php endforeach; ?></select>
+          <button class="btn btn-sm btn-ghost" type="submit"><i class="bi bi-plus-lg"></i></button>
+        </div>
+        <div class="form-hint" style="margin-top:6px">Pick <strong>User</strong> or <strong>Role</strong> above, then the matching dropdown. Admins &amp; the owner always retain access.</div>
+      </form>
+    </div>
+  </div>
+  <?php endif; ?>
 
   <!-- Attachments -->
   <div class="card" style="margin-bottom:18px">

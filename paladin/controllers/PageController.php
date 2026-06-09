@@ -58,9 +58,17 @@ class PageController {
             [$id]
         );
         if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
         $children = Database::fetchAll("SELECT id, title, status FROM pages WHERE parent_id = ? ORDER BY position, title", [$id]);
         $crumbs   = $this->ancestry($page);
+        $restrictions = Database::fetchAll(
+            "SELECT pr.*, u.name AS user_name FROM page_restrictions pr
+             LEFT JOIN users u ON u.id = (CASE WHEN pr.principal_type='user' AND pr.principal ~ '^[0-9]+$' THEN pr.principal::int ELSE NULL END)
+             WHERE pr.page_id = ? ORDER BY pr.mode, pr.principal_type", [$id]
+        );
+        $canEditPage = PageAccess::canEdit($page);
+        $allUsers = $canEditPage ? Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name") : [];
         $comments = Database::fetchAll(
             "SELECT c.*, u.name AS user_name FROM comments c LEFT JOIN users u ON u.id=c.user_id
              WHERE c.entity_type='page' AND c.entity_id=? ORDER BY c.created_at", [$id]
@@ -83,7 +91,7 @@ class PageController {
     public function addLabel(int $id): void {
         Auth::requirePermission('page.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        if (!Database::fetchOne("SELECT id FROM pages WHERE id=?", [$id])) { http_response_code(404); return; }
+        if (!$this->guardEdit($id)) return;
         $tagId = (int)($_POST['tag_id'] ?? 0);
         if ($tagId && Database::fetchOne("SELECT id FROM tags WHERE id=?", [$tagId])) {
             try {
@@ -97,6 +105,7 @@ class PageController {
     public function removeLabel(int $id, int $tagId): void {
         Auth::requirePermission('page.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        if (!$this->guardEdit($id)) return;
         Database::query("DELETE FROM entity_tags WHERE entity_type='page' AND entity_id=? AND tag_id=?", [$id, $tagId]);
         Auth::log('unlabel_page', 'pages', $id, ['tag' => $tagId]);
         header('Location: /pages/' . $id);
@@ -105,7 +114,7 @@ class PageController {
     public function uploadAttachment(int $id): void {
         Auth::requirePermission('page.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        if (!Database::fetchOne("SELECT id FROM pages WHERE id=?", [$id])) { http_response_code(404); return; }
+        if (!$this->guardEdit($id)) return;
         if (empty($_FILES['file']['name'])) { $_SESSION['flash_error'] = 'Choose a file to attach.'; header('Location: /pages/' . $id); return; }
         $up = Upload::handle($_FILES['file'], 'uploads/attachments');
         if (!$up['ok']) { $_SESSION['flash_error'] = $up['error']; header('Location: /pages/' . $id); return; }
@@ -121,6 +130,22 @@ class PageController {
         header('Location: /pages/' . $id);
     }
 
+    /** Load a page and enforce per-page EDIT access; emits 404/403 and returns null on failure. */
+    private function guardEdit(int $id): ?array {
+        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ?", [$id]);
+        if (!$page) { http_response_code(404); return null; }
+        if (!PageAccess::canEdit($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return null; }
+        return $page;
+    }
+
+    /** Load a page and enforce per-page VIEW access; emits 404/403 and returns null on failure. */
+    private function guardView(int $id): ?array {
+        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ?", [$id]);
+        if (!$page) { http_response_code(404); return null; }
+        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return null; }
+        return $page;
+    }
+
     private function ancestry(array $page): array {
         $chain = []; $cur = $page;
         $guard = 0;
@@ -134,8 +159,8 @@ class PageController {
 
     public function editForm(int $id): void {
         Auth::requirePermission('page.edit');
-        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ?", [$id]);
-        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $page = $this->guardEdit($id);
+        if (!$page) { if (http_response_code() === 404) require PALADIN_ROOT . '/views/errors/404.php'; return; }
         $space   = $this->loadSpace((int)$page['space_id']);
         $spaces  = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
         $parents = Database::fetchAll("SELECT id, title FROM pages WHERE space_id=? AND id<>? ORDER BY title", [$page['space_id'], $id]);
@@ -146,8 +171,8 @@ class PageController {
     public function update(int $id): void {
         Auth::requirePermission('page.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ?", [$id]);
-        if (!$page) { http_response_code(404); return; }
+        $page = $this->guardEdit($id);
+        if (!$page) return;
 
         $title  = Security::sanitizeInput($_POST['title'] ?? '');
         $body   = Security::sanitizeHtml($_POST['body'] ?? '');
@@ -175,6 +200,7 @@ class PageController {
     public function publish(int $id): void {
         Auth::requirePermission('page.publish');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        if (!$this->guardEdit($id)) return;
         Database::update('pages', ['status' => 'published', 'published_at' => date('Y-m-d H:i:s')], 'id = ?', [$id]);
         Auth::log('publish_page', 'pages', $id);
         $_SESSION['flash_success'] = 'Page published.';
@@ -183,8 +209,8 @@ class PageController {
 
     public function history(int $id): void {
         Auth::requirePermission('page.view');
-        $page = Database::fetchOne("SELECT id, title, space_id, current_version FROM pages WHERE id=?", [$id]);
-        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $page = $this->guardView($id);
+        if (!$page) { if (http_response_code() === 404) require PALADIN_ROOT . '/views/errors/404.php'; return; }
         $versions = Database::fetchAll(
             "SELECT pv.*, u.name AS editor FROM page_versions pv LEFT JOIN users u ON u.id=pv.edited_by
              WHERE pv.page_id=? ORDER BY pv.version DESC", [$id]
@@ -195,9 +221,10 @@ class PageController {
     public function restore(int $id, int $version): void {
         Auth::requirePermission('page.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        $page = Database::fetchOne("SELECT * FROM pages WHERE id=?", [$id]);
+        $page = $this->guardEdit($id);
+        if (!$page) return;
         $v    = Database::fetchOne("SELECT * FROM page_versions WHERE page_id=? AND version=?", [$id, $version]);
-        if (!$page || !$v) { http_response_code(404); return; }
+        if (!$v) { http_response_code(404); return; }
         $newVersion = (int)$page['current_version'] + 1;
         Database::update('pages', ['title' => $v['title'], 'body' => $v['body'], 'current_version' => $newVersion], 'id = ?', [$id]);
         Database::insert('page_versions', [
@@ -212,6 +239,7 @@ class PageController {
     public function comment(int $id): void {
         Auth::requirePermission('page.comment');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        if (!$this->guardView($id)) return;
         $body = Security::sanitizeInput($_POST['body'] ?? '');
         if ($body !== '') {
             Database::insert('comments', ['entity_type' => 'page', 'entity_id' => $id, 'user_id' => Auth::id(), 'body' => $body]);
@@ -225,10 +253,47 @@ class PageController {
     public function delete(int $id): void {
         Auth::requirePermission('page.delete');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        $page = Database::fetchOne("SELECT space_id FROM pages WHERE id=?", [$id]);
+        $page = $this->guardEdit($id);
+        if (!$page) return;
         Database::query("DELETE FROM pages WHERE id = ?", [$id]);
         Auth::log('delete_page', 'pages', $id);
         $_SESSION['flash_success'] = 'Page deleted.';
         header('Location: /spaces/' . (int)($page['space_id'] ?? 0));
+    }
+
+    // ── Per-page restrictions ────────────────────────────────────────────────
+    public function addRestriction(int $id): void {
+        Auth::requirePermission('page.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        if (!$this->guardEdit($id)) return;
+        $mode = in_array($_POST['mode'] ?? '', ['view','edit'], true) ? $_POST['mode'] : 'view';
+        $ptype = in_array($_POST['principal_type'] ?? '', ['user','role'], true) ? $_POST['principal_type'] : 'user';
+        $principal = '';
+        if ($ptype === 'user') {
+            $uid = (int)($_POST['principal_user'] ?? 0);
+            if ($uid && Database::fetchOne("SELECT 1 FROM users WHERE id=?", [$uid])) $principal = (string)$uid;
+        } else {
+            $rk = Security::sanitizeInput($_POST['principal_role'] ?? '');
+            if ($rk !== '' && Auth::roleExists($rk)) $principal = $rk;
+        }
+        if ($principal === '') { $_SESSION['flash_error'] = 'Choose a valid user or role.'; header('Location: /pages/' . $id); return; }
+        try {
+            Database::insert('page_restrictions', [
+                'page_id' => $id, 'mode' => $mode, 'principal_type' => $ptype, 'principal' => $principal, 'created_by' => Auth::id(),
+            ]);
+            Auth::log('restrict_page', 'pages', $id, ['mode' => $mode, 'type' => $ptype, 'principal' => $principal]);
+            $_SESSION['flash_success'] = 'Restriction added.';
+        } catch (Throwable) { $_SESSION['flash_warning'] = 'That restriction already exists.'; }
+        header('Location: /pages/' . $id);
+    }
+
+    public function removeRestriction(int $id, int $rid): void {
+        Auth::requirePermission('page.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        if (!$this->guardEdit($id)) return;
+        Database::query("DELETE FROM page_restrictions WHERE id=? AND page_id=?", [$rid, $id]);
+        Auth::log('unrestrict_page', 'pages', $id, ['restriction' => $rid]);
+        $_SESSION['flash_success'] = 'Restriction removed.';
+        header('Location: /pages/' . $id);
     }
 }
