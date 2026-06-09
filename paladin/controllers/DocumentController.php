@@ -330,15 +330,7 @@ class DocumentController {
 
     // ── helpers ───────────────────────────────────────────────────────────
     private function nextCode(string $docType): string {
-        $prefix = [
-            'policy' => 'POL', 'procedure' => 'PRC', 'process' => 'PRO', 'standard' => 'STD',
-            'guideline' => 'GDL', 'work_instruction' => 'WI', 'plan' => 'PLN', 'form' => 'FRM',
-            'template' => 'TPL', 'record' => 'REC', 'evidence' => 'EVD', 'training' => 'TRN',
-        ][$docType] ?? 'DOC';
-        $row = Database::fetchOne("SELECT document_code FROM documents WHERE document_code LIKE ? ORDER BY id DESC LIMIT 1", [$prefix . '-%']);
-        $n = 1;
-        if ($row && preg_match('/-(\d+)$/', $row['document_code'], $m)) $n = (int)$m[1] + 1;
-        return $prefix . '-' . str_pad((string)$n, 4, '0', STR_PAD_LEFT);
+        return DocNumbering::next($docType);
     }
 
     private function collectMetadata(string $docType, string $code): array {

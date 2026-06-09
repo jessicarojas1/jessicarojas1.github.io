@@ -181,6 +181,7 @@ $routes = [
         '/admin/shortcuts'           => ['AdminController', 'shortcuts'],
         '/admin/webhooks'            => ['AdminController', 'webhooks'],
         '/admin/retention'           => ['AdminController', 'retention'],
+        '/admin/numbering'           => ['AdminController', 'numbering'],
         '/docs'                      => ['DocsController', 'index'],
     ],
     'POST' => [
@@ -220,6 +221,8 @@ $routes = [
         '/admin/api-keys'            => ['AdminController', 'createApiKey'],
         '/admin/webhooks'            => ['AdminController', 'createWebhook'],
         '/admin/retention'           => ['AdminController', 'createRetention'],
+        '/admin/numbering'           => ['AdminController', 'saveNumbering'],
+        '/admin/expiry-sweep'        => ['AdminController', 'runExpiry'],
 
         '/alerts/read-all'           => ['ProfileController', 'markAllRead'],
         '/searches/save'             => ['SearchController', 'save'],

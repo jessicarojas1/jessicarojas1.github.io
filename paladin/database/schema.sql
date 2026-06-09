@@ -726,5 +726,7 @@ INSERT INTO settings (key, value, type, description) VALUES
     ('email_notifications',  '0',                   'boolean', 'Enable outbound email notifications'),
     ('require_esignature',   '0',                   'boolean', 'Require e-signature on workflow transitions'),
     ('custom_css',           '',                    'string',  'Admin-defined custom CSS injected site-wide'),
-    ('sidebar_footer',       '',                    'string',  'Short text shown in the sidebar footer')
+    ('sidebar_footer',       '',                    'string',  'Short text shown in the sidebar footer'),
+    ('auto_archive_on_expiry','0',                  'boolean', 'Auto-archive controlled documents past their expiration date'),
+    ('doc_numbering',        '',                    'json',    'Controlled-document numbering scheme')
 ON CONFLICT (key) DO NOTHING;

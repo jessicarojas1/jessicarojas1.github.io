@@ -107,6 +107,7 @@
         <a href="/admin/api-keys"    class="nav-item <?= ($activeModule ?? '')==='admin_api_keys'?'active':'' ?>"><i class="bi bi-key-fill"></i><span>API Keys</span></a>
         <a href="/admin/webhooks"    class="nav-item <?= ($activeModule ?? '')==='admin_webhooks'?'active':'' ?>"><i class="bi bi-broadcast"></i><span>Webhooks</span></a>
         <a href="/admin/retention"   class="nav-item <?= ($activeModule ?? '')==='admin_retention'?'active':'' ?>"><i class="bi bi-clock-history"></i><span>Retention Rules</span></a>
+        <a href="/admin/numbering"   class="nav-item <?= ($activeModule ?? '')==='admin_numbering'?'active':'' ?>"><i class="bi bi-hash"></i><span>Doc Numbering</span></a>
         <a href="/admin/logs"        class="nav-item <?= ($activeModule ?? '')==='admin_logs'?'active':'' ?>"><i class="bi bi-journal-text"></i><span>Activity Logs</span></a>
         <a href="/admin/sessions"    class="nav-item <?= ($activeModule ?? '')==='admin_sessions'?'active':'' ?>"><i class="bi bi-hdd-network-fill"></i><span>Sessions</span></a>
         <a href="/admin/system"      class="nav-item <?= ($activeModule ?? '')==='admin_system'?'active':'' ?>"><i class="bi bi-cpu"></i><span>System Info</span></a>
