@@ -49,7 +49,9 @@ def upgrade() -> None:
                 description TEXT,
                 is_active BOOLEAN NOT NULL DEFAULT TRUE,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-                updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                created_by INTEGER,
+                updated_by INTEGER
             )
             """
         )
@@ -68,7 +70,9 @@ def upgrade() -> None:
                 coverage_status VARCHAR(32) NOT NULL DEFAULT 'gap',
                 evidence_note TEXT,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-                updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                created_by INTEGER,
+                updated_by INTEGER
             )
             """
         )
