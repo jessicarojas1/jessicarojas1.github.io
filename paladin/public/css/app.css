@@ -2307,3 +2307,11 @@ html[data-theme="dark"] [style*="background:#f3f4f6"][style*="color:#6b7280"] { 
 .like-btn .like-count{font-weight:700}
 .like-btn.like-sm{padding:2px 8px;font-size:.72rem;border-radius:999px}
 .comment-like{margin-top:5px}
+
+/* ===== Revision diff ===== */
+.diff-body{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem;padding:0}
+.diff-line{display:flex;gap:8px;padding:2px 14px;white-space:pre-wrap;word-break:break-word;border-left:3px solid transparent}
+.diff-gutter{flex:none;width:14px;color:var(--text-light);text-align:center}
+.diff-add{background:rgba(5,150,105,.10);border-left-color:var(--success)}
+.diff-del{background:rgba(220,38,38,.10);border-left-color:var(--danger)}
+.diff-eq{color:var(--text-muted)}

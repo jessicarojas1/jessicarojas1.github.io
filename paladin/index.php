@@ -218,6 +218,7 @@ $dynamicRoutes = [
         '#^/attachments/(\d+)/download$#'    => ['AttachmentController', 'download'],
         '#^/pages/(\d+)/edit$#'              => ['PageController', 'editForm'],
         '#^/pages/(\d+)/history$#'           => ['PageController', 'history'],
+        '#^/pages/(\d+)/diff$#'              => ['PageController', 'diff'],
         '#^/pages/(\d+)/print$#'             => ['PageController', 'printView'],
         '#^/documents/(\d+)$#'               => ['DocumentController', 'view'],
         '#^/documents/(\d+)/edit$#'          => ['DocumentController', 'editForm'],

@@ -221,6 +221,29 @@ class PageController {
         require PALADIN_ROOT . '/views/pages/history.php';
     }
 
+    /** Compare two revisions of a page (line-level diff of title + body). */
+    public function diff(int $id): void {
+        Auth::requirePermission('page.view');
+        $page = $this->guardView($id);
+        if (!$page) { if (http_response_code() === 404) require PALADIN_ROOT . '/views/errors/404.php'; return; }
+
+        $fromV = (int)($_GET['from'] ?? 0);
+        $toV   = (int)($_GET['to'] ?? (int)$page['current_version']);
+        if ($fromV === $toV) { $fromV = max(1, $toV - 1); }
+        // Ensure from < to for a natural "old → new" reading
+        if ($fromV > $toV) { [$fromV, $toV] = [$toV, $fromV]; }
+
+        $from = Database::fetchOne("SELECT * FROM page_versions WHERE page_id=? AND version=?", [$id, $fromV]);
+        $to   = Database::fetchOne("SELECT * FROM page_versions WHERE page_id=? AND version=?", [$id, $toV]);
+        if (!$from || !$to) { $_SESSION['flash_error'] = 'Those revisions could not be found.'; header('Location: /pages/' . $id . '/history'); return; }
+
+        $bodyDiff  = Diff::lines(Diff::htmlToLines($from['body']), Diff::htmlToLines($to['body']));
+        $stats     = Diff::stats($bodyDiff);
+        $titleDiff = $from['title'] !== $to['title'];
+        $versions  = Database::fetchAll("SELECT version, created_at FROM page_versions WHERE page_id=? ORDER BY version DESC", [$id]);
+        require PALADIN_ROOT . '/views/pages/diff.php';
+    }
+
     public function restore(int $id, int $version): void {
         Auth::requirePermission('page.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
