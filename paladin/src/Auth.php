@@ -365,12 +365,13 @@ class Auth {
         }
     }
 
-    public static function login(string $email, string $password): bool {
+    /** Returns 'ok' (logged in), 'mfa' (password ok, awaiting 2FA), or 'fail'. */
+    public static function login(string $email, string $password): string {
         $email = strtolower(trim($email));
         $ip = Security::clientIp();
 
-        if (!Security::checkRateLimit('login_' . $ip)) return false;
-        if (!Security::checkRateLimit('login_email_' . hash('sha256', $email))) return false;
+        if (!Security::checkRateLimit('login_' . $ip)) return 'fail';
+        if (!Security::checkRateLimit('login_email_' . hash('sha256', $email))) return 'fail';
 
         $user = Database::fetchOne("SELECT * FROM users WHERE email = ? AND is_active = TRUE", [$email]);
         if (!$user || !Security::verifyPassword($password, $user['password_hash'])) {
@@ -386,12 +387,45 @@ class Auth {
                     [$ip, substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500), $logHash]
                 );
             } catch (Throwable) {}
-            return false;
+            return 'fail';
         }
 
         Security::resetRateLimit('login_' . $ip);
-        session_regenerate_id(true);
 
+        // Password verified. If the account has MFA enabled, hold a pending
+        // step until a valid TOTP code is supplied (do NOT establish a session).
+        if (!empty($user['mfa_enabled']) && !empty($user['mfa_secret'])) {
+            session_regenerate_id(true);
+            $_SESSION['mfa_user_id'] = (int)$user['id'];
+            $_SESSION['mfa_time']    = time();
+            return 'mfa';
+        }
+
+        self::finalizeLogin($user);
+        return 'ok';
+    }
+
+    /** Complete a pending MFA login with a TOTP code. */
+    public static function completeMfa(string $code): bool {
+        $uid = $_SESSION['mfa_user_id'] ?? null;
+        $started = $_SESSION['mfa_time'] ?? 0;
+        if (!$uid || (time() - $started) > 300) { // 5-minute window to finish 2FA
+            unset($_SESSION['mfa_user_id'], $_SESSION['mfa_time']);
+            return false;
+        }
+        $user = Database::fetchOne("SELECT * FROM users WHERE id = ? AND is_active = TRUE", [$uid]);
+        if (!$user || empty($user['mfa_secret']) || !TOTP::verify($user['mfa_secret'], $code)) return false;
+        unset($_SESSION['mfa_user_id'], $_SESSION['mfa_time']);
+        self::finalizeLogin($user);
+        return true;
+    }
+
+    public static function mfaPending(): bool {
+        return !empty($_SESSION['mfa_user_id']);
+    }
+
+    private static function finalizeLogin(array $user): void {
+        session_regenerate_id(true);
         $_SESSION['user'] = [
             'id'         => $user['id'],
             'name'       => $user['name'],
@@ -400,10 +434,8 @@ class Auth {
             'login_time' => time(),
         ];
         $_SESSION['last_activity'] = time();
-
         Database::query("UPDATE users SET last_login = NOW() WHERE id = ?", [$user['id']]);
         self::log('login', 'users', (int)$user['id']);
-        return true;
     }
 
     public static function logout(): void {
