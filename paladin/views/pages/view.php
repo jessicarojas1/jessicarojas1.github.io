@@ -12,6 +12,7 @@ ob_start();
   <div class="page-actions">
     <form method="POST" action="/pages/<?= (int)$page['id'] ?>/watch" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-ghost" type="submit"><i class="bi bi-eye<?= $isWatching?'-fill':'' ?>"></i></button></form>
     <a href="/pages/<?= (int)$page['id'] ?>/history" class="btn btn-ghost"><i class="bi bi-clock-history"></i> History (<?= $versionCount ?>)</a>
+    <a href="/pages/<?= (int)$page['id'] ?>/print" target="_blank" rel="noopener" class="btn btn-ghost"><i class="bi bi-file-earmark-pdf"></i> Export PDF</a>
     <?php if (Auth::can('page.publish') && $page['status'] !== 'published'): ?>
       <form method="POST" action="/pages/<?= (int)$page['id'] ?>/publish" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-success" type="submit"><i class="bi bi-send-check"></i> Publish</button></form>
     <?php endif; ?>
