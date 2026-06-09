@@ -18,7 +18,7 @@ final class Branding
 {
     /** Built-in defaults (the app's own mark/name/accent). */
     public const DEFAULT_NAME   = 'PALADIN';
-    public const DEFAULT_ACCENT = '#2563eb';
+    public const DEFAULT_ACCENT = '#0ea5e9';
 
     /** Per-request cache so repeated lookups hit the DB only once. */
     private static ?array $cache = null;
