@@ -308,6 +308,7 @@ $dynamicRoutes = [
         '#^/attachments/(\d+)/delete$#'     => ['AttachmentController', 'delete'],
         '#^/comments/(\d+)/resolve$#'       => ['CommentController', 'resolve'],
         '#^/comments/(\d+)/reopen$#'        => ['CommentController', 'reopen'],
+        '#^/comments/(\d+)/edit$#'          => ['CommentController', 'edit'],
         '#^/comments/(\d+)/delete$#'        => ['CommentController', 'delete'],
         '#^/documents/(\d+)/edit$#'          => ['DocumentController', 'update'],
         '#^/documents/(\d+)/delete$#'        => ['DocumentController', 'delete'],
