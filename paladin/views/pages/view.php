@@ -11,6 +11,7 @@ ob_start();
   </div>
   <div class="page-actions">
     <?php $likeType='page'; $likeId=(int)$page['id']; $likeData=$pageLike; require PALADIN_ROOT . '/views/partials/like.php'; ?>
+    <?php $shareType='page'; $shareId=(int)$page['id']; $sharePath='/pages/'.(int)$page['id']; require PALADIN_ROOT . '/views/partials/share.php'; ?>
     <form method="POST" action="/pages/<?= (int)$page['id'] ?>/watch" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-ghost" type="submit"><i class="bi bi-eye<?= $isWatching?'-fill':'' ?>"></i></button></form>
     <a href="/pages/<?= (int)$page['id'] ?>/history" class="btn btn-ghost"><i class="bi bi-clock-history"></i> History (<?= $versionCount ?>)</a>
     <a href="/pages/<?= (int)$page['id'] ?>/print" target="_blank" rel="noopener" class="btn btn-ghost"><i class="bi bi-file-earmark-pdf"></i> Export PDF</a>
