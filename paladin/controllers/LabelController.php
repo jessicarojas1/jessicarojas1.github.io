@@ -32,7 +32,7 @@ class LabelController {
         if (!empty($byType['page'])) {
             $pages = Database::fetchAll(
                 "SELECT p.*, s.space_key FROM pages p LEFT JOIN spaces s ON s.id=p.space_id
-                 WHERE p.id = ANY(?::int[])", [$idList($byType['page'])]
+                 WHERE p.id = ANY(?::int[]) AND p.deleted_at IS NULL", [$idList($byType['page'])]
             );
             foreach ($pages as $p) {
                 if (!PageAccess::canView($p)) continue;

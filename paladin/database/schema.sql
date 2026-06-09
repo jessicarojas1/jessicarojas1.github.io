@@ -246,10 +246,13 @@ CREATE TABLE IF NOT EXISTS pages (
     position        INTEGER NOT NULL DEFAULT 0,
     created_by      INTEGER REFERENCES users(id),
     published_at    TIMESTAMP,
+    deleted_at      TIMESTAMP,
+    deleted_by      INTEGER REFERENCES users(id),
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_pages_space  ON pages(space_id);
+CREATE INDEX IF NOT EXISTS idx_pages_deleted ON pages(space_id, deleted_at);
 CREATE INDEX IF NOT EXISTS idx_pages_parent ON pages(parent_id);
 CREATE INDEX IF NOT EXISTS idx_pages_status ON pages(status);
 

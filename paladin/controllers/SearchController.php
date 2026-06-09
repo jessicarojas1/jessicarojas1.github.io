@@ -31,7 +31,7 @@ class SearchController {
                 $results['pages'] = Database::fetchAll(
                     "SELECT p.id, p.title, p.status, s.name AS space_name
                      FROM pages p LEFT JOIN spaces s ON s.id = p.space_id
-                     WHERE p.title ILIKE ? OR p.body ILIKE ?
+                     WHERE (p.title ILIKE ? OR p.body ILIKE ?) AND p.deleted_at IS NULL
                      ORDER BY p.updated_at DESC LIMIT 25",
                     [$like, $like]
                 );

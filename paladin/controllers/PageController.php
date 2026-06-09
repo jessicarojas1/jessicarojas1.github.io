@@ -13,7 +13,7 @@ class PageController {
         $spaceId = $spaceId ?: (int)($_GET['space'] ?? 0);
         $space   = $spaceId ? $this->loadSpace($spaceId) : null;
         $spaces  = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
-        $parents = $spaceId ? Database::fetchAll("SELECT id, title FROM pages WHERE space_id=? ORDER BY title", [$spaceId]) : [];
+        $parents = $spaceId ? Database::fetchAll("SELECT id, title FROM pages WHERE space_id=? AND deleted_at IS NULL ORDER BY title", [$spaceId]) : [];
         $templates = Database::fetchAll("SELECT id, name, body FROM templates WHERE category IN ('page','document') AND is_active=TRUE ORDER BY name");
         $page = null;
         require PALADIN_ROOT . '/views/pages/form.php';
@@ -54,7 +54,7 @@ class PageController {
         $spaceId = $spaceId ?: (int)($_GET['space'] ?? 0);
         $space   = $spaceId ? $this->loadSpace($spaceId) : null;
         $spaces  = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
-        $parents = $spaceId ? Database::fetchAll("SELECT id, title FROM pages WHERE space_id=? ORDER BY title", [$spaceId]) : [];
+        $parents = $spaceId ? Database::fetchAll("SELECT id, title FROM pages WHERE space_id=? AND deleted_at IS NULL ORDER BY title", [$spaceId]) : [];
         require PALADIN_ROOT . '/views/pages/import.php';
     }
 
@@ -96,13 +96,13 @@ class PageController {
         $page = Database::fetchOne(
             "SELECT p.*, s.space_key, s.name AS space_name, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id = p.space_id
-             LEFT JOIN users o ON o.id = p.owner_id WHERE p.id = ?",
+             LEFT JOIN users o ON o.id = p.owner_id WHERE p.id = ? AND p.deleted_at IS NULL",
             [$id]
         );
         if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
         if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
-        $children = Database::fetchAll("SELECT id, title, status FROM pages WHERE parent_id = ? ORDER BY position, title", [$id]);
+        $children = Database::fetchAll("SELECT id, title, status FROM pages WHERE parent_id = ? AND deleted_at IS NULL ORDER BY position, title", [$id]);
         $crumbs   = $this->ancestry($page);
         $restrictions = Database::fetchAll(
             "SELECT pr.*, u.name AS user_name FROM page_restrictions pr
@@ -189,7 +189,7 @@ class PageController {
 
     /** Load a page and enforce per-page EDIT access; emits 404/403 and returns null on failure. */
     private function guardEdit(int $id): ?array {
-        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ?", [$id]);
+        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ? AND deleted_at IS NULL", [$id]);
         if (!$page) { http_response_code(404); return null; }
         if (!PageAccess::canEdit($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return null; }
         return $page;
@@ -197,7 +197,7 @@ class PageController {
 
     /** Load a page and enforce per-page VIEW access; emits 404/403 and returns null on failure. */
     private function guardView(int $id): ?array {
-        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ?", [$id]);
+        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ? AND deleted_at IS NULL", [$id]);
         if (!$page) { http_response_code(404); return null; }
         if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return null; }
         return $page;
@@ -220,7 +220,7 @@ class PageController {
         if (!$page) { if (http_response_code() === 404) require PALADIN_ROOT . '/views/errors/404.php'; return; }
         $space   = $this->loadSpace((int)$page['space_id']);
         $spaces  = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
-        $parents = Database::fetchAll("SELECT id, title FROM pages WHERE space_id=? AND id<>? ORDER BY title", [$page['space_id'], $id]);
+        $parents = Database::fetchAll("SELECT id, title FROM pages WHERE space_id=? AND id<>? AND deleted_at IS NULL ORDER BY title", [$page['space_id'], $id]);
         $templates = [];
         require PALADIN_ROOT . '/views/pages/form.php';
     }
@@ -350,10 +350,51 @@ class PageController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $page = $this->guardEdit($id);
         if (!$page) return;
-        Database::query("DELETE FROM pages WHERE id = ?", [$id]);
-        Auth::log('delete_page', 'pages', $id);
-        $_SESSION['flash_success'] = 'Page deleted.';
+        // Soft delete: move to Trash (id preserved so links survive a restore).
+        // Re-parent direct children to this page's parent so they stay visible.
+        Database::query("UPDATE pages SET parent_id = ? WHERE parent_id = ? AND deleted_at IS NULL", [$page['parent_id'], $id]);
+        Database::query("UPDATE pages SET deleted_at = NOW(), deleted_by = ? WHERE id = ?", [Auth::id(), $id]);
+        Auth::log('trash_page', 'pages', $id);
+        $_SESSION['flash_success'] = 'Page moved to Trash.';
         header('Location: /spaces/' . (int)($page['space_id'] ?? 0));
+    }
+
+    public function untrash(int $id): void {
+        Auth::requirePermission('page.delete');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ? AND deleted_at IS NOT NULL", [$id]);
+        if (!$page) { http_response_code(404); return; }
+        // If the original parent is gone (or itself trashed), restore at top level.
+        $parentOk = $page['parent_id'] && Database::fetchOne("SELECT 1 FROM pages WHERE id=? AND deleted_at IS NULL", [$page['parent_id']]);
+        Database::query("UPDATE pages SET deleted_at = NULL, deleted_by = NULL, parent_id = ? WHERE id = ?",
+            [$parentOk ? $page['parent_id'] : null, $id]);
+        Auth::log('restore_page', 'pages', $id);
+        $_SESSION['flash_success'] = 'Page restored.';
+        header('Location: /pages/' . $id);
+    }
+
+    public function purge(int $id): void {
+        Auth::requirePermission('page.delete');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $page = Database::fetchOne("SELECT space_id FROM pages WHERE id = ? AND deleted_at IS NOT NULL", [$id]);
+        if (!$page) { http_response_code(404); return; }
+        Database::query("DELETE FROM pages WHERE id = ?", [$id]); // permanent (versions/comments cascade)
+        Auth::log('purge_page', 'pages', $id);
+        $_SESSION['flash_success'] = 'Page permanently deleted.';
+        header('Location: /spaces/' . (int)$page['space_id'] . '/trash');
+    }
+
+    public function trash(int $spaceId): void {
+        Auth::requirePermission('page.view');
+        $space = Database::fetchOne("SELECT id, name, space_key FROM spaces WHERE id = ?", [$spaceId]);
+        if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $pages = Database::fetchAll(
+            "SELECT p.id, p.title, p.status, p.deleted_at, u.name AS deleted_by_name
+             FROM pages p LEFT JOIN users u ON u.id = p.deleted_by
+             WHERE p.space_id = ? AND p.deleted_at IS NOT NULL ORDER BY p.deleted_at DESC",
+            [$spaceId]
+        );
+        require PALADIN_ROOT . '/views/pages/trash.php';
     }
 
     // ── Per-page restrictions ────────────────────────────────────────────────
@@ -420,7 +461,7 @@ class PageController {
 
         // Normalize sibling positions to 1..n (stable order), then swap with neighbour
         $siblings = Database::fetchAll(
-            "SELECT id FROM pages WHERE space_id = ? AND parent_id IS NOT DISTINCT FROM ?
+            "SELECT id FROM pages WHERE space_id = ? AND parent_id IS NOT DISTINCT FROM ? AND deleted_at IS NULL
              ORDER BY position, title, id",
             [$page['space_id'], $page['parent_id']]
         );

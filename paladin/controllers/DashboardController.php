@@ -11,7 +11,7 @@ class DashboardController {
             'documents'   => (int)(Database::fetchOne("SELECT COUNT(*) c FROM documents")['c'] ?? 0),
             'published'   => (int)(Database::fetchOne("SELECT COUNT(*) c FROM documents WHERE status='published'")['c'] ?? 0),
             'spaces'      => (int)(Database::fetchOne("SELECT COUNT(*) c FROM spaces WHERE is_archived=FALSE")['c'] ?? 0),
-            'pages'       => (int)(Database::fetchOne("SELECT COUNT(*) c FROM pages")['c'] ?? 0),
+            'pages'       => (int)(Database::fetchOne("SELECT COUNT(*) c FROM pages WHERE deleted_at IS NULL")['c'] ?? 0),
             'processes'   => (int)(Database::fetchOne("SELECT COUNT(*) c FROM processes")['c'] ?? 0),
             'pending'     => (int)(Database::fetchOne("SELECT COUNT(*) c FROM approval_requests WHERE status='pending'")['c'] ?? 0),
             'overdue_rev' => (int)(Database::fetchOne("SELECT COUNT(*) c FROM documents WHERE review_date < CURRENT_DATE AND status='published'")['c'] ?? 0),

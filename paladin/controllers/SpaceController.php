@@ -14,7 +14,7 @@ class SpaceController {
         // Published pages in tree order (parents before children, then position).
         $pages = Database::fetchAll(
             "SELECT id, parent_id, title, body, position, updated_at
-             FROM pages WHERE space_id = ? AND status = 'published'
+             FROM pages WHERE space_id = ? AND status = 'published' AND deleted_at IS NULL
              ORDER BY COALESCE(parent_id, 0), position, title",
             [$id]
         );
@@ -36,7 +36,7 @@ class SpaceController {
 
         $spaces = Database::fetchAll(
             "SELECT s.*, u.name AS owner_name,
-                    (SELECT COUNT(*) FROM pages p WHERE p.space_id = s.id) AS page_count,
+                    (SELECT COUNT(*) FROM pages p WHERE p.space_id = s.id AND p.deleted_at IS NULL) AS page_count,
                     (SELECT COUNT(*) FROM documents d WHERE d.space_id = s.id) AS doc_count,
                     (SELECT COUNT(*) FROM favorites f WHERE f.entity_type='space' AND f.entity_id=s.id AND f.user_id=?) AS is_fav
              FROM spaces s LEFT JOIN users u ON u.id = s.owner_id
@@ -55,7 +55,7 @@ class SpaceController {
         if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
 
         $pages = Database::fetchAll(
-            "SELECT id, parent_id, title, status, position, owner_id, created_by FROM pages WHERE space_id = ? ORDER BY position, title",
+            "SELECT id, parent_id, title, status, position, owner_id, created_by FROM pages WHERE space_id = ? AND deleted_at IS NULL ORDER BY position, title",
             [$id]
         );
         // Hide pages the current user is restricted from viewing
