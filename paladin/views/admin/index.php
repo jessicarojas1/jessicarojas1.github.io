@@ -19,21 +19,45 @@ ob_start();
   <div class="stat-card"><div class="stat-icon" style="background:rgba(217,119,6,.12);color:var(--warning)"><i class="bi bi-hdd-network-fill"></i></div><div><div class="stat-value"><?= (int)$stats['sessions'] ?></div><div class="stat-label">Live Sessions</div></div></div>
 </div>
 
-<div class="card" style="margin-top:22px">
-  <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-grid-1x2-fill"></i> Quick Links</span></div></div>
-  <div class="card-body">
-    <div class="form-row" style="flex-wrap:wrap;gap:10px">
-      <a href="/admin/users" class="btn btn-ghost"><i class="bi bi-people-fill"></i> Users</a>
-      <a href="/admin/permissions" class="btn btn-ghost"><i class="bi bi-shield-lock-fill"></i> Permissions</a>
-      <a href="/admin/branding" class="btn btn-ghost"><i class="bi bi-palette-fill"></i> Branding</a>
-      <a href="/admin/settings" class="btn btn-ghost"><i class="bi bi-gear-fill"></i> Settings</a>
-      <a href="/admin/tags" class="btn btn-ghost"><i class="bi bi-tags-fill"></i> Tags</a>
-      <a href="/admin/api-keys" class="btn btn-ghost"><i class="bi bi-key-fill"></i> API Keys</a>
-      <a href="/admin/logs" class="btn btn-ghost"><i class="bi bi-journal-text"></i> Activity Logs</a>
-      <a href="/admin/sessions" class="btn btn-ghost"><i class="bi bi-hdd-network-fill"></i> Sessions</a>
-    </div>
+<?php
+$console = [
+  'Configuration' => [
+    ['/admin/settings', 'bi-gear-fill', 'General Settings', 'Dates, uploads, password policy, email, storage'],
+    ['/admin/tags', 'bi-tags-fill', 'Tags &amp; Labels', 'Manage the shared label taxonomy'],
+    ['/templates', 'bi-files', 'Templates &amp; Blueprints', 'Reusable document &amp; page templates'],
+    ['/admin/system', 'bi-cpu', 'System Information', 'Environment, extensions, counts, migrations'],
+  ],
+  'Users &amp; Security' => [
+    ['/admin/users', 'bi-people-fill', 'Users', 'Create, edit, activate/deactivate accounts'],
+    ['/admin/roles', 'bi-person-badge-fill', 'Roles', 'Built-in &amp; custom role definitions'],
+    ['/admin/permissions', 'bi-shield-lock-fill', 'Permissions', 'Granular per-user module × action grants'],
+    ['/admin/api-keys', 'bi-key-fill', 'API Keys', 'Programmatic access tokens'],
+    ['/admin/sessions', 'bi-hdd-network-fill', 'Sessions', 'Live sessions &amp; revocation'],
+    ['/admin/logs', 'bi-journal-text', 'Audit Log', 'Immutable, hash-chained activity trail'],
+  ],
+  'Look &amp; Feel' => [
+    ['/admin/branding', 'bi-palette-fill', 'Branding', 'Logo, display name &amp; accent colour'],
+  ],
+  'Workflows' => [
+    ['/workflows', 'bi-diagram-2-fill', 'Global Workflow Templates', 'Stages, states, transitions &amp; space assignment'],
+  ],
+];
+?>
+<?php foreach ($console as $cat => $items): ?>
+<div style="margin-top:22px">
+  <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);font-weight:700;margin-bottom:10px"><?= $cat ?></div>
+  <div class="lib-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+    <?php foreach ($items as $it): ?>
+      <a href="<?= $it[0] ?>" class="lib-card" style="padding:16px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="lib-card-icon" style="width:38px;height:38px;font-size:1.1rem;background:var(--primary)"><i class="bi <?= $it[1] ?>"></i></div>
+          <div style="min-width:0"><div class="lib-card-title" style="font-size:.95rem"><?= $it[2] ?></div><div class="lib-card-desc" style="font-size:.78rem"><?= $it[3] ?></div></div>
+        </div>
+      </a>
+    <?php endforeach; ?>
   </div>
 </div>
+<?php endforeach; ?>
 
 <div class="card" style="margin-top:22px">
   <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-shield-check"></i> Security &amp; Compliance Posture</span></div></div>

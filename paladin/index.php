@@ -171,6 +171,7 @@ $routes = [
         '/admin/api-keys'            => ['AdminController', 'apiKeys'],
         '/admin/logs'                => ['AdminController', 'logs'],
         '/admin/sessions'            => ['AdminController', 'sessions'],
+        '/admin/system'              => ['AdminController', 'system'],
         '/docs'                      => ['DocsController', 'index'],
     ],
     'POST' => [

@@ -263,6 +263,30 @@ class AdminController {
     }
 
     // ── Settings ─────────────────────────────────────────────────────────────
+    public function system(): void {
+        Auth::requireAdmin();
+        $env = [
+            'PALADIN version'   => (Database::fetchOne("SELECT value FROM settings WHERE key='version'")['value'] ?? '—'),
+            'PHP version'       => PHP_VERSION,
+            'Server'            => $_SERVER['SERVER_SOFTWARE'] ?? 'cli',
+            'App environment'   => $_ENV['APP_ENV'] ?? 'production',
+            'Storage driver'    => (Database::fetchOne("SELECT value FROM settings WHERE key='storage_driver'")['value'] ?? 'local'),
+        ];
+        $db = Database::fetchOne("SELECT version() AS v");
+        $env['Database'] = $db['v'] ?? '—';
+        $exts = ['pdo_pgsql', 'gd', 'sodium', 'mbstring', 'openssl', 'zip'];
+        $extStatus = [];
+        foreach ($exts as $e) { $extStatus[$e] = extension_loaded($e); }
+        $counts = [];
+        foreach (['users','spaces','pages','documents','blog_posts','processes','tasks','workflow_templates','activity_log','attachments'] as $t) {
+            try { $counts[$t] = (int)(Database::fetchOne("SELECT COUNT(*) c FROM {$t}")['c'] ?? 0); } catch (Throwable) { $counts[$t] = 0; }
+        }
+        $appliedMigrations = [];
+        foreach (glob(PALADIN_ROOT . '/database/migrations/*.sql') ?: [] as $m) { $appliedMigrations[] = basename($m); }
+        sort($appliedMigrations);
+        require PALADIN_ROOT . '/views/admin/system.php';
+    }
+
     public function settings(): void {
         Auth::requireAdmin();
         $rows = Database::fetchAll("SELECT key, value FROM settings");
@@ -287,7 +311,7 @@ class AdminController {
         }
 
         // Boolean checkboxes stored as '0'/'1'
-        $bools = ['password_require_uppercase', 'password_require_numbers', 'password_require_special', 'email_notifications'];
+        $bools = ['password_require_uppercase', 'password_require_numbers', 'password_require_special', 'email_notifications', 'require_esignature'];
         foreach ($bools as $key) {
             $this->setSetting($key, !empty($_POST[$key]) ? '1' : '0');
         }
