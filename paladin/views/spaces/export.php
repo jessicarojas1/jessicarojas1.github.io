@@ -1,0 +1,80 @@
+<?php $__brand = Branding::name(); $__logo = Branding::logo(); ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title><?= Security::h($space['name']) ?> — <?= Security::h($__brand) ?></title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style nonce="<?= Security::nonce() ?>">
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,sans-serif;color:#111827;max-width:820px;margin:0 auto;padding:40px 32px;line-height:1.65}
+  .doc-head{display:flex;align-items:center;gap:12px;border-bottom:2px solid #e5e7eb;padding-bottom:14px;margin-bottom:20px}
+  .doc-head .mark{width:40px;height:40px;border-radius:9px;background:#0ea5e9;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .doc-head img{width:40px;height:40px;object-fit:contain;border-radius:9px}
+  .brand{font-weight:800;letter-spacing:1px}
+  .muted{color:#6b7280;font-size:12px}
+  h1.space-title{font-size:1.9rem;margin:6px 0 2px}
+  .toc{background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:14px 18px;margin:18px 0 24px}
+  .toc h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin:0 0 8px}
+  .toc ol{margin:0;padding-left:20px}
+  .toc a{color:#0ea5e9;text-decoration:none}
+  article{border-top:1px solid #e5e7eb;padding-top:22px;margin-top:22px;page-break-before:always}
+  article:first-of-type{page-break-before:avoid}
+  h2.page-title{font-size:1.45rem;margin:0 0 4px}
+  .meta{font-size:12px;color:#6b7280;margin-bottom:10px}
+  .prose h1,.prose h2,.prose h3{margin:1.1em 0 .4em}
+  .prose table{border-collapse:collapse;width:100%;margin:1em 0}
+  .prose th,.prose td{border:1px solid #d1d5db;padding:7px 10px;text-align:left}
+  .prose pre{background:#f3f4f6;padding:12px;border-radius:6px;overflow:auto}
+  .prose blockquote{border-left:3px solid #0ea5e9;margin:1em 0;padding:2px 14px;color:#4b5563}
+  .footer{margin-top:30px;border-top:1px solid #e5e7eb;padding-top:10px;font-size:11px;color:#9ca3af}
+  .toolbar{margin-bottom:18px}
+  .toolbar button,.toolbar a{font:inherit;font-size:13px;padding:7px 14px;border-radius:7px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;cursor:pointer;text-decoration:none}
+  .toolbar button{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+  @media print{.toolbar{display:none}body{padding:0}.toc a{color:#111827}}
+</style>
+</head>
+<body>
+  <div class="toolbar">
+    <button type="button" id="printBtn">Save as PDF / Print</button>
+    <a href="/spaces/<?= (int)$space['id'] ?>">← Back to space</a>
+  </div>
+  <div class="doc-head">
+    <?php if ($__logo): ?><img src="<?= Security::h($__logo) ?>" alt=""><?php else: ?><div class="mark"><?= Security::h(strtoupper(substr($__brand,0,1))) ?></div><?php endif; ?>
+    <div>
+      <div class="brand"><?= Security::h($__brand) ?></div>
+      <div class="muted">Space export</div>
+    </div>
+  </div>
+
+  <h1 class="space-title"><?= Security::h($space['name']) ?> <span class="muted">(<?= Security::h($space['space_key']) ?>)</span></h1>
+  <div class="meta">Owner: <?= Security::h($space['owner_name'] ?: '—') ?> · <?= count($pages) ?> published page(s) · Exported <?= date('M j, Y g:ia') ?></div>
+
+  <?php if ($pages): ?>
+  <div class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <?php foreach ($pages as $p): ?>
+        <li><a href="#page-<?= (int)$p['id'] ?>"><?= Security::h($p['title']) ?></a></li>
+      <?php endforeach; ?>
+    </ol>
+  </div>
+
+  <?php foreach ($pages as $p): ?>
+    <article id="page-<?= (int)$p['id'] ?>">
+      <h2 class="page-title"><?= Security::h($p['title']) ?></h2>
+      <div class="meta">Updated <?= View::fmtDate($p['updated_at'], 'M j, Y') ?></div>
+      <div class="prose"><?= $p['body'] ?: '<p class="muted">This page has no content.</p>' ?></div>
+    </article>
+  <?php endforeach; ?>
+  <?php else: ?>
+    <p class="muted">This space has no published pages to export.</p>
+  <?php endif; ?>
+
+  <div class="footer">Exported from <?= Security::h($__brand) ?> · <?= Security::h($space['space_key']) ?> · <?= date('M j, Y g:ia') ?></div>
+
+<script nonce="<?= Security::nonce() ?>">
+  document.getElementById('printBtn').addEventListener('click', function(){ window.print(); });
+</script>
+</body>
+</html>

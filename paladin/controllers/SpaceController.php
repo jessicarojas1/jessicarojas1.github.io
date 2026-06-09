@@ -3,6 +3,27 @@ declare(strict_types=1);
 
 class SpaceController {
 
+    /** Export a space's published pages as one print-friendly HTML document. */
+    public function export(int $id): void {
+        Auth::requirePermission('space.view');
+        $space = Database::fetchOne(
+            "SELECT s.*, u.name AS owner_name FROM spaces s LEFT JOIN users u ON u.id = s.owner_id WHERE s.id = ?",
+            [$id]
+        );
+        if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        // Published pages in tree order (parents before children, then position).
+        $pages = Database::fetchAll(
+            "SELECT id, parent_id, title, body, position, updated_at
+             FROM pages WHERE space_id = ? AND status = 'published'
+             ORDER BY COALESCE(parent_id, 0), position, title",
+            [$id]
+        );
+        // Drop pages the current user may not view (per-page restrictions).
+        $pages = array_values(array_filter($pages, static fn($p) => PageAccess::canView(array_merge($p, ['space_id' => $id]))));
+        Auth::log('export_space', 'spaces', $id, ['pages' => count($pages)]);
+        require PALADIN_ROOT . '/views/spaces/export.php';
+    }
+
     public function index(): void {
         Auth::requirePermission('space.view');
         $type = Security::sanitizeInput($_GET['type'] ?? '');
