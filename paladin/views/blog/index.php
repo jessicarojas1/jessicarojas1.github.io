@@ -8,7 +8,10 @@ ob_start();
 ?>
 <div class="page-header">
   <div><h1 class="page-title"><i class="bi bi-newspaper"></i> <?= Security::h($spaceFilter ? $spaceFilter['name'] . ' Blog' : 'Blog') ?></h1><p class="page-subtitle">News &amp; announcements</p></div>
-  <div class="page-actions"><?php if (Auth::can('page.create')): ?><a href="/blog/create<?= $spaceFilter ? '?space=' . (int)$spaceFilter['id'] : '' ?>" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Write Post</a><?php endif; ?></div>
+  <div class="page-actions">
+    <a href="/blog/rss<?= $spaceFilter ? '?space=' . (int)$spaceFilter['id'] : '' ?>" class="btn btn-ghost" target="_blank" rel="noopener"><i class="bi bi-rss-fill"></i> RSS</a>
+    <?php if (Auth::can('page.create')): ?><a href="/blog/create<?= $spaceFilter ? '?space=' . (int)$spaceFilter['id'] : '' ?>" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Write Post</a><?php endif; ?>
+  </div>
 </div>
 
 <?php if ($posts): ?>

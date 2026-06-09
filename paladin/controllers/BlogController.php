@@ -21,6 +21,29 @@ class BlogController {
         require PALADIN_ROOT . '/views/blog/index.php';
     }
 
+    /** RSS 2.0 feed of published blog posts (whole site, or one space via ?space=). */
+    public function rss(): void {
+        Auth::requirePermission('page.view');
+        $spaceId = !empty($_GET['space']) ? (int)$_GET['space'] : 0;
+        $params = [];
+        $where  = "b.status = 'published'";
+        if ($spaceId > 0) { $where .= ' AND b.space_id = ?'; $params[] = $spaceId; }
+        $posts = Database::fetchAll(
+            "SELECT b.id, b.title, b.body, b.published_at, b.created_at, s.name AS space_name, u.name AS author_name
+             FROM blog_posts b LEFT JOIN spaces s ON s.id=b.space_id LEFT JOIN users u ON u.id=b.author_id
+             WHERE {$where}
+             ORDER BY COALESCE(b.published_at, b.created_at) DESC LIMIT 50",
+            $params
+        );
+        $base = rtrim((string)($_ENV['APP_URL'] ?? ''), '/');
+        if ($base === '') {
+            $scheme = (!empty($_SERVER['HTTPS']) || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') ? 'https' : 'http';
+            $base = $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+        }
+        header('Content-Type: application/rss+xml; charset=utf-8');
+        require PALADIN_ROOT . '/views/blog/rss.php';
+    }
+
     public function space(int $id): void {
         Auth::requirePermission('page.view');
         $spaceFilter = Database::fetchOne("SELECT id, space_key, name FROM spaces WHERE id=?", [$id]);

@@ -145,6 +145,7 @@ $routes = [
         '/tasks/create'              => ['TaskController', 'createForm'],
 
         '/blog'                      => ['BlogController', 'index'],
+        '/blog/rss'                  => ['BlogController', 'rss'],
         '/blog/create'               => ['BlogController', 'createForm'],
         '/templates'                 => ['TemplateController', 'index'],
         '/templates/create'          => ['TemplateController', 'createForm'],
@@ -238,6 +239,7 @@ $routes = [
 $dynamicRoutes = [
     'GET' => [
         '#^/spaces/(\d+)$#'                  => ['SpaceController', 'view'],
+        '#^/spaces/(\d+)/export$#'           => ['SpaceController', 'export'],
         '#^/spaces/(\d+)/edit$#'             => ['SpaceController', 'editForm'],
         '#^/spaces/(\d+)/pages/create$#'     => ['PageController', 'createForm'],
         '#^/pages/(\d+)$#'                   => ['PageController', 'view'],
