@@ -361,6 +361,31 @@ CREATE TABLE IF NOT EXISTS document_acknowledgements (
     UNIQUE (document_id, user_id, revision)
 );
 
+-- Acknowledgement campaigns: targeted, due-dated read-and-understand drives.
+CREATE TABLE IF NOT EXISTS ack_campaigns (
+    id             SERIAL PRIMARY KEY,
+    document_id    INTEGER NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+    revision       VARCHAR(20) NOT NULL,
+    title          VARCHAR(200) NOT NULL,
+    audience       VARCHAR(20) NOT NULL DEFAULT 'all',
+    audience_value VARCHAR(64),
+    due_date       DATE,
+    status         VARCHAR(20) NOT NULL DEFAULT 'active',
+    created_by     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at     TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at     TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_ack_campaigns_doc ON ack_campaigns(document_id);
+
+CREATE TABLE IF NOT EXISTS ack_campaign_targets (
+    id          SERIAL PRIMARY KEY,
+    campaign_id INTEGER NOT NULL REFERENCES ack_campaigns(id) ON DELETE CASCADE,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    notified_at TIMESTAMP,
+    UNIQUE (campaign_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_ack_targets_campaign ON ack_campaign_targets(campaign_id);
+
 -- Relationships: process / risk / control / system links
 CREATE TABLE IF NOT EXISTS entity_relations (
     id            SERIAL PRIMARY KEY,
