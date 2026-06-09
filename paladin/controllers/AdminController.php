@@ -334,6 +334,36 @@ class AdminController {
         header('Location: /admin/tags');
     }
 
+    public function updateTag(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        if (!Database::fetchOne("SELECT 1 FROM tags WHERE id = ?", [$id])) { http_response_code(404); return; }
+        $name = Security::sanitizeInput($_POST['name'] ?? '');
+        if ($name === '') { $_SESSION['flash_error'] = 'Tag name is required.'; header('Location: /admin/tags'); return; }
+        $color = Branding::sanitizeColor((string)($_POST['color'] ?? '')) ?: '#64748b';
+        // Name unique across other tags
+        if (Database::fetchOne("SELECT 1 FROM tags WHERE name = ? AND id <> ?", [$name, $id])) {
+            $_SESSION['flash_error'] = 'Another tag already uses that name.'; header('Location: /admin/tags'); return;
+        }
+        // tags has no updated_at column — use a plain parameterized UPDATE
+        Database::query("UPDATE tags SET name = ?, color = ? WHERE id = ?", [$name, $color, $id]);
+        Auth::log('update_tag', 'tags', $id);
+        $_SESSION['flash_success'] = 'Tag updated.';
+        header('Location: /admin/tags');
+    }
+
+    public function deleteTag(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        if (!Database::fetchOne("SELECT 1 FROM tags WHERE id = ?", [$id])) { http_response_code(404); return; }
+        // Remove the tag and any of its entity associations
+        Database::query("DELETE FROM entity_tags WHERE tag_id = ?", [$id]);
+        Database::query("DELETE FROM tags WHERE id = ?", [$id]);
+        Auth::log('delete_tag', 'tags', $id);
+        $_SESSION['flash_success'] = 'Tag deleted.';
+        header('Location: /admin/tags');
+    }
+
     // ── API Keys ─────────────────────────────────────────────────────────────
     public function apiKeys(): void {
         Auth::requireAdmin();
