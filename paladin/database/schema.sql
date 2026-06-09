@@ -481,7 +481,7 @@ INSERT INTO settings (key, value, type, description) VALUES
     ('org_name',             'PALADIN',        'string',  'Organization / product display name'),
     ('company_logo_data',    '',                    'string',  'Logo source — data: URI or http(s):// URL'),
     ('company_logo_name',    '',                    'string',  'Logo original filename / label'),
-    ('brand_accent',         '#2563eb',             'string',  'Primary accent colour (#RRGGBB)'),
+    ('brand_accent',         '#0ea5e9',             'string',  'Primary accent colour (#RRGGBB)'),
     ('date_format',          'Y-m-d',               'string',  'Date display format'),
     ('timezone',             'UTC',                 'string',  'Application timezone'),
     ('version',              '1.0.0',               'string',  'PALADIN platform version'),
