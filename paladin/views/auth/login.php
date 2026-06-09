@@ -7,7 +7,8 @@
 <title>Sign In — <?= Security::h($__brandName) ?></title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css">
-<link rel="stylesheet" href="/public/css/app.css">
+<link rel="stylesheet" href="/public/css/app.css?v=2">
+<script nonce="<?= Security::nonce() ?>">(function(){if(localStorage.getItem('paladin-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
 <?= Branding::accentStyleTag() ?>
 </head>
 <body class="auth-body">
@@ -69,7 +70,7 @@
       </form>
 
       <div class="auth-form-footer">
-        <p><?= Security::h($__brandName) ?> &copy; <?= date('Y') ?> — Enterprise PALADIN</p>
+        <p><?= Security::h($__brandName) ?> &copy; <?= date('Y') ?> — Process · Approval · Library</p>
         <p style="margin-top:6px;font-size:11px;color:var(--text-muted)">Protected by rate limiting and session security</p>
       </div>
     </div>

@@ -7,5 +7,5 @@ uploads/documents/*
 uploads/attachments/*
 uploads/evidence/*
 !uploads/**/.gitkeep
-vendor/
+/vendor/
 .DS_Store
