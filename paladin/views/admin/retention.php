@@ -10,6 +10,28 @@ $docTypes = ['policy','procedure','process','standard','guideline','work_instruc
   <div><h1 class="page-title">Retention Rules</h1><p class="page-subtitle">Automatically archive or flag controlled content that has been inactive past a threshold.</p></div>
 </div>
 
+<div class="card" style="margin-bottom:18px">
+  <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-calendar-x"></i> Expiry sweep</span></div></div>
+  <div class="card-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div>
+        <p style="margin:0 0 4px">
+          <strong><?= (int)($expiredCount ?? 0) ?></strong> published document(s) are past their expiration date.
+          <?php if (!empty($autoExpire)): ?><span class="badge badge-green">auto-archive on</span><?php else: ?><span class="badge badge-gray">auto-archive off</span><?php endif; ?>
+        </p>
+        <p class="form-hint" style="margin:0">
+          Archives expired published documents (reversible). <?= !empty($autoExpire) ? 'Runs automatically at most once a day. ' : 'Enable “Auto-archive on expiry” in Settings to run automatically. ' ?>
+          <?= !empty($lastSweep) ? 'Last sweep ' . Security::h(View::timeAgo($lastSweep)) . '.' : 'Never run.' ?>
+        </p>
+      </div>
+      <form method="POST" action="/admin/expiry-sweep" style="margin:0" data-confirm="Archive all expired published documents now?">
+        <?= Security::csrfField() ?>
+        <button class="btn btn-primary" type="submit"><i class="bi bi-archive-fill"></i> Run expiry sweep</button>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="iam" style="grid-template-columns:1fr 340px">
   <div class="card">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-clock-history"></i> Rules</span></div></div>

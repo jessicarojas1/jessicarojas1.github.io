@@ -35,6 +35,33 @@ final class Retention
         return [$table, implode(' AND ', $where), $params];
     }
 
+    /** Count published documents that are past their expiration_date. */
+    public static function expiredCount(): int
+    {
+        try {
+            return (int)(Database::fetchOne(
+                "SELECT COUNT(*) c FROM documents WHERE status = 'published'
+                  AND expiration_date IS NOT NULL AND expiration_date < CURRENT_DATE"
+            )['c'] ?? 0);
+        } catch (\Throwable) { return 0; }
+    }
+
+    /**
+     * Archive every published document past its expiration_date.
+     * Returns the number archived. Reversible (status -> archived).
+     */
+    public static function sweepExpired(): int
+    {
+        $n = self::expiredCount();
+        if ($n === 0) return 0;
+        Database::query(
+            "UPDATE documents SET status = 'archived', updated_at = NOW()
+             WHERE status = 'published'
+               AND expiration_date IS NOT NULL AND expiration_date < CURRENT_DATE"
+        );
+        return $n;
+    }
+
     /** Count items a rule would affect right now (read-only). */
     public static function preview(array $rule): int
     {

@@ -11,6 +11,7 @@ class AdminController {
     // ── Overview ───────────────────────────────────────────────────────────
     public function index(): void {
         Auth::requireAdmin();
+        $this->maybeAutoExpire();
         $stats = [
             'users'        => (int)(Database::fetchOne("SELECT COUNT(*) c FROM users")['c'] ?? 0),
             'active_users' => (int)(Database::fetchOne("SELECT COUNT(*) c FROM users WHERE is_active=TRUE")['c'] ?? 0),
@@ -353,7 +354,7 @@ class AdminController {
         }
 
         // Boolean checkboxes stored as '0'/'1'
-        $bools = ['password_require_uppercase', 'password_require_numbers', 'password_require_special', 'email_notifications', 'require_esignature'];
+        $bools = ['password_require_uppercase', 'password_require_numbers', 'password_require_special', 'email_notifications', 'require_esignature', 'auto_archive_on_expiry'];
         foreach ($bools as $key) {
             $this->setSetting($key, !empty($_POST[$key]) ? '1' : '0');
         }
@@ -369,6 +370,41 @@ class AdminController {
         Auth::log('update_settings', 'settings', null);
         $_SESSION['flash_success'] = 'Settings saved.';
         header('Location: /admin/settings');
+    }
+
+    // ── Document numbering ───────────────────────────────────────────────────
+    public function numbering(): void {
+        Auth::requireAdmin();
+        $config = DocNumbering::config();
+        require PALADIN_ROOT . '/views/admin/numbering.php';
+    }
+
+    public function saveNumbering(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $prefixes = [];
+        foreach (array_keys(DocNumbering::DEFAULT_PREFIXES) as $type) {
+            $prefixes[$type] = (string)($_POST['prefix'][$type] ?? '');
+        }
+        DocNumbering::save(
+            (string)($_POST['separator'] ?? '-'),
+            (int)($_POST['pad'] ?? 4),
+            $prefixes
+        );
+        Auth::log('update_doc_numbering', 'settings', null);
+        $_SESSION['flash_success'] = 'Document numbering scheme saved.';
+        header('Location: /admin/numbering');
+    }
+
+    // ── Expiry sweep (auto-archive expired controlled documents) ─────────────
+    public function runExpiry(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $n = Retention::sweepExpired();
+        $this->setSetting('last_expiry_sweep', date('Y-m-d H:i:s'));
+        Auth::log('run_expiry_sweep', 'documents', null, ['archived' => $n]);
+        $_SESSION['flash_success'] = "Expiry sweep complete — {$n} expired document(s) archived.";
+        header('Location: /admin/retention');
     }
 
     // ── Tags ─────────────────────────────────────────────────────────────────
@@ -709,6 +745,9 @@ class AdminController {
         foreach ($rules as &$r) { $r['preview'] = Retention::preview($r); }
         unset($r);
         $spaces = Database::fetchAll("SELECT id, name FROM spaces WHERE is_archived = FALSE ORDER BY name");
+        $expiredCount  = Retention::expiredCount();
+        $autoExpire    = ((Database::fetchOne("SELECT value FROM settings WHERE key='auto_archive_on_expiry'")['value'] ?? '0') === '1');
+        $lastSweep     = Database::fetchOne("SELECT value FROM settings WHERE key='last_expiry_sweep'")['value'] ?? '';
         require PALADIN_ROOT . '/views/admin/retention.php';
     }
 
@@ -771,6 +810,22 @@ class AdminController {
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
+    /**
+     * Opportunistic expiry sweep: when auto_archive_on_expiry is enabled, run
+     * sweepExpired() at most once per day (no cron required). Best-effort.
+     */
+    private function maybeAutoExpire(): void {
+        try {
+            $on = (Database::fetchOne("SELECT value FROM settings WHERE key='auto_archive_on_expiry'")['value'] ?? '0') === '1';
+            if (!$on) return;
+            $last = Database::fetchOne("SELECT value FROM settings WHERE key='last_expiry_sweep'")['value'] ?? '';
+            if ($last !== '' && strtotime($last) > strtotime('-1 day')) return;
+            $n = Retention::sweepExpired();
+            $this->setSetting('last_expiry_sweep', date('Y-m-d H:i:s'));
+            if ($n > 0) Auth::log('auto_expiry_sweep', 'documents', null, ['archived' => $n]);
+        } catch (\Throwable) { /* never block the dashboard */ }
+    }
+
     /** Upsert a single settings row. */
     private function setSetting(string $key, string $value): void {
         Database::query(
