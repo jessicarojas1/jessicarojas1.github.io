@@ -87,6 +87,7 @@ class PageController {
             "SELECT a.*, u.name AS uploader FROM attachments a LEFT JOIN users u ON u.id=a.uploaded_by
              WHERE a.entity_type='page' AND a.entity_id=? ORDER BY a.created_at DESC", [$id]
         );
+        Recent::track('page', $id, $page['title']);
         require PALADIN_ROOT . '/views/pages/view.php';
     }
 

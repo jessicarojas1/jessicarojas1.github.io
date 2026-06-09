@@ -50,6 +50,7 @@ class BlogController {
         );
         $postLike = Reactions::one('blog', $id);
         $cReactions = Reactions::summary('comment', array_map(fn($c) => (int)$c['id'], $comments));
+        Recent::track('blog', $id, $post['title']);
         require PALADIN_ROOT . '/views/blog/view.php';
     }
 

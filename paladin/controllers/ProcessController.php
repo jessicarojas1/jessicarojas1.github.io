@@ -47,6 +47,7 @@ class ProcessController {
         if (!$process) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
 
         $relations = Database::fetchAll("SELECT * FROM entity_relations WHERE source_type='process' AND source_id=? ORDER BY relation_type", [$id]);
+        Recent::track('process', $id, $process['name']);
         require PALADIN_ROOT . '/views/processes/view.php';
     }
 

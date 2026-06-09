@@ -49,6 +49,8 @@ class DashboardController {
         // Documents by status for the chart
         $byStatus = Database::fetchAll("SELECT status, COUNT(*) c FROM documents GROUP BY status");
 
+        $recentViews = Recent::recent(6);
+
         require PALADIN_ROOT . '/views/dashboard/index.php';
     }
 
