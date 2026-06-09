@@ -16,7 +16,25 @@ class PageController {
         $parents = $spaceId ? Database::fetchAll("SELECT id, title FROM pages WHERE space_id=? AND deleted_at IS NULL ORDER BY title", [$spaceId]) : [];
         $templates = Database::fetchAll("SELECT id, name, body FROM templates WHERE category IN ('page','document') AND is_active=TRUE ORDER BY name");
         $page = null;
+        // Prefill from a built-in blueprint (?blueprint=KEY) or a saved template (?template=ID).
+        if (!empty($_GET['blueprint']) && ($bp = Blueprint::get((string)$_GET['blueprint']))) {
+            $page = ['title' => $bp['title'], 'body' => $bp['body'], 'parent_id' => null];
+        } elseif (!empty($_GET['template'])) {
+            $tpl = Database::fetchOne("SELECT name, body FROM templates WHERE id=? AND is_active=TRUE", [(int)$_GET['template']]);
+            if ($tpl) $page = ['title' => '', 'body' => $tpl['body'], 'parent_id' => null];
+        }
         require PALADIN_ROOT . '/views/pages/form.php';
+    }
+
+    /** Blueprint & template gallery for starting a new page. */
+    public function templateGallery(int $spaceId = 0): void {
+        Auth::requirePermission('page.create');
+        $spaceId = $spaceId ?: (int)($_GET['space'] ?? 0);
+        $space   = $spaceId ? $this->loadSpace($spaceId) : null;
+        $spaces  = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
+        $blueprints = Blueprint::all();
+        $templates = Database::fetchAll("SELECT id, name, description FROM templates WHERE category IN ('page','document') AND is_active=TRUE ORDER BY name");
+        require PALADIN_ROOT . '/views/pages/templates.php';
     }
 
     public function create(): void {
