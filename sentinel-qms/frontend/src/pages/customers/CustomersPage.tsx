@@ -13,6 +13,7 @@ import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
+import { FilterBar } from '@/components/FilterBar';
 import type { ContractStatus, ContractSummary, Customer, CustomerStatus } from '@/types';
 
 const CUST_STATUSES: CustomerStatus[] = ['active', 'inactive'];
@@ -27,6 +28,10 @@ function CustomersSection({ writable }: { writable: boolean }) {
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [country, setCountry] = useState('');
+  const [fStatus, setFStatus] = useState('');
+
+  const list = data ?? [];
+  const filtered = list.filter((c) => !fStatus || c.status === fStatus);
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +53,12 @@ function CustomersSection({ writable }: { writable: boolean }) {
   return (
     <div className="card">
       <div className="card__header"><div className="card__title">Customers</div></div>
+      <FilterBar active={fStatus ? 1 : 0}>
+        <select className="input field" value={fStatus} onChange={(e) => setFStatus(e.target.value)} aria-label="Filter by status">
+          <option value="">All statuses</option>
+          {CUST_STATUSES.map((s) => <option key={s} value={s}>{label(s)}</option>)}
+        </select>
+      </FilterBar>
       <div className="table-wrap">
         <table className="data-table">
           <thead>
@@ -56,8 +67,8 @@ function CustomersSection({ writable }: { writable: boolean }) {
           <tbody>
             {isLoading ? (
               <tr><td colSpan={5}><span className="spinner" /> Loading…</td></tr>
-            ) : data && data.length ? (
-              data.map((c: Customer) => (
+            ) : filtered.length ? (
+              filtered.map((c: Customer) => (
                 <tr key={c.id}>
                   <td className="mono">{c.code}</td>
                   <td>{c.name}</td>
@@ -84,7 +95,7 @@ function CustomersSection({ writable }: { writable: boolean }) {
                 </tr>
               ))
             ) : (
-              <tr className="empty-row"><td colSpan={5}><div className="empty-state-sm">No customers.</div></td></tr>
+              <tr className="empty-row"><td colSpan={5}><div className="empty-state-sm">{list.length ? 'No customers match the selected filters.' : 'No customers.'}</div></td></tr>
             )}
           </tbody>
         </table>
@@ -110,7 +121,19 @@ function ContractsSection({ writable, customers }: { writable: boolean; customer
   const [number, setNumber] = useState('');
   const [title, setTitle] = useState('');
   const [itar, setItar] = useState(false);
+  const [fStatus, setFStatus] = useState('');
+  const [fCustomer, setFCustomer] = useState('');
+  const [fItar, setFItar] = useState('');
   const custName = (id: number) => customers.find((c) => c.id === id)?.name ?? `#${id}`;
+
+  const contracts = data ?? [];
+  const filtered = contracts.filter(
+    (k) =>
+      (!fStatus || k.status === fStatus) &&
+      (!fCustomer || k.customer_id === Number(fCustomer)) &&
+      (!fItar || String(k.itar_controlled) === fItar),
+  );
+  const activeFilters = (fStatus ? 1 : 0) + (fCustomer ? 1 : 0) + (fItar ? 1 : 0);
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,6 +155,21 @@ function ContractsSection({ writable, customers }: { writable: boolean; customer
   return (
     <div className="card">
       <div className="card__header"><div className="card__title">Contracts</div></div>
+      <FilterBar active={activeFilters}>
+        <select className="input field" value={fStatus} onChange={(e) => setFStatus(e.target.value)} aria-label="Filter by status">
+          <option value="">All statuses</option>
+          {CONTRACT_STATUSES.map((s) => <option key={s} value={s}>{label(s)}</option>)}
+        </select>
+        <select className="input field" value={fCustomer} onChange={(e) => setFCustomer(e.target.value)} aria-label="Filter by customer">
+          <option value="">All customers</option>
+          {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        <select className="input field" value={fItar} onChange={(e) => setFItar(e.target.value)} aria-label="Filter by ITAR">
+          <option value="">ITAR: any</option>
+          <option value="true">ITAR only</option>
+          <option value="false">Non-ITAR</option>
+        </select>
+      </FilterBar>
       <div className="table-wrap">
         <table className="data-table">
           <thead>
@@ -140,8 +178,8 @@ function ContractsSection({ writable, customers }: { writable: boolean; customer
           <tbody>
             {isLoading ? (
               <tr><td colSpan={6}><span className="spinner" /> Loading…</td></tr>
-            ) : data && data.length ? (
-              data.map((k: ContractSummary) => (
+            ) : filtered.length ? (
+              filtered.map((k: ContractSummary) => (
                 <tr key={k.id}>
                   <td className="mono"><Link to={`/customers/contracts/${k.id}`} className="link-btn">{k.contract_number}</Link></td>
                   <td>{custName(k.customer_id)}</td>
@@ -169,7 +207,7 @@ function ContractsSection({ writable, customers }: { writable: boolean; customer
                 </tr>
               ))
             ) : (
-              <tr className="empty-row"><td colSpan={6}><div className="empty-state-sm">No contracts.</div></td></tr>
+              <tr className="empty-row"><td colSpan={6}><div className="empty-state-sm">{contracts.length ? 'No contracts match the selected filters.' : 'No contracts.'}</div></td></tr>
             )}
           </tbody>
         </table>

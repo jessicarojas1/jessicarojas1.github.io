@@ -12,6 +12,7 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
+import { FilterBar } from '@/components/FilterBar';
 import type { Concession, ConcessionStatus, ConcessionType } from '@/types';
 
 const TYPES: ConcessionType[] = ['deviation', 'waiver', 'concession'];
@@ -39,6 +40,14 @@ export default function ConcessionsPage() {
   const [title, setTitle] = useState('');
   const [part, setPart] = useState('');
   const [description, setDescription] = useState('');
+  const [fType, setFType] = useState('');
+  const [fStatus, setFStatus] = useState('');
+
+  const list = data ?? [];
+  const filtered = list.filter(
+    (c) => (!fType || c.concession_type === fType) && (!fStatus || c.status === fStatus),
+  );
+  const activeFilters = (fType ? 1 : 0) + (fStatus ? 1 : 0);
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +101,16 @@ export default function ConcessionsPage() {
           <div className="card__header">
             <div className="card__title">Concessions</div>
           </div>
+          <FilterBar active={activeFilters}>
+            <select className="input field" value={fType} onChange={(e) => setFType(e.target.value)} aria-label="Filter by type">
+              <option value="">All types</option>
+              {TYPES.map((t) => <option key={t} value={t}>{label(t)}</option>)}
+            </select>
+            <select className="input field" value={fStatus} onChange={(e) => setFStatus(e.target.value)} aria-label="Filter by status">
+              <option value="">All statuses</option>
+              {STATUSES.map((s) => <option key={s} value={s}>{label(s)}</option>)}
+            </select>
+          </FilterBar>
           <div className="table-wrap">
             <table className="data-table">
               <thead>
@@ -110,8 +129,8 @@ export default function ConcessionsPage() {
               <tbody>
                 {isLoading ? (
                   <tr><td colSpan={9}><span className="spinner" /> Loading…</td></tr>
-                ) : data && data.length ? (
-                  data.map((c) => (
+                ) : filtered.length ? (
+                  filtered.map((c) => (
                     <tr key={c.id}>
                       <td className="mono">{c.concession_number}</td>
                       <td style={{ textTransform: 'capitalize' }}>{c.concession_type}</td>
@@ -157,7 +176,7 @@ export default function ConcessionsPage() {
                     </tr>
                   ))
                 ) : (
-                  <tr className="empty-row"><td colSpan={9}><div className="empty-state-sm">No concessions.</div></td></tr>
+                  <tr className="empty-row"><td colSpan={9}><div className="empty-state-sm">{list.length ? 'No concessions match the selected filters.' : 'No concessions.'}</div></td></tr>
                 )}
               </tbody>
             </table>

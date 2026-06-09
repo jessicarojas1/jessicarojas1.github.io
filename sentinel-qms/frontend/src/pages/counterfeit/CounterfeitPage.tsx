@@ -17,6 +17,7 @@ import { usePagePerms } from '@/lib/permissions';
 import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
 import { PageHeader } from '@/components/PageHeader';
+import { FilterBar } from '@/components/FilterBar';
 import { ImportModal } from '@/components/ImportModal';
 import type {
   AlertSource,
@@ -72,6 +73,18 @@ function SourcingSection({ writable }: { writable: boolean }) {
   const [part, setPart] = useState('');
   const [source, setSource] = useState<SourceType>('ocm');
   const [risk, setRisk] = useState<RiskLevel>('medium');
+  const [fSource, setFSource] = useState('');
+  const [fRisk, setFRisk] = useState('');
+  const [fStatus, setFStatus] = useState('');
+
+  const records = data ?? [];
+  const filtered = records.filter(
+    (r) =>
+      (!fSource || r.source_type === fSource) &&
+      (!fRisk || r.risk_level === fRisk) &&
+      (!fStatus || r.status === fStatus),
+  );
+  const activeFilters = (fSource ? 1 : 0) + (fRisk ? 1 : 0) + (fStatus ? 1 : 0);
 
   const onRaise = (id: number) =>
     raiseNcr.mutate(id, {
@@ -103,6 +116,20 @@ function SourcingSection({ writable }: { writable: boolean }) {
         <div className="card__title">Part Sourcing Verification</div>
         <div className="card__subtitle">Provenance, certificate of conformance & OEM traceability</div>
       </div>
+      <FilterBar active={activeFilters}>
+        <select className="input field" value={fSource} onChange={(e) => setFSource(e.target.value)} aria-label="Filter by source type">
+          <option value="">All sources</option>
+          {SOURCE_TYPES.map((s) => <option key={s} value={s}>{label(s)}</option>)}
+        </select>
+        <select className="input field" value={fRisk} onChange={(e) => setFRisk(e.target.value)} aria-label="Filter by risk level">
+          <option value="">All risk levels</option>
+          {RISK_LEVELS.map((s) => <option key={s} value={s}>{label(s)}</option>)}
+        </select>
+        <select className="input field" value={fStatus} onChange={(e) => setFStatus(e.target.value)} aria-label="Filter by status">
+          <option value="">All statuses</option>
+          {VERIFY_STATUSES.map((s) => <option key={s} value={s}>{label(s)}</option>)}
+        </select>
+      </FilterBar>
       <div className="table-wrap">
         <table className="data-table">
           <thead>
@@ -121,8 +148,8 @@ function SourcingSection({ writable }: { writable: boolean }) {
           <tbody>
             {isLoading ? (
               <tr><td colSpan={9}><span className="spinner" /> Loading…</td></tr>
-            ) : data && data.length ? (
-              data.map((r) => (
+            ) : filtered.length ? (
+              filtered.map((r) => (
                 <tr key={r.id}>
                   <td className="mono">{r.record_number}</td>
                   <td className="mono">{r.part_number}</td>
@@ -158,7 +185,7 @@ function SourcingSection({ writable }: { writable: boolean }) {
                 </tr>
               ))
             ) : (
-              <tr className="empty-row"><td colSpan={9}><div className="empty-state-sm">No sourcing records.</div></td></tr>
+              <tr className="empty-row"><td colSpan={9}><div className="empty-state-sm">{records.length ? 'No records match the selected filters.' : 'No sourcing records.'}</div></td></tr>
             )}
           </tbody>
         </table>
@@ -190,6 +217,14 @@ function AlertsSection({ writable }: { writable: boolean }) {
   const [source, setSource] = useState<AlertSource>('gidep');
   const [ref, setRef] = useState('');
   const [importOpen, setImportOpen] = useState(false);
+  const [fSource, setFSource] = useState('');
+  const [fStatus, setFStatus] = useState('');
+
+  const alerts = data ?? [];
+  const filtered = alerts.filter(
+    (a) => (!fSource || a.source === fSource) && (!fStatus || a.status === fStatus),
+  );
+  const activeFilters = (fSource ? 1 : 0) + (fStatus ? 1 : 0);
 
   const onRaise = (id: number) =>
     raiseNcr.mutate(id, {
@@ -236,6 +271,16 @@ function AlertsSection({ writable }: { writable: boolean }) {
         onClose={() => setImportOpen(false)}
         listQueryKey={['counterfeit']}
       />
+      <FilterBar active={activeFilters}>
+        <select className="input field" value={fSource} onChange={(e) => setFSource(e.target.value)} aria-label="Filter by alert source">
+          <option value="">All sources</option>
+          {ALERT_SOURCES.map((s) => <option key={s} value={s}>{s.toUpperCase()}</option>)}
+        </select>
+        <select className="input field" value={fStatus} onChange={(e) => setFStatus(e.target.value)} aria-label="Filter by status">
+          <option value="">All statuses</option>
+          {ALERT_STATUSES.map((s) => <option key={s} value={s}>{label(s)}</option>)}
+        </select>
+      </FilterBar>
       <div className="table-wrap">
         <table className="data-table">
           <thead>
@@ -253,8 +298,8 @@ function AlertsSection({ writable }: { writable: boolean }) {
           <tbody>
             {isLoading ? (
               <tr><td colSpan={8}><span className="spinner" /> Loading…</td></tr>
-            ) : data && data.length ? (
-              data.map((a) => (
+            ) : filtered.length ? (
+              filtered.map((a) => (
                 <tr key={a.id}>
                   <td className="mono">{a.alert_number}</td>
                   <td style={{ textTransform: 'uppercase' }}>{a.source}</td>
@@ -287,7 +332,7 @@ function AlertsSection({ writable }: { writable: boolean }) {
                 </tr>
               ))
             ) : (
-              <tr className="empty-row"><td colSpan={8}><div className="empty-state-sm">No alerts logged.</div></td></tr>
+              <tr className="empty-row"><td colSpan={8}><div className="empty-state-sm">{alerts.length ? 'No alerts match the selected filters.' : 'No alerts logged.'}</div></td></tr>
             )}
           </tbody>
         </table>

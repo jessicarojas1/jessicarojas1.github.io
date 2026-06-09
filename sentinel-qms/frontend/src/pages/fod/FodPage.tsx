@@ -16,6 +16,7 @@ import { usePagePerms } from '@/lib/permissions';
 import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
 import { PageHeader } from '@/components/PageHeader';
+import { FilterBar } from '@/components/FilterBar';
 import type { FodEvent, FodRisk, FodSeverity, FodStatus, FodZone } from '@/types';
 
 const RISKS: FodRisk[] = ['low', 'medium', 'high'];
@@ -128,6 +129,14 @@ function EventsSection({ writable }: { writable: boolean }) {
   const [title, setTitle] = useState('');
   const [object, setObject] = useState('');
   const [severity, setSeverity] = useState<FodSeverity>('medium');
+  const [fSeverity, setFSeverity] = useState('');
+  const [fStatus, setFStatus] = useState('');
+
+  const events = data ?? [];
+  const filtered = events.filter(
+    (ev) => (!fSeverity || ev.severity === fSeverity) && (!fStatus || ev.status === fStatus),
+  );
+  const activeFilters = (fSeverity ? 1 : 0) + (fStatus ? 1 : 0);
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,6 +169,16 @@ function EventsSection({ writable }: { writable: boolean }) {
         <div className="card__title">FOD Events</div>
         <div className="card__subtitle">Detected foreign objects, investigation &amp; disposition</div>
       </div>
+      <FilterBar active={activeFilters}>
+        <select className="input field" value={fSeverity} onChange={(e) => setFSeverity(e.target.value)} aria-label="Filter by severity">
+          <option value="">All severities</option>
+          {SEVERITIES.map((s) => <option key={s} value={s}>{label(s)}</option>)}
+        </select>
+        <select className="input field" value={fStatus} onChange={(e) => setFStatus(e.target.value)} aria-label="Filter by status">
+          <option value="">All statuses</option>
+          {STATUSES.map((s) => <option key={s} value={s}>{label(s)}</option>)}
+        </select>
+      </FilterBar>
       <div className="table-wrap">
         <table className="data-table">
           <thead>
@@ -176,8 +195,8 @@ function EventsSection({ writable }: { writable: boolean }) {
           <tbody>
             {isLoading ? (
               <tr><td colSpan={7}><span className="spinner" /> Loading…</td></tr>
-            ) : data && data.length ? (
-              data.map((ev) => (
+            ) : filtered.length ? (
+              filtered.map((ev) => (
                 <tr key={ev.id}>
                   <td className="mono">{ev.event_number}</td>
                   <td>{ev.title}</td>
@@ -229,7 +248,7 @@ function EventsSection({ writable }: { writable: boolean }) {
                 </tr>
               ))
             ) : (
-              <tr className="empty-row"><td colSpan={7}><div className="empty-state-sm">No FOD events logged.</div></td></tr>
+              <tr className="empty-row"><td colSpan={7}><div className="empty-state-sm">{events.length ? 'No events match the selected filters.' : 'No FOD events logged.'}</div></td></tr>
             )}
           </tbody>
         </table>

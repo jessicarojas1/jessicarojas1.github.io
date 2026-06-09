@@ -7,8 +7,13 @@ import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
-import type { PpapProgress } from '@/types';
+import { FilterBar } from '@/components/FilterBar';
+import type { ApqpPhase, ApqpStatus, PpapProgress } from '@/types';
 import { PHASE_LABELS } from './constants';
+
+const STATUSES: ApqpStatus[] = ['active', 'on_hold', 'complete', 'cancelled'];
+const PHASES = Object.keys(PHASE_LABELS) as ApqpPhase[];
+const statusLabel = (s: string) => s.replace(/_/g, ' ');
 
 export function PpapBar({ ppap }: { ppap: PpapProgress }) {
   const tone = ppap.approved_pct >= 90 ? 'good' : ppap.approved_pct >= 50 ? 'warn' : 'bad';
@@ -36,6 +41,14 @@ export default function ApqpListPage() {
   const [partNumber, setPartNumber] = useState('');
   const [partName, setPartName] = useState('');
   const [customer, setCustomer] = useState('');
+  const [fPhase, setFPhase] = useState('');
+  const [fStatus, setFStatus] = useState('');
+
+  const projects = data ?? [];
+  const filtered = projects.filter(
+    (p) => (!fPhase || p.current_phase === fPhase) && (!fStatus || p.status === fStatus),
+  );
+  const activeFilters = (fPhase ? 1 : 0) + (fStatus ? 1 : 0);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,8 +91,24 @@ export default function ApqpListPage() {
       ) : data.length === 0 ? (
         <div className="card"><div className="card__body"><EmptyState title="No APQP projects" description="Create a project to launch its PPAP submission package." /></div></div>
       ) : (
-        <div className="std-grid">
-          {data.map((p) => (
+        <>
+          <div className="card">
+            <FilterBar active={activeFilters}>
+              <select className="input field" value={fPhase} onChange={(e) => setFPhase(e.target.value)} aria-label="Filter by phase">
+                <option value="">All phases</option>
+                {PHASES.map((p) => <option key={p} value={p}>{PHASE_LABELS[p]}</option>)}
+              </select>
+              <select className="input field" value={fStatus} onChange={(e) => setFStatus(e.target.value)} aria-label="Filter by status">
+                <option value="">All statuses</option>
+                {STATUSES.map((s) => <option key={s} value={s}>{statusLabel(s)}</option>)}
+              </select>
+            </FilterBar>
+          </div>
+          {filtered.length === 0 ? (
+            <div className="card"><div className="card__body"><EmptyState title="No matching projects" description="No APQP projects match the selected filters." /></div></div>
+          ) : (
+            <div className="std-grid">
+              {filtered.map((p) => (
             <Link key={p.id} to={`/apqp/${p.id}`} className="std-card card">
               <div className="std-card__head">
                 <Workflow size={18} />
@@ -92,8 +121,10 @@ export default function ApqpListPage() {
               </div>
               <PpapBar ppap={p.ppap} />
             </Link>
-          ))}
-        </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </>
   );

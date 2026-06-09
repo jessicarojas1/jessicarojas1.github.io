@@ -6,6 +6,7 @@ import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
+import { FilterBar } from '@/components/FilterBar';
 import type { KcClass } from '@/types';
 
 const CLASSES: KcClass[] = ['critical', 'major', 'minor'];
@@ -30,7 +31,11 @@ export default function KcListPage() {
   const [lsl, setLsl] = useState('');
   const [kcClass, setKcClass] = useState<KcClass>('major');
   const [ownerId, setOwnerId] = useState('');
+  const [fClass, setFClass] = useState('');
   const { list: users } = useUserLookup();
+
+  const rows = data ?? [];
+  const filtered = rows.filter((kc) => !fClass || kc.kc_class === fClass);
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,13 +95,21 @@ export default function KcListPage() {
         <div className="card"><div className="card__body"><EmptyState title="No key characteristics" description="Add a KC to start collecting SPC data." /></div></div>
       ) : (
         <div className="card">
+          <FilterBar active={fClass ? 1 : 0}>
+            <select className="input field" value={fClass} onChange={(e) => setFClass(e.target.value)} aria-label="Filter by class">
+              <option value="">All classes</option>
+              {CLASSES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </FilterBar>
           <div className="table-wrap">
             <table className="data-table">
               <thead>
                 <tr><th>KC</th><th>Part</th><th>Characteristic</th><th>Class</th><th>Owner</th><th>Spec</th><th>n</th><th>Cpk</th></tr>
               </thead>
               <tbody>
-                {data.map((kc) => (
+                {filtered.length === 0 ? (
+                  <tr className="empty-row"><td colSpan={8}><div className="empty-state-sm">No key characteristics match the selected filter.</div></td></tr>
+                ) : filtered.map((kc) => (
                   <tr key={kc.id}>
                     <td className="mono"><Link to={`/key-characteristics/${kc.id}`} className="link-btn">{kc.kc_number}</Link></td>
                     <td className="mono">{kc.part_number}</td>
