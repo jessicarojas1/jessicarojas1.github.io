@@ -128,6 +128,7 @@ $routes = [
         '/spaces/create'             => ['SpaceController', 'createForm'],
 
         '/pages/create'              => ['PageController', 'createForm'],
+        '/pages/import'              => ['PageController', 'importForm'],
 
         '/documents'                 => ['DocumentController', 'index'],
         '/documents/create'          => ['DocumentController', 'createForm'],
@@ -192,6 +193,7 @@ $routes = [
 
         '/spaces/create'             => ['SpaceController', 'create'],
         '/pages/create'              => ['PageController', 'create'],
+        '/pages/import'              => ['PageController', 'import'],
 
         '/documents/create'          => ['DocumentController', 'create'],
 
