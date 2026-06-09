@@ -102,6 +102,7 @@
         <a href="/admin/api-keys"    class="nav-item <?= ($activeModule ?? '')==='admin_api_keys'?'active':'' ?>"><i class="bi bi-key-fill"></i><span>API Keys</span></a>
         <a href="/admin/logs"        class="nav-item <?= ($activeModule ?? '')==='admin_logs'?'active':'' ?>"><i class="bi bi-journal-text"></i><span>Activity Logs</span></a>
         <a href="/admin/sessions"    class="nav-item <?= ($activeModule ?? '')==='admin_sessions'?'active':'' ?>"><i class="bi bi-hdd-network-fill"></i><span>Sessions</span></a>
+        <a href="/admin/system"      class="nav-item <?= ($activeModule ?? '')==='admin_system'?'active':'' ?>"><i class="bi bi-cpu"></i><span>System Info</span></a>
       </div>
     </div>
     <?php endif; ?>

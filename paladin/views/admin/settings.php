@@ -43,6 +43,8 @@ $on = fn(string $k, string $def = '0') => (($settings[$k] ?? $def) === '1') ? 'c
       <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px"><input type="checkbox" name="password_require_uppercase" value="1" <?= $on('password_require_uppercase', '1') ?>> Require an uppercase letter</label>
       <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px"><input type="checkbox" name="password_require_numbers" value="1" <?= $on('password_require_numbers', '1') ?>> Require a number</label>
       <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" name="password_require_special" value="1" <?= $on('password_require_special', '1') ?>> Require a special character</label>
+      <hr style="border:none;border-top:1px solid var(--border-light);margin:14px 0">
+      <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" name="require_esignature" value="1" <?= $on('require_esignature') ?>> <span><i class="bi bi-pen"></i> Require e-signature (password re-authentication) on workflow transitions</span></label>
     </div>
   </div>
 
