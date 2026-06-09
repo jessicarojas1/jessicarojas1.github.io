@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: paladin
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: paladin-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: PALADIN
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: APP_URL
+        sync: false
+
+databases:
+  - name: paladin-db
+    plan: free
+    databaseName: paladin
+    user: paladin

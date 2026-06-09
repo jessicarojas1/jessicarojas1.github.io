@@ -1,0 +1,51 @@
+# PALADIN — local / on-prem multi-container deployment.
+# For production, supply secrets via your orchestrator's secret store
+# (Azure Key Vault, AWS Secrets Manager, K8s Secrets) rather than .env.
+services:
+  app:
+    build: .
+    image: paladin:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_NAME: ${APP_NAME:-PALADIN}
+      APP_ENV: ${APP_ENV:-production}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      DATABASE_URL: postgres://${DB_USER:-paladin}:${DB_PASS:-paladin}@db:5432/${DB_NAME:-paladin}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+      TRUSTED_PROXY_IPS: ${TRUSTED_PROXY_IPS:-127.0.0.1}
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+    volumes:
+      - paladin_uploads:/var/www/html/uploads
+      - paladin_logs:/var/www/html/logs
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-paladin}
+      POSTGRES_USER: ${DB_USER:-paladin}
+      POSTGRES_PASSWORD: ${DB_PASS:-paladin}
+    volumes:
+      - paladin_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-paladin}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  paladin_pgdata:
+  paladin_uploads:
+  paladin_logs:

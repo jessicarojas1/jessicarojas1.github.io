@@ -1,0 +1,92 @@
+# PALADIN — reference Kubernetes manifest (AKS / EKS / vanilla / on-prem).
+# Replace the Secret values, storage class and ingress host for your environment.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: paladin-secrets
+type: Opaque
+stringData:
+  JWT_SECRET: "replace_with_64_hex_chars_minimum_value"
+  DATABASE_URL: "postgres://paladin:password@postgres:5432/paladin"
+  ADMIN_EMAIL: "admin@your-domain.gov"
+  ADMIN_PASSWORD: "replace_me"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paladin-uploads
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paladin
+  labels: { app: paladin }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: paladin }
+  template:
+    metadata:
+      labels: { app: paladin }
+    spec:
+      containers:
+        - name: paladin
+          image: paladin:latest
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef: { name: paladin-secrets }
+          env:
+            - { name: APP_ENV, value: "production" }
+            - { name: APP_NAME, value: "PALADIN" }
+            - { name: STORAGE_DRIVER, value: "local" }
+          volumeMounts:
+            - { name: uploads, mountPath: /var/www/html/uploads }
+          livenessProbe:
+            httpGet: { path: /healthz, port: 80 }
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          readinessProbe:
+            httpGet: { path: /readyz, port: 80 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests: { cpu: "100m", memory: "192Mi" }
+            limits:   { cpu: "1",    memory: "512Mi" }
+      volumes:
+        - name: uploads
+          persistentVolumeClaim: { claimName: paladin-uploads }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paladin
+spec:
+  selector: { app: paladin }
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: paladin
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "40m"
+spec:
+  rules:
+    - host: paladin.your-domain.gov
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: paladin
+                port: { number: 80 }

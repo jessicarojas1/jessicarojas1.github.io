@@ -1,5 +1,0 @@
-<!DOCTYPE html>
-<html lang="en" style="color-scheme:light dark"><head><meta charset="UTF-8"><title>403 — PAL Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<style>body{font-family:Inter,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f0f2f4;}.box{text-align:center;padding:48px;}.icon{font-size:64px;margin-bottom:16px;}.title{font-size:24px;font-weight:700;color:#0d1117;}.sub{color:#57606a;margin:8px 0 24px;}a{color:#2563eb;text-decoration:none;padding:10px 20px;border:2px solid #2563eb;border-radius:8px;}</style>
-</head><body><div class="box"><div class="icon">🔒</div><div class="title">403 — Access Denied</div><div class="sub">You don't have permission to access this resource.</div><a href="/">Back to Dashboard</a></div></body></html>

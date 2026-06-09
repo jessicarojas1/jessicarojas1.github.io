@@ -1,0 +1,20 @@
+# PALADIN — Apache front controller
+RewriteEngine On
+
+# Serve existing files/directories directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Everything else → index.php front controller
+RewriteRule ^ index.php [L]
+
+# Block access to sensitive paths
+RedirectMatch 403 ^/\.env
+RedirectMatch 403 ^/(config|src|controllers|database|scripts|docker)/
+RedirectMatch 403 ^/install\.php$
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+</IfModule>
