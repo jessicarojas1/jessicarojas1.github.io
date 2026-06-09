@@ -116,12 +116,16 @@ class PageController {
     public function view(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
-            "SELECT p.*, s.space_key, s.name AS space_name, o.name AS owner_name
+            "SELECT p.*, s.space_key, s.name AS space_name, s.is_private AS space_private, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id = p.space_id
              LEFT JOIN users o ON o.id = p.owner_id WHERE p.id = ? AND p.deleted_at IS NULL",
             [$id]
         );
         if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        // A page in a private space is only visible to that space's members.
+        if (!SpaceAccess::canView(['id' => (int)$page['space_id'], 'is_private' => $page['space_private']])) {
+            http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return;
+        }
         if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
         $children = Database::fetchAll("SELECT id, title, status FROM pages WHERE parent_id = ? AND deleted_at IS NULL ORDER BY position, title", [$id]);

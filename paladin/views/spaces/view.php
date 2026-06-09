@@ -67,12 +67,41 @@ function renderTree(array $byParent, $parent, $depth = 0) {
         <?php if (Auth::can('page.edit')): ?><div class="form-hint" style="margin-top:8px"><i class="bi bi-grip-vertical"></i> Drag pages to reorder or re-nest them.</div><?php endif; ?>
       <?php else: ?><div class="empty-state-sm">No pages yet.</div><?php endif; ?>
     </div>
-    <div class="card-header" style="border-top:1px solid var(--border-light)"><div class="card-header-left"><span class="card-title"><i class="bi bi-people"></i> Members</span></div></div>
+    <div class="card-header" style="border-top:1px solid var(--border-light)" id="members"><div class="card-header-left"><span class="card-title"><i class="bi bi-people"></i> Members &amp; Permissions</span></div>
+      <span class="badge <?= (isset($space['is_private']) && in_array(strtolower((string)$space['is_private']),['1','t','true'],true)) ? 'badge-amber' : 'badge-gray' ?>"><i class="bi bi-<?= (isset($space['is_private']) && in_array(strtolower((string)$space['is_private']),['1','t','true'],true)) ? 'lock-fill' : 'unlock' ?>"></i> <?= (isset($space['is_private']) && in_array(strtolower((string)$space['is_private']),['1','t','true'],true)) ? 'Private' : 'Open' ?></span>
+    </div>
     <div class="card-body">
       <?php foreach ($members as $m): ?>
-      <div style="display:flex;align-items:center;gap:10px;padding:6px 0"><?= View::avatar($m['name']) ?><div><div style="font-weight:600;font-size:.85rem"><?= Security::h($m['name']) ?></div><div class="form-hint"><?= Security::h(ucfirst($m['role'])) ?></div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 0">
+        <?= View::avatar($m['name']) ?>
+        <div style="flex:1"><div style="font-weight:600;font-size:.85rem"><?= Security::h($m['name']) ?></div><div class="form-hint"><?= Security::h(ucfirst($m['role'])) ?></div></div>
+        <?php if (!empty($canManageSpace) && $m['role'] !== 'owner'): ?>
+          <form method="POST" action="/spaces/<?= (int)$space['id'] ?>/members/<?= (int)$m['id'] ?>/remove" style="margin:0" data-confirm="Remove <?= Security::h($m['name']) ?> from this space?"><?= Security::csrfField() ?><button class="btn-unstyled" type="submit" title="Remove" style="border:none;background:none;cursor:pointer;color:var(--danger)"><i class="bi bi-x-lg"></i></button></form>
+        <?php endif; ?>
+      </div>
       <?php endforeach; ?>
       <?php if (!$members): ?><div class="empty-state-sm">No members.</div><?php endif; ?>
+
+      <?php if (!empty($canManageSpace)): ?>
+      <form method="POST" action="/spaces/<?= (int)$space['id'] ?>/members" style="margin-top:10px;border-top:1px solid var(--border-light);padding-top:10px">
+        <?= Security::csrfField() ?>
+        <div class="form-group" style="margin-bottom:6px"><select name="user_id" class="form-select" required>
+          <option value="">Add a member…</option>
+          <?php foreach ($addableUsers as $au): ?><option value="<?= (int)$au['id'] ?>"><?= Security::h($au['name']) ?></option><?php endforeach; ?>
+        </select></div>
+        <div class="form-row" style="gap:6px">
+          <select name="role" class="form-select" style="flex:1">
+            <option value="viewer">Viewer</option>
+            <option value="contributor">Contributor</option>
+            <option value="reviewer">Reviewer</option>
+            <option value="approver">Approver</option>
+            <option value="admin">Space admin</option>
+          </select>
+          <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-plus-lg"></i> Add</button>
+        </div>
+        <div class="form-hint" style="margin-top:6px">Private spaces are visible only to members. Space admins manage members &amp; settings.</div>
+      </form>
+      <?php endif; ?>
     </div>
   </div>
 
