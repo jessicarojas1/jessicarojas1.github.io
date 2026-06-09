@@ -1,0 +1,10 @@
+.git
+.env
+.env.local
+*.log
+logs/*
+uploads/documents/*
+uploads/attachments/*
+uploads/evidence/*
+node_modules
+.DS_Store

@@ -1,0 +1,11 @@
+.env
+.env.local
+*.log
+logs/*
+!logs/.gitkeep
+uploads/documents/*
+uploads/attachments/*
+uploads/evidence/*
+!uploads/**/.gitkeep
+vendor/
+.DS_Store

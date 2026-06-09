@@ -1,0 +1,350 @@
+<?php
+declare(strict_types=1);
+
+class DocumentController {
+
+    /** Allowed lifecycle transitions: from => [to,...]. */
+    private const TRANSITIONS = [
+        'draft'     => ['in_review', 'archived'],
+        'in_review' => ['approved', 'rejected', 'draft'],
+        'approved'  => ['published', 'draft'],
+        'published' => ['archived', 'obsolete', 'draft'],
+        'rejected'  => ['draft', 'archived'],
+        'archived'  => ['draft'],
+        'obsolete'  => ['archived'],
+    ];
+
+    public function index(): void {
+        Auth::requirePermission('document.view');
+        $type   = Security::sanitizeInput($_GET['type'] ?? '');
+        $status = Security::sanitizeInput($_GET['status'] ?? '');
+        $space  = !empty($_GET['space']) ? (int)$_GET['space'] : null;
+        $q      = Security::sanitizeInput($_GET['q'] ?? '');
+
+        $where = ['1=1']; $params = [];
+        if ($type && in_array($type, View::docTypes(), true)) { $where[] = 'd.doc_type = ?'; $params[] = $type; }
+        if ($status) { $where[] = 'd.status = ?'; $params[] = $status; }
+        if ($space)  { $where[] = 'd.space_id = ?'; $params[] = $space; }
+        if ($q) { $where[] = '(d.title ILIKE ? OR d.document_code ILIKE ? OR d.description ILIKE ?)'; array_push($params, "%$q%", "%$q%", "%$q%"); }
+        $whereSql = implode(' AND ', $where);
+
+        $documents = Database::fetchAll(
+            "SELECT d.*, s.space_key, o.name AS owner_name
+             FROM documents d LEFT JOIN spaces s ON s.id=d.space_id LEFT JOIN users o ON o.id=d.owner_id
+             WHERE {$whereSql} ORDER BY d.updated_at DESC",
+            $params
+        );
+        $stats = Database::fetchOne(
+            "SELECT COUNT(*) total,
+                    COUNT(*) FILTER (WHERE status='published') published,
+                    COUNT(*) FILTER (WHERE status='in_review') in_review,
+                    COUNT(*) FILTER (WHERE status='draft') draft,
+                    COUNT(*) FILTER (WHERE review_date < CURRENT_DATE AND status='published') overdue
+             FROM documents"
+        );
+        $spaces = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
+        require PAL_ROOT . '/views/documents/index.php';
+    }
+
+    public function view(int $id): void {
+        Auth::requirePermission('document.view');
+        $doc = Database::fetchOne(
+            "SELECT d.*, s.space_key, s.name AS space_name, o.name AS owner_name,
+                    r.name AS reviewer_name, a.name AS approver_name, co.name AS checked_out_name
+             FROM documents d
+             LEFT JOIN spaces s ON s.id=d.space_id
+             LEFT JOIN users o ON o.id=d.owner_id
+             LEFT JOIN users r ON r.id=d.reviewer_id
+             LEFT JOIN users a ON a.id=d.approver_id
+             LEFT JOIN users co ON co.id=d.checked_out_by
+             WHERE d.id=?", [$id]
+        );
+        if (!$doc) { http_response_code(404); require PAL_ROOT . '/views/errors/404.php'; return; }
+
+        $versions = Database::fetchAll(
+            "SELECT dv.*, u.name AS author FROM document_versions dv LEFT JOIN users u ON u.id=dv.created_by
+             WHERE dv.document_id=? ORDER BY dv.created_at DESC", [$id]
+        );
+        $acks = Database::fetchAll(
+            "SELECT da.*, u.name AS user_name FROM document_acknowledgements da JOIN users u ON u.id=da.user_id
+             WHERE da.document_id=? ORDER BY da.acknowledged_at DESC", [$id]
+        );
+        $myAck = Database::fetchOne("SELECT 1 FROM document_acknowledgements WHERE document_id=? AND user_id=? AND revision=?", [$id, Auth::id(), $doc['revision']]);
+        $relations = Database::fetchAll("SELECT * FROM entity_relations WHERE source_type='document' AND source_id=? ORDER BY relation_type", [$id]);
+        $comments = Database::fetchAll(
+            "SELECT c.*, u.name AS user_name FROM comments c LEFT JOIN users u ON u.id=c.user_id
+             WHERE c.entity_type='document' AND c.entity_id=? ORDER BY c.created_at", [$id]
+        );
+        $approval = Database::fetchOne("SELECT * FROM approval_requests WHERE entity_type='document' AND entity_id=? ORDER BY id DESC LIMIT 1", [$id]);
+        $transitions = self::TRANSITIONS[$doc['status']] ?? [];
+        require PAL_ROOT . '/views/documents/view.php';
+    }
+
+    public function createForm(): void {
+        Auth::requirePermission('document.create');
+        $doc = null;
+        $spaces = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
+        $users  = Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name");
+        $templates = Database::fetchAll("SELECT id, name, body, doc_type FROM templates WHERE category='document' AND is_active=TRUE ORDER BY name");
+        require PAL_ROOT . '/views/documents/form.php';
+    }
+
+    public function create(): void {
+        Auth::requirePermission('document.create');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $title   = Security::sanitizeInput($_POST['title'] ?? '');
+        $docType = Security::sanitizeInput($_POST['doc_type'] ?? 'policy');
+        if ($title === '') { $_SESSION['flash_error'] = 'Title is required.'; header('Location: /documents/create'); return; }
+        if (!in_array($docType, View::docTypes(), true)) $docType = 'policy';
+
+        $code = $this->nextCode($docType);
+        $data = $this->collectMetadata($docType, $code);
+        $data['title']      = $title;
+        $data['status']     = 'draft';
+        $data['body']       = Security::sanitizeHtml($_POST['body'] ?? '');
+        $data['created_by'] = Auth::id();
+
+        // Optional file
+        if (!empty($_FILES['file']['name'])) {
+            $up = Upload::handle($_FILES['file'], 'uploads/documents');
+            if (!$up['ok']) { $_SESSION['flash_error'] = $up['error']; header('Location: /documents/create'); return; }
+            $data['file_stored_name']   = $up['key'];
+            $data['file_original_name'] = $up['name'];
+            $data['file_mime']          = $up['mime'];
+            $data['file_size']          = $up['size'];
+            $data['file_hash']          = $up['hash'];
+        }
+
+        $id = Database::insert('documents', $data);
+        Database::insert('document_versions', [
+            'document_id' => $id, 'revision' => $data['revision'], 'title' => $title,
+            'body' => $data['body'], 'change_summary' => 'Initial draft', 'status' => 'draft',
+            'file_stored_name' => $data['file_stored_name'] ?? null, 'file_original_name' => $data['file_original_name'] ?? null,
+            'file_mime' => $data['file_mime'] ?? null, 'file_size' => $data['file_size'] ?? null,
+            'created_by' => Auth::id(),
+        ]);
+        $this->saveRelations('document', $id);
+        Auth::log('create_document', 'documents', $id, ['code' => $code]);
+        $_SESSION['flash_success'] = "Document {$code} created.";
+        header('Location: /documents/' . $id);
+    }
+
+    public function editForm(int $id): void {
+        Auth::requirePermission('document.edit');
+        $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
+        if (!$doc) { http_response_code(404); require PAL_ROOT . '/views/errors/404.php'; return; }
+        if ($doc['checked_out_by'] && (int)$doc['checked_out_by'] !== Auth::id() && Auth::role() !== 'admin') {
+            $_SESSION['flash_error'] = 'Document is checked out by another user.'; header('Location: /documents/' . $id); return;
+        }
+        $spaces = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
+        $users  = Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name");
+        $relations = Database::fetchAll("SELECT * FROM entity_relations WHERE source_type='document' AND source_id=?", [$id]);
+        $templates = [];
+        require PAL_ROOT . '/views/documents/form.php';
+    }
+
+    public function update(int $id): void {
+        Auth::requirePermission('document.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
+        if (!$doc) { http_response_code(404); return; }
+        if ($doc['checked_out_by'] && (int)$doc['checked_out_by'] !== Auth::id() && Auth::role() !== 'admin') {
+            $_SESSION['flash_error'] = 'Document is checked out by another user.'; header('Location: /documents/' . $id); return;
+        }
+
+        $docType = Security::sanitizeInput($_POST['doc_type'] ?? $doc['doc_type']);
+        if (!in_array($docType, View::docTypes(), true)) $docType = $doc['doc_type'];
+        $data = $this->collectMetadata($docType, $doc['document_code']);
+        unset($data['document_code']); // never change the code
+        $data['title'] = Security::sanitizeInput($_POST['title'] ?? $doc['title']);
+        $data['body']  = Security::sanitizeHtml($_POST['body'] ?? '');
+
+        if (!empty($_FILES['file']['name'])) {
+            $up = Upload::handle($_FILES['file'], 'uploads/documents');
+            if (!$up['ok']) { $_SESSION['flash_error'] = $up['error']; header('Location: /documents/' . $id . '/edit'); return; }
+            $data['file_stored_name']   = $up['key'];
+            $data['file_original_name'] = $up['name'];
+            $data['file_mime']          = $up['mime'];
+            $data['file_size']          = $up['size'];
+            $data['file_hash']          = $up['hash'];
+        }
+
+        Database::update('documents', $data, 'id=?', [$id]);
+        Database::query("DELETE FROM entity_relations WHERE source_type='document' AND source_id=?", [$id]);
+        $this->saveRelations('document', $id);
+        Auth::log('update_document', 'documents', $id);
+        $_SESSION['flash_success'] = 'Document updated.';
+        header('Location: /documents/' . $id);
+    }
+
+    public function transition(int $id): void {
+        Auth::requirePermission('document.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
+        if (!$doc) { http_response_code(404); return; }
+        $to = Security::sanitizeInput($_POST['to'] ?? '');
+        $allowed = self::TRANSITIONS[$doc['status']] ?? [];
+        if (!in_array($to, $allowed, true)) { $_SESSION['flash_error'] = 'Invalid status transition.'; header('Location: /documents/' . $id); return; }
+
+        // Publishing / approving may require permission
+        if (in_array($to, ['approved','published'], true) && !Auth::can('document.publish') && !Auth::can('document.approve')) {
+            $_SESSION['flash_error'] = 'You do not have permission to approve/publish.'; header('Location: /documents/' . $id); return;
+        }
+        $data = ['status' => $to];
+        if ($to === 'published') {
+            $data['published_at']   = date('Y-m-d H:i:s');
+            $data['effective_date'] = $doc['effective_date'] ?: date('Y-m-d');
+        }
+        Database::update('documents', $data, 'id=?', [$id]);
+        Auth::log('document_transition', 'documents', $id, ['from' => $doc['status'], 'to' => $to]);
+        $_SESSION['flash_success'] = 'Document moved to ' . str_replace('_', ' ', $to) . '.';
+        header('Location: /documents/' . $id);
+    }
+
+    public function checkout(int $id): void {
+        Auth::requirePermission('document.checkout');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $doc = Database::fetchOne("SELECT checked_out_by FROM documents WHERE id=?", [$id]);
+        if (!$doc) { http_response_code(404); return; }
+        if ($doc['checked_out_by']) { $_SESSION['flash_error'] = 'Already checked out.'; header('Location: /documents/' . $id); return; }
+        Database::update('documents', ['checked_out_by' => Auth::id(), 'checked_out_at' => date('Y-m-d H:i:s')], 'id=?', [$id]);
+        Auth::log('checkout_document', 'documents', $id);
+        $_SESSION['flash_success'] = 'Document checked out to you.';
+        header('Location: /documents/' . $id);
+    }
+
+    public function checkin(int $id): void {
+        Auth::requirePermission('document.checkout');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $doc = Database::fetchOne("SELECT checked_out_by FROM documents WHERE id=?", [$id]);
+        if (!$doc) { http_response_code(404); return; }
+        if ($doc['checked_out_by'] && (int)$doc['checked_out_by'] !== Auth::id() && Auth::role() !== 'admin') {
+            $_SESSION['flash_error'] = 'Checked out by another user.'; header('Location: /documents/' . $id); return;
+        }
+        Database::update('documents', ['checked_out_by' => null, 'checked_out_at' => null], 'id=?', [$id]);
+        Auth::log('checkin_document', 'documents', $id);
+        $_SESSION['flash_success'] = 'Document checked in.';
+        header('Location: /documents/' . $id);
+    }
+
+    public function revise(int $id): void {
+        Auth::requirePermission('document.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
+        if (!$doc) { http_response_code(404); return; }
+        $newRev  = Security::sanitizeInput($_POST['revision'] ?? '');
+        $summary = Security::sanitizeInput($_POST['change_summary'] ?? '');
+        if ($newRev === '') { $_SESSION['flash_error'] = 'New revision number required.'; header('Location: /documents/' . $id); return; }
+
+        // Snapshot current as a version, then bump revision back to draft
+        Database::insert('document_versions', [
+            'document_id' => $id, 'revision' => $doc['revision'], 'title' => $doc['title'], 'body' => $doc['body'],
+            'change_summary' => $summary ?: ('Superseded by ' . $newRev), 'status' => $doc['status'],
+            'file_stored_name' => $doc['file_stored_name'], 'file_original_name' => $doc['file_original_name'],
+            'file_mime' => $doc['file_mime'], 'file_size' => $doc['file_size'], 'created_by' => Auth::id(),
+        ]);
+        Database::update('documents', ['revision' => $newRev, 'status' => 'draft'], 'id=?', [$id]);
+        Auth::log('revise_document', 'documents', $id, ['from' => $doc['revision'], 'to' => $newRev]);
+        $_SESSION['flash_success'] = "New revision {$newRev} started (status: draft).";
+        header('Location: /documents/' . $id);
+    }
+
+    public function acknowledge(int $id): void {
+        Auth::requirePermission('document.acknowledge');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $doc = Database::fetchOne("SELECT revision FROM documents WHERE id=?", [$id]);
+        if (!$doc) { http_response_code(404); return; }
+        try {
+            Database::insert('document_acknowledgements', ['document_id' => $id, 'user_id' => Auth::id(), 'revision' => $doc['revision']]);
+            Auth::log('acknowledge_document', 'documents', $id, ['revision' => $doc['revision']]);
+            $_SESSION['flash_success'] = 'Acknowledgement recorded. Thank you.';
+        } catch (Throwable) {
+            $_SESSION['flash_warning'] = 'You have already acknowledged this revision.';
+        }
+        header('Location: /documents/' . $id);
+    }
+
+    public function comment(int $id): void {
+        Auth::requirePermission('document.view');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $body = Security::sanitizeInput($_POST['body'] ?? '');
+        if ($body !== '') {
+            Database::insert('comments', ['entity_type' => 'document', 'entity_id' => $id, 'user_id' => Auth::id(), 'body' => $body]);
+            Auth::log('comment_document', 'documents', $id);
+        }
+        header('Location: /documents/' . $id . '#comments');
+    }
+
+    public function download(int $id): void {
+        Auth::requirePermission('document.view');
+        $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
+        if (!$doc || empty($doc['file_stored_name'])) { http_response_code(404); require PAL_ROOT . '/views/errors/404.php'; return; }
+        $data = Storage::get($doc['file_stored_name']);
+        if ($data === false) { http_response_code(404); require PAL_ROOT . '/views/errors/404.php'; return; }
+        Auth::log('download_document', 'documents', $id);
+        header('Content-Type: ' . ($doc['file_mime'] ?: 'application/octet-stream'));
+        header('Content-Disposition: attachment; filename="' . preg_replace('/[^A-Za-z0-9._-]/', '_', $doc['file_original_name'] ?: 'document') . '"');
+        header('Content-Length: ' . strlen($data));
+        header('X-Content-Type-Options: nosniff');
+        echo $data;
+    }
+
+    public function delete(int $id): void {
+        Auth::requirePermission('document.delete');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        Database::update('documents', ['status' => 'archived'], 'id=?', [$id]);
+        Auth::log('archive_document', 'documents', $id);
+        $_SESSION['flash_success'] = 'Document archived.';
+        header('Location: /documents');
+    }
+
+    // ── helpers ───────────────────────────────────────────────────────────
+    private function nextCode(string $docType): string {
+        $prefix = [
+            'policy' => 'POL', 'procedure' => 'PRC', 'process' => 'PRO', 'standard' => 'STD',
+            'guideline' => 'GDL', 'work_instruction' => 'WI', 'plan' => 'PLN', 'form' => 'FRM',
+            'template' => 'TPL', 'record' => 'REC', 'evidence' => 'EVD', 'training' => 'TRN',
+        ][$docType] ?? 'DOC';
+        $row = Database::fetchOne("SELECT document_code FROM documents WHERE document_code LIKE ? ORDER BY id DESC LIMIT 1", [$prefix . '-%']);
+        $n = 1;
+        if ($row && preg_match('/-(\d+)$/', $row['document_code'], $m)) $n = (int)$m[1] + 1;
+        return $prefix . '-' . str_pad((string)$n, 4, '0', STR_PAD_LEFT);
+    }
+
+    private function collectMetadata(string $docType, string $code): array {
+        $cls = Security::sanitizeInput($_POST['classification'] ?? 'internal');
+        if (!in_array($cls, View::classifications(), true)) $cls = 'internal';
+        return [
+            'document_code'   => $code,
+            'doc_type'        => $docType,
+            'space_id'        => !empty($_POST['space_id']) ? (int)$_POST['space_id'] : null,
+            'owner_id'        => !empty($_POST['owner_id']) ? (int)$_POST['owner_id'] : Auth::id(),
+            'reviewer_id'     => !empty($_POST['reviewer_id']) ? (int)$_POST['reviewer_id'] : null,
+            'approver_id'     => !empty($_POST['approver_id']) ? (int)$_POST['approver_id'] : null,
+            'department'      => Security::sanitizeInput($_POST['department'] ?? '') ?: null,
+            'business_unit'   => Security::sanitizeInput($_POST['business_unit'] ?? '') ?: null,
+            'classification'  => $cls,
+            'revision'        => Security::sanitizeInput($_POST['revision'] ?? '1.0') ?: '1.0',
+            'description'     => Security::sanitizeInput($_POST['description'] ?? '') ?: null,
+            'effective_date'  => !empty($_POST['effective_date']) ? $_POST['effective_date'] : null,
+            'review_date'     => !empty($_POST['review_date']) ? $_POST['review_date'] : null,
+            'expiration_date' => !empty($_POST['expiration_date']) ? $_POST['expiration_date'] : null,
+            'requires_ack'    => !empty($_POST['requires_ack']) ? 't' : 'f',
+        ];
+    }
+
+    private function saveRelations(string $type, int $id): void {
+        $labels = $_POST['relation_label'] ?? [];
+        $kinds  = $_POST['relation_type'] ?? [];
+        if (!is_array($labels)) return;
+        foreach ($labels as $i => $label) {
+            $label = Security::sanitizeInput((string)$label);
+            if ($label === '') continue;
+            $kind = Security::sanitizeInput((string)($kinds[$i] ?? 'related_process'));
+            Database::insert('entity_relations', [
+                'source_type' => $type, 'source_id' => $id, 'relation_type' => $kind, 'target_label' => $label,
+            ]);
+        }
+    }
+}
