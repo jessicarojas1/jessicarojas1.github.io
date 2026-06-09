@@ -83,6 +83,7 @@
       <div class="nav-acc-body" id="nav-acc-insights">
         <a href="/reports" class="nav-item <?= ($activeModule ?? '')==='reports'?'active':'' ?>"><i class="bi bi-bar-chart-line-fill"></i><span>Reports</span></a>
         <a href="/search"  class="nav-item <?= ($activeModule ?? '')==='search'?'active':'' ?>"><i class="bi bi-search"></i><span>Search</span></a>
+        <a href="/labels"  class="nav-item <?= ($activeModule ?? '')==='labels'?'active':'' ?>"><i class="bi bi-tags-fill"></i><span>Labels</span></a>
       </div>
     </div>
 

@@ -150,6 +150,7 @@ $routes = [
         '/templates/create'          => ['TemplateController', 'createForm'],
 
         '/search'                    => ['SearchController', 'index'],
+        '/labels'                    => ['LabelController', 'index'],
         '/reports'                   => ['ReportController', 'index'],
         '/reports/expiring'          => ['ReportController', 'expiring'],
         '/reports/approval-backlog'  => ['ReportController', 'approvalBacklog'],
@@ -228,6 +229,7 @@ $dynamicRoutes = [
         '#^/approvals/(\d+)$#'               => ['ApprovalController', 'view'],
         '#^/tasks/(\d+)$#'                   => ['TaskController', 'view'],
         '#^/blog/(\d+)$#'                    => ['BlogController', 'view'],
+        '#^/labels/(\d+)$#'                  => ['LabelController', 'view'],
         '#^/blog/(\d+)/edit$#'               => ['BlogController', 'editForm'],
         '#^/spaces/(\d+)/blog$#'             => ['BlogController', 'space'],
         '#^/templates/(\d+)$#'               => ['TemplateController', 'view'],
