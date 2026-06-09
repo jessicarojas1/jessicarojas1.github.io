@@ -12,6 +12,7 @@
 $cEntityType = $cEntityType ?? 'page';
 $cEntityId   = (int)($cEntityId ?? 0);
 $cCanComment = $cCanComment ?? false;
+$cReactions  = $cReactions ?? [];
 
 $threads = []; $replies = [];
 foreach ($comments as $c) {
@@ -21,11 +22,15 @@ foreach ($comments as $c) {
     if (!empty($c['parent_id'])) $replies[(int)$c['parent_id']][] = $c;
 }
 
-$renderComment = function (array $c) {
+$renderComment = function (array $c) use ($cReactions) {
     echo '<div class="comment">' . View::avatar($c['user_name']) . '<div class="comment-body">';
     echo '<div class="comment-head"><span class="comment-author">' . Security::h($c['user_name'] ?: 'User') . '</span>';
     echo '<span class="comment-time">' . View::timeAgo($c['created_at']) . '</span></div>';
-    echo '<div class="comment-text">' . View::mentionize($c['body']) . '</div></div></div>';
+    echo '<div class="comment-text">' . View::mentionize($c['body']) . '</div>';
+    $likeType = 'comment'; $likeId = (int)$c['id']; $likeSmall = true;
+    $likeData = $cReactions[(int)$c['id']] ?? ['count' => 0, 'liked' => false];
+    echo '<div class="comment-like">'; require PALADIN_ROOT . '/views/partials/like.php'; echo '</div>';
+    echo '</div></div>';
 };
 ?>
 <div class="comment-threads">

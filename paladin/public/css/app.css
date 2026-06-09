@@ -2299,3 +2299,11 @@ html[data-theme="dark"] [style*="background:#f3f4f6"][style*="color:#6b7280"] { 
 .thread-replies{margin-left:38px;border-left:2px solid var(--border-light);padding-left:10px}
 .reply-form{display:none;margin:6px 0 8px 50px}
 .reply-form.open{display:block}
+
+/* ===== Likes / reactions ===== */
+.like-btn{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px;font:inherit;font-size:.8rem;color:var(--text-muted);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.like-btn:hover{border-color:var(--primary);color:var(--primary)}
+.like-btn.liked{color:var(--primary);border-color:var(--primary);background:rgba(14,165,233,.08)}
+.like-btn .like-count{font-weight:700}
+.like-btn.like-sm{padding:2px 8px;font-size:.72rem;border-radius:999px}
+.comment-like{margin-top:5px}

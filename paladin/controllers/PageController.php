@@ -69,11 +69,13 @@ class PageController {
         );
         $canEditPage = PageAccess::canEdit($page);
         $allUsers = $canEditPage ? Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name") : [];
+        $pageLike = Reactions::one('page', $id);
         $comments = Database::fetchAll(
             "SELECT c.*, u.name AS user_name, r.name AS resolver_name
              FROM comments c LEFT JOIN users u ON u.id=c.user_id LEFT JOIN users r ON r.id=c.resolved_by
              WHERE c.entity_type='page' AND c.entity_id=? ORDER BY c.created_at", [$id]
         );
+        $cReactions = Reactions::summary('comment', array_map(fn($c) => (int)$c['id'], $comments));
         $versionCount = (int)(Database::fetchOne("SELECT COUNT(*) c FROM page_versions WHERE page_id=?", [$id])['c'] ?? 0);
         $isWatching = (bool)Database::fetchOne("SELECT 1 FROM watches WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
         $labels = Database::fetchAll(

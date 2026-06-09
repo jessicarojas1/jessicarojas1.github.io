@@ -77,6 +77,8 @@ class DocumentController {
              WHERE c.entity_type='document' AND c.entity_id=? ORDER BY c.created_at", [$id]
         );
         $approval = Database::fetchOne("SELECT * FROM approval_requests WHERE entity_type='document' AND entity_id=? ORDER BY id DESC LIMIT 1", [$id]);
+        $docLike = Reactions::one('document', $id);
+        $cReactions = Reactions::summary('comment', array_map(fn($c) => (int)$c['id'], $comments));
         $transitions = self::TRANSITIONS[$doc['status']] ?? [];
         require PALADIN_ROOT . '/views/documents/view.php';
     }

@@ -10,6 +10,7 @@ ob_start();
     <p class="page-subtitle">In <a href="/spaces/<?= (int)$page['space_id'] ?>"><?= Security::h($page['space_name']) ?></a> · Owner: <?= Security::h($page['owner_name'] ?: '—') ?> · v<?= (int)$page['current_version'] ?> · Updated <?= View::timeAgo($page['updated_at']) ?></p>
   </div>
   <div class="page-actions">
+    <?php $likeType='page'; $likeId=(int)$page['id']; $likeData=$pageLike; require PALADIN_ROOT . '/views/partials/like.php'; ?>
     <form method="POST" action="/pages/<?= (int)$page['id'] ?>/watch" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-ghost" type="submit"><i class="bi bi-eye<?= $isWatching?'-fill':'' ?>"></i></button></form>
     <a href="/pages/<?= (int)$page['id'] ?>/history" class="btn btn-ghost"><i class="bi bi-clock-history"></i> History (<?= $versionCount ?>)</a>
     <a href="/pages/<?= (int)$page['id'] ?>/print" target="_blank" rel="noopener" class="btn btn-ghost"><i class="bi bi-file-earmark-pdf"></i> Export PDF</a>
