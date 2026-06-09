@@ -76,6 +76,9 @@ $roleOpts = ['reviewer','approver','compliance_admin','space_owner'];
   </div>
 </div>
 
+<!-- ===== Stateful workflow: visual diagram ===== -->
+<?php $wfDiagramEditable = true; require PALADIN_ROOT . '/views/partials/workflow_diagram.php'; ?>
+
 <!-- ===== Stateful workflow: states + transitions + spaces ===== -->
 <div class="card" style="margin-top:18px">
   <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-bounding-box-circles"></i> States</span></div><span class="form-hint">Define the named states content moves through (one is the initial state).</span></div>

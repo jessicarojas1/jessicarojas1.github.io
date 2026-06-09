@@ -73,9 +73,32 @@ class WorkflowController {
         if ($n === 0) {
             Database::insert('workflow_steps', ['template_id' => $id, 'step_number' => 1, 'name' => 'Approval', 'approver_role' => 'approver', 'sla_hours' => 72]);
         }
+
+        // Seed a starter state diagram so the new workflow opens with something
+        // to manipulate (Draft → In Review → Approved → Released, plus Reject).
+        $seed = [
+            ['Draft',     '#64748b', 'initial',    true,  60,  90],
+            ['In Review', '#f59e0b', 'review',     false, 280, 90],
+            ['Approved',  '#10b981', 'approved',   false, 500, 90],
+            ['Released',  '#0ea5e9', 'final',      false, 720, 90],
+        ];
+        $sids = [];
+        foreach ($seed as $i => $s) {
+            $sids[$i] = Database::insert('wf_states', [
+                'template_id' => $id, 'name' => $s[0], 'color' => $s[1], 'kind' => $s[2],
+                'is_initial' => $s[3] ? 't' : 'f', 'sort_order' => $i + 1, 'pos_x' => $s[4], 'pos_y' => $s[5],
+            ]);
+        }
+        foreach ([[0,1,'Submit','reviewer'],[1,2,'Approve','approver'],[2,3,'Release','approver'],[1,0,'Reject','reviewer']] as $t) {
+            Database::insert('wf_transitions', [
+                'template_id' => $id, 'from_state_id' => $sids[$t[0]], 'to_state_id' => $sids[$t[1]],
+                'action_label' => $t[2], 'approver_role' => $t[3],
+            ]);
+        }
+
         Auth::log('create_workflow', 'workflow_templates', $id, ['name' => $name]);
-        $_SESSION['flash_success'] = 'Workflow template created.';
-        header('Location: /workflows/' . $id);
+        $_SESSION['flash_success'] = 'Workflow template created with a starter state diagram — drag the states to arrange your flow.';
+        header('Location: /workflows/' . $id . '/edit');
     }
 
     public function delete(int $id): void {
@@ -236,6 +259,34 @@ class WorkflowController {
         Auth::log('delete_wf_state', 'workflow_templates', $id, ['state' => $sid]);
         $_SESSION['flash_success'] = 'State removed.';
         header('Location: /workflows/' . $id . '/edit');
+    }
+
+    /**
+     * Persist node positions from the visual diagram (AJAX). Body is JSON:
+     * { "csrf": "...", "positions": { "<stateId>": {"x":N,"y":N}, ... } }.
+     * Returns {"ok":true,"csrf":"<rotated>"} so the client can keep saving.
+     */
+    public function saveLayout(int $id): void {
+        Auth::requirePermission('workflow.manage');
+        header('Content-Type: application/json');
+        $raw = file_get_contents('php://input') ?: '';
+        $data = json_decode($raw, true);
+        if (!is_array($data) || !Security::validateCsrf((string)($data['csrf'] ?? ''))) {
+            http_response_code(403); echo json_encode(['ok' => false, 'error' => 'csrf']); return;
+        }
+        if (!Database::fetchOne("SELECT id FROM workflow_templates WHERE id=?", [$id])) {
+            http_response_code(404); echo json_encode(['ok' => false]); return;
+        }
+        $positions = is_array($data['positions'] ?? null) ? $data['positions'] : [];
+        foreach ($positions as $sid => $p) {
+            $sid = (int)$sid;
+            $x = (int)round((float)($p['x'] ?? 0));
+            $y = (int)round((float)($p['y'] ?? 0));
+            // Clamp to a sane canvas range.
+            $x = max(0, min(4000, $x)); $y = max(0, min(4000, $y));
+            Database::query("UPDATE wf_states SET pos_x=?, pos_y=? WHERE id=? AND template_id=?", [$x, $y, $sid, $id]);
+        }
+        echo json_encode(['ok' => true, 'csrf' => Security::generateCsrfToken()]);
     }
 
     // ── Stateful workflow: transitions ───────────────────────────────────────

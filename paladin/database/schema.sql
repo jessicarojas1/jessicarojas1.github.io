@@ -472,6 +472,8 @@ CREATE TABLE IF NOT EXISTS wf_states (
     kind        VARCHAR(20) NOT NULL DEFAULT 'inprogress',
     is_initial  BOOLEAN NOT NULL DEFAULT FALSE,
     sort_order  INTEGER NOT NULL DEFAULT 0,
+    pos_x       INTEGER,
+    pos_y       INTEGER,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_wf_states_tpl ON wf_states(template_id);
