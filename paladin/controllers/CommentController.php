@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 class CommentController {
 
-    private const EDIT_PERM = ['page' => 'page.edit', 'document' => 'document.edit', 'process' => 'process.edit'];
+    private const EDIT_PERM = ['page' => 'page.edit', 'document' => 'document.edit', 'process' => 'process.edit', 'blog' => 'page.edit'];
 
     private function load(int $id): ?array {
         return Database::fetchOne("SELECT * FROM comments WHERE id = ?", [$id]);
@@ -18,6 +18,7 @@ class CommentController {
         return match ($c['entity_type']) {
             'page'     => '/pages/' . (int)$c['entity_id'] . '#comments',
             'document' => '/documents/' . (int)$c['entity_id'] . '#comments',
+            'blog'     => '/blog/' . (int)$c['entity_id'] . '#comments',
             'process'  => '/processes/' . (int)$c['entity_id'],
             default    => '/',
         };
