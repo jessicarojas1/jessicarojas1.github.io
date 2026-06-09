@@ -156,6 +156,9 @@ $routes = [
         '/reports/approval-backlog'  => ['ReportController', 'approvalBacklog'],
         '/reports/acknowledgements'  => ['ReportController', 'acknowledgements'],
 
+        '/campaigns'                 => ['CampaignController', 'index'],
+        '/campaigns/create'          => ['CampaignController', 'createForm'],
+
         '/profile/edit'              => ['ProfileController', 'editForm'],
         '/profile/notifications'     => ['ProfileController', 'notifications'],
         '/profile/tokens'            => ['ProfileController', 'tokens'],
@@ -198,6 +201,8 @@ $routes = [
 
         '/blog/create'               => ['BlogController', 'create'],
         '/templates/create'          => ['TemplateController', 'create'],
+
+        '/campaigns'                 => ['CampaignController', 'create'],
 
         '/profile/edit'              => ['ProfileController', 'update'],
         '/profile/tokens'            => ['ProfileController', 'createToken'],
@@ -252,6 +257,7 @@ $dynamicRoutes = [
         '#^/blog/(\d+)/edit$#'               => ['BlogController', 'editForm'],
         '#^/spaces/(\d+)/blog$#'             => ['BlogController', 'space'],
         '#^/templates/(\d+)$#'               => ['TemplateController', 'view'],
+        '#^/campaigns/(\d+)$#'               => ['CampaignController', 'view'],
         '#^/admin/users/(\d+)/permissions$#' => ['AdminController', 'permissions'],
         '#^/admin/roles/(\d+)/edit$#'        => ['AdminController', 'roleForm'],
     ],
@@ -319,6 +325,9 @@ $dynamicRoutes = [
         '#^/admin/retention/(\d+)/run$#'     => ['AdminController', 'runRetention'],
         '#^/admin/retention/(\d+)/delete$#'  => ['AdminController', 'deleteRetention'],
         '#^/profile/tokens/(\d+)/revoke$#'   => ['ProfileController', 'revokeToken'],
+        '#^/campaigns/(\d+)/notify$#'        => ['CampaignController', 'notifyOutstanding'],
+        '#^/campaigns/(\d+)/close$#'         => ['CampaignController', 'close'],
+        '#^/campaigns/(\d+)/delete$#'        => ['CampaignController', 'delete'],
         '#^/admin/roles/(\d+)/edit$#'        => ['AdminController', 'updateRole'],
         '#^/admin/roles/(\d+)/delete$#'      => ['AdminController', 'deleteRole'],
     ],
