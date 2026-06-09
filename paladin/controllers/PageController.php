@@ -78,6 +78,7 @@ class PageController {
         $cReactions = Reactions::summary('comment', array_map(fn($c) => (int)$c['id'], $comments));
         $versionCount = (int)(Database::fetchOne("SELECT COUNT(*) c FROM page_versions WHERE page_id=?", [$id])['c'] ?? 0);
         $isWatching = (bool)Database::fetchOne("SELECT 1 FROM watches WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
+        $isFav = (bool)Database::fetchOne("SELECT 1 FROM favorites WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
         $labels = Database::fetchAll(
             "SELECT t.id, t.name, t.color FROM entity_tags et JOIN tags t ON t.id=et.tag_id
              WHERE et.entity_type='page' AND et.entity_id=? ORDER BY t.name", [$id]
@@ -208,6 +209,7 @@ class PageController {
         } else {
             Webhook::dispatch('page.updated', ['id' => $id, 'version' => $newVersion, 'actor' => Auth::id()]);
         }
+        $this->notifyWatchers($id, $title, 'updated');
         $_SESSION['flash_success'] = 'Page saved (v' . $newVersion . ').';
         header('Location: /pages/' . $id);
     }
@@ -215,10 +217,12 @@ class PageController {
     public function publish(int $id): void {
         Auth::requirePermission('page.publish');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        if (!$this->guardEdit($id)) return;
+        $page = $this->guardEdit($id);
+        if (!$page) return;
         Database::update('pages', ['status' => 'published', 'published_at' => date('Y-m-d H:i:s')], 'id = ?', [$id]);
         Auth::log('publish_page', 'pages', $id);
         Webhook::dispatch('page.published', ['id' => $id, 'actor' => Auth::id()]);
+        $this->notifyWatchers($id, (string)($page['title'] ?? 'Page'), 'published');
         $_SESSION['flash_success'] = 'Page published.';
         header('Location: /pages/' . $id);
     }
@@ -383,5 +387,46 @@ class PageController {
             Auth::log('move_page', 'pages', $id, ['dir' => $dir]);
         }
         header('Location: /spaces/' . (int)$page['space_id']);
+    }
+
+    public function toggleWatch(int $id): void {
+        Auth::requirePermission('page.view');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $exists = Database::fetchOne("SELECT id FROM watches WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
+        if ($exists) Database::query("DELETE FROM watches WHERE id=?", [$exists['id']]);
+        else Database::insert('watches', ['user_id' => Auth::id(), 'entity_type' => 'page', 'entity_id' => $id]);
+        header('Location: /pages/' . $id);
+    }
+
+    public function toggleFavorite(int $id): void {
+        Auth::requirePermission('page.view');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $exists = Database::fetchOne("SELECT id FROM favorites WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
+        if ($exists) Database::query("DELETE FROM favorites WHERE id=?", [$exists['id']]);
+        else Database::insert('favorites', ['user_id' => Auth::id(), 'entity_type' => 'page', 'entity_id' => $id]);
+        header('Location: /pages/' . $id);
+    }
+
+    /**
+     * Alert everyone watching a page (except the actor) that it changed.
+     * Best-effort — never blocks the save.
+     */
+    private function notifyWatchers(int $pageId, string $title, string $verb): void {
+        try {
+            $watchers = Database::fetchAll(
+                "SELECT user_id FROM watches WHERE entity_type='page' AND entity_id=? AND user_id <> ?",
+                [$pageId, Auth::id()]
+            );
+            foreach ($watchers as $w) {
+                Database::insert('alerts', [
+                    'user_id'  => (int)$w['user_id'],
+                    'title'    => 'Watched page ' . $verb,
+                    'body'     => '"' . $title . '" was ' . $verb . ' by ' . (Auth::user()['name'] ?? 'someone') . '.',
+                    'severity' => 'info',
+                    'link'     => '/pages/' . $pageId,
+                    'is_read'  => 'f',
+                ]);
+            }
+        } catch (\Throwable) { /* best effort */ }
     }
 }
