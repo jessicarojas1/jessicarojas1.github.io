@@ -39,6 +39,9 @@ ob_start();
     </div>
   </div>
 
+  <!-- Workflow -->
+  <?php $wfType='page'; $wfId=(int)$page['id']; $wfCanEdit=$canEditPage; require PALADIN_ROOT . '/views/partials/workflow_status.php'; ?>
+
   <!-- Labels -->
   <div class="card" style="margin-bottom:18px">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-tags-fill"></i> Labels</span></div></div>

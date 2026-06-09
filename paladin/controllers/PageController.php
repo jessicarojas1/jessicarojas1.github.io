@@ -87,6 +87,11 @@ class PageController {
             "SELECT a.*, u.name AS uploader FROM attachments a LEFT JOIN users u ON u.id=a.uploaded_by
              WHERE a.entity_type='page' AND a.entity_id=? ORDER BY a.created_at DESC", [$id]
         );
+        $wfStatus = Workflow::status('page', $id);
+        $wfTransitions = $wfStatus ? Workflow::transitions((int)$wfStatus['template_id'], (int)$wfStatus['state_id']) : [];
+        $wfHistory = Workflow::history('page', $id);
+        $wfApplicable = $canEditPage ? Workflow::applicable($page['space_id'] !== null ? (int)$page['space_id'] : null) : [];
+        $wfEsign = Workflow::esignatureRequired();
         Recent::track('page', $id, $page['title']);
         require PALADIN_ROOT . '/views/pages/view.php';
     }

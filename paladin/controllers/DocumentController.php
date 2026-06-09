@@ -80,6 +80,12 @@ class DocumentController {
         $docLike = Reactions::one('document', $id);
         $cReactions = Reactions::summary('comment', array_map(fn($c) => (int)$c['id'], $comments));
         $transitions = self::TRANSITIONS[$doc['status']] ?? [];
+        $wfCanEdit = Auth::can('document.edit');
+        $wfStatus = Workflow::status('document', $id);
+        $wfTransitions = $wfStatus ? Workflow::transitions((int)$wfStatus['template_id'], (int)$wfStatus['state_id']) : [];
+        $wfHistory = Workflow::history('document', $id);
+        $wfApplicable = $wfCanEdit ? Workflow::applicable($doc['space_id'] !== null ? (int)$doc['space_id'] : null) : [];
+        $wfEsign = Workflow::esignatureRequired();
         Recent::track('document', $id, $doc['title']);
         require PALADIN_ROOT . '/views/documents/view.php';
     }

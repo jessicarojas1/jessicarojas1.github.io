@@ -206,6 +206,9 @@ $routes = [
         '/searches/save'             => ['SearchController', 'save'],
         '/reactions/toggle'          => ['ReactionController', 'toggle'],
         '/share'                     => ['ShareController', 'send'],
+        '/workflow/apply'            => ['WorkflowRunController', 'apply'],
+        '/workflow/transition'       => ['WorkflowRunController', 'transition'],
+        '/workflow/remove'           => ['WorkflowRunController', 'remove'],
     ],
 ];
 
