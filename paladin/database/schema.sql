@@ -463,6 +463,16 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 CREATE INDEX IF NOT EXISTS idx_comments_entity ON comments(entity_type, entity_id);
 
+CREATE TABLE IF NOT EXISTS reactions (
+    id          SERIAL PRIMARY KEY,
+    entity_type VARCHAR(40) NOT NULL,   -- page | document | comment
+    entity_id   INTEGER NOT NULL,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE (entity_type, entity_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_reactions_entity ON reactions(entity_type, entity_id);
+
 CREATE TABLE IF NOT EXISTS watches (
     id          SERIAL PRIMARY KEY,
     user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,

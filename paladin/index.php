@@ -200,6 +200,7 @@ $routes = [
 
         '/alerts/read-all'           => ['ProfileController', 'markAllRead'],
         '/searches/save'             => ['SearchController', 'save'],
+        '/reactions/toggle'          => ['ReactionController', 'toggle'],
     ],
 ];
 

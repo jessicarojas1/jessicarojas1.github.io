@@ -12,6 +12,7 @@ $relLabels = ['related_process'=>'Process','related_risk'=>'Risk','related_contr
     <p class="page-subtitle"><span class="chip"><?= Security::h($doc['document_code']) ?></span> <?= View::docTypeLabel($doc['doc_type']) ?> · Revision <?= Security::h($doc['revision']) ?> · <?= Security::h(ucfirst($doc['classification'])) ?></p>
   </div>
   <div class="page-actions">
+    <?php $likeType='document'; $likeId=(int)$doc['id']; $likeData=$docLike; require PALADIN_ROOT . '/views/partials/like.php'; ?>
     <?php if ($doc['file_stored_name']): ?><a href="/documents/<?= (int)$doc['id'] ?>/download" class="btn btn-ghost"><i class="bi bi-download"></i> Download</a><?php endif; ?>
     <?php if (Auth::can('document.edit') && (!$doc['checked_out_by'] || $checkedOutByMe)): ?><a href="/documents/<?= (int)$doc['id'] ?>/edit" class="btn btn-primary"><i class="bi bi-pencil"></i> Edit</a><?php endif; ?>
   </div>
