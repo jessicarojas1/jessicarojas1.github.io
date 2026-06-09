@@ -272,6 +272,8 @@ class DocumentController {
         if ($body !== '') {
             Database::insert('comments', ['entity_type' => 'document', 'entity_id' => $id, 'user_id' => Auth::id(), 'body' => $body]);
             Auth::log('comment_document', 'documents', $id);
+            $dc = Database::fetchOne("SELECT title FROM documents WHERE id=?", [$id]);
+            Mentions::process($body, 'document', $id, $dc['title'] ?? null);
         }
         header('Location: /documents/' . $id . '#comments');
     }

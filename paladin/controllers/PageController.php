@@ -216,6 +216,8 @@ class PageController {
         if ($body !== '') {
             Database::insert('comments', ['entity_type' => 'page', 'entity_id' => $id, 'user_id' => Auth::id(), 'body' => $body]);
             Auth::log('comment_page', 'pages', $id);
+            $pg = Database::fetchOne("SELECT title FROM pages WHERE id=?", [$id]);
+            Mentions::process($body, 'page', $id, $pg['title'] ?? null);
         }
         header('Location: /pages/' . $id . '#comments');
     }
