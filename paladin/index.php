@@ -162,6 +162,7 @@ $routes = [
 
         '/profile/edit'              => ['ProfileController', 'editForm'],
         '/profile/notifications'     => ['ProfileController', 'notifications'],
+        '/profile/favorites'         => ['ProfileController', 'favorites'],
         '/profile/tokens'            => ['ProfileController', 'tokens'],
         '/mfa/setup'                 => ['ProfileController', 'mfaSetupForm'],
         '/mfa/verify'                => ['AuthController', 'mfaVerifyForm'],
@@ -271,6 +272,8 @@ $dynamicRoutes = [
         '#^/spaces/(\d+)/delete$#'           => ['SpaceController', 'delete'],
         '#^/spaces/(\d+)/watch$#'            => ['SpaceController', 'toggleWatch'],
         '#^/spaces/(\d+)/favorite$#'         => ['SpaceController', 'toggleFavorite'],
+        '#^/pages/(\d+)/watch$#'             => ['PageController', 'toggleWatch'],
+        '#^/pages/(\d+)/favorite$#'          => ['PageController', 'toggleFavorite'],
         '#^/pages/(\d+)/edit$#'              => ['PageController', 'update'],
         '#^/pages/(\d+)/delete$#'            => ['PageController', 'delete'],
         '#^/pages/(\d+)/publish$#'           => ['PageController', 'publish'],

@@ -81,6 +81,37 @@ class ProfileController {
         header('Location: /profile/notifications');
     }
 
+    /** My Favorites & Watches — the user's starred spaces/pages and watched items. */
+    public function favorites(): void {
+        Auth::requireAuth();
+        $uid = Auth::id();
+        $favSpaces = Database::fetchAll(
+            "SELECT s.id, s.name, s.space_key, f.created_at FROM favorites f
+             JOIN spaces s ON s.id = f.entity_id
+             WHERE f.user_id = ? AND f.entity_type = 'space' ORDER BY f.created_at DESC",
+            [$uid]
+        );
+        $favPages = Database::fetchAll(
+            "SELECT p.id, p.title, s.name AS space_name, f.created_at FROM favorites f
+             JOIN pages p ON p.id = f.entity_id LEFT JOIN spaces s ON s.id = p.space_id
+             WHERE f.user_id = ? AND f.entity_type = 'page' ORDER BY f.created_at DESC",
+            [$uid]
+        );
+        $watchedPages = Database::fetchAll(
+            "SELECT p.id, p.title, s.name AS space_name, p.updated_at FROM watches w
+             JOIN pages p ON p.id = w.entity_id LEFT JOIN spaces s ON s.id = p.space_id
+             WHERE w.user_id = ? AND w.entity_type = 'page' ORDER BY p.updated_at DESC",
+            [$uid]
+        );
+        $watchedSpaces = Database::fetchAll(
+            "SELECT s.id, s.name, s.space_key FROM watches w
+             JOIN spaces s ON s.id = w.entity_id
+             WHERE w.user_id = ? AND w.entity_type = 'space' ORDER BY s.name",
+            [$uid]
+        );
+        require PALADIN_ROOT . '/views/profile/favorites.php';
+    }
+
     // ── Personal Access Tokens (per-user API credentials) ───────────────────
     public function tokens(): void {
         Auth::requireAuth();
