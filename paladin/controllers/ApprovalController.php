@@ -96,6 +96,7 @@ class ApprovalController {
         }
         $this->notifyActiveApprovers($reqId);
         Auth::log('start_approval', 'approval_requests', $reqId, ['title' => $title]);
+        Webhook::dispatch('approval.requested', ['id' => $reqId, 'title' => $title, 'actor' => Auth::id()]);
         $_SESSION['flash_success'] = 'Approval request routed.';
         header('Location: /approvals/' . $reqId);
     }
@@ -165,6 +166,7 @@ class ApprovalController {
             $this->syncEntity($req, 'approved');
             $this->notify((int)$req['requested_by'], 'Approved', $req['title'] . ' was fully approved.', '/approvals/' . $id, 'info');
             Auth::log('complete_approval', 'approval_requests', $id);
+            Webhook::dispatch('approval.completed', ['id' => $id, 'title' => $req['title'], 'result' => 'approved', 'actor' => Auth::id()]);
             $_SESSION['flash_success'] = 'Final approval recorded — request approved.';
         } else {
             // Advance current_step for sequential/single to the next pending step
