@@ -610,3 +610,27 @@ document.addEventListener('click', function(e) {
     document.querySelectorAll('.filter-btn[data-filter-toggle].active').forEach(function(b) { b.classList.remove('active'); });
   }
 });
+
+// ── Table-of-contents macro: populate .macro-toc from headings in the .prose ──
+(function () {
+  document.querySelectorAll('.macro-toc').forEach(function (toc) {
+    var prose = toc.closest('.prose');
+    if (!prose) return;
+    var heads = prose.querySelectorAll('h2, h3');
+    if (!heads.length) return;
+    var ul = document.createElement('ul');
+    var n = 0;
+    heads.forEach(function (h) {
+      if (toc.contains(h)) return;
+      if (!h.id) { h.id = 'h-' + (n++) + '-' + (h.textContent || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40); }
+      var li = document.createElement('li');
+      if (h.tagName === 'H3') li.className = 'toc-h3';
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+    toc.appendChild(ul);
+  });
+})();
