@@ -7,9 +7,11 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
+import { FilterBar } from '@/components/FilterBar';
 import type { MsaResult, MsaStudy, MsaType } from '@/types';
 
 const TYPES: MsaType[] = ['gage_rr', 'bias', 'linearity', 'stability'];
+const RESULTS: MsaResult[] = ['acceptable', 'marginal', 'unacceptable', 'pending'];
 const RESULT_TONE: Record<MsaResult, string> = {
   acceptable: 'low',
   marginal: 'medium',
@@ -30,6 +32,14 @@ export default function MsaPage() {
   const [characteristic, setCharacteristic] = useState('');
   const [type, setType] = useState<MsaType>('gage_rr');
   const [grr, setGrr] = useState('');
+  const [fType, setFType] = useState('');
+  const [fResult, setFResult] = useState('');
+
+  const studies = data ?? [];
+  const filtered = studies.filter(
+    (s) => (!fType || s.study_type === fType) && (!fResult || s.result === fResult),
+  );
+  const activeFilters = (fType ? 1 : 0) + (fResult ? 1 : 0);
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +87,16 @@ export default function MsaPage() {
       ) : (
         <div className="card">
           <div className="card__header"><div className="card__title">MSA Studies</div></div>
+          <FilterBar active={activeFilters}>
+            <select className="input field" value={fType} onChange={(e) => setFType(e.target.value)} aria-label="Filter by study type">
+              <option value="">All types</option>
+              {TYPES.map((t) => <option key={t} value={t}>{label(t)}</option>)}
+            </select>
+            <select className="input field" value={fResult} onChange={(e) => setFResult(e.target.value)} aria-label="Filter by result">
+              <option value="">All results</option>
+              {RESULTS.map((r) => <option key={r} value={r}>{label(r)}</option>)}
+            </select>
+          </FilterBar>
           <div className="table-wrap">
             <table className="data-table">
               <thead>
@@ -85,8 +105,8 @@ export default function MsaPage() {
               <tbody>
                 {isLoading ? (
                   <tr><td colSpan={8}><span className="spinner" /> Loading…</td></tr>
-                ) : data && data.length ? (
-                  data.map((s) => (
+                ) : filtered.length ? (
+                  filtered.map((s) => (
                     <tr key={s.id}>
                       <td className="mono">{s.study_number}</td>
                       <td>{s.characteristic}</td>
@@ -122,7 +142,7 @@ export default function MsaPage() {
                     </tr>
                   ))
                 ) : (
-                  <tr className="empty-row"><td colSpan={8}><div className="empty-state-sm">No MSA studies.</div></td></tr>
+                  <tr className="empty-row"><td colSpan={8}><div className="empty-state-sm">{studies.length ? 'No studies match the selected filters.' : 'No MSA studies.'}</div></td></tr>
                 )}
               </tbody>
             </table>
