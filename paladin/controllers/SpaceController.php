@@ -11,6 +11,7 @@ class SpaceController {
             [$id]
         );
         if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!SpaceAccess::canView($space)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         // Published pages in tree order (parents before children, then position).
         $pages = Database::fetchAll(
             "SELECT id, parent_id, title, body, position, updated_at
@@ -32,6 +33,11 @@ class SpaceController {
         $where = ['s.is_archived = FALSE']; $params = [];
         if ($type && in_array($type, View::spaceTypes(), true)) { $where[] = 's.type = ?'; $params[] = $type; }
         if ($q) { $where[] = '(s.name ILIKE ? OR s.space_key ILIKE ? OR s.description ILIKE ?)'; array_push($params, "%$q%", "%$q%", "%$q%"); }
+        // Hide private spaces from non-members (system admins see everything).
+        if (Auth::role() !== 'admin') {
+            $where[] = '(s.is_private = FALSE OR EXISTS (SELECT 1 FROM space_members m WHERE m.space_id = s.id AND m.user_id = ?))';
+            $params[] = Auth::id();
+        }
         $whereSql = implode(' AND ', $where);
 
         $spaces = Database::fetchAll(
@@ -53,6 +59,8 @@ class SpaceController {
             [$id]
         );
         if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!SpaceAccess::canView($space)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        $canManageSpace = SpaceAccess::canManage($space);
 
         $pages = Database::fetchAll(
             "SELECT id, parent_id, title, status, position, owner_id, created_by FROM pages WHERE space_id = ? AND deleted_at IS NULL ORDER BY position, title",
@@ -74,7 +82,56 @@ class SpaceController {
         );
         $isWatching = (bool)Database::fetchOne("SELECT 1 FROM watches WHERE user_id=? AND entity_type='space' AND entity_id=?", [Auth::id(), $id]);
         $isFav      = (bool)Database::fetchOne("SELECT 1 FROM favorites WHERE user_id=? AND entity_type='space' AND entity_id=?", [Auth::id(), $id]);
+        $addableUsers = $canManageSpace ? Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name") : [];
         require PALADIN_ROOT . '/views/spaces/view.php';
+    }
+
+    /** Roles assignable to a space member. */
+    private const SPACE_ROLES = ['admin', 'contributor', 'reviewer', 'approver', 'viewer'];
+
+    /** Load a space and enforce manage rights; emits 403/404 and returns null. */
+    private function guardManage(int $id): ?array {
+        Auth::requirePermission('space.view');
+        $space = Database::fetchOne("SELECT * FROM spaces WHERE id = ?", [$id]);
+        if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return null; }
+        if (!SpaceAccess::canManage($space)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return null; }
+        return $space;
+    }
+
+    public function addMember(int $id): void {
+        if (!($space = $this->guardManage($id))) return;
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $userId = (int)($_POST['user_id'] ?? 0);
+        $role   = in_array($_POST['role'] ?? '', self::SPACE_ROLES, true) ? $_POST['role'] : 'viewer';
+        if ($userId && Database::fetchOne("SELECT 1 FROM users WHERE id=? AND is_active=TRUE", [$userId])) {
+            Database::query(
+                "INSERT INTO space_members (space_id, user_id, role) VALUES (?, ?, ?)
+                 ON CONFLICT (space_id, user_id) DO UPDATE SET role = EXCLUDED.role",
+                [$id, $userId, $role]
+            );
+            Auth::log('add_space_member', 'spaces', $id, ['user' => $userId, 'role' => $role]);
+            $_SESSION['flash_success'] = 'Member added.';
+        }
+        header('Location: /spaces/' . $id . '#members');
+    }
+
+    public function updateMember(int $id, int $userId): void {
+        if (!($space = $this->guardManage($id))) return;
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $role = in_array($_POST['role'] ?? '', self::SPACE_ROLES, true) ? $_POST['role'] : 'viewer';
+        // Never strip the last owner of their owner role.
+        Database::query("UPDATE space_members SET role = ? WHERE space_id = ? AND user_id = ? AND role <> 'owner'", [$role, $id, $userId]);
+        Auth::log('update_space_member', 'spaces', $id, ['user' => $userId, 'role' => $role]);
+        header('Location: /spaces/' . $id . '#members');
+    }
+
+    public function removeMember(int $id, int $userId): void {
+        if (!($space = $this->guardManage($id))) return;
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        // Keep the owner; they manage the space.
+        Database::query("DELETE FROM space_members WHERE space_id = ? AND user_id = ? AND role <> 'owner'", [$id, $userId]);
+        Auth::log('remove_space_member', 'spaces', $id, ['user' => $userId]);
+        header('Location: /spaces/' . $id . '#members');
     }
 
     public function createForm(): void {
