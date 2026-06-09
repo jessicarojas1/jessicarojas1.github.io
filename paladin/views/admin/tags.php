@@ -12,18 +12,28 @@ ob_start();
   <div class="card">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-tags-fill"></i> All Tags</span></div></div>
     <div class="card-body" style="padding:0">
-      <table class="table table-hover" style="margin:0">
-        <thead><tr><th>Tag</th><th>Colour</th><th style="text-align:right">Usage</th></tr></thead>
+      <table class="table" style="margin:0">
+        <thead><tr><th>Name</th><th style="width:90px">Colour</th><th style="width:70px;text-align:right">Usage</th><th style="width:150px"></th></tr></thead>
         <tbody>
         <?php foreach ($tags as $t): ?>
           <tr>
-            <td><span class="chip" style="border-left:3px solid <?= Security::h($t['color']) ?>"><?= Security::h($t['name']) ?></span></td>
-            <td><span style="display:inline-block;width:18px;height:18px;border-radius:4px;vertical-align:middle;background:<?= Security::h($t['color']) ?>"></span> <span class="form-hint"><?= Security::h($t['color']) ?></span></td>
+            <td>
+              <form method="POST" action="/admin/tags/<?= (int)$t['id'] ?>/update" id="tagform-<?= (int)$t['id'] ?>" class="form-row" style="align-items:center;gap:8px;margin:0">
+                <?= Security::csrfField() ?>
+                <input type="text" name="name" class="form-control" value="<?= Security::h($t['name']) ?>" required maxlength="80" style="max-width:220px">
+            </td>
+            <td><input type="color" name="color" class="form-control" value="<?= Security::h($t['color']) ?>" style="width:48px;padding:3px">
+              </form>
+            </td>
             <td style="text-align:right"><span class="badge badge-gray"><?= (int)$t['cnt'] ?></span></td>
+            <td style="text-align:right;white-space:nowrap">
+              <button type="submit" form="tagform-<?= (int)$t['id'] ?>" class="btn btn-sm btn-ghost" title="Save"><i class="bi bi-check-lg"></i></button>
+              <form method="POST" action="/admin/tags/<?= (int)$t['id'] ?>/delete" style="display:inline;margin:0" data-confirm="Delete this tag? It will be removed from all content."><?= Security::csrfField() ?><button type="submit" class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button></form>
+            </td>
           </tr>
         <?php endforeach; ?>
         <?php if (!$tags): ?>
-          <tr><td colspan="3" class="empty-row"><div class="empty-state-sm"><i class="bi bi-tags"></i><p>No tags yet.</p></div></td></tr>
+          <tr><td colspan="4" class="empty-row"><div class="empty-state-sm"><i class="bi bi-tags"></i><p>No tags yet.</p></div></td></tr>
         <?php endif; ?>
         </tbody>
       </table>

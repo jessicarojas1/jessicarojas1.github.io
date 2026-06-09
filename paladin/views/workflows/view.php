@@ -9,7 +9,9 @@ ob_start();
     <p class="page-subtitle"><?= Security::h(ucfirst($wf['workflow_type'])) ?> · <?= Security::h(ucfirst($wf['approval_mode'])) ?> approval · used <?= $usage ?> time<?= $usage===1?'':'s' ?></p></div>
   <div class="page-actions">
     <?php if (Auth::can('approval.view')): ?><a href="/approvals/start?template=<?= (int)$wf['id'] ?>" class="btn btn-primary"><i class="bi bi-send"></i> Start Request</a><?php endif; ?>
+    <?php if (Auth::can('workflow.manage')): ?><a href="/workflows/<?= (int)$wf['id'] ?>/edit" class="btn btn-ghost"><i class="bi bi-pencil"></i> Edit &amp; Stages</a><?php endif; ?>
     <?php if (Auth::can('workflow.manage') && $wf['is_active']): ?><form method="POST" action="/workflows/<?= (int)$wf['id'] ?>/delete" style="margin:0" data-confirm="Deactivate this workflow template?"><?= Security::csrfField() ?><button class="btn btn-ghost btn-danger" type="submit"><i class="bi bi-x-circle"></i> Deactivate</button></form><?php endif; ?>
+    <?php if (Auth::can('workflow.manage') && !$wf['is_active']): ?><form method="POST" action="/workflows/<?= (int)$wf['id'] ?>/reactivate" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-ghost btn-success" type="submit"><i class="bi bi-arrow-clockwise"></i> Reactivate</button></form><?php endif; ?>
   </div>
 </div>
 
