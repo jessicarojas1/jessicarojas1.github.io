@@ -31,6 +31,27 @@ class CommentController {
         return $perm ? Auth::can($perm) : false;
     }
 
+    /** Edit a comment's body — author or admin only. */
+    public function edit(int $id): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $c = $this->load($id);
+        if (!$c) { http_response_code(404); return; }
+        if ((int)$c['user_id'] !== Auth::id() && Auth::role() !== 'admin') {
+            $_SESSION['flash_error'] = 'You can only edit your own comments.';
+            header('Location: ' . $this->backLink($c)); return;
+        }
+        $body = Security::sanitizeInput($_POST['body'] ?? '');
+        if ($body === '') {
+            $_SESSION['flash_error'] = 'A comment cannot be empty.';
+            header('Location: ' . $this->backLink($c)); return;
+        }
+        Database::query("UPDATE comments SET body = ?, edited_at = NOW() WHERE id = ?", [$body, $id]);
+        Mentions::process($body, $c['entity_type'], (int)$c['entity_id'], null);
+        Auth::log('edit_comment', $c['entity_type'], (int)$c['entity_id'], ['comment' => $id]);
+        header('Location: ' . $this->backLink($c) . '-' . $id);
+    }
+
     public function resolve(int $id): void {
         Auth::requireAuth();
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }

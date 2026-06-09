@@ -651,6 +651,7 @@ CREATE TABLE IF NOT EXISTS comments (
     body        TEXT NOT NULL,
     resolved_at TIMESTAMP,
     resolved_by INTEGER REFERENCES users(id),
+    edited_at   TIMESTAMP,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_comments_entity ON comments(entity_type, entity_id);

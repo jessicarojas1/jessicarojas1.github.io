@@ -23,13 +23,28 @@ foreach ($comments as $c) {
 }
 
 $renderComment = function (array $c) use ($cReactions) {
-    echo '<div class="comment">' . View::avatar($c['user_name']) . '<div class="comment-body">';
+    $cid = (int)$c['id'];
+    $canEdit = (int)($c['user_id'] ?? 0) === Auth::id() || Auth::role() === 'admin';
+    echo '<div class="comment" id="comment-' . $cid . '">' . View::avatar($c['user_name']) . '<div class="comment-body">';
     echo '<div class="comment-head"><span class="comment-author">' . Security::h($c['user_name'] ?: 'User') . '</span>';
-    echo '<span class="comment-time">' . View::timeAgo($c['created_at']) . '</span></div>';
+    echo '<span class="comment-time">' . View::timeAgo($c['created_at']);
+    if (!empty($c['edited_at'])) echo ' · <span title="' . Security::h(View::fmtDate($c['edited_at'], 'M j, Y g:ia')) . '">edited</span>';
+    echo '</span></div>';
     echo '<div class="comment-text">' . View::mentionize($c['body']) . '</div>';
-    $likeType = 'comment'; $likeId = (int)$c['id']; $likeSmall = true;
-    $likeData = $cReactions[(int)$c['id']] ?? ['count' => 0, 'liked' => false];
-    echo '<div class="comment-like">'; require PALADIN_ROOT . '/views/partials/like.php'; echo '</div>';
+    $likeType = 'comment'; $likeId = $cid; $likeSmall = true;
+    $likeData = $cReactions[$cid] ?? ['count' => 0, 'liked' => false];
+    echo '<div class="comment-like" style="display:flex;align-items:center;gap:6px">';
+    require PALADIN_ROOT . '/views/partials/like.php';
+    if ($canEdit) {
+        echo '<button type="button" class="btn-unstyled" data-toggle-class="open" data-target="#edit-' . $cid . '" title="Edit" style="border:none;background:none;cursor:pointer;color:var(--text-light);padding:0 2px"><i class="bi bi-pencil"></i></button>';
+        echo '<form method="POST" action="/comments/' . $cid . '/delete" style="display:inline;margin:0" data-confirm="Delete this comment?">' . Security::csrfField() . '<button type="submit" class="btn-unstyled" title="Delete" style="border:none;background:none;cursor:pointer;color:var(--danger);padding:0 2px"><i class="bi bi-trash"></i></button></form>';
+    }
+    echo '</div>';
+    if ($canEdit) {
+        echo '<form method="POST" action="/comments/' . $cid . '/edit" class="reply-form" id="edit-' . $cid . '" style="margin-top:8px">' . Security::csrfField();
+        echo '<div class="form-group" style="margin:0"><textarea name="body" class="form-control" rows="2" required>' . Security::h($c['body']) . '</textarea></div>';
+        echo '<div style="margin-top:6px"><button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-check-lg"></i> Save</button></div></form>';
+    }
     echo '</div></div>';
 };
 ?>
