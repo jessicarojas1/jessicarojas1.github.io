@@ -104,6 +104,21 @@ function renderTree(array $byParent, $parent, $depth = 0) {
         </table>
       </div>
     </div>
+
+    <?php $spaceActivity = Activity::feed(8, (int)$space['id']); if ($spaceActivity): ?>
+    <div class="card" style="margin-top:18px">
+      <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-activity"></i> Recently Updated</span></div><a href="/activity?space=<?= (int)$space['id'] ?>" class="btn btn-sm btn-ghost">View all</a></div>
+      <div class="card-body">
+        <?php foreach ($spaceActivity as $it): ?>
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light)">
+            <i class="bi <?= Security::h($it['icon']) ?>" style="color:var(--primary);margin-top:3px"></i>
+            <div style="flex:1;font-size:.88rem"><span style="font-weight:600"><?= Security::h($it['actor']) ?></span> <span class="form-hint"><?= Security::h($it['verb']) ?></span> <?php if ($it['link']): ?><a href="<?= Security::h($it['link']) ?>"><?= Security::h($it['target_title']) ?></a><?php else: ?><?= Security::h($it['target_title']) ?><?php endif; ?></div>
+            <span class="form-hint" style="white-space:nowrap"><?= Security::h(View::timeAgo($it['created_at'])) ?></span>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
   </div>
 </div>
 

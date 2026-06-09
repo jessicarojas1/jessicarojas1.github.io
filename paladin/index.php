@@ -156,6 +156,7 @@ $routes = [
         '/search'                    => ['SearchController', 'index'],
         '/labels'                    => ['LabelController', 'index'],
         '/reports'                   => ['ReportController', 'index'],
+        '/activity'                  => ['ActivityController', 'index'],
         '/reports/expiring'          => ['ReportController', 'expiring'],
         '/reports/approval-backlog'  => ['ReportController', 'approvalBacklog'],
         '/reports/acknowledgements'  => ['ReportController', 'acknowledgements'],
