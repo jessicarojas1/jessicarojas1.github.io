@@ -29,9 +29,10 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
         echo 'opcache.validate_timestamps=0'; \
     } >> "$PHP_INI_DIR/conf.d/opcache.ini"
 
-# Allow .htaccess overrides in the document root
-RUN sed -i 's|AllowOverride None|AllowOverride All|g' /etc/apache2/apache2.conf \
-    && sed -i 's|Listen 80|Listen ${PORT:-80}|' /etc/apache2/ports.conf 2>/dev/null || true
+# Allow .htaccess overrides in the document root.
+# (Apache binds to the runtime $PORT — handled by scripts/startup.sh, since
+# Apache config does not expand shell variables.)
+RUN sed -i 's|AllowOverride None|AllowOverride All|g' /etc/apache2/apache2.conf
 
 WORKDIR /var/www/html
 COPY . .
