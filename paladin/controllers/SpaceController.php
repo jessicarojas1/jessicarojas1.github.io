@@ -25,6 +25,57 @@ class SpaceController {
         require PALADIN_ROOT . '/views/spaces/export.php';
     }
 
+    /** Export every viewable published page in the space as a ZIP of PDFs. */
+    public function exportPdfZip(int $id): void {
+        Auth::requirePermission('space.view');
+        $space = Database::fetchOne(
+            "SELECT s.*, u.name AS owner_name FROM spaces s LEFT JOIN users u ON u.id = s.owner_id WHERE s.id = ?",
+            [$id]
+        );
+        if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!SpaceAccess::canView($space)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!class_exists('ZipArchive')) { http_response_code(501); echo 'ZIP export is unavailable on this server.'; return; }
+
+        $pages = Database::fetchAll(
+            "SELECT id, parent_id, title, body, updated_at
+             FROM pages WHERE space_id = ? AND status = 'published' AND deleted_at IS NULL
+             ORDER BY COALESCE(parent_id, 0), position, title",
+            [$id]
+        );
+        $pages = array_values(array_filter($pages, static fn($p) => PageAccess::canView(array_merge($p, ['space_id' => $id]))));
+        if (!$pages) { $_SESSION['flash_error'] = 'No published pages to export.'; header('Location: /spaces/' . $id); return; }
+
+        $tmp = tempnam(sys_get_temp_dir(), 'palzip');
+        $zip = new \ZipArchive();
+        if ($zip->open($tmp, \ZipArchive::OVERWRITE) !== true) { http_response_code(500); echo 'Could not create archive.'; return; }
+        $used = [];
+        foreach ($pages as $i => $p) {
+            $meta = [
+                'Space'    => (string)$space['name'],
+                'Updated'  => date('M j, Y', strtotime((string)$p['updated_at'])),
+                'Exported' => date('M j, Y g:ia'),
+            ];
+            $pdf = Pdf::fromHtml((string)$p['title'], (string)$p['body'], $meta);
+            $slug = strtolower(preg_replace('/[^A-Za-z0-9]+/', '-', (string)$p['title']) ?: 'page');
+            $slug = trim($slug, '-');
+            $name = sprintf('%02d-%s-%d.pdf', $i + 1, substr($slug, 0, 50), (int)$p['id']);
+            if (isset($used[$name])) { $name = ($i + 1) . '-' . (int)$p['id'] . '.pdf'; }
+            $used[$name] = true;
+            $zip->addFromString($name, $pdf);
+        }
+        $zip->close();
+        $bytes = file_get_contents($tmp);
+        @unlink($tmp);
+
+        Auth::log('export_space_zip', 'spaces', $id, ['pages' => count($pages)]);
+        $fname = preg_replace('/[^A-Za-z0-9._-]/', '', ($space['space_key'] ?? 'space') . '-pdfs.zip');
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . $fname . '"');
+        header('Content-Length: ' . strlen((string)$bytes));
+        header('X-Content-Type-Options: nosniff');
+        echo $bytes;
+    }
+
     public function index(): void {
         Auth::requirePermission('space.view');
         $type = Security::sanitizeInput($_GET['type'] ?? '');
