@@ -1192,13 +1192,15 @@
     }
 
     /* ---------- Branding ---------- */
-    function normHex(v) { return (v && /^#?[0-9a-fA-F]{3,6}$/.test(v)) ? (v[0] === '#' ? v : '#' + v) : ''; }
+    function normHex(v) { return (v && /^#?[0-9a-fA-F]{3,8}$/.test(v)) ? (v[0] === '#' ? v : '#' + v) : ''; }
     function updateBrandPreview() {
       const u = $('brand-logo-url'), n = $('brand-org-name');
       const pn = $('brand-preview-name'); if (pn) pn.textContent = (n && n.value.trim()) || 'CITADEL';
       const img = $('brand-preview-logo'), mark = $('brand-preview-mark');
       if (img) {
-        const url = u && u.value.trim();
+        let url = u && u.value.trim();
+        // Only preview an http(s) / data:image URL — same allowlist the store enforces.
+        if (url && !/^(https?:\/\/|data:image\/)/i.test(url)) url = '';
         if (url) {
           img.onerror = function () { img.classList.add('d-none'); if (mark) mark.classList.remove('d-none'); };
           img.onload = function () { img.classList.remove('d-none'); if (mark) mark.classList.add('d-none'); };

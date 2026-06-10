@@ -6,10 +6,15 @@
  */
 self.window = self;            // engine modules attach to window.CITADEL
 try {
+  // Must mirror index.html's rule-pack load order — otherwise the worker path
+  // runs a fraction of the ruleset and quick-scans disagree with the inline /
+  // server engines.
   importScripts(
     'languages.js', 'frameworks.js',
     'controls-federal.js', 'controls-appsec.js', 'controls-extra.js',
-    'rules.js', 'secrets.js', 'sbom.js', 'binary.js', 'scanner.js'
+    'rules.js', 'rules-extra.js', 'rules-mobile.js', 'rules-pii.js',
+    'rules-iac.js', 'rules-api.js', 'rules-cicd.js', 'rules-java.js',
+    'secrets.js', 'sbom.js', 'binary.js', 'scanner.js'
   );
 } catch (e) {
   self.postMessage({ type: 'fatal', message: 'worker import failed: ' + (e && e.message || e) });

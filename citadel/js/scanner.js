@@ -196,9 +196,12 @@
 
   function score(findings, q) {
     const sev = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
-    findings.forEach(f => { sev[f.severity] = (sev[f.severity] || 0) + 1; });
+    // Coerce any unknown/missing severity to a known bucket so the score can
+    // never become NaN (which would corrupt the grade + every downstream export).
+    // An unrecognized severity is treated as 'medium' — fail toward flagging.
+    findings.forEach(f => { sev[SEV_WEIGHT[f.severity] !== undefined ? f.severity : 'medium']++; });
     let penalty = 0;
-    for (const k in sev) penalty += sev[k] * SEV_WEIGHT[k];
+    for (const k in sev) penalty += sev[k] * (SEV_WEIGHT[k] || 0);
     // Normalize penalty against code volume so big repos aren't unfairly crushed.
     // Density is capped so a tiny-but-vulnerable sample still yields a readable,
     // non-zero score rather than collapsing to 0.

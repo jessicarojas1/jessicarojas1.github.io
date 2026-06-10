@@ -13,12 +13,25 @@
   const KEY = 'citadel.branding.v1';
   const DEFAULTS = { logoUrl: '', orgName: 'CITADEL', accent: '' };
 
+  // Per the Branding Standard, a logo URL is only honored when it is an http(s)
+  // URL or a data:image. Anything else (javascript:, data:text/html, SVG-by-
+  // path tricks, off-allowlist schemes) is dropped to the empty default so it
+  // can neither be stored nor assigned to an <img src>.
+  function safeLogo(u) {
+    u = String(u || '').trim();
+    return /^(https?:\/\/|data:image\/)/i.test(u) ? u : '';
+  }
+
   function get() {
-    try { return Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(KEY) || '{}')); }
-    catch (e) { return Object.assign({}, DEFAULTS); }
+    try {
+      const b = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(KEY) || '{}'));
+      b.logoUrl = safeLogo(b.logoUrl);
+      return b;
+    } catch (e) { return Object.assign({}, DEFAULTS); }
   }
   function set(patch) {
     const merged = Object.assign(get(), patch || {});
+    merged.logoUrl = safeLogo(merged.logoUrl);
     try { localStorage.setItem(KEY, JSON.stringify(merged)); } catch (e) {}
     return merged;
   }
@@ -27,6 +40,7 @@
     b = b || get();
     const doc = root.document; if (!doc) return;
     const name = (b.orgName || '').trim() || DEFAULTS.orgName;
+    const logo = safeLogo(b.logoUrl);   // re-validate at render time (defense in depth)
 
     // Product name in the header brand + the document title prefix.
     const nameEl = doc.getElementById('brand-name');
@@ -37,11 +51,11 @@
     const img = doc.getElementById('brand-logo');
     const mark = doc.getElementById('brand-mark');
     if (img) {
-      if (b.logoUrl) {
+      if (logo) {
         img.onerror = function () { img.classList.add('d-none'); if (mark) mark.classList.remove('d-none'); };
         img.onload = function () { img.classList.remove('d-none'); if (mark) mark.classList.add('d-none'); };
         img.alt = name + ' logo';
-        img.src = b.logoUrl;
+        img.src = logo;
       } else {
         img.removeAttribute('src'); img.classList.add('d-none');
         if (mark) mark.classList.remove('d-none');
@@ -61,9 +75,9 @@
     const pb = doc.getElementById('print-brand');
     if (pb) {
       pb.textContent = '';
-      if (b.logoUrl) {
+      if (logo) {
         const im = doc.createElement('img');
-        im.src = b.logoUrl; im.alt = '';
+        im.src = logo; im.alt = '';
         im.style.height = '34px'; im.style.width = 'auto'; im.style.marginRight = '.6rem';
         pb.appendChild(im);
       }
