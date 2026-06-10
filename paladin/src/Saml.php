@@ -23,6 +23,7 @@ final class Saml {
     private const NS_SAMLP = 'urn:oasis:names:tc:SAML:2.0:protocol';
     private const NS_SAML  = 'urn:oasis:names:tc:SAML:2.0:assertion';
     private const NS_DS    = 'http://www.w3.org/2000/09/xmldsig#';
+    private const NS_XENC  = 'http://www.w3.org/2001/04/xmlenc#';
     private const SKEW     = 120; // seconds of allowed clock skew
 
     /** Read SAML configuration from the settings table. */
@@ -263,11 +264,32 @@ final class Saml {
         $xp->registerNamespace('samlp', self::NS_SAMLP);
         $xp->registerNamespace('saml', self::NS_SAML);
         $xp->registerNamespace('ds', self::NS_DS);
+        $xp->registerNamespace('xenc', self::NS_XENC);
 
         // Status must be Success.
         $status = $xp->evaluate('string(/samlp:Response/samlp:Status/samlp:StatusCode/@Value)');
         if ($status !== 'urn:oasis:names:tc:SAML:2.0:status:Success') {
             throw new \RuntimeException('SAML status not Success: ' . $status);
+        }
+
+        // Decrypt an EncryptedAssertion in place (XML-Encryption) using the SP key,
+        // then continue exactly as for a plaintext assertion.
+        $encAssertion = $xp->query('/samlp:Response/saml:EncryptedAssertion')->item(0);
+        if ($encAssertion instanceof \DOMElement) {
+            if ($c['sp_key'] === '') { throw new \RuntimeException('Encrypted assertion received but no SP private key is configured'); }
+            $plainXml = self::decryptEncryptedAssertion($encAssertion, $xp, $c['sp_key']);
+            if (preg_match('/<!DOCTYPE/i', $plainXml)) { throw new \RuntimeException('DOCTYPE not allowed'); }
+            $adoc = new \DOMDocument();
+            $adoc->resolveExternals = false; $adoc->substituteEntities = false;
+            if (!$adoc->loadXML($plainXml, LIBXML_NONET)) { throw new \RuntimeException('Decrypted assertion is not valid XML'); }
+            $imported = $doc->importNode($adoc->documentElement, true);
+            $encAssertion->parentNode->replaceChild($imported, $encAssertion);
+            // Refresh the XPath engine against the mutated document.
+            $xp = new \DOMXPath($doc);
+            $xp->registerNamespace('samlp', self::NS_SAMLP);
+            $xp->registerNamespace('saml', self::NS_SAML);
+            $xp->registerNamespace('ds', self::NS_DS);
+            $xp->registerNamespace('xenc', self::NS_XENC);
         }
 
         // The assertion we will read claims from.
@@ -427,6 +449,63 @@ final class Saml {
                 if (!$ok) { throw new \RuntimeException('Audience mismatch'); }
             }
         }
+    }
+
+    /**
+     * Decrypt a SAML EncryptedAssertion (XML-Encryption): the bulk key is
+     * RSA-decrypted with the SP private key, then the assertion is decrypted
+     * with that symmetric key (AES-CBC or AES-GCM). Returns the plaintext XML.
+     */
+    private static function decryptEncryptedAssertion(\DOMElement $enc, \DOMXPath $xp, string $spKeyPem): string {
+        $encData = $xp->query('.//xenc:EncryptedData', $enc)->item(0);
+        if (!$encData instanceof \DOMElement) { throw new \RuntimeException('EncryptedData missing'); }
+        $dataAlg = $xp->evaluate('string(xenc:EncryptionMethod/@Algorithm)', $encData);
+
+        // The EncryptedKey may live inside the EncryptedData's KeyInfo or alongside it.
+        $encKey = $xp->query('.//xenc:EncryptedKey', $enc)->item(0);
+        if (!$encKey instanceof \DOMElement) { throw new \RuntimeException('EncryptedKey missing'); }
+        $keyAlg = $xp->evaluate('string(xenc:EncryptionMethod/@Algorithm)', $encKey);
+        $encKeyB64 = trim($xp->evaluate('string(xenc:CipherData/xenc:CipherValue)', $encKey));
+        $encKeyBytes = base64_decode(preg_replace('/\s+/', '', $encKeyB64) ?? '', true);
+        if ($encKeyBytes === false) { throw new \RuntimeException('Bad EncryptedKey ciphertext'); }
+
+        $spKey = openssl_pkey_get_private($spKeyPem);
+        if ($spKey === false) { throw new \RuntimeException('Invalid SP private key'); }
+        $padding = str_contains($keyAlg, 'rsa-oaep') ? OPENSSL_PKCS1_OAEP_PADDING : OPENSSL_PKCS1_PADDING;
+        if (!openssl_private_decrypt($encKeyBytes, $symKey, $spKey, $padding)) {
+            throw new \RuntimeException('Failed to unwrap the symmetric key');
+        }
+
+        $cipherB64 = trim($xp->evaluate('string(xenc:CipherData/xenc:CipherValue)', $encData));
+        $cipherBytes = base64_decode(preg_replace('/\s+/', '', $cipherB64) ?? '', true);
+        if ($cipherBytes === false) { throw new \RuntimeException('Bad EncryptedData ciphertext'); }
+
+        return self::symmetricDecrypt($cipherBytes, $symKey, $dataAlg);
+    }
+
+    private static function symmetricDecrypt(string $cipher, string $key, string $alg): string {
+        $isGcm = str_contains($alg, 'gcm');
+        $bits = (int)(preg_match('/aes(\d+)-/', $alg, $m) ? $m[1] : (strlen($key) * 8));
+        $method = 'aes-' . $bits . '-' . ($isGcm ? 'gcm' : 'cbc');
+
+        if ($isGcm) {
+            // [12-byte IV][ciphertext][16-byte tag]
+            $iv = substr($cipher, 0, 12);
+            $tag = substr($cipher, -16);
+            $ct = substr($cipher, 12, -16);
+            $pt = openssl_decrypt($ct, $method, $key, OPENSSL_RAW_DATA, $iv, $tag);
+            if ($pt === false) { throw new \RuntimeException('AES-GCM decryption failed'); }
+            return $pt;
+        }
+        // CBC: [16-byte IV][ciphertext]; xmlenc uses ISO 10126 padding (last byte = pad length).
+        $ivLen = 16;
+        $iv = substr($cipher, 0, $ivLen);
+        $ct = substr($cipher, $ivLen);
+        $pt = openssl_decrypt($ct, $method, $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv);
+        if ($pt === false || $pt === '') { throw new \RuntimeException('AES-CBC decryption failed'); }
+        $pad = ord($pt[strlen($pt) - 1]);
+        if ($pad > 0 && $pad <= $ivLen) { $pt = substr($pt, 0, -$pad); }
+        return $pt;
     }
 
     private static function publicKeyFromCert(string $cert): \OpenSSLAsymmetricKey {

@@ -113,11 +113,26 @@ class SamlController {
 
     public function metadata(): void {
         header('Content-Type: application/xml');
+        $cfg = Saml::config();
         $entity = htmlspecialchars(Saml::spEntityId(), ENT_QUOTES);
         $acs = htmlspecialchars(Saml::acsUrl(), ENT_QUOTES);
+        $slo = htmlspecialchars(Saml::sloEndpoint(), ENT_QUOTES);
+        // Advertise the SP certificate so IdPs can verify signed requests and
+        // encrypt assertions to us. Same cert serves signing + encryption here.
+        $certBody = preg_replace('/-----[^-]+-----|\s+/', '', (string)$cfg['sp_cert']);
+        $keyDescriptors = '';
+        if ($certBody !== '') {
+            $ki = '<ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:X509Data><ds:X509Certificate>'
+                . htmlspecialchars($certBody, ENT_QUOTES) . '</ds:X509Certificate></ds:X509Data></ds:KeyInfo>';
+            $keyDescriptors = '<md:KeyDescriptor use="signing">' . $ki . '</md:KeyDescriptor>'
+                . '<md:KeyDescriptor use="encryption">' . $ki . '</md:KeyDescriptor>';
+        }
+        $signed = $cfg['sign_requests'] ? 'true' : 'false';
         echo '<?xml version="1.0"?>' . "\n"
             . '<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="' . $entity . '">'
-            . '<md:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" AuthnRequestsSigned="false" WantAssertionsSigned="true">'
+            . '<md:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" AuthnRequestsSigned="' . $signed . '" WantAssertionsSigned="true">'
+            . $keyDescriptors
+            . '<md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="' . $slo . '"/>'
             . '<md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>'
             . '<md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="' . $acs . '" index="0" isDefault="true"/>'
             . '</md:SPSSODescriptor></md:EntityDescriptor>';
