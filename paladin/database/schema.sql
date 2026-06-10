@@ -588,6 +588,9 @@ CREATE TABLE IF NOT EXISTS approval_request_steps (
     decision_comment TEXT,
     decided_at       TIMESTAMP,
     due_at           TIMESTAMP,
+    signature_name   VARCHAR(160),   -- typed name affirming the e-signature
+    signature_hash   VARCHAR(64),    -- tamper-evident digest of the signing event
+    signed_at        TIMESTAMP,
     updated_at       TIMESTAMP NOT NULL DEFAULT NOW(),
     UNIQUE (request_id, step_number)
 );
