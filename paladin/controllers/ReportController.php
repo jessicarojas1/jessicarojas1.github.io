@@ -126,12 +126,15 @@ class ReportController {
 
         $columns = []; $rows = [];
         if ($labelId) {
+            // Hide pages in private spaces from non-members (admins see all).
+            $priv = "(s.id IS NULL OR s.is_private = FALSE OR ? = 'admin'
+                      OR EXISTS (SELECT 1 FROM space_members msp WHERE msp.space_id = s.id AND msp.user_id = ?))";
             $pages = Database::fetchAll(
                 "SELECT p.id, p.title, s.name AS space_name
                  FROM pages p JOIN entity_tags et ON et.entity_id = p.id AND et.entity_type = 'page'
                  LEFT JOIN spaces s ON s.id = p.space_id
-                 WHERE et.tag_id = ? AND p.deleted_at IS NULL ORDER BY p.title",
-                [$labelId]
+                 WHERE et.tag_id = ? AND p.deleted_at IS NULL AND {$priv} ORDER BY p.title",
+                [$labelId, Auth::role(), Auth::id()]
             );
             foreach ($pages as $pg) {
                 $props = Database::fetchAll("SELECT prop_key, prop_value FROM page_properties WHERE page_id = ? ORDER BY seq", [(int)$pg['id']]);
