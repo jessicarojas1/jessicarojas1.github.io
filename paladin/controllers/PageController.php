@@ -157,6 +157,15 @@ class PageController {
              FROM inline_comments ic LEFT JOIN users u ON u.id=ic.user_id LEFT JOIN users r ON r.id=ic.resolved_by
              WHERE ic.page_id=? ORDER BY ic.resolved, ic.created_at", [$id]
         );
+        // Backlinks: other live pages whose body links to this page (/pages/{id}).
+        $backlinks = Database::fetchAll(
+            "SELECT id, title FROM pages
+             WHERE deleted_at IS NULL AND id <> ?
+               AND (body LIKE ? OR body LIKE ?)
+             ORDER BY title LIMIT 25",
+            [$id, '%/pages/' . $id . '"%', '%/pages/' . $id . '#%']
+        );
+        $backlinks = array_values(array_filter($backlinks, fn($b) => PageAccess::canView(['id' => (int)$b['id']])));
         $labels = Database::fetchAll(
             "SELECT t.id, t.name, t.color FROM entity_tags et JOIN tags t ON t.id=et.tag_id
              WHERE et.entity_type='page' AND et.entity_id=? ORDER BY t.name", [$id]

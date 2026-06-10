@@ -141,6 +141,18 @@ ob_start();
   <!-- Workflow -->
   <?php $wfType='page'; $wfId=(int)$page['id']; $wfCanEdit=$canEditPage; require PALADIN_ROOT . '/views/partials/workflow_status.php'; ?>
 
+  <!-- Backlinks -->
+  <?php if (!empty($backlinks)): ?>
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-link-45deg"></i> Referenced by (<?= count($backlinks) ?>)</span></div></div>
+    <div class="card-body" style="padding:10px 14px">
+      <?php foreach ($backlinks as $bl): ?>
+        <div style="padding:4px 0"><a href="/pages/<?= (int)$bl['id'] ?>"><i class="bi bi-file-richtext"></i> <?= Security::h($bl['title']) ?></a></div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <?php endif; ?>
+
   <!-- Labels -->
   <div class="card" style="margin-bottom:18px">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-tags-fill"></i> Labels</span></div></div>
