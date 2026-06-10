@@ -65,6 +65,7 @@ class PageController {
         Auth::log('create_page', 'pages', $id, ['title' => $title]);
         PageTasks::sync($id, $body);
         PageProps::sync($id, $body);
+        if ($status === 'published') { Webhook::dispatch('page.published', ['id' => $id, 'actor' => Auth::id()]); $this->notifySpaceWatchers($spaceId, $id, $title); }
         $_SESSION['flash_success'] = 'Page created.';
         header('Location: /pages/' . $id);
     }
@@ -108,7 +109,7 @@ class PageController {
         Auth::log('import_page', 'pages', $id, ['title' => $title]);
         PageTasks::sync($id, $body);
         PageProps::sync($id, $body);
-        if ($status === 'published') Webhook::dispatch('page.published', ['id' => $id, 'actor' => Auth::id()]);
+        if ($status === 'published') { Webhook::dispatch('page.published', ['id' => $id, 'actor' => Auth::id()]); $this->notifySpaceWatchers($spaceId, $id, $title); }
         $_SESSION['flash_success'] = 'Page imported from Markdown.';
         header('Location: /pages/' . $id);
     }
@@ -283,6 +284,7 @@ class PageController {
         // Newly published this save → page.published; otherwise a plain update.
         if ($status === 'published' && $page['status'] !== 'published') {
             Webhook::dispatch('page.published', ['id' => $id, 'version' => $newVersion, 'actor' => Auth::id()]);
+            $this->notifySpaceWatchers((int)$page['space_id'], $id, $title);
         } else {
             Webhook::dispatch('page.updated', ['id' => $id, 'version' => $newVersion, 'actor' => Auth::id()]);
         }
@@ -300,6 +302,7 @@ class PageController {
         Auth::log('publish_page', 'pages', $id);
         Webhook::dispatch('page.published', ['id' => $id, 'actor' => Auth::id()]);
         $this->notifyWatchers($id, (string)($page['title'] ?? 'Page'), 'published');
+        if ($page['status'] !== 'published') $this->notifySpaceWatchers((int)$page['space_id'], $id, (string)($page['title'] ?? 'Page'));
         $_SESSION['flash_success'] = 'Page published.';
         header('Location: /pages/' . $id);
     }
@@ -702,6 +705,32 @@ class PageController {
                     'user_id'  => (int)$w['user_id'],
                     'title'    => 'Watched page ' . $verb,
                     'body'     => '"' . $title . '" was ' . $verb . ' by ' . (Auth::user()['name'] ?? 'someone') . '.',
+                    'severity' => 'info',
+                    'link'     => '/pages/' . $pageId,
+                    'is_read'  => 'f',
+                ]);
+            }
+        } catch (\Throwable) { /* best effort */ }
+    }
+
+    /**
+     * Alert everyone watching the space (except the actor and anyone already
+     * watching the page) that a new page was published in it. Best-effort.
+     */
+    private function notifySpaceWatchers(int $spaceId, int $pageId, string $title): void {
+        try {
+            $watchers = Database::fetchAll(
+                "SELECT user_id FROM watches
+                 WHERE entity_type='space' AND entity_id=? AND user_id <> ?
+                   AND user_id NOT IN (SELECT user_id FROM watches WHERE entity_type='page' AND entity_id=?)",
+                [$spaceId, Auth::id(), $pageId]
+            );
+            $sp = Database::fetchOne("SELECT name FROM spaces WHERE id=?", [$spaceId]);
+            foreach ($watchers as $w) {
+                Database::insert('alerts', [
+                    'user_id'  => (int)$w['user_id'],
+                    'title'    => 'New page in a watched space',
+                    'body'     => '"' . $title . '" was published in ' . ($sp['name'] ?? 'a space') . ' by ' . (Auth::user()['name'] ?? 'someone') . '.',
                     'severity' => 'info',
                     'link'     => '/pages/' . $pageId,
                     'is_read'  => 'f',
