@@ -910,6 +910,35 @@ class AdminController {
         header('Location: /admin/saml');
     }
 
+    /** SCIM 2.0 provisioning configuration. */
+    public function scim(): void {
+        Auth::requireAdmin();
+        $enabled = (Database::fetchOne("SELECT value FROM settings WHERE key='scim_enabled'")['value'] ?? '0') === '1';
+        $defaultRole = (Database::fetchOne("SELECT value FROM settings WHERE key='scim_default_role'")['value'] ?? 'viewer');
+        $hasToken = (string)(Database::fetchOne("SELECT value FROM settings WHERE key='scim_token'")['value'] ?? '') !== '';
+        $newToken = $_SESSION['scim_new_token'] ?? null; // shown once after generation
+        unset($_SESSION['scim_new_token']);
+        $baseUrl = rtrim((string)($_ENV['APP_URL'] ?? ''), '/');
+        require PALADIN_ROOT . '/views/admin/scim.php';
+    }
+
+    public function saveScim(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $this->setSetting('scim_enabled', !empty($_POST['scim_enabled']) ? '1' : '0');
+        $role = in_array($_POST['scim_default_role'] ?? 'viewer', ['viewer','contributor','approver','admin'], true) ? $_POST['scim_default_role'] : 'viewer';
+        $this->setSetting('scim_default_role', $role);
+        if (!empty($_POST['regenerate_token'])) {
+            $tok = 'scim_' . bin2hex(random_bytes(32));
+            $this->setSetting('scim_token', Security::encryptSetting($tok));
+            $_SESSION['scim_new_token'] = $tok; // surfaced once on redirect
+            Auth::log('scim_token_rotated', 'settings', null);
+        }
+        Auth::log('update_scim_settings', 'settings', null);
+        $_SESSION['flash_success'] = 'SCIM settings saved.';
+        header('Location: /admin/scim');
+    }
+
     /** OIDC SSO configuration page. */
     public function oidc(): void {
         Auth::requireAdmin();

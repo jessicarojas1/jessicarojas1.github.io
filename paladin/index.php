@@ -116,6 +116,10 @@ if (str_starts_with($uri, '/api/')) {
     require_once PALADIN_ROOT . '/api/index.php';
     exit;
 }
+if (str_starts_with($uri, '/scim/')) {
+    require_once PALADIN_ROOT . '/scim/index.php';
+    exit;
+}
 
 // ── Route table ───────────────────────────────────────────────────────────
 $routes = [
@@ -193,6 +197,7 @@ $routes = [
         '/admin/outbox'              => ['AdminController', 'outbox'],
         '/admin/saml'                => ['AdminController', 'saml'],
         '/admin/oidc'                => ['AdminController', 'oidc'],
+        '/admin/scim'                => ['AdminController', 'scim'],
         '/admin/sessions'            => ['AdminController', 'sessions'],
         '/admin/system'              => ['AdminController', 'system'],
         '/admin/shortcuts'           => ['AdminController', 'shortcuts'],
@@ -240,6 +245,7 @@ $routes = [
         '/admin/saml'                => ['AdminController', 'saveSaml'],
         '/admin/saml/import'         => ['AdminController', 'importSamlMetadata'],
         '/admin/oidc'                => ['AdminController', 'saveOidc'],
+        '/admin/scim'                => ['AdminController', 'saveScim'],
         '/admin/tags'                => ['AdminController', 'createTag'],
         '/admin/shortcuts'           => ['AdminController', 'createShortcut'],
         '/admin/api-keys'            => ['AdminController', 'createApiKey'],
