@@ -34,9 +34,29 @@ CREATE TABLE IF NOT EXISTS users (
     password_changed_at    TIMESTAMP,
     sessions_revoked_at    TIMESTAMP,
     last_login             TIMESTAMP,
+    digest_frequency       VARCHAR(10) NOT NULL DEFAULT 'off', -- off/daily/weekly
+    digest_last_sent_at    TIMESTAMP,
     created_at             TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at             TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- Outbound mail (digests, notifications). Delivered by a configured SMTP
+-- transport; otherwise rows remain 'queued' and are inspectable in admin.
+CREATE TABLE IF NOT EXISTS mail_outbox (
+    id          SERIAL PRIMARY KEY,
+    user_id     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    to_email    VARCHAR(255) NOT NULL,
+    subject     VARCHAR(255) NOT NULL,
+    body_html   TEXT,
+    body_text   TEXT,
+    transport   VARCHAR(20)  NOT NULL DEFAULT 'queued',
+    status      VARCHAR(20)  NOT NULL DEFAULT 'queued',
+    error       TEXT,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    sent_at     TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_mail_outbox_status ON mail_outbox(status);
+CREATE INDEX IF NOT EXISTS idx_mail_outbox_created ON mail_outbox(created_at DESC);
 
 CREATE TABLE IF NOT EXISTS user_permissions (
     id          SERIAL PRIMARY KEY,

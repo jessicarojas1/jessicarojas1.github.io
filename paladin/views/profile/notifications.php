@@ -26,6 +26,25 @@ foreach ($alerts as $a) { if (!$a['is_read']) { $hasUnread = true; break; } }
   </div>
 </div>
 
+<div class="card" style="margin-bottom:18px">
+  <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-envelope-paper"></i> Email digest</span></div></div>
+  <div class="card-body">
+    <form method="POST" action="/profile/notifications" class="form-row" style="align-items:flex-end;gap:12px;margin:0">
+      <?= Security::csrfField() ?>
+      <div class="form-group" style="margin:0;max-width:240px">
+        <label class="form-label">Send me a digest email</label>
+        <select name="digest_frequency" class="form-select">
+          <?php foreach (['off'=>'Never','daily'=>'Daily','weekly'=>'Weekly'] as $k=>$v): ?>
+            <option value="<?= $k ?>" <?= (($digestFrequency ?? 'off')===$k)?'selected':'' ?>><?= $v ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit"><i class="bi bi-check-lg"></i> Save</button>
+      <span class="form-hint" style="flex:1">A digest summarises your unread alerts since the last one was sent.</span>
+    </form>
+  </div>
+</div>
+
 <div class="card">
   <div class="card-body">
     <?php if (!$alerts): ?>

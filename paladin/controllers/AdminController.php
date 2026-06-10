@@ -639,6 +639,28 @@ class AdminController {
         require PALADIN_ROOT . '/views/admin/logs.php';
     }
 
+    /** Mail outbox — every digest/notification the app generated, with delivery status. */
+    public function outbox(): void {
+        Auth::requireAdmin();
+        $status = Security::sanitizeInput($_GET['status'] ?? '');
+        $where = ['1=1']; $params = [];
+        if (in_array($status, ['queued','sent','failed'], true)) { $where[] = 'status = ?'; $params[] = $status; }
+        $whereSql = implode(' AND ', $where);
+        $messages = Database::fetchAll(
+            "SELECT id, user_id, to_email, subject, transport, status, error, created_at, sent_at
+             FROM mail_outbox WHERE {$whereSql} ORDER BY created_at DESC LIMIT 200", $params
+        );
+        $counts = Database::fetchOne(
+            "SELECT COUNT(*) total,
+                    COUNT(*) FILTER (WHERE status='queued') queued,
+                    COUNT(*) FILTER (WHERE status='sent') sent,
+                    COUNT(*) FILTER (WHERE status='failed') failed
+             FROM mail_outbox"
+        );
+        $transport = Mailer::transport();
+        require PALADIN_ROOT . '/views/admin/outbox.php';
+    }
+
     // ── Sessions ─────────────────────────────────────────────────────────────
     public function sessions(): void {
         Auth::requireAdmin();

@@ -185,6 +185,7 @@ $routes = [
         '/admin/tags'                => ['AdminController', 'tags'],
         '/admin/api-keys'            => ['AdminController', 'apiKeys'],
         '/admin/logs'                => ['AdminController', 'logs'],
+        '/admin/outbox'              => ['AdminController', 'outbox'],
         '/admin/sessions'            => ['AdminController', 'sessions'],
         '/admin/system'              => ['AdminController', 'system'],
         '/admin/shortcuts'           => ['AdminController', 'shortcuts'],
@@ -236,6 +237,7 @@ $routes = [
         '/admin/expiry-sweep'        => ['AdminController', 'runExpiry'],
 
         '/alerts/read-all'           => ['ProfileController', 'markAllRead'],
+        '/profile/notifications'     => ['ProfileController', 'notifications'],
         '/searches/save'             => ['SearchController', 'save'],
         '/media/upload'              => ['MediaController', 'upload'],
         '/reactions/toggle'          => ['ReactionController', 'toggle'],

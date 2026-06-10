@@ -86,10 +86,19 @@ class ProfileController {
 
     public function notifications(): void {
         Auth::requireAuth();
+        // Save the digest preference on POST.
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+            $freq = in_array($_POST['digest_frequency'] ?? 'off', ['off','daily','weekly'], true) ? $_POST['digest_frequency'] : 'off';
+            Database::update('users', ['digest_frequency' => $freq], 'id = ?', [Auth::id()]);
+            $_SESSION['flash_success'] = 'Digest preference saved.';
+            header('Location: /profile/notifications'); return;
+        }
         $alerts = Database::fetchAll(
             "SELECT * FROM alerts WHERE user_id = ? ORDER BY created_at DESC LIMIT 100",
             [Auth::id()]
         );
+        $digestFrequency = (string)(Database::fetchOne("SELECT digest_frequency FROM users WHERE id = ?", [Auth::id()])['digest_frequency'] ?? 'off');
         require PALADIN_ROOT . '/views/profile/notifications.php';
     }
 
