@@ -849,6 +849,38 @@ class AdminController {
     }
 
     /** Upsert a single settings row. */
+    /** SAML SSO configuration page. */
+    public function saml(): void {
+        Auth::requireAdmin();
+        $cfg = Saml::config();
+        $acsUrl = Saml::acsUrl();
+        $spEntityId = Saml::spEntityId();
+        $metadataUrl = rtrim((string)($_ENV['APP_URL'] ?? ''), '/') . '/saml/metadata';
+        require PALADIN_ROOT . '/views/admin/saml.php';
+    }
+
+    public function saveSaml(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $this->setSetting('saml_enabled', !empty($_POST['saml_enabled']) ? '1' : '0');
+        $this->setSetting('saml_idp_entity_id', Security::sanitizeInput($_POST['saml_idp_entity_id'] ?? ''));
+        $ssoUrl = trim((string)($_POST['saml_idp_sso_url'] ?? ''));
+        $this->setSetting('saml_idp_sso_url', filter_var($ssoUrl, FILTER_VALIDATE_URL) ? $ssoUrl : '');
+        // Certificate: preserve PEM/base64 body verbatim (only trim outer whitespace).
+        $this->setSetting('saml_idp_cert', trim((string)($_POST['saml_idp_cert'] ?? '')));
+        $this->setSetting('saml_sp_entity_id', Security::sanitizeInput($_POST['saml_sp_entity_id'] ?? ''));
+        $this->setSetting('saml_attr_email', Security::sanitizeInput($_POST['saml_attr_email'] ?? ''));
+        $this->setSetting('saml_attr_name', Security::sanitizeInput($_POST['saml_attr_name'] ?? ''));
+        $this->setSetting('saml_auto_provision', !empty($_POST['saml_auto_provision']) ? '1' : '0');
+        $role = in_array($_POST['saml_default_role'] ?? 'viewer', ['viewer','contributor','approver','admin'], true) ? $_POST['saml_default_role'] : 'viewer';
+        $this->setSetting('saml_default_role', $role);
+
+        Auth::log('update_saml_settings', 'settings', null);
+        $_SESSION['flash_success'] = 'SAML settings saved.';
+        header('Location: /admin/saml');
+    }
+
     private function setSetting(string $key, string $value): void {
         Database::query(
             "INSERT INTO settings (key, value, updated_at) VALUES (?, ?, NOW())
