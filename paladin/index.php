@@ -300,6 +300,7 @@ $dynamicRoutes = [
         '#^/templates/(\d+)$#'               => ['TemplateController', 'view'],
         '#^/campaigns/(\d+)$#'               => ['CampaignController', 'view'],
         '#^/admin/users/(\d+)/permissions$#' => ['AdminController', 'permissions'],
+        '#^/admin/webhooks/(\d+)/deliveries$#' => ['AdminController', 'webhookDeliveries'],
         '#^/admin/roles/(\d+)/edit$#'        => ['AdminController', 'roleForm'],
     ],
     'POST' => [

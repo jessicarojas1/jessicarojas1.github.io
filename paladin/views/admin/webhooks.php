@@ -24,6 +24,7 @@ $truthy = fn($v) => in_array(strtolower((string)$v), ['1','t','true','yes','on']
             <td><?= $truthy($h['is_active']) ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Paused</span>' ?></td>
             <td class="form-hint"><?= $h['last_fired_at'] ? Security::h(View::timeAgo($h['last_fired_at'])) . ($h['last_status'] ? ' · ' . (int)$h['last_status'] : '') : '—' ?></td>
             <td style="text-align:right;white-space:nowrap">
+              <a href="/admin/webhooks/<?= (int)$h['id'] ?>/deliveries" class="btn btn-sm" title="Delivery log"><i class="bi bi-clock-history"></i></a>
               <form method="POST" action="/admin/webhooks/<?= (int)$h['id'] ?>/test" style="display:inline;margin:0"><?= Security::csrfField() ?><button class="btn btn-sm" type="submit" title="Send test delivery"><i class="bi bi-send"></i></button></form>
               <form method="POST" action="/admin/webhooks/<?= (int)$h['id'] ?>/toggle" style="display:inline;margin:0"><?= Security::csrfField() ?><button class="btn btn-sm" type="submit" title="<?= $truthy($h['is_active']) ? 'Pause' : 'Resume' ?>"><i class="bi <?= $truthy($h['is_active']) ? 'bi-pause-fill' : 'bi-play-fill' ?>"></i></button></form>
               <form method="POST" action="/admin/webhooks/<?= (int)$h['id'] ?>/delete" style="display:inline;margin:0" data-confirm="Delete this webhook?"><?= Security::csrfField() ?><button class="btn btn-sm btn-danger" type="submit"><i class="bi bi-trash"></i></button></form>

@@ -690,6 +690,23 @@ class AdminController {
         require PALADIN_ROOT . '/views/admin/webhooks.php';
     }
 
+    /** Per-webhook delivery log (recent attempts with status + error). */
+    public function webhookDeliveries(int $id): void {
+        Auth::requireAdmin();
+        $hook = Database::fetchOne("SELECT * FROM webhooks WHERE id = ?", [$id]);
+        if (!$hook) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $deliveries = Database::fetchAll(
+            "SELECT * FROM webhook_deliveries WHERE webhook_id = ? ORDER BY created_at DESC LIMIT 100", [$id]
+        );
+        $stats = Database::fetchOne(
+            "SELECT COUNT(*) total,
+                    COUNT(*) FILTER (WHERE success) ok,
+                    COUNT(*) FILTER (WHERE NOT success) failed
+             FROM webhook_deliveries WHERE webhook_id = ?", [$id]
+        );
+        require PALADIN_ROOT . '/views/admin/webhook_deliveries.php';
+    }
+
     public function createWebhook(): void {
         Auth::requireAdmin();
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
