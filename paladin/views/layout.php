@@ -110,6 +110,7 @@
         <a href="/admin/webhooks"    class="nav-item <?= ($activeModule ?? '')==='admin_webhooks'?'active':'' ?>"><i class="bi bi-broadcast"></i><span>Webhooks</span></a>
         <a href="/admin/retention"   class="nav-item <?= ($activeModule ?? '')==='admin_retention'?'active':'' ?>"><i class="bi bi-clock-history"></i><span>Retention Rules</span></a>
         <a href="/admin/numbering"   class="nav-item <?= ($activeModule ?? '')==='admin_numbering'?'active':'' ?>"><i class="bi bi-hash"></i><span>Doc Numbering</span></a>
+        <a href="/admin/security"    class="nav-item <?= ($activeModule ?? '')==='admin_security'?'active':'' ?>"><i class="bi bi-shield-check"></i><span>Security</span></a>
         <a href="/admin/logs"        class="nav-item <?= ($activeModule ?? '')==='admin_logs'?'active':'' ?>"><i class="bi bi-journal-text"></i><span>Activity Logs</span></a>
         <a href="/admin/outbox"      class="nav-item <?= ($activeModule ?? '')==='admin_outbox'?'active':'' ?>"><i class="bi bi-envelope-paper"></i><span>Mail Outbox</span></a>
         <a href="/admin/saml"        class="nav-item <?= ($activeModule ?? '')==='admin_saml'?'active':'' ?>"><i class="bi bi-shield-lock-fill"></i><span>SAML SSO</span></a>

@@ -695,6 +695,41 @@ class AdminController {
         header('Location: /admin/api-keys');
     }
 
+    // ── Security overview ────────────────────────────────────────────────────
+    public function security(): void {
+        Auth::requireAdmin();
+
+        $failed24 = (int)(Database::fetchOne("SELECT COUNT(*) c FROM activity_log WHERE action='login_failed' AND created_at > NOW() - INTERVAL '24 hours'")['c'] ?? 0);
+        $failed7d = (int)(Database::fetchOne("SELECT COUNT(*) c FROM activity_log WHERE action='login_failed' AND created_at > NOW() - INTERVAL '7 days'")['c'] ?? 0);
+        $activeSessions = (int)(Database::fetchOne("SELECT COUNT(*) c FROM active_sessions WHERE last_seen_at > NOW() - INTERVAL '30 minutes'")['c'] ?? 0);
+
+        $topFailedIps = Database::fetchAll(
+            "SELECT ip_address, COUNT(*) c, MAX(created_at) last_at
+             FROM activity_log WHERE action='login_failed' AND created_at > NOW() - INTERVAL '7 days' AND ip_address IS NOT NULL
+             GROUP BY ip_address ORDER BY c DESC LIMIT 10"
+        );
+        $mfaStats = Database::fetchOne(
+            "SELECT COUNT(*) total,
+                    COUNT(*) FILTER (WHERE mfa_enabled) with_mfa,
+                    COUNT(*) FILTER (WHERE role='admin' AND NOT mfa_enabled) admins_without_mfa
+             FROM users WHERE is_active = TRUE"
+        );
+        $adminsNoMfa = Database::fetchAll(
+            "SELECT name, email FROM users WHERE is_active=TRUE AND role='admin' AND NOT mfa_enabled ORDER BY name"
+        );
+        $privileged = Database::fetchAll(
+            "SELECT al.created_at, al.action, al.entity_type, al.entity_id, u.name AS user_name
+             FROM activity_log al LEFT JOIN users u ON u.id = al.user_id
+             WHERE al.action IN ('create_user','update_user','deactivate_user','activate_user','delete_role',
+                                 'createRole','updateRole','savePermissions','revoke_sessions','update_saml_settings',
+                                 'update_oidc_settings','update_scim_settings','scim_token_rotated','update_settings',
+                                 'merge_tags','bulk_import_users')
+             ORDER BY al.id DESC LIMIT 20"
+        );
+        $mfaPolicy = Auth::mfaPolicy();
+        require PALADIN_ROOT . '/views/admin/security.php';
+    }
+
     // ── Activity Logs ────────────────────────────────────────────────────────
     public function logs(): void {
         Auth::requireAdmin();
