@@ -9,6 +9,23 @@ ob_start();
 <div class="card form-page"><div class="card-body">
   <?php if ($enabled): ?>
     <div class="banner ok"><i class="bi bi-shield-check"></i><div class="banner-body"><strong>Two-factor authentication is enabled.</strong> You'll be asked for a code from your authenticator app each time you sign in.</div></div>
+
+    <?php if (!empty($recoveryCodes)): ?>
+      <div class="banner warn" style="margin-top:14px"><i class="bi bi-key-fill"></i><div class="banner-body">
+        <strong>Save your recovery codes.</strong> Each can be used once to sign in if you lose your authenticator. They won't be shown again.
+        <div style="display:grid;grid-template-columns:repeat(2,max-content);gap:6px 24px;margin-top:10px;font-family:monospace;font-size:.95rem">
+          <?php foreach ($recoveryCodes as $rc): ?><span><?= Security::h($rc) ?></span><?php endforeach; ?>
+        </div>
+      </div></div>
+    <?php else: ?>
+      <p class="form-hint" style="margin-top:14px"><i class="bi bi-key"></i> Recovery codes remaining: <strong><?= (int)$recoveryRemaining ?></strong>. Use these to sign in if you lose access to your authenticator.</p>
+    <?php endif; ?>
+
+    <form method="POST" action="/mfa/recovery-codes" style="margin-top:10px">
+      <?= Security::csrfField() ?>
+      <button class="btn btn-ghost" type="submit" data-confirm-click="Generate new recovery codes? Your existing codes will stop working."><i class="bi bi-arrow-repeat"></i> Regenerate recovery codes</button>
+    </form>
+
     <form method="POST" action="/mfa/disable" style="margin-top:14px" data-confirm="Disable two-factor authentication?">
       <?= Security::csrfField() ?>
       <div class="form-group" style="max-width:320px"><label class="form-label">Confirm your password to disable</label><input type="password" name="password" class="form-control" autocomplete="current-password" required></div>

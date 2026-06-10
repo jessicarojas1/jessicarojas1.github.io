@@ -131,6 +131,16 @@ CREATE TABLE IF NOT EXISTS personal_access_tokens (
     updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_pat_user ON personal_access_tokens(user_id);
+
+-- One-time MFA recovery (backup) codes, stored hashed.
+CREATE TABLE IF NOT EXISTS mfa_recovery_codes (
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    code_hash  TEXT NOT NULL,
+    used_at    TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_mfa_recovery_user ON mfa_recovery_codes(user_id) WHERE used_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_pat_hash ON personal_access_tokens(token_hash);
 
 -- Outbound webhooks (HTTP callbacks on platform events)

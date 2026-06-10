@@ -414,10 +414,67 @@ class Auth {
             return false;
         }
         $user = Database::fetchOne("SELECT * FROM users WHERE id = ? AND is_active = TRUE", [$uid]);
-        if (!$user || empty($user['mfa_secret']) || !TOTP::verify($user['mfa_secret'], $code)) return false;
+        if (!$user || empty($user['mfa_secret'])) return false;
+        // Accept a valid TOTP code, or a one-time recovery code as a fallback.
+        $ok = TOTP::verify($user['mfa_secret'], $code) || self::consumeRecoveryCode((int)$uid, $code);
+        if (!$ok) return false;
         unset($_SESSION['mfa_user_id'], $_SESSION['mfa_time']);
         self::finalizeLogin($user);
         return true;
+    }
+
+    /** Normalise a recovery code (case/format insensitive). */
+    private static function normalizeRecoveryCode(string $code): string {
+        return strtolower(preg_replace('/[^A-Za-z0-9]/', '', $code) ?? '');
+    }
+
+    /**
+     * Generate a fresh set of one-time recovery codes for a user, replacing any
+     * existing ones. Returns the plaintext codes (shown to the user only once).
+     * @return string[]
+     */
+    public static function generateRecoveryCodes(int $userId, int $count = 10): array {
+        try {
+            Database::query("DELETE FROM mfa_recovery_codes WHERE user_id = ?", [$userId]);
+            $plain = [];
+            for ($i = 0; $i < $count; $i++) {
+                $raw = bin2hex(random_bytes(5)); // 10 hex chars
+                $code = substr($raw, 0, 5) . '-' . substr($raw, 5, 5);
+                $plain[] = $code;
+                Database::insert('mfa_recovery_codes', [
+                    'user_id'   => $userId,
+                    'code_hash' => Security::hashPassword(self::normalizeRecoveryCode($code)),
+                ]);
+            }
+            return $plain;
+        } catch (\Throwable) { return []; }
+    }
+
+    /** Verify and consume (single-use) a recovery code. */
+    public static function consumeRecoveryCode(int $userId, string $code): bool {
+        $norm = self::normalizeRecoveryCode($code);
+        if ($norm === '') return false;
+        try {
+            $rows = Database::fetchAll(
+                "SELECT id, code_hash FROM mfa_recovery_codes WHERE user_id = ? AND used_at IS NULL", [$userId]
+            );
+        } catch (\Throwable) { return false; }
+        foreach ($rows as $r) {
+            if (Security::verifyPassword($norm, $r['code_hash'])) {
+                Database::query("UPDATE mfa_recovery_codes SET used_at = NOW() WHERE id = ?", [(int)$r['id']]);
+                self::log('mfa_recovery_used', 'users', $userId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function recoveryCodesRemaining(int $userId): int {
+        try {
+            return (int)(Database::fetchOne(
+                "SELECT COUNT(*) c FROM mfa_recovery_codes WHERE user_id = ? AND used_at IS NULL", [$userId]
+            )['c'] ?? 0);
+        } catch (\Throwable) { return 0; }
     }
 
     public static function mfaPending(): bool {

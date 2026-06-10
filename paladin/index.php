@@ -239,6 +239,7 @@ $routes = [
         '/profile/sessions/revoke-others' => ['ProfileController', 'revokeOtherSessions'],
         '/mfa/setup'                 => ['ProfileController', 'mfaEnable'],
         '/mfa/disable'               => ['ProfileController', 'mfaDisable'],
+        '/mfa/recovery-codes'        => ['ProfileController', 'regenerateRecoveryCodes'],
         '/mfa/verify'                => ['AuthController', 'mfaVerify'],
 
         '/admin/users/create'        => ['AdminController', 'createUser'],
