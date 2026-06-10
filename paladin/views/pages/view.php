@@ -179,6 +179,34 @@ ob_start();
     </div>
   </div>
 
+  <!-- Move / Duplicate -->
+  <?php if ($canEditPage || Auth::can('page.create')): ?>
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-files"></i> Organise</span></div></div>
+    <div class="card-body">
+      <?php if (Auth::can('page.create')): ?>
+      <form method="POST" action="/pages/<?= (int)$page['id'] ?>/duplicate" style="margin:0 0 10px">
+        <?= Security::csrfField() ?>
+        <button type="submit" class="btn btn-sm btn-ghost" style="width:100%"><i class="bi bi-files"></i> Duplicate as draft</button>
+      </form>
+      <?php endif; ?>
+      <?php if ($canEditPage && !empty($moveSpaces)): ?>
+      <form method="POST" action="/pages/<?= (int)$page['id'] ?>/move-space" style="margin:0">
+        <?= Security::csrfField() ?>
+        <label class="form-label">Move to space</label>
+        <div style="display:flex;gap:6px">
+          <select name="target_space_id" class="form-select" required style="flex:1;padding:4px 6px">
+            <option value="">Choose space…</option>
+            <?php foreach ($moveSpaces as $s): ?><option value="<?= (int)$s['id'] ?>"><?= Security::h($s['name']) ?> (<?= Security::h($s['space_key']) ?>)</option><?php endforeach; ?>
+          </select>
+          <button type="submit" class="btn btn-sm btn-primary" data-confirm-click="Move this page (and any sub-pages) to the selected space?"><i class="bi bi-box-arrow-right"></i></button>
+        </div>
+      </form>
+      <?php endif; ?>
+    </div>
+  </div>
+  <?php endif; ?>
+
   <!-- Restrictions -->
   <?php if ($canEditPage): ?>
   <div class="card" style="margin-bottom:18px">
