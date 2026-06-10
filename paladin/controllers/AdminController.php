@@ -87,6 +87,61 @@ class AdminController {
         header('Location: /admin/users');
     }
 
+    public function importUsersForm(): void {
+        Auth::requireAdmin();
+        $result = $_SESSION['user_import_result'] ?? null;
+        unset($_SESSION['user_import_result']);
+        require PALADIN_ROOT . '/views/admin/users_import.php';
+    }
+
+    /** Bulk-create users from pasted CSV (columns: name,email,role,department,title). */
+    public function importUsers(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $csv = (string)($_POST['csv'] ?? '');
+        if (trim($csv) === '') { $_SESSION['flash_error'] = 'Paste some CSV rows to import.'; header('Location: /admin/users/import'); return; }
+
+        $lines = preg_split('/\r\n|\r|\n/', trim($csv));
+        $created = 0; $skipped = []; $rowNum = 0;
+        foreach ($lines as $line) {
+            $rowNum++;
+            if (trim($line) === '') { continue; }
+            $cols = str_getcsv($line);
+            // Skip an optional header row.
+            if ($rowNum === 1 && strtolower(trim($cols[0] ?? '')) === 'name' && stripos($line, 'email') !== false) { continue; }
+
+            $name  = Security::sanitizeInput($cols[0] ?? '');
+            $email = strtolower(trim((string)($cols[1] ?? '')));
+            $role  = Security::sanitizeInput($cols[2] ?? 'viewer') ?: 'viewer';
+            $dept  = Security::sanitizeInput($cols[3] ?? '');
+            $title = Security::sanitizeInput($cols[4] ?? '');
+
+            if ($name === '' || $email === '') { $skipped[] = "Row {$rowNum}: missing name or email"; continue; }
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { $skipped[] = "Row {$rowNum}: invalid email ({$email})"; continue; }
+            if (!Auth::roleExists($role)) { $role = 'viewer'; }
+            if (Database::fetchOne("SELECT 1 FROM users WHERE LOWER(email) = ?", [$email])) { $skipped[] = "Row {$rowNum}: {$email} already exists"; continue; }
+
+            $id = Database::insert('users', [
+                'name'                  => $name,
+                'email'                 => $email,
+                'password_hash'         => Security::hashPassword(bin2hex(random_bytes(24))),
+                'role'                  => $role,
+                'department'            => $dept ?: null,
+                'title'                 => $title ?: null,
+                'is_active'             => 't',
+                'force_password_change' => 't',
+                'password_changed_at'   => date('Y-m-d H:i:s'),
+            ]);
+            Auth::log('import_user', 'users', $id, ['email' => $email, 'role' => $role]);
+            $created++;
+        }
+        Auth::log('bulk_import_users', 'users', null, ['created' => $created, 'skipped' => count($skipped)]);
+        $_SESSION['user_import_result'] = ['created' => $created, 'skipped' => $skipped];
+        $_SESSION['flash_success'] = "Imported {$created} user(s)" . ($skipped ? ', ' . count($skipped) . ' skipped.' : '.');
+        header('Location: /admin/users/import');
+    }
+
     public function updateUser(int $id): void {
         Auth::requireAdmin();
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }

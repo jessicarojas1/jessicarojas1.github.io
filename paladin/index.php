@@ -186,6 +186,7 @@ $routes = [
         '/admin'                     => ['AdminController', 'index'],
         '/admin/users'               => ['AdminController', 'users'],
         '/admin/users/create'        => ['AdminController', 'createUserForm'],
+        '/admin/users/import'        => ['AdminController', 'importUsersForm'],
         '/admin/permissions'         => ['AdminController', 'permissions'],
         '/admin/roles'               => ['AdminController', 'roles'],
         '/admin/roles/create'        => ['AdminController', 'roleForm'],
@@ -239,6 +240,7 @@ $routes = [
         '/mfa/verify'                => ['AuthController', 'mfaVerify'],
 
         '/admin/users/create'        => ['AdminController', 'createUser'],
+        '/admin/users/import'        => ['AdminController', 'importUsers'],
         '/admin/permissions/save'    => ['AdminController', 'savePermissions'],
         '/admin/roles/create'        => ['AdminController', 'createRole'],
         '/admin/branding'            => ['AdminController', 'saveBranding'],
