@@ -414,6 +414,10 @@ class AdminController {
             $this->setSetting($key, !empty($_POST[$key]) ? '1' : '0');
         }
 
+        // 2FA enforcement policy (off | admins | all).
+        $mfaPolicy = in_array($_POST['mfa_required'] ?? 'off', ['off', 'admins', 'all'], true) ? $_POST['mfa_required'] : 'off';
+        $this->setSetting('mfa_required', $mfaPolicy);
+
         // Secrets: only update when a non-empty value is submitted; encrypt at rest.
         foreach (['smtp_pass', 's3_secret_key'] as $key) {
             $val = (string)($_POST[$key] ?? '');
