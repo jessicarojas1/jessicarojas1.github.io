@@ -20,6 +20,9 @@ if (!empty($task['entity_type']) && !empty($task['entity_id'])) {
     <?php if ($task['status'] !== 'done' && Auth::can('task.complete')): ?>
     <form method="POST" action="/tasks/<?= (int)$task['id'] ?>/complete" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-success" type="submit"><i class="bi bi-check2-circle"></i> Mark Complete</button></form>
     <?php endif; ?>
+    <?php if (Auth::can('task.edit')): ?>
+    <form method="POST" action="/tasks/<?= (int)$task['id'] ?>/delete" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-danger" type="submit" data-confirm-click="Delete this task permanently?"><i class="bi bi-trash"></i> Delete</button></form>
+    <?php endif; ?>
   </div>
 </div>
 
