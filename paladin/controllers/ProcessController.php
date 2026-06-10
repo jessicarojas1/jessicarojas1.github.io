@@ -34,6 +34,42 @@ class ProcessController {
         require PALADIN_ROOT . '/views/processes/index.php';
     }
 
+    /** Export the (filtered) process register as CSV. */
+    public function exportRegister(): void {
+        Auth::requirePermission('process.view');
+        $status = Security::sanitizeInput($_GET['status'] ?? '');
+        $space  = !empty($_GET['space']) ? (int)$_GET['space'] : null;
+        $q      = Security::sanitizeInput($_GET['q'] ?? '');
+
+        $where = ['1=1']; $params = [];
+        if ($status && in_array($status, self::STATUSES, true)) { $where[] = 'p.status = ?'; $params[] = $status; }
+        if ($space)  { $where[] = 'p.space_id = ?'; $params[] = $space; }
+        if ($q) { $where[] = '(p.name ILIKE ? OR p.process_code ILIKE ? OR p.description ILIKE ?)'; array_push($params, "%$q%", "%$q%", "%$q%"); }
+        $whereSql = implode(' AND ', $where);
+
+        $rows = Database::fetchAll(
+            "SELECT p.process_code, p.name, p.status, p.version, s.space_key, o.name AS owner_name, p.updated_at
+             FROM processes p LEFT JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id
+             WHERE {$whereSql} ORDER BY p.process_code",
+            $params
+        );
+        Auth::log('export_process_register', 'processes', null, ['count' => count($rows)]);
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="process-register-' . date('Ymd') . '.csv"');
+        header('X-Content-Type-Options: nosniff');
+        $out = fopen('php://output', 'w');
+        fwrite($out, "\xEF\xBB\xBF");
+        fputcsv($out, ['Code', 'Name', 'Status', 'Version', 'Space', 'Owner', 'Last Updated']);
+        foreach ($rows as $r) {
+            fputcsv($out, [
+                $r['process_code'], $r['name'], $r['status'], $r['version'],
+                $r['space_key'] ?? '', $r['owner_name'] ?? '', $r['updated_at'],
+            ]);
+        }
+        fclose($out);
+    }
+
     public function view(int $id): void {
         Auth::requirePermission('process.view');
         $process = Database::fetchOne(

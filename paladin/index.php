@@ -146,6 +146,7 @@ $routes = [
         '/documents/create'          => ['DocumentController', 'createForm'],
 
         '/processes'                 => ['ProcessController', 'index'],
+        '/processes/export'          => ['ProcessController', 'exportRegister'],
         '/processes/create'          => ['ProcessController', 'createForm'],
 
         '/workflows'                 => ['WorkflowController', 'index'],
