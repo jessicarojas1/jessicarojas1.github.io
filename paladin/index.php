@@ -142,6 +142,7 @@ $routes = [
         '/pages/import'              => ['PageController', 'importForm'],
 
         '/documents'                 => ['DocumentController', 'index'],
+        '/documents/export'          => ['DocumentController', 'exportRegister'],
         '/documents/create'          => ['DocumentController', 'createForm'],
 
         '/processes'                 => ['ProcessController', 'index'],
