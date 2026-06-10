@@ -6,7 +6,7 @@ ob_start();
 ?>
 <div class="page-header">
   <div><h1 class="page-title">Users</h1><p class="page-subtitle">Manage accounts, roles and access</p></div>
-  <div class="page-actions"><a href="/admin/users/create" class="btn btn-primary"><i class="bi bi-person-plus-fill"></i> New User</a></div>
+  <div class="page-actions"><a href="/admin/users/import" class="btn btn-ghost"><i class="bi bi-filetype-csv"></i> Import CSV</a><a href="/admin/users/create" class="btn btn-primary"><i class="bi bi-person-plus-fill"></i> New User</a></div>
 </div>
 
 <div class="card"><div class="card-body" style="padding:0">
