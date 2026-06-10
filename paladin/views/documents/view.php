@@ -128,7 +128,7 @@ $relLabels = ['related_process'=>'Process','related_risk'=>'Risk','related_contr
       <?php if (!$acks): ?><div class="empty-state-sm">No acknowledgements recorded.</div><?php endif; ?>
     </div></div>
 
-    <div class="card"><div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-clock-history"></i> Revision History (<?= count($versions) ?>)</span></div></div><div class="card-body">
+    <div class="card"><div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-clock-history"></i> Revision History (<?= count($versions) ?>)</span></div><?php if (count($versions) > 1): ?><a href="/documents/<?= (int)$doc['id'] ?>/diff" class="btn btn-sm btn-ghost"><i class="bi bi-arrow-left-right"></i> Compare</a><?php endif; ?></div><div class="card-body">
       <ul class="tl">
         <?php foreach ($versions as $v): ?><li><span class="tl-dot"><i class="bi bi-dot"></i></span><div class="tl-title">Rev <?= Security::h($v['revision']) ?> <?= $v['status'] ? View::statusBadge($v['status']) : '' ?></div><div class="tl-meta"><?= Security::h($v['author'] ?: '—') ?> · <?= View::fmtDate($v['created_at']) ?></div><?php if ($v['change_summary']): ?><div class="tl-body"><?= Security::h($v['change_summary']) ?></div><?php endif; ?></li><?php endforeach; ?>
         <?php if (!$versions): ?><li><div class="empty-state-sm">No prior revisions.</div></li><?php endif; ?>
