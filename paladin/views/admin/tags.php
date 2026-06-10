@@ -40,7 +40,7 @@ ob_start();
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" style="margin-bottom:18px">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-plus-lg"></i> New Tag</span></div></div>
     <div class="card-body">
       <form method="POST" action="/admin/tags">
@@ -51,6 +51,31 @@ ob_start();
       </form>
     </div>
   </div>
+
+  <?php if (count($tags) > 1): ?>
+  <div class="card">
+    <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-arrow-left-right"></i> Merge Tags</span></div></div>
+    <div class="card-body">
+      <form method="POST" action="/admin/tags/merge">
+        <?= Security::csrfField() ?>
+        <div class="form-group"><label class="form-label" for="merge_source">Merge this tag…</label>
+          <select id="merge_source" name="source_id" class="form-select" required>
+            <option value="">Choose…</option>
+            <?php foreach ($tags as $t): ?><option value="<?= (int)$t['id'] ?>"><?= Security::h($t['name']) ?> (<?= (int)$t['cnt'] ?>)</option><?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label" for="merge_target">…into this tag</label>
+          <select id="merge_target" name="target_id" class="form-select" required>
+            <option value="">Choose…</option>
+            <?php foreach ($tags as $t): ?><option value="<?= (int)$t['id'] ?>"><?= Security::h($t['name']) ?> (<?= (int)$t['cnt'] ?>)</option><?php endforeach; ?>
+          </select>
+        </div>
+        <p class="form-hint">All content tagged with the source tag is re-tagged to the target, then the source tag is deleted.</p>
+        <div class="form-actions"><button type="submit" class="btn btn-ghost btn-full" data-confirm-click="Merge the source tag into the target and delete the source?"><i class="bi bi-arrow-left-right"></i> Merge Tags</button></div>
+      </form>
+    </div>
+  </div>
+  <?php endif; ?>
 </div>
 <?php
 $content = ob_get_clean();

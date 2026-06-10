@@ -253,6 +253,7 @@ $routes = [
         '/admin/oidc'                => ['AdminController', 'saveOidc'],
         '/admin/scim'                => ['AdminController', 'saveScim'],
         '/admin/tags'                => ['AdminController', 'createTag'],
+        '/admin/tags/merge'          => ['AdminController', 'mergeTags'],
         '/admin/shortcuts'           => ['AdminController', 'createShortcut'],
         '/admin/api-keys'            => ['AdminController', 'createApiKey'],
         '/admin/webhooks'            => ['AdminController', 'createWebhook'],
