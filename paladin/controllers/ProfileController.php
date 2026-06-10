@@ -65,6 +65,25 @@ class ProfileController {
         header('Location: /profile/edit');
     }
 
+    /** JSON user suggestions for @mention autocomplete (?q=). */
+    public function suggestUsers(): void {
+        Auth::requireAuth();
+        header('Content-Type: application/json');
+        $q = trim(Security::sanitizeInput($_GET['q'] ?? ''));
+        if ($q === '') { echo json_encode([]); return; }
+        $rows = Database::fetchAll(
+            "SELECT id, name FROM users WHERE is_active = TRUE AND name ILIKE ? ORDER BY name LIMIT 8",
+            ['%' . $q . '%']
+        );
+        $out = array_map(static fn($u) => [
+            'id'     => (int)$u['id'],
+            'name'   => $u['name'],
+            // Handle that Mentions::process resolves unambiguously (name without spaces).
+            'handle' => preg_replace('/[^A-Za-z0-9._-]/', '', (string)$u['name']),
+        ], $rows);
+        echo json_encode($out);
+    }
+
     public function notifications(): void {
         Auth::requireAuth();
         $alerts = Database::fetchAll(
