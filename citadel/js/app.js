@@ -39,15 +39,16 @@
     return !!(u.permissions && u.permissions[page]);
   }
 
-  let _loginModal = null, pendingMfa = null;
+  let _loginModal = null, pendingMfa = null, mustChangeCtx = null;
   function loginModal() { if (!_loginModal && root.bootstrap) _loginModal = new root.bootstrap.Modal($('loginModal')); return _loginModal; }
   function resetLoginUi() {
-    pendingMfa = null;
-    const cr = $('login-creds-row'), pr = $('login-pass-row'), mr = $('login-mfa-row');
+    pendingMfa = null; mustChangeCtx = null;
+    const cr = $('login-creds-row'), pr = $('login-pass-row'), mr = $('login-mfa-row'), nr = $('login-newpass-row');
     if (cr) cr.classList.remove('d-none'); if (pr) pr.classList.remove('d-none');
-    if (mr) mr.classList.add('d-none');
+    if (mr) mr.classList.add('d-none'); if (nr) nr.classList.add('d-none');
     if ($('login-password')) $('login-password').value = '';
     if ($('login-mfa-code')) $('login-mfa-code').value = '';
+    if ($('login-newpass')) $('login-newpass').value = '';
     const b = $('login-submit'); if (b) b.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Sign in';
   }
   function showMfaStep() {
@@ -57,6 +58,18 @@
     const h = $('login-hint'); if (h) h.textContent = 'Enter the 6-digit code from your authenticator app (or a backup code).';
     const b = $('login-submit'); if (b) b.innerHTML = '<i class="bi bi-shield-lock"></i> Verify';
     const c = $('login-mfa-code'); if (c) c.focus();
+  }
+  // A user flagged must-change (default-cred admin, or anyone an admin reset)
+  // can't use the app until they set their own password. Surface that step in the
+  // same modal instead of letting every action fail with a 403 dead-end.
+  function showMustChangeStep() {
+    const cr = $('login-creds-row'), pr = $('login-pass-row'), mr = $('login-mfa-row'), nr = $('login-newpass-row');
+    if (cr) cr.classList.add('d-none'); if (pr) pr.classList.add('d-none'); if (mr) mr.classList.add('d-none');
+    if (nr) nr.classList.remove('d-none');
+    const er = $('login-error'); if (er) er.classList.add('d-none');
+    const h = $('login-hint'); if (h) h.textContent = 'Your account requires a new password before you can continue.';
+    const b = $('login-submit'); if (b) b.innerHTML = '<i class="bi bi-key"></i> Set password &amp; continue';
+    const c = $('login-newpass'); if (c) c.focus();
   }
   function openLogin() {
     resetLoginUi();
@@ -450,7 +463,27 @@
       const er = $('login-error');
       const showErr = (msg) => { if (er) { er.textContent = msg; er.classList.remove('d-none'); } };
       if (er) er.classList.add('d-none');
-      const finishOk = (u) => { backendUser = u; const m = loginModal(); if (m) m.hide(); resetLoginUi(); applyAccess(); };
+      const complete = (u) => { backendUser = u; const m = loginModal(); if (m) m.hide(); resetLoginUi(); applyAccess(); };
+      // Backend login succeeded but the account must set a new password first →
+      // switch to the must-change step (we hold the just-entered current password).
+      const finishOk = (u) => {
+        if (backendMode && u && u.mustChange) { mustChangeCtx = { user: u, current: $('login-password').value || '' }; showMustChangeStep(); return; }
+        complete(u);
+      };
+      // In-flight must-change step: set the new password, then finish sign-in.
+      if (mustChangeCtx) {
+        (async () => {
+          const next = ($('login-newpass').value || '');
+          if (next.length < 8) { showErr('New password must be at least 8 characters.'); return; }
+          try {
+            await CITADEL.api.authChangePassword(mustChangeCtx.current, next);
+            const u = Object.assign({}, mustChangeCtx.user, { mustChange: false });
+            mustChangeCtx = null;
+            complete(u);
+          } catch (ex) { showErr((ex && ex.message) || 'Could not change password.'); }
+        })();
+        return;
+      }
       if (!backendMode) {
         CITADEL.auth.loginByCreds($('login-email').value, $('login-password').value)
           .then(u => u ? finishOk(u) : showErr('Invalid credentials or inactive account.'))

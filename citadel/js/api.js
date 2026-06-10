@@ -120,6 +120,17 @@
     if (j && j.token) { setTokens(j); return j.user; }
     return null;
   }
+  // Change the signed-in user's own password (used by the must-change step).
+  // Returns { ok:true } on success or throws with the server error message.
+  async function authChangePassword(current, next) {
+    const res = await apiFetch('api/auth/password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current, next })
+    });
+    const j = await res.json().catch(() => null);
+    if (!res.ok) throw new Error((j && j.error) || 'Could not change password.');
+    return j || { ok: true };
+  }
   async function authMe() {
     if (!getToken() && !getRefresh()) return null;
     try {
@@ -145,5 +156,5 @@
   async function scanGet(id) { const res = await apiFetch('api/scans/' + encodeURIComponent(id)); return asJson(res, 'Could not load scan'); }
   async function scanDelete(id) { const res = await apiFetch('api/scans/' + encodeURIComponent(id), { method: 'DELETE' }); return asJson(res, 'Could not delete scan'); }
 
-  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authMe, authLogout, refresh, scansList, scanGet, scanDelete, getToken, getRefresh };
+  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, getToken, getRefresh };
 })(window);
