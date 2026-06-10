@@ -117,7 +117,7 @@ class PageController {
     public function view(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
-            "SELECT p.*, s.space_key, s.name AS space_name, s.is_private AS space_private, o.name AS owner_name
+            "SELECT p.*, s.space_key, s.name AS space_name, s.is_private AS space_private, s.homepage_id AS space_homepage, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id = p.space_id
              LEFT JOIN users o ON o.id = p.owner_id WHERE p.id = ? AND p.deleted_at IS NULL",
             [$id]
@@ -137,6 +137,8 @@ class PageController {
              WHERE pr.page_id = ? ORDER BY pr.mode, pr.principal_type", [$id]
         );
         $canEditPage = PageAccess::canEdit($page);
+        $canManageSpace = SpaceAccess::canManage(['id' => (int)$page['space_id'], 'is_private' => $page['space_private']]);
+        $isHomepage = (int)($page['space_homepage'] ?? 0) === $id;
         $allUsers = $canEditPage ? Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name") : [];
         $pageTasks = PageTasks::forPage($id);
         $taskUsers = $pageTasks ? Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name") : [];
@@ -508,6 +510,25 @@ class PageController {
             Auth::log('move_page', 'pages', $id, ['dir' => $dir]);
         }
         header('Location: /spaces/' . (int)$page['space_id']);
+    }
+
+    /** Set (or clear) this page as its space's homepage — space managers only. */
+    public function setHomepage(int $id): void {
+        Auth::requirePermission('page.view');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $page = Database::fetchOne("SELECT id, space_id FROM pages WHERE id = ? AND deleted_at IS NULL", [$id]);
+        if (!$page) { http_response_code(404); return; }
+        $space = Database::fetchOne("SELECT * FROM spaces WHERE id = ?", [(int)$page['space_id']]);
+        if (!$space || !SpaceAccess::canManage($space)) {
+            $_SESSION['flash_error'] = 'Only space admins can set the homepage.';
+            header('Location: /pages/' . $id); return;
+        }
+        $clear = !empty($_POST['clear']);
+        Database::query("UPDATE spaces SET homepage_id = ?, updated_at = NOW() WHERE id = ?",
+            [$clear ? null : $id, (int)$page['space_id']]);
+        Auth::log($clear ? 'clear_space_homepage' : 'set_space_homepage', 'spaces', (int)$page['space_id'], ['page' => $id]);
+        $_SESSION['flash_success'] = $clear ? 'Homepage cleared.' : 'Set as the space homepage.';
+        header('Location: /pages/' . $id);
     }
 
     /** Bulk operations on selected pages within a space: trash / label / move. */

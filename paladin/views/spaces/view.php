@@ -57,6 +57,13 @@ function renderTree(array $byParent, $parent, $depth = 0) {
 
 <?php if ($space['description']): ?><div class="card" style="margin-bottom:18px"><div class="card-body"><p style="margin:0;color:var(--text-muted)"><?= Security::h($space['description']) ?></p></div></div><?php endif; ?>
 
+<?php if (!empty($homepage)): ?>
+<div class="card" style="margin-bottom:18px">
+  <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-house-fill"></i> <?= Security::h($homepage['title']) ?></span></div><a href="/pages/<?= (int)$homepage['id'] ?>" class="btn btn-sm btn-ghost">Open page</a></div>
+  <div class="card-body"><div class="prose"><?= $homepage['body'] ?: '<p class="form-hint">This homepage has no content yet.</p>' ?></div></div>
+</div>
+<?php endif; ?>
+
 <div style="display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start">
   <div class="card">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-list-nested"></i> Page Tree</span></div></div>
