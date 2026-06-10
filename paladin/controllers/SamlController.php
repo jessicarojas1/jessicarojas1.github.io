@@ -51,9 +51,64 @@ class SamlController {
         }
 
         Auth::ssoLogin($user);
+        // Remember SAML session details for Single Logout.
+        $_SESSION['saml_name_id'] = $identity['nameid'];
+        $_SESSION['saml_session_index'] = $identity['session_index'] ?? '';
         $relay = (string)($_POST['RelayState'] ?? '/');
         if (!preg_match('#^/[A-Za-z0-9/_-]*$#', $relay)) { $relay = '/'; }
         header('Location: ' . $relay);
+    }
+
+    /** SP-initiated Single Logout: clear the local session, then redirect to the IdP SLO. */
+    public function logout(): void {
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $nameId = (string)($_SESSION['saml_name_id'] ?? '');
+        $sessionIndex = (string)($_SESSION['saml_session_index'] ?? '');
+        Auth::logout();
+        if (Saml::sloEnabled() && $nameId !== '') {
+            header('Location: ' . Saml::logoutRequestUrl($nameId, $sessionIndex ?: null));
+            return;
+        }
+        header('Location: /login');
+    }
+
+    /**
+     * SLO endpoint. Handles either the IdP's LogoutResponse (to our SP-initiated
+     * logout) or an IdP-initiated LogoutRequest (we end the session and reply).
+     */
+    public function slo(): void {
+        $rawQuery = (string)($_SERVER['QUERY_STRING'] ?? '');
+
+        // IdP-initiated LogoutRequest.
+        if (isset($_GET['SAMLRequest'])) {
+            if (!Saml::verifyRedirectSignature($rawQuery)) {
+                error_log('[PALADIN SAML] SLO request signature invalid');
+                http_response_code(400); echo 'Invalid logout signature'; return;
+            }
+            $inResponseTo = '';
+            try {
+                $xml = Saml::inflateMessage((string)$_GET['SAMLRequest']);
+                if (preg_match('/\bID="([^"]+)"/', $xml, $m)) { $inResponseTo = $m[1]; }
+            } catch (\Throwable $e) {
+                http_response_code(400); echo 'Bad logout request'; return;
+            }
+            Auth::logout();
+            if (Saml::sloEnabled()) {
+                $relay = isset($_GET['RelayState']) ? (string)$_GET['RelayState'] : null;
+                header('Location: ' . Saml::logoutResponseUrl($inResponseTo, $relay));
+                return;
+            }
+            header('Location: /login'); return;
+        }
+
+        // LogoutResponse to our SP-initiated request → just finish.
+        if (isset($_GET['SAMLResponse'])) {
+            Saml::verifyRedirectSignature($rawQuery); // best-effort; session already ended
+            $_SESSION['flash_success'] = 'You have been signed out.';
+            header('Location: /login'); return;
+        }
+
+        header('Location: /login');
     }
 
     public function metadata(): void {

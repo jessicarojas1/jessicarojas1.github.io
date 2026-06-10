@@ -43,6 +43,10 @@ final class Saml {
             'attr_name'      => $rows['saml_attr_name'] ?? '',
             'auto_provision' => ($rows['saml_auto_provision'] ?? '0') === '1',
             'default_role'   => $rows['saml_default_role'] ?? 'viewer',
+            'idp_slo_url'    => $rows['saml_idp_slo_url'] ?? '',
+            'sp_cert'        => $rows['saml_sp_cert'] ?? '',
+            'sp_key'         => $rows['saml_sp_key'] ?? '',
+            'sign_requests'  => ($rows['saml_sign_requests'] ?? '0') === '1',
         ];
     }
 
@@ -82,14 +86,113 @@ final class Saml {
             . '<saml:Issuer>' . $sp . '</saml:Issuer>'
             . '<samlp:NameIDPolicy Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress" AllowCreate="true"/>'
             . '</samlp:AuthnRequest>';
-        // HTTP-Redirect binding: raw-deflate + base64 + urlencode.
-        $encoded = base64_encode((string)gzdeflate($req));
-        $params = 'SAMLRequest=' . rawurlencode($encoded);
+        return self::redirectUrl($c['idp_sso_url'], 'SAMLRequest', $req, $relayState);
+    }
+
+    public static function sloEndpoint(): string { return self::baseUrl() . '/saml/slo'; }
+
+    public static function sloEnabled(): bool {
+        $c = self::config();
+        return self::isEnabled() && $c['idp_slo_url'] !== '';
+    }
+
+    /** SP-initiated Single Logout: build a (optionally signed) LogoutRequest redirect. */
+    public static function logoutRequestUrl(string $nameId, ?string $sessionIndex = null): string {
+        $c = self::config();
+        $id = '_' . bin2hex(random_bytes(16));
+        $issue = gmdate('Y-m-d\TH:i:s\Z');
+        $slo = htmlspecialchars($c['idp_slo_url'], ENT_QUOTES);
+        $sp  = htmlspecialchars(self::spEntityId(), ENT_QUOTES);
+        $nid = htmlspecialchars($nameId, ENT_QUOTES);
+        $si = ($sessionIndex !== null && $sessionIndex !== '')
+            ? '<samlp:SessionIndex>' . htmlspecialchars($sessionIndex, ENT_QUOTES) . '</samlp:SessionIndex>' : '';
+        $req = '<samlp:LogoutRequest xmlns:samlp="' . self::NS_SAMLP . '" xmlns:saml="' . self::NS_SAML . '" '
+            . 'ID="' . $id . '" Version="2.0" IssueInstant="' . $issue . '" Destination="' . $slo . '">'
+            . '<saml:Issuer>' . $sp . '</saml:Issuer>'
+            . '<saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">' . $nid . '</saml:NameID>'
+            . $si . '</samlp:LogoutRequest>';
+        return self::redirectUrl($c['idp_slo_url'], 'SAMLRequest', $req, null);
+    }
+
+    /** Reply to an IdP-initiated LogoutRequest with a LogoutResponse redirect. */
+    public static function logoutResponseUrl(string $inResponseTo, ?string $relayState): string {
+        $c = self::config();
+        $id = '_' . bin2hex(random_bytes(16));
+        $issue = gmdate('Y-m-d\TH:i:s\Z');
+        $slo = htmlspecialchars($c['idp_slo_url'], ENT_QUOTES);
+        $sp  = htmlspecialchars(self::spEntityId(), ENT_QUOTES);
+        $irt = htmlspecialchars($inResponseTo, ENT_QUOTES);
+        $resp = '<samlp:LogoutResponse xmlns:samlp="' . self::NS_SAMLP . '" xmlns:saml="' . self::NS_SAML . '" '
+            . 'ID="' . $id . '" Version="2.0" IssueInstant="' . $issue . '" Destination="' . $slo . '" InResponseTo="' . $irt . '">'
+            . '<saml:Issuer>' . $sp . '</saml:Issuer>'
+            . '<samlp:Status><samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/></samlp:Status>'
+            . '</samlp:LogoutResponse>';
+        return self::redirectUrl($c['idp_slo_url'], 'SAMLResponse', $resp, $relayState);
+    }
+
+    /**
+     * HTTP-Redirect binding builder: raw-deflate + base64 + urlencode, with an
+     * optional XML-DSig (SHA-256) over the canonical query string when SP signing
+     * is enabled. $type is 'SAMLRequest' or 'SAMLResponse'.
+     */
+    private static function redirectUrl(string $endpoint, string $type, string $xml, ?string $relayState): string {
+        $c = self::config();
+        $encoded = base64_encode((string)gzdeflate($xml));
+        $query = $type . '=' . rawurlencode($encoded);
         if ($relayState !== null && $relayState !== '') {
-            $params .= '&RelayState=' . rawurlencode($relayState);
+            $query .= '&RelayState=' . rawurlencode($relayState);
         }
-        $sep = str_contains($c['idp_sso_url'], '?') ? '&' : '?';
-        return $c['idp_sso_url'] . $sep . $params;
+        if ($c['sign_requests'] && $c['sp_key'] !== '') {
+            $sigAlg = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
+            $query .= '&SigAlg=' . rawurlencode($sigAlg);
+            $key = openssl_pkey_get_private($c['sp_key']);
+            if ($key !== false && openssl_sign($query, $signature, $key, OPENSSL_ALGO_SHA256)) {
+                $query .= '&Signature=' . rawurlencode(base64_encode($signature));
+            }
+        }
+        $sep = str_contains($endpoint, '?') ? '&' : '?';
+        return $endpoint . $sep . $query;
+    }
+
+    /**
+     * Verify the redirect-binding signature on an inbound message (IdP-initiated
+     * SLO). $rawQuery is the verbatim request query string. Returns true when the
+     * IdP signed it correctly, or when no signature was supplied (the caller
+     * decides whether unsigned is acceptable).
+     */
+    public static function verifyRedirectSignature(string $rawQuery): bool {
+        $parts = [];
+        foreach (explode('&', $rawQuery) as $kv) {
+            $eq = strpos($kv, '=');
+            if ($eq === false) continue;
+            $parts[substr($kv, 0, $eq)] = substr($kv, $eq + 1); // keep raw (encoded) values
+        }
+        if (!isset($parts['Signature'])) { return true; } // unsigned — caller's policy
+        if (!isset($parts['SigAlg'])) { return false; }
+        $type = isset($parts['SAMLRequest']) ? 'SAMLRequest' : (isset($parts['SAMLResponse']) ? 'SAMLResponse' : null);
+        if ($type === null) { return false; }
+
+        // Reconstruct the exact signed string: <type>=..&[RelayState=..&]SigAlg=..
+        $signed = $type . '=' . $parts[$type];
+        if (isset($parts['RelayState'])) { $signed .= '&RelayState=' . $parts['RelayState']; }
+        $signed .= '&SigAlg=' . $parts['SigAlg'];
+
+        $sig = base64_decode(rawurldecode($parts['Signature']), true);
+        if ($sig === false) { return false; }
+        $alg = rawurldecode($parts['SigAlg']);
+        $opensslAlg = self::opensslAlgFor($alg) ?? OPENSSL_ALGO_SHA256;
+        $pub = self::publicKeyFromCert(self::config()['idp_cert']);
+        return openssl_verify($signed, $sig, $pub, $opensslAlg) === 1;
+    }
+
+    /** Inflate a redirect-binding message (SAMLRequest/SAMLResponse param value). */
+    public static function inflateMessage(string $b64): string {
+        $raw = base64_decode($b64, true);
+        if ($raw === false) { throw new \RuntimeException('Bad SAML message encoding'); }
+        $xml = @gzinflate($raw);
+        if ($xml === false) { throw new \RuntimeException('Cannot inflate SAML message'); }
+        if (preg_match('/<!DOCTYPE/i', $xml)) { throw new \RuntimeException('DOCTYPE not allowed'); }
+        return $xml;
     }
 
     /**
@@ -188,7 +291,9 @@ final class Saml {
         }
         if ($name === '') { $name = explode('@', $email)[0]; }
 
-        return ['nameid' => $nameId, 'email' => strtolower($email), 'name' => $name, 'attributes' => $attrs];
+        $sessionIndex = trim($xp->evaluate('string(saml:AuthnStatement/@SessionIndex)', $assertion));
+
+        return ['nameid' => $nameId, 'email' => strtolower($email), 'name' => $name, 'session_index' => $sessionIndex, 'attributes' => $attrs];
     }
 
     private static function firstChildSignature(\DOMElement $el, \DOMXPath $xp): ?\DOMElement {

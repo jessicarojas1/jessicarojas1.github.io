@@ -854,6 +854,7 @@ class AdminController {
         Auth::requireAdmin();
         $cfg = Saml::config();
         $acsUrl = Saml::acsUrl();
+        $sloEndpoint = Saml::sloEndpoint();
         $spEntityId = Saml::spEntityId();
         $metadataUrl = rtrim((string)($_ENV['APP_URL'] ?? ''), '/') . '/saml/metadata';
         require PALADIN_ROOT . '/views/admin/saml.php';
@@ -875,6 +876,15 @@ class AdminController {
         $this->setSetting('saml_auto_provision', !empty($_POST['saml_auto_provision']) ? '1' : '0');
         $role = in_array($_POST['saml_default_role'] ?? 'viewer', ['viewer','contributor','approver','admin'], true) ? $_POST['saml_default_role'] : 'viewer';
         $this->setSetting('saml_default_role', $role);
+
+        // Single Logout + SP request signing.
+        $sloUrl = trim((string)($_POST['saml_idp_slo_url'] ?? ''));
+        $this->setSetting('saml_idp_slo_url', filter_var($sloUrl, FILTER_VALIDATE_URL) ? $sloUrl : '');
+        $this->setSetting('saml_sp_cert', trim((string)($_POST['saml_sp_cert'] ?? '')));
+        // SP private key is a secret: only overwrite when a new value is supplied.
+        $spKey = trim((string)($_POST['saml_sp_key'] ?? ''));
+        if ($spKey !== '') { $this->setSetting('saml_sp_key', $spKey); }
+        $this->setSetting('saml_sign_requests', !empty($_POST['saml_sign_requests']) ? '1' : '0');
 
         Auth::log('update_saml_settings', 'settings', null);
         $_SESSION['flash_success'] = 'SAML settings saved.';

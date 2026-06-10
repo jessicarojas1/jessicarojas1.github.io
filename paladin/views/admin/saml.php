@@ -13,7 +13,8 @@ ob_start();
   <div class="card-body">
     <div class="form-group"><label class="form-label">ACS URL (Assertion Consumer Service)</label><input type="text" class="form-control" value="<?= Security::h($acsUrl) ?>" readonly></div>
     <div class="form-group"><label class="form-label">SP Entity ID</label><input type="text" class="form-control" value="<?= Security::h($spEntityId) ?>" readonly></div>
-    <div class="form-group" style="margin:0"><label class="form-label">SP Metadata URL</label><input type="text" class="form-control" value="<?= Security::h($metadataUrl) ?>" readonly></div>
+    <div class="form-group"><label class="form-label">SP Metadata URL</label><input type="text" class="form-control" value="<?= Security::h($metadataUrl) ?>" readonly></div>
+    <div class="form-group" style="margin:0"><label class="form-label">SLO endpoint (Single Logout)</label><input type="text" class="form-control" value="<?= Security::h($sloEndpoint) ?>" readonly></div>
   </div>
 </div>
 
@@ -29,9 +30,26 @@ ob_start();
         <input type="url" name="saml_idp_sso_url" class="form-control" value="<?= Security::h($cfg['idp_sso_url']) ?>" placeholder="https://idp.example.com/sso/saml"></div>
       <div class="form-group"><label class="form-label">IdP Entity ID</label>
         <input type="text" name="saml_idp_entity_id" class="form-control" value="<?= Security::h($cfg['idp_entity_id']) ?>" placeholder="https://idp.example.com/metadata"></div>
-      <div class="form-group" style="margin:0"><label class="form-label">IdP X.509 signing certificate (PEM or base64) <span style="color:var(--danger)">*</span></label>
+      <div class="form-group"><label class="form-label">IdP X.509 signing certificate (PEM or base64) <span style="color:var(--danger)">*</span></label>
         <textarea name="saml_idp_cert" class="form-control" rows="6" placeholder="-----BEGIN CERTIFICATE-----&#10;…&#10;-----END CERTIFICATE-----" style="font-family:monospace;font-size:.8rem"><?= Security::h($cfg['idp_cert']) ?></textarea>
         <p class="form-hint">Assertions are verified against this certificate. Required.</p></div>
+      <div class="form-group" style="margin:0"><label class="form-label">IdP SLO URL (Single Logout, Redirect binding)</label>
+        <input type="url" name="saml_idp_slo_url" class="form-control" value="<?= Security::h($cfg['idp_slo_url']) ?>" placeholder="https://idp.example.com/slo/saml">
+        <p class="form-hint">When set, signing out triggers SAML Single Logout at the IdP; inbound IdP-initiated logout is honoured too.</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px"><div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-pen"></i> SP request signing (optional)</span></div></div>
+    <div class="card-body">
+      <label class="form-check" style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <input type="checkbox" name="saml_sign_requests" value="1" <?= $cfg['sign_requests'] ? 'checked' : '' ?>>
+        <span>Sign AuthnRequest / LogoutRequest (Redirect binding, RSA-SHA256)</span>
+      </label>
+      <div class="form-group"><label class="form-label">SP X.509 certificate (PEM) — share with the IdP</label>
+        <textarea name="saml_sp_cert" class="form-control" rows="5" placeholder="-----BEGIN CERTIFICATE-----…" style="font-family:monospace;font-size:.8rem"><?= Security::h($cfg['sp_cert']) ?></textarea></div>
+      <div class="form-group" style="margin:0"><label class="form-label">SP private key (PEM) — stored server-side, never displayed</label>
+        <textarea name="saml_sp_key" class="form-control" rows="4" placeholder="<?= $cfg['sp_key'] !== '' ? '•••••• (leave blank to keep current key)' : '-----BEGIN PRIVATE KEY-----…' ?>" style="font-family:monospace;font-size:.8rem"></textarea>
+        <p class="form-hint">Leave blank to keep the existing key.<?= $cfg['sp_key'] !== '' ? ' A key is currently configured.' : '' ?></p></div>
     </div>
   </div>
 
