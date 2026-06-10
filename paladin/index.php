@@ -180,6 +180,7 @@ $routes = [
         '/profile/favorites'         => ['ProfileController', 'favorites'],
         '/users/suggest'             => ['ProfileController', 'suggestUsers'],
         '/profile/tokens'            => ['ProfileController', 'tokens'],
+        '/profile/sessions'          => ['ProfileController', 'sessions'],
         '/mfa/setup'                 => ['ProfileController', 'mfaSetupForm'],
         '/mfa/verify'                => ['AuthController', 'mfaVerifyForm'],
 
@@ -235,6 +236,7 @@ $routes = [
 
         '/profile/edit'              => ['ProfileController', 'update'],
         '/profile/tokens'            => ['ProfileController', 'createToken'],
+        '/profile/sessions/revoke-others' => ['ProfileController', 'revokeOtherSessions'],
         '/mfa/setup'                 => ['ProfileController', 'mfaEnable'],
         '/mfa/disable'               => ['ProfileController', 'mfaDisable'],
         '/mfa/verify'                => ['AuthController', 'mfaVerify'],

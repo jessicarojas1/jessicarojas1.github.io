@@ -141,6 +141,7 @@
         <a href="/profile/edit"          class="nav-item <?= ($activeModule ?? '')==='profile_edit'?'active':'' ?>"><i class="bi bi-person-fill-gear"></i><span>Edit Profile</span></a>
         <a href="/mfa/setup"             class="nav-item <?= ($activeModule ?? '')==='profile_mfa'?'active':'' ?>"><i class="bi bi-shield-lock-fill"></i><span>Two-Factor Auth</span></a>
         <a href="/profile/tokens"        class="nav-item <?= ($activeModule ?? '')==='profile_tokens'?'active':'' ?>"><i class="bi bi-key-fill"></i><span>Access Tokens</span></a>
+        <a href="/profile/sessions"      class="nav-item <?= ($activeModule ?? '')==='profile_sessions'?'active':'' ?>"><i class="bi bi-laptop"></i><span>Sessions</span></a>
         <a href="/docs"                  class="nav-item <?= ($activeModule ?? '')==='docs'?'active':'' ?>"><i class="bi bi-book-fill"></i><span>Help &amp; Docs</span></a>
       </div>
     </div>
