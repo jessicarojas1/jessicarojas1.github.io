@@ -69,11 +69,16 @@
         <button type="submit" class="btn btn-primary btn-full btn-lg"><i class="bi bi-box-arrow-in-right"></i> Sign In</button>
       </form>
 
-      <?php if (Saml::isEnabled()): ?>
+      <?php if (Saml::isEnabled() || Oidc::isEnabled()): ?>
       <div style="display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--text-muted);font-size:12px">
         <span style="flex:1;height:1px;background:var(--border)"></span>OR<span style="flex:1;height:1px;background:var(--border)"></span>
       </div>
-      <a href="/saml/login" class="btn btn-ghost btn-full btn-lg"><i class="bi bi-shield-lock"></i> Sign in with SSO</a>
+      <?php if (Saml::isEnabled()): ?>
+      <a href="/saml/login" class="btn btn-ghost btn-full btn-lg" style="margin-bottom:8px"><i class="bi bi-shield-lock"></i> Sign in with SSO</a>
+      <?php endif; ?>
+      <?php if (Oidc::isEnabled()): ?>
+      <a href="/oidc/login" class="btn btn-ghost btn-full btn-lg"><i class="bi bi-key"></i> Sign in with OpenID</a>
+      <?php endif; ?>
       <?php endif; ?>
 
       <div class="auth-form-footer">

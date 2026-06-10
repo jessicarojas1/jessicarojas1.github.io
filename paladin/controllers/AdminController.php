@@ -891,6 +891,41 @@ class AdminController {
         header('Location: /admin/saml');
     }
 
+    /** OIDC SSO configuration page. */
+    public function oidc(): void {
+        Auth::requireAdmin();
+        $cfg = Oidc::config();
+        $redirectUri = Oidc::redirectUri();
+        require PALADIN_ROOT . '/views/admin/oidc.php';
+    }
+
+    public function saveOidc(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $this->setSetting('oidc_enabled', !empty($_POST['oidc_enabled']) ? '1' : '0');
+        $this->setSetting('oidc_issuer', trim((string)($_POST['oidc_issuer'] ?? '')));
+        $this->setSetting('oidc_client_id', Security::sanitizeInput($_POST['oidc_client_id'] ?? ''));
+        // Client secret is sensitive: only overwrite when a new value is supplied.
+        $secret = (string)($_POST['oidc_client_secret'] ?? '');
+        if ($secret !== '') { $this->setSetting('oidc_client_secret', $secret); }
+        $scopes = trim((string)($_POST['oidc_scopes'] ?? 'openid email profile'));
+        $this->setSetting('oidc_scopes', $scopes !== '' ? $scopes : 'openid email profile');
+        foreach (['oidc_authorize_url', 'oidc_token_url', 'oidc_jwks_url'] as $k) {
+            $u = trim((string)($_POST[$k] ?? ''));
+            $this->setSetting($k, filter_var($u, FILTER_VALIDATE_URL) ? $u : '');
+        }
+        $this->setSetting('oidc_attr_email', Security::sanitizeInput($_POST['oidc_attr_email'] ?? '') ?: 'email');
+        $this->setSetting('oidc_attr_name', Security::sanitizeInput($_POST['oidc_attr_name'] ?? '') ?: 'name');
+        $this->setSetting('oidc_auto_provision', !empty($_POST['oidc_auto_provision']) ? '1' : '0');
+        $role = in_array($_POST['oidc_default_role'] ?? 'viewer', ['viewer','contributor','approver','admin'], true) ? $_POST['oidc_default_role'] : 'viewer';
+        $this->setSetting('oidc_default_role', $role);
+
+        Auth::log('update_oidc_settings', 'settings', null);
+        $_SESSION['flash_success'] = 'OIDC settings saved.';
+        header('Location: /admin/oidc');
+    }
+
     private function setSetting(string $key, string $value): void {
         Database::query(
             "INSERT INTO settings (key, value, updated_at) VALUES (?, ?, NOW())
