@@ -525,6 +525,35 @@ class AdminController {
         header('Location: /admin/tags');
     }
 
+    /** Merge a source tag into a target tag, re-tagging content and removing the source. */
+    public function mergeTags(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $source = (int)($_POST['source_id'] ?? 0);
+        $target = (int)($_POST['target_id'] ?? 0);
+        if (!$source || !$target || $source === $target) {
+            $_SESSION['flash_error'] = 'Choose two different tags to merge.'; header('Location: /admin/tags'); return;
+        }
+        $src = Database::fetchOne("SELECT name FROM tags WHERE id = ?", [$source]);
+        $tgt = Database::fetchOne("SELECT name FROM tags WHERE id = ?", [$target]);
+        if (!$src || !$tgt) { $_SESSION['flash_error'] = 'One of the tags no longer exists.'; header('Location: /admin/tags'); return; }
+
+        // Re-tag content to the target, but only where the target isn't already applied
+        // to the same entity (avoids duplicate associations); drop the leftover source rows.
+        Database::query(
+            "UPDATE entity_tags s SET tag_id = ?
+             WHERE s.tag_id = ?
+               AND NOT EXISTS (SELECT 1 FROM entity_tags t
+                               WHERE t.tag_id = ? AND t.entity_type = s.entity_type AND t.entity_id = s.entity_id)",
+            [$target, $source, $target]
+        );
+        Database::query("DELETE FROM entity_tags WHERE tag_id = ?", [$source]);
+        Database::query("DELETE FROM tags WHERE id = ?", [$source]);
+        Auth::log('merge_tags', 'tags', $target, ['from' => $src['name'], 'into' => $tgt['name']]);
+        $_SESSION['flash_success'] = 'Merged “' . $src['name'] . '” into “' . $tgt['name'] . '”.';
+        header('Location: /admin/tags');
+    }
+
     // ── Custom Roles ─────────────────────────────────────────────────────────
     public function roles(): void {
         Auth::requireAdmin();
