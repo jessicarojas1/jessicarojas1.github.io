@@ -189,6 +189,107 @@ try {
         $sendJson(Database::fetchOne("SELECT id, space_id, parent_id, title, slug, status, current_version, updated_at FROM pages WHERE id = ?", [$id]), 201);
     }
 
+    // ── WRITE: PATCH/PUT /v1/pages/{id} ──────────────────────────────────────
+    if (($segments[0] ?? '') === 'v1' && ($segments[1] ?? '') === 'pages'
+        && isset($segments[2]) && $segments[2] !== '' && in_array($method, ['PATCH', 'PUT'], true)) {
+        if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
+        $id   = (int)$segments[2];
+        $page = Database::fetchOne("SELECT * FROM pages WHERE id = ? AND deleted_at IS NULL", [$id]);
+        if (!$page) { $sendError('Not found', 404); }
+        $b = $jsonBody();
+        $title = array_key_exists('title', $b) ? Security::sanitizeInput((string)$b['title']) : $page['title'];
+        $body  = array_key_exists('body', $b)  ? Security::sanitizeHtml((string)$b['body'])   : $page['body'];
+        $status = (array_key_exists('status', $b) && in_array($b['status'], ['draft','in_review','published'], true)) ? $b['status'] : $page['status'];
+        if (!array_key_exists('title', $b) && !array_key_exists('body', $b) && !array_key_exists('status', $b)) {
+            $sendError('No updatable fields provided (title, body, status)', 422);
+        }
+        $newVersion = (int)$page['current_version'] + 1;
+        Database::update('pages', [
+            'title' => $title, 'body' => $body, 'status' => $status,
+            'current_version' => $newVersion,
+            'published_at' => $status === 'published' ? ($page['published_at'] ?: date('Y-m-d H:i:s')) : $page['published_at'],
+        ], 'id = ?', [$id]);
+        Database::insert('page_versions', ['page_id' => $id, 'version' => $newVersion, 'title' => $title, 'body' => $body, 'change_note' => 'Updated via API', 'edited_by' => $actorId()]);
+        $sendJson(Database::fetchOne("SELECT id, space_id, parent_id, title, slug, status, current_version, updated_at FROM pages WHERE id = ?", [$id]));
+    }
+
+    // ── WRITE: DELETE /v1/pages/{id} (soft delete to Trash) ──────────────────
+    if (($segments[0] ?? '') === 'v1' && ($segments[1] ?? '') === 'pages'
+        && isset($segments[2]) && $segments[2] !== '' && $method === 'DELETE') {
+        if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
+        $id   = (int)$segments[2];
+        $page = Database::fetchOne("SELECT id, parent_id FROM pages WHERE id = ? AND deleted_at IS NULL", [$id]);
+        if (!$page) { $sendError('Not found', 404); }
+        // Re-parent direct children so they remain visible, then soft-delete.
+        Database::query("UPDATE pages SET parent_id = ? WHERE parent_id = ? AND deleted_at IS NULL", [$page['parent_id'], $id]);
+        Database::query("UPDATE pages SET deleted_at = NOW(), deleted_by = ? WHERE id = ?", [$actorId(), $id]);
+        $sendJson(['deleted' => true, 'id' => $id]);
+    }
+
+    // ── WRITE: DELETE /v1/documents/{id} (archive) ───────────────────────────
+    if (($segments[0] ?? '') === 'v1' && ($segments[1] ?? '') === 'documents'
+        && isset($segments[2]) && $segments[2] !== '' && $method === 'DELETE') {
+        if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
+        $id  = (int)$segments[2];
+        if (!Database::fetchOne("SELECT id FROM documents WHERE id = ?", [$id])) { $sendError('Not found', 404); }
+        Database::update('documents', ['status' => 'archived'], 'id = ?', [$id]);
+        $sendJson(['archived' => true, 'id' => $id]);
+    }
+
+    // ── WRITE: POST /v1/tasks ────────────────────────────────────────────────
+    if ($segments === ['v1', 'tasks'] && $method === 'POST') {
+        if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
+        $b = $jsonBody();
+        $title = trim((string)($b['title'] ?? ''));
+        if ($title === '') { $sendError('title is required', 422); }
+        $tStatus   = (string)($b['status'] ?? 'open');
+        $tPriority = (string)($b['priority'] ?? 'medium');
+        $status   = in_array($tStatus, ['open','in_progress','done','cancelled'], true) ? $tStatus : 'open';
+        $priority = in_array($tPriority, ['low','medium','high','critical'], true) ? $tPriority : 'medium';
+        $id = Database::insert('tasks', [
+            'title'       => Security::sanitizeInput($title),
+            'description' => isset($b['description']) ? Security::sanitizeInput((string)$b['description']) : null,
+            'type'        => isset($b['type']) ? Security::sanitizeInput((string)$b['type']) : 'task',
+            'status'      => $status,
+            'priority'    => $priority,
+            'assigned_to' => !empty($b['assigned_to']) ? (int)$b['assigned_to'] : null,
+            'due_date'    => !empty($b['due_date']) ? (string)$b['due_date'] : null,
+            'created_by'  => $actorId(),
+        ]);
+        $sendJson(Database::fetchOne("SELECT id, title, type, status, priority, assigned_to, due_date FROM tasks WHERE id = ?", [$id]), 201);
+    }
+
+    // ── WRITE: PATCH/PUT /v1/tasks/{id} ──────────────────────────────────────
+    if (($segments[0] ?? '') === 'v1' && ($segments[1] ?? '') === 'tasks'
+        && isset($segments[2]) && $segments[2] !== '' && in_array($method, ['PATCH', 'PUT'], true)) {
+        if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
+        $id = (int)$segments[2];
+        if (!Database::fetchOne("SELECT id FROM tasks WHERE id = ?", [$id])) { $sendError('Not found', 404); }
+        $b = $jsonBody(); $data = [];
+        if (isset($b['title']))       { $data['title']       = Security::sanitizeInput((string)$b['title']); }
+        if (isset($b['description'])) { $data['description'] = Security::sanitizeInput((string)$b['description']); }
+        if (isset($b['status']) && in_array($b['status'], ['open','in_progress','done','cancelled'], true)) {
+            $data['status'] = $b['status'];
+            $data['completed_at'] = $b['status'] === 'done' ? date('Y-m-d H:i:s') : null;
+        }
+        if (isset($b['priority']) && in_array($b['priority'], ['low','medium','high','critical'], true)) { $data['priority'] = $b['priority']; }
+        if (array_key_exists('assigned_to', $b)) { $data['assigned_to'] = $b['assigned_to'] ? (int)$b['assigned_to'] : null; }
+        if (array_key_exists('due_date', $b))    { $data['due_date']    = $b['due_date'] ?: null; }
+        if (!$data) { $sendError('No updatable fields provided', 422); }
+        Database::update('tasks', $data, 'id = ?', [$id]);
+        $sendJson(Database::fetchOne("SELECT id, title, type, status, priority, assigned_to, due_date FROM tasks WHERE id = ?", [$id]));
+    }
+
+    // ── WRITE: DELETE /v1/tasks/{id} ─────────────────────────────────────────
+    if (($segments[0] ?? '') === 'v1' && ($segments[1] ?? '') === 'tasks'
+        && isset($segments[2]) && $segments[2] !== '' && $method === 'DELETE') {
+        if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
+        $id = (int)$segments[2];
+        if (!Database::fetchOne("SELECT id FROM tasks WHERE id = ?", [$id])) { $sendError('Not found', 404); }
+        Database::query("DELETE FROM tasks WHERE id = ?", [$id]);
+        $sendJson(['deleted' => true, 'id' => $id]);
+    }
+
     // ── /v1/health ─────────────────────────────────────────────────────────
     if ($segments === ['v1', 'health']) {
         $requireGet();
