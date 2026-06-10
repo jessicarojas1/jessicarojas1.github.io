@@ -53,6 +53,11 @@ class ValidationAppError(AppError):
     code = "validation_error"
 
 
+class RateLimitError(AppError):
+    status_code = status.HTTP_429_TOO_MANY_REQUESTS
+    code = "rate_limited"
+
+
 class WorkflowError(AppError):
     """Raised when a state transition is not permitted by the workflow."""
 

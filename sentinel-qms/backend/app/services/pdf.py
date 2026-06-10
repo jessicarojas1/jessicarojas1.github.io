@@ -21,6 +21,7 @@ from io import BytesIO
 from fpdf import FPDF
 from sqlalchemy.orm import Session
 
+from app.core.net_guard import is_public_http_url
 from app.models.apqp import ApqpProject
 from app.models.audit_mgmt import Audit
 from app.models.capa import Capa
@@ -79,6 +80,9 @@ def _load_logo(logo_url: str | None) -> BytesIO | None:
             header, _, payload = url.partition(",")
             raw = base64.b64decode(payload) if ";base64" in header else payload.encode()
         elif url.lower().startswith(("http://", "https://")):
+            if not is_public_http_url(url):
+                logger.warning("logo fetch blocked: non-public URL")
+                return None
             req = urllib.request.Request(url, headers={"User-Agent": "Sentinel-QMS"})
             with urllib.request.urlopen(req, timeout=_LOGO_FETCH_TIMEOUT) as resp:  # noqa: S310
                 raw = resp.read(_LOGO_MAX_BYTES + 1)

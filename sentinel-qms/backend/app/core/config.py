@@ -46,6 +46,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # Login throttling: block once this many failures (by email or IP) land
+    # within the rolling window, to blunt password brute-force.
+    LOGIN_MAX_FAILURES: int = 10
+    LOGIN_FAILURE_WINDOW_MINUTES: int = 15
+
     # OIDC / federal SSO (stub)
     OIDC_ISSUER: str = ""
     OIDC_CLIENT_ID: str = ""
