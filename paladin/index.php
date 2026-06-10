@@ -297,6 +297,7 @@ $dynamicRoutes = [
         '#^/documents/(\d+)/edit$#'          => ['DocumentController', 'editForm'],
         '#^/documents/(\d+)/download$#'      => ['DocumentController', 'download'],
         '#^/documents/(\d+)/pdf$#'           => ['DocumentController', 'pdf'],
+        '#^/documents/(\d+)/acknowledgements.csv$#' => ['DocumentController', 'exportAcks'],
         '#^/documents/(\d+)/diff$#'          => ['DocumentController', 'diff'],
         '#^/processes/(\d+)$#'               => ['ProcessController', 'view'],
         '#^/processes/(\d+)/edit$#'          => ['ProcessController', 'editForm'],
