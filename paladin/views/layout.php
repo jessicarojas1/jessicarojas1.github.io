@@ -154,7 +154,8 @@
         <div class="user-name"><?= Security::h($u['name'] ?? '') ?></div>
         <div class="user-role"><?= Security::h(Auth::roleLabel($u['role'] ?? 'viewer')) ?></div>
       </div>
-      <form method="POST" action="/logout" style="display:inline;margin:0;padding:0">
+      <?php $__logoutAction = (!empty($_SESSION['saml_name_id']) && Saml::sloEnabled()) ? '/saml/logout' : '/logout'; ?>
+      <form method="POST" action="<?= $__logoutAction ?>" style="display:inline;margin:0;padding:0">
         <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
         <button type="submit" class="btn-logout" title="Logout" style="background:none;border:none;cursor:pointer;padding:0"><i class="bi bi-box-arrow-right"></i></button>
       </form>

@@ -124,6 +124,7 @@ $routes = [
         '/login'                     => ['AuthController', 'loginForm'],
         '/saml/login'                => ['SamlController', 'login'],
         '/saml/metadata'             => ['SamlController', 'metadata'],
+        '/saml/slo'                  => ['SamlController', 'slo'],
         '/dashboard/admin'           => ['DashboardController', 'admin'],
 
         '/spaces'                    => ['SpaceController', 'index'],
@@ -201,6 +202,7 @@ $routes = [
         '/login'                     => ['AuthController', 'login'],
         '/logout'                    => ['AuthController', 'logout'],
         '/saml/acs'                  => ['SamlController', 'acs'],
+        '/saml/logout'               => ['SamlController', 'logout'],
 
         '/spaces/create'             => ['SpaceController', 'create'],
         '/pages/create'              => ['PageController', 'create'],
