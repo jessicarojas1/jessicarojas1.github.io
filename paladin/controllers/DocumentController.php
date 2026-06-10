@@ -372,6 +372,33 @@ class DocumentController {
         header('Location: /documents/' . $id . '#comments');
     }
 
+    /** Server-rendered PDF of a document's controlled content (real application/pdf). */
+    public function pdf(int $id): void {
+        Auth::requirePermission('document.view');
+        $doc = Database::fetchOne(
+            "SELECT d.*, s.name AS space_name, o.name AS owner_name
+             FROM documents d LEFT JOIN spaces s ON s.id=d.space_id LEFT JOIN users o ON o.id=d.owner_id WHERE d.id=?",
+            [$id]
+        );
+        if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $meta = [
+            'Code'        => (string)$doc['document_code'],
+            'Type'        => View::docTypeLabel((string)$doc['doc_type']),
+            'Revision'    => (string)$doc['revision'],
+            'Status'      => ucfirst((string)$doc['status']),
+            'Owner'       => (string)($doc['owner_name'] ?? '—'),
+            'Classification' => ucfirst((string)($doc['classification'] ?? 'internal')),
+            'Exported'    => date('M j, Y g:ia'),
+        ];
+        $bytes = Pdf::fromHtml((string)$doc['title'], (string)($doc['body'] ?? ''), $meta);
+        Auth::log('export_document_pdf', 'documents', $id);
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="' . preg_replace('/[^A-Za-z0-9._-]/', '', $doc['document_code'] . '.pdf') . '"');
+        header('Content-Length: ' . strlen($bytes));
+        header('X-Content-Type-Options: nosniff');
+        echo $bytes;
+    }
+
     public function download(int $id): void {
         Auth::requirePermission('document.view');
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
