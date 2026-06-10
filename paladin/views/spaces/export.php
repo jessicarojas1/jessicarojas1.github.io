@@ -31,7 +31,15 @@
   .toolbar{margin-bottom:18px}
   .toolbar button,.toolbar a{font:inherit;font-size:13px;padding:7px 14px;border-radius:7px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;cursor:pointer;text-decoration:none}
   .toolbar button{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
-  @media print{.toolbar{display:none}body{padding:0}.toc a{color:#111827}}
+  .cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:78vh;border-bottom:1px solid #e5e7eb;margin-bottom:26px}
+  .cover .cmark{width:72px;height:72px;border-radius:16px;background:#0ea5e9;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:2rem;margin-bottom:18px}
+  .cover img.clogo{width:84px;height:84px;object-fit:contain;border-radius:16px;margin-bottom:18px}
+  .cover .cbrand{font-weight:800;letter-spacing:2px;color:#64748b;text-transform:uppercase;font-size:.8rem}
+  .cover h1{font-size:2.4rem;margin:10px 0 4px}
+  .cover .ckey{display:inline-block;background:#f1f5f9;color:#334155;border-radius:999px;padding:3px 14px;font-size:.85rem;margin-top:6px}
+  .cover .cmeta{color:#6b7280;font-size:13px;margin-top:18px;line-height:1.8}
+  .cover .cdesc{max-width:520px;color:#4b5563;margin:14px auto 0}
+  @media print{.toolbar{display:none}body{padding:0}.toc a{color:#111827}.cover{min-height:96vh;page-break-after:always}}
 </style>
 </head>
 <body>
@@ -39,6 +47,21 @@
     <button type="button" id="printBtn">Save as PDF / Print</button>
     <a href="/spaces/<?= (int)$space['id'] ?>">← Back to space</a>
   </div>
+
+  <!-- Cover page -->
+  <section class="cover">
+    <?php if ($__logo): ?><img class="clogo" src="<?= Security::h($__logo) ?>" alt=""><?php else: ?><div class="cmark"><?= Security::h(strtoupper(substr($__brand,0,1))) ?></div><?php endif; ?>
+    <div class="cbrand"><?= Security::h($__brand) ?></div>
+    <h1><?= Security::h($space['name']) ?></h1>
+    <div class="ckey"><?= Security::h($space['space_key']) ?></div>
+    <?php if (!empty($space['description'])): ?><p class="cdesc"><?= Security::h($space['description']) ?></p><?php endif; ?>
+    <div class="cmeta">
+      Owner: <?= Security::h($space['owner_name'] ?: '—') ?><br>
+      <?= count($pages) ?> published page(s)<br>
+      Exported <?= date('F j, Y') ?>
+    </div>
+  </section>
+
   <div class="doc-head">
     <?php if ($__logo): ?><img src="<?= Security::h($__logo) ?>" alt=""><?php else: ?><div class="mark"><?= Security::h(strtoupper(substr($__brand,0,1))) ?></div><?php endif; ?>
     <div>
