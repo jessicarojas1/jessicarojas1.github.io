@@ -521,6 +521,37 @@ class PageController {
         require PALADIN_ROOT . '/views/pages/print.php';
     }
 
+    /** Server-rendered PDF download of a page (real application/pdf, no browser). */
+    public function pdf(int $id): void {
+        Auth::requirePermission('page.view');
+        $page = Database::fetchOne(
+            "SELECT p.*, s.name AS space_name, o.name AS owner_name
+             FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id WHERE p.id=? AND p.deleted_at IS NULL",
+            [$id]
+        );
+        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+
+        $meta = [
+            'Space'   => (string)($page['space_name'] ?? '—'),
+            'Owner'   => (string)($page['owner_name'] ?? '—'),
+            'Status'  => ucfirst((string)$page['status']),
+            'Version' => 'v' . (int)$page['current_version'],
+            'Exported' => date('M j, Y g:ia'),
+        ];
+        $bytes = Pdf::fromHtml((string)$page['title'], (string)$page['body'], $meta);
+        Auth::log('export_page_pdf', 'pages', $id);
+        $this->streamPdf($bytes, 'page-' . $id . '.pdf');
+    }
+
+    private function streamPdf(string $bytes, string $filename): void {
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="' . preg_replace('/[^A-Za-z0-9._-]/', '', $filename) . '"');
+        header('Content-Length: ' . strlen($bytes));
+        header('X-Content-Type-Options: nosniff');
+        echo $bytes;
+    }
+
     /** Reorder a page among its siblings (same space + parent). dir = up|down. */
     public function move(int $id): void {
         Auth::requirePermission('page.edit');
