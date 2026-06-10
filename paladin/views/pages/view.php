@@ -14,6 +14,13 @@ ob_start();
     <?php $shareType='page'; $shareId=(int)$page['id']; $sharePath='/pages/'.(int)$page['id']; require PALADIN_ROOT . '/views/partials/share.php'; ?>
     <form method="POST" action="/pages/<?= (int)$page['id'] ?>/favorite" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-ghost" type="submit" title="<?= ($isFav ?? false)?'Favorited':'Add to favorites' ?>"><i class="bi bi-star<?= ($isFav ?? false)?'-fill':'' ?>"></i></button></form>
     <form method="POST" action="/pages/<?= (int)$page['id'] ?>/watch" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-ghost" type="submit" title="<?= $isWatching?'Watching — you’ll be alerted on changes':'Watch for changes' ?>"><i class="bi bi-eye<?= $isWatching?'-fill':'' ?>"></i></button></form>
+    <?php if (!empty($canManageSpace)): ?>
+      <?php if (!empty($isHomepage)): ?>
+        <form method="POST" action="/pages/<?= (int)$page['id'] ?>/homepage" style="margin:0"><?= Security::csrfField() ?><input type="hidden" name="clear" value="1"><button class="btn btn-ghost" type="submit" title="This is the space homepage — click to unset"><i class="bi bi-house-fill" style="color:var(--primary)"></i> Homepage</button></form>
+      <?php else: ?>
+        <form method="POST" action="/pages/<?= (int)$page['id'] ?>/homepage" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-ghost" type="submit" title="Make this the space homepage"><i class="bi bi-house"></i> Set as homepage</button></form>
+      <?php endif; ?>
+    <?php endif; ?>
     <a href="/pages/<?= (int)$page['id'] ?>/history" class="btn btn-ghost"><i class="bi bi-clock-history"></i> History (<?= $versionCount ?>)</a>
     <a href="/pages/<?= (int)$page['id'] ?>/print" target="_blank" rel="noopener" class="btn btn-ghost"><i class="bi bi-file-earmark-pdf"></i> Export PDF</a>
     <?php if (Auth::can('page.publish') && $page['status'] !== 'published'): ?>

@@ -83,6 +83,13 @@ class SpaceController {
         $isWatching = (bool)Database::fetchOne("SELECT 1 FROM watches WHERE user_id=? AND entity_type='space' AND entity_id=?", [Auth::id(), $id]);
         $isFav      = (bool)Database::fetchOne("SELECT 1 FROM favorites WHERE user_id=? AND entity_type='space' AND entity_id=?", [Auth::id(), $id]);
         $addableUsers = $canManageSpace ? Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name") : [];
+        $homepage = null;
+        if (!empty($space['homepage_id'])) {
+            $homepage = Database::fetchOne(
+                "SELECT id, title, body FROM pages WHERE id = ? AND space_id = ? AND deleted_at IS NULL",
+                [(int)$space['homepage_id'], $id]
+            );
+        }
         require PALADIN_ROOT . '/views/spaces/view.php';
     }
 

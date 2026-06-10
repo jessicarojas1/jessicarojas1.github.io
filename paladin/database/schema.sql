@@ -254,6 +254,10 @@ CREATE TABLE IF NOT EXISTS pages (
 CREATE INDEX IF NOT EXISTS idx_pages_space  ON pages(space_id);
 CREATE INDEX IF NOT EXISTS idx_pages_deleted ON pages(space_id, deleted_at);
 CREATE INDEX IF NOT EXISTS idx_pages_parent ON pages(parent_id);
+
+-- A space can designate one of its pages as its homepage/overview (added after
+-- pages so the forward FK resolves on a fresh install).
+ALTER TABLE spaces ADD COLUMN IF NOT EXISTS homepage_id INTEGER REFERENCES pages(id) ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS idx_pages_status ON pages(status);
 
 CREATE TABLE IF NOT EXISTS page_versions (
