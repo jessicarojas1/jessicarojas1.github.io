@@ -282,6 +282,7 @@ $dynamicRoutes = [
         '#^/spaces/(\d+)/delete$#'           => ['SpaceController', 'delete'],
         '#^/spaces/(\d+)/watch$#'            => ['SpaceController', 'toggleWatch'],
         '#^/spaces/(\d+)/favorite$#'         => ['SpaceController', 'toggleFavorite'],
+        '#^/spaces/(\d+)/bulk$#'              => ['PageController', 'bulk'],
         '#^/spaces/(\d+)/members$#'              => ['SpaceController', 'addMember'],
         '#^/spaces/(\d+)/members/(\d+)/update$#' => ['SpaceController', 'updateMember'],
         '#^/spaces/(\d+)/members/(\d+)/remove$#' => ['SpaceController', 'removeMember'],

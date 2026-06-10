@@ -225,6 +225,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmRONQ7+/O31fY0B+Mzgj+qVXq0" crossorigin="anonymous" nonce="<?= Security::nonce() ?>"></script>
 <script src="/public/vendor/chart.js/chart.umd.js" nonce="<?= Security::nonce() ?>"></script>
-<script src="/public/js/app.js?v=9" nonce="<?= Security::nonce() ?>"></script>
+<script src="/public/js/app.js?v=10" nonce="<?= Security::nonce() ?>"></script>
 </body>
 </html>

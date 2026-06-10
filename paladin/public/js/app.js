@@ -1172,3 +1172,27 @@ document.addEventListener('click', function(e) {
   });
   document.addEventListener('click', function (e) { if (box && !box.contains(e.target)) removeBox(); });
 })();
+
+/* ── Bulk page selection toolbar ──────────────────────────────────────────── */
+(function () {
+  var bar = document.querySelector('[data-bulk-bar]');
+  if (!bar) return;
+  var checks = function () { return Array.prototype.slice.call(document.querySelectorAll('.pt-check')); };
+  var countEl = bar.querySelector('[data-bulk-count]');
+  var idsInput = bar.querySelector('[data-bulk-ids]');
+  var actionInput = bar.querySelector('[data-bulk-action]');
+
+  function selected() { return checks().filter(function (c) { return c.checked; }).map(function (c) { return c.value; }); }
+  function refresh() {
+    var sel = selected();
+    countEl.textContent = sel.length;
+    idsInput.value = sel.join(',');
+    bar.hidden = sel.length === 0;
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.classList && e.target.classList.contains('pt-check')) refresh();
+  });
+  bar.querySelectorAll('[data-bulk-do]').forEach(function (btn) {
+    btn.addEventListener('click', function () { actionInput.value = btn.getAttribute('data-bulk-do'); });
+  });
+})();
