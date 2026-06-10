@@ -860,6 +860,25 @@ class AdminController {
         require PALADIN_ROOT . '/views/admin/saml.php';
     }
 
+    /** Import IdP SAML metadata XML and pre-fill the IdP settings. */
+    public function importSamlMetadata(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        try {
+            $meta = Saml::parseIdpMetadata((string)($_POST['metadata_xml'] ?? ''));
+        } catch (\Throwable $e) {
+            $_SESSION['flash_error'] = 'Metadata import failed: ' . Security::h($e->getMessage());
+            header('Location: /admin/saml'); return;
+        }
+        $this->setSetting('saml_idp_entity_id', $meta['idp_entity_id']);
+        $this->setSetting('saml_idp_sso_url', $meta['idp_sso_url']);
+        if ($meta['idp_slo_url'] !== '') { $this->setSetting('saml_idp_slo_url', $meta['idp_slo_url']); }
+        $this->setSetting('saml_idp_cert', $meta['idp_cert']);
+        Auth::log('import_saml_metadata', 'settings', null, ['entity' => $meta['idp_entity_id']]);
+        $_SESSION['flash_success'] = 'IdP metadata imported — review and save the settings below.';
+        header('Location: /admin/saml');
+    }
+
     public function saveSaml(): void {
         Auth::requireAdmin();
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }

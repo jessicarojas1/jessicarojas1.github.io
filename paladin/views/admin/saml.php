@@ -18,6 +18,18 @@ ob_start();
   </div>
 </div>
 
+<div class="card" style="margin-bottom:18px"><div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-upload"></i> Import IdP metadata</span></div></div>
+  <div class="card-body">
+    <form method="POST" action="/admin/saml/import">
+      <?= Security::csrfField() ?>
+      <div class="form-group"><label class="form-label">Paste your IdP's SAML metadata XML</label>
+        <textarea name="metadata_xml" class="form-control" rows="5" placeholder="&lt;EntityDescriptor …&gt;…&lt;/EntityDescriptor&gt;" style="font-family:monospace;font-size:.8rem"></textarea>
+        <p class="form-hint">Auto-fills the IdP entity ID, Redirect SSO/SLO URLs and the signing certificate below. Review, then Save.</p></div>
+      <button class="btn btn-ghost" type="submit"><i class="bi bi-download"></i> Import &amp; pre-fill</button>
+    </form>
+  </div>
+</div>
+
 <form method="POST" action="/admin/saml">
   <?= Security::csrfField() ?>
   <div class="card"><div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-shield-lock"></i> Identity Provider</span></div></div>
