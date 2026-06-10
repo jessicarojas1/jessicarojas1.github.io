@@ -194,6 +194,7 @@ $routes = [
         '/admin/tags'                => ['AdminController', 'tags'],
         '/admin/api-keys'            => ['AdminController', 'apiKeys'],
         '/admin/logs'                => ['AdminController', 'logs'],
+        '/admin/logs/export'         => ['AdminController', 'exportLogs'],
         '/admin/outbox'              => ['AdminController', 'outbox'],
         '/admin/saml'                => ['AdminController', 'saml'],
         '/admin/oidc'                => ['AdminController', 'oidc'],
