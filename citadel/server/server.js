@@ -182,11 +182,15 @@ function buildWorkdir(files) {
         for (const e of zip.getEntries()) {
           if (e.isDirectory) continue;
           if (++totalEntries > MAX_UNZIP_ENTRIES) throw new Error('archive has too many entries');
-          totalBytes += (e.header && e.header.size) || 0;     // declared uncompressed size
+          // Cheap pre-check on the DECLARED size rejects an honest huge/bomb
+          // entry before we spend memory inflating it.
+          if (((e.header && e.header.size) || 0) > MAX_UNZIP_BYTES) throw new Error('archive decompresses beyond the size limit');
+          const data = e.getData();                          // actual decompression
+          totalBytes += data.length;                          // count ACTUAL bytes (a lying header can't undercount)
           if (totalBytes > MAX_UNZIP_BYTES) throw new Error('archive decompresses beyond the size limit');
           const dest = safeJoin(work, e.entryName);
           fs.mkdirSync(path.dirname(dest), { recursive: true });
-          fs.writeFileSync(dest, e.getData());
+          fs.writeFileSync(dest, data);
         }
       } catch (err) {
         if (/too many entries|size limit/.test(err.message)) { rmrf(work); throw new Error('Upload rejected: ' + err.message + '.'); }
@@ -496,15 +500,19 @@ function isPrivateIp(ip) {
   if (net.isIPv4(v)) return isPrivateIp(v);
   return v === '::1' || v === '::' || v.startsWith('fe80') || v.startsWith('fc') || v.startsWith('fd');
 }
-// SSRF guard: resolve the host and reject if ANY address is internal (defeats
-// DNS rebinding by resolving once and refusing internal targets).
-async function ssrfBlocked(hostname) {
-  if (isPrivateIp(hostname)) return true;                // IP literal
-  if (/^(localhost|metadata|metadata\.google\.internal)$/i.test(hostname)) return true;
+// SSRF guard + DNS-rebinding defense: resolve the host ONCE, reject if any
+// address is internal, and return a verified PUBLIC IP to PIN for the clone.
+// Pinning (git http.curloptResolve) stops git from doing its own second DNS
+// lookup that an attacker could rebind to 169.254.169.254 between our check and
+// the connection. Returns the pinned IP string, or null to block.
+async function resolvePublicTarget(hostname) {
+  if (/^(localhost|metadata|metadata\.google\.internal)$/i.test(hostname)) return null;
+  if (net.isIP(hostname)) return isPrivateIp(hostname) ? null : hostname;   // IP literal
   try {
     const addrs = await dns.lookup(hostname, { all: true });
-    return addrs.some(a => isPrivateIp(a.address));
-  } catch (e) { return true; }                           // unresolvable → block
+    if (!addrs.length || addrs.some(a => isPrivateIp(a.address))) return null;  // any internal → block
+    return addrs[0].address;                                                    // all public → pin the first
+  } catch (e) { return null; }                                                  // unresolvable → block
 }
 
 // Scan a public Git repository by URL (shallow clone, read-only).
@@ -522,16 +530,21 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('
   if (subpath && (subpath.length > 300 || subpath.includes('\0') || /(^|\/)\.\.(\/|$)/.test(subpath))) {
     return res.status(400).json({ error: 'Invalid subpath.' });
   }
-  let host;
-  try { host = new URL(url).hostname; } catch (e) { return res.status(400).json({ error: 'Invalid URL.' }); }
-  if (await ssrfBlocked(host)) {
+  let host, port;
+  try { const u = new URL(url); host = u.hostname; port = u.port || '443'; } catch (e) { return res.status(400).json({ error: 'Invalid URL.' }); }
+  const pinnedIp = await resolvePublicTarget(host);
+  if (!pinnedIp) {
     audit.record('scan.ssrf_blocked', { actor: req.user && req.user.email, ip: clientIp(req), detail: host, ok: false });
     return res.status(400).json({ error: 'That host is not allowed (internal/metadata addresses are blocked).' });
   }
   const work = path.join(TMP_ROOT, 'clone-' + crypto.randomBytes(8).toString('hex'));
   try {
     await new Promise((resolve, reject) => {
-      execFile('git', ['-c', 'http.followRedirects=false', 'clone', '--depth', '1', '--single-branch', url, work],
+      // Pin the verified public IP for this host:port so git's libcurl cannot
+      // re-resolve to an internal address (DNS rebinding); TLS still validates
+      // the original hostname. followRedirects=false blocks redirect pivots.
+      execFile('git', ['-c', 'http.followRedirects=false', '-c', `http.curloptResolve=${host}:${port}:${pinnedIp}`,
+        'clone', '--depth', '1', '--single-branch', url, work],
         { timeout: 120000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } },
         (err) => err ? reject(new Error('Clone failed (is the repository public?).')) : resolve());
     });
