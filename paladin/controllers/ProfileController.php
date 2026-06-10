@@ -225,6 +225,10 @@ class ProfileController {
             $secret = $_SESSION['mfa_setup_secret'];
             $otpauthUri = TOTP::getUri($secret, (string)$user['email'], Branding::name());
         }
+        // Recovery codes are shown once, immediately after generation.
+        $recoveryCodes = $_SESSION['mfa_recovery_codes'] ?? null;
+        unset($_SESSION['mfa_recovery_codes']);
+        $recoveryRemaining = $enabled ? Auth::recoveryCodesRemaining((int)Auth::id()) : 0;
         require PALADIN_ROOT . '/views/profile/mfa.php';
     }
 
@@ -240,7 +244,22 @@ class ProfileController {
         Database::query("UPDATE users SET mfa_secret = ?, mfa_enabled = TRUE WHERE id = ?", [$secret, Auth::id()]);
         unset($_SESSION['mfa_setup_secret']);
         Auth::log('mfa_enabled', 'users', Auth::id());
-        $_SESSION['flash_success'] = 'Two-factor authentication is now enabled.';
+        // Issue one-time recovery codes and surface them once.
+        $_SESSION['mfa_recovery_codes'] = Auth::generateRecoveryCodes((int)Auth::id());
+        $_SESSION['flash_success'] = 'Two-factor authentication is now enabled. Save your recovery codes below.';
+        header('Location: /mfa/setup');
+    }
+
+    /** Regenerate recovery codes (invalidates the previous set). */
+    public function regenerateRecoveryCodes(): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $user = Database::fetchOne("SELECT mfa_enabled FROM users WHERE id = ?", [Auth::id()]);
+        $enabled = $user && ($user['mfa_enabled'] === true || $user['mfa_enabled'] === 't' || $user['mfa_enabled'] === '1');
+        if (!$enabled) { $_SESSION['flash_error'] = 'Enable two-factor authentication first.'; header('Location: /mfa/setup'); return; }
+        $_SESSION['mfa_recovery_codes'] = Auth::generateRecoveryCodes((int)Auth::id());
+        Auth::log('mfa_recovery_regenerated', 'users', Auth::id());
+        $_SESSION['flash_success'] = 'New recovery codes generated. Your previous codes no longer work.';
         header('Location: /mfa/setup');
     }
 
