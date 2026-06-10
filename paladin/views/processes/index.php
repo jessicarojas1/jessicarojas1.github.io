@@ -7,7 +7,7 @@ $hasFilter = !empty($_GET['status']) || !empty($_GET['space']) || !empty($_GET['
 ?>
 <div class="page-header">
   <div><h1 class="page-title">Business Processes</h1><p class="page-subtitle">Documented process flows, owners &amp; lifecycle status</p></div>
-  <div class="page-actions"><?php if (Auth::can('process.create')): ?><a href="/processes/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Process</a><?php endif; ?></div>
+  <div class="page-actions"><a href="/processes/export?<?= Security::h(http_build_query(['status' => $_GET['status'] ?? '', 'space' => $_GET['space'] ?? '', 'q' => $_GET['q'] ?? ''])) ?>" class="btn btn-ghost"><i class="bi bi-filetype-csv"></i> Export register</a><?php if (Auth::can('process.create')): ?><a href="/processes/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Process</a><?php endif; ?></div>
 </div>
 
 <div class="stats-grid">
