@@ -322,7 +322,7 @@ class Auth {
         // Server-side session revocation / account deactivation
         try {
             $dbUser = Database::fetchOne(
-                "SELECT sessions_revoked_at, force_password_change FROM users WHERE id = ? AND is_active = TRUE",
+                "SELECT sessions_revoked_at, force_password_change, mfa_enabled FROM users WHERE id = ? AND is_active = TRUE",
                 [self::id()]
             );
             if (!$dbUser) {
@@ -341,6 +341,18 @@ class Auth {
                 $_SESSION['flash_warning'] = 'You must change your password before continuing.';
                 header('Location: /profile/edit');
                 exit;
+            }
+            // Organisation MFA policy: require enrolment before continuing.
+            $policy = self::mfaPolicy();
+            if ($policy !== 'off') {
+                $mustMfa = $policy === 'all' || ($policy === 'admins' && self::role() === 'admin');
+                $hasMfa = in_array((string)($dbUser['mfa_enabled'] ?? ''), ['1', 't', 'true'], true) || $dbUser['mfa_enabled'] === true;
+                $allowed = ['/mfa/setup', '/mfa/recovery-codes', '/logout', '/login', '/profile/edit'];
+                if ($mustMfa && !$hasMfa && !in_array($uri, $allowed, true)) {
+                    $_SESSION['flash_warning'] = 'Your administrator requires two-factor authentication. Set it up to continue.';
+                    header('Location: /mfa/setup');
+                    exit;
+                }
             }
         } catch (Throwable) {}
 
@@ -467,6 +479,19 @@ class Auth {
             }
         }
         return false;
+    }
+
+    /** Organisation 2FA policy: 'off' | 'admins' | 'all' (per-request cache). */
+    private static ?string $mfaPolicyCache = null;
+    public static function mfaPolicy(): string {
+        if (self::$mfaPolicyCache === null) {
+            try {
+                $r = Database::fetchOne("SELECT value FROM settings WHERE key = 'mfa_required'");
+                $v = $r['value'] ?? 'off';
+                self::$mfaPolicyCache = in_array($v, ['off', 'admins', 'all'], true) ? $v : 'off';
+            } catch (\Throwable) { self::$mfaPolicyCache = 'off'; }
+        }
+        return self::$mfaPolicyCache;
     }
 
     public static function recoveryCodesRemaining(int $userId): int {
