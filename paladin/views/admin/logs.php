@@ -10,6 +10,7 @@ $qs = function (array $over) {
 ?>
 <div class="page-header">
   <div><h1 class="page-title">Activity Logs</h1><p class="page-subtitle">Immutable, hash-chained audit trail</p></div>
+  <div class="page-actions"><a href="/admin/logs/export?<?= Security::h(http_build_query(['action' => $_GET['action'] ?? '', 'user_id' => $_GET['user_id'] ?? '', 'q' => $_GET['q'] ?? ''])) ?>" class="btn btn-ghost"><i class="bi bi-filetype-csv"></i> Export CSV</a></div>
 </div>
 
 <div class="alert-box success" style="margin-bottom:14px"><i class="bi bi-link-45deg"></i> This log is <strong>hash-chained and immutable</strong> — each entry's hash includes the previous entry, so tampering is detectable.</div>

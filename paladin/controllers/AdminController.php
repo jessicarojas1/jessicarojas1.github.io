@@ -639,6 +639,44 @@ class AdminController {
         require PALADIN_ROOT . '/views/admin/logs.php';
     }
 
+    /** Export the (filtered) audit log as CSV — same filters as the logs view. */
+    public function exportLogs(): void {
+        Auth::requireAdmin();
+        $action = Security::sanitizeInput($_GET['action'] ?? '');
+        $userId = !empty($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
+        $q      = Security::sanitizeInput($_GET['q'] ?? '');
+
+        $where = ['1=1']; $params = [];
+        if ($action !== '') { $where[] = 'al.action = ?'; $params[] = $action; }
+        if ($userId > 0)    { $where[] = 'al.user_id = ?'; $params[] = $userId; }
+        if ($q !== '')      { $where[] = '(al.action ILIKE ? OR al.entity_type ILIKE ?)'; array_push($params, "%$q%", "%$q%"); }
+        $whereSql = implode(' AND ', $where);
+
+        $rows = Database::fetchAll(
+            "SELECT al.id, al.created_at, al.user_id, u.name AS user_name, al.action,
+                    al.entity_type, al.entity_id, al.ip_address, al.changes, al.log_hash
+             FROM activity_log al LEFT JOIN users u ON u.id = al.user_id
+             WHERE {$whereSql} ORDER BY al.id DESC LIMIT 50000",
+            $params
+        );
+        Auth::log('export_audit_log', 'activity_log', null, ['count' => count($rows), 'filter' => $action ?: $q ?: 'all']);
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="audit-log-' . date('Ymd-His') . '.csv"');
+        header('X-Content-Type-Options: nosniff');
+        $out = fopen('php://output', 'w');
+        fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM for spreadsheet apps
+        fputcsv($out, ['ID', 'Timestamp (UTC)', 'User ID', 'User', 'Action', 'Entity Type', 'Entity ID', 'IP Address', 'Changes', 'Log Hash']);
+        foreach ($rows as $r) {
+            fputcsv($out, [
+                $r['id'], $r['created_at'], $r['user_id'] ?? '', $r['user_name'] ?? 'System',
+                $r['action'], $r['entity_type'] ?? '', $r['entity_id'] ?? '',
+                $r['ip_address'] ?? '', $r['changes'] ?? '', $r['log_hash'] ?? '',
+            ]);
+        }
+        fclose($out);
+    }
+
     /** Mail outbox — every digest/notification the app generated, with delivery status. */
     public function outbox(): void {
         Auth::requireAdmin();
