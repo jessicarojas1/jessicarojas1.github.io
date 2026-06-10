@@ -46,6 +46,39 @@ class DocumentController {
         require PALADIN_ROOT . '/views/documents/index.php';
     }
 
+    /** Bulk operations on selected documents: archive / label. */
+    public function bulk(): void {
+        Auth::requirePermission('document.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $action = Security::sanitizeInput($_POST['action'] ?? '');
+        $ids = array_values(array_filter(array_map('intval', explode(',', (string)($_POST['doc_ids'] ?? '')))));
+        if (!$ids) { $_SESSION['flash_error'] = 'No documents selected.'; header('Location: /documents'); return; }
+        $place = implode(',', array_fill(0, count($ids), '?'));
+        $docs = Database::fetchAll("SELECT id FROM documents WHERE id IN ($place)", $ids);
+        $valid = array_map(fn($r) => (int)$r['id'], $docs);
+        if (!$valid) { $_SESSION['flash_error'] = 'No matching documents.'; header('Location: /documents'); return; }
+        $n = count($valid);
+
+        if ($action === 'archive') {
+            $vp = implode(',', array_fill(0, count($valid), '?'));
+            // Only archive docs not already archived/obsolete.
+            Database::query("UPDATE documents SET status='archived', updated_at=NOW() WHERE id IN ($vp) AND status NOT IN ('archived','obsolete')", $valid);
+            $_SESSION['flash_success'] = "Archived up to {$n} document(s).";
+        } elseif ($action === 'label') {
+            $tagId = (int)($_POST['tag_id'] ?? 0);
+            if ($tagId && Database::fetchOne("SELECT 1 FROM tags WHERE id=?", [$tagId])) {
+                foreach ($valid as $did) {
+                    Database::query("INSERT INTO entity_tags (tag_id, entity_type, entity_id) VALUES (?, 'document', ?) ON CONFLICT DO NOTHING", [$tagId, $did]);
+                }
+                $_SESSION['flash_success'] = "Labelled {$n} document(s).";
+            } else { $_SESSION['flash_error'] = 'Pick a label.'; }
+        } else {
+            $_SESSION['flash_error'] = 'Unknown bulk action.';
+        }
+        Auth::log('bulk_documents', 'documents', null, ['action' => $action, 'count' => $n]);
+        header('Location: /documents');
+    }
+
     public function view(int $id): void {
         Auth::requirePermission('document.view');
         $doc = Database::fetchOne(

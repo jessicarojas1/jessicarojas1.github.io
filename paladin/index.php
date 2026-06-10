@@ -201,6 +201,7 @@ $routes = [
         '/pages/import'              => ['PageController', 'import'],
 
         '/documents/create'          => ['DocumentController', 'create'],
+        '/documents/bulk'            => ['DocumentController', 'bulk'],
 
         '/processes/create'          => ['ProcessController', 'create'],
 

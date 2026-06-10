@@ -32,11 +32,29 @@ $hasFilter = !empty($_GET['type']) || !empty($_GET['status']) || !empty($_GET['s
 </div>
 
 <div class="card"><div class="card-body" style="padding:0">
+  <?php if (Auth::can('document.edit')):
+    $docTags = Database::fetchAll("SELECT id, name FROM tags ORDER BY name");
+  ?>
+  <form method="POST" action="/documents/bulk" data-bulk-bar hidden style="margin:10px;border:1px solid var(--primary);border-radius:8px;padding:10px;background:var(--bg-secondary)">
+    <?= Security::csrfField() ?>
+    <input type="hidden" name="action" data-bulk-action>
+    <input type="hidden" name="doc_ids" data-bulk-ids>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span class="form-hint" style="font-weight:700"><span data-bulk-count>0</span> selected</span>
+      <button type="submit" class="btn btn-sm" data-bulk-do="archive"><i class="bi bi-archive"></i> Archive</button>
+      <span style="display:flex;gap:4px;align-items:center">
+        <select name="tag_id" class="form-select" style="padding:3px 6px;max-width:160px"><option value="">Label…</option><?php foreach ($docTags as $tg): ?><option value="<?= (int)$tg['id'] ?>"><?= Security::h($tg['name']) ?></option><?php endforeach; ?></select>
+        <button type="submit" class="btn btn-sm" data-bulk-do="label"><i class="bi bi-tag"></i> Apply</button>
+      </span>
+    </div>
+  </form>
+  <?php endif; ?>
   <table class="table table-hover" style="margin:0">
-    <thead><tr><th>Code</th><th>Title</th><th>Type</th><th>Rev</th><th>Owner</th><th>Status</th><th>Review Due</th></tr></thead>
+    <thead><tr><?php if (Auth::can('document.edit')): ?><th style="width:30px"></th><?php endif; ?><th>Code</th><th>Title</th><th>Type</th><th>Rev</th><th>Owner</th><th>Status</th><th>Review Due</th></tr></thead>
     <tbody>
     <?php foreach ($documents as $d): ?>
       <tr>
+        <?php if (Auth::can('document.edit')): ?><td><input type="checkbox" class="pt-check" value="<?= (int)$d['id'] ?>"></td><?php endif; ?>
         <td><span class="chip"><?= Security::h($d['document_code']) ?></span></td>
         <td><a href="/documents/<?= (int)$d['id'] ?>" class="table-link"><?= Security::h($d['title']) ?></a><?php if ($d['requires_ack']): ?> <i class="bi bi-patch-check-fill" title="Acknowledgement required" style="color:var(--info)"></i><?php endif; ?><?php if ($d['checked_out_by']): ?> <i class="bi bi-lock-fill" title="Checked out" style="color:var(--warning)"></i><?php endif; ?></td>
         <td><span class="chip"><?= View::docTypeLabel($d['doc_type']) ?></span></td>
