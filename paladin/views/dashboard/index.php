@@ -65,6 +65,22 @@ ob_start();
   </div>
 </div>
 
+<?php if (!empty($myActionItems)): ?>
+<div class="card" style="margin-top:20px">
+  <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-check2-square"></i> My Action Items</span></div><a href="/action-items" class="btn btn-sm btn-ghost">View all</a></div>
+  <div class="card-body" style="padding:0">
+    <table class="table table-hover" style="margin:0"><tbody>
+      <?php foreach ($myActionItems as $ai): $od = !empty($ai['due_date']) && strtotime($ai['due_date']) < strtotime('today'); ?>
+        <tr>
+          <td><i class="bi bi-square" style="color:var(--text-light)"></i> <?= Security::h($ai['text']) ?></td>
+          <td class="form-hint" style="text-align:right;white-space:nowrap"><a href="/pages/<?= (int)$ai['page_id'] ?>#action-items"><?= Security::h($ai['page_title']) ?></a><?php if (!empty($ai['due_date'])): ?> · <span class="<?= $od ? 'badge badge-red' : '' ?>">due <?= Security::h(View::fmtDate($ai['due_date'])) ?></span><?php endif; ?></td>
+        </tr>
+      <?php endforeach; ?>
+    </tbody></table>
+  </div>
+</div>
+<?php endif; ?>
+
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;align-items:start">
   <div class="card">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-clock-history"></i> Recently Updated</span></div></div>

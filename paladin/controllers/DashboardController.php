@@ -34,6 +34,15 @@ class DashboardController {
             [$uid]
         );
 
+        // My open inline action items (page tasks assigned to me)
+        $myActionItems = Database::fetchAll(
+            "SELECT pt.id, pt.text, pt.due_date, pt.page_id, p.title AS page_title
+             FROM page_tasks pt JOIN pages p ON p.id = pt.page_id AND p.deleted_at IS NULL
+             WHERE pt.assignee_id = ? AND pt.done = FALSE
+             ORDER BY (pt.due_date < CURRENT_DATE) DESC, pt.due_date NULLS LAST LIMIT 8",
+            [$uid]
+        );
+
         $recent = Database::fetchAll(
             "SELECT al.*, u.name AS user_name FROM activity_log al
              LEFT JOIN users u ON u.id = al.user_id
