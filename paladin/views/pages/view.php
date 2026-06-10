@@ -7,7 +7,7 @@ ob_start();
 <div class="page-header">
   <div>
     <h1 class="page-title"><?= Security::h($page['title']) ?> <?= View::statusBadge($page['status']) ?><?php if (!empty($restrictions)): ?> <span class="badge badge-gray" title="This page has access restrictions"><i class="bi bi-lock-fill"></i> Restricted</span><?php endif; ?></h1>
-    <p class="page-subtitle">In <a href="/spaces/<?= (int)$page['space_id'] ?>"><?= Security::h($page['space_name']) ?></a> · Owner: <?= Security::h($page['owner_name'] ?: '—') ?> · v<?= (int)$page['current_version'] ?> · Updated <?= View::timeAgo($page['updated_at']) ?></p>
+    <p class="page-subtitle">In <a href="/spaces/<?= (int)$page['space_id'] ?>"><?= Security::h($page['space_name']) ?></a> · Owner: <?= Security::h($page['owner_name'] ?: '—') ?> · v<?= (int)$page['current_version'] ?> · Updated <?= View::timeAgo($page['updated_at']) ?><?php if (($pageWords ?? 0) > 0): ?> · <i class="bi bi-clock"></i> <?= (int)$pageReadMins ?> min read<?php endif; ?></p>
   </div>
   <div class="page-actions">
     <?php $likeType='page'; $likeId=(int)$page['id']; $likeData=$pageLike; require PALADIN_ROOT . '/views/partials/like.php'; ?>
@@ -141,6 +141,20 @@ ob_start();
       <?php endforeach; ?>
     </div>
   </div>
+
+  <!-- On this page (table of contents) -->
+  <?php if (!empty($pageToc)): ?>
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-list-nested"></i> On this page</span></div></div>
+    <div class="card-body" style="padding:10px 14px">
+      <nav class="page-toc" style="display:flex;flex-direction:column;gap:3px">
+        <?php foreach ($pageToc as $t): ?>
+          <a href="#<?= Security::h($t['id']) ?>" style="text-decoration:none;color:var(--text);font-size:.85rem;padding:2px 0;padding-left:<?= ((int)$t['level'] - 1) * 12 ?>px;<?= (int)$t['level'] > 1 ? 'color:var(--text-muted)' : 'font-weight:600' ?>"><?= Security::h($t['text']) ?></a>
+        <?php endforeach; ?>
+      </nav>
+    </div>
+  </div>
+  <?php endif; ?>
 
   <!-- Workflow -->
   <?php $wfType='page'; $wfId=(int)$page['id']; $wfCanEdit=$canEditPage; require PALADIN_ROOT . '/views/partials/workflow_status.php'; ?>
