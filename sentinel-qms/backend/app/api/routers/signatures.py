@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
+from app.core.entity_access import require_entity_view
 from app.models.user import ElectronicSignature
 from app.schemas.auth import CurrentUser
 from app.schemas.common import ESignatureRead
@@ -24,9 +25,10 @@ def list_signatures(
     entity_type: str = Query(..., max_length=64),
     entity_id: str = Query(..., max_length=64),
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(get_current_user),
+    actor: CurrentUser = Depends(get_current_user),
 ) -> list[ElectronicSignature]:
     """Return the e-signatures for one record, newest first."""
+    require_entity_view(db, actor, entity_type)
     stmt = (
         select(ElectronicSignature)
         .where(

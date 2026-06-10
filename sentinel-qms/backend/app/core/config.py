@@ -5,8 +5,10 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_INSECURE_JWT_DEFAULT = "insecure-development-secret-change-me-please-32+chars"
 
 
 class Settings(BaseSettings):
@@ -39,7 +41,7 @@ class Settings(BaseSettings):
     DB_SCHEMA: str = "sentinel_qms"
 
     # JWT
-    JWT_SECRET: str = "insecure-development-secret-change-me-please-32+chars"
+    JWT_SECRET: str = _INSECURE_JWT_DEFAULT
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
@@ -125,6 +127,18 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT == "production"
+
+    @model_validator(mode="after")
+    def _guard_production_secrets(self) -> Settings:
+        """Refuse to boot in production with an insecure/short JWT secret."""
+        if self.ENVIRONMENT == "production" and (
+            self.JWT_SECRET == _INSECURE_JWT_DEFAULT or len(self.JWT_SECRET) < 32
+        ):
+            raise ValueError(
+                "JWT_SECRET must be set to a strong value (>=32 chars) when "
+                "ENVIRONMENT=production; refusing to start with the insecure default."
+            )
+        return self
 
 
 @lru_cache

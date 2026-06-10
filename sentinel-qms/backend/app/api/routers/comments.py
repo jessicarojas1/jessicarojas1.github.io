@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user
 from app.core import audit
 from app.core.database import get_db
+from app.core.entity_access import require_entity_view
 from app.core.exceptions import NotFoundError, PermissionDeniedError
 from app.core.rbac import Permission, permissions_for_roles
 from app.models.comment import Comment
@@ -29,9 +30,10 @@ def list_comments(
     entity_type: str,
     entity_id: str,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(get_current_user),
+    actor: CurrentUser = Depends(get_current_user),
 ) -> list[Comment]:
     """List comments for a record, oldest-first for natural thread reading."""
+    require_entity_view(db, actor, entity_type)
     return (
         db.execute(
             select(Comment)
@@ -53,6 +55,7 @@ def create_comment(
     db: Session = Depends(get_db),
     actor: CurrentUser = Depends(get_current_user),
 ) -> Comment:
+    require_entity_view(db, actor, payload.entity_type)
     comment = Comment(
         entity_type=payload.entity_type,
         entity_id=payload.entity_id,
