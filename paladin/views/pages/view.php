@@ -184,6 +184,9 @@ ob_start();
   <div class="card" style="margin-bottom:18px">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-lock-fill"></i> Restrictions</span></div></div>
     <div class="card-body">
+      <?php if (!$restrictions && PageAccess::inheritsRestriction((int)$page['id'])): ?>
+        <div class="form-hint" style="margin-bottom:8px"><i class="bi bi-diagram-2"></i> This page inherits view restrictions from a parent page.</div>
+      <?php endif; ?>
       <?php if ($restrictions): ?>
         <?php foreach ($restrictions as $r): ?>
           <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-light)">
