@@ -32,7 +32,7 @@ $renderComment = function (array $c) use ($cReactions) {
     echo '</span></div>';
     echo '<div class="comment-text">' . View::mentionize($c['body']) . '</div>';
     $likeType = 'comment'; $likeId = $cid; $likeSmall = true;
-    $likeData = $cReactions[$cid] ?? ['count' => 0, 'liked' => false];
+    $likeData = $cReactions[$cid] ?? ['total' => 0, 'emojis' => []];
     echo '<div class="comment-like" style="display:flex;align-items:center;gap:6px">';
     require PALADIN_ROOT . '/views/partials/like.php';
     if ($canEdit) {

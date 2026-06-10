@@ -27,12 +27,21 @@ class ReactionController {
             if ($pg && !PageAccess::canView($pg)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         }
 
-        $existing = Database::fetchOne("SELECT id FROM reactions WHERE entity_type=? AND entity_id=? AND user_id=?", [$type, $id, Auth::id()]);
+        $emoji = (string)($_POST['emoji'] ?? '👍');
+        if (!in_array($emoji, Reactions::PALETTE, true)) $emoji = '👍';
+
+        $existing = Database::fetchOne(
+            "SELECT id FROM reactions WHERE entity_type=? AND entity_id=? AND user_id=? AND emoji=?",
+            [$type, $id, Auth::id(), $emoji]
+        );
         if ($existing) {
             Database::query("DELETE FROM reactions WHERE id = ?", [$existing['id']]);
         } else {
-            try { Database::insert('reactions', ['entity_type' => $type, 'entity_id' => $id, 'user_id' => Auth::id()]); } catch (Throwable) {}
+            try { Database::insert('reactions', ['entity_type' => $type, 'entity_id' => $id, 'user_id' => Auth::id(), 'emoji' => $emoji]); } catch (Throwable) {}
         }
+        // Honour a same-site relative return target (e.g. a #comment anchor).
+        $ret = (string)($_POST['return'] ?? '');
+        if ($ret !== '' && $ret[0] === '/' && !str_starts_with($ret, '//') && preg_match('~^/[A-Za-z0-9/_#?=&.-]*$~', $ret)) $back = $ret;
         header('Location: ' . $back);
     }
 
