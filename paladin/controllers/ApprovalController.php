@@ -115,6 +115,7 @@ class ApprovalController {
              WHERE ah.request_id=? ORDER BY ah.created_at", [$id]
         );
         $canDecide = $this->actionableStep($req, Auth::id(), Auth::role()) !== null;
+        $esignRequired = Workflow::esignatureRequired();
         require PALADIN_ROOT . '/views/approvals/view.php';
     }
 
@@ -134,8 +135,30 @@ class ApprovalController {
         $comment  = Security::sanitizeInput($_POST['comment'] ?? '');
         if (!in_array($decision, ['approve','reject','return'], true)) { http_response_code(400); return; }
 
+        // Electronic signature: a tamper-evident typed-name affirmation on a final
+        // decision (approve/reject). Mandatory — and must match the signer's account
+        // name — when the 'require_esignature' setting is enabled; optional otherwise.
+        $signature = Security::sanitizeInput($_POST['signature'] ?? '');
+        $sig = [];
+        if (in_array($decision, ['approve','reject'], true)) {
+            $myName = (string)(Auth::user()['name'] ?? '');
+            if (Workflow::esignatureRequired()
+                && ($signature === '' || mb_strtolower(trim($signature)) !== mb_strtolower(trim($myName)))) {
+                $_SESSION['flash_error'] = 'An electronic signature is required: type your full name exactly as it appears on your account to sign this decision.';
+                header('Location: /approvals/' . $id); return;
+            }
+            if ($signature !== '') {
+                $signedAt = date('Y-m-d H:i:s');
+                $sig = [
+                    'signature_name' => $signature,
+                    'signed_at'      => $signedAt,
+                    'signature_hash' => hash('sha256', Auth::id() . '|' . $step['id'] . '|' . $decision . '|' . $signedAt . '|' . $signature),
+                ];
+            }
+        }
+
         if ($decision === 'reject') {
-            Database::update('approval_request_steps', ['status' => 'rejected', 'decided_by' => Auth::id(), 'decision_comment' => $comment, 'decided_at' => date('Y-m-d H:i:s')], 'id=?', [$step['id']]);
+            Database::update('approval_request_steps', array_merge(['status' => 'rejected', 'decided_by' => Auth::id(), 'decision_comment' => $comment, 'decided_at' => date('Y-m-d H:i:s')], $sig), 'id=?', [$step['id']]);
             Database::update('approval_requests', ['status' => 'rejected', 'decided_at' => date('Y-m-d H:i:s')], 'id=?', [$id]);
             Database::insert('approval_history', ['request_id' => $id, 'user_id' => Auth::id(), 'action' => 'rejected', 'comment' => $comment ?: null]);
             $this->syncEntity($req, 'rejected');
@@ -157,7 +180,7 @@ class ApprovalController {
         }
 
         // approve
-        Database::update('approval_request_steps', ['status' => 'approved', 'decided_by' => Auth::id(), 'decision_comment' => $comment ?: null, 'decided_at' => date('Y-m-d H:i:s')], 'id=?', [$step['id']]);
+        Database::update('approval_request_steps', array_merge(['status' => 'approved', 'decided_by' => Auth::id(), 'decision_comment' => $comment ?: null, 'decided_at' => date('Y-m-d H:i:s')], $sig), 'id=?', [$step['id']]);
         Database::insert('approval_history', ['request_id' => $id, 'user_id' => Auth::id(), 'action' => 'approved', 'comment' => $comment ?: null]);
 
         $pendingLeft = (int)(Database::fetchOne("SELECT COUNT(*) c FROM approval_request_steps WHERE request_id=? AND status='pending'", [$id])['c'] ?? 0);

@@ -32,6 +32,7 @@ if ($req['entity_type'] && $req['entity_id']) {
           <div class="tl-title"><?= Security::h($s['name'] ?: ('Step ' . $s['step_number'])) ?> <?= View::statusBadge($s['status']) ?><?= $isCurrent ? ' <span class="badge badge-blue">current</span>' : '' ?></div>
           <div class="tl-meta">Approver: <?= $s['required_user_name'] ? Security::h($s['required_user_name']) : ($s['required_role'] ? Security::h(Auth::roleLabel($s['required_role'])) . ' (role)' : 'Any approver') ?><?php if ($s['decided_by_name']): ?> · decided by <?= Security::h($s['decided_by_name']) ?> <?= View::timeAgo($s['decided_at']) ?><?php endif; ?></div>
           <?php if ($s['decision_comment']): ?><div class="tl-body"><i class="bi bi-chat-quote"></i> <?= Security::h($s['decision_comment']) ?></div><?php endif; ?>
+          <?php if (!empty($s['signature_name'])): ?><div class="tl-body" style="color:var(--success)"><i class="bi bi-pen-fill"></i> Electronically signed by <strong><?= Security::h($s['signature_name']) ?></strong> on <?= View::fmtDate($s['signed_at'], 'M j, Y g:ia') ?><?php if (!empty($s['signature_hash'])): ?> <span class="form-hint" title="Tamper-evident signature digest">· <?= Security::h(substr((string)$s['signature_hash'], 0, 12)) ?>…</span><?php endif; ?></div><?php endif; ?>
         </li>
         <?php endforeach; ?>
       </ul>
@@ -42,6 +43,13 @@ if ($req['entity_type'] && $req['entity_id']) {
       <form method="POST" action="/approvals/<?= (int)$req['id'] ?>/decide">
         <?= Security::csrfField() ?>
         <div class="form-group"><label class="form-label">Comment (optional for approve, recommended for reject/return)</label><textarea name="comment" class="form-control" rows="2" placeholder="Add a decision note…"></textarea></div>
+        <div class="form-group">
+          <label class="form-label"><i class="bi bi-pen"></i> Electronic signature<?= $esignRequired ? ' <span style="color:var(--danger)">*</span>' : ' <span class="form-hint">(optional)</span>' ?></label>
+          <input type="text" name="signature" class="form-control" placeholder="Type your full name to sign"<?= $esignRequired ? ' required' : '' ?> autocomplete="off">
+          <p class="form-hint"><?= $esignRequired
+            ? 'Required for approve/reject — must match your account name (' . Security::h((string)(Auth::user()['name'] ?? '')) . ').'
+            : 'Optional. Typing your name records a tamper-evident signature on this decision.' ?></p>
+        </div>
         <div class="form-row">
           <button class="btn btn-success" type="submit" name="decision" value="approve"><i class="bi bi-check-lg"></i> Approve</button>
           <button class="btn btn-ghost" type="submit" name="decision" value="return"><i class="bi bi-arrow-counterclockwise"></i> Return for Revision</button>
