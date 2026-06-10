@@ -79,4 +79,46 @@ final class View {
         $safe = Security::h((string)$text);
         return preg_replace('/@([A-Za-z0-9._-]{2,})/', '<span class="mention">@$1</span>', $safe);
     }
+
+    /**
+     * Parse rendered page HTML: inject stable ids into h1–h3 headings and return
+     * the augmented HTML, a table-of-contents list and a word count.
+     * @return array{html:string,toc:array<int,array{level:int,text:string,id:string}>,words:int}
+     */
+    public static function buildToc(?string $html): array {
+        $html = (string)$html;
+        $plain = trim(strip_tags($html));
+        $words = $plain === '' ? 0 : count(preg_split('/\s+/', $plain));
+        if (trim($html) === '' || stripos($html, '<h') === false) {
+            return ['html' => $html, 'toc' => [], 'words' => $words];
+        }
+
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="UTF-8"><div id="__pal_toc_root">' . $html . '</div>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NONET);
+        libxml_clear_errors();
+
+        $xp = new \DOMXPath($dom);
+        $toc = []; $used = [];
+        foreach ($xp->query('//h1|//h2|//h3') as $node) {
+            /** @var \DOMElement $node */
+            $text = trim($node->textContent);
+            if ($text === '') { continue; }
+            $base = substr(preg_replace('/[^a-z0-9]+/', '-', strtolower($text)) ?: 'section', 0, 60);
+            $base = trim($base, '-') ?: 'section';
+            $id = $base; $n = 1;
+            while (isset($used[$id])) { $id = $base . '-' . (++$n); }
+            $used[$id] = true;
+            if (!$node->getAttribute('id')) { $node->setAttribute('id', $id); }
+            else { $id = $node->getAttribute('id'); }
+            $toc[] = ['level' => (int)substr($node->nodeName, 1), 'text' => $text, 'id' => $id];
+        }
+        if (count($toc) < 2) { return ['html' => $html, 'toc' => [], 'words' => $words]; }
+
+        $root = $dom->getElementById('__pal_toc_root');
+        $inner = '';
+        if ($root) { foreach ($root->childNodes as $c) { $inner .= $dom->saveHTML($c); } }
+        return ['html' => $inner !== '' ? $inner : $html, 'toc' => $toc, 'words' => $words];
+    }
 }

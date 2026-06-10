@@ -187,6 +187,12 @@ class PageController {
         $wfHistory = Workflow::history('page', $id);
         $wfApplicable = $canEditPage ? Workflow::applicable($page['space_id'] !== null ? (int)$page['space_id'] : null) : [];
         $wfEsign = Workflow::esignatureRequired();
+        // Outline + reading time from the rendered body.
+        $tocData = View::buildToc((string)$page['body']);
+        $page['body'] = $tocData['html'];
+        $pageToc = $tocData['toc'];
+        $pageWords = $tocData['words'];
+        $pageReadMins = max(1, (int)ceil($pageWords / 200));
         Recent::track('page', $id, $page['title']);
         require PALADIN_ROOT . '/views/pages/view.php';
     }
