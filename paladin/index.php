@@ -154,6 +154,7 @@ $routes = [
         '/templates/create'          => ['TemplateController', 'createForm'],
 
         '/search'                    => ['SearchController', 'index'],
+        '/calendar'                  => ['CalendarController', 'index'],
         '/labels'                    => ['LabelController', 'index'],
         '/reports'                   => ['ReportController', 'index'],
         '/activity'                  => ['ActivityController', 'index'],
