@@ -123,6 +123,40 @@ class DocumentController {
         require PALADIN_ROOT . '/views/documents/view.php';
     }
 
+    /** Compare two revisions of a document (line-level redline of the body). */
+    public function diff(int $id): void {
+        Auth::requirePermission('document.view');
+        $doc = Database::fetchOne("SELECT id, title, document_code FROM documents WHERE id=?", [$id]);
+        if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+
+        $versions = Database::fetchAll(
+            "SELECT dv.id, dv.revision, dv.title, dv.created_at, u.name AS author
+             FROM document_versions dv LEFT JOIN users u ON u.id=dv.created_by
+             WHERE dv.document_id=? ORDER BY dv.created_at DESC, dv.id DESC", [$id]
+        );
+        if (count($versions) < 2) {
+            $_SESSION['flash_error'] = 'A document needs at least two revisions to compare.';
+            header('Location: /documents/' . $id); return;
+        }
+        // Default: newest (to) vs the one before it (from). Version ids picked from the dropdowns.
+        $latestId = (int)$versions[0]['id'];
+        $prevId   = (int)$versions[1]['id'];
+        $toId   = (int)($_GET['to'] ?? $latestId);
+        $fromId = (int)($_GET['from'] ?? $prevId);
+        if ($fromId === $toId) { $fromId = $prevId === $toId ? $latestId : $prevId; }
+
+        $from = Database::fetchOne("SELECT * FROM document_versions WHERE id=? AND document_id=?", [$fromId, $id]);
+        $to   = Database::fetchOne("SELECT * FROM document_versions WHERE id=? AND document_id=?", [$toId, $id]);
+        if (!$from || !$to) { $_SESSION['flash_error'] = 'Those revisions could not be found.'; header('Location: /documents/' . $id); return; }
+        // Order older → newer by creation time for a natural reading.
+        if (strtotime((string)$from['created_at']) > strtotime((string)$to['created_at'])) { [$from, $to] = [$to, $from]; }
+
+        $bodyDiff  = Diff::lines(Diff::htmlToLines($from['body']), Diff::htmlToLines($to['body']));
+        $stats     = Diff::stats($bodyDiff);
+        $titleDiff = ($from['title'] ?? '') !== ($to['title'] ?? '');
+        require PALADIN_ROOT . '/views/documents/diff.php';
+    }
+
     public function createForm(): void {
         Auth::requirePermission('document.create');
         $doc = null;

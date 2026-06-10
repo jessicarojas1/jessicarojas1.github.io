@@ -263,6 +263,7 @@ $dynamicRoutes = [
         '#^/documents/(\d+)$#'               => ['DocumentController', 'view'],
         '#^/documents/(\d+)/edit$#'          => ['DocumentController', 'editForm'],
         '#^/documents/(\d+)/download$#'      => ['DocumentController', 'download'],
+        '#^/documents/(\d+)/diff$#'          => ['DocumentController', 'diff'],
         '#^/processes/(\d+)$#'               => ['ProcessController', 'view'],
         '#^/processes/(\d+)/edit$#'          => ['ProcessController', 'editForm'],
         '#^/workflows/(\d+)$#'               => ['WorkflowController', 'view'],
