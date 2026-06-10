@@ -66,9 +66,16 @@ class MediaController
         $mime = in_array($m['mime'], self::IMAGE_MIMES, true) ? $m['mime'] : 'application/octet-stream';
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . strlen($data));
-        header('Content-Disposition: inline');
         header('X-Content-Type-Options: nosniff');
         header('Cache-Control: private, max-age=86400');
+        // SVG can embed scripts: sandbox it (neutralises any active markup on
+        // direct navigation) and force download rather than inline rendering.
+        if ($mime === 'image/svg+xml') {
+            header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; sandbox");
+            header('Content-Disposition: attachment; filename="image.svg"');
+        } else {
+            header('Content-Disposition: inline');
+        }
         echo $data;
     }
 }

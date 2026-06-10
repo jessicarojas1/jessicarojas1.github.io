@@ -601,7 +601,11 @@ class PageController {
             [$done ? 't' : 'f', $done ? date('Y-m-d H:i:s') : null, $done ? Auth::id() : null, $taskId]
         );
         Auth::log('toggle_task', 'pages', (int)$t['page_id'], ['task' => $taskId, 'done' => $done]);
-        header('Location: ' . ($_POST['return'] ?? ('/pages/' . (int)$t['page_id'] . '#action-items')));
+        $default = '/pages/' . (int)$t['page_id'] . '#action-items';
+        $ret = (string)($_POST['return'] ?? '');
+        // Only allow same-site relative paths (no //host, no scheme) to avoid open redirects.
+        $back = ($ret !== '' && $ret[0] === '/' && !str_starts_with($ret, '//') && preg_match('~^/[A-Za-z0-9/_#?=&.-]*$~', $ret)) ? $ret : $default;
+        header('Location: ' . $back);
     }
 
     public function assignTask(int $taskId): void {
