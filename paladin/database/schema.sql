@@ -662,11 +662,12 @@ CREATE INDEX IF NOT EXISTS idx_comments_entity ON comments(entity_type, entity_i
 
 CREATE TABLE IF NOT EXISTS reactions (
     id          SERIAL PRIMARY KEY,
-    entity_type VARCHAR(40) NOT NULL,   -- page | document | comment
+    entity_type VARCHAR(40) NOT NULL,   -- page | document | comment | blog
     entity_id   INTEGER NOT NULL,
     user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    emoji       VARCHAR(8) NOT NULL DEFAULT '👍',
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-    UNIQUE (entity_type, entity_id, user_id)
+    CONSTRAINT reactions_uniq_emoji UNIQUE (entity_type, entity_id, user_id, emoji)
 );
 CREATE INDEX IF NOT EXISTS idx_reactions_entity ON reactions(entity_type, entity_id);
 
