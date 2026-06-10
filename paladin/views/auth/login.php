@@ -69,6 +69,13 @@
         <button type="submit" class="btn btn-primary btn-full btn-lg"><i class="bi bi-box-arrow-in-right"></i> Sign In</button>
       </form>
 
+      <?php if (Saml::isEnabled()): ?>
+      <div style="display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--text-muted);font-size:12px">
+        <span style="flex:1;height:1px;background:var(--border)"></span>OR<span style="flex:1;height:1px;background:var(--border)"></span>
+      </div>
+      <a href="/saml/login" class="btn btn-ghost btn-full btn-lg"><i class="bi bi-shield-lock"></i> Sign in with SSO</a>
+      <?php endif; ?>
+
       <div class="auth-form-footer">
         <p><?= Security::h($__brandName) ?> &copy; <?= date('Y') ?> — Process · Approval · Library</p>
         <p style="margin-top:6px;font-size:11px;color:var(--text-muted)">Protected by rate limiting and session security</p>

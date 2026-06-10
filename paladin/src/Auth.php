@@ -438,6 +438,12 @@ class Auth {
         self::log('login', 'users', (int)$user['id']);
     }
 
+    /** Establish a session for a user already authenticated by an external IdP (SAML SSO). */
+    public static function ssoLogin(array $user): void {
+        self::finalizeLogin($user);
+        self::log('sso_login', 'users', (int)$user['id']);
+    }
+
     public static function logout(): void {
         session_destroy();
         session_start();
