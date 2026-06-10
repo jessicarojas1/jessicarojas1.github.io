@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import Pagination, get_current_user, pagination_params, require_page
 from app.core.database import get_db
+from app.core.entity_access import require_entity_view
 from app.models.user import AuditLog
 from app.schemas.auth import CurrentUser
 from app.schemas.common import AuditLogRead, Page
@@ -21,11 +22,12 @@ def list_record_audit_logs(
     entity_id: str = Query(..., max_length=64),
     limit: int = Query(100, ge=1, le=200),
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(get_current_user),
+    actor: CurrentUser = Depends(get_current_user),
 ) -> list[AuditLog]:
     """Record-scoped history: anyone who can view a record can see its audit trail."""
     from sqlalchemy import select
 
+    require_entity_view(db, actor, entity_type)
     stmt = (
         select(AuditLog)
         .where(

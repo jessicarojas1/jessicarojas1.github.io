@@ -12,7 +12,6 @@ from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError
 from app.core.rbac import Permission, require_permission
@@ -88,7 +87,7 @@ def _as_date(value):
 def ncr_summary(
     months: int = Query(12, ge=1, le=36),
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(get_current_user),
+    _: CurrentUser = Depends(require_permission(Permission.NCR_READ)),
 ) -> NcrSummaryReport:
     rows = (
         db.execute(select(Nonconformance).where(Nonconformance.is_deleted.is_(False)))
@@ -132,7 +131,7 @@ def ncr_summary(
 def capa_summary(
     months: int = Query(12, ge=1, le=36),
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(get_current_user),
+    _: CurrentUser = Depends(require_permission(Permission.CAPA_READ)),
 ) -> CapaSummaryReport:
     # ``months`` is accepted for API symmetry; aging is age-based, not windowed.
     rows = db.execute(select(Capa).where(Capa.is_deleted.is_(False))).scalars().all()
@@ -178,7 +177,7 @@ def capa_summary(
 @router.get("/supplier-scorecard", response_model=SupplierScorecardReport)
 def supplier_scorecard(
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(get_current_user),
+    _: CurrentUser = Depends(require_permission(Permission.SUPPLIER_READ)),
 ) -> SupplierScorecardReport:
     suppliers = db.execute(select(Supplier).where(Supplier.is_deleted.is_(False))).scalars().all()
 
@@ -222,7 +221,7 @@ def supplier_scorecard(
 def audit_summary(
     months: int = Query(12, ge=1, le=36),
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(get_current_user),
+    _: CurrentUser = Depends(require_permission(Permission.AUDIT_READ)),
 ) -> AuditSummaryReport:
     audits = db.execute(select(Audit).where(Audit.is_deleted.is_(False))).scalars().all()
 

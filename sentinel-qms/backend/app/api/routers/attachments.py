@@ -10,6 +10,7 @@ from app.api.deps import get_current_user
 from app.core import audit
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.entity_access import require_entity_view
 from app.core.exceptions import NotFoundError, ValidationAppError
 from app.models.user import Attachment
 from app.schemas.attachment import AttachmentRead, AttachmentUploadResult
@@ -31,6 +32,7 @@ async def upload_attachment(
     db: Session = Depends(get_db),
     actor: CurrentUser = Depends(get_current_user),
 ) -> AttachmentUploadResult:
+    require_entity_view(db, actor, entity_type)
     content_type = file.content_type or "application/octet-stream"
     if not is_allowed_content_type(content_type):
         raise ValidationAppError(f"Content type '{content_type}' is not permitted.")
@@ -89,8 +91,9 @@ def list_attachments(
     entity_type: str,
     entity_id: str,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(get_current_user),
+    actor: CurrentUser = Depends(get_current_user),
 ) -> list[Attachment]:
+    require_entity_view(db, actor, entity_type)
     return (
         db.execute(
             select(Attachment)
@@ -109,11 +112,12 @@ def list_attachments(
 def download_attachment(
     attachment_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(get_current_user),
+    actor: CurrentUser = Depends(get_current_user),
 ) -> Response:
     attachment = db.get(Attachment, attachment_id)
     if attachment is None:
         raise NotFoundError(f"Attachment {attachment_id} not found.")
+    require_entity_view(db, actor, attachment.entity_type)
     data = get_storage().load(attachment.stored_key)
     return Response(
         content=data,
