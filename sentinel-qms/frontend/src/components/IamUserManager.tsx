@@ -225,9 +225,11 @@ export function IamUserManager() {
                       <span className="iam-module__count">{grantedCount}/{m.actions.length}</span>
                       <span className="iam-module__batch">
                         <span role="button" tabIndex={0} className="link-btn"
-                          onClick={(e) => { e.stopPropagation(); grantAll(m); }}>Grant all</span>
+                          onClick={(e) => { e.stopPropagation(); grantAll(m); }}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); grantAll(m); } }}>Grant all</span>
                         <span role="button" tabIndex={0} className="link-btn"
-                          onClick={(e) => { e.stopPropagation(); clearAll(m); }}>Clear</span>
+                          onClick={(e) => { e.stopPropagation(); clearAll(m); }}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); clearAll(m); } }}>Clear</span>
                       </span>
                     </button>
                     {isOpen && (

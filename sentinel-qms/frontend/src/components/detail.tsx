@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { History, Paperclip } from 'lucide-react';
 import { formatBytes, formatDateTime, humanize } from '@/lib/format';
+import { safeHref } from '@/lib/url';
 import type { Attachment, AuditTrailEntry } from '@/types';
 import { EmptyState } from './EmptyState';
 
@@ -74,7 +75,7 @@ export function AttachmentsCard({ attachments }: { attachments?: Attachment[] })
         {attachments?.length ? (
           <div className="stack" style={{ gap: 10 }}>
             {attachments.map((a) => (
-              <a key={a.id} href={a.url} className="row text-sm" style={{ gap: 8 }}>
+              <a key={a.id} href={safeHref(a.url)} className="row text-sm" style={{ gap: 8 }}>
                 <Paperclip size={14} />
                 <span style={{ flex: 1 }}>{a.filename}</span>
                 <span className="muted">{formatBytes(a.size_bytes)}</span>
