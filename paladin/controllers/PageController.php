@@ -510,6 +510,57 @@ class PageController {
         header('Location: /spaces/' . (int)$page['space_id']);
     }
 
+    /** Bulk operations on selected pages within a space: trash / label / move. */
+    public function bulk(int $spaceId): void {
+        Auth::requirePermission('page.delete');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $space = Database::fetchOne("SELECT id FROM spaces WHERE id = ?", [$spaceId]);
+        if (!$space) { http_response_code(404); return; }
+
+        $action = Security::sanitizeInput($_POST['action'] ?? '');
+        $ids = array_values(array_filter(array_map('intval', explode(',', (string)($_POST['page_ids'] ?? '')))));
+        if (!$ids) { $_SESSION['flash_error'] = 'No pages selected.'; header('Location: /spaces/' . $spaceId); return; }
+        // Restrict to live pages actually in this space.
+        $place = implode(',', array_fill(0, count($ids), '?'));
+        $pages = Database::fetchAll(
+            "SELECT id FROM pages WHERE space_id = ? AND deleted_at IS NULL AND id IN ($place)",
+            array_merge([$spaceId], $ids)
+        );
+        $valid = array_map(fn($r) => (int)$r['id'], $pages);
+        if (!$valid) { $_SESSION['flash_error'] = 'No matching pages.'; header('Location: /spaces/' . $spaceId); return; }
+
+        $n = count($valid);
+        if ($action === 'trash') {
+            foreach ($valid as $pid) {
+                Database::query("UPDATE pages SET parent_id = (SELECT parent_id FROM pages WHERE id=?) WHERE parent_id = ? AND deleted_at IS NULL", [$pid, $pid]);
+                Database::query("UPDATE pages SET deleted_at = NOW(), deleted_by = ? WHERE id = ?", [Auth::id(), $pid]);
+            }
+            $_SESSION['flash_success'] = "{$n} page(s) moved to Trash.";
+        } elseif ($action === 'label') {
+            $tagId = (int)($_POST['tag_id'] ?? 0);
+            if ($tagId && Database::fetchOne("SELECT 1 FROM tags WHERE id=?", [$tagId])) {
+                foreach ($valid as $pid) {
+                    Database::query("INSERT INTO entity_tags (tag_id, entity_type, entity_id) VALUES (?, 'page', ?) ON CONFLICT DO NOTHING", [$tagId, $pid]);
+                }
+                $_SESSION['flash_success'] = "Labelled {$n} page(s).";
+            } else { $_SESSION['flash_error'] = 'Pick a label.'; }
+        } elseif ($action === 'move') {
+            $target = (int)($_POST['target_space'] ?? 0);
+            if ($target && Database::fetchOne("SELECT 1 FROM spaces WHERE id=? AND is_archived=FALSE", [$target])) {
+                foreach ($valid as $pid) {
+                    Database::query("UPDATE pages SET space_id = ?, parent_id = NULL WHERE id = ?", [$target, $pid]);
+                }
+                $_SESSION['flash_success'] = "Moved {$n} page(s).";
+                header('Location: /spaces/' . $target); return;
+            }
+            $_SESSION['flash_error'] = 'Pick a destination space.';
+        } else {
+            $_SESSION['flash_error'] = 'Unknown bulk action.';
+        }
+        Auth::log('bulk_pages', 'spaces', $spaceId, ['action' => $action, 'count' => $n]);
+        header('Location: /spaces/' . $spaceId);
+    }
+
     // ── Inline tasks / action items ──────────────────────────────────────────
     private function loadTask(int $taskId): ?array {
         return Database::fetchOne(

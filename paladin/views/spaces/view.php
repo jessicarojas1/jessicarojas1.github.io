@@ -19,6 +19,7 @@ function renderTree(array $byParent, $parent, $depth = 0) {
         $par = $p['parent_id'] !== null ? (int)$p['parent_id'] : '';
         echo '<li data-pt-node="' . $pid . '" data-pt-parent="' . $par . '">';
         echo '<div class="pt-row" style="display:flex;align-items:center;gap:4px"' . ($canMove ? ' draggable="true"' : '') . '>';
+        if (Auth::can('page.delete')) echo '<input type="checkbox" class="pt-check" value="' . $pid . '" title="Select" style="flex:none">';
         if ($canMove) echo '<span class="pt-handle" style="cursor:grab;color:var(--text-light)" title="Drag to move"><i class="bi bi-grip-vertical"></i></span>';
         echo '<a href="/pages/' . $pid . '" style="flex:1"><i class="bi bi-file-richtext"></i> ' . Security::h($p['title']) . ' ' . View::statusBadge($p['status']) . '</a>';
         if ($canMove && count($siblings) > 1) {
@@ -65,6 +66,30 @@ function renderTree(array $byParent, $parent, $depth = 0) {
           <?php renderTree($byParent, 0); ?>
         </div>
         <?php if (Auth::can('page.edit')): ?><div class="form-hint" style="margin-top:8px"><i class="bi bi-grip-vertical"></i> Drag pages to reorder or re-nest them.</div><?php endif; ?>
+        <?php if (Auth::can('page.delete')):
+          $bulkTags   = Database::fetchAll("SELECT id, name FROM tags ORDER BY name");
+          $bulkSpaces = Database::fetchAll("SELECT id, name FROM spaces WHERE is_archived=FALSE AND id<>? ORDER BY name", [(int)$space['id']]);
+        ?>
+        <form method="POST" action="/spaces/<?= (int)$space['id'] ?>/bulk" data-bulk-bar hidden style="margin-top:12px;border:1px solid var(--primary);border-radius:8px;padding:10px;background:var(--bg-secondary)">
+          <?= Security::csrfField() ?>
+          <input type="hidden" name="action" data-bulk-action>
+          <input type="hidden" name="page_ids" data-bulk-ids>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="form-hint" style="font-weight:700"><span data-bulk-count>0</span> selected</span>
+            <button type="submit" class="btn btn-sm btn-danger" data-bulk-do="trash"><i class="bi bi-trash"></i> Trash</button>
+            <span style="display:flex;gap:4px;align-items:center">
+              <select name="tag_id" class="form-select" style="padding:3px 6px;max-width:150px"><option value="">Label…</option><?php foreach ($bulkTags as $tg): ?><option value="<?= (int)$tg['id'] ?>"><?= Security::h($tg['name']) ?></option><?php endforeach; ?></select>
+              <button type="submit" class="btn btn-sm" data-bulk-do="label"><i class="bi bi-tag"></i> Apply</button>
+            </span>
+            <?php if ($bulkSpaces): ?>
+            <span style="display:flex;gap:4px;align-items:center">
+              <select name="target_space" class="form-select" style="padding:3px 6px;max-width:150px"><option value="">Move to…</option><?php foreach ($bulkSpaces as $bs): ?><option value="<?= (int)$bs['id'] ?>"><?= Security::h($bs['name']) ?></option><?php endforeach; ?></select>
+              <button type="submit" class="btn btn-sm" data-bulk-do="move"><i class="bi bi-arrow-right"></i> Move</button>
+            </span>
+            <?php endif; ?>
+          </div>
+        </form>
+        <?php endif; ?>
       <?php else: ?><div class="empty-state-sm">No pages yet.</div><?php endif; ?>
     </div>
     <div class="card-header" style="border-top:1px solid var(--border-light)" id="members"><div class="card-header-left"><span class="card-title"><i class="bi bi-people"></i> Members &amp; Permissions</span></div>
