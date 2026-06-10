@@ -401,6 +401,7 @@ CREATE TABLE IF NOT EXISTS documents (
     effective_date     DATE,
     review_date        DATE,
     expiration_date    DATE,
+    last_review_reminder_at TIMESTAMP,   -- last time the owner was reminded of an upcoming review/expiry
     file_stored_name   VARCHAR(255),
     file_original_name VARCHAR(255),
     file_mime          VARCHAR(120),
