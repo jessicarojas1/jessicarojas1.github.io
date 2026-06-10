@@ -7,7 +7,7 @@ $hasFilter = !empty($_GET['type']) || !empty($_GET['status']) || !empty($_GET['s
 ?>
 <div class="page-header">
   <div><h1 class="page-title">Controlled Documents</h1><p class="page-subtitle">Policies, procedures, standards, forms &amp; records under document control</p></div>
-  <div class="page-actions"><?php if (Auth::can('document.create')): ?><a href="/documents/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Document</a><?php endif; ?></div>
+  <div class="page-actions"><a href="/documents/export?<?= Security::h(http_build_query(['type' => $_GET['type'] ?? '', 'status' => $_GET['status'] ?? '', 'space' => $_GET['space'] ?? '', 'q' => $_GET['q'] ?? ''])) ?>" class="btn btn-ghost"><i class="bi bi-filetype-csv"></i> Export register</a><?php if (Auth::can('document.create')): ?><a href="/documents/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Document</a><?php endif; ?></div>
 </div>
 
 <div class="stats-grid">

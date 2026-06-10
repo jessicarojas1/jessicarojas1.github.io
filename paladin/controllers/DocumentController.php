@@ -46,6 +46,46 @@ class DocumentController {
         require PALADIN_ROOT . '/views/documents/index.php';
     }
 
+    /** Export the (filtered) controlled-document register as CSV. */
+    public function exportRegister(): void {
+        Auth::requirePermission('document.view');
+        $type   = Security::sanitizeInput($_GET['type'] ?? '');
+        $status = Security::sanitizeInput($_GET['status'] ?? '');
+        $space  = !empty($_GET['space']) ? (int)$_GET['space'] : null;
+        $q      = Security::sanitizeInput($_GET['q'] ?? '');
+
+        $where = ['1=1']; $params = [];
+        if ($type && in_array($type, View::docTypes(), true)) { $where[] = 'd.doc_type = ?'; $params[] = $type; }
+        if ($status) { $where[] = 'd.status = ?'; $params[] = $status; }
+        if ($space)  { $where[] = 'd.space_id = ?'; $params[] = $space; }
+        if ($q) { $where[] = '(d.title ILIKE ? OR d.document_code ILIKE ? OR d.description ILIKE ?)'; array_push($params, "%$q%", "%$q%", "%$q%"); }
+        $whereSql = implode(' AND ', $where);
+
+        $rows = Database::fetchAll(
+            "SELECT d.document_code, d.title, d.doc_type, d.status, d.revision, d.classification,
+                    s.space_key, o.name AS owner_name, d.review_date, d.expiration_date, d.updated_at
+             FROM documents d LEFT JOIN spaces s ON s.id=d.space_id LEFT JOIN users o ON o.id=d.owner_id
+             WHERE {$whereSql} ORDER BY d.document_code",
+            $params
+        );
+        Auth::log('export_document_register', 'documents', null, ['count' => count($rows)]);
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="document-register-' . date('Ymd') . '.csv"');
+        header('X-Content-Type-Options: nosniff');
+        $out = fopen('php://output', 'w');
+        fwrite($out, "\xEF\xBB\xBF");
+        fputcsv($out, ['Code', 'Title', 'Type', 'Status', 'Revision', 'Classification', 'Space', 'Owner', 'Review Date', 'Expiration Date', 'Last Updated']);
+        foreach ($rows as $r) {
+            fputcsv($out, [
+                $r['document_code'], $r['title'], View::docTypeLabel((string)$r['doc_type']), $r['status'],
+                $r['revision'], $r['classification'] ?? '', $r['space_key'] ?? '', $r['owner_name'] ?? '',
+                $r['review_date'] ?? '', $r['expiration_date'] ?? '', $r['updated_at'],
+            ]);
+        }
+        fclose($out);
+    }
+
     /** Bulk operations on selected documents: archive / label. */
     public function bulk(): void {
         Auth::requirePermission('document.edit');
