@@ -32,6 +32,9 @@ ob_start();
 
 <div style="display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start">
   <div>
+    <?php if (!empty($page['scheduled_publish_at']) && $page['status'] !== 'published'): ?>
+      <div class="banner" style="margin-bottom:14px;background:var(--card-bg);border:1px solid var(--warning)"><i class="bi bi-calendar-event" style="color:var(--warning)"></i><div class="banner-body">Scheduled to publish on <strong><?= View::fmtDate($page['scheduled_publish_at'], 'M j, Y g:ia') ?></strong>. It will go live automatically.</div></div>
+    <?php endif; ?>
     <?php $icCanComment = Auth::can('page.comment'); ?>
     <div class="card">
       <div class="card-body">

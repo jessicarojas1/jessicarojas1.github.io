@@ -6,6 +6,7 @@ class DashboardController {
     public function index(): void {
         Auth::requireAuth();
         $uid = Auth::id();
+        Scheduler::runDuePages(); // opportunistic cron-free sweep for due scheduled publishes
 
         $stats = [
             'documents'   => (int)(Database::fetchOne("SELECT COUNT(*) c FROM documents")['c'] ?? 0),

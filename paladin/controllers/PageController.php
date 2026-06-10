@@ -284,6 +284,24 @@ class PageController {
         $parent = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
         $newVersion = (int)$page['current_version'] + 1;
 
+        // Scheduled publishing: a future time set on a not-yet-published page.
+        // Cleared automatically once the page is published or the field is blank.
+        $scheduledAt = $page['scheduled_publish_at'] ?? null;
+        if ($status === 'published') {
+            $scheduledAt = null;
+        } else {
+            $raw = trim((string)($_POST['scheduled_publish_at'] ?? ''));
+            if ($raw === '') {
+                $scheduledAt = null;
+            } else {
+                $ts = strtotime($raw);
+                $scheduledAt = ($ts && $ts > time()) ? date('Y-m-d H:i:s', $ts) : null;
+                if ($raw !== '' && $scheduledAt === null) {
+                    $_SESSION['flash_error'] = 'Schedule time must be in the future — page saved without a schedule.';
+                }
+            }
+        }
+
         Database::update('pages', [
             'title'           => $title,
             'body'            => $body,
@@ -291,6 +309,7 @@ class PageController {
             'parent_id'       => $parent,
             'current_version' => $newVersion,
             'published_at'    => $status === 'published' ? ($page['published_at'] ?: date('Y-m-d H:i:s')) : $page['published_at'],
+            'scheduled_publish_at' => $scheduledAt,
         ], 'id = ?', [$id]);
         Database::insert('page_versions', [
             'page_id' => $id, 'version' => $newVersion, 'title' => $title, 'body' => $body,
