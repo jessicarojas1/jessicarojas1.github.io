@@ -124,7 +124,7 @@ $relLabels = ['related_process'=>'Process','related_risk'=>'Risk','related_contr
     </div></div>
     <?php endif; ?>
 
-    <div class="card" style="margin-bottom:18px"><div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-patch-check"></i> Acknowledgements (<?= count($acks) ?>)</span></div></div><div class="card-body">
+    <div class="card" style="margin-bottom:18px"><div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-patch-check"></i> Acknowledgements (<?= count($acks) ?>)</span></div><?php if ($acks): ?><a href="/documents/<?= (int)$doc['id'] ?>/acknowledgements.csv" class="btn btn-sm btn-ghost" title="Export acknowledgements as CSV"><i class="bi bi-filetype-csv"></i></a><?php endif; ?></div><div class="card-body">
       <?php foreach (array_slice($acks, 0, 8) as $a): ?><div style="display:flex;align-items:center;gap:8px;padding:4px 0"><?= View::avatar($a['user_name'], 'sm') ?><div style="flex:1"><div style="font-size:.83rem;font-weight:500"><?= Security::h($a['user_name']) ?></div><div class="form-hint">rev <?= Security::h($a['revision']) ?> · <?= View::timeAgo($a['acknowledged_at']) ?></div></div></div><?php endforeach; ?>
       <?php if (!$acks): ?><div class="empty-state-sm">No acknowledgements recorded.</div><?php endif; ?>
     </div></div>

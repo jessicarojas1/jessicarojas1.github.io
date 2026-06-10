@@ -439,6 +439,34 @@ class DocumentController {
         echo $bytes;
     }
 
+    /** Export a document's acknowledgement record (compliance evidence) as CSV. */
+    public function exportAcks(int $id): void {
+        Auth::requirePermission('document.view');
+        $doc = Database::fetchOne("SELECT id, document_code, title FROM documents WHERE id = ?", [$id]);
+        if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+
+        $rows = Database::fetchAll(
+            "SELECT u.name AS user_name, u.email, u.department, da.revision, da.acknowledged_at
+             FROM document_acknowledgements da JOIN users u ON u.id = da.user_id
+             WHERE da.document_id = ? ORDER BY da.acknowledged_at DESC", [$id]
+        );
+        Auth::log('export_document_acks', 'documents', $id, ['count' => count($rows)]);
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . preg_replace('/[^A-Za-z0-9._-]/', '', $doc['document_code'] . '-acknowledgements') . '.csv"');
+        header('X-Content-Type-Options: nosniff');
+        $out = fopen('php://output', 'w');
+        fwrite($out, "\xEF\xBB\xBF");
+        fputcsv($out, ['Document', 'Title', 'User', 'Email', 'Department', 'Revision', 'Acknowledged At']);
+        foreach ($rows as $r) {
+            fputcsv($out, [
+                $doc['document_code'], $doc['title'], $r['user_name'], $r['email'] ?? '',
+                $r['department'] ?? '', $r['revision'], $r['acknowledged_at'],
+            ]);
+        }
+        fclose($out);
+    }
+
     public function download(int $id): void {
         Auth::requirePermission('document.view');
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
