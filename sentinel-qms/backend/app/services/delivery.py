@@ -23,6 +23,7 @@ from email.message import EmailMessage
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.net_guard import is_public_http_url
 
 logger = logging.getLogger("app.notifications")
 
@@ -90,6 +91,9 @@ def resolve_channels(db: Session) -> ChannelConfig:
 
 def _post_json(url: str, payload: dict) -> tuple[bool, str]:
     """POST a JSON body to ``url`` (stdlib). Returns (ok, detail), never raises."""
+    if not is_public_http_url(url):
+        logger.warning("webhook blocked: non-public URL")
+        return False, "blocked: webhook URL must resolve to a public address"
     try:
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(
