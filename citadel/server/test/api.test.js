@@ -61,6 +61,19 @@ test('login → access+refresh; /me resolves; refresh token cannot auth', async 
   assert.equal(me2.status, 200);
 });
 
+test('login sets an httpOnly refresh cookie that can mint a new access token', async () => {
+  const r = await api('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@citadel.local', password: 'citadel-admin' }) });
+  const setCookie = (r.headers.getSetCookie ? r.headers.getSetCookie() : [r.headers.get('set-cookie')]).join('\n');
+  assert.match(setCookie, /citadel_rt=.+HttpOnly/i);
+  assert.match(setCookie, /Secure/i); assert.match(setCookie, /SameSite=Strict/i);
+  const m = setCookie.match(/citadel_rt=([^;]+)/);
+  // refresh using ONLY the cookie (empty body) succeeds
+  const refreshed = await json('/api/auth/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json', Cookie: 'citadel_rt=' + m[1] }, body: '{}' });
+  assert.equal(refreshed.status, 200); assert.ok(refreshed.body.token);
+  // refresh with neither cookie nor body is rejected
+  assert.equal((await api('/api/auth/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).status, 401);
+});
+
 test('bad credentials are rejected', async () => {
   const r = await api('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@citadel.local', password: 'nope' }) });
   assert.equal(r.status, 401);

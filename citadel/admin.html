@@ -381,7 +381,8 @@
      * from the client auth.js so labels/columns are identical in both modes.
      * ===================================================================== */
     const JWT_KEY = 'citadel.jwt';
-    const REFRESH_KEY = 'citadel.refresh';
+    const SESSION_KEY = 'citadel.session';   // refresh token now lives in an httpOnly cookie
+    try { localStorage.removeItem('citadel.refresh'); } catch (e) {}
     const DA = {
       mode: 'local',
       // shared constants (identical in both modes)
@@ -396,14 +397,15 @@
 
       token() { try { return localStorage.getItem(JWT_KEY) || ''; } catch (e) { return ''; } },
       _setToken(t) { try { t ? localStorage.setItem(JWT_KEY, t) : localStorage.removeItem(JWT_KEY); } catch (e) {} },
-      _refreshTok() { try { return localStorage.getItem(REFRESH_KEY) || ''; } catch (e) { return ''; } },
-      _setRefresh(t) { try { t ? localStorage.setItem(REFRESH_KEY, t) : localStorage.removeItem(REFRESH_KEY); } catch (e) {} },
-      _setTokens(out) { if (out && out.token) this._setToken(out.token); if (out && out.refreshToken) this._setRefresh(out.refreshToken); },
+      _hasSession() { try { return !!localStorage.getItem(SESSION_KEY); } catch (e) { return false; } },
+      _setSession(on) { try { on ? localStorage.setItem(SESSION_KEY, '1') : localStorage.removeItem(SESSION_KEY); } catch (e) {} },
+      _setTokens(out) { if (out && out.token) { this._setToken(out.token); this._setSession(true); } },
       async _refresh() {
-        const r = this._refreshTok(); if (!r) return false;
+        if (!this._hasSession()) return false;
         try {
-          const res = await fetch('api/auth/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: r }) });
-          if (!res.ok) { if (res.status === 401) { this._setToken(''); this._setRefresh(''); } return false; }
+          // The refresh token rides the httpOnly cookie (sent automatically).
+          const res = await fetch('api/auth/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+          if (!res.ok) { if (res.status === 401) { this._setToken(''); this._setSession(false); } return false; }
           const j = await res.json(); if (j && j.token) { this._setToken(j.token); return true; } return false;
         } catch (e) { return false; }
       },
@@ -420,7 +422,7 @@
           body: opts.body != null ? JSON.stringify(opts.body) : undefined
         });
         // Transparently refresh an expired access token once.
-        if (res.status === 401 && !_retried && this._refreshTok()) {
+        if (res.status === 401 && !_retried && this._hasSession()) {
           if (await this._refresh()) return this._api(path, opts, true);
         }
         let data = null;
@@ -535,7 +537,9 @@
 
       logout() {
         if (this.mode === 'backend') {
-          this._setToken(''); this._setRefresh(''); this._me = null; this._users = [];
+          // Tell the server to revoke the session + clear the httpOnly refresh cookie.
+          try { fetch('api/auth/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + this.token() } }); } catch (e) {}
+          this._setToken(''); this._setSession(false); this._me = null; this._users = [];
         } else {
           auth.logout();
         }

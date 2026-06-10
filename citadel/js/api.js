@@ -8,15 +8,20 @@
   'use strict';
   const CITADEL = root.CITADEL = root.CITADEL || {};
   let _status = null;
-  const TKEY = 'citadel.jwt';        // access token
-  const RKEY = 'citadel.refresh';    // refresh token
+  const TKEY = 'citadel.jwt';        // short-lived access token (Bearer)
+  const SKEY = 'citadel.session';    // marker: an httpOnly refresh cookie likely exists
+  // One-time migration: drop any refresh token left in localStorage by older
+  // builds — the refresh token now lives only in an httpOnly cookie.
+  try { localStorage.removeItem('citadel.refresh'); } catch (e) {}
 
   function getToken() { try { return localStorage.getItem(TKEY) || null; } catch (e) { return null; } }
   function setToken(t) { try { t ? localStorage.setItem(TKEY, t) : localStorage.removeItem(TKEY); } catch (e) {} }
-  function getRefresh() { try { return localStorage.getItem(RKEY) || null; } catch (e) { return null; } }
-  function setRefresh(t) { try { t ? localStorage.setItem(RKEY, t) : localStorage.removeItem(RKEY); } catch (e) {} }
-  function setTokens(j) { if (j && j.token) setToken(j.token); if (j && j.refreshToken) setRefresh(j.refreshToken); }
-  function clearTokens() { setToken(null); setRefresh(null); }
+  function hasSession() { try { return !!localStorage.getItem(SKEY); } catch (e) { return false; } }
+  function setSession(on) { try { on ? localStorage.setItem(SKEY, '1') : localStorage.removeItem(SKEY); } catch (e) {} }
+  // Back-compat shim: callers used getRefresh() to mean "can we refresh?".
+  function getRefresh() { return hasSession() ? '1' : null; }
+  function setTokens(j) { if (j && j.token) { setToken(j.token); setSession(true); } }
+  function clearTokens() { setToken(null); setSession(false); }
   function authHeader() { const t = getToken(); return t ? { Authorization: 'Bearer ' + t } : {}; }
 
   async function available() {
@@ -33,13 +38,13 @@
     } catch (e) { _status = false; return false; }
   }
 
-  // Exchange the refresh token for a fresh access token. Returns true on success.
+  // Exchange the httpOnly refresh cookie for a fresh access token. The cookie is
+  // sent automatically (same-origin); script never sees it. Returns true on success.
   async function refresh() {
-    const r = getRefresh();
-    if (!r) return false;
+    if (!hasSession()) return false;
     try {
       const res = await fetch('api/auth/refresh', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: r })
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
       });
       if (!res.ok) { if (res.status === 401) clearTokens(); return false; }
       const j = await res.json();
@@ -53,7 +58,7 @@
     opts = opts || {};
     opts.headers = Object.assign({}, opts.headers || {}, authHeader());
     const res = await fetch(url, opts);
-    if (res.status === 401 && retry !== false && getRefresh()) {
+    if (res.status === 401 && retry !== false && hasSession()) {
       if (await refresh()) { return apiFetch(url, opts, false); }
     }
     return res;

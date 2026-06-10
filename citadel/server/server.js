@@ -86,6 +86,20 @@ function issueTokens(u, req) {
   return { token, refreshToken, expiresIn: ACCESS_TTL, user: u };
 }
 
+// The refresh token is the long-lived, high-value credential — keep it OUT of
+// JS-readable storage by binding it to an httpOnly, Secure, SameSite cookie
+// scoped to the auth routes. The browser sends it automatically on /api/auth/*;
+// script (and thus XSS) cannot read it. The access token stays a Bearer token.
+const RT_COOKIE = 'citadel_rt';
+function setRefreshCookie(res, rt) {
+  res.append('Set-Cookie', RT_COOKIE + '=' + rt + '; Path=/api/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=' + REFRESH_TTL);
+}
+function clearRefreshCookie(res) {
+  res.append('Set-Cookie', RT_COOKIE + '=; Path=/api/auth; HttpOnly; Secure; SameSite=Strict; Max-Age=0');
+}
+// Set the refresh cookie from an issueTokens() payload and return the payload.
+function withRt(res, tokens) { setRefreshCookie(res, tokens.refreshToken); return tokens; }
+
 // Reusable fixed-window limiter middleware keyed by IP + route bucket.
 function rateLimited(bucket, max, windowMs) {
   return async (req, res, next) => {
@@ -281,7 +295,7 @@ app.post('/api/auth/login', rateLimited('login', 20, 15 * 60000), async (req, re
   }
   metrics.inc('citadel_logins_total', { result: 'success' });
   audit.record('login.success', { actor: u.email, ip, detail: 'role=' + u.role, ok: true });
-  res.json(issueTokens(u, req));
+  res.json(withRt(res, issueTokens(u, req)));
 });
 
 // Step-up: complete an MFA login with a TOTP code or a one-time backup code.
@@ -298,12 +312,14 @@ app.post('/api/auth/mfa/verify', rateLimited('mfa', 20, 15 * 60000), (req, res) 
   }
   metrics.inc('citadel_logins_total', { result: 'success' });
   audit.record('login.success', { actor: u.email, ip, detail: 'mfa', ok: true });
-  res.json(issueTokens(u, req));
+  res.json(withRt(res, issueTokens(u, req)));
 });
 
 // Exchange a valid refresh token for a fresh access token (same session jti).
 app.post('/api/auth/refresh', rateLimited('refresh', 60, 15 * 60000), (req, res) => {
-  const p = jwt.verify((req.body && req.body.refreshToken) || '', users.secret());
+  // Prefer the httpOnly cookie; fall back to a body token for API/test clients.
+  const rt = cookie(req, RT_COOKIE) || (req.body && req.body.refreshToken) || '';
+  const p = jwt.verify(rt, users.secret());
   if (!p || p.typ !== 'refresh' || !p.sub || !p.jti) return res.status(401).json({ error: 'Invalid refresh token.' });
   if (sessions.isRevoked(p.jti)) return res.status(401).json({ error: 'Session revoked.' });
   const u = users.get(p.sub);
@@ -385,21 +401,24 @@ app.get('/api/auth/oidc/callback', async (req, res) => {
     if (!identity) { audit.record('login.sso_denied', { actor: (claims && claims.email) || null, ip, detail: 'domain not allowed', ok: false }); return res.status(403).send('Your account is not permitted to sign in.'); }
     const u = users.upsertSsoUser(identity);
     const out = issueTokens(u, req);
+    setRefreshCookie(res, out.refreshToken);   // refresh token stays in the httpOnly cookie, not the page
     metrics.inc('citadel_logins_total', { result: 'sso' });
     audit.record('login.success', { actor: u.email, ip, detail: 'sso role=' + u.role, ok: true });
-    // Hand the tokens to the SPA via a same-origin page (not a URL fragment).
+    // Hand only the (short-lived) access token to the SPA via a same-origin page
+    // (not a URL fragment); the refresh token never touches JS-readable storage.
     const nonce = crypto.randomBytes(16).toString('base64');
     res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'nonce-" + nonce + "'");
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    const payload = JSON.stringify({ t: out.token, r: out.refreshToken, dest: OIDC_POST_LOGIN })
+    res.setHeader('Cache-Control', 'no-store');
+    const payload = JSON.stringify({ t: out.token, dest: OIDC_POST_LOGIN })
       .replace(/</g, '\\u003c');
     res.send('<!doctype html><meta charset="utf-8"><title>Signing in…</title>' +
       '<body style="font:14px system-ui;padding:2rem">Signing you in…' +
-      '<script nonce="' + nonce + '">(function(){var d=' + payload + ';try{localStorage.setItem("citadel.jwt",d.t);localStorage.setItem("citadel.refresh",d.r);}catch(e){}location.replace(d.dest);})();</script></body>');
+      '<script nonce="' + nonce + '">(function(){var d=' + payload + ';try{localStorage.setItem("citadel.jwt",d.t);localStorage.setItem("citadel.session","1");}catch(e){}location.replace(d.dest);})();</script></body>');
   } catch (e) {
     log.error('oidc callback', { err: e.message });
     audit.record('login.sso_error', { ip, detail: e.message.slice(0, 120), ok: false });
-    res.status(400).send('SSO sign-in failed: ' + e.message);
+    res.status(400).type('text/plain').send('SSO sign-in failed. Please try again.');
   }
 });
 app.get('/api/auth/settings', (req, res) => res.json(users.settings()));
@@ -460,6 +479,7 @@ app.delete('/api/scans/:id', requirePerm('tab-history'), async (req, res) => {
 // Log out the current session (revokes this token server-side).
 app.post('/api/auth/logout', (req, res) => {
   if (req.jti) { sessions.revoke(req.jti); audit.record('session.logout', { actor: req.user && req.user.email, ip: clientIp(req), detail: 'self', ok: true }); }
+  clearRefreshCookie(res);
   res.json({ ok: true });
 });
 // The caller's own active sessions (marks which one is the current request).
