@@ -243,6 +243,22 @@ ob_start();
   </div>
   <?php endif; ?>
 
+  <!-- Watchers -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-eye-fill"></i> Watchers (<?= count($watchers) ?>)</span></div></div>
+    <div class="card-body">
+      <?php if ($watchers): ?>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <?php foreach ($watchers as $w): ?>
+            <span class="chip" style="display:inline-flex;align-items:center;gap:5px"><?= View::avatar($w['name'], 'sm') ?><?= Security::h($w['name']) ?></span>
+          <?php endforeach; ?>
+        </div>
+      <?php else: ?>
+        <div class="empty-state-sm">No one is watching this page yet. Use the <i class="bi bi-eye"></i> button to get change alerts.</div>
+      <?php endif; ?>
+    </div>
+  </div>
+
   <!-- Attachments -->
   <div class="card" style="margin-bottom:18px">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-paperclip"></i> Attachments (<?= count($attachments) ?>)</span></div></div>

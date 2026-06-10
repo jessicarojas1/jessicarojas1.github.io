@@ -348,6 +348,7 @@ $dynamicRoutes = [
         '#^/approvals/(\d+)/cancel$#'        => ['ApprovalController', 'cancel'],
         '#^/tasks/(\d+)/edit$#'              => ['TaskController', 'update'],
         '#^/tasks/(\d+)/complete$#'          => ['TaskController', 'complete'],
+        '#^/tasks/(\d+)/delete$#'            => ['TaskController', 'delete'],
         '#^/blog/(\d+)/edit$#'               => ['BlogController', 'update'],
         '#^/blog/(\d+)/delete$#'             => ['BlogController', 'delete'],
         '#^/blog/(\d+)/comment$#'            => ['BlogController', 'comment'],

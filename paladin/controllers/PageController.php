@@ -151,6 +151,10 @@ class PageController {
         $cReactions = Reactions::summary('comment', array_map(fn($c) => (int)$c['id'], $comments));
         $versionCount = (int)(Database::fetchOne("SELECT COUNT(*) c FROM page_versions WHERE page_id=?", [$id])['c'] ?? 0);
         $isWatching = (bool)Database::fetchOne("SELECT 1 FROM watches WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
+        $watchers = Database::fetchAll(
+            "SELECT u.id, u.name FROM watches w JOIN users u ON u.id=w.user_id
+             WHERE w.entity_type='page' AND w.entity_id=? ORDER BY u.name", [$id]
+        );
         $isFav = (bool)Database::fetchOne("SELECT 1 FROM favorites WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
         $moveSpaces = Auth::can('page.edit')
             ? Database::fetchAll("SELECT id, name, space_key FROM spaces WHERE is_archived=FALSE AND id <> ? ORDER BY name", [(int)$page['space_id']])

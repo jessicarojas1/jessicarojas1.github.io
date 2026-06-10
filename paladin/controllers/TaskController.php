@@ -168,4 +168,16 @@ class TaskController {
         $_SESSION['flash_success'] = 'Task marked complete.';
         header('Location: /tasks/' . $id);
     }
+
+    public function delete(int $id): void {
+        Auth::requirePermission('task.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $task = Database::fetchOne("SELECT id, title FROM tasks WHERE id = ?", [$id]);
+        if (!$task) { http_response_code(404); return; }
+
+        Database::query("DELETE FROM tasks WHERE id = ?", [$id]);
+        Auth::log('delete_task', 'tasks', $id, ['title' => $task['title']]);
+        $_SESSION['flash_success'] = 'Task deleted.';
+        header('Location: /tasks');
+    }
 }
