@@ -76,6 +76,7 @@
         </a>
         <a href="/workflows" class="nav-item <?= ($activeModule ?? '')==='workflows'?'active':'' ?>"><i class="bi bi-diagram-2-fill"></i><span>Workflows</span></a>
         <a href="/tasks"     class="nav-item <?= ($activeModule ?? '')==='tasks'?'active':'' ?>"><i class="bi bi-list-task"></i><span>Tasks</span></a>
+        <a href="/calendar"  class="nav-item <?= ($activeModule ?? '')==='calendar'?'active':'' ?>"><i class="bi bi-calendar3"></i><span>Calendar</span></a>
         <?php if (Auth::can('document.publish')): ?>
         <a href="/campaigns" class="nav-item <?= ($activeModule ?? '')==='campaigns'?'active':'' ?>"><i class="bi bi-megaphone-fill"></i><span>Campaigns</span></a>
         <?php endif; ?>
