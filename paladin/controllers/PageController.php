@@ -152,6 +152,9 @@ class PageController {
         $versionCount = (int)(Database::fetchOne("SELECT COUNT(*) c FROM page_versions WHERE page_id=?", [$id])['c'] ?? 0);
         $isWatching = (bool)Database::fetchOne("SELECT 1 FROM watches WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
         $isFav = (bool)Database::fetchOne("SELECT 1 FROM favorites WHERE user_id=? AND entity_type='page' AND entity_id=?", [Auth::id(), $id]);
+        $moveSpaces = Auth::can('page.edit')
+            ? Database::fetchAll("SELECT id, name, space_key FROM spaces WHERE is_archived=FALSE AND id <> ? ORDER BY name", [(int)$page['space_id']])
+            : [];
         $inlineComments = Database::fetchAll(
             "SELECT ic.*, u.name AS user_name, r.name AS resolver_name
              FROM inline_comments ic LEFT JOIN users u ON u.id=ic.user_id LEFT JOIN users r ON r.id=ic.resolved_by
@@ -519,6 +522,78 @@ class PageController {
             Auth::log('move_page', 'pages', $id, ['dir' => $dir]);
         }
         header('Location: /spaces/' . (int)$page['space_id']);
+    }
+
+    /** Duplicate a page into the same space as a fresh "Copy of …" draft. */
+    public function duplicate(int $id): void {
+        Auth::requirePermission('page.create');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $page = $this->guardView($id);
+        if (!$page) return;
+
+        $title = 'Copy of ' . $page['title'];
+        $title = mb_substr($title, 0, 255);
+        $body  = (string)$page['body'];
+        $newId = Database::insert('pages', [
+            'space_id'   => (int)$page['space_id'],
+            'parent_id'  => $page['parent_id'] !== null ? (int)$page['parent_id'] : null,
+            'title'      => $title,
+            'slug'       => substr(preg_replace('/[^a-z0-9]+/', '-', strtolower($title)), 0, 200),
+            'body'       => $body,
+            'status'     => 'draft',
+            'owner_id'   => Auth::id(),
+            'created_by' => Auth::id(),
+            'published_at' => null,
+        ]);
+        Database::insert('page_versions', ['page_id' => $newId, 'version' => 1, 'title' => $title, 'body' => $body, 'change_note' => 'Duplicated from page #' . $id, 'edited_by' => Auth::id()]);
+        // Carry over labels (best-effort).
+        try {
+            Database::query(
+                "INSERT INTO entity_tags (tag_id, entity_type, entity_id)
+                 SELECT tag_id, 'page', ? FROM entity_tags WHERE entity_type='page' AND entity_id=?
+                 ON CONFLICT DO NOTHING", [$newId, $id]
+            );
+        } catch (Throwable) {}
+        PageTasks::sync($newId, $body);
+        PageProps::sync($newId, $body);
+        Auth::log('duplicate_page', 'pages', $newId, ['from' => $id]);
+        $_SESSION['flash_success'] = 'Page duplicated as a draft.';
+        header('Location: /pages/' . $newId . '/edit');
+    }
+
+    /** Move a page (and its whole subtree) to another space. */
+    public function moveToSpace(int $id): void {
+        Auth::requirePermission('page.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $page = $this->guardEdit($id);
+        if (!$page) return;
+        $targetSpace = (int)($_POST['target_space_id'] ?? 0);
+        if (!$targetSpace || $targetSpace === (int)$page['space_id']) {
+            $_SESSION['flash_error'] = 'Choose a different destination space.';
+            header('Location: /pages/' . $id); return;
+        }
+        $dest = Database::fetchOne("SELECT id FROM spaces WHERE id = ? AND is_archived = FALSE", [$targetSpace]);
+        if (!$dest) {
+            $_SESSION['flash_error'] = 'You cannot move pages into that space.';
+            header('Location: /pages/' . $id); return;
+        }
+        // Collect the subtree (BFS) so every descendant follows the page.
+        $subtree = [$id]; $frontier = [$id]; $guard = 0;
+        while ($frontier && $guard++ < 1000) {
+            $place = implode(',', array_fill(0, count($frontier), '?'));
+            $kids = Database::fetchAll("SELECT id FROM pages WHERE parent_id IN ($place) AND deleted_at IS NULL", $frontier);
+            $frontier = array_map(fn($r) => (int)$r['id'], $kids);
+            foreach ($frontier as $k) { if (!in_array($k, $subtree, true)) $subtree[] = $k; }
+        }
+        $place = implode(',', array_fill(0, count($subtree), '?'));
+        Database::query("UPDATE pages SET space_id = ?, updated_at = NOW() WHERE id IN ($place)", array_merge([$targetSpace], $subtree));
+        // The moved root detaches from its old parent and lands at the space root.
+        Database::query("UPDATE pages SET parent_id = NULL WHERE id = ?", [$id]);
+        Auth::log('move_page_space', 'pages', $id, ['to_space' => $targetSpace, 'pages' => count($subtree)]);
+        $_SESSION['flash_success'] = count($subtree) > 1
+            ? ('Moved this page and ' . (count($subtree) - 1) . ' descendant(s).')
+            : 'Page moved.';
+        header('Location: /pages/' . $id);
     }
 
     /** Set (or clear) this page as its space's homepage — space managers only. */
