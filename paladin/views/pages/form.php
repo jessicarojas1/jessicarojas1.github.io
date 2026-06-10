@@ -39,6 +39,12 @@ ob_start();
           </select>
         </div>
       </div>
+      <?php if ($editing && Auth::can('page.publish')): $schedVal = !empty($page['scheduled_publish_at']) ? date('Y-m-d\TH:i', strtotime((string)$page['scheduled_publish_at'])) : ''; ?>
+      <div class="form-group"><label class="form-label"><i class="bi bi-calendar-event"></i> Schedule publish <span class="form-hint">(optional — ignored when status is Published)</span></label>
+        <input type="datetime-local" name="scheduled_publish_at" class="form-control" value="<?= Security::h($schedVal) ?>">
+        <p class="form-hint">Leave the status as Draft/In Review and pick a future time; the page auto-publishes once that time passes.</p>
+      </div>
+      <?php endif; ?>
       <?php if (!$editing && !empty($templates)): ?>
       <div class="form-group"><label class="form-label">Start from template (optional)</label>
         <select class="form-select" id="tplPicker">
