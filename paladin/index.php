@@ -238,6 +238,7 @@ $routes = [
         '/admin/branding'            => ['AdminController', 'saveBranding'],
         '/admin/settings'            => ['AdminController', 'saveSettings'],
         '/admin/saml'                => ['AdminController', 'saveSaml'],
+        '/admin/saml/import'         => ['AdminController', 'importSamlMetadata'],
         '/admin/oidc'                => ['AdminController', 'saveOidc'],
         '/admin/tags'                => ['AdminController', 'createTag'],
         '/admin/shortcuts'           => ['AdminController', 'createShortcut'],

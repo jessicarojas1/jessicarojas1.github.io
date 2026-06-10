@@ -55,6 +55,51 @@ final class Saml {
         return $c['enabled'] && $c['idp_sso_url'] !== '' && $c['idp_cert'] !== '';
     }
 
+    /**
+     * Parse an IdP SAML metadata XML document into the settings we care about:
+     * entity id, Redirect-binding SSO/SLO URLs and the signing certificate.
+     * XXE-safe (DOCTYPE rejected, no external entities).
+     * @return array{idp_entity_id:string,idp_sso_url:string,idp_slo_url:string,idp_cert:string}
+     * @throws RuntimeException on malformed metadata.
+     */
+    public static function parseIdpMetadata(string $xml): array {
+        $xml = trim($xml);
+        if ($xml === '') { throw new \RuntimeException('No metadata supplied'); }
+        if (preg_match('/<!DOCTYPE/i', $xml)) { throw new \RuntimeException('DOCTYPE not allowed'); }
+
+        $doc = new \DOMDocument();
+        $doc->resolveExternals = false;
+        $doc->substituteEntities = false;
+        if (!@$doc->loadXML($xml, LIBXML_NONET)) { throw new \RuntimeException('Invalid metadata XML'); }
+
+        $xp = new \DOMXPath($doc);
+        $xp->registerNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
+        $xp->registerNamespace('ds', self::NS_DS);
+
+        $entityId = trim($xp->evaluate('string(//md:EntityDescriptor/@entityID)'));
+        $idp = $xp->query('//md:IDPSSODescriptor')->item(0);
+        if (!$idp instanceof \DOMElement) { throw new \RuntimeException('No IDPSSODescriptor in metadata'); }
+
+        $redirect = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect';
+        $ssoUrl = trim($xp->evaluate("string(md:SingleSignOnService[@Binding=" . self::xpathLiteral($redirect) . "]/@Location)", $idp));
+        $sloUrl = trim($xp->evaluate("string(md:SingleLogoutService[@Binding=" . self::xpathLiteral($redirect) . "]/@Location)", $idp));
+
+        // Prefer a signing KeyDescriptor; fall back to one without a use attribute.
+        $cert = trim($xp->evaluate("string(md:KeyDescriptor[@use='signing']//ds:X509Certificate)", $idp));
+        if ($cert === '') { $cert = trim($xp->evaluate("string(md:KeyDescriptor[not(@use)]//ds:X509Certificate)", $idp)); }
+        if ($cert === '') { $cert = trim($xp->evaluate("string(.//ds:X509Certificate)", $idp)); }
+
+        if ($ssoUrl === '' || $cert === '') {
+            throw new \RuntimeException('Metadata is missing a Redirect SSO URL or signing certificate');
+        }
+        return [
+            'idp_entity_id' => $entityId,
+            'idp_sso_url'   => $ssoUrl,
+            'idp_slo_url'   => $sloUrl,
+            'idp_cert'      => preg_replace('/\s+/', '', $cert) ?? $cert,
+        ];
+    }
+
     public static function acsUrl(): string {
         return self::baseUrl() . '/saml/acs';
     }
