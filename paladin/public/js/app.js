@@ -1100,3 +1100,75 @@ document.addEventListener('click', function(e) {
     a.addEventListener('mouseleave', function () { a.style.background = ''; });
   });
 })();
+
+/* ── @mention autocomplete for comment/reply textareas ────────────────────── */
+(function () {
+  var box = null, active = -1, items = [], targetTa = null, timer = null;
+
+  function removeBox() { if (box) { box.remove(); box = null; } active = -1; items = []; }
+
+  function buildBox(ta) {
+    removeBox();
+    box = document.createElement('div');
+    box.className = 'mention-suggest';
+    box.style.cssText = 'position:absolute;z-index:70;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.22);min-width:200px;max-height:230px;overflow:auto;padding:4px';
+    var r = ta.getBoundingClientRect();
+    box.style.left = (window.scrollX + r.left + 8) + 'px';
+    box.style.top = (window.scrollY + r.bottom + 4) + 'px';
+    document.body.appendChild(box);
+    targetTa = ta;
+  }
+
+  function render() {
+    if (!box) return;
+    box.innerHTML = '';
+    items.forEach(function (u, i) {
+      var el = document.createElement('div');
+      el.textContent = u.name;
+      el.style.cssText = 'padding:7px 10px;border-radius:6px;cursor:pointer;font-size:.88rem' + (i === active ? ';background:var(--bg-secondary)' : '');
+      el.addEventListener('mousedown', function (e) { e.preventDefault(); choose(i); });
+      box.appendChild(el);
+    });
+  }
+
+  function choose(i) {
+    var u = items[i]; if (!u || !targetTa) return;
+    var ta = targetTa, val = ta.value, caret = ta.selectionStart;
+    var before = val.slice(0, caret).replace(/@([A-Za-z0-9._-]*)$/, '@' + u.handle + ' ');
+    ta.value = before + val.slice(caret);
+    var pos = before.length;
+    ta.focus(); ta.setSelectionRange(pos, pos);
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    removeBox();
+  }
+
+  function query(ta, term) {
+    fetch('/users/suggest?q=' + encodeURIComponent(term))
+      .then(function (r) { return r.json(); })
+      .then(function (list) {
+        items = list || [];
+        if (!items.length) { removeBox(); return; }
+        if (!box) buildBox(ta);
+        active = 0; render();
+      }).catch(function () { removeBox(); });
+  }
+
+  document.addEventListener('input', function (e) {
+    var ta = e.target;
+    if (!ta || ta.tagName !== 'TEXTAREA') return;
+    var before = ta.value.slice(0, ta.selectionStart);
+    var m = before.match(/@([A-Za-z0-9._-]{1,})$/);
+    if (!m) { removeBox(); return; }
+    clearTimeout(timer);
+    timer = setTimeout(function () { query(ta, m[1]); }, 150);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (!box || !items.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); active = (active + 1) % items.length; render(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); active = (active - 1 + items.length) % items.length; render(); }
+    else if (e.key === 'Enter') { e.preventDefault(); choose(active); }
+    else if (e.key === 'Escape') { removeBox(); }
+  });
+  document.addEventListener('click', function (e) { if (box && !box.contains(e.target)) removeBox(); });
+})();

@@ -168,6 +168,7 @@ $routes = [
         '/profile/edit'              => ['ProfileController', 'editForm'],
         '/profile/notifications'     => ['ProfileController', 'notifications'],
         '/profile/favorites'         => ['ProfileController', 'favorites'],
+        '/users/suggest'             => ['ProfileController', 'suggestUsers'],
         '/profile/tokens'            => ['ProfileController', 'tokens'],
         '/mfa/setup'                 => ['ProfileController', 'mfaSetupForm'],
         '/mfa/verify'                => ['AuthController', 'mfaVerifyForm'],
