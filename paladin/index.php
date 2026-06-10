@@ -274,6 +274,7 @@ $dynamicRoutes = [
     'GET' => [
         '#^/spaces/(\d+)$#'                  => ['SpaceController', 'view'],
         '#^/spaces/(\d+)/export$#'           => ['SpaceController', 'export'],
+        '#^/spaces/(\d+)/export-zip$#'       => ['SpaceController', 'exportPdfZip'],
         '#^/spaces/(\d+)/trash$#'            => ['PageController', 'trash'],
         '#^/spaces/(\d+)/edit$#'             => ['SpaceController', 'editForm'],
         '#^/spaces/(\d+)/pages/create$#'     => ['PageController', 'createForm'],
