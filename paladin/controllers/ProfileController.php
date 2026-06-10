@@ -109,6 +109,33 @@ class ProfileController {
         header('Location: /profile/notifications');
     }
 
+    /** The current user's active sessions across devices. */
+    public function sessions(): void {
+        Auth::requireAuth();
+        $current = session_id();
+        $sessions = Database::fetchAll(
+            "SELECT id, ip_address, user_agent, last_seen_at FROM active_sessions
+             WHERE user_id = ? ORDER BY last_seen_at DESC", [Auth::id()]
+        );
+        require PALADIN_ROOT . '/views/profile/sessions.php';
+    }
+
+    /** Sign out every other session, keeping the current one alive. */
+    public function revokeOtherSessions(): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $now = date('Y-m-d H:i:s');
+        // Time-based revocation invalidates sessions whose login predates it…
+        Database::update('users', ['sessions_revoked_at' => $now], 'id = ?', [Auth::id()]);
+        // …so lift this session's login_time past the cutoff to keep it signed in.
+        $_SESSION['user']['login_time'] = strtotime($now) + 5;
+        // Tidy the tracking table (the timestamp above is the real enforcement).
+        Database::query("DELETE FROM active_sessions WHERE user_id = ? AND id <> ?", [Auth::id(), session_id()]);
+        Auth::log('revoke_other_sessions', 'users', Auth::id());
+        $_SESSION['flash_success'] = 'Signed out of all other sessions.';
+        header('Location: /profile/sessions');
+    }
+
     /** My Favorites & Watches — the user's starred spaces/pages and watched items. */
     public function favorites(): void {
         Auth::requireAuth();
