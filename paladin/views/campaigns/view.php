@@ -22,6 +22,7 @@ $overdue = $campaign['due_date'] && $campaign['status'] === 'active' && strtotim
     </p>
   </div>
   <div class="page-header-actions">
+    <a href="/campaigns/<?= (int)$campaign['id'] ?>/export.csv" class="btn btn-light"><i class="bi bi-filetype-csv"></i> Export CSV</a>
     <?php if ($campaign['status'] === 'active' && $outstanding > 0): ?>
       <form method="POST" action="/campaigns/<?= (int)$campaign['id'] ?>/notify" style="display:inline;margin:0"><?= Security::csrfField() ?><button class="btn btn-light" type="submit"><i class="bi bi-bell-fill"></i> Remind outstanding (<?= $outstanding ?>)</button></form>
     <?php endif; ?>

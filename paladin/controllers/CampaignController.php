@@ -122,6 +122,44 @@ class CampaignController
         require PALADIN_ROOT . '/views/campaigns/view.php';
     }
 
+    /** Export campaign completion (who has/hasn't acknowledged) as CSV. */
+    public function exportCsv(int $id): void
+    {
+        $this->requireManage();
+        $campaign = Database::fetchOne(
+            "SELECT c.*, d.document_code FROM ack_campaigns c JOIN documents d ON d.id = c.document_id WHERE c.id = ?",
+            [$id]
+        );
+        if (!$campaign) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+
+        $targets = Database::fetchAll(
+            "SELECT u.name, u.email, u.department, t.notified_at, da.acknowledged_at
+             FROM ack_campaign_targets t
+             JOIN users u ON u.id = t.user_id
+             LEFT JOIN document_acknowledgements da
+                    ON da.user_id = t.user_id AND da.document_id = ? AND da.revision = ?
+             WHERE t.campaign_id = ?
+             ORDER BY (da.acknowledged_at IS NOT NULL), u.name",
+            [(int)$campaign['document_id'], $campaign['revision'], $id]
+        );
+        Auth::log('export_campaign', 'ack_campaigns', $id, ['count' => count($targets)]);
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . preg_replace('/[^A-Za-z0-9._-]/', '', 'campaign-' . $campaign['document_code'] . '-rev' . $campaign['revision']) . '.csv"');
+        header('X-Content-Type-Options: nosniff');
+        $out = fopen('php://output', 'w');
+        fwrite($out, "\xEF\xBB\xBF");
+        fputcsv($out, ['User', 'Email', 'Department', 'Status', 'Notified At', 'Acknowledged At']);
+        foreach ($targets as $t) {
+            fputcsv($out, [
+                $t['name'], $t['email'] ?? '', $t['department'] ?? '',
+                $t['acknowledged_at'] ? 'Acknowledged' : 'Outstanding',
+                $t['notified_at'] ?? '', $t['acknowledged_at'] ?? '',
+            ]);
+        }
+        fclose($out);
+    }
+
     public function notifyOutstanding(int $id): void
     {
         $this->requireManage();
