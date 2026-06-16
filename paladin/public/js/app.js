@@ -1196,3 +1196,37 @@ document.addEventListener('click', function(e) {
     btn.addEventListener('click', function () { actionInput.value = btn.getAttribute('data-bulk-do'); });
   });
 })();
+
+/* ── Heading anchor links on page content ─────────────────────────────────────
+   Adds a hover "#" affordance to headings (h1–h3) that already carry an id
+   inside the rendered page body, and copies a deep link to the clipboard on
+   click. CSP-safe (no inline handlers; nonce'd external file). */
+(function () {
+  var prose = document.getElementById('page-prose');
+  if (!prose) return;
+  var headings = prose.querySelectorAll('h1[id], h2[id], h3[id]');
+  if (!headings.length) return;
+
+  headings.forEach(function (h) {
+    h.classList.add('has-anchor');
+    var a = document.createElement('a');
+    a.className = 'heading-anchor';
+    a.href = '#' + h.id;
+    a.setAttribute('aria-label', 'Copy link to this section');
+    a.title = 'Copy link to this section';
+    a.innerHTML = '<i class="bi bi-link-45deg"></i>';
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var url = location.origin + location.pathname + '#' + h.id;
+      if (history && history.replaceState) { history.replaceState(null, '', '#' + h.id); }
+      var flash = function () {
+        a.innerHTML = '<i class="bi bi-check-lg"></i>';
+        setTimeout(function () { a.innerHTML = '<i class="bi bi-link-45deg"></i>'; }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(flash, flash);
+      } else { flash(); }
+    });
+    h.appendChild(a);
+  });
+})();

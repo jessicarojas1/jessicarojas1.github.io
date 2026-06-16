@@ -2325,3 +2325,13 @@ html[data-theme="dark"] [style*="background:#f3f4f6"][style*="color:#6b7280"] { 
 .wf-trans{margin-top:10px;display:flex;flex-direction:column;gap:6px}
 .wf-arrow{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--text-muted)}
 .wf-action{background:var(--bg-subtle);border-radius:4px;padding:1px 7px;font-weight:600;color:var(--text)}
+
+/* Heading anchor links (page content) */
+.prose .has-anchor { position: relative; }
+.prose .heading-anchor {
+  opacity: 0; margin-left: 8px; color: var(--text-light); text-decoration: none;
+  font-size: .8em; transition: opacity .12s ease; vertical-align: middle;
+}
+.prose .has-anchor:hover .heading-anchor,
+.prose .heading-anchor:focus { opacity: 1; }
+.prose .heading-anchor:hover { color: var(--primary); }
