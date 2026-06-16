@@ -21,7 +21,7 @@ $typeMeta = [
 <div class="card" style="margin:18px 0">
   <div class="card-body">
     <form method="GET" action="/search" class="form-row" style="align-items:flex-end;gap:12px;flex-wrap:wrap">
-      <div class="form-group" style="flex:1;min-width:220px;margin:0"><label class="form-label">Search</label><input type="search" name="q" class="form-control" value="<?= Security::h($q) ?>" placeholder="Search everything…" autofocus></div>
+      <div class="form-group" style="flex:1;min-width:220px;margin:0"><label class="form-label">Search</label><input type="search" name="q" class="form-control" value="<?= Security::h($q) ?>" placeholder="Search everything…  try in:SPACE  label:NAME  by:NAME" autofocus><p class="form-hint" style="margin:4px 0 0">Filters: <code>in:KEY</code> (space) · <code>label:name</code> · <code>by:name</code> · <code>type:pages</code></p></div>
       <div class="form-group" style="margin:0"><label class="form-label">Type</label>
         <select name="type" class="form-select">
           <option value="">All types</option>
@@ -66,7 +66,7 @@ $typeMeta = [
 <?php else: ?>
 
   <div class="card" style="margin-bottom:18px"><div class="card-body" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-    <div><strong><?= (int)$total ?></strong> result<?= $total === 1 ? '' : 's' ?> for &ldquo;<?= Security::h($q) ?>&rdquo;<?php if ($type !== ''): ?> <span class="chip"><?= Security::h($typeMeta[$type][1] ?? $type) ?></span><?php endif; ?></div>
+    <div><strong><?= (int)$total ?></strong> result<?= $total === 1 ? '' : 's' ?> for &ldquo;<?= Security::h($q) ?>&rdquo;<?php if ($type !== ''): ?> <span class="chip"><?= Security::h($typeMeta[$type][1] ?? $type) ?></span><?php endif; ?><?php foreach (($activeFilters ?? []) as $af): ?> <span class="chip"><?= Security::h($af[0]) ?>: <?= Security::h($af[1]) ?></span><?php endforeach; ?></div>
     <form method="POST" action="/searches/save" class="form-row" style="align-items:flex-end;gap:8px;margin:0;flex-wrap:wrap">
       <?= Security::csrfField() ?>
       <input type="hidden" name="query" value="<?= Security::h($q) ?>">
