@@ -189,7 +189,7 @@ class PageController {
         $wfEsign = Workflow::esignatureRequired();
         // Outline + reading time from the rendered body.
         $tocData = View::buildToc((string)$page['body']);
-        $page['body'] = $tocData['html'];
+        $page['body'] = Macros::expand($tocData['html'], ['page_id' => $id, 'space_id' => $page['space_id'] !== null ? (int)$page['space_id'] : null]);
         $pageToc = $tocData['toc'];
         $pageWords = $tocData['words'];
         $pageReadMins = max(1, (int)ceil($pageWords / 200));
