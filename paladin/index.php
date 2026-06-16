@@ -155,6 +155,7 @@ $routes = [
         '/approvals'                 => ['ApprovalController', 'index'],
         '/approvals/start'           => ['ApprovalController', 'startForm'],
 
+        '/my-work'                   => ['WorkController', 'index'],
         '/tasks'                     => ['TaskController', 'index'],
         '/tasks/create'              => ['TaskController', 'createForm'],
 
