@@ -168,6 +168,7 @@ $routes = [
         '/calendar'                  => ['CalendarController', 'index'],
         '/labels'                    => ['LabelController', 'index'],
         '/reports'                   => ['ReportController', 'index'],
+        '/reports/compliance'        => ['ReportController', 'compliance'],
         '/activity'                  => ['ActivityController', 'index'],
         '/reports/expiring'          => ['ReportController', 'expiring'],
         '/reports/approval-backlog'  => ['ReportController', 'approvalBacklog'],

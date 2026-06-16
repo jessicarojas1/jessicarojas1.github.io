@@ -20,6 +20,51 @@ class ReportController {
         require PALADIN_ROOT . '/views/report/index.php';
     }
 
+    /** Compliance & operations metrics dashboard (server-rendered, no JS). */
+    public function compliance(): void {
+        Auth::requirePermission('report.view');
+
+        $docByStatus = Database::fetchAll("SELECT status, COUNT(*) c FROM documents GROUP BY status ORDER BY c DESC");
+        $docByType   = Database::fetchAll("SELECT doc_type, COUNT(*) c FROM documents GROUP BY doc_type ORDER BY c DESC LIMIT 10");
+
+        // Review compliance for published documents that have a review date.
+        $review = Database::fetchOne(
+            "SELECT
+                COUNT(*) FILTER (WHERE review_date < CURRENT_DATE) overdue,
+                COUNT(*) FILTER (WHERE review_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days') soon,
+                COUNT(*) FILTER (WHERE review_date > CURRENT_DATE + INTERVAL '30 days') ontrack
+             FROM documents WHERE status='published' AND review_date IS NOT NULL"
+        );
+
+        // Approval analytics.
+        $avgDecisionDays = Database::fetchOne(
+            "SELECT ROUND(AVG(EXTRACT(EPOCH FROM (decided_at - created_at)) / 86400.0)::numeric, 1) d
+             FROM approval_requests WHERE status IN ('approved','rejected') AND decided_at IS NOT NULL
+               AND decided_at > NOW() - INTERVAL '90 days'"
+        );
+        $throughput = Database::fetchAll(
+            "SELECT to_char(date_trunc('week', decided_at), 'Mon DD') wk, COUNT(*) c
+             FROM approval_requests WHERE status IN ('approved','rejected') AND decided_at > NOW() - INTERVAL '8 weeks'
+             GROUP BY date_trunc('week', decided_at) ORDER BY date_trunc('week', decided_at)"
+        );
+        $backlog = Database::fetchOne(
+            "SELECT
+                COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '3 days') fresh,
+                COUNT(*) FILTER (WHERE created_at <= NOW() - INTERVAL '3 days' AND created_at > NOW() - INTERVAL '7 days') aging,
+                COUNT(*) FILTER (WHERE created_at <= NOW() - INTERVAL '7 days') stale
+             FROM approval_requests WHERE status='pending'"
+        );
+
+        $procByStatus = Database::fetchAll("SELECT status, COUNT(*) c FROM processes GROUP BY status ORDER BY c DESC");
+        $ackStats = Database::fetchOne(
+            "SELECT
+                (SELECT COUNT(*) FROM documents WHERE requires_ack AND status='published') required,
+                (SELECT COUNT(DISTINCT document_id) FROM document_acknowledgements) acknowledged"
+        );
+
+        require PALADIN_ROOT . '/views/report/compliance.php';
+    }
+
     public function expiring(): void {
         Auth::requirePermission('report.view');
 
