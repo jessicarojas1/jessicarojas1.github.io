@@ -75,6 +75,7 @@
           ?><span class="nav-badge"><?= (int)$pendingApprovals['c'] ?></span><?php endif; ?>
         </a>
         <a href="/workflows" class="nav-item <?= ($activeModule ?? '')==='workflows'?'active':'' ?>"><i class="bi bi-diagram-2-fill"></i><span>Workflows</span></a>
+        <a href="/my-work"   class="nav-item <?= ($activeModule ?? '')==='work'?'active':'' ?>"><i class="bi bi-briefcase-fill"></i><span>My Work</span></a>
         <a href="/tasks"     class="nav-item <?= ($activeModule ?? '')==='tasks'?'active':'' ?>"><i class="bi bi-list-task"></i><span>Tasks</span></a>
         <a href="/calendar"  class="nav-item <?= ($activeModule ?? '')==='calendar'?'active':'' ?>"><i class="bi bi-calendar3"></i><span>Calendar</span></a>
         <?php if (Auth::can('document.publish')): ?>
