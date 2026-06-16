@@ -243,6 +243,44 @@ class DocumentController {
         header('Location: /documents/' . $newId);
     }
 
+    /**
+     * Return a safe local redirect target from the Referer header, falling back
+     * to $default. Only same-origin absolute paths (no scheme/host) are allowed,
+     * guarding against open redirects.
+     */
+    private function safeReferer(string $default): string {
+        $ref = $_SERVER['HTTP_REFERER'] ?? '';
+        if ($ref !== '') {
+            $path = parse_url($ref, PHP_URL_PATH);
+            $host = parse_url($ref, PHP_URL_HOST);
+            // Compare hosts without the port (HTTP_HOST carries it, parse_url does not).
+            $self = preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? '');
+            if (is_string($path) && preg_match('#^/[A-Za-z0-9/_\-.?=&]*$#', $path) && ($host === null || $host === $self)) {
+                $q = parse_url($ref, PHP_URL_QUERY);
+                return $path . ($q ? '?' . $q : '');
+            }
+        }
+        return $default;
+    }
+
+    /** Push a document's next review date out by N months from today ("snooze"). */
+    public function extendReview(int $id): void {
+        Auth::requirePermission('document.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $doc = Database::fetchOne("SELECT id, document_code, review_date FROM documents WHERE id = ?", [$id]);
+        if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+
+        $months = (int)($_POST['months'] ?? 12);
+        if (!in_array($months, [3, 6, 12, 24], true)) $months = 12;
+        $newDate = date('Y-m-d', strtotime("+{$months} months"));
+        Database::update('documents', ['review_date' => $newDate], 'id = ?', [$id]);
+        Auth::log('extend_review', 'documents', $id, ['code' => $doc['document_code'], 'months' => $months, 'review_date' => $newDate]);
+
+        $back = $this->safeReferer('/documents/' . $id);
+        $_SESSION['flash_success'] = "Review date for {$doc['document_code']} extended to " . View::fmtDate($newDate) . '.';
+        header('Location: ' . $back);
+    }
+
     public function createForm(): void {
         Auth::requirePermission('document.create');
         $doc = null;

@@ -359,6 +359,7 @@ $dynamicRoutes = [
         '#^/documents/(\d+)/edit$#'          => ['DocumentController', 'update'],
         '#^/documents/(\d+)/delete$#'        => ['DocumentController', 'delete'],
         '#^/documents/(\d+)/duplicate$#'     => ['DocumentController', 'duplicate'],
+        '#^/documents/(\d+)/extend-review$#' => ['DocumentController', 'extendReview'],
         '#^/documents/(\d+)/transition$#'    => ['DocumentController', 'transition'],
         '#^/documents/(\d+)/checkout$#'      => ['DocumentController', 'checkout'],
         '#^/documents/(\d+)/checkin$#'       => ['DocumentController', 'checkin'],
