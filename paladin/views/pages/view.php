@@ -24,6 +24,7 @@ ob_start();
     <a href="/pages/<?= (int)$page['id'] ?>/history" class="btn btn-ghost"><i class="bi bi-clock-history"></i> History (<?= $versionCount ?>)</a>
     <a href="/pages/<?= (int)$page['id'] ?>/print" target="_blank" rel="noopener" class="btn btn-ghost"><i class="bi bi-printer"></i> Print</a>
     <a href="/pages/<?= (int)$page['id'] ?>/pdf" class="btn btn-ghost"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
+    <a href="/pages/<?= (int)$page['id'] ?>/word" class="btn btn-ghost"><i class="bi bi-file-earmark-word"></i> Word</a>
     <?php if (Auth::can('page.publish') && $page['status'] !== 'published'): ?>
       <form method="POST" action="/pages/<?= (int)$page['id'] ?>/publish" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-success" type="submit"><i class="bi bi-send-check"></i> Publish</button></form>
     <?php endif; ?>

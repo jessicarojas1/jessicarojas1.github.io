@@ -295,6 +295,7 @@ $dynamicRoutes = [
         '#^/pages/(\d+)/diff$#'              => ['PageController', 'diff'],
         '#^/pages/(\d+)/print$#'             => ['PageController', 'printView'],
         '#^/pages/(\d+)/pdf$#'               => ['PageController', 'pdf'],
+        '#^/pages/(\d+)/word$#'              => ['PageController', 'word'],
         '#^/documents/(\d+)$#'               => ['DocumentController', 'view'],
         '#^/documents/(\d+)/edit$#'          => ['DocumentController', 'editForm'],
         '#^/documents/(\d+)/download$#'      => ['DocumentController', 'download'],

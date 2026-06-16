@@ -527,6 +527,52 @@ class PageController {
         require PALADIN_ROOT . '/views/pages/print.php';
     }
 
+    /** Word (.doc) export — a self-contained HTML document Word opens natively. */
+    public function word(int $id): void {
+        Auth::requirePermission('page.view');
+        $page = Database::fetchOne(
+            "SELECT p.*, s.name AS space_name, o.name AS owner_name
+             FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id
+             WHERE p.id=? AND p.deleted_at IS NULL", [$id]
+        );
+        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+
+        $title = (string)$page['title'];
+        $meta  = [
+            'Space'    => (string)($page['space_name'] ?? '—'),
+            'Owner'    => (string)($page['owner_name'] ?? '—'),
+            'Status'   => ucfirst((string)$page['status']),
+            'Version'  => 'v' . (int)$page['current_version'],
+            'Exported' => date('M j, Y g:ia'),
+        ];
+        $metaRows = '';
+        foreach ($meta as $k => $v) {
+            $metaRows .= '<tr><td style="background:#f2f2f2;font-weight:bold;width:120px">' . Security::h($k)
+                       . '</td><td>' . Security::h($v) . '</td></tr>';
+        }
+        // Word reads HTML; the office namespaces hint the .doc association.
+        $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
+              . 'xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
+              . '<head><meta charset="utf-8"><title>' . Security::h($title) . '</title>'
+              . '<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#222}'
+              . 'h1{font-size:20pt} h2{font-size:15pt} h3{font-size:13pt}'
+              . 'table{border-collapse:collapse} td,th{border:1px solid #bbb;padding:5px}'
+              . '.meta{margin:0 0 18px;font-size:10pt}</style></head><body>'
+              . '<h1>' . Security::h($title) . '</h1>'
+              . '<table class="meta">' . $metaRows . '</table>'
+              . '<div>' . (string)$page['body'] . '</div></body></html>';
+
+        Auth::log('export_page_word', 'pages', $id);
+        $fname = preg_replace('/[^A-Za-z0-9._-]+/', '-', 'page-' . $id . '-' . $title);
+        $fname = trim((string)$fname, '-') ?: ('page-' . $id);
+        header('Content-Type: application/msword; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $fname . '.doc"');
+        header('X-Content-Type-Options: nosniff');
+        header('Content-Length: ' . strlen($html));
+        echo $html;
+    }
+
     /** Server-rendered PDF download of a page (real application/pdf, no browser). */
     public function pdf(int $id): void {
         Auth::requirePermission('page.view');
