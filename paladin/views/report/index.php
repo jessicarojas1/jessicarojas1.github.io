@@ -40,6 +40,11 @@ foreach ($byStatus as $row) {
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-folder2-open"></i> Available Reports</span></div></div>
     <div class="card-body">
       <div class="lib-grid">
+        <a href="/reports/compliance" class="lib-card" style="text-decoration:none">
+          <div class="stat-icon" style="background:rgba(37,99,235,.12);color:var(--primary)"><i class="bi bi-graph-up-arrow"></i></div>
+          <div class="card-title">Compliance Metrics</div>
+          <div class="form-hint">Document control, review compliance, approval throughput and process health at a glance.</div>
+        </a>
         <a href="/reports/expiring" class="lib-card" style="text-decoration:none">
           <div class="stat-icon" style="background:rgba(249,115,22,.12);color:var(--orange)"><i class="bi bi-calendar-x-fill"></i></div>
           <div class="card-title">Expiring &amp; Overdue Documents</div>
