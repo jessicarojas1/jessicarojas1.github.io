@@ -55,6 +55,11 @@ $wValue = $wValue ?? '';
     <button type="button" class="wtb" data-insert="toc" title="Table of contents"><i class="bi bi-list-nested"></i></button>
     <button type="button" class="wtb" data-insert="props" title="Page properties (for reports)"><i class="bi bi-table"></i><i class="bi bi-key" style="font-size:.7em"></i></button>
     <span class="wtb-sep"></span>
+    <button type="button" class="wtb" data-insert="children" title="Child pages list (dynamic)"><i class="bi bi-diagram-2-fill"></i></button>
+    <button type="button" class="wtb" data-insert="pagetree" title="Page tree (dynamic)"><i class="bi bi-diagram-3-fill"></i></button>
+    <button type="button" class="wtb" data-insert="recent" title="Recently updated (dynamic)"><i class="bi bi-clock-history"></i></button>
+    <button type="button" class="wtb" data-insert-include title="Include another page (dynamic)"><i class="bi bi-box-arrow-in-down-right"></i></button>
+    <span class="wtb-sep"></span>
     <button type="button" class="wtb wtb-toggle" data-toggle-html="1" title="Toggle HTML source"><i class="bi bi-braces"></i> HTML</button>
   </div>
   <div class="wysiwyg-surface prose" id="<?= Security::h($wId) ?>-surface" contenteditable="true"><?= $wValue /* already sanitized HTML */ ?></div>
@@ -122,6 +127,19 @@ $wValue = $wValue ?? '';
         return;
       }
       if (btn.hasAttribute('data-img-upload')) { if (fileInput) fileInput.click(); return; }
+      if (btn.hasAttribute('data-insert-include')) {
+        var ref = window.prompt('Include another page — enter its slug or numeric id:', '');
+        if (ref) {
+          var safe = ref.replace(/[^A-Za-z0-9_\-]/g, '');
+          if (safe) {
+            var inc = '<div class="macro-include" data-page="' + safe + '" data-mode="full">'
+                    + '<em class="macro-ph">↳ Include page: ' + safe + ' (rendered on view)</em></div><p></p>';
+            try { document.execCommand('insertHTML', false, inc); } catch(e){}
+            sync();
+          }
+        }
+        return;
+      }
       if (btn.hasAttribute('data-toggle-html')) {
         if (showingHtml) { surface.innerHTML = source.value; surface.style.display=''; source.style.display='none'; }
         else { source.value = surface.innerHTML; source.style.display=''; surface.style.display='none'; }
@@ -140,7 +158,10 @@ $wValue = $wValue ?? '';
           'expand':        '<details><summary>Click to expand</summary><p>Hidden content…</p></details><p></p>',
           'status':        '<span class="lozenge lozenge-green">Done</span>&nbsp;',
           'toc':           '<div class="macro-toc"><div class="macro-toc-title">On this page</div></div><p></p>',
-          'props':         '<table class="page-properties"><tbody><tr><th>Status</th><td>Draft</td></tr><tr><th>Owner</th><td>@</td></tr><tr><th>Due</th><td>YYYY-MM-DD</td></tr></tbody></table><p></p>'
+          'props':         '<table class="page-properties"><tbody><tr><th>Status</th><td>Draft</td></tr><tr><th>Owner</th><td>@</td></tr><tr><th>Due</th><td>YYYY-MM-DD</td></tr></tbody></table><p></p>',
+          'children':      '<div class="macro-children"><em class="macro-ph">↳ Child pages (rendered on view)</em></div><p></p>',
+          'pagetree':      '<div class="macro-pagetree" data-depth="3"><em class="macro-ph">↳ Page tree (rendered on view)</em></div><p></p>',
+          'recent':        '<div class="macro-recently-updated" data-limit="10" data-scope="space"><em class="macro-ph">↳ Recently updated (rendered on view)</em></div><p></p>'
         };
         if (snippets[ins]) { try { document.execCommand('insertHTML', false, snippets[ins]); } catch(e){} }
         sync();

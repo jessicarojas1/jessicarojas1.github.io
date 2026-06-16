@@ -2350,3 +2350,10 @@ html[data-theme="dark"] [style*="background:#f3f4f6"][style*="color:#6b7280"] { 
 .prose .macro-include-head { background: var(--bg-secondary); padding: 6px 12px; font-size: .85em; border-bottom: 1px solid var(--border); }
 .prose .macro-include-head a { font-weight: 600; }
 .prose .macro-include-body { padding: 12px 14px; }
+
+/* Macro placeholder shown in the editor before server-side expansion */
+.macro-ph { color: var(--text-muted); font-size: .9em; }
+.wysiwyg-surface .macro-children, .wysiwyg-surface .macro-pagetree,
+.wysiwyg-surface .macro-recently-updated, .wysiwyg-surface .macro-include {
+  border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px; margin: 8px 0; background: var(--bg-secondary);
+}
