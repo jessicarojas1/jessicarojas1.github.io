@@ -312,6 +312,7 @@ $dynamicRoutes = [
         '#^/spaces/(\d+)/blog$#'             => ['BlogController', 'space'],
         '#^/templates/(\d+)$#'               => ['TemplateController', 'view'],
         '#^/campaigns/(\d+)$#'               => ['CampaignController', 'view'],
+        '#^/campaigns/(\d+)/export.csv$#'   => ['CampaignController', 'exportCsv'],
         '#^/admin/users/(\d+)/permissions$#' => ['AdminController', 'permissions'],
         '#^/admin/webhooks/(\d+)/deliveries$#' => ['AdminController', 'webhookDeliveries'],
         '#^/admin/roles/(\d+)/edit$#'        => ['AdminController', 'roleForm'],
