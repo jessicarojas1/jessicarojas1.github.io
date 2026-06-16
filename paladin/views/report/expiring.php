@@ -13,7 +13,8 @@ ob_start();
 
 <div class="card"><div class="card-body" style="padding:0">
   <table class="table table-hover" style="margin:0">
-    <thead><tr><th>Code</th><th>Title</th><th>Owner</th><th>Space</th><th>Review Date</th><th>Expiration</th><th>Status</th></tr></thead>
+    <?php $canExtend = Auth::can('document.edit'); ?>
+    <thead><tr><th>Code</th><th>Title</th><th>Owner</th><th>Space</th><th>Review Date</th><th>Expiration</th><th>Status</th><?php if ($canExtend): ?><th>Extend review</th><?php endif; ?></tr></thead>
     <tbody>
     <?php foreach ($rows as $r): ?>
       <tr>
@@ -24,10 +25,19 @@ ob_start();
         <td><?php if ($r['review_date']): ?><span class="<?= strtotime($r['review_date']) < strtotime('today') ? 'badge badge-overdue' : '' ?>"><?= View::fmtDate($r['review_date']) ?></span><?php else: ?><span class="form-hint">—</span><?php endif; ?></td>
         <td><?php if ($r['expiration_date']): ?><span class="<?= strtotime($r['expiration_date']) < strtotime('today') ? 'badge badge-overdue' : '' ?>"><?= View::fmtDate($r['expiration_date']) ?></span><?php else: ?><span class="form-hint">—</span><?php endif; ?></td>
         <td><?= View::statusBadge($r['status']) ?></td>
+        <?php if ($canExtend): ?>
+        <td>
+          <form method="POST" action="/documents/<?= (int)$r['id'] ?>/extend-review" style="display:flex;gap:6px;margin:0;align-items:center">
+            <?= Security::csrfField() ?>
+            <select name="months" class="form-control form-control-sm" style="width:auto"><option value="3">+3 mo</option><option value="6">+6 mo</option><option value="12" selected>+12 mo</option><option value="24">+24 mo</option></select>
+            <button class="btn btn-sm btn-ghost" type="submit"><i class="bi bi-calendar-plus"></i> Extend</button>
+          </form>
+        </td>
+        <?php endif; ?>
       </tr>
     <?php endforeach; ?>
     <?php if (!$rows): ?>
-      <tr><td colspan="7"><div class="empty-state"><i class="bi bi-calendar-check"></i><p>No documents are expiring or overdue. Everything is current.</p></div></td></tr>
+      <tr><td colspan="<?= $canExtend ? 8 : 7 ?>"><div class="empty-state"><i class="bi bi-calendar-check"></i><p>No documents are expiring or overdue. Everything is current.</p></div></td></tr>
     <?php endif; ?>
     </tbody>
   </table>
