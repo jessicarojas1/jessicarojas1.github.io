@@ -197,6 +197,52 @@ class DocumentController {
         require PALADIN_ROOT . '/views/documents/diff.php';
     }
 
+    /** Duplicate a document as a fresh draft ("Copy of …") with a new code, rev 1.0. */
+    public function duplicate(int $id): void {
+        Auth::requirePermission('document.create');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $src = Database::fetchOne("SELECT * FROM documents WHERE id = ?", [$id]);
+        if (!$src) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+
+        $docType = in_array($src['doc_type'], View::docTypes(), true) ? $src['doc_type'] : 'policy';
+        $code    = $this->nextCode($docType);
+        $title   = mb_substr('Copy of ' . $src['title'], 0, 255);
+        $body    = (string)($src['body'] ?? '');
+
+        // Carry over descriptive metadata but reset lifecycle/identity/file fields.
+        $data = [
+            'document_code' => $code,
+            'title'         => $title,
+            'doc_type'      => $docType,
+            'space_id'      => $src['space_id'] !== null ? (int)$src['space_id'] : null,
+            'description'   => $src['description'] ?? null,
+            'classification'=> $src['classification'] ?? null,
+            'body'          => $body,
+            'status'        => 'draft',
+            'revision'      => '1.0',
+            'requires_ack'  => in_array((string)($src['requires_ack'] ?? ''), ['1','t','true'], true) ? 't' : 'f',
+            'owner_id'      => Auth::id(),
+            'created_by'    => Auth::id(),
+        ];
+        $newId = Database::insert('documents', $data);
+        Database::insert('document_versions', [
+            'document_id' => $newId, 'revision' => '1.0', 'title' => $title,
+            'body' => $body, 'change_summary' => 'Duplicated from ' . $src['document_code'], 'status' => 'draft',
+            'created_by' => Auth::id(),
+        ]);
+        // Copy labels (best-effort).
+        try {
+            Database::query(
+                "INSERT INTO entity_tags (tag_id, entity_type, entity_id)
+                 SELECT tag_id, 'document', ? FROM entity_tags WHERE entity_type='document' AND entity_id=?
+                 ON CONFLICT DO NOTHING", [$newId, $id]
+            );
+        } catch (Throwable) {}
+        Auth::log('duplicate_document', 'documents', $newId, ['from' => $src['document_code'], 'code' => $code]);
+        $_SESSION['flash_success'] = "Document duplicated as draft {$code}.";
+        header('Location: /documents/' . $newId);
+    }
+
     public function createForm(): void {
         Auth::requirePermission('document.create');
         $doc = null;
