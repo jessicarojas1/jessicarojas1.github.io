@@ -2344,3 +2344,9 @@ html[data-theme="dark"] [style*="background:#f3f4f6"][style*="color:#6b7280"] { 
 .prose .macro-tree { margin-left: 18px; border-left: 1px solid var(--border); padding-left: 12px; }
 .prose .macro-meta { color: var(--text-muted); font-size: .82em; margin-left: 6px; }
 .prose .macro-empty { color: var(--text-muted); font-style: italic; padding: 8px 0; }
+
+/* Include / excerpt (transclusion) macro */
+.prose .macro-include-out { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.prose .macro-include-head { background: var(--bg-secondary); padding: 6px 12px; font-size: .85em; border-bottom: 1px solid var(--border); }
+.prose .macro-include-head a { font-weight: 600; }
+.prose .macro-include-body { padding: 12px 14px; }

@@ -44,6 +44,9 @@ final class Macros {
                 $limit = max(1, min(50, (int)($el->getAttribute('data-limit') ?: 10)));
                 $scope = $el->getAttribute('data-scope') === 'all' ? 'all' : 'space';
                 $repl = self::renderRecent($ctx, $limit, $scope);
+            } elseif (strpos($cls, ' macro-include ') !== false) {
+                $mode = $el->getAttribute('data-mode') === 'excerpt' ? 'excerpt' : 'full';
+                $repl = self::renderInclude($el->getAttribute('data-page'), $mode, $ctx);
             }
             if ($repl !== null) {
                 $new = self::fragment($dom, $repl);
@@ -67,7 +70,12 @@ final class Macros {
         libxml_clear_errors();
         $w = $tmp->getElementById('__w');
         if (!$w) { return null; }
-        return $dom->importNode($w, true);
+        // Return the wrapper's children (not the wrapper) so no stray div leaks.
+        $frag = $dom->createDocumentFragment();
+        foreach (iterator_to_array($w->childNodes) as $child) {
+            $frag->appendChild($dom->importNode($child, true));
+        }
+        return $frag->hasChildNodes() ? $frag : null;
     }
 
     /** Pages the current user may view, given minimal row data. */
@@ -142,6 +150,55 @@ final class Macros {
                    . ' <span class="macro-meta">' . Security::h(View::timeAgo($r['updated_at'])) . '</span></li>';
         }
         return '<div class="macro-out macro-recent-out"><ul class="macro-list">' . $items . '</ul></div>';
+    }
+
+    /**
+     * Transclude another page's content. $ref is a numeric id or a slug.
+     * mode 'excerpt' pulls only the page's <… class="macro-excerpt"> region.
+     * A visited set carried in $ctx prevents include cycles.
+     */
+    private static function renderInclude(string $ref, string $mode, array $ctx): string {
+        $ref = trim($ref);
+        if ($ref === '') { return self::empty('Include macro: no page specified.'); }
+        $row = ctype_digit($ref)
+            ? Database::fetchOne("SELECT id, title, body, owner_id, created_by, space_id, parent_id FROM pages WHERE id = ? AND deleted_at IS NULL AND status = 'published'", [(int)$ref])
+            : Database::fetchOne("SELECT id, title, body, owner_id, created_by, space_id, parent_id FROM pages WHERE slug = ? AND deleted_at IS NULL AND status = 'published' ORDER BY id LIMIT 1", [$ref]);
+        if (!$row) { return self::empty('Included page not found or not published.'); }
+        if (!PageAccess::canView($row)) { return self::empty('You do not have access to the included page.'); }
+
+        $tid = (int)$row['id'];
+        $visited = $ctx['visited'] ?? [];
+        if (in_array($tid, $visited, true) || count($visited) >= 8) {
+            return self::empty('Include skipped to avoid a content loop.');
+        }
+        $visited[] = $tid;
+
+        $body = (string)($row['body'] ?? '');
+        if ($mode === 'excerpt') {
+            $body = self::extractExcerpt($body);
+            if ($body === null) { return self::empty('Included page has no excerpt.'); }
+        }
+        // Recursively expand macros in the included body, carrying the visited set.
+        $inner = self::expand($body, ['page_id' => $tid, 'space_id' => $row['space_id'] !== null ? (int)$row['space_id'] : null, 'visited' => $visited]);
+        return '<div class="macro-out macro-include-out">'
+             . '<div class="macro-include-head"><i class="bi bi-arrow-return-right"></i> <a href="/pages/' . $tid . '">' . Security::h($row['title']) . '</a></div>'
+             . '<div class="macro-include-body">' . $inner . '</div></div>';
+    }
+
+    /** Inner HTML of the first macro-excerpt region in $html, or null. */
+    private static function extractExcerpt(string $html): ?string {
+        if (stripos($html, 'macro-excerpt') === false) { return null; }
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="UTF-8"><div id="__ex">' . $html . '</div>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NONET);
+        libxml_clear_errors();
+        $xp = new \DOMXPath($dom);
+        $hit = $xp->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' macro-excerpt ')]")->item(0);
+        if (!$hit) { return null; }
+        $out = '';
+        foreach ($hit->childNodes as $c) { $out .= $dom->saveHTML($c); }
+        return $out;
     }
 
     private static function empty(string $msg): string {
