@@ -8,6 +8,7 @@ class DashboardController {
         $uid = Auth::id();
         Scheduler::runDuePages();        // opportunistic cron-free sweep for due scheduled publishes
         Scheduler::runExpiredDocuments(); // auto-expire effective documents past their expiration date
+        Webhook::retryDue();              // re-attempt failed webhook deliveries (exponential backoff)
 
         $stats = [
             'documents'   => (int)(Database::fetchOne("SELECT COUNT(*) c FROM documents")['c'] ?? 0),

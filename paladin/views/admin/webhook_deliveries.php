@@ -19,19 +19,23 @@ $truthy = fn($v) => $v === true || $v === 't' || $v === '1' || $v === 1;
 
 <div class="card" style="margin-top:18px"><div class="card-body" style="padding:0">
   <table class="table table-hover" style="margin:0">
-    <thead><tr><th>Event</th><th>Result</th><th>HTTP</th><th>Error</th><th>When</th></tr></thead>
+    <thead><tr><th>Event</th><th>Result</th><th>HTTP</th><th>Attempts</th><th>Error</th><th>When</th></tr></thead>
     <tbody>
-    <?php foreach ($deliveries as $d): ?>
+    <?php foreach ($deliveries as $d):
+      $retrying = !$truthy($d['success']) && !empty($d['next_retry_at']); ?>
       <tr>
         <td><span class="chip"><?= Security::h($d['event']) ?></span></td>
-        <td><?= $truthy($d['success']) ? '<span class="badge badge-green">Delivered</span>' : '<span class="badge badge-red">Failed</span>' ?></td>
+        <td><?= $truthy($d['success'])
+              ? '<span class="badge badge-green">Delivered</span>'
+              : ($retrying ? '<span class="badge badge-warning">Retry pending</span>' : '<span class="badge badge-red">Failed</span>') ?></td>
         <td class="form-hint"><?= $d['status_code'] !== null ? (int)$d['status_code'] : '—' ?></td>
+        <td class="form-hint"><?= (int)($d['attempts'] ?? 1) ?><?php if ($retrying): ?> · <span title="Next retry">retry <?= Security::h(View::timeAgo($d['next_retry_at'])) ?></span><?php endif; ?></td>
         <td class="form-hint" style="max-width:280px;word-break:break-word"><?= $d['error'] ? Security::h($d['error']) : '—' ?></td>
         <td class="form-hint"><?= Security::h(View::fmtDate($d['created_at'], 'M j, g:ia')) ?></td>
       </tr>
     <?php endforeach; ?>
     <?php if (!$deliveries): ?>
-      <tr><td colspan="5" class="empty-row"><div class="empty-state-sm"><i class="bi bi-clock-history"></i><p>No deliveries yet. Use the <i class="bi bi-send"></i> test button on the webhooks page to send one.</p></div></td></tr>
+      <tr><td colspan="6" class="empty-row"><div class="empty-state-sm"><i class="bi bi-clock-history"></i><p>No deliveries yet. Use the <i class="bi bi-send"></i> test button on the webhooks page to send one.</p></div></td></tr>
     <?php endif; ?>
     </tbody>
   </table>
