@@ -5,6 +5,7 @@ import {
   Boxes,
   Briefcase,
   Building2,
+  Lightbulb,
   Target,
   CalendarRange,
   ClipboardCheck,
@@ -98,6 +99,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Training', to: '/training', icon: GraduationCap, capability: 'training.read', page: 'training' },
       { label: 'Management Review', to: '/mgmt-reviews', icon: GaugeCircle, capability: 'mgmt_reviews.read', page: 'mgmt_reviews' },
       { label: 'Quality Objectives', to: '/quality-objectives', icon: Target, capability: 'quality_objectives.read', page: 'quality_objectives' },
+      { label: 'Continual Improvement', to: '/improvements', icon: Lightbulb, capability: 'improvements.read', page: 'improvements' },
     ],
   },
   {

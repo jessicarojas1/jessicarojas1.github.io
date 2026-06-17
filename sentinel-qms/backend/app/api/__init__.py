@@ -24,6 +24,7 @@ from app.api.routers import (
     documents,
     fod,
     iam,
+    improvements,
     inspections,
     mgmt_reviews,
     msa,
@@ -85,3 +86,4 @@ api_router.include_router(spc.router)
 api_router.include_router(saved_views.router)
 api_router.include_router(record_shares.router)
 api_router.include_router(quality_objectives.router)
+api_router.include_router(improvements.router)

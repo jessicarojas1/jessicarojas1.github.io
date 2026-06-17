@@ -50,6 +50,7 @@ export const PAGE_FALLBACK_CAPS: Record<
   training: { read: 'training.read', write: 'training.write' },
   mgmt_reviews: { read: 'mgmt_reviews.read', write: 'mgmt_reviews.write' },
   quality_objectives: { read: 'quality_objectives.read', write: 'quality_objectives.write' },
+  improvements: { read: 'improvements.read', write: 'improvements.write' },
   users: { read: 'admin.users', write: 'admin.users' },
   roles: { read: 'admin.roles', write: 'admin.roles' },
   permissions: { read: 'admin.roles', write: 'admin.roles' },

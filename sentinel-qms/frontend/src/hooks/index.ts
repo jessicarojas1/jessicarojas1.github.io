@@ -39,6 +39,7 @@ export * from './useConcessions';
 export * from './useSignatures';
 export * from './useCustomers';
 export * from './useAuditPrograms';
+export * from './useImprovements';
 export * from './useMsa';
 export * from './useQualityObjectives';
 export * from './useSpc';
