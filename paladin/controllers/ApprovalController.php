@@ -165,7 +165,7 @@ class ApprovalController {
             }
             if ($signature !== '') {
                 $signedAt = date('Y-m-d H:i:s');
-                $ip = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+                $ip = Security::clientIp();
                 $ua = substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255);
                 $sig = [
                     'signature_name' => $signature,
