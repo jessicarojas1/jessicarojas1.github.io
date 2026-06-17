@@ -128,7 +128,12 @@ for the data model and request lifecycle.
 Security & compliance references:
 [`docs/SECURITY.md`](docs/SECURITY.md) (controls & threat coverage),
 [`docs/PERMISSIONS_MODEL.md`](docs/PERMISSIONS_MODEL.md) (RBAC + object-level access),
-[`docs/AUDIT_TRAIL.md`](docs/AUDIT_TRAIL.md) (hash-chained, tamper-evident audit log).
+[`docs/AUDIT_TRAIL.md`](docs/AUDIT_TRAIL.md) (hash-chained, tamper-evident audit log),
+[`docs/QMS_WORKFLOW.md`](docs/QMS_WORKFLOW.md) (document lifecycle, approvals, e-signatures).
+
+Operations & onboarding:
+[`docs/DEMO_GUIDE.md`](docs/DEMO_GUIDE.md) (guided walkthrough),
+[`docs/KNOWN_LIMITATIONS.md`](docs/KNOWN_LIMITATIONS.md) (scope & constraints).
 
 ## API
 
