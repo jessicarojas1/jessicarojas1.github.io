@@ -6,6 +6,7 @@ import {
   Briefcase,
   Building2,
   Lightbulb,
+  Network,
   Smile,
   Target,
   CalendarRange,
@@ -87,6 +88,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'APQP / PPAP', to: '/apqp', icon: Workflow, capability: 'inspections.read', page: 'inspections' },
       { label: 'Key Characteristics / SPC', to: '/key-characteristics', icon: LineChart, capability: 'inspections.read', page: 'inspections' },
       { label: 'FOD Prevention', to: '/fod', icon: Trash, capability: 'inspections.read', page: 'inspections' },
+      { label: 'FMEA', to: '/fmea', icon: Network, capability: 'fmea.read', page: 'fmea' },
     ],
   },
   {
