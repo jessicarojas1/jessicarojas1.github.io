@@ -160,14 +160,19 @@ CREATE TABLE IF NOT EXISTS webhooks (
 );
 
 CREATE TABLE IF NOT EXISTS webhook_deliveries (
-    id          SERIAL PRIMARY KEY,
-    webhook_id  INTEGER NOT NULL REFERENCES webhooks(id) ON DELETE CASCADE,
-    event       VARCHAR(80) NOT NULL,
-    status_code INTEGER,
-    success     BOOLEAN NOT NULL DEFAULT FALSE,
-    error       TEXT,
-    created_at  TIMESTAMP NOT NULL DEFAULT NOW()
+    id            SERIAL PRIMARY KEY,
+    webhook_id    INTEGER NOT NULL REFERENCES webhooks(id) ON DELETE CASCADE,
+    event         VARCHAR(80) NOT NULL,
+    status_code   INTEGER,
+    success       BOOLEAN NOT NULL DEFAULT FALSE,
+    error         TEXT,
+    payload       TEXT,
+    attempts      INTEGER NOT NULL DEFAULT 1,
+    next_retry_at TIMESTAMP,
+    created_at    TIMESTAMP NOT NULL DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_wh_deliv_retry ON webhook_deliveries(next_retry_at)
+    WHERE next_retry_at IS NOT NULL AND success = FALSE;
 CREATE INDEX IF NOT EXISTS idx_wh_deliv ON webhook_deliveries(webhook_id, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS active_sessions (
