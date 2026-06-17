@@ -24,15 +24,24 @@ from app.models import (  # noqa: F401 - ensure metadata is populated
     Capa,
     CapaStatus,
     CoverageStatus,
+    Customer,
+    CustomerSurvey,
     Department,
     Document,
     DocumentStatus,
     DocumentType,
     Equipment,
+    Fmea,
+    FmeaItem,
+    Improvement,
+    ImprovementStatus,
     NcSeverity,
     NcStatus,
     Nonconformance,
+    ObjectiveDirection,
     OrgSettings,
+    QualityObjective,
+    QualityObjectiveMeasurement,
     Role,
     RolePagePermission,
     Standard,
@@ -353,6 +362,135 @@ _STANDARDS_SEED = [
 ]
 
 
+def seed_quality_modules(db: Session, admin: User | None) -> None:
+    """Demo data for the Quality Objectives, Continual Improvement, Customer
+    Satisfaction and FMEA modules so a fresh demo shows them populated."""
+    actor_id = admin.id if admin else None
+
+    if not db.execute(select(QualityObjective)).first():
+        otd = QualityObjective(
+            objective_number="QO-2026-0001",
+            title="On-time delivery >= 98%",
+            target_value=98,
+            current_value=96.5,
+            unit="%",
+            direction=ObjectiveDirection.HIGHER_BETTER,
+            clause_ref="6.2",
+            created_by=actor_id,
+            updated_by=actor_id,
+        )
+        escapes = QualityObjective(
+            objective_number="QO-2026-0002",
+            title="Customer escapes <= 3 / year",
+            target_value=3,
+            current_value=2,
+            unit="",
+            direction=ObjectiveDirection.LOWER_BETTER,
+            clause_ref="9.1",
+            created_by=actor_id,
+            updated_by=actor_id,
+        )
+        db.add_all([otd, escapes])
+        db.flush()
+        db.add(
+            QualityObjectiveMeasurement(
+                objective_id=otd.id, value=96.5, note="Q1 actuals", created_by=actor_id
+            )
+        )
+        logger.info("seeded demo quality objectives")
+
+    if not db.execute(select(Improvement)).first():
+        db.add_all(
+            [
+                Improvement(
+                    improvement_number="KAI-2026-0001",
+                    title="Reduce CNC cell 3 setup time",
+                    status=ImprovementStatus.DONE,
+                    realized_benefit=15000,
+                    created_by=actor_id,
+                    updated_by=actor_id,
+                ),
+                Improvement(
+                    improvement_number="KAI-2026-0002",
+                    title="Digital travelers for the weld shop",
+                    status=ImprovementStatus.IN_PROGRESS,
+                    estimated_benefit=8000,
+                    created_by=actor_id,
+                    updated_by=actor_id,
+                ),
+            ]
+        )
+        logger.info("seeded demo improvements")
+
+    customer = db.execute(select(Customer)).scalars().first()
+    if customer is None:
+        customer = Customer(
+            code="CUST-0001",
+            name="Apex Aerospace Primes",
+            country="USA",
+            created_by=actor_id,
+            updated_by=actor_id,
+        )
+        db.add(customer)
+        db.flush()
+    if not db.execute(select(CustomerSurvey)).first():
+        db.add_all(
+            [
+                CustomerSurvey(
+                    survey_number="CSAT-2026-0001",
+                    customer_id=customer.id,
+                    period="Q1 2026",
+                    quality_score=92,
+                    delivery_score=88,
+                    communication_score=95,
+                    overall_score=91.7,
+                    created_by=actor_id,
+                    updated_by=actor_id,
+                ),
+            ]
+        )
+        logger.info("seeded demo customer survey")
+
+    if not db.execute(select(Fmea)).first():
+        fmea = Fmea(
+            fmea_number="FMEA-2026-0001",
+            title="Bracket weld process PFMEA",
+            part_number="PN-12345",
+            created_by=actor_id,
+            updated_by=actor_id,
+        )
+        db.add(fmea)
+        db.flush()
+        db.add_all(
+            [
+                FmeaItem(
+                    fmea_id=fmea.id,
+                    function="Weld bracket to frame",
+                    failure_mode="Insufficient weld penetration",
+                    effect="Joint fails under load",
+                    severity=9,
+                    occurrence=4,
+                    detection=5,
+                    recommended_action="Add weld-penetration inspection to control plan",
+                    created_by=actor_id,
+                    updated_by=actor_id,
+                ),
+                FmeaItem(
+                    fmea_id=fmea.id,
+                    function="Apply protective coating",
+                    failure_mode="Coating thickness out of spec",
+                    effect="Premature corrosion",
+                    severity=6,
+                    occurrence=3,
+                    detection=4,
+                    created_by=actor_id,
+                    updated_by=actor_id,
+                ),
+            ]
+        )
+        logger.info("seeded demo FMEA")
+
+
 def seed_standards(db: Session) -> None:
     """Seed the standards-coverage matrix (idempotent — skips existing codes)."""
     existing = {code for (code,) in db.execute(select(Standard.code)).all()}
@@ -393,6 +531,7 @@ def run() -> None:
 
         try:
             seed_demo(db, admin)
+            seed_quality_modules(db, admin)
             db.commit()
         except Exception:  # noqa: BLE001 - demo data is best-effort
             db.rollback()
