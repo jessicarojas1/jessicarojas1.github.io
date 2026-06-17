@@ -73,6 +73,15 @@ final class Webhook
             self::record((int)$hook['id'], $event, 0, false, 'Invalid URL');
             return 0;
         }
+        // SSRF guard: resolve + validate the target is a public address, and pin
+        // the connection to that IP so DNS cannot be rebound to an internal host.
+        $pinnedIp = Security::safeOutboundIp($url);
+        if ($pinnedIp === null) {
+            self::record((int)$hook['id'], $event, 0, false, 'Blocked: target resolves to a private, reserved or unresolvable address');
+            return 0;
+        }
+        $parts = parse_url($url);
+        $port  = (int)($parts['port'] ?? (strtolower($parts['scheme']) === 'https' ? 443 : 80));
 
         $headers = [
             'Content-Type: application/json',
@@ -95,6 +104,10 @@ final class Webhook
             CURLOPT_TIMEOUT        => 5,
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_SSL_VERIFYPEER => true,
+            // Restrict to HTTP(S) and pin the validated public IP (anti-rebinding).
+            CURLOPT_PROTOCOLS      => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS=> CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            CURLOPT_RESOLVE        => [$parts['host'] . ':' . $port . ':' . $pinnedIp],
         ]);
         $resp = curl_exec($ch);
         if ($resp === false) {
