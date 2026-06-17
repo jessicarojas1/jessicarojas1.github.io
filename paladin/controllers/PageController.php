@@ -136,6 +136,29 @@ class PageController {
              LEFT JOIN users u ON u.id = (CASE WHEN pr.principal_type='user' AND pr.principal ~ '^[0-9]+$' THEN pr.principal::int ELSE NULL END)
              WHERE pr.page_id = ? ORDER BY pr.mode, pr.principal_type", [$id]
         );
+        // Inherited (ancestor-defined) restrictions, resolved for display.
+        $inheritedRestrictions = [];
+        foreach (['view', 'edit'] as $mode) {
+            $inf = PageAccess::inheritedFrom($id, $mode);
+            if (!$inf) { continue; }
+            $src = Database::fetchOne("SELECT id, title FROM pages WHERE id = ?", [(int)$inf['source']]);
+            $rows = [];
+            foreach ($inf['rows'] as $r) {
+                if ($r['principal_type'] === 'role') {
+                    $label = Auth::roleLabel((string)$r['principal']) . ' (role)';
+                } else {
+                    $u = Database::fetchOne("SELECT name FROM users WHERE id = ?", [(int)$r['principal']]);
+                    $label = $u['name'] ?? ('User #' . $r['principal']);
+                }
+                $rows[] = ['type' => $r['principal_type'], 'label' => $label];
+            }
+            $inheritedRestrictions[] = [
+                'mode' => $mode,
+                'source_id' => (int)$inf['source'],
+                'source_title' => $src['title'] ?? 'a parent page',
+                'rows' => $rows,
+            ];
+        }
         $canEditPage = PageAccess::canEdit($page);
         $canManageSpace = SpaceAccess::canManage(['id' => (int)$page['space_id'], 'is_private' => $page['space_private']]);
         $isHomepage = (int)($page['space_homepage'] ?? 0) === $id;

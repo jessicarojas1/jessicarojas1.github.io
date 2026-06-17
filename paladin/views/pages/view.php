@@ -231,8 +231,19 @@ ob_start();
   <div class="card" style="margin-bottom:18px">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-lock-fill"></i> Restrictions</span></div></div>
     <div class="card-body">
-      <?php if (!$restrictions && PageAccess::inheritsRestriction((int)$page['id'])): ?>
-        <div class="form-hint" style="margin-bottom:8px"><i class="bi bi-diagram-2"></i> This page inherits view restrictions from a parent page.</div>
+      <?php if (!empty($inheritedRestrictions)): ?>
+        <div style="margin-bottom:10px;padding:8px 10px;background:var(--bg-secondary);border-radius:8px">
+          <div class="form-hint" style="margin-bottom:6px"><i class="bi bi-diagram-2"></i> Inherited from <a href="/pages/<?= (int)$inheritedRestrictions[0]['source_id'] ?>"><?= Security::h($inheritedRestrictions[0]['source_title']) ?></a></div>
+          <?php foreach ($inheritedRestrictions as $inh): ?>
+            <?php foreach ($inh['rows'] as $row): ?>
+              <div style="display:flex;align-items:center;gap:8px;padding:3px 0">
+                <span class="badge <?= $inh['mode']==='edit'?'badge-orange':'badge-blue' ?>"><?= $inh['mode']==='edit'?'Can edit':'Can view' ?></span>
+                <span style="flex:1;font-size:.82rem"><i class="bi bi-<?= $row['type']==='role'?'people':'person' ?>"></i> <?= Security::h($row['label']) ?></span>
+                <i class="bi bi-lock" title="Inherited — manage on the parent page" style="color:var(--text-light)"></i>
+              </div>
+            <?php endforeach; ?>
+          <?php endforeach; ?>
+        </div>
       <?php endif; ?>
       <?php if ($restrictions): ?>
         <?php foreach ($restrictions as $r): ?>
