@@ -62,6 +62,24 @@ final class PageAccess {
         return $parent !== null && self::effectiveRows($parent, 'view') !== [];
     }
 
+    /**
+     * Restrictions of $mode this page inherits from the nearest ancestor that
+     * defines them — only when the page has no rules of its own for that mode.
+     * Returns ['source' => ancestorPageId, 'rows' => [...]] or [] when nothing
+     * is inherited.
+     */
+    public static function inheritedFrom(int $pageId, string $mode): array {
+        $own = array_filter(self::restrictions($pageId), fn($r) => $r['mode'] === $mode);
+        if ($own) { return []; }
+        $cur = self::parentId($pageId); $depth = 0;
+        while ($cur !== null && $depth++ < 50) {
+            $rows = array_values(array_filter(self::restrictions($cur), fn($r) => $r['mode'] === $mode));
+            if ($rows) { return ['source' => $cur, 'rows' => $rows]; }
+            $cur = self::parentId($cur);
+        }
+        return [];
+    }
+
     public static function canView(array $page): bool {
         if (self::privileged($page)) return true;
         $rows = self::effectiveRows((int)$page['id'], 'view');
