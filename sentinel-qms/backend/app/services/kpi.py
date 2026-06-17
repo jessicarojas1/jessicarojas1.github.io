@@ -705,6 +705,9 @@ def executive_dashboard(db: Session) -> dict:
         "counterfeit": counterfeit,
         "standards_coverage": standards_coverage,
         "fod": fod,
+        "quality_objectives": quality_objective_metrics(db),
+        "customer_satisfaction": customer_survey_metrics(db),
+        "improvement": improvement_metrics(db),
     }
 
 

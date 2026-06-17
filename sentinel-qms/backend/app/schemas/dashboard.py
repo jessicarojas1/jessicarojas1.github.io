@@ -160,6 +160,23 @@ class FodSummary(BaseModel):
     trend: list[FodTrendPoint]
 
 
+class QualityObjectiveSummary(BaseModel):
+    total: int
+    measured: int
+    met: int
+    avg_attainment: float | None
+
+
+class CustomerSatSummary(BaseModel):
+    average_overall: float | None
+    count: int
+
+
+class ImprovementSummary(BaseModel):
+    open: int
+    realized_benefit: float
+
+
 class ExecutiveDashboard(BaseModel):
     generated_at: str
     kpis: list[ExecKpi]
@@ -170,6 +187,9 @@ class ExecutiveDashboard(BaseModel):
     counterfeit: CounterfeitSummary
     standards_coverage: list[StandardCoverage]
     fod: FodSummary
+    quality_objectives: QualityObjectiveSummary
+    customer_satisfaction: CustomerSatSummary
+    improvement: ImprovementSummary
 
 
 class MyOpenItem(BaseModel):

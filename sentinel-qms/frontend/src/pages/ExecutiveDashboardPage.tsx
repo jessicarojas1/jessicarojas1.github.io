@@ -8,7 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { CalendarClock, ShieldCheck, ShieldX, Trash } from 'lucide-react';
+import { CalendarClock, Lightbulb, ShieldCheck, ShieldX, Smile, Target, Trash } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useExecutiveDashboard } from '@/hooks';
 import { PageHeader } from '@/components/PageHeader';
@@ -276,6 +276,83 @@ export default function ExecutiveDashboardPage() {
                     <Bar dataKey="count" name="FOD events" fill={CHART_COLORS.warning} radius={[2, 2, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+            </Link>
+          </div>
+
+          <div className="chart-grid">
+            <Link to="/quality-objectives" className="card exec-link-card">
+              <div className="card__header">
+                <div className="card__title">
+                  <Target size={16} /> Quality Objectives
+                </div>
+                <div className="card__subtitle">KPI attainment vs target</div>
+              </div>
+              <div className="card__body">
+                <div className="exec-stat-row">
+                  <div className="exec-stat">
+                    <div className="exec-stat__value">
+                      {data.quality_objectives.avg_attainment != null
+                        ? `${data.quality_objectives.avg_attainment}%`
+                        : '—'}
+                    </div>
+                    <div className="exec-stat__label">Avg attainment</div>
+                  </div>
+                  <div className="exec-stat">
+                    <div className="exec-stat__value">
+                      {data.quality_objectives.met}/{data.quality_objectives.measured}
+                    </div>
+                    <div className="exec-stat__label">Meeting target</div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            <Link to="/customer-satisfaction" className="card exec-link-card">
+              <div className="card__header">
+                <div className="card__title">
+                  <Smile size={16} /> Customer Satisfaction
+                </div>
+                <div className="card__subtitle">Average survey score</div>
+              </div>
+              <div className="card__body">
+                <div className="exec-stat-row">
+                  <div className="exec-stat">
+                    <div className="exec-stat__value">
+                      {data.customer_satisfaction.average_overall != null
+                        ? `${data.customer_satisfaction.average_overall}%`
+                        : '—'}
+                    </div>
+                    <div className="exec-stat__label">Avg overall</div>
+                  </div>
+                  <div className="exec-stat">
+                    <div className="exec-stat__value">{data.customer_satisfaction.count}</div>
+                    <div className="exec-stat__label">Surveys</div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            <Link to="/improvements" className="card exec-link-card">
+              <div className="card__header">
+                <div className="card__title">
+                  <Lightbulb size={16} /> Continual Improvement
+                </div>
+                <div className="card__subtitle">Open items &amp; realized benefit</div>
+              </div>
+              <div className="card__body">
+                <div className="exec-stat-row">
+                  <div className="exec-stat">
+                    <div className="exec-stat__value">{data.improvement.open}</div>
+                    <div className="exec-stat__label">Open</div>
+                  </div>
+                  <div className="exec-stat">
+                    <div className="exec-stat__value">
+                      ${data.improvement.realized_benefit.toLocaleString()}
+                    </div>
+                    <div className="exec-stat__label">Realized $</div>
+                  </div>
+                </div>
               </div>
             </Link>
           </div>

@@ -1108,6 +1108,9 @@ export interface ExecutiveDashboard {
   counterfeit: { suspect_parts: number; open_alerts: number };
   standards_coverage: { code: string; coverage_pct: number }[];
   fod: { open_events: number; trend: { month: string; count: number }[] };
+  quality_objectives: { total: number; measured: number; met: number; avg_attainment: number | null };
+  customer_satisfaction: { average_overall: number | null; count: number };
+  improvement: { open: number; realized_benefit: number };
 }
 
 /* ------------------------------------------------------------------ */
