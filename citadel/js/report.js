@@ -64,6 +64,7 @@
         <div><span class="sc-val">${r.languages.languages.length}</span><span class="sc-lbl">Languages</span></div>
         <div><span class="sc-val">${r.sbom.components.length}</span><span class="sc-lbl">Dependencies</span></div>
         <div><span class="sc-val text-danger">${s.sev.critical + s.sev.high}</span><span class="sc-lbl">Critical+High</span></div>
+        ${s.risk != null ? `<div><span class="sc-val ${s.riskBand === 'Critical' || s.riskBand === 'High' ? 'text-danger' : s.riskBand === 'Moderate' ? 'text-warning' : ''}">${s.risk}</span><span class="sc-lbl">Risk · ${esc(s.riskBand || '')}</span></div>` : ''}
         <div><span class="sc-val">${r.posture.filter(p => p.findings > 0).length}</span><span class="sc-lbl">Frameworks impacted</span></div>
         <div><span class="sc-val">${r.meta && r.meta.engine === 'deep' ? 'Deep' : 'Quick'}</span><span class="sc-lbl">Scan mode</span></div>
       </div>`;
@@ -345,7 +346,10 @@
       const fw = CITADEL.frameworks.CATALOG.find(f => f.id === k);
       return `<span class="ctrl-chip" title="${esc(fw ? fw.name : k)}">${esc(fw ? fw.name.split(' ')[0] : k)}: ${esc(m[k][0])}</span>`;
     }).join('');
-    return `<div class="finding-controls"><span class="small text-body-secondary me-1">Maps to:</span>${chips}</div>`;
+    // Explainable: WHY this finding implicates these control families.
+    const why = CITADEL.frameworks.rationale ? CITADEL.frameworks.rationale(cat) : '';
+    return `<div class="finding-controls"><span class="small text-body-secondary me-1">Maps to:</span>${chips}</div>`
+      + (why ? `<div class="finding-why small text-body-secondary mt-1"><i class="bi bi-info-circle"></i> ${esc(why)}</div>` : '');
   }
 
   /* ---------- Compliance ---------- */
@@ -575,15 +579,36 @@
 
   function csvCell(s) { return '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"'; }
   // POA&M — Plan of Action & Milestones (CSV), one row per finding.
+  // "Framework: CTRL; …" string for a finding's category (for POA&M traceability).
+  function controlsFor(f) {
+    const m = (CITADEL.frameworks.MAP && CITADEL.frameworks.MAP[f.category]) || {};
+    return Object.keys(m).map(k => {
+      const fw = CITADEL.frameworks.CATALOG.find(x => x.id === k);
+      return (fw ? (fw.short || fw.name.split(' ')[0]) : k) + ':' + (m[k] || []).slice(0, 3).join('/');
+    }).join('; ');
+  }
+  const POAM_STATUS = { open: 'Open', accepted: 'Risk Accepted', 'false-positive': 'Closed — False Positive', remediated: 'Completed', na: 'Not Applicable' };
   function exportPoam() {
     const r = current;
-    const rows = [['POAM ID', 'Weakness', 'CWE', 'Severity', 'Category', 'Source', 'Location', 'Recommended Correction', 'Status', 'Identified']];
+    const dispoOf = (CITADEL.disposition && CITADEL.disposition.of) ? CITADEL.disposition.of : () => 'open';
+    const rows = [['POAM ID', 'Weakness', 'Kind', 'Detection', 'CWE', 'Severity', 'Category',
+      'Source Tool(s)', 'Affected Asset', 'Evidence', 'Recommended Correction', 'Mapped Controls',
+      'Owner', 'Planned Completion', 'Status', 'Disposition', 'Identified', 'Fingerprint']];
     r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity)).forEach((f, i) => {
+      const dispo = dispoOf(f);
       rows.push([
         'POAM-' + String(i + 1).padStart(4, '0'),
-        f.name, f.cwe || '', f.severity, CITADEL.frameworks.CATEGORIES[f.category] || f.category,
-        f.source || 'heuristic', (f.file || '') + (f.line ? ':' + f.line : ''),
-        f.remediation || '', 'Open', r.meta.scannedAt
+        f.name, f.kind || 'vuln', f.detection || (f.confirmed ? 'scanner' : 'heuristic'),
+        f.cwe || '', f.severity, CITADEL.frameworks.CATEGORIES[f.category] || f.category,
+        (f.sources && f.sources.join(', ')) || f.source || 'heuristic',
+        (f.file || '') + (f.line ? ':' + f.line : ''),
+        (f.snippet || '').slice(0, 200),
+        f.remediation || '', controlsFor(f),
+        '',                                  // Owner — placeholder for the assigned remediation owner
+        '',                                  // Planned Completion — placeholder (YYYY-MM-DD)
+        POAM_STATUS[dispo] || 'Open',
+        dispo,
+        r.meta.scannedAt, f.fingerprint || ''
       ]);
     });
     download('citadel-poam.csv', rows.map(row => row.map(csvCell).join(',')).join('\r\n'), 'text/csv');

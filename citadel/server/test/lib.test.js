@@ -236,6 +236,22 @@ test('fingerprint: line-stable identity, classification, and cross-tool merge', 
   assert.deepEqual(merged[0].sources.sort(), ['heuristic', 'semgrep']);
 });
 
+/* ---------------- Risk score + explainable compliance ---------------- */
+test('scoring: distinct risk score weights confirmed findings; rationale is explainable', () => {
+  const C = loadEngine();
+  const sc = C.scanner.score(
+    [{ severity: 'critical', category: 'injection', confirmed: true }, { severity: 'high', category: 'xss', confirmed: false }],
+    { maintainability: 80, commentRatio: 6, loc: 1000 });
+  assert.ok(sc.risk > 0 && sc.risk <= 100, 'risk in (0,100]');
+  assert.ok(['Minimal', 'Low', 'Moderate', 'High', 'Critical'].indexOf(sc.riskBand) >= 0);
+  // confirmed criticals weigh more than the same finding heuristic
+  const hi = C.scanner.score([{ severity: 'critical', category: 'injection', confirmed: true }], { maintainability: 80, commentRatio: 6, loc: 1000 });
+  const lo = C.scanner.score([{ severity: 'critical', category: 'injection', confirmed: false }], { maintainability: 80, commentRatio: 6, loc: 1000 });
+  assert.ok(hi.risk > lo.risk, 'scanner-confirmed risk > heuristic risk');
+  assert.match(C.frameworks.rationale('injection'), /input|control/i);
+  assert.equal(typeof C.frameworks.rationale('config'), 'string');
+});
+
 /* ---------------- ReDoS isolation (worker + timeout) ---------------- */
 test('engine: isolated heuristic scan runs in a worker and degrades on timeout', async () => {
   const fsx = require('fs'), osx = require('os'), px = require('path');

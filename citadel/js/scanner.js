@@ -213,7 +213,13 @@
     security = Math.max(0, Math.min(100, security));
     const quality = q.maintainability;
     const overall = Math.round(security * 0.6 + quality * 0.25 + (q.commentRatio > 5 ? 100 : q.commentRatio * 20) * 0.15);
-    return { sev, security, quality, overall: Math.max(0, Math.min(100, overall)), grade: grade(security) };
+    // Distinct RISK score (0 = none, 100 = critical exposure): severity-weighted
+    // exposure, with scanner-confirmed findings weighted higher than heuristic.
+    let riskRaw = 0;
+    findings.forEach(f => { riskRaw += (SEV_WEIGHT[f.severity] || 0) * (f.confirmed ? 1.4 : 1); });
+    const risk = Math.min(100, Math.round(riskRaw));
+    const riskBand = risk >= 70 ? 'Critical' : risk >= 40 ? 'High' : risk >= 15 ? 'Moderate' : risk > 0 ? 'Low' : 'Minimal';
+    return { sev, security, quality, overall: Math.max(0, Math.min(100, overall)), grade: grade(security), risk, riskBand };
   }
 
   function grade(s) {

@@ -34,6 +34,36 @@
     quality:          'Code Quality & Maintainability'
   };
 
+  /* Why a weakness of each category implicates the mapped control families —
+   * a short, audit-friendly rationale shown on every finding so the mapping is
+   * explainable, not asserted. */
+  const RATIONALE = {
+    injection:        'Untrusted input reaches an interpreter without neutralization — violates input-validation / secure-coding controls (e.g. NIST SI-10, OWASP A03, CWE-77/89).',
+    xss:              'Untrusted data is rendered without output encoding — violates output-encoding / web-app protection controls (OWASP A03, CWE-79).',
+    crypto:           'Weak or broken cryptography fails the data-protection controls for confidentiality/integrity (NIST SC-13, PCI 3/4, CWE-327).',
+    secrets:          'Hardcoded credentials defeat identification & authentication and key-management controls (NIST IA-5, OWASP A07, CWE-798).',
+    authn:            'Broken authentication weakens the identification & authentication control family (NIST IA, OWASP A07).',
+    authz:            'Missing/!improper access control violates least-privilege and access-enforcement controls (NIST AC-3/AC-6, OWASP A01, CWE-862).',
+    deserialization:  'Untrusted deserialization enables integrity/code-execution failures (NIST SI, OWASP A08, CWE-502).',
+    ssrf:             'Server-side request forgery violates boundary-protection / access-control controls (NIST SC-7, OWASP A10, CWE-918).',
+    'path-traversal': 'Path traversal breaks file-access confinement and access-enforcement controls (NIST AC-3, CWE-22).',
+    xxe:              'XML external-entity processing exposes data/SSRF — violates input-validation controls (NIST SI-10, CWE-611).',
+    logging:          'Insufficient logging undermines audit & accountability controls (NIST AU family, OWASP A09).',
+    config:           'Security misconfiguration violates configuration-management & secure-baseline controls (NIST CM-6, OWASP A05).',
+    deps:             'Known-vulnerable components violate flaw-remediation / vulnerability-management controls (NIST RA-5/SI-2, OWASP A06).',
+    'supply-chain':   'Unverified components/provenance violate supply-chain integrity controls (NIST SR family, OWASP A08).',
+    'input-validation':'Improper input validation violates the SI-10 input-validation control objective.',
+    'error-handling': 'Information disclosure via errors violates error-handling / least-information controls (NIST SI-11, CWE-209).',
+    session:          'Weak session handling violates session-management & authenticator controls (NIST IA/AC, CWE-384/614).',
+    transport:        'Cleartext / weak TLS violates transmission-confidentiality controls (NIST SC-8, PCI 4, CWE-319).',
+    'file-upload':    'Unrestricted upload violates input-validation & malicious-code controls (NIST SI-3/SI-10, CWE-434).',
+    random:           'Predictable randomness weakens cryptographic & session controls (NIST SC-13, CWE-330).',
+    malware:          'Malicious/suspicious binary triggers malicious-code-protection controls (NIST SI-3, CWE-506).',
+    privacy:          'Exposed regulated data violates privacy & media-protection controls (GDPR/HIPAA/PCI, NIST MP/PT, CWE-359).',
+    quality:          'Poor maintainability weakens the secure-development and change-management posture (NIST SA family).'
+  };
+  function rationale(cat) { return RATIONALE[cat] || 'Maps to the control families governing this weakness category.'; }
+
   /* The standards catalog. `families` is a lightweight set of control IDs
    * used for posture rendering; not the full control text of each standard. */
   const CATALOG = [
@@ -330,5 +360,5 @@
     return Object.keys(c).reduce((a, k) => a + c[k].families.reduce((s, f) => s + (f.controls ? f.controls.length : 0), 0), 0);
   }
 
-  CITADEL.frameworks = { CATALOG, CATEGORIES, MAP, posture, catalog, catalogTotal };
+  CITADEL.frameworks = { CATALOG, CATEGORIES, MAP, RATIONALE, rationale, posture, catalog, catalogTotal };
 })(window);
