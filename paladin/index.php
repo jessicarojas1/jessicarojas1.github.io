@@ -170,6 +170,7 @@ $routes = [
         '/labels'                    => ['LabelController', 'index'],
         '/reports'                   => ['ReportController', 'index'],
         '/reports/compliance'        => ['ReportController', 'compliance'],
+        '/reports/content-health'    => ['ReportController', 'contentHealth'],
         '/activity'                  => ['ActivityController', 'index'],
         '/reports/expiring'          => ['ReportController', 'expiring'],
         '/reports/approval-backlog'  => ['ReportController', 'approvalBacklog'],

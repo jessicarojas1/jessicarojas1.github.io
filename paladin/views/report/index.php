@@ -45,6 +45,11 @@ foreach ($byStatus as $row) {
           <div class="card-title">Compliance Metrics</div>
           <div class="form-hint">Document control, review compliance, approval throughput and process health at a glance.</div>
         </a>
+        <a href="/reports/content-health" class="lib-card" style="text-decoration:none">
+          <div class="stat-icon" style="background:rgba(217,119,6,.12);color:var(--warning)"><i class="bi bi-heart-pulse"></i></div>
+          <div class="card-title">Content Health</div>
+          <div class="form-hint">Orphaned pages and broken internal links across the wiki.</div>
+        </a>
         <a href="/reports/expiring" class="lib-card" style="text-decoration:none">
           <div class="stat-icon" style="background:rgba(249,115,22,.12);color:var(--orange)"><i class="bi bi-calendar-x-fill"></i></div>
           <div class="card-title">Expiring &amp; Overdue Documents</div>
