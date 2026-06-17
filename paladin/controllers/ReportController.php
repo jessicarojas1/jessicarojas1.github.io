@@ -65,6 +65,65 @@ class ReportController {
         require PALADIN_ROOT . '/views/report/compliance.php';
     }
 
+    /**
+     * Content health — orphaned pages (top-level, not a space homepage, nothing
+     * links to them) and broken internal links (href to a /pages/N or
+     * /documents/N that no longer exists). Read-only; respects space privacy and
+     * per-page restrictions.
+     */
+    public function contentHealth(): void {
+        Auth::requirePermission('report.view');
+
+        $pages = Database::fetchAll(
+            "SELECT p.id, p.title, p.parent_id, p.space_id, p.status, p.body,
+                    s.space_key, s.is_private AS space_private, s.homepage_id
+             FROM pages p JOIN spaces s ON s.id = p.space_id
+             WHERE p.deleted_at IS NULL"
+        );
+        // Only consider content the current user may actually see.
+        $pages = array_values(array_filter($pages, static fn($p) =>
+            SpaceAccess::canView(['id' => (int)$p['space_id'], 'is_private' => $p['space_private']])
+            && PageAccess::canView($p)
+        ));
+
+        $validPageIds = []; $homepageIds = [];
+        foreach ($pages as $p) {
+            $validPageIds[(int)$p['id']] = true;
+            if (!empty($p['homepage_id'])) { $homepageIds[(int)$p['homepage_id']] = true; }
+        }
+        $validDocIds = [];
+        foreach (Database::fetchAll("SELECT id FROM documents") as $d) { $validDocIds[(int)$d['id']] = true; }
+
+        $inbound = [];   // page id => inbound internal-link count
+        $broken  = [];   // ['source_id','source_title','space_key','kind','target']
+        foreach ($pages as $p) {
+            if (preg_match_all('#href=["\']/(pages|documents)/(\d+)#i', (string)$p['body'], $m, PREG_SET_ORDER)) {
+                foreach ($m as $mm) {
+                    $kind = strtolower($mm[1]); $tid = (int)$mm[2];
+                    if ($kind === 'pages') {
+                        $inbound[$tid] = ($inbound[$tid] ?? 0) + 1;
+                        if (!isset($validPageIds[$tid])) {
+                            $broken[] = ['source_id' => (int)$p['id'], 'source_title' => $p['title'], 'space_key' => $p['space_key'], 'kind' => 'page', 'target' => $tid];
+                        }
+                    } elseif (!isset($validDocIds[$tid])) {
+                        $broken[] = ['source_id' => (int)$p['id'], 'source_title' => $p['title'], 'space_key' => $p['space_key'], 'kind' => 'document', 'target' => $tid];
+                    }
+                }
+            }
+        }
+
+        $orphans = [];
+        foreach ($pages as $p) {
+            $id = (int)$p['id'];
+            if ($p['parent_id'] === null && !isset($homepageIds[$id]) && empty($inbound[$id])) {
+                $orphans[] = $p;
+            }
+        }
+        usort($orphans, static fn($a, $b) => strcasecmp((string)$a['title'], (string)$b['title']));
+
+        require PALADIN_ROOT . '/views/report/content_health.php';
+    }
+
     public function expiring(): void {
         Auth::requirePermission('report.view');
 
