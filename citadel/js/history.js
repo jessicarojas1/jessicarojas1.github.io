@@ -64,14 +64,26 @@
     return [f.ruleId || '', (f.file || '').replace(/^.*!\//, ''), f.name || ''].join('|');
   }
   function dmap() { try { return JSON.parse(localStorage.getItem(DKEY) || '{}'); } catch (e) { return {}; } }
-  function dispositionOf(f) { return dmap()[fpOf(f)] || 'open'; }
+  // When a backend is present, a shared server-side map (by fingerprint) is the
+  // source of truth and wins over the per-browser localStorage map.
+  let _server = null;   // { fingerprint: state } or null when not loaded/unavailable
+  function effective() { return _server ? Object.assign({}, dmap(), _server) : dmap(); }
+  function dispositionOf(f) { const k = fpOf(f); return (_server && _server[k]) || dmap()[k] || 'open'; }
   function setDisposition(f, state) {
-    const m = dmap(); const k = fpOf(f);
+    const k = fpOf(f);
+    const m = dmap();
     if (!state || state === 'open') delete m[k]; else if (DISPOSITIONS.indexOf(state) >= 0) m[k] = state;
     try { localStorage.setItem(DKEY, JSON.stringify(m)); } catch (e) {}
+    if (_server) {                                  // optimistic shared update + persist
+      if (!state || state === 'open') delete _server[k]; else _server[k] = state;
+      if (CITADEL.api && CITADEL.api.dispositionSet) CITADEL.api.dispositionSet(k, state || 'open');
+    }
   }
+  // Load the shared server map (called once a backend is detected).
+  function syncServer(map) { _server = map || {}; }
+  function serverShared() { return !!_server; }
   function dispositionCounts() {
-    const m = dmap(); const c = { open: 0, accepted: 0, 'false-positive': 0, remediated: 0, na: 0 };
+    const m = effective(); const c = { open: 0, accepted: 0, 'false-positive': 0, remediated: 0, na: 0 };
     Object.keys(m).forEach(k => { if (c[m[k]] !== undefined) c[m[k]]++; });
     return c;
   }
@@ -80,10 +92,10 @@
   function suppress(f) { setDisposition(f, 'accepted'); }
   function unsuppress(f) { setDisposition(f, 'open'); }
   function clearSuppress() { try { localStorage.removeItem(DKEY); } catch (e) {} }
-  function suppressCount() { const m = dmap(); return Object.keys(m).filter(k => m[k] && m[k] !== 'open').length; }
-  function suppressed() { const m = dmap(); return new Set(Object.keys(m).filter(k => m[k] && m[k] !== 'open')); }
+  function suppressCount() { const m = effective(); return Object.keys(m).filter(k => m[k] && m[k] !== 'open').length; }
+  function suppressed() { const m = effective(); return new Set(Object.keys(m).filter(k => m[k] && m[k] !== 'open')); }
 
   CITADEL.history = { record, list, clear, compare };
   CITADEL.suppress = { fingerprint: fpOf, isSuppressed, suppress, unsuppress, clear: clearSuppress, count: suppressCount, all: suppressed };
-  CITADEL.disposition = { of: dispositionOf, set: setDisposition, counts: dispositionCounts, states: DISPOSITIONS, label: DISPO_LABEL, fpOf };
+  CITADEL.disposition = { of: dispositionOf, set: setDisposition, counts: dispositionCounts, states: DISPOSITIONS, label: DISPO_LABEL, fpOf, syncServer, serverShared };
 })(window);

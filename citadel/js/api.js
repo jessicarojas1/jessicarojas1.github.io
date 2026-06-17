@@ -161,5 +161,18 @@
   async function scanGet(id) { const res = await apiFetch('api/scans/' + encodeURIComponent(id)); return asJson(res, 'Could not load scan'); }
   async function scanDelete(id) { const res = await apiFetch('api/scans/' + encodeURIComponent(id), { method: 'DELETE' }); return asJson(res, 'Could not delete scan'); }
 
-  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, getToken, getRefresh };
+  /* ---------- Shared finding dispositions ---------- */
+  // Returns the { fingerprint: state } map, or null when unavailable (no DB / not signed in).
+  async function dispositionsList() {
+    try { const res = await apiFetch('api/dispositions'); if (!res.ok) return null; return res.json(); } catch (e) { return null; }
+  }
+  // Persist a disposition; returns true on success (false if not shared / denied).
+  async function dispositionSet(fingerprint, state) {
+    try {
+      const res = await apiFetch('api/dispositions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fingerprint, state }) });
+      return res.ok;
+    } catch (e) { return false; }
+  }
+
+  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, dispositionsList, dispositionSet, getToken, getRefresh };
 })(window);

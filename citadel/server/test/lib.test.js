@@ -252,6 +252,16 @@ test('scoring: distinct risk score weights confirmed findings; rationale is expl
   assert.equal(typeof C.frameworks.rationale('config'), 'string');
 });
 
+/* ---------------- Shared dispositions (graceful without a DB) ---------------- */
+test('dispositions: valid states; degrades to no-op without a database', async () => {
+  const d = require('../lib/dispositions');
+  assert.ok(d.valid('accepted') && d.valid('false-positive') && d.valid('open'));
+  assert.equal(d.valid('bogus'), false);
+  assert.equal(d.enabled(), false);              // no DATABASE_URL in tests
+  assert.deepEqual(await d.list(), {});
+  assert.equal(await d.set('fp123', 'accepted', 'tester'), null);
+});
+
 /* ---------------- ReDoS isolation (worker + timeout) ---------------- */
 test('engine: isolated heuristic scan runs in a worker and degrades on timeout', async () => {
   const fsx = require('fs'), osx = require('os'), px = require('path');

@@ -103,3 +103,13 @@ CREATE TABLE IF NOT EXISTS citadel_scans (
   report     jsonb NOT NULL
 );
 CREATE INDEX IF NOT EXISTS citadel_scans_ts_idx ON citadel_scans (id DESC);
+
+-- ----------------------------------------------------------------------------
+-- Finding dispositions — shared triage state keyed by canonical fingerprint.
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS citadel_dispositions (
+  fingerprint text PRIMARY KEY,
+  state       text NOT NULL,
+  actor       text,
+  updated_at  timestamptz NOT NULL DEFAULT now()
+);

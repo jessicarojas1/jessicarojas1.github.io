@@ -111,6 +111,16 @@ CREATE TABLE IF NOT EXISTS citadel_scans (
 );
 CREATE INDEX IF NOT EXISTS citadel_scans_ts_idx ON citadel_scans (id DESC);
 
+-- Shared finding triage state, keyed by the canonical finding fingerprint, so a
+-- disposition (accepted / false-positive / remediated / n-a) set by one user is
+-- visible to all and survives browsers. 'open' rows are deleted.
+CREATE TABLE IF NOT EXISTS citadel_dispositions (
+  fingerprint text PRIMARY KEY,
+  state       text NOT NULL,
+  actor       text,
+  updated_at  timestamptz NOT NULL DEFAULT now()
+);
+
 -- MFA columns (idempotent for upgrades of an existing citadel_users table).
 ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_enabled boolean NOT NULL DEFAULT false;
 ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_secret  text;

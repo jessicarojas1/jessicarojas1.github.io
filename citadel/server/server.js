@@ -34,6 +34,7 @@ const log = require('./lib/log');
 const metrics = require('./lib/metrics');
 const oidc = require('./lib/oidc');
 const scans = require('./lib/scans');
+const dispositions = require('./lib/dispositions');
 const notify = require('./lib/notify');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
@@ -474,6 +475,20 @@ app.delete('/api/scans/:id', requirePerm('tab-history'), async (req, res) => {
   await scans.remove(req.params.id, scanScope(req));
   audit.record('scan.delete', { actor: req.user && req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true });
   res.json({ ok: true });
+});
+
+/* ---- Shared finding dispositions (triage state by fingerprint) ----
+ * Read for anyone who can view findings; write for anyone who can run/triage. */
+app.get('/api/dispositions', requirePerm('tab-findings'), async (req, res) => {
+  try { res.json(await dispositions.list()); } catch (e) { res.status(500).json({ error: 'Could not load dispositions.' }); }
+});
+app.post('/api/dispositions', requirePerm('analyze'), async (req, res) => {
+  if (!dispositions.enabled()) return res.status(501).json({ error: 'Shared dispositions require a database (set DATABASE_URL); local state is used otherwise.' });
+  try {
+    const state = await dispositions.set((req.body && req.body.fingerprint) || '', (req.body && req.body.state) || '', req.user && req.user.email);
+    audit.record('finding.disposition', { actor: req.user && req.user.email, ip: clientIp(req), detail: state + ' ' + ((req.body && req.body.fingerprint) || '').slice(0, 32), ok: true });
+    res.json({ ok: true, state });
+  } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
 /* ---------------- Sessions ---------------- */

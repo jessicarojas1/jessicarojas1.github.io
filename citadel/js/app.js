@@ -245,6 +245,13 @@
     ssoAvailable = !!(st.auth && st.auth.sso);
     try { backendUser = await CITADEL.api.authMe(); } catch (e) { backendUser = null; }
     applyAccess();
+    // Load shared finding dispositions (server-side, by fingerprint) so triage is
+    // consistent across users/browsers; re-render findings if a report is shown.
+    if (CITADEL.disposition && CITADEL.disposition.syncServer && CITADEL.api.dispositionsList) {
+      CITADEL.api.dispositionsList().then(map => {
+        if (map) { CITADEL.disposition.syncServer(map); if (CITADEL.report.current) CITADEL.report.renderFindings(CITADEL.report.current); }
+      });
+    }
     loadRecentActivity();
     CITADEL.report.setAi(aiAvailable);
     $('deep-mode-row').classList.remove('d-none');
