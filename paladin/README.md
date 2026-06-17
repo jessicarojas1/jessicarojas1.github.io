@@ -125,6 +125,11 @@ See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for **Azure Government**, **AWS G
 **Kubernetes** and **Docker Swarm** guidance, and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 for the data model and request lifecycle.
 
+Security & compliance references:
+[`docs/SECURITY.md`](docs/SECURITY.md) (controls & threat coverage),
+[`docs/PERMISSIONS_MODEL.md`](docs/PERMISSIONS_MODEL.md) (RBAC + object-level access),
+[`docs/AUDIT_TRAIL.md`](docs/AUDIT_TRAIL.md) (hash-chained, tamper-evident audit log).
+
 ## API
 
 ```bash
