@@ -31,8 +31,8 @@ is organizational rather than software-satisfiable, the platform's supporting ro
 
 | Clause | Requirement | Sentinel QMS support |
 |--------|-------------|----------------------|
-| 6.1 | Actions to address risks and opportunities | **Satisfies** — Risk Management module with likelihood × severity (RPN), controls, and residual risk |
-| 6.2 | Quality objectives and planning | **Satisfies** — Dashboard/KPI module defines and tracks measurable objectives; Management Review reviews them |
+| 6.1 | Actions to address risks and opportunities | **Satisfies** — Risk Management module with likelihood × severity (RPN), controls, and residual risk; FMEA module (PFMEA/DFMEA) with S×O×D = RPN and action priority |
+| 6.2 | Quality objectives and planning | **Satisfies** — dedicated Quality Objectives & KPIs module: measurable objectives with targets, owners, cadence, periodic measurements and RAG attainment; rolled into Management Review |
 | 6.3 | Planning of changes | **Satisfies** — Change Management (ECN/ECO) with impact assessment, approval, implementation, and verification |
 
 ## Clause 7 — Support
@@ -66,7 +66,7 @@ is organizational rather than software-satisfiable, the platform's supporting ro
 
 | Clause | Requirement | Sentinel QMS support |
 |--------|-------------|----------------------|
-| 9.1 | Monitoring, measurement, analysis, evaluation (incl. 9.1.2 customer satisfaction) | **Satisfies** — Dashboard/KPIs (NCR aging, CAPA on-time, supplier scorecards, calibration/training status); Complaints/RMA for customer satisfaction |
+| 9.1 | Monitoring, measurement, analysis, evaluation (incl. 9.1.2 customer satisfaction) | **Satisfies** — Dashboard/KPIs (NCR aging, CAPA on-time, supplier scorecards, calibration/training status); Customer Satisfaction module (proactive surveys/scorecards with trend) + Complaints/RMA for customer feedback |
 | 9.2 | Internal audit (aligned with **AS9101**) | **Satisfies** — Audit Management: plans, events, findings (major/minor/observation/OFI), clause references, CAPA linkage |
 | 9.3 | Management review | **Satisfies** — Management Review module with standard inputs (audit results, customer feedback, KPI performance, CAPA status, risks) and output actions |
 
@@ -74,9 +74,9 @@ is organizational rather than software-satisfiable, the platform's supporting ro
 
 | Clause | Requirement | Sentinel QMS support |
 |--------|-------------|----------------------|
-| 10.1 | General | **Supports** — Improvement opportunities tracked via OFIs, risks, and KPIs |
+| 10.1 | General | **Supports** — Continual Improvement, OFIs, risks, and KPIs surface improvement opportunities |
 | 10.2 | Nonconformity and corrective action | **Satisfies** — CAPA (8D) module: containment, root-cause, corrective/preventive actions, effectiveness verification, closure e-signature; sourced from NCR, audit findings, complaints |
-| 10.3 | Continual improvement | **Satisfies** — Trended KPIs + management review actions drive continual improvement |
+| 10.3 | Continual improvement | **Satisfies** — dedicated Continual Improvement / Kaizen register (idea→done workflow, estimated vs realized benefit) plus trended KPIs and management-review actions |
 
 ---
 
@@ -90,6 +90,10 @@ is organizational rather than software-satisfiable, the platform's supporting ro
 | Product safety | 5.1.1 | Risk Management + nonconformance escalation; management review |
 | Special processes / key characteristics | 8.5.1 | Inspection characteristics, ASL special-process approvals, FAI tooling capture |
 | Risk management | 8.1.1 / 6.1 | Risk register with RPN, controls, residual risk |
+| FMEA | 6.1 / 8.1.1 / AS9145 | PFMEA/DFMEA worksheets with Severity×Occurrence×Detection = RPN and action priority |
+| Quality objectives & KPIs | 6.2 / 9.1.1 | Measurable objectives with targets, owners, cadence, attainment trend |
+| Customer satisfaction | 9.1.2 | Proactive surveys/scorecards (quality, delivery, communication) with trend |
+| Continual improvement | 10.1 / 10.3 | Kaizen / improvement register with benefit tracking |
 | Audit | 9.2 / AS9101 | Audit Management with finding classification and CAPA flow |
 
 ---
@@ -110,3 +114,7 @@ is organizational rather than software-satisfiable, the platform's supporting ro
 | Inspection / FAI | 8.5.1, 8.6 |
 | Management Review | 9.3 |
 | Complaint / RMA | 9.1.2, 10.2 |
+| Quality Objective / KPI | 6.2, 9.1.1, 9.3 |
+| Customer Satisfaction survey | 9.1.2, 9.3 |
+| Continual Improvement / Kaizen | 10.1, 10.3 |
+| FMEA (PFMEA/DFMEA) | 6.1, 8.1.1, 8.5.1 |
