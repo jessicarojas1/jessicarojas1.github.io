@@ -1177,3 +1177,25 @@ export interface Improvement {
   target_date?: Iso8601 | null;
   clause_ref?: string | null;
 }
+
+/* ------------------------------------------------------------------ */
+/* Customer Satisfaction surveys (clause 9.1.2)                        */
+/* ------------------------------------------------------------------ */
+
+export type SurveyMethod = 'survey' | 'scorecard' | 'portal' | 'meeting';
+
+export interface CustomerSurvey {
+  id: number;
+  survey_number: string;
+  customer_id: number;
+  customer_name?: string | null;
+  period?: string | null;
+  survey_date?: Iso8601 | null;
+  method: SurveyMethod;
+  quality_score?: number | null;
+  delivery_score?: number | null;
+  communication_score?: number | null;
+  overall_score?: number | null;
+  respondent?: string | null;
+  comments?: string | null;
+}
