@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/Ssrf.php'; // self-load for CLI scripts that bypass the autoloader
 /**
  * AEGIS GRC — Webhook dispatcher and delivery engine.
  *

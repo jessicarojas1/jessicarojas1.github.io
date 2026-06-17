@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/Ssrf.php'; // self-load for CLI scripts that bypass the autoloader
 /**
  * OIDC / OAuth 2.0 SSO client.
  * Supports any standards-compliant IdP: Azure AD, Okta, Google Workspace,
