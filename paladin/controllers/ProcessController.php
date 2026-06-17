@@ -60,9 +60,9 @@ class ProcessController {
         header('X-Content-Type-Options: nosniff');
         $out = fopen('php://output', 'w');
         fwrite($out, "\xEF\xBB\xBF");
-        fputcsv($out, ['Code', 'Name', 'Status', 'Version', 'Space', 'Owner', 'Last Updated']);
+        Csv::put($out, ['Code', 'Name', 'Status', 'Version', 'Space', 'Owner', 'Last Updated']);
         foreach ($rows as $r) {
-            fputcsv($out, [
+            Csv::put($out, [
                 $r['process_code'], $r['name'], $r['status'], $r['version'],
                 $r['space_key'] ?? '', $r['owner_name'] ?? '', $r['updated_at'],
             ]);

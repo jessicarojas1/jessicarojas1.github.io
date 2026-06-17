@@ -149,9 +149,9 @@ class CampaignController
         header('X-Content-Type-Options: nosniff');
         $out = fopen('php://output', 'w');
         fwrite($out, "\xEF\xBB\xBF");
-        fputcsv($out, ['User', 'Email', 'Department', 'Status', 'Notified At', 'Acknowledged At']);
+        Csv::put($out, ['User', 'Email', 'Department', 'Status', 'Notified At', 'Acknowledged At']);
         foreach ($targets as $t) {
-            fputcsv($out, [
+            Csv::put($out, [
                 $t['name'], $t['email'] ?? '', $t['department'] ?? '',
                 $t['acknowledged_at'] ? 'Acknowledged' : 'Outstanding',
                 $t['notified_at'] ?? '', $t['acknowledged_at'] ?? '',

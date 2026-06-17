@@ -204,9 +204,9 @@ class ReportController {
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('X-Content-Type-Options: nosniff');
         $out = fopen('php://output', 'w');
-        fputcsv($out, $header);
+        Csv::put($out, $header);
         foreach ($rows as $r) {
-            fputcsv($out, $mapper($r));
+            Csv::put($out, $mapper($r));
         }
         fclose($out);
     }
