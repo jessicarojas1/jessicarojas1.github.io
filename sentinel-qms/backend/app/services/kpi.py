@@ -18,7 +18,9 @@ from app.models.counterfeit import (
     PartSourcingRecord,
     VerificationStatus,
 )
+from app.models.customer_satisfaction import CustomerSurvey
 from app.models.fod import FodEvent, FodStatus
+from app.models.improvement import Improvement, ImprovementStatus
 from app.models.inspection import Inspection, InspectionResult
 from app.models.mgmt_review import (
     ActionItem,
@@ -27,6 +29,7 @@ from app.models.mgmt_review import (
     ReviewStatus,
 )
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
+from app.models.quality_objective import ObjectiveStatus, QualityObjective
 from app.models.risk import Risk, RiskStatus
 from app.models.settings import OrgSettings
 from app.models.standard import CoverageStatus, Standard
@@ -882,14 +885,71 @@ def my_open_items(db: Session, user_id: int, *, limit: int = 60) -> list[dict]:
 
 # Fixed category labels for auto-compiled clause 9.3 management-review inputs.
 # Used to replace prior auto rows on re-run without touching manual inputs.
+def quality_objective_metrics(db: Session) -> dict:
+    """Active quality-objective attainment for clause 9.3.2 (objectives met)."""
+    from app.schemas.quality_objective import attainment_pct
+
+    objs = (
+        db.execute(
+            select(QualityObjective).where(
+                QualityObjective.is_deleted.is_(False),
+                QualityObjective.status != ObjectiveStatus.ARCHIVED,
+            )
+        )
+        .scalars()
+        .all()
+    )
+    attainments = [
+        a
+        for o in objs
+        if (a := attainment_pct(o.current_value, o.target_value, o.direction)) is not None
+    ]
+    met = sum(1 for a in attainments if a >= 100)
+    avg = round(sum(attainments) / len(attainments), 1) if attainments else None
+    return {"total": len(objs), "measured": len(attainments), "met": met, "avg_attainment": avg}
+
+
+def improvement_metrics(db: Session) -> dict:
+    """Continual-improvement register status for clause 10.x review."""
+    open_states = (
+        ImprovementStatus.IDEA,
+        ImprovementStatus.EVALUATING,
+        ImprovementStatus.IN_PROGRESS,
+    )
+    open_count = _count(db, Improvement, Improvement.status.in_(open_states))
+    realized = db.execute(
+        select(func.coalesce(func.sum(Improvement.realized_benefit), 0.0)).where(
+            Improvement.is_deleted.is_(False),
+            Improvement.status == ImprovementStatus.DONE,
+        )
+    ).scalar_one()
+    return {"open": int(open_count), "realized_benefit": float(realized or 0.0)}
+
+
+def customer_survey_metrics(db: Session) -> dict:
+    """Average customer-satisfaction survey score for clause 9.1.2."""
+    avg, count = db.execute(
+        select(func.avg(CustomerSurvey.overall_score), func.count()).where(
+            CustomerSurvey.is_deleted.is_(False),
+            CustomerSurvey.overall_score.is_not(None),
+        )
+    ).one()
+    return {
+        "average_overall": round(float(avg), 1) if avg is not None else None,
+        "count": int(count),
+    }
+
+
 MGMT_REVIEW_AUTO_CATEGORIES = [
     "Status of Previous Actions",
     "Customer Satisfaction & Complaints",
+    "Quality Objectives & KPI Performance",
     "Nonconformities & Corrective Actions",
     "Internal Audit Results",
     "External Provider (Supplier) Performance",
     "Monitoring & Measurement (Calibration)",
     "Risks & Opportunities",
+    "Continual Improvement",
 ]
 
 
@@ -906,6 +966,17 @@ def management_review_inputs(db: Session) -> list[dict]:
 
     open_actions = _count(db, ActionItem, ActionItem.status != ActionItemStatus.COMPLETED)
     open_risks = _count(db, Risk, Risk.status.in_(_RISK_OPEN))
+    objectives = quality_objective_metrics(db)
+    improvements = improvement_metrics(db)
+    csat = customer_survey_metrics(db)
+    csat_txt = (
+        f"{csat['average_overall']}% avg" if csat["average_overall"] is not None else "no surveys"
+    )
+    qo_avg_txt = (
+        f"{objectives['avg_attainment']}% avg attainment"
+        if objectives["avg_attainment"] is not None
+        else "not yet measured"
+    )
 
     by_type = ", ".join(f"{k}: {v}" for k, v in findings["open_by_type"].items()) or "none"
     avg_q = suppliers["avg_quality_score"]
@@ -925,10 +996,22 @@ def management_review_inputs(db: Session) -> list[dict]:
         {
             "category": "Customer Satisfaction & Complaints",
             "content": (
-                f"{complaints['open_total']} open customer complaint(s)/RMA(s). Review customer "
-                "feedback and satisfaction trends."
+                f"{complaints['open_total']} open customer complaint(s)/RMA(s). "
+                f"Satisfaction surveys: {csat['count']} on record ({csat_txt})."
             ),
-            "metric_value": f"{complaints['open_total']} open",
+            "metric_value": f"{complaints['open_total']} open / {csat_txt}",
+        },
+        {
+            "category": "Quality Objectives & KPI Performance",
+            "content": (
+                f"{objectives['met']} of {objectives['measured']} measured quality objective(s) "
+                f"meeting target ({objectives['total']} active); {qo_avg_txt}."
+            ),
+            "metric_value": (
+                f"{objectives['met']}/{objectives['measured']} met"
+                if objectives["measured"]
+                else "0 measured"
+            ),
         },
         {
             "category": "Nonconformities & Corrective Actions",
@@ -967,5 +1050,13 @@ def management_review_inputs(db: Session) -> list[dict]:
                 "of treatment actions and new opportunities."
             ),
             "metric_value": f"{open_risks} open",
+        },
+        {
+            "category": "Continual Improvement",
+            "content": (
+                f"{improvements['open']} improvement opportunity/kaizen item(s) in progress; "
+                f"${improvements['realized_benefit']:,.0f} realized benefit from completed items."
+            ),
+            "metric_value": f"{improvements['open']} open",
         },
     ]
