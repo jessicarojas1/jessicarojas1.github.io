@@ -45,6 +45,7 @@ const RiskListPage = lazy(() => import('./pages/risks/RiskListPage'));
 const InspectionListPage = lazy(() => import('./pages/inspections/InspectionListPage'));
 const InspectionDetailPage = lazy(() => import('./pages/inspections/InspectionDetailPage'));
 const MgmtReviewListPage = lazy(() => import('./pages/mgmtReviews/MgmtReviewListPage'));
+const QualityObjectivesPage = lazy(() => import('./pages/objectives/QualityObjectivesPage'));
 const MgmtReviewDetailPage = lazy(() => import('./pages/mgmtReviews/MgmtReviewDetailPage'));
 const ComplaintListPage = lazy(() => import('./pages/complaints/ComplaintListPage'));
 const ComplaintDetailPage = lazy(() => import('./pages/complaints/ComplaintDetailPage'));
@@ -218,6 +219,11 @@ export function AppRouter() {
             <Route index element={<Guard page="mgmt_reviews" capability="mgmt_reviews.read"><MgmtReviewListPage /></Guard>} />
             <Route path=":id" element={<Guard page="mgmt_reviews" capability="mgmt_reviews.read"><MgmtReviewDetailPage /></Guard>} />
           </Route>
+
+          <Route
+            path="quality-objectives"
+            element={<Guard page="quality_objectives" capability="quality_objectives.read"><QualityObjectivesPage /></Guard>}
+          />
 
           <Route path="complaints">
             <Route index element={<Guard page="complaints" capability="complaints.read"><ComplaintListPage /></Guard>} />

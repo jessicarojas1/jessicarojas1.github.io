@@ -5,6 +5,7 @@ import {
   Boxes,
   Briefcase,
   Building2,
+  Target,
   CalendarRange,
   ClipboardCheck,
   FileBarChart,
@@ -96,6 +97,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'MSA / Gage R&R', to: '/msa', icon: Ruler, capability: 'calibration.read', page: 'calibration' },
       { label: 'Training', to: '/training', icon: GraduationCap, capability: 'training.read', page: 'training' },
       { label: 'Management Review', to: '/mgmt-reviews', icon: GaugeCircle, capability: 'mgmt_reviews.read', page: 'mgmt_reviews' },
+      { label: 'Quality Objectives', to: '/quality-objectives', icon: Target, capability: 'quality_objectives.read', page: 'quality_objectives' },
     ],
   },
   {
