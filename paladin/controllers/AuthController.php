@@ -58,7 +58,23 @@ class AuthController {
             require PALADIN_ROOT . '/views/auth/mfa_verify.php';
             return;
         }
+
+        // Brute-force protection: TOTP is only 6 digits, so throttle verification
+        // per IP and per pending user (same limiter/lockout as login).
+        $ip     = Security::clientIp();
+        $uid    = (int)($_SESSION['mfa_user_id'] ?? 0);
+        $ipKey  = 'mfa_ip_' . $ip;
+        $userKey= 'mfa_user_' . $uid;
+        if (!Security::checkRateLimit($ipKey) || !Security::checkRateLimit($userKey)) {
+            Auth::logSystem('mfa_rate_limited', 'users', $uid ?: null);
+            $error = 'Too many verification attempts. Please wait a few minutes and try again.';
+            require PALADIN_ROOT . '/views/auth/mfa_verify.php';
+            return;
+        }
+
         if (Auth::completeMfa(Security::sanitizeInput($_POST['code'] ?? ''))) {
+            Security::resetRateLimit($ipKey);
+            Security::resetRateLimit($userKey);
             $redirect = $_SESSION['redirect_after_login'] ?? '/';
             unset($_SESSION['redirect_after_login']);
             if (!preg_match('#^/[A-Za-z0-9_\-/?=&.]*$#', $redirect)) $redirect = '/';
