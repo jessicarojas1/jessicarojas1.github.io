@@ -6,7 +6,8 @@ class DashboardController {
     public function index(): void {
         Auth::requireAuth();
         $uid = Auth::id();
-        Scheduler::runDuePages(); // opportunistic cron-free sweep for due scheduled publishes
+        Scheduler::runDuePages();        // opportunistic cron-free sweep for due scheduled publishes
+        Scheduler::runExpiredDocuments(); // auto-expire effective documents past their expiration date
 
         $stats = [
             'documents'   => (int)(Database::fetchOne("SELECT COUNT(*) c FROM documents")['c'] ?? 0),
