@@ -211,6 +211,31 @@ test('schema.sql covers every table/column in the canonical db.js SCHEMA', () =>
   }
 });
 
+/* ---------------- Finding fingerprints + classification + merge ---------------- */
+test('fingerprint: line-stable identity, classification, and cross-tool merge', () => {
+  const fp = require('../../js/fingerprint.js');
+  const a = { category: 'injection', file: 'app/x.js', cwe: 'CWE-89', snippet: 'db.query(q)', line: 10 };
+  const moved = { category: 'injection', file: 'app/x.js', cwe: 'CWE-89', snippet: 'db.query(q)', line: 42 };
+  const other = { category: 'injection', file: 'app/x.js', cwe: 'CWE-89', snippet: 'different code', line: 10 };
+  assert.equal(fp.of(a), fp.of(moved), 'fingerprint is stable across line drift');
+  assert.notEqual(fp.of(a), fp.of(other), 'different evidence -> different fingerprint');
+  // classification: heuristic vuln vs scanner-confirmed secret
+  fp.classify(a);
+  assert.equal(a.kind, 'vuln'); assert.equal(a.detection, 'heuristic');
+  assert.equal(a.confirmed, false); assert.equal(a.disposition, 'open');
+  const sec = fp.classify({ category: 'secrets', file: 'x', source: 'gitleaks', snippet: 'AKIA...' });
+  assert.equal(sec.kind, 'secret'); assert.equal(sec.confirmed, true); assert.equal(sec.detection, 'scanner');
+  // merge: same issue from heuristic + semgrep collapses; worst severity + confirmed wins
+  const merged = fp.merge([
+    { category: 'injection', file: 'x.js', cwe: 'CWE-89', snippet: 'q', severity: 'medium', source: 'heuristic' },
+    { category: 'injection', file: 'x.js', cwe: 'CWE-89', snippet: 'q', severity: 'high', source: 'semgrep' }
+  ]);
+  assert.equal(merged.length, 1);
+  assert.equal(merged[0].severity, 'high');
+  assert.ok(merged[0].confirmed);
+  assert.deepEqual(merged[0].sources.sort(), ['heuristic', 'semgrep']);
+});
+
 /* ---------------- ReDoS isolation (worker + timeout) ---------------- */
 test('engine: isolated heuristic scan runs in a worker and degrades on timeout', async () => {
   const fsx = require('fs'), osx = require('os'), px = require('path');

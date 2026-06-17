@@ -20,7 +20,7 @@ const APP_JS = process.env.CITADEL_APP_DIR
 // Mirror the SPA's load order (index.html): the full ruleset is rules.js plus
 // the rules-extra / rules-mobile packs (which append to CITADEL.rules). Loading
 // only rules.js made the server engine run ~57 of 226 rules — keep these in sync.
-const MODULES = ['languages.js', 'frameworks.js', 'rules.js', 'rules-extra.js', 'rules-mobile.js', 'rules-pii.js', 'rules-iac.js', 'rules-api.js', 'rules-cicd.js', 'rules-java.js', 'secrets.js', 'sbom.js', 'binary.js', 'scanner.js'];
+const MODULES = ['languages.js', 'frameworks.js', 'rules.js', 'rules-extra.js', 'rules-mobile.js', 'rules-pii.js', 'rules-iac.js', 'rules-api.js', 'rules-cicd.js', 'rules-java.js', 'secrets.js', 'sbom.js', 'binary.js', 'fingerprint.js', 'scanner.js'];
 
 let _win = null;
 function loadEngine() {
@@ -183,7 +183,13 @@ async function analyzeDir(dir, scannerResult, onStage, opts) {
   // tag heuristic findings with a source for the UI
   base.findings.forEach(f => { if (!f.source) f.source = 'heuristic'; });
 
-  const merged = dedupe(base.findings.concat(scannerResult.findings || []));
+  // Merge heuristic + real-scanner findings by stable fingerprint: the SAME issue
+  // reported by more than one tool collapses to one finding with united sources,
+  // worst severity, and a scanner-"confirmed" flag (falls back to the legacy
+  // composite dedupe if the fingerprint module isn't loaded).
+  const all = base.findings.concat(scannerResult.findings || []);
+  const merged = (CITADEL.fingerprint && CITADEL.fingerprint.merge)
+    ? CITADEL.fingerprint.merge(all) : dedupe(all);
   const scoring = CITADEL.scanner.score(merged, base.quality);
   const posture = CITADEL.frameworks.posture(merged);
 
@@ -201,6 +207,7 @@ async function analyzeDir(dir, scannerResult, onStage, opts) {
       totalBytes: hr.totalBytes,
       engine: 'deep',
       scanners: scannerResult.tools || [],
+      scanSummary: scannerResult.summary || null,
       warnings: scannerResult.warnings || []
     },
     languages: base.languages,

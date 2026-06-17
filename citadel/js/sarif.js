@@ -119,6 +119,10 @@
   // A small, stable hash of rule + location + code, independent of line drift in
   // unrelated parts of the file (uses the trimmed snippet, not the line number).
   function fingerprint(f) {
+    // Prefer the canonical cross-tier fingerprint when present so SARIF identity
+    // matches the in-app fingerprint (disposition, baseline diff, merge).
+    if (f.fingerprint) return f.fingerprint;
+    if (CITADEL.fingerprint && CITADEL.fingerprint.of) return CITADEL.fingerprint.of(f);
     const s = [f.ruleId || f.category || '', (f.file || '').replace(/^.*!\//, ''), (f.snippet || '').trim()].join('|');
     let h = 5381;
     for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;

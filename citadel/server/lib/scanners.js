@@ -439,13 +439,20 @@ async function runAll(dir, onStage) {
   ]);
   const findings = [];
   const tools = [];
+  const summary = { ran: 0, unavailable: 0, failed: 0, total: results.length };
   let sbom = { components: [], doc: null };
   results.forEach(res => {
-    tools.push({ tool: res.tool, available: res.available, findings: (res.findings || []).length });
+    // Honest per-scanner status: unavailable (binary absent) / failed (present but
+    // errored or unparseable) / ok. Never claim a tool ran if it was unavailable.
+    let status;
+    if (!res.available) { status = 'unavailable'; summary.unavailable++; }
+    else if (res.warning) { status = 'failed'; summary.failed++; summary.ran++; }
+    else { status = 'ok'; summary.ran++; }
+    tools.push({ tool: res.tool, available: res.available, status, warning: res.warning || null, findings: (res.findings || []).length });
     if (res.findings) findings.push(...res.findings);
     if (res.tool === 'syft' && res.available) sbom = { components: res.components, doc: res.doc };
   });
-  return { findings, sbom, tools };
+  return { findings, sbom, tools, summary };
 }
 
 module.exports = { runAll, semgrep, bandit, gitleaks, trivy, grype, syft, clamav, checkov, osvScanner, hadolint, codeql, has };

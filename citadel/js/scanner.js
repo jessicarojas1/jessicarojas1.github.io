@@ -282,6 +282,10 @@
       remediation: 'Weak-copyleft / reciprocal license — confirm compatibility with your licensing policy before distribution.'
     }));
 
+    // Stable fingerprints + kind/detection classification, then merge findings
+    // that share a fingerprint (e.g. a rule that fired twice on the same line).
+    if (CITADEL.fingerprint) findings = CITADEL.fingerprint.merge(findings);
+
     stage('Scoring & grading…');
     const scoring = score(findings, q);
 
