@@ -299,6 +299,7 @@ function runMigrations(PDO $pdo): void {
         '021_granular_permissions.sql',
         '022_branding.sql',
         '023_risk_scoring.sql',
+        '024_ai_governance.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;

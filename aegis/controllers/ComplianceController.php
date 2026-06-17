@@ -471,7 +471,7 @@ class ComplianceController {
             'ai_enabled'  => !empty($suggestions),
             'suggestions' => $suggestions,
             'narrative'   => $narrative,
-            'disclaimer'  => 'AI-generated suggestions are for informational purposes only and do not constitute legal, regulatory, or compliance advice. Results may be inaccurate or incomplete. All recommendations must be reviewed by qualified personnel before implementation (ISO 42001).',
+            'disclaimer'  => AIAdvisor::DISCLAIMER,
         ]);
     }
 
