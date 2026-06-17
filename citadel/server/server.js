@@ -236,7 +236,8 @@ async function toolStatus() {
     // when it will actually run, so /api/health doesn't overclaim coverage.
     const present = await scanners.has(n);
     const available = n === 'codeql' ? (present && process.env.CITADEL_ENABLE_CODEQL === '1') : present;
-    out.push({ tool: n === 'clamscan' ? 'clamav' : n, available });
+    const ver = present ? await scanners.version(n).catch(() => null) : null;
+    out.push({ tool: n === 'clamscan' ? 'clamav' : n, available, version: ver });
   }
   _toolCache = out;
   return out;

@@ -29,6 +29,8 @@
     }
     return ('00000000' + h.toString(16)).slice(-8);
   }
+  /** Stable, line-drift-resistant fingerprint for a finding.
+   *  @param {CitadelFinding} finding @returns {string} */
   function of(finding) {
     finding = finding || {};
     const key = [
@@ -59,6 +61,7 @@
     return 'vuln';
   }
   // Annotate a finding in place with identity + classification fields.
+  /** @param {CitadelFinding} f @returns {CitadelFinding} */
   function classify(f) {
     if (!f) return f;
     if (!f.fingerprint) f.fingerprint = of(f);

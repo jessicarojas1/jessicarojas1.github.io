@@ -249,9 +249,9 @@
     CITADEL.report.setAi(aiAvailable);
     $('deep-mode-row').classList.remove('d-none');
     $('url-scan-row').classList.remove('d-none');
-    const on = (st.scanners || []).filter(s => s.available).map(s => s.tool);
+    const on = (st.scanners || []).filter(s => s.available);
     $('deep-mode-tools').innerHTML = (on.length
-      ? 'Real scanners online: ' + on.map(t => '<span class="badge bg-secondary">' + t + '</span>').join(' ')
+      ? 'Real scanners online: ' + on.map(s => '<span class="badge bg-secondary" title="' + escH(s.tool + (s.version ? ' v' + s.version : '')) + '">' + escH(s.tool) + (s.version ? ' <span class="opacity-75">v' + escH(s.version) + '</span>' : '') + '</span>').join(' ')
       : 'Backend detected, but no scanners are installed — deep scan will fall back to heuristics.')
       + (aiAvailable ? ' <span class="badge" style="background:#10b981">AI remediation on</span>' : '');
     const tg = $('deep-mode-toggle');

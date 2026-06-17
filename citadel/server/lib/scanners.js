@@ -29,6 +29,28 @@ function has(cmd) {
   });
 }
 function safeJson(s) { try { return JSON.parse(s); } catch (e) { return null; } }
+
+// Best-effort CLI version detection (cached). Used by /api/health to show which
+// tool versions are present — never run during a scan (keeps scans fast).
+const VERSION_ARGS = {
+  semgrep: ['--version'], bandit: ['--version'], gitleaks: ['version'], trivy: ['--version'],
+  grype: ['version'], syft: ['version'], clamscan: ['--version'], checkov: ['--version'],
+  'osv-scanner': ['--version'], hadolint: ['--version'], codeql: ['--version']
+};
+const _verCache = {};
+async function version(tool) {
+  if (tool in _verCache) return _verCache[tool];
+  let v = null;
+  const args = VERSION_ARGS[tool];
+  if (args && await has(tool)) {
+    const r = await run(tool, args, { timeout: 8000 });
+    const out = (r.stdout || r.stderr || '').trim();
+    const m = out.match(/\d+\.\d+(\.\d+)?/);
+    v = m ? m[0] : ((out.split('\n')[0] || '').slice(0, 40) || null);
+  }
+  _verCache[tool] = v;
+  return v;
+}
 function f(o) { return Object.assign({ confidence: 'high', line: 0, snippet: '', remediation: 'Review and remediate.' }, o); }
 
 /* ---------------- Semgrep (multi-language SAST) ---------------- */
@@ -455,4 +477,4 @@ async function runAll(dir, onStage) {
   return { findings, sbom, tools, summary };
 }
 
-module.exports = { runAll, semgrep, bandit, gitleaks, trivy, grype, syft, clamav, checkov, osvScanner, hadolint, codeql, has };
+module.exports = { runAll, semgrep, bandit, gitleaks, trivy, grype, syft, clamav, checkov, osvScanner, hadolint, codeql, has, version };
