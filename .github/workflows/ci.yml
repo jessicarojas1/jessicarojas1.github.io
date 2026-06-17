@@ -160,3 +160,27 @@ jobs:
             -name '*.py' -not -path '*/__pycache__/*' -print0 \
             | xargs -0 -r python -m py_compile
           echo "py_compile passed"
+
+  # ---------------------------------------------------------------------------
+  # PALADIN — PHP lint over the whole app + framework-free security regression
+  # tests (CSV/formula injection, SSRF guard, HTML sanitiser, output escaping).
+  # ---------------------------------------------------------------------------
+  paladin:
+    name: PALADIN (PHP lint + security tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: none
+          coverage: none
+
+      - name: Lint all .php in paladin/
+        run: |
+          find paladin -name '*.php' -print0 \
+            | xargs -0 -r -n1 -P4 php -l
+
+      - name: Security regression tests
+        run: php paladin/tests/security_test.php
