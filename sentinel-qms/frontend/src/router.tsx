@@ -48,6 +48,8 @@ const MgmtReviewListPage = lazy(() => import('./pages/mgmtReviews/MgmtReviewList
 const QualityObjectivesPage = lazy(() => import('./pages/objectives/QualityObjectivesPage'));
 const ImprovementsPage = lazy(() => import('./pages/improvements/ImprovementsPage'));
 const CustomerSatisfactionPage = lazy(() => import('./pages/satisfaction/CustomerSatisfactionPage'));
+const FmeaListPage = lazy(() => import('./pages/fmea/FmeaListPage'));
+const FmeaDetailPage = lazy(() => import('./pages/fmea/FmeaDetailPage'));
 const MgmtReviewDetailPage = lazy(() => import('./pages/mgmtReviews/MgmtReviewDetailPage'));
 const ComplaintListPage = lazy(() => import('./pages/complaints/ComplaintListPage'));
 const ComplaintDetailPage = lazy(() => import('./pages/complaints/ComplaintDetailPage'));
@@ -234,6 +236,10 @@ export function AppRouter() {
             path="customer-satisfaction"
             element={<Guard page="customer_satisfaction" capability="csat.read"><CustomerSatisfactionPage /></Guard>}
           />
+          <Route path="fmea">
+            <Route index element={<Guard page="fmea" capability="fmea.read"><FmeaListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="fmea" capability="fmea.read"><FmeaDetailPage /></Guard>} />
+          </Route>
 
           <Route path="complaints">
             <Route index element={<Guard page="complaints" capability="complaints.read"><ComplaintListPage /></Guard>} />

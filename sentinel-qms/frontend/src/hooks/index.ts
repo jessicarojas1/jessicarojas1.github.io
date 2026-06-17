@@ -34,6 +34,7 @@ export * from './useDashboard';
 export * from './useStandards';
 export * from './useCounterfeit';
 export * from './useApqp';
+export * from './useFmea';
 export * from './useFod';
 export * from './useConcessions';
 export * from './useSignatures';

@@ -1199,3 +1199,46 @@ export interface CustomerSurvey {
   respondent?: string | null;
   comments?: string | null;
 }
+
+/* ------------------------------------------------------------------ */
+/* FMEA — PFMEA/DFMEA with RPN (AS9145 / AIAG-VDA)                      */
+/* ------------------------------------------------------------------ */
+
+export type FmeaType = 'process' | 'design';
+export type FmeaStatus = 'draft' | 'active' | 'closed';
+export type FmeaItemStatus = 'open' | 'action_taken' | 'closed';
+
+export interface FmeaItem {
+  id: number;
+  fmea_id: number;
+  function: string;
+  failure_mode: string;
+  effect?: string | null;
+  cause?: string | null;
+  controls?: string | null;
+  severity: number;
+  occurrence: number;
+  detection: number;
+  recommended_action?: string | null;
+  action_owner_id?: number | null;
+  target_date?: Iso8601 | null;
+  status: FmeaItemStatus;
+  rpn: number;
+  action_priority: string;
+}
+
+export interface Fmea {
+  id: number;
+  fmea_number: string;
+  title: string;
+  fmea_type: FmeaType;
+  part_number?: string | null;
+  process_ref?: string | null;
+  scope?: string | null;
+  owner_id?: number | null;
+  owner_name?: string | null;
+  status: FmeaStatus;
+  item_count: number;
+  max_rpn: number;
+  items?: FmeaItem[];
+}

@@ -74,6 +74,7 @@ from app.models.document import (
     DocumentStatus,
     DocumentType,
 )
+from app.models.fmea import Fmea, FmeaItem, FmeaItemStatus, FmeaStatus, FmeaType
 from app.models.fod import FodEvent, FodRisk, FodSeverity, FodStatus, FodZone
 from app.models.iam import UserPermissionGrant
 from app.models.improvement import (
@@ -272,6 +273,11 @@ __all__ = [
     "RecordShare",
     "CustomerSurvey",
     "SurveyMethod",
+    "Fmea",
+    "FmeaItem",
+    "FmeaType",
+    "FmeaStatus",
+    "FmeaItemStatus",
     "Improvement",
     "ImprovementCategory",
     "ImprovementPriority",

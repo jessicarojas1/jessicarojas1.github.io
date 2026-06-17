@@ -23,6 +23,7 @@ from app.api.routers import (
     customers,
     dashboard,
     documents,
+    fmea,
     fod,
     iam,
     improvements,
@@ -89,3 +90,4 @@ api_router.include_router(record_shares.router)
 api_router.include_router(quality_objectives.router)
 api_router.include_router(improvements.router)
 api_router.include_router(customer_satisfaction.router)
+api_router.include_router(fmea.router)

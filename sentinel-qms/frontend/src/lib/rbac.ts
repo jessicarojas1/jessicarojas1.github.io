@@ -39,6 +39,8 @@ export type Capability =
   | 'improvements.write'
   | 'csat.read'
   | 'csat.write'
+  | 'fmea.read'
+  | 'fmea.write'
   | 'admin.users'
   | 'admin.roles'
   | 'docs.read';
@@ -60,6 +62,7 @@ const ALL_READ: Capability[] = [
   'quality_objectives.read',
   'improvements.read',
   'csat.read',
+  'fmea.read',
 ];
 
 const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
@@ -84,6 +87,7 @@ const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
     'quality_objectives.write',
     'improvements.write',
     'csat.write',
+    'fmea.write',
     'admin.users',
     'admin.roles',
   ],
@@ -105,6 +109,7 @@ const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
     'quality_objectives.write',
     'improvements.write',
     'csat.write',
+    'fmea.write',
   ],
   quality_engineer: [
     ...ALL_READ,
@@ -119,6 +124,7 @@ const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
     'quality_objectives.write',
     'improvements.write',
     'csat.write',
+    'fmea.write',
   ],
   auditor: [...ALL_READ, 'audits.write'],
   supplier_quality: [
