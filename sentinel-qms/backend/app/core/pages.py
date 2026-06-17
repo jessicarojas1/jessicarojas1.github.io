@@ -53,6 +53,7 @@ PAGES: list[PageDef] = [
     _page("training", "Training", "Operations"),
     _page("mgmt_reviews", "Management Reviews", "Operations"),
     _page("quality_objectives", "Quality Objectives", "Operations"),
+    _page("improvements", "Continual Improvement", "Operations"),
     # Administration (admin-only)
     _page("users", "Users", "Administration", admin_only=True),
     _page("roles", "Roles", "Administration", admin_only=True),
@@ -83,6 +84,7 @@ PAGE_DEFAULT_PERMS: dict[str, tuple[Permission | None, Permission | None]] = {
     "training": (Permission.TRAINING_READ, Permission.TRAINING_WRITE),
     "mgmt_reviews": (Permission.MGMT_REVIEW_READ, Permission.MGMT_REVIEW_WRITE),
     "quality_objectives": (Permission.QOBJECTIVE_READ, Permission.QOBJECTIVE_WRITE),
+    "improvements": (Permission.IMPROVEMENT_READ, Permission.IMPROVEMENT_WRITE),
     "users": (Permission.USER_MANAGE, Permission.USER_MANAGE),
     "roles": (Permission.USER_MANAGE, Permission.USER_MANAGE),
     "permissions": (Permission.USER_MANAGE, Permission.USER_MANAGE),

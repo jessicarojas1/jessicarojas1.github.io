@@ -75,6 +75,12 @@ from app.models.document import (
 )
 from app.models.fod import FodEvent, FodRisk, FodSeverity, FodStatus, FodZone
 from app.models.iam import UserPermissionGrant
+from app.models.improvement import (
+    Improvement,
+    ImprovementCategory,
+    ImprovementPriority,
+    ImprovementStatus,
+)
 from app.models.inspection import (
     FaiCharacteristic,
     FaiReport,
@@ -263,6 +269,10 @@ __all__ = [
     "KcClass",
     "SavedView",
     "RecordShare",
+    "Improvement",
+    "ImprovementCategory",
+    "ImprovementPriority",
+    "ImprovementStatus",
     "QualityObjective",
     "QualityObjectiveMeasurement",
     "ObjectiveCadence",

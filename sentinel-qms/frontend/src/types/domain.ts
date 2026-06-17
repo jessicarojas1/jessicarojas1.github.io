@@ -1146,3 +1146,34 @@ export interface QualityObjective {
   attainment_pct?: number | null;
   measurements?: QObjectiveMeasurement[];
 }
+
+/* ------------------------------------------------------------------ */
+/* Continual Improvement / Kaizen (clause 10.3)                        */
+/* ------------------------------------------------------------------ */
+
+export type ImprovementCategory =
+  | 'kaizen'
+  | 'suggestion'
+  | 'process'
+  | 'cost_saving'
+  | 'safety'
+  | 'quality';
+export type ImprovementStatus = 'idea' | 'evaluating' | 'in_progress' | 'done' | 'rejected';
+export type ImprovementPriority = 'low' | 'medium' | 'high';
+
+export interface Improvement {
+  id: number;
+  improvement_number: string;
+  title: string;
+  description?: string | null;
+  category: ImprovementCategory;
+  source?: string | null;
+  owner_id?: number | null;
+  owner_name?: string | null;
+  status: ImprovementStatus;
+  priority: ImprovementPriority;
+  estimated_benefit?: number | null;
+  realized_benefit?: number | null;
+  target_date?: Iso8601 | null;
+  clause_ref?: string | null;
+}
