@@ -316,6 +316,48 @@ class Security {
         Database::query("DELETE FROM rate_limits WHERE key = ?", [$identifier]);
     }
 
+    /**
+     * SSRF guard for outbound server-side requests (webhooks, URL-based embeds
+     * or imports). Requires an http(s) URL and resolves the host, ensuring
+     * EVERY resolved address is a public IP — rejecting loopback, link-local
+     * (including the cloud metadata endpoint 169.254.169.254), private and
+     * reserved ranges for both IPv4 and IPv6. If any resolution is unsafe the
+     * whole URL is rejected (defends against attacker hosts that resolve to
+     * both a public and a private address).
+     *
+     * Returns the public IP to pin the connection to (use CURLOPT_RESOLVE to
+     * defeat DNS-rebinding TOCTOU), or null when the URL must not be requested.
+     */
+    public static function safeOutboundIp(string $url): ?string {
+        $parts = parse_url(trim($url));
+        if (!$parts || empty($parts['scheme']) || empty($parts['host'])) { return null; }
+        if (!in_array(strtolower($parts['scheme']), ['http', 'https'], true)) { return null; }
+
+        $host = $parts['host'];
+        $ips  = [];
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            $ips[] = $host;
+        } else {
+            $a = @gethostbynamel($host);
+            if (is_array($a)) { $ips = array_merge($ips, $a); }
+            $aaaa = @dns_get_record($host, DNS_AAAA);
+            if (is_array($aaaa)) {
+                foreach ($aaaa as $rec) { if (!empty($rec['ipv6'])) { $ips[] = $rec['ipv6']; } }
+            }
+        }
+        if (!$ips) { return null; }
+
+        $pin = null;
+        foreach ($ips as $ip) {
+            // NO_PRIV_RANGE + NO_RES_RANGE => only globally-routable public IPs pass.
+            if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return null;
+            }
+            if ($pin === null) { $pin = $ip; }
+        }
+        return $pin;
+    }
+
     private static string $_nonce = '';
 
     /** Per-request CSP nonce — generated once, reused across all script tags */
