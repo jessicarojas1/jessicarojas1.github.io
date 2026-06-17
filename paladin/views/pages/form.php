@@ -6,13 +6,24 @@ $breadcrumbs  = [['Spaces', '/spaces']];
 if ($space) $breadcrumbs[] = [$space['name'], '/spaces/' . (int)$space['id']];
 $breadcrumbs[] = [$editing ? 'Edit Page' : 'New Page', null];
 $action = $editing ? '/pages/' . (int)$page['id'] . '/edit' : '/pages/create';
+// Autosave/draft-recovery key + server mtime (ms) for staleness comparison.
+$autosaveKey      = $editing ? ('page-' . (int)$page['id']) : ('new-' . (int)($space['id'] ?? 0));
+$autosaveServerTs = ($editing && !empty($page['updated_at'])) ? strtotime((string)$page['updated_at']) * 1000 : 0;
 ob_start();
 ?>
 <div class="page-header"><div><h1 class="page-title"><?= $editing ? 'Edit Page' : 'Create Page' ?></h1></div></div>
 
 <div class="card">
   <div class="card-body">
-    <form method="POST" action="<?= $action ?>">
+    <div id="draft-recovery" class="banner" hidden style="margin-bottom:14px;background:var(--card-bg);border:1px solid var(--warning)">
+      <i class="bi bi-clock-history" style="color:var(--warning)"></i>
+      <div class="banner-body">Unsaved changes from <strong data-draft-when>earlier</strong> were found on this device.
+        <button type="button" class="btn btn-sm btn-primary" data-draft-restore><i class="bi bi-arrow-counterclockwise"></i> Restore</button>
+        <button type="button" class="btn btn-sm btn-ghost" data-draft-discard>Discard</button>
+      </div>
+    </div>
+    <div id="draft-status" class="form-hint" hidden style="margin-bottom:8px"><i class="bi bi-cloud-check"></i> <span data-draft-status-text>Draft saved on this device</span></div>
+    <form method="POST" action="<?= $action ?>" data-autosave="<?= Security::h($autosaveKey) ?>" data-autosave-server-ts="<?= (int)$autosaveServerTs ?>">
       <?= Security::csrfField() ?>
       <div class="form-row">
         <div class="form-group" style="flex:2"><label class="form-label">Title *</label>

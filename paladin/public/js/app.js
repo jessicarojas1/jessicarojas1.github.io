@@ -1230,3 +1230,89 @@ document.addEventListener('click', function(e) {
     h.appendChild(a);
   });
 })();
+
+/* ── Editor autosave & draft recovery ─────────────────────────────────────────
+   On a page editor form (form[data-autosave]) the title + body are saved to
+   localStorage every few seconds and on input. If a newer local draft is found
+   on load, a recovery banner offers Restore / Discard. The draft is cleared on
+   submit. Purely client-side; CSP-safe (nonce'd external file). */
+(function () {
+  var form = document.querySelector('form[data-autosave]');
+  if (!form || !window.localStorage) return;
+
+  var key = 'pal:draft:' + form.getAttribute('data-autosave');
+  var serverTs = parseInt(form.getAttribute('data-autosave-server-ts') || '0', 10) || 0;
+  var titleEl = form.querySelector('[name="title"]');
+  var sourceEl = form.querySelector('.wysiwyg-source');
+  var surfaceEl = form.querySelector('.wysiwyg-surface');
+  if (!titleEl || !sourceEl) return;
+
+  var statusBox = document.getElementById('draft-status');
+  var statusText = statusBox ? statusBox.querySelector('[data-draft-status-text]') : null;
+  var banner = document.getElementById('draft-recovery');
+
+  function curBody() { return surfaceEl ? surfaceEl.innerHTML : sourceEl.value; }
+
+  function save() {
+    try {
+      var data = { title: titleEl.value, body: curBody(), ts: Date.now() };
+      localStorage.setItem(key, JSON.stringify(data));
+      if (statusBox) {
+        statusBox.hidden = false;
+        if (statusText) statusText.textContent = 'Draft saved on this device at ' + new Date(data.ts).toLocaleTimeString();
+      }
+    } catch (e) { /* quota / disabled — ignore */ }
+  }
+
+  function clearDraft() { try { localStorage.removeItem(key); } catch (e) {} }
+
+  function relTime(ts) {
+    var s = Math.round((Date.now() - ts) / 1000);
+    if (s < 60) return 'a few seconds ago';
+    if (s < 3600) return Math.floor(s / 60) + ' min ago';
+    if (s < 86400) return Math.floor(s / 3600) + ' hr ago';
+    return new Date(ts).toLocaleString();
+  }
+
+  // Offer recovery when a stored draft is newer than the server version and
+  // actually differs from what is currently in the form.
+  (function maybeOfferRecovery() {
+    if (!banner) return;
+    var raw = null;
+    try { raw = localStorage.getItem(key); } catch (e) { return; }
+    if (!raw) return;
+    var d;
+    try { d = JSON.parse(raw); } catch (e) { clearDraft(); return; }
+    if (!d || typeof d.ts !== 'number') { clearDraft(); return; }
+    var differs = (d.title !== titleEl.value) || (d.body !== curBody());
+    if (d.ts <= serverTs || !differs) { return; }
+
+    var whenEl = banner.querySelector('[data-draft-when]');
+    if (whenEl) whenEl.textContent = relTime(d.ts);
+    banner.hidden = false;
+
+    var restoreBtn = banner.querySelector('[data-draft-restore]');
+    var discardBtn = banner.querySelector('[data-draft-discard]');
+    if (restoreBtn) restoreBtn.addEventListener('click', function () {
+      titleEl.value = d.title || '';
+      if (surfaceEl) surfaceEl.innerHTML = d.body || '';
+      sourceEl.value = d.body || '';
+      banner.hidden = true;
+    });
+    if (discardBtn) discardBtn.addEventListener('click', function () {
+      clearDraft();
+      banner.hidden = true;
+    });
+  })();
+
+  // Debounced save on input + periodic safety save.
+  var t = null;
+  function schedule() { if (t) clearTimeout(t); t = setTimeout(save, 800); }
+  titleEl.addEventListener('input', schedule);
+  if (surfaceEl) surfaceEl.addEventListener('input', schedule);
+  sourceEl.addEventListener('input', schedule);
+  setInterval(save, 5000);
+
+  // Clear the draft once the form is successfully submitted.
+  form.addEventListener('submit', clearDraft);
+})();
