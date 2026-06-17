@@ -50,6 +50,13 @@ if ($req['entity_type'] && $req['entity_id']) {
             ? 'Required for approve/reject — must match your account name (' . Security::h((string)(Auth::user()['name'] ?? '')) . ').'
             : 'Optional. Typing your name records a tamper-evident signature on this decision.' ?></p>
         </div>
+        <?php if ($esignRequired): ?>
+        <div class="form-group">
+          <label class="form-label"><i class="bi bi-shield-lock"></i> Confirm password <span style="color:var(--danger)">*</span></label>
+          <input type="password" name="signature_password" class="form-control" placeholder="Re-enter your password to sign" required autocomplete="current-password">
+          <p class="form-hint">Re-authentication is required to apply your electronic signature (21 CFR Part 11). The record captures your identity, the decision meaning, timestamp, IP and device.</p>
+        </div>
+        <?php endif; ?>
         <div class="form-row">
           <button class="btn btn-success" type="submit" name="decision" value="approve"><i class="bi bi-check-lg"></i> Approve</button>
           <button class="btn btn-ghost" type="submit" name="decision" value="return"><i class="bi bi-arrow-counterclockwise"></i> Return for Revision</button>

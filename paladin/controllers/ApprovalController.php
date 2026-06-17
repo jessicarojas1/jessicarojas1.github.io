@@ -135,25 +135,49 @@ class ApprovalController {
         $comment  = Security::sanitizeInput($_POST['comment'] ?? '');
         if (!in_array($decision, ['approve','reject','return'], true)) { http_response_code(400); return; }
 
-        // Electronic signature: a tamper-evident typed-name affirmation on a final
-        // decision (approve/reject). Mandatory — and must match the signer's account
-        // name — when the 'require_esignature' setting is enabled; optional otherwise.
+        // Electronic signature (21 CFR Part 11): a tamper-evident affirmation on a
+        // final decision (approve/reject). When the 'require_esignature' setting is
+        // on, the signer must (a) type their full name exactly and (b) RE-AUTHENTICATE
+        // with their password at the moment of signing. The immutable record binds
+        // the signer, decision meaning, timestamp, IP and user agent into the hash.
         $signature = Security::sanitizeInput($_POST['signature'] ?? '');
         $sig = [];
         if (in_array($decision, ['approve','reject'], true)) {
-            $myName = (string)(Auth::user()['name'] ?? '');
-            if (Workflow::esignatureRequired()
-                && ($signature === '' || mb_strtolower(trim($signature)) !== mb_strtolower(trim($myName)))) {
-                $_SESSION['flash_error'] = 'An electronic signature is required: type your full name exactly as it appears on your account to sign this decision.';
-                header('Location: /approvals/' . $id); return;
+            $myName  = (string)(Auth::user()['name'] ?? '');
+            $meaning = $decision === 'approve'
+                ? 'I am approving this record.'
+                : 'I am rejecting this record.';
+
+            if (Workflow::esignatureRequired()) {
+                // (a) Typed name must match the account name exactly.
+                if ($signature === '' || mb_strtolower(trim($signature)) !== mb_strtolower(trim($myName))) {
+                    $_SESSION['flash_error'] = 'An electronic signature is required: type your full name exactly as it appears on your account to sign this decision.';
+                    header('Location: /approvals/' . $id); return;
+                }
+                // (b) Re-authenticate with the account password (Part 11 §11.200).
+                $pw   = (string)($_POST['signature_password'] ?? '');
+                $hash = (string)(Database::fetchOne("SELECT password_hash FROM users WHERE id=?", [Auth::id()])['password_hash'] ?? '');
+                if ($pw === '' || $hash === '' || !Security::verifyPassword($pw, $hash)) {
+                    Auth::log('esignature_failed', 'approval_requests', $id, ['step' => (int)$step['id'], 'reason' => 'reauth_failed']);
+                    $_SESSION['flash_error'] = 'Electronic signature failed: your password did not match. The signing attempt has been logged.';
+                    header('Location: /approvals/' . $id); return;
+                }
             }
             if ($signature !== '') {
                 $signedAt = date('Y-m-d H:i:s');
+                $ip = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+                $ua = substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255);
                 $sig = [
                     'signature_name' => $signature,
                     'signed_at'      => $signedAt,
-                    'signature_hash' => hash('sha256', Auth::id() . '|' . $step['id'] . '|' . $decision . '|' . $signedAt . '|' . $signature),
+                    'signature_hash' => hash('sha256', implode('|', [Auth::id(), $step['id'], $decision, $meaning, $signedAt, $signature, $ip, $ua])),
                 ];
+                // Immutable Part 11 signing event in the audit trail.
+                Auth::log('esignature', 'approval_requests', $id, [
+                    'step' => (int)$step['id'], 'decision' => $decision, 'meaning' => $meaning,
+                    'signer' => $signature, 'signed_at' => $signedAt, 'ip' => $ip, 'user_agent' => $ua,
+                    'hash' => $sig['signature_hash'],
+                ]);
             }
         }
 
