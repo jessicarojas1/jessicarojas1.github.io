@@ -84,6 +84,16 @@ test('admin-only routes require an admin token', async () => {
   assert.equal((await api('/api/audit')).status, 401);
 });
 
+test('unknown API route -> JSON 404; malformed JSON -> 400 with no stack leak', async () => {
+  const r404 = await json('/api/does-not-exist', {});
+  assert.equal(r404.status, 404); assert.match(r404.body.error, /not found/i);
+  const bad = await api('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{ this is not json' });
+  assert.equal(bad.status, 400);
+  const body = await bad.json().catch(() => null);
+  assert.ok(body && body.error, 'returns a JSON error');
+  assert.ok(!/\bat \/|\.js:\d+|SyntaxError|stack/i.test(JSON.stringify(body)), 'no stack trace / internal path leaked');
+});
+
 test('scan-url blocks SSRF to internal/metadata hosts', async () => {
   for (const url of ['https://localhost/x.git', 'https://169.254.169.254/latest.git', 'https://127.0.0.1/r.git']) {
     const r = await json('/api/scan-url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });

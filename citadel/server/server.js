@@ -629,11 +629,26 @@ app.post('/api/scan', rateLimited('scan', 20, 10 * 60000), requirePerm('analyze'
  * deploy can never leave a client running a stale bundle — e.g. an old app.js
  * that predates a UI feature like the admin/IAM nav reveal. Other assets
  * (images/fonts) keep the default heuristic caching. */
+// Unknown API routes return JSON 404 (not the static index.html).
+app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));
+
 app.use(express.static(APP_DIR, {
   setHeaders(res, fp) {
     if (/\.(html|js|css)$/i.test(fp)) res.setHeader('Cache-Control', 'no-cache');
   }
 }));
+
+// Central error handler (registered last): map known client errors to clean
+// statuses and return a GENERIC message for everything else — never leak a stack
+// trace, internal path, or token. The real error is logged server-side only.
+app.use((err, req, res, next) => {
+  if (err && err.type === 'entity.parse.failed') return res.status(400).json({ error: 'Malformed JSON body.' });
+  if (err && (err.type === 'entity.too.large' || err.status === 413)) return res.status(413).json({ error: 'Request body too large.' });
+  if (err && err.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ error: 'Uploaded file exceeds the size limit.' });
+  log.error('unhandled request error', { path: req.path, method: req.method, err: err && err.message });
+  if (res.headersSent) return next(err);
+  res.status(500).json({ error: 'Internal server error.' });
+});
 
 // Bootstrap durable state (Postgres schema + load) BEFORE accepting traffic, so
 // the synchronous auth path always reads a populated cache. Degrades to the

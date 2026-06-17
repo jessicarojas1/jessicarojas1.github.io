@@ -549,8 +549,9 @@
       box.innerHTML = '<i class="bi bi-hourglass-split"></i> Asking Claude…';
       aiBtn.disabled = true;
       CITADEL.api.explain(f).then(out => {
-        box.innerHTML = '<div class="ai-answer"><div class="small text-body-secondary mb-1"><i class="bi bi-stars"></i> ' + out.model + '</div>' + mdLite(out.text) + '</div>';
-      }).catch(err => { box.innerHTML = '<span class="text-danger">' + (err.message || err) + '</span>'; })
+        box.innerHTML = '<div class="ai-answer"><div class="small text-body-secondary mb-1"><i class="bi bi-stars"></i> ' + escH(out.model) + '</div>' + mdLite(out.text)
+          + '<div class="ai-warning small mt-2 p-2"><i class="bi bi-exclamation-triangle-fill"></i> AI-generated guidance — <strong>review and test every change before applying</strong>. Suggested fixes are not auto-applied and may be wrong or incomplete.</div></div>';
+      }).catch(err => { box.innerHTML = '<span class="text-danger">' + escH(err.message || String(err)) + '</span>'; })
         .finally(() => { aiBtn.disabled = false; });
       return;
     }

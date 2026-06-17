@@ -43,6 +43,12 @@ jobs:
         working-directory: citadel/server
         run: npm test
 
+      # Validate the SARIF 2.1.0 exporter produces a structurally valid document
+      # (schema/version, rules, results, levels, partialFingerprints, and a valid
+      # fixes[] object) so code-scanning ingestion can't silently break.
+      - name: SARIF export validation
+        run: node citadel/scripts/validate-sarif.js
+
       # Accuracy gate: run the heuristic engine over the labeled benchmark corpus
       # and fail the build if detection recall or precision regress. Current run is
       # ~100% recall / ~95% precision; thresholds keep headroom while catching real
