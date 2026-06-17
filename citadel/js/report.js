@@ -188,18 +188,26 @@
       `<button class="btn btn-sm ${sv === 'all' ? 'btn-primary' : 'btn-outline-secondary'} finding-filter" data-sev="${sv}">${sv === 'all' ? 'All' : c(sv)} ${sv === 'all' ? '' : '(' + (r.scoring.sev[sv] || 0) + ')'}</button>`
     ).join(' ');
     const supToggle = supN > 0
-      ? `<button class="btn btn-sm ${showSuppressed ? 'btn-warning text-dark' : 'btn-outline-warning'} ms-auto" id="toggle-suppressed"><i class="bi bi-eye${showSuppressed ? '-slash' : ''}"></i> ${showSuppressed ? 'Hide' : 'Show'} suppressed (${supN})</button>`
+      ? `<button class="btn btn-sm ${showSuppressed ? 'btn-warning text-dark' : 'btn-outline-warning'} ms-auto" id="toggle-suppressed"><i class="bi bi-eye${showSuppressed ? '-slash' : ''}"></i> ${showSuppressed ? 'Hide' : 'Show'} triaged (${supN})</button>`
       : '';
     const rows = shown.length ? shown.map((f, i) => {
       const isSup = sup.isSuppressed(f);
+      const dispo = CITADEL.disposition ? CITADEL.disposition.of(f) : (isSup ? 'accepted' : 'open');
+      const dLabel = (CITADEL.disposition && CITADEL.disposition.label) || {};
+      const dStates = (CITADEL.disposition && CITADEL.disposition.states) || ['open'];
+      const hasFix = !!(CITADEL.remediate && CITADEL.remediate.fix && CITADEL.remediate.fix(f));
+      const confBadge = f.confirmed
+        ? '<span class="badge fnd-confirmed" title="Confirmed by a real scanner / data-flow analysis">confirmed</span>'
+        : '<span class="badge fnd-potential" title="Heuristic pattern match — verify before acting">potential</span>';
       return `
-      <div class="finding${isSup ? ' finding-suppressed' : ''}" data-sev="${f.severity}">
+      <div class="finding${isSup ? ' finding-suppressed' : ''}" data-sev="${f.severity}" data-kind="${esc(f.kind || 'vuln')}" data-conf="${f.confirmed ? 'confirmed' : 'potential'}" data-fix="${hasFix ? '1' : '0'}" data-taint="${f.tainted ? '1' : '0'}" data-dispo="${esc(dispo)}" data-scanner="${esc((f.sources && f.sources.join(',')) || f.source || 'heuristic')}" data-cwe="${esc(f.cwe || '')}">
         <div class="finding-head" data-finding-toggle="${i}">
           <span class="sev-dot" style="background:${SEV_COLOR[f.severity]}"></span>
-          <span class="finding-name">${esc(f.name)}${isSup ? ' <span class="badge bg-secondary">suppressed</span>' : ''}</span>
+          <span class="finding-name">${esc(f.name)}${dispo !== 'open' ? ' <span class="badge bg-secondary">' + esc(dLabel[dispo] || dispo) + '</span>' : ''}</span>
           <span class="badge sev-badge" style="background:${SEV_COLOR[f.severity]}">${f.severity}</span>
+          ${confBadge}
           ${f.tainted ? '<span class="badge bg-warning text-dark" title="User input flows into this sink (data-flow taint)">tainted</span>' : ''}
-          <span class="text-body-secondary small ms-auto d-none d-md-inline">${esc(f.source || 'heuristic')} · ${esc(f.cwe || '')}</span>
+          <span class="text-body-secondary small ms-auto d-none d-md-inline">${esc((f.sources && f.sources.join('+')) || f.source || 'heuristic')} · ${esc(f.cwe || '')}</span>
           <i class="bi bi-chevron-down finding-chev"></i>
         </div>
         <div class="finding-body d-none" id="finding-body-${i}">
@@ -207,15 +215,23 @@
           ${f.snippet ? `<pre class="finding-snippet">${esc(f.snippet)}</pre>` : ''}
           ${fixDiff(f)}
           <div class="finding-meta">
+            <span><strong>Kind:</strong> ${esc(f.kind || 'vuln')}</span>
             <span><strong>Category:</strong> ${esc(CITADEL.frameworks.CATEGORIES[f.category] || f.category)}</span>
             <span><strong>Confidence:</strong> ${esc(f.confidence || 'n/a')}</span>
-            <span><strong>Source:</strong> ${esc(f.source || 'heuristic')}</span>
+            <span><strong>Detection:</strong> ${esc(f.detection || (f.confirmed ? 'scanner' : 'heuristic'))}</span>
+            <span><strong>Source:</strong> ${esc((f.sources && f.sources.join(', ')) || f.source || 'heuristic')}</span>
+            ${f.fingerprint ? `<span><strong>ID:</strong> <code>${esc(f.fingerprint)}</code></span>` : ''}
           </div>
           <div class="finding-fix"><i class="bi bi-wrench-adjustable"></i> ${esc(f.remediation || 'Review and remediate.')}</div>
           ${mappedControls(f.category)}
-          <div class="finding-actions">
+          <div class="finding-actions d-flex flex-wrap align-items-center gap-2">
             ${aiOn ? `<button class="btn btn-sm btn-outline-primary" data-explain="${i}"><i class="bi bi-stars"></i> Explain &amp; fix (AI)</button>` : ''}
-            <button class="btn btn-sm btn-outline-secondary" data-suppress="${i}"><i class="bi bi-${isSup ? 'arrow-counterclockwise' : 'slash-circle'}"></i> ${isSup ? 'Un-suppress' : 'Accept risk'}</button>
+            <div class="dropdown ms-auto">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-flag"></i> ${esc(dLabel[dispo] || dispo)}</button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                ${dStates.map(s => `<li><button class="dropdown-item${s === dispo ? ' active' : ''}" data-dispose-set="${i}:${s}">${esc(dLabel[s] || s)}</button></li>`).join('')}
+              </ul>
+            </div>
           </div>
           <div class="finding-ai d-none" id="finding-ai-${i}"></div>
         </div>
@@ -575,12 +591,14 @@
     let base, cur;
     try { [base, cur] = await Promise.all([CITADEL.api.scanGet(_baselineId), CITADEL.api.scanGet(targetId)]); }
     catch (e) { panel.innerHTML = '<div class="text-danger small">Could not load scans to compare.</div>'; return; }
-    const key = f => (f.ruleId || '') + '::' + (f.file || '') + '::' + (f.line || 0);
+    // Diff by canonical fingerprint (line-stable) so "new vs existing vs
+    // resolved" survives edits elsewhere in the file rather than flapping on line moves.
+    const key = f => f.fingerprint || (CITADEL.fingerprint ? CITADEL.fingerprint.of(f) : (f.ruleId || '') + '::' + (f.file || '') + '::' + (f.line || 0));
     const baseKeys = new Set((base.findings || []).map(key));
     const curKeys = new Set((cur.findings || []).map(key));
-    const added = (cur.findings || []).filter(f => !baseKeys.has(key(f)));
-    const fixed = (base.findings || []).filter(f => !curKeys.has(key(f)));
-    const unchanged = (cur.findings || []).length - added.length;
+    const added = (cur.findings || []).filter(f => !baseKeys.has(key(f)));     // new
+    const fixed = (base.findings || []).filter(f => !curKeys.has(key(f)));     // resolved
+    const unchanged = (cur.findings || []).length - added.length;             // existing
     const sevOrder = ['critical', 'high', 'medium', 'low', 'info'];
     const srt = a => a.slice().sort((x, y) => sevOrder.indexOf(x.severity) - sevOrder.indexOf(y.severity));
     const li = f => `<li><span class="badge sev-badge" style="background:${SEV_COLOR[f.severity] || '#6b7280'}">${esc(f.severity)}</span> ${esc(f.name)} <span class="text-body-secondary">· ${esc((f.file || '').split('/').pop())}${f.line ? ':' + f.line : ''}</span></li>`;

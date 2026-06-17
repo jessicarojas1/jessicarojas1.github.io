@@ -51,17 +51,39 @@
   }
   function d2(a, b, k) { return ((a.sev && a.sev[k]) || 0) - ((b.sev && b.sev[k]) || 0); }
 
-  /* ---------- Suppressions ---------- */
-  function fingerprint(f) {
-    return [f.ruleId || '', (f.file || '').replace(/^.*!\//, ''), f.line || 0, f.name || ''].join('|');
+  /* ---------- Finding disposition (triage state) ----------
+   * Per-browser localStorage map { fingerprint: state }. States:
+   *   open | accepted | false-positive | remediated | na (not applicable).
+   * Keyed by the canonical, line-stable fingerprint so a disposition survives
+   * edits and re-scans. The legacy `suppress` API is kept (hidden = non-open). */
+  const DKEY = 'citadel.disposition.v1';
+  const DISPOSITIONS = ['open', 'accepted', 'false-positive', 'remediated', 'na'];
+  const DISPO_LABEL = { open: 'Open', accepted: 'Accepted risk', 'false-positive': 'False positive', remediated: 'Remediated', na: 'Not applicable' };
+  function fpOf(f) {
+    if (CITADEL.fingerprint && CITADEL.fingerprint.of) return CITADEL.fingerprint.of(f);
+    return [f.ruleId || '', (f.file || '').replace(/^.*!\//, ''), f.name || ''].join('|');
   }
-  function suppressed() { return new Set(read(SKEY)); }
-  function isSuppressed(f) { return suppressed().has(fingerprint(f)); }
-  function suppress(f) { const s = read(SKEY); const fp = fingerprint(f); if (!s.includes(fp)) { s.push(fp); write(SKEY, s); } }
-  function unsuppress(f) { write(SKEY, read(SKEY).filter(x => x !== fingerprint(f))); }
-  function clearSuppress() { write(SKEY, []); }
-  function suppressCount() { return read(SKEY).length; }
+  function dmap() { try { return JSON.parse(localStorage.getItem(DKEY) || '{}'); } catch (e) { return {}; } }
+  function dispositionOf(f) { return dmap()[fpOf(f)] || 'open'; }
+  function setDisposition(f, state) {
+    const m = dmap(); const k = fpOf(f);
+    if (!state || state === 'open') delete m[k]; else if (DISPOSITIONS.indexOf(state) >= 0) m[k] = state;
+    try { localStorage.setItem(DKEY, JSON.stringify(m)); } catch (e) {}
+  }
+  function dispositionCounts() {
+    const m = dmap(); const c = { open: 0, accepted: 0, 'false-positive': 0, remediated: 0, na: 0 };
+    Object.keys(m).forEach(k => { if (c[m[k]] !== undefined) c[m[k]]++; });
+    return c;
+  }
+  // Back-compat suppress API — "suppressed" = any non-open disposition.
+  function isSuppressed(f) { return dispositionOf(f) !== 'open'; }
+  function suppress(f) { setDisposition(f, 'accepted'); }
+  function unsuppress(f) { setDisposition(f, 'open'); }
+  function clearSuppress() { try { localStorage.removeItem(DKEY); } catch (e) {} }
+  function suppressCount() { const m = dmap(); return Object.keys(m).filter(k => m[k] && m[k] !== 'open').length; }
+  function suppressed() { const m = dmap(); return new Set(Object.keys(m).filter(k => m[k] && m[k] !== 'open')); }
 
   CITADEL.history = { record, list, clear, compare };
-  CITADEL.suppress = { fingerprint, isSuppressed, suppress, unsuppress, clear: clearSuppress, count: suppressCount, all: suppressed };
+  CITADEL.suppress = { fingerprint: fpOf, isSuppressed, suppress, unsuppress, clear: clearSuppress, count: suppressCount, all: suppressed };
+  CITADEL.disposition = { of: dispositionOf, set: setDisposition, counts: dispositionCounts, states: DISPOSITIONS, label: DISPO_LABEL, fpOf };
 })(window);

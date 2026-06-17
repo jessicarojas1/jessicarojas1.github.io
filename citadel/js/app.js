@@ -517,7 +517,15 @@
       return;
     }
 
-    // Suppress / un-suppress a finding
+    // Set a finding disposition (open / accepted / false-positive / remediated / na)
+    const dispBtn = e.target.closest('[data-dispose-set]');
+    if (dispBtn) {
+      const [idx, state] = dispBtn.dataset.disposeSet.split(':');
+      const f = CITADEL.report.shownFinding(+idx);
+      if (f && CITADEL.disposition) { CITADEL.disposition.set(f, state); CITADEL.report.renderFindings(CITADEL.report.current); }
+      return;
+    }
+    // Suppress / un-suppress a finding (legacy button path; still supported)
     const supBtn = e.target.closest('[data-suppress]');
     if (supBtn) {
       const f = CITADEL.report.shownFinding(+supBtn.dataset.suppress);
