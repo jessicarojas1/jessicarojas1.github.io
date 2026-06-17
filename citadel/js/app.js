@@ -441,6 +441,10 @@
 
   function shorten(s) { return s.length > 48 ? '…' + s.slice(-46) : s; }
 
+  /* ---------- Findings facet filters (selects + search) ---------- */
+  document.addEventListener('change', (e) => { if (e.target && e.target.closest && e.target.closest('.finding-flt') && CITADEL.report.applyFilters) CITADEL.report.applyFilters(); });
+  document.addEventListener('input', (e) => { if (e.target && e.target.id === 'fnd-search' && CITADEL.report.applyFilters) CITADEL.report.applyFilters(); });
+
   /* ---------- Tabs ---------- */
   document.addEventListener('click', (e) => {
     // Auth controls
@@ -563,17 +567,15 @@
       return;
     }
 
-    // Finding severity filter
+    // Finding severity filter (composes with the facet dropdowns + search)
     const filter = e.target.closest('.finding-filter');
     if (filter) {
       document.querySelectorAll('.finding-filter').forEach(b => { b.classList.remove('btn-primary'); b.classList.add('btn-outline-secondary'); });
       filter.classList.add('btn-primary'); filter.classList.remove('btn-outline-secondary');
-      const sev = filter.dataset.sev;
-      document.querySelectorAll('#findings-list .finding').forEach(f => {
-        f.style.display = (sev === 'all' || f.dataset.sev === sev) ? '' : 'none';
-      });
+      if (CITADEL.report.applyFilters) CITADEL.report.applyFilters();
       return;
     }
+    if (e.target.closest('#fnd-reset')) { if (CITADEL.report.resetFilters) CITADEL.report.resetFilters(); return; }
 
     // Exports
     if (e.target.closest('#exp-json')) return CITADEL.report.exportJson();

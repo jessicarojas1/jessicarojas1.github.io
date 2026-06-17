@@ -210,6 +210,9 @@ html { scroll-behavior: smooth; }
 .finding-controls { margin-top:.6rem; display:flex; flex-wrap:wrap; gap:.3rem; align-items:center; }
 .badge.fnd-confirmed { background: color-mix(in srgb, var(--success,#1a9d57) 16%, transparent); color: var(--success,#1a9d57); border:1px solid color-mix(in srgb, var(--success,#1a9d57) 38%, transparent); font-weight:600; }
 .badge.fnd-potential { background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); border:1px solid var(--bs-border-color); font-weight:600; }
+.scanner-chip { display:inline-flex; align-items:center; gap:.4rem; font-size:.8rem; padding:.2rem .55rem; border:1px solid var(--bs-border-color); border-radius:999px; background:var(--bs-tertiary-bg); }
+.scanner-dot { width:8px; height:8px; border-radius:50%; display:inline-block; flex:0 0 auto; }
+.finding-filters2 .form-select-sm, .finding-filters2 .form-control-sm { font-size:.8rem; }
 .ctrl-chip { font-size:.66rem; padding:.15rem .45rem; border-radius:5px; background: var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); color: var(--bs-secondary-color); }
 
 .finding-actions { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.7rem; }

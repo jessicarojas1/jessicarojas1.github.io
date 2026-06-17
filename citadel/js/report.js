@@ -70,6 +70,28 @@
   }
 
   /* ---------- Overview ---------- */
+  // Honest scanner-health strip (deep scans only): which tools ran, failed, or
+  // were unavailable. Makes clear that unavailable tools were skipped — their
+  // coverage is NOT reflected in the report.
+  function scannerStatus(r) {
+    const tools = r.meta && r.meta.scanners;
+    if (!tools || !tools.length) return '';
+    const sum = r.meta.scanSummary || {};
+    const dot = st => st === 'ok' ? '#1a9d57' : st === 'failed' ? '#e0a106' : '#9aa3af';
+    const lbl = st => st === 'ok' ? 'ran' : st === 'failed' ? 'failed' : 'unavailable';
+    const chips = tools.map(t => `<span class="scanner-chip" title="${esc(t.tool)}: ${esc(t.warning || lbl(t.status))}"><span class="scanner-dot" style="background:${dot(t.status)}"></span>${esc(t.tool)}${t.status === 'ok' && t.findings ? ' <span class="text-body-secondary">(' + (t.findings | 0) + ')</span>' : ''}</span>`).join('');
+    return `
+      <div class="row g-4 mt-1"><div class="col-12">
+        <div class="card citadel-card"><div class="card-body py-3">
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+            <h6 class="card-subtitle text-body-secondary text-uppercase small fw-bold mb-0">Scanner status</h6>
+            <span class="small text-body-secondary">${(sum.ran || 0)} ran · ${(sum.failed || 0)} failed · ${(sum.unavailable || 0)} unavailable</span>
+          </div>
+          <div class="scanner-chips d-flex flex-wrap gap-2">${chips}</div>
+          <div class="small text-body-secondary mt-2"><i class="bi bi-info-circle"></i> <span class="badge fnd-confirmed">confirmed</span> findings came from a tool that ran; <span class="badge fnd-potential">potential</span> are heuristic. Unavailable tools were skipped — their coverage is not reflected here.</div>
+        </div></div>
+      </div></div>`;
+  }
   function renderOverview(r) {
     const s = r.scoring.sev;
     $('tab-overview').innerHTML = `
@@ -93,6 +115,7 @@
           </div></div>
         </div>
       </div>
+      ${scannerStatus(r)}
       <div class="row g-4 mt-1">
         <div class="col-lg-7">
           <div class="card citadel-card h-100"><div class="card-body">
@@ -199,8 +222,9 @@
       const confBadge = f.confirmed
         ? '<span class="badge fnd-confirmed" title="Confirmed by a real scanner / data-flow analysis">confirmed</span>'
         : '<span class="badge fnd-potential" title="Heuristic pattern match — verify before acting">potential</span>';
+      const fwIds = (CITADEL.frameworks.MAP && CITADEL.frameworks.MAP[f.category]) ? Object.keys(CITADEL.frameworks.MAP[f.category]) : [];
       return `
-      <div class="finding${isSup ? ' finding-suppressed' : ''}" data-sev="${f.severity}" data-kind="${esc(f.kind || 'vuln')}" data-conf="${f.confirmed ? 'confirmed' : 'potential'}" data-fix="${hasFix ? '1' : '0'}" data-taint="${f.tainted ? '1' : '0'}" data-dispo="${esc(dispo)}" data-scanner="${esc((f.sources && f.sources.join(',')) || f.source || 'heuristic')}" data-cwe="${esc(f.cwe || '')}">
+      <div class="finding${isSup ? ' finding-suppressed' : ''}" data-sev="${f.severity}" data-kind="${esc(f.kind || 'vuln')}" data-conf="${f.confirmed ? 'confirmed' : 'potential'}" data-fix="${hasFix ? '1' : '0'}" data-taint="${f.tainted ? '1' : '0'}" data-dispo="${esc(dispo)}" data-scanner="${esc((f.sources && f.sources.join(',')) || f.source || 'heuristic')}" data-cwe="${esc(f.cwe || '')}" data-frameworks="${esc(fwIds.join(','))}">
         <div class="finding-head" data-finding-toggle="${i}">
           <span class="sev-dot" style="background:${SEV_COLOR[f.severity]}"></span>
           <span class="finding-name">${esc(f.name)}${dispo !== 'open' ? ' <span class="badge bg-secondary">' + esc(dLabel[dispo] || dispo) + '</span>' : ''}</span>
@@ -237,9 +261,65 @@
         </div>
       </div>`; }).join('') :
       '<div class="empty-state"><i class="bi bi-check2-circle"></i><p>No findings to show.</p></div>';
+    // Distinct facets for the filter dropdowns (computed from what's shown).
+    const opt = (v, label) => `<option value="${esc(v)}">${esc(label == null ? v : label)}</option>`;
+    const kinds = [...new Set(shown.map(f => f.kind || 'vuln'))].sort();
+    const scanners = [...new Set(shown.reduce((a, f) => a.concat((f.sources && f.sources) || [f.source || 'heuristic']), []))].sort();
+    const fwSet = new Set();
+    shown.forEach(f => { const m = CITADEL.frameworks.MAP[f.category]; if (m) Object.keys(m).forEach(k => fwSet.add(k)); });
+    const fwName = id => { const fw = CITADEL.frameworks.CATALOG.find(x => x.id === id); return fw ? (fw.short || fw.name) : id; };
+    const frameworks = [...fwSet].sort();
+    const dStates = (CITADEL.disposition && CITADEL.disposition.states) || [];
+    const dLabel = (CITADEL.disposition && CITADEL.disposition.label) || {};
+    const filterBar2 = `
+      <div class="d-flex flex-wrap gap-2 align-items-center mb-3 finding-filters2">
+        <input type="search" class="form-control form-control-sm finding-q" id="fnd-search" placeholder="Search name, file, CWE…" style="max-width:220px" aria-label="Search findings">
+        <select class="form-select form-select-sm w-auto finding-flt" id="fnd-conf"><option value="">Confirmed + potential</option><option value="confirmed">Confirmed only</option><option value="potential">Potential only</option></select>
+        <select class="form-select form-select-sm w-auto finding-flt" id="fnd-kind">${opt('', 'All kinds')}${kinds.map(k => opt(k)).join('')}</select>
+        <select class="form-select form-select-sm w-auto finding-flt" id="fnd-scanner">${opt('', 'All sources')}${scanners.map(s => opt(s)).join('')}</select>
+        <select class="form-select form-select-sm w-auto finding-flt" id="fnd-framework">${opt('', 'All frameworks')}${frameworks.map(s => opt(s, fwName(s))).join('')}</select>
+        <select class="form-select form-select-sm w-auto finding-flt" id="fnd-fix">${opt('', 'Fix: any')}${opt('1', 'Has suggested fix')}${opt('0', 'No fix')}</select>
+        <select class="form-select form-select-sm w-auto finding-flt" id="fnd-taint">${opt('', 'Taint: any')}${opt('1', 'Tainted only')}</select>
+        <select class="form-select form-select-sm w-auto finding-flt" id="fnd-dispo">${opt('', 'All dispositions')}${dStates.map(s => opt(s, dLabel[s] || s)).join('')}</select>
+        <span class="small text-body-secondary" id="fnd-visible-count"></span>
+        <button class="btn btn-sm btn-link p-0 ms-1" id="fnd-reset">Reset</button>
+      </div>`;
     $('tab-findings').innerHTML = `
-      <div class="d-flex flex-wrap gap-2 mb-3 align-items-center" id="finding-filters">${filterBtns}${supToggle}</div>
+      <div class="d-flex flex-wrap gap-2 mb-2 align-items-center" id="finding-filters">${filterBtns}${supToggle}</div>
+      ${filterBar2}
       <div id="findings-list">${rows}</div>`;
+    applyFindingFilters();
+  }
+  // Multi-dimension filter over the rendered finding rows (no re-render): severity
+  // button + the facet dropdowns + free-text search, composed by data-* attributes.
+  function applyFindingFilters() {
+    const sevBtn = document.querySelector('.finding-filter.btn-primary');
+    const sev = sevBtn ? sevBtn.dataset.sev : 'all';
+    const v = id => { const el = $(id); return el ? el.value : ''; };
+    const q = (v('fnd-search') || '').toLowerCase().trim();
+    const kind = v('fnd-kind'), conf = v('fnd-conf'), scanner = v('fnd-scanner'),
+      fw = v('fnd-framework'), fix = v('fnd-fix'), taint = v('fnd-taint'), dispo = v('fnd-dispo');
+    let visible = 0, total = 0;
+    document.querySelectorAll('#findings-list .finding').forEach(el => {
+      total++;
+      const d = el.dataset;
+      let ok = (sev === 'all' || d.sev === sev)
+        && (!kind || d.kind === kind)
+        && (!conf || d.conf === conf)
+        && (!scanner || (d.scanner || '').split(',').indexOf(scanner) >= 0)
+        && (!fw || (d.frameworks || '').split(',').indexOf(fw) >= 0)
+        && (!fix || d.fix === fix)
+        && (!taint || d.taint === taint)
+        && (!dispo || d.dispo === dispo);
+      if (ok && q) ok = (el.textContent || '').toLowerCase().indexOf(q) >= 0;
+      el.style.display = ok ? '' : 'none';
+      if (ok) visible++;
+    });
+    const cnt = $('fnd-visible-count'); if (cnt) cnt.textContent = visible + ' of ' + total + ' shown';
+  }
+  function resetFindingFilters() {
+    ['fnd-search', 'fnd-conf', 'fnd-kind', 'fnd-scanner', 'fnd-framework', 'fnd-fix', 'fnd-taint', 'fnd-dispo'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+    applyFindingFilters();
   }
   function shownFinding(i) { return current && current._shown ? current._shown[i] : null; }
   function toggleSuppressedView() { showSuppressed = !showSuppressed; renderFindings(current); }
@@ -991,7 +1071,7 @@ ul{padding-left:1.1rem}</style></head>
 
   CITADEL.report = {
     render, renderHistory, renderCompare, renderFindings, renderReport, renderAiFix, setAi, sparkline,
-    shownFinding, toggleSuppressedView, copyAiFix, downloadAiFix, downloadHtmlReport,
+    shownFinding, toggleSuppressedView, applyFilters: applyFindingFilters, resetFilters: resetFindingFilters, copyAiFix, downloadAiFix, downloadHtmlReport,
     exportJson, exportSbom, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp, exportJUnit, exportPrComment,
     get current() { return current; }
   };
