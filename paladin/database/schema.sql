@@ -395,7 +395,7 @@ CREATE TABLE IF NOT EXISTS documents (
     business_unit      VARCHAR(120),
     classification     VARCHAR(40) DEFAULT 'internal',          -- public/internal/confidential/restricted
     revision           VARCHAR(20) NOT NULL DEFAULT '1.0',
-    status             VARCHAR(20) NOT NULL DEFAULT 'draft',     -- draft/in_review/approved/published/rejected/archived/obsolete
+    status             VARCHAR(20) NOT NULL DEFAULT 'draft',     -- draft/in_review/approved/published/superseded/retired/expired/rejected/archived/obsolete
     description        TEXT,
     body               TEXT,
     effective_date     DATE,

@@ -64,6 +64,48 @@ final class Scheduler {
         return $count;
     }
 
+    /**
+     * Auto-expire effective (published) controlled documents whose expiration
+     * date has passed. Idempotent and resilient; logs a document_transition and
+     * dispatches document.expired for each.
+     * @return int number of documents expired this sweep
+     */
+    public static function runExpiredDocuments(): int {
+        try {
+            $due = Database::fetchAll(
+                "SELECT id, document_code, title
+                 FROM documents
+                 WHERE status = 'published'
+                   AND expiration_date IS NOT NULL
+                   AND expiration_date < CURRENT_DATE
+                 ORDER BY expiration_date
+                 LIMIT 100"
+            );
+        } catch (\Throwable) {
+            return 0;
+        }
+
+        $count = 0;
+        foreach ($due as $d) {
+            $id = (int)$d['id'];
+            try {
+                Database::query("UPDATE documents SET status='expired', updated_at=NOW() WHERE id=? AND status='published'", [$id]);
+                if (class_exists('Auth')) {
+                    Auth::logSystem('document_auto_expired', 'documents', $id);
+                }
+                if (class_exists('Webhook')) {
+                    Webhook::dispatch('document.expired', [
+                        'id' => $id, 'code' => $d['document_code'], 'title' => $d['title'], 'auto' => true,
+                    ]);
+                }
+                $count++;
+            } catch (\Throwable) {
+                // keep the sweep resilient
+            }
+        }
+        return $count;
+    }
+
     /** Best-effort alert to page + space watchers that a scheduled page went live. */
     private static function notifyWatchers(int $pageId, int $spaceId, string $title): void {
         try {

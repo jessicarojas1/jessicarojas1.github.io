@@ -3,15 +3,23 @@ declare(strict_types=1);
 
 class DocumentController {
 
-    /** Allowed lifecycle transitions: from => [to,...]. */
+    /**
+     * Allowed lifecycle transitions: from => [to,...].
+     * Extended (additively) with the regulated end-states superseded / retired /
+     * expired reachable from an effective (published) document. 'expired' may
+     * also be set automatically by the scheduler when expiration_date passes.
+     */
     private const TRANSITIONS = [
-        'draft'     => ['in_review', 'archived'],
-        'in_review' => ['approved', 'rejected', 'draft'],
-        'approved'  => ['published', 'draft'],
-        'published' => ['archived', 'obsolete', 'draft'],
-        'rejected'  => ['draft', 'archived'],
-        'archived'  => ['draft'],
-        'obsolete'  => ['archived'],
+        'draft'      => ['in_review', 'archived'],
+        'in_review'  => ['approved', 'rejected', 'draft'],
+        'approved'   => ['published', 'draft'],
+        'published'  => ['superseded', 'retired', 'expired', 'archived', 'obsolete', 'draft'],
+        'rejected'   => ['draft', 'archived'],
+        'archived'   => ['draft'],
+        'obsolete'   => ['archived'],
+        'superseded' => ['retired', 'archived', 'draft'],
+        'retired'    => ['archived'],
+        'expired'    => ['draft', 'archived'],
     ];
 
     public function index(): void {
@@ -400,10 +408,13 @@ class DocumentController {
         Database::update('documents', $data, 'id=?', [$id]);
         Auth::log('document_transition', 'documents', $id, ['from' => $doc['status'], 'to' => $to]);
         $event = match ($to) {
-            'approved'  => 'document.approved',
-            'published' => 'document.published',
-            'archived'  => 'document.archived',
-            default     => null,
+            'approved'   => 'document.approved',
+            'published'  => 'document.published',
+            'archived'   => 'document.archived',
+            'expired'    => 'document.expired',
+            'superseded' => 'document.superseded',
+            'retired'    => 'document.retired',
+            default      => null,
         };
         if ($event !== null) {
             Webhook::dispatch($event, [
