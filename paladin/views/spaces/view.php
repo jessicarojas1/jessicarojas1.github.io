@@ -100,6 +100,32 @@ function renderTree(array $byParent, $parent, $depth = 0) {
         <?php endif; ?>
       <?php else: ?><div class="empty-state-sm">No pages yet.</div><?php endif; ?>
     </div>
+    <div class="card-header" style="border-top:1px solid var(--border-light)" id="shortcuts"><div class="card-header-left"><span class="card-title"><i class="bi bi-link-45deg"></i> Shortcuts</span></div></div>
+    <div class="card-body">
+      <?php if (!empty($shortcuts)): ?>
+        <ul class="macro-list" style="list-style:none;margin:0;padding:0">
+        <?php foreach ($shortcuts as $sc): ?>
+          <li style="display:flex;align-items:center;gap:6px;padding:3px 0">
+            <a href="<?= Security::h($sc['url']) ?>"<?= str_starts_with((string)$sc['url'], '/') ? '' : ' target="_blank" rel="noopener noreferrer"' ?> style="flex:1"><i class="bi <?= Security::h($sc['icon'] ?: 'bi-link-45deg') ?>"></i> <?= Security::h($sc['label']) ?></a>
+            <?php if (!empty($canManageSpace)): ?>
+              <form method="POST" action="/spaces/<?= (int)$space['id'] ?>/shortcuts/<?= (int)$sc['id'] ?>/delete" style="margin:0" data-confirm="Remove this shortcut?"><?= Security::csrfField() ?><button class="btn-unstyled" type="submit" title="Remove" style="border:none;background:none;cursor:pointer;color:var(--danger)"><i class="bi bi-x-lg"></i></button></form>
+            <?php endif; ?>
+          </li>
+        <?php endforeach; ?>
+        </ul>
+      <?php else: ?><div class="empty-state-sm">No shortcuts yet.</div><?php endif; ?>
+      <?php if (!empty($canManageSpace)): ?>
+        <form method="POST" action="/spaces/<?= (int)$space['id'] ?>/shortcuts" style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+          <?= Security::csrfField() ?>
+          <input type="text" name="label" class="form-control form-control-sm" placeholder="Label" maxlength="120" required>
+          <input type="text" name="url" class="form-control form-control-sm" placeholder="https://… or /internal/path" maxlength="2048" required>
+          <div style="display:flex;gap:6px">
+            <input type="text" name="icon" class="form-control form-control-sm" placeholder="bi-link-45deg" style="flex:1">
+            <button class="btn btn-sm" type="submit"><i class="bi bi-plus-lg"></i> Add</button>
+          </div>
+        </form>
+      <?php endif; ?>
+    </div>
     <div class="card-header" style="border-top:1px solid var(--border-light)" id="members"><div class="card-header-left"><span class="card-title"><i class="bi bi-people"></i> Members &amp; Permissions</span></div>
       <span class="badge <?= (isset($space['is_private']) && in_array(strtolower((string)$space['is_private']),['1','t','true'],true)) ? 'badge-amber' : 'badge-gray' ?>"><i class="bi bi-<?= (isset($space['is_private']) && in_array(strtolower((string)$space['is_private']),['1','t','true'],true)) ? 'lock-fill' : 'unlock' ?>"></i> <?= (isset($space['is_private']) && in_array(strtolower((string)$space['is_private']),['1','t','true'],true)) ? 'Private' : 'Open' ?></span>
     </div>
