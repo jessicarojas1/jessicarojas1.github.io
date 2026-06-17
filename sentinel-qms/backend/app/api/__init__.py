@@ -30,6 +30,7 @@ from app.api.routers import (
     nonconformances,
     notifications,
     permissions,
+    quality_objectives,
     record_shares,
     reports,
     risks,
@@ -83,3 +84,4 @@ api_router.include_router(msa.router)
 api_router.include_router(spc.router)
 api_router.include_router(saved_views.router)
 api_router.include_router(record_shares.router)
+api_router.include_router(quality_objectives.router)

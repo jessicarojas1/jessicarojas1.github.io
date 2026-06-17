@@ -99,6 +99,13 @@ from app.models.nonconformance import (
     NonconformanceDisposition,
 )
 from app.models.permission import RolePagePermission, UserPagePermission
+from app.models.quality_objective import (
+    ObjectiveCadence,
+    ObjectiveDirection,
+    ObjectiveStatus,
+    QualityObjective,
+    QualityObjectiveMeasurement,
+)
 from app.models.record_share import RecordShare
 from app.models.risk import (
     Risk,
@@ -256,4 +263,9 @@ __all__ = [
     "KcClass",
     "SavedView",
     "RecordShare",
+    "QualityObjective",
+    "QualityObjectiveMeasurement",
+    "ObjectiveCadence",
+    "ObjectiveDirection",
+    "ObjectiveStatus",
 ]

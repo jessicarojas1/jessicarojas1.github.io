@@ -40,6 +40,7 @@ export * from './useSignatures';
 export * from './useCustomers';
 export * from './useAuditPrograms';
 export * from './useMsa';
+export * from './useQualityObjectives';
 export * from './useSpc';
 export * from './useSavedViews';
 export * from './useDashboardWidgets';

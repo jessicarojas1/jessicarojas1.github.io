@@ -33,6 +33,8 @@ export type Capability =
   | 'mgmt_reviews.write'
   | 'complaints.read'
   | 'complaints.write'
+  | 'quality_objectives.read'
+  | 'quality_objectives.write'
   | 'admin.users'
   | 'admin.roles'
   | 'docs.read';
@@ -51,6 +53,7 @@ const ALL_READ: Capability[] = [
   'inspections.read',
   'mgmt_reviews.read',
   'complaints.read',
+  'quality_objectives.read',
 ];
 
 const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
@@ -72,6 +75,7 @@ const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
     'inspections.write',
     'mgmt_reviews.write',
     'complaints.write',
+    'quality_objectives.write',
     'admin.users',
     'admin.roles',
   ],
@@ -90,6 +94,7 @@ const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
     'risks.write',
     'mgmt_reviews.write',
     'complaints.write',
+    'quality_objectives.write',
   ],
   quality_engineer: [
     ...ALL_READ,
@@ -101,6 +106,7 @@ const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
     'risks.write',
     'inspections.write',
     'complaints.write',
+    'quality_objectives.write',
   ],
   auditor: [...ALL_READ, 'audits.write'],
   supplier_quality: [

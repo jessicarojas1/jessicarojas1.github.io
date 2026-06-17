@@ -1109,3 +1109,40 @@ export interface ExecutiveDashboard {
   standards_coverage: { code: string; coverage_pct: number }[];
   fod: { open_events: number; trend: { month: string; count: number }[] };
 }
+
+/* ------------------------------------------------------------------ */
+/* Quality Objectives & KPIs (clause 6.2)                              */
+/* ------------------------------------------------------------------ */
+
+export type ObjectiveDirection = 'higher_better' | 'lower_better';
+export type ObjectiveCadence = 'monthly' | 'quarterly' | 'annual';
+export type ObjectiveStatus = 'active' | 'met' | 'at_risk' | 'missed' | 'archived';
+
+export interface QObjectiveMeasurement {
+  id: number;
+  objective_id: number;
+  value: number;
+  measured_at?: Iso8601 | null;
+  note?: string | null;
+}
+
+export interface QualityObjective {
+  id: number;
+  objective_number: string;
+  title: string;
+  description?: string | null;
+  category?: string | null;
+  owner_id?: number | null;
+  owner_name?: string | null;
+  target_value: number;
+  baseline_value?: number | null;
+  current_value?: number | null;
+  unit?: string | null;
+  direction: ObjectiveDirection;
+  cadence: ObjectiveCadence;
+  status: ObjectiveStatus;
+  target_date?: Iso8601 | null;
+  clause_ref?: string | null;
+  attainment_pct?: number | null;
+  measurements?: QObjectiveMeasurement[];
+}
