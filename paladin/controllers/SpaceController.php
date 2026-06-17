@@ -25,6 +25,59 @@ class SpaceController {
         require PALADIN_ROOT . '/views/spaces/export.php';
     }
 
+    /** Export every viewable published page in the space as a single Word (.doc). */
+    public function exportWord(int $id): void {
+        Auth::requirePermission('space.view');
+        $space = Database::fetchOne(
+            "SELECT s.*, u.name AS owner_name FROM spaces s LEFT JOIN users u ON u.id = s.owner_id WHERE s.id = ?",
+            [$id]
+        );
+        if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!SpaceAccess::canView($space)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+
+        $pages = Database::fetchAll(
+            "SELECT id, parent_id, title, body, position, updated_at
+             FROM pages WHERE space_id = ? AND status = 'published' AND deleted_at IS NULL
+             ORDER BY COALESCE(parent_id, 0), position, title",
+            [$id]
+        );
+        $pages = array_values(array_filter($pages, static fn($p) => PageAccess::canView(array_merge($p, ['space_id' => $id]))));
+        if (!$pages) { $_SESSION['flash_error'] = 'No published pages to export.'; header('Location: /spaces/' . $id); return; }
+
+        // Cover + table of contents (each entry links to its in-document anchor).
+        $toc = ''; $sections = '';
+        foreach ($pages as $i => $p) {
+            $anchor = 'pg' . (int)$p['id'];
+            $toc .= '<li><a href="#' . $anchor . '">' . Security::h((string)$p['title']) . '</a></li>';
+            $sections .= ($i > 0 ? '<br clear="all" style="page-break-before:always">' : '')
+                       . '<h1><a name="' . $anchor . '"></a>' . Security::h((string)$p['title']) . '</h1>'
+                       . '<p class="upd">Last updated ' . Security::h(date('M j, Y', strtotime((string)$p['updated_at']))) . '</p>'
+                       . '<div>' . (string)$p['body'] . '</div>';
+        }
+        $title = (string)$space['name'];
+        $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
+              . 'xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
+              . '<head><meta charset="utf-8"><title>' . Security::h($title) . '</title>'
+              . '<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#222}'
+              . 'h1{font-size:20pt} h2{font-size:15pt} h3{font-size:13pt}'
+              . 'table{border-collapse:collapse} td,th{border:1px solid #bbb;padding:5px}'
+              . '.upd{color:#777;font-size:9pt;margin:0 0 14px}</style></head><body>'
+              . '<h1>' . Security::h($title) . '</h1>'
+              . '<p class="upd">Space export · ' . count($pages) . ' page(s) · ' . Security::h(date('M j, Y g:ia')) . '</p>'
+              . '<h2>Contents</h2><ol>' . $toc . '</ol>'
+              . '<br clear="all" style="page-break-before:always">' . $sections
+              . '</body></html>';
+
+        Auth::log('export_space_word', 'spaces', $id, ['pages' => count($pages)]);
+        $fname = preg_replace('/[^A-Za-z0-9._-]+/', '-', 'space-' . (string)($space['space_key'] ?? $id));
+        $fname = trim((string)$fname, '-') ?: ('space-' . $id);
+        header('Content-Type: application/msword; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $fname . '.doc"');
+        header('X-Content-Type-Options: nosniff');
+        header('Content-Length: ' . strlen($html));
+        echo $html;
+    }
+
     /** Export every viewable published page in the space as a ZIP of PDFs. */
     public function exportPdfZip(int $id): void {
         Auth::requirePermission('space.view');
