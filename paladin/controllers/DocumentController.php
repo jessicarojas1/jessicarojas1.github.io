@@ -75,9 +75,9 @@ class DocumentController {
         header('X-Content-Type-Options: nosniff');
         $out = fopen('php://output', 'w');
         fwrite($out, "\xEF\xBB\xBF");
-        fputcsv($out, ['Code', 'Title', 'Type', 'Status', 'Revision', 'Classification', 'Space', 'Owner', 'Review Date', 'Expiration Date', 'Last Updated']);
+        Csv::put($out, ['Code', 'Title', 'Type', 'Status', 'Revision', 'Classification', 'Space', 'Owner', 'Review Date', 'Expiration Date', 'Last Updated']);
         foreach ($rows as $r) {
-            fputcsv($out, [
+            Csv::put($out, [
                 $r['document_code'], $r['title'], View::docTypeLabel((string)$r['doc_type']), $r['status'],
                 $r['revision'], $r['classification'] ?? '', $r['space_key'] ?? '', $r['owner_name'] ?? '',
                 $r['review_date'] ?? '', $r['expiration_date'] ?? '', $r['updated_at'],
@@ -541,9 +541,9 @@ class DocumentController {
         header('X-Content-Type-Options: nosniff');
         $out = fopen('php://output', 'w');
         fwrite($out, "\xEF\xBB\xBF");
-        fputcsv($out, ['Document', 'Title', 'User', 'Email', 'Department', 'Revision', 'Acknowledged At']);
+        Csv::put($out, ['Document', 'Title', 'User', 'Email', 'Department', 'Revision', 'Acknowledged At']);
         foreach ($rows as $r) {
-            fputcsv($out, [
+            Csv::put($out, [
                 $doc['document_code'], $doc['title'], $r['user_name'], $r['email'] ?? '',
                 $r['department'] ?? '', $r['revision'], $r['acknowledged_at'],
             ]);

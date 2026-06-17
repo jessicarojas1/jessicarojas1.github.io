@@ -789,9 +789,9 @@ class AdminController {
         header('X-Content-Type-Options: nosniff');
         $out = fopen('php://output', 'w');
         fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM for spreadsheet apps
-        fputcsv($out, ['ID', 'Timestamp (UTC)', 'User ID', 'User', 'Action', 'Entity Type', 'Entity ID', 'IP Address', 'Changes', 'Log Hash']);
+        Csv::put($out, ['ID', 'Timestamp (UTC)', 'User ID', 'User', 'Action', 'Entity Type', 'Entity ID', 'IP Address', 'Changes', 'Log Hash']);
         foreach ($rows as $r) {
-            fputcsv($out, [
+            Csv::put($out, [
                 $r['id'], $r['created_at'], $r['user_id'] ?? '', $r['user_name'] ?? 'System',
                 $r['action'], $r['entity_type'] ?? '', $r['entity_id'] ?? '',
                 $r['ip_address'] ?? '', $r['changes'] ?? '', $r['log_hash'] ?? '',
