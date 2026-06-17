@@ -194,7 +194,54 @@ class SpaceController {
                 [(int)$space['homepage_id'], $id]
             );
         }
+        $shortcuts = Database::fetchAll(
+            "SELECT id, label, url, icon FROM space_shortcuts WHERE space_id = ? ORDER BY sort_order, id", [$id]
+        );
         require PALADIN_ROOT . '/views/spaces/view.php';
+    }
+
+    /**
+     * Normalise a shortcut URL: allow only absolute http(s) URLs or same-site
+     * root-relative paths. Returns null when the URL is unsafe.
+     */
+    private static function safeShortcutUrl(string $url): ?string {
+        $url = trim($url);
+        if ($url === '' || strlen($url) > 2048) { return null; }
+        if (str_starts_with($url, '/') && !str_starts_with($url, '//')) { return $url; }
+        $scheme = strtolower((string)parse_url($url, PHP_URL_SCHEME));
+        if (in_array($scheme, ['http', 'https'], true) && parse_url($url, PHP_URL_HOST)) { return $url; }
+        return null;
+    }
+
+    public function addShortcut(int $id): void {
+        $space = $this->guardManage($id);
+        if (!$space) { return; }
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $label = Security::sanitizeInput($_POST['label'] ?? '');
+        $url   = self::safeShortcutUrl((string)($_POST['url'] ?? ''));
+        $icon  = preg_replace('/[^a-z0-9-]/', '', strtolower((string)($_POST['icon'] ?? 'bi-link-45deg'))) ?: 'bi-link-45deg';
+        if ($label === '' || $url === null) {
+            $_SESSION['flash_error'] = 'A label and a valid http(s) or /relative URL are required.';
+            header('Location: /spaces/' . $id); return;
+        }
+        $next = (int)(Database::fetchOne("SELECT COALESCE(MAX(sort_order),0)+1 n FROM space_shortcuts WHERE space_id=?", [$id])['n'] ?? 1);
+        Database::insert('space_shortcuts', [
+            'space_id' => $id, 'label' => mb_substr($label, 0, 120), 'url' => $url,
+            'icon' => substr($icon, 0, 40), 'sort_order' => $next, 'created_by' => Auth::id(),
+        ]);
+        Auth::log('add_space_shortcut', 'spaces', $id, ['label' => $label]);
+        $_SESSION['flash_success'] = 'Shortcut added.';
+        header('Location: /spaces/' . $id);
+    }
+
+    public function removeShortcut(int $id, int $shortcutId): void {
+        $space = $this->guardManage($id);
+        if (!$space) { return; }
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        Database::query("DELETE FROM space_shortcuts WHERE id = ? AND space_id = ?", [$shortcutId, $id]);
+        Auth::log('remove_space_shortcut', 'spaces', $id, ['shortcut' => $shortcutId]);
+        $_SESSION['flash_success'] = 'Shortcut removed.';
+        header('Location: /spaces/' . $id);
     }
 
     /** Roles assignable to a space member. */
