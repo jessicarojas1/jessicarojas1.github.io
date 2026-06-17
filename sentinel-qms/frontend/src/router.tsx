@@ -47,6 +47,7 @@ const InspectionDetailPage = lazy(() => import('./pages/inspections/InspectionDe
 const MgmtReviewListPage = lazy(() => import('./pages/mgmtReviews/MgmtReviewListPage'));
 const QualityObjectivesPage = lazy(() => import('./pages/objectives/QualityObjectivesPage'));
 const ImprovementsPage = lazy(() => import('./pages/improvements/ImprovementsPage'));
+const CustomerSatisfactionPage = lazy(() => import('./pages/satisfaction/CustomerSatisfactionPage'));
 const MgmtReviewDetailPage = lazy(() => import('./pages/mgmtReviews/MgmtReviewDetailPage'));
 const ComplaintListPage = lazy(() => import('./pages/complaints/ComplaintListPage'));
 const ComplaintDetailPage = lazy(() => import('./pages/complaints/ComplaintDetailPage'));
@@ -228,6 +229,10 @@ export function AppRouter() {
           <Route
             path="improvements"
             element={<Guard page="improvements" capability="improvements.read"><ImprovementsPage /></Guard>}
+          />
+          <Route
+            path="customer-satisfaction"
+            element={<Guard page="customer_satisfaction" capability="csat.read"><CustomerSatisfactionPage /></Guard>}
           />
 
           <Route path="complaints">

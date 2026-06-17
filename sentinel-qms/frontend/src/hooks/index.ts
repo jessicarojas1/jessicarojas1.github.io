@@ -38,6 +38,7 @@ export * from './useFod';
 export * from './useConcessions';
 export * from './useSignatures';
 export * from './useCustomers';
+export * from './useCustomerSatisfaction';
 export * from './useAuditPrograms';
 export * from './useImprovements';
 export * from './useMsa';

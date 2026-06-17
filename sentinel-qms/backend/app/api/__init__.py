@@ -19,6 +19,7 @@ from app.api.routers import (
     complaints,
     concessions,
     counterfeit,
+    customer_satisfaction,
     customers,
     dashboard,
     documents,
@@ -87,3 +88,4 @@ api_router.include_router(saved_views.router)
 api_router.include_router(record_shares.router)
 api_router.include_router(quality_objectives.router)
 api_router.include_router(improvements.router)
+api_router.include_router(customer_satisfaction.router)

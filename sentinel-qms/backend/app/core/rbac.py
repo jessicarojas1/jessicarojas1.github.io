@@ -55,6 +55,8 @@ class Permission(str, Enum):
     QOBJECTIVE_WRITE = "quality_objective:write"
     IMPROVEMENT_READ = "improvement:read"
     IMPROVEMENT_WRITE = "improvement:write"
+    CSAT_READ = "csat:read"
+    CSAT_WRITE = "csat:write"
     DASHBOARD_READ = "dashboard:read"
 
 
@@ -74,6 +76,7 @@ _READ_ALL = {
     Permission.COMPLAINT_READ,
     Permission.QOBJECTIVE_READ,
     Permission.IMPROVEMENT_READ,
+    Permission.CSAT_READ,
     Permission.DASHBOARD_READ,
 }
 
@@ -97,6 +100,7 @@ ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
         Permission.COMPLAINT_WRITE,
         Permission.QOBJECTIVE_WRITE,
         Permission.IMPROVEMENT_WRITE,
+        Permission.CSAT_WRITE,
         Permission.DOCUMENT_APPROVE,
     },
     Role.AUDITOR: _READ_ALL | {Permission.AUDIT_WRITE},

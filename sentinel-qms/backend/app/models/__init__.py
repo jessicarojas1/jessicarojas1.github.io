@@ -65,6 +65,7 @@ from app.models.customer import (
     FlowDownStatus,
     FlowDownTo,
 )
+from app.models.customer_satisfaction import CustomerSurvey, SurveyMethod
 from app.models.document import (
     Department,
     Document,
@@ -269,6 +270,8 @@ __all__ = [
     "KcClass",
     "SavedView",
     "RecordShare",
+    "CustomerSurvey",
+    "SurveyMethod",
     "Improvement",
     "ImprovementCategory",
     "ImprovementPriority",

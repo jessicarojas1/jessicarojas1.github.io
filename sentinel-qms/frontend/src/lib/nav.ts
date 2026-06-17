@@ -6,6 +6,7 @@ import {
   Briefcase,
   Building2,
   Lightbulb,
+  Smile,
   Target,
   CalendarRange,
   ClipboardCheck,
@@ -100,6 +101,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Management Review', to: '/mgmt-reviews', icon: GaugeCircle, capability: 'mgmt_reviews.read', page: 'mgmt_reviews' },
       { label: 'Quality Objectives', to: '/quality-objectives', icon: Target, capability: 'quality_objectives.read', page: 'quality_objectives' },
       { label: 'Continual Improvement', to: '/improvements', icon: Lightbulb, capability: 'improvements.read', page: 'improvements' },
+      { label: 'Customer Satisfaction', to: '/customer-satisfaction', icon: Smile, capability: 'csat.read', page: 'customer_satisfaction' },
     ],
   },
   {
