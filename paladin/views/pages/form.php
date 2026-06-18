@@ -25,6 +25,20 @@ ob_start();
     <div id="draft-status" class="form-hint" hidden style="margin-bottom:8px"><i class="bi bi-cloud-check"></i> <span data-draft-status-text>Draft saved on this device</span></div>
     <form method="POST" action="<?= $action ?>" data-autosave="<?= Security::h($autosaveKey) ?>" data-autosave-server-ts="<?= (int)$autosaveServerTs ?>">
       <?= Security::csrfField() ?>
+      <?php if ($editing): ?><input type="hidden" name="base_version" value="<?= (int)($page['current_version'] ?? 0) ?>"><?php endif; ?>
+      <?php if (!empty($conflict)): ?>
+        <div class="banner" style="margin-bottom:14px;background:var(--card-bg);border:1px solid var(--danger)">
+          <i class="bi bi-exclamation-octagon-fill" style="color:var(--danger)"></i>
+          <div class="banner-body">
+            <strong>This page changed while you were editing.</strong>
+            It was at version <?= (int)$conflict['base'] ?> when you opened it and is now version <?= (int)$conflict['current'] ?><?php if (!empty($conflict['who'])): ?> (last edited by <?= Security::h($conflict['who']) ?>)<?php endif; ?>.
+            Your edits below were <em>not</em> saved. Review the
+            <a href="/pages/<?= (int)$page['id'] ?>" target="_blank" rel="noopener">current page</a> or its
+            <a href="/pages/<?= (int)$page['id'] ?>/history" target="_blank" rel="noopener">history</a>,
+            merge anything you need, then <strong>Save</strong> again to keep your version.
+          </div>
+        </div>
+      <?php endif; ?>
       <div class="form-row">
         <div class="form-group" style="flex:2"><label class="form-label">Title *</label>
           <input type="text" name="title" class="form-control" required value="<?= Security::h($page['title'] ?? '') ?>" placeholder="Page title">
