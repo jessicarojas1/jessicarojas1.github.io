@@ -24,9 +24,11 @@ are scope boundaries and operational notes.
 
 ## Exports
 
-- **Word export is HTML-based `.doc`** (Word-compatible HTML), not native binary
-  **OOXML `.docx`**. It opens and prints correctly in Word/LibreOffice but is not
-  a true `.docx` package.
+- **Word export** is **native OOXML `.docx`** for individual pages and controlled
+  documents (a real WordprocessingML package — headings, bold/italic, lists,
+  tables, code). A legacy HTML-based `.doc` export remains for whole-space export;
+  it opens and prints correctly in Word/LibreOffice but is not a true `.docx`
+  package.
 - **PDF** is server-rendered from HTML; very complex CSS/layouts may differ from
   a browser print.
 

@@ -534,6 +534,32 @@ class DocumentController {
         echo $bytes;
     }
 
+    /** Native Open XML (.docx) export of a controlled document. */
+    public function docx(int $id): void {
+        Auth::requirePermission('document.view');
+        $doc = Database::fetchOne(
+            "SELECT d.*, s.name AS space_name, o.name AS owner_name
+             FROM documents d LEFT JOIN spaces s ON s.id=d.space_id LEFT JOIN users o ON o.id=d.owner_id WHERE d.id=?",
+            [$id]
+        );
+        if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $bytes = Docx::fromHtml((string)$doc['title'], (string)($doc['body'] ?? ''), [
+            'Code'           => (string)$doc['document_code'],
+            'Type'           => View::docTypeLabel((string)$doc['doc_type']),
+            'Revision'       => (string)$doc['revision'],
+            'Status'         => ucfirst((string)$doc['status']),
+            'Owner'          => (string)($doc['owner_name'] ?? '—'),
+            'Classification' => ucfirst((string)($doc['classification'] ?? 'internal')),
+            'Exported'       => date('M j, Y g:ia'),
+        ]);
+        Auth::log('export_document_docx', 'documents', $id);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Disposition: attachment; filename="' . preg_replace('/[^A-Za-z0-9._-]/', '', $doc['document_code'] . '.docx') . '"');
+        header('Content-Length: ' . strlen($bytes));
+        header('X-Content-Type-Options: nosniff');
+        echo $bytes;
+    }
+
     /** Export a document's acknowledgement record (compliance evidence) as CSV. */
     public function exportAcks(int $id): void {
         Auth::requirePermission('document.view');
