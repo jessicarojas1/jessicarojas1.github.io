@@ -29,6 +29,33 @@ Refresh via `POST /api/v1/auth/refresh`. Federated (OIDC/SAML/CAC-PIV) sessions 
 internal token by the identity broker. See
 [security-architecture.md](security-architecture.md) §2.
 
+#### Personal Access Tokens (scoped API keys)
+For scripts, CI jobs, and service integrations, mint a long-lived **Personal Access Token** under
+**My Profile → API Tokens** (or `POST /api/v1/tokens`). The token is presented exactly once at
+creation; only its SHA-256 hash and a short non-secret prefix (`sntl_xxxxxxxx`) are stored. Use it
+exactly like an access token:
+```
+Authorization: Bearer sntl_<secret>
+```
+A token **acts as its owning user** — every page-level, granular, and per-record permission check
+still applies on top. In addition it carries a coarse scope:
+
+| Scope   | Grants                                                            |
+|---------|------------------------------------------------------------------|
+| `read`  | safe methods only (`GET`/`HEAD`/`OPTIONS`)                        |
+| `write` | also permits state-changing methods (`POST`/`PUT`/`PATCH`/`DELETE`) |
+
+A read-only token attempting a mutation receives `403 Forbidden`. Tokens may carry an optional
+expiry and can be revoked at any time (revocation and expiry both take effect immediately,
+fail-closed). For safety, a Personal Access Token can never be used to mint or revoke tokens — those
+self-management endpoints require an interactive (JWT) session.
+
+| Method & path             | Purpose                                              |
+|---------------------------|------------------------------------------------------|
+| `GET /api/v1/tokens`      | List your tokens (never includes the secret).        |
+| `POST /api/v1/tokens`     | Create a token; response includes the one-time secret.|
+| `DELETE /api/v1/tokens/{id}` | Revoke one of your tokens (idempotent).           |
+
 ### 1.4 Authorization
 Each endpoint enforces a permission (`<domain>:<action>`). A caller lacking the permission receives
 `403 Forbidden`. See the RBAC matrix in [security-architecture.md](security-architecture.md) §3.

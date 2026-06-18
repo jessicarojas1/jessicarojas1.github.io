@@ -5,6 +5,7 @@ import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
 import { ROLE_LABELS } from '@/types';
 import { PageHeader } from '@/components/PageHeader';
+import { ApiTokensCard } from '@/components/ApiTokensCard';
 
 /** Notification categories a user may opt out of (email/chat; in-app always kept). */
 const CATEGORIES: { key: string; label: string; help: string }[] = [
@@ -63,7 +64,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card" style={{ marginBottom: 'var(--space-4)' }}>
         <div className="card__header">
           <div className="card__title">Notification Preferences</div>
           <div className="card__subtitle">Muted categories still appear in-app but are not emailed or sent to chat.</div>
@@ -97,6 +98,8 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      <ApiTokensCard />
     </>
   );
 }

@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from app.api.routers import (
     analytics,
+    api_tokens,
     apqp,
     attachments,
     audit_logs,
@@ -51,6 +52,7 @@ from app.api.routers import (
 api_router = APIRouter()
 
 api_router.include_router(auth.router)
+api_router.include_router(api_tokens.router)
 api_router.include_router(users.router)
 api_router.include_router(documents.router)
 api_router.include_router(nonconformances.router)
