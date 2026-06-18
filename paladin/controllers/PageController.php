@@ -620,6 +620,35 @@ class PageController {
         echo $html;
     }
 
+    /** Native Open XML (.docx) export of a page. */
+    public function docx(int $id): void {
+        Auth::requirePermission('page.view');
+        $page = Database::fetchOne(
+            "SELECT p.*, s.name AS space_name, o.name AS owner_name
+             FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id
+             WHERE p.id=? AND p.deleted_at IS NULL", [$id]
+        );
+        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+
+        $title = (string)$page['title'];
+        $bytes = Docx::fromHtml($title, (string)$page['body'], [
+            'Space'    => (string)($page['space_name'] ?? '—'),
+            'Owner'    => (string)($page['owner_name'] ?? '—'),
+            'Status'   => ucfirst((string)$page['status']),
+            'Version'  => 'v' . (int)$page['current_version'],
+            'Exported' => date('M j, Y g:ia'),
+        ]);
+        Auth::log('export_page_docx', 'pages', $id);
+        $fname = preg_replace('/[^A-Za-z0-9._-]+/', '-', 'page-' . $id . '-' . $title);
+        $fname = trim((string)$fname, '-') ?: ('page-' . $id);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Disposition: attachment; filename="' . $fname . '.docx"');
+        header('X-Content-Type-Options: nosniff');
+        header('Content-Length: ' . strlen($bytes));
+        echo $bytes;
+    }
+
     /** Server-rendered PDF download of a page (real application/pdf, no browser). */
     public function pdf(int $id): void {
         Auth::requirePermission('page.view');

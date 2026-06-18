@@ -16,6 +16,7 @@ $relLabels = ['related_process'=>'Process','related_risk'=>'Risk','related_contr
     <?php $shareType='document'; $shareId=(int)$doc['id']; $sharePath='/documents/'.(int)$doc['id']; require PALADIN_ROOT . '/views/partials/share.php'; ?>
     <?php if ($doc['file_stored_name']): ?><a href="/documents/<?= (int)$doc['id'] ?>/download" class="btn btn-ghost"><i class="bi bi-download"></i> Download</a><?php endif; ?>
     <a href="/documents/<?= (int)$doc['id'] ?>/pdf" class="btn btn-ghost"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
+    <a href="/documents/<?= (int)$doc['id'] ?>/docx" class="btn btn-ghost"><i class="bi bi-file-earmark-word-fill"></i> Word</a>
     <?php if (Auth::can('document.create')): ?><form method="POST" action="/documents/<?= (int)$doc['id'] ?>/duplicate" style="margin:0"><?= Security::csrfField() ?><button class="btn btn-ghost" type="submit" data-confirm-click="Create a draft copy of this document?"><i class="bi bi-files"></i> Duplicate</button></form><?php endif; ?>
     <?php if (Auth::can('document.edit') && (!$doc['checked_out_by'] || $checkedOutByMe)): ?><a href="/documents/<?= (int)$doc['id'] ?>/edit" class="btn btn-primary"><i class="bi bi-pencil"></i> Edit</a><?php endif; ?>
   </div>
