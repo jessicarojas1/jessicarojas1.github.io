@@ -170,6 +170,10 @@ jobs:
         working-directory: aegis
         run: php scripts/check_csrf.php
 
+      - name: CSV export safety
+        working-directory: aegis
+        run: php scripts/check_csv_export.php
+
   # ---------------------------------------------------------------------------
   # Python compile-check (py_compile) over the Streamlit dashboard, the Sentinel
   # FastAPI backend, and the other small Python apps. No heavy deps installed —

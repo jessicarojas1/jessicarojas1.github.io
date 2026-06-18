@@ -686,7 +686,7 @@ class ComplianceController {
         // Convert to CSV temp file and reuse CSV processor
         $tmp = tempnam(sys_get_temp_dir(), 'xlsx_csv_');
         $fh  = fopen($tmp, 'w');
-        foreach ($rows as $r) { fputcsv($fh, $r); }
+        foreach ($rows as $r) { fputcsv($fh, $r); } // csv-safe: import round-trip to temp file, re-parsed not delivered (guarding would corrupt imported '=' values)
         fclose($fh);
         $result = $this->processCsvImport($tmp);
         unlink($tmp);
