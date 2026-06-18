@@ -141,11 +141,20 @@ browser store is only a fallback for static hosting (GitHub Pages).
 
 | Route | Method | Auth |
 |---|---|---|
-| `/api/auth/login` | POST | public — returns `{ token, user }` |
-| `/api/auth/me` | GET | Bearer token |
-| `/api/auth/settings` | GET / PATCH | GET any · PATCH admin |
-| `/api/users` `…/:id` `…/:id/password` | GET/POST/PATCH/DELETE | admin |
+| `/api/health` · `/api/openapi.yaml` | GET | public — status + the full OpenAPI 3.0 contract |
+| `/api/auth/login` · `/api/auth/refresh` | POST | public — access token + httpOnly refresh cookie |
+| `/api/auth/mfa` `…/setup` `…/enable` `…/disable` `…/verify` | GET/POST | TOTP MFA self-service |
+| `/api/auth/oidc/start` · `/api/auth/oidc/callback` | GET | OIDC SSO (Auth Code + PKCE) |
+| `/api/auth/me` · `/api/auth/password` · `/api/auth/logout` | GET/POST | Bearer token |
+| `/api/auth/settings` · `/api/branding` | GET / PATCH | GET any · PATCH admin |
+| `/api/users` `…/:id` `…/:id/password` `…/:id/revoke-sessions` | GET/POST/PATCH/DELETE | admin |
+| `/api/sessions` `…/:jti` · `/api/audit` | GET/DELETE | admin |
 | `/api/scan` · `/api/scan-url` · `/api/explain` | POST | permission-gated when enforce is on |
+| `/api/scans` `…/:id` | GET/DELETE | durable history (owner-scoped) |
+| `/api/dispositions` | GET / POST | shared finding triage by fingerprint (needs a DB) |
+
+The machine-readable contract for all of the above is served at
+**`GET /api/openapi.yaml`** (OpenAPI 3.0) and linked from the SPA's Docs menu.
 
 **Auth-related environment variables**
 
