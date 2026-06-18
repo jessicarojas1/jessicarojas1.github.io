@@ -45,6 +45,15 @@ test('health reports file store', async () => {
   assert.equal(body.store.durable, false);
 });
 
+test('serves the OpenAPI 3.0 spec', async () => {
+  const r = await api('/api/openapi.yaml');
+  assert.equal(r.status, 200);
+  const txt = await r.text();
+  assert.match(txt, /^openapi: 3\./);
+  assert.match(txt, /\/api\/scan-url/);
+  assert.match(txt, /CITADEL Deep-Scan API/);
+});
+
 test('login → access+refresh; /me resolves; refresh token cannot auth', async () => {
   const login = await json('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@citadel.local', password: 'citadel-admin' }) });
   assert.equal(login.status, 200);

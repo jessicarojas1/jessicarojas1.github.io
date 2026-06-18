@@ -1,0 +1,377 @@
+openapi: 3.0.3
+info:
+  title: CITADEL Deep-Scan API
+  version: "1.0"
+  description: >-
+    Read-only security & compliance review API. Uploaded code is only ever READ
+    by scanners — never executed. All findings normalize to one schema and map to
+    22 compliance frameworks. Most routes are permission-gated when the global
+    `enforce` toggle is on; when off (default) the scan routes are open.
+servers:
+  - url: /
+    description: Same-origin (the SPA is served by this API)
+security:
+  - bearerAuth: []
+tags:
+  - name: Health
+  - name: Auth
+  - name: Scan
+  - name: History
+  - name: Dispositions
+  - name: Admin
+paths:
+  /api/health:
+    get:
+      tags: [Health]
+      summary: Liveness/readiness + capability probe
+      security: []
+      responses:
+        "200":
+          description: Service status, store, auth mode, and scanner availability+versions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Sign in (returns an access token + sets an httpOnly refresh cookie)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        "200":
+          description: Authenticated, or an MFA challenge
+          headers:
+            Set-Cookie:
+              description: "citadel_rt=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/api/auth"
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/TokenResponse"
+                  - type: object
+                    properties:
+                      mfaRequired: { type: boolean }
+                      mfaToken: { type: string }
+        "401": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /api/auth/mfa/verify:
+    post:
+      tags: [Auth]
+      summary: Complete an MFA login with a TOTP/backup code
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mfaToken, code]
+              properties: { mfaToken: { type: string }, code: { type: string } }
+      responses:
+        "200": { description: Authenticated, content: { application/json: { schema: { $ref: "#/components/schemas/TokenResponse" } } } }
+        "401": { $ref: "#/components/responses/Error" }
+  /api/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Exchange the httpOnly refresh cookie (or a body token) for a new access token
+      security: []
+      responses:
+        "200": { description: New access token, content: { application/json: { schema: { type: object, properties: { token: { type: string }, expiresIn: { type: integer } } } } } }
+        "401": { $ref: "#/components/responses/Error" }
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: The current authenticated user (no secrets)
+      responses:
+        "200": { description: User, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "401": { $ref: "#/components/responses/Error" }
+  /api/auth/password:
+    post:
+      tags: [Auth]
+      summary: Change your own password (lifts the must-change flag)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [current, next], properties: { current: { type: string }, next: { type: string, minLength: 8 } } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Ok" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Revoke the current session and clear the refresh cookie
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Ok" } } } }
+  /api/scan:
+    post:
+      tags: [Scan]
+      summary: Scan uploaded files / archives (multipart, field "files")
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items: { type: string, format: binary }
+      responses:
+        "200": { description: Unified report, content: { application/json: { schema: { $ref: "#/components/schemas/Report" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "413": { $ref: "#/components/responses/Error" }
+  /api/scan-url:
+    post:
+      tags: [Scan]
+      summary: Shallow-clone a public Git repo (SSRF-guarded) and scan it; optional subpath
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url: { type: string, format: uri, example: "https://github.com/owner/repo" }
+                subpath: { type: string, description: "Scan only this subfolder of a monorepo", example: "citadel" }
+      responses:
+        "200": { description: Unified report, content: { application/json: { schema: { $ref: "#/components/schemas/Report" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+  /api/explain:
+    post:
+      tags: [Scan]
+      summary: AI-assisted remediation for one finding (opt-in; needs ANTHROPIC_API_KEY)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, properties: { finding: { $ref: "#/components/schemas/Finding" } } } } }
+      responses:
+        "200": { description: Explanation + suggested fix (review required), content: { application/json: { schema: { type: object, properties: { model: { type: string }, text: { type: string } } } } } }
+        "503": { $ref: "#/components/responses/Error" }
+  /api/scans:
+    get:
+      tags: [History]
+      summary: List durable scan summaries (owner-scoped for non-admins)
+      parameters: [{ name: limit, in: query, schema: { type: integer, default: 100, maximum: 500 } }]
+      responses:
+        "200": { description: Scan summaries, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/ScanSummary" } } } } }
+  /api/scans/{id}:
+    get:
+      tags: [History]
+      summary: Re-download a stored report
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Report, content: { application/json: { schema: { $ref: "#/components/schemas/Report" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      tags: [History]
+      summary: Delete a stored report
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Ok" } } } }
+  /api/dispositions:
+    get:
+      tags: [Dispositions]
+      summary: Shared finding triage map { fingerprint -> state }
+      responses:
+        "200": { description: Map, content: { application/json: { schema: { type: object, additionalProperties: { $ref: "#/components/schemas/DispositionState" } } } } }
+    post:
+      tags: [Dispositions]
+      summary: Set one finding's disposition (shared; requires a database)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fingerprint, state]
+              properties:
+                fingerprint: { type: string }
+                state: { $ref: "#/components/schemas/DispositionState" }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean }, state: { $ref: "#/components/schemas/DispositionState" } } } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "501": { $ref: "#/components/responses/Error" }
+  /api/users:
+    get:
+      tags: [Admin]
+      summary: List users (admin)
+      responses:
+        "200": { description: Users, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/User" } } } } }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+    post:
+      tags: [Admin]
+      summary: Create a user (admin)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/NewUser" } } } }
+      responses:
+        "200": { description: Created user, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+  /api/users/{id}:
+    patch:
+      tags: [Admin]
+      summary: Update a user — name/email/role/active/permissions (admin)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object } } } }
+      responses:
+        "200": { description: Updated user, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+    delete:
+      tags: [Admin]
+      summary: Delete a user (admin; last-admin guard)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Ok" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+  /api/users/{id}/password:
+    post:
+      tags: [Admin]
+      summary: Admin-reset a user's password (forces must-change on next login)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [password], properties: { password: { type: string, minLength: 8 } } } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean }, mustChange: { type: boolean } } } } } }
+  /api/auth/settings:
+    get:
+      tags: [Admin]
+      summary: Read access-control settings (enforce, branding)
+      responses: { "200": { description: Settings, content: { application/json: { schema: { type: object } } } } }
+    patch:
+      tags: [Admin]
+      summary: Toggle enforcement (admin)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { enforce: { type: boolean } } } } } }
+      responses: { "200": { description: Updated settings, content: { application/json: { schema: { type: object } } } } }
+  /metrics:
+    get:
+      tags: [Health]
+      summary: Prometheus metrics (text exposition format)
+      security: []
+      responses: { "200": { description: Metrics, content: { text/plain: { schema: { type: string } } } } }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  responses:
+    Error:
+      description: Error (generic message; no stack/internal paths)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  schemas:
+    Ok: { type: object, properties: { ok: { type: boolean } } }
+    Error: { type: object, properties: { error: { type: string } } }
+    DispositionState:
+      type: string
+      enum: [open, accepted, false-positive, remediated, na]
+    TokenResponse:
+      type: object
+      properties:
+        token: { type: string, description: Short-lived access JWT (Bearer) }
+        expiresIn: { type: integer }
+        user: { $ref: "#/components/schemas/User" }
+    User:
+      type: object
+      description: Never includes pass/salt/mfaSecret.
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [admin, analyst, auditor, viewer] }
+        active: { type: boolean }
+        permissions: { type: object, additionalProperties: { type: boolean } }
+        mustChange: { type: boolean }
+        mfaEnabled: { type: boolean }
+    NewUser:
+      type: object
+      required: [name, email, role, password]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [admin, analyst, auditor, viewer] }
+        password: { type: string, minLength: 8 }
+    ScannerStatus:
+      type: object
+      properties:
+        tool: { type: string }
+        available: { type: boolean }
+        status: { type: string, enum: [ok, unavailable, failed] }
+        version: { type: string, nullable: true }
+        warning: { type: string, nullable: true }
+        findings: { type: integer }
+    Health:
+      type: object
+      properties:
+        ok: { type: boolean }
+        engine: { type: string }
+        ai: { type: boolean }
+        auth: { type: object, properties: { enforce: { type: boolean }, sso: { type: boolean } } }
+        store: { type: object, properties: { users: { type: string }, durable: { type: boolean }, rateLimit: { type: string } } }
+        scanners: { type: array, items: { $ref: "#/components/schemas/ScannerStatus" } }
+    Scoring:
+      type: object
+      properties:
+        security: { type: integer, description: "0–100, higher is better" }
+        quality: { type: integer }
+        overall: { type: integer }
+        risk: { type: integer, description: "0–100, higher = worse" }
+        riskBand: { type: string, enum: [Minimal, Low, Moderate, High, Critical] }
+        grade: { type: string, enum: [A, B, C, D, E, F] }
+        sev: { type: object, additionalProperties: { type: integer } }
+    Finding:
+      type: object
+      description: The one normalized finding shape every tier/scanner emits.
+      properties:
+        fingerprint: { type: string, description: Stable, line-drift-resistant identity }
+        ruleId: { type: string }
+        name: { type: string }
+        category: { type: string }
+        severity: { type: string, enum: [critical, high, medium, low, info] }
+        confidence: { type: string, enum: [high, medium, low] }
+        cwe: { type: string, nullable: true, example: "CWE-89" }
+        file: { type: string }
+        line: { type: integer }
+        snippet: { type: string }
+        remediation: { type: string }
+        source: { type: string, description: Producing scanner (heuristic/semgrep/codeql/…) }
+        sources: { type: array, items: { type: string } }
+        detection: { type: string, enum: [scanner, heuristic] }
+        confirmed: { type: boolean }
+        kind: { type: string, enum: [vuln, secret, cve, malware, pii, license, quality, policy] }
+        tainted: { type: boolean }
+        disposition: { $ref: "#/components/schemas/DispositionState" }
+    ScanSummary:
+      type: object
+      properties:
+        id: { type: string }
+        ts: { type: string, format: date-time }
+        source: { type: string }
+        engine: { type: string }
+        grade: { type: string }
+        security: { type: integer }
+        findings: { type: integer }
+        critical: { type: integer }
+        high: { type: integer }
+    Report:
+      type: object
+      properties:
+        meta:
+          type: object
+          properties:
+            scannedAt: { type: string, format: date-time }
+            engine: { type: string }
+            fileCount: { type: integer }
+            scanners: { type: array, items: { $ref: "#/components/schemas/ScannerStatus" } }
+            scanSummary: { type: object, properties: { ran: { type: integer }, unavailable: { type: integer }, failed: { type: integer }, total: { type: integer } } }
+        findings: { type: array, items: { $ref: "#/components/schemas/Finding" } }
+        scoring: { $ref: "#/components/schemas/Scoring" }
+        sbom: { type: object }
+        binaries: { type: array, items: { type: object } }
+        quality: { type: object }
+        deployment: { type: array, items: { type: object } }
+        posture: { type: array, items: { type: object } }

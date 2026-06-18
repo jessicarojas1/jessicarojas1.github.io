@@ -253,6 +253,16 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
+// Machine-readable API contract (OpenAPI 3.0). Served as-is for Swagger UI /
+// client generation; static, so a parse error here can't affect the running API.
+let _openapi = null;
+app.get('/api/openapi.yaml', (req, res) => {
+  try {
+    if (_openapi == null) _openapi = fs.readFileSync(path.join(__dirname, 'openapi.yaml'), 'utf8');
+    res.type('application/yaml').send(_openapi);
+  } catch (e) { res.status(404).json({ error: 'API spec not found.' }); }
+});
+
 app.use(express.json({ limit: '256kb' }));
 
 /* ---------------- Auth & user management ---------------- */
