@@ -5,7 +5,7 @@ $tgtScore = ($risk['target_likelihood'] && $risk['target_impact'])
     ? (int)$risk['target_likelihood'] * (int)$risk['target_impact'] : null;
 
 function riskLevelStr(int $s): string {
-    return $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
+    return RiskScore::scoreLabel($s); // canonical bands — see src/RiskScore.php
 }
 function riskLevelColor(int $s): string {
     return $s > 14 ? 'var(--danger)' : ($s > 9 ? '#f97316' : ($s > 4 ? 'var(--warning)' : 'var(--success)'));

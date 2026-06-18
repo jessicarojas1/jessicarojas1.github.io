@@ -4,7 +4,7 @@
 // $pageTitle, $activeModule, $breadcrumbs already set by controller
 
 $score = (int)($risk['inherent_score'] ?? 0);
-$scoreLevel = $score > 14 ? 'Critical' : ($score > 9 ? 'High' : ($score > 4 ? 'Medium' : 'Low'));
+$scoreLevel = RiskScore::scoreLabel((int)$score); // canonical bands — see src/RiskScore.php
 $scoreBg    = $score > 14 ? '#fef2f2' : ($score > 9 ? '#fff7ed' : ($score > 4 ? '#fffbeb' : '#f0fdf4'));
 $scoreColor = $score > 14 ? '#dc2626' : ($score > 9 ? '#ea580c' : ($score > 4 ? '#d97706' : '#16a34a'));
 
