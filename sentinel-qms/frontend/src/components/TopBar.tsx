@@ -104,10 +104,10 @@ export function TopBar({ onToggleNav }: { onToggleNav: () => void }) {
                 <strong>{user?.full_name}</strong>
                 <span>{user?.email}</span>
               </div>
-              <div className="dropdown__item" role="menuitem">
+              <Link to="/profile" className="dropdown__item" role="menuitem" onClick={() => setMenuOpen(false)}>
                 <UserCircle size={16} />
-                {user?.title ?? 'Profile'}
-              </div>
+                Profile &amp; preferences
+              </Link>
               <div className="dropdown__item" role="menuitem">
                 <ShieldCheck size={16} />
                 {user?.roles.map((r) => ROLE_LABELS[r]).join(', ')}
