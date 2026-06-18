@@ -210,13 +210,13 @@
     const supN = all.length - all.filter(f => !sup.isSuppressed(f)).length;
     // Disposition summary across all findings (open vs. each triaged state).
     const dispoOf = (CITADEL.disposition && CITADEL.disposition.of) ? CITADEL.disposition.of : () => 'open';
-    const dLabel = (CITADEL.disposition && CITADEL.disposition.label) || {};
+    const dispoLbl = (CITADEL.disposition && CITADEL.disposition.label) || {};
     const dCount = { open: 0, accepted: 0, 'false-positive': 0, remediated: 0, na: 0 };
     all.forEach(f => { const d = dispoOf(f); if (dCount[d] !== undefined) dCount[d]++; });
     const dColor = { open: 'text-bg-secondary', accepted: 'text-bg-warning', 'false-positive': 'text-bg-light text-dark', remediated: 'text-bg-success', na: 'text-bg-light text-dark' };
     const dispoSummary = supN > 0
       ? '<div class="d-flex flex-wrap gap-2 mb-2 align-items-center small"><span class="text-body-secondary">Triage:</span>'
-        + Object.keys(dCount).filter(k => dCount[k] > 0).map(k => `<span class="badge ${dColor[k]}">${dCount[k]} ${esc(dLabel[k] || k)}</span>`).join('')
+        + Object.keys(dCount).filter(k => dCount[k] > 0).map(k => `<span class="badge ${dColor[k]}">${dCount[k]} ${esc(dispoLbl[k] || k)}</span>`).join('')
         + '</div>'
       : '';
     const filterBtns = ['all'].concat(SEV_ORDER).map(sv =>
