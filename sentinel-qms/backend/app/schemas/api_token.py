@@ -6,6 +6,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, computed_field
 
+from app.models.api_token import token_is_active
 from app.schemas.common import ORMModel
 
 
@@ -30,18 +31,7 @@ class ApiTokenRead(ORMModel):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def active(self) -> bool:
-        from datetime import UTC
-        from datetime import datetime as _dt
-
-        if self.revoked_at is not None:
-            return False
-        if self.expires_at is not None:
-            exp = self.expires_at
-            if exp.tzinfo is None:
-                exp = exp.replace(tzinfo=UTC)
-            if exp <= _dt.now(UTC):
-                return False
-        return True
+        return token_is_active(self.revoked_at, self.expires_at)
 
 
 class ApiTokenCreated(ApiTokenRead):

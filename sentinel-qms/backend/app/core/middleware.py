@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import logging
 import threading
 import time
@@ -96,19 +95,20 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 
 def _client_key(request: Request) -> str:
-    """Stable per-caller bucket key.
+    """Stable per-caller bucket key, keyed strictly on source IP.
 
-    Differentiates callers by credential when one is present (so multiple API
-    tokens / sessions behind one NAT get independent budgets) and otherwise by
-    source IP, honoring the first hop of ``X-Forwarded-For`` behind a proxy.
-    The credential is hashed — never stored or logged in the clear.
+    The key must be something the caller cannot freely rotate, or the limit is
+    trivially bypassed: keying on the (client-supplied) ``Authorization`` header
+    would let an attacker mint a fresh budget per request simply by varying it.
+    So we key on the transport peer address. ``X-Forwarded-For`` is honored ONLY
+    when ``TRUST_PROXY_HEADERS`` is set — otherwise a direct attacker could spoof
+    it to the same effect. Behind a real proxy/LB, set that flag so the true
+    client IP (not the proxy's) is used.
     """
-    auth = request.headers.get("Authorization", "")
-    if auth:
-        return "tok:" + hashlib.sha256(auth.encode("utf-8")).hexdigest()[:32]
-    fwd = request.headers.get("X-Forwarded-For", "")
-    if fwd:
-        return "ip:" + fwd.split(",")[0].strip()
+    if settings.TRUST_PROXY_HEADERS:
+        fwd = request.headers.get("X-Forwarded-For", "")
+        if fwd:
+            return "ip:" + fwd.split(",")[0].strip()
     client = request.client
     return "ip:" + (client.host if client else "unknown")
 

@@ -9,7 +9,7 @@ is stored — the plaintext is shown exactly once at creation time.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
@@ -21,6 +21,21 @@ from app.models.base import TimestampMixin
 
 # Use JSONB on Postgres, plain JSON elsewhere (SQLite in tests).
 _JSON = JSON().with_variant(JSONB, "postgresql")
+
+
+def token_is_active(revoked_at: datetime | None, expires_at: datetime | None) -> bool:
+    """Single source of truth for token validity (shared by model + schema).
+
+    A token is active unless it has been revoked or has passed its expiry.
+    Naive datetimes (e.g. from SQLite) are treated as UTC.
+    """
+    if revoked_at is not None:
+        return False
+    if expires_at is not None:
+        exp = expires_at if expires_at.tzinfo is not None else expires_at.replace(tzinfo=UTC)
+        if exp <= datetime.now(UTC):
+            return False
+    return True
 
 
 class ApiToken(Base, TimestampMixin):
@@ -45,15 +60,4 @@ class ApiToken(Base, TimestampMixin):
 
     @property
     def is_active(self) -> bool:
-        from datetime import UTC
-        from datetime import datetime as _dt
-
-        if self.revoked_at is not None:
-            return False
-        if self.expires_at is not None:
-            exp = self.expires_at
-            if exp.tzinfo is None:
-                exp = exp.replace(tzinfo=UTC)
-            if exp <= _dt.now(UTC):
-                return False
-        return True
+        return token_is_active(self.revoked_at, self.expires_at)

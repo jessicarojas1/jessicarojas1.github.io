@@ -58,6 +58,10 @@ class Settings(BaseSettings):
     RATE_LIMIT_ENABLED: bool = True
     RATE_LIMIT_PER_MINUTE: int = 300
     RATE_LIMIT_WINDOW_SECONDS: int = 60
+    # Trust the client IP from X-Forwarded-For (rate limiting / logging). Enable
+    # ONLY when the app sits behind a trusted proxy/LB that sets the header;
+    # otherwise a direct client could spoof it. Render/ALB/Nginx → set true.
+    TRUST_PROXY_HEADERS: bool = False
 
     # OIDC / federal SSO (stub)
     OIDC_ISSUER: str = ""
