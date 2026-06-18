@@ -162,6 +162,10 @@ jobs:
         working-directory: aegis
         run: php scripts/check_ui.php
 
+      - name: Route authorization coverage
+        working-directory: aegis
+        run: php scripts/check_route_auth.php
+
   # ---------------------------------------------------------------------------
   # Python compile-check (py_compile) over the Streamlit dashboard, the Sentinel
   # FastAPI backend, and the other small Python apps. No heavy deps installed —
