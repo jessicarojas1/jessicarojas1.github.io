@@ -256,6 +256,90 @@ paths:
       summary: Prometheus metrics (text exposition format)
       security: []
       responses: { "200": { description: Metrics, content: { text/plain: { schema: { type: string } } } } }
+  /api/openapi.yaml:
+    get:
+      tags: [Health]
+      summary: This OpenAPI 3.0 contract (YAML)
+      security: []
+      responses: { "200": { description: OpenAPI document, content: { application/yaml: { schema: { type: string } } } } }
+  /api/auth/mfa:
+    get:
+      tags: [Auth]
+      summary: MFA status for the current user
+      responses: { "200": { description: Status, content: { application/json: { schema: { type: object, properties: { enabled: { type: boolean }, pending: { type: boolean } } } } } } }
+  /api/auth/mfa/setup:
+    post:
+      tags: [Auth]
+      summary: Begin TOTP enrollment (returns secret + otpauth URL)
+      responses: { "200": { description: Secret, content: { application/json: { schema: { type: object, properties: { secret: { type: string }, otpauth: { type: string } } } } } } }
+  /api/auth/mfa/enable:
+    post:
+      tags: [Auth]
+      summary: Confirm TOTP and enable MFA (returns one-time backup codes)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [token], properties: { token: { type: string } } } } } }
+      responses: { "200": { description: Enabled, content: { application/json: { schema: { type: object, properties: { backupCodes: { type: array, items: { type: string } } } } } } } }
+  /api/auth/mfa/disable:
+    post:
+      tags: [Auth]
+      summary: Disable MFA (requires the current password)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [password], properties: { password: { type: string } } } } } }
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Ok" } } } } }
+  /api/auth/oidc/start:
+    get:
+      tags: [Auth]
+      summary: Begin OIDC SSO (Authorization Code + PKCE); 302 to the IdP
+      security: []
+      responses: { "302": { description: Redirect to the identity provider }, "501": { $ref: "#/components/responses/Error" } }
+  /api/auth/oidc/callback:
+    get:
+      tags: [Auth]
+      summary: OIDC redirect URI — verifies the id_token and hands an access token to the SPA
+      security: []
+      parameters:
+        - { name: code, in: query, schema: { type: string } }
+        - { name: state, in: query, schema: { type: string } }
+      responses: { "200": { description: HTML token-handoff page (sets the refresh cookie) }, "400": { $ref: "#/components/responses/Error" }, "403": { $ref: "#/components/responses/Error" } }
+  /api/auth/sessions:
+    get:
+      tags: [Auth]
+      summary: The caller's own active sessions (marks the current one)
+      responses: { "200": { description: Sessions, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Session" } } } } } }
+  /api/sessions:
+    get:
+      tags: [Admin]
+      summary: All active sessions + stats (admin)
+      responses: { "200": { description: Sessions, content: { application/json: { schema: { type: object, properties: { stats: { type: object }, sessions: { type: array, items: { $ref: "#/components/schemas/Session" } } } } } } } }
+  /api/sessions/{jti}:
+    delete:
+      tags: [Admin]
+      summary: Revoke a specific session by jti (admin)
+      parameters: [{ name: jti, in: path, required: true, schema: { type: string } }]
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Ok" } } } } }
+  /api/users/{id}/revoke-sessions:
+    post:
+      tags: [Admin]
+      summary: Revoke all of a user's sessions (admin)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean }, revoked: { type: integer } } } } } } }
+  /api/branding:
+    get:
+      tags: [Admin]
+      summary: Current branding (logo/name/accent)
+      security: []
+      responses: { "200": { description: Branding, content: { application/json: { schema: { $ref: "#/components/schemas/Branding" } } } } }
+    patch:
+      tags: [Admin]
+      summary: Update branding (admin; logo URL sanitized to http(s)/data:image)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/Branding" } } } }
+      responses: { "200": { description: Updated branding, content: { application/json: { schema: { $ref: "#/components/schemas/Branding" } } } } }
+  /api/audit:
+    get:
+      tags: [Admin]
+      summary: Security audit log (admin)
+      parameters:
+        - { name: type, in: query, schema: { type: string }, description: "Filter by event type prefix, e.g. login or finding.disposition" }
+        - { name: limit, in: query, schema: { type: integer, default: 200 } }
+      responses: { "200": { description: Audit events, content: { application/json: { schema: { type: object, properties: { stats: { type: object }, events: { type: array, items: { $ref: "#/components/schemas/AuditEvent" } } } } } } } }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
@@ -295,6 +379,31 @@ components:
         email: { type: string, format: email }
         role: { type: string, enum: [admin, analyst, auditor, viewer] }
         password: { type: string, minLength: 8 }
+    Session:
+      type: object
+      properties:
+        jti: { type: string }
+        userId: { type: string }
+        email: { type: string }
+        role: { type: string }
+        ip: { type: string }
+        ua: { type: string }
+        current: { type: boolean }
+    Branding:
+      type: object
+      properties:
+        logoUrl: { type: string, description: "http(s):// or data:image/... only" }
+        orgName: { type: string }
+        accent: { type: string, description: "Hex color" }
+    AuditEvent:
+      type: object
+      properties:
+        type: { type: string }
+        actor: { type: string, nullable: true }
+        ip: { type: string }
+        detail: { type: string }
+        ok: { type: boolean }
+        ts: { type: string, format: date-time }
     ScannerStatus:
       type: object
       properties:
