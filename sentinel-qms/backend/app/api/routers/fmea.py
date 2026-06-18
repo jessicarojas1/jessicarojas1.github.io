@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError
-from app.core.rbac import Permission, require_permission
+from app.core.rbac import Permission, Role, require_permission
 from app.models.fmea import Fmea, FmeaItem, FmeaType
 from app.models.user import User
 from app.schemas.auth import CurrentUser
@@ -26,7 +26,7 @@ from app.schemas.fmea import (
     action_priority,
     rpn_of,
 )
-from app.services import numbering
+from app.services import notifications, numbering
 
 router = APIRouter(prefix="/fmea", tags=["fmea"])
 
@@ -95,17 +95,43 @@ def _get(db: Session, fmea_id: int) -> Fmea:
     return f
 
 
+def _notify_if_high_rpn(db: Session, fmea: Fmea, item: FmeaItem) -> None:
+    """Notify the FMEA owner (or quality team) when a failure mode is high-priority
+    (RPN >= 200 or severity >= 9) so it gets a mitigation action."""
+    rpn = rpn_of(item.severity, item.occurrence, item.detection)
+    if action_priority(item.severity, rpn) != "high":
+        return
+    title = f"High-RPN failure mode on {fmea.fmea_number}"
+    body = f"{item.function} — {item.failure_mode} (RPN {rpn}, severity {item.severity})."
+    if fmea.owner_id is not None:
+        notifications.notify_user(
+            db,
+            user_id=fmea.owner_id,
+            title=title,
+            body=body,
+            category="fmea",
+            entity_type="fmea",
+            entity_id=fmea.id,
+        )
+    else:
+        notifications.notify_roles(
+            db,
+            roles=[Role.QUALITY_MANAGER, Role.QUALITY_ENGINEER],
+            title=title,
+            body=body,
+            category="fmea",
+            entity_type="fmea",
+            entity_id=fmea.id,
+        )
+
+
 @router.get("", response_model=list[FmeaList])
 def list_fmeas(
     db: Session = Depends(get_db),
     type_filter: FmeaType | None = Query(None, alias="type"),
     _: CurrentUser = Depends(_READ),
 ) -> list[dict]:
-    stmt = (
-        select(Fmea)
-        .options(selectinload(Fmea.items))
-        .where(Fmea.is_deleted.is_(False))
-    )
+    stmt = select(Fmea).options(selectinload(Fmea.items)).where(Fmea.is_deleted.is_(False))
     if type_filter:
         stmt = stmt.where(Fmea.fmea_type == type_filter)
     stmt = stmt.order_by(Fmea.id.desc())
@@ -172,11 +198,13 @@ def add_item(
     db: Session = Depends(get_db),
     actor: CurrentUser = Depends(_WRITE),
 ) -> dict:
-    _get(db, fmea_id)
+    fmea = _get(db, fmea_id)
     item = FmeaItem(fmea_id=fmea_id, **body.model_dump(), created_by=actor.id, updated_by=actor.id)
     db.add(item)
     db.commit()
     db.refresh(item)
+    _notify_if_high_rpn(db, fmea, item)
+    db.commit()
     return _item_dict(item)
 
 
@@ -190,11 +218,18 @@ def update_item(
     item = db.get(FmeaItem, item_id)
     if item is None:
         raise NotFoundError(f"FMEA item {item_id} not found.")
-    for key, value in body.model_dump(exclude_unset=True).items():
+    data = body.model_dump(exclude_unset=True)
+    for key, value in data.items():
         setattr(item, key, value)
     item.updated_by = actor.id
     db.commit()
     db.refresh(item)
+    # Re-notify only when a rating/severity edit (re)raises this to high priority.
+    if {"severity", "occurrence", "detection"} & data.keys():
+        fmea = db.get(Fmea, item.fmea_id)
+        if fmea is not None:
+            _notify_if_high_rpn(db, fmea, item)
+            db.commit()
     return _item_dict(item)
 
 
