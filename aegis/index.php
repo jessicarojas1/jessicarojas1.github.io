@@ -81,6 +81,18 @@ if (empty($_ENV['JWT_SECRET']) || strlen($_ENV['JWT_SECRET']) < 32) {
     throw new RuntimeException('JWT_SECRET must be set and at least 32 characters. Set it in your Render/environment dashboard.');
 }
 
+// Startup guard: a database connection must be configured, via DATABASE_URL or
+// the discrete DB_* variables (see config/database.php).
+if (empty($_ENV['DATABASE_URL']) && empty($_ENV['DB_HOST'])) {
+    throw new RuntimeException('No database configured. Set DATABASE_URL (or DB_HOST/DB_NAME/DB_USER/DB_PASS).');
+}
+
+// Startup guard: APP_URL is required in production — it is the CORS allow-origin
+// and the base for absolute links. Optional in non-production for local dev.
+if (($_ENV['APP_ENV'] ?? 'production') === 'production' && empty($_ENV['APP_URL'])) {
+    throw new RuntimeException('APP_URL must be set in production (used for CORS allow-origin and absolute links).');
+}
+
 // Session config
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Strict');
