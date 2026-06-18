@@ -121,6 +121,23 @@ Covered by `tests/test_ssrf.php` (17 assertions).
 Tamper-evident SHA-256 hash chain over all sensitive actions — see
 `AUDIT_TRAIL.md`. Integrity is verifiable via `scripts/verify_audit_log.php`.
 
+## Automated verification (CI gates)
+
+Every push and PR runs these framework-free checks (root `.github/workflows/ci.yml`,
+job `aegis-tests`). All are runnable locally:
+
+| Check | Command | Enforces |
+|-------|---------|----------|
+| Unit suite | `php tests/run.php` | SSRF guard, JWT (alg pinning/exp/tamper), RiskScore, AIAdvisor redaction, DueStatus, RBAC (64 assertions) |
+| Migration integrity | `php scripts/verify_migrations.php` | Migrations registered in `install.php`, ordered, idempotent |
+| UI / CSP | `php scripts/check_ui.php` | No inline event handlers; every `<script>` has a nonce |
+| Route authorization | `php scripts/check_route_auth.php` | Every public controller action enforces `Auth::require*` or is a justified public endpoint |
+| CSRF coverage | `php scripts/check_csrf.php` | Every POST route calls `Security::validateCsrf()` |
+
+These encode the acceptance criteria as executable gates: a new state-changing
+route without CSRF, an unprotected action, an inline handler, or an unregistered
+migration fails the build.
+
 ## Reporting a vulnerability
 
 Open a private security advisory or contact the maintainer directly. Please do
