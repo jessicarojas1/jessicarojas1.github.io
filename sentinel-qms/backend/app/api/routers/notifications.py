@@ -9,13 +9,39 @@ from sqlalchemy.orm import Session
 from app.api.deps import Pagination, get_current_user, pagination_params
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError
-from app.models.user import Notification
+from app.models.user import Notification, User
 from app.schemas.auth import CurrentUser
 from app.schemas.common import Page
-from app.schemas.notification import NotificationRead, UnreadCount
+from app.schemas.notification import NotificationPrefs, NotificationRead, UnreadCount
 from app.services.crud import page_meta, paginate
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
+
+
+@router.get("/preferences", response_model=NotificationPrefs)
+def get_preferences(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+) -> NotificationPrefs:
+    row = db.get(User, user.id)
+    prefs = (row.notification_prefs if row else None) or {}
+    return NotificationPrefs(muted_categories=list(prefs.get("muted_categories", [])))
+
+
+@router.put("/preferences", response_model=NotificationPrefs)
+def set_preferences(
+    body: NotificationPrefs,
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+) -> NotificationPrefs:
+    row = db.get(User, user.id)
+    if row is None:
+        raise NotFoundError("User not found.")
+    # Dedupe + drop blanks; stored as a plain JSON dict.
+    muted = sorted({c.strip() for c in body.muted_categories if c and c.strip()})
+    row.notification_prefs = {"muted_categories": muted}
+    db.commit()
+    return NotificationPrefs(muted_categories=muted)
 
 
 @router.get("", response_model=Page[NotificationRead])

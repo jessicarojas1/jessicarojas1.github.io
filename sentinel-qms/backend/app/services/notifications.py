@@ -45,6 +45,11 @@ def notify_user(
     db.flush()
     if send_email:
         recipient = db.get(User, user_id)
+        # Honor the recipient's opt-outs: a muted category still creates the
+        # in-app record (nothing critical is silently lost) but skips email/chat.
+        prefs = getattr(recipient, "notification_prefs", None) or {}
+        if category in set(prefs.get("muted_categories", [])):
+            return notif
         cfg = delivery.resolve_channels(db)
         link = notification_url(entity_type, str(entity_id) if entity_id is not None else None)
         delivery.dispatch_notification(

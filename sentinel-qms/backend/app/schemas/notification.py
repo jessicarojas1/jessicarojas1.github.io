@@ -72,3 +72,10 @@ class NotificationRead(ORMModel):
 
 class UnreadCount(BaseModel):
     count: int
+
+
+class NotificationPrefs(BaseModel):
+    """Per-user notification opt-outs. A muted category still records in-app but
+    is not emailed / pushed to chat."""
+
+    muted_categories: list[str] = []
