@@ -24,17 +24,27 @@ without granting "manage KRI thresholds" (`kri.manage`), or "accept a risk"
 
 ## Roles
 
-Defined in `src/Auth.php` as `$roleDefaults`:
+The canonical role list lives in `Auth::ROLES` (role → label) and the default
+permission maps in `Auth::$roleDefaults`. `Auth::roles()` and
+`Auth::isValidRole()` are the single source of truth for the admin user form, the
+SSO role-mapping screen, and server-side role validation — never hard-code role
+lists in controllers or views.
 
 | Role | Intent | Shape of access |
 |------|--------|-----------------|
 | `admin` | Platform administrator | **Bypass** — `can()` returns `true` for everything (see below). |
 | `manager` | Module owner / team lead | Broad create/edit/delete plus lifecycle actions (`accept`, `publish`, `close`, `approve`). |
+| `auditor` | Internal/external auditor | Broad **read** across all modules + full ownership of audits and findings (`audit.create/edit/findings/close`, `compliance.test/gap`). |
+| `control_owner` | Implements & evidences controls | `compliance.assess/test`, `policy.attest`, `ssp.edit`, `kri.record`, `risk.treatment`. |
+| `risk_owner` | Owns the risk lifecycle | Full risk actions incl. `risk.accept`, `kri.manage/record`, `approval.approve`. |
 | `analyst` | Day-to-day practitioner | Create/edit/assess/record; **no** delete, publish, or close. |
+| `executive` | Leadership / board | Read everything, run reports, and `approval.approve`. |
 | `viewer` | Read-only stakeholder | `view` across modules (+ `policy.attest`). |
 
 The default maps are the source of truth — consult `$roleDefaults` for the exact
-action list per module per role.
+action list per module per role. `Auth::roleDefaultPermissions($role)` returns the
+flattened `module.action` list a role grants (pure, no DB; `['*']` for admin) and
+is covered by `tests/test_rbac.php`.
 
 ## Resolution algorithm (`Auth::can($permission)`)
 

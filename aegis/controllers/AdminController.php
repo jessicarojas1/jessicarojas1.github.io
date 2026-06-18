@@ -39,7 +39,7 @@ class AdminController {
         $name       = Security::sanitizeInput($_POST['name'] ?? '');
         $email      = strtolower(Security::sanitizeInput($_POST['email'] ?? ''));
         $password   = $_POST['password'] ?? '';
-        $role       = in_array($_POST['role'] ?? '', ['admin','manager','auditor','analyst','viewer']) ? $_POST['role'] : 'viewer';
+        $role       = Auth::isValidRole($_POST['role'] ?? '') ? $_POST['role'] : 'viewer';
         $dept       = Security::sanitizeInput($_POST['department'] ?? '');
         $title      = Security::sanitizeInput($_POST['job_title'] ?? '');
 
@@ -107,7 +107,7 @@ class AdminController {
 
         $id       = (int)$id;
         $name     = Security::sanitizeInput($_POST['name'] ?? '');
-        $role     = in_array($_POST['role'] ?? '', ['admin','manager','auditor','analyst','viewer']) ? $_POST['role'] : 'viewer';
+        $role     = Auth::isValidRole($_POST['role'] ?? '') ? $_POST['role'] : 'viewer';
         $dept     = Security::sanitizeInput($_POST['department'] ?? '');
         $title    = Security::sanitizeInput($_POST['job_title'] ?? '');
         $isActive = isset($_POST['is_active']) ? true : false;

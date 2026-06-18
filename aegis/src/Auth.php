@@ -60,7 +60,127 @@ class Auth {
             'automation' => ['view'],
             'approval'   => ['view'],
         ],
+
+        // Auditor — broad read across all modules plus full ownership of audits
+        // and findings. (Previously offered in the UI with NO defaults defined,
+        // leaving auditor users with zero permissions — this fixes that.)
+        'auditor' => [
+            'risk'       => ['view'],
+            'compliance' => ['view','test','gap'],
+            'audit'      => ['view','create','edit','findings','close'],
+            'policy'     => ['view'],
+            'incident'   => ['view'],
+            'vendor'     => ['view','assess'],
+            'issue'      => ['view','create','edit'],
+            'change'     => ['view'],
+            'threat'     => ['view'],
+            'awareness'  => ['view'],
+            'asset'      => ['view'],
+            'kri'        => ['view'],
+            'bcp'        => ['view'],
+            'ssp'        => ['view'],
+            'report'     => ['view'],
+            'automation' => ['view'],
+            'approval'   => ['view'],
+        ],
+
+        // Control Owner — implements and evidences controls; owns policies they attest.
+        'control_owner' => [
+            'risk'       => ['view','treatment'],
+            'compliance' => ['view','assess','test'],
+            'audit'      => ['view','findings'],
+            'policy'     => ['view','attest'],
+            'incident'   => ['view'],
+            'vendor'     => ['view'],
+            'issue'      => ['view','create','edit'],
+            'asset'      => ['view','create','edit'],
+            'kri'        => ['view','record'],
+            'ssp'        => ['view','edit'],
+            'report'     => ['view'],
+            'approval'   => ['view'],
+        ],
+
+        // Risk Owner — owns the risk lifecycle (incl. acceptance) and KRIs.
+        'risk_owner' => [
+            'risk'       => ['view','create','edit','accept','review','treatment','scenarios','bowtie','export'],
+            'compliance' => ['view'],
+            'audit'      => ['view'],
+            'policy'     => ['view'],
+            'incident'   => ['view','create'],
+            'vendor'     => ['view'],
+            'issue'      => ['view','create','edit'],
+            'asset'      => ['view'],
+            'kri'        => ['view','manage','record'],
+            'report'     => ['view'],
+            'approval'   => ['view','approve'],
+        ],
+
+        // Executive — read everything, run reports, and approve.
+        'executive' => [
+            'risk'       => ['view','export'],
+            'compliance' => ['view'],
+            'audit'      => ['view'],
+            'policy'     => ['view'],
+            'incident'   => ['view'],
+            'vendor'     => ['view'],
+            'issue'      => ['view'],
+            'change'     => ['view'],
+            'threat'     => ['view'],
+            'awareness'  => ['view'],
+            'asset'      => ['view'],
+            'kri'        => ['view'],
+            'bcp'        => ['view'],
+            'ssp'        => ['view'],
+            'report'     => ['view'],
+            'automation' => ['view'],
+            'approval'   => ['view','approve'],
+        ],
     ];
+
+    /**
+     * Canonical role → display-label map. Single source of truth for the role
+     * dropdowns (admin user form, SSO mapping) and server-side role validation.
+     */
+    public const ROLES = [
+        'admin'         => 'Administrator',
+        'manager'       => 'Manager',
+        'auditor'       => 'Auditor',
+        'control_owner' => 'Control Owner',
+        'risk_owner'    => 'Risk Owner',
+        'analyst'       => 'Analyst',
+        'executive'     => 'Executive',
+        'viewer'        => 'Viewer',
+    ];
+
+    /** All assignable roles as role => label. */
+    public static function roles(): array
+    {
+        return self::ROLES;
+    }
+
+    /** Whether a string is an assignable role. */
+    public static function isValidRole(string $role): bool
+    {
+        return isset(self::ROLES[$role]);
+    }
+
+    /**
+     * Flattened "module.action" permissions a role grants by default (no DB
+     * lookups). Returns ['*'] for admin (all permissions). Pure — unit-testable.
+     */
+    public static function roleDefaultPermissions(string $role): array
+    {
+        if ($role === 'admin') {
+            return ['*'];
+        }
+        $granted = [];
+        foreach (self::$roleDefaults[$role] ?? [] as $module => $actions) {
+            foreach ($actions as $action) {
+                $granted[] = $module . '.' . $action;
+            }
+        }
+        return $granted;
+    }
 
     private static array $aliases = [
         'risk.read'        => ['risk.view'],
@@ -119,13 +239,8 @@ class Auth {
         $role = self::role();
         if ($role === 'admin') return true;
 
-        // Build flat $granted from role defaults
-        $granted = [];
-        foreach (self::$roleDefaults[$role] ?? [] as $module => $actions) {
-            foreach ($actions as $action) {
-                $granted[] = $module . '.' . $action;
-            }
-        }
+        // Build flat $granted from role defaults (pure resolver — see roleDefaultPermissions)
+        $granted = self::roleDefaultPermissions($role);
 
         // Load explicit DB grants (cached per request)
         if (self::$permCache === null) {
