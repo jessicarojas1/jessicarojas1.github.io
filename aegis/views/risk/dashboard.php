@@ -2,9 +2,9 @@
 $breadcrumbs = $breadcrumbs ?? [['Risks', '/risk'], ['Dashboard', null]];
 ob_start();
 
-// Helper: risk level label from score
+// Helper: risk level label from score (canonical bands — see src/RiskScore.php)
 function dashRiskLevel(int $score): string {
-    return $score > 14 ? 'Critical' : ($score > 9 ? 'High' : ($score > 4 ? 'Medium' : 'Low'));
+    return RiskScore::scoreLabel($score);
 }
 // Helper: hex color for level
 function dashLevelColor(int $score): string {

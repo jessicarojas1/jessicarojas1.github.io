@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     poppler-utils \
+    curl \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_pgsql gd opcache \
     && a2enmod rewrite headers \
@@ -37,4 +38,9 @@ RUN chmod +x /startup.sh
 # startup.sh runs apache2-foreground which handles the privilege drop.
 # Set file ownership above; keep PID 1 as root for signal handling.
 EXPOSE 80
+
+# Liveness probe — hits the unauthenticated /healthz endpoint (see HealthController).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -fsS http://localhost/healthz || exit 1
+
 CMD ["/startup.sh"]

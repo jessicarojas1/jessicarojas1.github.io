@@ -236,7 +236,8 @@ CREATE TABLE IF NOT EXISTS risks (
                                'reputational','external','people','project') OR risk_source IS NULL),
     confidence VARCHAR(10) DEFAULT 'medium' CHECK (confidence IN ('low','medium','high')),
     target_likelihood INTEGER CHECK (target_likelihood BETWEEN 1 AND 5),
-    target_impact INTEGER CHECK (target_impact BETWEEN 1 AND 5)
+    target_impact INTEGER CHECK (target_impact BETWEEN 1 AND 5),
+    target_score INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS risk_score_history (
@@ -404,6 +405,8 @@ CREATE INDEX IF NOT EXISTS idx_ci_objective ON control_implementations(objective
 CREATE INDEX IF NOT EXISTS idx_ci_status    ON control_implementations(status);
 CREATE INDEX IF NOT EXISTS idx_ai_audit     ON audit_items(audit_id);
 CREATE INDEX IF NOT EXISTS idx_risks_status ON risks(status);
+CREATE INDEX IF NOT EXISTS idx_risks_inherent_score ON risks(inherent_score);
+CREATE INDEX IF NOT EXISTS idx_risks_residual_score ON risks(residual_score);
 
 -- ──────────────────────────────────────────────────────────────
 -- Core operational tables (incidents, issues, vendors, evidence)
@@ -776,6 +779,7 @@ INSERT INTO settings (key, value, type, description) VALUES
     ('org_name',           'My Organization', 'string', 'Organization / product display name (Branding)'),
     ('company_logo_data',  '',                'string', 'Logo source — http(s):// URL or data:image/... URI (Branding)'),
     ('company_logo_name',  '',                'string', 'Original logo filename / label (Branding)'),
-    ('brand_accent',       '',                'string', 'Primary brand accent colour as #RRGGBB hex (Branding)')
+    ('brand_accent',       '',                'string', 'Primary brand accent colour as #RRGGBB hex (Branding)'),
+    ('ai_enabled',         '1',               'string', 'Global AIAdvisor kill-switch — set to 0 to disable all AI features org-wide')
 ON CONFLICT (key) DO NOTHING;
 

@@ -144,6 +144,47 @@ jobs:
             | xargs -0 -r -n1 -P4 php -l
 
   # ---------------------------------------------------------------------------
+  # AEGIS framework-free test suite + migration integrity verifier.
+  # No database required: tests cover pure logic (SSRF guard, JWT, RiskScore,
+  # AIAdvisor redaction) and the verifier statically checks migration registration.
+  # ---------------------------------------------------------------------------
+  aegis-tests:
+    name: AEGIS tests (8.2)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: none
+          coverage: none
+
+      - name: Unit test suite
+        working-directory: aegis
+        run: php tests/run.php
+
+      - name: Migration integrity verifier
+        working-directory: aegis
+        run: php scripts/verify_migrations.php
+
+      - name: UI / CSP consistency linter
+        working-directory: aegis
+        run: php scripts/check_ui.php
+
+      - name: Route authorization coverage
+        working-directory: aegis
+        run: php scripts/check_route_auth.php
+
+      - name: CSRF coverage (POST routes)
+        working-directory: aegis
+        run: php scripts/check_csrf.php
+
+      - name: CSV export safety
+        working-directory: aegis
+        run: php scripts/check_csv_export.php
+
+  # ---------------------------------------------------------------------------
   # Python compile-check (py_compile) over the Streamlit dashboard, the Sentinel
   # FastAPI backend, and the other small Python apps. No heavy deps installed —
   # this only confirms the sources parse/compile.

@@ -1,6 +1,6 @@
 <?php
 $cfg = $cfg ?? SSO::config();
-$roles = ['admin', 'manager', 'auditor', 'analyst', 'viewer'];
+$roles = array_keys(Auth::roles());
 $breadcrumbs = [['Admin', '/admin'], ['SSO', null]];
 ?>
 <div class="page-header">

@@ -6,7 +6,7 @@ $breadcrumbs  = $breadcrumbs  ?? [['Risk Register', '/risk'], ['Issue Acceptance
 // Score helpers (mirrors risk/view.php)
 $score = (int)($risk['inherent_score'] ?? 0);
 function acceptFormScoreLevel(int $s): string {
-    return $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
+    return RiskScore::scoreLabel($s); // canonical bands — see src/RiskScore.php
 }
 function acceptFormScoreColor(int $s): string {
     return $s > 14 ? '#ef4444' : ($s > 9 ? '#f97316' : ($s > 4 ? '#f59e0b' : '#22c55e'));

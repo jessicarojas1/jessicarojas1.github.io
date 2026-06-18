@@ -21,7 +21,7 @@ $itemStatusColors = [
     'deferred'       => '#f59e0b',
     'not_applicable' => '#a1a1aa',
 ];
-$riskLevelFn = fn(int $s) => $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
+$riskLevelFn = fn(int $s) => RiskScore::scoreLabel($s); // canonical bands — see src/RiskScore.php
 $riskColors  = ['Critical'=>'#ef4444','High'=>'#f97316','Medium'=>'#f59e0b','Low'=>'#22c55e'];
 
 // Group items

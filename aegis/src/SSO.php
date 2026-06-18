@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/Ssrf.php'; // self-load for CLI scripts that bypass the autoloader
 /**
  * OIDC / OAuth 2.0 SSO client.
  * Supports any standards-compliant IdP: Azure AD, Okta, Google Workspace,
@@ -44,22 +45,17 @@ class SSO {
         if (self::$discovery !== null) return self::$discovery;
         $url = self::config()['sso_discovery_url'];
         if (!$url) return null;
-        // SSRF prevention: only allow HTTPS to public hosts (not private/loopback IPs)
-        if (!preg_match('#^https://#i', $url)) return null;
-        $host = parse_url($url, PHP_URL_HOST);
-        if (!$host) return null;
-        // Resolve once and validate — then pin the connection to that IP via CURLOPT_RESOLVE
-        // to prevent DNS rebinding (TOCTOU between check and fetch)
-        $resolved = gethostbyname($host);
-        if (filter_var($resolved, FILTER_VALIDATE_IP,
-                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) return null;
+        // SSRF prevention (centralized): HTTPS only, public hosts only (IPv4 + IPv6),
+        // and pin the connection to the validated IP to prevent DNS rebinding (TOCTOU).
+        $resolve = Ssrf::curlResolve($url, true);
+        if ($resolve === null) return null;
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => 8,
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_RESOLVE        => ["{$host}:443:{$resolved}"],
+            CURLOPT_RESOLVE        => $resolve,
         ]);
         $body = curl_exec($ch);
         curl_close($ch);
@@ -106,39 +102,42 @@ class SSO {
         if (!$disc || empty($disc['token_endpoint'])) return null;
         $c = self::config();
 
-        // SSRF prevention: token_endpoint must be HTTPS, same host as issuer, no private IPs
+        // SSRF prevention: token_endpoint must be HTTPS, same host as issuer, no private IPs.
         $tokenEndpoint = $disc['token_endpoint'];
-        if (!preg_match('#^https://#i', $tokenEndpoint)) {
-            error_log('[SSO] token_endpoint must use HTTPS');
-            return null;
-        }
         $tokenHost   = parse_url($tokenEndpoint, PHP_URL_HOST);
         $issuerHost  = parse_url($disc['issuer'] ?? '', PHP_URL_HOST);
         if (!$tokenHost || $tokenHost !== $issuerHost) {
             error_log('[SSO] token_endpoint host does not match issuer host');
             return null;
         }
-        $resolved = gethostbyname($tokenHost);
-        if (filter_var($resolved, FILTER_VALIDATE_IP,
-                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-            error_log('[SSO] token_endpoint resolves to a private/reserved IP');
+        // Centralized guard (HTTPS only, IPv4 + IPv6, private/reserved blocked) +
+        // pin the connection to the validated IP to prevent DNS rebinding (TOCTOU).
+        $resolve = Ssrf::curlResolve($tokenEndpoint, true);
+        if ($resolve === null) {
+            error_log('[SSO] token_endpoint failed SSRF validation');
             return null;
         }
 
-        // Exchange code for tokens
-        $ctx = stream_context_create(['http' => [
-            'method'  => 'POST',
-            'timeout' => 10,
-            'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
-            'content' => http_build_query([
+        // Exchange code for tokens (pinned cURL request)
+        $ch = curl_init($tokenEndpoint);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_RESOLVE        => $resolve,
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
+            CURLOPT_POSTFIELDS     => http_build_query([
                 'grant_type'    => 'authorization_code',
                 'code'          => $code,
                 'redirect_uri'  => $redirectUri,
                 'client_id'     => $c['sso_client_id'],
                 'client_secret' => $c['sso_client_secret'],
             ]),
-        ]]);
-        $body = @file_get_contents($tokenEndpoint, false, $ctx);
+        ]);
+        $body = curl_exec($ch);
+        curl_close($ch);
         if (!$body) { error_log('[SSO] Token endpoint request failed'); return null; }
 
         $tokens = json_decode($body, true);

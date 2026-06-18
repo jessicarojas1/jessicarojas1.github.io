@@ -7,6 +7,29 @@
 
 AEGIS is a self-hosted Governance, Risk, and Compliance (GRC) platform built with PHP 8.2 and PostgreSQL. It consolidates compliance tracking, risk management, audit workflows, and policy lifecycle management into a single cohesive application — with no external framework dependencies, no build pipeline, and a single Docker container deployment model. Import any compliance standard via JSON or create custom packages from scratch.
 
+### Documentation
+
+| Doc | Covers |
+|-----|--------|
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Request lifecycle, layout, core libraries, data model |
+| [`SECURITY.md`](SECURITY.md) | Security controls + automated CI verification gates |
+| [`PERMISSIONS_MODEL.md`](PERMISSIONS_MODEL.md) | RBAC roles, granular `module.action` permissions |
+| [`AUDIT_TRAIL.md`](AUDIT_TRAIL.md) | Tamper-evident hash-chained audit log + verification |
+| [`API.md`](API.md) | REST API: auth, pagination, rate limits, endpoints |
+| [`RISK_MODULE.md`](RISK_MODULE.md) | Risk scoring engine, bands, appetite |
+| [`AIADVISOR.md`](AIADVISOR.md) | AI governance: kill-switch, redaction, audit |
+| [`DEPLOYMENT.md`](DEPLOYMENT.md) | Env vars, Docker/Render, cron, backup/restore, checklist |
+
+### Quality gates (run locally or in CI)
+
+```bash
+php tests/run.php                  # unit suite (64 assertions)
+php scripts/verify_migrations.php  # migration registration/ordering/idempotency
+php scripts/check_ui.php           # CSP: no inline handlers, scripts carry a nonce
+php scripts/check_route_auth.php   # every public action enforces authorization
+php scripts/check_csrf.php         # every POST route validates CSRF
+```
+
 ---
 
 ## Features

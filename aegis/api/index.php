@@ -20,7 +20,63 @@ function apiResponse(mixed $data, int $code = 200): void {
 
 function apiError(string $message, int $code = 400): void {
     http_response_code($code);
-    echo json_encode(['success' => false, 'error' => $message, 'meta' => ['timestamp' => date('c')]]);
+    echo json_encode([
+        'success' => false,
+        'error'   => $message,
+        'meta'    => ['timestamp' => date('c'), 'request_id' => defined('AEGIS_REQUEST_ID') ? AEGIS_REQUEST_ID : null],
+    ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    exit;
+}
+
+/**
+ * Paginated + sorted list response.
+ *
+ * Reads ?page, ?per_page, and ?sort from the query string. Sorting is restricted
+ * to a per-endpoint allowlist of columns (prefix "-" = DESC) so ORDER BY never
+ * contains untrusted input. $sql must NOT already contain ORDER BY / LIMIT.
+ *
+ * @param string   $sql       SELECT without ORDER BY/LIMIT
+ * @param array    $params    bound parameters for $sql
+ * @param string[] $sortable  allowlisted sort columns (as written in $sql)
+ * @param string   $default   default ORDER BY clause (e.g. "cp.name ASC")
+ */
+function apiList(string $sql, array $params = [], array $sortable = [], string $default = ''): never {
+    $page    = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = min(100, max(1, (int)($_GET['per_page'] ?? 25)));
+    $offset  = ($page - 1) * $perPage;
+
+    $orderBy = $default;
+    $sort    = (string)($_GET['sort'] ?? '');
+    if ($sort !== '') {
+        $dir = 'ASC';
+        if ($sort[0] === '-') { $dir = 'DESC'; $sort = substr($sort, 1); }
+        if (in_array($sort, $sortable, true)) {
+            $orderBy = "{$sort} {$dir}";
+        }
+    }
+
+    $total = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM ({$sql}) AS _sub", $params)['c'] ?? 0);
+
+    $finalSql = $sql;
+    if ($orderBy !== '') { $finalSql .= " ORDER BY {$orderBy}"; }
+    $finalSql .= " LIMIT {$perPage} OFFSET {$offset}";
+    $rows = Database::fetchAll($finalSql, $params);
+
+    http_response_code(200);
+    echo json_encode([
+        'success' => true,
+        'data'    => $rows,
+        'meta'    => [
+            'timestamp'  => date('c'),
+            'version'    => 'v1',
+            'pagination' => [
+                'page'        => $page,
+                'per_page'    => $perPage,
+                'total'       => $total,
+                'total_pages' => $total > 0 ? (int)ceil($total / $perPage) : 0,
+            ],
+        ],
+    ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
     exit;
 }
 
@@ -83,6 +139,14 @@ $uri    = preg_replace('#^/api/v1#', '', $uri);
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 $input  = json_decode(file_get_contents('php://input'), true) ?? [];
 
+// Public health probe (no auth) — liveness + database readiness.
+// Reachable at /api/v1/health (stripped to /health) and /api/health.
+if ($method === 'GET' && ($uri === '/health' || $uri === '/api/health')) {
+    $dbOk = false;
+    try { $dbOk = (Database::fetchOne('SELECT 1 AS ok')['ok'] ?? null) == 1; } catch (Throwable) {}
+    apiResponse(['status' => $dbOk ? 'ok' : 'degraded', 'database' => $dbOk ? 'ok' : 'fail'], $dbOk ? 200 : 503);
+}
+
 // Scanner / SIEM ingestion — handled by dedicated file
 if ($method === 'POST' && preg_match('#^/ingest/(tenable|qualys|wiz|generic)$#', $uri)) {
     require_once AEGIS_ROOT . '/api/ingest.php';
@@ -124,7 +188,8 @@ $canWrite = in_array('write', $authUser['permissions'] ?? []) || $authUser['role
 match (true) {
     // Compliance packages
     $method === 'GET' && $uri === '/compliance/packages'
-        => apiResponse(Database::fetchAll("SELECT cp.*, s.name as standard_name, s.code FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id WHERE cp.is_active = TRUE ORDER BY cp.name")),
+        => apiList("SELECT cp.*, s.name as standard_name, s.code FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id WHERE cp.is_active = TRUE",
+                   [], ['cp.name', 'cp.created_at'], 'cp.name ASC'),
 
     $method === 'GET' && preg_match('#^/compliance/packages/(\d+)$#', $uri, $m)
         => apiResponse(Database::fetchOne("SELECT cp.*, s.name as standard_name FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?", [(int)$m[1]]) ?? apiError('Not found', 404)),
@@ -134,11 +199,12 @@ match (true) {
 
     // Standards
     $method === 'GET' && $uri === '/standards'
-        => apiResponse(Database::fetchAll("SELECT * FROM standards WHERE is_active = TRUE ORDER BY name")),
+        => apiList("SELECT * FROM standards WHERE is_active = TRUE", [], ['name', 'created_at'], 'name ASC'),
 
     // Risks
     $method === 'GET' && $uri === '/risks'
-        => apiResponse(Database::fetchAll("SELECT r.*, rc.name as category FROM risks r LEFT JOIN risk_categories rc ON rc.id = r.category_id ORDER BY r.inherent_score DESC")),
+        => apiList("SELECT r.*, rc.name as category FROM risks r LEFT JOIN risk_categories rc ON rc.id = r.category_id",
+                   [], ['r.inherent_score', 'r.created_at', 'r.title', 'r.status'], 'r.inherent_score DESC'),
 
     $method === 'GET' && preg_match('#^/risks/(\d+)$#', $uri, $m)
         => apiResponse(Database::fetchOne("SELECT * FROM risks WHERE id = ?", [(int)$m[1]]) ?? apiError('Not found', 404)),
@@ -160,11 +226,13 @@ match (true) {
 
     // Policies
     $method === 'GET' && $uri === '/policies'
-        => apiResponse(Database::fetchAll("SELECT p.*, u.name as owner FROM policies p LEFT JOIN users u ON u.id = p.owner_id ORDER BY p.updated_at DESC")),
+        => apiList("SELECT p.*, u.name as owner FROM policies p LEFT JOIN users u ON u.id = p.owner_id",
+                   [], ['p.updated_at', 'p.title', 'p.status'], 'p.updated_at DESC'),
 
     // Audits
     $method === 'GET' && $uri === '/audits'
-        => apiResponse(Database::fetchAll("SELECT a.*, cp.name as package FROM audits a LEFT JOIN compliance_packages cp ON cp.id = a.package_id ORDER BY a.scheduled_date DESC")),
+        => apiList("SELECT a.*, cp.name as package FROM audits a LEFT JOIN compliance_packages cp ON cp.id = a.package_id",
+                   [], ['a.scheduled_date', 'a.status'], 'a.scheduled_date DESC'),
 
     // Controls status update
     $method === 'PUT' && preg_match('#^/compliance/objectives/(\d+)/status$#', $uri, $m) && $canWrite
@@ -191,7 +259,8 @@ match (true) {
 
     // Users (admin only)
     $method === 'GET' && $uri === '/users' && $authUser['role'] === 'admin'
-        => apiResponse(Database::fetchAll("SELECT id, name, email, role, department, is_active, created_at FROM users ORDER BY name")),
+        => apiList("SELECT id, name, email, role, department, is_active, created_at FROM users",
+                   [], ['name', 'email', 'role', 'created_at'], 'name ASC'),
 
     default => apiError("Endpoint not found", 404),
 };

@@ -59,7 +59,7 @@ class ExportController {
             $out = fopen('php://output', 'w');
             if ($data) {
                 fputcsv($out, array_keys($data[0]));
-                foreach ($data as $row) fputcsv($out, $row);
+                foreach ($data as $row) fputcsv($out, Csv::row($row)); // formula-injection guard
             }
             fclose($out);
         }
@@ -109,7 +109,7 @@ class ExportController {
             ob_start();
             $out = fopen('php://output', 'w');
             fputcsv($out, array_keys($data[0]));
-            foreach ($data as $row) fputcsv($out, $row);
+            foreach ($data as $row) fputcsv($out, Csv::row($row)); // formula-injection guard
             fclose($out);
             $csv = ob_get_clean();
 
