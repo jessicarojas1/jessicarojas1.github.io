@@ -60,10 +60,50 @@ $wValue = $wValue ?? '';
     <button type="button" class="wtb" data-insert="recent" title="Recently updated (dynamic)"><i class="bi bi-clock-history"></i></button>
     <button type="button" class="wtb" data-insert-include title="Include another page (dynamic)"><i class="bi bi-box-arrow-in-down-right"></i></button>
     <span class="wtb-sep"></span>
+    <button type="button" class="wtb" data-macro-browser title="Browse macros"><i class="bi bi-grid-3x3-gap-fill"></i> Macros</button>
     <button type="button" class="wtb wtb-toggle" data-toggle-html="1" title="Toggle HTML source"><i class="bi bi-braces"></i> HTML</button>
   </div>
   <div class="wysiwyg-surface prose" id="<?= Security::h($wId) ?>-surface" contenteditable="true"><?= $wValue /* already sanitized HTML */ ?></div>
   <textarea class="wysiwyg-source form-control" id="<?= Security::h($wId) ?>-source" name="<?= Security::h($wName) ?>" style="display:none;min-height:300px;font-family:monospace"><?= Security::h($wValue) ?></textarea>
+
+  <!-- Macro browser: a searchable insert palette. Each card is a .wtb carrying a
+       data-insert (or data-insert-include) attribute, so the existing toolbar
+       handler performs the insertion; this dialog only adds discoverability. -->
+  <div class="wmacro-overlay" id="<?= Security::h($wId) ?>-macros" hidden>
+    <div class="wmacro-dialog" role="dialog" aria-label="Insert macro">
+      <div class="wmacro-head">
+        <strong><i class="bi bi-grid-3x3-gap-fill"></i> Insert a macro</strong>
+        <button type="button" class="wtb" data-macro-close title="Close"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <input type="text" class="form-control wmacro-search" data-macro-search placeholder="Search macros…" autocomplete="off">
+      <div class="wmacro-grid">
+        <?php
+        $__macros = [
+          ['ins'=>'data-insert="panel-info"',    'icon'=>'bi-info-circle-fill',          'name'=>'Info panel',         'desc'=>'Highlighted note box'],
+          ['ins'=>'data-insert="panel-success"', 'icon'=>'bi-check-circle-fill',         'name'=>'Success panel',      'desc'=>'Positive / done callout'],
+          ['ins'=>'data-insert="panel-warning"', 'icon'=>'bi-exclamation-triangle-fill', 'name'=>'Warning panel',      'desc'=>'Caution callout'],
+          ['ins'=>'data-insert="panel-note"',    'icon'=>'bi-sticky-fill',               'name'=>'Note panel',         'desc'=>'Side note box'],
+          ['ins'=>'data-insert="expand"',        'icon'=>'bi-chevron-bar-expand',        'name'=>'Expand',             'desc'=>'Collapsible section'],
+          ['ins'=>'data-insert="status"',        'icon'=>'bi-tag-fill',                  'name'=>'Status lozenge',     'desc'=>'Coloured status label'],
+          ['ins'=>'data-insert="toc"',           'icon'=>'bi-list-nested',               'name'=>'Table of contents',  'desc'=>'On-this-page outline'],
+          ['ins'=>'data-insert="props"',         'icon'=>'bi-table',                     'name'=>'Page properties',    'desc'=>'Key/value table for reports'],
+          ['ins'=>'data-insert="task"',          'icon'=>'bi-check2-square',             'name'=>'Action item',        'desc'=>'Tracked task / to-do'],
+          ['ins'=>'data-insert="children"',      'icon'=>'bi-diagram-2-fill',            'name'=>'Children',           'desc'=>'Live list of child pages'],
+          ['ins'=>'data-insert="pagetree"',      'icon'=>'bi-diagram-3-fill',            'name'=>'Page tree',          'desc'=>'Live nested descendant tree'],
+          ['ins'=>'data-insert="recent"',        'icon'=>'bi-clock-history',             'name'=>'Recently updated',   'desc'=>'Live list of recent pages'],
+          ['ins'=>'data-insert-include',         'icon'=>'bi-box-arrow-in-down-right',   'name'=>'Include page',       'desc'=>'Transclude another page'],
+        ];
+        foreach ($__macros as $m): ?>
+          <button type="button" class="wtb wmacro-card" <?= $m['ins'] ?> data-macro-name="<?= Security::h(strtolower($m['name'].' '.$m['desc'])) ?>">
+            <i class="bi <?= Security::h($m['icon']) ?>"></i>
+            <span class="wmacro-name"><?= Security::h($m['name']) ?></span>
+            <span class="wmacro-desc"><?= Security::h($m['desc']) ?></span>
+          </button>
+        <?php endforeach; ?>
+        <div class="wmacro-empty" data-macro-empty hidden>No macros match your search.</div>
+      </div>
+    </div>
+  </div>
 </div>
 <style nonce="<?= Security::nonce() ?>">
 .wysiwyg{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
@@ -73,6 +113,16 @@ $wValue = $wValue ?? '';
 .wtb-sep{width:1px;background:var(--border);margin:2px 4px}
 .wysiwyg-surface{min-height:320px;padding:16px 18px;background:var(--card-bg);outline:none;color:var(--text)}
 .wysiwyg-surface:focus{box-shadow:inset 0 0 0 2px var(--primary-light)}
+.wmacro-overlay{position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,.45);display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px}
+.wmacro-dialog{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.3);width:100%;max-width:640px;max-height:78vh;display:flex;flex-direction:column;overflow:hidden}
+.wmacro-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
+.wmacro-search{margin:12px 14px 8px}
+.wmacro-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px 14px;overflow:auto}
+.wmacro-card{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:10px 12px;border:1px solid var(--border);border-radius:8px}
+.wmacro-card>i{font-size:1.1rem;color:var(--primary)}
+.wmacro-name{font-weight:600;color:var(--text)}
+.wmacro-desc{font-size:.78rem;color:var(--text-muted)}
+.wmacro-empty{grid-column:1/-1;color:var(--text-muted);padding:16px;text-align:center}
 </style>
 <script nonce="<?= Security::nonce() ?>">
 (function(){
@@ -184,6 +234,35 @@ $wValue = $wValue ?? '';
     });
   });
   surface.addEventListener('input', sync);
+
+  // ── Macro browser (searchable insert palette) ──────────────────────────────
+  var overlay = document.getElementById('<?= Security::h($wId) ?>-macros');
+  if (overlay) {
+    var openBtn  = wrap.querySelector('[data-macro-browser]');
+    var search   = overlay.querySelector('[data-macro-search]');
+    var emptyMsg = overlay.querySelector('[data-macro-empty]');
+    var cards    = Array.prototype.slice.call(overlay.querySelectorAll('.wmacro-card'));
+
+    function openMacros(){ overlay.hidden = false; if (search){ search.value=''; filter(''); search.focus(); } }
+    function closeMacros(){ overlay.hidden = true; surface.focus(); }
+    function filter(q){
+      q = (q||'').toLowerCase().trim(); var shown = 0;
+      cards.forEach(function(c){
+        var hit = !q || (c.getAttribute('data-macro-name')||'').indexOf(q) !== -1;
+        c.style.display = hit ? '' : 'none'; if (hit) shown++;
+      });
+      if (emptyMsg) emptyMsg.hidden = shown !== 0;
+    }
+    if (openBtn) openBtn.addEventListener('click', openMacros);
+    overlay.querySelectorAll('[data-macro-close]').forEach(function(b){ b.addEventListener('click', closeMacros); });
+    // Click on the backdrop (not the dialog) closes.
+    overlay.addEventListener('click', function(e){ if (e.target === overlay) closeMacros(); });
+    if (search) search.addEventListener('input', function(){ filter(search.value); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !overlay.hidden) closeMacros(); });
+    // After a macro card inserts (handled by the .wtb listener above), close.
+    cards.forEach(function(c){ c.addEventListener('click', function(){ setTimeout(closeMacros, 0); }); });
+  }
+
   // Keep the textarea current right before the form submits.
   var form = wrap.closest('form');
   if (form) form.addEventListener('submit', function(){ if(showingHtml){ surface.innerHTML = source.value; } sync(); });
