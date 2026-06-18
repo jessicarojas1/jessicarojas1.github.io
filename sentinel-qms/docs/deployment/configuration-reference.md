@@ -43,6 +43,14 @@ Secrets Manager** / **Azure Key Vault** — never from committed files.
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `30` | Config | Access-token lifetime. |
 | `REFRESH_TOKEN_EXPIRE_DAYS` | `7` | Config | Refresh-token lifetime. |
 
+### Rate limiting
+
+| Variable | Default | Sensitivity | Meaning |
+|----------|---------|-------------|---------|
+| `RATE_LIMIT_ENABLED` | `true` | Config | Enable the in-process per-caller API rate limiter. Set `false` if a fronting gateway/WAF already limits. |
+| `RATE_LIMIT_PER_MINUTE` | `300` | Config | Requests allowed per caller (credential or IP) per window. |
+| `RATE_LIMIT_WINDOW_SECONDS` | `60` | Config | Fixed-window length in seconds. |
+
 ### Federated SSO (OIDC / SAML / CAC-PIV)
 
 | Variable | Default | Sensitivity | Meaning |

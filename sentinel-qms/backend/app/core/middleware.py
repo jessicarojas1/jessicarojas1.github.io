@@ -1,14 +1,16 @@
-"""Request-id, security-headers, and lightweight request-logging middleware."""
+"""Request-id, security-headers, rate-limiting, and request-logging middleware."""
 
 from __future__ import annotations
 
+import hashlib
 import logging
+import threading
 import time
 import uuid
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
 from app.core.config import settings
 
@@ -91,3 +93,82 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             csp = _API_CSP
         response.headers.setdefault("Content-Security-Policy", csp)
         return response
+
+
+def _client_key(request: Request) -> str:
+    """Stable per-caller bucket key.
+
+    Differentiates callers by credential when one is present (so multiple API
+    tokens / sessions behind one NAT get independent budgets) and otherwise by
+    source IP, honoring the first hop of ``X-Forwarded-For`` behind a proxy.
+    The credential is hashed — never stored or logged in the clear.
+    """
+    auth = request.headers.get("Authorization", "")
+    if auth:
+        return "tok:" + hashlib.sha256(auth.encode("utf-8")).hexdigest()[:32]
+    fwd = request.headers.get("X-Forwarded-For", "")
+    if fwd:
+        return "ip:" + fwd.split(",")[0].strip()
+    client = request.client
+    return "ip:" + (client.host if client else "unknown")
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    """In-process fixed-window rate limiter for the JSON API.
+
+    Keeps a per-caller counter that resets every ``RATE_LIMIT_WINDOW_SECONDS``.
+    Only API paths are limited; ``/health`` and the served SPA/assets are exempt.
+    Emits ``X-RateLimit-*`` headers on every limited response and ``Retry-After``
+    on a 429. This is a single-process guard (defense-in-depth); a horizontally
+    scaled deployment should also rate-limit at the gateway/WAF.
+    """
+
+    def __init__(self, app, *, limit: int, window_seconds: int) -> None:  # noqa: ANN001
+        super().__init__(app)
+        self._limit = max(1, limit)
+        self._window = max(1, window_seconds)
+        self._buckets: dict[str, tuple[float, int]] = {}
+        self._lock = threading.Lock()
+
+    def _check(self, key: str) -> tuple[bool, int, int]:
+        """Return ``(allowed, remaining, reset_seconds)`` and record the hit."""
+        now = time.monotonic()
+        with self._lock:
+            window_start, count = self._buckets.get(key, (now, 0))
+            if now - window_start >= self._window:
+                window_start, count = now, 0
+            count += 1
+            self._buckets[key] = (window_start, count)
+            # Opportunistic prune so the map can't grow without bound.
+            if len(self._buckets) > 10_000:
+                cutoff = now - self._window
+                self._buckets = {k: v for k, v in self._buckets.items() if v[0] >= cutoff}
+        reset = int(self._window - (now - window_start)) + 1
+        remaining = max(0, self._limit - count)
+        return count <= self._limit, remaining, reset
+
+    async def dispatch(self, request: Request, call_next):  # noqa: ANN001
+        path = request.url.path
+        # Limit only the JSON API; never the health probe or the served SPA.
+        if not path.startswith(settings.API_V1_PREFIX):
+            return await call_next(request)
+
+        allowed, remaining, reset = self._check(_client_key(request))
+        if not allowed:
+            request_id = getattr(request.state, "request_id", None)
+            body = {
+                "error": {
+                    "code": "rate_limited",
+                    "message": "Rate limit exceeded. Please slow down and retry shortly.",
+                    "request_id": request_id,
+                }
+            }
+            resp: Response = JSONResponse(status_code=429, content=body)
+            resp.headers["Retry-After"] = str(reset)
+        else:
+            resp = await call_next(request)
+
+        resp.headers["X-RateLimit-Limit"] = str(self._limit)
+        resp.headers["X-RateLimit-Remaining"] = str(remaining)
+        resp.headers["X-RateLimit-Reset"] = str(reset)
+        return resp

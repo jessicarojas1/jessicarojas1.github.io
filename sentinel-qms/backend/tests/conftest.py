@@ -10,6 +10,9 @@ os.environ.setdefault("ENVIRONMENT", "development")
 os.environ.setdefault("ADMIN_AUTO_CREATE", "false")
 # The background scheduler must never spin up during tests.
 os.environ.setdefault("RUN_SCHEDULER", "false")
+# Global rate limiting is exercised in its own test with a purpose-built app;
+# disable it for the shared client so high-volume suites are never throttled.
+os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
 
 import pytest
 from fastapi.testclient import TestClient
