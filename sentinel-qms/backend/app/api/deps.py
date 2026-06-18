@@ -16,17 +16,51 @@ from app.core.security import ACCESS_TOKEN_TYPE, decode_token, oauth2_scheme
 from app.models.user import User
 from app.schemas.auth import CurrentUser
 
+# HTTP methods that mutate state — a Personal Access Token must hold the
+# ``write`` scope to use any of these.
+_UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
+
+
+def _principal_from_user(user: User) -> CurrentUser:
+    return CurrentUser(
+        id=user.id,
+        email=user.email,
+        full_name=user.full_name,
+        role_names=user.role_names,
+        is_active=user.is_active,
+    )
+
 
 def resolve_current_user(request: Request, db: Session) -> CurrentUser:
-    """Resolve the principal from the Bearer token; used by rbac + deps.
+    """Resolve the principal from the Bearer credential; used by rbac + deps.
 
-    Kept as a plain function (not a dependency) so ``app.core.rbac`` can call it
-    without creating an import cycle.
+    Accepts either an interactive JWT access token or a Personal Access Token
+    (``sntl_...``). A PAT acts as its owning user — every normal RBAC check still
+    applies — but additionally must carry the ``write`` scope to perform any
+    state-changing (non-safe) request. Kept as a plain function (not a
+    dependency) so ``app.core.rbac`` can call it without an import cycle.
     """
     auth = request.headers.get("Authorization", "")
     if not auth.lower().startswith("bearer "):
         raise AuthenticationError("Missing bearer token.")
     token = auth[7:].strip()
+
+    # Personal Access Token path (distinguished by its scheme prefix).
+    from app.services import api_tokens as token_svc
+
+    if token_svc.looks_like_api_token(token):
+        result = token_svc.authenticate_api_token(db, token)
+        if result is None:
+            raise AuthenticationError("Invalid or expired API token.")
+        user, scopes = result
+        if request.method.upper() in _UNSAFE_METHODS and "write" not in scopes:
+            raise PermissionDeniedError("This API token is read-only.")
+        principal = _principal_from_user(user)
+        request.state.user = principal
+        request.state.auth_method = "api_token"
+        return principal
+
+    # Interactive JWT path.
     payload = decode_token(token, expected_type=ACCESS_TOKEN_TYPE)
     try:
         user_id = int(payload["sub"])
@@ -37,16 +71,29 @@ def resolve_current_user(request: Request, db: Session) -> CurrentUser:
     if user is None or not user.is_active:
         raise AuthenticationError("User not found or inactive.")
 
-    principal = CurrentUser(
-        id=user.id,
-        email=user.email,
-        full_name=user.full_name,
-        role_names=user.role_names,
-        is_active=user.is_active,
-    )
+    principal = _principal_from_user(user)
     # Stash on request.state so middleware/audit can read it.
     request.state.user = principal
+    request.state.auth_method = "jwt"
     return principal
+
+
+def require_interactive_user(
+    request: Request,
+    db: Session = Depends(get_db),
+    _token: str | None = Depends(oauth2_scheme),
+) -> CurrentUser:
+    """Like :func:`get_current_user` but rejects Personal Access Tokens.
+
+    Guards self-management surfaces (e.g. minting/revoking API tokens) so a
+    token can never escalate by issuing further tokens for its owner.
+    """
+    user = resolve_current_user(request, db)
+    if getattr(request.state, "auth_method", None) == "api_token":
+        raise PermissionDeniedError(
+            "This action requires an interactive session, not an API token."
+        )
+    return user
 
 
 def get_current_user(

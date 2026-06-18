@@ -51,6 +51,7 @@ export * from './useShares';
 export * from './useTraining';
 export * from './useSearch';
 export * from './useNotifications';
+export * from './useApiTokens';
 export * from './useAnalytics';
 export * from './useReports';
 export * from './useAuditLogs';

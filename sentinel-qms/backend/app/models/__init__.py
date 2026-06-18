@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from app.models.api_token import ApiToken
 from app.models.apqp import (
     ApqpPhase,
     ApqpProject,
@@ -155,6 +156,7 @@ from app.models.user import (
 __all__ = [
     "TimestampMixin",
     "SoftDeleteMixin",
+    "ApiToken",
     "User",
     "Role",
     "AuditLog",
