@@ -116,9 +116,10 @@ Errors use a consistent envelope with appropriate HTTP status:
 
 ### 1.9 Rate limiting
 The API enforces an in-process **fixed-window** rate limit per caller (defense-in-depth; a fronting
-gateway/WAF should also limit in a horizontally scaled deployment). Callers are bucketed by
-credential when one is present (so each API token / session gets its own budget) and otherwise by
-source IP (honoring the first `X-Forwarded-For` hop). Every API response carries:
+gateway/WAF should also limit in a horizontally scaled deployment). Callers are bucketed by **source
+IP** — deliberately not by any client-supplied header, which could be rotated to mint fresh budgets.
+`X-Forwarded-For` is honored only when `TRUST_PROXY_HEADERS=true` (set it behind a trusted proxy/LB
+so the real client IP, not the proxy's, is used). Every API response carries:
 
 | Header | Meaning |
 |--------|---------|

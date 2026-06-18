@@ -52,12 +52,67 @@ def test_health_is_exempt():
         assert client.get("/health").status_code == 200
 
 
-def test_distinct_credentials_have_independent_budgets():
+def test_credential_rotation_cannot_bypass_limit():
+    """Varying the Authorization header must NOT mint fresh budgets (the key is
+    the source IP, not a client-supplied header)."""
     client = _app(limit=1)
-    h1 = {"Authorization": "Bearer token-aaa"}
-    h2 = {"Authorization": "Bearer token-bbb"}
-    assert client.get(f"{settings.API_V1_PREFIX}/ping", headers=h1).status_code == 200
-    # Same IP but a different credential gets its own bucket.
-    assert client.get(f"{settings.API_V1_PREFIX}/ping", headers=h2).status_code == 200
-    # Re-using the first credential is now over its budget.
-    assert client.get(f"{settings.API_V1_PREFIX}/ping", headers=h1).status_code == 429
+    assert (
+        client.get(
+            f"{settings.API_V1_PREFIX}/ping",
+            headers={"Authorization": "Bearer token-aaa"},
+        ).status_code
+        == 200
+    )
+    # Same socket IP, different credential → still the same bucket → blocked.
+    assert (
+        client.get(
+            f"{settings.API_V1_PREFIX}/ping",
+            headers={"Authorization": "Bearer token-bbb"},
+        ).status_code
+        == 429
+    )
+
+
+def test_xff_ignored_unless_proxy_trusted(monkeypatch):
+    """X-Forwarded-For must not create new buckets when proxy trust is off."""
+    monkeypatch.setattr(settings, "TRUST_PROXY_HEADERS", False)
+    client = _app(limit=1)
+    assert (
+        client.get(
+            f"{settings.API_V1_PREFIX}/ping", headers={"X-Forwarded-For": "1.1.1.1"}
+        ).status_code
+        == 200
+    )
+    # Spoofing a different forwarded IP does not escape the limit.
+    assert (
+        client.get(
+            f"{settings.API_V1_PREFIX}/ping", headers={"X-Forwarded-For": "2.2.2.2"}
+        ).status_code
+        == 429
+    )
+
+
+def test_xff_used_when_proxy_trusted(monkeypatch):
+    """Behind a trusted proxy, each real client IP gets its own budget."""
+    monkeypatch.setattr(settings, "TRUST_PROXY_HEADERS", True)
+    client = _app(limit=1)
+    assert (
+        client.get(
+            f"{settings.API_V1_PREFIX}/ping", headers={"X-Forwarded-For": "1.1.1.1"}
+        ).status_code
+        == 200
+    )
+    # A different real client IP gets an independent bucket.
+    assert (
+        client.get(
+            f"{settings.API_V1_PREFIX}/ping", headers={"X-Forwarded-For": "2.2.2.2"}
+        ).status_code
+        == 200
+    )
+    # Re-using the first client IP is now over budget.
+    assert (
+        client.get(
+            f"{settings.API_V1_PREFIX}/ping", headers={"X-Forwarded-For": "1.1.1.1"}
+        ).status_code
+        == 429
+    )

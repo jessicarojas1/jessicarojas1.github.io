@@ -50,6 +50,7 @@ Secrets Manager** / **Azure Key Vault** — never from committed files.
 | `RATE_LIMIT_ENABLED` | `true` | Config | Enable the in-process per-caller API rate limiter. Set `false` if a fronting gateway/WAF already limits. |
 | `RATE_LIMIT_PER_MINUTE` | `300` | Config | Requests allowed per caller (credential or IP) per window. |
 | `RATE_LIMIT_WINDOW_SECONDS` | `60` | Config | Fixed-window length in seconds. |
+| `TRUST_PROXY_HEADERS` | `false` | Config | Honor `X-Forwarded-For` for the client IP (rate limiting). Enable **only** behind a trusted proxy/LB (Render/ALB/Nginx); leaving it off prevents IP spoofing on direct exposure. |
 
 ### Federated SSO (OIDC / SAML / CAC-PIV)
 
