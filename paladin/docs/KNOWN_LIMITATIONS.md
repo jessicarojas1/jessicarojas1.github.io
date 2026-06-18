@@ -34,10 +34,12 @@ are scope boundaries and operational notes.
 
 - The editor is a lightweight WYSIWYG (contenteditable + sanitised HTML source).
   It is **not real-time collaborative** — there is no presence or operational-
-  transform/CRDT co-editing. Autosave + draft recovery mitigate lost work, and
-  versioning records each save, but two people editing the same page
-  simultaneously can overwrite each other (last save wins; prior versions are
-  retained in history).
+  transform/CRDT co-editing. Concurrent edits are handled defensively rather
+  than merged: autosave + draft recovery guard against lost work, every save is
+  versioned, and **optimistic concurrency** detects when a page changed
+  underneath you — the conflicting save is blocked with a warning (your text is
+  preserved) instead of silently overwriting the other edit. True simultaneous
+  co-editing of one page is still out of scope.
 - **Broken-link detection** covers internal `/pages/N` and `/documents/N` links;
   external URLs are not crawled.
 

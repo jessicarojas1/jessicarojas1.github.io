@@ -311,6 +311,30 @@ class PageController {
         $body   = Security::sanitizeHtml($_POST['body'] ?? '');
         $status = in_array($_POST['status'] ?? $page['status'], ['draft','in_review','published'], true) ? $_POST['status'] : $page['status'];
         $parent = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
+
+        // Optimistic concurrency: if the page advanced since this editor loaded
+        // it, do NOT clobber the other save. Re-render the form with the user's
+        // work intact and a conflict warning; the re-rendered form carries the
+        // now-current version, so a deliberate re-save then succeeds.
+        $baseVersion = isset($_POST['base_version']) ? (int)$_POST['base_version'] : null;
+        if ($baseVersion !== null && $baseVersion !== (int)$page['current_version']) {
+            $who = Database::fetchOne(
+                "SELECT u.name FROM page_versions pv LEFT JOIN users u ON u.id = pv.edited_by
+                 WHERE pv.page_id = ? ORDER BY pv.version DESC LIMIT 1", [$id]
+            )['name'] ?? null;
+            $conflict = ['base' => $baseVersion, 'current' => (int)$page['current_version'], 'who' => $who];
+            Auth::log('page_edit_conflict', 'pages', $id, ['base' => $baseVersion, 'current' => (int)$page['current_version']]);
+            // Rebuild the form context, preserving what the user typed.
+            $page['title'] = $title; $page['body'] = $body;
+            $page['status'] = $status; $page['parent_id'] = $parent;
+            $editing = true;
+            $space   = $this->loadSpace((int)$page['space_id']);
+            $spaces  = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
+            $parents = Database::fetchAll("SELECT id, title FROM pages WHERE space_id=? AND id<>? AND deleted_at IS NULL ORDER BY title", [$page['space_id'], $id]);
+            $templates = [];
+            require PALADIN_ROOT . '/views/pages/form.php';
+            return;
+        }
         $newVersion = (int)$page['current_version'] + 1;
 
         // Scheduled publishing: a future time set on a not-yet-published page.

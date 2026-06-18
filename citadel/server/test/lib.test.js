@@ -303,6 +303,38 @@ test('sarif: emits fixes + partialFingerprints for fixable findings', () => {
   assert.ok(r.fixes && r.fixes[0].artifactChanges[0].replacements[0].insertedContent.text.includes('setSecure(true)'));
   assert.equal(log.runs[0].tool.driver.name, 'CITADEL');
 });
+test('sarif: disposition becomes a SARIF suppression; open findings are not suppressed', () => {
+  global.window = global;
+  const sarif = require('../../js/sarif.js');
+  const log = sarif.fromReport({ findings: [
+    { ruleId: 'r-open', severity: 'high', file: 'A.js', line: 1, snippet: 'a' },
+    { ruleId: 'r-fp', severity: 'high', file: 'B.js', line: 1, snippet: 'b', disposition: 'false-positive' },
+    { ruleId: 'r-accept', severity: 'high', file: 'C.js', line: 1, snippet: 'c', disposition: 'accepted' }
+  ] });
+  const byRule = id => log.runs[0].results.find(r => r.ruleId === id);
+  assert.ok(!byRule('r-open').suppressions, 'open -> no suppression');
+  assert.equal(byRule('r-fp').suppressions[0].status, 'rejected');
+  assert.equal(byRule('r-fp').suppressions[0].kind, 'external');
+  assert.equal(byRule('r-accept').suppressions[0].status, 'accepted');
+});
+
+/* ---------------- Regression guards from the functionality audit ---------------- */
+test('worker ruleset stays in parity with index.html (same rule packs)', () => {
+  const fsx = require('fs'), px = require('path');
+  const idx = fsx.readFileSync(px.resolve(__dirname, '../../index.html'), 'utf8');
+  const wrk = fsx.readFileSync(px.resolve(__dirname, '../../js/worker.js'), 'utf8');
+  const packs = new Set((idx.match(/js\/(rules[\w-]*)\.js/g) || []).map(s => s.replace('js/', '').replace('.js', '')));
+  assert.ok(packs.size >= 7, 'index.html loads the rule packs');
+  for (const p of packs) assert.ok(wrk.indexOf(p + '.js') >= 0, 'worker.js missing rule pack ' + p);
+});
+test('scoring: unknown / missing severity never yields NaN', () => {
+  const C = loadEngine();
+  const sc = C.scanner.score(
+    [{ category: 'injection' }, { severity: 'weird', category: 'xss' }],
+    { maintainability: 80, commentRatio: 6, loc: 1000 });
+  assert.ok(Number.isFinite(sc.security) && Number.isFinite(sc.overall) && Number.isFinite(sc.risk), 'no NaN scores');
+  assert.ok(['A', 'B', 'C', 'D', 'E', 'F'].indexOf(sc.grade) >= 0);
+});
 
 /* ---------------- License policy (via the browser engine) ---------------- */
 test('license policy: tiers denied/review/allowed', () => {
