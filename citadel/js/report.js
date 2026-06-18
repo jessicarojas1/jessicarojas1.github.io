@@ -208,6 +208,17 @@
     const shown = showSuppressed ? all : all.filter(f => !sup.isSuppressed(f));
     r._shown = shown;
     const supN = all.length - all.filter(f => !sup.isSuppressed(f)).length;
+    // Disposition summary across all findings (open vs. each triaged state).
+    const dispoOf = (CITADEL.disposition && CITADEL.disposition.of) ? CITADEL.disposition.of : () => 'open';
+    const dLabel = (CITADEL.disposition && CITADEL.disposition.label) || {};
+    const dCount = { open: 0, accepted: 0, 'false-positive': 0, remediated: 0, na: 0 };
+    all.forEach(f => { const d = dispoOf(f); if (dCount[d] !== undefined) dCount[d]++; });
+    const dColor = { open: 'text-bg-secondary', accepted: 'text-bg-warning', 'false-positive': 'text-bg-light text-dark', remediated: 'text-bg-success', na: 'text-bg-light text-dark' };
+    const dispoSummary = supN > 0
+      ? '<div class="d-flex flex-wrap gap-2 mb-2 align-items-center small"><span class="text-body-secondary">Triage:</span>'
+        + Object.keys(dCount).filter(k => dCount[k] > 0).map(k => `<span class="badge ${dColor[k]}">${dCount[k]} ${esc(dLabel[k] || k)}</span>`).join('')
+        + '</div>'
+      : '';
     const filterBtns = ['all'].concat(SEV_ORDER).map(sv =>
       `<button class="btn btn-sm ${sv === 'all' ? 'btn-primary' : 'btn-outline-secondary'} finding-filter" data-sev="${sv}">${sv === 'all' ? 'All' : c(sv)} ${sv === 'all' ? '' : '(' + (r.scoring.sev[sv] || 0) + ')'}</button>`
     ).join(' ');
@@ -286,6 +297,7 @@
         <button class="btn btn-sm btn-link p-0 ms-1" id="fnd-reset">Reset</button>
       </div>`;
     $('tab-findings').innerHTML = `
+      ${dispoSummary}
       <div class="d-flex flex-wrap gap-2 mb-2 align-items-center" id="finding-filters">${filterBtns}${supToggle}</div>
       ${filterBar2}
       <div id="findings-list">${rows}</div>`;
