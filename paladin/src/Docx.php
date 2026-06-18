@@ -51,6 +51,42 @@ final class Docx {
         return self::zip($document);
     }
 
+    /**
+     * Build a multi-section .docx (e.g. a whole space): a cover + linked table
+     * of contents, then each section starting on a new page.
+     * @param array<int,array{title:string,html:string,meta?:string}> $sections
+     * @param array<string,string> $meta optional cover metadata
+     */
+    public static function fromSections(string $title, array $sections, array $meta = []): string {
+        $body = self::para(self::run($title, true, false, 40), ['sz' => 40, 'spaceAfter' => 120]);
+        if ($meta) {
+            foreach ($meta as $k => $v) {
+                $body .= self::para(self::run((string)$k . ': ', true, false, 18) . self::run((string)$v, false, false, 18));
+            }
+        }
+        // Contents.
+        $body .= self::para(self::run('Contents', true, false, 28), ['spaceBefore' => 160, 'spaceAfter' => 80]);
+        $i = 0;
+        foreach ($sections as $s) {
+            $i++;
+            $body .= self::para(self::run($i . '. ' . (string)($s['title'] ?? 'Untitled')), ['indent' => 360]);
+        }
+        // Sections, each on its own page.
+        foreach ($sections as $s) {
+            $body .= self::para(self::run((string)($s['title'] ?? 'Untitled'), true, false, 36), ['sz' => 36, 'pageBreakBefore' => true, 'spaceAfter' => 80]);
+            if (!empty($s['meta'])) { $body .= self::para(self::run((string)$s['meta'], false, true, 18)); }
+            $body .= self::convert((string)($s['html'] ?? ''));
+        }
+
+        $document = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<w:document xmlns:w="' . self::W_NS . '"><w:body>'
+            . $body
+            . '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>'
+            . '<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr>'
+            . '</w:body></w:document>';
+        return self::zip($document);
+    }
+
     /** Convert the HTML body to a string of block-level WordprocessingML. */
     private static function convert(string $html): string {
         if (trim($html) === '') { return self::para(''); }
@@ -167,6 +203,7 @@ final class Docx {
     /** A paragraph wrapping run XML, with optional properties. */
     private static function para(string $runs, array $opts = []): string {
         $ppr = '';
+        if (!empty($opts['pageBreakBefore'])) { $ppr .= '<w:pageBreakBefore/>'; }
         if (!empty($opts['indent']))      { $ppr .= '<w:ind w:left="' . (int)$opts['indent'] . '"/>'; }
         $sb = $opts['spaceBefore'] ?? null; $sa = $opts['spaceAfter'] ?? null;
         if ($sb !== null || $sa !== null) {
