@@ -115,8 +115,20 @@ Errors use a consistent envelope with appropriate HTTP status:
 - `POST` creation endpoints accept an optional `Idempotency-Key` header to safely retry.
 
 ### 1.9 Rate limiting
-Per-principal limits are applied at the gateway; responses include `X-RateLimit-Remaining` and
-`Retry-After` on `429`.
+The API enforces an in-process **fixed-window** rate limit per caller (defense-in-depth; a fronting
+gateway/WAF should also limit in a horizontally scaled deployment). Callers are bucketed by
+credential when one is present (so each API token / session gets its own budget) and otherwise by
+source IP (honoring the first `X-Forwarded-For` hop). Every API response carries:
+
+| Header | Meaning |
+|--------|---------|
+| `X-RateLimit-Limit` | Requests allowed per window |
+| `X-RateLimit-Remaining` | Requests left in the current window |
+| `X-RateLimit-Reset` | Seconds until the window resets |
+
+Exceeding the budget returns `429 Too Many Requests` with a `Retry-After` header. `/health` and the
+served SPA are exempt. Tunable via `RATE_LIMIT_ENABLED`, `RATE_LIMIT_PER_MINUTE`, and
+`RATE_LIMIT_WINDOW_SECONDS` (see the configuration reference).
 
 ### 1.10 Audit & signatures
 Every mutating call is audited automatically. Signature-bearing endpoints (see catalog) require a

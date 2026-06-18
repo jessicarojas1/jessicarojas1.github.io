@@ -17,7 +17,11 @@ from app.core.config import settings
 from app.core.database import engine
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
-from app.core.middleware import RequestContextMiddleware, SecurityHeadersMiddleware
+from app.core.middleware import (
+    RateLimitMiddleware,
+    RequestContextMiddleware,
+    SecurityHeadersMiddleware,
+)
 from app.services import scheduler
 
 
@@ -62,6 +66,14 @@ def create_app() -> FastAPI:
 
     # Middleware (executed bottom-up: security headers wrap, context is outermost).
     app.add_middleware(SecurityHeadersMiddleware)
+    if settings.RATE_LIMIT_ENABLED:
+        # Added after SecurityHeaders but before RequestContext so the limiter
+        # runs with a request id already assigned (for the 429 problem body).
+        app.add_middleware(
+            RateLimitMiddleware,
+            limit=settings.RATE_LIMIT_PER_MINUTE,
+            window_seconds=settings.RATE_LIMIT_WINDOW_SECONDS,
+        )
     app.add_middleware(RequestContextMiddleware)
     app.add_middleware(
         CORSMiddleware,

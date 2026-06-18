@@ -51,6 +51,14 @@ class Settings(BaseSettings):
     LOGIN_MAX_FAILURES: int = 10
     LOGIN_FAILURE_WINDOW_MINUTES: int = 15
 
+    # Global API rate limiting (in-process fixed-window per client principal/IP).
+    # Generous defaults so normal interactive use is never throttled; tightens
+    # abusive/runaway programmatic traffic. Disable per-deployment if a fronting
+    # gateway/WAF already enforces limits.
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_PER_MINUTE: int = 300
+    RATE_LIMIT_WINDOW_SECONDS: int = 60
+
     # OIDC / federal SSO (stub)
     OIDC_ISSUER: str = ""
     OIDC_CLIENT_ID: str = ""
