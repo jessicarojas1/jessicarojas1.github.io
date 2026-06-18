@@ -28,7 +28,9 @@ const report = {
     { ruleId: 'java-cookie-insecure', name: 'Cookie marked non-secure', category: 'session', severity: 'medium',
       cwe: 'CWE-614', file: 'src/A.java', line: 5, lineText: 'c.setSecure(false);', snippet: 'c.setSecure(false);', source: 'heuristic' },
     { ruleId: 'sql-concat', name: 'SQL built by concatenation', category: 'injection', severity: 'high',
-      cwe: 'CWE-89', file: 'src/B.java', line: 12, snippet: 'q = "SELECT..." + id', source: 'semgrep' }
+      cwe: 'CWE-89', file: 'src/B.java', line: 12, snippet: 'q = "SELECT..." + id', source: 'semgrep' },
+    { ruleId: 'eval-use', name: 'Dynamic eval', category: 'injection', severity: 'medium',
+      cwe: 'CWE-95', file: 'src/C.js', line: 3, snippet: 'eval(x)', source: 'heuristic', disposition: 'false-positive' }
   ]
 };
 
@@ -55,5 +57,15 @@ const fixed = run.results.find(r => r.ruleId === 'java-cookie-insecure');
 ck(fixed && Array.isArray(fixed.fixes) && fixed.fixes[0]
   && fixed.fixes[0].artifactChanges[0].replacements[0].insertedContent.text.indexOf('setSecure(true)') >= 0,
   'deterministic fix emitted as a valid SARIF fixes[] object');
+
+// A false-positive disposition must surface as a SARIF suppression (status rejected)
+// so code-scanning treats it as dismissed.
+const supp = run.results.find(r => r.ruleId === 'eval-use');
+ck(supp && Array.isArray(supp.suppressions) && supp.suppressions[0]
+  && supp.suppressions[0].kind === 'external' && supp.suppressions[0].status === 'rejected',
+  'disposition -> SARIF suppression (false-positive => rejected)');
+// An open finding must NOT be suppressed.
+ck(run.results.find(r => r.ruleId === 'sql-concat') && !run.results.find(r => r.ruleId === 'sql-concat').suppressions,
+  'open finding carries no suppression');
 
 console.log('SARIF validation OK — ' + checks.length + ' checks passed (' + run.results.length + ' results).');

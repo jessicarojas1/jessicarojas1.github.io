@@ -78,6 +78,13 @@
       } else if (fx) {
         r.properties.suggestedFix = { title: fx.title, replacement: fx.replacement };
       }
+      // Reflect the user's triage as a SARIF suppression so code-scanning shows
+      // dismissed findings as dismissed (and counts only OPEN ones).
+      const dispo = dispositionOf(f);
+      if (SUPP[dispo]) {
+        r.suppressions = [{ kind: 'external', status: SUPP[dispo].status, justification: SUPP[dispo].justification }];
+        r.properties.disposition = dispo;
+      }
       return r;
     });
 
@@ -110,6 +117,19 @@
     return m ? `https://cwe.mitre.org/data/definitions/${m[0]}.html` : 'https://cwe.mitre.org/';
   }
 
+  // Map a CITADEL disposition to a SARIF suppression. accepted/remediated/na are
+  // "accepted" (a real but dismissed finding); false-positive is "rejected".
+  const SUPP = {
+    accepted: { status: 'accepted', justification: 'Accepted risk (CITADEL triage)' },
+    'false-positive': { status: 'rejected', justification: 'Marked false positive (CITADEL triage)' },
+    remediated: { status: 'accepted', justification: 'Marked remediated (CITADEL triage)' },
+    na: { status: 'accepted', justification: 'Not applicable (CITADEL triage)' }
+  };
+  // Live disposition (browser store) or the finding's own field; default 'open'.
+  function dispositionOf(f) {
+    try { if (CITADEL.disposition && CITADEL.disposition.of) return CITADEL.disposition.of(f); } catch (e) {}
+    return f.disposition || 'open';
+  }
   // Use the remediation module if it's loaded (it may not be in minimal Node
   // contexts); never let a missing dependency break SARIF generation.
   function remediateFix(f) {
