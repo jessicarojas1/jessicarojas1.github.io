@@ -7,7 +7,6 @@
   'use strict';
   const CITADEL = root.CITADEL = root.CITADEL || {};
   const HKEY = 'citadel.history.v1';
-  const SKEY = 'citadel.suppress.v1';
   const MAX = 25;
 
   function read(key) { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { return []; } }
@@ -39,7 +38,6 @@
     const l = read(HKEY);
     const a = l.find(x => x.id === aId), b = l.find(x => x.id === bId);
     if (!a || !b) return null;
-    const d = (k) => (a[k] || 0) - (b[k] || 0);
     return {
       a, b,
       delta: {

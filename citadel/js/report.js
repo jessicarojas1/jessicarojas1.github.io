@@ -1040,8 +1040,6 @@ ul{padding-left:1.1rem}</style></head>
     download('citadel-report.html', html, 'text/html');
   }
 
-  function setAi(on) { aiOn = !!on; }
-
   /* ---------- Risk hotspots (riskiest files) ---------- */
   const RISK_W = { critical: 25, high: 10, medium: 4, low: 1, info: 0 };
   function hotspots(r) {

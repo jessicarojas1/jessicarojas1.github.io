@@ -39,6 +39,10 @@ jobs:
       - name: Syntax check (node --check) server + js
         run: bash citadel/scripts/ci-node-check.sh
 
+      - name: Lint (ESLint — correctness rules over js + server + scripts)
+        working-directory: citadel/server
+        run: npm run lint
+
       - name: Smoke test
         working-directory: citadel/server
         run: npm test

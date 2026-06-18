@@ -2,11 +2,12 @@
   "name": "citadel-server",
   "version": "1.0.0",
   "private": true,
-  "description": "CITADEL deep-scan backend \u2014 runs real open-source security scanners (Semgrep, Bandit, Trivy, Syft, Grype, Gitleaks, ClamAV) and serves the CITADEL SPA.",
+  "description": "CITADEL deep-scan backend — runs real open-source security scanners (Semgrep, Bandit, Trivy, Syft, Grype, Gitleaks, ClamAV) and serves the CITADEL SPA.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/smoke.js && node --test test/lib.test.js test/api.test.js"
+    "test": "node test/smoke.js && node --test test/lib.test.js test/api.test.js",
+    "lint": "cd .. && server/node_modules/.bin/eslint js server scripts"
   },
   "engines": {
     "node": ">=18"
@@ -23,5 +24,9 @@
     "@opentelemetry/auto-instrumentations-node": "^0.76.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.218.0",
     "@opentelemetry/sdk-node": "^0.218.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "globals": "^17.6.0"
   }
 }
