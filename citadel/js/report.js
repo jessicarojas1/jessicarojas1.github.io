@@ -281,8 +281,8 @@
     shown.forEach(f => { const m = CITADEL.frameworks.MAP[f.category]; if (m) Object.keys(m).forEach(k => fwSet.add(k)); });
     const fwName = id => { const fw = CITADEL.frameworks.CATALOG.find(x => x.id === id); return fw ? (fw.short || fw.name) : id; };
     const frameworks = [...fwSet].sort();
-    const dStates = (CITADEL.disposition && CITADEL.disposition.states) || [];
-    const dLabel = (CITADEL.disposition && CITADEL.disposition.label) || {};
+    const dispoStates = (CITADEL.disposition && CITADEL.disposition.states) || [];
+    const dispoLabel = (CITADEL.disposition && CITADEL.disposition.label) || {};
     const filterBar2 = `
       <div class="d-flex flex-wrap gap-2 align-items-center mb-3 finding-filters2">
         <input type="search" class="form-control form-control-sm finding-q" id="fnd-search" placeholder="Search name, file, CWE…" style="max-width:220px" aria-label="Search findings">
@@ -292,7 +292,7 @@
         <select class="form-select form-select-sm w-auto finding-flt" id="fnd-framework">${opt('', 'All frameworks')}${frameworks.map(s => opt(s, fwName(s))).join('')}</select>
         <select class="form-select form-select-sm w-auto finding-flt" id="fnd-fix">${opt('', 'Fix: any')}${opt('1', 'Has suggested fix')}${opt('0', 'No fix')}</select>
         <select class="form-select form-select-sm w-auto finding-flt" id="fnd-taint">${opt('', 'Taint: any')}${opt('1', 'Tainted only')}</select>
-        <select class="form-select form-select-sm w-auto finding-flt" id="fnd-dispo">${opt('', 'All dispositions')}${dStates.map(s => opt(s, dLabel[s] || s)).join('')}</select>
+        <select class="form-select form-select-sm w-auto finding-flt" id="fnd-dispo">${opt('', 'All dispositions')}${dispoStates.map(s => opt(s, dispoLabel[s] || s)).join('')}</select>
         <span class="small text-body-secondary" id="fnd-visible-count"></span>
         <button class="btn btn-sm btn-link p-0 ms-1" id="fnd-reset">Reset</button>
       </div>`;
