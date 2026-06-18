@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError
-from app.core.rbac import Permission, require_permission
+from app.core.rbac import Permission, Role, require_permission
 from app.models.quality_objective import (
     ObjectiveStatus,
     QualityObjective,
@@ -30,12 +30,15 @@ from app.schemas.quality_objective import (
     QualityObjectiveUpdate,
     attainment_pct,
 )
-from app.services import numbering
+from app.services import notifications, numbering
 
 router = APIRouter(prefix="/quality-objectives", tags=["quality-objectives"])
 
 _READ = require_permission(Permission.QOBJECTIVE_READ)
 _WRITE = require_permission(Permission.QOBJECTIVE_WRITE)
+
+# Attainment below this percent (of target) flags an objective as at-risk.
+_AT_RISK_THRESHOLD = 85.0
 
 
 def _owner_name(db: Session, owner_id: int | None) -> str | None:
@@ -175,6 +178,50 @@ def add_measurement(
     # Recording an actual updates the objective's current value (latest reading).
     obj.current_value = body.value
     obj.updated_by = actor.id
+
+    # Re-derive RAG status from attainment; alert the owner/quality on a newly
+    # at-risk objective so it gets attention before the target date.
+    was_at_risk = obj.status == ObjectiveStatus.AT_RISK
+    pct = attainment_pct(obj.current_value, obj.target_value, obj.direction)
+    if pct is not None:
+        if pct >= 100:
+            obj.status = ObjectiveStatus.MET
+        elif pct < _AT_RISK_THRESHOLD:
+            obj.status = ObjectiveStatus.AT_RISK
+        elif obj.status in (ObjectiveStatus.AT_RISK, ObjectiveStatus.MET):
+            obj.status = ObjectiveStatus.ACTIVE
     db.commit()
     db.refresh(m)
+
+    if pct is not None and pct < _AT_RISK_THRESHOLD and not was_at_risk:
+        _notify_at_risk(db, obj, pct)
+        db.commit()
     return m
+
+
+def _notify_at_risk(db: Session, obj: QualityObjective, pct: float) -> None:
+    """Notify the objective owner (or quality team) that it has fallen at-risk."""
+    title = f"Quality objective at risk: {obj.objective_number}"
+    body = (
+        f"{obj.title} — {pct}% of target ({obj.current_value}/{obj.target_value}{obj.unit or ''})."
+    )
+    if obj.owner_id is not None:
+        notifications.notify_user(
+            db,
+            user_id=obj.owner_id,
+            title=title,
+            body=body,
+            category="quality_objective",
+            entity_type="quality_objective",
+            entity_id=obj.id,
+        )
+    else:
+        notifications.notify_roles(
+            db,
+            roles=[Role.QUALITY_MANAGER, Role.QUALITY_ENGINEER],
+            title=title,
+            body=body,
+            category="quality_objective",
+            entity_type="quality_objective",
+            entity_id=obj.id,
+        )
