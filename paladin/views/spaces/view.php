@@ -51,7 +51,7 @@ function renderTree(array $byParent, $parent, $depth = 0) {
     <a href="/spaces/<?= (int)$space['id'] ?>/blog" class="btn btn-ghost"><i class="bi bi-newspaper"></i> Blog</a>
     <a href="/spaces/<?= (int)$space['id'] ?>/export" class="btn btn-ghost" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> Export</a>
     <a href="/spaces/<?= (int)$space['id'] ?>/export-zip" class="btn btn-ghost"><i class="bi bi-file-zip"></i> PDF ZIP</a>
-    <a href="/spaces/<?= (int)$space['id'] ?>/export-word" class="btn btn-ghost"><i class="bi bi-file-earmark-word"></i> Word</a>
+    <a href="/spaces/<?= (int)$space['id'] ?>/export-word" class="btn btn-ghost"><i class="bi bi-file-earmark-word-fill"></i> Word (.docx)</a>
     <?php if (Auth::can('page.delete')): ?><a href="/spaces/<?= (int)$space['id'] ?>/trash" class="btn btn-ghost"><i class="bi bi-trash"></i> Trash</a><?php endif; ?>
     <?php if (Auth::can('space.edit')): ?><a href="/spaces/<?= (int)$space['id'] ?>/edit" class="btn btn-ghost"><i class="bi bi-pencil"></i> Edit</a><?php endif; ?>
   </div>

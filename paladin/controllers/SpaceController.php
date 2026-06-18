@@ -44,38 +44,28 @@ class SpaceController {
         $pages = array_values(array_filter($pages, static fn($p) => PageAccess::canView(array_merge($p, ['space_id' => $id]))));
         if (!$pages) { $_SESSION['flash_error'] = 'No published pages to export.'; header('Location: /spaces/' . $id); return; }
 
-        // Cover + table of contents (each entry links to its in-document anchor).
-        $toc = ''; $sections = '';
-        foreach ($pages as $i => $p) {
-            $anchor = 'pg' . (int)$p['id'];
-            $toc .= '<li><a href="#' . $anchor . '">' . Security::h((string)$p['title']) . '</a></li>';
-            $sections .= ($i > 0 ? '<br clear="all" style="page-break-before:always">' : '')
-                       . '<h1><a name="' . $anchor . '"></a>' . Security::h((string)$p['title']) . '</h1>'
-                       . '<p class="upd">Last updated ' . Security::h(date('M j, Y', strtotime((string)$p['updated_at']))) . '</p>'
-                       . '<div>' . (string)$p['body'] . '</div>';
+        // One native .docx with a cover + contents, each page on its own page.
+        $sections = [];
+        foreach ($pages as $p) {
+            $sections[] = [
+                'title' => (string)$p['title'],
+                'meta'  => 'Last updated ' . date('M j, Y', strtotime((string)$p['updated_at'])),
+                'html'  => (string)$p['body'],
+            ];
         }
-        $title = (string)$space['name'];
-        $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
-              . 'xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
-              . '<head><meta charset="utf-8"><title>' . Security::h($title) . '</title>'
-              . '<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#222}'
-              . 'h1{font-size:20pt} h2{font-size:15pt} h3{font-size:13pt}'
-              . 'table{border-collapse:collapse} td,th{border:1px solid #bbb;padding:5px}'
-              . '.upd{color:#777;font-size:9pt;margin:0 0 14px}</style></head><body>'
-              . '<h1>' . Security::h($title) . '</h1>'
-              . '<p class="upd">Space export · ' . count($pages) . ' page(s) · ' . Security::h(date('M j, Y g:ia')) . '</p>'
-              . '<h2>Contents</h2><ol>' . $toc . '</ol>'
-              . '<br clear="all" style="page-break-before:always">' . $sections
-              . '</body></html>';
+        $bytes = Docx::fromSections((string)$space['name'], $sections, [
+            'Space export' => count($pages) . ' page(s)',
+            'Exported'     => date('M j, Y g:ia'),
+        ]);
 
         Auth::log('export_space_word', 'spaces', $id, ['pages' => count($pages)]);
         $fname = preg_replace('/[^A-Za-z0-9._-]+/', '-', 'space-' . (string)($space['space_key'] ?? $id));
         $fname = trim((string)$fname, '-') ?: ('space-' . $id);
-        header('Content-Type: application/msword; charset=utf-8');
-        header('Content-Disposition: attachment; filename="' . $fname . '.doc"');
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Disposition: attachment; filename="' . $fname . '.docx"');
         header('X-Content-Type-Options: nosniff');
-        header('Content-Length: ' . strlen($html));
-        echo $html;
+        header('Content-Length: ' . strlen($bytes));
+        echo $bytes;
     }
 
     /** Export every viewable published page in the space as a ZIP of PDFs. */
