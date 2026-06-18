@@ -754,9 +754,14 @@ CREATE TABLE IF NOT EXISTS attachments (
     file_size     INTEGER,
     file_hash     VARCHAR(64),
     description   TEXT,
+    version       INTEGER NOT NULL DEFAULT 1,
+    is_current    BOOLEAN NOT NULL DEFAULT TRUE,
+    replaced_at   TIMESTAMP,
     uploaded_by   INTEGER REFERENCES users(id),
     created_at    TIMESTAMP NOT NULL DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_attachments_current ON attachments(entity_type, entity_id) WHERE is_current = TRUE;
+CREATE INDEX IF NOT EXISTS idx_attachments_chain ON attachments(entity_type, entity_id, original_name);
 CREATE INDEX IF NOT EXISTS idx_attachments_entity ON attachments(entity_type, entity_id);
 
 -- Editor media (uploaded images embedded in rich content, served via /media/{id})

@@ -203,8 +203,18 @@ class PageController {
         $allTags = Database::fetchAll("SELECT id, name, color FROM tags ORDER BY name");
         $attachments = Database::fetchAll(
             "SELECT a.*, u.name AS uploader FROM attachments a LEFT JOIN users u ON u.id=a.uploaded_by
-             WHERE a.entity_type='page' AND a.entity_id=? ORDER BY a.created_at DESC", [$id]
+             WHERE a.entity_type='page' AND a.entity_id=? AND a.is_current=TRUE ORDER BY a.created_at DESC", [$id]
         );
+        // Superseded versions, grouped by filename, for the per-attachment history.
+        $attachmentHistory = [];
+        foreach (Database::fetchAll(
+            "SELECT a.id, a.original_name, a.version, a.file_size, a.created_at, u.name AS uploader
+             FROM attachments a LEFT JOIN users u ON u.id=a.uploaded_by
+             WHERE a.entity_type='page' AND a.entity_id=? AND a.is_current=FALSE
+             ORDER BY a.version DESC", [$id]
+        ) as $old) {
+            $attachmentHistory[$old['original_name']][] = $old;
+        }
         $wfStatus = Workflow::status('page', $id);
         $wfTransitions = $wfStatus ? Workflow::transitions((int)$wfStatus['template_id'], (int)$wfStatus['state_id']) : [];
         $wfHistory = Workflow::history('page', $id);
@@ -251,15 +261,29 @@ class PageController {
         if (empty($_FILES['file']['name'])) { $_SESSION['flash_error'] = 'Choose a file to attach.'; header('Location: /pages/' . $id); return; }
         $up = Upload::handle($_FILES['file'], 'uploads/attachments');
         if (!$up['ok']) { $_SESSION['flash_error'] = $up['error']; header('Location: /pages/' . $id); return; }
+
+        // Versioning: a re-upload of the same filename supersedes the current one.
+        $prev = Database::fetchOne(
+            "SELECT id, version FROM attachments
+             WHERE entity_type='page' AND entity_id=? AND original_name=? AND is_current=TRUE
+             ORDER BY version DESC LIMIT 1",
+            [$id, $up['name']]
+        );
+        $version = 1;
+        if ($prev) {
+            Database::query("UPDATE attachments SET is_current=FALSE, replaced_at=NOW() WHERE id=?", [(int)$prev['id']]);
+            $version = (int)$prev['version'] + 1;
+        }
         Database::insert('attachments', [
             'entity_type' => 'page', 'entity_id' => $id,
             'original_name' => $up['name'], 'stored_name' => $up['key'], 'mime_type' => $up['mime'],
             'file_size' => $up['size'], 'file_hash' => $up['hash'],
             'description' => Security::sanitizeInput($_POST['description'] ?? '') ?: null,
+            'version' => $version, 'is_current' => 't',
             'uploaded_by' => Auth::id(),
         ]);
-        Auth::log('attach_page', 'pages', $id);
-        $_SESSION['flash_success'] = 'Attachment uploaded.';
+        Auth::log('attach_page', 'pages', $id, ['name' => $up['name'], 'version' => $version]);
+        $_SESSION['flash_success'] = $version > 1 ? "New version (v{$version}) uploaded." : 'Attachment uploaded.';
         header('Location: /pages/' . $id);
     }
 
