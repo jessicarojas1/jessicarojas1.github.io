@@ -300,7 +300,8 @@
       ${dispoSummary}
       <div class="d-flex flex-wrap gap-2 mb-2 align-items-center" id="finding-filters">${filterBtns}${supToggle}</div>
       ${filterBar2}
-      <div id="findings-list">${rows}</div>`;
+      <div id="findings-list">${rows}</div>
+      <div id="fnd-no-match" class="empty-state d-none"><i class="bi bi-funnel"></i><p>No findings match these filters. <button class="btn btn-sm btn-link p-0 align-baseline" id="fnd-reset2">Clear filters</button></p></div>`;
     applyFindingFilters();
   }
   // Multi-dimension filter over the rendered finding rows (no re-render): severity
@@ -329,6 +330,7 @@
       if (ok) visible++;
     });
     const cnt = $('fnd-visible-count'); if (cnt) cnt.textContent = visible + ' of ' + total + ' shown';
+    const noMatch = $('fnd-no-match'); if (noMatch) noMatch.classList.toggle('d-none', !(total > 0 && visible === 0));
   }
   function resetFindingFilters() {
     ['fnd-search', 'fnd-conf', 'fnd-kind', 'fnd-scanner', 'fnd-framework', 'fnd-fix', 'fnd-taint', 'fnd-dispo'].forEach(id => { const el = $(id); if (el) el.value = ''; });

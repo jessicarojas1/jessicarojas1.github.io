@@ -583,7 +583,7 @@
       if (CITADEL.report.applyFilters) CITADEL.report.applyFilters();
       return;
     }
-    if (e.target.closest('#fnd-reset')) { if (CITADEL.report.resetFilters) CITADEL.report.resetFilters(); return; }
+    if (e.target.closest('#fnd-reset') || e.target.closest('#fnd-reset2')) { if (CITADEL.report.resetFilters) CITADEL.report.resetFilters(); return; }
 
     // Exports
     if (e.target.closest('#exp-json')) return CITADEL.report.exportJson();
