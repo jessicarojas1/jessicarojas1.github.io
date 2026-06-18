@@ -22,6 +22,7 @@ Level 2 assessments**.
 | [architecture/data-model.md](architecture/data-model.md) | Entity-relationship overview, table-by-table data dictionary, record numbering scheme |
 | [architecture/security-architecture.md](architecture/security-architecture.md) | AuthN/AuthZ, RBAC matrix, encryption, key management, audit log, e-signatures, network segmentation, FIPS |
 | [architecture/api-reference.md](architecture/api-reference.md) | REST resource catalog, auth, pagination/filtering conventions, example requests & responses |
+| [architecture/PERMISSIONS_MODEL.md](architecture/PERMISSIONS_MODEL.md) | Roles, permission levels, page/granular/per-record layers, role defaults vs. explicit grants & denies |
 
 ### Compliance
 | Document | Description |
@@ -34,6 +35,7 @@ Level 2 assessments**.
 | [compliance/itar-ear-export-control.md](compliance/itar-ear-export-control.md) | ITAR/EAR export-control handling, data residency, segregation |
 | [compliance/dfars-252204-7012.md](compliance/dfars-252204-7012.md) | DFARS 252.204-7012 safeguarding & incident reporting coverage |
 | [compliance/21-cfr-part-11.md](compliance/21-cfr-part-11.md) | Electronic records & electronic signatures conformance |
+| [compliance/ELECTRONIC_SIGNATURES.md](compliance/ELECTRONIC_SIGNATURES.md) | How e-signatures are captured, bound to records, and re-authenticated |
 | [compliance/audit-readiness-checklist.md](compliance/audit-readiness-checklist.md) | AS9100 certification + CMMC assessment readiness checklist |
 
 ### Deployment & Operations
@@ -44,6 +46,7 @@ Level 2 assessments**.
 | [deployment/azure-gov-runbook.md](deployment/azure-gov-runbook.md) | Azure Government specifics |
 | [deployment/operations-runbook.md](deployment/operations-runbook.md) | Backups, DR/RPO-RTO, monitoring/alerts, scaling, patching, incident response, log retention |
 | [deployment/configuration-reference.md](deployment/configuration-reference.md) | Full environment variable reference with sensitivity classification |
+| [deployment/DEMO_GUIDE.md](deployment/DEMO_GUIDE.md) | Standing up a demo, what sample data is seeded, and how to sign in |
 
 ### User & Administration
 | Document | Description |
@@ -55,6 +58,7 @@ Level 2 assessments**.
 | Document | Description |
 |----------|-------------|
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Developer workflow, branching, coding standards, security review gate |
+| [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md) | Intentional stubs, single-node constraints, and production recommendations |
 | [CHANGELOG.md](CHANGELOG.md) | Release history starting with v1.0.0 |
 
 ---
