@@ -50,3 +50,25 @@ export function useMarkAllRead() {
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   });
 }
+
+export interface NotificationPrefs {
+  muted_categories: string[];
+}
+
+export function useNotificationPrefs() {
+  return useQuery<NotificationPrefs>({
+    queryKey: ['notifications', 'preferences'],
+    queryFn: async () => (await api.get<NotificationPrefs>('/notifications/preferences')).data,
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useSaveNotificationPrefs() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (muted_categories: string[]) =>
+      (await api.put<NotificationPrefs>('/notifications/preferences', { muted_categories })).data,
+    onSuccess: (data) =>
+      qc.setQueryData(['notifications', 'preferences'], data),
+  });
+}

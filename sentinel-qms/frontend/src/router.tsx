@@ -24,6 +24,7 @@ const AuditProgramsPage = lazy(() => import('./pages/auditPrograms/AuditPrograms
 const AuditProgramDetailPage = lazy(() => import('./pages/auditPrograms/AuditProgramDetailPage'));
 const DocumentationPage = lazy(() => import('./pages/docs/DocumentationPage'));
 const SharedWithMePage = lazy(() => import('./pages/SharedWithMePage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 const NcrListPage = lazy(() => import('./pages/nonconformances/NcrListPage'));
@@ -117,6 +118,7 @@ export function AppRouter() {
             element={<Guard page="dashboard" capability="ncr.read"><ExecutiveDashboardPage /></Guard>}
           />
           <Route path="shared" element={<Guard><SharedWithMePage /></Guard>} />
+          <Route path="profile" element={<Guard><ProfilePage /></Guard>} />
           <Route path="standards">
             <Route index element={<Guard page="standards" capability="ncr.read"><StandardsPage /></Guard>} />
             <Route path=":id" element={<Guard page="standards" capability="ncr.read"><StandardDetailPage /></Guard>} />
