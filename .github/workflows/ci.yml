@@ -166,6 +166,10 @@ jobs:
         working-directory: aegis
         run: php scripts/check_route_auth.php
 
+      - name: CSRF coverage (POST routes)
+        working-directory: aegis
+        run: php scripts/check_csrf.php
+
   # ---------------------------------------------------------------------------
   # Python compile-check (py_compile) over the Streamlit dashboard, the Sentinel
   # FastAPI backend, and the other small Python apps. No heavy deps installed —
