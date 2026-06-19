@@ -28,7 +28,19 @@ function sslOption(url) {
   if (!wantSsl) return false;
   let ca = process.env.PGSSL_CA || null;
   if (ca && !/-----BEGIN/.test(ca)) { try { ca = fs.readFileSync(ca, 'utf8'); } catch (e) { ca = null; } }
-  const verify = process.env.PGSSL_VERIFY === '1' || !!ca;
+  // Secure-by-default: VERIFY the server certificate unless explicitly disabled.
+  // Known managed providers (Render/Supabase/RDS) often present chains that don't
+  // resolve against the system trust store, so they stay permissive (with a prod
+  // warning) to avoid breaking existing deployments — supply PGSSL_CA / set
+  // PGSSL_VERIFY=1 to verify them too.
+  const managed = /\.(render\.com|supabase\.co|rds\.amazonaws\.com)/i.test(url);
+  let verify;
+  if (process.env.PGSSL_VERIFY === '1' || !!ca) verify = true;
+  else if (process.env.PGSSL_VERIFY === '0') verify = false;
+  else verify = !managed;
+  if (!verify && process.env.NODE_ENV === 'production') {
+    console.warn('[citadel] SECURITY: Postgres TLS certificate verification is OFF (managed-provider default). Supply PGSSL_CA or set PGSSL_VERIFY=1 to verify the server certificate (NIST SC-8).');
+  }
   const opt = { rejectUnauthorized: verify };
   if (ca) opt.ca = ca;
   return opt;

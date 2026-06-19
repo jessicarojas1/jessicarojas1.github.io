@@ -26,7 +26,8 @@ before(async () => {
     cwd: path.join(__dirname, '..'),
     env: Object.assign({}, process.env, {
       PORT: String(PORT), CITADEL_DATA_DIR: DATA, CITADEL_TMP: TMP,
-      DATABASE_URL: '', REDIS_URL: '', CITADEL_ADMIN_PASSWORD: '', NODE_ENV: 'test'
+      DATABASE_URL: '', REDIS_URL: '', CITADEL_ADMIN_PASSWORD: '', NODE_ENV: 'test',
+      CITADEL_ALLOW_OPEN: '1'   // these tests exercise open-mode behavior; prod now defaults closed
     }),
     stdio: 'ignore'
   });

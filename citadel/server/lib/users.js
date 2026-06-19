@@ -55,21 +55,33 @@ let _db = null;
 // password change when the publicly-known default is used).
 function seed(dbObj) {
   let changed = false;
-  if (!dbObj.secret) { dbObj.secret = process.env.CITADEL_JWT_SECRET || crypto.randomBytes(32).toString('hex'); changed = true; }
-  if (!dbObj.settings) { dbObj.settings = { enforce: false }; changed = true; }
+  // Signing key: prefer an env-provided secret and DO NOT persist it at rest
+  // (reduces exposure if the store is read). Only a generated fallback is stored,
+  // so sessions still survive restarts when no stable secret is configured.
+  if (process.env.CITADEL_JWT_SECRET) {
+    dbObj.secret = process.env.CITADEL_JWT_SECRET;          // in-memory only; not persisted
+  } else if (!dbObj.secret) {
+    dbObj.secret = crypto.randomBytes(32).toString('hex'); changed = true;
+    if (process.env.NODE_ENV === 'production') console.warn('[citadel] SECURITY: no CITADEL_JWT_SECRET set — a random signing key was generated and stored AT REST. Set CITADEL_JWT_SECRET (ideally from a secrets manager) so the key is not persisted and survives restarts.');
+  }
+  // Secure-by-default: access control ON for a fresh store. An explicit,
+  // audited opt-out (CITADEL_ALLOW_OPEN=1) is required to ship an open instance.
+  if (!dbObj.settings) { dbObj.settings = { enforce: process.env.CITADEL_ALLOW_OPEN === '1' ? false : true }; changed = true; }
   if (!dbObj.users.some(u => u.role === 'admin')) {
     const email = (process.env.CITADEL_ADMIN_EMAIL || 'admin@citadel.local').toLowerCase();
     const usingDefault = !process.env.CITADEL_ADMIN_PASSWORD;
-    const pw = process.env.CITADEL_ADMIN_PASSWORD || 'citadel-admin';
+    let pw = process.env.CITADEL_ADMIN_PASSWORD || 'citadel-admin';
+    // In production, never seed the publicly-known default: generate a random
+    // strong first-boot password and print it ONCE. (Dev keeps the easy default.)
     if (usingDefault && process.env.NODE_ENV === 'production') {
-      console.warn('[citadel] SECURITY: seeding the DEFAULT admin password in production. ' +
-        'Set CITADEL_ADMIN_PASSWORD (and change it after first login) — the default is publicly known.');
+      pw = crypto.randomBytes(15).toString('base64').replace(/[+/=]/g, '').slice(0, 18);
+      console.warn('[citadel] SECURITY: no CITADEL_ADMIN_PASSWORD set — seeded a RANDOM first-boot admin password (you must change it on first login): ' + pw);
     }
     const salt = newSalt();
     dbObj.users.unshift({
       id: uid(), name: 'Administrator', email, role: 'admin', active: true,
       salt, pass: hashPw(pw, salt), permissions: Object.assign({}, ROLES.admin.perms),
-      mustChange: usingDefault, createdAt: new Date().toISOString()
+      mustChange: true, createdAt: new Date().toISOString()
     });
     changed = true;
   }

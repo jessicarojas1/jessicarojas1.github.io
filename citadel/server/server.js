@@ -63,7 +63,15 @@ app.use(metrics.httpMiddleware());
 metrics.gauge('citadel_active_sessions', () => sessions.stats().active);
 metrics.gauge('citadel_uptime_seconds', () => Math.floor(process.uptime()));
 metrics.gauge('citadel_resident_memory_bytes', () => process.memoryUsage().rss);
-app.get('/metrics', (req, res) => { res.set('Content-Type', 'text/plain; version=0.0.4'); res.send(metrics.render()); });
+app.get('/metrics', (req, res) => {
+  // Not an anonymous recon surface: require CITADEL_METRICS_TOKEN (Bearer) when
+  // set, otherwise restrict to loopback. 404 (not 403) so the route isn't confirmed.
+  const tok = process.env.CITADEL_METRICS_TOKEN;
+  const bearer = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const loopback = /^(::1|::ffff:127\.|127\.)/.test(clientIp(req));
+  if (tok ? bearer !== tok : !loopback) return res.status(404).end();
+  res.set('Content-Type', 'text/plain; version=0.0.4'); res.send(metrics.render());
+});
 
 // Client IP as computed by Express from the TRUSTED proxy hops (not the raw,
 // client-spoofable X-Forwarded-For). Used for rate-limit + lockout keys.
@@ -102,17 +110,20 @@ function clearRefreshCookie(res) {
 function withRt(res, tokens) { setRefreshCookie(res, tokens.refreshToken); return tokens; }
 
 // Reusable fixed-window limiter middleware keyed by IP + route bucket.
-function rateLimited(bucket, max, windowMs) {
+function rateLimited(bucket, max, windowMs, opts) {
+  const failClosed = !!(opts && opts.failClosed);   // expensive routes deny on limiter outage
+  const unavailable = (res) => res.status(503).json({ error: 'Service temporarily unavailable — please retry shortly.' });
   return async (req, res, next) => {
     try {
       const r = await rateLimit.limit(bucket + ':' + clientIp(req), max, windowMs);
       res.setHeader('X-RateLimit-Remaining', String(r.remaining));
+      if (r.error && failClosed) return unavailable(res);   // limiter backend down + heavy route → fail closed
       if (!r.ok) {
         res.setHeader('Retry-After', String(r.retryAfter));
         audit.record('ratelimit.block', { ip: clientIp(req), detail: bucket + ' (' + max + '/' + Math.round(windowMs / 1000) + 's)', ok: false });
         return res.status(429).json({ error: 'Too many requests — slow down and retry shortly.', retryAfter: r.retryAfter });
       }
-    } catch (e) { /* fail open */ }
+    } catch (e) { if (failClosed) return unavailable(res); /* else fail open for cheap routes */ }
     next();
   };
 }
@@ -245,18 +256,25 @@ async function toolStatus() {
 }
 
 app.get('/api/health', async (req, res) => {
+  // Recon hardening: tool VERSIONS and the detailed store backend are admin-only;
+  // anonymous callers get just enough for the SPA to function (no version
+  // disclosure, no internal store/rate-limit/SIEM details).
+  const isAdmin = !!(req.user && req.user.role === 'admin');
+  const tools = await toolStatus();
   res.json({
     ok: true, version: '1.0', engine: 'deep', ai: ai.available(),
     auth: { enforce: users.settings().enforce, sso: oidc.enabled() },
-    store: { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled(), rateLimit: rateLimit.backend(), notify: notify.enabled() },
-    scanners: await toolStatus()
+    store: isAdmin
+      ? { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled(), rateLimit: rateLimit.backend(), notify: notify.enabled() }
+      : { users: users.backend(), durable: db.enabled() },
+    scanners: tools.map(t => isAdmin ? t : { tool: t.tool, available: t.available })
   });
 });
 
-// Machine-readable API contract (OpenAPI 3.0). Served as-is for Swagger UI /
-// client generation; static, so a parse error here can't affect the running API.
+// Machine-readable API contract (OpenAPI 3.0). Gated by the docs permission so it
+// isn't an anonymous recon surface when access control is enforced.
 let _openapi = null;
-app.get('/api/openapi.yaml', (req, res) => {
+app.get('/api/openapi.yaml', requirePerm('docs'), (req, res) => {
   try {
     if (_openapi == null) _openapi = fs.readFileSync(path.join(__dirname, 'openapi.yaml'), 'utf8');
     res.type('application/yaml').send(_openapi);
@@ -563,7 +581,7 @@ async function resolvePublicTarget(hostname) {
 
 // Scan a public Git repository by URL (shallow clone, read-only).
 // Heavy (clone + full scanner fan-out): throttle to protect the free-tier box.
-app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('deepscan'), async (req, res) => {
+app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000, { failClosed: true }), requirePerm('deepscan'), async (req, res) => {
   const url = String((req.body && req.body.url) || '').trim();
   // Allowlist: https git URLs only (github/gitlab/bitbucket/codeberg or generic https .git)
   if (!/^https:\/\/[\w.-]+\/[\w./~-]+?(\.git)?$/.test(url) || url.length > 300) {
@@ -620,7 +638,7 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('
 });
 
 // AI-assisted remediation for a single finding (opt-in; needs ANTHROPIC_API_KEY).
-app.post('/api/explain', rateLimited('explain', 30, 10 * 60000), requirePerm('tab-aifix'), async (req, res) => {
+app.post('/api/explain', rateLimited('explain', 30, 10 * 60000, { failClosed: true }), requirePerm('tab-aifix'), async (req, res) => {
   if (!ai.available()) return res.status(503).json({ error: 'AI remediation is not enabled on this server.' });
   try {
     const out = await ai.explain((req.body && req.body.finding) || {});
@@ -630,7 +648,7 @@ app.post('/api/explain', rateLimited('explain', 30, 10 * 60000), requirePerm('ta
   }
 });
 
-app.post('/api/scan', rateLimited('scan', 20, 10 * 60000), requirePerm('analyze'), upload.array('files'), async (req, res) => {
+app.post('/api/scan', rateLimited('scan', 20, 10 * 60000, { failClosed: true }), requirePerm('analyze'), upload.array('files'), async (req, res) => {
   if (!req.files || !req.files.length) return res.status(400).json({ error: 'No files uploaded (field "files").' });
   let work;
   try {
