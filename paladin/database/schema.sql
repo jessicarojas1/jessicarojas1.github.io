@@ -341,6 +341,7 @@ CREATE INDEX IF NOT EXISTS idx_page_restrictions_page ON page_restrictions(page_
 -- Inline (anchored) comments — a comment bound to a text selection in a page.
 CREATE TABLE IF NOT EXISTS inline_comments (
     id          SERIAL PRIMARY KEY,
+    parent_id   INTEGER REFERENCES inline_comments(id) ON DELETE CASCADE,
     page_id     INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
     user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     quote       TEXT NOT NULL,

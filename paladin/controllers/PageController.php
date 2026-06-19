@@ -182,11 +182,17 @@ class PageController {
         $moveSpaces = Auth::can('page.edit')
             ? Database::fetchAll("SELECT id, name, space_key FROM spaces WHERE is_archived=FALSE AND id <> ? ORDER BY name", [(int)$page['space_id']])
             : [];
-        $inlineComments = Database::fetchAll(
+        $allInline = Database::fetchAll(
             "SELECT ic.*, u.name AS user_name, r.name AS resolver_name
              FROM inline_comments ic LEFT JOIN users u ON u.id=ic.user_id LEFT JOIN users r ON r.id=ic.resolved_by
              WHERE ic.page_id=? ORDER BY ic.resolved, ic.created_at", [$id]
         );
+        // Split into top-level (anchored) comments and their threaded replies.
+        $inlineComments = []; $inlineReplies = [];
+        foreach ($allInline as $c) {
+            if ($c['parent_id'] === null) { $inlineComments[] = $c; }
+            else { $inlineReplies[(int)$c['parent_id']][] = $c; }
+        }
         // Backlinks: other live pages whose body links to this page (/pages/{id}).
         $backlinks = Database::fetchAll(
             "SELECT id, title FROM pages
@@ -1006,6 +1012,27 @@ class PageController {
         Mentions::process($body, 'page', $id, $page['title'] ?? null);
         $_SESSION['flash_success'] = 'Inline comment added.';
         header('Location: /pages/' . $id . '#ic-' . $cid);
+    }
+
+    /** Reply to a top-level inline comment (threaded). $id = parent comment. */
+    public function replyInlineComment(int $id): void {
+        Auth::requirePermission('page.comment');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $parent = Database::fetchOne("SELECT * FROM inline_comments WHERE id=? AND parent_id IS NULL", [$id]);
+        if (!$parent) { http_response_code(404); return; }
+        $page = $this->guardView((int)$parent['page_id']);
+        if (!$page) { http_response_code(404); return; }
+        $body = Security::sanitizeInput($_POST['body'] ?? '');
+        if ($body === '') { $_SESSION['flash_error'] = 'Write a reply.'; header('Location: /pages/' . (int)$parent['page_id'] . '#ic-' . $id); return; }
+
+        $rid = Database::insert('inline_comments', [
+            'page_id' => (int)$parent['page_id'], 'parent_id' => $id, 'user_id' => Auth::id(),
+            'quote' => '', 'body' => $body,
+        ]);
+        Auth::log('inline_comment_reply', 'pages', (int)$parent['page_id'], ['parent' => $id, 'reply' => $rid]);
+        Mentions::process($body, 'page', (int)$parent['page_id'], $page['title'] ?? null);
+        $_SESSION['flash_success'] = 'Reply added.';
+        header('Location: /pages/' . (int)$parent['page_id'] . '#ic-' . $id);
     }
 
     public function resolveInlineComment(int $id): void {
