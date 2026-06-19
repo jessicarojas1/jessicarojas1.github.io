@@ -23,6 +23,7 @@ const sessions = require('../lib/sessions');
 const audit = require('../lib/audit');
 const users = require('../lib/users');
 const oidc = require('../lib/oidc');
+const secretbox = require('../lib/secretbox');
 
 /* ---------------- JWT ---------------- */
 test('jwt: sign/verify roundtrip', () => {
@@ -43,6 +44,43 @@ test('jwt: rejects non-HS256 alg header (alg pinning)', () => {
   // a token whose header claims alg:none — must be rejected even if "signature" is empty
   const forged = b64({ alg: 'none', typ: 'JWT' }) + '.' + b64({ sub: 'attacker' }) + '.';
   assert.equal(jwt.verify(forged, 'secret'), null);
+});
+
+/* ---------------- Secretbox (at-rest secret encryption) ---------------- */
+test('secretbox: disabled without a key — values pass through unchanged', () => {
+  delete process.env.CITADEL_DATA_KEY; secretbox._reset();
+  assert.equal(secretbox.enabled(), false);
+  assert.equal(secretbox.seal('JBSWY3DPEHPK3PXP'), 'JBSWY3DPEHPK3PXP');
+  assert.equal(secretbox.open('JBSWY3DPEHPK3PXP'), 'JBSWY3DPEHPK3PXP'); // legacy plaintext read
+});
+test('secretbox: seal/open roundtrip with a 32-byte key (hex)', () => {
+  process.env.CITADEL_DATA_KEY = 'a'.repeat(64); secretbox._reset();
+  assert.equal(secretbox.enabled(), true);
+  const sealed = secretbox.seal('JBSWY3DPEHPK3PXP');
+  assert.ok(secretbox.isSealed(sealed));
+  assert.ok(!sealed.includes('JBSWY3DPEHPK3PXP')); // ciphertext, not plaintext
+  assert.equal(secretbox.open(sealed), 'JBSWY3DPEHPK3PXP');
+});
+test('secretbox: seal is idempotent and reads legacy plaintext transparently', () => {
+  process.env.CITADEL_DATA_KEY = 'b'.repeat(64); secretbox._reset();
+  const once = secretbox.seal('seed'); const twice = secretbox.seal(once);
+  assert.equal(once, twice);                      // already-sealed is not re-sealed
+  assert.equal(secretbox.open('legacy-plain'), 'legacy-plain');
+});
+test('secretbox: tampered ciphertext / wrong key fails closed (GCM auth) → null', () => {
+  process.env.CITADEL_DATA_KEY = 'c'.repeat(64); secretbox._reset();
+  const sealed = secretbox.seal('topsecret');
+  const flipped = sealed.slice(0, -2) + (sealed.endsWith('A') ? 'B' : 'A') + '=';
+  assert.equal(secretbox.open(flipped), null);    // tamper detected
+  process.env.CITADEL_DATA_KEY = 'd'.repeat(64); secretbox._reset();
+  assert.equal(secretbox.open(sealed), null);     // wrong key
+  delete process.env.CITADEL_DATA_KEY; secretbox._reset();
+});
+test('secretbox: invalid key length disables encryption (no crash)', () => {
+  process.env.CITADEL_DATA_KEY = 'tooshort'; secretbox._reset();
+  assert.equal(secretbox.enabled(), false);
+  assert.equal(secretbox.seal('x'), 'x');
+  delete process.env.CITADEL_DATA_KEY; secretbox._reset();
 });
 
 /* ---------------- TOTP / MFA ---------------- */
@@ -122,6 +160,20 @@ test('users: full MFA lifecycle (setup → enable → TOTP + one-time backup →
   assert.equal(users.mfaVerify(id, backupCodes[0]), false); // ...once only
   users.mfaDisable(id);
   assert.equal(users.mfaEnabled(id), false);
+});
+test('users: with CITADEL_DATA_KEY, TOTP seed is ciphertext on disk yet usable in-memory', () => {
+  const fs = require('fs');
+  const FILE = path.join(process.env.CITADEL_DATA_DIR, 'users.json');
+  process.env.CITADEL_DATA_KEY = 'e'.repeat(64); secretbox._reset();
+  const id = users.getByEmail('admin@citadel.local').id;
+  const { secret } = users.mfaBeginSetup(id);          // save() seals to disk
+  users.mfaEnable(id, totp.totp(secret));              // activates + persists
+  const onDisk = fs.readFileSync(FILE, 'utf8');
+  assert.ok(!onDisk.includes(secret));                 // raw Base32 seed never hits disk
+  assert.match(onDisk, /"mfaSecret":\s*"enc:v1:/);     // it is sealed
+  assert.ok(users.mfaVerify(id, totp.totp(secret)));   // in-memory cache still plaintext → works
+  users.mfaDisable(id);
+  delete process.env.CITADEL_DATA_KEY; secretbox._reset();
 });
 test('users: changeOwnPassword verifies current + enforces min length', () => {
   const id = users.getByEmail('admin@citadel.local').id;

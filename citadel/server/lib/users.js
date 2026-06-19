@@ -12,6 +12,12 @@ const path = require('path');
 const crypto = require('crypto');
 const db = require('./db');
 const totp = require('./totp');
+const secretbox = require('./secretbox');
+
+// Fields that must be encrypted at rest (TOTP seeds — possession yields valid
+// 2FA codes). Sealed on write to the durable store, opened back to plaintext in
+// the in-memory cache so the synchronous read API is unchanged.
+const USER_SECRET_FIELDS = ['mfaSecret', 'mfaPending'];
 
 const DATA_DIR = process.env.CITADEL_DATA_DIR || path.join(process.env.CITADEL_TMP || os.tmpdir(), 'citadel');
 const FILE = path.join(DATA_DIR, 'users.json');
@@ -88,17 +94,42 @@ function seed(dbObj) {
   return changed;
 }
 
+/* ---- At-rest encryption helpers (envelope, see lib/secretbox.js) ---- */
+// A storage-facing copy of _db with the JWT secret + per-user TOTP seeds sealed.
+// Operates on a copy so the in-memory cache stays plaintext for the sync API.
+function sealedSnapshot() {
+  return {
+    ..._db,
+    secret: secretbox.seal(_db.secret),
+    users: _db.users.map(u => {
+      const c = { ...u };
+      for (const f of USER_SECRET_FIELDS) if (c[f]) c[f] = secretbox.seal(c[f]);
+      return c;
+    })
+  };
+}
+// Decrypt sealed fields in place on the in-memory cache after a load.
+function hydrate(dbObj) {
+  if (!dbObj) return dbObj;
+  if (secretbox.isSealed(dbObj.secret)) dbObj.secret = secretbox.open(dbObj.secret);
+  for (const u of (dbObj.users || [])) {
+    for (const f of USER_SECRET_FIELDS) if (secretbox.isSealed(u[f])) u[f] = secretbox.open(u[f]);
+  }
+  return dbObj;
+}
+
 /* ---- File-backed path (no DATABASE_URL) ---- */
 function loadFile() {
   if (_db) return _db;
   try { _db = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch (e) { _db = null; }
   if (!_db || !Array.isArray(_db.users)) _db = { users: [], settings: { enforce: false }, secret: null };
+  hydrate(_db);
   if (seed(_db)) saveFile();
   return _db;
 }
 let _warnedSave = false;
 function saveFile() {
-  try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(_db, null, 2)); }
+  try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(sealedSnapshot(), null, 2)); }
   catch (e) {
     if (!_warnedSave) {
       _warnedSave = true;
@@ -114,15 +145,15 @@ function rowToUser(r) {
     id: r.id, name: r.name, email: r.email, role: r.role, active: r.active,
     salt: r.salt, pass: r.pass, permissions: r.permissions || {},
     mustChange: !!r.must_change_password,
-    mfaEnabled: !!r.mfa_enabled, mfaSecret: r.mfa_secret || null,
-    mfaPending: r.mfa_pending || null, mfaBackup: r.mfa_backup || [],
+    mfaEnabled: !!r.mfa_enabled, mfaSecret: secretbox.open(r.mfa_secret || null),
+    mfaPending: secretbox.open(r.mfa_pending || null), mfaBackup: r.mfa_backup || [],
     createdAt: (r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at)
   };
 }
 async function loadPg() {
   const s = await db.query('SELECT key, value FROM citadel_settings');
   let secret = null; const settingsRow = {};
-  for (const r of s.rows) { if (r.key === 'secret') secret = r.value && r.value.v; else if (r.key === 'app') Object.assign(settingsRow, r.value || {}); }
+  for (const r of s.rows) { if (r.key === 'secret') secret = secretbox.open(r.value && r.value.v); else if (r.key === 'app') Object.assign(settingsRow, r.value || {}); }
   const u = await db.query('SELECT * FROM citadel_users ORDER BY created_at');
   _db = { users: u.rows.map(rowToUser), settings: Object.assign({ enforce: false }, settingsRow), secret };
   if (seed(_db)) await syncPg();   // persist a freshly-seeded secret/admin
@@ -131,7 +162,7 @@ async function loadPg() {
 // Full write-through of the (small) user set + settings + secret. Idempotent.
 async function syncPg() {
   await db.query(`INSERT INTO citadel_settings(key,value) VALUES('secret',$1)
-    ON CONFLICT(key) DO UPDATE SET value=$1`, [JSON.stringify({ v: _db.secret })]);
+    ON CONFLICT(key) DO UPDATE SET value=$1`, [JSON.stringify({ v: secretbox.seal(_db.secret) })]);
   await db.query(`INSERT INTO citadel_settings(key,value) VALUES('app',$1)
     ON CONFLICT(key) DO UPDATE SET value=$1`, [JSON.stringify(_db.settings || {})]);
   for (const u of _db.users) {
@@ -143,7 +174,7 @@ async function syncPg() {
         mfa_enabled=$10,mfa_secret=$11,mfa_pending=$12,mfa_backup=$13`,
       [u.id, u.name, u.email, u.role, u.active, u.salt, u.pass,
        JSON.stringify(u.permissions || {}), !!u.mustChange,
-       !!u.mfaEnabled, u.mfaSecret || null, u.mfaPending || null, JSON.stringify(u.mfaBackup || []),
+       !!u.mfaEnabled, secretbox.seal(u.mfaSecret || null), secretbox.seal(u.mfaPending || null), JSON.stringify(u.mfaBackup || []),
        u.createdAt || new Date().toISOString()]);
   }
   const ids = _db.users.map(u => u.id);
