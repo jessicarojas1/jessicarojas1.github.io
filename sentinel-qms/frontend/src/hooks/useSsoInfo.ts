@@ -3,6 +3,8 @@ import { api } from '@/lib/api';
 
 export interface SsoInfo {
   enabled: boolean;
+  oidc: boolean;
+  saml: boolean;
   label: string;
 }
 

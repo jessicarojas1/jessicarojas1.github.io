@@ -28,6 +28,9 @@ dependencies = [
     # Branded PDF/report generation (pure-Python; Pillow ships manylinux wheels).
     "fpdf2>=2.7",
     "Pillow>=10.0",
+    # SAML 2.0 SSO: XML-DSig verification (pure-Python over lxml + cryptography;
+    # both ship manylinux wheels, so no system xmlsec build is required).
+    "signxml>=4.0",
 ]
 
 [project.optional-dependencies]

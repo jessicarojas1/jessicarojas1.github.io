@@ -68,6 +68,14 @@ Secrets Manager** / **Azure Key Vault** — never from committed files.
 | `OIDC_GROUP_ROLE_MAP` | `{}` | Config | JSON object mapping IdP group → local role, e.g. `{"qms-admins":"Admin"}`. |
 | `OIDC_DEFAULT_ROLE` | `Read-Only` | Config | Role assigned when no group maps to a role. |
 | `OIDC_SCOPES` | `openid email profile` | Config | Space-separated scopes requested in the browser auth-code flow. |
+| `SAML_IDP_ENTITY_ID` | `""` | Config | Expected IdP issuer (entityID); checked against the assertion when set. |
+| `SAML_IDP_SSO_URL` | `""` | Config | IdP SingleSignOnService URL (HTTP-Redirect). Enables SAML when set with the cert + SP entity. |
+| `SAML_IDP_CERT` | `""` | Sensitive-ish | PEM X.509 cert the IdP signs assertions with. |
+| `SAML_SP_ENTITY_ID` | `""` | Config | This service's SAML entityID (assertion audience). |
+| `SAML_SP_ACS_URL` | `""` | Config | Assertion Consumer Service URL; derived from `APP_BASE_URL` when blank. |
+| `SAML_EMAIL_ATTRIBUTE` | `""` | Config | Assertion attribute holding email; blank → use the Subject NameID. |
+| `SAML_NAME_ATTRIBUTE` | `displayName` | Config | Assertion attribute holding the display name. |
+| `SAML_GROUP_ATTRIBUTE` | `groups` | Config | Assertion attribute holding groups (mapped via `OIDC_GROUP_ROLE_MAP`). |
 
 ### Bootstrap Admin (seed)
 

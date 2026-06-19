@@ -35,9 +35,10 @@ export default function LoginPage() {
   const ssoErrorCode = new URLSearchParams(location.search).get('sso_error');
   const ssoError = ssoErrorCode ? (SSO_ERRORS[ssoErrorCode] ?? 'Single sign-on failed.') : null;
 
-  const startSso = () => {
+  const startSso = (provider: 'oidc' | 'saml') => {
     const from = (location.state as { from?: string } | null)?.from ?? '/';
-    window.location.href = `${API_BASE_URL}/auth/oidc/login?redirect=${encodeURIComponent(from)}`;
+    window.location.href =
+      `${API_BASE_URL}/auth/${provider}/login?redirect=${encodeURIComponent(from)}`;
   };
 
   const {
@@ -125,9 +126,21 @@ export default function LoginPage() {
               >
                 or
               </div>
-              <button type="button" className="btn btn-block" onClick={startSso}>
-                <KeyRound size={16} /> {ssoInfo.data.label}
-              </button>
+              {ssoInfo.data.oidc && (
+                <button type="button" className="btn btn-block" onClick={() => startSso('oidc')}>
+                  <KeyRound size={16} /> {ssoInfo.data.label}
+                </button>
+              )}
+              {ssoInfo.data.saml && (
+                <button
+                  type="button"
+                  className="btn btn-block"
+                  style={{ marginTop: ssoInfo.data.oidc ? 8 : 0 }}
+                  onClick={() => startSso('saml')}
+                >
+                  <KeyRound size={16} /> Sign in with SAML
+                </button>
+              )}
             </>
           )}
 
