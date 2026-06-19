@@ -112,7 +112,13 @@ class DocumentController {
         $ids = array_values(array_filter(array_map('intval', explode(',', (string)($_POST['doc_ids'] ?? '')))));
         if (!$ids) { $_SESSION['flash_error'] = 'No documents selected.'; header('Location: /documents'); return; }
         $place = implode(',', array_fill(0, count($ids), '?'));
-        $docs = Database::fetchAll("SELECT id FROM documents WHERE id IN ($place)", $ids);
+        // Non-admins can only act on documents they may see (private-space membership).
+        $priv = ''; $pidParams = $ids;
+        if (Auth::role() !== 'admin') {
+            $priv = " AND (d.space_id IS NULL OR EXISTS (SELECT 1 FROM spaces s WHERE s.id = d.space_id AND (s.is_private = FALSE OR EXISTS (SELECT 1 FROM space_members m WHERE m.space_id = d.space_id AND m.user_id = ?))))";
+            $pidParams[] = Auth::id();
+        }
+        $docs = Database::fetchAll("SELECT d.id FROM documents d WHERE d.id IN ($place)$priv", $pidParams);
         $valid = array_map(fn($r) => (int)$r['id'], $docs);
         if (!$valid) { $_SESSION['flash_error'] = 'No matching documents.'; header('Location: /documents'); return; }
         $n = count($valid);
@@ -383,6 +389,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        if (!$this->canSeeDoc($doc)) { http_response_code(403); return; }
         if ($doc['checked_out_by'] && (int)$doc['checked_out_by'] !== Auth::id() && Auth::role() !== 'admin') {
             $_SESSION['flash_error'] = 'Document is checked out by another user.'; header('Location: /documents/' . $id); return;
         }
@@ -417,6 +424,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        if (!$this->canSeeDoc($doc)) { http_response_code(403); return; }
         $to = Security::sanitizeInput($_POST['to'] ?? '');
         $allowed = self::TRANSITIONS[$doc['status']] ?? [];
         if (!in_array($to, $allowed, true)) { $_SESSION['flash_error'] = 'Invalid status transition.'; header('Location: /documents/' . $id); return; }
@@ -454,8 +462,9 @@ class DocumentController {
     public function checkout(int $id): void {
         Auth::requirePermission('document.checkout');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        $doc = Database::fetchOne("SELECT checked_out_by FROM documents WHERE id=?", [$id]);
+        $doc = Database::fetchOne("SELECT checked_out_by, space_id FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        if (!$this->canSeeDoc($doc)) { http_response_code(403); return; }
         if ($doc['checked_out_by']) { $_SESSION['flash_error'] = 'Already checked out.'; header('Location: /documents/' . $id); return; }
         Database::update('documents', ['checked_out_by' => Auth::id(), 'checked_out_at' => date('Y-m-d H:i:s')], 'id=?', [$id]);
         Auth::log('checkout_document', 'documents', $id);
@@ -466,7 +475,7 @@ class DocumentController {
     public function checkin(int $id): void {
         Auth::requirePermission('document.checkout');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        $doc = Database::fetchOne("SELECT checked_out_by FROM documents WHERE id=?", [$id]);
+        $doc = Database::fetchOne("SELECT checked_out_by, space_id FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
         if ($doc['checked_out_by'] && (int)$doc['checked_out_by'] !== Auth::id() && Auth::role() !== 'admin') {
             $_SESSION['flash_error'] = 'Checked out by another user.'; header('Location: /documents/' . $id); return;
@@ -482,6 +491,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        if (!$this->canSeeDoc($doc)) { http_response_code(403); return; }
         $newRev  = Security::sanitizeInput($_POST['revision'] ?? '');
         $summary = Security::sanitizeInput($_POST['change_summary'] ?? '');
         if ($newRev === '') { $_SESSION['flash_error'] = 'New revision number required.'; header('Location: /documents/' . $id); return; }
@@ -502,8 +512,9 @@ class DocumentController {
     public function acknowledge(int $id): void {
         Auth::requirePermission('document.acknowledge');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        $doc = Database::fetchOne("SELECT revision FROM documents WHERE id=?", [$id]);
+        $doc = Database::fetchOne("SELECT revision, space_id FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        if (!$this->canSeeDoc($doc)) { http_response_code(403); return; }
         try {
             Database::insert('document_acknowledgements', ['document_id' => $id, 'user_id' => Auth::id(), 'revision' => $doc['revision']]);
             Auth::log('acknowledge_document', 'documents', $id, ['revision' => $doc['revision']]);
@@ -633,6 +644,9 @@ class DocumentController {
     public function delete(int $id): void {
         Auth::requirePermission('document.delete');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $doc = Database::fetchOne("SELECT id, space_id FROM documents WHERE id=?", [$id]);
+        if (!$doc) { http_response_code(404); return; }
+        if (!$this->canSeeDoc($doc)) { http_response_code(403); return; }
         Database::update('documents', ['status' => 'archived'], 'id=?', [$id]);
         Auth::log('archive_document', 'documents', $id);
         $_SESSION['flash_success'] = 'Document archived.';
