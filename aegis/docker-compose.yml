@@ -19,6 +19,10 @@ services:
       - APP_URL=${APP_URL:-http://localhost}
       - APP_ENV=${APP_ENV:-production}
       - JWT_SECRET=${JWT_SECRET}
+      # Dedicated cryptographic keys (key separation — NIST SC-12). Fall back to
+      # JWT_SECRET-derived keys when unset, but set distinct values in production.
+      - AUDIT_HMAC_KEY=${AUDIT_HMAC_KEY:-}
+      - APP_ENCRYPTION_KEY=${APP_ENCRYPTION_KEY:-}
       - SMTP_HOST=${SMTP_HOST:-}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-}
@@ -31,6 +35,12 @@ services:
     networks:
       - frontend_net
       - backend_net
+    # Container hardening (CIS Docker Benchmark 5.x): block privilege escalation
+    # and cap resources to limit blast radius / resource-exhaustion DoS.
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+    cpus: 1.0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
       interval: 30s
@@ -54,6 +64,10 @@ services:
       - ./database/migrations/003_phase3.sql:/docker-entrypoint-initdb.d/04_migration3.sql
     networks:
       - backend_net
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    cpus: 1.0
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-aegis} -d ${DB_NAME:-aegis}"]
       interval: 10s
@@ -76,6 +90,10 @@ services:
       - ./docker/ssl:/etc/nginx/ssl:ro
     networks:
       - frontend_net
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    cpus: 0.5
 
   cron:
     build:
@@ -95,9 +113,20 @@ services:
       - APP_URL=${APP_URL:-http://localhost}
       - APP_ENV=${APP_ENV:-production}
       - JWT_SECRET=${JWT_SECRET}
+      - AUDIT_HMAC_KEY=${AUDIT_HMAC_KEY:-}
+      - APP_ENCRYPTION_KEY=${APP_ENCRYPTION_KEY:-}
     volumes:
       - uploads_data:/var/www/html/uploads
       - logs_data:/var/www/html/logs
+    # CLI worker needs no privileges — run as the non-root web user, drop all
+    # Linux capabilities, and block privilege escalation (CIS Docker 4.1/5.x).
+    user: www-data
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    cpus: 0.5
     command: /bin/sh -c "while true; do
         php /var/www/html/scripts/run_workflows.php >> /var/www/html/logs/workflows.log 2>&1;
         php /var/www/html/scripts/dispatch_webhooks.php >> /var/www/html/logs/webhooks.log 2>&1;

@@ -14,9 +14,13 @@ class Database {
                     PDO::ATTR_EMULATE_PREPARES   => false,
                 ]);
             } catch (PDOException $e) {
+                // Log detail server-side; throw a catchable, operator-safe error.
+                // Never die() mid-output — that bypasses callers' try/catch and the
+                // front controller's exception handler, and emits a raw JSON fragment.
+                // Callers that can degrade (e.g. Security::validatePasswordPolicy)
+                // catch this; the front controller renders a clean error otherwise.
                 error_log('DB connection failed: ' . $e->getMessage());
-                http_response_code(503);
-                die(json_encode(['error' => 'Database unavailable']));
+                throw new RuntimeException('Database unavailable', 503, $e);
             }
         }
         return self::$instance;

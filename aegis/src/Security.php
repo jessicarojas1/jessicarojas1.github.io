@@ -209,21 +209,52 @@ class Security {
      */
     public static function decryptSetting(string $value): string {
         if ($value === '' || !str_starts_with($value, 'enc:')) return $value;
-        $key  = self::_settingsKey();
         $blob = base64_decode(substr($value, 4), true);
         if ($blob === false) return '';
         $npub = SODIUM_CRYPTO_AEAD_AES256GCM_NPUBBYTES;
         if (strlen($blob) <= $npub) return '';
         $nonce = substr($blob, 0, $npub);
         $ct    = substr($blob, $npub);
-        $pt    = @sodium_crypto_aead_aes256gcm_decrypt($ct, '', $nonce, $key);
+        // Try the primary key first; fall back to the legacy JWT_SECRET-derived key
+        // so values written before APP_ENCRYPTION_KEY was configured still decrypt.
+        $pt = @sodium_crypto_aead_aes256gcm_decrypt($ct, '', $nonce, self::_settingsKey());
+        if ($pt === false) {
+            $pt = @sodium_crypto_aead_aes256gcm_decrypt($ct, '', $nonce, self::_legacySettingsKey());
+        }
         return $pt === false ? '' : $pt;
     }
 
+    /**
+     * Primary settings-encryption key. Uses a dedicated APP_ENCRYPTION_KEY when set
+     * (key separation per NIST SC-12 — so rotating JWT_SECRET doesn't make stored
+     * secrets undecryptable), otherwise derives from JWT_SECRET for backward
+     * compatibility with existing deployments.
+     */
     private static function _settingsKey(): string {
-        // Derive a 32-byte key from JWT_SECRET using SHA-256 with a domain separator
-        $secret = $_ENV['JWT_SECRET'] ?? '';
-        return hash('sha256', 'aegis_settings_v1:' . $secret, true);
+        $dedicated = $_ENV['APP_ENCRYPTION_KEY'] ?? '';
+        if ($dedicated !== '') {
+            return hash('sha256', 'aegis_settings_v2:' . $dedicated, true);
+        }
+        return self::_legacySettingsKey();
+    }
+
+    /** Legacy JWT_SECRET-derived key — decrypt-only fallback for old ciphertexts. */
+    private static function _legacySettingsKey(): string {
+        return hash('sha256', 'aegis_settings_v1:' . ($_ENV['JWT_SECRET'] ?? ''), true);
+    }
+
+    /**
+     * Dedicated audit-log HMAC key. Set AUDIT_HMAC_KEY — ideally in a secret store
+     * the database role cannot read — for true integrity separation. Falls back to a
+     * JWT_SECRET-derived key so that, even unconfigured, the audit chain is keyed
+     * (HMAC) rather than a forgeable unkeyed hash. Returns raw 32-byte key material.
+     */
+    public static function auditKey(): string {
+        $dedicated = $_ENV['AUDIT_HMAC_KEY'] ?? '';
+        if ($dedicated !== '') {
+            return hash('sha256', 'aegis_audit_v2:' . $dedicated, true);
+        }
+        return hash('sha256', 'aegis_audit_v1:' . ($_ENV['JWT_SECRET'] ?? ''), true);
     }
 
     public static function generateApiKey(): array {
