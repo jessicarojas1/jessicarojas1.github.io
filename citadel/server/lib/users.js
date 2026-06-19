@@ -228,7 +228,13 @@ function update(id, patch) {
   }
   if ('role' in patch && ROLES[patch.role]) { u.role = patch.role; if (patch.resetPerms) u.permissions = Object.assign({}, ROLES[patch.role].perms); }
   if ('active' in patch) u.active = !!patch.active;
-  if ('permissions' in patch && patch.permissions) u.permissions = patch.permissions;
+  if ('permissions' in patch && patch.permissions) {
+    // Mass-assignment guard: accept ONLY known permission ids with boolean
+    // values — never store arbitrary attacker-supplied keys/values.
+    const clean = {};
+    for (const p of ALL) clean[p] = !!patch.permissions[p];
+    u.permissions = clean;
+  }
   save(); return strip(u);
 }
 function setPermission(id, pageId, val) {

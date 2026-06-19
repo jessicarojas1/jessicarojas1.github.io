@@ -43,6 +43,14 @@ jobs:
         working-directory: citadel/server
         run: npm run lint
 
+      # A security scanner should scan itself: surface CVEs in CITADEL's own
+      # production dependencies. Advisory for now (won't block on unfixable
+      # transitive advisories); promote to blocking once the baseline is clean.
+      - name: Dependency audit (own prod deps)
+        working-directory: citadel/server
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Smoke test
         working-directory: citadel/server
         run: npm test
