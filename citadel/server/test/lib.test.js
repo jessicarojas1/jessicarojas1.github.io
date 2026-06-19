@@ -140,6 +140,39 @@ test('tenancy: disabled by default (opt-in via CITADEL_MULTITENANT)', () => {
   assert.equal(tenancy.multitenant(), false);
   assert.equal(tenancy.enabled(), false);
 });
+test('tenancy: user stores are isolated per ambient tenant', async () => {
+  // No DATABASE_URL in tests -> file/in-memory path. Each non-default tenant gets
+  // its own fresh in-memory store, selected by the ambient schema scope.
+  await dbmod.runInTenant('citadel_t_alpha', async () => {
+    await users.ensureLoaded();
+    users.add({ email: 'iso-a@alpha.test', role: 'viewer', password: 'pw-alpha-123' });
+    assert.ok(users.getByEmail('iso-a@alpha.test'), 'alpha sees its own user');
+  });
+  await dbmod.runInTenant('citadel_t_beta', async () => {
+    await users.ensureLoaded();
+    assert.equal(users.getByEmail('iso-a@alpha.test'), null, 'beta must NOT see alpha user');
+    users.add({ email: 'iso-b@beta.test', role: 'viewer', password: 'pw-beta-1234' });
+  });
+  await dbmod.runInTenant('citadel_t_alpha', async () => {
+    assert.equal(users.getByEmail('iso-b@beta.test'), null, 'alpha must NOT see beta user');
+  });
+  // Default (single-tenant) store sees neither tenant's users.
+  assert.equal(users.getByEmail('iso-a@alpha.test'), null);
+  assert.equal(users.getByEmail('iso-b@beta.test'), null);
+});
+test('tenancy: session buckets are isolated per ambient tenant', () => {
+  dbmod.runInTenant('citadel_t_alpha', () => {
+    sessions.register({ jti: 'iso-jti-alpha', userId: 'u1', email: 'a@alpha.test', role: 'viewer' });
+    assert.equal(sessions.isRevoked('iso-jti-alpha'), false);
+    assert.ok(sessions.listAll().some(s => s.jti === 'iso-jti-alpha'));
+  });
+  dbmod.runInTenant('citadel_t_beta', () => {
+    assert.equal(sessions.listAll().some(s => s.jti === 'iso-jti-alpha'), false, 'beta must not see alpha session');
+  });
+  dbmod.runInTenant('citadel_t_alpha', () => { sessions.revoke('iso-jti-alpha'); });
+  dbmod.runInTenant('citadel_t_alpha', () => assert.equal(sessions.isRevoked('iso-jti-alpha'), true));
+  dbmod.runInTenant('citadel_t_beta', () => assert.equal(sessions.isRevoked('iso-jti-alpha'), false, 'revoke in alpha must not affect beta'));
+});
 
 /* ---------------- TOTP / MFA ---------------- */
 test('totp: verifies its own code, rejects wrong/garbage', () => {

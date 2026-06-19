@@ -242,24 +242,31 @@ schema cannot read another's rows even if a `WHERE` clause is omitted. A
   `{ "slug": "acme", "name": "Acme Corp" }` creates the schema and tables;
   `GET /api/tenants` lists them. Both are gated by `CITADEL_SUPERADMIN_TOKEN`
   (Bearer) or loopback, and 404 unless multi-tenancy is enabled.
-- **Request routing** resolves the tenant from the `X-Citadel-Tenant` header, a
-  `?tenant=` param, or an `acme.<CITADEL_BASE_DOMAIN>` subdomain. Slugs are
-  strictly validated and the derived schema name is quote-validated before it
-  ever reaches SQL, so a tenant identifier cannot inject SQL or escape its schema.
-  Internally, `db.runInTenant(schema, fn)` scopes `search_path` for the duration
-  of each query and resets it on release, so a pooled connection can't leak one
-  tenant's `search_path` to the next.
+- **Request routing** is wired into the live request path: a middleware resolves
+  the tenant from the `X-Citadel-Tenant` header, a `?tenant=` param, or an
+  `acme.<CITADEL_BASE_DOMAIN>` subdomain, then runs the **entire** request (auth
+  decode included) inside that tenant's schema scope. Slugs are strictly validated
+  and the derived schema name is quote-validated before it ever reaches SQL, so a
+  tenant identifier cannot inject SQL or escape its schema. Internally,
+  `db.runInTenant(schema, fn)` scopes `search_path` for the duration of each query
+  and resets it on release, so a pooled connection can't leak one tenant's
+  `search_path` to the next.
+- **Per-tenant caches.** The auth/session in-memory caches (`lib/users.js`,
+  `lib/sessions.js`) are keyed by the ambient tenant, and the middleware
+  `ensureLoaded()`s a tenant's users + sessions before handlers run — so one
+  tenant's cached users/sessions can never be served to another. Each tenant also
+  carries its own JWT signing secret (in its own `citadel_settings`), so a token
+  minted for tenant A fails signature verification under tenant B. Infra/operator
+  routes (`/api/health`, `/api/tenants`) and the static SPA are tenant-agnostic.
 
-> **Staged rollout — read before enabling in production.** This release ships the
-> isolation core (schema routing, provisioning, registry, request resolution,
-> injection-safe identifier handling) behind the flag. The auth/session **in-memory
-> caches** in `lib/users.js` and `lib/sessions.js` are still process-global; they
-> must be keyed per tenant before app traffic is routed per request, otherwise one
-> tenant's cached users/sessions could be served to another. Until that cache
-> cutover lands, treat multi-tenancy as **operator-provisionable but not yet wired
-> into the live auth path** — use it to stand up isolated schemas, not to serve
-> concurrent tenants through one process. The default single-tenant deployment is
-> completely unaffected (no ambient tenant scope ⇒ `db.query` is unchanged).
+> **Operational notes for production.** (1) Tenant resolution must be driven by a
+> trustworthy signal — terminate the `X-Citadel-Tenant` header at your proxy (or
+> rely on the subdomain) so clients can't select another tenant. (2) Provision
+> each tenant (`POST /api/tenants`) before routing traffic to it; an unknown slug
+> gets a 404. (3) The public schema still holds an inert default store (seeded at
+> boot) and the tenant registry; no tenant request is ever served from it. The
+> default single-tenant deployment is completely unaffected — with no ambient
+> tenant scope, `db.query` and both caches behave exactly as before.
 
 ---
 

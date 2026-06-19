@@ -17,16 +17,25 @@
 const db = require('./db');
 const REVOKE_REFRESH_MS = parseInt(process.env.CITADEL_REVOKE_REFRESH_MS || '20000', 10);
 
-const _active = new Map();   // jti -> session record
-const _revoked = new Map();  // jti -> exp (epoch seconds)
+// Per-tenant session buckets. Single-tenant (the default) uses one bucket keyed
+// by ''. With schema-per-tenant multi-tenancy (H5) each tenant gets its own
+// active/revoked maps, selected by the ambient DB schema (set by db.runInTenant),
+// so a jti, revocation, or session listing in one tenant never leaks to another.
+const _tenants = new Map();  // key -> { active: Map<jti,rec>, revoked: Map<jti,exp>, lastSweep, loaded }
+function bucket() {
+  const key = (db.currentSchema && db.currentSchema()) || '';
+  let b = _tenants.get(key);
+  if (!b) { b = { active: new Map(), revoked: new Map(), lastSweep: 0, loaded: false }; _tenants.set(key, b); }
+  return b;
+}
 
-let _lastSweep = 0;
 function sweep() {
+  const b = bucket();
   const now = Math.floor(Date.now() / 1000);
-  if ((now - _lastSweep) < 60) return;
-  _lastSweep = now;
-  for (const [jti, s] of _active) if (s.exp && s.exp <= now) _active.delete(jti);
-  for (const [jti, exp] of _revoked) if (exp <= now) _revoked.delete(jti);
+  if ((now - b.lastSweep) < 60) return;
+  b.lastSweep = now;
+  for (const [jti, s] of b.active) if (s.exp && s.exp <= now) b.active.delete(jti);
+  for (const [jti, exp] of b.revoked) if (exp <= now) b.revoked.delete(jti);
 }
 function pgErr(msg) { return e => console.error(JSON.stringify({ level: 'error', src: 'sessions', msg, err: e.message })); }
 
@@ -34,8 +43,9 @@ function pgErr(msg) { return e => console.error(JSON.stringify({ level: 'error',
 function register({ jti, userId, email, role, ip, ua, iat, exp }) {
   if (!jti) return;
   sweep();
+  const b = bucket();
   const now = Math.floor(Date.now() / 1000);
-  const prev = _active.get(jti);
+  const prev = b.active.get(jti);
   const rec = {
     jti, userId, email, role,
     ip: ip || (prev && prev.ip) || null,
@@ -45,7 +55,7 @@ function register({ jti, userId, email, role, ip, ua, iat, exp }) {
     firstSeen: (prev && prev.firstSeen) || new Date().toISOString(),
     lastSeen: new Date().toISOString()
   };
-  _active.set(jti, rec);
+  b.active.set(jti, rec);
   if (db.enabled()) {
     db.query(`INSERT INTO citadel_sessions(jti,user_id,email,role,ip,ua,iat,exp,first_seen,last_seen)
       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,now())
@@ -54,15 +64,16 @@ function register({ jti, userId, email, role, ip, ua, iat, exp }) {
   }
 }
 
-function isRevoked(jti) { return !!jti && _revoked.has(jti); }
+function isRevoked(jti) { return !!jti && bucket().revoked.has(jti); }
 
 // Revoke a single session by jti. Returns the revoked record (or null).
 function revoke(jti) {
   if (!jti) return null;
-  const s = _active.get(jti);
+  const b = bucket();
+  const s = b.active.get(jti);
   const exp = (s && s.exp) || (Math.floor(Date.now() / 1000) + 43200);
-  _revoked.set(jti, exp);
-  _active.delete(jti);
+  b.revoked.set(jti, exp);
+  b.active.delete(jti);
   if (db.enabled()) {
     db.query('INSERT INTO citadel_revoked(jti,exp) VALUES($1,$2) ON CONFLICT(jti) DO NOTHING', [jti, exp]).catch(pgErr('revoke'));
     db.query('DELETE FROM citadel_sessions WHERE jti=$1', [jti]).catch(pgErr('revoke-del'));
@@ -73,7 +84,7 @@ function revoke(jti) {
 // Revoke every active session for a user. Returns the count revoked.
 function revokeAllForUser(userId) {
   let n = 0;
-  for (const [jti, s] of _active) if (s.userId === userId) { revoke(jti); n++; }
+  for (const [jti, s] of bucket().active) if (s.userId === userId) { revoke(jti); n++; }
   // Also catch sessions only present in PG (e.g. created by another instance).
   if (db.enabled()) {
     db.query(`INSERT INTO citadel_revoked(jti,exp) SELECT jti,exp FROM citadel_sessions WHERE user_id=$1
@@ -85,40 +96,67 @@ function revokeAllForUser(userId) {
 
 function listForUser(userId) {
   sweep();
-  return [..._active.values()].filter(s => s.userId === userId)
+  return [...bucket().active.values()].filter(s => s.userId === userId)
     .sort((a, b) => (a.lastSeen < b.lastSeen ? 1 : -1));
 }
 function listAll() {
   sweep();
-  return [..._active.values()].sort((a, b) => (a.lastSeen < b.lastSeen ? 1 : -1));
+  return [...bucket().active.values()].sort((a, b) => (a.lastSeen < b.lastSeen ? 1 : -1));
 }
-function stats() { sweep(); return { active: _active.size, revoked: _revoked.size }; }
+function stats() { sweep(); const b = bucket(); return { active: b.active.size, revoked: b.revoked.size }; }
 
-// Load durable state on boot + start the cross-instance revoked-set refresh.
+// Load durable state for the current (ambient) tenant bucket from its schema.
+async function loadBucket() {
+  if (!db.enabled()) return;
+  const b = bucket();
+  const now = Math.floor(Date.now() / 1000);
+  const a = await db.query('SELECT * FROM citadel_sessions WHERE exp > $1', [now]);
+  for (const r of a.rows) {
+    b.active.set(r.jti, {
+      jti: r.jti, userId: r.user_id, email: r.email, role: r.role, ip: r.ip, ua: r.ua,
+      iat: Number(r.iat), exp: Number(r.exp),
+      firstSeen: (r.first_seen instanceof Date ? r.first_seen.toISOString() : r.first_seen),
+      lastSeen: (r.last_seen instanceof Date ? r.last_seen.toISOString() : r.last_seen)
+    });
+  }
+  await refreshRevoked();
+  b.loaded = true;
+}
+
+// Load durable state on boot (default tenant) + start the cross-instance
+// revoked-set refresh across every loaded tenant bucket.
 async function init() {
   if (!db.enabled()) return;
-  const now = Math.floor(Date.now() / 1000);
-  try {
-    const a = await db.query('SELECT * FROM citadel_sessions WHERE exp > $1', [now]);
-    for (const r of a.rows) {
-      _active.set(r.jti, {
-        jti: r.jti, userId: r.user_id, email: r.email, role: r.role, ip: r.ip, ua: r.ua,
-        iat: Number(r.iat), exp: Number(r.exp),
-        firstSeen: (r.first_seen instanceof Date ? r.first_seen.toISOString() : r.first_seen),
-        lastSeen: (r.last_seen instanceof Date ? r.last_seen.toISOString() : r.last_seen)
-      });
-    }
-    await refreshRevoked();
-  } catch (e) { pgErr('init')(e); }
-  setInterval(() => { refreshRevoked().catch(pgErr('refresh')); }, REVOKE_REFRESH_MS).unref();
+  try { await loadBucket(); } catch (e) { pgErr('init')(e); }
+  setInterval(() => { refreshAll().catch(pgErr('refresh')); }, REVOKE_REFRESH_MS).unref();
 }
+
+// Ensure the current tenant's bucket is loaded (idempotent). Awaited by the
+// per-request multi-tenancy middleware before handlers run.
+async function ensureLoaded() {
+  if (!db.enabled()) return;
+  if (bucket().loaded) return;
+  await loadBucket();
+}
+
+// Refresh the revoked set for the CURRENT tenant bucket from its schema.
 async function refreshRevoked() {
   if (!db.enabled()) return;
+  const b = bucket();
   const now = Math.floor(Date.now() / 1000);
   const r = await db.query('SELECT jti, exp FROM citadel_revoked WHERE exp > $1', [now]);
-  _revoked.clear();
-  for (const row of r.rows) _revoked.set(row.jti, Number(row.exp));
+  b.revoked.clear();
+  for (const row of r.rows) b.revoked.set(row.jti, Number(row.exp));
   db.query('DELETE FROM citadel_revoked WHERE exp <= $1', [now]).catch(pgErr('prune'));
 }
 
-module.exports = { init, register, isRevoked, revoke, revokeAllForUser, listForUser, listAll, stats };
+// Refresh every loaded tenant bucket, each within its own schema scope.
+async function refreshAll() {
+  for (const [key, b] of _tenants) {
+    if (!b.loaded) continue;
+    if (key) await db.runInTenant(key, () => refreshRevoked());
+    else await refreshRevoked();
+  }
+}
+
+module.exports = { init, ensureLoaded, register, isRevoked, revoke, revokeAllForUser, listForUser, listAll, stats };

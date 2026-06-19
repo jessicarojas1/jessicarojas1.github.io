@@ -86,7 +86,14 @@ function verifyHash(password, salt, stored) {
 function newSalt() { return crypto.randomBytes(16).toString('hex'); }
 function uid() { return 'u' + Date.now().toString(36) + crypto.randomBytes(3).toString('hex'); }
 
-let _db = null;
+// Tenant-keyed stores. Single-tenant (the default) uses the DEFAULT_KEY store and
+// is loaded once at init(). With schema-per-tenant multi-tenancy (H5) each tenant
+// gets its own store, selected by the ambient DB schema (set by db.runInTenant);
+// the per-request middleware calls ensureLoaded() before any synchronous read.
+const DEFAULT_KEY = '';
+const _stores = new Map();   // tenant key -> { users, settings, secret }
+function currentKey() { return (db.currentSchema && db.currentSchema()) || DEFAULT_KEY; }
+function curStore() { return _stores.get(currentKey()); }
 
 // Seed a fresh store skeleton: JWT secret + default admin (flagged to force a
 // password change when the publicly-known default is used).
@@ -126,13 +133,13 @@ function seed(dbObj) {
 }
 
 /* ---- At-rest encryption helpers (envelope, see lib/secretbox.js) ---- */
-// A storage-facing copy of _db with the JWT secret + per-user TOTP seeds sealed.
-// Operates on a copy so the in-memory cache stays plaintext for the sync API.
-function sealedSnapshot() {
+// A storage-facing copy of a store with the JWT secret + per-user TOTP seeds
+// sealed. Operates on a copy so the in-memory cache stays plaintext for the sync API.
+function sealedSnapshot(s) {
   return {
-    ..._db,
-    secret: secretbox.seal(_db.secret),
-    users: _db.users.map(u => {
+    ...s,
+    secret: secretbox.seal(s.secret),
+    users: s.users.map(u => {
       const c = { ...u };
       for (const f of USER_SECRET_FIELDS) if (c[f]) c[f] = secretbox.seal(c[f]);
       return c;
@@ -150,17 +157,25 @@ function hydrate(dbObj) {
 }
 
 /* ---- File-backed path (no DATABASE_URL) ---- */
+// Only the DEFAULT_KEY store is file-backed. In file mode multi-tenancy is not
+// durable (schema-per-tenant requires Postgres); non-default tenant stores live
+// in memory only, which is enough for development and the isolation tests.
 function loadFile() {
-  if (_db) return _db;
-  try { _db = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch (e) { _db = null; }
-  if (!_db || !Array.isArray(_db.users)) _db = { users: [], settings: { enforce: false }, secret: null };
-  hydrate(_db);
-  if (seed(_db)) saveFile();
-  return _db;
+  let s = _stores.get(DEFAULT_KEY);
+  if (s) return s;
+  try { s = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch (e) { s = null; }
+  if (!s || !Array.isArray(s.users)) s = { users: [], settings: { enforce: false }, secret: null };
+  hydrate(s);
+  _stores.set(DEFAULT_KEY, s);
+  if (seed(s)) saveFile();
+  return s;
 }
 let _warnedSave = false;
 function saveFile() {
-  try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(sealedSnapshot(), null, 2)); }
+  if (currentKey() !== DEFAULT_KEY) return;   // non-default tenants are in-memory only in file mode
+  const s = _stores.get(DEFAULT_KEY);
+  if (!s) return;
+  try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(sealedSnapshot(s), null, 2)); }
   catch (e) {
     if (!_warnedSave) {
       _warnedSave = true;
@@ -181,17 +196,24 @@ function rowToUser(r) {
     createdAt: (r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at)
   };
 }
+// Reads run via db.query, which routes to the ambient tenant schema (or the
+// public/default schema outside any tenant scope), so this loads the right
+// tenant's data into that tenant's store.
 async function loadPg() {
+  const key = currentKey();
   const s = await db.query('SELECT key, value FROM citadel_settings');
   let secret = null; const settingsRow = {};
   for (const r of s.rows) { if (r.key === 'secret') secret = secretbox.open(r.value && r.value.v); else if (r.key === 'app') Object.assign(settingsRow, r.value || {}); }
   const u = await db.query('SELECT * FROM citadel_users ORDER BY created_at');
-  _db = { users: u.rows.map(rowToUser), settings: Object.assign({ enforce: false }, settingsRow), secret };
-  if (seed(_db)) await syncPg();   // persist a freshly-seeded secret/admin
-  return _db;
+  const store = { users: u.rows.map(rowToUser), settings: Object.assign({ enforce: false }, settingsRow), secret };
+  _stores.set(key, store);
+  if (seed(store)) await syncPg();   // persist a freshly-seeded secret/admin (into this tenant's schema)
+  return store;
 }
-// Full write-through of the (small) user set + settings + secret. Idempotent.
+// Full write-through of the (small) user set + settings + secret for the current
+// tenant store. Idempotent. db.query routes to the ambient tenant schema.
 async function syncPg() {
+  const _db = curStore();
   await db.query(`INSERT INTO citadel_settings(key,value) VALUES('secret',$1)
     ON CONFLICT(key) DO UPDATE SET value=$1`, [JSON.stringify({ v: secretbox.seal(_db.secret) })]);
   await db.query(`INSERT INTO citadel_settings(key,value) VALUES('app',$1)
@@ -213,7 +235,27 @@ async function syncPg() {
   else await db.query('DELETE FROM citadel_users');
 }
 
-function load() { return _db || loadFile(); }
+function load() {
+  const s = curStore();
+  if (s) return s;
+  if (!db.enabled()) return loadFile();
+  // PG multi-tenant: the per-request middleware must ensureLoaded() before any
+  // synchronous read. Reaching here means the tenant store wasn't preloaded —
+  // fail safe rather than silently serve (or create) the wrong tenant's data.
+  throw new Error('CITADEL: tenant store not loaded for "' + currentKey() + '" (call users.ensureLoaded() first).');
+}
+// Ensure the current tenant's store is loaded (idempotent). Awaited by the
+// per-request multi-tenancy middleware before handlers run.
+async function ensureLoaded() {
+  const key = currentKey();
+  if (_stores.has(key)) return _stores.get(key);
+  if (db.enabled()) return loadPg();
+  if (key === DEFAULT_KEY) return loadFile();
+  // File-mode tenant: fresh in-memory, seeded store (no disk persistence).
+  const s = { users: [], settings: { enforce: process.env.CITADEL_ALLOW_OPEN === '1' ? false : true }, secret: null };
+  _stores.set(key, s); seed(s);
+  return s;
+}
 // Mutation persistence: PG write-through (fire-and-forget) or file save.
 function save() {
   if (db.enabled()) { syncPg().catch(e => console.error(JSON.stringify({ level: 'error', src: 'users', msg: 'pg sync failed', err: e.message }))); }
@@ -223,7 +265,7 @@ function save() {
 // One-time async bootstrap; must be awaited before serving requests.
 async function init() {
   if (db.enabled()) { await loadPg(); } else { loadFile(); }
-  return _db;
+  return curStore();
 }
 
 function strip(u) {
@@ -373,7 +415,7 @@ function mfaVerify(id, token) {
 function mfaStatus(id) { const u = getRaw(id); return { enabled: !!(u && u.mfaEnabled), backupRemaining: (u && u.mfaBackup ? u.mfaBackup.length : 0) }; }
 
 module.exports = {
-  PAGES, ROLES, init, secret, settings, setSetting,
+  PAGES, ROLES, init, ensureLoaded, secret, settings, setSetting,
   list, get, getByEmail: e => strip(getByEmail(e)), add, upsertSsoUser, update, setPermission, remove, setPassword,
   changeOwnPassword, verifyPassword, can,
   mfaEnabled, mfaBeginSetup, mfaEnable, mfaDisable, mfaVerify, mfaStatus,

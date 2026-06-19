@@ -155,6 +155,28 @@ app.use((req, res, next) => {
   next();
 });
 
+/* ---- Multi-tenancy: resolve the tenant and run the rest of the request inside
+ * its schema scope (H5) ----------------------------------------------------
+ * Established BEFORE auth-decode so every downstream read/write — JWT secret,
+ * user lookup, sessions, scans, audit, dispositions — is tenant-isolated. The
+ * tenant's user/session caches are ensured loaded first. No-op (and zero
+ * overhead) when multi-tenancy is disabled, so single-tenant is unchanged.
+ * Infra/operator routes (health probes, tenant provisioning) and the static SPA
+ * are tenant-agnostic and pass through unscoped. */
+app.use((req, res, next) => {
+  if (!tenancy.enabled()) return next();
+  if (req.path === '/api/health' || req.path === '/api/tenants' || !req.path.startsWith('/api/')) return next();
+  const slug = tenancy.resolveSlug(req);
+  if (!slug) return res.status(400).json({ error: 'Tenant not specified.' });
+  tenancy.get(slug).then(t => {
+    if (!t || !t.active) return res.status(404).json({ error: 'Unknown tenant.' });
+    db.runInTenant(t.schema, async () => {
+      try { await users.ensureLoaded(); await sessions.ensureLoaded(); next(); }
+      catch (e) { next(e); }
+    });
+  }).catch(next);
+});
+
 /* ---- Auth: parse a Bearer JWT (if present) into req.user — non-blocking ----
  * Honours session revocation (a revoked jti is rejected) and lazily re-registers
  * a valid token's session so it shows up in the active-sessions view after a
