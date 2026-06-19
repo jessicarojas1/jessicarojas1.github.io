@@ -293,9 +293,10 @@ ob_start();
   <div class="card" style="margin-bottom:18px">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-paperclip"></i> Attachments (<?= count($attachments) ?>)</span></div></div>
     <div class="card-body">
-      <?php foreach ($attachments as $att): $prior = $attachmentHistory[$att['original_name']] ?? []; ?>
+      <?php foreach ($attachments as $att): $prior = $attachmentHistory[$att['original_name']] ?? [];
+        $isImg = in_array(strtolower((string)($att['mime_type'] ?? '')), ['image/png','image/jpeg','image/gif','image/webp'], true); ?>
         <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light)">
-          <i class="bi bi-file-earmark"></i>
+          <?php if ($isImg): ?><a href="/attachments/<?= (int)$att['id'] ?>/download"><img src="/attachments/<?= (int)$att['id'] ?>/preview" alt="" loading="lazy" style="width:40px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--border-light)"></a><?php else: ?><i class="bi bi-file-earmark"></i><?php endif; ?>
           <div style="flex:1;min-width:0">
             <a href="/attachments/<?= (int)$att['id'] ?>/download" class="table-link" style="word-break:break-all"><?= Security::h($att['original_name']) ?></a>
             <?php if ((int)($att['version'] ?? 1) > 1): ?><span class="badge badge-blue" title="Version <?= (int)$att['version'] ?>">v<?= (int)$att['version'] ?></span><?php endif; ?>

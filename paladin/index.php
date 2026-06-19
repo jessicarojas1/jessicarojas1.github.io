@@ -291,6 +291,7 @@ $dynamicRoutes = [
         '#^/spaces/(\d+)/pages/create$#'     => ['PageController', 'createForm'],
         '#^/pages/(\d+)$#'                   => ['PageController', 'view'],
         '#^/attachments/(\d+)/download$#'    => ['AttachmentController', 'download'],
+        '#^/attachments/(\d+)/preview$#'     => ['AttachmentController', 'preview'],
         '#^/media/(\d+)$#'                   => ['MediaController', 'serve'],
         '#^/pages/(\d+)/edit$#'              => ['PageController', 'editForm'],
         '#^/pages/(\d+)/history$#'           => ['PageController', 'history'],
