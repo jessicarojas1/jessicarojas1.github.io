@@ -20,6 +20,27 @@ class Storage {
 
     private static ?array $_cfg = null;
 
+    /**
+     * Server-executable / dangerous file types that must NEVER be stored,
+     * regardless of any caller-side allowlist. Defense-in-depth against
+     * upload-to-RCE and stored-XSS (CWE-434) — a floor that holds even if a
+     * future upload path forgets to validate its own input.
+     */
+    private const DANGEROUS_EXTENSIONS = [
+        'php','php3','php4','php5','php7','php8','phtml','phps','pht','phar',
+        'cgi','pl','py','rb','sh','bash','ksh','exe','dll','so','bat','cmd',
+        'com','scr','vbs','vbe','ws','wsf','jar','war','ear','asp','aspx',
+        'jsp','jspx','jhtml','htaccess','htpasswd','svg','svgz',
+        'xhtml','xht','shtml','htm','html','xml','xsl','swf',
+    ];
+
+    /** True if a filename's extension is on the never-store denylist. */
+    public static function isDangerousExtension(string $name): bool
+    {
+        $ext = strtolower(trim(pathinfo($name, PATHINFO_EXTENSION)));
+        return $ext !== '' && in_array($ext, self::DANGEROUS_EXTENSIONS, true);
+    }
+
     private static function cfg(): array {
         if (self::$_cfg !== null) return self::$_cfg;
         $keys = ['storage_driver','s3_bucket','s3_region','s3_access_key','s3_secret_key','s3_endpoint','s3_public_url'];
@@ -39,7 +60,15 @@ class Storage {
 
     /** Store a file from a temp path. Returns the stored path (relative key). */
     public static function put(string $directory, string $tmpPath, string $originalName): string {
-        $ext      = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+        // Defense-in-depth: refuse server-executable / dangerous types outright,
+        // independent of any caller allowlist (CWE-434). Callers should still
+        // enforce their own MIME + extension + size checks.
+        if (self::isDangerousExtension($originalName)) {
+            throw new RuntimeException('Refusing to store disallowed file type: .' . $ext);
+        }
+
         $safeName = bin2hex(random_bytes(16)) . ($ext ? ".{$ext}" : '');
         $key      = rtrim($directory, '/') . '/' . $safeName;
         $cfg      = self::cfg();
@@ -50,10 +79,16 @@ class Storage {
             $dest = AEGIS_ROOT . '/' . $key;
             $dir  = dirname($dest);
             if (!is_dir($dir)) { mkdir($dir, 0750, true); }
+            // Prefer move_uploaded_file (validates the file came from an HTTP
+            // upload). The copy() path supports internally-generated files (e.g.
+            // exports), but only for real, readable files — never an arbitrary
+            // attacker-influenced path.
             if (!move_uploaded_file($tmpPath, $dest)) {
-                // Fallback for non-upload temp files (e.g. tests)
-                copy($tmpPath, $dest);
+                if (!is_file($tmpPath) || !@copy($tmpPath, $dest)) {
+                    throw new RuntimeException('Failed to store uploaded file');
+                }
             }
+            @chmod($dest, 0640); // not executable
         }
         return $key;
     }

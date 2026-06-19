@@ -336,11 +336,17 @@ class Security {
         // Nonce-based CSP without 'unsafe-inline'. All event handlers migrated to
         // data-* attributes via app.js delegation. Every <script> must carry the nonce.
         $n = self::nonce();
+        // Fonts are self-hosted (no Google Fonts), icons + Chart.js are vendored
+        // locally. The only remaining external origin is jsdelivr for Bootstrap
+        // CSS/JS, which is Subresource-Integrity (SRI) pinned in the markup so a
+        // CDN compromise can't substitute tampered code. For air-gapped / IL5+
+        // deployments, vendor Bootstrap locally and drop jsdelivr below.
+        $cdn = 'https://cdn.jsdelivr.net';
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'nonce-{$n}' https://cdn.jsdelivr.net",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
-            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
+            "script-src 'self' 'nonce-{$n}' {$cdn}",
+            "style-src 'self' 'unsafe-inline' {$cdn}",
+            "font-src 'self'",
             // https: permits an externally-hosted branding logo set via URL
             // (Settings → Branding); data:/blob: cover uploads and inline images.
             "img-src 'self' data: blob: https:",
@@ -348,11 +354,15 @@ class Security {
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",
+            "object-src 'none'",
         ]);
         header('Content-Security-Policy: ' . $csp);
         header('X-Frame-Options: DENY');
         header('X-Content-Type-Options: nosniff');
-        header('X-XSS-Protection: 1; mode=block');
+        // X-XSS-Protection is deprecated; "1; mode=block" can itself introduce
+        // vulnerabilities. Modern guidance (OWASP/CISA) is to disable it and rely
+        // on the CSP above. See OWASP Secure Headers Project.
+        header('X-XSS-Protection: 0');
         header('Referrer-Policy: strict-origin-when-cross-origin');
         header('Cross-Origin-Opener-Policy: same-origin');
         header('Cross-Origin-Resource-Policy: same-origin');
