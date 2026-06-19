@@ -262,7 +262,7 @@ app.get('/api/health', async (req, res) => {
   const isAdmin = !!(req.user && req.user.role === 'admin');
   const tools = await toolStatus();
   res.json({
-    ok: true, version: '1.0', engine: 'deep', ai: ai.available(),
+    ok: true, version: '1.0', engine: 'deep', ai: ai.available(), airgap: ai.airgapped(),
     auth: { enforce: users.settings().enforce, sso: oidc.enabled() },
     store: isAdmin
       ? { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled(), rateLimit: rateLimit.backend(), notify: notify.enabled() }
