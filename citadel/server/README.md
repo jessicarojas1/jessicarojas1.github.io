@@ -148,7 +148,7 @@ browser store is only a fallback for static hosting (GitHub Pages).
 | `/api/auth/me` · `/api/auth/password` · `/api/auth/logout` | GET/POST | Bearer token |
 | `/api/auth/settings` · `/api/branding` | GET / PATCH | GET any · PATCH admin |
 | `/api/users` `…/:id` `…/:id/password` `…/:id/revoke-sessions` | GET/POST/PATCH/DELETE | admin |
-| `/api/sessions` `…/:jti` · `/api/audit` | GET/DELETE | admin |
+| `/api/sessions` `…/:jti` · `/api/audit` · `/api/audit/verify` | GET/DELETE | admin |
 | `/api/scan` · `/api/scan-url` · `/api/explain` | POST | permission-gated when enforce is on |
 | `/api/scans` `…/:id` | GET/DELETE | durable history (owner-scoped) |
 | `/api/dispositions` | GET / POST | shared finding triage by fingerprint (needs a DB) |
@@ -172,7 +172,7 @@ The machine-readable contract for all of the above is served at
 | `CITADEL_DATA_KEY` | — | 32-byte key (64 hex chars or base64) for **at-rest secret encryption** (AES-256-GCM). When set, TOTP seeds and the JWT signing key are sealed (`enc:v1:…`) before they touch the JSON store or Postgres, so a leaked store/backup doesn't directly yield 2FA seeds or a session-minting key. Unset = stored plaintext (legacy); reads transparently accept both, so enabling it migrates data lazily on next write. Inject from a secrets manager. |
 | `CITADEL_ACCESS_TTL` / `CITADEL_REFRESH_TTL` | `1800` / `2592000` | Access-token (30 m) and refresh-token (30 d) lifetimes, in seconds. |
 | `CITADEL_ADMIN_EMAIL` / `CITADEL_ADMIN_PASSWORD` | `admin@citadel.local` / `citadel-admin` | First-boot admin. The default password is flagged **must-change**; change it on first login. |
-| `CITADEL_AUDIT_SINK_URL` / `CITADEL_AUDIT_SINK_TOKEN` | — | Forward every audit event to an HTTP collector (Splunk HEC / SIEM webhook). |
+| `CITADEL_AUDIT_SINK_URL` / `CITADEL_AUDIT_SINK_TOKEN` | — | Forward every audit event to an HTTP collector (Splunk HEC / SIEM webhook). The audit log is also **tamper-evident**: each event is hash-chained to the previous (`hash = SHA-256(prev + record)`), so altering or deleting any past record is detectable. `GET /api/audit/verify` (admin) re-walks the chain and reports the first break, if any. |
 | `CITADEL_NOTIFY_URL` / `CITADEL_NOTIFY_TOKEN` / `CITADEL_NOTIFY_ON` | After each scan whose worst severity meets `CITADEL_NOTIFY_ON` (critical\|high\|medium\|low\|any, default critical), POST a Slack-compatible summary to the webhook. |
 | `REDIS_URL` | — | When set, rate limiting + brute-force lockout use **Redis** (shared across instances for horizontal scaling). Falls back to an in-memory limiter when unset. |
 | `CITADEL_SCAN_TIMEOUT_MS` | `30000` | Wall-clock deadline for the heuristic SAST pass. On `/api/scan` and `/api/scan-url` it runs in an **isolated worker thread** that is terminated if it exceeds this — a defense against catastrophic-backtracking (ReDoS) inputs. On timeout the scan still completes with the external-scanner findings and a `meta.warnings` note. |

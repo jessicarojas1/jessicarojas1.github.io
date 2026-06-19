@@ -92,6 +92,7 @@ test('bad credentials are rejected', async () => {
 test('admin-only routes require an admin token', async () => {
   assert.equal((await api('/api/users')).status, 401);
   assert.equal((await api('/api/audit')).status, 401);
+  assert.equal((await api('/api/audit/verify')).status, 401);
 });
 
 test('unknown API route -> JSON 404; malformed JSON -> 400 with no stack leak', async () => {

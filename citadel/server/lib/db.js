@@ -138,6 +138,11 @@ ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_enabled boolean NOT NULL 
 ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_secret  text;
 ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_pending text;
 ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_backup  jsonb NOT NULL DEFAULT '[]'::jsonb;
+
+-- Tamper-evident hash-chain columns on the audit log (idempotent for upgrades).
+-- Each row binds the previous row's hash; verifyChain() re-walks to detect edits.
+ALTER TABLE citadel_audit ADD COLUMN IF NOT EXISTS prev_hash text;
+ALTER TABLE citadel_audit ADD COLUMN IF NOT EXISTS hash      text;
 `;
 
 async function init() {

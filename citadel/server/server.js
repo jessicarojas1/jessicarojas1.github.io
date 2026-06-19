@@ -488,6 +488,12 @@ app.get('/api/audit', requireAdmin, async (req, res) => {
   res.json({ stats, events });
 });
 
+// Tamper-evidence check: re-walk the audit hash chain and report whether any
+// record was altered or removed (and where). Admin-only.
+app.get('/api/audit/verify', requireAdmin, async (req, res) => {
+  res.json(await audit.verifyChain());
+});
+
 /* ---------------- Scan history (durable, requires DATABASE_URL) ---------------- */
 // Non-admins are scoped to their own scans (no cross-user IDOR by sequential id).
 function scanScope(req) { return req.user ? { userId: req.user.id, isAdmin: req.user.role === 'admin' } : null; }
@@ -702,6 +708,7 @@ app.use((err, req, res, next) => {
     if (db.enabled()) { await db.init(); log.info('postgres connected', { store: 'postgres' }); }
     await users.init();
     await sessions.init();
+    await audit.init();   // seed the hash-chain head from the last persisted event
   } catch (e) {
     log.error('bootstrap failed; continuing with in-memory store', { err: e.message });
   }

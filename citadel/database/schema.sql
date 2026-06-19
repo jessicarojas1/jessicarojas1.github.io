@@ -78,9 +78,16 @@ CREATE TABLE IF NOT EXISTS citadel_audit (
   actor  text,
   ip     text,
   detail text,
-  ok     boolean NOT NULL DEFAULT true
+  ok     boolean NOT NULL DEFAULT true,
+  -- Tamper-evident hash chain: hash = SHA-256(prev_hash + canonical(row)).
+  -- Altering or deleting any row breaks the chain; verified via verifyChain().
+  prev_hash text,
+  hash      text
 );
 CREATE INDEX IF NOT EXISTS citadel_audit_ts_idx ON citadel_audit (seq DESC);
+-- Idempotent upgrade path for an existing citadel_audit table.
+ALTER TABLE citadel_audit ADD COLUMN IF NOT EXISTS prev_hash text;
+ALTER TABLE citadel_audit ADD COLUMN IF NOT EXISTS hash      text;
 
 -- ----------------------------------------------------------------------------
 -- Scan history — per-scan summary + full report JSON for re-download.

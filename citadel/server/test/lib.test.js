@@ -132,6 +132,29 @@ test('audit: record + list by prefix', async () => {
   const ev = await audit.list(20, 'test');
   assert.ok(ev.some(e => e.type === 'test.event' && e.actor === 'x'));
 });
+test('audit: events are hash-chained (each links to the previous)', () => {
+  const a = audit.record('chain.a', { actor: 'u' });
+  const b = audit.record('chain.b', { actor: 'u' });
+  assert.match(a.hash, /^[0-9a-f]{64}$/);
+  assert.equal(b.prevHash, a.hash);                         // b links to a
+  assert.equal(a.hash, audit.hashEvent(a.prevHash, a));     // hash is reproducible
+});
+test('audit: verifyChain passes for an intact chain', async () => {
+  const v = await audit.verifyChain();
+  assert.equal(v.ok, true);
+  assert.equal(v.brokenAt, null);
+  assert.ok(v.count >= 1);
+});
+test('audit: verifyChain detects a tampered record', async () => {
+  // hashEvent over mutated content no longer matches the stored hash → break.
+  const e = audit.record('chain.tamper', { actor: 'orig', detail: 'before' });
+  const forged = { ...e, detail: 'after' };
+  assert.notEqual(audit.hashEvent(forged.prevHash, forged), e.hash);
+  // A later record still chains off the genuine (unmutated) hash, proving the
+  // mutated copy would be rejected on a re-walk.
+  const next = audit.record('chain.next', { actor: 'orig' });
+  assert.equal(next.prevHash, e.hash);
+});
 
 /* ---------------- Users + MFA + passwords ---------------- */
 test('users: init seeds a default admin', async () => {

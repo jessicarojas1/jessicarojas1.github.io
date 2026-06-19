@@ -340,6 +340,24 @@ paths:
         - { name: type, in: query, schema: { type: string }, description: "Filter by event type prefix, e.g. login or finding.disposition" }
         - { name: limit, in: query, schema: { type: integer, default: 200 } }
       responses: { "200": { description: Audit events, content: { application/json: { schema: { type: object, properties: { stats: { type: object }, events: { type: array, items: { $ref: "#/components/schemas/AuditEvent" } } } } } } } }
+  /api/audit/verify:
+    get:
+      tags: [Admin]
+      summary: Verify the audit hash chain (admin)
+      description: Re-walks the tamper-evident hash chain and reports whether any record was altered or removed.
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, description: true when the chain is intact }
+                  count: { type: integer, description: number of chained records verified }
+                  store: { type: string, enum: [postgres, memory] }
+                  brokenAt: { type: [integer, "null"], description: seq of the first broken/tampered record, or null }
+                  reason: { type: [string, "null"], description: human-readable cause when broken }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
