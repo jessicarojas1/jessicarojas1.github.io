@@ -63,6 +63,10 @@ class Settings(BaseSettings):
     # otherwise a direct client could spoof it. Render/ALB/Nginx → set true.
     TRUST_PROXY_HEADERS: bool = False
 
+    # Outbound webhooks: emit signed lifecycle events to registered endpoints.
+    # Enqueue is atomic with the change; dispatch is backgrounded with retries.
+    WEBHOOKS_ENABLED: bool = True
+
     # OIDC / federal SSO (stub)
     OIDC_ISSUER: str = ""
     OIDC_CLIENT_ID: str = ""
