@@ -19,6 +19,9 @@ foreach (['.env.local', '.env'] as $f) {
         }
     }
 }
+// Merge real environment variables (containers/K8s/CI provide env, not a .env
+// file) so DATABASE_URL / ADMIN_EMAIL / ADMIN_PASSWORD are honored.
+foreach ((getenv() ?: []) as $k => $v) { if (!isset($_ENV[$k])) $_ENV[$k] = $v; }
 
 require_once AEGIS_ROOT . '/config/database.php';
 require_once AEGIS_ROOT . '/src/Database.php';
@@ -268,11 +271,20 @@ function runMigrations(PDO $pdo): void {
     }
 
     // ── Indexes ───────────────────────────────────────────────────────────────
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_incidents_status   ON aegis.incidents(status)");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_incidents_severity ON aegis.incidents(severity)");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_vendors_risk_tier  ON aegis.vendors(risk_tier)");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_issues_status      ON aegis.issues(status)");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_evidence_entity    ON aegis.evidence_files(entity_type, entity_id)");
+    // Tolerant like the migration loop below: an index is an optimization, so a
+    // single failure (e.g. a column that drifted between schema.sql and the inline
+    // table defs) must not abort the whole install.
+    $indexes = [
+        "CREATE INDEX IF NOT EXISTS idx_incidents_status   ON aegis.incidents(status)",
+        "CREATE INDEX IF NOT EXISTS idx_incidents_severity ON aegis.incidents(severity)",
+        "CREATE INDEX IF NOT EXISTS idx_vendors_risk_tier  ON aegis.vendors(risk_tier)",
+        "CREATE INDEX IF NOT EXISTS idx_issues_status      ON aegis.issues(status)",
+        "CREATE INDEX IF NOT EXISTS idx_evidence_entity    ON aegis.evidence_files(entity_type, entity_id)",
+    ];
+    foreach ($indexes as $ddl) {
+        try { $pdo->exec($ddl); }
+        catch (PDOException $e) { log_msg('[AEGIS] index warning: ' . $e->getMessage()); }
+    }
 
     // ── SQL migration files ───────────────────────────────────────────────────
     $migrationFiles = [
@@ -300,6 +312,7 @@ function runMigrations(PDO $pdo): void {
         '022_branding.sql',
         '023_risk_scoring.sql',
         '024_ai_governance.sql',
+        '025_audit_changes_text.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;
