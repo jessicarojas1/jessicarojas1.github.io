@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SSP — <?= Security::h($plan['title']) ?></title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css">
 <script nonce="<?= Security::nonce() ?>">(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})()</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
