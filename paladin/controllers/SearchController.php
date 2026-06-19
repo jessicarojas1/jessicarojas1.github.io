@@ -42,9 +42,11 @@ class SearchController {
                 if ($spaceId !== null) { $cond[] = "d.space_id = ?"; $par[] = $spaceId; }
                 if ($tagId !== null)   { $cond[] = "EXISTS (SELECT 1 FROM entity_tags et WHERE et.entity_type='document' AND et.entity_id = d.id AND et.tag_id = ?)"; $par[] = $tagId; }
                 if ($userId !== null)  { $cond[] = "(d.owner_id = ? OR d.created_by = ?)"; $par[] = $userId; $par[] = $userId; }
+                $cond[] = $priv; array_push($par, $role, $uid); // hide private-space docs from non-members
                 $results['documents'] = Database::fetchAll(
                     "SELECT d.id, d.document_code, d.title, d.status, d.doc_type
-                     FROM documents d WHERE " . ($cond ? implode(' AND ', $cond) : 'TRUE') . "
+                     FROM documents d LEFT JOIN spaces s ON s.id = d.space_id
+                     WHERE " . implode(' AND ', $cond) . "
                      ORDER BY d.updated_at DESC LIMIT 25", $par
                 );
             }
