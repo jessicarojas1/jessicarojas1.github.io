@@ -22,8 +22,10 @@ Env:
 
 import os
 import json
+import time
 import secrets
 import pathlib
+import threading
 from functools import wraps
 from contextlib import contextmanager
 
@@ -55,6 +57,10 @@ IS_PROD = ENVIRONMENT not in ("development", "dev", "local", "test")
 SESSION_COOKIE = "am_session"
 CSRF_COOKIE = "am_csrf"
 SESSION_TTL = int(os.environ.get("SESSION_TTL_SECONDS", str(12 * 3600)))
+
+# Brute-force throttle for login. Counts recent FAILED attempts per client IP.
+LOGIN_MAX_ATTEMPTS = int(os.environ.get("LOGIN_MAX_ATTEMPTS", "5"))
+LOGIN_WINDOW_SECONDS = int(os.environ.get("LOGIN_WINDOW_SECONDS", "300"))
 
 app = Flask(__name__, static_folder=None)
 
@@ -148,6 +154,40 @@ def _load_secret() -> str:
 
 SECRET = _load_secret()
 _signer = URLSafeTimedSerializer(SECRET, salt="aeromarkup-session")
+
+# ── Login rate limiting ───────────────────────────────────────────────
+# Simple in-memory sliding window of failed attempts per IP. This is a basic
+# defense; for multi-worker / multi-replica deployments enforce the durable
+# limit at the gateway/WAF or back this with a shared store (Redis).
+_login_attempts = {}            # ip -> [failure_ts, ...]
+_login_lock = threading.Lock()
+
+
+def _client_ip() -> str:
+    # remote_addr is the directly-connected peer. Behind a trusted proxy you
+    # would resolve a validated X-Forwarded-For — not trusted blindly here.
+    return request.remote_addr or "unknown"
+
+
+def _login_blocked(ip: str) -> bool:
+    cutoff = time.time() - LOGIN_WINDOW_SECONDS
+    with _login_lock:
+        hits = [t for t in _login_attempts.get(ip, ()) if t > cutoff]
+        if hits:
+            _login_attempts[ip] = hits
+        else:
+            _login_attempts.pop(ip, None)
+        return len(hits) >= LOGIN_MAX_ATTEMPTS
+
+
+def _record_login_failure(ip: str) -> None:
+    with _login_lock:
+        _login_attempts.setdefault(ip, []).append(time.time())
+
+
+def _clear_login_failures(ip: str) -> None:
+    with _login_lock:
+        _login_attempts.pop(ip, None)
 
 # Endpoints reachable without a session. Everything else under /api/ requires
 # a valid session; static PWA assets (the app shell, login screen) are public.
@@ -270,6 +310,12 @@ def auth_status():
 def auth_login():
     if (r := require_db()):
         return r
+    ip = _client_ip()
+    if _login_blocked(ip):
+        resp = jsonify({"error": "too_many_attempts",
+                        "detail": "Too many failed logins; try again later."})
+        resp.headers["Retry-After"] = str(LOGIN_WINDOW_SECONDS)
+        return resp, 429
     d = request.get_json(force=True) or {}
     username = (d.get("username") or "").strip()
     password = d.get("password") or ""
@@ -282,7 +328,9 @@ def auth_login():
             (username,),
         ).fetchone()
     if not u or not u["password_hash"] or not check_password_hash(u["password_hash"], password):
+        _record_login_failure(ip)
         return jsonify({"error": "invalid_credentials"}), 401
+    _clear_login_failures(ip)
     return _issue_session(u)
 
 

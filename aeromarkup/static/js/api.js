@@ -57,9 +57,9 @@ async function req(path, { method = "GET", body = null } = {}) {
   });
   if (r.status === 401) {
     if (_authed) { _authed = false; _me = null; emitAuth(); }
-    throw new AuthError(path + " -> 401");
+    const e = new AuthError(path + " -> 401"); e.status = 401; throw e;
   }
-  if (!r.ok) throw new Error(path + " -> " + r.status);
+  if (!r.ok) { const e = new Error(path + " -> " + r.status); e.status = r.status; throw e; }
   return r.status === 204 ? null : r.json();
 }
 

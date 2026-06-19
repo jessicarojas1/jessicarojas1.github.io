@@ -176,8 +176,9 @@ function showAuthGate(mode) {
         }
         ov.remove();
         resolve(true);
-      } catch {
-        fail(mode === "bootstrap" ? "Could not create administrator. Try again." : "Invalid username or password.");
+      } catch (e) {
+        if (e && e.status === 429) fail("Too many failed attempts. Please wait a few minutes and try again.");
+        else fail(mode === "bootstrap" ? "Could not create administrator. Try again." : "Invalid username or password.");
       }
     };
     submit.addEventListener("click", go);
