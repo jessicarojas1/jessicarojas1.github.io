@@ -53,9 +53,17 @@ class DashboardController {
              ORDER BY al.id DESC LIMIT 12"
         );
 
+        // Hide documents in private spaces from non-members (admins see all).
+        $docPriv = ''; $docPrivParams = [];
+        if (Auth::role() !== 'admin') {
+            $docPriv = ' WHERE (d.space_id IS NULL OR s.is_private = FALSE OR EXISTS (SELECT 1 FROM space_members m WHERE m.space_id = d.space_id AND m.user_id = ?))';
+            $docPrivParams[] = $uid;
+        }
         $recentDocs = Database::fetchAll(
             "SELECT d.id, d.document_code, d.title, d.status, d.doc_type, d.updated_at
-             FROM documents d ORDER BY d.updated_at DESC LIMIT 6"
+             FROM documents d LEFT JOIN spaces s ON s.id = d.space_id" . $docPriv . "
+             ORDER BY d.updated_at DESC LIMIT 6",
+            $docPrivParams
         );
 
         // Documents by status for the chart
