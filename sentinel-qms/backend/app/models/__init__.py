@@ -116,6 +116,7 @@ from app.models.quality_objective import (
     QualityObjectiveMeasurement,
 )
 from app.models.record_share import RecordShare
+from app.models.refresh_token import RefreshToken
 from app.models.risk import (
     Risk,
     RiskCategory,
@@ -292,4 +293,5 @@ __all__ = [
     "ObjectiveStatus",
     "Webhook",
     "WebhookDelivery",
+    "RefreshToken",
 ]

@@ -62,15 +62,17 @@ than implying false assurance.
 - **Limitation:** No external job queue; if all workers are down, jobs simply
   wait until one is running again.
 
-## 7. JWT logout is stateless (no server-side revocation list)
-- **Where:** `backend/app/api/routers/auth.py`, `backend/app/core/security.py`.
-- **State:** Logout is audited and the client discards its tokens; there is no
-  server-side denylist, so an already-issued access token remains valid until it
-  expires (default 30 min). Tokens already carry a `jti` claim to support a
-  future denylist.
-- **Mitigation today:** Keep access-token lifetime short; for immediate
-  programmatic revocation, use Personal Access Tokens (revocable instantly) and
-  rotate the JWT secret in an emergency.
+## 7. Access tokens are stateless (short-lived; not individually revocable)
+- **Where:** `backend/app/api/routers/auth.py`, `backend/app/services/refresh_tokens.py`.
+- **State:** **Refresh** tokens are now tracked server-side, rotated on every use,
+  and revocable (logout revokes the user's whole set; reuse of a rotated token
+  burns the chain). **Access** tokens remain stateless JWTs, so an already-issued
+  access token stays valid until it expires (default 30 min) — there is no
+  per-access-token denylist.
+- **Mitigation:** Keep the access-token lifetime short; revoking refresh tokens
+  stops new access tokens from being minted. For immediate programmatic
+  revocation use Personal Access Tokens (revocable instantly), and rotate the JWT
+  secret in an emergency.
 
 ## 8. Database engine
 - **Where:** `backend/IMPLEMENTATION_NOTES.md`, models across `backend/app/models`.

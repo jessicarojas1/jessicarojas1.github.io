@@ -25,9 +25,11 @@ Obtain tokens at `POST /api/v1/auth/login`, then send the access token as a bear
 ```
 Authorization: Bearer <access_token>
 ```
-Refresh via `POST /api/v1/auth/refresh`. Federated (OIDC/SAML/CAC-PIV) sessions are exchanged for an
-internal token by the identity broker. See
-[security-architecture.md](security-architecture.md) §2.
+Refresh via `POST /api/v1/auth/refresh`. Refresh tokens are **rotated** on every use: the presented
+token is revoked server-side and a new one returned, and replaying a rotated token revokes the user's
+whole active set (theft detection). `POST /api/v1/auth/logout` revokes the user's refresh tokens
+(sign out everywhere). Federated (OIDC/SAML/CAC-PIV) sessions are exchanged for an internal token by
+the identity broker. See [security-architecture.md](security-architecture.md) §2.
 
 #### Personal Access Tokens (scoped API keys)
 For scripts, CI jobs, and service integrations, mint a long-lived **Personal Access Token** under
