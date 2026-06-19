@@ -38,6 +38,17 @@ the identity broker. See [security-architecture.md](security-architecture.md) §
 | `POST /api/v1/auth/password-reset/confirm` | Set a new password with a valid reset token; revokes existing sessions. |
 | `POST /api/v1/auth/change-password` | Signed-in user changes their own password (re-auth with current password); revokes other sessions. |
 
+#### Multi-factor authentication (TOTP)
+Time-based one-time passwords (RFC 6238) compatible with standard authenticator apps. Once a user
+activates MFA, `POST /api/v1/auth/login` additionally requires an `otp` field.
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/v1/auth/mfa/status` | Whether MFA is enabled for the current user. |
+| `POST /api/v1/auth/mfa/enroll` | Generate a TOTP secret + `otpauth://` URI (not yet enforced). |
+| `POST /api/v1/auth/mfa/activate` | Confirm a code to enable MFA. |
+| `POST /api/v1/auth/mfa/disable` | Verify a code and disable MFA. |
+
 #### Personal Access Tokens (scoped API keys)
 For scripts, CI jobs, and service integrations, mint a long-lived **Personal Access Token** under
 **My Profile → API Tokens** (or `POST /api/v1/tokens`). The token is presented exactly once at

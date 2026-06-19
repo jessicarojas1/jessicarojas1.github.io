@@ -12,7 +12,7 @@ from app.api.deps import get_current_user
 from app.core import audit
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.exceptions import AuthenticationError, RateLimitError
+from app.core.exceptions import AuthenticationError, RateLimitError, ValidationAppError
 from app.core.security import (
     create_access_token,
     hash_password,
@@ -23,6 +23,9 @@ from app.schemas.auth import (
     ChangePasswordRequest,
     CurrentUser,
     LoginRequest,
+    MfaCodeRequest,
+    MfaEnrollResponse,
+    MfaStatus,
     PasswordResetConfirm,
     PasswordResetRequest,
     Token,
@@ -30,7 +33,7 @@ from app.schemas.auth import (
     UserRead,
 )
 from app.schemas.common import MessageOut
-from app.services import password_reset, refresh_tokens
+from app.services import mfa, password_reset, refresh_tokens
 from app.services.crud import request_context
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -109,6 +112,22 @@ def login(
 
     if not user.is_active:
         raise AuthenticationError("Account is disabled.")
+
+    # Second factor: enforced only for accounts that have activated MFA.
+    if user.mfa_enabled and user.mfa_secret:
+        if not body.otp:
+            raise AuthenticationError("MFA code required.")
+        if not mfa.verify(user.mfa_secret, body.otp):
+            audit.record(
+                db,
+                actor_id=user.id,
+                actor_email=user.email,
+                action="login_failed",
+                entity_type="auth",
+                **request_context(request),
+            )
+            db.commit()
+            raise AuthenticationError("Invalid MFA code.")
 
     user.last_login_at = datetime.now(UTC)
     audit.record(
@@ -258,3 +277,95 @@ def change_password(
     )
     db.commit()
     return MessageOut(detail="Password changed.")
+
+
+@router.get("/mfa/status", response_model=MfaStatus)
+def mfa_status(
+    current: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> MfaStatus:
+    user = db.get(User, current.id)
+    if user is None:
+        raise AuthenticationError("User not found.")
+    return MfaStatus(enabled=bool(user.mfa_enabled))
+
+
+@router.post("/mfa/enroll", response_model=MfaEnrollResponse)
+def mfa_enroll(
+    current: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> MfaEnrollResponse:
+    """Begin MFA enrollment: generate (but do not yet activate) a TOTP secret.
+
+    Returns the secret and an ``otpauth://`` URI for the authenticator app. The
+    secret only becomes enforced after :func:`mfa_activate` confirms a code.
+    """
+    user = db.get(User, current.id)
+    if user is None:
+        raise AuthenticationError("User not found.")
+    if user.mfa_enabled:
+        raise ValidationAppError("MFA is already enabled. Disable it first to re-enroll.")
+    secret = mfa.generate_secret()
+    user.mfa_secret = secret
+    db.commit()
+    return MfaEnrollResponse(
+        secret=secret,
+        otpauth_uri=mfa.provisioning_uri(secret, user.email),
+    )
+
+
+@router.post("/mfa/activate", response_model=MfaStatus)
+def mfa_activate(
+    request: Request,
+    body: MfaCodeRequest,
+    current: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> MfaStatus:
+    """Confirm enrollment by verifying a code; enables MFA for future logins."""
+    user = db.get(User, current.id)
+    if user is None or not user.mfa_secret:
+        raise ValidationAppError("Start MFA enrollment first.")
+    if not mfa.verify(user.mfa_secret, body.code):
+        raise AuthenticationError("Invalid MFA code.")
+    user.mfa_enabled = True
+    audit.record(
+        db,
+        actor_id=user.id,
+        actor_email=user.email,
+        action="mfa_enabled",
+        entity_type="auth",
+        entity_id=user.id,
+        **request_context(request),
+    )
+    db.commit()
+    return MfaStatus(enabled=True)
+
+
+@router.post("/mfa/disable", response_model=MfaStatus)
+def mfa_disable(
+    request: Request,
+    body: MfaCodeRequest,
+    current: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> MfaStatus:
+    """Disable MFA after verifying a current code; clears the stored secret."""
+    user = db.get(User, current.id)
+    if user is None:
+        raise AuthenticationError("User not found.")
+    if not user.mfa_enabled or not user.mfa_secret:
+        return MfaStatus(enabled=False)
+    if not mfa.verify(user.mfa_secret, body.code):
+        raise AuthenticationError("Invalid MFA code.")
+    user.mfa_enabled = False
+    user.mfa_secret = None
+    audit.record(
+        db,
+        actor_id=user.id,
+        actor_email=user.email,
+        action="mfa_disabled",
+        entity_type="auth",
+        entity_id=user.id,
+        **request_context(request),
+    )
+    db.commit()
+    return MfaStatus(enabled=False)

@@ -39,6 +39,21 @@ class LoginRequest(BaseModel):
     # email server-side, and EmailStr rejects reserved domains like ".local".
     username: str = Field(..., min_length=1, max_length=320)
     password: str = Field(..., min_length=1, max_length=256)
+    # TOTP code, required only for accounts with MFA enabled.
+    otp: str | None = Field(default=None, max_length=16)
+
+
+class MfaEnrollResponse(BaseModel):
+    secret: str
+    otpauth_uri: str
+
+
+class MfaCodeRequest(BaseModel):
+    code: str = Field(..., min_length=1, max_length=16)
+
+
+class MfaStatus(BaseModel):
+    enabled: bool
 
 
 class RoleRead(ORMModel):
