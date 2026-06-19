@@ -56,6 +56,9 @@ class User(Base, TimestampMixin):
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # Per-user notification preferences, e.g. {"muted_categories": ["fmea", "spc"]}.
     notification_prefs: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # TOTP multi-factor auth: base32 shared secret + activation flag.
+    mfa_secret: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    mfa_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     roles: Mapped[list[Role]] = relationship(
         "Role", secondary=user_roles, back_populates="users", lazy="selectin"
