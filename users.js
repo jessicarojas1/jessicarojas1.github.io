@@ -3,9 +3,15 @@
  *
  * ROOT USER — always available, never stored in localStorage:
  *   Username : root
- *   Password : RootAdmin@2026!
+ *   Password : (not stored in source — only its SHA-256 hash is shipped below)
  *   Role     : admin
  *   Use this to bootstrap the system, then create your real admin account.
+ *
+ * SECURITY NOTE: This is a client-side-only demo gate (no backend). It does NOT
+ * provide real authentication — anyone can read this file. Never store a
+ * plaintext credential here. The root password is kept out of source: only its
+ * SHA-256 hash is shipped, and it should be rotated periodically. Treat any
+ * account/role decisions made here as advisory UI state, not a security boundary.
  *
  * Users are stored in localStorage as { username, passwordHash, role, created }.
  * Passwords are hashed with SHA-256 (Web Crypto API) — no plaintext stored.
@@ -23,13 +29,14 @@ const Users = (() => {
   const REQ_KEY   = 'rbac_requests';
 
   /* ── Root user ────────────────────────────────────────────────────
-     Hardcoded bootstrap account. Never stored in localStorage.
+     Bootstrap account. Never stored in localStorage.
      Cannot be deleted or modified via the UI.
-       Username : root
-       Password : RootAdmin@2026!                                    */
-  const ROOT_USERNAME = 'root';
-  const ROOT_PASSWORD = 'RootAdmin@2026!';
-  const ROOT_ROLE     = 'admin';
+     The plaintext password is intentionally NOT in source — only the
+     SHA-256 hash below. Rotate by replacing ROOT_PASSWORD_HASH with the
+     SHA-256 of a new password.                                       */
+  const ROOT_USERNAME      = 'root';
+  const ROOT_PASSWORD_HASH = '505d339aea60a01c09adb3b86ae677db4f2dba4e5b911f368c69b91353473cfb';
+  const ROOT_ROLE          = 'admin';
 
   /* ── SHA-256 via Web Crypto ─────────────────────────────────── */
   async function sha256(str) {
@@ -67,8 +74,8 @@ const Users = (() => {
 
     if (uname === ROOT_USERNAME) {
       const inputHash = await sha256(password);
-      const rootHash  = await sha256(ROOT_PASSWORD);
-      return inputHash === rootHash
+      // Constant-time-ish compare against the shipped hash (no plaintext in source).
+      return inputHash === ROOT_PASSWORD_HASH
         ? { username: ROOT_USERNAME, role: ROOT_ROLE, created: 0, isRoot: true }
         : null;
     }

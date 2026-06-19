@@ -58,13 +58,21 @@ class Security {
     public static function sanitizeHtml(string $html): string {
         if (trim($html) === '') return '';
 
-        // Dangerous tags to remove entirely (including children)
+        // Dangerous tags to remove entirely (including children).
+        // svg/math/foreignObject are blocked outright: the editor has no need for
+        // inline SVG/MathML, and they enable script execution via xlink:href and
+        // <set>/<animate> attribute animation that bypass a plain on*/href filter.
         $blockedTags = ['script','style','iframe','object','embed','applet',
-                        'form','input','button','select','textarea','link','meta','base'];
+                        'form','input','button','select','textarea','link','meta','base',
+                        'svg','math','foreignobject'];
 
         // Dangerous attribute prefixes
         $blockedAttrPrefixes = ['on']; // onclick, onload, onerror, etc.
-        $blockedAttrs = ['href', 'src', 'action', 'formaction', 'data', 'srcdoc', 'style'];
+        // URL/scheme-bearing attributes that must be allowlisted to safe schemes.
+        // Includes namespaced/animation vectors (xlink:href, and <set>/<animate>
+        // to/from/by/values) which can smuggle javascript: URIs.
+        $blockedAttrs = ['href', 'src', 'action', 'formaction', 'data', 'srcdoc', 'style',
+                         'xlink:href', 'to', 'from', 'by', 'values'];
 
         $dom = new \DOMDocument();
         libxml_use_internal_errors(true);

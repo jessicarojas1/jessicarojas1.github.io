@@ -147,10 +147,24 @@ final class Auth
 
     private static function secret(): string
     {
-        $s = getenv('JWT_SECRET') ?: '';
+        $s  = getenv('JWT_SECRET') ?: '';
+        $env = getenv('APP_ENV') ?: 'development';
+
+        // Fail closed in production: never sign/verify tokens with a missing or
+        // weak (guessable) secret. A predictable signing key lets anyone forge
+        // an admin JWT, so refuse to start rather than silently fall back.
+        if ($env === 'production') {
+            if (strlen($s) < 32) {
+                throw new RuntimeException(
+                    'JWT_SECRET is missing or too short (need >= 32 chars) in production.'
+                );
+            }
+            return $s;
+        }
+
+        // Non-production only: allow a predictable fallback so local dev runs
+        // without configuring an env var. NEVER used when APP_ENV=production.
         if ($s === '') {
-            // Predictable dev fallback so the app still runs without env set.
-            // Render's render.yaml sets a real secret in production.
             $s = 'apex-dev-secret-please-override';
         }
         return $s;
