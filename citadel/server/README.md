@@ -243,6 +243,29 @@ docker run --rm -p 8080:8080 \
   citadel-server
 ```
 
+### Published image — provenance & signature verification
+
+Tagged releases publish a signed image to **GHCR** via
+[`.github/workflows/release-image.yml`](../../.github/workflows/release-image.yml).
+Each push attaches an **SPDX SBOM + SLSA build provenance** (BuildKit
+attestations), a **CycloneDX SBOM** (cosign attestation), and a GitHub-native
+build-provenance attestation, and the image digest is **signed keyless with
+cosign** (Sigstore — no long-lived key; the signer identity is the release
+workflow itself). Before running a pulled image, verify it:
+
+```bash
+IMG=ghcr.io/jessicarojas1/citadel-server   # pin to a @sha256:… digest in prod
+
+# 1) Signature is valid AND was produced by this repo's release workflow:
+cosign verify "$IMG" \
+  --certificate-identity-regexp '^https://github.com/jessicarojas1/jessicarojas1.github.io/' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
+
+# 2) Inspect the attached SBOM / provenance attestations:
+cosign download sbom "$IMG"            # or: cosign verify-attestation --type cyclonedx "$IMG" …
+gh attestation verify oci://"$IMG" --owner jessicarojas1   # SLSA provenance
+```
+
 ### With Docker Compose (recommended)
 
 The compose file already wires up the read-only FS, tmpfs scratch, capability
@@ -383,6 +406,9 @@ Rev 5 / CMMC 2.0.
   edge/WAF in production.
 - **Supply chain.** Pin scanner versions (the Dockerfile does) and pin the base
   image by digest in production; scan the resulting image on push (`RA-5`,
-  `SI-2`) as the Gov IaC requires.
+  `SI-2`) as the Gov IaC requires. Tagged releases are published **signed**
+  (keyless cosign) with **SBOM + SLSA provenance** attestations — verify them
+  before deploy (see _Published image_ above) so only attested artifacts run
+  (`SR-3`, `SR-4`, `SR-11`; SSDF PS.3 / SLSA build provenance).
 
 _Built by Jessica Rojas. Real scanners assist — verify findings before acting._
