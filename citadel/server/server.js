@@ -36,6 +36,11 @@ const oidc = require('./lib/oidc');
 const scans = require('./lib/scans');
 const dispositions = require('./lib/dispositions');
 const notify = require('./lib/notify');
+const fips = require('./lib/fips');
+
+// Enter FIPS 140 mode as early as possible (before any password/seed crypto) when
+// CITADEL_FIPS=1 and the OpenSSL build supports it. No-op + warning otherwise.
+fips.enable();
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 // Locate the SPA. Local dev: server.js lives in citadel/server, so the app is
@@ -263,6 +268,7 @@ app.get('/api/health', async (req, res) => {
   const tools = await toolStatus();
   res.json({
     ok: true, version: '1.0', engine: 'deep', ai: ai.available(), airgap: ai.airgapped(),
+    fips: isAdmin ? fips.status() : { active: fips.active() },
     auth: { enforce: users.settings().enforce, sso: oidc.enabled() },
     store: isAdmin
       ? { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled(), rateLimit: rateLimit.backend(), notify: notify.enabled() }

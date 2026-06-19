@@ -3,7 +3,8 @@
  * Durable store: Postgres when DATABASE_URL is set (shared across instances),
  * otherwise a JSON file under CITADEL_DATA_DIR (free-tier default). Either way an
  * in-memory cache backs the synchronous read API; mutations write through to the
- * durable store. Passwords are scrypt-hashed. Seeds a default admin + JWT secret.
+ * durable store. Passwords are scrypt-hashed (PBKDF2-HMAC-SHA256 under FIPS mode;
+ * hashes are self-describing so both verify). Seeds a default admin + JWT secret.
  * Mirrors the client PAGES/ROLES so the same permission ids apply end to end.
  */
 const fs = require('fs');
@@ -13,6 +14,7 @@ const crypto = require('crypto');
 const db = require('./db');
 const totp = require('./totp');
 const secretbox = require('./secretbox');
+const fips = require('./fips');
 
 // Fields that must be encrypted at rest (TOTP seeds — possession yields valid
 // 2FA codes). Sealed on write to the durable store, opened back to plaintext in
@@ -51,7 +53,36 @@ const ROLES = {
   viewer: { label: 'Viewer', perms: permsFrom(['docs', 'tab-report', 'tab-findings', 'tab-compliance', 'tab-export']) }
 };
 
-function hashPw(password, salt) { return crypto.scryptSync(String(password), salt, 32).toString('hex'); }
+// Password hashing is KDF-agnostic and self-describing so the algorithm can
+// switch (e.g. when FIPS mode turns on) without a schema change or breaking
+// existing accounts. Stored forms:
+//   - legacy scrypt:  bare 64-hex (no prefix)         — what older records hold
+//   - pbkdf2 (FIPS):  "pbkdf2$<iterations>$<64-hex>"  — SP 800-132, FIPS-approved
+function hashPw(password, salt) {
+  if (fips.active()) {
+    const iter = fips.pbkdf2Iterations();
+    return 'pbkdf2$' + iter + '$' + crypto.pbkdf2Sync(String(password), salt, iter, 32, 'sha256').toString('hex');
+  }
+  return crypto.scryptSync(String(password), salt, 32).toString('hex');
+}
+// Recompute the stored hash's KDF over a candidate and timing-safe compare.
+// Fails closed (false) on any KDF error — e.g. a legacy scrypt hash under a FIPS
+// OpenSSL that refuses scrypt — rather than throwing into the auth path.
+function verifyHash(password, salt, stored) {
+  if (!stored) return false;
+  let computed;
+  try {
+    if (stored.startsWith('pbkdf2$')) {
+      const iter = parseInt(stored.split('$')[1], 10);
+      if (!Number.isFinite(iter) || iter < 1) return false;
+      computed = 'pbkdf2$' + iter + '$' + crypto.pbkdf2Sync(String(password), salt, iter, 32, 'sha256').toString('hex');
+    } else {
+      computed = crypto.scryptSync(String(password), salt, 32).toString('hex');
+    }
+  } catch (e) { return false; }
+  const a = Buffer.from(computed), b = Buffer.from(stored);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
 function newSalt() { return crypto.randomBytes(16).toString('hex'); }
 function uid() { return 'u' + Date.now().toString(36) + crypto.randomBytes(3).toString('hex'); }
 
@@ -290,16 +321,13 @@ function setPassword(id, password, forceChange) {
 // Self-service change: verify the current password, then set a new one.
 function changeOwnPassword(id, current, next) {
   const store = load(); const u = store.users.find(x => x.id === id); if (!u) throw new Error('User not found.');
-  const h = hashPw(current, u.salt); const a = Buffer.from(h), b = Buffer.from(u.pass);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw new Error('Current password is incorrect.');
+  if (!verifyHash(current, u.salt, u.pass)) throw new Error('Current password is incorrect.');
   setPassword(id, next);
 }
 function verifyPassword(email, password) {
   const u = getByEmail(email);
   if (!u || !u.active) return null;
-  const h = hashPw(password, u.salt);
-  const a = Buffer.from(h), b = Buffer.from(u.pass);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  if (!verifyHash(password, u.salt, u.pass)) return null;
   return strip(u);
 }
 function can(user, pageId) {

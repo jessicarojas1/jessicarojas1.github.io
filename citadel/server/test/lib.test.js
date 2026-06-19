@@ -12,6 +12,7 @@ process.env.OIDC_CLIENT_ID = 'cid'; process.env.OIDC_CLIENT_SECRET = 'sec';
 process.env.OIDC_REDIRECT_URI = 'https://app/cb';
 process.env.OIDC_ADMIN_EMAILS = 'admin@corp.com';
 process.env.OIDC_ALLOWED_DOMAINS = 'corp.com';
+process.env.CITADEL_PBKDF2_ITER = '20000';   // keep the FIPS-path KDF fast in tests
 
 const { test } = require('node:test');
 const assert = require('node:assert');
@@ -24,6 +25,7 @@ const audit = require('../lib/audit');
 const users = require('../lib/users');
 const oidc = require('../lib/oidc');
 const secretbox = require('../lib/secretbox');
+const fips = require('../lib/fips');
 
 /* ---------------- JWT ---------------- */
 test('jwt: sign/verify roundtrip', () => {
@@ -81,6 +83,18 @@ test('secretbox: invalid key length disables encryption (no crash)', () => {
   assert.equal(secretbox.enabled(), false);
   assert.equal(secretbox.seal('x'), 'x');
   delete process.env.CITADEL_DATA_KEY; secretbox._reset();
+});
+
+/* ---------------- FIPS mode ---------------- */
+test('fips: status reflects active state and selects the FIPS-approved KDF', () => {
+  fips._forceActive(false);
+  assert.equal(fips.active(), false);
+  assert.equal(fips.status().passwordKdf, 'scrypt');
+  fips._forceActive(true);
+  assert.equal(fips.active(), true);
+  assert.equal(fips.status().passwordKdf, 'pbkdf2-hmac-sha256');
+  assert.ok(fips.status().pbkdf2Iterations >= 10000);
+  fips._forceActive(null);    // restore real OpenSSL state for later tests
 });
 
 /* ---------------- TOTP / MFA ---------------- */
@@ -197,6 +211,23 @@ test('users: with CITADEL_DATA_KEY, TOTP seed is ciphertext on disk yet usable i
   assert.ok(users.mfaVerify(id, totp.totp(secret)));   // in-memory cache still plaintext → works
   users.mfaDisable(id);
   delete process.env.CITADEL_DATA_KEY; secretbox._reset();
+});
+test('users: FIPS mode hashes new passwords with PBKDF2; both KDFs verify (self-describing)', () => {
+  const fsx = require('fs');
+  const FILE = path.join(process.env.CITADEL_DATA_DIR, 'users.json');
+  fips._forceActive(false);
+  users.add({ name: 'Scry', email: 'scry@test', role: 'viewer', password: 'ScryptPass1' });
+  assert.ok(users.verifyPassword('scry@test', 'ScryptPass1'));      // legacy scrypt verifies
+  fips._forceActive(true);                                          // simulate FIPS active
+  users.add({ name: 'Fip', email: 'fip@test', role: 'viewer', password: 'PbkdfPass1' });
+  assert.ok(users.verifyPassword('fip@test', 'PbkdfPass1'));        // pbkdf2 verifies under FIPS
+  assert.match(fsx.readFileSync(FILE, 'utf8'), /"pass":\s*"pbkdf2\$\d+\$[0-9a-f]{64}"/); // pbkdf2 form on disk
+  fips._forceActive(false);                                         // back to scrypt-mode
+  assert.ok(users.verifyPassword('fip@test', 'PbkdfPass1'));        // pbkdf2 hash STILL verifies
+  assert.ok(users.verifyPassword('scry@test', 'ScryptPass1'));      // scrypt user unaffected
+  users.remove(users.getByEmail('fip@test').id);
+  users.remove(users.getByEmail('scry@test').id);
+  fips._forceActive(null);
 });
 test('users: changeOwnPassword verifies current + enforces min length', () => {
   const id = users.getByEmail('admin@citadel.local').id;

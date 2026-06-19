@@ -437,6 +437,8 @@ components:
         ok: { type: boolean }
         engine: { type: string }
         ai: { type: boolean }
+        airgap: { type: boolean, description: "AI egress hard-disabled (air-gap profile)" }
+        fips: { type: object, description: "FIPS 140 status (full detail admin-only)", properties: { active: { type: boolean }, requested: { type: boolean }, passwordKdf: { type: string } } }
         auth: { type: object, properties: { enforce: { type: boolean }, sso: { type: boolean } } }
         store: { type: object, properties: { users: { type: string }, durable: { type: boolean }, rateLimit: { type: string } } }
         scanners: { type: array, items: { $ref: "#/components/schemas/ScannerStatus" } }
