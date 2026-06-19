@@ -138,6 +138,29 @@ ob_start();
               <?php endif; ?>
             </span>
           </div>
+          <?php $replies = $inlineReplies[(int)$c['id']] ?? []; ?>
+          <?php if ($replies): ?>
+            <div style="margin-top:6px;padding-left:10px;border-left:2px solid var(--border-light)">
+              <?php foreach ($replies as $rp): ?>
+                <div style="padding:4px 0">
+                  <div style="font-size:.85rem"><?= Security::h($rp['body']) ?></div>
+                  <div class="form-hint" style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                    <span><i class="bi bi-reply-fill"></i> <?= Security::h($rp['user_name']) ?> · <?= Security::h(View::timeAgo($rp['created_at'])) ?></span>
+                    <?php if (Auth::id() === (int)$rp['user_id'] || Auth::can('page.edit')): ?>
+                      <form method="POST" action="/inline-comments/<?= (int)$rp['id'] ?>/delete" style="display:inline;margin:0" data-confirm="Delete this reply?"><?= Security::csrfField() ?><button type="submit" class="btn-unstyled" title="Delete reply" style="border:none;background:none;cursor:pointer;color:var(--danger);padding:0 2px"><i class="bi bi-trash"></i></button></form>
+                    <?php endif; ?>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
+          <?php if (!$c['resolved'] && $icCanComment): ?>
+            <form method="POST" action="/inline-comments/<?= (int)$c['id'] ?>/reply" style="margin-top:6px;display:flex;gap:6px">
+              <?= Security::csrfField() ?>
+              <input type="text" name="body" class="form-control form-control-sm" placeholder="Reply…" required maxlength="2000" style="font-size:.82rem">
+              <button type="submit" class="btn btn-sm btn-light" title="Reply"><i class="bi bi-reply"></i></button>
+            </form>
+          <?php endif; ?>
         </div>
       <?php endforeach; ?>
     </div>

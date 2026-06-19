@@ -346,6 +346,7 @@ $dynamicRoutes = [
         '#^/pages/(\d+)/comment$#'           => ['PageController', 'comment'],
         '#^/pages/(\d+)/inline-comment$#'    => ['PageController', 'addInlineComment'],
         '#^/inline-comments/(\d+)/resolve$#' => ['PageController', 'resolveInlineComment'],
+        '#^/inline-comments/(\d+)/reply$#'   => ['PageController', 'replyInlineComment'],
         '#^/inline-comments/(\d+)/delete$#'  => ['PageController', 'deleteInlineComment'],
         '#^/pages/(\d+)/restore/(\d+)$#'     => ['PageController', 'restore'],
         '#^/pages/(\d+)/labels$#'           => ['PageController', 'addLabel'],
