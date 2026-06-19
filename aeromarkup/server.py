@@ -22,10 +22,15 @@ Env:
 
 import os
 import json
+import secrets
 import pathlib
+from functools import wraps
 from contextlib import contextmanager
 
-from flask import Flask, request, jsonify, send_from_directory, Response
+from flask import (Flask, request, jsonify, send_from_directory, Response,
+                   g, make_response)
+from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 # psycopg is optional so the static app still boots with no DB configured.
 try:
@@ -41,6 +46,15 @@ SCHEMA_SQL = BASE_DIR / "db" / "schema.sql"
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 AUTO_MIGRATE = os.environ.get("AUTO_MIGRATE", "1") == "1"
+
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "production").strip().lower()
+IS_PROD = ENVIRONMENT not in ("development", "dev", "local", "test")
+
+# Session/token configuration. Sessions are stateless, signed tokens carried in
+# an HttpOnly cookie (no token in localStorage → not exfiltratable via XSS).
+SESSION_COOKIE = "am_session"
+CSRF_COOKIE = "am_csrf"
+SESSION_TTL = int(os.environ.get("SESSION_TTL_SECONDS", str(12 * 3600)))
 
 app = Flask(__name__, static_folder=None)
 
@@ -111,6 +125,210 @@ def audit(conn, actor, action, entity_type, entity_id, detail=None):
     )
 
 
+# ── Authentication & authorization ───────────────────────────────────
+def _load_secret() -> str:
+    """Server signing key. Fails closed in production when a real backend
+    (a configured database) is present; permissive only for the DB-less,
+    offline-only static demo where there is nothing to authenticate."""
+    s = os.environ.get("AEROMARKUP_SECRET", "").strip()
+    if len(s) >= 32:
+        return s
+    if db_enabled():
+        if IS_PROD:
+            raise RuntimeError(
+                "AEROMARKUP_SECRET is missing or too weak (need >= 32 chars). "
+                "Refusing to start an authenticated backend without a strong key."
+            )
+        app.logger.warning(
+            "AEROMARKUP_SECRET unset; using an ephemeral dev secret "
+            "(sessions will reset on restart). Do NOT use in production."
+        )
+    return secrets.token_urlsafe(48)
+
+
+SECRET = _load_secret()
+_signer = URLSafeTimedSerializer(SECRET, salt="aeromarkup-session")
+
+# Endpoints reachable without a session. Everything else under /api/ requires
+# a valid session; static PWA assets (the app shell, login screen) are public.
+PUBLIC_API = {
+    "/api/health",
+    "/api/auth/status",
+    "/api/auth/login",
+    "/api/auth/bootstrap",
+}
+
+# Capability matrix — mirrors static/js/session.js so client and server agree.
+CAP = {
+    "drawing.edit":       {"engineer", "admin"},
+    "drawing.submit":     {"engineer", "approver", "admin"},
+    "drawing.approve":    {"approver", "admin"},
+    "drawing.release":    {"approver", "admin"},
+    "ncr.create":         {"engineer", "inspector", "admin"},
+    "ncr.disposition":    {"approver", "admin"},
+    "inspection.perform": {"inspector", "admin"},
+    "project.manage":     {"engineer", "admin"},
+    "user.manage":        {"admin"},
+    "audit.read":         {"approver", "admin"},
+}
+
+
+def _can(user, action) -> bool:
+    if not user:
+        return False
+    if user.get("role") == "admin":
+        return True
+    allowed = CAP.get(action)
+    return user.get("role") in allowed if allowed else True
+
+
+def requires(action):
+    """Decorator enforcing a capability on an already-authenticated request."""
+    def deco(fn):
+        @wraps(fn)
+        def wrapper(*a, **k):
+            if not _can(getattr(g, "user", None), action):
+                return jsonify({"error": "forbidden", "need": action}), 403
+            return fn(*a, **k)
+        return wrapper
+    return deco
+
+
+def _verify_session():
+    tok = request.cookies.get(SESSION_COOKIE)
+    if not tok:
+        return None
+    try:
+        return _signer.loads(tok, max_age=SESSION_TTL)
+    except (BadSignature, SignatureExpired):
+        return None
+
+
+@app.before_request
+def _auth_gate():
+    """Authenticate every /api/ request (except the public set) and enforce a
+    double-submit CSRF token on all state-changing methods."""
+    p = request.path
+    if not p.startswith("/api/"):
+        return  # static PWA shell / assets are public
+    if p in PUBLIC_API:
+        return
+    user = _verify_session()
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    g.user = user
+    if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+        sent = request.headers.get("X-CSRF-Token", "")
+        cookie = request.cookies.get(CSRF_COOKIE, "")
+        if not sent or not cookie or not secrets.compare_digest(sent, cookie):
+            return jsonify({"error": "csrf_failed"}), 403
+
+
+def _issue_session(u):
+    """Build the user claims, sign a session cookie, and return the login JSON.
+    The CSRF token is a separate, JS-readable cookie (double-submit pattern)."""
+    user = {
+        "uid": str(u["id"]),
+        "username": u["username"],
+        "name": u.get("display_name") or u["username"],
+        "role": u["role"],
+    }
+    token = _signer.dumps(user)
+    csrf = secrets.token_urlsafe(32)
+    resp = make_response(jsonify({"ok": True, "user": user, "csrf": csrf}))
+    resp.set_cookie(SESSION_COOKIE, token, max_age=SESSION_TTL, httponly=True,
+                    secure=IS_PROD, samesite="Strict", path="/")
+    resp.set_cookie(CSRF_COOKIE, csrf, max_age=SESSION_TTL, httponly=False,
+                    secure=IS_PROD, samesite="Strict", path="/")
+    return resp
+
+
+def _count_password_users(conn) -> int:
+    return conn.execute(
+        "SELECT COUNT(*) AS c FROM users WHERE password_hash IS NOT NULL"
+    ).fetchone()["c"]
+
+
+def actor_name() -> str:
+    """Authoritative actor for audit / e-signatures — from the session, never
+    from client-supplied request fields."""
+    u = getattr(g, "user", None)
+    return (u or {}).get("name") or (u or {}).get("username") or "system"
+
+
+@app.get("/api/auth/status")
+def auth_status():
+    """Public: lets the client decide whether to show login vs. first-run setup."""
+    if not db_enabled():
+        return jsonify({"db": False, "needs_bootstrap": False})
+    with get_conn() as conn:
+        needs = _count_password_users(conn) == 0
+    return jsonify({"db": True, "needs_bootstrap": needs})
+
+
+@app.post("/api/auth/login")
+def auth_login():
+    if (r := require_db()):
+        return r
+    d = request.get_json(force=True) or {}
+    username = (d.get("username") or "").strip()
+    password = d.get("password") or ""
+    if not username or not password:
+        return jsonify({"error": "missing_credentials"}), 400
+    with get_conn() as conn:
+        u = conn.execute(
+            """SELECT id, username, display_name, role, password_hash
+               FROM users WHERE username = %s""",
+            (username,),
+        ).fetchone()
+    if not u or not u["password_hash"] or not check_password_hash(u["password_hash"], password):
+        return jsonify({"error": "invalid_credentials"}), 401
+    return _issue_session(u)
+
+
+@app.post("/api/auth/bootstrap")
+def auth_bootstrap():
+    """First-run setup: create the initial admin. Allowed only while no user has
+    a password set, so there is never a shipped default credential."""
+    if (r := require_db()):
+        return r
+    d = request.get_json(force=True) or {}
+    username = (d.get("username") or "").strip()
+    password = d.get("password") or ""
+    if len(username) < 3 or len(password) < 8:
+        return jsonify({"error": "weak_credentials",
+                        "detail": "username >= 3 chars, password >= 8 chars"}), 400
+    with get_conn() as conn:
+        if _count_password_users(conn) > 0:
+            return jsonify({"error": "already_initialized"}), 403
+        u = conn.execute(
+            """INSERT INTO users (username, display_name, email, password_hash, role)
+               VALUES (%(u)s, %(n)s, %(e)s, %(ph)s, 'admin')
+               ON CONFLICT (username) DO UPDATE
+                 SET password_hash = EXCLUDED.password_hash,
+                     display_name  = EXCLUDED.display_name,
+                     role          = 'admin'
+               RETURNING id, username, display_name, role""",
+            {"u": username, "n": d.get("display_name") or username,
+             "e": d.get("email"), "ph": generate_password_hash(password)},
+        ).fetchone()
+        audit(conn, username, "bootstrap", "user", str(u["id"]), {"role": "admin"})
+    return _issue_session(u)
+
+
+@app.get("/api/auth/me")
+def auth_me():
+    return jsonify({"user": g.user})
+
+
+@app.post("/api/auth/logout")
+def auth_logout():
+    resp = make_response(jsonify({"ok": True}))
+    resp.delete_cookie(SESSION_COOKIE, path="/")
+    resp.delete_cookie(CSRF_COOKIE, path="/")
+    return resp
+
+
 # ── Static PWA ───────────────────────────────────────────────────────
 @app.get("/")
 def index():
@@ -157,6 +375,7 @@ def list_projects():
 
 
 @app.post("/api/projects")
+@requires("project.manage")
 def create_project():
     if (r := require_db()):
         return r
@@ -184,7 +403,7 @@ def create_project():
                 "program_id": d.get("program_id"),
             },
         ).fetchone()
-        audit(conn, d.get("actor", "system"), "create", "project",
+        audit(conn, actor_name(), "create", "project",
               row["id"], {"name": row["name"]})
     return jsonify(row), 201
 
@@ -203,6 +422,7 @@ def list_drawings(project_id):
 
 
 @app.post("/api/projects/<project_id>/drawings")
+@requires("drawing.edit")
 def create_drawing(project_id):
     if (r := require_db()):
         return r
@@ -240,7 +460,7 @@ def create_drawing(project_id):
                 "classification": d.get("classification"),
             },
         ).fetchone()
-        audit(conn, d.get("actor", "system"), "create", "drawing",
+        audit(conn, actor_name(), "create", "drawing",
               row["id"], {"title": row["title"]})
     return jsonify(row), 201
 
@@ -309,6 +529,7 @@ def list_programs():
 
 
 @app.post("/api/programs")
+@requires("project.manage")
 def create_program():
     if (r := require_db()):
         return r
@@ -326,7 +547,7 @@ def create_program():
                 "classification": d.get("classification"),
             },
         ).fetchone()
-        audit(conn, d.get("actor", "system"), "create", "program",
+        audit(conn, actor_name(), "create", "program",
               row["id"], {"name": row["name"]})
     return jsonify(row), 201
 
@@ -355,6 +576,7 @@ def list_ncrs():
 
 
 @app.post("/api/ncrs")
+@requires("ncr.create")
 def create_ncr():
     if (r := require_db()):
         return r
@@ -396,23 +618,27 @@ def create_ncr():
                 "status": d.get("status"),
                 "disposition": d.get("disposition"),
                 "disposition_notes": d.get("disposition_notes"),
-                "raised_by": d.get("raised_by"),
+                "raised_by": d.get("raised_by") or actor_name(),
                 "assigned_to": d.get("assigned_to"),
                 "due_date": d.get("due_date"),
                 "classification": d.get("classification"),
                 "client_uid": d.get("client_uid"),
             },
         ).fetchone()
-        audit(conn, d.get("actor", "system"), "upsert", "ncr",
+        audit(conn, actor_name(), "upsert", "ncr",
               row["id"], {"status": row["status"], "severity": row["severity"]})
     return jsonify(row), 201
 
 
 @app.patch("/api/ncrs/<ncr_id>")
+@requires("ncr.create")
 def update_ncr(ncr_id):
     if (r := require_db()):
         return r
     d = request.get_json(force=True) or {}
+    # Dispositioning an NCR is an approver-only action (e-signature equivalent).
+    if (d.get("disposition") or d.get("disposition_notes")) and not _can(g.user, "ncr.disposition"):
+        return jsonify({"error": "forbidden", "need": "ncr.disposition"}), 403
     with get_conn() as conn:
         row = conn.execute(
             """UPDATE ncrs SET
@@ -432,7 +658,7 @@ def update_ncr(ncr_id):
         ).fetchone()
         if not row:
             return jsonify({"error": "not_found"}), 404
-        audit(conn, d.get("actor", "system"), "update", "ncr",
+        audit(conn, actor_name(), "update", "ncr",
               row["id"], {"status": row["status"],
                           "disposition": row["disposition"]})
     return jsonify(row)
@@ -456,6 +682,7 @@ def list_inspections():
 
 
 @app.post("/api/inspections")
+@requires("inspection.perform")
 def create_inspection():
     if (r := require_db()):
         return r
@@ -484,12 +711,13 @@ def create_inspection():
                 "client_uid": d.get("client_uid"),
             },
         ).fetchone()
-        audit(conn, d.get("actor", "system"), "create", "inspection",
+        audit(conn, actor_name(), "create", "inspection",
               row["id"], {"result": row["result"]})
     return jsonify(row), 201
 
 
 @app.post("/api/inspections/<inspection_id>/items")
+@requires("inspection.perform")
 def add_inspection_item(inspection_id):
     if (r := require_db()):
         return r
@@ -535,6 +763,15 @@ def list_approvals():
     return jsonify(rows)
 
 
+# action -> capability required to record that approval/e-signature
+_APPROVAL_CAP = {
+    "submit":  "drawing.submit",
+    "approve": "drawing.approve",
+    "release": "drawing.release",
+    "reject":  "drawing.approve",
+}
+
+
 @app.post("/api/approvals")
 def create_approval():
     if (r := require_db()):
@@ -543,6 +780,13 @@ def create_approval():
     entity_type = d.get("entity_type")
     entity_id = d.get("entity_id")
     action = d.get("action")
+    need = _APPROVAL_CAP.get(action)
+    if need and not _can(g.user, need):
+        return jsonify({"error": "forbidden", "need": need}), 403
+    # The signer is the authenticated user — never trust client-supplied identity
+    # for an e-signature / approval record.
+    actor_id = g.user.get("uid")
+    signer = actor_name()
     with get_conn() as conn:
         row = conn.execute(
             """INSERT INTO approvals
@@ -557,8 +801,8 @@ def create_approval():
                 "entity_type": entity_type,
                 "entity_id": entity_id,
                 "action": action,
-                "actor_id": d.get("actor_id"),
-                "actor_name": d.get("actor_name"),
+                "actor_id": actor_id,
+                "actor_name": signer,
                 "signature_hash": d.get("signature_hash"),
                 "comment": d.get("comment"),
                 "client_uid": d.get("client_uid"),
@@ -579,8 +823,7 @@ def create_approval():
                 {"s": new_status, "id": entity_id},
             )
 
-        audit(conn, d.get("actor_name") or d.get("actor", "system"),
-              action or "approval", entity_type, entity_id,
+        audit(conn, signer, action or "approval", entity_type, entity_id,
               {"comment": d.get("comment")})
     return jsonify(row), 201
 
@@ -624,7 +867,7 @@ def create_comment():
             {
                 "entity_type": d.get("entity_type"),
                 "entity_id": d.get("entity_id"),
-                "author": d.get("author"),
+                "author": actor_name(),
                 "body": d.get("body", ""),
                 "client_uid": d.get("client_uid"),
             },
@@ -639,6 +882,7 @@ def create_comment():
 
 # ── Audit log ────────────────────────────────────────────────────────
 @app.get("/api/audit")
+@requires("audit.read")
 def list_audit():
     if (r := require_db()):
         return r
@@ -657,6 +901,7 @@ def list_audit():
 
 # ── Users ────────────────────────────────────────────────────────────
 @app.get("/api/users")
+@requires("user.manage")
 def list_users():
     if (r := require_db()):
         return r
@@ -670,35 +915,52 @@ def list_users():
 
 
 @app.post("/api/users")
+@requires("user.manage")
 def create_user():
     if (r := require_db()):
         return r
     d = request.get_json(force=True) or {}
+    username = (d.get("username") or "").strip()
+    if not username:
+        return jsonify({"error": "missing_username"}), 400
+    # Passwords are hashed server-side. A client-supplied hash is never trusted.
+    password = d.get("password") or ""
+    if password and len(password) < 8:
+        return jsonify({"error": "weak_password", "detail": "password >= 8 chars"}), 400
+    pw_hash = generate_password_hash(password) if password else None
+    role = d.get("role") or "engineer"
+    if role not in {"viewer", "engineer", "inspector", "approver", "admin"}:
+        return jsonify({"error": "invalid_role"}), 400
     with get_conn() as conn:
+        # On update, only overwrite the password when a new one is provided.
         row = conn.execute(
             """INSERT INTO users
                  (username, display_name, email, password_hash, role)
                VALUES (%(username)s, %(display_name)s, %(email)s,
-                       %(password_hash)s, COALESCE(%(role)s,'engineer'))
+                       %(password_hash)s, %(role)s)
                ON CONFLICT (username) DO UPDATE
                  SET display_name = EXCLUDED.display_name,
                      email = EXCLUDED.email,
-                     role = EXCLUDED.role
+                     role = EXCLUDED.role,
+                     password_hash = COALESCE(EXCLUDED.password_hash, users.password_hash)
                RETURNING id, username, display_name, email, role,
                          created_at, updated_at""",
             {
-                "username": d.get("username"),
+                "username": username,
                 "display_name": d.get("display_name"),
                 "email": d.get("email"),
-                "password_hash": d.get("password_hash"),
-                "role": d.get("role"),
+                "password_hash": pw_hash,
+                "role": role,
             },
         ).fetchone()
+        audit(conn, actor_name(), "upsert", "user", str(row["id"]),
+              {"role": row["role"]})
     return jsonify(row), 201
 
 
 # ── Sync: the heart of offline<->online reconciliation ───────────────
 @app.post("/api/sync")
+@requires("drawing.edit")
 def sync():
     """
     Push a batch of offline changes and pull back anything newer.

@@ -1,6 +1,6 @@
 /* AeroMarkup — application views (offline-first, IndexedDB-authoritative). */
 import { all, get, put, del, byIndex, uid, getMeta, setMeta } from "./store.js";
-import { currentUser, can, getClassification } from "./session.js";
+import { currentUser, can, getClassification, isServerAuthenticated, logout as sessionLogout } from "./session.js";
 import { logAudit, recentAudit } from "./audit.js";
 import { syncDrawing, pushNcr, pushApproval, netState } from "./api.js";
 import { icon } from "./icons.js";
@@ -769,12 +769,24 @@ export async function renderAudit(host) {
 export async function renderAdmin(host) {
   const u = currentUser();
   const users = await all("users");
+  const serverAuth = isServerAuthenticated();
+  // When authenticated against the backend, the role is assigned by the server
+  // and enforced server-side; the client cannot change it. Offline (local-only)
+  // mode keeps the role editable so the air-gapped tool stays usable.
+  const sessionCard = serverAuth
+    ? card("Your Session", `<div class="form-grid">
+        <div class="field"><label>Signed in as</label><input class="input" value="${esc(u.display_name || u.username || "")}" disabled></div>
+        <div class="field"><label>Role (assigned by administrator)</label><input class="input" value="${esc(u.role)}" disabled></div>
+        </div><p class="muted" style="font-size:.8rem">Your access level is set by an administrator and enforced on the server.</p>`,
+        `<button class="btn btn-outline" data-logout>${icon("lock", 15)} Sign out</button>`)
+    : card("Your Session", `<div class="form-grid">
+        <div class="field"><label>Display Name</label><input class="input" data-name="display_name" value="${esc(u.display_name || "")}"></div>
+        <div class="field"><label>Role</label><select class="select" data-name="role">
+          ${["viewer", "engineer", "inspector", "approver", "admin"].map((r) => `<option ${u.role === r ? "selected" : ""}>${r}</option>`).join("")}</select></div>
+        </div><p class="muted" style="font-size:.8rem">Local (offline) identity. When connected to a server, sign in for an assigned role.</p>`,
+        `<button class="btn btn-primary" data-save-session>Update</button>`);
   host.innerHTML = `${header("Administration", "Identity, roles and access")}
-    ${card("Your Session", `<div class="form-grid">
-      <div class="field"><label>Display Name</label><input class="input" data-name="display_name" value="${esc(u.display_name || "")}"></div>
-      <div class="field"><label>Role</label><select class="select" data-name="role">
-        ${["viewer", "engineer", "inspector", "approver", "admin"].map((r) => `<option ${u.role === r ? "selected" : ""}>${r}</option>`).join("")}</select></div>
-      </div>`, `<button class="btn btn-primary" data-save-session>Update</button>`)}
+    ${sessionCard}
     ${card("Role Capabilities", `<div class="table-wrap"><table class="table"><thead><tr><th>Role</th><th>Can do</th></tr></thead><tbody>
       <tr><td><span class="role-pill">viewer</span></td><td>Read-only access to drawings, NCRs, audit.</td></tr>
       <tr><td><span class="role-pill">engineer</span></td><td>Create/edit drawings & projects, raise NCRs, submit for review.</td></tr>
@@ -782,7 +794,7 @@ export async function renderAdmin(host) {
       <tr><td><span class="role-pill">approver</span></td><td>Approve/release drawings, disposition NCRs (e-signature).</td></tr>
       <tr><td><span class="role-pill">admin</span></td><td>Full access incl. user management.</td></tr>
     </tbody></table></div>`)}`;
-  $("[data-save-session]", host).addEventListener("click", async () => {
+  $("[data-save-session]", host)?.addEventListener("click", async () => {
     const { setUser } = await import("./session.js");
     const v = formValues(host);
     await setUser({ display_name: v.display_name, role: v.role });
@@ -790,6 +802,13 @@ export async function renderAdmin(host) {
     toast("Session updated", "success");
     window.dispatchEvent(new CustomEvent("am:session-changed"));
     renderAdmin(host);
+  });
+  $("[data-logout]", host)?.addEventListener("click", async () => {
+    await logAudit("session.logout", "user", u.id, {});
+    await sessionLogout();
+    toast("Signed out", "success");
+    window.dispatchEvent(new CustomEvent("am:session-changed"));
+    navigate("dashboard");
   });
 }
 

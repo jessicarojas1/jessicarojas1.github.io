@@ -2,8 +2,8 @@
    Builds the CUI-marked enterprise shell, wires the router to lifecycle
    views, and tracks identity + connectivity. Offline-first throughout. */
 import { openDB, getMeta, setMeta, all } from "./store.js";
-import { loadSession, currentUser } from "./session.js";
-import { onNetChange, checkReachable, netState } from "./api.js";
+import { loadSession, currentUser, hydrateSession, login as sessionLogin } from "./session.js";
+import { onNetChange, checkReachable, netState, authStatus, bootstrap as apiBootstrap, onAuthChange } from "./api.js";
 import { applyBranding } from "./branding.js";
 import { icon } from "./icons.js";
 import { $, $$, el, esc } from "./ui.js";
@@ -132,6 +132,68 @@ async function openCommandPalette() {
   draw(); input.focus();
 }
 
+/* ── Authentication gate ──────────────────────────────────────────────
+   Only engages when a backend is reachable. Offline / no-backend use stays
+   fully local (air-gap friendly). The server enforces auth regardless. */
+function authGateMarkup(mode) {
+  const isBoot = mode === "bootstrap";
+  return `<div class="modal-overlay" data-auth-gate>
+    <div class="modal" style="max-width:420px">
+      <div class="modal-head"><span class="brand-mark">${icon("plane", 20)}</span>
+        <h2 class="modal-title">${isBoot ? "Set up administrator" : "Sign in to AeroMarkup"}</h2></div>
+      <div class="modal-body">
+        ${isBoot ? `<p class="muted" style="margin-top:0">No account exists yet. Create the first administrator to secure this deployment.</p>` : ""}
+        <div class="field"><label>Username</label><input class="input" data-af="username" autocomplete="username"></div>
+        ${isBoot ? `<div class="field"><label>Display name</label><input class="input" data-af="display_name" autocomplete="name"></div>` : ""}
+        <div class="field"><label>Password</label><input class="input" type="password" data-af="password" autocomplete="${isBoot ? "new-password" : "current-password"}"></div>
+        <div class="hidden" data-af-error style="color:var(--danger);font-size:.85rem;margin-top:var(--s2)"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-primary" data-af-submit>${isBoot ? "Create administrator" : "Sign in"}</button>
+      </div>
+    </div></div>`;
+}
+
+function showAuthGate(mode) {
+  return new Promise((resolve) => {
+    if (document.querySelector("[data-auth-gate]")) return resolve(false);
+    const ov = el(authGateMarkup(mode));
+    document.body.appendChild(ov);
+    const err = $("[data-af-error]", ov);
+    const submit = $("[data-af-submit]", ov);
+    const fail = (m) => { err.textContent = m; err.classList.remove("hidden"); submit.disabled = false; };
+    const go = async () => {
+      const v = Object.fromEntries($$("[data-af]", ov).map((i) => [i.dataset.af, i.value.trim()]));
+      err.classList.add("hidden"); submit.disabled = true;
+      try {
+        if (mode === "bootstrap") {
+          if (v.username.length < 3 || v.password.length < 8) return fail("Username needs 3+ chars and password 8+ chars.");
+          await apiBootstrap(v);
+          await hydrateSession();
+        } else {
+          if (!v.username || !v.password) return fail("Enter your username and password.");
+          await sessionLogin(v.username, v.password);
+        }
+        ov.remove();
+        resolve(true);
+      } catch {
+        fail(mode === "bootstrap" ? "Could not create administrator. Try again." : "Invalid username or password.");
+      }
+    };
+    submit.addEventListener("click", go);
+    ov.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); go(); } });
+    const first = $("[data-af]", ov);
+    if (first) first.focus();
+  });
+}
+
+async function maybeAuthGate() {
+  const st = await authStatus();
+  if (!st.db) return true;                       // offline-only / no backend → local mode
+  if (!st.needs_bootstrap && await hydrateSession()) return true;  // valid cookie already
+  return showAuthGate(st.needs_bootstrap ? "bootstrap" : "login");
+}
+
 async function boot() {
   await openDB();
   await loadSession();
@@ -146,6 +208,16 @@ async function boot() {
   // mobile menu
   $("[data-menu]").addEventListener("click", () => $("[data-sidebar]").classList.toggle("open"));
   window.addEventListener("am:session-changed", paintUser);
+
+  // Authenticate against the backend before wiring routes (no-op offline).
+  await checkReachable();
+  await maybeAuthGate();
+  paintUser();
+  paintNet();
+  // Re-prompt if the server session expires or is rejected mid-session.
+  onAuthChange(({ authed }) => {
+    if (!authed && netState().reachable) maybeAuthGate().then(paintUser);
+  });
 
   // routes
   route("dashboard", withView(V.renderDashboard));
