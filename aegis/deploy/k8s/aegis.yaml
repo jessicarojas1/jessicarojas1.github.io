@@ -1,0 +1,193 @@
+# AEGIS — hardened Kubernetes manifests (CIS Kubernetes Benchmark / Pod Security
+# "restricted" / NIST 800-53 AC-6,SC-7 / DISA Kubernetes STIG).
+#
+# Build the hardened image first:  docker build -f docker/Dockerfile.hardened -t <registry>/aegis:<tag> .
+# Provide secrets via the Secret below (consumed as *_FILE mounts — never env).
+# Apply:  kubectl apply -f deploy/k8s/aegis.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aegis
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+# Secrets are mounted as files (see Secrets.php *_FILE convention). Replace the
+# placeholders out-of-band (sealed-secrets / SOPS / Vault / CSI driver) — never
+# commit real values.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aegis-secrets
+  namespace: aegis
+type: Opaque
+stringData:
+  jwt_secret: "REPLACE_ME_64_HEX"
+  audit_hmac_key: "REPLACE_ME_DISTINCT"
+  app_encryption_key: "REPLACE_ME_DISTINCT"
+  db_password: "REPLACE_ME"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aegis
+  namespace: aegis
+  labels: { app: aegis }
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: aegis }
+  template:
+    metadata:
+      labels: { app: aegis }
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 33          # www-data
+        runAsGroup: 33
+        fsGroup: 33
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: aegis
+          image: REGISTRY/aegis:latest   # pin by @sha256 digest in production
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            privileged: false
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: APP_URL
+              value: "https://grc.example.gov"
+            - name: DB_HOST
+              value: "aegis-db"
+            - name: DB_NAME
+              value: "aegis"
+            - name: DB_USER
+              value: "aegis_app"            # least-privilege runtime role (database/roles.sql)
+            # Secrets injected as *_FILE mounts → resolved by Secrets::hydrate().
+            - name: JWT_SECRET_FILE
+              value: "/run/secrets/aegis/jwt_secret"
+            - name: AUDIT_HMAC_KEY_FILE
+              value: "/run/secrets/aegis/audit_hmac_key"
+            - name: APP_ENCRYPTION_KEY_FILE
+              value: "/run/secrets/aegis/app_encryption_key"
+            - name: DB_PASS_FILE
+              value: "/run/secrets/aegis/db_password"
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits:   { cpu: "1",    memory: "512Mi" }
+          livenessProbe:
+            httpGet: { path: /healthz, port: 8080 }
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet: { path: /readyz, port: 8080 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - { name: secrets,  mountPath: /run/secrets/aegis, readOnly: true }
+            - { name: uploads,  mountPath: /var/www/html/uploads }
+            - { name: tmp,      mountPath: /tmp }
+            - { name: apache-run, mountPath: /var/run/apache2 }
+      volumes:
+        - name: secrets
+          secret:
+            secretName: aegis-secrets
+            items:
+              - { key: jwt_secret,         path: jwt_secret }
+              - { key: audit_hmac_key,     path: audit_hmac_key }
+              - { key: app_encryption_key, path: app_encryption_key }
+              - { key: db_password,        path: db_password }
+        - name: uploads
+          persistentVolumeClaim: { claimName: aegis-uploads }
+        - name: tmp
+          emptyDir: { medium: Memory }
+        - name: apache-run
+          emptyDir: { medium: Memory }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis
+  namespace: aegis
+spec:
+  selector: { app: aegis }
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: aegis
+  namespace: aegis
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels: { app: aegis }
+---
+# Default-deny all traffic, then allow only what AEGIS needs.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aegis-default-deny
+  namespace: aegis
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress", "Egress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aegis-allow
+  namespace: aegis
+spec:
+  podSelector:
+    matchLabels: { app: aegis }
+  policyTypes: ["Ingress", "Egress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: { name: ingress-nginx }
+      ports:
+        - { protocol: TCP, port: 8080 }
+  egress:
+    # DNS
+    - to: []
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+    # PostgreSQL
+    - to:
+        - podSelector:
+            matchLabels: { app: aegis-db }
+      ports:
+        - { protocol: TCP, port: 5432 }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: aegis
+  namespace: aegis
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: aegis
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 70 }

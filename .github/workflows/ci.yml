@@ -237,3 +237,40 @@ jobs:
 
       - name: Security regression tests
         run: php paladin/tests/security_test.php
+
+  # ---------------------------------------------------------------------------
+  # AEGIS supply-chain: SBOM (CycloneDX) + filesystem vulnerability scan.
+  # SLSA / EO 14028 evidence. The scan is advisory (won't block on unfixable or
+  # base-image transitive advisories); the SBOM is uploaded as a build artifact.
+  # ---------------------------------------------------------------------------
+  aegis-supply-chain:
+    name: AEGIS supply chain (SBOM + scan)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate CycloneDX SBOM (Syft)
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./aegis
+          format: cyclonedx-json
+          output-file: aegis-sbom.cyclonedx.json
+          artifact-name: aegis-sbom.cyclonedx.json
+
+      - name: Vulnerability scan (Trivy filesystem)
+        uses: aquasecurity/trivy-action@0.24.0
+        continue-on-error: true
+        with:
+          scan-type: fs
+          scan-ref: ./aegis
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          format: table
+
+      - name: Hadolint (hardened Dockerfile)
+        uses: hadolint/hadolint-action@v3.1.0
+        continue-on-error: true
+        with:
+          dockerfile: aegis/docker/Dockerfile.hardened

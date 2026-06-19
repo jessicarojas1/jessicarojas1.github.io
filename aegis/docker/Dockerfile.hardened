@@ -1,0 +1,58 @@
+# AEGIS — hardened production image (non-root, read-only-rootfs friendly).
+#
+# For Kubernetes / orchestrated / government (IL4+) deployments. Differences from
+# the default ./Dockerfile (which targets Render's port-80 model):
+#   - Apache listens on 8080 and runs as the non-root www-data user.
+#   - No setuid privilege drop needed → works with runAsNonRoot + drop ALL caps.
+#   - Writes only to tmpfs paths (logs/run/lock) → works with readOnlyRootFilesystem.
+#   - Base image pinned by tag (pin by @sha256 digest in your registry mirror).
+#
+# Pair with deploy/k8s/ which sets the matching securityContext + tmpfs mounts.
+FROM php:8.3-apache
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev libpng-dev libjpeg-dev libfreetype6-dev poppler-utils curl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_pgsql gd opcache \
+    && a2enmod rewrite headers \
+    && rm -rf /var/lib/apt/lists/*
+
+# php.ini hardening
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && echo 'expose_php = Off'               >> "$PHP_INI_DIR/php.ini" \
+    && echo 'display_errors = Off'           >> "$PHP_INI_DIR/php.ini" \
+    && echo 'log_errors = On'                >> "$PHP_INI_DIR/php.ini" \
+    && echo 'opcache.enable=1'               >> "$PHP_INI_DIR/conf.d/opcache.ini" \
+    && echo 'opcache.validate_timestamps=0'  >> "$PHP_INI_DIR/conf.d/opcache.ini"
+
+# Apache: listen on 8080 (unprivileged) and route logs to stdout/stderr so the
+# rootfs can be read-only. PidFile/locks live under /tmp (tmpfs at runtime).
+RUN sed -i 's|Listen 80$|Listen 8080|' /etc/apache2/ports.conf \
+    && sed -i 's|:80>|:8080>|' /etc/apache2/sites-available/000-default.conf \
+    && sed -i 's|AllowOverride None|AllowOverride All|g' /etc/apache2/apache2.conf \
+    && printf '%s\n' \
+        'ServerName localhost' \
+        'PidFile /tmp/apache2.pid' \
+        'Mutex file:/tmp' \
+        'ErrorLog /dev/stderr' \
+        'TransferLog /dev/stdout' \
+        > /etc/apache2/conf-available/aegis-hardened.conf \
+    && a2enconf aegis-hardened
+
+WORKDIR /var/www/html
+COPY . .
+
+# App-writable dirs are provided as tmpfs/volumes at runtime; create + own them.
+RUN mkdir -p uploads/evidence uploads/documents logs \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R o-rwx uploads logs \
+    # install.php is install-time only; remove it from the runtime image.
+    && rm -f install.php
+
+EXPOSE 8080
+USER www-data
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -fsS http://localhost:8080/healthz || exit 1
+
+CMD ["apache2-foreground"]
