@@ -127,6 +127,20 @@ class DocumentController {
         header('Location: /documents');
     }
 
+    /**
+     * Object-level access (anti-IDOR): a document in a PRIVATE space is only
+     * visible to that space's members (admins/owners bypass via SpaceAccess).
+     * Mirrors the page gate so `document.view` alone cannot leak private-space
+     * document content.
+     */
+    private function canSeeDoc(array $doc): bool {
+        $spaceId = isset($doc['space_id']) && $doc['space_id'] !== null ? (int)$doc['space_id'] : 0;
+        if (!$spaceId) { return true; }
+        $sp = Database::fetchOne("SELECT id, is_private FROM spaces WHERE id = ?", [$spaceId]);
+        if (!$sp) { return true; }
+        return SpaceAccess::canView(['id' => (int)$sp['id'], 'is_private' => $sp['is_private']]);
+    }
+
     public function view(int $id): void {
         Auth::requirePermission('document.view');
         $doc = Database::fetchOne(
@@ -141,6 +155,7 @@ class DocumentController {
              WHERE d.id=?", [$id]
         );
         if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!$this->canSeeDoc($doc)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
         $versions = Database::fetchAll(
             "SELECT dv.*, u.name AS author FROM document_versions dv LEFT JOIN users u ON u.id=dv.created_by
@@ -516,6 +531,7 @@ class DocumentController {
             [$id]
         );
         if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!$this->canSeeDoc($doc)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         $meta = [
             'Code'        => (string)$doc['document_code'],
             'Type'        => View::docTypeLabel((string)$doc['doc_type']),
@@ -543,6 +559,7 @@ class DocumentController {
             [$id]
         );
         if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!$this->canSeeDoc($doc)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         $bytes = Docx::fromHtml((string)$doc['title'], (string)($doc['body'] ?? ''), [
             'Code'           => (string)$doc['document_code'],
             'Type'           => View::docTypeLabel((string)$doc['doc_type']),
@@ -592,6 +609,7 @@ class DocumentController {
         Auth::requirePermission('document.view');
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
         if (!$doc || empty($doc['file_stored_name'])) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!$this->canSeeDoc($doc)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         $data = Storage::get($doc['file_stored_name']);
         if ($data === false) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
         Auth::log('download_document', 'documents', $id);
