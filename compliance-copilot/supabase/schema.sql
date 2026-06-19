@@ -84,19 +84,24 @@ alter table app_settings enable row level security;
 create policy "Authenticated users can read app_settings"
   on app_settings for select to authenticated using (true);
 
--- Allow authenticated users to read all
+-- Read-only access for authenticated users. All writes (insert/update/delete)
+-- are performed by server-side API routes using the service-role key, which
+-- bypasses RLS (same pattern as app_settings / branding). No write policies are
+-- granted to the `authenticated` role, so a stolen anon/user token cannot
+-- mutate compliance data directly against the database.
 create policy "Authenticated users can read controls"
   on controls for select to authenticated using (true);
-create policy "Authenticated users can update controls"
-  on controls for update to authenticated using (true);
 create policy "Authenticated users can read evidence"
   on evidence for select to authenticated using (true);
-create policy "Authenticated users can insert evidence"
-  on evidence for insert to authenticated with check (true);
 create policy "Authenticated users can read poam"
   on poam_items for select to authenticated using (true);
-create policy "Authenticated users can manage poam"
-  on poam_items for all to authenticated using (true);
+
+-- If this schema is being re-applied over an installation that previously had
+-- the open write policies, drop them so the lock-down actually takes effect
+-- (CREATE POLICY does not remove pre-existing policies).
+drop policy if exists "Authenticated users can update controls" on controls;
+drop policy if exists "Authenticated users can insert evidence" on evidence;
+drop policy if exists "Authenticated users can manage poam"     on poam_items;
 
 -- Updated_at trigger
 create or replace function update_updated_at()
