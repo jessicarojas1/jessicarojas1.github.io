@@ -28,8 +28,18 @@ Authorization: Bearer <access_token>
 Refresh via `POST /api/v1/auth/refresh`. Refresh tokens are **rotated** on every use: the presented
 token is revoked server-side and a new one returned, and replaying a rotated token revokes the user's
 whole active set (theft detection). `POST /api/v1/auth/logout` revokes the user's refresh tokens
-(sign out everywhere). Federated (OIDC/SAML/CAC-PIV) sessions are exchanged for an internal token by
-the identity broker. See [security-architecture.md](security-architecture.md) §2.
+(sign out everywhere). See [security-architecture.md](security-architecture.md) §2.
+
+#### Federated SSO (OIDC)
+When `OIDC_ISSUER` is configured, exchange an IdP-issued ID token for an internal session:
+
+| Method & path | Purpose |
+|---------------|---------|
+| `POST /api/v1/auth/oidc/exchange` | Body `{ "id_token": "<IdP ID token>" }`. The token is verified against the issuer's JWKS (RS256, audience/issuer/expiry enforced); the user is matched by email (just-in-time provisioned when `OIDC_AUTO_PROVISION`), IdP groups are mapped to local roles, and the same `access_token` + `refresh_token` a password login returns is issued. |
+
+Access is gated by an optional email-domain allowlist (`OIDC_ALLOWED_DOMAINS`); the group claim and
+group→role map are configurable. SSO-provisioned accounts have no password and cannot use the
+password grant. SAML 2.0 / CAC-PIV are not yet implemented (see KNOWN_LIMITATIONS.md §1).
 
 #### Password management
 | Method & path | Purpose |
