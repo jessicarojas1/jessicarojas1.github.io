@@ -13,10 +13,9 @@ import { usePagePerms } from '@/lib/permissions';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { useToast } from '@/lib/toast';
-import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
-import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordDetailHeader } from '@/components/RecordDetailHeader';
 import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import { DocumentFormModal } from './DocumentFormModal';
@@ -98,16 +97,13 @@ export default function DocumentDetailPage() {
     >
       {doc && (
         <>
-          <PageHeader
-            title={
-              <span className="row" style={{ gap: 10 }}>
-                <FileText size={22} />
-                <span className="mono">{doc.document_number}</span>
-                <StatusBadge status={doc.status} />
-              </span>
-            }
-            subtitle={`${doc.title} · Rev ${doc.current_revision ?? '—'}`}
-            breadcrumbs={[{ label: 'Documents', to: '/documents' }, { label: doc.document_number }]}
+          <RecordDetailHeader
+            icon={<FileText size={22} />}
+            recordNumber={doc.document_number}
+            status={doc.status}
+            title={`${doc.title} · Rev ${doc.current_revision ?? '—'}`}
+            listLabel="Documents"
+            listTo="/documents"
             actions={
               <>
                 <PrintButton />

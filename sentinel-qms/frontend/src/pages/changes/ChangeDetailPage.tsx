@@ -7,10 +7,10 @@ import { can } from '@/lib/rbac';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
-import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordDetailHeader } from '@/components/RecordDetailHeader';
 import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
@@ -51,16 +51,13 @@ export default function ChangeDetailPage() {
     >
       {chg && (
         <>
-          <PageHeader
-            title={
-              <span className="row" style={{ gap: 10 }}>
-                <GitPullRequestArrow size={22} />
-                <span className="mono">{chg.change_number}</span>
-                <StatusBadge status={chg.status} />
-              </span>
-            }
-            subtitle={chg.title}
-            breadcrumbs={[{ label: 'Change Control', to: '/changes' }, { label: chg.change_number }]}
+          <RecordDetailHeader
+            icon={<GitPullRequestArrow size={22} />}
+            recordNumber={chg.change_number}
+            status={chg.status}
+            title={chg.title}
+            listLabel="Change Control"
+            listTo="/changes"
             actions={
               <>
                 <PrintButton />

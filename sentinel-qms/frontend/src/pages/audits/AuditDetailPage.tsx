@@ -8,11 +8,11 @@ import { can } from '@/lib/rbac';
 import { useToast } from '@/lib/toast';
 import { api, getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
-import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordDetailHeader } from '@/components/RecordDetailHeader';
 import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import type { FindingType } from '@/types';
@@ -67,21 +67,18 @@ export default function AuditDetailPage() {
     >
       {audit && (
         <>
-          <PageHeader
+          <RecordDetailHeader
+            icon={<ScrollText size={22} />}
+            recordNumber={audit.audit_number}
+            status={audit.status}
             title={
-              <span className="row" style={{ gap: 10 }}>
-                <ScrollText size={22} />
-                <span className="mono">{audit.audit_number}</span>
-                <StatusBadge status={audit.status} />
-              </span>
-            }
-            subtitle={
               <>
                 {audit.title} · {humanize(audit.audit_type)}
                 {audit.planned_date ? ` · Planned ${formatDate(audit.planned_date)}` : ''}
               </>
             }
-            breadcrumbs={[{ label: 'Audits', to: '/audits' }, { label: audit.audit_number }]}
+            listLabel="Audits"
+            listTo="/audits"
             actions={
               <>
                 <PrintButton />

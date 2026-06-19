@@ -5,10 +5,10 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { usePagePerms } from '@/lib/permissions';
-import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordDetailHeader } from '@/components/RecordDetailHeader';
 import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import type { ReviewInput } from '@/types';
@@ -85,16 +85,13 @@ export default function MgmtReviewDetailPage() {
     >
       {mr && (
         <>
-          <PageHeader
-            title={
-              <span className="row" style={{ gap: 10 }}>
-                <GaugeCircle size={22} />
-                <span className="mono">{mr.review_number}</span>
-                <StatusBadge status={mr.status} />
-              </span>
-            }
-            subtitle={mr.title}
-            breadcrumbs={[{ label: 'Management Review', to: '/mgmt-reviews' }, { label: mr.review_number }]}
+          <RecordDetailHeader
+            icon={<GaugeCircle size={22} />}
+            recordNumber={mr.review_number}
+            status={mr.status}
+            title={mr.title}
+            listLabel="Management Review"
+            listTo="/mgmt-reviews"
             actions={<PrintButton />}
           />
 
