@@ -59,8 +59,14 @@ Secrets Manager** / **Azure Key Vault** — never from committed files.
 | Variable | Default | Sensitivity | Meaning |
 |----------|---------|-------------|---------|
 | `OIDC_ISSUER` | `""` | Sensitive-ish | IdP issuer URL. Empty = federation disabled (fails closed). |
-| `OIDC_CLIENT_ID` | `""` | Sensitive-ish | OIDC/SAML client identifier. |
+| `OIDC_CLIENT_ID` | `""` | Sensitive-ish | OIDC client identifier (also the expected token audience). |
 | `OIDC_CLIENT_SECRET` | `""` | **Secret** | OIDC client secret. From secrets manager. |
+| `OIDC_JWKS_URI` | `""` | Config | Explicit JWKS URL; discovered from the issuer when blank. |
+| `OIDC_AUTO_PROVISION` | `true` | Config | Create a local account on first successful SSO login. |
+| `OIDC_ALLOWED_DOMAINS` | `""` | Config | Comma-separated email-domain allowlist for SSO (empty = any). |
+| `OIDC_GROUP_CLAIM` | `groups` | Config | ID-token claim carrying the user's groups. |
+| `OIDC_GROUP_ROLE_MAP` | `{}` | Config | JSON object mapping IdP group → local role, e.g. `{"qms-admins":"Admin"}`. |
+| `OIDC_DEFAULT_ROLE` | `Read-Only` | Config | Role assigned when no group maps to a role. |
 
 ### Bootstrap Admin (seed)
 

@@ -43,6 +43,12 @@ class LoginRequest(BaseModel):
     otp: str | None = Field(default=None, max_length=16)
 
 
+class OidcExchangeRequest(BaseModel):
+    """Exchange an IdP-issued OIDC ID token for an internal session."""
+
+    id_token: str = Field(..., min_length=1)
+
+
 class MfaEnrollResponse(BaseModel):
     secret: str
     otpauth_uri: str

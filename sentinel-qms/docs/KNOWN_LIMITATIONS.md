@@ -8,14 +8,19 @@ than implying false assurance.
 
 ---
 
-## 1. Federated SSO (OIDC / SAML / CAC-PIV) is a stub
-- **Where:** `backend/app/core/security.py` (`verify_oidc_token`).
-- **State:** The local HS256 JWT login path is fully functional. Federated SSO is
-  wired but stubbed: `verify_oidc_token` raises `AuthenticationError` until
-  `OIDC_ISSUER` is configured, and even then returns a not-enabled error.
-- **Why:** A stub that fails closed avoids implying security that is not present.
-- **Production:** Complete the stub against your IdP's JWKS (validate
-  issuer/audience/signature, map claims to a local user) before relying on SSO.
+## 1. Federated SSO: OIDC implemented; SAML / CAC-PIV not yet
+- **Where:** `backend/app/services/oidc.py`, `backend/app/api/routers/auth.py`
+  (`POST /auth/oidc/exchange`).
+- **State:** **OIDC is fully implemented** — ID tokens are verified against the
+  issuer's JWKS (RS256, audience/issuer/expiry enforced), with email-domain
+  allowlisting, IdP group→role mapping, and just-in-time provisioning. It is
+  active only when `OIDC_ISSUER` is configured; otherwise it fails closed.
+- **Not yet:** **SAML 2.0** and **CAC/PIV (mutual-TLS) direct** flows. SAML needs
+  an XML-signature library (e.g. `python3-saml`/`lxml`); CAC/PIV is typically
+  fronted by a reverse proxy doing client-cert auth. Both can layer on top of the
+  same provisioning/role-mapping path in `oidc.resolve_or_provision_user`.
+- **Production:** Point `OIDC_ISSUER`/`OIDC_CLIENT_ID` at your IdP; use the group
+  map to assign roles. Add SAML/CAC-PIV when those IdPs are required.
 
 ## 2. Rate limiting is in-process (single node)
 - **Where:** `backend/app/core/middleware.py` (`RateLimitMiddleware`).

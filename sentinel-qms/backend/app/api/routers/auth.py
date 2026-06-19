@@ -26,6 +26,7 @@ from app.schemas.auth import (
     MfaCodeRequest,
     MfaEnrollResponse,
     MfaStatus,
+    OidcExchangeRequest,
     PasswordResetConfirm,
     PasswordResetRequest,
     Token,
@@ -33,7 +34,7 @@ from app.schemas.auth import (
     UserRead,
 )
 from app.schemas.common import MessageOut
-from app.services import mfa, password_reset, refresh_tokens
+from app.services import mfa, oidc, password_reset, refresh_tokens
 from app.services.crud import request_context
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -165,6 +166,39 @@ def refresh(
     )
     db.commit()
     return _token_response(user, new_refresh)
+
+
+@router.post("/oidc/exchange", response_model=Token)
+def oidc_exchange(
+    request: Request,
+    body: OidcExchangeRequest,
+    db: Session = Depends(get_db),
+) -> Token:
+    """Exchange a verified OIDC ID token for an internal access + refresh token.
+
+    The ID token is validated against the IdP's JWKS; the subject is matched to a
+    local account (just-in-time provisioned when enabled), with IdP groups mapped
+    to local roles. Issues the same internal session a password login would.
+    """
+    claims = oidc.verify_id_token(body.id_token)
+    user = oidc.resolve_or_provision_user(db, claims)
+    user.last_login_at = datetime.now(UTC)
+    audit.record(
+        db,
+        actor_id=user.id,
+        actor_email=user.email,
+        action="login",
+        entity_type="auth",
+        entity_id=user.id,
+        after={"method": "oidc"},
+        **request_context(request),
+    )
+    ctx = request_context(request)
+    refresh_token = refresh_tokens.issue(
+        db, user, ip=ctx.get("ip"), user_agent=request.headers.get("User-Agent")
+    )
+    db.commit()
+    return _token_response(user, refresh_token)
 
 
 @router.get("/me", response_model=UserRead)

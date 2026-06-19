@@ -102,13 +102,13 @@ def decode_token(token: str, *, expected_type: str | None = None) -> dict[str, A
 
 
 def verify_oidc_token(token: str) -> dict[str, Any]:
-    """Pluggable federal SSO (OIDC / CAC-PIV) verification path — stubbed.
+    """Validate a federated-SSO (OIDC) ID token and return its claims.
 
-    In a real deployment this validates the token against the IdP's JWKS,
-    checks issuer/audience, and maps subject claims to a local user.  The
-    local HS256 path above is fully functional; this stub raises until an
-    issuer is configured so the wiring is present without false security.
+    Delegates to :mod:`app.services.oidc`, which verifies the token against the
+    issuer's JWKS (RS256) and enforces audience/issuer/expiry. Raises
+    :class:`AuthenticationError` when SSO is not configured or the token is
+    invalid. (Imported lazily to avoid an import cycle.)
     """
-    if not settings.OIDC_ISSUER:
-        raise AuthenticationError("OIDC/SSO is not configured on this deployment.")
-    raise AuthenticationError("OIDC token verification is not yet enabled.")
+    from app.services import oidc
+
+    return oidc.verify_id_token(token)
