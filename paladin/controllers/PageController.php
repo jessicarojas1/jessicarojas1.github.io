@@ -7,6 +7,17 @@ class PageController {
         return Database::fetchOne("SELECT id, space_key, name FROM spaces WHERE id = ?", [$spaceId]);
     }
 
+    /**
+     * Private-space membership gate for page EXPORT routes (print/word/docx/pdf),
+     * which otherwise checked only PageAccess::canView and could leak a
+     * private-space page's content to non-members. Mirrors view()'s space check.
+     */
+    private function canSeePageSpace(int $spaceId): bool {
+        if (!$spaceId) { return true; }
+        $sp = Database::fetchOne("SELECT id, is_private FROM spaces WHERE id = ?", [$spaceId]);
+        return !$sp || SpaceAccess::canView(['id' => (int)$sp['id'], 'is_private' => $sp['is_private']]);
+    }
+
     public function createForm(int $spaceId = 0): void {
         Auth::requirePermission('page.create');
         // /pages/create?space=ID  OR  /spaces/{id}/pages/create
@@ -596,6 +607,7 @@ class PageController {
         );
         if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
         if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->canSeePageSpace((int)$page['space_id'])) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         $labels = Database::fetchAll(
             "SELECT t.name FROM entity_tags et JOIN tags t ON t.id=et.tag_id
              WHERE et.entity_type='page' AND et.entity_id=? ORDER BY t.name", [$id]
@@ -614,6 +626,7 @@ class PageController {
         );
         if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
         if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->canSeePageSpace((int)$page['space_id'])) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
         $title = (string)$page['title'];
         $meta  = [
@@ -660,6 +673,7 @@ class PageController {
         );
         if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
         if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->canSeePageSpace((int)$page['space_id'])) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
         $title = (string)$page['title'];
         $bytes = Docx::fromHtml($title, (string)$page['body'], [
@@ -689,6 +703,7 @@ class PageController {
         );
         if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
         if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->canSeePageSpace((int)$page['space_id'])) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
         $meta = [
             'Space'   => (string)($page['space_name'] ?? '—'),
