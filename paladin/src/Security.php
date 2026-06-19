@@ -58,9 +58,13 @@ class Security {
     public static function sanitizeHtml(string $html): string {
         if (trim($html) === '') return '';
 
-        // Dangerous tags to remove entirely (including children)
+        // Dangerous tags to remove entirely (including children). svg/math/
+        // foreignObject are blocked: they enable javascript: via xlink:href and
+        // <set>/<animate> on href, and arbitrary HTML in foreignObject. Inline
+        // SVG is never needed in wiki content (images are <img>).
         $blockedTags = ['script','style','iframe','object','embed','applet',
-                        'form','input','button','select','textarea','link','meta','base'];
+                        'form','input','button','select','textarea','link','meta','base',
+                        'svg','math','foreignobject'];
 
         // Dangerous attribute prefixes
         $blockedAttrPrefixes = ['on']; // onclick, onload, onerror, etc.
@@ -97,8 +101,13 @@ class Security {
                         continue 2;
                     }
                 }
-                // Allowlist URI schemes — reject anything other than http, https, mailto, relative
-                if (in_array($name, $blockedAttrs, true)) {
+                // Allowlist URI schemes on any URL-bearing attribute — including
+                // namespaced *:href (e.g. xlink:href) and SVG-animation targets
+                // (set/animate to|values|from|by) used to smuggle javascript:.
+                $isUrlAttr = in_array($name, $blockedAttrs, true)
+                          || str_ends_with($name, ':href')
+                          || in_array($name, ['to', 'values', 'from', 'by'], true);
+                if ($isUrlAttr) {
                     $val = trim($attr->nodeValue);
                     if ($val !== '' && !str_starts_with($val, '/') && !str_starts_with($val, '#') && !str_starts_with($val, '?')) {
                         $scheme = strtolower(explode(':', $val)[0] ?? '');
