@@ -37,6 +37,11 @@ require_once AEGIS_ROOT . '/src/Database.php';
 
 $quiet = in_array('--quiet', $argv ?? [], true);
 
+// Audit HMAC key — must match Security::auditKey() so keyed rows verify.
+$auditKey = ($_ENV['AUDIT_HMAC_KEY'] ?? '') !== ''
+    ? hash('sha256', 'aegis_audit_v2:' . $_ENV['AUDIT_HMAC_KEY'], true)
+    : hash('sha256', 'aegis_audit_v1:' . ($_ENV['JWT_SECRET'] ?? ''), true);
+
 $rows = Database::fetchAll(
     "SELECT id, user_id, action, entity_type, entity_id, changes, ip_address, log_hash
      FROM activity_log
@@ -67,9 +72,14 @@ foreach ($rows as $row) {
         (string)$row['changes'],
         (string)$row['ip_address'],
     ]);
-    $expected = hash('sha256', $payload);
+    // Accept either the new keyed HMAC (current) or the legacy unkeyed SHA-256
+    // (rows written before the keyed-chain migration), so the chain verifies
+    // across the transition. New rows require the audit key to forge.
+    $expectedKeyed  = hash_hmac('sha256', $payload, $auditKey);
+    $expectedLegacy = hash('sha256', $payload);
+    $expected = $expectedKeyed;
 
-    if (!hash_equals($expected, $row['log_hash'])) {
+    if (!hash_equals($expectedKeyed, $row['log_hash']) && !hash_equals($expectedLegacy, $row['log_hash'])) {
         $broken[] = $row['id'];
         if (!$quiet) {
             echo "[FAIL] Record ID {$row['id']} — hash mismatch.\n";

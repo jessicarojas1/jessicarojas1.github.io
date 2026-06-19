@@ -364,8 +364,7 @@ class Auth {
                 $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
                 $prevHash = $prev['log_hash'] ?? 'genesis';
                 $ts = date('Y-m-d\TH:i:s\Z');
-                $payload = implode('|', [$prevHash, 'system', 'login_failed', 'users', '0', $email, $ip, $ts]);
-                $logHash = hash('sha256', $payload);
+                $logHash = self::computeLogHash([$prevHash, 'system', 'login_failed', 'users', '0', $email, $ip, $ts]);
                 Database::query(
                     "INSERT INTO activity_log (user_id, action, entity_type, ip_address, user_agent, log_hash)
                      VALUES (NULL, 'login_failed', 'users', ?, ?, ?)",
@@ -397,16 +396,26 @@ class Auth {
         session_start();
     }
 
+    /**
+     * Keyed audit-chain hash over the ordered payload parts (element 0 must be the
+     * previous row's hash). HMAC-SHA256 with the audit key (see Security::auditKey)
+     * — an attacker who can write the database but cannot read the key cannot forge
+     * the chain, unlike the previous unkeyed SHA-256. Pure — unit-tested.
+     */
+    public static function computeLogHash(array $parts, ?string $key = null): string {
+        return hash_hmac('sha256', implode('|', $parts), $key ?? Security::auditKey());
+    }
+
     public static function log(string $action, ?string $entityType, ?int $entityId, ?array $changes = null): void {
         if (!self::check()) return;
         $ip        = $_SERVER['REMOTE_ADDR'] ?? '';
         $userAgent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
         $changesJson = $changes ? json_encode($changes) : null;
 
-        // Hash chain: SHA-256( prev_hash | userId | action | entityType | entityId | changes | ip )
+        // Keyed hash chain: HMAC( prev_hash | userId | action | entityType | entityId | changes | ip )
         $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
         $prevHash = $prev['log_hash'] ?? 'genesis';
-        $payload  = implode('|', [
+        $logHash = self::computeLogHash([
             $prevHash,
             (string)self::id(),
             $action,
@@ -415,7 +424,6 @@ class Auth {
             (string)$changesJson,
             $ip,
         ]);
-        $logHash = hash('sha256', $payload);
 
         Database::query(
             "INSERT INTO activity_log (user_id, action, entity_type, entity_id, changes, ip_address, user_agent, log_hash)
@@ -429,8 +437,7 @@ class Auth {
         $ts = date('Y-m-d\TH:i:s\Z');
         $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
         $prevHash = $prev['log_hash'] ?? 'genesis';
-        $payload  = implode('|', [$prevHash, 'system', $action, (string)$entityType, (string)$entityId, '', $ip, $ts]);
-        $logHash  = hash('sha256', $payload);
+        $logHash  = self::computeLogHash([$prevHash, 'system', $action, (string)$entityType, (string)$entityId, '', $ip, $ts]);
         Database::query(
             "INSERT INTO activity_log (user_id, action, entity_type, entity_id, ip_address, log_hash)
              VALUES (NULL,?,?,?,?,?)",
