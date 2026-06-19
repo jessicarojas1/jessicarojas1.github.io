@@ -107,6 +107,7 @@ from app.models.nonconformance import (
     Nonconformance,
     NonconformanceDisposition,
 )
+from app.models.password_reset import PasswordResetToken
 from app.models.permission import RolePagePermission, UserPagePermission
 from app.models.quality_objective import (
     ObjectiveCadence,
@@ -294,4 +295,5 @@ __all__ = [
     "Webhook",
     "WebhookDelivery",
     "RefreshToken",
+    "PasswordResetToken",
 ]

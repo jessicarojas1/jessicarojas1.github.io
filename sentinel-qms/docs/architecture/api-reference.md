@@ -31,6 +31,13 @@ whole active set (theft detection). `POST /api/v1/auth/logout` revokes the user'
 (sign out everywhere). Federated (OIDC/SAML/CAC-PIV) sessions are exchanged for an internal token by
 the identity broker. See [security-architecture.md](security-architecture.md) §2.
 
+#### Password management
+| Method & path | Purpose |
+|---------------|---------|
+| `POST /api/v1/auth/password-reset/request` | Begin a self-service reset; always returns the same response (no account enumeration). Emails a single-use, time-bound link. |
+| `POST /api/v1/auth/password-reset/confirm` | Set a new password with a valid reset token; revokes existing sessions. |
+| `POST /api/v1/auth/change-password` | Signed-in user changes their own password (re-auth with current password); revokes other sessions. |
+
 #### Personal Access Tokens (scoped API keys)
 For scripts, CI jobs, and service integrations, mint a long-lived **Personal Access Token** under
 **My Profile → API Tokens** (or `POST /api/v1/tokens`). The token is presented exactly once at

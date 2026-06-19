@@ -52,6 +52,7 @@ Secrets Manager** / **Azure Key Vault** — never from committed files.
 | `RATE_LIMIT_WINDOW_SECONDS` | `60` | Config | Fixed-window length in seconds. |
 | `TRUST_PROXY_HEADERS` | `false` | Config | Honor `X-Forwarded-For` for the client IP (rate limiting). Enable **only** behind a trusted proxy/LB (Render/ALB/Nginx); leaving it off prevents IP spoofing on direct exposure. |
 | `WEBHOOKS_ENABLED` | `true` | Config | Emit HMAC-signed lifecycle events to registered webhook endpoints. Enqueue is atomic with the change; delivery is backgrounded with retries. |
+| `PASSWORD_RESET_TTL_MINUTES` | `60` | Config | Lifetime of a self-service password-reset link. |
 
 ### Federated SSO (OIDC / SAML / CAC-PIV)
 

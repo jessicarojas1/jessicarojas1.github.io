@@ -15,18 +15,22 @@ from app.core.database import get_db
 from app.core.exceptions import AuthenticationError, RateLimitError
 from app.core.security import (
     create_access_token,
+    hash_password,
     verify_password,
 )
 from app.models.user import AuditLog, User
 from app.schemas.auth import (
+    ChangePasswordRequest,
     CurrentUser,
     LoginRequest,
+    PasswordResetConfirm,
+    PasswordResetRequest,
     Token,
     TokenRefreshRequest,
     UserRead,
 )
 from app.schemas.common import MessageOut
-from app.services import refresh_tokens
+from app.services import password_reset, refresh_tokens
 from app.services.crud import request_context
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -179,3 +183,78 @@ def logout(
     )
     db.commit()
     return MessageOut(detail="Logged out.")
+
+
+@router.post("/password-reset/request", response_model=MessageOut)
+def password_reset_request(
+    request: Request,
+    body: PasswordResetRequest,
+    db: Session = Depends(get_db),
+) -> MessageOut:
+    """Begin a self-service password reset. Always returns the same response so
+    it never reveals whether an account exists."""
+    password_reset.request_reset(db, body.email)
+    audit.record(
+        db,
+        actor_id=None,
+        actor_email=body.email.lower(),
+        action="password_reset_requested",
+        entity_type="auth",
+        **request_context(request),
+    )
+    db.commit()
+    return MessageOut(detail="If that account exists, a reset link has been sent.")
+
+
+@router.post("/password-reset/confirm", response_model=MessageOut)
+def password_reset_confirm(
+    request: Request,
+    body: PasswordResetConfirm,
+    db: Session = Depends(get_db),
+) -> MessageOut:
+    """Complete a password reset with a valid token. Revokes existing sessions."""
+    user = password_reset.consume(db, body.token, body.new_password)
+    audit.record(
+        db,
+        actor_id=user.id,
+        actor_email=user.email,
+        action="password_reset",
+        entity_type="auth",
+        entity_id=user.id,
+        **request_context(request),
+    )
+    db.commit()
+    return MessageOut(detail="Your password has been reset. Please sign in.")
+
+
+@router.post("/change-password", response_model=MessageOut)
+def change_password(
+    request: Request,
+    body: ChangePasswordRequest,
+    current: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> MessageOut:
+    """Change the signed-in user's own password (re-auth with current password).
+
+    Revokes other refresh tokens so other sessions are signed out.
+    """
+    user = db.get(User, current.id)
+    if user is None or not user.hashed_password:
+        raise AuthenticationError("User not found.")
+    if not verify_password(body.current_password, user.hashed_password):
+        raise AuthenticationError("Current password is incorrect.")
+    if len(body.new_password) < 12:
+        raise AuthenticationError("Password must be at least 12 characters.")
+    user.hashed_password = hash_password(body.new_password)
+    refresh_tokens.revoke_all(db, user.id)
+    audit.record(
+        db,
+        actor_id=user.id,
+        actor_email=user.email,
+        action="password_change",
+        entity_type="auth",
+        entity_id=user.id,
+        **request_context(request),
+    )
+    db.commit()
+    return MessageOut(detail="Password changed.")
