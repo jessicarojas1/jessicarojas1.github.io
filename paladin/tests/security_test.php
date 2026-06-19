@@ -109,5 +109,18 @@ if (class_exists('ZipArchive')) {
     echo "  (skipped — ZipArchive unavailable)\n";
 }
 
+echo "— Markdown import pipeline (Markdown::toHtml -> sanitizeHtml) —\n";
+require_once PALADIN_ROOT . '/src/Markdown.php';
+$imp = fn(string $md): string => Security::sanitizeHtml(Markdown::toHtml($md));
+// Raw <script> embedded in markdown must not survive as a live element.
+check(preg_match('/<script/i', $imp("text\n\n<script>alert(1)</script>")) === 0, 'raw <script> not live after import');
+// Raw event-handler HTML is escaped to inert text (no live tag).
+check(preg_match('/<img/i', $imp('<img src=x onerror=alert(1)>')) === 0, 'raw <img onerror> not a live tag after import');
+// A javascript: link target is stripped entirely.
+check(stripos($imp('[x](javascript:alert(1))'), 'javascript:') === false, 'javascript: link neutralised on import');
+// Legitimate markdown is preserved.
+check(stripos($imp('[ok](https://example.com/p)'), 'href="https://example.com/p"') !== false, 'safe http(s) link preserved on import');
+check((bool)preg_match('/<(strong|b)>/i', $imp('**bold**')), 'bold markdown preserved on import');
+
 echo "\n$tests checks, $fails failure(s)\n";
 exit($fails === 0 ? 0 : 1);
