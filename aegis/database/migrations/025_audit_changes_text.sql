@@ -1,0 +1,12 @@
+-- Migration 025 — audit-log integrity fix: activity_log.changes JSONB -> TEXT
+--
+-- The tamper-evident hash chain hashes the EXACT json_encode() string written to
+-- the `changes` column. PostgreSQL JSONB normalizes values on storage (re-spaces
+-- and reorders keys), so the value read back never matched the hashed input —
+-- silently breaking verification for any audit row that carried a before/after
+-- `changes` payload. TEXT preserves the exact bytes that were hashed.
+--
+-- Safe: `changes` is only ever written (json_encode) and displayed as text; no
+-- JSON operators (-> / ->>) are used on it anywhere in the codebase. Idempotent:
+-- converting an already-TEXT column via ::text is a no-op.
+ALTER TABLE activity_log ALTER COLUMN changes TYPE TEXT USING changes::text;

@@ -31,6 +31,9 @@ foreach (['.env.local', '.env'] as $envFile) {
         }
     }
 }
+// Merge real environment variables (containers/K8s/CI set env, not a .env file),
+// so AUDIT_HMAC_KEY / DATABASE_URL are picked up. Does not override .env values.
+foreach ((getenv() ?: []) as $k => $v) { if (!isset($_ENV[$k])) $_ENV[$k] = $v; }
 
 require_once AEGIS_ROOT . '/config/database.php';
 require_once AEGIS_ROOT . '/src/Database.php';

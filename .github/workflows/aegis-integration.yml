@@ -1,0 +1,125 @@
+name: AEGIS Integration
+
+# DB-backed + container integration tests that PROVE the runtime behavior of the
+# security controls that unit tests can't: the keyed/serialized audit chain
+# (against a real Postgres), tamper detection, Row-Level Security tenant
+# isolation, the DML-only least-privilege DB role, and that the hardened image
+# boots non-root and serves /healthz.
+on:
+  pull_request:
+    paths: ['aegis/**', '.github/workflows/aegis-integration.yml']
+  push:
+    branches: [main]
+    paths: ['aegis/**', '.github/workflows/aegis-integration.yml']
+
+concurrency:
+  group: aegis-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  db-integration:
+    name: DB integration (audit chain · RLS · least-priv role)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: aegis
+          POSTGRES_PASSWORD: aegis_ci_pw
+          POSTGRES_DB: aegis
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U aegis"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: aegis_ci_pw
+      DATABASE_URL: postgres://aegis:aegis_ci_pw@localhost:5432/aegis
+      AUDIT_HMAC_KEY: ci-test-audit-hmac-key
+      JWT_SECRET: ci-test-jwt-secret-at-least-32-characters
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, sodium
+          tools: none
+          coverage: none
+
+      - name: Bootstrap via the authoritative installer (schema + migrations + seed)
+        working-directory: aegis
+        env:
+          ADMIN_EMAIL: admin@aegis.test
+          ADMIN_PASSWORD: CIpassw0rd-long-enough-123
+        run: php install.php
+
+      - name: Audit chain — seed a real keyed chain
+        working-directory: aegis
+        run: php tests/integration/audit_db.php
+
+      - name: Audit chain — verify integrity (expect INTACT)
+        working-directory: aegis
+        run: php scripts/verify_audit_log.php
+
+      - name: Audit chain — tamper a row, expect DETECTION
+        working-directory: aegis
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c \
+            "SET search_path TO aegis,public; UPDATE activity_log SET action='tampered' WHERE id=(SELECT min(id) FROM activity_log);"
+          if php scripts/verify_audit_log.php --quiet; then
+            echo "::error::Tampering was NOT detected — audit integrity check is broken"; exit 1
+          fi
+          echo "Tampering correctly detected (verifier exited non-zero)."
+
+      - name: Least-privilege DB role — DML allowed, DDL denied
+        working-directory: aegis
+        env:
+          PGOPTIONS: "--search_path=aegis,public"
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/roles.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "ALTER ROLE aegis_app PASSWORD 'approle_ci';"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/integration/roles_test.sql
+
+      - name: Row-Level Security — tenant isolation
+        working-directory: aegis
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/integration/rls_test.sql
+
+  # ---------------------------------------------------------------------------
+  # Advisory until proven green on a CI run, then promote to a hard gate (the
+  # repo's "advisory then promote" convention). Validates the hardened image
+  # actually boots non-root and serves liveness.
+  image-smoke:
+    name: Hardened image (non-root + liveness)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build hardened image
+        run: docker build -f aegis/docker/Dockerfile.hardened -t aegis:ci aegis/
+
+      - name: Run + smoke test (non-root uid, /healthz)
+        run: |
+          docker run -d --name aegis_ci -p 8080:8080 \
+            -e JWT_SECRET=ci-test-jwt-secret-at-least-32-characters \
+            -e DATABASE_URL=postgres://u:p@127.0.0.1:5432/aegis \
+            -e APP_ENV=development \
+            aegis:ci
+          ok=
+          for i in $(seq 1 20); do
+            if curl -fsS http://localhost:8080/healthz >/dev/null 2>&1; then ok=1; break; fi
+            sleep 2
+          done
+          if [ "$ok" != "1" ]; then echo "::error::/healthz never became ready"; docker logs aegis_ci; exit 1; fi
+          uid=$(docker exec aegis_ci id -u)
+          echo "container uid=$uid"
+          if [ "$uid" != "33" ]; then echo "::error::not running as non-root www-data (uid=$uid)"; exit 1; fi
+          echo "Hardened image: non-root (uid 33) + serving /healthz. OK"
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f aegis_ci || true
