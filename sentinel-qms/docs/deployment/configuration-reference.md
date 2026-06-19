@@ -67,6 +67,7 @@ Secrets Manager** / **Azure Key Vault** — never from committed files.
 | `OIDC_GROUP_CLAIM` | `groups` | Config | ID-token claim carrying the user's groups. |
 | `OIDC_GROUP_ROLE_MAP` | `{}` | Config | JSON object mapping IdP group → local role, e.g. `{"qms-admins":"Admin"}`. |
 | `OIDC_DEFAULT_ROLE` | `Read-Only` | Config | Role assigned when no group maps to a role. |
+| `OIDC_SCOPES` | `openid email profile` | Config | Space-separated scopes requested in the browser auth-code flow. |
 
 ### Bootstrap Admin (seed)
 

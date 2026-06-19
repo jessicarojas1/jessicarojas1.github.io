@@ -12,7 +12,9 @@ from __future__ import annotations
 import json
 import threading
 import time
+import urllib.parse
 import urllib.request
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from jose import jwt
@@ -27,6 +29,8 @@ from app.models.user import Role, User
 
 _HTTP_TIMEOUT = 5
 _JWKS_TTL = 3600  # cache JWKS for an hour
+_STATE_TYPE = "oidc_state"
+_STATE_TTL_SECONDS = 600  # the authorize→callback round trip must complete in 10 min
 
 _lock = threading.Lock()
 _cache: dict[str, tuple[float, Any]] = {}
@@ -52,16 +56,27 @@ def _cached(key: str, loader) -> Any:  # noqa: ANN001
     return value
 
 
-def _jwks_uri() -> str:
-    if settings.OIDC_JWKS_URI:
-        return settings.OIDC_JWKS_URI
-    disco = _cached(
+def _discovery() -> dict:
+    """The issuer's cached OpenID discovery document."""
+    return _cached(
         "discovery",
         lambda: _fetch_json(settings.OIDC_ISSUER.rstrip("/") + "/.well-known/openid-configuration"),
     )
-    uri = disco.get("jwks_uri")
+
+
+def _jwks_uri() -> str:
+    if settings.OIDC_JWKS_URI:
+        return settings.OIDC_JWKS_URI
+    uri = _discovery().get("jwks_uri")
     if not uri:
         raise AuthenticationError("OIDC discovery document is missing jwks_uri.")
+    return uri
+
+
+def _endpoint(name: str) -> str:
+    uri = _discovery().get(name)
+    if not uri:
+        raise AuthenticationError(f"OIDC discovery document is missing {name}.")
     return uri
 
 
@@ -183,3 +198,86 @@ def resolve_or_provision_user(db: Session, claims: dict[str, Any]) -> User:
     db.add(user)
     db.flush()
     return user
+
+
+# --------------------------------------------------------------------------- #
+# Authorization-code (browser) flow                                           #
+# --------------------------------------------------------------------------- #
+def is_enabled() -> bool:
+    return bool(settings.OIDC_ISSUER and settings.OIDC_CLIENT_ID)
+
+
+def _safe_redirect(path: str | None) -> str:
+    """Only allow same-app relative paths as the post-login destination."""
+    if not path or not path.startswith("/") or path.startswith("//"):
+        return "/"
+    return path
+
+
+def issue_state(redirect_to: str, nonce: str) -> str:
+    """Sign a short-lived, tamper-proof state blob (no server-side session)."""
+    now = datetime.now(UTC)
+    payload = {
+        "type": _STATE_TYPE,
+        "redirect": _safe_redirect(redirect_to),
+        "nonce": nonce,
+        "iat": int(now.timestamp()),
+        "exp": int((now + timedelta(seconds=_STATE_TTL_SECONDS)).timestamp()),
+    }
+    return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+
+
+def verify_state(state: str) -> dict[str, Any]:
+    try:
+        payload = jwt.decode(state, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+    except JWTError as exc:
+        raise AuthenticationError("Invalid or expired SSO state.") from exc
+    if payload.get("type") != _STATE_TYPE:
+        raise AuthenticationError("Invalid SSO state.")
+    return payload
+
+
+def build_authorize_url(redirect_uri: str, state: str, nonce: str) -> str:
+    params = {
+        "response_type": "code",
+        "client_id": settings.OIDC_CLIENT_ID,
+        "redirect_uri": redirect_uri,
+        "scope": settings.OIDC_SCOPES,
+        "state": state,
+        "nonce": nonce,
+    }
+    return _endpoint("authorization_endpoint") + "?" + urllib.parse.urlencode(params)
+
+
+def exchange_code(code: str, redirect_uri: str) -> str:
+    """Exchange an authorization code for an ID token at the IdP token endpoint."""
+    token_url = _endpoint("token_endpoint")
+    if not is_public_http_url(token_url):
+        raise AuthenticationError("OIDC token endpoint must be a public https URL.")
+    body = urllib.parse.urlencode(
+        {
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": redirect_uri,
+            "client_id": settings.OIDC_CLIENT_ID,
+            "client_secret": settings.OIDC_CLIENT_SECRET,
+        }
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        token_url,
+        data=body,
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=_HTTP_TIMEOUT) as resp:  # noqa: S310
+            data = json.loads(resp.read().decode("utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        raise AuthenticationError("OIDC code exchange failed.") from exc
+    id_token = data.get("id_token")
+    if not id_token:
+        raise AuthenticationError("OIDC token response did not include an id_token.")
+    return id_token

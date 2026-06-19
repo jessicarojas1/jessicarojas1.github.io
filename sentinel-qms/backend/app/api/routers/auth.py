@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import secrets
 from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, Request
+from fastapi.responses import RedirectResponse
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
@@ -12,7 +14,12 @@ from app.api.deps import get_current_user
 from app.core import audit
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.exceptions import AuthenticationError, RateLimitError, ValidationAppError
+from app.core.exceptions import (
+    AppError,
+    AuthenticationError,
+    RateLimitError,
+    ValidationAppError,
+)
 from app.core.security import (
     create_access_token,
     hash_password,
@@ -199,6 +206,83 @@ def oidc_exchange(
     )
     db.commit()
     return _token_response(user, refresh_token)
+
+
+def _oidc_redirect_uri(request: Request) -> str:
+    """The callback URL registered with the IdP; identical on login + callback."""
+    base = (settings.APP_BASE_URL or str(request.base_url)).rstrip("/")
+    return f"{base}{settings.API_V1_PREFIX}/auth/oidc/callback"
+
+
+def _spa_base(request: Request) -> str:
+    return (settings.APP_BASE_URL or str(request.base_url)).rstrip("/")
+
+
+@router.get("/sso/info")
+def sso_info() -> dict:
+    """Public: whether federated SSO is available (drives the login-page button)."""
+    return {"enabled": oidc.is_enabled(), "label": "Sign in with SSO"}
+
+
+@router.get("/oidc/login")
+def oidc_login(request: Request, redirect: str = "/") -> RedirectResponse:
+    """Begin the OIDC authorization-code flow by redirecting to the IdP."""
+    if not oidc.is_enabled():
+        raise AuthenticationError("OIDC/SSO is not configured on this deployment.")
+    nonce = secrets.token_urlsafe(16)
+    state = oidc.issue_state(redirect, nonce)
+    url = oidc.build_authorize_url(_oidc_redirect_uri(request), state, nonce)
+    return RedirectResponse(url, status_code=302)
+
+
+@router.get("/oidc/callback")
+def oidc_callback(
+    request: Request,
+    db: Session = Depends(get_db),
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+) -> RedirectResponse:
+    """IdP redirect target: exchange the code, then hand tokens to the SPA.
+
+    On success the SPA is sent to ``<redirect>#access_token=…&refresh_token=…``
+    (fragment, so the tokens never hit server logs or the Referer header); the
+    front-end captures them and cleans the URL. Failures redirect to
+    ``/login?sso_error=…``.
+    """
+    spa = _spa_base(request)
+    if error or not code or not state:
+        return RedirectResponse(f"{spa}/login?sso_error=sso_failed", status_code=302)
+    try:
+        st = oidc.verify_state(state)
+        id_token = oidc.exchange_code(code, _oidc_redirect_uri(request))
+        claims = oidc.verify_id_token(id_token)
+        if claims.get("nonce") and claims["nonce"] != st.get("nonce"):
+            raise AuthenticationError("OIDC nonce mismatch.")
+        user = oidc.resolve_or_provision_user(db, claims)
+        user.last_login_at = datetime.now(UTC)
+        ctx = request_context(request)
+        audit.record(
+            db,
+            actor_id=user.id,
+            actor_email=user.email,
+            action="login",
+            entity_type="auth",
+            entity_id=user.id,
+            after={"method": "oidc"},
+            **ctx,
+        )
+        refresh_token = refresh_tokens.issue(
+            db, user, ip=ctx.get("ip"), user_agent=request.headers.get("User-Agent")
+        )
+        db.commit()
+    except AppError:
+        db.rollback()
+        return RedirectResponse(f"{spa}/login?sso_error=sso_denied", status_code=302)
+    tokens = _token_response(user, refresh_token)
+    dest = oidc._safe_redirect(st.get("redirect"))
+    frag = f"access_token={tokens.access_token}&refresh_token={tokens.refresh_token}"
+    return RedirectResponse(f"{spa}{dest}#{frag}", status_code=302)
 
 
 @router.get("/me", response_model=UserRead)

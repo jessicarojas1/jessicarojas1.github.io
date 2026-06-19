@@ -90,6 +90,8 @@ class Settings(BaseSettings):
     OIDC_GROUP_ROLE_MAP: dict[str, str] = {}
     # Role granted to a provisioned user when no group maps to a role.
     OIDC_DEFAULT_ROLE: str = "Read-Only"
+    # Space-separated OAuth scopes requested in the authorization-code flow.
+    OIDC_SCOPES: str = "openid email profile"
 
     # Bootstrap admin — credentials come ONLY from the environment (e.g. the
     # Render dashboard). No baked-in defaults, so no secret ever ships in the
