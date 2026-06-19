@@ -61,5 +61,41 @@ check(strpos($d, 'https://ok.example/p') !== false, 'safe http(s) href preserved
 echo "— Output escaping (Security::h) —\n";
 check(Security::h('<b>&"') === '&lt;b&gt;&amp;&quot;', 'h() encodes < > & "');
 
+echo "— Native .docx generator (Docx) — well-formedness & XML escaping —\n";
+if (class_exists('ZipArchive')) {
+    require_once PALADIN_ROOT . '/src/Docx.php';
+    // Body deliberately contains XML-hostile characters and a <script> element.
+    $bytes = Docx::fromHtml('Title & <Tag>', '<h1>5 < 6 & "q"</h1><p>ok <strong>bold</strong></p><script>alert(1)</script>');
+    check(substr($bytes, 0, 2) === 'PK', 'docx is a ZIP (PK magic)');
+
+    $tmp = tempnam(sys_get_temp_dir(), 'palt');
+    file_put_contents($tmp, $bytes);
+    $zip = new ZipArchive();
+    $docXml = '';
+    if ($zip->open($tmp) === true) {
+        $docXml = (string)$zip->getFromName('word/document.xml');
+        $hasCt  = $zip->getFromName('[Content_Types].xml') !== false;
+        $hasRel = $zip->getFromName('_rels/.rels') !== false;
+        $zip->close();
+        check($hasCt && $hasRel, 'docx contains [Content_Types].xml and _rels/.rels');
+    } else {
+        check(false, 'docx package opens as a ZIP');
+    }
+    @unlink($tmp);
+
+    // word/document.xml must be well-formed XML (proves all & < > are escaped).
+    $prev = libxml_use_internal_errors(true);
+    $parsed = $docXml !== '' ? simplexml_load_string($docXml) : false;
+    libxml_clear_errors();
+    libxml_use_internal_errors($prev);
+    check($parsed !== false, 'word/document.xml is well-formed XML');
+    // No raw <script> markup survives into the document part.
+    check(stripos($docXml, '<script') === false, 'no <script> element in document.xml');
+    // XML-hostile characters are entity-escaped, not raw.
+    check(strpos($docXml, '&lt;') !== false && strpos($docXml, '&amp;') !== false, 'special chars are entity-escaped');
+} else {
+    echo "  (skipped — ZipArchive unavailable)\n";
+}
+
 echo "\n$tests checks, $fails failure(s)\n";
 exit($fails === 0 ? 0 : 1);
