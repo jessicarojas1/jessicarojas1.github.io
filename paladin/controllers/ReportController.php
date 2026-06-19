@@ -137,7 +137,10 @@ class ReportController {
                AND (d.review_date <= CURRENT_DATE + INTERVAL '90 days'
                     OR d.expiration_date <= CURRENT_DATE + INTERVAL '90 days'
                     OR d.review_date < CURRENT_DATE)
-             ORDER BY d.review_date NULLS LAST, d.expiration_date NULLS LAST"
+               AND (d.space_id IS NULL OR s.is_private = FALSE OR ? = 'admin'
+                    OR EXISTS (SELECT 1 FROM space_members m WHERE m.space_id = d.space_id AND m.user_id = ?))
+             ORDER BY d.review_date NULLS LAST, d.expiration_date NULLS LAST",
+            [Auth::role(), Auth::id()]
         );
 
         if (($_GET['format'] ?? '') === 'csv' && Auth::can('report.export')) {
