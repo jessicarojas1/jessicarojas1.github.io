@@ -3,10 +3,10 @@ import { FlaskConical } from 'lucide-react';
 import { inspectionHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
-import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordDetailHeader } from '@/components/RecordDetailHeader';
 import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 
@@ -22,16 +22,13 @@ export default function InspectionDetailPage() {
     >
       {insp && (
         <>
-          <PageHeader
-            title={
-              <span className="row" style={{ gap: 10 }}>
-                <FlaskConical size={22} />
-                <span className="mono">{insp.inspection_number}</span>
-                <StatusBadge status={insp.result} />
-              </span>
-            }
-            subtitle={`${insp.part_number ?? ''}${insp.fai_report?.part_name ? ` — ${insp.fai_report.part_name}` : ''}`}
-            breadcrumbs={[{ label: 'Inspections', to: '/inspections' }, { label: insp.inspection_number }]}
+          <RecordDetailHeader
+            icon={<FlaskConical size={22} />}
+            recordNumber={insp.inspection_number}
+            status={insp.result}
+            title={`${insp.part_number ?? ''}${insp.fai_report?.part_name ? ` — ${insp.fai_report.part_name}` : ''}`}
+            listLabel="Inspections"
+            listTo="/inspections"
             actions={<PrintButton />}
           />
 
