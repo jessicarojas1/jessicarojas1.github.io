@@ -14,10 +14,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.exceptions import AuthenticationError, RateLimitError
 from app.core.security import (
-    REFRESH_TOKEN_TYPE,
     create_access_token,
-    create_refresh_token,
-    decode_token,
     verify_password,
 )
 from app.models.user import AuditLog, User
@@ -29,17 +26,17 @@ from app.schemas.auth import (
     UserRead,
 )
 from app.schemas.common import MessageOut
+from app.services import refresh_tokens
 from app.services.crud import request_context
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-def _issue_tokens(user: User) -> Token:
+def _token_response(user: User, refresh_token: str) -> Token:
     access = create_access_token(str(user.id), user.role_names, email=user.email)
-    refresh = create_refresh_token(str(user.id))
     return Token(
         access_token=access,
-        refresh_token=refresh,
+        refresh_token=refresh_token,
         expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
@@ -119,22 +116,32 @@ def login(
         entity_id=user.id,
         **request_context(request),
     )
+    refresh_token = refresh_tokens.issue(
+        db, user, ip=ctx.get("ip"), user_agent=request.headers.get("User-Agent")
+    )
     db.commit()
-    return _issue_tokens(user)
+    return _token_response(user, refresh_token)
 
 
 @router.post("/refresh", response_model=Token)
-def refresh(body: TokenRefreshRequest, db: Session = Depends(get_db)) -> Token:
-    payload = decode_token(body.refresh_token, expected_type=REFRESH_TOKEN_TYPE)
-    try:
-        user_id = int(payload["sub"])
-    except (KeyError, ValueError) as exc:
-        raise AuthenticationError("Malformed refresh token.") from exc
+def refresh(
+    body: TokenRefreshRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> Token:
+    """Rotate a refresh token: the presented token is revoked and replaced.
 
-    user = db.get(User, user_id)
-    if user is None or not user.is_active:
-        raise AuthenticationError("User not found or inactive.")
-    return _issue_tokens(user)
+    Reusing a previously rotated token revokes the user's whole active set.
+    """
+    ctx = request_context(request)
+    user, new_refresh = refresh_tokens.rotate(
+        db,
+        body.refresh_token,
+        ip=ctx.get("ip"),
+        user_agent=request.headers.get("User-Agent"),
+    )
+    db.commit()
+    return _token_response(user, new_refresh)
 
 
 @router.get("/me", response_model=UserRead)
@@ -154,10 +161,12 @@ def logout(
     current: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> MessageOut:
-    """Stateless JWT logout: audited; client discards tokens.
+    """Log out: revoke the user's refresh tokens (sign out everywhere) and audit.
 
-    (Token revocation lists can be layered on via the ``jti`` claim.)
+    The short-lived access token remains valid until it expires; refresh-token
+    revocation prevents any new access tokens from being minted for the session.
     """
+    revoked = refresh_tokens.revoke_all(db, current.id)
     audit.record(
         db,
         actor_id=current.id,
@@ -165,6 +174,7 @@ def logout(
         action="logout",
         entity_type="auth",
         entity_id=current.id,
+        after={"refresh_tokens_revoked": revoked},
         **request_context(request),
     )
     db.commit()

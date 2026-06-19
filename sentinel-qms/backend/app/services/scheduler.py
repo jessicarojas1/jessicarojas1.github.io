@@ -18,7 +18,7 @@ import threading
 
 from app.core.config import settings
 from app.core.database import SessionLocal
-from app.services import report_digest, sla
+from app.services import report_digest, sla, webhooks
 
 logger = logging.getLogger("app.scheduler")
 
@@ -43,6 +43,13 @@ def run_tick() -> None:
                 logger.info("report digest sent to %s recipient(s)", result["sent"])
         except Exception:  # noqa: BLE001
             logger.exception("report digest failed")
+            db.rollback()
+        try:
+            wh = webhooks.dispatch_due(db)
+            if wh.get("attempted"):
+                logger.info("webhook dispatch: %s", wh)
+        except Exception:  # noqa: BLE001
+            logger.exception("webhook dispatch failed")
             db.rollback()
 
 

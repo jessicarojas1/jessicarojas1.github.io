@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <?php $__brandName = Branding::name(); $__brandLogo = Branding::logo(); ?>
 <title>SSO Error — <?= Security::h($__brandName) ?></title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css">
 <link rel="stylesheet" href="/public/css/app.css">
 <?= Branding::accentStyleTag() ?>

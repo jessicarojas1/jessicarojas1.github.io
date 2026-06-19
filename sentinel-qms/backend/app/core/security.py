@@ -71,6 +71,26 @@ def create_refresh_token(subject: str) -> str:
     )
 
 
+def new_refresh_token(subject: str) -> tuple[str, str, datetime]:
+    """Mint a refresh token, returning ``(token, jti, expires_at)``.
+
+    The ``jti`` is the server-side handle used to persist, rotate, and revoke the
+    token; ``expires_at`` mirrors the encoded ``exp`` claim.
+    """
+    now = datetime.now(UTC)
+    expires_at = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    jti = uuid.uuid4().hex
+    payload: dict[str, Any] = {
+        "sub": str(subject),
+        "type": REFRESH_TOKEN_TYPE,
+        "iat": int(now.timestamp()),
+        "exp": int(expires_at.timestamp()),
+        "jti": jti,
+    }
+    token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    return token, jti, expires_at
+
+
 def decode_token(token: str, *, expected_type: str | None = None) -> dict[str, Any]:
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])

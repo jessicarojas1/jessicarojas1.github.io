@@ -26,6 +26,10 @@ $HANDLERS = ['onclick','ondblclick','onchange','onsubmit','oninput','onload','on
     'onfocus','onblur','onscroll','onerror','onreset','onselect','ontoggle','oncontextmenu'];
 $handlerRe = '/\s(' . implode('|', $HANDLERS) . ')\s*=/i';
 
+// External asset hosts permitted in <link>/<script>. jsdelivr serves Bootstrap
+// CSS/JS (SRI-pinned in the markup). Everything else must be vendored locally.
+$CDN_ALLOWLIST = ['cdn.jsdelivr.net'];
+
 $violations = [];
 
 $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($viewsDir, FilesystemIterator::SKIP_DOTS));
@@ -43,6 +47,17 @@ foreach ($rii as $file) {
         // Rule 2: <script> without nonce (skip JSON-LD data blocks and closing tags).
         if (preg_match('/<script\b(?![^>]*\bnonce=)(?![^>]*application\/ld\+json)/i', $line)) {
             $violations[] = sprintf('%s:%d  <script> without nonce → add nonce="<?= Security::nonce() ?>"', $rel, $n + 1);
+        }
+        // Rule 3: external <link>/<script> hosts must be on the CSP allowlist.
+        // Keeps Google Fonts and other third-party origins from creeping back in
+        // (supply-chain + air-gap + GDPR). Only jsdelivr (Bootstrap, SRI-pinned)
+        // is permitted; vendor it locally to drop this too.
+        if (preg_match_all('/<(?:link|script)\b[^>]*\b(?:href|src)\s*=\s*["\']https?:\/\/([^"\'\/ >]+)/i', $line, $hm)) {
+            foreach ($hm[1] as $host) {
+                if (!in_array(strtolower($host), $CDN_ALLOWLIST, true)) {
+                    $violations[] = sprintf('%s:%d  external asset host "%s" not on CSP allowlist → vendor locally', $rel, $n + 1, $host);
+                }
+            }
         }
     }
 }

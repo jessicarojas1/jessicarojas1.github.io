@@ -969,7 +969,7 @@ if (!empty($trendData)) {
 
   // Tooltip overlay
   var tooltip = document.createElement('div');
-  tooltip.style.cssText = 'position:absolute;pointer-events:none;display:none;background:#111111;color:#f9fafb;font-size:11px;padding:6px 10px;border-radius:7px;z-index:50;line-height:1.5;white-space:nowrap;font-family:Inter,sans-serif';
+  tooltip.style.cssText = 'position:absolute;pointer-events:none;display:none;background:#111111;color:#f9fafb;font-size:11px;padding:6px 10px;border-radius:7px;z-index:50;line-height:1.5;white-space:nowrap;font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif';
   canvas.parentElement.style.position = 'relative';
   canvas.parentElement.appendChild(tooltip);
 
