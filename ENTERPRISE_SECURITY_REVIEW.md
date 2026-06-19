@@ -290,4 +290,44 @@ Q1: kill Critical/High; shared security baseline; central audit. Q2: SLSA L2+, t
 **Conditional — do not deploy `apex`, `aeromarkup`, or the static "auth" demos to any environment handling sensitive data until the Critical/High items are remediated.** The flagship apps (`aegis`, `sentinel-qms`, `citadel`, and `paladin` after its authz fixes) demonstrate genuinely strong engineering and are a sound basis for an enterprise platform. The path to CMMC/FedRAMP/HIPAA runs through: (1) eliminating the Critical/High findings, (2) a shared security baseline to stop per-app drift, (3) centralized immutable audit, (4) SLSA supply-chain provenance, and (5) tenant isolation. Prioritize P0/P1 in the next sprint; re-test with an independent pen-test before any authorization boundary.
 
 ---
+
+## Addendum A — Deferred Deep Reviews (aeromarkup & business-insight-dashboard)
+
+These two apps received only infrastructure-level coverage in the main report; the following is their direct application-level review.
+
+### A.1 — aeromarkup (Flask + PostgreSQL REST/sync API for CUI aerospace data)
+
+**Architecture:** `server.py` is a Flask app serving an offline-first PWA (`static/`) plus a REST + `/api/sync` API backed by PostgreSQL via `psycopg` (parameterized, `search_path` pinned to a dedicated schema). Records carry a `classification` defaulting to **`CUI`**; the domain is aerospace quality (projects, drawings, NCRs, inspections, programs, e-signature **approvals**, audit log, users).
+
+**🔴 CRITICAL — Zero authentication / authorization on the entire API.**
+Every route (`server.py:148-697`, `/api/sync` `:701`) is exposed with **no authn or authz** — no token, session, or permission check anywhere. Combined with **C2** (the Azure Container App is internet-exposed with no WAF/TLS), any anonymous internet user can:
+- Read and write **all** CUI projects/drawings/NCRs/inspections/programs (`GET`/`POST`/`PATCH`).
+- Enumerate **every user account** — `GET /api/users` (`:659`) returns `id, username, display_name, email, role` for all users.
+- **Create or overwrite users with an arbitrary role and a client-supplied `password_hash`** — `POST /api/users` (`:672`) does `ON CONFLICT (username) DO UPDATE`, so an attacker can inject an account or take over an existing username and set its role (privilege grant / mass assignment, CWE-915/CWE-269).
+- **Forge e-signatures / approvals** — `POST /api/approvals` (`:538`) accepts client-supplied `actor_id`, `actor_name`, and `signature_hash` with no verification, and drives drawing lifecycle to `approved`/`released` (`:575-580`). The entire AS9100 / sign-off integrity trail is forgeable by anyone.
+- Read the full immutable audit log (`/api/audit`).
+**Impact:** Complete confidentiality, integrity, and non-repudiation failure for CUI/export-controlled aerospace data — catastrophic for the stated DoD/DIB/AS9100 context. **Exploitation:** trivial unauthenticated HTTP requests.
+**Fix:** Put authentication (the repo already has bcrypt password hashing in the schema/`users` table) + role-based authorization in front of every `/api/*` route via a `before_request` guard; hash passwords **server-side** (never accept `password_hash` from the client); bind approvals to the authenticated principal and verify/compute `signature_hash` server-side; restrict `/api/users` to admins and drop email/role from unauthenticated responses. Pair with the C2 edge fix (WAF/TLS).
+
+**Verified clean (positives):** No SQL injection — all queries use psycopg bound parameters, and the dynamic `WHERE` builders (`list_ncrs:341`, `list_inspections:447`, `list_approvals:522`, `list_comments:595`) only join fixed fragments with placeholders. Static file serving (`static_files:120`) uses `send_from_directory`, which is path-traversal-safe. No `eval`/`exec`/`pickle`/`yaml.load`, no command execution, no SSRF (no outbound requests), no `debug=True`. Audit logging is parameterized and transactional.
+
+**MEDIUM — `AUTO_MIGRATE=1` runs DDL on app boot** (`server.py:43,856`): the app applies `schema.sql` at startup, requiring elevated DB privileges for the app role and risking unintended schema changes on a public service. *Fix:* run migrations as a separate one-shot job with a least-privileged app runtime role.
+
+**LOW — Stored content rendered by the SPA:** annotation `text`, comment `body`, and `*_data` blobs are stored verbatim; if the PWA renders them as HTML, stored XSS is possible (frontend not in scope here). *Fix:* encode on render in the SPA.
+
+### A.2 — business-insight-dashboard (Streamlit CSV analytics)
+
+**Architecture:** `streamlit run app.py`; `modules/` (loader, kpis, charts, insights, branding, styles). Uploads a CSV → KPIs/charts/insights. Per-session state; "data processed locally, nothing stored or transmitted" (mostly true — see branding). Deployed publicly (`render.yaml`, `--server.address 0.0.0.0`).
+
+**Verified clean (positives):** `loader.py` uses only `pd.read_csv` on the uploaded file — **no** `read_pickle`/`read_excel`/`eval`/`df.query`/`pickle`/`yaml.load`/`subprocess`. No secrets/API keys (`st.secrets` not used; no LLM integration). Logo URLs are sanitized to `http(s)://` or `data:image/...` (`branding.py:48-54`), display name is sanitized and `html.escape`d wherever injected (`app.py:123,224,504`), accent is validated. No SSRF (`st.image` renders client-side).
+
+**MEDIUM — Unauthenticated shared-state write / defacement:** branding persists to a **server-side shared file** `branding.json` (`branding.py:35,130`) with no authentication (Streamlit has none). Any anonymous visitor can change the logo/name/accent for **all** users, and write an arbitrarily large `data:` URL logo to disk (storage abuse). XSS is mitigated by the sanitizers, but integrity/availability is not. *Fix:* gate `render_settings_ui` behind an admin token; cap logo size; or make branding per-session only.
+
+**LOW — Self-XSS via CSV column names:** uploaded column headers are injected into `st.markdown(..., unsafe_allow_html=True)` without escaping in the column-detection table (`app.py:241-251`). Streamlit strips `<script>` but not all vectors; impact is limited to the uploader's own session (per-session data). *Fix:* `html.escape()` the `canonical`/`mapped` values before building the table.
+
+**LOW — No upload size cap beyond Streamlit's default; unpinned deps** (`requirements.txt` uses `>=`). *Fix:* pin versions; set `server.maxUploadSize`.
+
+**Note:** As a single-session analytics demo with no sensitive default data, this app's residual risk is low; the branding write is the only cross-user concern.
+
+---
 *Methodology: full-repository static review across all sub-applications, IaC, CI/CD, and supply chain, performed by parallel specialized audit agents plus direct verification. Findings include concrete `file:line` evidence; "could not verify" items are flagged as risks per a zero-trust posture. This report is advisory and does not itself constitute a formal certification assessment.*
