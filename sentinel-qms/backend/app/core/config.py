@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     LOGIN_MAX_FAILURES: int = 10
     LOGIN_FAILURE_WINDOW_MINUTES: int = 15
 
+    # Self-service password-reset token lifetime (minutes).
+    PASSWORD_RESET_TTL_MINUTES: int = 60
+
     # Global API rate limiting (in-process fixed-window per client principal/IP).
     # Generous defaults so normal interactive use is never throttled; tightens
     # abusive/runaway programmatic traffic. Disable per-deployment if a fronting
