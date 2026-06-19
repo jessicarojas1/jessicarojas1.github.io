@@ -370,7 +370,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
     action VARCHAR(255) NOT NULL,
     entity_type VARCHAR(100),
     entity_id INTEGER,
-    changes JSONB,
+    changes TEXT,
     ip_address VARCHAR(50),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

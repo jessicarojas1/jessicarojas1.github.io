@@ -19,6 +19,9 @@ foreach (['.env.local', '.env'] as $f) {
         }
     }
 }
+// Merge real environment variables (containers/K8s/CI provide env, not a .env
+// file) so DATABASE_URL / ADMIN_EMAIL / ADMIN_PASSWORD are honored.
+foreach ((getenv() ?: []) as $k => $v) { if (!isset($_ENV[$k])) $_ENV[$k] = $v; }
 
 require_once AEGIS_ROOT . '/config/database.php';
 require_once AEGIS_ROOT . '/src/Database.php';
@@ -300,6 +303,7 @@ function runMigrations(PDO $pdo): void {
         '022_branding.sql',
         '023_risk_scoring.sql',
         '024_ai_governance.sql',
+        '025_audit_changes_text.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;
