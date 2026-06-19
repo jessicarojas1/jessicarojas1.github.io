@@ -41,8 +41,13 @@ Database::query("SELECT set_config('aegis.tenant_id', ?, false)", [(string)$tena
 
 ## Phased adoption (each phase shippable + testable)
 
-1. **Foundation** — add `tenants` table; add `tenant_id` (nullable) to all
-   tenant-owned tables; backfill existing rows to a default tenant; add indexes.
+1. **Foundation** — ✅ **DONE (inert):** `tenants` table + default tenant
+   (migration 026), and `Database::setTenant()/currentTenant()/clearTenant()`
+   which drive the `aegis.tenant_id` GUC. The helper → RLS isolation path is
+   proven end-to-end against a live Postgres in `tests/integration/tenancy_db.php`
+   (the `aegis-integration` workflow). Remaining in this phase: add `tenant_id`
+   (nullable) to all tenant-owned tables; backfill existing rows to tenant 1;
+   add indexes.
 2. **Write path** — stamp `tenant_id` on every INSERT (centralize in
    `Database::insert`); add `Database::setTenant()` from the authenticated user's
    tenant; resolve tenant at login/SSO.

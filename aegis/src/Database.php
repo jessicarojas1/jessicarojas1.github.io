@@ -64,6 +64,33 @@ class Database {
     public static function commit(): void          { self::getInstance()->commit(); }
     public static function rollback(): void        { self::getInstance()->rollBack(); }
 
+    /**
+     * Bind the current connection to a tenant by setting the `aegis.tenant_id`
+     * session GUC that Row-Level Security policies filter on (see
+     * MULTI_TENANCY.md / database/tenancy/rls_template.sql). Call once per request
+     * after authentication. Uses set_config (parameterized — never string
+     * interpolation) so the value can't be an injection vector. Currently inert
+     * until per-table RLS is enabled in the tenancy rollout.
+     */
+    public static function setTenant(int $tenantId): void {
+        if ($tenantId < 1) {
+            throw new InvalidArgumentException('tenant id must be a positive integer');
+        }
+        self::query("SELECT set_config('aegis.tenant_id', ?, false)", [(string)$tenantId]);
+    }
+
+    /** The tenant bound to the current connection, or null when unset. */
+    public static function currentTenant(): ?int {
+        $row = self::fetchOne("SELECT current_setting('aegis.tenant_id', true) AS t");
+        $t = $row['t'] ?? '';
+        return ($t === '' || $t === null) ? null : (int)$t;
+    }
+
+    /** Clear the tenant binding on the current connection. */
+    public static function clearTenant(): void {
+        self::query("SELECT set_config('aegis.tenant_id', '', false)");
+    }
+
     public static function tableExists(string $table): bool {
         $row = self::fetchOne(
             "SELECT COUNT(*) as cnt FROM information_schema.tables WHERE table_name = ? AND table_schema = 'aegis'",

@@ -88,6 +88,10 @@ jobs:
         working-directory: aegis
         run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/integration/rls_test.sql
 
+      - name: Tenancy helper — setTenant() drives RLS isolation
+        working-directory: aegis
+        run: php tests/integration/tenancy_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image
