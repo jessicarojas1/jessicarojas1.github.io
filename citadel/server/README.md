@@ -172,6 +172,9 @@ The machine-readable contract for all of the above is served at
 | `CITADEL_DATA_KEY` | — | 32-byte key (64 hex chars or base64) for **at-rest secret encryption** (AES-256-GCM). When set, TOTP seeds and the JWT signing key are sealed (`enc:v1:…`) before they touch the JSON store or Postgres, so a leaked store/backup doesn't directly yield 2FA seeds or a session-minting key. Unset = stored plaintext (legacy); reads transparently accept both, so enabling it migrates data lazily on next write. Inject from a secrets manager. |
 | `CITADEL_FIPS` | — | Set `1` to run in **FIPS 140 mode**: requests the OpenSSL FIPS provider at boot and switches password hashing from scrypt (not FIPS-approved) to **PBKDF2-HMAC-SHA256** (SP 800-132). Only enforced on a FIPS-validated OpenSSL build; on a stock build it logs a warning and continues non-FIPS (check `fips.active` in `/api/health`). Password hashes are self-describing, so both KDFs verify and you can enable it without resetting accounts. |
 | `CITADEL_PBKDF2_ITER` | `600000` | PBKDF2 iteration count for FIPS-mode password hashing (the value is embedded per-hash, so changing it doesn't break existing logins). |
+| `CITADEL_MULTITENANT` | — | Set `1` (with `DATABASE_URL`) to enable **schema-per-tenant** multi-tenancy: each tenant gets its own Postgres schema (`citadel_t_<slug>`) holding a full copy of the tables, so tenants are physically isolated. See _Multi-tenancy_ below. Default off = single-tenant (unchanged). |
+| `CITADEL_BASE_DOMAIN` | — | Apex domain for subdomain tenant resolution (`acme.<base>` → tenant `acme`). Tenants can also be selected per request via the `X-Citadel-Tenant` header or `?tenant=` param. |
+| `CITADEL_SUPERADMIN_TOKEN` | — | Bearer token gating the operator-only tenant-provisioning endpoints (`GET`/`POST /api/tenants`). When unset those routes are loopback-only. They 404 entirely unless multi-tenancy is enabled. |
 | `CITADEL_ACCESS_TTL` / `CITADEL_REFRESH_TTL` | `1800` / `2592000` | Access-token (30 m) and refresh-token (30 d) lifetimes, in seconds. |
 | `CITADEL_ADMIN_EMAIL` / `CITADEL_ADMIN_PASSWORD` | `admin@citadel.local` / `citadel-admin` | First-boot admin. The default password is flagged **must-change**; change it on first login. |
 | `CITADEL_AUDIT_SINK_URL` / `CITADEL_AUDIT_SINK_TOKEN` | — | Forward every audit event to an HTTP collector (Splunk HEC / SIEM webhook). The audit log is also **tamper-evident**: each event is hash-chained to the previous (`hash = SHA-256(prev + record)`), so altering or deleting any past record is detectable. `GET /api/audit/verify` (admin) re-walks the chain and reports the first break, if any. |
@@ -224,6 +227,39 @@ curl -sS -X POST http://localhost:8080/api/scan \
   -H "Authorization: Bearer $TOKEN" \
   -F "files=@./my-project.zip" -o report.json
 ```
+
+---
+
+## Multi-tenancy (schema-per-tenant)
+
+Opt-in with `CITADEL_MULTITENANT=1` + `DATABASE_URL`. Each tenant gets its own
+**Postgres schema** (`citadel_t_<slug>`) containing a full copy of the `citadel_*`
+tables, so tenants are **physically isolated** — a query scoped to one tenant's
+schema cannot read another's rows even if a `WHERE` clause is omitted. A
+`citadel_tenants` registry in the public schema maps slug → schema.
+
+- **Provisioning** is an operator action (not an in-app role): `POST /api/tenants`
+  `{ "slug": "acme", "name": "Acme Corp" }` creates the schema and tables;
+  `GET /api/tenants` lists them. Both are gated by `CITADEL_SUPERADMIN_TOKEN`
+  (Bearer) or loopback, and 404 unless multi-tenancy is enabled.
+- **Request routing** resolves the tenant from the `X-Citadel-Tenant` header, a
+  `?tenant=` param, or an `acme.<CITADEL_BASE_DOMAIN>` subdomain. Slugs are
+  strictly validated and the derived schema name is quote-validated before it
+  ever reaches SQL, so a tenant identifier cannot inject SQL or escape its schema.
+  Internally, `db.runInTenant(schema, fn)` scopes `search_path` for the duration
+  of each query and resets it on release, so a pooled connection can't leak one
+  tenant's `search_path` to the next.
+
+> **Staged rollout — read before enabling in production.** This release ships the
+> isolation core (schema routing, provisioning, registry, request resolution,
+> injection-safe identifier handling) behind the flag. The auth/session **in-memory
+> caches** in `lib/users.js` and `lib/sessions.js` are still process-global; they
+> must be keyed per tenant before app traffic is routed per request, otherwise one
+> tenant's cached users/sessions could be served to another. Until that cache
+> cutover lands, treat multi-tenancy as **operator-provisionable but not yet wired
+> into the live auth path** — use it to stand up isolated schemas, not to serve
+> concurrent tenants through one process. The default single-tenant deployment is
+> completely unaffected (no ambient tenant scope ⇒ `db.query` is unchanged).
 
 ---
 

@@ -15,9 +15,29 @@
 let Pool = null;
 try { ({ Pool } = require('pg')); } catch (e) { /* pg not installed -> stays disabled */ }
 const fs = require('fs');
+const { AsyncLocalStorage } = require('async_hooks');
 
 const URL = process.env.DATABASE_URL || '';
 let pool = null;
+
+// Ambient per-request tenant context (schema-per-tenant isolation, H5). When a
+// request runs inside runInTenant(schema, fn), query() transparently routes to
+// that Postgres schema; outside any tenant scope (the default, single-tenant
+// deployment) query() is exactly pool.query as before — zero behavior change.
+const tenantCtx = new AsyncLocalStorage();
+function currentSchema() { const s = tenantCtx.getStore(); return s && s.schema; }
+function runInTenant(schema, fn) { return tenantCtx.run({ schema }, fn); }
+
+// Quote (and strictly validate) a SQL identifier for safe interpolation into
+// statements that can't be parameterized (schema names in SET search_path /
+// CREATE SCHEMA). Belt-and-suspenders over the tenant-slug validation upstream:
+// anything not matching a conservative identifier shape is rejected outright.
+function quoteIdent(name) {
+  if (typeof name !== 'string' || !/^[a-z_][a-z0-9_]{0,62}$/.test(name)) {
+    throw new Error('unsafe SQL identifier: ' + String(name));
+  }
+  return '"' + name + '"';
+}
 
 // Build the pg `ssl` option from env. Verification is opt-in (PGSSL_VERIFY=1) or
 // implied when a CA is provided; otherwise we keep the permissive managed-PG
@@ -58,7 +78,41 @@ if (URL && Pool) {
 }
 
 function enabled() { return !!pool; }
-async function query(text, params) { return pool.query(text, params); }
+
+// Tenant-aware query. With no ambient tenant scope this is a plain pool.query
+// (the single-tenant default — unchanged). Inside runInTenant() it checks out a
+// dedicated client, scopes search_path to the tenant schema for the duration of
+// the query, then resets it before returning the client to the pool so the
+// search_path can never leak to the next checkout.
+async function query(text, params) {
+  const schema = currentSchema();
+  if (!schema) return pool.query(text, params);
+  const client = await pool.connect();
+  try {
+    await client.query('SET search_path TO ' + quoteIdent(schema) + ', public');
+    return await client.query(text, params);
+  } finally {
+    try { await client.query('SET search_path TO public'); } catch (e) { /* reset best-effort */ }
+    client.release();
+  }
+}
+
+// Provision a tenant: create its schema and apply the full table DDL inside it.
+// Idempotent (CREATE SCHEMA IF NOT EXISTS + the IF NOT EXISTS table DDL).
+async function applySchemaTo(schema) {
+  if (!pool) return false;
+  const ident = quoteIdent(schema);
+  const client = await pool.connect();
+  try {
+    await client.query('CREATE SCHEMA IF NOT EXISTS ' + ident);
+    await client.query('SET search_path TO ' + ident);
+    await client.query(SCHEMA);
+  } finally {
+    try { await client.query('SET search_path TO public'); } catch (e) { /* reset best-effort */ }
+    client.release();
+  }
+  return true;
+}
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS citadel_settings (
@@ -153,4 +207,8 @@ async function init() {
 
 async function close() { if (pool) await pool.end(); }
 
-module.exports = { enabled, query, init, close, SCHEMA };
+module.exports = {
+  enabled, query, init, close, SCHEMA,
+  // Schema-per-tenant primitives (H5).
+  runInTenant, currentSchema, applySchemaTo, quoteIdent
+};

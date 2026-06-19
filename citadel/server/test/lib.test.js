@@ -26,6 +26,8 @@ const users = require('../lib/users');
 const oidc = require('../lib/oidc');
 const secretbox = require('../lib/secretbox');
 const fips = require('../lib/fips');
+const tenancy = require('../lib/tenancy');
+const dbmod = require('../lib/db');
 
 /* ---------------- JWT ---------------- */
 test('jwt: sign/verify roundtrip', () => {
@@ -95,6 +97,48 @@ test('fips: status reflects active state and selects the FIPS-approved KDF', () 
   assert.equal(fips.status().passwordKdf, 'pbkdf2-hmac-sha256');
   assert.ok(fips.status().pbkdf2Iterations >= 10000);
   fips._forceActive(null);    // restore real OpenSSL state for later tests
+});
+
+/* ---------------- Multi-tenancy (schema-per-tenant; H5) ---------------- */
+test('tenancy: slug validation rejects injection / illegal identifiers', () => {
+  for (const ok of ['acme', 'a1', 'my-org', 'tenant-2', 'ab', 'x9y8z7']) {
+    assert.ok(tenancy.valid(ok), 'should accept ' + ok);
+  }
+  for (const bad of ['', 'a', 'A1', '-acme', 'acme-', 'a--b', 'pu blic', 'acme;drop',
+                     'a_b', 'тест', '1;DROP TABLE citadel_users', '../etc', 'x'.repeat(33)]) {
+    assert.equal(tenancy.valid(bad), false, 'should reject ' + JSON.stringify(bad));
+  }
+});
+test('tenancy: schemaFor derives a safe schema name; throws on bad slug', () => {
+  assert.equal(tenancy.schemaFor('acme'), 'citadel_t_acme');
+  assert.equal(tenancy.schemaFor('my-org'), 'citadel_t_my_org');   // hyphen -> underscore
+  assert.throws(() => tenancy.schemaFor('Bad; DROP'));
+});
+test('tenancy: db.quoteIdent quotes valid identifiers and rejects unsafe ones', () => {
+  assert.equal(dbmod.quoteIdent('citadel_t_acme'), '"citadel_t_acme"');
+  for (const bad of ['a; DROP TABLE x', 'public"; --', '"evil"', 'has space', 'citadel_t_acme; select', 1, null]) {
+    assert.throws(() => dbmod.quoteIdent(bad), 'should reject ' + JSON.stringify(bad));
+  }
+});
+test('tenancy: runInTenant sets an ambient schema; default scope is none', () => {
+  assert.equal(dbmod.currentSchema(), undefined);
+  dbmod.runInTenant('citadel_t_acme', () => {
+    assert.equal(dbmod.currentSchema(), 'citadel_t_acme');
+  });
+  assert.equal(dbmod.currentSchema(), undefined);   // restored after the scope
+});
+test('tenancy: resolveSlug reads header > query > subdomain, validating each', () => {
+  assert.equal(tenancy.resolveSlug({ headers: { 'x-citadel-tenant': 'Acme' } }), 'acme');
+  assert.equal(tenancy.resolveSlug({ headers: {}, query: { tenant: 'beta' } }), 'beta');
+  assert.equal(tenancy.resolveSlug({ headers: { 'x-citadel-tenant': 'evil; drop' } }), null);
+  process.env.CITADEL_BASE_DOMAIN = 'citadel.example.com';
+  assert.equal(tenancy.resolveSlug({ headers: { host: 'gamma.citadel.example.com:443' } }), 'gamma');
+  assert.equal(tenancy.resolveSlug({ headers: { host: 'citadel.example.com' } }), null); // apex, no tenant
+  delete process.env.CITADEL_BASE_DOMAIN;
+});
+test('tenancy: disabled by default (opt-in via CITADEL_MULTITENANT)', () => {
+  assert.equal(tenancy.multitenant(), false);
+  assert.equal(tenancy.enabled(), false);
 });
 
 /* ---------------- TOTP / MFA ---------------- */

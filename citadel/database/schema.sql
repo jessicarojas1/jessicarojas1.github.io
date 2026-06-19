@@ -120,3 +120,18 @@ CREATE TABLE IF NOT EXISTS citadel_dispositions (
   actor       text,
   updated_at  timestamptz NOT NULL DEFAULT now()
 );
+
+-- ----------------------------------------------------------------------------
+-- Tenant registry (schema-per-tenant multi-tenancy; OPT-IN, CITADEL_MULTITENANT=1)
+-- Lives in the public schema and maps a tenant slug to its dedicated Postgres
+-- schema (citadel_t_<slug>), which holds its own copy of all the tables above.
+-- Created/managed by citadel/server/lib/tenancy.js. Single-tenant deployments
+-- (the default) never touch this and use the public-schema tables directly.
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS citadel_tenants (
+  slug        text PRIMARY KEY,
+  name        text,
+  schema_name text NOT NULL,
+  active      boolean NOT NULL DEFAULT true,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);

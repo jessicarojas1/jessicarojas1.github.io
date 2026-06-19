@@ -37,6 +37,7 @@ const scans = require('./lib/scans');
 const dispositions = require('./lib/dispositions');
 const notify = require('./lib/notify');
 const fips = require('./lib/fips');
+const tenancy = require('./lib/tenancy');
 
 // Enter FIPS 140 mode as early as possible (before any password/seed crypto) when
 // CITADEL_FIPS=1 and the OpenSSL build supports it. No-op + warning otherwise.
@@ -82,6 +83,17 @@ app.get('/metrics', (req, res) => {
 // client-spoofable X-Forwarded-For). Used for rate-limit + lockout keys.
 function clientIp(req) {
   return req.ip || (req.socket && req.socket.remoteAddress) || 'unknown';
+}
+
+// Tenant lifecycle (schema-per-tenant; H5) is an OPERATOR action, not an in-app
+// role: gate on CITADEL_SUPERADMIN_TOKEN (Bearer) or loopback. The routes are
+// registered after the JSON body parser (below). 404 (not 403) so the route is
+// not confirmed; only meaningful when CITADEL_MULTITENANT=1 + a database is set.
+function superadminOk(req) {
+  const tok = process.env.CITADEL_SUPERADMIN_TOKEN;
+  const bearer = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const loopback = /^(::1|::ffff:127\.|127\.)/.test(clientIp(req));
+  return tok ? bearer === tok : loopback;
 }
 
 // Token lifetimes. Short-lived access tokens + a long-lived refresh token so a
@@ -498,6 +510,20 @@ app.get('/api/audit', requireAdmin, async (req, res) => {
 // record was altered or removed (and where). Admin-only.
 app.get('/api/audit/verify', requireAdmin, async (req, res) => {
   res.json(await audit.verifyChain());
+});
+
+// Operator-only tenant provisioning (schema-per-tenant). See superadminOk above.
+app.get('/api/tenants', async (req, res) => {
+  if (!tenancy.enabled() || !superadminOk(req)) return res.status(404).end();
+  res.json({ tenants: await tenancy.list() });
+});
+app.post('/api/tenants', async (req, res) => {
+  if (!tenancy.enabled() || !superadminOk(req)) return res.status(404).end();
+  try {
+    const t = await tenancy.create({ slug: (req.body && req.body.slug) || '', name: (req.body && req.body.name) || '' });
+    audit.record('tenant.provision', { actor: 'operator', ip: clientIp(req), detail: t.slug, ok: true });
+    res.json({ ok: true, tenant: t });
+  } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
 /* ---------------- Scan history (durable, requires DATABASE_URL) ---------------- */
