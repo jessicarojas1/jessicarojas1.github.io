@@ -8,19 +8,24 @@ than implying false assurance.
 
 ---
 
-## 1. Federated SSO: OIDC implemented; SAML / CAC-PIV not yet
-- **Where:** `backend/app/services/oidc.py`, `backend/app/api/routers/auth.py`
-  (`POST /auth/oidc/exchange`).
-- **State:** **OIDC is fully implemented** — ID tokens are verified against the
-  issuer's JWKS (RS256, audience/issuer/expiry enforced), with email-domain
-  allowlisting, IdP group→role mapping, and just-in-time provisioning. It is
-  active only when `OIDC_ISSUER` is configured; otherwise it fails closed.
-- **Not yet:** **SAML 2.0** and **CAC/PIV (mutual-TLS) direct** flows. SAML needs
-  an XML-signature library (e.g. `python3-saml`/`lxml`); CAC/PIV is typically
-  fronted by a reverse proxy doing client-cert auth. Both can layer on top of the
-  same provisioning/role-mapping path in `oidc.resolve_or_provision_user`.
-- **Production:** Point `OIDC_ISSUER`/`OIDC_CLIENT_ID` at your IdP; use the group
-  map to assign roles. Add SAML/CAC-PIV when those IdPs are required.
+## 1. Federated SSO: OIDC + SAML implemented; CAC/PIV not yet
+- **Where:** `backend/app/services/oidc.py`, `backend/app/services/saml.py`,
+  `backend/app/api/routers/auth.py`.
+- **State:** **OIDC and SAML 2.0 are both implemented.**
+  - *OIDC* — authorization-code browser flow + token exchange; ID tokens verified
+    against the issuer's JWKS (RS256, audience/issuer/expiry enforced).
+  - *SAML 2.0* — SP-initiated Web Browser SSO; the IdP's signed Response/Assertion
+    is verified with `signxml` (only the verified subtree is trusted, mitigating
+    XML Signature Wrapping), with audience + validity-window + issuer checks and
+    an SP-metadata endpoint.
+  - Both share one federation policy: email-domain allowlist, group→role mapping,
+    just-in-time provisioning. Each is active only when configured; otherwise it
+    fails closed.
+- **Not yet:** **CAC/PIV (mutual-TLS) direct** sign-in, which is normally fronted
+  by a reverse proxy terminating client certificates; that proxy can map the cert
+  to a header and reuse the same `oidc.resolve_or_provision_user` provisioning.
+- **Production:** Configure `OIDC_ISSUER`/`OIDC_CLIENT_ID` and/or the `SAML_IDP_*`
+  + `SAML_SP_*` settings, then use the group map to assign roles.
 
 ## 2. Rate limiting is in-process (single node)
 - **Where:** `backend/app/core/middleware.py` (`RateLimitMiddleware`).

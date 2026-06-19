@@ -93,6 +93,21 @@ class Settings(BaseSettings):
     # Space-separated OAuth scopes requested in the authorization-code flow.
     OIDC_SCOPES: str = "openid email profile"
 
+    # SAML 2.0 SP-initiated SSO. Enabled when an IdP SSO URL + signing cert + SP
+    # entity id are configured. Domain allowlist / group→role map / default role /
+    # auto-provision are shared with the OIDC settings above (one federation policy).
+    SAML_IDP_ENTITY_ID: str = ""
+    SAML_IDP_SSO_URL: str = ""
+    # PEM-encoded X.509 certificate the IdP signs assertions with.
+    SAML_IDP_CERT: str = ""
+    SAML_SP_ENTITY_ID: str = ""
+    # Assertion Consumer Service URL; derived from APP_BASE_URL when blank.
+    SAML_SP_ACS_URL: str = ""
+    # SAML attribute names carrying the user's email / display name / groups.
+    SAML_EMAIL_ATTRIBUTE: str = ""  # blank → fall back to the Subject NameID
+    SAML_NAME_ATTRIBUTE: str = "displayName"
+    SAML_GROUP_ATTRIBUTE: str = "groups"
+
     # Bootstrap admin — credentials come ONLY from the environment (e.g. the
     # Render dashboard). No baked-in defaults, so no secret ever ships in the
     # repo; when unset, admin bootstrap is simply skipped.

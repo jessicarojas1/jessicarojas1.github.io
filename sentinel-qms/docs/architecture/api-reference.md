@@ -44,7 +44,19 @@ All paths verify the ID token against the issuer's JWKS (RS256, audience/issuer/
 
 Access is gated by an optional email-domain allowlist (`OIDC_ALLOWED_DOMAINS`); the group claim and
 group→role map are configurable. SSO-provisioned accounts have no password and cannot use the
-password grant. SAML 2.0 / CAC-PIV are not yet implemented (see KNOWN_LIMITATIONS.md §1).
+password grant.
+
+#### Federated SSO (SAML 2.0)
+When the `SAML_IDP_*` + `SAML_SP_*` settings are configured, SP-initiated Web Browser SSO is available:
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/v1/auth/saml/login?redirect=/path` | 302 to the IdP with a deflated `AuthnRequest` (HTTP-Redirect binding) and a signed `RelayState`. |
+| `POST /api/v1/auth/saml/acs` | Assertion Consumer Service (HTTP-POST). Verifies the IdP's **signed** Response/Assertion with `signxml` — only the verified subtree is trusted (XSW-safe) — checks audience + validity window + issuer, provisions the user, then 302s to `<redirect>#access_token=…&refresh_token=…`. Failures 302 to `/login?sso_error=…`. |
+| `GET /api/v1/auth/saml/metadata` | Public SP metadata XML for registering this service with the IdP. |
+
+SAML shares the same provisioning policy as OIDC (domain allowlist, group→role map, JIT). CAC-PIV is
+not yet implemented (see KNOWN_LIMITATIONS.md §1).
 
 #### Password management
 | Method & path | Purpose |

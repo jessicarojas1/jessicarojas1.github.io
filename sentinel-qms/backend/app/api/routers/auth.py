@@ -5,8 +5,8 @@ from __future__ import annotations
 import secrets
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, Form, Request
+from fastapi.responses import PlainTextResponse, RedirectResponse
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
@@ -41,7 +41,7 @@ from app.schemas.auth import (
     UserRead,
 )
 from app.schemas.common import MessageOut
-from app.services import mfa, oidc, password_reset, refresh_tokens
+from app.services import mfa, oidc, password_reset, refresh_tokens, saml
 from app.services.crud import request_context
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -220,8 +220,15 @@ def _spa_base(request: Request) -> str:
 
 @router.get("/sso/info")
 def sso_info() -> dict:
-    """Public: whether federated SSO is available (drives the login-page button)."""
-    return {"enabled": oidc.is_enabled(), "label": "Sign in with SSO"}
+    """Public: which federated SSO providers are available (drives login buttons)."""
+    oidc_on = oidc.is_enabled()
+    saml_on = saml.is_enabled()
+    return {
+        "enabled": oidc_on or saml_on,
+        "oidc": oidc_on,
+        "saml": saml_on,
+        "label": "Sign in with SSO",
+    }
 
 
 @router.get("/oidc/login")
@@ -283,6 +290,82 @@ def oidc_callback(
     dest = oidc._safe_redirect(st.get("redirect"))
     frag = f"access_token={tokens.access_token}&refresh_token={tokens.refresh_token}"
     return RedirectResponse(f"{spa}{dest}#{frag}", status_code=302)
+
+
+def _saml_acs_url(request: Request) -> str:
+    if settings.SAML_SP_ACS_URL:
+        return settings.SAML_SP_ACS_URL
+    base = (settings.APP_BASE_URL or str(request.base_url)).rstrip("/")
+    return f"{base}{settings.API_V1_PREFIX}/auth/saml/acs"
+
+
+@router.get("/saml/login")
+def saml_login(request: Request, redirect: str = "/") -> RedirectResponse:
+    """Begin SP-initiated SAML SSO by redirecting to the IdP with an AuthnRequest."""
+    if not saml.is_enabled():
+        raise AuthenticationError("SAML SSO is not configured on this deployment.")
+    relay_state = oidc.issue_state(redirect, secrets.token_urlsafe(16))
+    url = saml.build_authn_request(_saml_acs_url(request), relay_state)
+    return RedirectResponse(url, status_code=302)
+
+
+@router.post("/saml/acs")
+def saml_acs(
+    request: Request,
+    db: Session = Depends(get_db),
+    SAMLResponse: str = Form(...),
+    RelayState: str = Form(default=""),
+) -> RedirectResponse:
+    """SAML Assertion Consumer Service: verify the IdP response, then sign the user in.
+
+    Mirrors the OIDC callback: on success the SPA receives the session via the URL
+    fragment; failures redirect to ``/login?sso_error=…``.
+    """
+    spa = _spa_base(request)
+    try:
+        dest = "/"
+        if RelayState:
+            try:
+                dest = oidc._safe_redirect(oidc.verify_state(RelayState).get("redirect"))
+            except AppError:
+                dest = "/"
+        info = saml.parse_and_verify_response(SAMLResponse)
+        claims = {
+            "email": info["email"],
+            "name": info.get("name"),
+            settings.OIDC_GROUP_CLAIM: info.get("groups") or [],
+        }
+        user = oidc.resolve_or_provision_user(db, claims)
+        user.last_login_at = datetime.now(UTC)
+        ctx = request_context(request)
+        audit.record(
+            db,
+            actor_id=user.id,
+            actor_email=user.email,
+            action="login",
+            entity_type="auth",
+            entity_id=user.id,
+            after={"method": "saml"},
+            **ctx,
+        )
+        refresh_token = refresh_tokens.issue(
+            db, user, ip=ctx.get("ip"), user_agent=request.headers.get("User-Agent")
+        )
+        db.commit()
+    except AppError:
+        db.rollback()
+        return RedirectResponse(f"{spa}/login?sso_error=sso_denied", status_code=302)
+    tokens = _token_response(user, refresh_token)
+    frag = f"access_token={tokens.access_token}&refresh_token={tokens.refresh_token}"
+    return RedirectResponse(f"{spa}{dest}#{frag}", status_code=302)
+
+
+@router.get("/saml/metadata")
+def saml_metadata(request: Request) -> PlainTextResponse:
+    """Public SP metadata XML for registering this service with the IdP."""
+    if not settings.SAML_SP_ENTITY_ID:
+        raise AuthenticationError("SAML SP entity id is not configured.")
+    return PlainTextResponse(saml.sp_metadata(_saml_acs_url(request)), media_type="application/xml")
 
 
 @router.get("/me", response_model=UserRead)
