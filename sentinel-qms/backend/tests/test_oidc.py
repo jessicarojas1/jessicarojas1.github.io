@@ -127,3 +127,88 @@ def test_provisioned_sso_user_has_no_password_login(client, db_session, seeded, 
         "/api/v1/auth/login", json={"username": "ssoonly@corp.mil", "password": "anything"}
     )
     assert resp.status_code == 401
+
+
+# --------------------------------------------------------------------------- #
+# Authorization-code (browser) flow                                           #
+# --------------------------------------------------------------------------- #
+def test_safe_redirect_blocks_open_redirects():
+    assert oidc._safe_redirect("/dashboard") == "/dashboard"
+    assert oidc._safe_redirect("//evil.com") == "/"
+    assert oidc._safe_redirect("https://evil.com") == "/"
+    assert oidc._safe_redirect(None) == "/"
+
+
+def test_state_roundtrip():
+    token = oidc.issue_state("/risks", "nonce-abc")
+    payload = oidc.verify_state(token)
+    assert payload["redirect"] == "/risks"
+    assert payload["nonce"] == "nonce-abc"
+
+
+def test_sso_info_reflects_configuration(client, monkeypatch):
+    monkeypatch.setattr(settings, "OIDC_ISSUER", "")
+    assert client.get("/api/v1/auth/sso/info").json()["enabled"] is False
+    monkeypatch.setattr(settings, "OIDC_ISSUER", "https://idp.example.com")
+    monkeypatch.setattr(settings, "OIDC_CLIENT_ID", "cid")
+    assert client.get("/api/v1/auth/sso/info").json()["enabled"] is True
+
+
+def test_oidc_login_redirects_to_idp(client, monkeypatch):
+    monkeypatch.setattr(settings, "OIDC_ISSUER", "https://idp.example.com")
+    monkeypatch.setattr(settings, "OIDC_CLIENT_ID", "cid")
+    monkeypatch.setattr(
+        oidc,
+        "build_authorize_url",
+        lambda ru, st, n: f"https://idp.example.com/authorize?state={st}",
+    )
+    resp = client.get("/api/v1/auth/oidc/login?redirect=/risks", follow_redirects=False)
+    assert resp.status_code == 302
+    assert resp.headers["location"].startswith("https://idp.example.com/authorize")
+
+
+def test_oidc_login_disabled_is_rejected(client, monkeypatch):
+    monkeypatch.setattr(settings, "OIDC_ISSUER", "")
+    resp = client.get("/api/v1/auth/oidc/login", follow_redirects=False)
+    assert resp.status_code == 401
+
+
+def test_oidc_callback_success_hands_tokens_to_spa(client, seeded, monkeypatch):
+    monkeypatch.setattr(settings, "OIDC_ISSUER", "https://idp.example.com")
+    monkeypatch.setattr(settings, "OIDC_CLIENT_ID", "cid")
+    monkeypatch.setattr(settings, "OIDC_ALLOWED_DOMAINS", ["corp.mil"])
+    monkeypatch.setattr(settings, "OIDC_AUTO_PROVISION", True)
+    monkeypatch.setattr(oidc, "exchange_code", lambda code, ru: "fake.id.token")
+    monkeypatch.setattr(
+        oidc,
+        "verify_id_token",
+        lambda _t: {"email": "browser.sso@corp.mil", "name": "Browser SSO", "nonce": "n1"},
+    )
+    state = oidc.issue_state("/dashboard", "n1")
+    resp = client.get(f"/api/v1/auth/oidc/callback?code=abc&state={state}", follow_redirects=False)
+    assert resp.status_code == 302
+    loc = resp.headers["location"]
+    assert "/dashboard#access_token=" in loc
+    assert "refresh_token=" in loc
+
+
+def test_oidc_callback_error_redirects_to_login(client, monkeypatch):
+    monkeypatch.setattr(settings, "OIDC_ISSUER", "https://idp.example.com")
+    monkeypatch.setattr(settings, "OIDC_CLIENT_ID", "cid")
+    resp = client.get("/api/v1/auth/oidc/callback?error=access_denied", follow_redirects=False)
+    assert resp.status_code == 302
+    assert "/login?sso_error=" in resp.headers["location"]
+
+
+def test_oidc_callback_nonce_mismatch_denied(client, seeded, monkeypatch):
+    monkeypatch.setattr(settings, "OIDC_ISSUER", "https://idp.example.com")
+    monkeypatch.setattr(settings, "OIDC_CLIENT_ID", "cid")
+    monkeypatch.setattr(settings, "OIDC_ALLOWED_DOMAINS", [])
+    monkeypatch.setattr(oidc, "exchange_code", lambda code, ru: "fake.id.token")
+    monkeypatch.setattr(
+        oidc, "verify_id_token", lambda _t: {"email": "x@corp.mil", "nonce": "WRONG"}
+    )
+    state = oidc.issue_state("/", "n1")
+    resp = client.get(f"/api/v1/auth/oidc/callback?code=abc&state={state}", follow_redirects=False)
+    assert resp.status_code == 302
+    assert "sso_error=" in resp.headers["location"]

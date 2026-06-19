@@ -35,7 +35,12 @@ When `OIDC_ISSUER` is configured, exchange an IdP-issued ID token for an interna
 
 | Method & path | Purpose |
 |---------------|---------|
-| `POST /api/v1/auth/oidc/exchange` | Body `{ "id_token": "<IdP ID token>" }`. The token is verified against the issuer's JWKS (RS256, audience/issuer/expiry enforced); the user is matched by email (just-in-time provisioned when `OIDC_AUTO_PROVISION`), IdP groups are mapped to local roles, and the same `access_token` + `refresh_token` a password login returns is issued. |
+| `GET /api/v1/auth/sso/info` | Public. `{ "enabled": bool, "label": str }` — drives the login page's SSO button. |
+| `GET /api/v1/auth/oidc/login?redirect=/path` | Begins the browser authorization-code flow: 302 to the IdP with a signed, short-lived `state` (carries a nonce + the post-login path). |
+| `GET /api/v1/auth/oidc/callback?code=&state=` | IdP redirect target. Verifies `state`, exchanges the code for an ID token server-side (confidential client), verifies it + the nonce, provisions the user, then 302s to `<redirect>#access_token=…&refresh_token=…` (fragment, so tokens never reach logs/Referer). Failures 302 to `/login?sso_error=…`. |
+| `POST /api/v1/auth/oidc/exchange` | Programmatic alternative. Body `{ "id_token": "<IdP ID token>" }`; verifies and issues the same internal session. |
+
+All paths verify the ID token against the issuer's JWKS (RS256, audience/issuer/expiry enforced), match the user by email (JIT-provisioned when `OIDC_AUTO_PROVISION`), and map IdP groups to local roles.
 
 Access is gated by an optional email-domain allowlist (`OIDC_ALLOWED_DOMAINS`); the group claim and
 group→role map are configurable. SSO-provisioned accounts have no password and cannot use the
