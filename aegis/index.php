@@ -76,6 +76,11 @@ foreach ((getenv() ?: []) as $k => $v) {
     if (!isset($_ENV[$k])) $_ENV[$k] = $v;
 }
 
+// Resolve any *_FILE secret mounts (Docker/K8s secrets, Vault, KMS sidecars)
+// into $_ENV before the startup guards and any consumer read them.
+require_once AEGIS_ROOT . '/src/Secrets.php';
+Secrets::hydrate();
+
 // Startup guard: JWT_SECRET must be present and strong enough to sign tokens
 if (empty($_ENV['JWT_SECRET']) || strlen($_ENV['JWT_SECRET']) < 32) {
     throw new RuntimeException('JWT_SECRET must be set and at least 32 characters. Set it in your Render/environment dashboard.');
