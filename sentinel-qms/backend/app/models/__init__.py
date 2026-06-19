@@ -152,6 +152,7 @@ from app.models.user import (
     User,
     user_roles,
 )
+from app.models.webhook import Webhook, WebhookDelivery
 
 __all__ = [
     "TimestampMixin",
@@ -289,4 +290,6 @@ __all__ = [
     "ObjectiveCadence",
     "ObjectiveDirection",
     "ObjectiveStatus",
+    "Webhook",
+    "WebhookDelivery",
 ]

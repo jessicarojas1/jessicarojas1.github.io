@@ -342,7 +342,42 @@ Authorization: Bearer <access_token>
 
 ---
 
-## 4. OpenAPI & SDKs
+## 4. Webhooks (outbound events)
+
+Administrators register HTTPS endpoints (`POST /api/v1/webhooks`, requires `user:manage`) that receive
+**signed** QMS lifecycle events. Each registration has a signing secret (returned exactly once at
+creation), a subscription list (specific event names, or `["*"]` for all), and an active flag.
+
+Events mirror the immutable audit trail: an event name is `"<entity_type>.<action>"`
+(e.g. `nonconformance.disposition`, `capa.close`, `document.approve_revision`). When a subscribed event
+occurs, a delivery is enqueued **in the same transaction as the change** (a rolled-back change emits
+nothing), then delivered out-of-band with bounded exponential-backoff retries (up to 6 attempts).
+
+Each delivery POSTs a JSON body and these headers:
+
+| Header | Value |
+|--------|-------|
+| `X-Sentinel-Event` | The event name. |
+| `X-Sentinel-Delivery` | Unique delivery id. |
+| `X-Sentinel-Timestamp` | Unix epoch seconds at send time. |
+| `X-Sentinel-Signature` | `sha256=<hmac>` — HMAC-SHA256 of the exact body bytes, keyed by the secret. |
+
+**Verify** by recomputing the HMAC over the raw body with your secret and comparing in constant time.
+Outbound URLs are validated against an SSRF guard (must resolve to a public address) before any send.
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/v1/webhooks` | List registrations (secrets never included). |
+| `POST /api/v1/webhooks` | Register an endpoint; response includes the one-time secret. |
+| `PATCH /api/v1/webhooks/{id}` | Update url / events / active. |
+| `DELETE /api/v1/webhooks/{id}` | Remove a registration. |
+| `GET /api/v1/webhooks/{id}/deliveries` | Inspect recent delivery attempts. |
+| `POST /api/v1/webhooks/{id}/test` | Send a signed `webhook.ping`. |
+| `POST /api/v1/webhooks/deliveries/{id}/redeliver` | Re-attempt a delivery. |
+
+---
+
+## 5. OpenAPI & SDKs
 
 The canonical contract is the OpenAPI document at `GET /api/v1/openapi.json`. Typed clients (TypeScript
 for the SPA, Python for integrations) are generated from it in CI, keeping clients in lockstep with the

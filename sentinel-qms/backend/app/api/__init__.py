@@ -47,6 +47,7 @@ from app.api.routers import (
     suppliers,
     training,
     users,
+    webhooks,
 )
 
 api_router = APIRouter()
@@ -93,3 +94,4 @@ api_router.include_router(quality_objectives.router)
 api_router.include_router(improvements.router)
 api_router.include_router(customer_satisfaction.router)
 api_router.include_router(fmea.router)
+api_router.include_router(webhooks.router)
