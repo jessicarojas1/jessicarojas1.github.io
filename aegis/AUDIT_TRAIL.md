@@ -24,21 +24,39 @@ the platform itself (no user). Each row captures:
 
 ## Hash chain construction
 
-For each new record:
+For each new record (`Auth::appendAuditLog()` → `Auth::computeLogHash()`):
 
 ```
 prev_hash = log_hash of the most recent existing row  (or "genesis" if none)
 payload   = prev_hash | user_id | action | entity_type | entity_id | changes | ip
-log_hash  = sha256(payload)
+log_hash  = HMAC-SHA256(payload, AUDIT_HMAC_KEY)
 ```
+
+**Keyed (not just hashed).** The chain uses an **HMAC** with a dedicated key
+(`Security::auditKey()` ← `AUDIT_HMAC_KEY`, or a JWT_SECRET-derived fallback), so
+an attacker who can *write* the database but cannot *read* the key **cannot
+recompute and forge** the chain. Set `AUDIT_HMAC_KEY` in a secret store the
+database role cannot read for true integrity separation.
+
+**Serialized appends.** Writes take a PostgreSQL session advisory lock
+(`pg_advisory_lock`) so two concurrent requests cannot read the same `prev_hash`
+and fork the chain (which would also cause false-positive verification). The lock
+is best-effort and always released.
+
+**Uniform payload — every row is verifiable.** User, system, and failed-login
+rows all hash the *same* column set the verifier reconstructs (`user_id` is empty
+for system/failed rows; the failed-login email is captured in `changes`). Legacy
+rows written before the keyed migration still verify — the verifier accepts the
+keyed HMAC **or** the legacy unkeyed SHA-256 for each row.
 
 Because every `log_hash` folds in the previous record's hash, the chain is
 append-only and order-sensitive: altering or removing any record invalidates the
 hash of **every** record after it.
 
-> Note: `logSystem()` includes a timestamp in its payload; `log()` does not.
-> The verifier recomputes user events; legacy rows written before the chain was
-> introduced carry `log_hash = 'genesis'` and are skipped.
+> **WORM option:** for CUI / legal-hold deployments, make `activity_log`
+> append-only at the database level (`database/roles.sql`) so even a compromised
+> app cannot modify/delete history. Note that the admin "retention/prune" feature
+> deletes old rows — restrict it to a separate maintenance role when WORM is on.
 
 ## Actions that should be audited
 

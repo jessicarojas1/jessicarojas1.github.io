@@ -361,15 +361,8 @@ class Auth {
         if (!$user || !Security::verifyPassword($password, $user['password_hash'])) {
             // Log the failed attempt for audit trail (NIST 800-53 AU-2, CMMC AC.L1-3.1.1)
             try {
-                $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
-                $prevHash = $prev['log_hash'] ?? 'genesis';
-                $ts = date('Y-m-d\TH:i:s\Z');
-                $logHash = self::computeLogHash([$prevHash, 'system', 'login_failed', 'users', '0', $email, $ip, $ts]);
-                Database::query(
-                    "INSERT INTO activity_log (user_id, action, entity_type, ip_address, user_agent, log_hash)
-                     VALUES (NULL, 'login_failed', 'users', ?, ?, ?)",
-                    [$ip, substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500), $logHash]
-                );
+                self::appendAuditLog(null, 'login_failed', 'users', null,
+                    json_encode(['email' => $email]), $ip, substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500));
             } catch (Throwable) {}
             return false;
         }
@@ -406,42 +399,64 @@ class Auth {
         return hash_hmac('sha256', implode('|', $parts), $key ?? Security::auditKey());
     }
 
+    /**
+     * Append one row to the tamper-evident audit chain.
+     *
+     * Serialized with a PostgreSQL session advisory lock so concurrent requests
+     * cannot read the same previous hash and fork the chain (which would also
+     * cause false-positive verification failures). The lock is best-effort — if it
+     * cannot be taken, the row is still written — and is always released.
+     *
+     * The hashed payload mirrors EXACTLY the columns the verifier reconstructs
+     * (user_id, action, entity_type, entity_id, changes, ip) so every row — user,
+     * system, and failed-login alike — is verifiable. user_id is '' for system rows.
+     */
+    private static function appendAuditLog(
+        ?int $userId, string $action, ?string $entityType, ?int $entityId,
+        ?string $changesJson, string $ip, ?string $userAgent
+    ): void {
+        $locked = false;
+        try {
+            try {
+                Database::query("SELECT pg_advisory_lock(hashtext('aegis_audit_chain'))");
+                $locked = true;
+            } catch (Throwable $e) {
+                error_log('[AEGIS] audit advisory lock unavailable: ' . $e->getMessage());
+            }
+
+            $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
+            $prevHash = $prev['log_hash'] ?? 'genesis';
+            $logHash  = self::computeLogHash([
+                $prevHash,
+                (string)($userId ?? ''),
+                $action,
+                (string)$entityType,
+                (string)$entityId,
+                (string)$changesJson,
+                $ip,
+            ]);
+            Database::query(
+                "INSERT INTO activity_log (user_id, action, entity_type, entity_id, changes, ip_address, user_agent, log_hash)
+                 VALUES (?,?,?,?,?,?,?,?)",
+                [$userId, $action, $entityType, $entityId, $changesJson, $ip, $userAgent, $logHash]
+            );
+        } finally {
+            if ($locked) {
+                try { Database::query("SELECT pg_advisory_unlock(hashtext('aegis_audit_chain'))"); } catch (Throwable) {}
+            }
+        }
+    }
+
     public static function log(string $action, ?string $entityType, ?int $entityId, ?array $changes = null): void {
         if (!self::check()) return;
-        $ip        = $_SERVER['REMOTE_ADDR'] ?? '';
-        $userAgent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
+        $ip          = $_SERVER['REMOTE_ADDR'] ?? '';
+        $userAgent   = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
         $changesJson = $changes ? json_encode($changes) : null;
-
-        // Keyed hash chain: HMAC( prev_hash | userId | action | entityType | entityId | changes | ip )
-        $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
-        $prevHash = $prev['log_hash'] ?? 'genesis';
-        $logHash = self::computeLogHash([
-            $prevHash,
-            (string)self::id(),
-            $action,
-            (string)$entityType,
-            (string)$entityId,
-            (string)$changesJson,
-            $ip,
-        ]);
-
-        Database::query(
-            "INSERT INTO activity_log (user_id, action, entity_type, entity_id, changes, ip_address, user_agent, log_hash)
-             VALUES (?,?,?,?,?,?,?,?)",
-            [self::id(), $action, $entityType, $entityId, $changesJson, $ip, $userAgent, $logHash]
-        );
+        self::appendAuditLog(self::id(), $action, $entityType, $entityId, $changesJson, $ip, $userAgent);
     }
 
     public static function logSystem(string $action, ?string $entityType = null, ?int $entityId = null): void {
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'system';
-        $ts = date('Y-m-d\TH:i:s\Z');
-        $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
-        $prevHash = $prev['log_hash'] ?? 'genesis';
-        $logHash  = self::computeLogHash([$prevHash, 'system', $action, (string)$entityType, (string)$entityId, '', $ip, $ts]);
-        Database::query(
-            "INSERT INTO activity_log (user_id, action, entity_type, entity_id, ip_address, log_hash)
-             VALUES (NULL,?,?,?,?,?)",
-            [$action, $entityType, $entityId, $ip, $logHash]
-        );
+        self::appendAuditLog(null, $action, $entityType, $entityId, null, $ip, null);
     }
 }
