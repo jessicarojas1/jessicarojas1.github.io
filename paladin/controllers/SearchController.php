@@ -42,9 +42,13 @@ class SearchController {
                 if ($spaceId !== null) { $cond[] = "d.space_id = ?"; $par[] = $spaceId; }
                 if ($tagId !== null)   { $cond[] = "EXISTS (SELECT 1 FROM entity_tags et WHERE et.entity_type='document' AND et.entity_id = d.id AND et.tag_id = ?)"; $par[] = $tagId; }
                 if ($userId !== null)  { $cond[] = "(d.owner_id = ? OR d.created_by = ?)"; $par[] = $userId; $par[] = $userId; }
+                // Enforce private-space membership so documents in spaces the user
+                // isn't a member of never surface in search results.
+                $cond[] = $priv; array_push($par, $role, $uid);
                 $results['documents'] = Database::fetchAll(
                     "SELECT d.id, d.document_code, d.title, d.status, d.doc_type
-                     FROM documents d WHERE " . ($cond ? implode(' AND ', $cond) : 'TRUE') . "
+                     FROM documents d LEFT JOIN spaces s ON s.id = d.space_id
+                     WHERE " . implode(' AND ', $cond) . "
                      ORDER BY d.updated_at DESC LIMIT 25", $par
                 );
             }
@@ -87,10 +91,11 @@ class SearchController {
                      LEFT JOIN users u ON u.id = c.user_id
                      LEFT JOIN pages p ON c.entity_type='page' AND p.id = c.entity_id
                      LEFT JOIN blog_posts bp ON c.entity_type='blog' AND bp.id = c.entity_id
-                     LEFT JOIN spaces s ON s.id = COALESCE(p.space_id, bp.space_id)
+                     LEFT JOIN documents dd ON c.entity_type='document' AND dd.id = c.entity_id
+                     LEFT JOIN spaces s ON s.id = COALESCE(p.space_id, bp.space_id, dd.space_id)
                      WHERE c.body ILIKE ?
                        AND (c.entity_type='page' AND p.deleted_at IS NULL OR c.entity_type<>'page')
-                       AND (c.entity_type='document' OR {$priv})
+                       AND {$priv}
                      ORDER BY c.created_at DESC LIMIT 25",
                     [$like, $role, $uid]
                 );
@@ -98,10 +103,11 @@ class SearchController {
             if (($type === '' || $type === 'processes') && !$contentFilter && $text !== '') {
                 $results['processes'] = Database::fetchAll(
                     "SELECT pr.id, pr.process_code, pr.name, pr.status, pr.version
-                     FROM processes pr
-                     WHERE pr.name ILIKE ? OR pr.process_code ILIKE ? OR pr.description ILIKE ?
+                     FROM processes pr LEFT JOIN spaces s ON s.id = pr.space_id
+                     WHERE (pr.name ILIKE ? OR pr.process_code ILIKE ? OR pr.description ILIKE ?)
+                       AND {$priv}
                      ORDER BY pr.updated_at DESC LIMIT 25",
-                    [$like, $like, $like]
+                    [$like, $like, $like, $role, $uid]
                 );
             }
             if (($type === '' || $type === 'tasks') && !$contentFilter && $text !== '') {

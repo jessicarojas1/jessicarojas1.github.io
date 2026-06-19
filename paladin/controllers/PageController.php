@@ -279,6 +279,22 @@ class PageController {
         return $page;
     }
 
+    /**
+     * Read-access gate for the export endpoints (print/word/docx/pdf). Enforces
+     * BOTH space-membership (private spaces) AND per-page ACLs — matching the
+     * canonical view() gating, which the exports previously omitted (a
+     * private-space bypass). The page row must include `space_id` and the
+     * `space_private` alias. Renders 404/403 and returns false on denial.
+     */
+    private function guardPageExport(?array $page): bool {
+        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return false; }
+        $space = ['id' => (int)$page['space_id'], 'is_private' => $page['space_private'] ?? false];
+        if (!SpaceAccess::canView($space) || !PageAccess::canView($page)) {
+            http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return false;
+        }
+        return true;
+    }
+
     private function ancestry(array $page): array {
         $chain = []; $cur = $page;
         $guard = 0;
@@ -560,12 +576,11 @@ class PageController {
     public function printView(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
-            "SELECT p.*, s.space_key, s.name AS space_name, o.name AS owner_name
+            "SELECT p.*, s.is_private AS space_private, s.space_key, s.name AS space_name, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id WHERE p.id=?",
             [$id]
         );
-        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
-        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->guardPageExport($page)) return;
         $labels = Database::fetchAll(
             "SELECT t.name FROM entity_tags et JOIN tags t ON t.id=et.tag_id
              WHERE et.entity_type='page' AND et.entity_id=? ORDER BY t.name", [$id]
@@ -578,12 +593,11 @@ class PageController {
     public function word(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
-            "SELECT p.*, s.name AS space_name, o.name AS owner_name
+            "SELECT p.*, s.is_private AS space_private, s.name AS space_name, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id
              WHERE p.id=? AND p.deleted_at IS NULL", [$id]
         );
-        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
-        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->guardPageExport($page)) return;
 
         $title = (string)$page['title'];
         $meta  = [
@@ -624,12 +638,11 @@ class PageController {
     public function docx(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
-            "SELECT p.*, s.name AS space_name, o.name AS owner_name
+            "SELECT p.*, s.is_private AS space_private, s.name AS space_name, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id
              WHERE p.id=? AND p.deleted_at IS NULL", [$id]
         );
-        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
-        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->guardPageExport($page)) return;
 
         $title = (string)$page['title'];
         $bytes = Docx::fromHtml($title, (string)$page['body'], [
@@ -653,12 +666,11 @@ class PageController {
     public function pdf(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
-            "SELECT p.*, s.name AS space_name, o.name AS owner_name
+            "SELECT p.*, s.is_private AS space_private, s.name AS space_name, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id WHERE p.id=? AND p.deleted_at IS NULL",
             [$id]
         );
-        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
-        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->guardPageExport($page)) return;
 
         $meta = [
             'Space'   => (string)($page['space_name'] ?? '—'),

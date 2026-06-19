@@ -323,6 +323,8 @@ class SpaceController {
         Auth::requirePermission('space.edit');
         $space = Database::fetchOne("SELECT * FROM spaces WHERE id = ?", [$id]);
         if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        // Object-level: only space owners/admins (or system admins) may edit.
+        if (!SpaceAccess::canManage($space)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         require PALADIN_ROOT . '/views/spaces/form.php';
     }
 
@@ -331,6 +333,7 @@ class SpaceController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $space = Database::fetchOne("SELECT id FROM spaces WHERE id = ?", [$id]);
         if (!$space) { http_response_code(404); return; }
+        if (!SpaceAccess::canManage($space)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
         $type = Security::sanitizeInput($_POST['type'] ?? 'team');
         if (!in_array($type, View::spaceTypes(), true)) $type = 'team';
@@ -350,6 +353,9 @@ class SpaceController {
     public function delete(int $id): void {
         Auth::requirePermission('space.delete');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $space = Database::fetchOne("SELECT id FROM spaces WHERE id = ?", [$id]);
+        if (!$space) { http_response_code(404); return; }
+        if (!SpaceAccess::canManage($space)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         Database::update('spaces', ['is_archived' => 't'], 'id = ?', [$id]);
         Auth::log('archive_space', 'spaces', $id);
         $_SESSION['flash_success'] = 'Space archived.';

@@ -104,6 +104,8 @@ class DocumentController {
         $place = implode(',', array_fill(0, count($ids), '?'));
         $docs = Database::fetchAll("SELECT id FROM documents WHERE id IN ($place)", $ids);
         $valid = array_map(fn($r) => (int)$r['id'], $docs);
+        // Object-level filter: drop documents in private spaces the user cannot edit.
+        $valid = array_values(array_filter($valid, fn($did) => $this->docAccessAllowed($did, 'edit')));
         if (!$valid) { $_SESSION['flash_error'] = 'No matching documents.'; header('Location: /documents'); return; }
         $n = count($valid);
 
@@ -141,6 +143,7 @@ class DocumentController {
              WHERE d.id=?", [$id]
         );
         if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $this->guardDocAccess($id, 'view');
 
         $versions = Database::fetchAll(
             "SELECT dv.*, u.name AS author FROM document_versions dv LEFT JOIN users u ON u.id=dv.created_by
@@ -176,6 +179,7 @@ class DocumentController {
         Auth::requirePermission('document.view');
         $doc = Database::fetchOne("SELECT id, title, document_code FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $this->guardDocAccess($id, 'view');
 
         $versions = Database::fetchAll(
             "SELECT dv.id, dv.revision, dv.title, dv.created_at, u.name AS author
@@ -211,6 +215,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $src = Database::fetchOne("SELECT * FROM documents WHERE id = ?", [$id]);
         if (!$src) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $this->guardDocAccess($id, 'view'); // must be able to read the source
 
         $docType = in_array($src['doc_type'], View::docTypes(), true) ? $src['doc_type'] : 'policy';
         $code    = $this->nextCode($docType);
@@ -277,6 +282,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $doc = Database::fetchOne("SELECT id, document_code, review_date FROM documents WHERE id = ?", [$id]);
         if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $this->guardDocAccess($id, 'edit');
 
         $months = (int)($_POST['months'] ?? 12);
         if (!in_array($months, [3, 6, 12, 24], true)) $months = 12;
@@ -343,6 +349,7 @@ class DocumentController {
         Auth::requirePermission('document.edit');
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $this->guardDocAccess($id, 'edit');
         if ($doc['checked_out_by'] && (int)$doc['checked_out_by'] !== Auth::id() && Auth::role() !== 'admin') {
             $_SESSION['flash_error'] = 'Document is checked out by another user.'; header('Location: /documents/' . $id); return;
         }
@@ -358,6 +365,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        $this->guardDocAccess($id, 'edit');
         if ($doc['checked_out_by'] && (int)$doc['checked_out_by'] !== Auth::id() && Auth::role() !== 'admin') {
             $_SESSION['flash_error'] = 'Document is checked out by another user.'; header('Location: /documents/' . $id); return;
         }
@@ -392,6 +400,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        $this->guardDocAccess($id, 'edit');
         $to = Security::sanitizeInput($_POST['to'] ?? '');
         $allowed = self::TRANSITIONS[$doc['status']] ?? [];
         if (!in_array($to, $allowed, true)) { $_SESSION['flash_error'] = 'Invalid status transition.'; header('Location: /documents/' . $id); return; }
@@ -431,6 +440,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $doc = Database::fetchOne("SELECT checked_out_by FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        $this->guardDocAccess($id, 'edit');
         if ($doc['checked_out_by']) { $_SESSION['flash_error'] = 'Already checked out.'; header('Location: /documents/' . $id); return; }
         Database::update('documents', ['checked_out_by' => Auth::id(), 'checked_out_at' => date('Y-m-d H:i:s')], 'id=?', [$id]);
         Auth::log('checkout_document', 'documents', $id);
@@ -443,6 +453,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $doc = Database::fetchOne("SELECT checked_out_by FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        $this->guardDocAccess($id, 'edit');
         if ($doc['checked_out_by'] && (int)$doc['checked_out_by'] !== Auth::id() && Auth::role() !== 'admin') {
             $_SESSION['flash_error'] = 'Checked out by another user.'; header('Location: /documents/' . $id); return;
         }
@@ -457,6 +468,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        $this->guardDocAccess($id, 'edit');
         $newRev  = Security::sanitizeInput($_POST['revision'] ?? '');
         $summary = Security::sanitizeInput($_POST['change_summary'] ?? '');
         if ($newRev === '') { $_SESSION['flash_error'] = 'New revision number required.'; header('Location: /documents/' . $id); return; }
@@ -479,6 +491,7 @@ class DocumentController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $doc = Database::fetchOne("SELECT revision FROM documents WHERE id=?", [$id]);
         if (!$doc) { http_response_code(404); return; }
+        $this->guardDocAccess($id, 'view');
         try {
             Database::insert('document_acknowledgements', ['document_id' => $id, 'user_id' => Auth::id(), 'revision' => $doc['revision']]);
             Auth::log('acknowledge_document', 'documents', $id, ['revision' => $doc['revision']]);
@@ -492,6 +505,7 @@ class DocumentController {
     public function comment(int $id): void {
         Auth::requirePermission('document.view');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $this->guardDocAccess($id, 'view');
         $body = Security::sanitizeInput($_POST['body'] ?? '');
         $parentId = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
         if ($parentId && !Database::fetchOne("SELECT 1 FROM comments WHERE id=? AND entity_type='document' AND entity_id=? AND parent_id IS NULL", [$parentId, $id])) {
@@ -516,6 +530,7 @@ class DocumentController {
             [$id]
         );
         if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $this->guardDocAccess($id, 'view');
         $meta = [
             'Code'        => (string)$doc['document_code'],
             'Type'        => View::docTypeLabel((string)$doc['doc_type']),
@@ -543,6 +558,7 @@ class DocumentController {
             [$id]
         );
         if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $this->guardDocAccess($id, 'view');
         $bytes = Docx::fromHtml((string)$doc['title'], (string)($doc['body'] ?? ''), [
             'Code'           => (string)$doc['document_code'],
             'Type'           => View::docTypeLabel((string)$doc['doc_type']),
@@ -565,6 +581,7 @@ class DocumentController {
         Auth::requirePermission('document.view');
         $doc = Database::fetchOne("SELECT id, document_code, title FROM documents WHERE id = ?", [$id]);
         if (!$doc) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $this->guardDocAccess($id, 'view');
 
         $rows = Database::fetchAll(
             "SELECT u.name AS user_name, u.email, u.department, da.revision, da.acknowledged_at
@@ -592,6 +609,7 @@ class DocumentController {
         Auth::requirePermission('document.view');
         $doc = Database::fetchOne("SELECT * FROM documents WHERE id=?", [$id]);
         if (!$doc || empty($doc['file_stored_name'])) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        $this->guardDocAccess($id, 'view');
         $data = Storage::get($doc['file_stored_name']);
         if ($data === false) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
         Auth::log('download_document', 'documents', $id);
@@ -605,6 +623,7 @@ class DocumentController {
     public function delete(int $id): void {
         Auth::requirePermission('document.delete');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $this->guardDocAccess($id, 'edit');
         Database::update('documents', ['status' => 'archived'], 'id=?', [$id]);
         Auth::log('archive_document', 'documents', $id);
         $_SESSION['flash_success'] = 'Document archived.';
@@ -612,6 +631,40 @@ class DocumentController {
     }
 
     // ── helpers ───────────────────────────────────────────────────────────
+
+    /**
+     * Object-level access control for a document, layered over the global
+     * `document.*` permission already checked by the caller.
+     *
+     * Documents that belong to a private space are only reachable by space
+     * members (view/export) or contributors (edit) — mirroring the page model
+     * (PageController::view + SpaceAccess). Documents with no space, or whose
+     * space is open, fall back to the global permission. On denial this renders
+     * the 403 page and terminates the request, so callers cannot leak data.
+     *
+     * @param int    $docId the document id
+     * @param string $mode  'view' (read/export) or 'edit' (mutate)
+     */
+    private function guardDocAccess(int $docId, string $mode = 'view'): void {
+        if (!$this->docAccessAllowed($docId, $mode)) {
+            http_response_code(403);
+            require PALADIN_ROOT . '/views/errors/403.php';
+            exit;
+        }
+    }
+
+    /** Boolean form of the space-level check (for bulk filtering, no side effects). */
+    private function docAccessAllowed(int $docId, string $mode = 'view'): bool {
+        // INNER JOIN yields no row when the document has no space (space_id NULL)
+        // or is gone → fall back to the global permission already checked.
+        $space = Database::fetchOne(
+            "SELECT s.id, s.is_private FROM documents d JOIN spaces s ON s.id = d.space_id WHERE d.id = ?",
+            [$docId]
+        );
+        if (!$space) return true;
+        return $mode === 'edit' ? SpaceAccess::canContribute($space) : SpaceAccess::canView($space);
+    }
+
     private function nextCode(string $docType): string {
         return DocNumbering::next($docType);
     }
