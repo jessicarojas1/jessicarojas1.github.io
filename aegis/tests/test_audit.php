@@ -44,6 +44,43 @@ it('chains: changing prev_hash changes the result (links records)', function () 
     expect($a !== $b, 'prev_hash not part of the chain');
 });
 
+// Verifier parity: the hash MUST be reconstructable from the stored columns
+// (prev_hash, user_id, action, entity_type, entity_id, changes, ip) for EVERY
+// row type — user, system, and failed-login — so verify_audit_log.php can check
+// the whole chain. This mirrors the verifier's reconstruction exactly.
+$reconstruct = function (string $prev, array $row) {
+    return Auth::computeLogHash([
+        $prev,
+        (string)($row['user_id'] ?? ''),
+        (string)$row['action'],
+        (string)($row['entity_type'] ?? ''),
+        (string)($row['entity_id'] ?? ''),
+        (string)($row['changes'] ?? ''),
+        (string)($row['ip_address'] ?? ''),
+    ], 'k');
+};
+
+it('reconstructs a user row from its stored columns', function () use ($reconstruct) {
+    $row = ['user_id' => 5, 'action' => 'risk.create', 'entity_type' => 'risk',
+            'entity_id' => 9, 'changes' => '{"x":1}', 'ip_address' => '1.2.3.4'];
+    $expected = hash_hmac('sha256', 'PREV|5|risk.create|risk|9|{"x":1}|1.2.3.4', 'k');
+    expect_eq($expected, $reconstruct('PREV', $row), 'user-row reconstruction drifted');
+});
+
+it('reconstructs a system row (NULL user_id/entity_id/changes → empty)', function () use ($reconstruct) {
+    $row = ['user_id' => null, 'action' => 'workflow.run', 'entity_type' => 'workflow',
+            'entity_id' => null, 'changes' => null, 'ip_address' => 'system'];
+    $expected = hash_hmac('sha256', 'PREV||workflow.run|workflow|||system', 'k');
+    expect_eq($expected, $reconstruct('PREV', $row), 'system-row reconstruction drifted');
+});
+
+it('reconstructs a failed-login row (email captured in changes)', function () use ($reconstruct) {
+    $row = ['user_id' => null, 'action' => 'login_failed', 'entity_type' => 'users',
+            'entity_id' => null, 'changes' => '{"email":"a@b.com"}', 'ip_address' => '9.9.9.9'];
+    $expected = hash_hmac('sha256', 'PREV||login_failed|users||{"email":"a@b.com"}|9.9.9.9', 'k');
+    expect_eq($expected, $reconstruct('PREV', $row), 'failed-login reconstruction drifted');
+});
+
 it('auditKey: dedicated AUDIT_HMAC_KEY overrides the JWT_SECRET fallback', function () {
     $_ENV['JWT_SECRET'] = 'jwt-secret-32-characters-long-aaaa';
     unset($_ENV['AUDIT_HMAC_KEY']);

@@ -93,6 +93,27 @@ php scripts/check_ui.php            # CSP: no inline handlers, scripts carry a n
 php tests/run.php                   # unit suite (SSRF, JWT, RiskScore, AIAdvisor, DueStatus)
 ```
 
+## Database least-privilege roles (recommended)
+
+By default the app connects with a role that can modify schema (DDL). For
+production — and required for CMMC/FedRAMP least-privilege (NIST AC-6) — split
+into two roles:
+
+1. **Owner/migration role** — has DDL; used *only* by `install.php` /
+   `docker/initdb.sh` / CI to apply the schema and migrations.
+2. **Runtime role (`aegis_app`)** — DML only (SELECT/INSERT/UPDATE/DELETE), no
+   CREATE/ALTER/DROP. The application connects as this role, so a SQLi or app
+   compromise cannot alter or drop schema objects.
+
+Apply `database/roles.sql` once as the owner, then point the app at the runtime
+role (`DATABASE_URL=postgres://aegis_app:…`). The script also documents an
+optional **WORM** revoke to make `activity_log` append-only at the DB level
+(complements the keyed audit-hash chain — see `AUDIT_TRAIL.md`).
+
+> The runtime self-healing `ALTER TABLE` guards in `index.php` become harmless
+> no-ops under the DML-only role; apply real schema changes via migrations run as
+> the owner.
+
 ## Backup & restore (PostgreSQL)
 
 **Backup** (logical dump, schema-scoped):
