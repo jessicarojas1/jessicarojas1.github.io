@@ -34,6 +34,11 @@ class DocumentController {
         if ($status) { $where[] = 'd.status = ?'; $params[] = $status; }
         if ($space)  { $where[] = 'd.space_id = ?'; $params[] = $space; }
         if ($q) { $where[] = '(d.title ILIKE ? OR d.document_code ILIKE ? OR d.description ILIKE ?)'; array_push($params, "%$q%", "%$q%", "%$q%"); }
+        // Hide documents in private spaces from non-members (admins see all).
+        if (Auth::role() !== 'admin') {
+            $where[] = '(d.space_id IS NULL OR s.is_private = FALSE OR EXISTS (SELECT 1 FROM space_members m WHERE m.space_id = d.space_id AND m.user_id = ?))';
+            $params[] = Auth::id();
+        }
         $whereSql = implode(' AND ', $where);
 
         $documents = Database::fetchAll(
@@ -67,6 +72,11 @@ class DocumentController {
         if ($status) { $where[] = 'd.status = ?'; $params[] = $status; }
         if ($space)  { $where[] = 'd.space_id = ?'; $params[] = $space; }
         if ($q) { $where[] = '(d.title ILIKE ? OR d.document_code ILIKE ? OR d.description ILIKE ?)'; array_push($params, "%$q%", "%$q%", "%$q%"); }
+        // Hide documents in private spaces from non-members (admins see all).
+        if (Auth::role() !== 'admin') {
+            $where[] = '(d.space_id IS NULL OR s.is_private = FALSE OR EXISTS (SELECT 1 FROM space_members m WHERE m.space_id = d.space_id AND m.user_id = ?))';
+            $params[] = Auth::id();
+        }
         $whereSql = implode(' AND ', $where);
 
         $rows = Database::fetchAll(
