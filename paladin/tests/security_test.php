@@ -34,6 +34,10 @@ check(Csv::cell('3.14')        === '3.14',       'decimal preserved');
 check(Csv::cell('Normal text') === 'Normal text','plain text untouched');
 check(Csv::cell('')            === '',           'empty string untouched');
 check(Csv::row(['=a', 'b'])    === ["'=a", 'b'], 'row() guards each cell');
+check(Csv::cell("\rCR")        === "'\rCR",      'leading carriage-return is neutralised');
+check(Csv::cell('=1+1')        === "'=1+1",      'classic =1+1 formula neutralised');
+check(Csv::cell('a=b')         === 'a=b',        'internal = (not leading) left untouched');
+check(Csv::cell('0')           === '0',          'zero left untouched');
 
 echo "— SSRF outbound-URL guard (Security::safeOutboundIp) —\n";
 check(Security::safeOutboundIp('http://127.0.0.1/x')             === null,     'loopback blocked');
@@ -46,6 +50,14 @@ check(Security::safeOutboundIp('http://0.0.0.0/x')               === null,     '
 check(Security::safeOutboundIp('ftp://8.8.8.8/x')                === null,     'non-http scheme blocked');
 check(Security::safeOutboundIp('file:///etc/passwd')            === null,     'file scheme blocked');
 check(Security::safeOutboundIp('https://8.8.8.8/x')             === '8.8.8.8', 'public IP allowed (pins to IP)');
+check(Security::safeOutboundIp('http://[fd00::1]/x')            === null,     'ipv6 unique-local (fc00::/7) blocked');
+check(Security::safeOutboundIp('http://[fe80::1]/x')           === null,     'ipv6 link-local (fe80::/10) blocked');
+check(Security::safeOutboundIp('http://127.5.5.5/x')            === null,     'loopback /8 (not just .0.1) blocked');
+check(Security::safeOutboundIp('http://169.254.1.1/x')         === null,     'link-local /16 (not just metadata) blocked');
+check(Security::safeOutboundIp('https://1.1.1.1:8443/x')       === '1.1.1.1','public IP with explicit port allowed');
+check(Security::safeOutboundIp('HTTP://8.8.4.4/x')             === '8.8.4.4','uppercase scheme handled');
+check(Security::safeOutboundIp('http://')                      === null,     'missing host rejected');
+check(Security::safeOutboundIp('not a url')                    === null,     'garbage rejected');
 
 echo "— Rich-text sanitiser (Security::sanitizeHtml) —\n";
 $a = Security::sanitizeHtml('<p>hello</p><script>alert(1)</script>');
