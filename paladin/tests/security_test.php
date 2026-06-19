@@ -69,6 +69,11 @@ $c = Security::sanitizeHtml('<a href="javascript:alert(1)">x</a>');
 check(stripos($c, 'javascript:') === false, 'javascript: URI stripped');
 $d = Security::sanitizeHtml('<a href="https://ok.example/p">x</a>');
 check(strpos($d, 'https://ok.example/p') !== false, 'safe http(s) href preserved');
+// SVG-based XSS bypasses (xlink:href, set/animate href, foreignObject).
+check(stripos(Security::sanitizeHtml('<svg><a xlink:href="javascript:alert(1)">x</a></svg>'), 'javascript:') === false, 'svg xlink:href javascript: stripped');
+check(stripos(Security::sanitizeHtml('<svg><a><set attributeName="href" to="javascript:alert(1)"/></a></svg>'), 'javascript:') === false, 'svg <set> href javascript: stripped');
+check(stripos(Security::sanitizeHtml('<svg><a><animate attributeName="href" values="javascript:alert(1)"/></a></svg>'), 'javascript:') === false, 'svg <animate> href javascript: stripped');
+check(stripos(Security::sanitizeHtml('<svg><foreignObject><img src=x onerror=alert(1)></foreignObject></svg>'), '<svg') === false, 'svg/foreignObject element removed');
 
 echo "— Output escaping (Security::h) —\n";
 check(Security::h('<b>&"') === '&lt;b&gt;&amp;&quot;', 'h() encodes < > & "');
