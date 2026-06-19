@@ -7,11 +7,11 @@ import { can } from '@/lib/rbac';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
-import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordDetailHeader } from '@/components/RecordDetailHeader';
 import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
@@ -52,16 +52,13 @@ export default function CapaDetailPage() {
     >
       {capa && (
         <>
-          <PageHeader
-            title={
-              <span className="row" style={{ gap: 10 }}>
-                <ClipboardCheck size={22} />
-                <span className="mono">{capa.capa_number}</span>
-                <StatusBadge status={capa.status} />
-              </span>
-            }
-            subtitle={capa.title}
-            breadcrumbs={[{ label: 'CAPA', to: '/capa' }, { label: capa.capa_number }]}
+          <RecordDetailHeader
+            icon={<ClipboardCheck size={22} />}
+            recordNumber={capa.capa_number}
+            title={capa.title}
+            status={capa.status}
+            listLabel="CAPA"
+            listTo="/capa"
             actions={
               <>
                 <PrintButton />

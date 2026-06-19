@@ -7,12 +7,13 @@ import { can } from '@/lib/rbac';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
-import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { PdfButton } from '@/components/PdfButton';
 import { ShareButton } from '@/components/ShareButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordDetailHeader } from '@/components/RecordDetailHeader';
+import { RelatedRecords } from '@/components/RelatedRecords';
 import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -64,19 +65,13 @@ export default function NcrDetailPage() {
     >
       {ncr && (
         <>
-          <PageHeader
-            title={
-              <span className="row" style={{ gap: 10 }}>
-                <ShieldAlert size={22} />
-                <span className="mono">{ncr.ncr_number}</span>
-                <StatusBadge status={ncr.status} />
-              </span>
-            }
-            subtitle={ncr.title}
-            breadcrumbs={[
-              { label: 'Nonconformances', to: '/nonconformances' },
-              { label: ncr.ncr_number },
-            ]}
+          <RecordDetailHeader
+            icon={<ShieldAlert size={22} />}
+            recordNumber={ncr.ncr_number}
+            title={ncr.title}
+            status={ncr.status}
+            listLabel="Nonconformances"
+            listTo="/nonconformances"
             actions={
               <>
                 <PrintButton />
@@ -155,36 +150,30 @@ export default function NcrDetailPage() {
             </div>
 
             <div className="stack">
-              <div className="card">
-                <div className="card__header">
-                  <div className="card__title">Linkage</div>
-                </div>
-                <div className="card__body">
-                  <DataList
-                    items={[
-                      {
-                        label: 'CAPA',
-                        value: ncr.capa_id ? (
-                          <a href={`/capa/${ncr.capa_id}`}>View linked CAPA</a>
-                        ) : canCreateCapa ? (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-secondary"
-                            onClick={handleCreateCapa}
-                            disabled={createCapa.isPending}
-                          >
-                            Create CAPA
-                          </button>
-                        ) : (
-                          'None'
-                        ),
-                      },
-                      { label: 'Created', value: formatDate(ncr.created_at) },
-                      { label: 'Closed', value: formatDate(ncr.closed_at) },
-                    ]}
-                  />
-                </div>
-              </div>
+              <RelatedRecords
+                title="Linkage"
+                items={[
+                  {
+                    label: 'CAPA',
+                    value: ncr.capa_id ? (
+                      <a href={`/capa/${ncr.capa_id}`}>View linked CAPA</a>
+                    ) : canCreateCapa ? (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-secondary"
+                        onClick={handleCreateCapa}
+                        disabled={createCapa.isPending}
+                      >
+                        Create CAPA
+                      </button>
+                    ) : (
+                      'None'
+                    ),
+                  },
+                  { label: 'Created', value: formatDate(ncr.created_at) },
+                  { label: 'Closed', value: formatDate(ncr.closed_at) },
+                ]}
+              />
             </div>
           </div>
 
