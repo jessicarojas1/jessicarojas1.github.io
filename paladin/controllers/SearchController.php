@@ -100,10 +100,10 @@ class SearchController {
             if (($type === '' || $type === 'processes') && !$contentFilter && $text !== '') {
                 $results['processes'] = Database::fetchAll(
                     "SELECT pr.id, pr.process_code, pr.name, pr.status, pr.version
-                     FROM processes pr
-                     WHERE pr.name ILIKE ? OR pr.process_code ILIKE ? OR pr.description ILIKE ?
+                     FROM processes pr LEFT JOIN spaces s ON s.id = pr.space_id
+                     WHERE (pr.name ILIKE ? OR pr.process_code ILIKE ? OR pr.description ILIKE ?) AND {$priv}
                      ORDER BY pr.updated_at DESC LIMIT 25",
-                    [$like, $like, $like]
+                    [$like, $like, $like, $role, $uid]
                 );
             }
             if (($type === '' || $type === 'tasks') && !$contentFilter && $text !== '') {
