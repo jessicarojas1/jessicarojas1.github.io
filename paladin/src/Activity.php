@@ -53,6 +53,18 @@ final class Activity
                              AND al.entity_type IN ('pages','documents','blog_posts','spaces')";
         }
 
+        // Hide activity about content in private spaces the viewer is not a member
+        // of (admins see all); the content's space is resolved per row.
+        $memberFilter = '';
+        if (class_exists('Auth') && Auth::role() !== 'admin') {
+            $memberFilter = " AND (
+                COALESCE(p.space_id, d.space_id, b.space_id, sp.id) IS NULL
+                OR EXISTS (SELECT 1 FROM spaces sx
+                           WHERE sx.id = COALESCE(p.space_id, d.space_id, b.space_id, sp.id)
+                             AND (sx.is_private = FALSE
+                                  OR EXISTS (SELECT 1 FROM space_members m WHERE m.space_id = sx.id AND m.user_id = ?))))";
+        }
+
         $sql =
             "SELECT al.action, al.entity_type, al.entity_id, al.created_at, u.name AS actor,
                     CASE al.entity_type
@@ -68,9 +80,10 @@ final class Activity
              LEFT JOIN documents d  ON al.entity_type='documents'  AND d.id  = al.entity_id
              LEFT JOIN blog_posts b ON al.entity_type='blog_posts' AND b.id  = al.entity_id
              LEFT JOIN spaces sp    ON al.entity_type='spaces'     AND sp.id = al.entity_id
-             WHERE al.action IN ($place){$spaceFilter}
+             WHERE al.action IN ($place){$spaceFilter}{$memberFilter}
              ORDER BY al.id DESC LIMIT " . max(1, min(100, $limit));
         if ($spaceId !== null) $params[] = $spaceId;
+        if ($memberFilter !== '') $params[] = Auth::id();
 
         try { $rows = Database::fetchAll($sql, $params); }
         catch (\Throwable) { return []; }
