@@ -321,16 +321,16 @@ class SpaceController {
 
     public function editForm(int $id): void {
         Auth::requirePermission('space.edit');
-        $space = Database::fetchOne("SELECT * FROM spaces WHERE id = ?", [$id]);
-        if (!$space) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        // Only a manager/owner of THIS space (or an admin) may edit its settings —
+        // not anyone holding the global space.edit permission.
+        if (!($space = $this->guardManage($id))) return;
         require PALADIN_ROOT . '/views/spaces/form.php';
     }
 
     public function update(int $id): void {
         Auth::requirePermission('space.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        $space = Database::fetchOne("SELECT id FROM spaces WHERE id = ?", [$id]);
-        if (!$space) { http_response_code(404); return; }
+        if (!($space = $this->guardManage($id))) return;
 
         $type = Security::sanitizeInput($_POST['type'] ?? 'team');
         if (!in_array($type, View::spaceTypes(), true)) $type = 'team';
@@ -350,6 +350,7 @@ class SpaceController {
     public function delete(int $id): void {
         Auth::requirePermission('space.delete');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        if (!($space = $this->guardManage($id))) return;
         Database::update('spaces', ['is_archived' => 't'], 'id = ?', [$id]);
         Auth::log('archive_space', 'spaces', $id);
         $_SESSION['flash_success'] = 'Space archived.';
