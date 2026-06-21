@@ -400,6 +400,17 @@ CREATE TABLE IF NOT EXISTS rate_limits (
     blocked_until TIMESTAMP
 );
 
+-- Shared session store for the optional Postgres session handler (migration 030,
+-- SESSION_DRIVER=pg). System table: no tenant_id / no RLS (used pre-auth).
+CREATE TABLE IF NOT EXISTS php_sessions (
+    id          VARCHAR(128) PRIMARY KEY,
+    data        TEXT        NOT NULL DEFAULT '',
+    expires_at  TIMESTAMPTZ NOT NULL,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_php_sessions_expires ON php_sessions(expires_at);
+
 -- Granular page-level permissions (Migration 021+).
 -- module: one of risk, compliance, audit, policy, incident, vendor, issue, asset, change,
 --         bcp, threat, awareness, report, kri, ssp, automation, approval
