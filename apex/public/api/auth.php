@@ -73,7 +73,10 @@ function verifyPin(array $user, string $pin): bool
     }
 
     // First-run convenience: well-known defaults.
-    if ((getenv('APEX_ALLOW_DEFAULT_PINS') ?: '') === '1') {
+    // Defense-in-depth: this auth-bypass is NEVER honored in production, even
+    // if APEX_ALLOW_DEFAULT_PINS=1 is set by misconfiguration.
+    $env = getenv('APP_ENV') ?: 'development';
+    if ($env !== 'production' && (getenv('APEX_ALLOW_DEFAULT_PINS') ?: '') === '1') {
         $defaults = ['rojas' => '1231', 'smith' => '112233', 'brown' => '999999'];
         $uid = $user['id'] ?? '';
         if (isset($defaults[$uid]) && hash_equals($defaults[$uid], $pin)) {

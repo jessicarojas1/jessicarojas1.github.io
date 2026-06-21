@@ -4,7 +4,8 @@ services:
     environment:
       POSTGRES_DB: apex
       POSTGRES_USER: apex
-      POSTGRES_PASSWORD: ${DB_PASS:-apex}
+      # Required — the stack refuses to start unless DB_PASS is supplied.
+      POSTGRES_PASSWORD: ${DB_PASS:?DB_PASS is required}
     # Bind to loopback only — do NOT expose the database on all host
     # interfaces (0.0.0.0). Local tooling can still reach 127.0.0.1:5432.
     ports:
@@ -17,11 +18,12 @@ services:
     ports:
       - "8080:80"
     environment:
-      DATABASE_URL: postgresql://apex:${DB_PASS:-apex}@db:5432/apex
-      # Local-development values only. This file sets APP_ENV=development, which
-      # is the ONLY mode where a non-secret JWT key is tolerated (see Auth.php,
-      # which fails closed in production). Never deploy this compose as-is.
-      JWT_SECRET: ${JWT_SECRET:-dev-secret-do-not-use-in-production}
+      DATABASE_URL: postgresql://apex:${DB_PASS:?DB_PASS is required}@db:5432/apex
+      # This file sets APP_ENV=development, the ONLY mode where a non-secret JWT
+      # key is tolerated (see Auth.php, which fails closed in production). Never
+      # deploy this compose as-is. JWT_SECRET is required even locally so the
+      # stack refuses to start without an explicitly supplied value.
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       APP_ENV: development
       APEX_ALLOW_DEFAULT_PINS: "${APEX_ALLOW_DEFAULT_PINS:-0}"
     depends_on:
