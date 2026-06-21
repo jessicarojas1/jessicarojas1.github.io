@@ -62,6 +62,11 @@ $col = Database::fetchOne(
 );
 if (!$col) fail('risks.tenant_id column missing (migration 027)');
 
+// A second tenant must exist for the FK on risks.tenant_id to accept stamped rows.
+Database::query(
+    "INSERT INTO tenants (id, name, slug) VALUES (2, 'Probe Tenant', 'probe') ON CONFLICT (id) DO NOTHING"
+);
+
 Database::useTenant(2);
 $id = Database::insert('risks', ['title' => 'tenancy stamp probe']);
 $got = (int)(Database::fetchOne("SELECT tenant_id FROM aegis.risks WHERE id = ?", [$id])['tenant_id'] ?? 0);
