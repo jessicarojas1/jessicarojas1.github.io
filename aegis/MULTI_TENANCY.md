@@ -83,8 +83,18 @@ Database::query("SELECT set_config('aegis.tenant_id', ?, false)", [(string)$tena
    policy in CI. **Gated on a product decision** (offering AEGIS as shared SaaS):
    the deny-by-default flip would break single-tenant CLI/cron/background paths
    that don't bind a tenant, so it must land with those paths setting the GUC.
-5. **Admin/cross-tenant** — a separate, audited "platform admin" path with an
-   explicit, logged tenant-switch; never an implicit bypass.
+5. **Admin/cross-tenant** — ✅ **DONE:** a separate, audited "platform admin"
+   path with an explicit, logged, **time-boxed** tenant-switch; never an implicit
+   bypass. Gated by a dedicated `users.is_platform_admin` flag (migration 031) —
+   *not* a role/permission, because tenant `admin` bypasses `Auth::can()`, so
+   cross-tenant power must come from a flag no tenant role grants.
+   `Auth::switchTenant()/exitTenant()` validate the target tenant, set a 1-hour
+   active context (`activeTenantId()`, bound per request in `index.php`), and
+   write `platform.tenant_switch` / `platform.tenant_exit` rows to the keyed audit
+   chain. Surfaced at `GET /platform/tenants` (+ CSRF-guarded POST switch/exit),
+   restricted by `Auth::requirePlatformAdmin()`. Proven against a live Postgres in
+   `tests/integration/platform_db.php` (validation, binding, audit, revert; the
+   audit chain still verifies after the switch/exit writes).
 
 ## Hard rules
 

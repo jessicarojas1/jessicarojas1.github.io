@@ -318,6 +318,7 @@ function runMigrations(PDO $pdo): void {
         '028_tenancy_rls.sql',
         '029_tenancy_child_tables.sql',
         '030_php_sessions.sql',
+        '031_platform_admin.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;
