@@ -3,8 +3,12 @@
  * Role hierarchy: viewer (0) < reader (1) < editor (2) < admin (3)
  * State lives in sessionStorage (clears on tab close).
  * Login is username + password via users.js (Users module).
- * Root user (username: root) always exists; its password is not stored in
- * source (only a SHA-256 hash, in users.js). Client-side demo gate only.
+ *
+ * SECURITY NOTE: this is a client-side demo gate only — it is a UI convenience,
+ * NOT a security control. No bootstrap/default credential ships in source. On
+ * first run (no users yet) the login modal shows a one-time "create initial
+ * admin" setup form so the operator chooses their own admin credentials; only
+ * the salted hash is stored (in users.js / localStorage).
  */
 const RBAC = (() => {
 
@@ -196,6 +200,34 @@ const RBAC = (() => {
       </button>
     </div>`;
 
+  const SETUP_FORM_HTML = `
+    <div class="alert alert-info py-2 small mb-3">
+      First-time setup: no admin account exists yet. Create the initial admin
+      account below. Only a salted password hash is stored in this browser —
+      no credential is shipped in the site source.
+    </div>
+    <form id="rbac-setup-form" novalidate>
+      <div class="mb-3">
+        <label for="setup-username" class="form-label">Admin Username</label>
+        <input type="text" class="form-control" id="setup-username"
+               autocomplete="username" maxlength="40" required />
+      </div>
+      <div class="mb-3">
+        <label for="setup-password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="setup-password"
+               autocomplete="new-password" required />
+        <div class="form-text">Minimum 8 characters.</div>
+      </div>
+      <div class="mb-3">
+        <label for="setup-password2" class="form-label">Confirm Password</label>
+        <input type="password" class="form-control" id="setup-password2"
+               autocomplete="new-password" required />
+      </div>
+      <div class="alert alert-danger d-none py-2 small" id="setup-error"
+           role="alert" aria-live="polite"></div>
+      <button type="submit" class="btn btn-primary w-100">Create Admin Account</button>
+    </form>`;
+
   const REQUEST_FORM_HTML = `
     <div class="alert alert-info py-2 small mb-3">
       Submit a request to create an account. An admin will review and approve it.
@@ -248,9 +280,6 @@ const RBAC = (() => {
       Ask your admin to reset your password from the
       <strong>User Admin</strong> panel. They can set a new password for your account.
     </p>
-    <p class="small text-secondary mb-0">
-      Root account? The root password is set in <code>users.js</code> and cannot be changed from the UI.
-    </p>
     <div class="text-center mt-3">
       <button type="button" class="btn btn-outline-secondary btn-sm"
               id="rbac-back-to-login-forgot">Back to login</button>
@@ -293,9 +322,61 @@ const RBAC = (() => {
     const title = modalEl.querySelector('.modal-title');
     if (!body) return;
 
+    // First run: no account exists yet → show the create-initial-admin form.
+    if (typeof Users !== 'undefined' && !Users.hasUsers()) {
+      if (title) title.textContent = '🛠️ Initial Setup';
+      body.innerHTML = SETUP_FORM_HTML;
+      wireSetupForm();
+      return;
+    }
+
     if (title) title.textContent = '🔒 Login';
     body.innerHTML = LOGIN_FORM_HTML;
     wireLoginForm();
+  }
+
+  /* ── Wire first-run setup form ───────────────────────────────── */
+  function wireSetupForm() {
+    const form  = document.getElementById('rbac-setup-form');
+    if (!form) return;
+    const errEl = document.getElementById('setup-error');
+    const showErr = msg => { if (errEl) { errEl.textContent = msg; errEl.classList.remove('d-none'); } };
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const username = document.getElementById('setup-username').value.trim();
+      const pw       = document.getElementById('setup-password').value;
+      const pw2      = document.getElementById('setup-password2').value;
+      const btn      = form.querySelector('[type="submit"]');
+
+      if (errEl) errEl.classList.add('d-none');
+      if (!username)     return showErr('Username is required.');
+      if (pw.length < 8) return showErr('Password must be at least 8 characters.');
+      if (pw !== pw2)    return showErr('Passwords do not match.');
+      if (typeof Users === 'undefined') return showErr('User module not loaded. Refresh and try again.');
+
+      btn.disabled = true; btn.textContent = 'Creating…';
+      try {
+        const result = await Users.createInitialAdmin(username, pw);
+        if (!result.ok) {
+          btn.disabled = false; btn.textContent = 'Create Admin Account';
+          return showErr(result.error || 'Could not create the admin account.');
+        }
+        // Log the new admin straight in.
+        const loginResult = await login(username, pw);
+        btn.disabled = false; btn.textContent = 'Create Admin Account';
+        if (loginResult.ok) {
+          hideModal();
+          form.reset();
+        } else {
+          // Account created but auto-login failed — fall back to the login form.
+          refreshModalContent();
+        }
+      } catch (err) {
+        btn.disabled = false; btn.textContent = 'Create Admin Account';
+        showErr(err.message || 'Setup failed. Ensure you are on an HTTPS connection.');
+      }
+    });
   }
 
   /* ── Wire login form ─────────────────────────────────────── */

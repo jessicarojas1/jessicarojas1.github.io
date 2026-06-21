@@ -1,42 +1,35 @@
 /**
  * users.js — Username/password user store for jessicarojas1.github.io
  *
- * ROOT USER — always available, never stored in localStorage:
- *   Username : root
- *   Password : (not stored in source — only its SHA-256 hash is shipped below)
- *   Role     : admin
- *   Use this to bootstrap the system, then create your real admin account.
+ * SECURITY NOTE: This is a CLIENT-SIDE-ONLY demo gate (no backend). It does NOT
+ * provide real authentication and is NOT a security control — anyone can read
+ * this file and any value in localStorage via the browser. Treat every
+ * account/role decision made here as advisory UI state only, never a security
+ * boundary. Because of that, NO bootstrap/default credential is shipped in
+ * source (a published password — or even a published hash — would be readable
+ * and brute-forceable by anyone). Instead, on first run the operator creates
+ * the initial admin account themselves and only its salted hash is stored.
  *
- * SECURITY NOTE: This is a client-side-only demo gate (no backend). It does NOT
- * provide real authentication — anyone can read this file. Never store a
- * plaintext credential here. The root password is kept out of source: only its
- * SHA-256 hash is shipped, and it should be rotated periodically. Treat any
- * account/role decisions made here as advisory UI state, not a security boundary.
- *
- * Users are stored in localStorage as { username, passwordHash, role, created }.
- * Passwords are hashed with SHA-256 (Web Crypto API) — no plaintext stored.
+ * Users are stored in localStorage as
+ *   { username, salt, passwordHash, role, created }
+ * Passwords are hashed with SHA-256 over (salt + password) using the Web Crypto
+ * API — no plaintext is ever stored. Legacy records without a `salt` field are
+ * still verified against an unsalted SHA-256 for backward compatibility.
  * Account requests stored under 'rbac_requests'.
  *
+ * First-run flow: when no user exists (`hasUsers()` is false) the login UI
+ * shows a one-time "create initial admin" form (see roles.js) that calls
+ * `createInitialAdmin(username, password)`.
+ *
  * Public API:
- *   seed(), hasUsers(), getUsers(), authenticate(),
+ *   seed(), hasUsers(), getUsers(), authenticate(), createInitialAdmin(),
  *   addUser(), deleteUser(), changePassword(), updateRole(), sha256(),
- *   requestAccess(), getRequests(), approveRequest(), rejectRequest(),
- *   ROOT_USERNAME
+ *   requestAccess(), getRequests(), approveRequest(), rejectRequest()
  */
 const Users = (() => {
 
   const STORE_KEY = 'rbac_users';
   const REQ_KEY   = 'rbac_requests';
-
-  /* ── Root user ────────────────────────────────────────────────────
-     Bootstrap account. Never stored in localStorage.
-     Cannot be deleted or modified via the UI.
-     The plaintext password is intentionally NOT in source — only the
-     SHA-256 hash below. Rotate by replacing ROOT_PASSWORD_HASH with the
-     SHA-256 of a new password.                                       */
-  const ROOT_USERNAME      = 'root';
-  const ROOT_PASSWORD_HASH = '505d339aea60a01c09adb3b86ae677db4f2dba4e5b911f368c69b91353473cfb';
-  const ROOT_ROLE          = 'admin';
 
   /* ── SHA-256 via Web Crypto ─────────────────────────────────── */
   async function sha256(str) {
@@ -51,6 +44,29 @@ const Users = (() => {
     }
   }
 
+  /* ── Random salt (hex) via Web Crypto ───────────────────────── */
+  function newSalt() {
+    if (typeof crypto === 'undefined' || !crypto.getRandomValues) {
+      throw new Error('Web Crypto API is unavailable. Please access this site over HTTPS (not file://).');
+    }
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  /* Hash a password for storage with a fresh salt → { salt, passwordHash } */
+  async function hashWithSalt(password) {
+    const salt = newSalt();
+    return { salt, passwordHash: await sha256(salt + password) };
+  }
+
+  /* Verify a password against a stored user record (salted or legacy). */
+  async function verifyPassword(user, password) {
+    if (!user) return false;
+    if (user.salt) return (await sha256(user.salt + password)) === user.passwordHash;
+    // Legacy record (no salt) — verify against unsalted SHA-256.
+    return (await sha256(password)) === user.passwordHash;
+  }
+
   /* ── Storage helpers ─────────────────────────────────────────── */
   function getUsers() {
     try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); }
@@ -61,70 +77,69 @@ const Users = (() => {
     localStorage.setItem(STORE_KEY, JSON.stringify(users));
   }
 
-  /* Root always exists — login modal always shows the login form */
-  function hasUsers() { return true; }
+  /* True once at least one account exists. When false, the UI shows the
+     first-run "create initial admin" setup form instead of the login form. */
+  function hasUsers() { return getUsers().length > 0; }
 
-  /* ── Seed — root handles bootstrap, no localStorage seeding ──── */
+  /* ── Seed — no bootstrap credential is shipped; nothing to seed ──── */
   async function seed() { return true; }
 
-  /* ── Authenticate — root first, then localStorage users ─────── */
+  /* ── Create the initial admin account (first-run only) ────────────
+     Allowed only while no users exist, so it cannot be abused to mint
+     extra admins later. Stores only the salted hash. */
+  async function createInitialAdmin(username, password) {
+    username = (username || '').trim();
+    if (hasUsers()) return { ok: false, error: 'Setup already completed.' };
+    if (!username || !password) return { ok: false, error: 'Username and password are required.' };
+    if (password.length < 8) return { ok: false, error: 'Password must be at least 8 characters.' };
+    const { salt, passwordHash } = await hashWithSalt(password);
+    saveUsers([{ username, salt, passwordHash, role: 'admin', created: Date.now() }]);
+    return { ok: true };
+  }
+
+  /* ── Authenticate against localStorage users ──────────────────── */
   async function authenticate(username, password) {
     if (!username || !password) return null;
     const uname = username.trim().toLowerCase();
-
-    if (uname === ROOT_USERNAME) {
-      const inputHash = await sha256(password);
-      // Constant-time-ish compare against the shipped hash (no plaintext in source).
-      return inputHash === ROOT_PASSWORD_HASH
-        ? { username: ROOT_USERNAME, role: ROOT_ROLE, created: 0, isRoot: true }
-        : null;
-    }
-
     const users = getUsers();
     const user  = users.find(u => u.username.toLowerCase() === uname);
     if (!user) return null;
-    const hash = await sha256(password);
-    return hash === user.passwordHash ? user : null;
+    return (await verifyPassword(user, password)) ? user : null;
   }
 
   /* ── Add user — returns { ok, error? } ──────────────────────── */
   async function addUser(username, password, role) {
     username = (username || '').trim();
     if (!username || !password || !role) return { ok: false, error: 'All fields required.' };
-    if (username.toLowerCase() === ROOT_USERNAME)
-      return { ok: false, error: 'Username not available.' };
     const users = getUsers();
     if (users.find(u => u.username.toLowerCase() === username.toLowerCase()))
       return { ok: false, error: 'Username already exists.' };
-    const hash = await sha256(password);
-    users.push({ username, passwordHash: hash, role, created: Date.now() });
+    const { salt, passwordHash } = await hashWithSalt(password);
+    users.push({ username, salt, passwordHash, role, created: Date.now() });
     saveUsers(users);
     return { ok: true };
   }
 
-  /* ── Delete user (root protected) ───────────────────────────── */
+  /* ── Delete user ────────────────────────────────────────────── */
   function deleteUser(username) {
-    if ((username || '').toLowerCase() === ROOT_USERNAME) return;
     saveUsers(getUsers().filter(u => u.username.toLowerCase() !== username.toLowerCase()));
   }
 
-  /* ── Change password (root protected) ───────────────────────── */
+  /* ── Change password ────────────────────────────────────────── */
   async function changePassword(username, newPassword) {
-    if ((username || '').toLowerCase() === ROOT_USERNAME)
-      return { ok: false, error: 'Root password cannot be changed via the UI.' };
     if (!newPassword) return { ok: false, error: 'Password required.' };
     const users = getUsers();
     const user  = users.find(u => u.username.toLowerCase() === username.toLowerCase());
     if (!user) return { ok: false, error: 'User not found.' };
-    user.passwordHash = await sha256(newPassword);
+    const { salt, passwordHash } = await hashWithSalt(newPassword);
+    user.salt = salt;
+    user.passwordHash = passwordHash;
     saveUsers(users);
     return { ok: true };
   }
 
-  /* ── Update role (root protected) ───────────────────────────── */
+  /* ── Update role ────────────────────────────────────────────── */
   function updateRole(username, role) {
-    if ((username || '').toLowerCase() === ROOT_USERNAME)
-      return { ok: false, error: 'Root role cannot be changed.' };
     const users = getUsers();
     const user  = users.find(u => u.username.toLowerCase() === username.toLowerCase());
     if (!user) return { ok: false, error: 'User not found.' };
@@ -137,15 +152,13 @@ const Users = (() => {
   async function requestAccess(username, password, note) {
     username = (username || '').trim();
     if (!username || !password) return { ok: false, error: 'Username and password are required.' };
-    if (username.toLowerCase() === ROOT_USERNAME)
-      return { ok: false, error: 'Username not available.' };
     if (getUsers().find(u => u.username.toLowerCase() === username.toLowerCase()))
       return { ok: false, error: 'Username already exists.' };
     const reqs = getRequests();
     if (reqs.find(r => r.username.toLowerCase() === username.toLowerCase()))
       return { ok: false, error: 'A request for this username is already pending.' };
-    const hash = await sha256(password);
-    reqs.push({ username, passwordHash: hash, note: (note || '').trim(), requested: Date.now() });
+    const { salt, passwordHash } = await hashWithSalt(password);
+    reqs.push({ username, salt, passwordHash, note: (note || '').trim(), requested: Date.now() });
     saveRequests(reqs);
     return { ok: true };
   }
@@ -170,7 +183,7 @@ const Users = (() => {
       saveRequests(reqs.filter(r => r.username.toLowerCase() !== username.toLowerCase()));
       return { ok: false, error: 'Username already exists as a user.' };
     }
-    users.push({ username: req.username, passwordHash: req.passwordHash, role: role || 'viewer', created: Date.now() });
+    users.push({ username: req.username, salt: req.salt, passwordHash: req.passwordHash, role: role || 'viewer', created: Date.now() });
     saveUsers(users);
     saveRequests(reqs.filter(r => r.username.toLowerCase() !== username.toLowerCase()));
     return { ok: true };
@@ -184,10 +197,9 @@ const Users = (() => {
 
   /* ── Public API ──────────────────────────────────────────────── */
   return {
-    seed, hasUsers, getUsers, authenticate,
+    seed, hasUsers, getUsers, authenticate, createInitialAdmin,
     addUser, deleteUser, changePassword, updateRole, sha256,
     requestAccess, getRequests, approveRequest, rejectRequest,
-    ROOT_USERNAME,
   };
 
 })();
