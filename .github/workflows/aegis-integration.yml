@@ -41,9 +41,9 @@ jobs:
       AUDIT_HMAC_KEY: ci-test-audit-hmac-key
       JWT_SECRET: ci-test-jwt-secret-at-least-32-characters
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
         with:
           php-version: '8.3'
           extensions: pdo_pgsql, sodium
@@ -109,7 +109,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Build hardened image
         run: docker build -f aegis/docker/Dockerfile.hardened -t aegis:ci aegis/

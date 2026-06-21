@@ -12,8 +12,9 @@ on:
 
 # OIDC federation to Entra ID — no client secret stored in GitHub.
 permissions:
-  id-token: write
-  contents: read
+  id-token: write       # OIDC: Entra ID login + GitHub attestation signing
+  contents: read        # checkout
+  attestations: write   # actions/attest-build-provenance
 
 concurrency:
   group: cd-azure-gov
@@ -34,21 +35,21 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Resolve image tag
         id: tag
         run: echo "tag=${{ github.event.inputs.image_tag || github.sha }}" >> "$GITHUB_OUTPUT"
 
       - name: Azure login (OIDC, Government cloud)
-        uses: azure/login@v2
+        uses: azure/login@1384c340ab2dda50fed2bee3041d1d87018aa5e8 # v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           environment: AzureUSGovernment
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
         with:
           terraform_version: "1.9.5"
 
@@ -65,17 +66,57 @@ jobs:
           TF_VAR_frontend_image: sentinel-qms/frontend:${{ steps.tag.outputs.tag }}
         run: terraform apply -input=false -auto-approve
 
-      - name: Build & push images to ACR
+      # Resolve the ACR login server (provisioned by the apply above) and
+      # authenticate Docker to it, so the buildx steps below can push.
+      - name: ACR login
+        id: acr
         working-directory: ${{ env.TF_DIR }}
-        env:
-          TAG: ${{ steps.tag.outputs.tag }}
         run: |
           ACR=$(terraform output -raw acr_login_server)
           az acr login --name "${ACR%%.*}"
-          for c in backend frontend; do
-            docker build -t "$ACR/sentinel-qms/$c:$TAG" "$GITHUB_WORKSPACE/sentinel-qms/$c"
-            docker push "$ACR/sentinel-qms/$c:$TAG"
-          done
+          echo "login_server=$ACR" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      # Build the backend image with buildx, push to ACR (Azure Gov), and attach
+      # an SPDX SBOM + SLSA build provenance as in-toto attestations.
+      - name: Build & push backend
+        id: build-backend
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: ${{ github.workspace }}/sentinel-qms/backend
+          push: true
+          tags: ${{ steps.acr.outputs.login_server }}/sentinel-qms/backend:${{ steps.tag.outputs.tag }}
+          provenance: true
+          sbom: true
+
+      - name: Build & push frontend
+        id: build-frontend
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: ${{ github.workspace }}/sentinel-qms/frontend
+          push: true
+          tags: ${{ steps.acr.outputs.login_server }}/sentinel-qms/frontend:${{ steps.tag.outputs.tag }}
+          provenance: true
+          sbom: true
+
+      # GitHub-native (SLSA) build-provenance attestation keyed off the pushed
+      # digest, mirroring release-aegis-image.yml. ACR (Azure Gov) is not the
+      # GH attestations API host, so push-to-registry is omitted — provenance is
+      # stored in the GitHub attestations API (verifiable with `gh attestation
+      # verify`), while the buildx provenance/SBOM above ride on the ACR image.
+      - name: Attest backend provenance
+        uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
+        with:
+          subject-name: ${{ steps.acr.outputs.login_server }}/sentinel-qms/backend
+          subject-digest: ${{ steps.build-backend.outputs.digest }}
+
+      - name: Attest frontend provenance
+        uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
+        with:
+          subject-name: ${{ steps.acr.outputs.login_server }}/sentinel-qms/frontend
+          subject-digest: ${{ steps.build-frontend.outputs.digest }}
 
       - name: Database migrations (Container App job)
         working-directory: ${{ env.TF_DIR }}
