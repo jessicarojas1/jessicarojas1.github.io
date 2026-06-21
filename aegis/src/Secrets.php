@@ -21,6 +21,9 @@ final class Secrets
         'JWT_SECRET',
         'AUDIT_HMAC_KEY',
         'APP_ENCRYPTION_KEY',
+        // KMS envelope encryption (resolved before Kms::hydrate reads them).
+        'APP_ENCRYPTION_KEY_CIPHERTEXT',
+        'VAULT_TOKEN',
         'DB_PASS',
         'DB_PASSWORD',
         'SMTP_PASS',
