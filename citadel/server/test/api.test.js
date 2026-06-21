@@ -92,6 +92,13 @@ test('bad credentials are rejected', async () => {
 test('admin-only routes require an admin token', async () => {
   assert.equal((await api('/api/users')).status, 401);
   assert.equal((await api('/api/audit')).status, 401);
+  assert.equal((await api('/api/audit/verify')).status, 401);
+});
+
+test('multi-tenancy routes are inert (404) when CITADEL_MULTITENANT is off', async () => {
+  // Default single-tenant deployment: provisioning endpoints must not exist.
+  assert.equal((await api('/api/tenants')).status, 404);
+  assert.equal((await api('/api/tenants', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"slug":"acme"}' })).status, 404);
 });
 
 test('unknown API route -> JSON 404; malformed JSON -> 400 with no stack leak', async () => {

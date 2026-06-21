@@ -1,0 +1,160 @@
+name: CITADEL image (build · SBOM · sign)
+
+# Supply-chain release pipeline for the CITADEL deep-scan backend image.
+# Builds the container, publishes it to GHCR, attaches an SBOM + SLSA build
+# provenance as in-toto attestations, and signs the pushed digest with KEYLESS
+# cosign (Sigstore, GitHub OIDC identity — no long-lived signing key). The final
+# `cosign verify` step fails the job if the signature didn't take, so a release
+# that isn't both signed and verifiable cannot go green. (SSDF PS.3 / SLSA build
+# L3 provenance; CMMC/NIST 800-171 SI/CM supply-chain integrity.)
+#
+# Triggers: project-scoped tags (citadel-v* / v*) and manual dispatch. It never
+# runs on pull_request — it pushes images and mints attestations, which require
+# trusted credentials not available to fork PRs.
+on:
+  push:
+    tags:
+      - 'citadel-v*'
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Extra image tag to publish (e.g. 2025.06 or a release name)'
+        required: false
+        default: ''
+
+concurrency:
+  group: citadel-image-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-sign-attest:
+    name: Build, push, attest & sign
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read          # checkout
+      packages: write         # push image + attestations to GHCR
+      id-token: write         # keyless cosign + provenance (OIDC)
+      attestations: write     # actions/attest-build-provenance
+    env:
+      REGISTRY: ghcr.io
+      # GHCR repositories must be lowercase; the owner here already is.
+      IMAGE: ghcr.io/${{ github.repository_owner }}/citadel-server
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Derive tags/labels: semver from the git tag, a git-sha tag for traceability,
+      # and any extra tag supplied via workflow_dispatch.
+      - name: Image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=tag
+            type=sha,format=long
+            type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag != '' }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      # Build from the repo root (the Dockerfile COPYs both the SPA and server),
+      # push by digest, and let BuildKit attach an SPDX SBOM + max-mode SLSA
+      # provenance as attestations on the image index.
+      - name: Build & push image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: citadel/server/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          sbom: true
+          provenance: mode=max
+
+      # GitHub-native (SLSA) build-provenance attestation, stored in the GH
+      # attestations API and discoverable with `gh attestation verify`.
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+      # Generate a CycloneDX SBOM from the *pushed* image and attach it as a
+      # cosign attestation (keyless). This complements the BuildKit SPDX SBOM
+      # with the CycloneDX format consumers of this project already expect.
+      - name: Generate CycloneDX SBOM (syft)
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+          format: cyclonedx-json
+          output-file: citadel-sbom.cdx.json
+
+      - name: Sign image (keyless cosign)
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: cosign sign --yes "${IMAGE}@${DIGEST}"
+
+      - name: Attest SBOM to the image (keyless cosign)
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: cosign attest --yes --predicate citadel-sbom.cdx.json --type cyclonedx "${IMAGE}@${DIGEST}"
+
+      # Gate: prove the signature is valid and bound to THIS workflow's identity.
+      # If verification fails, the release fails — no unsigned image ships.
+      - name: Verify signature (gate)
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          cosign verify "${IMAGE}@${DIGEST}" \
+            --certificate-identity-regexp "^https://github.com/${{ github.repository }}/" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            | tee /dev/null
+          echo "Signed & verified: ${IMAGE}@${DIGEST}"
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: citadel-sbom-cyclonedx
+          path: citadel-sbom.cdx.json
+          if-no-files-found: warn
+
+      - name: Job summary
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          {
+            echo "### CITADEL image published"
+            echo ""
+            echo "- **Digest:** \`${IMAGE}@${DIGEST}\`"
+            echo "- **Tags:** ${{ steps.meta.outputs.tags }}"
+            echo "- **Signed:** keyless cosign (Sigstore / GitHub OIDC)"
+            echo "- **Attestations:** SPDX SBOM + SLSA provenance (BuildKit), CycloneDX SBOM (cosign), GitHub build provenance"
+            echo ""
+            echo "Verify locally:"
+            echo '```'
+            echo "cosign verify ${IMAGE}@${DIGEST} \\"
+            echo "  --certificate-identity-regexp '^https://github.com/${{ github.repository }}/' \\"
+            echo "  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

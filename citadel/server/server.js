@@ -36,6 +36,12 @@ const oidc = require('./lib/oidc');
 const scans = require('./lib/scans');
 const dispositions = require('./lib/dispositions');
 const notify = require('./lib/notify');
+const fips = require('./lib/fips');
+const tenancy = require('./lib/tenancy');
+
+// Enter FIPS 140 mode as early as possible (before any password/seed crypto) when
+// CITADEL_FIPS=1 and the OpenSSL build supports it. No-op + warning otherwise.
+fips.enable();
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 // Locate the SPA. Local dev: server.js lives in citadel/server, so the app is
@@ -77,6 +83,17 @@ app.get('/metrics', (req, res) => {
 // client-spoofable X-Forwarded-For). Used for rate-limit + lockout keys.
 function clientIp(req) {
   return req.ip || (req.socket && req.socket.remoteAddress) || 'unknown';
+}
+
+// Tenant lifecycle (schema-per-tenant; H5) is an OPERATOR action, not an in-app
+// role: gate on CITADEL_SUPERADMIN_TOKEN (Bearer) or loopback. The routes are
+// registered after the JSON body parser (below). 404 (not 403) so the route is
+// not confirmed; only meaningful when CITADEL_MULTITENANT=1 + a database is set.
+function superadminOk(req) {
+  const tok = process.env.CITADEL_SUPERADMIN_TOKEN;
+  const bearer = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const loopback = /^(::1|::ffff:127\.|127\.)/.test(clientIp(req));
+  return tok ? bearer === tok : loopback;
 }
 
 // Token lifetimes. Short-lived access tokens + a long-lived refresh token so a
@@ -136,6 +153,28 @@ app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   next();
+});
+
+/* ---- Multi-tenancy: resolve the tenant and run the rest of the request inside
+ * its schema scope (H5) ----------------------------------------------------
+ * Established BEFORE auth-decode so every downstream read/write — JWT secret,
+ * user lookup, sessions, scans, audit, dispositions — is tenant-isolated. The
+ * tenant's user/session caches are ensured loaded first. No-op (and zero
+ * overhead) when multi-tenancy is disabled, so single-tenant is unchanged.
+ * Infra/operator routes (health probes, tenant provisioning) and the static SPA
+ * are tenant-agnostic and pass through unscoped. */
+app.use((req, res, next) => {
+  if (!tenancy.enabled()) return next();
+  if (req.path === '/api/health' || req.path === '/api/tenants' || !req.path.startsWith('/api/')) return next();
+  const slug = tenancy.resolveSlug(req);
+  if (!slug) return res.status(400).json({ error: 'Tenant not specified.' });
+  tenancy.get(slug).then(t => {
+    if (!t || !t.active) return res.status(404).json({ error: 'Unknown tenant.' });
+    db.runInTenant(t.schema, async () => {
+      try { await users.ensureLoaded(); await sessions.ensureLoaded(); next(); }
+      catch (e) { next(e); }
+    });
+  }).catch(next);
 });
 
 /* ---- Auth: parse a Bearer JWT (if present) into req.user — non-blocking ----
@@ -263,6 +302,7 @@ app.get('/api/health', async (req, res) => {
   const tools = await toolStatus();
   res.json({
     ok: true, version: '1.0', engine: 'deep', ai: ai.available(), airgap: ai.airgapped(),
+    fips: isAdmin ? fips.status() : { active: fips.active() },
     auth: { enforce: users.settings().enforce, sso: oidc.enabled() },
     store: isAdmin
       ? { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled(), rateLimit: rateLimit.backend(), notify: notify.enabled() }
@@ -488,6 +528,26 @@ app.get('/api/audit', requireAdmin, async (req, res) => {
   res.json({ stats, events });
 });
 
+// Tamper-evidence check: re-walk the audit hash chain and report whether any
+// record was altered or removed (and where). Admin-only.
+app.get('/api/audit/verify', requireAdmin, async (req, res) => {
+  res.json(await audit.verifyChain());
+});
+
+// Operator-only tenant provisioning (schema-per-tenant). See superadminOk above.
+app.get('/api/tenants', async (req, res) => {
+  if (!tenancy.enabled() || !superadminOk(req)) return res.status(404).end();
+  res.json({ tenants: await tenancy.list() });
+});
+app.post('/api/tenants', async (req, res) => {
+  if (!tenancy.enabled() || !superadminOk(req)) return res.status(404).end();
+  try {
+    const t = await tenancy.create({ slug: (req.body && req.body.slug) || '', name: (req.body && req.body.name) || '' });
+    audit.record('tenant.provision', { actor: 'operator', ip: clientIp(req), detail: t.slug, ok: true });
+    res.json({ ok: true, tenant: t });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
 /* ---------------- Scan history (durable, requires DATABASE_URL) ---------------- */
 // Non-admins are scoped to their own scans (no cross-user IDOR by sequential id).
 function scanScope(req) { return req.user ? { userId: req.user.id, isAdmin: req.user.role === 'admin' } : null; }
@@ -702,6 +762,7 @@ app.use((err, req, res, next) => {
     if (db.enabled()) { await db.init(); log.info('postgres connected', { store: 'postgres' }); }
     await users.init();
     await sessions.init();
+    await audit.init();   // seed the hash-chain head from the last persisted event
   } catch (e) {
     log.error('bootstrap failed; continuing with in-memory store', { err: e.message });
   }

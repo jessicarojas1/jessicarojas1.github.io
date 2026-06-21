@@ -1,0 +1,279 @@
+# =============================================================================
+# CITADEL — Production-grade single-host Docker Compose stack
+# -----------------------------------------------------------------------------
+# A hardened, three-service stack you can stand up on a single VM (or a small
+# Swarm node) and put in front of real users:
+#
+#     citadel   -> the Node 20 Express deep-scan API (non-root, read-only FS)
+#     postgres  -> the application database (private, never published)
+#     proxy     -> nginx TLS-terminating reverse proxy (the ONLY public surface)
+#
+# Network topology:
+#
+#     Internet --443/80--> proxy --(internal net)--> citadel --(internal net)--> postgres
+#
+# Only the proxy publishes ports. `citadel` (8080) and `postgres` (5432) are
+# reachable ONLY on the internal Docker network, never from the host or Internet.
+#
+# QUICK START (run from this directory, deploy/compose/):
+#     cp .env.example .env          # then fill in REAL secrets (see README.md)
+#     mkdir -p certs                # drop fullchain.pem + privkey.pem here
+#     docker compose config         # validate the rendered config
+#     docker compose up -d --build  # bring the stack up
+#     docker compose ps             # check health
+#
+# See README.md for the full runbook (secrets, TLS certs, multi-tenancy,
+# scaling, teardown).
+#
+# SECURITY: this file contains NO secrets. Every credential is read from the
+# .env file (which is git-ignored) or injected as a Docker secret. NEVER commit
+# a real .env — only .env.example with placeholders.
+# =============================================================================
+
+# Compose v2 ignores the legacy top-level `version:` key; it is intentionally
+# omitted so the file validates cleanly on modern Docker Compose.
+
+services:
+  # ===========================================================================
+  # citadel — the application (Node 20 Express deep-scan API)
+  # ===========================================================================
+  citadel:
+    # ---- IMAGE SELECTION (pick ONE of the two options below) ----------------
+    #
+    # OPTION A (default): build locally from the repository root. The Dockerfile
+    # lives at citadel/server/Dockerfile but COPYs from the repo root (it needs
+    # both citadel/ and citadel/server/), so the build CONTEXT must be the repo
+    # root. From here (deploy/compose/) the repo root is three levels up.
+    build:
+      context: ../../..                       # repo root (so COPY citadel/... resolves)
+      dockerfile: citadel/server/Dockerfile
+      # Uncomment to bundle the opt-in heavy scanners at build time:
+      # args:
+      #   CITADEL_WITH_CODEQL: "0"
+      #   CITADEL_WITH_TRACING: "0"
+    #
+    # OPTION B: use a prebuilt image from your registry instead of building.
+    # Comment out the whole `build:` block above and uncomment `image:` below
+    # (pin a digest/tag for reproducibility). `IMAGE_REF` comes from .env.
+    # image: ${IMAGE_REF:-ghcr.io/your-org/citadel-server:latest}
+    #
+    # When building locally we still tag the result so `image:` references work
+    # for `docker compose push` / re-use. Harmless alongside OPTION A.
+    image: ${IMAGE_REF:-citadel-server:latest}
+
+    # ---- Restart policy -----------------------------------------------------
+    restart: unless-stopped
+
+    # ---- Hardening ----------------------------------------------------------
+    # Run as the baked-in non-root user (UID/GID 10001). Uploaded code is only
+    # ever READ by scanners, never executed, so the container is safe to run
+    # with an immutable root filesystem and zero Linux capabilities.
+    user: "10001:10001"
+    read_only: true                           # immutable root filesystem
+    cap_drop:
+      - ALL                                   # drop every Linux capability
+    security_opt:
+      - no-new-privileges:true                # block setuid privilege escalation
+    # Optional, stricter still: pin a seccomp profile and (if you ship one) an
+    # AppArmor profile. The Docker default seccomp profile is applied unless
+    # overridden; uncomment to be explicit.
+    # security_opt:
+    #   - no-new-privileges:true
+    #   - seccomp=./security/seccomp.json
+
+    # ---- Writable scratch space (read-only-root-FS friendly) ----------------
+    # The ONLY writable paths the app needs. tmpfs keeps untrusted, extracted
+    # uploads off persistent disk and wipes them when the container stops.
+    #   /tmp/citadel    -> CITADEL_TMP scratch dir for unpacking/scanning uploads
+    #   /var/lib/clamav -> ClamAV signature DB (freshclam writes here at runtime)
+    #   /tmp            -> general scratch some tools expect
+    # NOTE: tmpfs is RAM-backed and ephemeral. If you refresh ClamAV signatures
+    # frequently and want them to persist across restarts, swap the /var/lib/clamav
+    # tmpfs line for the named volume in the `volumes:` block below instead.
+    tmpfs:
+      - /tmp/citadel:exec=false,mode=1777,size=2g
+      - /var/lib/clamav:mode=0775,size=1g
+      - /tmp:mode=1777,size=256m
+    # ---- Persistent ClamAV DB alternative (see note above) ------------------
+    # volumes:
+    #   - clamav-db:/var/lib/clamav
+
+    # ---- Configuration / secrets (from the git-ignored .env file) -----------
+    # env_file pulls every CITADEL_* / DATABASE_* var from .env. We additionally
+    # pin the non-secret operational vars inline so they are explicit and cannot
+    # be accidentally dropped. DATABASE_URL is composed from the Postgres creds
+    # and points at the `postgres` SERVICE name on the internal network.
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "8080"
+      CITADEL_TMP: /tmp/citadel
+      # Postgres is on a private network here; PGSSL=0 is acceptable. Set PGSSL=1
+      # (and mount certs) if you require TLS to the DB. Overridable via .env.
+      PGSSL: "${PGSSL:-0}"
+      # Connection string targets the `postgres` service by name. Credentials and
+      # db name come from .env (POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB).
+      DATABASE_URL: "postgres://${POSTGRES_USER:-citadel}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-citadel}?sslmode=${PGSSLMODE:-disable}"
+      # Multi-tenancy is OFF by default; flip CITADEL_MULTITENANT=1 in .env and
+      # set CITADEL_BASE_DOMAIN to enable tenant sub-domain routing (see README).
+      CITADEL_MULTITENANT: "${CITADEL_MULTITENANT:-0}"
+      CITADEL_BASE_DOMAIN: "${CITADEL_BASE_DOMAIN:-}"
+
+    # ---- Service health -----------------------------------------------------
+    # Mirrors the orchestrator/proxy probe. The proxy waits for this to pass and
+    # `depends_on` keeps it from sending traffic to a not-yet-ready app.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+
+    # ---- Startup ordering ---------------------------------------------------
+    # Wait for Postgres to report HEALTHY (not merely started) before booting.
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    # ---- Networking ---------------------------------------------------------
+    # Internal-only: NO `ports:` mapping. 8080 is reachable on the Docker network
+    # by the proxy, never from the host or the Internet.
+    networks:
+      - frontend                              # so the proxy can reach it
+      - backend                               # so it can reach Postgres
+    expose:
+      - "8080"                                # documentation only; intra-network
+
+    # ---- Resource limits ----------------------------------------------------
+    # Semgrep/Trivy/Grype/ClamAV are CPU- and RAM-heavy; a large or malicious
+    # upload can spike memory. Cap so one scan can't OOM the host. Raise for
+    # bigger codebases. `deploy.resources` is honored by `docker compose up`.
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2g
+        reservations:
+          cpus: "0.5"
+          memory: 1g
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # ===========================================================================
+  # postgres — application database (PRIVATE; never published to the host)
+  # ===========================================================================
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+
+    # Credentials come exclusively from .env. Postgres reads these on first boot
+    # to create the role/db. POSTGRES_PASSWORD is REQUIRED (no default).
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-citadel}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}"
+      POSTGRES_DB: "${POSTGRES_DB:-citadel}"
+      # Harden the initial superuser auth method.
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+    # Persistent data on a NAMED volume so the database survives restarts and
+    # recreates. (Back this up — see README teardown/backup notes.)
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+    # Health: `pg_isready` returns success only once Postgres accepts connections.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-citadel} -d ${POSTGRES_DB:-citadel} -h 127.0.0.1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+    # Backend network ONLY — not reachable from the proxy or the host. No `ports:`.
+    networks:
+      - backend
+
+    # Light hardening for the DB container.
+    security_opt:
+      - no-new-privileges:true
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # ===========================================================================
+  # proxy — nginx TLS-terminating reverse proxy (the ONLY public surface)
+  # ===========================================================================
+  proxy:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+
+    # The ONLY service that publishes ports. 80 redirects to 443; 443 serves TLS
+    # and reverse-proxies to citadel:8080 on the internal network.
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      # Reverse-proxy server config (read-only mount).
+      - ./nginx/citadel.conf:/etc/nginx/conf.d/default.conf:ro
+      # TLS material. Drop fullchain.pem + privkey.pem into ./certs (git-ignored).
+      # See README for self-signed dev certs and Let's Encrypt / ACM guidance.
+      - ./certs:/etc/nginx/certs:ro
+      # Writable temp paths so nginx can run with a read-only root FS.
+      - nginx-tmp:/tmp
+
+    # nginx:alpine starts as root only to bind :80/:443 then drops to the
+    # unprivileged `nginx` user for workers — acceptable for a proxy. We still
+    # block privilege escalation beyond that.
+    security_opt:
+      - no-new-privileges:true
+
+    healthcheck:
+      # `wget` ships in nginx:alpine (busybox). Hit the local health passthrough.
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+    depends_on:
+      citadel:
+        condition: service_healthy
+
+    networks:
+      - frontend                              # to reach citadel; NOT on backend
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+# =============================================================================
+# Networks — split frontend (proxy<->app) from backend (app<->db) so the proxy
+# can NEVER talk directly to Postgres.
+# =============================================================================
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+    # `internal: true` removes the default gateway so containers on `backend`
+    # have NO outbound Internet route — defence-in-depth for the database tier.
+    internal: true
+
+# =============================================================================
+# Volumes — named, host-managed persistent storage.
+# =============================================================================
+volumes:
+  pgdata:                                     # Postgres data (BACK THIS UP)
+  nginx-tmp:                                  # nginx writable temp (read-only root FS)
+  # clamav-db:                                # uncomment if persisting ClamAV signatures (see citadel.volumes)

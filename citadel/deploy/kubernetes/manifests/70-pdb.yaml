@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: citadel
+  namespace: citadel
+  labels:
+    app.kubernetes.io/name: citadel
+    app.kubernetes.io/part-of: citadel
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: citadel
+      app.kubernetes.io/instance: citadel

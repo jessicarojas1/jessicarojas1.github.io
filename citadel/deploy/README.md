@@ -1,12 +1,22 @@
-# CITADEL — Government Deployment
+# CITADEL — Production Deployment (Infrastructure-as-Code)
 
 The CITADEL public demo runs entirely in the browser. For an authorized, multi-tenant, or
 CUI-bearing deployment you run the **production tier**: a hardened container serving the
-analyzer front-end plus an optional API/worker that orchestrates heavyweight open-source
-scanners (Semgrep, Trivy, Syft/Grype, Gitleaks, ClamAV, Bandit). This directory provides
-turnkey Infrastructure-as-Code and runbooks for two FedRAMP-High / IL4–IL5 capable clouds.
+analyzer front-end plus an API/worker that orchestrates heavyweight open-source scanners
+(Semgrep, Trivy, Syft/Grype, Gitleaks, ClamAV, Bandit). This directory provides turnkey
+Infrastructure-as-Code and runbooks for **six targets** across government cloud, commercial
+cloud, Kubernetes, and a single-host container stack — plus a CI workflow that validates all
+of it.
 
-## Choose a target
+All targets deploy the **same** container image (built from the repository root with
+`docker build -f citadel/server/Dockerfile -t citadel-server .`), expose the app on port
+**8080**, health-check `GET /api/health`, run **non-root as UID 10001** with a read-only root
+filesystem, and source every secret (`CITADEL_JWT_SECRET`, `CITADEL_ADMIN_PASSWORD`,
+`CITADEL_SUPERADMIN_TOKEN`, `DATABASE_URL`, …) from a managed secret store — never from the
+image. Durable, multi-instance, and **multi-tenant** (`CITADEL_MULTITENANT=1`) operation
+requires PostgreSQL, so every server-side target provisions or wires a managed Postgres.
+
+## Government cloud (FedRAMP-High / IL4–IL5)
 
 | | **Azure Government** | **AWS GovCloud (US)** |
 |---|---|---|
@@ -20,6 +30,28 @@ turnkey Infrastructure-as-Code and runbooks for two FedRAMP-High / IL4–IL5 cap
 | Logging | Log Analytics + Defender | CloudWatch + GuardDuty + Security Hub |
 | Regions | `usgovvirginia`, `usgovarizona` | `us-gov-west-1`, `us-gov-east-1` |
 | Quick start | `azure-gov/deploy.sh` | `aws-gov/deploy.sh` |
+
+## Commercial cloud & platform targets
+
+| | **AWS (commercial)** | **Google Cloud** | **Kubernetes** | **Docker Compose** |
+|---|---|---|---|---|
+| Folder | [`aws/`](aws/) | [`gcp/`](gcp/) | [`kubernetes/`](kubernetes/) | [`compose/`](compose/) |
+| IaC | Terraform | Terraform | Helm chart + raw manifests | Compose v2 |
+| Compute | ECS Fargate (≥2 AZ) | Cloud Run v2 | Deployment + HPA + PDB | Single host |
+| Database | RDS PostgreSQL (Multi-AZ) | Cloud SQL (private IP, HA) | external `DATABASE_URL` | bundled `postgres:16` |
+| Edge / WAF | ALB + ACM + WAFv2 | External HTTPS LB + Cloud Armor | Ingress + NetworkPolicy | nginx TLS reverse proxy |
+| Secrets | Secrets Manager + KMS CMK | Secret Manager | Secret / ExternalSecret | `.env` / Compose secrets |
+| Registry | ECR (scan-on-push) | Artifact Registry | any | local build or any |
+| Best for | Commercial AWS prod | Serverless / scale-to-zero | Existing clusters | On-prem / dev / single VM |
+| Quick start | `aws/deploy.sh` | `gcp/deploy.sh` | `helm install` (see README) | `docker compose up -d` |
+
+## Continuous validation
+
+[`ci/iac-validate.yml`](ci/) is a reference GitHub Actions workflow that validates every
+package above on any PR touching `citadel/deploy/**`: Terraform `fmt`/`validate` + `tflint` +
+`checkov`/`trivy config` (matrix over the three Terraform stacks), `bicep build`, `helm lint`
++ `kubeconform`, `hadolint` over all Dockerfiles, and `docker compose config`. Copy it into
+`.github/workflows/` to enable it (see [`ci/README.md`](ci/README.md)).
 
 ## Shared hardening posture
 

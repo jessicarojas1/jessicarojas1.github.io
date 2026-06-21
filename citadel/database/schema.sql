@@ -78,9 +78,16 @@ CREATE TABLE IF NOT EXISTS citadel_audit (
   actor  text,
   ip     text,
   detail text,
-  ok     boolean NOT NULL DEFAULT true
+  ok     boolean NOT NULL DEFAULT true,
+  -- Tamper-evident hash chain: hash = SHA-256(prev_hash + canonical(row)).
+  -- Altering or deleting any row breaks the chain; verified via verifyChain().
+  prev_hash text,
+  hash      text
 );
 CREATE INDEX IF NOT EXISTS citadel_audit_ts_idx ON citadel_audit (seq DESC);
+-- Idempotent upgrade path for an existing citadel_audit table.
+ALTER TABLE citadel_audit ADD COLUMN IF NOT EXISTS prev_hash text;
+ALTER TABLE citadel_audit ADD COLUMN IF NOT EXISTS hash      text;
 
 -- ----------------------------------------------------------------------------
 -- Scan history — per-scan summary + full report JSON for re-download.
@@ -112,4 +119,19 @@ CREATE TABLE IF NOT EXISTS citadel_dispositions (
   state       text NOT NULL,
   actor       text,
   updated_at  timestamptz NOT NULL DEFAULT now()
+);
+
+-- ----------------------------------------------------------------------------
+-- Tenant registry (schema-per-tenant multi-tenancy; OPT-IN, CITADEL_MULTITENANT=1)
+-- Lives in the public schema and maps a tenant slug to its dedicated Postgres
+-- schema (citadel_t_<slug>), which holds its own copy of all the tables above.
+-- Created/managed by citadel/server/lib/tenancy.js. Single-tenant deployments
+-- (the default) never touch this and use the public-schema tables directly.
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS citadel_tenants (
+  slug        text PRIMARY KEY,
+  name        text,
+  schema_name text NOT NULL,
+  active      boolean NOT NULL DEFAULT true,
+  created_at  timestamptz NOT NULL DEFAULT now()
 );

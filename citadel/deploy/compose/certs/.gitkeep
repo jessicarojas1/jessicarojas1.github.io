@@ -1,0 +1,13 @@
+# Drop your TLS material here (this dir is mounted read-only into the proxy):
+#
+#   fullchain.pem   -> server certificate + intermediate chain
+#   privkey.pem     -> private key (KEEP SECRET — git-ignored, never commit)
+#
+# Self-signed pair for local/dev testing (NOT for production):
+#
+#   openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
+#     -keyout privkey.pem -out fullchain.pem \
+#     -subj "/CN=localhost" \
+#     -addext "subjectAltName=DNS:localhost"
+#
+# For production use Let's Encrypt (certbot), AWS ACM, or your CA. See README.md.
