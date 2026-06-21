@@ -67,14 +67,18 @@ resource "aws_kms_key" "this" {
         Effect    = "Allow"
         Principal = { AWS = "arn:${local.partition}:iam::${local.account_id}:root" }
         Action    = "kms:*"
-        Resource  = "*"
+        # Key-policy statement: Resource="*" scopes to this CMK only (a key policy
+        # can only grant access to the key it is attached to). Not over-broad.
+        Resource = "*"
       },
       {
         Sid       = "AllowCloudWatchLogs"
         Effect    = "Allow"
         Principal = { Service = "logs.${var.region}.amazonaws.com" }
         Action    = ["kms:Encrypt*", "kms:Decrypt*", "kms:ReEncrypt*", "kms:GenerateDataKey*", "kms:Describe*"]
-        Resource  = "*"
+        # Key-policy statement: Resource="*" scopes to this CMK only; access is
+        # further constrained by the EncryptionContext condition below.
+        Resource = "*"
         Condition = {
           ArnLike = {
             "kms:EncryptionContext:aws:logs:arn" = "arn:${local.partition}:logs:${var.region}:${local.account_id}:log-group:*"

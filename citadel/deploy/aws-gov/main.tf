@@ -278,14 +278,18 @@ resource "aws_kms_key" "this" {
         Effect    = "Allow"
         Principal = { AWS = "arn:${local.partition}:iam::${local.account_id}:root" }
         Action    = "kms:*"
-        Resource  = "*"
+        # Key-policy statement: Resource="*" scopes to this CMK only (a key policy
+        # can only grant access to the key it is attached to). Not over-broad.
+        Resource = "*"
       },
       {
         Sid       = "AllowCloudWatchLogs"
         Effect    = "Allow"
         Principal = { Service = "logs.${var.region}.amazonaws.com" }
         Action    = ["kms:Encrypt*", "kms:Decrypt*", "kms:ReEncrypt*", "kms:GenerateDataKey*", "kms:Describe*"]
-        Resource  = "*"
+        # Key-policy statement: Resource="*" scopes to this CMK only; access is
+        # further constrained by the EncryptionContext condition below.
+        Resource = "*"
         Condition = {
           ArnLike = {
             "kms:EncryptionContext:aws:logs:arn" = "arn:${local.partition}:logs:${var.region}:${local.account_id}:log-group:*"
@@ -469,10 +473,18 @@ resource "aws_iam_role_policy" "task_execution" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "EcrPull"
-        Effect = "Allow"
-        Action = ["ecr:GetAuthorizationToken", "ecr:BatchCheckLayerAvailability", "ecr:GetDownloadUrlForLayer", "ecr:BatchGetImage"]
+        # GetAuthorizationToken is not resource-scopable; the layer/image actions
+        # are scoped to this repository only (see EcrPull below).
+        Sid      = "EcrAuth"
+        Effect   = "Allow"
+        Action   = ["ecr:GetAuthorizationToken"]
         Resource = "*"
+      },
+      {
+        Sid      = "EcrPull"
+        Effect   = "Allow"
+        Action   = ["ecr:BatchCheckLayerAvailability", "ecr:GetDownloadUrlForLayer", "ecr:BatchGetImage"]
+        Resource = aws_ecr_repository.this.arn
       },
       {
         Sid      = "Logs"

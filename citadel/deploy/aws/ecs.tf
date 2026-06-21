@@ -99,6 +99,8 @@ resource "aws_iam_role_policy" "task" {
     Version = "2012-10-17"
     Statement = [
       {
+        # ssmmessages:* actions do not support resource-level permissions; AWS
+        # requires Resource="*" for the ECS Exec data/control channels.
         Sid      = "SsmExecChannel"
         Effect   = "Allow"
         Action   = ["ssmmessages:CreateControlChannel", "ssmmessages:CreateDataChannel", "ssmmessages:OpenControlChannel", "ssmmessages:OpenDataChannel"]
