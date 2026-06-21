@@ -31,6 +31,14 @@ CREATE TABLE IF NOT EXISTS tenants (
     is_active  BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- Default tenant (id 1) MUST exist before any tenant_id-bearing row is inserted
+-- (the tenant_id columns added at the end of this file default to 1 with an FK to
+-- tenants). Seed it here so the install-time admin INSERT doesn't violate the FK.
+INSERT INTO tenants (id, name, slug)
+VALUES (1, 'Default Organization', 'default')
+ON CONFLICT (id) DO NOTHING;
+SELECT setval(pg_get_serial_sequence('tenants', 'id'),
+              GREATEST((SELECT MAX(id) FROM tenants), 1));
 
 CREATE TABLE IF NOT EXISTS api_keys (
     id SERIAL PRIMARY KEY,
