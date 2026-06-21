@@ -108,6 +108,14 @@ class Settings(BaseSettings):
     SAML_NAME_ATTRIBUTE: str = "displayName"
     SAML_GROUP_ATTRIBUTE: str = "groups"
 
+    # CAC / PIV (mutual-TLS) sign-in. The app trusts a client certificate only
+    # when it sits behind a reverse proxy that terminates mTLS and forwards the
+    # cert — so this requires BOTH this flag and TRUST_PROXY_HEADERS. Header names
+    # follow the common nginx ssl_client_* convention.
+    CLIENT_CERT_PROXY_AUTH: bool = False
+    CLIENT_CERT_VERIFY_HEADER: str = "X-SSL-Client-Verify"  # expect "SUCCESS"/"0"
+    CLIENT_CERT_PEM_HEADER: str = "X-SSL-Client-Cert"  # URL-encoded PEM
+
     # Bootstrap admin — credentials come ONLY from the environment (e.g. the
     # Render dashboard). No baked-in defaults, so no secret ever ships in the
     # repo; when unset, admin bootstrap is simply skipped.

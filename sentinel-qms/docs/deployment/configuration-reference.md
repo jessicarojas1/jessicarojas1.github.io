@@ -76,6 +76,9 @@ Secrets Manager** / **Azure Key Vault** — never from committed files.
 | `SAML_EMAIL_ATTRIBUTE` | `""` | Config | Assertion attribute holding email; blank → use the Subject NameID. |
 | `SAML_NAME_ATTRIBUTE` | `displayName` | Config | Assertion attribute holding the display name. |
 | `SAML_GROUP_ATTRIBUTE` | `groups` | Config | Assertion attribute holding groups (mapped via `OIDC_GROUP_ROLE_MAP`). |
+| `CLIENT_CERT_PROXY_AUTH` | `false` | Config | Enable CAC/PIV sign-in via proxy-forwarded client-cert headers. Requires `TRUST_PROXY_HEADERS=true`. |
+| `CLIENT_CERT_VERIFY_HEADER` | `X-SSL-Client-Verify` | Config | Header carrying the proxy's cert-verification status (expects `SUCCESS`/`0`/`OK`). |
+| `CLIENT_CERT_PEM_HEADER` | `X-SSL-Client-Cert` | Config | Header carrying the URL-encoded client certificate (PEM). |
 
 ### Bootstrap Admin (seed)
 

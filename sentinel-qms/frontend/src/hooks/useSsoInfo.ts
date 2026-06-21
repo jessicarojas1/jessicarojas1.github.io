@@ -5,6 +5,7 @@ export interface SsoInfo {
   enabled: boolean;
   oidc: boolean;
   saml: boolean;
+  cac: boolean;
   label: string;
 }
 

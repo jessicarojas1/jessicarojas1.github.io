@@ -55,8 +55,18 @@ When the `SAML_IDP_*` + `SAML_SP_*` settings are configured, SP-initiated Web Br
 | `POST /api/v1/auth/saml/acs` | Assertion Consumer Service (HTTP-POST). Verifies the IdP's **signed** Response/Assertion with `signxml` — only the verified subtree is trusted (XSW-safe) — checks audience + validity window + issuer, provisions the user, then 302s to `<redirect>#access_token=…&refresh_token=…`. Failures 302 to `/login?sso_error=…`. |
 | `GET /api/v1/auth/saml/metadata` | Public SP metadata XML for registering this service with the IdP. |
 
-SAML shares the same provisioning policy as OIDC (domain allowlist, group→role map, JIT). CAC-PIV is
-not yet implemented (see KNOWN_LIMITATIONS.md §1).
+SAML shares the same provisioning policy as OIDC (domain allowlist, group→role map, JIT).
+
+#### Federated SSO (CAC / PIV, mutual-TLS)
+When `CLIENT_CERT_PROXY_AUTH` and `TRUST_PROXY_HEADERS` are set, a reverse proxy terminates the
+client-certificate handshake and forwards the result:
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/v1/auth/cac/login?redirect=/path` | Reads the proxy-forwarded `X-SSL-Client-Verify` + `X-SSL-Client-Cert` headers, extracts the email/UPN from the certificate, provisions the user, then 302s to `<redirect>#access_token=…&refresh_token=…`. Denied → `/login?sso_error=…`. |
+
+The app trusts the proxy's verification verdict (it does not itself validate the cert chain); the
+headers are honored only behind a trusted proxy.
 
 #### Password management
 | Method & path | Purpose |

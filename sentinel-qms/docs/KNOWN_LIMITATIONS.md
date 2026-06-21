@@ -8,24 +8,29 @@ than implying false assurance.
 
 ---
 
-## 1. Federated SSO: OIDC + SAML implemented; CAC/PIV not yet
+## 1. Federated SSO: OIDC + SAML + CAC/PIV implemented
 - **Where:** `backend/app/services/oidc.py`, `backend/app/services/saml.py`,
-  `backend/app/api/routers/auth.py`.
-- **State:** **OIDC and SAML 2.0 are both implemented.**
+  `backend/app/services/cac.py`, `backend/app/api/routers/auth.py`.
+- **State:** All three federation paths are implemented and share one policy
+  (email-domain allowlist, group→role mapping, just-in-time provisioning); each is
+  active only when configured and otherwise fails closed.
   - *OIDC* — authorization-code browser flow + token exchange; ID tokens verified
     against the issuer's JWKS (RS256, audience/issuer/expiry enforced).
   - *SAML 2.0* — SP-initiated Web Browser SSO; the IdP's signed Response/Assertion
     is verified with `signxml` (only the verified subtree is trusted, mitigating
     XML Signature Wrapping), with audience + validity-window + issuer checks and
     an SP-metadata endpoint.
-  - Both share one federation policy: email-domain allowlist, group→role mapping,
-    just-in-time provisioning. Each is active only when configured; otherwise it
-    fails closed.
-- **Not yet:** **CAC/PIV (mutual-TLS) direct** sign-in, which is normally fronted
-  by a reverse proxy terminating client certificates; that proxy can map the cert
-  to a header and reuse the same `oidc.resolve_or_provision_user` provisioning.
-- **Production:** Configure `OIDC_ISSUER`/`OIDC_CLIENT_ID` and/or the `SAML_IDP_*`
-  + `SAML_SP_*` settings, then use the group map to assign roles.
+  - *CAC/PIV* — mutual-TLS sign-in via a trusted reverse proxy: the proxy
+    terminates the client-cert handshake and forwards the verification status +
+    certificate, from which the email/UPN identity is extracted. Trusted **only**
+    when `CLIENT_CERT_PROXY_AUTH` *and* `TRUST_PROXY_HEADERS` are set, so headers
+    cannot be spoofed on direct connections.
+- **Deployment note (CAC/PIV):** the mTLS termination + client-cert trust chain is
+  configured at the reverse proxy (nginx `ssl_client_certificate` / `ssl_verify_client`,
+  forwarding `X-SSL-Client-Verify` + `X-SSL-Client-Cert`). The app trusts the proxy's
+  verdict; it does not itself validate the cert chain.
+- **Production:** Configure `OIDC_ISSUER`/`OIDC_CLIENT_ID`, the `SAML_IDP_*`/`SAML_SP_*`
+  settings, and/or `CLIENT_CERT_PROXY_AUTH`, then use the group map to assign roles.
 
 ## 2. Rate limiting is in-process (single node)
 - **Where:** `backend/app/core/middleware.py` (`RateLimitMiddleware`).
