@@ -54,5 +54,31 @@ if ($c !== 2) fail("setTenant(1) should isolate to 2 rows, saw {$c}");
 Database::query("RESET ROLE");
 Database::query("DROP TABLE aegis.tenancy_probe");
 
-fwrite(STDOUT, "[tenancy_db] setTenant/currentTenant + helper-driven RLS isolation verified. OK\n");
+// 4) Migration 027 added tenant_id (default 1) to primary tables, and
+//    Database::insert() auto-stamps it from the tenant context.
+$col = Database::fetchOne(
+    "SELECT column_default FROM information_schema.columns
+      WHERE table_schema='aegis' AND table_name='risks' AND column_name='tenant_id'"
+);
+if (!$col) fail('risks.tenant_id column missing (migration 027)');
+
+// A second tenant must exist for the FK on risks.tenant_id to accept stamped rows.
+Database::query(
+    "INSERT INTO tenants (id, name, slug) VALUES (2, 'Probe Tenant', 'probe') ON CONFLICT (id) DO NOTHING"
+);
+
+Database::useTenant(2);
+$id = Database::insert('risks', ['title' => 'tenancy stamp probe']);
+$got = (int)(Database::fetchOne("SELECT tenant_id FROM aegis.risks WHERE id = ?", [$id])['tenant_id'] ?? 0);
+Database::query("DELETE FROM aegis.risks WHERE id = ?", [$id]);
+Database::useTenant(null);
+if ($got !== 2) fail("insert() did not stamp tenant_id=2 (got {$got})");
+
+// With no context, the column DEFAULT (1) applies.
+$id2 = Database::insert('risks', ['title' => 'tenancy default probe']);
+$got2 = (int)(Database::fetchOne("SELECT tenant_id FROM aegis.risks WHERE id = ?", [$id2])['tenant_id'] ?? 0);
+Database::query("DELETE FROM aegis.risks WHERE id = ?", [$id2]);
+if ($got2 !== 1) fail("default tenant_id should be 1 (got {$got2})");
+
+fwrite(STDOUT, "[tenancy_db] setTenant/currentTenant, RLS isolation, and write-path stamping verified. OK\n");
 exit(0);

@@ -1164,6 +1164,13 @@ function dispatch(string $controller, string $action, array $params = []): void 
     $ctrl->$action(...$params);
 }
 
+// Bind the write-path tenant context from the authenticated session, so new
+// rows are stamped with the user's tenant (PHP-side only; no DB call). Inert in
+// single-tenant deployments — rows fall back to the tenant_id DEFAULT (1).
+if (!empty($_SESSION['user']['tenant_id'])) {
+    Database::useTenant((int)$_SESSION['user']['tenant_id']);
+}
+
 // Track active session for admin session management
 if (!empty($_SESSION['user_id']) || !empty($_SESSION['user']['id'])) {
     try {

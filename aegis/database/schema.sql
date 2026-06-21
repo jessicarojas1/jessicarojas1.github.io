@@ -31,6 +31,14 @@ CREATE TABLE IF NOT EXISTS tenants (
     is_active  BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- Default tenant (id 1) MUST exist before any tenant_id-bearing row is inserted
+-- (the tenant_id columns added at the end of this file default to 1 with an FK to
+-- tenants). Seed it here so the install-time admin INSERT doesn't violate the FK.
+INSERT INTO tenants (id, name, slug)
+VALUES (1, 'Default Organization', 'default')
+ON CONFLICT (id) DO NOTHING;
+SELECT setval(pg_get_serial_sequence('tenants', 'id'),
+              GREATEST((SELECT MAX(id) FROM tenants), 1));
 
 CREATE TABLE IF NOT EXISTS api_keys (
     id SERIAL PRIMARY KEY,
@@ -793,3 +801,25 @@ INSERT INTO settings (key, value, type, description) VALUES
     ('ai_enabled',         '1',               'string', 'Global AIAdvisor kill-switch — set to 0 to disable all AI features org-wide')
 ON CONFLICT (key) DO NOTHING;
 
+
+-- ── Multi-tenancy: tenant_id on primary entity tables (see migration 027) ──────
+-- DEFAULT 1 maps existing/new rows to the default tenant (inert single-tenant).
+DO $$
+DECLARE
+  t   text;
+  tbls text[] := ARRAY[
+    'users','risks','policies','audits','audit_findings','compliance_packages',
+    'compliance_objectives','control_implementations','incidents','issues',
+    'vendors','assets','threats','poam_items','kris','documents','bcp_plans',
+    'privacy_records','account_reviews','awareness_programs','change_requests',
+    'grc_projects','cui_inventory','odp_entries','ssp_plans','questionnaires'
+  ];
+BEGIN
+  FOREACH t IN ARRAY tbls LOOP
+    IF EXISTS (SELECT 1 FROM information_schema.tables
+               WHERE table_schema = 'aegis' AND table_name = t) THEN
+      EXECUTE format('ALTER TABLE aegis.%I ADD COLUMN IF NOT EXISTS tenant_id BIGINT NOT NULL DEFAULT 1 REFERENCES aegis.tenants(id)', t);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON aegis.%I(tenant_id)', 'idx_' || t || '_tenant', t);
+    END IF;
+  END LOOP;
+END$$;

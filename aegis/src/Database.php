@@ -42,6 +42,7 @@ class Database {
     }
 
     public static function insert(string $table, array $data): int {
+        $data = self::applyTenantStamp($table, $data);
         $q = fn(string $id) => '"' . str_replace('"', '', $id) . '"';
         $cols = implode(', ', array_map($q, array_keys($data)));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
@@ -89,6 +90,47 @@ class Database {
     /** Clear the tenant binding on the current connection. */
     public static function clearTenant(): void {
         self::query("SELECT set_config('aegis.tenant_id', '', false)");
+    }
+
+    /**
+     * Primary tenant-owned tables that carry a tenant_id column (migration 027).
+     * Used to auto-stamp tenant_id on INSERT. Keep in sync with the migration.
+     */
+    private const TENANT_TABLES = [
+        'users','risks','policies','audits','audit_findings','compliance_packages',
+        'compliance_objectives','control_implementations','incidents','issues',
+        'vendors','assets','threats','poam_items','kris','documents','bcp_plans',
+        'privacy_records','account_reviews','awareness_programs','change_requests',
+        'grc_projects','cui_inventory','odp_entries','ssp_plans','questionnaires',
+    ];
+
+    /** Application-level tenant context for write-path stamping (PHP-side, no DB). */
+    private static ?int $tenantContext = null;
+
+    /** Set the tenant whose id is stamped onto new rows in tenant-owned tables. */
+    public static function useTenant(?int $tenantId): void {
+        self::$tenantContext = ($tenantId !== null && $tenantId >= 1) ? $tenantId : null;
+    }
+
+    /** The current write-path tenant context, or null. */
+    public static function tenantContext(): ?int {
+        return self::$tenantContext;
+    }
+
+    /**
+     * Auto-stamp tenant_id on inserts into tenant-owned tables. Pure (no DB) and
+     * conservative: only stamps when a tenant context is set, the table is
+     * tenant-owned, and the caller didn't already provide tenant_id. When no
+     * context is set the row falls back to the column DEFAULT (tenant 1), so this
+     * is safe even before the request lifecycle binds a tenant. Unit-tested.
+     */
+    public static function applyTenantStamp(string $table, array $data): array {
+        if (self::$tenantContext !== null
+            && in_array($table, self::TENANT_TABLES, true)
+            && !array_key_exists('tenant_id', $data)) {
+            $data['tenant_id'] = self::$tenantContext;
+        }
+        return $data;
     }
 
     public static function tableExists(string $table): bool {
