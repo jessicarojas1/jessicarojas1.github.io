@@ -81,6 +81,12 @@ foreach ((getenv() ?: []) as $k => $v) {
 require_once AEGIS_ROOT . '/src/Secrets.php';
 Secrets::hydrate();
 
+// Envelope encryption: if a KMS provider is configured, unwrap the wrapped data
+// key (APP_ENCRYPTION_KEY_CIPHERTEXT) into APP_ENCRYPTION_KEY in-process. Inert
+// by default (KMS_PROVIDER unset) — existing deployments are unchanged.
+require_once AEGIS_ROOT . '/src/Kms.php';
+Kms::hydrate();
+
 // Startup guard: JWT_SECRET must be present and strong enough to sign tokens
 if (empty($_ENV['JWT_SECRET']) || strlen($_ENV['JWT_SECRET']) < 32) {
     throw new RuntimeException('JWT_SECRET must be set and at least 32 characters. Set it in your Render/environment dashboard.');
