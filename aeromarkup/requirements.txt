@@ -1,3 +1,7 @@
 Flask>=3.0.0
+# Bundled with Flask, but imported directly for auth (password hashing + signed
+# session tokens) so they are pinned explicitly.
+Werkzeug>=3.0.0
+itsdangerous>=2.1.0
 psycopg[binary]>=3.1.0
 gunicorn>=21.2.0

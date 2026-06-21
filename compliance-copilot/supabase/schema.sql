@@ -79,24 +79,34 @@ alter table evidence     enable row level security;
 alter table poam_items   enable row level security;
 alter table app_settings enable row level security;
 
+-- Policies. Postgres has no CREATE POLICY ... IF NOT EXISTS, so we DROP IF
+-- EXISTS first to keep this whole script idempotent / re-runnable. This also
+-- retires the previously-open write policies (update controls / insert evidence
+-- / manage poam) when re-applied over an older installation.
+drop policy if exists "Authenticated users can read app_settings" on app_settings;
+drop policy if exists "Authenticated users can read controls"     on controls;
+drop policy if exists "Authenticated users can read evidence"     on evidence;
+drop policy if exists "Authenticated users can read poam"         on poam_items;
+drop policy if exists "Authenticated users can update controls"   on controls;
+drop policy if exists "Authenticated users can insert evidence"   on evidence;
+drop policy if exists "Authenticated users can manage poam"       on poam_items;
+
 -- Branding is readable by authenticated users; writes go through the
 -- service-role API route (bypasses RLS), so only a read policy is needed.
 create policy "Authenticated users can read app_settings"
   on app_settings for select to authenticated using (true);
 
--- Allow authenticated users to read all
+-- Read-only access for authenticated users. All writes (insert/update/delete)
+-- are performed by server-side API routes using the service-role key, which
+-- bypasses RLS (same pattern as app_settings / branding). No write policies are
+-- granted to the `authenticated` role, so a stolen anon/user token cannot
+-- mutate compliance data directly against the database.
 create policy "Authenticated users can read controls"
   on controls for select to authenticated using (true);
-create policy "Authenticated users can update controls"
-  on controls for update to authenticated using (true);
 create policy "Authenticated users can read evidence"
   on evidence for select to authenticated using (true);
-create policy "Authenticated users can insert evidence"
-  on evidence for insert to authenticated with check (true);
 create policy "Authenticated users can read poam"
   on poam_items for select to authenticated using (true);
-create policy "Authenticated users can manage poam"
-  on poam_items for all to authenticated using (true);
 
 -- Updated_at trigger
 create or replace function update_updated_at()
@@ -104,6 +114,12 @@ returns trigger as $$
 begin new.updated_at = now(); return new; end;
 $$ language plpgsql;
 
+-- Drop-then-create so re-applying the script doesn't error (no CREATE TRIGGER
+-- IF NOT EXISTS in Postgres).
+drop trigger if exists trg_controls_updated     on controls;
+drop trigger if exists trg_evidence_updated     on evidence;
+drop trigger if exists trg_poam_updated         on poam_items;
+drop trigger if exists trg_app_settings_updated on app_settings;
 create trigger trg_controls_updated     before update on controls     for each row execute function update_updated_at();
 create trigger trg_evidence_updated     before update on evidence     for each row execute function update_updated_at();
 create trigger trg_poam_updated         before update on poam_items   for each row execute function update_updated_at();

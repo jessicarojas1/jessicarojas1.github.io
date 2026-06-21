@@ -14,8 +14,10 @@ services:
         generateValue: true
       - key: APP_ENV
         value: production
+      # Default/bootstrap PINs must never be accepted in production — leaving
+      # this enabled is an authentication-bypass. Keep "0" for any live deploy.
       - key: APEX_ALLOW_DEFAULT_PINS
-        value: "1"
+        value: "0"
 
 databases:
   - name: apex-db

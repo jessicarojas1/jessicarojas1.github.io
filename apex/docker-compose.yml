@@ -4,9 +4,11 @@ services:
     environment:
       POSTGRES_DB: apex
       POSTGRES_USER: apex
-      POSTGRES_PASSWORD: apex
+      POSTGRES_PASSWORD: ${DB_PASS:-apex}
+    # Bind to loopback only — do NOT expose the database on all host
+    # interfaces (0.0.0.0). Local tooling can still reach 127.0.0.1:5432.
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -15,10 +17,13 @@ services:
     ports:
       - "8080:80"
     environment:
-      DATABASE_URL: postgresql://apex:apex@db:5432/apex
-      JWT_SECRET: dev-secret-do-not-use-in-production
+      DATABASE_URL: postgresql://apex:${DB_PASS:-apex}@db:5432/apex
+      # Local-development values only. This file sets APP_ENV=development, which
+      # is the ONLY mode where a non-secret JWT key is tolerated (see Auth.php,
+      # which fails closed in production). Never deploy this compose as-is.
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-do-not-use-in-production}
       APP_ENV: development
-      APEX_ALLOW_DEFAULT_PINS: "1"
+      APEX_ALLOW_DEFAULT_PINS: "${APEX_ALLOW_DEFAULT_PINS:-0}"
     depends_on:
       - db
     volumes:

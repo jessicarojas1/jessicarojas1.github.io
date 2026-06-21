@@ -27,14 +27,64 @@ export async function checkReachable() {
   return _reachable;
 }
 
-async function post(path, body) {
+/* ---- auth state ---- */
+let _authed = false;
+let _me = null;
+const authListeners = new Set();
+export function onAuthChange(fn) { authListeners.add(fn); return () => authListeners.delete(fn); }
+function emitAuth() { for (const fn of authListeners) fn({ authed: _authed, user: _me }); }
+export function authState() { return { authed: _authed, user: _me }; }
+
+export class AuthError extends Error {}
+
+function readCookie(name) {
+  const m = document.cookie.split("; ").find((r) => r.startsWith(name + "="));
+  return m ? decodeURIComponent(m.slice(name.length + 1)) : null;
+}
+
+/* Core request helper: same-origin cookies, CSRF double-submit header on writes,
+   and 401 handling that flips the app into "needs login" state. */
+async function req(path, { method = "GET", body = null } = {}) {
+  const headers = {};
+  if (body != null) headers["Content-Type"] = "application/json";
+  if (method !== "GET" && method !== "HEAD") {
+    const csrf = readCookie("am_csrf");
+    if (csrf) headers["X-CSRF-Token"] = csrf;
+  }
   const r = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    method, headers, credentials: "same-origin", cache: "no-store",
+    body: body != null ? JSON.stringify(body) : undefined,
   });
-  if (!r.ok) throw new Error(path + " -> " + r.status);
-  return r.json();
+  if (r.status === 401) {
+    if (_authed) { _authed = false; _me = null; emitAuth(); }
+    const e = new AuthError(path + " -> 401"); e.status = 401; throw e;
+  }
+  if (!r.ok) { const e = new Error(path + " -> " + r.status); e.status = r.status; throw e; }
+  return r.status === 204 ? null : r.json();
+}
+
+function post(path, body) { return req(path, { method: "POST", body }); }
+
+/* ---- auth endpoints ---- */
+export async function authStatus() {
+  try { return await req("api/auth/status"); }
+  catch { return { db: false, needs_bootstrap: false }; }
+}
+export async function fetchMe() {
+  try { const d = await req("api/auth/me"); _authed = true; _me = d.user; emitAuth(); return d.user; }
+  catch { _authed = false; _me = null; emitAuth(); return null; }
+}
+export async function login(username, password) {
+  const d = await req("api/auth/login", { method: "POST", body: { username, password } });
+  _authed = true; _me = d.user; emitAuth(); return d.user;
+}
+export async function bootstrap(payload) {
+  const d = await req("api/auth/bootstrap", { method: "POST", body: payload });
+  _authed = true; _me = d.user; emitAuth(); return d.user;
+}
+export async function logout() {
+  try { await req("api/auth/logout", { method: "POST" }); } catch { /* ignore */ }
+  _authed = false; _me = null; emitAuth();
 }
 
 /* ---- best-effort entity pushes (silently skipped when offline) ---- */

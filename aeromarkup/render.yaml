@@ -19,6 +19,11 @@ services:
         fromDatabase:
           name: aeromarkup-db
           property: connectionString
+      - key: ENVIRONMENT
+        value: production
+      # Strong session signing key, generated and stored by Render (never in git).
+      - key: AEROMARKUP_SECRET
+        generateValue: true
 
 databases:
   - name: aeromarkup-db

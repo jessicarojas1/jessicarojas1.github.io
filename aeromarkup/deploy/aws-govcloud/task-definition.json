@@ -16,12 +16,17 @@
       "portMappings": [{ "containerPort": 8080, "protocol": "tcp" }],
       "environment": [
         { "name": "PORT", "value": "8080" },
-        { "name": "AUTO_MIGRATE", "value": "1" }
+        { "name": "AUTO_MIGRATE", "value": "1" },
+        { "name": "ENVIRONMENT", "value": "production" }
       ],
       "secrets": [
         {
           "name": "DATABASE_URL",
           "valueFrom": "arn:aws-us-gov:secretsmanager:us-gov-west-1:<ACCOUNT_ID>:secret:aeromarkup/database-url"
+        },
+        {
+          "name": "AEROMARKUP_SECRET",
+          "valueFrom": "arn:aws-us-gov:secretsmanager:us-gov-west-1:<ACCOUNT_ID>:secret:aeromarkup/session-secret"
         }
       ],
       "healthCheck": {

@@ -15,6 +15,10 @@ param image string
 @secure()
 param databaseUrl string
 
+@description('Session signing key (>= 32 chars; stored as a secret)')
+@secure()
+param sessionSecret string
+
 @description('Azure US Gov location')
 param location string = resourceGroup().location
 
@@ -53,6 +57,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
       }
       secrets: [
         { name: 'database-url', value: databaseUrl }
+        { name: 'session-secret', value: sessionSecret }
       ]
     }
     template: {
@@ -64,7 +69,9 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
           env: [
             { name: 'PORT', value: '8080' }
             { name: 'AUTO_MIGRATE', value: '1' }
+            { name: 'ENVIRONMENT', value: 'production' }
             { name: 'DATABASE_URL', secretRef: 'database-url' }
+            { name: 'AEROMARKUP_SECRET', secretRef: 'session-secret' }
           ]
           probes: [
             {

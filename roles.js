@@ -3,7 +3,8 @@
  * Role hierarchy: viewer (0) < reader (1) < editor (2) < admin (3)
  * State lives in sessionStorage (clears on tab close).
  * Login is username + password via users.js (Users module).
- * Root user (username: root / password: RootAdmin@2026!) always exists.
+ * Root user (username: root) always exists; its password is not stored in
+ * source (only a SHA-256 hash, in users.js). Client-side demo gate only.
  */
 const RBAC = (() => {
 
