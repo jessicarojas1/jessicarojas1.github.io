@@ -48,9 +48,12 @@ Database::query("SELECT set_config('aegis.tenant_id', ?, false)", [(string)$tena
    (the `aegis-integration` workflow). Remaining in this phase: add `tenant_id`
    (nullable) to all tenant-owned tables; backfill existing rows to tenant 1;
    add indexes.
-2. **Write path** — stamp `tenant_id` on every INSERT (centralize in
-   `Database::insert`); add `Database::setTenant()` from the authenticated user's
-   tenant; resolve tenant at login/SSO.
+2. **Write path** — ✅ **DONE (inert):** `tenant_id` (DEFAULT 1) added to the 26
+   primary entity tables (migration 027); `Database::insert()` auto-stamps it from
+   the per-request tenant context (`Database::useTenant()`), bound in `index.php`
+   from the authenticated session; tenant resolved at login + SSO. Proven against
+   a live Postgres in `tests/integration/tenancy_db.php`. Remaining: detail/child
+   tables (e.g. `poam_milestones`, `policy_versions`) before Phase 4.
 3. **Read path** — add `WHERE tenant_id` to queries (or rely on RLS); add tests
    proving cross-tenant reads return nothing.
 4. **Enforce** — make `tenant_id NOT NULL`; `ENABLE`/`FORCE ROW LEVEL SECURITY`

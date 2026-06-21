@@ -375,6 +375,7 @@ class Auth {
             'name'       => $user['name'],
             'email'      => $user['email'],
             'role'       => $user['role'],
+            'tenant_id'  => (int)($user['tenant_id'] ?? 1),
             'login_time' => time(),
         ];
         $_SESSION['last_activity'] = time();
