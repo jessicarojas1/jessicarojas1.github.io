@@ -58,11 +58,24 @@ SESSION_COOKIE = "am_session"
 CSRF_COOKIE = "am_csrf"
 SESSION_TTL = int(os.environ.get("SESSION_TTL_SECONDS", str(12 * 3600)))
 
-# Brute-force throttle for login. Counts recent FAILED attempts per client IP.
+# Brute-force throttle for login. Counts recent FAILED attempts per (IP, user).
 LOGIN_MAX_ATTEMPTS = int(os.environ.get("LOGIN_MAX_ATTEMPTS", "5"))
 LOGIN_WINDOW_SECONDS = int(os.environ.get("LOGIN_WINDOW_SECONDS", "300"))
+LOGIN_MAX_TRACKED = int(os.environ.get("LOGIN_MAX_TRACKED", "8192"))
+# Number of trusted reverse-proxy hops in front of the app. When > 0 the real
+# client IP is taken from the right-most N entries of X-Forwarded-For (via
+# ProxyFix); 0 means trust nothing and use the direct peer (remote_addr). Set
+# this to match your platform (e.g. 1 for Render / a single ALB / Azure
+# Container Apps ingress) so the login throttle keys on real client IPs instead
+# of the shared proxy IP. Never set it higher than your actual hop count.
+TRUSTED_PROXY_HOPS = int(os.environ.get("TRUSTED_PROXY_HOPS", "0"))
 
 app = Flask(__name__, static_folder=None)
+
+if TRUSTED_PROXY_HOPS > 0:
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=TRUSTED_PROXY_HOPS,
+                            x_proto=TRUSTED_PROXY_HOPS)
 
 
 # ── Database helpers ─────────────────────────────────────────────────
@@ -156,38 +169,60 @@ SECRET = _load_secret()
 _signer = URLSafeTimedSerializer(SECRET, salt="aeromarkup-session")
 
 # ── Login rate limiting ───────────────────────────────────────────────
-# Simple in-memory sliding window of failed attempts per IP. This is a basic
-# defense; for multi-worker / multi-replica deployments enforce the durable
-# limit at the gateway/WAF or back this with a shared store (Redis).
-_login_attempts = {}            # ip -> [failure_ts, ...]
+# Simple in-memory sliding window of failed attempts keyed on (client IP,
+# username). Keying on the pair means a brute-force against one account does not
+# lock out other users sharing the same source IP (e.g. behind a proxy/NAT).
+# This is a basic defense; for multi-worker / multi-replica deployments enforce
+# the durable limit at the gateway/WAF or back this with a shared store (Redis).
+_login_attempts = {}            # (ip, username) -> [failure_ts, ...]
 _login_lock = threading.Lock()
 
 
 def _client_ip() -> str:
-    # remote_addr is the directly-connected peer. Behind a trusted proxy you
-    # would resolve a validated X-Forwarded-For — not trusted blindly here.
+    # With TRUSTED_PROXY_HOPS > 0, ProxyFix has already rewritten remote_addr to
+    # the real client IP; otherwise this is the directly-connected peer. We never
+    # read X-Forwarded-For directly, so it cannot be spoofed to evade the limit.
     return request.remote_addr or "unknown"
 
 
-def _login_blocked(ip: str) -> bool:
-    cutoff = time.time() - LOGIN_WINDOW_SECONDS
+def _throttle_key(username: str):
+    return (_client_ip(), (username or "").lower())
+
+
+def _sweep_locked(now: float) -> None:
+    """Drop fully-expired buckets; if still oversized, evict the oldest.
+    Caller must hold _login_lock."""
+    cutoff = now - LOGIN_WINDOW_SECONDS
+    for k in [k for k, ts in _login_attempts.items() if not ts or ts[-1] <= cutoff]:
+        del _login_attempts[k]
+    if len(_login_attempts) > LOGIN_MAX_TRACKED:
+        for k in sorted(_login_attempts, key=lambda k: _login_attempts[k][-1])[
+                :len(_login_attempts) - LOGIN_MAX_TRACKED]:
+            del _login_attempts[k]
+
+
+def _login_blocked(key) -> bool:
+    now = time.time()
+    cutoff = now - LOGIN_WINDOW_SECONDS
     with _login_lock:
-        hits = [t for t in _login_attempts.get(ip, ()) if t > cutoff]
+        hits = [t for t in _login_attempts.get(key, ()) if t > cutoff]
         if hits:
-            _login_attempts[ip] = hits
+            _login_attempts[key] = hits
         else:
-            _login_attempts.pop(ip, None)
+            _login_attempts.pop(key, None)
         return len(hits) >= LOGIN_MAX_ATTEMPTS
 
 
-def _record_login_failure(ip: str) -> None:
+def _record_login_failure(key) -> None:
+    now = time.time()
     with _login_lock:
-        _login_attempts.setdefault(ip, []).append(time.time())
+        _login_attempts.setdefault(key, []).append(now)
+        _sweep_locked(now)
 
 
-def _clear_login_failures(ip: str) -> None:
+def _clear_login_failures(key) -> None:
     with _login_lock:
-        _login_attempts.pop(ip, None)
+        _login_attempts.pop(key, None)
 
 # Endpoints reachable without a session. Everything else under /api/ requires
 # a valid session; static PWA assets (the app shell, login screen) are public.
@@ -208,6 +243,7 @@ CAP = {
     "ncr.disposition":    {"approver", "admin"},
     "inspection.perform": {"inspector", "admin"},
     "project.manage":     {"engineer", "admin"},
+    "comment.create":     {"engineer", "inspector", "approver", "admin"},
     "user.manage":        {"admin"},
     "audit.read":         {"approver", "admin"},
 }
@@ -310,17 +346,17 @@ def auth_status():
 def auth_login():
     if (r := require_db()):
         return r
-    ip = _client_ip()
-    if _login_blocked(ip):
-        resp = jsonify({"error": "too_many_attempts",
-                        "detail": "Too many failed logins; try again later."})
-        resp.headers["Retry-After"] = str(LOGIN_WINDOW_SECONDS)
-        return resp, 429
     d = request.get_json(force=True) or {}
     username = (d.get("username") or "").strip()
     password = d.get("password") or ""
     if not username or not password:
         return jsonify({"error": "missing_credentials"}), 400
+    key = _throttle_key(username)
+    if _login_blocked(key):
+        resp = jsonify({"error": "too_many_attempts",
+                        "detail": "Too many failed logins; try again later."})
+        resp.headers["Retry-After"] = str(LOGIN_WINDOW_SECONDS)
+        return resp, 429
     with get_conn() as conn:
         u = conn.execute(
             """SELECT id, username, display_name, role, password_hash
@@ -328,9 +364,9 @@ def auth_login():
             (username,),
         ).fetchone()
     if not u or not u["password_hash"] or not check_password_hash(u["password_hash"], password):
-        _record_login_failure(ip)
+        _record_login_failure(key)
         return jsonify({"error": "invalid_credentials"}), 401
-    _clear_login_failures(ip)
+    _clear_login_failures(key)
     return _issue_session(u)
 
 
@@ -558,9 +594,13 @@ def dashboard():
                           AND later.created_at >= a.created_at))            AS pending_approvals
             """
         ).fetchone()
-        recent = conn.execute(
-            "SELECT * FROM audit_log ORDER BY seq DESC LIMIT 15"
-        ).fetchall()
+        # Recent audit activity is restricted to the same roles as /api/audit;
+        # other users get counts only.
+        recent = []
+        if _can(g.user, "audit.read"):
+            recent = conn.execute(
+                "SELECT * FROM audit_log ORDER BY seq DESC LIMIT 15"
+            ).fetchall()
     return jsonify({**counts, "recent_activity": recent})
 
 
@@ -629,6 +669,11 @@ def create_ncr():
     if (r := require_db()):
         return r
     d = request.get_json(force=True) or {}
+    # This is an upsert (ON CONFLICT (client_uid)), so setting a disposition here
+    # is equivalent to dispositioning — an approver-only action. Guard it the same
+    # way the PATCH path does, otherwise the approver-only control is bypassable.
+    if (d.get("disposition") or d.get("disposition_notes")) and not _can(g.user, "ncr.disposition"):
+        return jsonify({"error": "forbidden", "need": "ncr.disposition"}), 403
     with get_conn() as conn:
         row = conn.execute(
             """INSERT INTO ncrs
@@ -666,7 +711,9 @@ def create_ncr():
                 "status": d.get("status"),
                 "disposition": d.get("disposition"),
                 "disposition_notes": d.get("disposition_notes"),
-                "raised_by": d.get("raised_by") or actor_name(),
+                # raised_by is a uuid FK to users(id); bind it to the
+                # authenticated user, not a client-supplied name/string.
+                "raised_by": g.user.get("uid"),
                 "assigned_to": d.get("assigned_to"),
                 "due_date": d.get("due_date"),
                 "classification": d.get("classification"),
@@ -679,14 +726,21 @@ def create_ncr():
 
 
 @app.patch("/api/ncrs/<ncr_id>")
-@requires("ncr.create")
 def update_ncr(ncr_id):
     if (r := require_db()):
         return r
     d = request.get_json(force=True) or {}
-    # Dispositioning an NCR is an approver-only action (e-signature equivalent).
-    if (d.get("disposition") or d.get("disposition_notes")) and not _can(g.user, "ncr.disposition"):
-        return jsonify({"error": "forbidden", "need": "ncr.disposition"}), 403
+    # This route serves two distinct actions with different roles:
+    #  - dispositioning (approver-only e-signature action) -> ncr.disposition
+    #  - status / assignment updates                       -> ncr.create
+    # Gate by which fields are present so approvers (who lack ncr.create) can
+    # still disposition, and engineers/inspectors can update status but not
+    # disposition.
+    if d.get("disposition") or d.get("disposition_notes"):
+        if not _can(g.user, "ncr.disposition"):
+            return jsonify({"error": "forbidden", "need": "ncr.disposition"}), 403
+    elif not _can(g.user, "ncr.create"):
+        return jsonify({"error": "forbidden", "need": "ncr.create"}), 403
     with get_conn() as conn:
         row = conn.execute(
             """UPDATE ncrs SET
@@ -828,9 +882,13 @@ def create_approval():
     entity_type = d.get("entity_type")
     entity_id = d.get("entity_id")
     action = d.get("action")
-    need = _APPROVAL_CAP.get(action)
-    if need and not _can(g.user, need):
-        return jsonify({"error": "forbidden", "need": need}), 403
+    # Only known lifecycle actions may be recorded; an unknown/empty action would
+    # otherwise skip the capability check and pollute the e-signature/audit trail.
+    if action not in _APPROVAL_CAP:
+        return jsonify({"error": "invalid_action",
+                        "allowed": sorted(_APPROVAL_CAP)}), 400
+    if not _can(g.user, _APPROVAL_CAP[action]):
+        return jsonify({"error": "forbidden", "need": _APPROVAL_CAP[action]}), 403
     # The signer is the authenticated user — never trust client-supplied identity
     # for an e-signature / approval record.
     actor_id = g.user.get("uid")
@@ -900,6 +958,7 @@ def list_comments():
 
 
 @app.post("/api/comments")
+@requires("comment.create")
 def create_comment():
     if (r := require_db()):
         return r
@@ -1163,6 +1222,13 @@ def sync():
 
 
 # ── Boot ─────────────────────────────────────────────────────────────
+# Make the resolved security posture visible so an unexpected non-prod
+# resolution (which relaxes cookie Secure flag + secret enforcement) is caught.
+app.logger.info(
+    "AeroMarkup starting: environment=%s is_prod=%s db=%s trusted_proxy_hops=%d",
+    ENVIRONMENT, IS_PROD, db_enabled(), TRUSTED_PROXY_HOPS,
+)
+
 if AUTO_MIGRATE:
     try:
         migrate()

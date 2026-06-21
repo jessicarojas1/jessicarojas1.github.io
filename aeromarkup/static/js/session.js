@@ -20,6 +20,7 @@ const CAP = {
   "ncr.disposition":  ["approver", "admin"],
   "inspection.perform": ["inspector", "admin"],
   "project.manage":   ["engineer", "admin"],
+  "comment.create":   ["engineer", "inspector", "approver", "admin"],
   "user.manage":      ["admin"],
 };
 

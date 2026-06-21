@@ -138,9 +138,9 @@ async function openCommandPalette() {
 function authGateMarkup(mode) {
   const isBoot = mode === "bootstrap";
   return `<div class="modal-overlay" data-auth-gate>
-    <div class="modal" style="max-width:420px">
+    <div class="modal" style="max-width:420px" role="dialog" aria-modal="true" aria-labelledby="af-title">
       <div class="modal-head"><span class="brand-mark">${icon("plane", 20)}</span>
-        <h2 class="modal-title">${isBoot ? "Set up administrator" : "Sign in to AeroMarkup"}</h2></div>
+        <h2 class="modal-title" id="af-title">${isBoot ? "Set up administrator" : "Sign in to AeroMarkup"}</h2></div>
       <div class="modal-body">
         ${isBoot ? `<p class="muted" style="margin-top:0">No account exists yet. Create the first administrator to secure this deployment.</p>` : ""}
         <div class="field"><label>Username</label><input class="input" data-af="username" autocomplete="username"></div>
