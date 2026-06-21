@@ -8,24 +8,22 @@ import type { TokenResponse } from '@/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
-const ACCESS_TOKEN_KEY = 'sentinel.access_token';
-const REFRESH_TOKEN_KEY = 'sentinel.refresh_token';
+/* ---- In-memory access-token store ---- */
+/* The access token is kept in memory ONLY (never localStorage), so an XSS payload
+ * cannot exfiltrate a persisted credential and the token is gone on tab close.
+ * The refresh token lives in an HttpOnly cookie the JS can neither read nor
+ * write; the session is restored after a reload via a silent /auth/refresh. */
+let accessToken: string | null = null;
 
-/* ---- Token storage helpers (also used by the auth provider) ---- */
 export const tokenStore = {
   get access(): string | null {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
+    return accessToken;
   },
-  get refresh(): string | null {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
-  },
-  set(tokens: Pick<TokenResponse, 'access_token' | 'refresh_token'>) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, tokens.access_token);
-    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refresh_token);
+  set(tokens: Pick<TokenResponse, 'access_token'>) {
+    accessToken = tokens.access_token;
   },
   clear() {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    accessToken = null;
   },
 };
 
@@ -33,6 +31,9 @@ export const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
   timeout: 30_000,
+  // Send the HttpOnly refresh cookie on auth calls (same-origin in prod; the
+  // Vite dev proxy is same-origin too).
+  withCredentials: true,
 });
 
 /* ---- Request interceptor: attach bearer token ---- */
@@ -47,14 +48,14 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 /* ---- Response interceptor: transparent refresh on 401 ---- */
 let refreshing: Promise<string | null> | null = null;
 
-async function refreshAccessToken(): Promise<string | null> {
-  const refresh = tokenStore.refresh;
-  if (!refresh) return null;
+export async function refreshAccessToken(): Promise<string | null> {
   try {
+    // No body: the refresh token rides in the HttpOnly cookie. withCredentials
+    // ensures the cookie is sent (and the rotated one is stored back).
     const { data } = await axios.post<TokenResponse>(
       `${API_BASE_URL}/auth/refresh`,
-      { refresh_token: refresh },
-      { headers: { 'Content-Type': 'application/json' } },
+      undefined,
+      { headers: { 'Content-Type': 'application/json' }, withCredentials: true },
     );
     tokenStore.set(data);
     return data.access_token;

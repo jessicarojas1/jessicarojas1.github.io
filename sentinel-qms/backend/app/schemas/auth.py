@@ -10,14 +10,12 @@ from app.schemas.common import ORMModel
 
 
 class Token(BaseModel):
+    # The refresh token is NOT returned in the body; it is delivered as an
+    # HttpOnly cookie (see app.core.cookies). Only the short-lived access token is
+    # exposed to the SPA, which keeps it in memory.
     access_token: str
-    refresh_token: str
     token_type: str = "bearer"
     expires_in: int
-
-
-class TokenRefreshRequest(BaseModel):
-    refresh_token: str
 
 
 class PasswordResetRequest(BaseModel):

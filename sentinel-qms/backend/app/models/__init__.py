@@ -129,6 +129,7 @@ from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
 from app.models.spc import KcClass, KeyCharacteristic, Measurement
 from app.models.standard import CoverageStatus, Standard, StandardRequirement
+from app.models.token_denylist import AccessTokenDenylist
 from app.models.supplier import (
     ApprovedSupplierListEntry,
     ScarStatus,
@@ -296,4 +297,5 @@ __all__ = [
     "WebhookDelivery",
     "RefreshToken",
     "PasswordResetToken",
+    "AccessTokenDenylist",
 ]

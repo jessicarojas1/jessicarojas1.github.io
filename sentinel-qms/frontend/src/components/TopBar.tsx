@@ -45,8 +45,8 @@ export function TopBar({ onToggleNav }: { onToggleNav: () => void }) {
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login', { replace: true });
   };
 
@@ -112,7 +112,7 @@ export function TopBar({ onToggleNav }: { onToggleNav: () => void }) {
                 <ShieldCheck size={16} />
                 {user?.roles.map((r) => ROLE_LABELS[r]).join(', ')}
               </div>
-              <button type="button" className="dropdown__item" onClick={handleLogout} role="menuitem">
+              <button type="button" className="dropdown__item" onClick={() => void handleLogout()} role="menuitem">
                 <LogOut size={16} />
                 Sign out
               </button>

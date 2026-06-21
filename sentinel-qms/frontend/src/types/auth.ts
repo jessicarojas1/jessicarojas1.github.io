@@ -38,12 +38,8 @@ export interface LoginRequest {
 }
 
 export interface TokenResponse {
+  // The refresh token is delivered as an HttpOnly cookie, not in the body.
   access_token: string;
-  refresh_token: string;
   token_type: 'bearer';
   expires_in: number;
-}
-
-export interface RefreshRequest {
-  refresh_token: string;
 }

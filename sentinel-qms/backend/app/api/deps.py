@@ -61,7 +61,11 @@ def resolve_current_user(request: Request, db: Session) -> CurrentUser:
         return principal
 
     # Interactive JWT path.
+    from app.services import token_denylist
+
     payload = decode_token(token, expected_type=ACCESS_TOKEN_TYPE)
+    if token_denylist.is_denied(db, payload.get("jti")):
+        raise AuthenticationError("Token has been revoked. Please sign in again.")
     try:
         user_id = int(payload["sub"])
     except (KeyError, ValueError) as exc:

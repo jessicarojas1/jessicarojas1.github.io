@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { api, tokenStore } from './api';
+import { api, refreshAccessToken, tokenStore } from './api';
 import type { LoginRequest, Role, TokenResponse, User } from '@/types';
 
 /**
@@ -53,18 +53,18 @@ async function fetchProfile(): Promise<User> {
 }
 
 /**
- * The SSO callback redirects to ``<path>#access_token=…&refresh_token=…``. Parse
- * those out of the fragment, persist them, and clean the URL so the secrets are
- * not left in the address bar / history. Returns true when tokens were captured.
+ * The SSO callback redirects to ``<path>#access_token=…``. The refresh token is
+ * delivered separately as an HttpOnly cookie, so only the short-lived access
+ * token is in the fragment. Parse it into memory and clean the URL so it is not
+ * left in the address bar / history. Returns true when a token was captured.
  */
 function captureSsoTokensFromHash(): boolean {
   const hash = window.location.hash;
   if (!hash || !hash.includes('access_token=')) return false;
   const params = new URLSearchParams(hash.replace(/^#/, ''));
   const access_token = params.get('access_token');
-  const refresh_token = params.get('refresh_token');
-  if (!access_token || !refresh_token) return false;
-  tokenStore.set({ access_token, refresh_token });
+  if (!access_token) return false;
+  tokenStore.set({ access_token });
   // Strip the fragment without adding a history entry.
   window.history.replaceState(null, '', window.location.pathname + window.location.search);
   return true;
@@ -75,7 +75,7 @@ interface AuthState {
   loading: boolean;
   isAuthenticated: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   hasRole: (...roles: Role[]) => boolean;
   /** Re-authenticate the current user (used by electronic signatures). */
   reauthenticate: (password: string) => Promise<boolean>;
@@ -88,8 +88,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const loadProfile = useCallback(async () => {
-    // Capture tokens handed back by the SSO callback via the URL fragment.
+    // Capture an access token handed back by the SSO callback via the URL fragment.
     captureSsoTokensFromHash();
+    // The access token is in-memory only, so a full page reload starts with none.
+    // Attempt a silent refresh driven by the HttpOnly refresh cookie to restore
+    // the session; without this, every reload would log the user out.
+    if (!tokenStore.access) {
+      await refreshAccessToken();
+    }
     if (!tokenStore.access) {
       setUser(null);
       setLoading(false);
@@ -127,7 +133,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(profile);
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    // Server-side: revoke refresh tokens, deny the current access token's jti,
+    // and clear the HttpOnly refresh cookie. Best-effort — always clear locally.
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      /* already signed out / network error — fall through to local cleanup */
+    }
     tokenStore.clear();
     setUser(null);
   }, []);
@@ -143,6 +156,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const reauthenticate = useCallback(
     async (password: string): Promise<boolean> => {
+      // Electronic-signature re-auth: only verify the password is correct. We do
+      // NOT call tokenStore.set, so the active in-memory access token is left
+      // untouched and the current session is undisturbed. (The login call does
+      // refresh the HttpOnly cookie as a side effect, which is harmless.)
       if (!user) return false;
       try {
         await api.post('/auth/login', { username: user.email, password });

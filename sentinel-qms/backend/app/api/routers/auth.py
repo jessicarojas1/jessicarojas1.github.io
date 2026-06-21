@@ -5,7 +5,7 @@ from __future__ import annotations
 import secrets
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, Depends, Form, Request
+from fastapi import APIRouter, Depends, Form, Request, Response
 from fastapi.responses import PlainTextResponse, RedirectResponse
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
@@ -13,6 +13,11 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user
 from app.core import audit
 from app.core.config import settings
+from app.core.cookies import (
+    REFRESH_COOKIE_NAME,
+    clear_refresh_cookie,
+    set_refresh_cookie,
+)
 from app.core.database import get_db
 from app.core.exceptions import (
     AppError,
@@ -21,7 +26,9 @@ from app.core.exceptions import (
     ValidationAppError,
 )
 from app.core.security import (
+    ACCESS_TOKEN_TYPE,
     create_access_token,
+    decode_token,
     hash_password,
     verify_password,
 )
@@ -37,21 +44,24 @@ from app.schemas.auth import (
     PasswordResetConfirm,
     PasswordResetRequest,
     Token,
-    TokenRefreshRequest,
     UserRead,
 )
 from app.schemas.common import MessageOut
-from app.services import cac, mfa, oidc, password_reset, refresh_tokens, saml
+from app.services import cac, mfa, oidc, password_reset, refresh_tokens, saml, token_denylist
 from app.services.crud import request_context
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-def _token_response(user: User, refresh_token: str) -> Token:
+def _token_response(user: User) -> Token:
+    """Build the response body: short-lived access token only.
+
+    The refresh token is delivered separately as an HttpOnly cookie via
+    :func:`app.core.cookies.set_refresh_cookie`; it never appears in the body.
+    """
     access = create_access_token(str(user.id), user.role_names, email=user.email)
     return Token(
         access_token=access,
-        refresh_token=refresh_token,
         expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
@@ -91,6 +101,7 @@ def _too_many_failed_logins(db: Session, identifier: str, ip: str | None) -> boo
 @router.post("/login", response_model=Token)
 def login(
     request: Request,
+    response: Response,
     body: LoginRequest,
     db: Session = Depends(get_db),
 ) -> Token:
@@ -151,33 +162,42 @@ def login(
         db, user, ip=ctx.get("ip"), user_agent=request.headers.get("User-Agent")
     )
     db.commit()
-    return _token_response(user, refresh_token)
+    set_refresh_cookie(response, refresh_token)
+    return _token_response(user)
 
 
 @router.post("/refresh", response_model=Token)
 def refresh(
-    body: TokenRefreshRequest,
     request: Request,
+    response: Response,
     db: Session = Depends(get_db),
 ) -> Token:
-    """Rotate a refresh token: the presented token is revoked and replaced.
+    """Rotate the refresh token carried by the HttpOnly cookie.
 
-    Reusing a previously rotated token revokes the user's whole active set.
+    The presented token is revoked and replaced (rotation); the fresh token is
+    written back as a new cookie. Reusing a previously rotated token revokes the
+    user's whole active set. The cookie is the only accepted source — there is no
+    request body, so a stolen-then-XSS'd token cannot be replayed from JS.
     """
+    presented = request.cookies.get(REFRESH_COOKIE_NAME)
+    if not presented:
+        raise AuthenticationError("No refresh token. Please sign in again.")
     ctx = request_context(request)
     user, new_refresh = refresh_tokens.rotate(
         db,
-        body.refresh_token,
+        presented,
         ip=ctx.get("ip"),
         user_agent=request.headers.get("User-Agent"),
     )
     db.commit()
-    return _token_response(user, new_refresh)
+    set_refresh_cookie(response, new_refresh)
+    return _token_response(user)
 
 
 @router.post("/oidc/exchange", response_model=Token)
 def oidc_exchange(
     request: Request,
+    response: Response,
     body: OidcExchangeRequest,
     db: Session = Depends(get_db),
 ) -> Token:
@@ -205,7 +225,8 @@ def oidc_exchange(
         db, user, ip=ctx.get("ip"), user_agent=request.headers.get("User-Agent")
     )
     db.commit()
-    return _token_response(user, refresh_token)
+    set_refresh_cookie(response, refresh_token)
+    return _token_response(user)
 
 
 def _oidc_redirect_uri(request: Request) -> str:
@@ -252,12 +273,12 @@ def oidc_callback(
     state: str | None = None,
     error: str | None = None,
 ) -> RedirectResponse:
-    """IdP redirect target: exchange the code, then hand tokens to the SPA.
+    """IdP redirect target: exchange the code, then hand the session to the SPA.
 
-    On success the SPA is sent to ``<redirect>#access_token=…&refresh_token=…``
-    (fragment, so the tokens never hit server logs or the Referer header); the
-    front-end captures them and cleans the URL. Failures redirect to
-    ``/login?sso_error=…``.
+    On success the refresh token is set as an HttpOnly cookie on the redirect
+    response, and ONLY the short-lived access token is passed via the URL
+    fragment (``<redirect>#access_token=…``) so the front-end can capture it into
+    memory and clean the URL. Failures redirect to ``/login?sso_error=…``.
     """
     spa = _spa_base(request)
     if error or not code or not state:
@@ -288,10 +309,13 @@ def oidc_callback(
     except AppError:
         db.rollback()
         return RedirectResponse(f"{spa}/login?sso_error=sso_denied", status_code=302)
-    tokens = _token_response(user, refresh_token)
+    tokens = _token_response(user)
     dest = oidc._safe_redirect(st.get("redirect"))
-    frag = f"access_token={tokens.access_token}&refresh_token={tokens.refresh_token}"
-    return RedirectResponse(f"{spa}{dest}#{frag}", status_code=302)
+    redirect = RedirectResponse(
+        f"{spa}{dest}#access_token={tokens.access_token}", status_code=302
+    )
+    set_refresh_cookie(redirect, refresh_token)
+    return redirect
 
 
 def _saml_acs_url(request: Request) -> str:
@@ -320,8 +344,9 @@ def saml_acs(
 ) -> RedirectResponse:
     """SAML Assertion Consumer Service: verify the IdP response, then sign the user in.
 
-    Mirrors the OIDC callback: on success the SPA receives the session via the URL
-    fragment; failures redirect to ``/login?sso_error=…``.
+    Mirrors the OIDC callback: on success the refresh token is set as an HttpOnly
+    cookie and only the access token is passed via the URL fragment; failures
+    redirect to ``/login?sso_error=…``.
     """
     spa = _spa_base(request)
     try:
@@ -357,9 +382,12 @@ def saml_acs(
     except AppError:
         db.rollback()
         return RedirectResponse(f"{spa}/login?sso_error=sso_denied", status_code=302)
-    tokens = _token_response(user, refresh_token)
-    frag = f"access_token={tokens.access_token}&refresh_token={tokens.refresh_token}"
-    return RedirectResponse(f"{spa}{dest}#{frag}", status_code=302)
+    tokens = _token_response(user)
+    redirect = RedirectResponse(
+        f"{spa}{dest}#access_token={tokens.access_token}", status_code=302
+    )
+    set_refresh_cookie(redirect, refresh_token)
+    return redirect
 
 
 @router.get("/saml/metadata")
@@ -375,7 +403,8 @@ def cac_login(request: Request, redirect: str = "/", db: Session = Depends(get_d
     """CAC/PIV sign-in: trust the reverse proxy's verified client cert, then sign in.
 
     The browser navigates here through the mTLS proxy, which forwards the cert
-    headers; on success the SPA receives its session via the URL fragment.
+    headers; on success the refresh token is set as an HttpOnly cookie and only
+    the access token is passed via the URL fragment.
     """
     spa = _spa_base(request)
     dest = oidc._safe_redirect(redirect)
@@ -406,9 +435,12 @@ def cac_login(request: Request, redirect: str = "/", db: Session = Depends(get_d
     except AppError:
         db.rollback()
         return RedirectResponse(f"{spa}/login?sso_error=sso_denied", status_code=302)
-    tokens = _token_response(user, refresh_token)
-    frag = f"access_token={tokens.access_token}&refresh_token={tokens.refresh_token}"
-    return RedirectResponse(f"{spa}{dest}#{frag}", status_code=302)
+    tokens = _token_response(user)
+    redirect = RedirectResponse(
+        f"{spa}{dest}#access_token={tokens.access_token}", status_code=302
+    )
+    set_refresh_cookie(redirect, refresh_token)
+    return redirect
 
 
 @router.get("/me", response_model=UserRead)
@@ -425,15 +457,36 @@ def me(
 @router.post("/logout", response_model=MessageOut)
 def logout(
     request: Request,
+    response: Response,
     current: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> MessageOut:
-    """Log out: revoke the user's refresh tokens (sign out everywhere) and audit.
+    """Log out: revoke refresh tokens, deny the current access token, clear cookie.
 
-    The short-lived access token remains valid until it expires; refresh-token
-    revocation prevents any new access tokens from being minted for the session.
+    Revoking the refresh tokens prevents any new access tokens from being minted.
+    Additionally the *current* access token's ``jti`` is added to the denylist for
+    the remainder of its lifetime so it is rejected immediately (true logout,
+    rather than remaining valid until it would naturally expire). The HttpOnly
+    refresh cookie is also deleted.
     """
+    # Deny the presented access token's jti for its remaining lifetime.
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.lower().startswith("bearer "):
+        raw = auth_header[7:].strip()
+        try:
+            payload = decode_token(raw, expected_type=ACCESS_TOKEN_TYPE)
+            jti = payload.get("jti")
+            exp = int(payload.get("exp", 0))
+            ttl = exp - int(datetime.now(UTC).timestamp())
+            if jti and ttl > 0:
+                token_denylist.add(db, jti, ttl)
+        except AppError:
+            # An API token (or unparseable bearer) has no jti to deny; the
+            # refresh-token revocation below still applies.
+            pass
+
     revoked = refresh_tokens.revoke_all(db, current.id)
+    clear_refresh_cookie(response)
     audit.record(
         db,
         actor_id=current.id,

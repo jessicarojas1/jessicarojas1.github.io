@@ -6,6 +6,7 @@ import pytest
 from sqlalchemy import func, select
 
 from app.core.config import settings
+from app.core.cookies import REFRESH_COOKIE_NAME
 from app.core.exceptions import AuthenticationError, PermissionDeniedError
 from app.models.user import User
 from app.services import oidc
@@ -97,7 +98,10 @@ def test_oidc_exchange_issues_session(client, seeded, monkeypatch):
     resp = client.post("/api/v1/auth/oidc/exchange", json={"id_token": "fake.jwt.token"})
     assert resp.status_code == 200, resp.text
     body = resp.json()
-    assert body["access_token"] and body["refresh_token"]
+    # Access token in the body; refresh token in an HttpOnly cookie (not the body).
+    assert body["access_token"]
+    assert "refresh_token" not in body
+    assert REFRESH_COOKIE_NAME in resp.cookies
 
     # The issued session works and identifies the provisioned user.
     me = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {body['access_token']}"})
@@ -188,8 +192,11 @@ def test_oidc_callback_success_hands_tokens_to_spa(client, seeded, monkeypatch):
     resp = client.get(f"/api/v1/auth/oidc/callback?code=abc&state={state}", follow_redirects=False)
     assert resp.status_code == 302
     loc = resp.headers["location"]
+    # Only the access token is in the fragment now; the refresh token is set as an
+    # HttpOnly cookie on the redirect response (never exposed to JS / the URL).
     assert "/dashboard#access_token=" in loc
-    assert "refresh_token=" in loc
+    assert "refresh_token=" not in loc
+    assert REFRESH_COOKIE_NAME in resp.cookies
 
 
 def test_oidc_callback_error_redirects_to_login(client, monkeypatch):
