@@ -94,16 +94,46 @@ class Database {
     }
 
     /**
-     * Primary tenant-owned tables that carry a tenant_id column (migration 027).
-     * Used to auto-stamp tenant_id on INSERT. Keep in sync with the migration.
+     * Tenant-owned tables that carry a tenant_id column and are auto-stamped on
+     * INSERT. Two tiers, all subject to the tenant_isolation RLS policy:
+     *   - Primary entities (migration 027).
+     *   - Child/detail + link tables hanging off those entities (migration 029).
+     * Keep in sync with migrations 027/029 and schema.sql — the integration test
+     * asserts this list matches the tables that physically carry tenant_id.
      */
     private const TENANT_TABLES = [
+        // Primary entities (migration 027)
         'users','risks','policies','audits','audit_findings','compliance_packages',
         'compliance_objectives','control_implementations','incidents','issues',
         'vendors','assets','threats','poam_items','kris','documents','bcp_plans',
         'privacy_records','account_reviews','awareness_programs','change_requests',
         'grc_projects','cui_inventory','odp_entries','ssp_plans','questionnaires',
+        // Child / detail / link tables (migration 029)
+        'audit_schedules','audit_items','finding_updates',
+        'policy_versions','policy_mappings','policy_reviews','policy_attestations',
+        'policy_attestation_campaigns',
+        'risk_score_history','risk_control_links','risk_related_links','risk_treatments',
+        'risk_acceptances','risk_bowtie_causes','risk_bowtie_consequences',
+        'risk_bowtie_barriers','risk_scenarios','risk_reviews','risk_review_items',
+        'risk_exceptions','treatment_plans','treatment_milestones',
+        'incident_updates','incident_sla_events','issue_updates',
+        'vendor_assessments','vendor_contracts',
+        'asset_risk_links','threat_risk_links',
+        'poam_milestones','kri_values','document_versions',
+        'bcp_plan_sections','bcp_exercises',
+        'data_subject_requests','account_review_items','awareness_assignments',
+        'ssp_packages','ssp_control_statements',
+        'questionnaire_questions','questionnaire_assignments','questionnaire_responses',
+        'questionnaire_answers','change_request_updates',
+        'grc_project_tasks','grc_project_links',
+        'control_mappings','control_tests','raci_assignments','shared_responsibility',
+        'evidence','evidence_files',
     ];
+
+    /** The tenant-owned tables (write-path stamping + RLS coverage). */
+    public static function tenantTables(): array {
+        return self::TENANT_TABLES;
+    }
 
     /** Application-level tenant context for write-path stamping (PHP-side, no DB). */
     private static ?int $tenantContext = null;
