@@ -23,6 +23,7 @@ Env:
 import os
 import json
 import time
+import uuid as _uuid
 import secrets
 import pathlib
 import threading
@@ -330,6 +331,18 @@ def actor_name() -> str:
     from client-supplied request fields."""
     u = getattr(g, "user", None)
     return (u or {}).get("name") or (u or {}).get("username") or "system"
+
+
+def uuid_or_none(v):
+    """Coerce a value to a canonical UUID string, or None if it isn't one.
+    Used to keep client-supplied free text out of uuid FK columns (which would
+    otherwise raise a DB error / silently fail best-effort sync)."""
+    if not v:
+        return None
+    try:
+        return str(_uuid.UUID(str(v)))
+    except (ValueError, AttributeError, TypeError):
+        return None
 
 
 @app.get("/api/auth/status")
@@ -714,7 +727,9 @@ def create_ncr():
                 # raised_by is a uuid FK to users(id); bind it to the
                 # authenticated user, not a client-supplied name/string.
                 "raised_by": g.user.get("uid"),
-                "assigned_to": d.get("assigned_to"),
+                # assigned_to is also a uuid FK; the form sends free text, so
+                # accept only a valid uuid (else NULL) instead of 500-ing.
+                "assigned_to": uuid_or_none(d.get("assigned_to")),
                 "due_date": d.get("due_date"),
                 "classification": d.get("classification"),
                 "client_uid": d.get("client_uid"),
@@ -755,7 +770,7 @@ def update_ncr(ncr_id):
                 "status": d.get("status"),
                 "disposition": d.get("disposition"),
                 "disposition_notes": d.get("disposition_notes"),
-                "assigned_to": d.get("assigned_to"),
+                "assigned_to": uuid_or_none(d.get("assigned_to")),
             },
         ).fetchone()
         if not row:
@@ -807,7 +822,10 @@ def create_inspection():
                 "drawing_id": d.get("drawing_id"),
                 "type": d.get("type"),
                 "result": d.get("result"),
-                "inspector_id": d.get("inspector_id"),
+                # inspector_id is a uuid FK; bind to the authenticated inspector
+                # (the form only carries a display name), accepting an explicit
+                # valid uuid if one is supplied.
+                "inspector_id": uuid_or_none(d.get("inspector_id")) or g.user.get("uid"),
                 "performed_at": d.get("performed_at"),
                 "notes": d.get("notes"),
                 "client_uid": d.get("client_uid"),
