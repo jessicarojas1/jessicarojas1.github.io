@@ -123,15 +123,38 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     scaled deployment should also rate-limit at the gateway/WAF.
     """
 
-    def __init__(self, app, *, limit: int, window_seconds: int) -> None:  # noqa: ANN001
+    def __init__(self, app, *, limit: int, window_seconds: int,
+                 redis_url: str | None = None) -> None:  # noqa: ANN001
         super().__init__(app)
         self._limit = max(1, limit)
         self._window = max(1, window_seconds)
         self._buckets: dict[str, tuple[float, int]] = {}
         self._lock = threading.Lock()
+        self._redis_url = redis_url or None
+        self._redis = None  # lazily created async client
+        self._redis_ready = False
 
-    def _check(self, key: str) -> tuple[bool, int, int]:
-        """Return ``(allowed, remaining, reset_seconds)`` and record the hit."""
+    def _get_redis(self):
+        """Lazily build the async Redis client on first use. Returns None when no
+        REDIS_URL is configured or the client library is unavailable, in which
+        case the limiter transparently uses the in-process bucket map."""
+        if self._redis_ready:
+            return self._redis
+        self._redis_ready = True
+        if self._redis_url:
+            try:
+                import redis.asyncio as aioredis  # noqa: PLC0415
+
+                self._redis = aioredis.from_url(self._redis_url, decode_responses=True)
+            except Exception as exc:  # pragma: no cover - import/connection issues
+                logger.warning(
+                    "Rate limiter: Redis unavailable (%s); using in-process limiter.", exc
+                )
+                self._redis = None
+        return self._redis
+
+    def _check_memory(self, key: str) -> tuple[bool, int, int]:
+        """Per-process fixed window. Returns ``(allowed, remaining, reset)``."""
         now = time.monotonic()
         with self._lock:
             window_start, count = self._buckets.get(key, (now, 0))
@@ -147,13 +170,41 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         remaining = max(0, self._limit - count)
         return count <= self._limit, remaining, reset
 
+    async def _check_redis(self, client, key: str):  # noqa: ANN001
+        """Shared fixed-window counter via atomic INCR+EXPIRE. Returns the usual
+        tuple, or None to signal the caller should fall back to in-process."""
+        window_epoch = int(time.time() // self._window)
+        rkey = f"ratelimit:{key}:{window_epoch}"
+        try:
+            pipe = client.pipeline()
+            pipe.incr(rkey, 1)
+            pipe.expire(rkey, self._window)
+            results = await pipe.execute()
+            count = int(results[0])
+        except Exception as exc:  # pragma: no cover - runtime redis failure
+            logger.warning("Rate limiter: Redis error (%s); using in-process fallback.", exc)
+            return None
+        reset = int(self._window - (time.time() % self._window)) + 1
+        remaining = max(0, self._limit - count)
+        return count <= self._limit, remaining, reset
+
+    async def _check(self, key: str) -> tuple[bool, int, int]:
+        """Return ``(allowed, remaining, reset_seconds)`` and record the hit.
+        Uses the shared Redis window when configured/available, else in-process."""
+        client = self._get_redis()
+        if client is not None:
+            result = await self._check_redis(client, key)
+            if result is not None:
+                return result
+        return self._check_memory(key)
+
     async def dispatch(self, request: Request, call_next):  # noqa: ANN001
         path = request.url.path
         # Limit only the JSON API; never the health probe or the served SPA.
         if not path.startswith(settings.API_V1_PREFIX):
             return await call_next(request)
 
-        allowed, remaining, reset = self._check(_client_key(request))
+        allowed, remaining, reset = await self._check(_client_key(request))
         if not allowed:
             request_id = getattr(request.state, "request_id", None)
             body = {

@@ -31,6 +31,9 @@ dependencies = [
     # SAML 2.0 SSO: XML-DSig verification (pure-Python over lxml + cryptography;
     # both ship manylinux wheels, so no system xmlsec build is required).
     "signxml>=4.0",
+    # Optional shared rate-limit store (used only when REDIS_URL is set; the
+    # limiter degrades to in-process when unavailable). redis>=5 ships asyncio.
+    "redis>=5.0",
 ]
 
 [project.optional-dependencies]

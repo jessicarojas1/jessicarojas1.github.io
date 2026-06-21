@@ -61,6 +61,10 @@ class Settings(BaseSettings):
     RATE_LIMIT_ENABLED: bool = True
     RATE_LIMIT_PER_MINUTE: int = 300
     RATE_LIMIT_WINDOW_SECONDS: int = 60
+    # Optional shared store so the rate limit is enforced ACROSS workers/replicas
+    # (fixed-window INCR+EXPIRE). Empty = per-process in-memory limiter (the
+    # historical behavior); set to e.g. redis://host:6379/0 in scaled deploys.
+    REDIS_URL: str = ""
     # Trust the client IP from X-Forwarded-For (rate limiting / logging). Enable
     # ONLY when the app sits behind a trusted proxy/LB that sets the header;
     # otherwise a direct client could spoof it. Render/ALB/Nginx → set true.
