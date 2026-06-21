@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, ShieldCheck, FileText, BarChart3,
-  Menu, X, ChevronRight, Bell, Settings
+  Menu, X, ChevronRight, Bell, Settings, LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useBranding } from '@/components/branding/BrandingProvider';
@@ -22,7 +22,20 @@ const NAV = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const path = usePathname();
+  const router = useRouter();
   const { branding, tagline } = useBranding();
+
+  // The login screen renders without the app chrome.
+  if (path === '/login') return <>{children}</>;
+
+  async function logout() {
+    try {
+      await fetch('/api/auth/login', { method: 'DELETE', credentials: 'same-origin' });
+    } finally {
+      router.push('/login');
+      router.refresh();
+    }
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -84,6 +97,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link href="/settings" onClick={() => setOpen(false)} aria-label="Settings">
               <Settings className="w-4 h-4 text-slate-500 hover:text-slate-300 cursor-pointer" />
             </Link>
+            <button onClick={logout} aria-label="Sign out" title="Sign out" className="text-slate-500 hover:text-slate-300">
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>

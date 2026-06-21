@@ -67,22 +67,47 @@ export function AIAssistantPanel({ control, onClose }: { control: Control; onClo
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
   const [copied, setCopied]   = useState(false);
+  const [isMock, setIsMock]   = useState(false);
 
   const selectedMode = MODES.find(m => m.id === mode)!;
 
   async function generate() {
-    setLoading(true); setOutput(''); setError('');
+    setLoading(true); setOutput(''); setError(''); setIsMock(false);
     try {
+      // Authenticate via the server-side session cookie (same-origin). The
+      // browser never holds AI_PROXY_TOKEN — the relay injects the upstream key
+      // server-side once it has verified the session. The custom header is part
+      // of the relay's CSRF defense (see app/api/ai/generate/route.ts).
       const res = await fetch('/api/ai/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
         body: JSON.stringify({ prompt: selectedMode.prompt(control), mode }),
       });
+
+      if (res.status === 401 || res.status === 503) {
+        // Not signed in, or the relay isn't configured on this server. Show a
+        // clearly-labelled offline sample so the demo UI still works, and tell
+        // the user how to get live output.
+        setIsMock(true);
+        setError(
+          res.status === 401
+            ? 'Sign in to generate live AI output. Showing an offline sample.'
+            : 'AI relay is not configured on this server. Showing an offline sample.',
+        );
+        setOutput(getMockOutput(mode, control));
+        return;
+      }
+
       if (!res.ok) throw new Error(`API error ${res.status}`);
       const data = await res.json();
       setOutput(data.text ?? '');
-    } catch (err: any) {
-      // Fallback mock for demo
+    } catch {
+      setIsMock(true);
+      setError('Could not reach the AI relay. Showing an offline sample.');
       setOutput(getMockOutput(mode, control));
     } finally {
       setLoading(false);
@@ -129,11 +154,14 @@ export function AIAssistantPanel({ control, onClose }: { control: Control; onClo
             Generating response…
           </div>
         )}
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className={`text-xs mb-2 ${isMock ? 'text-amber-400' : 'text-red-400'}`}>{error}</p>}
         {output && !loading && (
           <div>
             <div className="text-xs text-slate-400 mb-2 flex items-center justify-between">
-              <span>{selectedMode.label} for {control.control_id}</span>
+              <span>
+                {selectedMode.label} for {control.control_id}
+                {isMock && <span className="ml-1.5 text-amber-400">(offline sample)</span>}
+              </span>
               <button onClick={copyOutput} className="text-slate-500 hover:text-slate-300 flex items-center gap-1">
                 <Copy className="w-3 h-3" />
                 {copied ? 'Copied!' : 'Copy'}
@@ -157,7 +185,7 @@ export function AIAssistantPanel({ control, onClose }: { control: Control; onClo
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           {loading ? 'Generating…' : `Generate ${selectedMode.label}`}
         </button>
-        <p className="text-[10px] text-slate-600 mt-2 text-center">Requires ANTHROPIC_API_KEY in .env.local</p>
+        <p className="text-[10px] text-slate-600 mt-2 text-center">Live output requires a signed-in session and a configured AI relay</p>
       </div>
     </div>
   );

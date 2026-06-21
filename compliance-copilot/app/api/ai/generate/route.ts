@@ -1,16 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { timingSafeEqual } from 'crypto';
+import { getSession } from '@/lib/session';
 
 // --- Abuse / cost controls -------------------------------------------------
 // This route relays to the Anthropic API using the server's ANTHROPIC_API_KEY.
 // Without limits it is an open, unauthenticated AI relay — anyone could drive
 // unbounded spend (OWASP LLM10: Unbounded Consumption / CWE-770). We apply:
-//   1. Shared-token auth (AI_PROXY_TOKEN) — callers must present it via
-//      `Authorization: Bearer <token>` or `x-api-key: <token>`. Compared with a
-//      constant-time check. FAILS CLOSED in production: if the token env var is
-//      unset while NODE_ENV=production, every request is rejected (503) so a
-//      misconfigured deploy never exposes an open relay. In non-production
-//      (local/dev) an unset token leaves the route open for convenience.
+//   1. Authorization — a caller must satisfy ONE of:
+//        (a) a valid server-side session cookie (the in-app browser assistant),
+//            verified by lib/session. The browser never holds AI_PROXY_TOKEN;
+//            when the session is valid, THIS route injects it server-side when
+//            calling the upstream provider, so the secret never reaches the
+//            client. CSRF defense: the session cookie is SameSite=Strict AND we
+//            require an `x-requested-with` header (a value cross-site forms /
+//            navigations cannot set without a CORS preflight this route never
+//            grants), so a forged cross-origin POST cannot ride the cookie.
+//        (b) the shared AI_PROXY_TOKEN, presented via `Authorization: Bearer
+//            <token>` or `x-api-key: <token>` (programmatic / external callers),
+//            compared with a constant-time check.
+//      FAILS CLOSED in production: if AI_PROXY_TOKEN is unset while
+//      NODE_ENV=production AND there is no valid session, every request is
+//      rejected (503) so a misconfigured deploy never exposes an open relay. In
+//      non-production (local/dev) an unset token leaves the route open for
+//      convenience.
 //   2. Always-on per-identity fixed-window rate limit (best-effort, in-memory).
 //   3. Hard input/output caps (prompt length + max_tokens).
 const MAX_PROMPT_CHARS = 8000;
@@ -43,9 +55,10 @@ function tokenMatches(provided: string, expected: string): boolean {
 }
 
 // Resolve a stable per-caller identity for rate limiting. Prefer the
-// authenticated token (one bucket per credential); otherwise fall back to the
-// platform-forwarded client IP (coarse, best-effort only).
-function identityKey(req: NextRequest, token: string): string {
+// authenticated session user, then the shared token (one bucket per credential);
+// otherwise fall back to the platform-forwarded client IP (best-effort only).
+function identityKey(req: NextRequest, token: string, sessionUser: string | null): string {
+  if (sessionUser) return `sess:${sessionUser}`;
   if (token) return `tok:${token}`;
   const xff = req.headers.get('x-forwarded-for') || '';
   const ip = xff.split(',')[0].trim();
@@ -73,25 +86,41 @@ function extractToken(req: NextRequest): string {
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Shared-token auth (fail closed in production).
     const expectedToken = process.env.AI_PROXY_TOKEN || '';
     const provided = extractToken(req);
 
-    if (!expectedToken) {
-      // No token configured. In production this is a misconfiguration; refuse to
-      // act as an open relay. In dev, allow through for local convenience.
-      if (process.env.NODE_ENV === 'production') {
-        return NextResponse.json(
-          { error: 'AI relay is not configured for use.' },
-          { status: 503 },
-        );
+    // --- Path (a): valid server-side session (in-app browser assistant) -----
+    // CSRF defense for the cookie path: require a custom header. Combined with
+    // the SameSite=Strict session cookie, a cross-site form/navigation cannot
+    // both carry the cookie and set this header, so it cannot forge a request.
+    const hasReqHeader = Boolean(req.headers.get('x-requested-with'));
+    const session = hasReqHeader ? getSession(req) : null;
+    const sessionUser = session?.sub ?? null;
+
+    // --- Path (b): shared AI_PROXY_TOKEN (programmatic / external) -----------
+    const tokenValid = expectedToken !== '' && tokenMatches(provided, expectedToken);
+
+    if (!sessionUser && !tokenValid) {
+      // Neither path satisfied. Decide between 503 (misconfigured/closed) vs 401.
+      if (!expectedToken) {
+        // No shared token configured. In production refuse to act as an open
+        // relay (fail closed). In dev, allow through for local convenience.
+        if (process.env.NODE_ENV === 'production') {
+          return NextResponse.json(
+            { error: 'AI relay is not configured for use.' },
+            { status: 503 },
+          );
+        }
+        // dev fall-through: treated as unauthenticated-but-allowed below.
+      } else {
+        // A shared token IS configured but the caller presented neither a valid
+        // session nor the correct token.
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
-    } else if (!tokenMatches(provided, expectedToken)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. Rate limit (always on). Keyed per credential when authenticated.
-    if (rateLimited(identityKey(req, expectedToken ? provided : ''))) {
+    // 2. Rate limit (always on). Keyed per session user / credential.
+    if (rateLimited(identityKey(req, tokenValid ? provided : '', sessionUser))) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Try again shortly.' },
         { status: 429, headers: { 'Retry-After': String(Math.ceil(RATE_WINDOW_MS / 1000)) } },
