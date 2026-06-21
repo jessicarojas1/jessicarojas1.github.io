@@ -92,6 +92,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/tenancy_db.php
 
+      - name: Shared session store — Postgres session handler round-trip
+        working-directory: aegis
+        run: php tests/integration/session_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

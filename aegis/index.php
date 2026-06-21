@@ -111,6 +111,19 @@ if ($_isHttps) {
     // __Host- prefix: forces Secure, Path=/, no Domain attribute (prevents subdomain hijack)
     session_name('__Host-AEGIS');
 }
+
+// Optional shared session store (SESSION_DRIVER=pg) so multiple app instances
+// behind a load balancer share sessions — required for horizontal scaling.
+// Default is the local-file handler (unchanged). Falls back to files if the
+// handler can't be registered, so a misconfiguration can't brick login.
+if (($_ENV['SESSION_DRIVER'] ?? '') === 'pg') {
+    try {
+        require_once AEGIS_ROOT . '/src/PgSessionHandler.php';
+        session_set_save_handler(new PgSessionHandler(), true);
+    } catch (Throwable $e) {
+        error_log('[AEGIS] PG session handler unavailable, using file sessions: ' . $e->getMessage());
+    }
+}
 session_start();
 
 // Suppress version disclosure headers
