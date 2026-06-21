@@ -304,7 +304,7 @@ function clearSelection() {
 </script>
 <?php
 function riskLevel(int $score): string {
-  return $score > 14 ? 'Critical' : ($score > 9 ? 'High' : ($score > 4 ? 'Medium' : 'Low'));
+  return RiskScore::scoreLabel($score); // canonical bands — see src/RiskScore.php
 }
 $content = ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php';

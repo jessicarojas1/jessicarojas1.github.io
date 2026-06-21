@@ -16,10 +16,10 @@ class RiskController {
         $summary = Database::fetchOne(
             "SELECT
                COUNT(*)                                         AS total,
-               COUNT(*) FILTER (WHERE inherent_score > 14)     AS critical,
-               COUNT(*) FILTER (WHERE inherent_score BETWEEN 10 AND 14) AS high,
-               COUNT(*) FILTER (WHERE inherent_score BETWEEN 5 AND 9)   AS medium,
-               COUNT(*) FILTER (WHERE inherent_score <= 4)              AS low,
+               COUNT(*) FILTER (WHERE " . RiskScore::sqlCondition('critical') . ") AS critical,
+               COUNT(*) FILTER (WHERE " . RiskScore::sqlCondition('high')     . ") AS high,
+               COUNT(*) FILTER (WHERE " . RiskScore::sqlCondition('medium')   . ") AS medium,
+               COUNT(*) FILTER (WHERE " . RiskScore::sqlCondition('low')      . ") AS low,
                COUNT(*) FILTER (WHERE status = 'open')                  AS open,
                COUNT(*) FILTER (WHERE status = 'in_review')             AS in_review,
                COUNT(*) FILTER (WHERE status = 'monitoring')            AS monitoring,
@@ -178,10 +178,9 @@ class RiskController {
             $where[] = '(r.title ILIKE ? OR r.risk_id ILIKE ? OR r.description ILIKE ?)';
             $params[] = "%{$search}%"; $params[] = "%{$search}%"; $params[] = "%{$search}%";
         }
-        if ($level === 'critical')   { $where[] = 'r.inherent_score > 14'; }
-        elseif ($level === 'high')   { $where[] = 'r.inherent_score BETWEEN 10 AND 14'; }
-        elseif ($level === 'medium') { $where[] = 'r.inherent_score BETWEEN 5 AND 9'; }
-        elseif ($level === 'low')    { $where[] = 'r.inherent_score <= 4'; }
+        if (in_array($level, RiskScore::levels(), true)) {
+            $where[] = RiskScore::sqlCondition($level, 'r.inherent_score');
+        }
 
         $whereSQL = implode(' AND ', $where);
 

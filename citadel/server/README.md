@@ -148,7 +148,7 @@ browser store is only a fallback for static hosting (GitHub Pages).
 | `/api/auth/me` · `/api/auth/password` · `/api/auth/logout` | GET/POST | Bearer token |
 | `/api/auth/settings` · `/api/branding` | GET / PATCH | GET any · PATCH admin |
 | `/api/users` `…/:id` `…/:id/password` `…/:id/revoke-sessions` | GET/POST/PATCH/DELETE | admin |
-| `/api/sessions` `…/:jti` · `/api/audit` | GET/DELETE | admin |
+| `/api/sessions` `…/:jti` · `/api/audit` · `/api/audit/verify` | GET/DELETE | admin |
 | `/api/scan` · `/api/scan-url` · `/api/explain` | POST | permission-gated when enforce is on |
 | `/api/scans` `…/:id` | GET/DELETE | durable history (owner-scoped) |
 | `/api/dispositions` | GET / POST | shared finding triage by fingerprint (needs a DB) |
@@ -164,11 +164,20 @@ The machine-readable contract for all of the above is served at
 | `DATABASE_URL` | — | When set, users/sessions/revocations/audit/settings persist to **Postgres** (durable + shared across instances). Falls back to the file store when unset. Schema is created on boot; a manual reference lives at `citadel/database/schema.sql`. |
 | `PGSSL` / `PGSSL_VERIFY` / `PGSSL_CA` | auto / off / — | TLS to Postgres. TLS auto-enables for managed providers; certificate **verification is opt-in** via `PGSSL_VERIFY=1` or by supplying the provider CA in `PGSSL_CA` (PEM string or path). Default is permissive (`rejectUnauthorized:false`) so managed chains keep working. |
 | `REDIS_TLS_VERIFY` / `REDIS_TLS_CA` | off / — | Same opt-in TLS verification for a `rediss://` `REDIS_URL`. |
-| `CITADEL_ALLOW_OPEN` | — | Set `1` to silence the startup warning that fires when auth **enforcement is off** on a production-looking deploy (the API is open to anyone in that state — enable enforcement for real multi-user use). |
+| `CITADEL_ALLOW_OPEN` | — | A fresh store now defaults to **enforcement ON** (secure-by-default). Set `1` to ship an **open** instance (no auth) and to silence the related startup warning — only for trusted/demo use. |
+| `CITADEL_AIRGAP` / `CITADEL_NO_EGRESS` | — | Set `1` for the **air-gap / no-egress profile**: hard-disables AI remediation so scanned source code can never be transmitted to an external LLM. Required when reviewing CUI / ITAR / export-controlled / proprietary code. (`/api/health` reports `airgap:true`.) |
+| `CITADEL_METRICS_TOKEN` | — | Bearer token required to read `GET /metrics`. When unset, `/metrics` is restricted to **loopback** (returns 404 otherwise) — no longer an anonymous recon surface. |
+| `PGSSL_VERIFY` (default behavior changed) | secure | Postgres TLS certificate verification now **defaults ON**, except for known managed providers (Render/Supabase/RDS) which stay permissive with a warning. Set `0` to force off, `1` (or `PGSSL_CA`) to force on. |
 | `CITADEL_JWT_SECRET` | random (or seeded into the store) | HS256 signing key. Set a stable one so sessions survive restarts. |
+| `CITADEL_DATA_KEY` | — | 32-byte key (64 hex chars or base64) for **at-rest secret encryption** (AES-256-GCM). When set, TOTP seeds and the JWT signing key are sealed (`enc:v1:…`) before they touch the JSON store or Postgres, so a leaked store/backup doesn't directly yield 2FA seeds or a session-minting key. Unset = stored plaintext (legacy); reads transparently accept both, so enabling it migrates data lazily on next write. Inject from a secrets manager. |
+| `CITADEL_FIPS` | — | Set `1` to run in **FIPS 140 mode**: requests the OpenSSL FIPS provider at boot and switches password hashing from scrypt (not FIPS-approved) to **PBKDF2-HMAC-SHA256** (SP 800-132). Only enforced on a FIPS-validated OpenSSL build; on a stock build it logs a warning and continues non-FIPS (check `fips.active` in `/api/health`). Password hashes are self-describing, so both KDFs verify and you can enable it without resetting accounts. |
+| `CITADEL_PBKDF2_ITER` | `600000` | PBKDF2 iteration count for FIPS-mode password hashing (the value is embedded per-hash, so changing it doesn't break existing logins). |
+| `CITADEL_MULTITENANT` | — | Set `1` (with `DATABASE_URL`) to enable **schema-per-tenant** multi-tenancy: each tenant gets its own Postgres schema (`citadel_t_<slug>`) holding a full copy of the tables, so tenants are physically isolated. See _Multi-tenancy_ below. Default off = single-tenant (unchanged). |
+| `CITADEL_BASE_DOMAIN` | — | Apex domain for subdomain tenant resolution (`acme.<base>` → tenant `acme`). Tenants can also be selected per request via the `X-Citadel-Tenant` header or `?tenant=` param. |
+| `CITADEL_SUPERADMIN_TOKEN` | — | Bearer token gating the operator-only tenant-provisioning endpoints (`GET`/`POST /api/tenants`). When unset those routes are loopback-only. They 404 entirely unless multi-tenancy is enabled. |
 | `CITADEL_ACCESS_TTL` / `CITADEL_REFRESH_TTL` | `1800` / `2592000` | Access-token (30 m) and refresh-token (30 d) lifetimes, in seconds. |
 | `CITADEL_ADMIN_EMAIL` / `CITADEL_ADMIN_PASSWORD` | `admin@citadel.local` / `citadel-admin` | First-boot admin. The default password is flagged **must-change**; change it on first login. |
-| `CITADEL_AUDIT_SINK_URL` / `CITADEL_AUDIT_SINK_TOKEN` | — | Forward every audit event to an HTTP collector (Splunk HEC / SIEM webhook). |
+| `CITADEL_AUDIT_SINK_URL` / `CITADEL_AUDIT_SINK_TOKEN` | — | Forward every audit event to an HTTP collector (Splunk HEC / SIEM webhook). The audit log is also **tamper-evident**: each event is hash-chained to the previous (`hash = SHA-256(prev + record)`), so altering or deleting any past record is detectable. `GET /api/audit/verify` (admin) re-walks the chain and reports the first break, if any. |
 | `CITADEL_NOTIFY_URL` / `CITADEL_NOTIFY_TOKEN` / `CITADEL_NOTIFY_ON` | After each scan whose worst severity meets `CITADEL_NOTIFY_ON` (critical\|high\|medium\|low\|any, default critical), POST a Slack-compatible summary to the webhook. |
 | `REDIS_URL` | — | When set, rate limiting + brute-force lockout use **Redis** (shared across instances for horizontal scaling). Falls back to an in-memory limiter when unset. |
 | `CITADEL_SCAN_TIMEOUT_MS` | `30000` | Wall-clock deadline for the heuristic SAST pass. On `/api/scan` and `/api/scan-url` it runs in an **isolated worker thread** that is terminated if it exceeds this — a defense against catastrophic-backtracking (ReDoS) inputs. On timeout the scan still completes with the external-scanner findings and a `meta.warnings` note. |
@@ -221,6 +230,46 @@ curl -sS -X POST http://localhost:8080/api/scan \
 
 ---
 
+## Multi-tenancy (schema-per-tenant)
+
+Opt-in with `CITADEL_MULTITENANT=1` + `DATABASE_URL`. Each tenant gets its own
+**Postgres schema** (`citadel_t_<slug>`) containing a full copy of the `citadel_*`
+tables, so tenants are **physically isolated** — a query scoped to one tenant's
+schema cannot read another's rows even if a `WHERE` clause is omitted. A
+`citadel_tenants` registry in the public schema maps slug → schema.
+
+- **Provisioning** is an operator action (not an in-app role): `POST /api/tenants`
+  `{ "slug": "acme", "name": "Acme Corp" }` creates the schema and tables;
+  `GET /api/tenants` lists them. Both are gated by `CITADEL_SUPERADMIN_TOKEN`
+  (Bearer) or loopback, and 404 unless multi-tenancy is enabled.
+- **Request routing** is wired into the live request path: a middleware resolves
+  the tenant from the `X-Citadel-Tenant` header, a `?tenant=` param, or an
+  `acme.<CITADEL_BASE_DOMAIN>` subdomain, then runs the **entire** request (auth
+  decode included) inside that tenant's schema scope. Slugs are strictly validated
+  and the derived schema name is quote-validated before it ever reaches SQL, so a
+  tenant identifier cannot inject SQL or escape its schema. Internally,
+  `db.runInTenant(schema, fn)` scopes `search_path` for the duration of each query
+  and resets it on release, so a pooled connection can't leak one tenant's
+  `search_path` to the next.
+- **Per-tenant caches.** The auth/session in-memory caches (`lib/users.js`,
+  `lib/sessions.js`) are keyed by the ambient tenant, and the middleware
+  `ensureLoaded()`s a tenant's users + sessions before handlers run — so one
+  tenant's cached users/sessions can never be served to another. Each tenant also
+  carries its own JWT signing secret (in its own `citadel_settings`), so a token
+  minted for tenant A fails signature verification under tenant B. Infra/operator
+  routes (`/api/health`, `/api/tenants`) and the static SPA are tenant-agnostic.
+
+> **Operational notes for production.** (1) Tenant resolution must be driven by a
+> trustworthy signal — terminate the `X-Citadel-Tenant` header at your proxy (or
+> rely on the subdomain) so clients can't select another tenant. (2) Provision
+> each tenant (`POST /api/tenants`) before routing traffic to it; an unknown slug
+> gets a 404. (3) The public schema still holds an inert default store (seeded at
+> boot) and the tenant registry; no tenant request is ever served from it. The
+> default single-tenant deployment is completely unaffected — with no ambient
+> tenant scope, `db.query` and both caches behave exactly as before.
+
+---
+
 ## Build & run locally
 
 Everything is built from the **repository root** because the image copies both
@@ -237,6 +286,29 @@ docker run --rm -p 8080:8080 \
   --cap-drop ALL \
   --security-opt no-new-privileges:true \
   citadel-server
+```
+
+### Published image — provenance & signature verification
+
+Tagged releases publish a signed image to **GHCR** via
+[`.github/workflows/release-image.yml`](../../.github/workflows/release-image.yml).
+Each push attaches an **SPDX SBOM + SLSA build provenance** (BuildKit
+attestations), a **CycloneDX SBOM** (cosign attestation), and a GitHub-native
+build-provenance attestation, and the image digest is **signed keyless with
+cosign** (Sigstore — no long-lived key; the signer identity is the release
+workflow itself). Before running a pulled image, verify it:
+
+```bash
+IMG=ghcr.io/jessicarojas1/citadel-server   # pin to a @sha256:… digest in prod
+
+# 1) Signature is valid AND was produced by this repo's release workflow:
+cosign verify "$IMG" \
+  --certificate-identity-regexp '^https://github.com/jessicarojas1/jessicarojas1.github.io/' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
+
+# 2) Inspect the attached SBOM / provenance attestations:
+cosign download sbom "$IMG"            # or: cosign verify-attestation --type cyclonedx "$IMG" …
+gh attestation verify oci://"$IMG" --owner jessicarojas1   # SLSA provenance
 ```
 
 ### With Docker Compose (recommended)
@@ -379,6 +451,9 @@ Rev 5 / CMMC 2.0.
   edge/WAF in production.
 - **Supply chain.** Pin scanner versions (the Dockerfile does) and pin the base
   image by digest in production; scan the resulting image on push (`RA-5`,
-  `SI-2`) as the Gov IaC requires.
+  `SI-2`) as the Gov IaC requires. Tagged releases are published **signed**
+  (keyless cosign) with **SBOM + SLSA provenance** attestations — verify them
+  before deploy (see _Published image_ above) so only attested artifacts run
+  (`SR-3`, `SR-4`, `SR-11`; SSDF PS.3 / SLSA build provenance).
 
 _Built by Jessica Rojas. Real scanners assist — verify findings before acting._

@@ -7,6 +7,17 @@ class PageController {
         return Database::fetchOne("SELECT id, space_key, name FROM spaces WHERE id = ?", [$spaceId]);
     }
 
+    /**
+     * Private-space membership gate for page EXPORT routes (print/word/docx/pdf),
+     * which otherwise checked only PageAccess::canView and could leak a
+     * private-space page's content to non-members. Mirrors view()'s space check.
+     */
+    private function canSeePageSpace(int $spaceId): bool {
+        if (!$spaceId) { return true; }
+        $sp = Database::fetchOne("SELECT id, is_private FROM spaces WHERE id = ?", [$spaceId]);
+        return !$sp || SpaceAccess::canView(['id' => (int)$sp['id'], 'is_private' => $sp['is_private']]);
+    }
+
     public function createForm(int $spaceId = 0): void {
         Auth::requirePermission('page.create');
         // /pages/create?space=ID  OR  /spaces/{id}/pages/create
@@ -182,11 +193,17 @@ class PageController {
         $moveSpaces = Auth::can('page.edit')
             ? Database::fetchAll("SELECT id, name, space_key FROM spaces WHERE is_archived=FALSE AND id <> ? ORDER BY name", [(int)$page['space_id']])
             : [];
-        $inlineComments = Database::fetchAll(
+        $allInline = Database::fetchAll(
             "SELECT ic.*, u.name AS user_name, r.name AS resolver_name
              FROM inline_comments ic LEFT JOIN users u ON u.id=ic.user_id LEFT JOIN users r ON r.id=ic.resolved_by
              WHERE ic.page_id=? ORDER BY ic.resolved, ic.created_at", [$id]
         );
+        // Split into top-level (anchored) comments and their threaded replies.
+        $inlineComments = []; $inlineReplies = [];
+        foreach ($allInline as $c) {
+            if ($c['parent_id'] === null) { $inlineComments[] = $c; }
+            else { $inlineReplies[(int)$c['parent_id']][] = $c; }
+        }
         // Backlinks: other live pages whose body links to this page (/pages/{id}).
         $backlinks = Database::fetchAll(
             "SELECT id, title FROM pages
@@ -203,8 +220,18 @@ class PageController {
         $allTags = Database::fetchAll("SELECT id, name, color FROM tags ORDER BY name");
         $attachments = Database::fetchAll(
             "SELECT a.*, u.name AS uploader FROM attachments a LEFT JOIN users u ON u.id=a.uploaded_by
-             WHERE a.entity_type='page' AND a.entity_id=? ORDER BY a.created_at DESC", [$id]
+             WHERE a.entity_type='page' AND a.entity_id=? AND a.is_current=TRUE ORDER BY a.created_at DESC", [$id]
         );
+        // Superseded versions, grouped by filename, for the per-attachment history.
+        $attachmentHistory = [];
+        foreach (Database::fetchAll(
+            "SELECT a.id, a.original_name, a.version, a.file_size, a.created_at, u.name AS uploader
+             FROM attachments a LEFT JOIN users u ON u.id=a.uploaded_by
+             WHERE a.entity_type='page' AND a.entity_id=? AND a.is_current=FALSE
+             ORDER BY a.version DESC", [$id]
+        ) as $old) {
+            $attachmentHistory[$old['original_name']][] = $old;
+        }
         $wfStatus = Workflow::status('page', $id);
         $wfTransitions = $wfStatus ? Workflow::transitions((int)$wfStatus['template_id'], (int)$wfStatus['state_id']) : [];
         $wfHistory = Workflow::history('page', $id);
@@ -251,15 +278,29 @@ class PageController {
         if (empty($_FILES['file']['name'])) { $_SESSION['flash_error'] = 'Choose a file to attach.'; header('Location: /pages/' . $id); return; }
         $up = Upload::handle($_FILES['file'], 'uploads/attachments');
         if (!$up['ok']) { $_SESSION['flash_error'] = $up['error']; header('Location: /pages/' . $id); return; }
+
+        // Versioning: a re-upload of the same filename supersedes the current one.
+        $prev = Database::fetchOne(
+            "SELECT id, version FROM attachments
+             WHERE entity_type='page' AND entity_id=? AND original_name=? AND is_current=TRUE
+             ORDER BY version DESC LIMIT 1",
+            [$id, $up['name']]
+        );
+        $version = 1;
+        if ($prev) {
+            Database::query("UPDATE attachments SET is_current=FALSE, replaced_at=NOW() WHERE id=?", [(int)$prev['id']]);
+            $version = (int)$prev['version'] + 1;
+        }
         Database::insert('attachments', [
             'entity_type' => 'page', 'entity_id' => $id,
             'original_name' => $up['name'], 'stored_name' => $up['key'], 'mime_type' => $up['mime'],
             'file_size' => $up['size'], 'file_hash' => $up['hash'],
             'description' => Security::sanitizeInput($_POST['description'] ?? '') ?: null,
+            'version' => $version, 'is_current' => 't',
             'uploaded_by' => Auth::id(),
         ]);
-        Auth::log('attach_page', 'pages', $id);
-        $_SESSION['flash_success'] = 'Attachment uploaded.';
+        Auth::log('attach_page', 'pages', $id, ['name' => $up['name'], 'version' => $version]);
+        $_SESSION['flash_success'] = $version > 1 ? "New version (v{$version}) uploaded." : 'Attachment uploaded.';
         header('Location: /pages/' . $id);
     }
 
@@ -277,22 +318,6 @@ class PageController {
         if (!$page) { http_response_code(404); return null; }
         if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return null; }
         return $page;
-    }
-
-    /**
-     * Read-access gate for the export endpoints (print/word/docx/pdf). Enforces
-     * BOTH space-membership (private spaces) AND per-page ACLs — matching the
-     * canonical view() gating, which the exports previously omitted (a
-     * private-space bypass). The page row must include `space_id` and the
-     * `space_private` alias. Renders 404/403 and returns false on denial.
-     */
-    private function guardPageExport(?array $page): bool {
-        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return false; }
-        $space = ['id' => (int)$page['space_id'], 'is_private' => $page['space_private'] ?? false];
-        if (!SpaceAccess::canView($space) || !PageAccess::canView($page)) {
-            http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return false;
-        }
-        return true;
     }
 
     private function ancestry(array $page): array {
@@ -576,11 +601,13 @@ class PageController {
     public function printView(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
-            "SELECT p.*, s.is_private AS space_private, s.space_key, s.name AS space_name, o.name AS owner_name
+            "SELECT p.*, s.space_key, s.name AS space_name, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id WHERE p.id=?",
             [$id]
         );
-        if (!$this->guardPageExport($page)) return;
+        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->canSeePageSpace((int)$page['space_id'])) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         $labels = Database::fetchAll(
             "SELECT t.name FROM entity_tags et JOIN tags t ON t.id=et.tag_id
              WHERE et.entity_type='page' AND et.entity_id=? ORDER BY t.name", [$id]
@@ -593,11 +620,13 @@ class PageController {
     public function word(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
-            "SELECT p.*, s.is_private AS space_private, s.name AS space_name, o.name AS owner_name
+            "SELECT p.*, s.name AS space_name, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id
              WHERE p.id=? AND p.deleted_at IS NULL", [$id]
         );
-        if (!$this->guardPageExport($page)) return;
+        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->canSeePageSpace((int)$page['space_id'])) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
         $title = (string)$page['title'];
         $meta  = [
@@ -638,11 +667,13 @@ class PageController {
     public function docx(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
-            "SELECT p.*, s.is_private AS space_private, s.name AS space_name, o.name AS owner_name
+            "SELECT p.*, s.name AS space_name, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id
              WHERE p.id=? AND p.deleted_at IS NULL", [$id]
         );
-        if (!$this->guardPageExport($page)) return;
+        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->canSeePageSpace((int)$page['space_id'])) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
         $title = (string)$page['title'];
         $bytes = Docx::fromHtml($title, (string)$page['body'], [
@@ -666,11 +697,13 @@ class PageController {
     public function pdf(int $id): void {
         Auth::requirePermission('page.view');
         $page = Database::fetchOne(
-            "SELECT p.*, s.is_private AS space_private, s.name AS space_name, o.name AS owner_name
+            "SELECT p.*, s.name AS space_name, o.name AS owner_name
              FROM pages p JOIN spaces s ON s.id=p.space_id LEFT JOIN users o ON o.id=p.owner_id WHERE p.id=? AND p.deleted_at IS NULL",
             [$id]
         );
-        if (!$this->guardPageExport($page)) return;
+        if (!$page) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!PageAccess::canView($page)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
+        if (!$this->canSeePageSpace((int)$page['space_id'])) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
 
         $meta = [
             'Space'   => (string)($page['space_name'] ?? '—'),
@@ -994,6 +1027,27 @@ class PageController {
         Mentions::process($body, 'page', $id, $page['title'] ?? null);
         $_SESSION['flash_success'] = 'Inline comment added.';
         header('Location: /pages/' . $id . '#ic-' . $cid);
+    }
+
+    /** Reply to a top-level inline comment (threaded). $id = parent comment. */
+    public function replyInlineComment(int $id): void {
+        Auth::requirePermission('page.comment');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $parent = Database::fetchOne("SELECT * FROM inline_comments WHERE id=? AND parent_id IS NULL", [$id]);
+        if (!$parent) { http_response_code(404); return; }
+        $page = $this->guardView((int)$parent['page_id']);
+        if (!$page) { http_response_code(404); return; }
+        $body = Security::sanitizeInput($_POST['body'] ?? '');
+        if ($body === '') { $_SESSION['flash_error'] = 'Write a reply.'; header('Location: /pages/' . (int)$parent['page_id'] . '#ic-' . $id); return; }
+
+        $rid = Database::insert('inline_comments', [
+            'page_id' => (int)$parent['page_id'], 'parent_id' => $id, 'user_id' => Auth::id(),
+            'quote' => '', 'body' => $body,
+        ]);
+        Auth::log('inline_comment_reply', 'pages', (int)$parent['page_id'], ['parent' => $id, 'reply' => $rid]);
+        Mentions::process($body, 'page', (int)$parent['page_id'], $page['title'] ?? null);
+        $_SESSION['flash_success'] = 'Reply added.';
+        header('Location: /pages/' . (int)$parent['page_id'] . '#ic-' . $id);
     }
 
     public function resolveInlineComment(int $id): void {

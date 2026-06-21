@@ -8,14 +8,29 @@ declare(strict_types=1);
  */
 class BlogController {
 
+    /** Private-space membership gate for a blog post's space (admins/owners bypass). */
+    private function canSeeBlogSpace(int $spaceId): bool {
+        if (!$spaceId) { return true; }
+        $sp = Database::fetchOne("SELECT id, is_private FROM spaces WHERE id = ?", [$spaceId]);
+        return !$sp || SpaceAccess::canView(['id' => (int)$sp['id'], 'is_private' => $sp['is_private']]);
+    }
+
+    /** SQL fragment (aliases b + s) hiding private-space posts from non-members; appends its param. */
+    private function privSql(array &$params): string {
+        if (Auth::role() === 'admin') { return '1=1'; }
+        $params[] = Auth::id();
+        return '(b.space_id IS NULL OR s.is_private = FALSE OR EXISTS (SELECT 1 FROM space_members m WHERE m.space_id = b.space_id AND m.user_id = ?))';
+    }
+
     public function index(): void {
         Auth::requirePermission('page.view');
+        $params = [Auth::id()]; $priv = $this->privSql($params);
         $posts = Database::fetchAll(
             "SELECT b.*, s.space_key, s.name AS space_name, u.name AS author_name
              FROM blog_posts b LEFT JOIN spaces s ON s.id=b.space_id LEFT JOIN users u ON u.id=b.author_id
-             WHERE b.status='published' OR b.author_id = ?
+             WHERE (b.status='published' OR b.author_id = ?) AND {$priv}
              ORDER BY COALESCE(b.published_at, b.created_at) DESC LIMIT 50",
-            [Auth::id()]
+            $params
         );
         $title = 'Blog'; $spaceFilter = null;
         require PALADIN_ROOT . '/views/blog/index.php';
@@ -28,6 +43,7 @@ class BlogController {
         $params = [];
         $where  = "b.status = 'published'";
         if ($spaceId > 0) { $where .= ' AND b.space_id = ?'; $params[] = $spaceId; }
+        $where .= ' AND ' . $this->privSql($params);
         $posts = Database::fetchAll(
             "SELECT b.id, b.title, b.body, b.published_at, b.created_at, s.name AS space_name, u.name AS author_name
              FROM blog_posts b LEFT JOIN spaces s ON s.id=b.space_id LEFT JOIN users u ON u.id=b.author_id
@@ -46,8 +62,9 @@ class BlogController {
 
     public function space(int $id): void {
         Auth::requirePermission('page.view');
-        $spaceFilter = Database::fetchOne("SELECT id, space_key, name FROM spaces WHERE id=?", [$id]);
+        $spaceFilter = Database::fetchOne("SELECT id, space_key, name, is_private FROM spaces WHERE id=?", [$id]);
         if (!$spaceFilter) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
+        if (!SpaceAccess::canView($spaceFilter)) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         $posts = Database::fetchAll(
             "SELECT b.*, s.space_key, s.name AS space_name, u.name AS author_name
              FROM blog_posts b LEFT JOIN spaces s ON s.id=b.space_id LEFT JOIN users u ON u.id=b.author_id
@@ -66,7 +83,7 @@ class BlogController {
              WHERE b.id=?", [$id]
         );
         if (!$post) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
-        $this->guardBlogView($post);
+        if (!$this->canSeeBlogSpace((int)$post['space_id'])) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; return; }
         $comments = Database::fetchAll(
             "SELECT c.*, u.name AS user_name, r.name AS resolver_name
              FROM comments c LEFT JOIN users u ON u.id=c.user_id LEFT JOIN users r ON r.id=c.resolved_by
@@ -109,7 +126,7 @@ class BlogController {
         Auth::requirePermission('page.edit');
         $post = Database::fetchOne("SELECT * FROM blog_posts WHERE id=?", [$id]);
         if (!$post) { http_response_code(404); require PALADIN_ROOT . '/views/errors/404.php'; return; }
-        $this->guardBlogEdit($post);
+        if (!$this->canSeeBlogSpace((int)$post['space_id'])) { http_response_code(403); return; }
         $spaces = Database::fetchAll("SELECT id, space_key, name FROM spaces WHERE is_archived=FALSE ORDER BY name");
         require PALADIN_ROOT . '/views/blog/form.php';
     }
@@ -119,7 +136,7 @@ class BlogController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $post = Database::fetchOne("SELECT * FROM blog_posts WHERE id=?", [$id]);
         if (!$post) { http_response_code(404); return; }
-        $this->guardBlogEdit($post);
+        if (!$this->canSeeBlogSpace((int)$post['space_id'])) { http_response_code(403); return; }
         $title = Security::sanitizeInput($_POST['title'] ?? $post['title']);
         $status = in_array($_POST['status'] ?? $post['status'], ['draft','published'], true) ? $_POST['status'] : $post['status'];
         if ($status === 'published' && !Auth::can('page.publish')) $status = $post['status'];
@@ -139,7 +156,7 @@ class BlogController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $post = Database::fetchOne("SELECT id, space_id FROM blog_posts WHERE id=?", [$id]);
         if (!$post) { http_response_code(404); return; }
-        $this->guardBlogEdit($post);
+        if (!$this->canSeeBlogSpace((int)$post['space_id'])) { http_response_code(403); return; }
         Database::query("DELETE FROM blog_posts WHERE id=?", [$id]);
         Auth::log('delete_blog', 'blog_posts', $id);
         $_SESSION['flash_success'] = 'Blog post deleted.';
@@ -163,37 +180,5 @@ class BlogController {
             Webhook::dispatch('comment.created', ['entity_type' => 'blog', 'entity_id' => $id, 'actor' => Auth::id()]);
         }
         header('Location: /blog/' . $id . '#comments');
-    }
-
-    // ── object-level access helpers ─────────────────────────────────────────
-
-    /** The space row (id, is_private) for a post, or null when unscoped/missing. */
-    private function blogSpace(mixed $spaceId): ?array {
-        if ($spaceId === null || (int)$spaceId === 0) return null;
-        return Database::fetchOne("SELECT id, is_private FROM spaces WHERE id = ?", [(int)$spaceId]);
-    }
-
-    /**
-     * Read gate: enforce private-space membership AND hide unpublished drafts
-     * from everyone except their author (or a system admin). Renders 403 and
-     * terminates on denial.
-     */
-    private function guardBlogView(array $post): void {
-        $space = $this->blogSpace($post['space_id'] ?? null);
-        $deny  = ($space && !SpaceAccess::canView($space));
-        if (!$deny && ($post['status'] ?? '') !== 'published'
-            && (int)($post['author_id'] ?? 0) !== (int)Auth::id()
-            && Auth::role() !== 'admin') {
-            $deny = true;
-        }
-        if ($deny) { http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; exit; }
-    }
-
-    /** Write gate: require contribute rights in the post's (private) space. */
-    private function guardBlogEdit(array $post): void {
-        $space = $this->blogSpace($post['space_id'] ?? null);
-        if ($space && !SpaceAccess::canContribute($space)) {
-            http_response_code(403); require PALADIN_ROOT . '/views/errors/403.php'; exit;
-        }
     }
 }

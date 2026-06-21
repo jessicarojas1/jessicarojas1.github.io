@@ -71,6 +71,26 @@ def create_refresh_token(subject: str) -> str:
     )
 
 
+def new_refresh_token(subject: str) -> tuple[str, str, datetime]:
+    """Mint a refresh token, returning ``(token, jti, expires_at)``.
+
+    The ``jti`` is the server-side handle used to persist, rotate, and revoke the
+    token; ``expires_at`` mirrors the encoded ``exp`` claim.
+    """
+    now = datetime.now(UTC)
+    expires_at = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    jti = uuid.uuid4().hex
+    payload: dict[str, Any] = {
+        "sub": str(subject),
+        "type": REFRESH_TOKEN_TYPE,
+        "iat": int(now.timestamp()),
+        "exp": int(expires_at.timestamp()),
+        "jti": jti,
+    }
+    token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    return token, jti, expires_at
+
+
 def decode_token(token: str, *, expected_type: str | None = None) -> dict[str, Any]:
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
@@ -82,13 +102,13 @@ def decode_token(token: str, *, expected_type: str | None = None) -> dict[str, A
 
 
 def verify_oidc_token(token: str) -> dict[str, Any]:
-    """Pluggable federal SSO (OIDC / CAC-PIV) verification path — stubbed.
+    """Validate a federated-SSO (OIDC) ID token and return its claims.
 
-    In a real deployment this validates the token against the IdP's JWKS,
-    checks issuer/audience, and maps subject claims to a local user.  The
-    local HS256 path above is fully functional; this stub raises until an
-    issuer is configured so the wiring is present without false security.
+    Delegates to :mod:`app.services.oidc`, which verifies the token against the
+    issuer's JWKS (RS256) and enforces audience/issuer/expiry. Raises
+    :class:`AuthenticationError` when SSO is not configured or the token is
+    invalid. (Imported lazily to avoid an import cycle.)
     """
-    if not settings.OIDC_ISSUER:
-        raise AuthenticationError("OIDC/SSO is not configured on this deployment.")
-    raise AuthenticationError("OIDC token verification is not yet enabled.")
+    from app.services import oidc
+
+    return oidc.verify_id_token(token)

@@ -3,12 +3,17 @@ import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { AlertCircle, Boxes, LogIn } from 'lucide-react';
+import { AlertCircle, Boxes, KeyRound, LogIn } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { getErrorMessage } from '@/lib/api';
-import { useBranding } from '@/hooks';
+import { API_BASE_URL, getErrorMessage } from '@/lib/api';
+import { useBranding, useSsoInfo } from '@/hooks';
 import { FormField, TextInput } from '@/components/FormField';
 import { ThemeToggle } from '@/components/ThemeToggle';
+
+const SSO_ERRORS: Record<string, string> = {
+  sso_failed: 'Single sign-on did not complete. Please try again.',
+  sso_denied: 'Single sign-on was denied for this account.',
+};
 
 const schema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -26,6 +31,15 @@ export default function LoginPage() {
   const branding = useBranding();
   const brandName = branding.name;
   const logoUrl = branding.logoUrl;
+  const ssoInfo = useSsoInfo();
+  const ssoErrorCode = new URLSearchParams(location.search).get('sso_error');
+  const ssoError = ssoErrorCode ? (SSO_ERRORS[ssoErrorCode] ?? 'Single sign-on failed.') : null;
+
+  const startSso = (provider: 'oidc' | 'saml' | 'cac') => {
+    const from = (location.state as { from?: string } | null)?.from ?? '/';
+    window.location.href =
+      `${API_BASE_URL}/auth/${provider}/login?redirect=${encodeURIComponent(from)}`;
+  };
 
   const {
     register,
@@ -74,10 +88,10 @@ export default function LoginPage() {
             Unclassified Information (CUI). Activity is monitored and recorded.
           </p>
 
-          {serverError && (
+          {(serverError || ssoError) && (
             <div className="alert alert--danger" style={{ marginBottom: 16 }}>
               <AlertCircle size={16} />
-              <span>{serverError}</span>
+              <span>{serverError ?? ssoError}</span>
             </div>
           )}
 
@@ -103,6 +117,42 @@ export default function LoginPage() {
               Sign in
             </button>
           </form>
+
+          {ssoInfo.data?.enabled && (
+            <>
+              <div
+                className="muted text-sm"
+                style={{ textAlign: 'center', margin: '14px 0 10px' }}
+              >
+                or
+              </div>
+              {ssoInfo.data.oidc && (
+                <button type="button" className="btn btn-block" onClick={() => startSso('oidc')}>
+                  <KeyRound size={16} /> {ssoInfo.data.label}
+                </button>
+              )}
+              {ssoInfo.data.saml && (
+                <button
+                  type="button"
+                  className="btn btn-block"
+                  style={{ marginTop: ssoInfo.data.oidc ? 8 : 0 }}
+                  onClick={() => startSso('saml')}
+                >
+                  <KeyRound size={16} /> Sign in with SAML
+                </button>
+              )}
+              {ssoInfo.data.cac && (
+                <button
+                  type="button"
+                  className="btn btn-block"
+                  style={{ marginTop: ssoInfo.data.oidc || ssoInfo.data.saml ? 8 : 0 }}
+                  onClick={() => startSso('cac')}
+                >
+                  <KeyRound size={16} /> Sign in with CAC / PIV
+                </button>
+              )}
+            </>
+          )}
 
           <div className="muted text-sm" style={{ marginTop: 20, textAlign: 'center' }}>
             AS9100D · ISO 9001:2015 · CMMC 2.0 · 21 CFR Part 11

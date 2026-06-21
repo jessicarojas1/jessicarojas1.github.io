@@ -51,14 +51,34 @@ Secrets Manager** / **Azure Key Vault** — never from committed files.
 | `RATE_LIMIT_PER_MINUTE` | `300` | Config | Requests allowed per caller (credential or IP) per window. |
 | `RATE_LIMIT_WINDOW_SECONDS` | `60` | Config | Fixed-window length in seconds. |
 | `TRUST_PROXY_HEADERS` | `false` | Config | Honor `X-Forwarded-For` for the client IP (rate limiting). Enable **only** behind a trusted proxy/LB (Render/ALB/Nginx); leaving it off prevents IP spoofing on direct exposure. |
+| `WEBHOOKS_ENABLED` | `true` | Config | Emit HMAC-signed lifecycle events to registered webhook endpoints. Enqueue is atomic with the change; delivery is backgrounded with retries. |
+| `PASSWORD_RESET_TTL_MINUTES` | `60` | Config | Lifetime of a self-service password-reset link. |
 
 ### Federated SSO (OIDC / SAML / CAC-PIV)
 
 | Variable | Default | Sensitivity | Meaning |
 |----------|---------|-------------|---------|
 | `OIDC_ISSUER` | `""` | Sensitive-ish | IdP issuer URL. Empty = federation disabled (fails closed). |
-| `OIDC_CLIENT_ID` | `""` | Sensitive-ish | OIDC/SAML client identifier. |
+| `OIDC_CLIENT_ID` | `""` | Sensitive-ish | OIDC client identifier (also the expected token audience). |
 | `OIDC_CLIENT_SECRET` | `""` | **Secret** | OIDC client secret. From secrets manager. |
+| `OIDC_JWKS_URI` | `""` | Config | Explicit JWKS URL; discovered from the issuer when blank. |
+| `OIDC_AUTO_PROVISION` | `true` | Config | Create a local account on first successful SSO login. |
+| `OIDC_ALLOWED_DOMAINS` | `""` | Config | Comma-separated email-domain allowlist for SSO (empty = any). |
+| `OIDC_GROUP_CLAIM` | `groups` | Config | ID-token claim carrying the user's groups. |
+| `OIDC_GROUP_ROLE_MAP` | `{}` | Config | JSON object mapping IdP group → local role, e.g. `{"qms-admins":"Admin"}`. |
+| `OIDC_DEFAULT_ROLE` | `Read-Only` | Config | Role assigned when no group maps to a role. |
+| `OIDC_SCOPES` | `openid email profile` | Config | Space-separated scopes requested in the browser auth-code flow. |
+| `SAML_IDP_ENTITY_ID` | `""` | Config | Expected IdP issuer (entityID); checked against the assertion when set. |
+| `SAML_IDP_SSO_URL` | `""` | Config | IdP SingleSignOnService URL (HTTP-Redirect). Enables SAML when set with the cert + SP entity. |
+| `SAML_IDP_CERT` | `""` | Sensitive-ish | PEM X.509 cert the IdP signs assertions with. |
+| `SAML_SP_ENTITY_ID` | `""` | Config | This service's SAML entityID (assertion audience). |
+| `SAML_SP_ACS_URL` | `""` | Config | Assertion Consumer Service URL; derived from `APP_BASE_URL` when blank. |
+| `SAML_EMAIL_ATTRIBUTE` | `""` | Config | Assertion attribute holding email; blank → use the Subject NameID. |
+| `SAML_NAME_ATTRIBUTE` | `displayName` | Config | Assertion attribute holding the display name. |
+| `SAML_GROUP_ATTRIBUTE` | `groups` | Config | Assertion attribute holding groups (mapped via `OIDC_GROUP_ROLE_MAP`). |
+| `CLIENT_CERT_PROXY_AUTH` | `false` | Config | Enable CAC/PIV sign-in via proxy-forwarded client-cert headers. Requires `TRUST_PROXY_HEADERS=true`. |
+| `CLIENT_CERT_VERIFY_HEADER` | `X-SSL-Client-Verify` | Config | Header carrying the proxy's cert-verification status (expects `SUCCESS`/`0`/`OK`). |
+| `CLIENT_CERT_PEM_HEADER` | `X-SSL-Client-Cert` | Config | Header carrying the URL-encoded client certificate (PEM). |
 
 ### Bootstrap Admin (seed)
 

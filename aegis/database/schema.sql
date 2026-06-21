@@ -22,6 +22,24 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tenant registry (multi-tenancy foundation; see MULTI_TENANCY.md). Inert until
+-- per-table tenant_id + RLS rollout. The single org maps to tenant id 1.
+CREATE TABLE IF NOT EXISTS tenants (
+    id         BIGSERIAL PRIMARY KEY,
+    name       VARCHAR(255) NOT NULL,
+    slug       VARCHAR(100) UNIQUE NOT NULL,
+    is_active  BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+-- Default tenant (id 1) MUST exist before any tenant_id-bearing row is inserted
+-- (the tenant_id columns added at the end of this file default to 1 with an FK to
+-- tenants). Seed it here so the install-time admin INSERT doesn't violate the FK.
+INSERT INTO tenants (id, name, slug)
+VALUES (1, 'Default Organization', 'default')
+ON CONFLICT (id) DO NOTHING;
+SELECT setval(pg_get_serial_sequence('tenants', 'id'),
+              GREATEST((SELECT MAX(id) FROM tenants), 1));
+
 CREATE TABLE IF NOT EXISTS api_keys (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -236,7 +254,8 @@ CREATE TABLE IF NOT EXISTS risks (
                                'reputational','external','people','project') OR risk_source IS NULL),
     confidence VARCHAR(10) DEFAULT 'medium' CHECK (confidence IN ('low','medium','high')),
     target_likelihood INTEGER CHECK (target_likelihood BETWEEN 1 AND 5),
-    target_impact INTEGER CHECK (target_impact BETWEEN 1 AND 5)
+    target_impact INTEGER CHECK (target_impact BETWEEN 1 AND 5),
+    target_score INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS risk_score_history (
@@ -369,7 +388,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
     action VARCHAR(255) NOT NULL,
     entity_type VARCHAR(100),
     entity_id INTEGER,
-    changes JSONB,
+    changes TEXT,
     ip_address VARCHAR(50),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -404,6 +423,8 @@ CREATE INDEX IF NOT EXISTS idx_ci_objective ON control_implementations(objective
 CREATE INDEX IF NOT EXISTS idx_ci_status    ON control_implementations(status);
 CREATE INDEX IF NOT EXISTS idx_ai_audit     ON audit_items(audit_id);
 CREATE INDEX IF NOT EXISTS idx_risks_status ON risks(status);
+CREATE INDEX IF NOT EXISTS idx_risks_inherent_score ON risks(inherent_score);
+CREATE INDEX IF NOT EXISTS idx_risks_residual_score ON risks(residual_score);
 
 -- ──────────────────────────────────────────────────────────────
 -- Core operational tables (incidents, issues, vendors, evidence)
@@ -776,6 +797,124 @@ INSERT INTO settings (key, value, type, description) VALUES
     ('org_name',           'My Organization', 'string', 'Organization / product display name (Branding)'),
     ('company_logo_data',  '',                'string', 'Logo source — http(s):// URL or data:image/... URI (Branding)'),
     ('company_logo_name',  '',                'string', 'Original logo filename / label (Branding)'),
-    ('brand_accent',       '',                'string', 'Primary brand accent colour as #RRGGBB hex (Branding)')
+    ('brand_accent',       '',                'string', 'Primary brand accent colour as #RRGGBB hex (Branding)'),
+    ('ai_enabled',         '1',               'string', 'Global AIAdvisor kill-switch — set to 0 to disable all AI features org-wide')
 ON CONFLICT (key) DO NOTHING;
 
+
+-- ── Multi-tenancy: tenant_id on primary entity tables (see migration 027) ──────
+-- DEFAULT 1 maps existing/new rows to the default tenant (inert single-tenant).
+DO $$
+DECLARE
+  t   text;
+  tbls text[] := ARRAY[
+    'users','risks','policies','audits','audit_findings','compliance_packages',
+    'compliance_objectives','control_implementations','incidents','issues',
+    'vendors','assets','threats','poam_items','kris','documents','bcp_plans',
+    'privacy_records','account_reviews','awareness_programs','change_requests',
+    'grc_projects','cui_inventory','odp_entries','ssp_plans','questionnaires'
+  ];
+BEGIN
+  FOREACH t IN ARRAY tbls LOOP
+    IF EXISTS (SELECT 1 FROM information_schema.tables
+               WHERE table_schema = 'aegis' AND table_name = t) THEN
+      EXECUTE format('ALTER TABLE aegis.%I ADD COLUMN IF NOT EXISTS tenant_id BIGINT NOT NULL DEFAULT 1 REFERENCES aegis.tenants(id)', t);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON aegis.%I(tenant_id)', 'idx_' || t || '_tenant', t);
+    END IF;
+  END LOOP;
+END$$;
+
+
+-- ── Multi-tenancy: read-path Row-Level Security (see migration 028) ────────────
+-- Permissive-fallback tenant_isolation policy: when the `aegis.tenant_id` GUC is
+-- unset/empty all rows are visible (inert single-tenant); when a request binds a
+-- tenant via Database::setTenant(), reads/writes are isolated in the DB itself.
+-- ENABLE + FORCE so the policy applies even to the table owner; the runtime app
+-- must connect as a non-superuser role (superusers bypass RLS). Phase 4 hardens
+-- this to deny-by-default.
+DO $$
+DECLARE
+  t   text;
+  tbls text[] := ARRAY[
+    'users','risks','policies','audits','audit_findings','compliance_packages',
+    'compliance_objectives','control_implementations','incidents','issues',
+    'vendors','assets','threats','poam_items','kris','documents','bcp_plans',
+    'privacy_records','account_reviews','awareness_programs','change_requests',
+    'grc_projects','cui_inventory','odp_entries','ssp_plans','questionnaires'
+  ];
+BEGIN
+  FOREACH t IN ARRAY tbls LOOP
+    IF EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'aegis' AND table_name = t AND column_name = 'tenant_id'
+    ) THEN
+      EXECUTE format('ALTER TABLE aegis.%I ENABLE ROW LEVEL SECURITY', t);
+      EXECUTE format('ALTER TABLE aegis.%I FORCE ROW LEVEL SECURITY', t);
+      EXECUTE format('DROP POLICY IF EXISTS tenant_isolation ON aegis.%I', t);
+      -- NULLIF(..,'') makes the ::bigint cast total: an unset/empty GUC becomes
+      -- NULL (permissive) instead of raising 22P02 when SQL OR evaluates the cast
+      -- branch out of order. See migration 028.
+      EXECUTE format($pol$
+        CREATE POLICY tenant_isolation ON aegis.%I
+          USING (
+            NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
+            OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)
+          WITH CHECK (
+            NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
+            OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)
+      $pol$, t);
+    END IF;
+  END LOOP;
+END$$;
+
+
+-- ── Multi-tenancy: child/detail + link tables (see migration 029) ──────────────
+-- Extends tenant_id + the permissive tenant_isolation policy to the children of
+-- the primary entities. Same inert pattern (DEFAULT 1, permissive while the GUC
+-- is unset). Deferred: auth/session/token, global/reference/system, per-user
+-- prefs, and the workflow/approval/automation/webhook/reporting engine.
+DO $$
+DECLARE
+  t   text;
+  tbls text[] := ARRAY[
+    'audit_schedules','audit_items','finding_updates',
+    'policy_versions','policy_mappings','policy_reviews','policy_attestations',
+    'policy_attestation_campaigns',
+    'risk_score_history','risk_control_links','risk_related_links','risk_treatments',
+    'risk_acceptances','risk_bowtie_causes','risk_bowtie_consequences',
+    'risk_bowtie_barriers','risk_scenarios','risk_reviews','risk_review_items',
+    'risk_exceptions','treatment_plans','treatment_milestones',
+    'incident_updates','incident_sla_events','issue_updates',
+    'vendor_assessments','vendor_contracts',
+    'asset_risk_links','threat_risk_links',
+    'poam_milestones','kri_values','document_versions',
+    'bcp_plan_sections','bcp_exercises',
+    'data_subject_requests','account_review_items','awareness_assignments',
+    'ssp_packages','ssp_control_statements',
+    'questionnaire_questions','questionnaire_assignments','questionnaire_responses',
+    'questionnaire_answers','change_request_updates',
+    'grc_project_tasks','grc_project_links',
+    'control_mappings','control_tests','raci_assignments','shared_responsibility',
+    'evidence','evidence_files'
+  ];
+BEGIN
+  FOREACH t IN ARRAY tbls LOOP
+    IF EXISTS (SELECT 1 FROM information_schema.tables
+               WHERE table_schema = 'aegis' AND table_name = t) THEN
+      EXECUTE format('ALTER TABLE aegis.%I ADD COLUMN IF NOT EXISTS tenant_id BIGINT NOT NULL DEFAULT 1 REFERENCES aegis.tenants(id)', t);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON aegis.%I(tenant_id)', 'idx_' || t || '_tenant', t);
+      EXECUTE format('ALTER TABLE aegis.%I ENABLE ROW LEVEL SECURITY', t);
+      EXECUTE format('ALTER TABLE aegis.%I FORCE ROW LEVEL SECURITY', t);
+      EXECUTE format('DROP POLICY IF EXISTS tenant_isolation ON aegis.%I', t);
+      EXECUTE format($pol$
+        CREATE POLICY tenant_isolation ON aegis.%I
+          USING (
+            NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
+            OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)
+          WITH CHECK (
+            NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
+            OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)
+      $pol$, t);
+    END IF;
+  END LOOP;
+END$$;

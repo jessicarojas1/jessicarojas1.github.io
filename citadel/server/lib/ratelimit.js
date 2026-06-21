@@ -78,7 +78,7 @@ async function limit(key, max, windowMs) {
     if (n === 1) await redis.pexpire(k, windowMs);
     if (n > max) { const ttl = await redis.pttl(k); return { ok: false, retryAfter: Math.ceil((ttl > 0 ? ttl : windowMs) / 1000), remaining: 0 }; }
     return { ok: true, retryAfter: 0, remaining: Math.max(0, max - n) };
-  } catch (e) { return { ok: true, retryAfter: 0, remaining: max }; }   // fail open
+  } catch (e) { return { ok: true, retryAfter: 0, remaining: max, error: true }; }   // permissive default; callers may fail closed
 }
 async function fail(key, opts) {
   const o = Object.assign({ maxFails: 5, windowMs: 15 * 60000, lockMs: 15 * 60000 }, opts || {});

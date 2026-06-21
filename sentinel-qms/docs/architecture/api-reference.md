@@ -25,9 +25,66 @@ Obtain tokens at `POST /api/v1/auth/login`, then send the access token as a bear
 ```
 Authorization: Bearer <access_token>
 ```
-Refresh via `POST /api/v1/auth/refresh`. Federated (OIDC/SAML/CAC-PIV) sessions are exchanged for an
-internal token by the identity broker. See
-[security-architecture.md](security-architecture.md) §2.
+Refresh via `POST /api/v1/auth/refresh`. Refresh tokens are **rotated** on every use: the presented
+token is revoked server-side and a new one returned, and replaying a rotated token revokes the user's
+whole active set (theft detection). `POST /api/v1/auth/logout` revokes the user's refresh tokens
+(sign out everywhere). See [security-architecture.md](security-architecture.md) §2.
+
+#### Federated SSO (OIDC)
+When `OIDC_ISSUER` is configured, exchange an IdP-issued ID token for an internal session:
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/v1/auth/sso/info` | Public. `{ "enabled": bool, "label": str }` — drives the login page's SSO button. |
+| `GET /api/v1/auth/oidc/login?redirect=/path` | Begins the browser authorization-code flow: 302 to the IdP with a signed, short-lived `state` (carries a nonce + the post-login path). |
+| `GET /api/v1/auth/oidc/callback?code=&state=` | IdP redirect target. Verifies `state`, exchanges the code for an ID token server-side (confidential client), verifies it + the nonce, provisions the user, then 302s to `<redirect>#access_token=…&refresh_token=…` (fragment, so tokens never reach logs/Referer). Failures 302 to `/login?sso_error=…`. |
+| `POST /api/v1/auth/oidc/exchange` | Programmatic alternative. Body `{ "id_token": "<IdP ID token>" }`; verifies and issues the same internal session. |
+
+All paths verify the ID token against the issuer's JWKS (RS256, audience/issuer/expiry enforced), match the user by email (JIT-provisioned when `OIDC_AUTO_PROVISION`), and map IdP groups to local roles.
+
+Access is gated by an optional email-domain allowlist (`OIDC_ALLOWED_DOMAINS`); the group claim and
+group→role map are configurable. SSO-provisioned accounts have no password and cannot use the
+password grant.
+
+#### Federated SSO (SAML 2.0)
+When the `SAML_IDP_*` + `SAML_SP_*` settings are configured, SP-initiated Web Browser SSO is available:
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/v1/auth/saml/login?redirect=/path` | 302 to the IdP with a deflated `AuthnRequest` (HTTP-Redirect binding) and a signed `RelayState`. |
+| `POST /api/v1/auth/saml/acs` | Assertion Consumer Service (HTTP-POST). Verifies the IdP's **signed** Response/Assertion with `signxml` — only the verified subtree is trusted (XSW-safe) — checks audience + validity window + issuer, provisions the user, then 302s to `<redirect>#access_token=…&refresh_token=…`. Failures 302 to `/login?sso_error=…`. |
+| `GET /api/v1/auth/saml/metadata` | Public SP metadata XML for registering this service with the IdP. |
+
+SAML shares the same provisioning policy as OIDC (domain allowlist, group→role map, JIT).
+
+#### Federated SSO (CAC / PIV, mutual-TLS)
+When `CLIENT_CERT_PROXY_AUTH` and `TRUST_PROXY_HEADERS` are set, a reverse proxy terminates the
+client-certificate handshake and forwards the result:
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/v1/auth/cac/login?redirect=/path` | Reads the proxy-forwarded `X-SSL-Client-Verify` + `X-SSL-Client-Cert` headers, extracts the email/UPN from the certificate, provisions the user, then 302s to `<redirect>#access_token=…&refresh_token=…`. Denied → `/login?sso_error=…`. |
+
+The app trusts the proxy's verification verdict (it does not itself validate the cert chain); the
+headers are honored only behind a trusted proxy.
+
+#### Password management
+| Method & path | Purpose |
+|---------------|---------|
+| `POST /api/v1/auth/password-reset/request` | Begin a self-service reset; always returns the same response (no account enumeration). Emails a single-use, time-bound link. |
+| `POST /api/v1/auth/password-reset/confirm` | Set a new password with a valid reset token; revokes existing sessions. |
+| `POST /api/v1/auth/change-password` | Signed-in user changes their own password (re-auth with current password); revokes other sessions. |
+
+#### Multi-factor authentication (TOTP)
+Time-based one-time passwords (RFC 6238) compatible with standard authenticator apps. Once a user
+activates MFA, `POST /api/v1/auth/login` additionally requires an `otp` field.
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/v1/auth/mfa/status` | Whether MFA is enabled for the current user. |
+| `POST /api/v1/auth/mfa/enroll` | Generate a TOTP secret + `otpauth://` URI (not yet enforced). |
+| `POST /api/v1/auth/mfa/activate` | Confirm a code to enable MFA. |
+| `POST /api/v1/auth/mfa/disable` | Verify a code and disable MFA. |
 
 #### Personal Access Tokens (scoped API keys)
 For scripts, CI jobs, and service integrations, mint a long-lived **Personal Access Token** under
@@ -342,7 +399,42 @@ Authorization: Bearer <access_token>
 
 ---
 
-## 4. OpenAPI & SDKs
+## 4. Webhooks (outbound events)
+
+Administrators register HTTPS endpoints (`POST /api/v1/webhooks`, requires `user:manage`) that receive
+**signed** QMS lifecycle events. Each registration has a signing secret (returned exactly once at
+creation), a subscription list (specific event names, or `["*"]` for all), and an active flag.
+
+Events mirror the immutable audit trail: an event name is `"<entity_type>.<action>"`
+(e.g. `nonconformance.disposition`, `capa.close`, `document.approve_revision`). When a subscribed event
+occurs, a delivery is enqueued **in the same transaction as the change** (a rolled-back change emits
+nothing), then delivered out-of-band with bounded exponential-backoff retries (up to 6 attempts).
+
+Each delivery POSTs a JSON body and these headers:
+
+| Header | Value |
+|--------|-------|
+| `X-Sentinel-Event` | The event name. |
+| `X-Sentinel-Delivery` | Unique delivery id. |
+| `X-Sentinel-Timestamp` | Unix epoch seconds at send time. |
+| `X-Sentinel-Signature` | `sha256=<hmac>` — HMAC-SHA256 of the exact body bytes, keyed by the secret. |
+
+**Verify** by recomputing the HMAC over the raw body with your secret and comparing in constant time.
+Outbound URLs are validated against an SSRF guard (must resolve to a public address) before any send.
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/v1/webhooks` | List registrations (secrets never included). |
+| `POST /api/v1/webhooks` | Register an endpoint; response includes the one-time secret. |
+| `PATCH /api/v1/webhooks/{id}` | Update url / events / active. |
+| `DELETE /api/v1/webhooks/{id}` | Remove a registration. |
+| `GET /api/v1/webhooks/{id}/deliveries` | Inspect recent delivery attempts. |
+| `POST /api/v1/webhooks/{id}/test` | Send a signed `webhook.ping`. |
+| `POST /api/v1/webhooks/deliveries/{id}/redeliver` | Re-attempt a delivery. |
+
+---
+
+## 5. OpenAPI & SDKs
 
 The canonical contract is the OpenAPI document at `GET /api/v1/openapi.json`. Typed clients (TypeScript
 for the SPA, Python for integrations) are generated from it in CI, keeping clients in lockstep with the

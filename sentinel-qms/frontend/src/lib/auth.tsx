@@ -52,6 +52,24 @@ async function fetchProfile(): Promise<User> {
   return mapUser(data);
 }
 
+/**
+ * The SSO callback redirects to ``<path>#access_token=…&refresh_token=…``. Parse
+ * those out of the fragment, persist them, and clean the URL so the secrets are
+ * not left in the address bar / history. Returns true when tokens were captured.
+ */
+function captureSsoTokensFromHash(): boolean {
+  const hash = window.location.hash;
+  if (!hash || !hash.includes('access_token=')) return false;
+  const params = new URLSearchParams(hash.replace(/^#/, ''));
+  const access_token = params.get('access_token');
+  const refresh_token = params.get('refresh_token');
+  if (!access_token || !refresh_token) return false;
+  tokenStore.set({ access_token, refresh_token });
+  // Strip the fragment without adding a history entry.
+  window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  return true;
+}
+
 interface AuthState {
   user: User | null;
   loading: boolean;
@@ -70,6 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const loadProfile = useCallback(async () => {
+    // Capture tokens handed back by the SSO callback via the URL fragment.
+    captureSsoTokensFromHash();
     if (!tokenStore.access) {
       setUser(null);
       setLoading(false);

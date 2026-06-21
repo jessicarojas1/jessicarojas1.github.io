@@ -76,6 +76,7 @@ class SSOController {
             'name'       => $user['name'],
             'email'      => $user['email'],
             'role'       => $user['role'],
+            'tenant_id'  => (int)($user['tenant_id'] ?? 1),
             'sso'        => true,
             'login_time' => time(),
         ];

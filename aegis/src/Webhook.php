@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/Ssrf.php'; // self-load for CLI scripts that bypass the autoloader
 /**
  * AEGIS GRC — Webhook dispatcher and delivery engine.
  *
@@ -65,19 +66,16 @@ class Webhook {
         $targetUrl    = $endpoint['url'];
         $resolveEntry = null; // populated below for CURLOPT_RESOLVE to pin the IP (DNS rebinding prevention)
 
-        // SSRF prevention: resolve hostname and reject private/reserved IP ranges
-        // (PagerDuty is overridden to a fixed known URL below, so check after that override)
+        // SSRF prevention: validate the target (IPv4 + IPv6, metadata/private/reserved
+        // ranges) via the centralized guard and pin cURL to the validated IP so a second
+        // DNS lookup can't rebind to a private range (DNS rebinding / TOCTOU). PagerDuty
+        // is overridden to a fixed known URL below, so it is checked after that override.
         if ($provider !== 'pagerduty') {
-            $host     = parse_url($targetUrl, PHP_URL_HOST);
-            $resolved = $host ? gethostbyname($host) : '';
-            if (!$resolved || filter_var($resolved, FILTER_VALIDATE_IP,
-                    FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            $resolveEntry = Ssrf::curlResolve($targetUrl);
+            if ($resolveEntry === null) {
                 error_log('[AEGIS] Webhook SSRF blocked: ' . $targetUrl);
                 return false;
             }
-            // Pin cURL to the already-validated IP so a second DNS lookup can't rebind to a private range
-            $port         = parse_url($targetUrl, PHP_URL_SCHEME) === 'https' ? 443 : 80;
-            $resolveEntry = ["{$host}:{$port}:{$resolved}"];
         }
 
         // For PagerDuty: routing_key may come from a custom_headers JSON or url query param

@@ -34,6 +34,10 @@ check(Csv::cell('3.14')        === '3.14',       'decimal preserved');
 check(Csv::cell('Normal text') === 'Normal text','plain text untouched');
 check(Csv::cell('')            === '',           'empty string untouched');
 check(Csv::row(['=a', 'b'])    === ["'=a", 'b'], 'row() guards each cell');
+check(Csv::cell("\rCR")        === "'\rCR",      'leading carriage-return is neutralised');
+check(Csv::cell('=1+1')        === "'=1+1",      'classic =1+1 formula neutralised');
+check(Csv::cell('a=b')         === 'a=b',        'internal = (not leading) left untouched');
+check(Csv::cell('0')           === '0',          'zero left untouched');
 
 echo "— SSRF outbound-URL guard (Security::safeOutboundIp) —\n";
 check(Security::safeOutboundIp('http://127.0.0.1/x')             === null,     'loopback blocked');
@@ -46,6 +50,14 @@ check(Security::safeOutboundIp('http://0.0.0.0/x')               === null,     '
 check(Security::safeOutboundIp('ftp://8.8.8.8/x')                === null,     'non-http scheme blocked');
 check(Security::safeOutboundIp('file:///etc/passwd')            === null,     'file scheme blocked');
 check(Security::safeOutboundIp('https://8.8.8.8/x')             === '8.8.8.8', 'public IP allowed (pins to IP)');
+check(Security::safeOutboundIp('http://[fd00::1]/x')            === null,     'ipv6 unique-local (fc00::/7) blocked');
+check(Security::safeOutboundIp('http://[fe80::1]/x')           === null,     'ipv6 link-local (fe80::/10) blocked');
+check(Security::safeOutboundIp('http://127.5.5.5/x')            === null,     'loopback /8 (not just .0.1) blocked');
+check(Security::safeOutboundIp('http://169.254.1.1/x')         === null,     'link-local /16 (not just metadata) blocked');
+check(Security::safeOutboundIp('https://1.1.1.1:8443/x')       === '1.1.1.1','public IP with explicit port allowed');
+check(Security::safeOutboundIp('HTTP://8.8.4.4/x')             === '8.8.4.4','uppercase scheme handled');
+check(Security::safeOutboundIp('http://')                      === null,     'missing host rejected');
+check(Security::safeOutboundIp('not a url')                    === null,     'garbage rejected');
 
 echo "— Rich-text sanitiser (Security::sanitizeHtml) —\n";
 $a = Security::sanitizeHtml('<p>hello</p><script>alert(1)</script>');
@@ -57,9 +69,63 @@ $c = Security::sanitizeHtml('<a href="javascript:alert(1)">x</a>');
 check(stripos($c, 'javascript:') === false, 'javascript: URI stripped');
 $d = Security::sanitizeHtml('<a href="https://ok.example/p">x</a>');
 check(strpos($d, 'https://ok.example/p') !== false, 'safe http(s) href preserved');
+// SVG-based XSS bypasses (xlink:href, set/animate href, foreignObject).
+check(stripos(Security::sanitizeHtml('<svg><a xlink:href="javascript:alert(1)">x</a></svg>'), 'javascript:') === false, 'svg xlink:href javascript: stripped');
+check(stripos(Security::sanitizeHtml('<svg><a><set attributeName="href" to="javascript:alert(1)"/></a></svg>'), 'javascript:') === false, 'svg <set> href javascript: stripped');
+check(stripos(Security::sanitizeHtml('<svg><a><animate attributeName="href" values="javascript:alert(1)"/></a></svg>'), 'javascript:') === false, 'svg <animate> href javascript: stripped');
+check(stripos(Security::sanitizeHtml('<svg><foreignObject><img src=x onerror=alert(1)></foreignObject></svg>'), '<svg') === false, 'svg/foreignObject element removed');
 
 echo "— Output escaping (Security::h) —\n";
 check(Security::h('<b>&"') === '&lt;b&gt;&amp;&quot;', 'h() encodes < > & "');
+
+echo "— Native .docx generator (Docx) — well-formedness & XML escaping —\n";
+if (class_exists('ZipArchive')) {
+    require_once PALADIN_ROOT . '/src/Docx.php';
+    // Body deliberately contains XML-hostile characters and a <script> element.
+    $bytes = Docx::fromHtml('Title & <Tag>', '<h1>5 < 6 & "q"</h1><p>ok <strong>bold</strong></p><script>alert(1)</script>');
+    check(substr($bytes, 0, 2) === 'PK', 'docx is a ZIP (PK magic)');
+
+    $tmp = tempnam(sys_get_temp_dir(), 'palt');
+    file_put_contents($tmp, $bytes);
+    $zip = new ZipArchive();
+    $docXml = '';
+    if ($zip->open($tmp) === true) {
+        $docXml = (string)$zip->getFromName('word/document.xml');
+        $hasCt  = $zip->getFromName('[Content_Types].xml') !== false;
+        $hasRel = $zip->getFromName('_rels/.rels') !== false;
+        $zip->close();
+        check($hasCt && $hasRel, 'docx contains [Content_Types].xml and _rels/.rels');
+    } else {
+        check(false, 'docx package opens as a ZIP');
+    }
+    @unlink($tmp);
+
+    // word/document.xml must be well-formed XML (proves all & < > are escaped).
+    $prev = libxml_use_internal_errors(true);
+    $parsed = $docXml !== '' ? simplexml_load_string($docXml) : false;
+    libxml_clear_errors();
+    libxml_use_internal_errors($prev);
+    check($parsed !== false, 'word/document.xml is well-formed XML');
+    // No raw <script> markup survives into the document part.
+    check(stripos($docXml, '<script') === false, 'no <script> element in document.xml');
+    // XML-hostile characters are entity-escaped, not raw.
+    check(strpos($docXml, '&lt;') !== false && strpos($docXml, '&amp;') !== false, 'special chars are entity-escaped');
+} else {
+    echo "  (skipped — ZipArchive unavailable)\n";
+}
+
+echo "— Markdown import pipeline (Markdown::toHtml -> sanitizeHtml) —\n";
+require_once PALADIN_ROOT . '/src/Markdown.php';
+$imp = fn(string $md): string => Security::sanitizeHtml(Markdown::toHtml($md));
+// Raw <script> embedded in markdown must not survive as a live element.
+check(preg_match('/<script/i', $imp("text\n\n<script>alert(1)</script>")) === 0, 'raw <script> not live after import');
+// Raw event-handler HTML is escaped to inert text (no live tag).
+check(preg_match('/<img/i', $imp('<img src=x onerror=alert(1)>')) === 0, 'raw <img onerror> not a live tag after import');
+// A javascript: link target is stripped entirely.
+check(stripos($imp('[x](javascript:alert(1))'), 'javascript:') === false, 'javascript: link neutralised on import');
+// Legitimate markdown is preserved.
+check(stripos($imp('[ok](https://example.com/p)'), 'href="https://example.com/p"') !== false, 'safe http(s) link preserved on import');
+check((bool)preg_match('/<(strong|b)>/i', $imp('**bold**')), 'bold markdown preserved on import');
 
 echo "\n$tests checks, $fails failure(s)\n";
 exit($fails === 0 ? 0 : 1);

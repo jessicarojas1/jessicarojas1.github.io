@@ -1,0 +1,234 @@
+{{- include "citadel.validate" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "citadel.fullname" . }}
+  labels:
+    {{- include "citadel.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  # When the HPA is enabled it owns replicas; omit here to avoid fighting it.
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      {{- include "citadel.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        {{- include "citadel.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        # Roll pods when the secret content changes (forces a fresh pickup).
+        {{- if .Values.secrets.create }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- end }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "citadel.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      containers:
+        - name: citadel
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          env:
+            # ---- Non-secret configuration ----
+            - name: NODE_ENV
+              value: {{ .Values.env.NODE_ENV | default "production" | quote }}
+            - name: PORT
+              value: {{ .Values.service.targetPort | quote }}
+            # Writable scratch dir for untrusted uploads (read-only root FS).
+            - name: CITADEL_TMP
+              value: /tmp/citadel
+            {{- with .Values.env.OTEL_EXPORTER_OTLP_ENDPOINT }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.env.CITADEL_ENABLE_CODEQL }}
+            - name: CITADEL_ENABLE_CODEQL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- if .Values.persistence.enabled }}
+            # File-store path (used when no database is configured).
+            - name: CITADEL_DATA_DIR
+              value: {{ .Values.persistence.mountPath | quote }}
+            {{- end }}
+            {{- if .Values.multitenancy.enabled }}
+            - name: CITADEL_MULTITENANT
+              value: "1"
+            {{- with .Values.multitenancy.baseDomain }}
+            - name: CITADEL_BASE_DOMAIN
+              value: {{ . | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.externalDatabase.enabled }}
+            # ---- Postgres TLS posture (NIST SC-8) ----
+            {{- if .Values.externalDatabase.ssl.enabled }}
+            - name: PGSSL
+              value: "1"
+            - name: PGSSL_VERIFY
+              value: {{ ternary "1" "0" .Values.externalDatabase.ssl.verify | quote }}
+            {{- with .Values.externalDatabase.ssl.caPath }}
+            - name: PGSSL_CA
+              value: {{ . | quote }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            # ---- Sensitive configuration (from Secret; never inlined) ----
+            - name: CITADEL_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "citadel.secretName" . }}
+                  key: {{ .Values.secrets.keys.jwtSecret }}
+                  optional: false
+            - name: CITADEL_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "citadel.secretName" . }}
+                  key: {{ .Values.secrets.keys.adminEmail }}
+                  optional: true
+            - name: CITADEL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "citadel.secretName" . }}
+                  key: {{ .Values.secrets.keys.adminPassword }}
+                  optional: true
+            {{- if .Values.externalDatabase.enabled }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "citadel.secretName" . }}
+                  key: {{ .Values.secrets.keys.databaseUrl }}
+                  optional: false
+            {{- end }}
+            {{- if .Values.multitenancy.enabled }}
+            - name: CITADEL_SUPERADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "citadel.secretName" . }}
+                  key: {{ .Values.secrets.keys.superadminToken }}
+                  optional: true
+            {{- end }}
+            {{- if .Values.metrics.enabled }}
+            - name: CITADEL_METRICS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "citadel.secretName" . }}
+                  key: {{ .Values.secrets.keys.metricsToken }}
+                  optional: true
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            # ---- Operator-supplied extra env ----
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.startupProbe.httpGet.path }}
+              port: {{ .Values.startupProbe.httpGet.port }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+          {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            # Writable tmp scratch (CITADEL_TMP) — required for read-only root FS.
+            - name: citadel-tmp
+              mountPath: /tmp/citadel
+            {{- if .Values.volumes.clamavDb.enabled }}
+            - name: clamav-db
+              mountPath: /var/lib/clamav
+            {{- end }}
+            {{- if .Values.persistence.enabled }}
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+            {{- end }}
+      volumes:
+        - name: citadel-tmp
+          emptyDir:
+            {{- with .Values.volumes.citadelTmp.medium }}
+            medium: {{ . }}
+            {{- end }}
+            {{- with .Values.volumes.citadelTmp.sizeLimit }}
+            sizeLimit: {{ . }}
+            {{- end }}
+        {{- if .Values.volumes.clamavDb.enabled }}
+        - name: clamav-db
+          emptyDir:
+            {{- with .Values.volumes.clamavDb.medium }}
+            medium: {{ . }}
+            {{- end }}
+            {{- with .Values.volumes.clamavDb.sizeLimit }}
+            sizeLimit: {{ . }}
+            {{- end }}
+        {{- end }}
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (printf "%s-data" (include "citadel.fullname" .)) }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-data" (include "citadel.fullname" .) }}
+  labels:
+    {{- include "citadel.labels" . | nindent 4 }}
+  {{- with .Values.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.accessModes | nindent 4 }}
+  {{- if .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size | quote }}
+{{- end }}

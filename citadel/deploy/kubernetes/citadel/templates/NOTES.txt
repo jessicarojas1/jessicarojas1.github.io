@@ -1,0 +1,39 @@
+CITADEL has been deployed.
+
+  Release:    {{ .Release.Name }}
+  Namespace:  {{ .Release.Namespace }}
+  Image:      {{ .Values.image.repository }}:{{ .Values.image.tag }}
+  Replicas:   {{ if .Values.autoscaling.enabled }}HPA {{ .Values.autoscaling.minReplicas }}–{{ .Values.autoscaling.maxReplicas }}{{ else }}{{ .Values.replicaCount }}{{ end }}
+  Database:   {{ if .Values.externalDatabase.enabled }}external Postgres (HA + multi-tenant capable){{ else }}file store{{ if .Values.persistence.enabled }} (PVC){{ end }} — single writer{{ end }}
+  Multitenant:{{ if .Values.multitenancy.enabled }} ON (base domain: {{ .Values.multitenancy.baseDomain }}){{ else }} off{{ end }}
+
+1. Health & status:
+   kubectl -n {{ .Release.Namespace }} rollout status deploy/{{ include "citadel.fullname" . }}
+   kubectl -n {{ .Release.Namespace }} get pods -l app.kubernetes.io/instance={{ .Release.Name }}
+
+2. Reach the app:
+{{- if .Values.ingress.enabled }}
+{{- range .Values.ingress.hosts }}
+   https://{{ .host }}/
+{{- end }}
+{{- else }}
+   Ingress is disabled. Port-forward to test:
+   kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "citadel.fullname" . }} 8080:{{ .Values.service.port }}
+   curl http://localhost:8080/api/health
+{{- end }}
+
+{{- if and .Values.secrets.create (not .Values.secrets.existingSecret) (not .Values.secrets.values.jwtSecret) }}
+
+WARNING: secrets.create=true but no CITADEL_JWT_SECRET was supplied. The pod
+will fail to start (the JWT secret is required). Re-run with, e.g.:
+   helm upgrade {{ .Release.Name }} ... --set-string secrets.values.jwtSecret="$(openssl rand -hex 32)"
+or set secrets.existingSecret to a Secret you manage.
+{{- end }}
+
+{{- if and (or (gt (int .Values.replicaCount) 1) .Values.autoscaling.enabled) (not .Values.externalDatabase.enabled) }}
+
+NOTE: You are running multiple replicas without a database. Enable
+externalDatabase (DATABASE_URL) for safe HA — the file store is single-writer.
+{{- end }}
+
+Metrics:{{ if .Values.metrics.enabled }} GET {{ .Values.metrics.path }} (token-gated via CITADEL_METRICS_TOKEN){{ else }} disabled{{ end }}

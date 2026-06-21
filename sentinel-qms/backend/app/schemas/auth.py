@@ -20,11 +20,46 @@ class TokenRefreshRequest(BaseModel):
     refresh_token: str
 
 
+class PasswordResetRequest(BaseModel):
+    email: str = Field(..., min_length=1, max_length=320)
+
+
+class PasswordResetConfirm(BaseModel):
+    token: str = Field(..., min_length=1, max_length=512)
+    new_password: str = Field(..., min_length=12, max_length=256)
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(..., min_length=1, max_length=256)
+    new_password: str = Field(..., min_length=12, max_length=256)
+
+
 class LoginRequest(BaseModel):
     # Plain string (not EmailStr): the identifier is matched against the user's
     # email server-side, and EmailStr rejects reserved domains like ".local".
     username: str = Field(..., min_length=1, max_length=320)
     password: str = Field(..., min_length=1, max_length=256)
+    # TOTP code, required only for accounts with MFA enabled.
+    otp: str | None = Field(default=None, max_length=16)
+
+
+class OidcExchangeRequest(BaseModel):
+    """Exchange an IdP-issued OIDC ID token for an internal session."""
+
+    id_token: str = Field(..., min_length=1)
+
+
+class MfaEnrollResponse(BaseModel):
+    secret: str
+    otpauth_uri: str
+
+
+class MfaCodeRequest(BaseModel):
+    code: str = Field(..., min_length=1, max_length=16)
+
+
+class MfaStatus(BaseModel):
+    enabled: bool
 
 
 class RoleRead(ORMModel):

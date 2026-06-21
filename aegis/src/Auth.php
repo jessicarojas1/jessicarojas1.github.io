@@ -60,7 +60,127 @@ class Auth {
             'automation' => ['view'],
             'approval'   => ['view'],
         ],
+
+        // Auditor — broad read across all modules plus full ownership of audits
+        // and findings. (Previously offered in the UI with NO defaults defined,
+        // leaving auditor users with zero permissions — this fixes that.)
+        'auditor' => [
+            'risk'       => ['view'],
+            'compliance' => ['view','test','gap'],
+            'audit'      => ['view','create','edit','findings','close'],
+            'policy'     => ['view'],
+            'incident'   => ['view'],
+            'vendor'     => ['view','assess'],
+            'issue'      => ['view','create','edit'],
+            'change'     => ['view'],
+            'threat'     => ['view'],
+            'awareness'  => ['view'],
+            'asset'      => ['view'],
+            'kri'        => ['view'],
+            'bcp'        => ['view'],
+            'ssp'        => ['view'],
+            'report'     => ['view'],
+            'automation' => ['view'],
+            'approval'   => ['view'],
+        ],
+
+        // Control Owner — implements and evidences controls; owns policies they attest.
+        'control_owner' => [
+            'risk'       => ['view','treatment'],
+            'compliance' => ['view','assess','test'],
+            'audit'      => ['view','findings'],
+            'policy'     => ['view','attest'],
+            'incident'   => ['view'],
+            'vendor'     => ['view'],
+            'issue'      => ['view','create','edit'],
+            'asset'      => ['view','create','edit'],
+            'kri'        => ['view','record'],
+            'ssp'        => ['view','edit'],
+            'report'     => ['view'],
+            'approval'   => ['view'],
+        ],
+
+        // Risk Owner — owns the risk lifecycle (incl. acceptance) and KRIs.
+        'risk_owner' => [
+            'risk'       => ['view','create','edit','accept','review','treatment','scenarios','bowtie','export'],
+            'compliance' => ['view'],
+            'audit'      => ['view'],
+            'policy'     => ['view'],
+            'incident'   => ['view','create'],
+            'vendor'     => ['view'],
+            'issue'      => ['view','create','edit'],
+            'asset'      => ['view'],
+            'kri'        => ['view','manage','record'],
+            'report'     => ['view'],
+            'approval'   => ['view','approve'],
+        ],
+
+        // Executive — read everything, run reports, and approve.
+        'executive' => [
+            'risk'       => ['view','export'],
+            'compliance' => ['view'],
+            'audit'      => ['view'],
+            'policy'     => ['view'],
+            'incident'   => ['view'],
+            'vendor'     => ['view'],
+            'issue'      => ['view'],
+            'change'     => ['view'],
+            'threat'     => ['view'],
+            'awareness'  => ['view'],
+            'asset'      => ['view'],
+            'kri'        => ['view'],
+            'bcp'        => ['view'],
+            'ssp'        => ['view'],
+            'report'     => ['view'],
+            'automation' => ['view'],
+            'approval'   => ['view','approve'],
+        ],
     ];
+
+    /**
+     * Canonical role → display-label map. Single source of truth for the role
+     * dropdowns (admin user form, SSO mapping) and server-side role validation.
+     */
+    public const ROLES = [
+        'admin'         => 'Administrator',
+        'manager'       => 'Manager',
+        'auditor'       => 'Auditor',
+        'control_owner' => 'Control Owner',
+        'risk_owner'    => 'Risk Owner',
+        'analyst'       => 'Analyst',
+        'executive'     => 'Executive',
+        'viewer'        => 'Viewer',
+    ];
+
+    /** All assignable roles as role => label. */
+    public static function roles(): array
+    {
+        return self::ROLES;
+    }
+
+    /** Whether a string is an assignable role. */
+    public static function isValidRole(string $role): bool
+    {
+        return isset(self::ROLES[$role]);
+    }
+
+    /**
+     * Flattened "module.action" permissions a role grants by default (no DB
+     * lookups). Returns ['*'] for admin (all permissions). Pure — unit-testable.
+     */
+    public static function roleDefaultPermissions(string $role): array
+    {
+        if ($role === 'admin') {
+            return ['*'];
+        }
+        $granted = [];
+        foreach (self::$roleDefaults[$role] ?? [] as $module => $actions) {
+            foreach ($actions as $action) {
+                $granted[] = $module . '.' . $action;
+            }
+        }
+        return $granted;
+    }
 
     private static array $aliases = [
         'risk.read'        => ['risk.view'],
@@ -119,13 +239,8 @@ class Auth {
         $role = self::role();
         if ($role === 'admin') return true;
 
-        // Build flat $granted from role defaults
-        $granted = [];
-        foreach (self::$roleDefaults[$role] ?? [] as $module => $actions) {
-            foreach ($actions as $action) {
-                $granted[] = $module . '.' . $action;
-            }
-        }
+        // Build flat $granted from role defaults (pure resolver — see roleDefaultPermissions)
+        $granted = self::roleDefaultPermissions($role);
 
         // Load explicit DB grants (cached per request)
         if (self::$permCache === null) {
@@ -246,16 +361,8 @@ class Auth {
         if (!$user || !Security::verifyPassword($password, $user['password_hash'])) {
             // Log the failed attempt for audit trail (NIST 800-53 AU-2, CMMC AC.L1-3.1.1)
             try {
-                $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
-                $prevHash = $prev['log_hash'] ?? 'genesis';
-                $ts = date('Y-m-d\TH:i:s\Z');
-                $payload = implode('|', [$prevHash, 'system', 'login_failed', 'users', '0', $email, $ip, $ts]);
-                $logHash = hash('sha256', $payload);
-                Database::query(
-                    "INSERT INTO activity_log (user_id, action, entity_type, ip_address, user_agent, log_hash)
-                     VALUES (NULL, 'login_failed', 'users', ?, ?, ?)",
-                    [$ip, substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500), $logHash]
-                );
+                self::appendAuditLog(null, 'login_failed', 'users', null,
+                    json_encode(['email' => $email]), $ip, substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500));
             } catch (Throwable) {}
             return false;
         }
@@ -268,6 +375,7 @@ class Auth {
             'name'       => $user['name'],
             'email'      => $user['email'],
             'role'       => $user['role'],
+            'tenant_id'  => (int)($user['tenant_id'] ?? 1),
             'login_time' => time(),
         ];
         $_SESSION['last_activity'] = time();
@@ -282,44 +390,74 @@ class Auth {
         session_start();
     }
 
+    /**
+     * Keyed audit-chain hash over the ordered payload parts (element 0 must be the
+     * previous row's hash). HMAC-SHA256 with the audit key (see Security::auditKey)
+     * — an attacker who can write the database but cannot read the key cannot forge
+     * the chain, unlike the previous unkeyed SHA-256. Pure — unit-tested.
+     */
+    public static function computeLogHash(array $parts, ?string $key = null): string {
+        return hash_hmac('sha256', implode('|', $parts), $key ?? Security::auditKey());
+    }
+
+    /**
+     * Append one row to the tamper-evident audit chain.
+     *
+     * Serialized with a PostgreSQL session advisory lock so concurrent requests
+     * cannot read the same previous hash and fork the chain (which would also
+     * cause false-positive verification failures). The lock is best-effort — if it
+     * cannot be taken, the row is still written — and is always released.
+     *
+     * The hashed payload mirrors EXACTLY the columns the verifier reconstructs
+     * (user_id, action, entity_type, entity_id, changes, ip) so every row — user,
+     * system, and failed-login alike — is verifiable. user_id is '' for system rows.
+     */
+    private static function appendAuditLog(
+        ?int $userId, string $action, ?string $entityType, ?int $entityId,
+        ?string $changesJson, string $ip, ?string $userAgent
+    ): void {
+        $locked = false;
+        try {
+            try {
+                Database::query("SELECT pg_advisory_lock(hashtext('aegis_audit_chain'))");
+                $locked = true;
+            } catch (Throwable $e) {
+                error_log('[AEGIS] audit advisory lock unavailable: ' . $e->getMessage());
+            }
+
+            $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
+            $prevHash = $prev['log_hash'] ?? 'genesis';
+            $logHash  = self::computeLogHash([
+                $prevHash,
+                (string)($userId ?? ''),
+                $action,
+                (string)$entityType,
+                (string)$entityId,
+                (string)$changesJson,
+                $ip,
+            ]);
+            Database::query(
+                "INSERT INTO activity_log (user_id, action, entity_type, entity_id, changes, ip_address, user_agent, log_hash)
+                 VALUES (?,?,?,?,?,?,?,?)",
+                [$userId, $action, $entityType, $entityId, $changesJson, $ip, $userAgent, $logHash]
+            );
+        } finally {
+            if ($locked) {
+                try { Database::query("SELECT pg_advisory_unlock(hashtext('aegis_audit_chain'))"); } catch (Throwable) {}
+            }
+        }
+    }
+
     public static function log(string $action, ?string $entityType, ?int $entityId, ?array $changes = null): void {
         if (!self::check()) return;
-        $ip        = $_SERVER['REMOTE_ADDR'] ?? '';
-        $userAgent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
+        $ip          = $_SERVER['REMOTE_ADDR'] ?? '';
+        $userAgent   = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
         $changesJson = $changes ? json_encode($changes) : null;
-
-        // Hash chain: SHA-256( prev_hash | userId | action | entityType | entityId | changes | ip )
-        $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
-        $prevHash = $prev['log_hash'] ?? 'genesis';
-        $payload  = implode('|', [
-            $prevHash,
-            (string)self::id(),
-            $action,
-            (string)$entityType,
-            (string)$entityId,
-            (string)$changesJson,
-            $ip,
-        ]);
-        $logHash = hash('sha256', $payload);
-
-        Database::query(
-            "INSERT INTO activity_log (user_id, action, entity_type, entity_id, changes, ip_address, user_agent, log_hash)
-             VALUES (?,?,?,?,?,?,?,?)",
-            [self::id(), $action, $entityType, $entityId, $changesJson, $ip, $userAgent, $logHash]
-        );
+        self::appendAuditLog(self::id(), $action, $entityType, $entityId, $changesJson, $ip, $userAgent);
     }
 
     public static function logSystem(string $action, ?string $entityType = null, ?int $entityId = null): void {
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'system';
-        $ts = date('Y-m-d\TH:i:s\Z');
-        $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
-        $prevHash = $prev['log_hash'] ?? 'genesis';
-        $payload  = implode('|', [$prevHash, 'system', $action, (string)$entityType, (string)$entityId, '', $ip, $ts]);
-        $logHash  = hash('sha256', $payload);
-        Database::query(
-            "INSERT INTO activity_log (user_id, action, entity_type, entity_id, ip_address, log_hash)
-             VALUES (NULL,?,?,?,?,?)",
-            [$action, $entityType, $entityId, $ip, $logHash]
-        );
+        self::appendAuditLog(null, $action, $entityType, $entityId, null, $ip, null);
     }
 }

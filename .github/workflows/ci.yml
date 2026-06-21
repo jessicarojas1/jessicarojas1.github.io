@@ -43,6 +43,14 @@ jobs:
         working-directory: citadel/server
         run: npm run lint
 
+      # A security scanner should scan itself: surface CVEs in CITADEL's own
+      # production dependencies. Advisory for now (won't block on unfixable
+      # transitive advisories); promote to blocking once the baseline is clean.
+      - name: Dependency audit (own prod deps)
+        working-directory: citadel/server
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Smoke test
         working-directory: citadel/server
         run: npm test
@@ -144,6 +152,47 @@ jobs:
             | xargs -0 -r -n1 -P4 php -l
 
   # ---------------------------------------------------------------------------
+  # AEGIS framework-free test suite + migration integrity verifier.
+  # No database required: tests cover pure logic (SSRF guard, JWT, RiskScore,
+  # AIAdvisor redaction) and the verifier statically checks migration registration.
+  # ---------------------------------------------------------------------------
+  aegis-tests:
+    name: AEGIS tests (8.2)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: none
+          coverage: none
+
+      - name: Unit test suite
+        working-directory: aegis
+        run: php tests/run.php
+
+      - name: Migration integrity verifier
+        working-directory: aegis
+        run: php scripts/verify_migrations.php
+
+      - name: UI / CSP consistency linter
+        working-directory: aegis
+        run: php scripts/check_ui.php
+
+      - name: Route authorization coverage
+        working-directory: aegis
+        run: php scripts/check_route_auth.php
+
+      - name: CSRF coverage (POST routes)
+        working-directory: aegis
+        run: php scripts/check_csrf.php
+
+      - name: CSV export safety
+        working-directory: aegis
+        run: php scripts/check_csv_export.php
+
+  # ---------------------------------------------------------------------------
   # Python compile-check (py_compile) over the Streamlit dashboard, the Sentinel
   # FastAPI backend, and the other small Python apps. No heavy deps installed —
   # this only confirms the sources parse/compile.
@@ -188,3 +237,43 @@ jobs:
 
       - name: Security regression tests
         run: php paladin/tests/security_test.php
+
+  # ---------------------------------------------------------------------------
+  # AEGIS supply-chain: SBOM (CycloneDX) + filesystem vulnerability scan.
+  # SLSA / EO 14028 evidence. The scan is advisory (won't block on unfixable or
+  # base-image transitive advisories); the SBOM is uploaded as a build artifact.
+  # ---------------------------------------------------------------------------
+  aegis-supply-chain:
+    name: AEGIS supply chain (SBOM + scan)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate CycloneDX SBOM (Syft)
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./aegis
+          format: cyclonedx-json
+          output-file: aegis-sbom.cyclonedx.json
+          artifact-name: aegis-sbom.cyclonedx.json
+
+      - name: Vulnerability scan (Trivy filesystem)
+        # Tracks the action's default branch: the previously pinned tag (0.24.0)
+        # stopped resolving and an unresolvable pin fails the job at setup,
+        # before continue-on-error applies. The scan itself stays advisory.
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: fs
+          scan-ref: ./aegis
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          format: table
+
+      - name: Hadolint (hardened Dockerfile)
+        uses: hadolint/hadolint-action@v3.1.0
+        continue-on-error: true
+        with:
+          dockerfile: aegis/docker/Dockerfile.hardened

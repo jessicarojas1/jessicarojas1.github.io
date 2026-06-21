@@ -11,6 +11,54 @@ declare(strict_types=1);
 class AIAdvisor {
 
     /**
+     * Standard human-review disclosure shown wherever AI output is presented.
+     * AIAdvisor never writes records — it only returns suggestions for a human
+     * to review and act on (ISO 42001 human-oversight principle).
+     */
+    public const DISCLAIMER = 'AI-generated suggestions are for informational purposes only and do not '
+        . 'constitute legal, regulatory, or compliance advice. Results may be inaccurate or incomplete. '
+        . 'All recommendations must be reviewed by qualified personnel before implementation (ISO 42001).';
+
+    /**
+     * Global, admin-controlled kill-switch. Returns false when the `ai_enabled`
+     * setting is explicitly off, regardless of whether an API key is configured.
+     * Absent setting ⇒ enabled (backward compatible with existing installs).
+     */
+    public static function globallyEnabled(): bool {
+        try {
+            $row = Database::fetchOne("SELECT value FROM settings WHERE key = 'ai_enabled' LIMIT 1");
+        } catch (\Throwable) {
+            return true;
+        }
+        if (!$row) return true;
+        $v = strtolower(trim((string)($row['value'] ?? '')));
+        return !in_array($v, ['0', 'false', 'off', 'no'], true);
+    }
+
+    /** True only when a provider+key are configured AND the global switch is on. */
+    public static function isEnabled(): bool {
+        $cfg = self::getConfig();
+        return !empty($cfg['api_key']) && !empty($cfg['provider']) && self::globallyEnabled();
+    }
+
+    /**
+     * Redact obvious secrets/PII from text before it is sent to an external LLM.
+     * Opt-in AI still shouldn't leak emails, IPs, API keys, or bearer tokens that
+     * happen to appear in control titles or descriptions. Pure function.
+     */
+    public static function redact(string $text): string {
+        $patterns = [
+            '/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/'  => '[redacted-email]',
+            '/\bBearer\s+[A-Za-z0-9._\-]+/i'                      => 'Bearer [redacted-token]',
+            '/\b(?:sk|pk|rk)-[A-Za-z0-9]{16,}\b/'                 => '[redacted-key]',
+            '/\bAKIA[0-9A-Z]{16}\b/'                               => '[redacted-key]',
+            '/\b(?:\d{1,3}\.){3}\d{1,3}\b/'                        => '[redacted-ip]',
+            '/\b[A-Fa-f0-9]{32,}\b/'                              => '[redacted-secret]',
+        ];
+        return preg_replace(array_keys($patterns), array_values($patterns), $text) ?? $text;
+    }
+
+    /**
      * Returns an array of actionable remediation suggestion strings for the given
      * compliance package, or [] if AI is disabled / no API key is configured.
      *
@@ -19,9 +67,11 @@ class AIAdvisor {
      */
     public static function suggestControlGaps(int $packageId): array {
         $config = self::getConfig();
-        if (empty($config['api_key']) || empty($config['provider'])) {
+        if (empty($config['api_key']) || empty($config['provider']) || !self::globallyEnabled()) {
             return [];
         }
+        // Tamper-evident audit event for AI use (NIST AI RMF / ISO 42001 traceability).
+        Auth::log('ai.gap_analysis', 'compliance_package', $packageId);
 
         // Load package info
         $package = Database::fetchOne(
@@ -100,7 +150,7 @@ class AIAdvisor {
      */
     public static function generateNarrative(int $packageId): string {
         $config = self::getConfig();
-        if (empty($config['api_key']) || empty($config['provider'])) {
+        if (empty($config['api_key']) || empty($config['provider']) || !self::globallyEnabled()) {
             return '';
         }
 
@@ -130,7 +180,7 @@ class AIAdvisor {
             ? round($totalImplemented / $totalControls * 100)
             : 0;
 
-        $standardName = $package['standard_name'] ?? $package['name'];
+        $standardName = self::redact((string)($package['standard_name'] ?? $package['name'] ?? ''));
 
         $prompt  = "You are a GRC compliance analyst. Write a concise executive-level narrative paragraph (3-5 sentences) ";
         $prompt .= "describing the current compliance posture for the {$standardName} framework. ";
@@ -321,6 +371,9 @@ class AIAdvisor {
             $status = $gap['status'] ?? 'not_started';
             $controlList .= "- [{$code}] {$title} (status: {$status})\n";
         }
+        // Redact secrets/PII that may appear in control text before it leaves the org.
+        $controlList  = self::redact($controlList);
+        $standardName = self::redact($standardName);
 
         return <<<PROMPT
 You are a GRC expert specializing in {$standardName} compliance.

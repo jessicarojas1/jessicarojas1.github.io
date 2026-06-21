@@ -1,0 +1,25 @@
+# HorizontalPodAutoscaler. Requires metrics-server AND a shared DATABASE_URL
+# (autoscaling past 1 replica needs the external Postgres). Disabled-by-default
+# in the chart; provided here as a ready-to-apply mirror.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: citadel
+  namespace: citadel
+  labels:
+    app.kubernetes.io/name: citadel
+    app.kubernetes.io/part-of: citadel
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: citadel
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

@@ -75,6 +75,36 @@ class AttachmentController {
         echo $data;
     }
 
+    /** Raster image types safe to render inline (SVG is excluded — it can carry script). */
+    private const PREVIEWABLE = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+
+    /**
+     * Serve an image attachment INLINE for preview. Hardened: same auth +
+     * object-level access as download(), but only whitelisted raster types are
+     * served, with a locked-down CSP and nosniff so the response can never be
+     * treated as anything executable. Non-image (and SVG) attachments 404.
+     */
+    public function preview(int $id): void {
+        Auth::requireAuth();
+        $att = $this->load($id);
+        if (!$att) { http_response_code(404); return; }
+        $mime = strtolower((string)($att['mime_type'] ?? ''));
+        if (!in_array($mime, self::PREVIEWABLE, true)) { http_response_code(404); return; }
+        $perms = self::PERMS[$att['entity_type']] ?? null;
+        if ($perms && !Auth::can($perms[0])) { http_response_code(403); return; }
+        if (!$this->canAccessParent($att)) { http_response_code(403); return; }
+
+        $data = Storage::get($att['stored_name']);
+        if ($data === false) { http_response_code(404); return; }
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: inline; filename="' . preg_replace('/[^A-Za-z0-9._-]/', '_', $att['original_name'] ?: 'image') . '"');
+        header('Content-Length: ' . strlen($data));
+        header('X-Content-Type-Options: nosniff');
+        header("Content-Security-Policy: default-src 'none'; img-src 'self'; sandbox");
+        header('Cache-Control: private, max-age=300');
+        echo $data;
+    }
+
     public function delete(int $id): void {
         Auth::requireAuth();
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }

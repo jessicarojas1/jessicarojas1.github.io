@@ -138,6 +138,29 @@ ob_start();
               <?php endif; ?>
             </span>
           </div>
+          <?php $replies = $inlineReplies[(int)$c['id']] ?? []; ?>
+          <?php if ($replies): ?>
+            <div style="margin-top:6px;padding-left:10px;border-left:2px solid var(--border-light)">
+              <?php foreach ($replies as $rp): ?>
+                <div style="padding:4px 0">
+                  <div style="font-size:.85rem"><?= Security::h($rp['body']) ?></div>
+                  <div class="form-hint" style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                    <span><i class="bi bi-reply-fill"></i> <?= Security::h($rp['user_name']) ?> · <?= Security::h(View::timeAgo($rp['created_at'])) ?></span>
+                    <?php if (Auth::id() === (int)$rp['user_id'] || Auth::can('page.edit')): ?>
+                      <form method="POST" action="/inline-comments/<?= (int)$rp['id'] ?>/delete" style="display:inline;margin:0" data-confirm="Delete this reply?"><?= Security::csrfField() ?><button type="submit" class="btn-unstyled" title="Delete reply" style="border:none;background:none;cursor:pointer;color:var(--danger);padding:0 2px"><i class="bi bi-trash"></i></button></form>
+                    <?php endif; ?>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
+          <?php if (!$c['resolved'] && $icCanComment): ?>
+            <form method="POST" action="/inline-comments/<?= (int)$c['id'] ?>/reply" style="margin-top:6px;display:flex;gap:6px">
+              <?= Security::csrfField() ?>
+              <input type="text" name="body" class="form-control form-control-sm" placeholder="Reply…" required maxlength="2000" style="font-size:.82rem">
+              <button type="submit" class="btn btn-sm btn-light" title="Reply"><i class="bi bi-reply"></i></button>
+            </form>
+          <?php endif; ?>
         </div>
       <?php endforeach; ?>
     </div>
@@ -293,12 +316,22 @@ ob_start();
   <div class="card" style="margin-bottom:18px">
     <div class="card-header"><div class="card-header-left"><span class="card-title"><i class="bi bi-paperclip"></i> Attachments (<?= count($attachments) ?>)</span></div></div>
     <div class="card-body">
-      <?php foreach ($attachments as $att): ?>
+      <?php foreach ($attachments as $att): $prior = $attachmentHistory[$att['original_name']] ?? [];
+        $isImg = in_array(strtolower((string)($att['mime_type'] ?? '')), ['image/png','image/jpeg','image/gif','image/webp'], true); ?>
         <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light)">
-          <i class="bi bi-file-earmark"></i>
+          <?php if ($isImg): ?><a href="/attachments/<?= (int)$att['id'] ?>/download"><img src="/attachments/<?= (int)$att['id'] ?>/preview" alt="" loading="lazy" style="width:40px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--border-light)"></a><?php else: ?><i class="bi bi-file-earmark"></i><?php endif; ?>
           <div style="flex:1;min-width:0">
             <a href="/attachments/<?= (int)$att['id'] ?>/download" class="table-link" style="word-break:break-all"><?= Security::h($att['original_name']) ?></a>
+            <?php if ((int)($att['version'] ?? 1) > 1): ?><span class="badge badge-blue" title="Version <?= (int)$att['version'] ?>">v<?= (int)$att['version'] ?></span><?php endif; ?>
             <div class="form-hint"><?= $att['file_size'] ? round($att['file_size']/1024) . ' KB' : '' ?> · <?= View::timeAgo($att['created_at']) ?></div>
+            <?php if ($prior): ?>
+              <details style="margin-top:3px">
+                <summary class="form-hint" style="cursor:pointer"><?= count($prior) ?> previous version<?= count($prior) === 1 ? '' : 's' ?></summary>
+                <?php foreach ($prior as $pv): ?>
+                  <div class="form-hint" style="padding:2px 0 2px 12px"><a href="/attachments/<?= (int)$pv['id'] ?>/download">v<?= (int)$pv['version'] ?></a> · <?= $pv['file_size'] ? round($pv['file_size']/1024) . ' KB' : '' ?> · <?= View::timeAgo($pv['created_at']) ?><?= $pv['uploader'] ? ' · ' . Security::h($pv['uploader']) : '' ?></div>
+                <?php endforeach; ?>
+              </details>
+            <?php endif; ?>
           </div>
           <?php if (Auth::can('page.edit')): ?><form method="POST" action="/attachments/<?= (int)$att['id'] ?>/delete" style="margin:0" data-confirm="Remove this attachment?"><?= Security::csrfField() ?><button class="btn btn-sm btn-danger btn-unstyled" type="submit" style="border:none;background:none;color:var(--danger)"><i class="bi bi-trash"></i></button></form><?php endif; ?>
         </div>

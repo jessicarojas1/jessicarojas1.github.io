@@ -18,7 +18,7 @@ $typeMeta = [
 ];
 
 function scenPartialLevel(int $s): string {
-    return $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
+    return RiskScore::scoreLabel($s); // canonical bands — see src/RiskScore.php
 }
 function scenPartialLevelClass(int $s): string {
     return $s > 14 ? 'risk-critical' : ($s > 9 ? 'risk-high' : ($s > 4 ? 'risk-medium' : 'risk-low'));

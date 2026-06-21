@@ -1,9 +1,11 @@
 <?php
 declare(strict_types=1);
 
-// Bootstrap
-define('AEGIS_ROOT', __DIR__);
-define('AEGIS_START', microtime(true));
+// Per-request correlation ID — surfaced in error logs, the 500 page, and the
+// X-Request-Id response header so an operator can trace a user-reported error
+// back to its log entry without exposing any internal detail to the user.
+define('AEGIS_REQUEST_ID', bin2hex(random_bytes(8)));
+@header('X-Request-Id: ' . AEGIS_REQUEST_ID);
 
 // Suppress PHP error display to users — errors go to the log only
 @ini_set('display_errors', '0');
@@ -11,23 +13,48 @@ define('AEGIS_START', microtime(true));
 @ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
-// Top-level exception handler: show a readable error page instead of blank screen
+// Top-level exception handler.
+//
+// Security: only RuntimeExceptions — which AEGIS uses exclusively for startup
+// configuration guards with operator-safe messages (e.g. a missing JWT_SECRET)
+// — have their message shown to the user. Every other throwable (PDOException,
+// TypeError, etc.) may embed SQL, filesystem paths, env values, or internal
+// network detail, so we render a generic 500 page and keep the full detail in
+// the server log only, keyed by the request correlation ID.
 set_exception_handler(function (Throwable $e): void {
-    error_log('[AEGIS] Uncaught: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    $rid = defined('AEGIS_REQUEST_ID') ? AEGIS_REQUEST_ID : '-';
+    error_log("[AEGIS][{$rid}] Uncaught " . $e::class . ': ' . $e->getMessage()
+        . ' in ' . $e->getFile() . ':' . $e->getLine());
     if (!headers_sent()) {
         http_response_code(500);
         header('Content-Type: text/html; charset=utf-8');
     }
-    $msg = htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>AEGIS — Configuration Error</title>"
-       . "<style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#f1f5f9;display:flex;"
-       . "align-items:center;justify-content:center;min-height:100vh;margin:0}"
-       . ".box{background:#1e293b;border:1px solid #ef4444;border-radius:12px;padding:40px;max-width:540px}"
-       . "h1{color:#ef4444;margin:0 0 12px}p{color:#94a3b8;margin:0 0 8px}code{color:#fbbf24}</style></head>"
-       . "<body><div class='box'><h1>&#9888; Configuration Error</h1>"
-       . "<p>{$msg}</p>"
-       . "<p style='margin-top:16px'>Check that all required environment variables are set in your Render dashboard:<br>"
-       . "<code>JWT_SECRET</code>, <code>DATABASE_URL</code>, <code>APP_URL</code></p></div></body></html>";
+
+    if ($e instanceof RuntimeException) {
+        // Operator-facing configuration error (safe message).
+        $msg = htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $rh  = htmlspecialchars($rid, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>AEGIS — Configuration Error</title>"
+           . "<style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#f1f5f9;display:flex;"
+           . "align-items:center;justify-content:center;min-height:100vh;margin:0}"
+           . ".box{background:#1e293b;border:1px solid #ef4444;border-radius:12px;padding:40px;max-width:540px}"
+           . "h1{color:#ef4444;margin:0 0 12px}p{color:#94a3b8;margin:0 0 8px}code{color:#fbbf24}"
+           . ".rid{font-family:ui-monospace,monospace;font-size:12px;color:#64748b;margin-top:16px}</style></head>"
+           . "<body><div class='box'><h1>&#9888; Configuration Error</h1>"
+           . "<p>{$msg}</p>"
+           . "<p style='margin-top:16px'>Check that all required environment variables are set in your environment dashboard:<br>"
+           . "<code>JWT_SECRET</code>, <code>DATABASE_URL</code>, <code>APP_URL</code></p>"
+           . "<p class='rid'>Reference: {$rh}</p></div></body></html>";
+    } else {
+        // Generic page — no internal detail leaks to the user.
+        if (defined('AEGIS_ROOT') && is_file(AEGIS_ROOT . '/views/errors/500.php')) {
+            require AEGIS_ROOT . '/views/errors/500.php';
+        } else {
+            $rh = htmlspecialchars($rid, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            echo "<!DOCTYPE html><meta charset='utf-8'><title>500 — AEGIS</title>"
+               . "<h1>500 — Something went wrong</h1><p>Reference: {$rh}</p>";
+        }
+    }
     exit(1);
 });
 
@@ -49,9 +76,26 @@ foreach ((getenv() ?: []) as $k => $v) {
     if (!isset($_ENV[$k])) $_ENV[$k] = $v;
 }
 
+// Resolve any *_FILE secret mounts (Docker/K8s secrets, Vault, KMS sidecars)
+// into $_ENV before the startup guards and any consumer read them.
+require_once AEGIS_ROOT . '/src/Secrets.php';
+Secrets::hydrate();
+
 // Startup guard: JWT_SECRET must be present and strong enough to sign tokens
 if (empty($_ENV['JWT_SECRET']) || strlen($_ENV['JWT_SECRET']) < 32) {
     throw new RuntimeException('JWT_SECRET must be set and at least 32 characters. Set it in your Render/environment dashboard.');
+}
+
+// Startup guard: a database connection must be configured, via DATABASE_URL or
+// the discrete DB_* variables (see config/database.php).
+if (empty($_ENV['DATABASE_URL']) && empty($_ENV['DB_HOST'])) {
+    throw new RuntimeException('No database configured. Set DATABASE_URL (or DB_HOST/DB_NAME/DB_USER/DB_PASS).');
+}
+
+// Startup guard: APP_URL is required in production — it is the CORS allow-origin
+// and the base for absolute links. Optional in non-production for local dev.
+if (($_ENV['APP_ENV'] ?? 'production') === 'production' && empty($_ENV['APP_URL'])) {
+    throw new RuntimeException('APP_URL must be set in production (used for CORS allow-origin and absolute links).');
 }
 
 // Session config
@@ -662,6 +706,8 @@ if (str_starts_with($uri, '/api/')) {
 $routes = [
     'GET'  => [
         '/'                           => ['DashboardController', 'index'],
+        '/healthz'                    => ['HealthController', 'live'],
+        '/readyz'                     => ['HealthController', 'ready'],
         '/profile/notifications'      => ['ProfileController', 'notifications'],
         '/login'                      => ['AuthController', 'loginForm'],
         '/compliance'                 => ['ComplianceController', 'index'],
@@ -1116,6 +1162,23 @@ function dispatch(string $controller, string $action, array $params = []): void 
         unset($p);
     }
     $ctrl->$action(...$params);
+}
+
+// Bind the per-request tenant from the authenticated session:
+//   * useTenant()  — write-path stamping (PHP-side only; no DB call).
+//   * setTenant()  — read-path GUC the Row-Level Security policies filter on
+//                    (migration 028), so reads/writes are isolated in the DB.
+// Inert in single-tenant deployments: rows fall back to the tenant_id DEFAULT
+// (1) and the RLS policy is permissive while the GUC matches. Failures here must
+// never take down the request (e.g. pre-migration DB), so setTenant is guarded.
+if (!empty($_SESSION['user']['tenant_id'])) {
+    $sessionTenantId = (int)$_SESSION['user']['tenant_id'];
+    Database::useTenant($sessionTenantId);
+    try {
+        Database::setTenant($sessionTenantId);
+    } catch (Throwable $e) {
+        error_log('Tenant binding (setTenant) failed: ' . $e->getMessage());
+    }
 }
 
 // Track active session for admin session management

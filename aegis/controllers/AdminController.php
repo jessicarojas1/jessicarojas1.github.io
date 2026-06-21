@@ -39,7 +39,7 @@ class AdminController {
         $name       = Security::sanitizeInput($_POST['name'] ?? '');
         $email      = strtolower(Security::sanitizeInput($_POST['email'] ?? ''));
         $password   = $_POST['password'] ?? '';
-        $role       = in_array($_POST['role'] ?? '', ['admin','manager','auditor','analyst','viewer']) ? $_POST['role'] : 'viewer';
+        $role       = Auth::isValidRole($_POST['role'] ?? '') ? $_POST['role'] : 'viewer';
         $dept       = Security::sanitizeInput($_POST['department'] ?? '');
         $title      = Security::sanitizeInput($_POST['job_title'] ?? '');
 
@@ -107,7 +107,7 @@ class AdminController {
 
         $id       = (int)$id;
         $name     = Security::sanitizeInput($_POST['name'] ?? '');
-        $role     = in_array($_POST['role'] ?? '', ['admin','manager','auditor','analyst','viewer']) ? $_POST['role'] : 'viewer';
+        $role     = Auth::isValidRole($_POST['role'] ?? '') ? $_POST['role'] : 'viewer';
         $dept     = Security::sanitizeInput($_POST['department'] ?? '');
         $title    = Security::sanitizeInput($_POST['job_title'] ?? '');
         $isActive = isset($_POST['is_active']) ? true : false;
@@ -415,11 +415,6 @@ class AdminController {
              ORDER BY al.created_at DESC"
         );
 
-        $sanitize = static function(mixed $v): string {
-            $s = (string)($v ?? '');
-            return preg_match('/^[=+\-@\t\r]/', $s) ? "'" . $s : $s;
-        };
-
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="aegis_activity_log_' . date('Ymd_His') . '.csv"');
         header('Cache-Control: no-store');
@@ -427,7 +422,7 @@ class AdminController {
         $out = fopen('php://output', 'w');
         fputcsv($out, ['ID','User','Email','Role','Action','Entity Type','Entity ID','Changes','IP Address','Timestamp']);
         foreach ($logs as $r) {
-            fputcsv($out, array_map($sanitize, [
+            fputcsv($out, Csv::row([ // formula-injection guard (see src/Csv.php)
                 $r['id'], $r['user_name'], $r['user_email'] ?? '', $r['user_role'] ?? '',
                 $r['action'], $r['entity_type'] ?? '', $r['entity_id'] ?? '',
                 $r['changes'] ?? '', $r['ip_address'] ?? '', $r['created_at'],

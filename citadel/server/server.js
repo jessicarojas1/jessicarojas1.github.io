@@ -36,6 +36,12 @@ const oidc = require('./lib/oidc');
 const scans = require('./lib/scans');
 const dispositions = require('./lib/dispositions');
 const notify = require('./lib/notify');
+const fips = require('./lib/fips');
+const tenancy = require('./lib/tenancy');
+
+// Enter FIPS 140 mode as early as possible (before any password/seed crypto) when
+// CITADEL_FIPS=1 and the OpenSSL build supports it. No-op + warning otherwise.
+fips.enable();
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 // Locate the SPA. Local dev: server.js lives in citadel/server, so the app is
@@ -63,12 +69,31 @@ app.use(metrics.httpMiddleware());
 metrics.gauge('citadel_active_sessions', () => sessions.stats().active);
 metrics.gauge('citadel_uptime_seconds', () => Math.floor(process.uptime()));
 metrics.gauge('citadel_resident_memory_bytes', () => process.memoryUsage().rss);
-app.get('/metrics', (req, res) => { res.set('Content-Type', 'text/plain; version=0.0.4'); res.send(metrics.render()); });
+app.get('/metrics', (req, res) => {
+  // Not an anonymous recon surface: require CITADEL_METRICS_TOKEN (Bearer) when
+  // set, otherwise restrict to loopback. 404 (not 403) so the route isn't confirmed.
+  const tok = process.env.CITADEL_METRICS_TOKEN;
+  const bearer = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const loopback = /^(::1|::ffff:127\.|127\.)/.test(clientIp(req));
+  if (tok ? bearer !== tok : !loopback) return res.status(404).end();
+  res.set('Content-Type', 'text/plain; version=0.0.4'); res.send(metrics.render());
+});
 
 // Client IP as computed by Express from the TRUSTED proxy hops (not the raw,
 // client-spoofable X-Forwarded-For). Used for rate-limit + lockout keys.
 function clientIp(req) {
   return req.ip || (req.socket && req.socket.remoteAddress) || 'unknown';
+}
+
+// Tenant lifecycle (schema-per-tenant; H5) is an OPERATOR action, not an in-app
+// role: gate on CITADEL_SUPERADMIN_TOKEN (Bearer) or loopback. The routes are
+// registered after the JSON body parser (below). 404 (not 403) so the route is
+// not confirmed; only meaningful when CITADEL_MULTITENANT=1 + a database is set.
+function superadminOk(req) {
+  const tok = process.env.CITADEL_SUPERADMIN_TOKEN;
+  const bearer = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const loopback = /^(::1|::ffff:127\.|127\.)/.test(clientIp(req));
+  return tok ? bearer === tok : loopback;
 }
 
 // Token lifetimes. Short-lived access tokens + a long-lived refresh token so a
@@ -102,17 +127,20 @@ function clearRefreshCookie(res) {
 function withRt(res, tokens) { setRefreshCookie(res, tokens.refreshToken); return tokens; }
 
 // Reusable fixed-window limiter middleware keyed by IP + route bucket.
-function rateLimited(bucket, max, windowMs) {
+function rateLimited(bucket, max, windowMs, opts) {
+  const failClosed = !!(opts && opts.failClosed);   // expensive routes deny on limiter outage
+  const unavailable = (res) => res.status(503).json({ error: 'Service temporarily unavailable — please retry shortly.' });
   return async (req, res, next) => {
     try {
       const r = await rateLimit.limit(bucket + ':' + clientIp(req), max, windowMs);
       res.setHeader('X-RateLimit-Remaining', String(r.remaining));
+      if (r.error && failClosed) return unavailable(res);   // limiter backend down + heavy route → fail closed
       if (!r.ok) {
         res.setHeader('Retry-After', String(r.retryAfter));
         audit.record('ratelimit.block', { ip: clientIp(req), detail: bucket + ' (' + max + '/' + Math.round(windowMs / 1000) + 's)', ok: false });
         return res.status(429).json({ error: 'Too many requests — slow down and retry shortly.', retryAfter: r.retryAfter });
       }
-    } catch (e) { /* fail open */ }
+    } catch (e) { if (failClosed) return unavailable(res); /* else fail open for cheap routes */ }
     next();
   };
 }
@@ -125,6 +153,28 @@ app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   next();
+});
+
+/* ---- Multi-tenancy: resolve the tenant and run the rest of the request inside
+ * its schema scope (H5) ----------------------------------------------------
+ * Established BEFORE auth-decode so every downstream read/write — JWT secret,
+ * user lookup, sessions, scans, audit, dispositions — is tenant-isolated. The
+ * tenant's user/session caches are ensured loaded first. No-op (and zero
+ * overhead) when multi-tenancy is disabled, so single-tenant is unchanged.
+ * Infra/operator routes (health probes, tenant provisioning) and the static SPA
+ * are tenant-agnostic and pass through unscoped. */
+app.use((req, res, next) => {
+  if (!tenancy.enabled()) return next();
+  if (req.path === '/api/health' || req.path === '/api/tenants' || !req.path.startsWith('/api/')) return next();
+  const slug = tenancy.resolveSlug(req);
+  if (!slug) return res.status(400).json({ error: 'Tenant not specified.' });
+  tenancy.get(slug).then(t => {
+    if (!t || !t.active) return res.status(404).json({ error: 'Unknown tenant.' });
+    db.runInTenant(t.schema, async () => {
+      try { await users.ensureLoaded(); await sessions.ensureLoaded(); next(); }
+      catch (e) { next(e); }
+    });
+  }).catch(next);
 });
 
 /* ---- Auth: parse a Bearer JWT (if present) into req.user — non-blocking ----
@@ -245,18 +295,26 @@ async function toolStatus() {
 }
 
 app.get('/api/health', async (req, res) => {
+  // Recon hardening: tool VERSIONS and the detailed store backend are admin-only;
+  // anonymous callers get just enough for the SPA to function (no version
+  // disclosure, no internal store/rate-limit/SIEM details).
+  const isAdmin = !!(req.user && req.user.role === 'admin');
+  const tools = await toolStatus();
   res.json({
-    ok: true, version: '1.0', engine: 'deep', ai: ai.available(),
+    ok: true, version: '1.0', engine: 'deep', ai: ai.available(), airgap: ai.airgapped(),
+    fips: isAdmin ? fips.status() : { active: fips.active() },
     auth: { enforce: users.settings().enforce, sso: oidc.enabled() },
-    store: { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled(), rateLimit: rateLimit.backend(), notify: notify.enabled() },
-    scanners: await toolStatus()
+    store: isAdmin
+      ? { users: users.backend(), durable: db.enabled(), auditSink: audit.sinkEnabled(), rateLimit: rateLimit.backend(), notify: notify.enabled() }
+      : { users: users.backend(), durable: db.enabled() },
+    scanners: tools.map(t => isAdmin ? t : { tool: t.tool, available: t.available })
   });
 });
 
-// Machine-readable API contract (OpenAPI 3.0). Served as-is for Swagger UI /
-// client generation; static, so a parse error here can't affect the running API.
+// Machine-readable API contract (OpenAPI 3.0). Gated by the docs permission so it
+// isn't an anonymous recon surface when access control is enforced.
 let _openapi = null;
-app.get('/api/openapi.yaml', (req, res) => {
+app.get('/api/openapi.yaml', requirePerm('docs'), (req, res) => {
   try {
     if (_openapi == null) _openapi = fs.readFileSync(path.join(__dirname, 'openapi.yaml'), 'utf8');
     res.type('application/yaml').send(_openapi);
@@ -470,6 +528,26 @@ app.get('/api/audit', requireAdmin, async (req, res) => {
   res.json({ stats, events });
 });
 
+// Tamper-evidence check: re-walk the audit hash chain and report whether any
+// record was altered or removed (and where). Admin-only.
+app.get('/api/audit/verify', requireAdmin, async (req, res) => {
+  res.json(await audit.verifyChain());
+});
+
+// Operator-only tenant provisioning (schema-per-tenant). See superadminOk above.
+app.get('/api/tenants', async (req, res) => {
+  if (!tenancy.enabled() || !superadminOk(req)) return res.status(404).end();
+  res.json({ tenants: await tenancy.list() });
+});
+app.post('/api/tenants', async (req, res) => {
+  if (!tenancy.enabled() || !superadminOk(req)) return res.status(404).end();
+  try {
+    const t = await tenancy.create({ slug: (req.body && req.body.slug) || '', name: (req.body && req.body.name) || '' });
+    audit.record('tenant.provision', { actor: 'operator', ip: clientIp(req), detail: t.slug, ok: true });
+    res.json({ ok: true, tenant: t });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
 /* ---------------- Scan history (durable, requires DATABASE_URL) ---------------- */
 // Non-admins are scoped to their own scans (no cross-user IDOR by sequential id).
 function scanScope(req) { return req.user ? { userId: req.user.id, isAdmin: req.user.role === 'admin' } : null; }
@@ -563,7 +641,7 @@ async function resolvePublicTarget(hostname) {
 
 // Scan a public Git repository by URL (shallow clone, read-only).
 // Heavy (clone + full scanner fan-out): throttle to protect the free-tier box.
-app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('deepscan'), async (req, res) => {
+app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000, { failClosed: true }), requirePerm('deepscan'), async (req, res) => {
   const url = String((req.body && req.body.url) || '').trim();
   // Allowlist: https git URLs only (github/gitlab/bitbucket/codeberg or generic https .git)
   if (!/^https:\/\/[\w.-]+\/[\w./~-]+?(\.git)?$/.test(url) || url.length > 300) {
@@ -620,7 +698,7 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('
 });
 
 // AI-assisted remediation for a single finding (opt-in; needs ANTHROPIC_API_KEY).
-app.post('/api/explain', rateLimited('explain', 30, 10 * 60000), requirePerm('tab-aifix'), async (req, res) => {
+app.post('/api/explain', rateLimited('explain', 30, 10 * 60000, { failClosed: true }), requirePerm('tab-aifix'), async (req, res) => {
   if (!ai.available()) return res.status(503).json({ error: 'AI remediation is not enabled on this server.' });
   try {
     const out = await ai.explain((req.body && req.body.finding) || {});
@@ -630,7 +708,7 @@ app.post('/api/explain', rateLimited('explain', 30, 10 * 60000), requirePerm('ta
   }
 });
 
-app.post('/api/scan', rateLimited('scan', 20, 10 * 60000), requirePerm('analyze'), upload.array('files'), async (req, res) => {
+app.post('/api/scan', rateLimited('scan', 20, 10 * 60000, { failClosed: true }), requirePerm('analyze'), upload.array('files'), async (req, res) => {
   if (!req.files || !req.files.length) return res.status(400).json({ error: 'No files uploaded (field "files").' });
   let work;
   try {
@@ -684,6 +762,7 @@ app.use((err, req, res, next) => {
     if (db.enabled()) { await db.init(); log.info('postgres connected', { store: 'postgres' }); }
     await users.init();
     await sessions.init();
+    await audit.init();   // seed the hash-chain head from the last persisted event
   } catch (e) {
     log.error('bootstrap failed; continuing with in-memory store', { err: e.message });
   }

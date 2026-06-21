@@ -12,6 +12,7 @@ process.env.OIDC_CLIENT_ID = 'cid'; process.env.OIDC_CLIENT_SECRET = 'sec';
 process.env.OIDC_REDIRECT_URI = 'https://app/cb';
 process.env.OIDC_ADMIN_EMAILS = 'admin@corp.com';
 process.env.OIDC_ALLOWED_DOMAINS = 'corp.com';
+process.env.CITADEL_PBKDF2_ITER = '20000';   // keep the FIPS-path KDF fast in tests
 
 const { test } = require('node:test');
 const assert = require('node:assert');
@@ -23,6 +24,10 @@ const sessions = require('../lib/sessions');
 const audit = require('../lib/audit');
 const users = require('../lib/users');
 const oidc = require('../lib/oidc');
+const secretbox = require('../lib/secretbox');
+const fips = require('../lib/fips');
+const tenancy = require('../lib/tenancy');
+const dbmod = require('../lib/db');
 
 /* ---------------- JWT ---------------- */
 test('jwt: sign/verify roundtrip', () => {
@@ -43,6 +48,130 @@ test('jwt: rejects non-HS256 alg header (alg pinning)', () => {
   // a token whose header claims alg:none — must be rejected even if "signature" is empty
   const forged = b64({ alg: 'none', typ: 'JWT' }) + '.' + b64({ sub: 'attacker' }) + '.';
   assert.equal(jwt.verify(forged, 'secret'), null);
+});
+
+/* ---------------- Secretbox (at-rest secret encryption) ---------------- */
+test('secretbox: disabled without a key — values pass through unchanged', () => {
+  delete process.env.CITADEL_DATA_KEY; secretbox._reset();
+  assert.equal(secretbox.enabled(), false);
+  assert.equal(secretbox.seal('JBSWY3DPEHPK3PXP'), 'JBSWY3DPEHPK3PXP');
+  assert.equal(secretbox.open('JBSWY3DPEHPK3PXP'), 'JBSWY3DPEHPK3PXP'); // legacy plaintext read
+});
+test('secretbox: seal/open roundtrip with a 32-byte key (hex)', () => {
+  process.env.CITADEL_DATA_KEY = 'a'.repeat(64); secretbox._reset();
+  assert.equal(secretbox.enabled(), true);
+  const sealed = secretbox.seal('JBSWY3DPEHPK3PXP');
+  assert.ok(secretbox.isSealed(sealed));
+  assert.ok(!sealed.includes('JBSWY3DPEHPK3PXP')); // ciphertext, not plaintext
+  assert.equal(secretbox.open(sealed), 'JBSWY3DPEHPK3PXP');
+});
+test('secretbox: seal is idempotent and reads legacy plaintext transparently', () => {
+  process.env.CITADEL_DATA_KEY = 'b'.repeat(64); secretbox._reset();
+  const once = secretbox.seal('seed'); const twice = secretbox.seal(once);
+  assert.equal(once, twice);                      // already-sealed is not re-sealed
+  assert.equal(secretbox.open('legacy-plain'), 'legacy-plain');
+});
+test('secretbox: tampered ciphertext / wrong key fails closed (GCM auth) → null', () => {
+  process.env.CITADEL_DATA_KEY = 'c'.repeat(64); secretbox._reset();
+  const sealed = secretbox.seal('topsecret');
+  const flipped = sealed.slice(0, -2) + (sealed.endsWith('A') ? 'B' : 'A') + '=';
+  assert.equal(secretbox.open(flipped), null);    // tamper detected
+  process.env.CITADEL_DATA_KEY = 'd'.repeat(64); secretbox._reset();
+  assert.equal(secretbox.open(sealed), null);     // wrong key
+  delete process.env.CITADEL_DATA_KEY; secretbox._reset();
+});
+test('secretbox: invalid key length disables encryption (no crash)', () => {
+  process.env.CITADEL_DATA_KEY = 'tooshort'; secretbox._reset();
+  assert.equal(secretbox.enabled(), false);
+  assert.equal(secretbox.seal('x'), 'x');
+  delete process.env.CITADEL_DATA_KEY; secretbox._reset();
+});
+
+/* ---------------- FIPS mode ---------------- */
+test('fips: status reflects active state and selects the FIPS-approved KDF', () => {
+  fips._forceActive(false);
+  assert.equal(fips.active(), false);
+  assert.equal(fips.status().passwordKdf, 'scrypt');
+  fips._forceActive(true);
+  assert.equal(fips.active(), true);
+  assert.equal(fips.status().passwordKdf, 'pbkdf2-hmac-sha256');
+  assert.ok(fips.status().pbkdf2Iterations >= 10000);
+  fips._forceActive(null);    // restore real OpenSSL state for later tests
+});
+
+/* ---------------- Multi-tenancy (schema-per-tenant; H5) ---------------- */
+test('tenancy: slug validation rejects injection / illegal identifiers', () => {
+  for (const ok of ['acme', 'a1', 'my-org', 'tenant-2', 'ab', 'x9y8z7']) {
+    assert.ok(tenancy.valid(ok), 'should accept ' + ok);
+  }
+  for (const bad of ['', 'a', 'A1', '-acme', 'acme-', 'a--b', 'pu blic', 'acme;drop',
+                     'a_b', 'тест', '1;DROP TABLE citadel_users', '../etc', 'x'.repeat(33)]) {
+    assert.equal(tenancy.valid(bad), false, 'should reject ' + JSON.stringify(bad));
+  }
+});
+test('tenancy: schemaFor derives a safe schema name; throws on bad slug', () => {
+  assert.equal(tenancy.schemaFor('acme'), 'citadel_t_acme');
+  assert.equal(tenancy.schemaFor('my-org'), 'citadel_t_my_org');   // hyphen -> underscore
+  assert.throws(() => tenancy.schemaFor('Bad; DROP'));
+});
+test('tenancy: db.quoteIdent quotes valid identifiers and rejects unsafe ones', () => {
+  assert.equal(dbmod.quoteIdent('citadel_t_acme'), '"citadel_t_acme"');
+  for (const bad of ['a; DROP TABLE x', 'public"; --', '"evil"', 'has space', 'citadel_t_acme; select', 1, null]) {
+    assert.throws(() => dbmod.quoteIdent(bad), 'should reject ' + JSON.stringify(bad));
+  }
+});
+test('tenancy: runInTenant sets an ambient schema; default scope is none', () => {
+  assert.equal(dbmod.currentSchema(), undefined);
+  dbmod.runInTenant('citadel_t_acme', () => {
+    assert.equal(dbmod.currentSchema(), 'citadel_t_acme');
+  });
+  assert.equal(dbmod.currentSchema(), undefined);   // restored after the scope
+});
+test('tenancy: resolveSlug reads header > query > subdomain, validating each', () => {
+  assert.equal(tenancy.resolveSlug({ headers: { 'x-citadel-tenant': 'Acme' } }), 'acme');
+  assert.equal(tenancy.resolveSlug({ headers: {}, query: { tenant: 'beta' } }), 'beta');
+  assert.equal(tenancy.resolveSlug({ headers: { 'x-citadel-tenant': 'evil; drop' } }), null);
+  process.env.CITADEL_BASE_DOMAIN = 'citadel.example.com';
+  assert.equal(tenancy.resolveSlug({ headers: { host: 'gamma.citadel.example.com:443' } }), 'gamma');
+  assert.equal(tenancy.resolveSlug({ headers: { host: 'citadel.example.com' } }), null); // apex, no tenant
+  delete process.env.CITADEL_BASE_DOMAIN;
+});
+test('tenancy: disabled by default (opt-in via CITADEL_MULTITENANT)', () => {
+  assert.equal(tenancy.multitenant(), false);
+  assert.equal(tenancy.enabled(), false);
+});
+test('tenancy: user stores are isolated per ambient tenant', async () => {
+  // No DATABASE_URL in tests -> file/in-memory path. Each non-default tenant gets
+  // its own fresh in-memory store, selected by the ambient schema scope.
+  await dbmod.runInTenant('citadel_t_alpha', async () => {
+    await users.ensureLoaded();
+    users.add({ email: 'iso-a@alpha.test', role: 'viewer', password: 'pw-alpha-123' });
+    assert.ok(users.getByEmail('iso-a@alpha.test'), 'alpha sees its own user');
+  });
+  await dbmod.runInTenant('citadel_t_beta', async () => {
+    await users.ensureLoaded();
+    assert.equal(users.getByEmail('iso-a@alpha.test'), null, 'beta must NOT see alpha user');
+    users.add({ email: 'iso-b@beta.test', role: 'viewer', password: 'pw-beta-1234' });
+  });
+  await dbmod.runInTenant('citadel_t_alpha', async () => {
+    assert.equal(users.getByEmail('iso-b@beta.test'), null, 'alpha must NOT see beta user');
+  });
+  // Default (single-tenant) store sees neither tenant's users.
+  assert.equal(users.getByEmail('iso-a@alpha.test'), null);
+  assert.equal(users.getByEmail('iso-b@beta.test'), null);
+});
+test('tenancy: session buckets are isolated per ambient tenant', () => {
+  dbmod.runInTenant('citadel_t_alpha', () => {
+    sessions.register({ jti: 'iso-jti-alpha', userId: 'u1', email: 'a@alpha.test', role: 'viewer' });
+    assert.equal(sessions.isRevoked('iso-jti-alpha'), false);
+    assert.ok(sessions.listAll().some(s => s.jti === 'iso-jti-alpha'));
+  });
+  dbmod.runInTenant('citadel_t_beta', () => {
+    assert.equal(sessions.listAll().some(s => s.jti === 'iso-jti-alpha'), false, 'beta must not see alpha session');
+  });
+  dbmod.runInTenant('citadel_t_alpha', () => { sessions.revoke('iso-jti-alpha'); });
+  dbmod.runInTenant('citadel_t_alpha', () => assert.equal(sessions.isRevoked('iso-jti-alpha'), true));
+  dbmod.runInTenant('citadel_t_beta', () => assert.equal(sessions.isRevoked('iso-jti-alpha'), false, 'revoke in alpha must not affect beta'));
 });
 
 /* ---------------- TOTP / MFA ---------------- */
@@ -94,6 +223,29 @@ test('audit: record + list by prefix', async () => {
   const ev = await audit.list(20, 'test');
   assert.ok(ev.some(e => e.type === 'test.event' && e.actor === 'x'));
 });
+test('audit: events are hash-chained (each links to the previous)', () => {
+  const a = audit.record('chain.a', { actor: 'u' });
+  const b = audit.record('chain.b', { actor: 'u' });
+  assert.match(a.hash, /^[0-9a-f]{64}$/);
+  assert.equal(b.prevHash, a.hash);                         // b links to a
+  assert.equal(a.hash, audit.hashEvent(a.prevHash, a));     // hash is reproducible
+});
+test('audit: verifyChain passes for an intact chain', async () => {
+  const v = await audit.verifyChain();
+  assert.equal(v.ok, true);
+  assert.equal(v.brokenAt, null);
+  assert.ok(v.count >= 1);
+});
+test('audit: verifyChain detects a tampered record', async () => {
+  // hashEvent over mutated content no longer matches the stored hash → break.
+  const e = audit.record('chain.tamper', { actor: 'orig', detail: 'before' });
+  const forged = { ...e, detail: 'after' };
+  assert.notEqual(audit.hashEvent(forged.prevHash, forged), e.hash);
+  // A later record still chains off the genuine (unmutated) hash, proving the
+  // mutated copy would be rejected on a re-walk.
+  const next = audit.record('chain.next', { actor: 'orig' });
+  assert.equal(next.prevHash, e.hash);
+});
 
 /* ---------------- Users + MFA + passwords ---------------- */
 test('users: init seeds a default admin', async () => {
@@ -122,6 +274,37 @@ test('users: full MFA lifecycle (setup → enable → TOTP + one-time backup →
   assert.equal(users.mfaVerify(id, backupCodes[0]), false); // ...once only
   users.mfaDisable(id);
   assert.equal(users.mfaEnabled(id), false);
+});
+test('users: with CITADEL_DATA_KEY, TOTP seed is ciphertext on disk yet usable in-memory', () => {
+  const fs = require('fs');
+  const FILE = path.join(process.env.CITADEL_DATA_DIR, 'users.json');
+  process.env.CITADEL_DATA_KEY = 'e'.repeat(64); secretbox._reset();
+  const id = users.getByEmail('admin@citadel.local').id;
+  const { secret } = users.mfaBeginSetup(id);          // save() seals to disk
+  users.mfaEnable(id, totp.totp(secret));              // activates + persists
+  const onDisk = fs.readFileSync(FILE, 'utf8');
+  assert.ok(!onDisk.includes(secret));                 // raw Base32 seed never hits disk
+  assert.match(onDisk, /"mfaSecret":\s*"enc:v1:/);     // it is sealed
+  assert.ok(users.mfaVerify(id, totp.totp(secret)));   // in-memory cache still plaintext → works
+  users.mfaDisable(id);
+  delete process.env.CITADEL_DATA_KEY; secretbox._reset();
+});
+test('users: FIPS mode hashes new passwords with PBKDF2; both KDFs verify (self-describing)', () => {
+  const fsx = require('fs');
+  const FILE = path.join(process.env.CITADEL_DATA_DIR, 'users.json');
+  fips._forceActive(false);
+  users.add({ name: 'Scry', email: 'scry@test', role: 'viewer', password: 'ScryptPass1' });
+  assert.ok(users.verifyPassword('scry@test', 'ScryptPass1'));      // legacy scrypt verifies
+  fips._forceActive(true);                                          // simulate FIPS active
+  users.add({ name: 'Fip', email: 'fip@test', role: 'viewer', password: 'PbkdfPass1' });
+  assert.ok(users.verifyPassword('fip@test', 'PbkdfPass1'));        // pbkdf2 verifies under FIPS
+  assert.match(fsx.readFileSync(FILE, 'utf8'), /"pass":\s*"pbkdf2\$\d+\$[0-9a-f]{64}"/); // pbkdf2 form on disk
+  fips._forceActive(false);                                         // back to scrypt-mode
+  assert.ok(users.verifyPassword('fip@test', 'PbkdfPass1'));        // pbkdf2 hash STILL verifies
+  assert.ok(users.verifyPassword('scry@test', 'ScryptPass1'));      // scrypt user unaffected
+  users.remove(users.getByEmail('fip@test').id);
+  users.remove(users.getByEmail('scry@test').id);
+  fips._forceActive(null);
 });
 test('users: changeOwnPassword verifies current + enforces min length', () => {
   const id = users.getByEmail('admin@citadel.local').id;

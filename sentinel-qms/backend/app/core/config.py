@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     LOGIN_MAX_FAILURES: int = 10
     LOGIN_FAILURE_WINDOW_MINUTES: int = 15
 
+    # Self-service password-reset token lifetime (minutes).
+    PASSWORD_RESET_TTL_MINUTES: int = 60
+
     # Global API rate limiting (in-process fixed-window per client principal/IP).
     # Generous defaults so normal interactive use is never throttled; tightens
     # abusive/runaway programmatic traffic. Disable per-deployment if a fronting
@@ -63,10 +66,55 @@ class Settings(BaseSettings):
     # otherwise a direct client could spoof it. Render/ALB/Nginx → set true.
     TRUST_PROXY_HEADERS: bool = False
 
-    # OIDC / federal SSO (stub)
+    # Outbound webhooks: emit signed lifecycle events to registered endpoints.
+    # Enqueue is atomic with the change; dispatch is backgrounded with retries.
+    WEBHOOKS_ENABLED: bool = True
+
+    # OIDC / federated SSO. When OIDC_ISSUER is set, /auth/oidc/exchange accepts
+    # an IdP ID token, verifies it against the issuer's JWKS, and (optionally)
+    # provisions the user just-in-time. Empty issuer = SSO disabled (fails closed).
     OIDC_ISSUER: str = ""
     OIDC_CLIENT_ID: str = ""
     OIDC_CLIENT_SECRET: str = ""
+    # Explicit JWKS URI; if blank it is discovered from the issuer's
+    # /.well-known/openid-configuration document.
+    OIDC_JWKS_URI: str = ""
+    # Create a local account on first successful SSO login.
+    OIDC_AUTO_PROVISION: bool = True
+    # Comma-separated email-domain allowlist for SSO (empty = allow any domain).
+    OIDC_ALLOWED_DOMAINS: list[str] = []
+    # ID-token claim carrying the user's groups (for role mapping).
+    OIDC_GROUP_CLAIM: str = "groups"
+    # JSON object mapping an IdP group name -> a local role name, e.g.
+    # {"qms-admins": "Admin", "engineers": "Quality Engineer"}.
+    OIDC_GROUP_ROLE_MAP: dict[str, str] = {}
+    # Role granted to a provisioned user when no group maps to a role.
+    OIDC_DEFAULT_ROLE: str = "Read-Only"
+    # Space-separated OAuth scopes requested in the authorization-code flow.
+    OIDC_SCOPES: str = "openid email profile"
+
+    # SAML 2.0 SP-initiated SSO. Enabled when an IdP SSO URL + signing cert + SP
+    # entity id are configured. Domain allowlist / group→role map / default role /
+    # auto-provision are shared with the OIDC settings above (one federation policy).
+    SAML_IDP_ENTITY_ID: str = ""
+    SAML_IDP_SSO_URL: str = ""
+    # PEM-encoded X.509 certificate the IdP signs assertions with.
+    SAML_IDP_CERT: str = ""
+    SAML_SP_ENTITY_ID: str = ""
+    # Assertion Consumer Service URL; derived from APP_BASE_URL when blank.
+    SAML_SP_ACS_URL: str = ""
+    # SAML attribute names carrying the user's email / display name / groups.
+    SAML_EMAIL_ATTRIBUTE: str = ""  # blank → fall back to the Subject NameID
+    SAML_NAME_ATTRIBUTE: str = "displayName"
+    SAML_GROUP_ATTRIBUTE: str = "groups"
+
+    # CAC / PIV (mutual-TLS) sign-in. The app trusts a client certificate only
+    # when it sits behind a reverse proxy that terminates mTLS and forwards the
+    # cert — so this requires BOTH this flag and TRUST_PROXY_HEADERS. Header names
+    # follow the common nginx ssl_client_* convention.
+    CLIENT_CERT_PROXY_AUTH: bool = False
+    CLIENT_CERT_VERIFY_HEADER: str = "X-SSL-Client-Verify"  # expect "SUCCESS"/"0"
+    CLIENT_CERT_PEM_HEADER: str = "X-SSL-Client-Cert"  # URL-encoded PEM
 
     # Bootstrap admin — credentials come ONLY from the environment (e.g. the
     # Render dashboard). No baked-in defaults, so no secret ever ships in the
@@ -111,11 +159,30 @@ class Settings(BaseSettings):
     # Public base URL used to build deep links in outbound notifications/digests.
     APP_BASE_URL: str = ""
 
-    @field_validator("CORS_ORIGINS", mode="before")
+    @field_validator("CORS_ORIGINS", "OIDC_ALLOWED_DOMAINS", mode="before")
     @classmethod
     def _split_cors(cls, v: object) -> object:
         if isinstance(v, str):
-            return [o.strip() for o in v.split(",") if o.strip()]
+            return [o.strip().lower() for o in v.split(",") if o.strip()]
+        return v
+
+    @field_validator("OIDC_GROUP_ROLE_MAP", mode="before")
+    @classmethod
+    def _parse_group_role_map(cls, v: object) -> object:
+        # Accept a JSON object from the environment; ignore blanks/garbage.
+        if isinstance(v, str):
+            v = v.strip()
+            if not v:
+                return {}
+            import json
+
+            try:
+                parsed = json.loads(v)
+            except ValueError as exc:
+                raise ValueError("OIDC_GROUP_ROLE_MAP must be valid JSON") from exc
+            if not isinstance(parsed, dict):
+                raise ValueError("OIDC_GROUP_ROLE_MAP must be a JSON object")
+            return parsed
         return v
 
     @field_validator("DB_SCHEMA", mode="before")

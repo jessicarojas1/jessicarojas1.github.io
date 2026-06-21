@@ -87,7 +87,7 @@ ob_start();
           <div class="form-group">
             <label class="form-label">Role</label>
             <select name="role" class="form-control">
-              <?php foreach (['admin'=>'Administrator','manager'=>'Manager','auditor'=>'Auditor','analyst'=>'Analyst','viewer'=>'Viewer'] as $v=>$l): ?>
+              <?php foreach (Auth::roles() as $v=>$l): ?>
                 <option value="<?= $v ?>"><?= $l ?></option>
               <?php endforeach; ?>
             </select>
@@ -125,7 +125,7 @@ ob_start();
           <div class="form-group">
             <label class="form-label">Role</label>
             <select name="role" id="eu_role" class="form-control">
-              <?php foreach (['admin'=>'Administrator','manager'=>'Manager','auditor'=>'Auditor','analyst'=>'Analyst','viewer'=>'Viewer'] as $v=>$l): ?>
+              <?php foreach (Auth::roles() as $v=>$l): ?>
                 <option value="<?= $v ?>"><?= $l ?></option>
               <?php endforeach; ?>
             </select>

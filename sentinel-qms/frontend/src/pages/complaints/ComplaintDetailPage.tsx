@@ -6,11 +6,11 @@ import { can } from '@/lib/rbac';
 import { useToast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/format';
-import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { PdfButton } from '@/components/PdfButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordDetailHeader } from '@/components/RecordDetailHeader';
 import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 
@@ -43,16 +43,13 @@ export default function ComplaintDetailPage() {
     >
       {c && (
         <>
-          <PageHeader
-            title={
-              <span className="row" style={{ gap: 10 }}>
-                <MessageSquareWarning size={22} />
-                <span className="mono">{c.complaint_number}</span>
-                <StatusBadge status={c.status} />
-              </span>
-            }
-            subtitle={`${c.customer_name} · ${c.title}`}
-            breadcrumbs={[{ label: 'Complaints', to: '/complaints' }, { label: c.complaint_number }]}
+          <RecordDetailHeader
+            icon={<MessageSquareWarning size={22} />}
+            recordNumber={c.complaint_number}
+            status={c.status}
+            title={`${c.customer_name} · ${c.title}`}
+            listLabel="Complaints"
+            listTo="/complaints"
             actions={
               <>
                 <PrintButton />

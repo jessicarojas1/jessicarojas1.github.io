@@ -9,8 +9,15 @@ try { Anthropic = require('@anthropic-ai/sdk'); } catch (e) { /* SDK not install
 
 const MODEL = process.env.CITADEL_AI_MODEL || 'claude-opus-4-8';
 
+// Air-gap / no-egress profile: when CITADEL_AIRGAP=1 (or CITADEL_NO_EGRESS=1),
+// AI remediation is hard-disabled so scanned source code can NEVER be transmitted
+// to an external LLM — required when reviewing CUI / ITAR / export-controlled /
+// proprietary code. Egress is opt-in (needs ANTHROPIC_API_KEY) AND not air-gapped.
+function airgapped() {
+  return process.env.CITADEL_AIRGAP === '1' || process.env.CITADEL_NO_EGRESS === '1';
+}
 function available() {
-  return !!(Anthropic && process.env.ANTHROPIC_API_KEY);
+  return !airgapped() && !!(Anthropic && process.env.ANTHROPIC_API_KEY);
 }
 
 let _client = null;
@@ -48,4 +55,4 @@ async function explain(finding) {
   return { model: MODEL, text: text || 'No explanation produced.' };
 }
 
-module.exports = { available, explain, MODEL };
+module.exports = { available, airgapped, explain, MODEL };

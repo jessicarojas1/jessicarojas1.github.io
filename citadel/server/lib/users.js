@@ -3,7 +3,8 @@
  * Durable store: Postgres when DATABASE_URL is set (shared across instances),
  * otherwise a JSON file under CITADEL_DATA_DIR (free-tier default). Either way an
  * in-memory cache backs the synchronous read API; mutations write through to the
- * durable store. Passwords are scrypt-hashed. Seeds a default admin + JWT secret.
+ * durable store. Passwords are scrypt-hashed (PBKDF2-HMAC-SHA256 under FIPS mode;
+ * hashes are self-describing so both verify). Seeds a default admin + JWT secret.
  * Mirrors the client PAGES/ROLES so the same permission ids apply end to end.
  */
 const fs = require('fs');
@@ -12,6 +13,13 @@ const path = require('path');
 const crypto = require('crypto');
 const db = require('./db');
 const totp = require('./totp');
+const secretbox = require('./secretbox');
+const fips = require('./fips');
+
+// Fields that must be encrypted at rest (TOTP seeds — possession yields valid
+// 2FA codes). Sealed on write to the durable store, opened back to plaintext in
+// the in-memory cache so the synchronous read API is unchanged.
+const USER_SECRET_FIELDS = ['mfaSecret', 'mfaPending'];
 
 const DATA_DIR = process.env.CITADEL_DATA_DIR || path.join(process.env.CITADEL_TMP || os.tmpdir(), 'citadel');
 const FILE = path.join(DATA_DIR, 'users.json');
@@ -45,48 +53,129 @@ const ROLES = {
   viewer: { label: 'Viewer', perms: permsFrom(['docs', 'tab-report', 'tab-findings', 'tab-compliance', 'tab-export']) }
 };
 
-function hashPw(password, salt) { return crypto.scryptSync(String(password), salt, 32).toString('hex'); }
+// Password hashing is KDF-agnostic and self-describing so the algorithm can
+// switch (e.g. when FIPS mode turns on) without a schema change or breaking
+// existing accounts. Stored forms:
+//   - legacy scrypt:  bare 64-hex (no prefix)         — what older records hold
+//   - pbkdf2 (FIPS):  "pbkdf2$<iterations>$<64-hex>"  — SP 800-132, FIPS-approved
+function hashPw(password, salt) {
+  if (fips.active()) {
+    const iter = fips.pbkdf2Iterations();
+    return 'pbkdf2$' + iter + '$' + crypto.pbkdf2Sync(String(password), salt, iter, 32, 'sha256').toString('hex');
+  }
+  return crypto.scryptSync(String(password), salt, 32).toString('hex');
+}
+// Recompute the stored hash's KDF over a candidate and timing-safe compare.
+// Fails closed (false) on any KDF error — e.g. a legacy scrypt hash under a FIPS
+// OpenSSL that refuses scrypt — rather than throwing into the auth path.
+function verifyHash(password, salt, stored) {
+  if (!stored) return false;
+  let computed;
+  try {
+    if (stored.startsWith('pbkdf2$')) {
+      const iter = parseInt(stored.split('$')[1], 10);
+      if (!Number.isFinite(iter) || iter < 1) return false;
+      computed = 'pbkdf2$' + iter + '$' + crypto.pbkdf2Sync(String(password), salt, iter, 32, 'sha256').toString('hex');
+    } else {
+      computed = crypto.scryptSync(String(password), salt, 32).toString('hex');
+    }
+  } catch (e) { return false; }
+  const a = Buffer.from(computed), b = Buffer.from(stored);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
 function newSalt() { return crypto.randomBytes(16).toString('hex'); }
 function uid() { return 'u' + Date.now().toString(36) + crypto.randomBytes(3).toString('hex'); }
 
-let _db = null;
+// Tenant-keyed stores. Single-tenant (the default) uses the DEFAULT_KEY store and
+// is loaded once at init(). With schema-per-tenant multi-tenancy (H5) each tenant
+// gets its own store, selected by the ambient DB schema (set by db.runInTenant);
+// the per-request middleware calls ensureLoaded() before any synchronous read.
+const DEFAULT_KEY = '';
+const _stores = new Map();   // tenant key -> { users, settings, secret }
+function currentKey() { return (db.currentSchema && db.currentSchema()) || DEFAULT_KEY; }
+function curStore() { return _stores.get(currentKey()); }
 
 // Seed a fresh store skeleton: JWT secret + default admin (flagged to force a
 // password change when the publicly-known default is used).
 function seed(dbObj) {
   let changed = false;
-  if (!dbObj.secret) { dbObj.secret = process.env.CITADEL_JWT_SECRET || crypto.randomBytes(32).toString('hex'); changed = true; }
-  if (!dbObj.settings) { dbObj.settings = { enforce: false }; changed = true; }
+  // Signing key: prefer an env-provided secret and DO NOT persist it at rest
+  // (reduces exposure if the store is read). Only a generated fallback is stored,
+  // so sessions still survive restarts when no stable secret is configured.
+  if (process.env.CITADEL_JWT_SECRET) {
+    dbObj.secret = process.env.CITADEL_JWT_SECRET;          // in-memory only; not persisted
+  } else if (!dbObj.secret) {
+    dbObj.secret = crypto.randomBytes(32).toString('hex'); changed = true;
+    if (process.env.NODE_ENV === 'production') console.warn('[citadel] SECURITY: no CITADEL_JWT_SECRET set — a random signing key was generated and stored AT REST. Set CITADEL_JWT_SECRET (ideally from a secrets manager) so the key is not persisted and survives restarts.');
+  }
+  // Secure-by-default: access control ON for a fresh store. An explicit,
+  // audited opt-out (CITADEL_ALLOW_OPEN=1) is required to ship an open instance.
+  if (!dbObj.settings) { dbObj.settings = { enforce: process.env.CITADEL_ALLOW_OPEN === '1' ? false : true }; changed = true; }
   if (!dbObj.users.some(u => u.role === 'admin')) {
     const email = (process.env.CITADEL_ADMIN_EMAIL || 'admin@citadel.local').toLowerCase();
     const usingDefault = !process.env.CITADEL_ADMIN_PASSWORD;
-    const pw = process.env.CITADEL_ADMIN_PASSWORD || 'citadel-admin';
+    let pw = process.env.CITADEL_ADMIN_PASSWORD || 'citadel-admin';
+    // In production, never seed the publicly-known default: generate a random
+    // strong first-boot password and print it ONCE. (Dev keeps the easy default.)
     if (usingDefault && process.env.NODE_ENV === 'production') {
-      console.warn('[citadel] SECURITY: seeding the DEFAULT admin password in production. ' +
-        'Set CITADEL_ADMIN_PASSWORD (and change it after first login) — the default is publicly known.');
+      pw = crypto.randomBytes(15).toString('base64').replace(/[+/=]/g, '').slice(0, 18);
+      console.warn('[citadel] SECURITY: no CITADEL_ADMIN_PASSWORD set — seeded a RANDOM first-boot admin password (you must change it on first login): ' + pw);
     }
     const salt = newSalt();
     dbObj.users.unshift({
       id: uid(), name: 'Administrator', email, role: 'admin', active: true,
       salt, pass: hashPw(pw, salt), permissions: Object.assign({}, ROLES.admin.perms),
-      mustChange: usingDefault, createdAt: new Date().toISOString()
+      mustChange: true, createdAt: new Date().toISOString()
     });
     changed = true;
   }
   return changed;
 }
 
+/* ---- At-rest encryption helpers (envelope, see lib/secretbox.js) ---- */
+// A storage-facing copy of a store with the JWT secret + per-user TOTP seeds
+// sealed. Operates on a copy so the in-memory cache stays plaintext for the sync API.
+function sealedSnapshot(s) {
+  return {
+    ...s,
+    secret: secretbox.seal(s.secret),
+    users: s.users.map(u => {
+      const c = { ...u };
+      for (const f of USER_SECRET_FIELDS) if (c[f]) c[f] = secretbox.seal(c[f]);
+      return c;
+    })
+  };
+}
+// Decrypt sealed fields in place on the in-memory cache after a load.
+function hydrate(dbObj) {
+  if (!dbObj) return dbObj;
+  if (secretbox.isSealed(dbObj.secret)) dbObj.secret = secretbox.open(dbObj.secret);
+  for (const u of (dbObj.users || [])) {
+    for (const f of USER_SECRET_FIELDS) if (secretbox.isSealed(u[f])) u[f] = secretbox.open(u[f]);
+  }
+  return dbObj;
+}
+
 /* ---- File-backed path (no DATABASE_URL) ---- */
+// Only the DEFAULT_KEY store is file-backed. In file mode multi-tenancy is not
+// durable (schema-per-tenant requires Postgres); non-default tenant stores live
+// in memory only, which is enough for development and the isolation tests.
 function loadFile() {
-  if (_db) return _db;
-  try { _db = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch (e) { _db = null; }
-  if (!_db || !Array.isArray(_db.users)) _db = { users: [], settings: { enforce: false }, secret: null };
-  if (seed(_db)) saveFile();
-  return _db;
+  let s = _stores.get(DEFAULT_KEY);
+  if (s) return s;
+  try { s = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch (e) { s = null; }
+  if (!s || !Array.isArray(s.users)) s = { users: [], settings: { enforce: false }, secret: null };
+  hydrate(s);
+  _stores.set(DEFAULT_KEY, s);
+  if (seed(s)) saveFile();
+  return s;
 }
 let _warnedSave = false;
 function saveFile() {
-  try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(_db, null, 2)); }
+  if (currentKey() !== DEFAULT_KEY) return;   // non-default tenants are in-memory only in file mode
+  const s = _stores.get(DEFAULT_KEY);
+  if (!s) return;
+  try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(sealedSnapshot(s), null, 2)); }
   catch (e) {
     if (!_warnedSave) {
       _warnedSave = true;
@@ -102,24 +191,31 @@ function rowToUser(r) {
     id: r.id, name: r.name, email: r.email, role: r.role, active: r.active,
     salt: r.salt, pass: r.pass, permissions: r.permissions || {},
     mustChange: !!r.must_change_password,
-    mfaEnabled: !!r.mfa_enabled, mfaSecret: r.mfa_secret || null,
-    mfaPending: r.mfa_pending || null, mfaBackup: r.mfa_backup || [],
+    mfaEnabled: !!r.mfa_enabled, mfaSecret: secretbox.open(r.mfa_secret || null),
+    mfaPending: secretbox.open(r.mfa_pending || null), mfaBackup: r.mfa_backup || [],
     createdAt: (r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at)
   };
 }
+// Reads run via db.query, which routes to the ambient tenant schema (or the
+// public/default schema outside any tenant scope), so this loads the right
+// tenant's data into that tenant's store.
 async function loadPg() {
+  const key = currentKey();
   const s = await db.query('SELECT key, value FROM citadel_settings');
   let secret = null; const settingsRow = {};
-  for (const r of s.rows) { if (r.key === 'secret') secret = r.value && r.value.v; else if (r.key === 'app') Object.assign(settingsRow, r.value || {}); }
+  for (const r of s.rows) { if (r.key === 'secret') secret = secretbox.open(r.value && r.value.v); else if (r.key === 'app') Object.assign(settingsRow, r.value || {}); }
   const u = await db.query('SELECT * FROM citadel_users ORDER BY created_at');
-  _db = { users: u.rows.map(rowToUser), settings: Object.assign({ enforce: false }, settingsRow), secret };
-  if (seed(_db)) await syncPg();   // persist a freshly-seeded secret/admin
-  return _db;
+  const store = { users: u.rows.map(rowToUser), settings: Object.assign({ enforce: false }, settingsRow), secret };
+  _stores.set(key, store);
+  if (seed(store)) await syncPg();   // persist a freshly-seeded secret/admin (into this tenant's schema)
+  return store;
 }
-// Full write-through of the (small) user set + settings + secret. Idempotent.
+// Full write-through of the (small) user set + settings + secret for the current
+// tenant store. Idempotent. db.query routes to the ambient tenant schema.
 async function syncPg() {
+  const _db = curStore();
   await db.query(`INSERT INTO citadel_settings(key,value) VALUES('secret',$1)
-    ON CONFLICT(key) DO UPDATE SET value=$1`, [JSON.stringify({ v: _db.secret })]);
+    ON CONFLICT(key) DO UPDATE SET value=$1`, [JSON.stringify({ v: secretbox.seal(_db.secret) })]);
   await db.query(`INSERT INTO citadel_settings(key,value) VALUES('app',$1)
     ON CONFLICT(key) DO UPDATE SET value=$1`, [JSON.stringify(_db.settings || {})]);
   for (const u of _db.users) {
@@ -131,7 +227,7 @@ async function syncPg() {
         mfa_enabled=$10,mfa_secret=$11,mfa_pending=$12,mfa_backup=$13`,
       [u.id, u.name, u.email, u.role, u.active, u.salt, u.pass,
        JSON.stringify(u.permissions || {}), !!u.mustChange,
-       !!u.mfaEnabled, u.mfaSecret || null, u.mfaPending || null, JSON.stringify(u.mfaBackup || []),
+       !!u.mfaEnabled, secretbox.seal(u.mfaSecret || null), secretbox.seal(u.mfaPending || null), JSON.stringify(u.mfaBackup || []),
        u.createdAt || new Date().toISOString()]);
   }
   const ids = _db.users.map(u => u.id);
@@ -139,7 +235,27 @@ async function syncPg() {
   else await db.query('DELETE FROM citadel_users');
 }
 
-function load() { return _db || loadFile(); }
+function load() {
+  const s = curStore();
+  if (s) return s;
+  if (!db.enabled()) return loadFile();
+  // PG multi-tenant: the per-request middleware must ensureLoaded() before any
+  // synchronous read. Reaching here means the tenant store wasn't preloaded —
+  // fail safe rather than silently serve (or create) the wrong tenant's data.
+  throw new Error('CITADEL: tenant store not loaded for "' + currentKey() + '" (call users.ensureLoaded() first).');
+}
+// Ensure the current tenant's store is loaded (idempotent). Awaited by the
+// per-request multi-tenancy middleware before handlers run.
+async function ensureLoaded() {
+  const key = currentKey();
+  if (_stores.has(key)) return _stores.get(key);
+  if (db.enabled()) return loadPg();
+  if (key === DEFAULT_KEY) return loadFile();
+  // File-mode tenant: fresh in-memory, seeded store (no disk persistence).
+  const s = { users: [], settings: { enforce: process.env.CITADEL_ALLOW_OPEN === '1' ? false : true }, secret: null };
+  _stores.set(key, s); seed(s);
+  return s;
+}
 // Mutation persistence: PG write-through (fire-and-forget) or file save.
 function save() {
   if (db.enabled()) { syncPg().catch(e => console.error(JSON.stringify({ level: 'error', src: 'users', msg: 'pg sync failed', err: e.message }))); }
@@ -149,7 +265,7 @@ function save() {
 // One-time async bootstrap; must be awaited before serving requests.
 async function init() {
   if (db.enabled()) { await loadPg(); } else { loadFile(); }
-  return _db;
+  return curStore();
 }
 
 function strip(u) {
@@ -216,7 +332,13 @@ function update(id, patch) {
   }
   if ('role' in patch && ROLES[patch.role]) { u.role = patch.role; if (patch.resetPerms) u.permissions = Object.assign({}, ROLES[patch.role].perms); }
   if ('active' in patch) u.active = !!patch.active;
-  if ('permissions' in patch && patch.permissions) u.permissions = patch.permissions;
+  if ('permissions' in patch && patch.permissions) {
+    // Mass-assignment guard: accept ONLY known permission ids with boolean
+    // values — never store arbitrary attacker-supplied keys/values.
+    const clean = {};
+    for (const p of ALL) clean[p] = !!patch.permissions[p];
+    u.permissions = clean;
+  }
   save(); return strip(u);
 }
 function setPermission(id, pageId, val) {
@@ -241,16 +363,13 @@ function setPassword(id, password, forceChange) {
 // Self-service change: verify the current password, then set a new one.
 function changeOwnPassword(id, current, next) {
   const store = load(); const u = store.users.find(x => x.id === id); if (!u) throw new Error('User not found.');
-  const h = hashPw(current, u.salt); const a = Buffer.from(h), b = Buffer.from(u.pass);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw new Error('Current password is incorrect.');
+  if (!verifyHash(current, u.salt, u.pass)) throw new Error('Current password is incorrect.');
   setPassword(id, next);
 }
 function verifyPassword(email, password) {
   const u = getByEmail(email);
   if (!u || !u.active) return null;
-  const h = hashPw(password, u.salt);
-  const a = Buffer.from(h), b = Buffer.from(u.pass);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  if (!verifyHash(password, u.salt, u.pass)) return null;
   return strip(u);
 }
 function can(user, pageId) {
@@ -296,7 +415,7 @@ function mfaVerify(id, token) {
 function mfaStatus(id) { const u = getRaw(id); return { enabled: !!(u && u.mfaEnabled), backupRemaining: (u && u.mfaBackup ? u.mfaBackup.length : 0) }; }
 
 module.exports = {
-  PAGES, ROLES, init, secret, settings, setSetting,
+  PAGES, ROLES, init, ensureLoaded, secret, settings, setSetting,
   list, get, getByEmail: e => strip(getByEmail(e)), add, upsertSsoUser, update, setPermission, remove, setPassword,
   changeOwnPassword, verifyPassword, can,
   mfaEnabled, mfaBeginSetup, mfaEnable, mfaDisable, mfaVerify, mfaStatus,
