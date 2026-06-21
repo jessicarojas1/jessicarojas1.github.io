@@ -148,7 +148,10 @@ jobs:
       - name: Checkov
         if: steps.tf.outputs.present == 'true'
         continue-on-error: true
-        uses: bridgecrewio/checkov-action@master
+        # Pinned to a released major tag rather than the mutable @master branch,
+        # so an arbitrary upstream commit can't be executed in CI. Matches the
+        # pin used in sentinel-qms/.github/workflows/security-scan.yml.
+        uses: bridgecrewio/checkov-action@v12
         with:
           directory: citadel/deploy
           framework: terraform
@@ -160,7 +163,8 @@ jobs:
       - name: Trivy config scan
         if: steps.tf.outputs.present == 'true'
         continue-on-error: true
-        uses: aquasecurity/trivy-action@master
+        # Pinned to a released tag rather than the mutable @master branch.
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: config
           scan-ref: citadel/deploy

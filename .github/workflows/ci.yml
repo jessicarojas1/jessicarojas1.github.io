@@ -260,10 +260,11 @@ jobs:
           artifact-name: aegis-sbom.cyclonedx.json
 
       - name: Vulnerability scan (Trivy filesystem)
-        # Tracks the action's default branch: the previously pinned tag (0.24.0)
-        # stopped resolving and an unresolvable pin fails the job at setup,
-        # before continue-on-error applies. The scan itself stays advisory.
-        uses: aquasecurity/trivy-action@master
+        # Pinned to a released tag rather than the mutable @master branch, so an
+        # arbitrary upstream commit can't run in CI. (0.24.0 had stopped
+        # resolving; 0.28.0 is a current valid release.) The scan stays advisory
+        # via continue-on-error.
+        uses: aquasecurity/trivy-action@0.28.0
         continue-on-error: true
         with:
           scan-type: fs

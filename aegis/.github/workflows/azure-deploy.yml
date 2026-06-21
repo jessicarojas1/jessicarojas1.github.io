@@ -51,6 +51,10 @@ jobs:
             ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
           cache-from: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
           cache-to: type=inline
+          # Supply-chain attestations: keyless SLSA build provenance + SPDX SBOM
+          # attached to the pushed image (OIDC via the job's id-token: write).
+          provenance: true
+          sbom: true
 
   deploy:
     name: Deploy to Container Apps

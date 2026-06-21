@@ -32,8 +32,9 @@ alarm_email    = "qms-oncall@example.gov"
 # Entra object ids of operators allowed to manage Key Vault secrets.
 admin_object_ids = ["00000000-0000-0000-0000-000000000000"]
 
-# Key Vault certificate secret id for the App Gateway HTTPS listener (set after
-# importing your TLS cert into Key Vault). Leave empty for the first apply.
-appgw_keyvault_cert_secret_id = ""
+# Key Vault certificate secret id for the App Gateway HTTPS listener. REQUIRED:
+# the gateway serves HTTPS only (no plaintext-HTTP fallback). Import your TLS
+# cert into Key Vault first, then set its secret id here.
+appgw_keyvault_cert_secret_id = "https://<your-keyvault>.vault.usgovcloudapi.net/secrets/<cert-name>"
 
 # oidc_client_secret -> export TF_VAR_oidc_client_secret=...

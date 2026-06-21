@@ -9,9 +9,13 @@
 # =============================================================================
 
 variable "appgw_keyvault_cert_secret_id" {
-  description = "Key Vault certificate secret id for the HTTPS listener. Empty = HTTP listener placeholder for first apply."
+  description = "Key Vault certificate secret id for the HTTPS listener. Required: the gateway only serves HTTPS — there is no plaintext-HTTP fallback."
   type        = string
-  default     = ""
+
+  validation {
+    condition     = trimspace(var.appgw_keyvault_cert_secret_id) != ""
+    error_message = "appgw_keyvault_cert_secret_id must be set to a Key Vault certificate secret id. The Application Gateway serves HTTPS only; a plaintext-HTTP listener is not permitted."
+  }
 }
 
 resource "azurerm_public_ip" "appgw" {
@@ -68,13 +72,11 @@ resource "azurerm_application_gateway" "this" {
     public_ip_address_id = azurerm_public_ip.appgw.id
   }
 
-  # TLS cert sourced from Key Vault (managed identity reads it).
-  dynamic "ssl_certificate" {
-    for_each = var.appgw_keyvault_cert_secret_id != "" ? [1] : []
-    content {
-      name                = "agw-cert"
-      key_vault_secret_id = var.appgw_keyvault_cert_secret_id
-    }
+  # TLS cert sourced from Key Vault (managed identity reads it). Mandatory:
+  # see the validation on var.appgw_keyvault_cert_secret_id.
+  ssl_certificate {
+    name                = "agw-cert"
+    key_vault_secret_id = var.appgw_keyvault_cert_secret_id
   }
 
   backend_address_pool {
@@ -133,12 +135,14 @@ resource "azurerm_application_gateway" "this" {
     }
   }
 
+  # HTTPS-only listener. The certificate is mandatory (see the variable
+  # validation), so there is no plaintext-HTTP fallback.
   http_listener {
     name                           = local.https_listener_name
     frontend_ip_configuration_name = local.frontend_ip_name
     frontend_port_name             = local.frontend_port_name
-    protocol                       = var.appgw_keyvault_cert_secret_id != "" ? "Https" : "Http"
-    ssl_certificate_name           = var.appgw_keyvault_cert_secret_id != "" ? "agw-cert" : null
+    protocol                       = "Https"
+    ssl_certificate_name           = "agw-cert"
   }
 
   # Default route -> frontend SPA.
@@ -170,10 +174,4 @@ resource "azurerm_application_gateway" "this" {
     rule_set_version = "3.2"
   }
 
-  lifecycle {
-    ignore_changes = [
-      # When listener flips from Http placeholder to Https after cert is set.
-      http_listener,
-    ]
-  }
 }
