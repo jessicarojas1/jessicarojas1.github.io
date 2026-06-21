@@ -24,6 +24,21 @@ param location string = resourceGroup().location
 
 param appName string = 'aeromarkup'
 
+// Layer-7 / edge protection recommendation (C2):
+// This template exposes the Container App directly to the internet
+// (ingress.external = true) with TLS enforced by the Container Apps ingress.
+// For defense-in-depth, front this app with Azure Application Gateway + WAF_v2
+// (OWASP CRS in Prevention mode) for layer-7 filtering, rate limiting, and a
+// stable VIP — mirroring the sibling citadel / sentinel-qms Azure Gov stacks
+// (see citadel/deploy/azure-gov/main.bicep which runs the Container App as
+// ingress.external = false behind a gateway, and
+// sentinel-qms/infra/terraform/azure-gov/appgateway.tf).
+// When fronting with App Gateway, flip `external` below to false so the app is
+// only reachable through the WAF. Full App Gateway provisioning is out of scope
+// for this single bicep file and is tracked as a follow-up.
+@description('Set false and front with Application Gateway + WAF_v2 for layer-7 filtering. Leave true to expose the Container App ingress directly (TLS still enforced).')
+param ingressExternal bool = true
+
 resource logs 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: '${appName}-logs'
   location: location
@@ -51,9 +66,13 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
     managedEnvironmentId: env.id
     configuration: {
       ingress: {
-        external: true
+        external: ingressExternal
         targetPort: 8080
-        transport: 'auto'
+        // Force HTTPS: 'http' is HTTPS-terminated by the Container Apps ingress.
+        // 'auto' would also permit cleartext HTTP/2 (h2c); avoid it (SC-8).
+        transport: 'http'
+        // Reject any plain-HTTP request at the ingress — TLS only (C2 / SC-8).
+        allowInsecure: false
       }
       secrets: [
         { name: 'database-url', value: databaseUrl }
@@ -68,7 +87,12 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
           resources: { cpu: json('0.5'), memory: '1Gi' }
           env: [
             { name: 'PORT', value: '8080' }
-            { name: 'AUTO_MIGRATE', value: '1' }
+            // AUTO_MIGRATE gated off (C2): running schema migrations on every boot
+            // of a publicly reachable app is an integrity/availability risk.
+            // Run migrations as a one-shot job / init step (e.g. a separate
+            // Container Apps job or `az containerapp job` invoking the migration
+            // command) before/at deploy time — not on each app replica start.
+            { name: 'AUTO_MIGRATE', value: '0' }
             { name: 'ENVIRONMENT', value: 'production' }
             { name: 'DATABASE_URL', secretRef: 'database-url' }
             { name: 'AEROMARKUP_SECRET', secretRef: 'session-secret' }

@@ -6,13 +6,16 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: aeromarkup
-      POSTGRES_PASSWORD: aeromarkup
-      POSTGRES_DB: aeromarkup
+      POSTGRES_USER: ${POSTGRES_USER:-aeromarkup}
+      # Required: the stack refuses to start without a real password.
+      # Set POSTGRES_PASSWORD in a local .env (never commit it).
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set (use a strong secret; do not commit)}
+      POSTGRES_DB: ${POSTGRES_DB:-aeromarkup}
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      # Bind to loopback only so Postgres is not exposed on all interfaces.
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U aeromarkup"]
       interval: 5s
@@ -25,7 +28,8 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgres://aeromarkup:aeromarkup@db:5432/aeromarkup
+      # Reuse the same required DB credentials as the db service.
+      DATABASE_URL: postgres://${POSTGRES_USER:-aeromarkup}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set (use a strong secret; do not commit)}@db:5432/${POSTGRES_DB:-aeromarkup}
       AUTO_MIGRATE: "1"
       PORT: "8080"
     ports:
