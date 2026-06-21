@@ -1,0 +1,320 @@
+# =============================================================================
+# CITADEL — Infrastructure-as-Code validation workflow (REFERENCE / EXAMPLE)
+# -----------------------------------------------------------------------------
+# This is a REFERENCE workflow that lives under deploy/ci/ — like the repo's
+# citadel/.github-workflow-example.yml, it is NOT installed into
+# .github/workflows automatically. To activate it, copy it there:
+#
+#     mkdir -p .github/workflows
+#     cp citadel/deploy/ci/iac-validate.yml .github/workflows/iac-validate.yml
+#
+# (See deploy/ci/README.md for how to wire it up and run the same checks locally.)
+#
+# WHAT IT DOES
+#   Lints and validates ALL Infrastructure-as-Code in the repo on pull requests
+#   that touch citadel/deploy/**:
+#     * Terraform  : fmt -check, init -backend=false, validate  (matrix per dir)
+#     * Terraform  : tflint + checkov + trivy config (security/misconfig scan)
+#     * Bicep      : az bicep build of deploy/azure-gov/main.bicep
+#     * Helm       : helm lint + helm template | kubeconform (schema validation)
+#     * Dockerfiles: hadolint over all Dockerfiles
+#     * Compose    : docker compose config for deploy/compose/docker-compose.yml
+#     * YAML       : yamllint over manifests (non-blocking)
+#
+#   Directories that may not exist yet (deploy/aws, deploy/gcp, the Helm chart,
+#   etc.) are TOLERATED: each job guards on hashFiles(...) and skips cleanly so
+#   the workflow never fails just because an IaC target hasn't been authored.
+#
+# Paths below assume the repository root contains the `citadel/` directory.
+# =============================================================================
+name: IaC Validate
+
+on:
+  pull_request:
+    # Only run when infrastructure code actually changes.
+    paths:
+      - "citadel/deploy/**"
+      - ".github/workflows/iac-validate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "citadel/deploy/**"
+  # Allow manual runs from the Actions tab.
+  workflow_dispatch:
+
+# Least privilege: these checks only need to read the repository.
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: iac-validate-${{ github.ref }}
+  cancel-in-progress: true
+
+# Convenience anchors for the Terraform directories we validate.
+env:
+  TERRAFORM_VERSION: "1.9.8"
+
+jobs:
+  # ===========================================================================
+  # Terraform — fmt / init / validate, per directory, via a matrix.
+  # `fail-fast: false` so one bad dir doesn't hide results for the others.
+  # ===========================================================================
+  terraform:
+    name: Terraform (${{ matrix.dir }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dir:
+          - citadel/deploy/aws-gov
+          - citadel/deploy/aws
+          - citadel/deploy/gcp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Does this matrix dir actually contain Terraform? If not, skip the rest.
+      - name: Detect Terraform in ${{ matrix.dir }}
+        id: detect
+        run: |
+          if [ -n "$(find '${{ matrix.dir }}' -maxdepth 1 -name '*.tf' 2>/dev/null)" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No .tf files in ${{ matrix.dir }} — skipping."
+          fi
+
+      - name: Setup Terraform
+        if: steps.detect.outputs.present == 'true'
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: terraform fmt -check
+        if: steps.detect.outputs.present == 'true'
+        run: terraform fmt -check -recursive
+        working-directory: ${{ matrix.dir }}
+
+      # -backend=false: validate the configuration WITHOUT contacting a real
+      # backend / cloud credentials. Pure offline syntax + provider schema check.
+      - name: terraform init (no backend)
+        if: steps.detect.outputs.present == 'true'
+        run: terraform init -backend=false -input=false
+        working-directory: ${{ matrix.dir }}
+
+      - name: terraform validate
+        if: steps.detect.outputs.present == 'true'
+        run: terraform validate -no-color
+        working-directory: ${{ matrix.dir }}
+
+  # ===========================================================================
+  # Terraform security / lint — tflint, checkov, trivy config.
+  # Runs once over the whole deploy tree (each tool walks the Terraform dirs).
+  # ===========================================================================
+  terraform-lint:
+    name: Terraform lint & security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Any Terraform present?
+        id: tf
+        run: |
+          if [ -n "$(find citadel/deploy -name '*.tf' 2>/dev/null)" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No Terraform under citadel/deploy — skipping lint/security."
+          fi
+
+      # ---- tflint (provider-aware Terraform linter) -------------------------
+      - name: Setup tflint
+        if: steps.tf.outputs.present == 'true'
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+
+      - name: tflint (recursive)
+        if: steps.tf.outputs.present == 'true'
+        run: |
+          tflint --init
+          tflint --recursive --chdir citadel/deploy
+
+      # ---- Checkov (IaC misconfiguration scanner) ---------------------------
+      # continue-on-error: surface findings without hard-failing the PR until
+      # the team agrees on a baseline. Flip to a hard gate when ready.
+      - name: Checkov
+        if: steps.tf.outputs.present == 'true'
+        continue-on-error: true
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: citadel/deploy
+          framework: terraform
+          quiet: true
+          output_format: cli
+          soft_fail: true
+
+      # ---- Trivy config (Aqua) — second-opinion IaC misconfig scan ----------
+      - name: Trivy config scan
+        if: steps.tf.outputs.present == 'true'
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: citadel/deploy
+          severity: HIGH,CRITICAL
+          exit-code: "0" # report only; set to "1" to gate the PR
+
+  # ===========================================================================
+  # Bicep — build deploy/azure-gov/main.bicep (compiles to ARM JSON; fails on
+  # syntax/semantic errors). Tolerates the file being absent.
+  # ===========================================================================
+  bicep:
+    name: Bicep build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Bicep (if present)
+        run: |
+          set -euo pipefail
+          if [ -f citadel/deploy/azure-gov/main.bicep ]; then
+            # `az bicep` self-installs the Bicep CLI; preinstalled on ubuntu runners.
+            az bicep install || true
+            az bicep build --file citadel/deploy/azure-gov/main.bicep --stdout > /dev/null
+            echo "::notice::main.bicep compiled successfully."
+          else
+            echo "::notice::citadel/deploy/azure-gov/main.bicep not found — skipping."
+          fi
+
+  # ===========================================================================
+  # Helm — lint the chart + render templates and schema-validate with kubeconform.
+  # Tolerates the chart being absent.
+  # ===========================================================================
+  helm:
+    name: Helm lint & template
+    runs-on: ubuntu-latest
+    env:
+      CHART_DIR: citadel/deploy/kubernetes/citadel
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Chart present?
+        id: chart
+        run: |
+          if [ -f "${CHART_DIR}/Chart.yaml" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No Helm chart at ${CHART_DIR} — skipping."
+          fi
+
+      - name: Setup Helm
+        if: steps.chart.outputs.present == 'true'
+        uses: azure/setup-helm@v4
+        with:
+          version: latest
+
+      - name: helm lint
+        if: steps.chart.outputs.present == 'true'
+        run: helm lint "${CHART_DIR}"
+
+      - name: Install kubeconform
+        if: steps.chart.outputs.present == 'true'
+        run: |
+          KCV=0.6.7
+          curl -sSfL "https://github.com/yannh/kubeconform/releases/download/v${KCV}/kubeconform-linux-amd64.tar.gz" \
+            | tar -xz -C /usr/local/bin kubeconform
+          kubeconform -v
+
+      # Render the chart and validate every rendered manifest against the
+      # upstream Kubernetes JSON schemas. `-strict` rejects unknown fields;
+      # CRD-backed kinds are skipped with `-ignore-missing-schemas`.
+      - name: helm template | kubeconform
+        if: steps.chart.outputs.present == 'true'
+        run: |
+          helm template citadel "${CHART_DIR}" \
+            | kubeconform -strict -summary -ignore-missing-schemas \
+                -kubernetes-version 1.30.0
+
+  # ===========================================================================
+  # Hadolint — Dockerfile linting across the repo's Dockerfiles.
+  # ===========================================================================
+  hadolint:
+    name: Hadolint (Dockerfiles)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Hadolint all Dockerfiles
+        run: |
+          set -euo pipefail
+          docker run --rm -i hadolint/hadolint:latest hadolint --version
+          # Lint every Dockerfile under the app + deploy trees. `|| true` per file
+          # keeps it informational; remove it (and the trailing summary) to gate.
+          status=0
+          while IFS= read -r df; do
+            echo "::group::hadolint ${df}"
+            docker run --rm -i hadolint/hadolint:latest hadolint - < "${df}" || status=1
+            echo "::endgroup::"
+          done < <(find citadel/server citadel/deploy -name 'Dockerfile' -type f 2>/dev/null)
+          # Report-only by default; uncomment to gate the PR on lint findings.
+          # exit "${status}"
+          exit 0
+
+  # ===========================================================================
+  # Compose — render/validate the production compose stack.
+  # ===========================================================================
+  compose:
+    name: Compose config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: docker compose config
+        run: |
+          set -euo pipefail
+          COMPOSE=citadel/deploy/compose/docker-compose.yml
+          if [ ! -f "${COMPOSE}" ]; then
+            echo "::notice::${COMPOSE} not found — skipping."; exit 0
+          fi
+          # `config` needs the referenced variables defined. Seed required ones
+          # with DUMMY values (NOT secrets) purely so interpolation resolves; we
+          # only validate structure, we never start anything.
+          cat > /tmp/iac-validate.env <<'EOF'
+          POSTGRES_USER=citadel
+          POSTGRES_PASSWORD=ci-placeholder-not-a-secret
+          POSTGRES_DB=citadel
+          CITADEL_JWT_SECRET=ci-placeholder
+          CITADEL_ADMIN_EMAIL=admin@example.com
+          CITADEL_ADMIN_PASSWORD=ci-placeholder
+          CITADEL_SUPERADMIN_TOKEN=ci-placeholder
+          CITADEL_METRICS_TOKEN=ci-placeholder
+          EOF
+          docker compose --env-file /tmp/iac-validate.env -f "${COMPOSE}" config >/dev/null
+          echo "::notice::compose config is valid."
+
+  # ===========================================================================
+  # yamllint — lightweight YAML hygiene over manifests (non-blocking).
+  # ===========================================================================
+  yamllint:
+    name: yamllint (manifests)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: yamllint
+        run: |
+          pipx install yamllint || pip install --user yamllint
+          # Relaxed ruleset: structure/duplicate-key/syntax matters more than
+          # line length for hand-written manifests.
+          yamllint -d "{extends: relaxed, rules: {line-length: disable}}" \
+            citadel/deploy || true

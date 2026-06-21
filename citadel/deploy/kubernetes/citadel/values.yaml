@@ -1,0 +1,338 @@
+# ============================================================================
+# CITADEL Helm chart — default values
+# ----------------------------------------------------------------------------
+# SECURITY RULE: never put real secret values in this file. All credentials
+# (JWT secret, admin password, DATABASE_URL, super-admin token, metrics token)
+# come from a Kubernetes Secret or an external secret manager. The defaults
+# below are intentionally EMPTY. See the `secrets:` and `externalDatabase:`
+# blocks and README.md for how to supply them.
+# ============================================================================
+
+# -- Number of CITADEL replicas.
+# NOTE: replicaCount > 1 (HA) REQUIRES a shared Postgres `DATABASE_URL`
+# (see externalDatabase / secrets). Without a database, the app uses a local
+# file store (CITADEL_DATA_DIR + PVC) which is single-writer; keep replicas: 1
+# and persistence.enabled: true in that mode.
+replicaCount: 2
+
+image:
+  # -- Container image repository. Built from the REPO ROOT with
+  # `docker build -f citadel/server/Dockerfile -t citadel-server .`
+  repository: ghcr.io/your-org/citadel-server
+  # -- Image tag. Pin to an immutable digest/tag in production (avoid "latest").
+  tag: "latest"
+  # -- Image pull policy.
+  pullPolicy: IfNotPresent
+
+# -- Image pull secrets for private registries (e.g. GHCR / ECR).
+# Example: imagePullSecrets: [{ name: ghcr-creds }]
+imagePullSecrets: []
+
+# -- Override chart name / fullname if desired.
+nameOverride: ""
+fullnameOverride: ""
+
+# ----------------------------------------------------------------------------
+# Service account
+# ----------------------------------------------------------------------------
+serviceAccount:
+  # -- Create a dedicated ServiceAccount (recommended; least privilege).
+  create: true
+  # -- Annotations (e.g. IRSA / Workload Identity role bindings).
+  annotations: {}
+  # -- Name to use. If empty and create=true, a name is generated.
+  name: ""
+  # -- Do not auto-mount the SA token unless the app needs the API server.
+  automountServiceAccountToken: false
+
+# ----------------------------------------------------------------------------
+# Pod-level security context (Pod Security "restricted" aligned)
+#   Maps to NIST SP 800-53: AC-6 / CM-7 (least privilege).
+# ----------------------------------------------------------------------------
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+# ----------------------------------------------------------------------------
+# Container-level security context (hardened defaults — DO NOT relax casually)
+# ----------------------------------------------------------------------------
+containerSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  privileged: false
+  capabilities:
+    drop:
+      - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Extra annotations / labels merged onto the Pod template.
+podAnnotations: {}
+podLabels: {}
+
+# ----------------------------------------------------------------------------
+# Resource requests & limits. Tune for your scanner workload.
+# ----------------------------------------------------------------------------
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+
+# ----------------------------------------------------------------------------
+# Service
+# ----------------------------------------------------------------------------
+service:
+  type: ClusterIP
+  # -- Service port (external). Targets containerPort 8080.
+  port: 80
+  # -- Container port the app listens on (PORT env). CITADEL = 8080.
+  targetPort: 8080
+  annotations: {}
+
+# ----------------------------------------------------------------------------
+# Ingress — TLS terminates here (NIST SC-8 / SC-13: transit protection).
+# ----------------------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    # Force HTTPS + HSTS at the ingress controller.
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # cert-manager example (uncomment & set your issuer):
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: citadel.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  # -- TLS blocks. Each references a Secret holding the cert/key.
+  tls:
+    - hosts:
+        - citadel.example.com
+      secretName: citadel-tls
+  # -- For multi-tenant subdomain routing, add a wildcard host here, e.g.
+  #    - host: "*.citadel.example.com"  (and a matching wildcard TLS cert).
+
+# ----------------------------------------------------------------------------
+# Horizontal Pod Autoscaler (NIST SC-5: resource availability / DoS resilience)
+# Requires metrics-server. Autoscaling beyond 1 replica REQUIRES DATABASE_URL.
+# ----------------------------------------------------------------------------
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+  # -- Optional memory target (set to enable a memory metric).
+  targetMemoryUtilizationPercentage: 0
+
+# ----------------------------------------------------------------------------
+# Pod Disruption Budget (availability during voluntary disruptions).
+# ----------------------------------------------------------------------------
+podDisruptionBudget:
+  enabled: true
+  # Use exactly one of minAvailable / maxUnavailable.
+  minAvailable: 1
+  maxUnavailable: ""
+
+# ----------------------------------------------------------------------------
+# NetworkPolicy (NIST SC-7: boundary protection — default-deny ingress).
+# When enabled, only the ingress controller namespace and Prometheus may reach
+# the pods; egress is allowed to DNS, Postgres and HTTPS by default.
+# ----------------------------------------------------------------------------
+networkPolicy:
+  enabled: true
+  # -- Namespace selector label of the ingress controller (adjust to your env).
+  ingressControllerNamespaceSelector:
+    kubernetes.io/metadata.name: ingress-nginx
+  # -- Namespace selector for Prometheus scrape source (metrics).
+  monitoringNamespaceSelector:
+    kubernetes.io/metadata.name: monitoring
+  # -- Allow all egress (set false to keep the curated egress rules only).
+  allowAllEgress: false
+  # -- Postgres port for the curated egress rule.
+  databasePort: 5432
+
+# ----------------------------------------------------------------------------
+# Probes — both hit GET /api/health (200 = healthy).
+# ----------------------------------------------------------------------------
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: http
+  initialDelaySeconds: 20
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /api/health
+    port: http
+  periodSeconds: 5
+  failureThreshold: 30
+
+# ----------------------------------------------------------------------------
+# Writable scratch volumes. The image runs with a READ-ONLY root filesystem,
+# so every writable path must be an explicit emptyDir (no host writes).
+# ----------------------------------------------------------------------------
+volumes:
+  # -- CITADEL_TMP scratch for untrusted uploads. Memory-backed by default so
+  #    nothing untrusted ever lands on disk.
+  citadelTmp:
+    medium: Memory
+    sizeLimit: 512Mi
+  # -- ClamAV virus DB dir (/var/lib/clamav). Only needed if AV scanning is on.
+  clamavDb:
+    enabled: true
+    medium: ""        # "" = node default disk; "Memory" for tmpfs
+    sizeLimit: 1Gi
+
+# ----------------------------------------------------------------------------
+# Persistence — PVC for CITADEL_DATA_DIR (file store when NO database is used).
+# Leave disabled when using externalDatabase (DB is the source of truth).
+# ----------------------------------------------------------------------------
+persistence:
+  enabled: false
+  # -- Mount path inside the container (also set as CITADEL_DATA_DIR env).
+  mountPath: /data/citadel
+  # -- Use an existing PVC instead of creating one.
+  existingClaim: ""
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+  annotations: {}
+
+# ----------------------------------------------------------------------------
+# Core application environment (non-secret). See `secrets:` for sensitive vars.
+# ----------------------------------------------------------------------------
+env:
+  # NODE_ENV is forced to production; PORT is derived from service.targetPort.
+  NODE_ENV: production
+  # -- OpenTelemetry OTLP endpoint (traces/metrics export). Empty = disabled.
+  OTEL_EXPORTER_OTLP_ENDPOINT: ""
+  # -- Enable the CodeQL scanner engine ("1" to enable).
+  CITADEL_ENABLE_CODEQL: ""
+
+# -- Free-form extra env vars (list of {name,value} or {name,valueFrom}).
+extraEnv: []
+# - name: SOME_FLAG
+#   value: "1"
+# - name: FROM_CONFIGMAP
+#   valueFrom:
+#     configMapKeyRef: { name: my-cm, key: foo }
+
+# ----------------------------------------------------------------------------
+# Multi-tenancy (schema-per-tenant). REQUIRES externalDatabase (DATABASE_URL).
+#   CITADEL_MULTITENANT=1 + CITADEL_BASE_DOMAIN drive subdomain tenant routing.
+#   CITADEL_SUPERADMIN_TOKEN (operator token) is supplied via the Secret.
+# ----------------------------------------------------------------------------
+multitenancy:
+  enabled: false
+  # -- Base domain for subdomain-based tenant resolution (e.g. citadel.example.com).
+  baseDomain: ""
+
+# ----------------------------------------------------------------------------
+# External database (Postgres). Enables durable, multi-instance (HA) and
+# multi-tenant state. The DATABASE_URL itself is a SECRET — provide it via the
+# managed Secret (secrets.create) or an existing Secret.
+# ----------------------------------------------------------------------------
+externalDatabase:
+  enabled: false
+  # -- TLS to Postgres (NIST SC-8): require + verify the server cert.
+  ssl:
+    enabled: true
+    # PGSSL=1 enables TLS; PGSSL_VERIFY=1 verifies the chain.
+    verify: true
+    # -- Optional CA bundle. Provide via a Secret/ConfigMap and reference its
+    #    mount path here, set as PGSSL_CA. Leave empty to use the system store.
+    caPath: ""
+  # The DATABASE_URL value is NEVER stored here — see secrets.values.databaseUrl
+  # (created Secret) or secrets.existingSecret + secrets.keys.databaseUrl.
+
+# ----------------------------------------------------------------------------
+# Secrets — sensitive env wiring. Two modes:
+#   A) create=true  -> this chart creates a Secret from secrets.values.* (you
+#      typically pass these with --set-string from CI / a vault, never commit).
+#   B) create=false + existingSecret="my-secret" -> reference a pre-created
+#      Secret (recommended: managed by ExternalSecrets / SealedSecrets / vault).
+# In BOTH modes the keys below map env vars to Secret data keys.
+# ----------------------------------------------------------------------------
+secrets:
+  create: true
+  # -- Name of an existing Secret to consume (mode B). Empty = use created one.
+  existingSecret: ""
+  # -- Logical key names inside the Secret for each sensitive value.
+  keys:
+    jwtSecret: CITADEL_JWT_SECRET
+    adminEmail: CITADEL_ADMIN_EMAIL
+    adminPassword: CITADEL_ADMIN_PASSWORD
+    databaseUrl: DATABASE_URL
+    superadminToken: CITADEL_SUPERADMIN_TOKEN
+    metricsToken: CITADEL_METRICS_TOKEN
+  # -- Values used ONLY when create=true. KEEP EMPTY IN GIT. Supply at install:
+  #    helm install ... --set-string secrets.values.jwtSecret=$(openssl rand -hex 32)
+  values:
+    jwtSecret: ""
+    adminEmail: ""
+    adminPassword: ""
+    databaseUrl: ""
+    superadminToken: ""
+    metricsToken: ""
+
+# ----------------------------------------------------------------------------
+# Prometheus metrics. GET /metrics is gated (loopback OR bearer token via
+# CITADEL_METRICS_TOKEN). When scraping over the network, set a metricsToken.
+# ----------------------------------------------------------------------------
+metrics:
+  enabled: true
+  port: 8080
+  path: /metrics
+  serviceMonitor:
+    # -- Create a Prometheus-Operator ServiceMonitor (requires the CRD).
+    enabled: false
+    namespace: ""
+    interval: 30s
+    scrapeTimeout: 10s
+    labels: {}
+    # -- If your /metrics needs a bearer token, reference the Secret key here.
+    bearerTokenSecret:
+      name: ""
+      key: CITADEL_METRICS_TOKEN
+
+# ----------------------------------------------------------------------------
+# Scheduling
+# ----------------------------------------------------------------------------
+nodeSelector: {}
+tolerations: []
+affinity: {}
+# -- Spread replicas across nodes/zones for availability (recommended for HA).
+topologySpreadConstraints: []
+# - maxSkew: 1
+#   topologyKey: kubernetes.io/hostname
+#   whenUnsatisfiable: ScheduleAnyway
+#   labelSelector:
+#     matchLabels: { app.kubernetes.io/name: citadel }
+
+# -- Termination grace period (allow in-flight scans to finish).
+terminationGracePeriodSeconds: 30

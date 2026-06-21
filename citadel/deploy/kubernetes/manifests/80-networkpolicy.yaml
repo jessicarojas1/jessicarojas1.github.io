@@ -1,0 +1,52 @@
+# Default-deny + explicit allow (NIST SC-7: boundary protection).
+# Adjust the namespace selectors to match your ingress controller / Prometheus.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: citadel
+  namespace: citadel
+  labels:
+    app.kubernetes.io/name: citadel
+    app.kubernetes.io/part-of: citadel
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: citadel
+      app.kubernetes.io/instance: citadel
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # HTTP from the ingress controller namespace only.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+    # Prometheus scrape of /metrics from the monitoring namespace.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    # DNS.
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Postgres (DATABASE_URL).
+    - ports:
+        - protocol: TCP
+          port: 5432
+    # Outbound HTTPS (OTLP export, scanner DB / freshclam updates).
+    - ports:
+        - protocol: TCP
+          port: 443

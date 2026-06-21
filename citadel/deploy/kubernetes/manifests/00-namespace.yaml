@@ -1,0 +1,18 @@
+# ============================================================================
+# CITADEL — raw Kubernetes manifests (Helm-free alternative)
+# Faithful mirror of the Helm chart defaults (release "citadel", ns "citadel").
+# Apply in order:  kubectl apply -f deploy/kubernetes/manifests/
+# Enforces Pod Security Admission "restricted" on the namespace.
+# ============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: citadel
+  labels:
+    name: citadel
+    app.kubernetes.io/part-of: citadel
+    # Pod Security Admission — enforce the restricted profile (NIST AC-6/CM-7).
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

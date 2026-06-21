@@ -1,0 +1,9 @@
+# NEVER commit real secrets or TLS private keys from this stack.
+# Only .env.example (placeholders) and the certs/.gitkeep marker are tracked.
+.env
+.env.*
+!.env.example
+
+# TLS material lives in certs/ at runtime — keep keys/certs out of git.
+certs/*
+!certs/.gitkeep

@@ -1,0 +1,60 @@
+{{- if .Values.networkPolicy.enabled -}}
+# Default-deny + explicit allow (NIST SC-7: boundary protection).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "citadel.fullname" . }}
+  labels:
+    {{- include "citadel.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "citadel.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow HTTP from the ingress controller namespace only.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicy.ingressControllerNamespaceSelector | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.targetPort }}
+    {{- if .Values.metrics.enabled }}
+    # Allow Prometheus to scrape /metrics from the monitoring namespace.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicy.monitoringNamespaceSelector | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.metrics.port }}
+    {{- end }}
+  egress:
+    {{- if .Values.networkPolicy.allowAllEgress }}
+    # Permissive egress (not recommended for high-side environments).
+    - {}
+    {{- else }}
+    # DNS resolution.
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    {{- if .Values.externalDatabase.enabled }}
+    # Postgres (DATABASE_URL).
+    - ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicy.databasePort }}
+    {{- end }}
+    # Outbound HTTPS (registry pulls already done by kubelet; this covers
+    # OTLP export, scanner DB updates, ClamAV freshclam, etc.).
+    - ports:
+        - protocol: TCP
+          port: 443
+    {{- end }}
+{{- end }}
