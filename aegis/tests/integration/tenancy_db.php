@@ -80,5 +80,65 @@ $got2 = (int)(Database::fetchOne("SELECT tenant_id FROM aegis.risks WHERE id = ?
 Database::query("DELETE FROM aegis.risks WHERE id = ?", [$id2]);
 if ($got2 !== 1) fail("default tenant_id should be 1 (got {$got2})");
 
-fwrite(STDOUT, "[tenancy_db] setTenant/currentTenant, RLS isolation, and write-path stamping verified. OK\n");
+// 5) Phase 3 read-path RLS on a REAL table (migration 028): setTenant() must
+//    isolate reads on aegis.risks, and an unbound GUC must stay permissive
+//    (inert single-tenant). Seed as superuser (bypasses RLS), assert as the
+//    non-superuser runtime role (subject to RLS).
+$tag = 'rls-readpath-probe';
+$r1 = Database::insert('risks', ['title' => $tag, 'tenant_id' => 1]);
+$r2 = Database::insert('risks', ['title' => $tag, 'tenant_id' => 2]);
+
+Database::query("SET ROLE aegis_app");
+Database::setTenant(2);
+$seen2 = (int)(Database::fetchOne(
+    "SELECT count(*) AS c FROM aegis.risks WHERE title = ?", [$tag])['c'] ?? -1);
+if ($seen2 !== 1) { Database::query("RESET ROLE"); fail("setTenant(2) should see 1 probe row, saw {$seen2}"); }
+
+Database::setTenant(1);
+$seen1 = (int)(Database::fetchOne(
+    "SELECT count(*) AS c FROM aegis.risks WHERE title = ?", [$tag])['c'] ?? -1);
+if ($seen1 !== 1) { Database::query("RESET ROLE"); fail("setTenant(1) should see 1 probe row, saw {$seen1}"); }
+
+// A same-tenant write must SUCCEED (proves the runtime role holds INSERT, so a
+// blocked cross-tenant write below is the policy — not a missing grant). Bound to
+// tenant 1, tenant_id defaults to 1 and satisfies WITH CHECK.
+$okId = (int)(Database::query(
+    "INSERT INTO aegis.risks (title) VALUES (?) RETURNING id", [$tag])->fetchColumn() ?: 0);
+if ($okId <= 0) { Database::query("RESET ROLE"); fail('same-tenant insert as aegis_app did not succeed'); }
+
+// Cross-tenant write must be blocked: bound to tenant 1, inserting tenant 2 fails
+// the policy WITH CHECK.
+$blocked = false;
+try { Database::query("INSERT INTO aegis.risks (title, tenant_id) VALUES (?, 2)", [$tag]); }
+catch (Throwable) { $blocked = true; }
+if (!$blocked) { Database::query("RESET ROLE"); fail('WITH CHECK did not block a cross-tenant insert'); }
+
+// Unbound GUC ⇒ permissive ⇒ all probe rows visible (inert single-tenant):
+// r1 (tenant 1), r2 (tenant 2), and the same-tenant row just inserted = 3.
+Database::clearTenant();
+$seenAll = (int)(Database::fetchOne(
+    "SELECT count(*) AS c FROM aegis.risks WHERE title = ?", [$tag])['c'] ?? -1);
+Database::query("RESET ROLE");
+if ($seenAll !== 3) fail("unbound GUC should be permissive (3 rows), saw {$seenAll}");
+
+Database::query("DELETE FROM aegis.risks WHERE title = ?", [$tag]);
+
+// 6) Policy coverage: every tenant-owned table that carries tenant_id must have
+//    the tenant_isolation RLS policy (the MULTI_TENANCY hard rule).
+$missing = Database::fetchAll(
+    "SELECT c.table_name
+       FROM information_schema.columns c
+      WHERE c.table_schema = 'aegis' AND c.column_name = 'tenant_id'
+        AND NOT EXISTS (
+          SELECT 1 FROM pg_policies p
+           WHERE p.schemaname = 'aegis' AND p.tablename = c.table_name
+             AND p.policyname = 'tenant_isolation')
+      ORDER BY c.table_name"
+);
+if ($missing) {
+    $names = implode(', ', array_map(fn($r) => $r['table_name'], $missing));
+    fail("tenant tables missing tenant_isolation policy: {$names}");
+}
+
+fwrite(STDOUT, "[tenancy_db] setTenant/currentTenant, RLS isolation, write-path stamping, read-path RLS, and policy coverage verified. OK\n");
 exit(0);

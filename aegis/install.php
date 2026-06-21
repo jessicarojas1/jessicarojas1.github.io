@@ -315,6 +315,7 @@ function runMigrations(PDO $pdo): void {
         '025_audit_changes_text.sql',
         '026_tenancy_foundation.sql',
         '027_tenancy_columns.sql',
+        '028_tenancy_rls.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;

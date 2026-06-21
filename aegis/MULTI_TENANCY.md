@@ -54,11 +54,26 @@ Database::query("SELECT set_config('aegis.tenant_id', ?, false)", [(string)$tena
    from the authenticated session; tenant resolved at login + SSO. Proven against
    a live Postgres in `tests/integration/tenancy_db.php`. Remaining: detail/child
    tables (e.g. `poam_milestones`, `policy_versions`) before Phase 4.
-3. **Read path** — add `WHERE tenant_id` to queries (or rely on RLS); add tests
-   proving cross-tenant reads return nothing.
-4. **Enforce** — make `tenant_id NOT NULL`; `ENABLE`/`FORCE ROW LEVEL SECURITY`
-   with the isolation policy on every table; run the runtime app as a role that
-   is **subject to** RLS (not the owner/superuser, which can bypass non-FORCE RLS).
+3. **Read path** — ✅ **DONE (inert):** `ENABLE`/`FORCE ROW LEVEL SECURITY` +
+   a `tenant_isolation` policy on all 26 tenant-owned tables (migration 028),
+   relying on RLS rather than hand-written `WHERE tenant_id` (one forgotten clause
+   is how leaks happen). The policy is **permissive-fallback**: when the
+   `aegis.tenant_id` GUC is unset/empty (single-tenant deployments, CLI, cron, and
+   any request before auth) all rows are visible, so this stays inert; once a
+   request binds a tenant via `Database::setTenant()` — now wired into the request
+   lifecycle in `index.php` alongside `useTenant()` — reads **and** writes are
+   isolated in the database itself. The cast uses `NULLIF(setting,'')::bigint` so
+   an unset/empty GUC can never raise `22P02` regardless of OR evaluation order.
+   Proven against a live Postgres in `tests/integration/tenancy_db.php`: cross-tenant
+   reads return nothing, a cross-tenant write is rejected by `WITH CHECK`, an
+   unbound GUC is permissive, and every tenant table has the policy (coverage
+   check). Remaining: child/detail tables (e.g. `poam_milestones`, `policy_versions`).
+4. **Enforce** — make `tenant_id NOT NULL` (already the case) and **drop the
+   permissive `NULLIF(...) IS NULL` branch** so an unset GUC denies all rows
+   (deny-by-default); ensure the runtime app connects as a role that is **subject
+   to** RLS (not the owner/superuser, which can bypass non-FORCE RLS) — the
+   `aegis_app` least-privilege role already exists and is proven subject to the
+   policy in CI.
 5. **Admin/cross-tenant** — a separate, audited "platform admin" path with an
    explicit, logged tenant-switch; never an implicit bypass.
 
