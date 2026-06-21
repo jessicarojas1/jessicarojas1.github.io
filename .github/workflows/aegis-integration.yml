@@ -96,6 +96,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/session_db.php
 
+      - name: Platform admin — audited cross-tenant switch
+        working-directory: aegis
+        run: php tests/integration/platform_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

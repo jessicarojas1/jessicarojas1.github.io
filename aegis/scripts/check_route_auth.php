@@ -37,7 +37,7 @@ $ALLOWLIST = [
     'RiskController::editForm',
 ];
 
-$AUTH_MARKERS = ['requireAuth', 'requirePermission', 'requireAdmin'];
+$AUTH_MARKERS = ['requireAuth', 'requirePermission', 'requireAdmin', 'requirePlatformAdmin'];
 
 $gaps = [];
 $checked = 0;

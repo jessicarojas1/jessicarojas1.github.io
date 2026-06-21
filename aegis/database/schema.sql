@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS users (
     department VARCHAR(255),
     job_title VARCHAR(255),
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    -- Platform admin (SaaS operator): may switch tenant context, audited + time-boxed
+    -- (migration 031). Distinct from tenant `admin`. Defaults false for everyone.
+    is_platform_admin BOOLEAN NOT NULL DEFAULT FALSE,
     last_login TIMESTAMP,
     email_verified_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

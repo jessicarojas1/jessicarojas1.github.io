@@ -721,6 +721,7 @@ $routes = [
         '/'                           => ['DashboardController', 'index'],
         '/healthz'                    => ['HealthController', 'live'],
         '/readyz'                     => ['HealthController', 'ready'],
+        '/platform/tenants'           => ['PlatformController', 'tenants'],
         '/profile/notifications'      => ['ProfileController', 'notifications'],
         '/login'                      => ['AuthController', 'loginForm'],
         '/compliance'                 => ['ComplianceController', 'index'],
@@ -849,6 +850,8 @@ $routes = [
         '/raci'                       => ['RACIController', 'index'],
     ],
     'POST' => [
+        '/platform/switch-tenant'        => ['PlatformController', 'switchTenant'],
+        '/platform/exit-tenant'          => ['PlatformController', 'exitTenant'],
         '/profile/notifications/save'    => ['ProfileController', 'saveNotifications'],
         '/profile/notifications/digest'  => ['ProfileController', 'saveNotificationDigest'],
         '/login'                         => ['AuthController', 'login'],
@@ -1181,14 +1184,16 @@ function dispatch(string $controller, string $action, array $params = []): void 
 //   * useTenant()  — write-path stamping (PHP-side only; no DB call).
 //   * setTenant()  — read-path GUC the Row-Level Security policies filter on
 //                    (migration 028), so reads/writes are isolated in the DB.
-// Inert in single-tenant deployments: rows fall back to the tenant_id DEFAULT
-// (1) and the RLS policy is permissive while the GUC matches. Failures here must
-// never take down the request (e.g. pre-migration DB), so setTenant is guarded.
-if (!empty($_SESSION['user']['tenant_id'])) {
-    $sessionTenantId = (int)$_SESSION['user']['tenant_id'];
-    Database::useTenant($sessionTenantId);
+// The bound tenant is Auth::activeTenantId(): the home tenant for everyone,
+// except a platform admin who has explicitly switched (Phase 5). Inert in
+// single-tenant deployments: rows fall back to the tenant_id DEFAULT (1) and the
+// RLS policy is permissive while the GUC matches. Failures here must never take
+// down the request (e.g. pre-migration DB), so setTenant is guarded.
+if (Auth::check()) {
+    $activeTenantId = Auth::activeTenantId();
+    Database::useTenant($activeTenantId);
     try {
-        Database::setTenant($sessionTenantId);
+        Database::setTenant($activeTenantId);
     } catch (Throwable $e) {
         error_log('Tenant binding (setTenant) failed: ' . $e->getMessage());
     }

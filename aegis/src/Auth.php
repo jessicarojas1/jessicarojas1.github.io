@@ -235,6 +235,96 @@ class Auth {
         return $_SESSION['user']['role'] ?? 'viewer';
     }
 
+    // ── Multi-tenancy: platform admin + cross-tenant switch (Phase 5) ─────────
+
+    /** How long a platform-admin tenant switch stays active before auto-reverting. */
+    private const TENANT_SWITCH_TTL = 3600; // 1 hour, time-boxed elevation
+
+    /**
+     * Is the current user a PLATFORM admin (SaaS operator)? This is deliberately
+     * NOT derived from role/permissions — tenant `admin` bypasses can(), so
+     * cross-tenant power must come from a dedicated flag no tenant role grants.
+     */
+    public static function isPlatformAdmin(): bool {
+        return !empty($_SESSION['user']['is_platform_admin']);
+    }
+
+    /** The user's home tenant (set at login), independent of any active switch. */
+    public static function homeTenantId(): int {
+        return (int)($_SESSION['user']['tenant_id'] ?? 1);
+    }
+
+    /**
+     * The tenant the request should act as: the home tenant for everyone, unless
+     * a platform admin has explicitly switched and the switch has not expired.
+     * index.php binds this to the DB (RLS GUC + write stamping) per request.
+     */
+    public static function activeTenantId(): int {
+        $home = self::homeTenantId();
+        if (!self::isPlatformAdmin()) {
+            return $home;
+        }
+        $active = $_SESSION['active_tenant'] ?? null;
+        if (!$active || ($active['expires'] ?? 0) < time()) {
+            unset($_SESSION['active_tenant']);
+            return $home;
+        }
+        return (int)$active['id'];
+    }
+
+    /** True when a platform admin is currently acting inside a non-home tenant. */
+    public static function isImpersonatingTenant(): bool {
+        return self::isPlatformAdmin()
+            && self::activeTenantId() !== self::homeTenantId();
+    }
+
+    public static function requirePlatformAdmin(): void {
+        self::requireAuth();
+        if (!self::isPlatformAdmin()) {
+            http_response_code(403);
+            require __DIR__ . '/../views/errors/403.php';
+            exit;
+        }
+    }
+
+    /**
+     * Switch the platform admin's active tenant context. Explicit + audited +
+     * time-boxed; never an implicit bypass. Validates the target tenant exists
+     * and is active. Takes effect on the next request (when activeTenantId() is
+     * bound), and auto-reverts after TENANT_SWITCH_TTL.
+     */
+    public static function switchTenant(int $tenantId): void {
+        if (!self::isPlatformAdmin()) {
+            throw new RuntimeException('Only a platform admin may switch tenants.');
+        }
+        if ($tenantId < 1) {
+            throw new InvalidArgumentException('tenant id must be a positive integer');
+        }
+        $t = Database::fetchOne(
+            "SELECT id, name FROM tenants WHERE id = ? AND is_active = TRUE", [$tenantId]);
+        if (!$t) {
+            throw new RuntimeException('Target tenant not found or inactive.');
+        }
+        $from = self::activeTenantId();
+        $_SESSION['active_tenant'] = [
+            'id'      => (int)$t['id'],
+            'expires' => time() + self::TENANT_SWITCH_TTL,
+        ];
+        self::log('platform.tenant_switch', 'tenants', (int)$t['id'],
+            ['from' => $from, 'to' => (int)$t['id']]);
+    }
+
+    /** Exit any active tenant switch and return to the home tenant (audited). */
+    public static function exitTenant(): void {
+        if (empty($_SESSION['active_tenant'])) {
+            return;
+        }
+        $from = (int)$_SESSION['active_tenant']['id'];
+        unset($_SESSION['active_tenant']);
+        self::log('platform.tenant_exit', 'tenants', $from,
+            ['from' => $from, 'to' => self::homeTenantId()]);
+    }
+
     public static function can(string $permission): bool {
         $role = self::role();
         if ($role === 'admin') return true;
@@ -371,12 +461,13 @@ class Auth {
         session_regenerate_id(true);
 
         $_SESSION['user'] = [
-            'id'         => $user['id'],
-            'name'       => $user['name'],
-            'email'      => $user['email'],
-            'role'       => $user['role'],
-            'tenant_id'  => (int)($user['tenant_id'] ?? 1),
-            'login_time' => time(),
+            'id'                => $user['id'],
+            'name'              => $user['name'],
+            'email'             => $user['email'],
+            'role'              => $user['role'],
+            'tenant_id'         => (int)($user['tenant_id'] ?? 1),
+            'is_platform_admin' => (bool)($user['is_platform_admin'] ?? false),
+            'login_time'        => time(),
         ];
         $_SESSION['last_activity'] = time();
 
