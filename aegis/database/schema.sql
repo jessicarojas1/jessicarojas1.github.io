@@ -823,3 +823,46 @@ BEGIN
     END IF;
   END LOOP;
 END$$;
+
+
+-- ── Multi-tenancy: read-path Row-Level Security (see migration 028) ────────────
+-- Permissive-fallback tenant_isolation policy: when the `aegis.tenant_id` GUC is
+-- unset/empty all rows are visible (inert single-tenant); when a request binds a
+-- tenant via Database::setTenant(), reads/writes are isolated in the DB itself.
+-- ENABLE + FORCE so the policy applies even to the table owner; the runtime app
+-- must connect as a non-superuser role (superusers bypass RLS). Phase 4 hardens
+-- this to deny-by-default.
+DO $$
+DECLARE
+  t   text;
+  tbls text[] := ARRAY[
+    'users','risks','policies','audits','audit_findings','compliance_packages',
+    'compliance_objectives','control_implementations','incidents','issues',
+    'vendors','assets','threats','poam_items','kris','documents','bcp_plans',
+    'privacy_records','account_reviews','awareness_programs','change_requests',
+    'grc_projects','cui_inventory','odp_entries','ssp_plans','questionnaires'
+  ];
+BEGIN
+  FOREACH t IN ARRAY tbls LOOP
+    IF EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'aegis' AND table_name = t AND column_name = 'tenant_id'
+    ) THEN
+      EXECUTE format('ALTER TABLE aegis.%I ENABLE ROW LEVEL SECURITY', t);
+      EXECUTE format('ALTER TABLE aegis.%I FORCE ROW LEVEL SECURITY', t);
+      EXECUTE format('DROP POLICY IF EXISTS tenant_isolation ON aegis.%I', t);
+      -- NULLIF(..,'') makes the ::bigint cast total: an unset/empty GUC becomes
+      -- NULL (permissive) instead of raising 22P02 when SQL OR evaluates the cast
+      -- branch out of order. See migration 028.
+      EXECUTE format($pol$
+        CREATE POLICY tenant_isolation ON aegis.%I
+          USING (
+            NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
+            OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)
+          WITH CHECK (
+            NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
+            OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)
+      $pol$, t);
+    END IF;
+  END LOOP;
+END$$;

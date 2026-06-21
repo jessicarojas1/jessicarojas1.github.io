@@ -24,10 +24,20 @@ ALTER TABLE aegis.risks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE aegis.risks FORCE  ROW LEVEL SECURITY;
 
 -- 4) Isolation policy keyed to the per-connection GUC set by Database::setTenant()
+-- NULLIF(..,'') keeps the ::bigint cast total: an unset/empty GUC becomes NULL,
+-- so `tenant_id = NULL` is NULL (deny — no rows) instead of raising 22P02. SQL OR
+-- is not guaranteed to short-circuit, so never cast the raw setting directly.
 DROP POLICY IF EXISTS tenant_isolation ON aegis.risks;
 CREATE POLICY tenant_isolation ON aegis.risks
-  USING      (tenant_id = current_setting('aegis.tenant_id', true)::bigint)
-  WITH CHECK (tenant_id = current_setting('aegis.tenant_id', true)::bigint);
+  USING      (tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)
+  WITH CHECK (tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint);
 
 -- The app sets the GUC per request after authentication:
 --   SELECT set_config('aegis.tenant_id', '<id>', false);
+--
+-- NOTE: This template shows the Phase 4 *strict* (deny-by-default) policy — when
+-- the GUC is unset, zero rows are visible. Phase 3 (migration 028) ships a
+-- *permissive-fallback* form first: it adds `current_setting(...) IS NULL OR
+-- ... = ''` to both USING and WITH CHECK so single-tenant deployments, CLI
+-- scripts, and cron keep working while the GUC is unset, and isolation engages
+-- only once a request binds a tenant. Phase 4 drops the permissive clause.

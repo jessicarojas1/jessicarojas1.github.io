@@ -1164,11 +1164,21 @@ function dispatch(string $controller, string $action, array $params = []): void 
     $ctrl->$action(...$params);
 }
 
-// Bind the write-path tenant context from the authenticated session, so new
-// rows are stamped with the user's tenant (PHP-side only; no DB call). Inert in
-// single-tenant deployments — rows fall back to the tenant_id DEFAULT (1).
+// Bind the per-request tenant from the authenticated session:
+//   * useTenant()  — write-path stamping (PHP-side only; no DB call).
+//   * setTenant()  — read-path GUC the Row-Level Security policies filter on
+//                    (migration 028), so reads/writes are isolated in the DB.
+// Inert in single-tenant deployments: rows fall back to the tenant_id DEFAULT
+// (1) and the RLS policy is permissive while the GUC matches. Failures here must
+// never take down the request (e.g. pre-migration DB), so setTenant is guarded.
 if (!empty($_SESSION['user']['tenant_id'])) {
-    Database::useTenant((int)$_SESSION['user']['tenant_id']);
+    $sessionTenantId = (int)$_SESSION['user']['tenant_id'];
+    Database::useTenant($sessionTenantId);
+    try {
+        Database::setTenant($sessionTenantId);
+    } catch (Throwable $e) {
+        error_log('Tenant binding (setTenant) failed: ' . $e->getMessage());
+    }
 }
 
 // Track active session for admin session management

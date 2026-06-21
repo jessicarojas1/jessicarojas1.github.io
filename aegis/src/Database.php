@@ -70,8 +70,9 @@ class Database {
      * session GUC that Row-Level Security policies filter on (see
      * MULTI_TENANCY.md / database/tenancy/rls_template.sql). Call once per request
      * after authentication. Uses set_config (parameterized — never string
-     * interpolation) so the value can't be an injection vector. Currently inert
-     * until per-table RLS is enabled in the tenancy rollout.
+     * interpolation) so the value can't be an injection vector. The per-table
+     * tenant_isolation policies (migration 028) read this GUC; with it unset the
+     * policies are permissive, so this stays inert for single-tenant deployments.
      */
     public static function setTenant(int $tenantId): void {
         if ($tenantId < 1) {
