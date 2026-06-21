@@ -41,7 +41,7 @@ from app.schemas.auth import (
     UserRead,
 )
 from app.schemas.common import MessageOut
-from app.services import mfa, oidc, password_reset, refresh_tokens, saml
+from app.services import cac, mfa, oidc, password_reset, refresh_tokens, saml
 from app.services.crud import request_context
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -223,10 +223,12 @@ def sso_info() -> dict:
     """Public: which federated SSO providers are available (drives login buttons)."""
     oidc_on = oidc.is_enabled()
     saml_on = saml.is_enabled()
+    cac_on = cac.is_enabled()
     return {
-        "enabled": oidc_on or saml_on,
+        "enabled": oidc_on or saml_on or cac_on,
         "oidc": oidc_on,
         "saml": saml_on,
+        "cac": cac_on,
         "label": "Sign in with SSO",
     }
 
@@ -366,6 +368,47 @@ def saml_metadata(request: Request) -> PlainTextResponse:
     if not settings.SAML_SP_ENTITY_ID:
         raise AuthenticationError("SAML SP entity id is not configured.")
     return PlainTextResponse(saml.sp_metadata(_saml_acs_url(request)), media_type="application/xml")
+
+
+@router.get("/cac/login")
+def cac_login(request: Request, redirect: str = "/", db: Session = Depends(get_db)):
+    """CAC/PIV sign-in: trust the reverse proxy's verified client cert, then sign in.
+
+    The browser navigates here through the mTLS proxy, which forwards the cert
+    headers; on success the SPA receives its session via the URL fragment.
+    """
+    spa = _spa_base(request)
+    dest = oidc._safe_redirect(redirect)
+    try:
+        identity = cac.extract_identity(
+            request.headers.get(settings.CLIENT_CERT_VERIFY_HEADER),
+            request.headers.get(settings.CLIENT_CERT_PEM_HEADER),
+        )
+        user = oidc.resolve_or_provision_user(
+            db, {"email": identity["email"], "name": identity.get("name")}
+        )
+        user.last_login_at = datetime.now(UTC)
+        ctx = request_context(request)
+        audit.record(
+            db,
+            actor_id=user.id,
+            actor_email=user.email,
+            action="login",
+            entity_type="auth",
+            entity_id=user.id,
+            after={"method": "cac"},
+            **ctx,
+        )
+        refresh_token = refresh_tokens.issue(
+            db, user, ip=ctx.get("ip"), user_agent=request.headers.get("User-Agent")
+        )
+        db.commit()
+    except AppError:
+        db.rollback()
+        return RedirectResponse(f"{spa}/login?sso_error=sso_denied", status_code=302)
+    tokens = _token_response(user, refresh_token)
+    frag = f"access_token={tokens.access_token}&refresh_token={tokens.refresh_token}"
+    return RedirectResponse(f"{spa}{dest}#{frag}", status_code=302)
 
 
 @router.get("/me", response_model=UserRead)
