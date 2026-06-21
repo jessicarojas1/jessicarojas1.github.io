@@ -67,13 +67,22 @@ Database::query("SELECT set_config('aegis.tenant_id', ?, false)", [(string)$tena
    Proven against a live Postgres in `tests/integration/tenancy_db.php`: cross-tenant
    reads return nothing, a cross-tenant write is rejected by `WITH CHECK`, an
    unbound GUC is permissive, and every tenant table has the policy (coverage
-   check). Remaining: child/detail tables (e.g. `poam_milestones`, `policy_versions`).
+   check). Child/detail + link tables (`policy_versions`, `poam_milestones`,
+   `risk_*` children, `ssp_*`, `questionnaire_*`, … — 52 tables) are now covered
+   too (migration 029): **78 tenant-owned tables** carry `tenant_id` + the
+   permissive policy, and the integration test asserts the physical `tenant_id`
+   columns match `Database::tenantTables()` exactly (no write-stamp drift).
+   Intentionally deferred (tenancy is a product decision, several touched
+   pre-auth): auth/session/token tables, global/reference/system tables, per-user
+   prefs/dashboards, and the workflow/approval/automation/webhook/reporting engine.
 4. **Enforce** — make `tenant_id NOT NULL` (already the case) and **drop the
    permissive `NULLIF(...) IS NULL` branch** so an unset GUC denies all rows
    (deny-by-default); ensure the runtime app connects as a role that is **subject
    to** RLS (not the owner/superuser, which can bypass non-FORCE RLS) — the
    `aegis_app` least-privilege role already exists and is proven subject to the
-   policy in CI.
+   policy in CI. **Gated on a product decision** (offering AEGIS as shared SaaS):
+   the deny-by-default flip would break single-tenant CLI/cron/background paths
+   that don't bind a tenant, so it must land with those paths setting the GUC.
 5. **Admin/cross-tenant** — a separate, audited "platform admin" path with an
    explicit, logged tenant-switch; never an implicit bypass.
 

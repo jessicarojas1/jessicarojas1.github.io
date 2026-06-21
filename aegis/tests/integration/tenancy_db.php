@@ -140,5 +140,34 @@ if ($missing) {
     fail("tenant tables missing tenant_isolation policy: {$names}");
 }
 
-fwrite(STDOUT, "[tenancy_db] setTenant/currentTenant, RLS isolation, write-path stamping, read-path RLS, and policy coverage verified. OK\n");
+// 7) Write-stamp drift: the physical tenant_id columns must match exactly the
+//    tables Database auto-stamps (Database::tenantTables()). A column without a
+//    declaration would never be stamped; a declaration without a column would
+//    fail at INSERT. Compared against tables that actually exist in this schema.
+$physical = array_map(
+    fn($r) => $r['table_name'],
+    Database::fetchAll(
+        "SELECT table_name FROM information_schema.columns
+          WHERE table_schema = 'aegis' AND column_name = 'tenant_id' ORDER BY table_name")
+);
+$existing = array_map(
+    fn($r) => $r['table_name'],
+    Database::fetchAll(
+        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'aegis'")
+);
+$declared = array_values(array_intersect(Database::tenantTables(), $existing));
+
+$undeclared = array_diff($physical, Database::tenantTables());
+if ($undeclared) {
+    fail('tables carry tenant_id but are not declared in Database::tenantTables(): '
+        . implode(', ', $undeclared));
+}
+$missingCol = array_diff($declared, $physical);
+if ($missingCol) {
+    fail('declared tenant tables are missing the tenant_id column: '
+        . implode(', ', $missingCol));
+}
+
+$n = count($physical);
+fwrite(STDOUT, "[tenancy_db] setTenant/currentTenant, RLS isolation, write-path stamping, read-path RLS, policy coverage, and write-stamp parity ({$n} tenant tables) verified. OK\n");
 exit(0);
