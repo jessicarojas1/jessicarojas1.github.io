@@ -44,11 +44,11 @@ jobs:
         run: npm run lint
 
       # A security scanner should scan itself: surface CVEs in CITADEL's own
-      # production dependencies. Advisory for now (won't block on unfixable
-      # transitive advisories); promote to blocking once the baseline is clean.
-      - name: Dependency audit (own prod deps)
+      # production dependencies. GATING (security-scan policy): npm audit exits
+      # non-zero on advisories at/above the level, failing the build. Threshold
+      # = high (high/critical block; low/moderate are reported but don't fail).
+      - name: Dependency audit (own prod deps, gating high+)
         working-directory: citadel/server
-        continue-on-error: true
         run: npm audit --omit=dev --audit-level=high
 
       - name: Smoke test
@@ -259,21 +259,25 @@ jobs:
           output-file: aegis-sbom.cyclonedx.json
           artifact-name: aegis-sbom.cyclonedx.json
 
-      - name: Vulnerability scan (Trivy filesystem)
+      - name: Vulnerability scan (Trivy filesystem, gating)
+        # GATING (security-scan policy): exit-code 1 on HIGH/CRITICAL with
+        # ignore-unfixed:true, so the build fails on real, fixable dependency
+        # vulnerabilities while unfixable base-image CVEs don't wedge it.
         # Pinned to a released tag rather than the mutable @master branch, so an
         # arbitrary upstream commit can't run in CI. trivy-action transitively
         # pulls aquasecurity/setup-trivy, and upstream keeps retagging/removing it
-        # (0.24.0 -> stopped resolving; 0.28.0 -> setup-trivy@v0.2.1 was removed),
-        # which fails at the action-RESOLUTION step BEFORE continue-on-error can
-        # apply. Bump to a current release when that recurs. The scan is advisory.
-        uses: aquasecurity/trivy-action@v0.36.0
-        continue-on-error: true
+        # (0.24.0 -> stopped resolving; 0.28.0 -> setup-trivy@v0.2.1 was removed).
+        # If action RESOLUTION breaks again, bump to a current release — that is a
+        # tooling failure, not a vuln finding, and must be fixed (not silently
+        # skipped) now that this gate is enforcing.
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
         with:
           scan-type: fs
           scan-ref: ./aegis
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           format: table
+          exit-code: "1"
 
       - name: Hadolint (hardened Dockerfile)
         uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf # v3.1.0
