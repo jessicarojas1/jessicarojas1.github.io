@@ -1,4 +1,5 @@
-FROM php:8.2-apache@sha256:034cb2b91d74209744da4eec2696075ed97f52788668ffa68967fdd6ee6a306f  # php:8.2-apache
+# base image: php:8.2-apache
+FROM php:8.2-apache@sha256:034cb2b91d74209744da4eec2696075ed97f52788668ffa68967fdd6ee6a306f
 
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends libpq-dev && \
