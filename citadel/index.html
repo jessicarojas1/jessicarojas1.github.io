@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://api.osv.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net; img-src 'self' https: data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://api.osv.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="js/theme-init.js"></script>
   <link rel="icon" href="../favicon.ico" />
@@ -23,7 +23,7 @@
   <nav class="navbar navbar-expand-lg sticky-top citadel-bar" aria-label="CITADEL navigation">
     <div class="container-fluid px-3 px-lg-4">
       <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.html">
-        <img id="brand-logo" alt="" class="d-none" style="height:28px;width:auto;border-radius:6px;object-fit:contain">
+        <img id="brand-logo" alt="" class="d-none brand-logo-img">
         <span id="brand-mark" class="d-flex">
           <svg width="28" height="28" viewBox="0 0 40 40" aria-hidden="true">
             <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
@@ -99,7 +99,7 @@
       <div class="container">
         <span class="badge rounded-pill citadel-pill mb-3"><i class="bi bi-shield-lock"></i> 100% client-side · nothing leaves your browser</span>
         <h1 class="display-5 fw-bold">Enterprise Source-Code, Executable &amp; Script Review</h1>
-        <p class="lead mx-auto" style="max-width:720px">
+        <p class="lead mx-auto maxw-720">
           Drop in source code, a <code>.zip</code>, or an executable — CITADEL runs SAST, secrets,
           SBOM &amp; live-CVE checks and binary analysis locally, then maps findings to 20+ compliance frameworks.
         </p>
@@ -126,7 +126,7 @@
             </div>
             <input type="file" id="file-input" multiple hidden />
             <input type="file" id="folder-input" webkitdirectory directory multiple hidden />
-            <div id="deep-mode-row" class="d-none mt-3 pt-3 border-top w-100" style="border-color:var(--bs-border-color)!important">
+            <div id="deep-mode-row" class="d-none mt-3 pt-3 border-top w-100 deep-mode-divider">
               <div class="form-check form-switch d-inline-flex align-items-center gap-2">
                 <input class="form-check-input" type="checkbox" role="switch" id="deep-mode-toggle">
                 <label class="form-check-label" for="deep-mode-toggle">
@@ -178,7 +178,7 @@
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-git"></i></span>
           <input type="url" class="form-control" id="repo-url" placeholder="https://github.com/owner/repo — scan a public repository">
-          <input type="text" class="form-control" id="repo-subpath" style="max-width:220px" placeholder="subfolder (optional) e.g. citadel">
+          <input type="text" class="form-control maxw-220" id="repo-subpath" placeholder="subfolder (optional) e.g. citadel">
           <button class="btn btn-primary" id="scan-url-btn"><i class="bi bi-search"></i> Scan repo</button>
         </div>
         <div class="form-text">The backend shallow-clones the public repo, runs the real scanners, and never executes the code. For a large monorepo, set a <strong>subfolder</strong> to scan just one project (faster, lighter).</div>
@@ -191,7 +191,7 @@
           <span id="progress-detail"></span>
         </div>
         <div class="progress" role="progressbar" aria-label="Scan progress">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress-bar" style="width:0%"></div>
+          <div class="progress-bar progress-bar-striped progress-bar-animated progress-bar-init" id="progress-bar"></div>
         </div>
       </div>
     </section>

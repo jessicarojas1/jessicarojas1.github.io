@@ -26,7 +26,7 @@
   if (CITADEL.branding) CITADEL.branding.apply();
 
   /* ---------- Access control (users & page-level permissions) ---------- */
-  const escH = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const escH = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   // When the deep-scan backend is present, authentication & permission checks
   // run server-side (JWT). Otherwise we fall back to the client-only store.
   let backendMode = false, backendUser = null, backendEnforce = false, ssoAvailable = false;
@@ -260,7 +260,7 @@
     $('deep-mode-tools').innerHTML = (on.length
       ? 'Real scanners online: ' + on.map(s => '<span class="badge bg-secondary" title="' + escH(s.tool + (s.version ? ' v' + s.version : '')) + '">' + escH(s.tool) + (s.version ? ' <span class="opacity-75">v' + escH(s.version) + '</span>' : '') + '</span>').join(' ')
       : 'Backend detected, but no scanners are installed — deep scan will fall back to heuristics.')
-      + (aiAvailable ? ' <span class="badge" style="background:#10b981">AI remediation on</span>' : '');
+      + (aiAvailable ? ' <span class="badge badge-ai-on">AI remediation on</span>' : '');
     const tg = $('deep-mode-toggle');
     deepMode = tg.checked;
     tg.addEventListener('change', () => { deepMode = tg.checked; });
@@ -778,6 +778,10 @@
   })();
 
   // Minimal, safe Markdown → HTML for AI answers (escape first, then format).
+  // Escape-first invariant: HTML-escape the entire AI-supplied string FIRST, then
+  // re-introduce ONLY a fixed allowlist of inline markup (code, bold, paragraphs).
+  // Never emit AI-supplied href/src or any attribute carrying a URL — doing so would
+  // reopen the XSS surface this escaping closes.
   function mdLite(s) {
     let h = String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     h = h.replace(/```([\s\S]*?)```/g, (m, code) => '<pre class="finding-snippet">' + code.trim() + '</pre>');

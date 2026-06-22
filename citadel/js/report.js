@@ -17,6 +17,10 @@
   }
   const SEV_ORDER = ['critical', 'high', 'medium', 'low', 'info'];
   const SEV_COLOR = { critical: '#dc3545', high: '#fd7e14', medium: '#ffc107', low: '#0dcaf0', info: '#6c757d' };
+  // CSP-safe severity background class (replaces inline style="background:<hex>").
+  // The matching .sev-bg-* rules live in css/citadel.css. Unknown severities fall
+  // back to the neutral "info" colour.
+  const sevBg = sev => 'sev-bg-' + (SEV_COLOR[sev] ? sev : 'info');
   function $(id) { return document.getElementById(id); }
   function destroyChart(k) { if (charts[k]) { charts[k].destroy(); delete charts[k]; } }
 
@@ -42,7 +46,7 @@
     const gradeClass = 'grade-' + s.grade.toLowerCase();
     const ring = (label, val, hint) => `
       <div class="score-ring-card">
-        <div class="score-ring" style="--val:${val}">
+        <div class="score-ring" data-ring-val="${val}">
           <span class="score-num">${val}</span>
         </div>
         <div class="score-label">${esc(label)}</div>
@@ -68,6 +72,12 @@
         <div><span class="sc-val">${r.posture.filter(p => p.findings > 0).length}</span><span class="sc-lbl">Frameworks impacted</span></div>
         <div><span class="sc-val">${r.meta && r.meta.engine === 'deep' ? 'Deep' : 'Quick'}</span><span class="sc-lbl">Scan mode</span></div>
       </div>`;
+    // Set the conic-gradient progress var via the DOM API (not a style attribute)
+    // so the page stays compatible with a strict CSP that forbids style-src 'unsafe-inline'.
+    $('scorecard').querySelectorAll('.score-ring[data-ring-val]').forEach(el => {
+      const v = parseFloat(el.getAttribute('data-ring-val')) || 0;
+      el.style.setProperty('--val', String(v));
+    });
   }
 
   /* ---------- Overview ---------- */
@@ -78,9 +88,9 @@
     const tools = r.meta && r.meta.scanners;
     if (!tools || !tools.length) return '';
     const sum = r.meta.scanSummary || {};
-    const dot = st => st === 'ok' ? '#1a9d57' : st === 'failed' ? '#e0a106' : '#9aa3af';
+    const dotCls = st => 'st-' + (st === 'ok' ? 'ok' : st === 'failed' ? 'failed' : 'unavailable');
     const lbl = st => st === 'ok' ? 'ran' : st === 'failed' ? 'failed' : 'unavailable';
-    const chips = tools.map(t => `<span class="scanner-chip" title="${esc(t.tool)}: ${esc(t.warning || lbl(t.status))}"><span class="scanner-dot" style="background:${dot(t.status)}"></span>${esc(t.tool)}${t.status === 'ok' && t.findings ? ' <span class="text-body-secondary">(' + (t.findings | 0) + ')</span>' : ''}</span>`).join('');
+    const chips = tools.map(t => `<span class="scanner-chip" title="${esc(t.tool)}: ${esc(t.warning || lbl(t.status))}"><span class="scanner-dot ${dotCls(t.status)}"></span>${esc(t.tool)}${t.status === 'ok' && t.findings ? ' <span class="text-body-secondary">(' + (t.findings | 0) + ')</span>' : ''}</span>`).join('');
     return `
       <div class="row g-4 mt-1"><div class="col-12">
         <div class="card citadel-card"><div class="card-body py-3">
@@ -238,9 +248,9 @@
       return `
       <div class="finding${isSup ? ' finding-suppressed' : ''}" data-sev="${f.severity}" data-kind="${esc(f.kind || 'vuln')}" data-conf="${f.confirmed ? 'confirmed' : 'potential'}" data-fix="${hasFix ? '1' : '0'}" data-taint="${f.tainted ? '1' : '0'}" data-dispo="${esc(dispo)}" data-scanner="${esc((f.sources && f.sources.join(',')) || f.source || 'heuristic')}" data-cwe="${esc(f.cwe || '')}" data-frameworks="${esc(fwIds.join(','))}">
         <div class="finding-head" data-finding-toggle="${i}">
-          <span class="sev-dot" style="background:${SEV_COLOR[f.severity]}"></span>
+          <span class="sev-dot ${sevBg(f.severity)}"></span>
           <span class="finding-name">${esc(f.name)}${dispo !== 'open' ? ' <span class="badge bg-secondary">' + esc(dLabel[dispo] || dispo) + '</span>' : ''}</span>
-          <span class="badge sev-badge" style="background:${SEV_COLOR[f.severity]}">${f.severity}</span>
+          <span class="badge sev-badge ${sevBg(f.severity)}">${f.severity}</span>
           ${confBadge}
           ${f.tainted ? '<span class="badge bg-warning text-dark" title="User input flows into this sink (data-flow taint)">tainted</span>' : ''}
           <span class="text-body-secondary small ms-auto d-none d-md-inline">${esc((f.sources && f.sources.join('+')) || f.source || 'heuristic')} · ${esc(f.cwe || '')}</span>
@@ -285,7 +295,7 @@
     const dispoLabel = (CITADEL.disposition && CITADEL.disposition.label) || {};
     const filterBar2 = `
       <div class="d-flex flex-wrap gap-2 align-items-center mb-3 finding-filters2">
-        <input type="search" class="form-control form-control-sm finding-q" id="fnd-search" placeholder="Search name, file, CWE…" style="max-width:220px" aria-label="Search findings">
+        <input type="search" class="form-control form-control-sm finding-q maxw-220" id="fnd-search" placeholder="Search name, file, CWE…" aria-label="Search findings">
         <select class="form-select form-select-sm w-auto finding-flt" id="fnd-conf" aria-label="Filter by confirmation"><option value="">Confirmed + potential</option><option value="confirmed">Confirmed only</option><option value="potential">Potential only</option></select>
         <select class="form-select form-select-sm w-auto finding-flt" id="fnd-kind" aria-label="Filter by finding kind">${opt('', 'All kinds')}${kinds.map(k => opt(k)).join('')}</select>
         <select class="form-select form-select-sm w-auto finding-flt" id="fnd-scanner" aria-label="Filter by source scanner">${opt('', 'All sources')}${scanners.map(s => opt(s)).join('')}</select>
@@ -487,7 +497,7 @@
           <div class="col-6 col-md-3"><span class="bs-lbl">Entropy</span><span class="bs-val">${b.entropy} / 8.0</span></div>
         </div>
         ${b.indicators.length ? `<div class="mt-3"><strong class="small">Capability indicators</strong><div class="d-flex flex-wrap gap-1 mt-1">
-          ${b.indicators.map(i => `<span class="badge" style="background:${SEV_COLOR[i.severity]}">${esc(i.label)}</span>`).join('')}</div></div>` :
+          ${b.indicators.map(i => `<span class="badge ${sevBg(i.severity)}">${esc(i.label)}</span>`).join('')}</div></div>` :
           '<div class="mt-2 text-success small"><i class="bi bi-check-circle"></i> No suspicious capability strings matched.</div>'}
         ${b.urls.length ? `<div class="mt-2 small"><strong>Embedded URLs:</strong> ${b.urls.slice(0, 6).map(u => esc(u)).join(', ')}${b.urls.length > 6 ? '…' : ''}</div>` : ''}
       </div></div>`).join('');
@@ -720,7 +730,7 @@
     const unchanged = (cur.findings || []).length - added.length;             // existing
     const sevOrder = ['critical', 'high', 'medium', 'low', 'info'];
     const srt = a => a.slice().sort((x, y) => sevOrder.indexOf(x.severity) - sevOrder.indexOf(y.severity));
-    const li = f => `<li><span class="badge sev-badge" style="background:${SEV_COLOR[f.severity] || '#6b7280'}">${esc(f.severity)}</span> ${esc(f.name)} <span class="text-body-secondary">· ${esc((f.file || '').split('/').pop())}${f.line ? ':' + f.line : ''}</span></li>`;
+    const li = f => `<li><span class="badge sev-badge ${sevBg(f.severity)}">${esc(f.severity)}</span> ${esc(f.name)} <span class="text-body-secondary">· ${esc((f.file || '').split('/').pop())}${f.line ? ':' + f.line : ''}</span></li>`;
     const baseScan = _histList.find(s => s.id === _baselineId);
     panel.innerHTML = `
       <div class="card citadel-card"><div class="card-body">
@@ -776,7 +786,7 @@
           ${spark ? `<span class="d-inline-flex align-items-center gap-2 small text-body-secondary" title="Security-score trend (oldest → newest)">${spark}<span>avg ${avg}</span></span>` : ''}
         </div>
         <div class="d-flex gap-2">
-          <input type="search" class="form-control form-control-sm" id="hist-search" placeholder="Filter scans…" style="max-width:200px" aria-label="Filter scans">
+          <input type="search" class="form-control form-control-sm maxw-200" id="hist-search" placeholder="Filter scans…" aria-label="Filter scans">
           <button class="btn btn-sm btn-outline-secondary" id="hist-csv" title="Export history as CSV"><i class="bi bi-filetype-csv"></i> CSV</button>
           <button class="btn btn-sm btn-outline-secondary" id="hist-refresh" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
         </div>
@@ -849,9 +859,9 @@
       <div class="card citadel-card mb-3"><div class="card-body">
         <h6 class="text-uppercase text-body-secondary small fw-bold mb-2">Compare two runs</h6>
         <div class="d-flex flex-wrap gap-2 align-items-center">
-          <select class="form-select form-select-sm" id="hist-a" style="max-width:280px">${opts}</select>
+          <select class="form-select form-select-sm maxw-280" id="hist-a">${opts}</select>
           <span>vs</span>
-          <select class="form-select form-select-sm" id="hist-b" style="max-width:280px">${opts}</select>
+          <select class="form-select form-select-sm maxw-280" id="hist-b">${opts}</select>
           <button class="btn btn-sm btn-primary" id="hist-compare">Compare</button>
         </div>
         <div id="hist-result" class="mt-3"></div>
@@ -896,9 +906,9 @@
     const s = r.scoring, v = verdictOf(r);
     const sorted = r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
     const cves = cveList(r);
-    const sevRow = SEV_ORDER.map(k => `<span class="rep-sev"><span class="dot" style="background:${SEV_COLOR[k]}"></span>${c(k)}: <strong>${s.sev[k] || 0}</strong></span>`).join('');
+    const sevRow = SEV_ORDER.map(k => `<span class="rep-sev"><span class="dot ${sevBg(k)}"></span>${c(k)}: <strong>${s.sev[k] || 0}</strong></span>`).join('');
     const topFindings = sorted.slice(0, 12).map(f => `<tr>
-        <td><span class="badge sev-badge" style="background:${SEV_COLOR[f.severity]}">${f.severity}</span></td>
+        <td><span class="badge sev-badge ${sevBg(f.severity)}">${f.severity}</span></td>
         <td>${esc(f.name)}</td><td class="text-body-secondary">${esc(f.cwe || '')}</td>
         <td><code>${esc((f.file || '').split('/').pop())}${f.line ? ':' + f.line : ''}</code></td>
       </tr>`).join('');
@@ -959,6 +969,13 @@
 
         <div class="report-cta"><i class="bi bi-robot"></i> Want an AI to fix these? The <strong>AI Fix Prompt</strong> tab gives you exact, copy-paste wording listing every issue for Claude or any coding assistant.</div>
       </div>`;
+    // Apply dynamic hotspot bar widths via the DOM API (the --w custom property is
+    // read by the .hotspot-bar CSS rule) so no inline style attribute is emitted —
+    // keeps the page compatible with a strict CSP (no style-src 'unsafe-inline').
+    $('tab-report').querySelectorAll('.hotspot-bar[data-bar-w]').forEach(el => {
+      const w = parseFloat(el.getAttribute('data-bar-w')) || 0;
+      el.style.setProperty('--w', w + '%');
+    });
   }
 
   /* ---------- AI fix prompt ---------- */
@@ -999,7 +1016,7 @@
       <div class="d-flex flex-wrap gap-2 mb-2">
         <button class="btn btn-sm btn-primary" id="copy-aifix"><i class="bi bi-clipboard"></i> Copy prompt</button>
         <button class="btn btn-sm btn-outline-primary" id="dl-aifix"><i class="bi bi-download"></i> Download .txt</button>
-        ${aiOn ? '<span class="badge align-self-center" style="background:#10b981">Backend AI is on — use the per-finding “Explain &amp; fix” in Findings for inline help</span>' : ''}
+        ${aiOn ? '<span class="badge align-self-center badge-ai-on">Backend AI is on — use the per-finding “Explain &amp; fix” in Findings for inline help</span>' : ''}
       </div>
       <textarea id="aifix-text" class="form-control aifix-box" rows="22" readonly>${esc(prompt)}</textarea>`;
   }
@@ -1059,7 +1076,7 @@ ul{padding-left:1.1rem}</style></head>
     if (!hs.length) return '';
     const max = hs[0].score || 1;
     const rows = hs.map(h => `<div class="hotspot">
-      <div class="hotspot-bar-wrap"><div class="hotspot-bar" style="width:${Math.max(6, Math.round(h.score / max * 100))}%"></div></div>
+      <div class="hotspot-bar-wrap"><div class="hotspot-bar" data-bar-w="${Math.max(6, Math.round(h.score / max * 100))}"></div></div>
       <div class="hotspot-meta"><code>${esc(h.file)}</code><span class="text-body-secondary small">${h.n} finding(s)${h.critical ? ' · ' + h.critical + ' critical' : ''}${h.high ? ' · ' + h.high + ' high' : ''} · risk ${h.score}</span></div>
     </div>`).join('');
     return `<h5 class="report-h">Risk hotspots</h5>

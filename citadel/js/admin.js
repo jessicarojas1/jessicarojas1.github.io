@@ -434,7 +434,7 @@
           const actions = row.querySelector('[data-cell="actions"]');
           nameCell.innerHTML = '<input class="form-control form-control-sm" data-edit-name maxlength="120" value="' + esc(u.name || '') + '">';
           emailCell.innerHTML = '<input class="form-control form-control-sm" type="email" data-edit-email maxlength="180" value="' + esc(u.email || '') + '">';
-          if (roleCell) roleCell.innerHTML = '<select class="form-select form-select-sm" data-edit-role data-orig-role="' + esc(u.role) + '" style="min-width:150px">' +
+          if (roleCell) roleCell.innerHTML = '<select class="form-select form-select-sm minw-150" data-edit-role data-orig-role="' + esc(u.role) + '">' +
             Object.keys(DA.ROLES).map((r) =>
               '<option value="' + esc(r) + '"' + (r === u.role ? ' selected' : '') + '>' + esc(DA.ROLES[r].label) + '</option>'
             ).join('') + '</select>';
@@ -717,7 +717,7 @@
           '<td class="small">' + esc(s.email || '—') + (s.current ? ' <span class="badge text-bg-info">this session</span>' : '') + '</td>' +
           '<td><span class="badge text-bg-secondary role-badge">' + esc(s.role || '') + '</span></td>' +
           '<td class="small font-monospace">' + esc(s.ip || '—') + '</td>' +
-          '<td class="small text-truncate" style="max-width:220px" title="' + esc(s.ua || '') + '">' + esc(s.ua || '—') + '</td>' +
+          '<td class="small text-truncate maxw-220" title="' + esc(s.ua || '') + '">' + esc(s.ua || '—') + '</td>' +
           '<td class="text-nowrap small">' + esc(fmtTime(s.firstSeen)) + '</td>' +
           '<td class="text-nowrap small">' + esc(fmtTime(s.lastSeen)) + '</td>' +
           '<td class="text-end"><button class="btn btn-sm btn-outline-danger py-0 px-1" data-revoke-session="' + esc(s.jti) + '" title="Revoke this session"><i class="bi bi-x-circle"></i> Revoke</button></td>' +
