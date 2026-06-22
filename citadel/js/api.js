@@ -74,9 +74,12 @@
     return res.json();
   }
 
-  async function scan(files, onProgress) {
+  async function scan(files, onProgress, opts) {
+    opts = opts || {};
     const fd = new FormData();
     for (const file of files) fd.append('files', file, file.webkitRelativePath || file.name);
+    if (opts.projectId) fd.append('projectId', opts.projectId);
+    if (opts.projectName) fd.append('projectName', opts.projectName);
     onProgress && onProgress('Uploading to scan service…');
     const res = await apiFetch('api/scan', { method: 'POST', body: fd });
     const out = await asJson(res, 'Scan service error');
@@ -84,13 +87,17 @@
     return out;
   }
 
-  async function scanUrl(url, subpath, onProgress) {
+  async function scanUrl(url, subpath, onProgress, opts) {
     // Back-compat: allow scanUrl(url, onProgress) with no subpath.
-    if (typeof subpath === 'function') { onProgress = subpath; subpath = ''; }
+    if (typeof subpath === 'function') { opts = onProgress; onProgress = subpath; subpath = ''; }
+    opts = opts || {};
+    const body = { url, subpath: subpath || '' };
+    if (opts.projectId) body.projectId = opts.projectId;
+    if (opts.projectName) body.projectName = opts.projectName;
     onProgress && onProgress('Cloning & scanning repository…');
     const res = await apiFetch('api/scan-url', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, subpath: subpath || '' })
+      body: JSON.stringify(body)
     });
     return asJson(res, 'Scan service error');
   }
@@ -151,9 +158,12 @@
 
   /* ---------- Scan history (durable) ---------- */
   // Returns { enabled, scans:[summary...] } or { enabled:false } if unreachable.
-  async function scansList(limit) {
+  async function scansList(limit, projectId) {
     try {
-      const res = await apiFetch('api/scans' + (limit ? '?limit=' + limit : ''));
+      const params = [];
+      if (limit) params.push('limit=' + encodeURIComponent(limit));
+      if (projectId) params.push('projectId=' + encodeURIComponent(projectId));
+      const res = await apiFetch('api/scans' + (params.length ? '?' + params.join('&') : ''));
       if (!res.ok) return { enabled: false, scans: [] };
       return res.json();
     } catch (e) { return { enabled: false, scans: [] }; }
@@ -164,6 +174,28 @@
   async function scanRename(id, name) {
     const res = await apiFetch('api/scans/' + encodeURIComponent(id), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) });
     return asJson(res, 'Could not rename scan');
+  }
+
+  /* ---------- Projects (durable scan groupings) ---------- */
+  // Returns { enabled, projects:[...] } or { enabled:false, projects:[] } on any error (never throws).
+  async function projectsList() {
+    try {
+      const res = await apiFetch('api/projects');
+      if (!res.ok) return { enabled: false, projects: [] };
+      return res.json();
+    } catch (e) { return { enabled: false, projects: [] }; }
+  }
+  async function projectCreate(name, description) {
+    const res = await apiFetch('api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, description: description }) });
+    return asJson(res, 'Could not create project');
+  }
+  async function projectRename(id, name) {
+    const res = await apiFetch('api/projects/' + encodeURIComponent(id), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) });
+    return asJson(res, 'Could not rename project');
+  }
+  async function projectDelete(id) {
+    const res = await apiFetch('api/projects/' + encodeURIComponent(id), { method: 'DELETE' });
+    return asJson(res, 'Could not delete project');
   }
 
   /* ---------- Shared finding dispositions ---------- */
@@ -179,5 +211,5 @@
     } catch (e) { return false; }
   }
 
-  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, scanRename, dispositionsList, dispositionSet, getToken, getRefresh };
+  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, scanRename, projectsList, projectCreate, projectRename, projectDelete, dispositionsList, dispositionSet, getToken, getRefresh };
 })(window);

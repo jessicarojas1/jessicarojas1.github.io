@@ -400,6 +400,16 @@ html { scroll-behavior: smooth; }
 .diff-list li { padding:.25rem 0; border-bottom:1px solid var(--bs-border-color); line-height:1.35; }
 .diff-list li:last-child { border-bottom:0; }
 
+/* ---- Projects ---- */
+.project-bar { display:flex; justify-content:space-between; align-items:center; gap:.75rem; flex-wrap:wrap;
+  background:var(--ct-surface); border:1px solid var(--bs-border-color); border-radius:12px; padding:.55rem .9rem; }
+.project-bar:empty { display:none; }
+.project-bar-empty { border-color:color-mix(in srgb, var(--bs-warning, #f59e0b) 55%, var(--bs-border-color));
+  background:color-mix(in srgb, var(--bs-warning, #f59e0b) 10%, var(--ct-surface)); }
+.project-card { transition:border-color .15s ease, box-shadow .15s ease; height:100%; }
+.project-card.project-current { border-color:var(--citadel-accent); box-shadow:0 0 0 1px var(--citadel-accent) inset; }
+.dz-disabled { opacity:.55; }
+
 /* =============================================================================
    CSP-safe utilities — these replace inline style="..." attributes so the page
    can run under a strict Content-Security-Policy without style-src 'unsafe-inline'.

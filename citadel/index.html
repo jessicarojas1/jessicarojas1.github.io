@@ -39,6 +39,7 @@
       <div class="collapse navbar-collapse" id="citadelNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="#intake-section"><i class="bi bi-upload"></i> Analyze</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" id="nav-projects"><i class="bi bi-folder-fill"></i> Projects</a></li>
           <li class="nav-item"><a class="nav-link" href="coverage.html"><i class="bi bi-grid-3x3-gap-fill"></i> Coverage</a></li>
           <li class="nav-item"><a class="nav-link" href="#" id="nav-history"><i class="bi bi-clock-history"></i> History</a></li>
           <li class="nav-item d-none" id="nav-admin"><a class="nav-link" href="admin.html"><i class="bi bi-people-fill"></i> Admin</a></li>
@@ -112,7 +113,14 @@
     </section>
 
     <!-- Intake -->
+    <!-- Projects management view (hidden until opened from the Projects nav) -->
+    <section class="container py-4 d-none" id="projects-section">
+      <div id="projects-view"></div>
+    </section>
+
     <section class="container pb-4" id="intake-section">
+      <!-- Current-project bar: gates scanning until a project is selected -->
+      <div id="project-bar" class="project-bar mb-3"></div>
       <div class="row g-4 align-items-stretch">
         <div class="col-lg-8">
           <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload files">
@@ -268,6 +276,7 @@
   <script src="js/sarif.js"></script>
   <script src="js/osv.js"></script>
   <script src="js/history.js"></script>
+  <script src="js/projects.js"></script>
   <script src="js/demo.js"></script>
   <script src="js/api.js"></script>
   <script src="js/app.js"></script>

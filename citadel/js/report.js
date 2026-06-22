@@ -662,9 +662,10 @@
   async function renderHistory(targetId) {
     const el = $(targetId || 'tab-history');
     if (!el) return;
+    const pid = (CITADEL.projects && CITADEL.projects.currentId && CITADEL.projects.currentId()) || '';
     if (CITADEL.api && CITADEL.api.scansList) {
       let data = null;
-      try { data = await CITADEL.api.scansList(200); } catch (e) {}
+      try { data = await CITADEL.api.scansList(200, pid); } catch (e) {}
       if (data && data.enabled) { renderServerHistory(el, data.scans || []); return; }
     }
     renderLocalHistory(el);
@@ -785,7 +786,7 @@
     el.innerHTML = `
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <div class="d-flex align-items-center gap-3 flex-wrap">
-          <p class="text-body-secondary mb-0">${_histList.length} scan(s) saved — open or download any anytime.</p>
+          <p class="text-body-secondary mb-0">${(function () { const p = CITADEL.projects && CITADEL.projects.current && CITADEL.projects.current(); return p ? '<span class="badge text-bg-primary"><i class="bi bi-folder-fill"></i> ' + esc(p.name) + '</span> ' : ''; })()}${_histList.length} scan(s) saved — open or download any anytime.</p>
           ${spark ? `<span class="d-inline-flex align-items-center gap-2 small text-body-secondary" title="Security-score trend (oldest → newest)">${spark}<span>avg ${avg}</span></span>` : ''}
         </div>
         <div class="d-flex gap-2">
@@ -875,13 +876,16 @@
       : '<tr><td colspan="8" class="text-center text-body-secondary py-3">No scans match that name.</td></tr>';
   }
   function renderLocalHistory(el) {
-    const hist = CITADEL.history.list();
+    const proj = (CITADEL.projects && CITADEL.projects.current && CITADEL.projects.current()) || null;
+    const pid = proj ? proj.id : '';
+    const hist = CITADEL.history.list().filter(h => !pid || h.projectId === pid);
     _localHist = hist;
-    if (!hist.length) { el.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>No scan history yet. Each scan you run is recorded here (locally) so you can track trend and compare runs.</p></div>'; return; }
+    const projTag = proj ? `<span class="badge text-bg-primary"><i class="bi bi-folder-fill"></i> ${esc(proj.name)}</span> ` : '';
+    if (!hist.length) { el.innerHTML = `<div class="empty-state"><i class="bi bi-clock-history"></i><p>${proj ? 'No scans in <strong>' + esc(proj.name) + '</strong> yet. Run a scan to record one here.' : 'No scan history yet. Each scan you run is recorded here (locally) so you can track trend and compare runs.'}</p></div>`; return; }
     const opts = hist.map(h => `<option value="${h.id}">${esc(h.label)} — ${h.grade} (${h.security})</option>`).join('');
     el.innerHTML = `
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-        <p class="text-body-secondary mb-0">${hist.length} scan(s) recorded locally in this browser.</p>
+        <p class="text-body-secondary mb-0">${projTag}${hist.length} scan(s) recorded locally in this browser.</p>
         <div class="d-flex gap-2">
           <input type="search" class="form-control form-control-sm maxw-200" id="lhist-search" placeholder="Find by name…" aria-label="Find scans by name">
           <button class="btn btn-sm btn-outline-danger" id="hist-clear"><i class="bi bi-trash"></i> Clear history</button>
