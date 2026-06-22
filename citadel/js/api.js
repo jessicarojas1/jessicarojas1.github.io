@@ -160,6 +160,11 @@
   }
   async function scanGet(id) { const res = await apiFetch('api/scans/' + encodeURIComponent(id)); return asJson(res, 'Could not load scan'); }
   async function scanDelete(id) { const res = await apiFetch('api/scans/' + encodeURIComponent(id), { method: 'DELETE' }); return asJson(res, 'Could not delete scan'); }
+  // Give a saved scan a name so it's findable by name in history.
+  async function scanRename(id, name) {
+    const res = await apiFetch('api/scans/' + encodeURIComponent(id), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) });
+    return asJson(res, 'Could not rename scan');
+  }
 
   /* ---------- Shared finding dispositions ---------- */
   // Returns the { fingerprint: state } map, or null when unavailable (no DB / not signed in).
@@ -174,5 +179,5 @@
     } catch (e) { return false; }
   }
 
-  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, dispositionsList, dispositionSet, getToken, getRefresh };
+  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, scanRename, dispositionsList, dispositionSet, getToken, getRefresh };
 })(window);

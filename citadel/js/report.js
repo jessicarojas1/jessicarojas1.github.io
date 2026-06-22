@@ -687,6 +687,8 @@
   function histRow(h) {
     const isBase = _baselineId === h.id;
     return `<tr>
+      <td class="small fw-semibold">${esc(h.name || '')}
+        <button class="btn btn-sm btn-link p-0 ms-1 align-baseline" data-rename-scan="${esc(h.id)}" title="Rename this scan"><i class="bi bi-pencil"></i></button></td>
       <td class="text-nowrap small">${esc(new Date(h.ts).toLocaleString())}${isBase ? ' <span class="badge text-bg-warning">baseline</span>' : ''}</td>
       <td class="small">${esc(h.source || '')}${h.user ? ' <span class="text-body-secondary">· ' + esc(h.user) + '</span>' : ''}</td>
       <td><span class="badge grade-pill ${gradeCls(h.grade)}">${esc(h.grade)}</span></td>
@@ -749,12 +751,13 @@
     const tb = $('hist-tbody'); if (!tb) return;
     q = (q || '').toLowerCase().trim();
     const rows = _histList.filter(h => !q ||
+      (h.name || '').toLowerCase().includes(q) ||
       (h.source || '').toLowerCase().includes(q) || (h.grade || '').toLowerCase().includes(q) ||
       new Date(h.ts).toLocaleString().toLowerCase().includes(q));
-    tb.innerHTML = rows.length ? rows.map(histRow).join('') : '<tr><td colspan="7" class="text-center text-body-secondary py-3">No matches.</td></tr>';
+    tb.innerHTML = rows.length ? rows.map(histRow).join('') : '<tr><td colspan="8" class="text-center text-body-secondary py-3">No matches.</td></tr>';
   }
   function exportHistCsv() {
-    const cols = ['ts', 'source', 'grade', 'security', 'quality', 'findings', 'critical', 'high', 'files', 'user'];
+    const cols = ['name', 'ts', 'source', 'grade', 'security', 'quality', 'findings', 'critical', 'high', 'files', 'user'];
     const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
     const csv = cols.join(',') + '\r\n' + _histList.map(h => cols.map(c => q(h[c])).join(',')).join('\r\n');
     download('citadel-scan-history-' + new Date().toISOString().slice(0, 10) + '.csv', csv, 'text/csv');
@@ -776,14 +779,14 @@
           ${spark ? `<span class="d-inline-flex align-items-center gap-2 small text-body-secondary" title="Security-score trend (oldest → newest)">${spark}<span>avg ${avg}</span></span>` : ''}
         </div>
         <div class="d-flex gap-2">
-          <input type="search" class="form-control form-control-sm" id="hist-search" placeholder="Filter scans…" style="max-width:200px" aria-label="Filter scans">
+          <input type="search" class="form-control form-control-sm" id="hist-search" placeholder="Find by name…" style="max-width:200px" aria-label="Find scans by name">
           <button class="btn btn-sm btn-outline-secondary" id="hist-csv" title="Export history as CSV"><i class="bi bi-filetype-csv"></i> CSV</button>
           <button class="btn btn-sm btn-outline-secondary" id="hist-refresh" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
         </div>
       </div>
       ${_baselineId ? '<div class="small text-body-secondary mb-2"><i class="bi bi-flag-fill text-warning"></i> A baseline is set — use the <i class="bi bi-arrow-left-right"></i> button on any scan to see what\'s <span class="text-danger">new</span> or <span class="text-success">fixed</span> since then.</div>' : '<div class="small text-body-secondary mb-2"><i class="bi bi-flag"></i> Tip: flag a scan as <strong>baseline</strong>, then diff later scans against it to catch regressions.</div>'}
       <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
-        <thead><tr><th>When</th><th>Source</th><th>Grade</th><th>Security</th><th>Findings</th><th>Crit+High</th><th class="text-end">Actions</th></tr></thead>
+        <thead><tr><th>Name</th><th>When</th><th>Source</th><th>Grade</th><th>Security</th><th>Findings</th><th>Crit+High</th><th class="text-end">Actions</th></tr></thead>
         <tbody id="hist-tbody"></tbody></table></div>
       <div id="hist-diff" class="mt-3 d-none"></div>`;
     renderHistRows('');
@@ -799,6 +802,16 @@
       if (refresh) { renderHistory('tab-history'); return; }
       if (e.target.closest('#hist-csv')) { exportHistCsv(); return; }
       if (e.target.closest('#hist-diff-close')) { const p = $('hist-diff'); if (p) { p.classList.add('d-none'); p.innerHTML = ''; } return; }
+      const ren = e.target.closest('[data-rename-scan]');
+      if (ren) {
+        const id = ren.getAttribute('data-rename-scan');
+        const cur = (_histList.find(s => s.id === id) || {}).name || '';
+        const name = window.prompt('Name this scan (shown in history and searchable):', cur);
+        if (name == null) return;               // cancelled
+        try { await CITADEL.api.scanRename(id, name); renderHistory('tab-history'); }
+        catch (ex) { window.alert(ex && ex.message ? ex.message : 'Could not rename scan.'); }
+        return;
+      }
       const base = e.target.closest('[data-baseline-scan]');
       if (base) { const id = base.getAttribute('data-baseline-scan'); setBaseline(_baselineId === id ? null : id); renderHistory('tab-history'); return; }
       const diff = e.target.closest('[data-diff-scan]');
@@ -829,22 +842,40 @@
     });
   }
 
+  let _localHist = [];
+  function localRow(h) {
+    return `<tr>
+      <td class="small fw-semibold">${esc(h.label || '')}
+        <button class="btn btn-sm btn-link p-0 ms-1 align-baseline" data-rename-local="${esc(h.id)}" title="Rename this scan"><i class="bi bi-pencil"></i></button></td>
+      <td class="text-nowrap small">${esc(new Date(h.at).toLocaleString())}</td>
+      <td><span class="badge ${h.engine === 'deep' ? 'bg-info text-dark' : 'bg-secondary'}">${esc(h.engine)}</span></td>
+      <td><span class="badge grade-pill grade-${String(h.grade || '?').toLowerCase()}">${esc(h.grade)}</span></td>
+      <td>${h.security | 0}</td><td>${h.findings | 0}</td>
+      <td class="text-danger">${(h.sev && (h.sev.critical + h.sev.high)) || 0}</td>
+      <td>${h.files | 0}</td>
+    </tr>`;
+  }
+  function renderLocalRows(q) {
+    const tb = $('lhist-tbody'); if (!tb) return;
+    q = (q || '').toLowerCase().trim();
+    const rows = _localHist.filter(h => !q ||
+      (h.label || '').toLowerCase().includes(q) || (h.grade || '').toLowerCase().includes(q) ||
+      (h.engine || '').toLowerCase().includes(q) || new Date(h.at).toLocaleString().toLowerCase().includes(q));
+    tb.innerHTML = rows.length ? rows.map(localRow).join('')
+      : '<tr><td colspan="8" class="text-center text-body-secondary py-3">No scans match that name.</td></tr>';
+  }
   function renderLocalHistory(el) {
     const hist = CITADEL.history.list();
+    _localHist = hist;
     if (!hist.length) { el.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>No scan history yet. Each scan you run is recorded here (locally) so you can track trend and compare runs.</p></div>'; return; }
     const opts = hist.map(h => `<option value="${h.id}">${esc(h.label)} — ${h.grade} (${h.security})</option>`).join('');
-    const rows = hist.map(h => `<tr>
-      <td>${esc(new Date(h.at).toLocaleString())}</td>
-      <td><span class="badge ${h.engine === 'deep' ? 'bg-info text-dark' : 'bg-secondary'}">${esc(h.engine)}</span></td>
-      <td><span class="badge grade-pill grade-${h.grade.toLowerCase()}">${h.grade}</span></td>
-      <td>${h.security}</td><td>${h.findings}</td>
-      <td class="text-danger">${(h.sev && (h.sev.critical + h.sev.high)) || 0}</td>
-      <td>${h.files}</td>
-    </tr>`).join('');
     el.innerHTML = `
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <p class="text-body-secondary mb-0">${hist.length} scan(s) recorded locally in this browser.</p>
-        <button class="btn btn-sm btn-outline-danger" id="hist-clear"><i class="bi bi-trash"></i> Clear history</button>
+        <div class="d-flex gap-2">
+          <input type="search" class="form-control form-control-sm" id="lhist-search" placeholder="Find by name…" style="max-width:200px" aria-label="Find scans by name">
+          <button class="btn btn-sm btn-outline-danger" id="hist-clear"><i class="bi bi-trash"></i> Clear history</button>
+        </div>
       </div>
       <div class="card citadel-card mb-3"><div class="card-body">
         <h6 class="text-uppercase text-body-secondary small fw-bold mb-2">Compare two runs</h6>
@@ -857,9 +888,27 @@
         <div id="hist-result" class="mt-3"></div>
       </div></div>
       <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
-        <thead><tr><th>When</th><th>Mode</th><th>Grade</th><th>Security</th><th>Findings</th><th>Crit+High</th><th>Files</th></tr></thead>
-        <tbody>${rows}</tbody></table></div>`;
+        <thead><tr><th>Name</th><th>When</th><th>Mode</th><th>Grade</th><th>Security</th><th>Findings</th><th>Crit+High</th><th>Files</th></tr></thead>
+        <tbody id="lhist-tbody"></tbody></table></div>`;
+    renderLocalRows('');
     if (hist[1]) { $('hist-b').selectedIndex = 1; }
+    wireLocalHistory(el);
+  }
+  // Name search + inline rename for the local (localStorage) history view.
+  function wireLocalHistory(el) {
+    if (el.dataset.wiredLocalHist) return;
+    el.dataset.wiredLocalHist = '1';
+    el.addEventListener('input', (e) => { if (e.target.id === 'lhist-search') renderLocalRows(e.target.value); });
+    el.addEventListener('click', (e) => {
+      const rl = e.target.closest('[data-rename-local]');
+      if (!rl) return;
+      const id = rl.getAttribute('data-rename-local');
+      const cur = (_localHist.find(h => h.id === id) || {}).label || '';
+      const name = window.prompt('Name this scan (shown in history and searchable):', cur);
+      if (name == null) return;                 // cancelled
+      CITADEL.history.rename(id, name);
+      renderHistory('tab-history');
+    });
   }
 
   function renderCompare(aId, bId) {
