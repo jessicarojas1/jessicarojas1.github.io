@@ -1451,8 +1451,12 @@ input[type="range"] {
 .modal-header button { border: none; background: none; cursor: pointer; font-size: 18px; color: var(--text-muted); }
 .modal-body { padding: 24px; }
 
-/* AEGIS dialog panels (.um-*) — avoids Bootstrap .modal{display:none} conflict */
-.um-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1050; display:flex; align-items:center; justify-content:center; padding:20px; }
+/* AEGIS dialog panels (.um-*) — avoids Bootstrap .modal{display:none} conflict.
+   Hidden by default; showModal() sets inline display:flex to open (and the .open
+   class is a defensive fallback). Without the display:none base, every .um-overlay
+   modal renders on page load. */
+.um-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1050; display:none; align-items:center; justify-content:center; padding:20px; }
+.um-overlay.open { display:flex; }
 .um-dialog  { background:var(--card-bg); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); width:100%; max-width:580px; max-height:90vh; overflow-y:auto; border:1px solid var(--border); position:relative; }
 .um-dialog-lg { max-width:760px; }
 .um-header  { display:flex; align-items:center; justify-content:space-between; padding:18px 24px; border-bottom:1px solid var(--border); font-weight:700; }

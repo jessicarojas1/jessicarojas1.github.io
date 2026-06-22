@@ -140,14 +140,14 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
       <table class="data-table" style="min-width:820px" id="gapsTable">
         <thead>
           <tr>
-            <th>Standard</th>
-            <th>Code</th>
+            <th style="width:108px">Standard</th>
+            <th style="width:150px">Code</th>
             <th>Control Title</th>
-            <th>Package</th>
-            <th>Status</th>
-            <th>Due Date</th>
-            <th>Assigned To</th>
-            <th style="width:60px"></th>
+            <th style="width:150px">Package</th>
+            <th style="width:120px">Status</th>
+            <th style="width:104px">Due Date</th>
+            <th style="width:150px">Assigned To</th>
+            <th style="width:48px"></th>
           </tr>
         </thead>
         <tbody>
@@ -173,17 +173,29 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
           <tr data-framework="<?= Security::h($gap['standard_code'] ?? '') ?>"
               data-status="<?= Security::h($gapStatus) ?>">
             <td>
-              <span style="font-size:11px;font-weight:700;background:var(--bg-subtle);color:var(--purple);padding:2px 7px;border-radius:5px">
+              <?php if (trim((string)($gap['standard_code'] ?? '')) !== ''): ?>
+              <span style="display:inline-block;font-size:11px;font-weight:600;background:var(--bg-subtle);color:var(--purple);padding:3px 8px;border-radius:6px;border:1px solid var(--border);white-space:nowrap">
                 <?= Security::h($gap['standard_code']) ?>
               </span>
+              <?php else: ?>
+              <span style="color:var(--text-muted)">—</span>
+              <?php endif; ?>
             </td>
-            <td style="font-family:monospace;font-size:12px;white-space:nowrap;color:var(--text-secondary)"><?= Security::h($gap['code'] ?? '') ?></td>
+            <td style="font-size:13px;color:var(--text-secondary)">
+              <span title="<?= Security::h($gap['code'] ?? '') ?>" style="display:block;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                <?= ($gap['code'] ?? '') !== '' ? Security::h($gap['code']) : '—' ?>
+              </span>
+            </td>
             <td style="font-size:13px">
-              <span title="<?= Security::h($gap['title']) ?>" style="display:block;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              <span title="<?= Security::h($gap['title']) ?>" style="display:block;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);font-weight:500">
                 <?= Security::h($gap['title']) ?>
               </span>
             </td>
-            <td style="font-size:12px;color:var(--text-secondary)"><?= Security::h($gap['package_name']) ?></td>
+            <td style="font-size:13px;color:var(--text-secondary)">
+              <span title="<?= Security::h($gap['package_name'] ?? '') ?>" style="display:block;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                <?= Security::h($gap['package_name']) ?>
+              </span>
+            </td>
             <td>
               <span style="display:inline-flex;align-items:center;gap:4px;background:<?= $statusBg ?>;color:<?= $statusColor ?>;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap">
                 <?= Security::h($statusLabel) ?>
