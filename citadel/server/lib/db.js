@@ -177,6 +177,15 @@ CREATE TABLE IF NOT EXISTS citadel_scans (
 );
 CREATE INDEX IF NOT EXISTS citadel_scans_ts_idx ON citadel_scans (id DESC);
 
+-- Projects — named groupings a scan can be filed under (owner-scoped).
+CREATE TABLE IF NOT EXISTS citadel_projects (
+  id          bigserial PRIMARY KEY,
+  user_id     text,
+  name        text NOT NULL,
+  description text,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
 -- Shared finding triage state, keyed by the canonical finding fingerprint, so a
 -- disposition (accepted / false-positive / remediated / n-a) set by one user is
 -- visible to all and survives browsers. 'open' rows are deleted.
@@ -200,6 +209,11 @@ ALTER TABLE citadel_audit ADD COLUMN IF NOT EXISTS hash      text;
 
 -- Optional human name for a saved scan so it can be found by name in history.
 ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS name text;
+
+-- Project association for a scan (idempotent for upgrades of existing tables).
+ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS project_id   text;
+ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS project_name text;
+CREATE INDEX IF NOT EXISTS citadel_scans_project_idx ON citadel_scans (project_id);
 `;
 
 async function init() {

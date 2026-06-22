@@ -34,6 +34,7 @@ const log = require('./lib/log');
 const metrics = require('./lib/metrics');
 const oidc = require('./lib/oidc');
 const scans = require('./lib/scans');
+const projects = require('./lib/projects');
 const dispositions = require('./lib/dispositions');
 const notify = require('./lib/notify');
 const fips = require('./lib/fips');
@@ -552,7 +553,32 @@ app.post('/api/tenants', async (req, res) => {
 // Non-admins are scoped to their own scans (no cross-user IDOR by sequential id).
 function scanScope(req) { return req.user ? { userId: req.user.id, isAdmin: req.user.role === 'admin' } : null; }
 app.get('/api/scans', requirePerm('tab-history'), async (req, res) => {
-  res.json({ enabled: scans.enabled(), scans: await scans.list(parseInt(req.query.limit, 10) || 100, scanScope(req)) });
+  res.json({ enabled: scans.enabled(), scans: await scans.list(parseInt(req.query.limit, 10) || 100, scanScope(req), req.query.projectId) });
+});
+
+/* ---- Projects (named scan groupings; owner/admin scoped) ---- */
+app.get('/api/projects', requirePerm('tab-history'), async (req, res) => {
+  res.json({ enabled: projects.enabled(), projects: await projects.list(scanScope(req)) });
+});
+app.post('/api/projects', requirePerm('analyze'), async (req, res) => {
+  try {
+    const p = await projects.create(req.body || {}, req.user);
+    audit.record('project.add', { actor: req.user && req.user.email, ip: clientIp(req), detail: 'name=' + ((req.body && req.body.name) || '').slice(0, 64), ok: true });
+    res.json(p);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+app.patch('/api/projects/:id', requirePerm('analyze'), async (req, res) => {
+  try {
+    const ok = await projects.rename(req.params.id, (req.body && req.body.name) || '', scanScope(req));
+    if (!ok) return res.status(404).json({ error: 'Project not found.' });
+    audit.record('project.rename', { actor: req.user && req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true });
+    res.json({ ok: true });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+app.delete('/api/projects/:id', requirePerm('analyze'), async (req, res) => {
+  await projects.remove(req.params.id, scanScope(req));
+  audit.record('project.delete', { actor: req.user && req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true });
+  res.json({ ok: true });
 });
 app.get('/api/scans/:id', requirePerm('tab-history'), async (req, res) => {
   const report = await scans.get(req.params.id, scanScope(req));
@@ -696,7 +722,7 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000, { failClosed: 
     const scannerResult = await scanners.runAll(scanRoot);
     const report = await engine.analyzeDir(scanRoot, scannerResult, null, { isolate: true });
     report.meta.source = source;
-    scans.record(report, { user: req.user, source, name: req.body && req.body.name }).catch(() => {});
+    scans.record(report, { user: req.user, source, name: req.body && req.body.name, projectId: req.body && req.body.projectId, projectName: req.body && req.body.projectName }).catch(() => {});
     notify.scanComplete(report, { user: req.user, source });
     res.json(report);
   } catch (err) {
@@ -725,7 +751,7 @@ app.post('/api/scan', rateLimited('scan', 20, 10 * 60000, { failClosed: true }),
     const scannerResult = await scanners.runAll(work);
     const report = await engine.analyzeDir(work, scannerResult, null, { isolate: true });
     metrics.inc('citadel_scans_total', { mode: 'upload' });
-    scans.record(report, { user: req.user, source: req.files.length + ' file(s)', name: req.body && req.body.name }).catch(() => {});
+    scans.record(report, { user: req.user, source: req.files.length + ' file(s)', name: req.body && req.body.name, projectId: req.body && req.body.projectId, projectName: req.body && req.body.projectName }).catch(() => {});
     notify.scanComplete(report, { user: req.user, source: req.files.length + ' file(s)' });
     res.json(report);
   } catch (err) {

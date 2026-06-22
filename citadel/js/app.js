@@ -116,6 +116,12 @@
   // Block a scan if access control is on and the user lacks the 'analyze' page.
   // The backend enforces this authoritatively; this is a UX pre-check only.
   function gateScan() {
+    // A project must be selected first — every scan is filed under one so it can
+    // be found by name/project later. Open the Projects view to choose/create one.
+    if (CITADEL.projects && CITADEL.projects.current && !CITADEL.projects.current()) {
+      openProjects();
+      return false;
+    }
     if (!aclEnforce()) return true;
     if (aclCan('analyze')) return true;
     if (!curUser()) { openLogin(); showProgress(100, 'Sign in required to run a scan.', ''); }
@@ -132,6 +138,28 @@
     const panel = $('tab-history'); if (panel) panel.classList.remove('d-none');
     if (CITADEL.report && CITADEL.report.renderHistory) CITADEL.report.renderHistory('tab-history');
     if (results) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  // ---- Projects: gate scanning + management view --------------------------
+  // Project tagging passed to the backend scan endpoints (durable history).
+  function projectOpts() {
+    const p = CITADEL.projects && CITADEL.projects.current && CITADEL.projects.current();
+    return p ? { projectId: p.id, projectName: p.name } : {};
+  }
+  function openProjects() {
+    if (CITADEL.projects) CITADEL.projects.renderProjects();
+    const sec = $('projects-section'); if (sec) sec.classList.remove('d-none');
+    const res = $('results'); if (res) res.classList.add('d-none');
+    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function closeProjects() {
+    const sec = $('projects-section'); if (sec) sec.classList.add('d-none');
+    const intake = $('intake-section'); if (intake) intake.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  // Disable scan controls until a project is selected (UX cue; gateScan enforces).
+  function applyProjectGate() {
+    const has = !!(CITADEL.projects && CITADEL.projects.current && CITADEL.projects.current());
+    ['pick-files', 'pick-folder', 'load-demo', 'scan-url-btn'].forEach(id => { const b = $(id); if (b) b.disabled = !has; });
+    const dz = $('dropzone'); if (dz) dz.classList.toggle('dz-disabled', !has);
   }
   // Load a saved scan's full report and show it (shared by Recent + History).
   async function openScanById(id) {
@@ -274,7 +302,7 @@
     const subpath = subEl ? subEl.value.trim() : '';
     try {
       let p = 20; showProgress(p, 'Cloning & scanning repository…', url + (subpath ? ' /' + subpath : ''));
-      const report = await CITADEL.api.scanUrl(url, subpath, (s) => { p = Math.min(90, p + 20); showProgress(p, s, ''); });
+      const report = await CITADEL.api.scanUrl(url, subpath, (s) => { p = Math.min(90, p + 20); showProgress(p, s, ''); }, projectOpts());
       finishScan(report, 'deep');
     } catch (err) { if (!handleAuthError(err)) showProgress(100, 'Repo scan failed: ' + (err.message || err), ''); }
   });
@@ -342,7 +370,7 @@
     try {
       let p = 15;
       showProgress(p, 'Deep scan — uploading…', files.length + ' item(s)');
-      const report = await CITADEL.api.scan(files, (stage) => { p = Math.min(90, p + 18); showProgress(p, stage, ''); });
+      const report = await CITADEL.api.scan(files, (stage) => { p = Math.min(90, p + 18); showProgress(p, stage, ''); }, projectOpts());
       finishScan(report, 'deep');
     } catch (err) {
       if (!handleAuthError(err)) showProgress(100, 'Deep scan failed: ' + (err.message || err), '');
@@ -354,7 +382,7 @@
   function finishScan(report, mode) {
     showProgress(100, mode === 'deep' ? 'Done (deep scan).' : 'Done.', report.findings.length + ' finding(s)');
     CITADEL.report.render(report);
-    try { CITADEL.history.record(report); } catch (e) {}
+    try { CITADEL.history.record(report, null, CITADEL.projects && CITADEL.projects.current && CITADEL.projects.current()); } catch (e) {}
     applyAccess();
     if (mode === 'deep') setTimeout(loadRecentActivity, 600);   // server has just persisted it
     $('results').classList.remove('d-none');
@@ -375,7 +403,7 @@
       report.scoring = CITADEL.scanner.score(report.findings, report.quality);
       report.posture = CITADEL.frameworks.posture(report.findings);
       CITADEL.report.render(report);
-      try { CITADEL.history.record(report, 'Scan + OSV ' + new Date().toLocaleString()); } catch (e) {}
+      try { CITADEL.history.record(report, 'Scan + OSV ' + new Date().toLocaleString(), CITADEL.projects && CITADEL.projects.current && CITADEL.projects.current()); } catch (e) {}
     } catch (e) {
       const s = $('osv-status'); if (s) s.innerHTML = '<i class="bi bi-exclamation-circle"></i> OSV.dev lookup unavailable (offline?).';
     }
@@ -450,6 +478,24 @@
 
   /* ---------- Findings facet filters (selects + search) ---------- */
   document.addEventListener('change', (e) => { if (e.target && e.target.closest && e.target.closest('.finding-flt') && CITADEL.report.applyFilters) CITADEL.report.applyFilters(); });
+
+  // ---- Projects: switcher + react to project changes + boot ----------------
+  document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'project-switch') CITADEL.projects.setCurrent(e.target.value);
+  });
+  document.addEventListener('citadel:project-change', () => {
+    if (!CITADEL.projects) return;
+    CITADEL.projects.renderBar();
+    applyProjectGate();
+    const ps = $('projects-section');
+    if (ps && !ps.classList.contains('d-none')) CITADEL.projects.renderProjects();
+  });
+  if (CITADEL.projects) {
+    CITADEL.projects.renderBar();
+    applyProjectGate();
+    // Detect a durable backend (Postgres) and load its projects; else stay local.
+    Promise.resolve(CITADEL.projects.load()).catch(() => {});
+  }
   document.addEventListener('input', (e) => { if (e.target && e.target.id === 'fnd-search' && CITADEL.report.applyFilters) CITADEL.report.applyFilters(); });
 
   /* ---------- Tabs ---------- */
@@ -463,6 +509,40 @@
     }
     if (e.target.closest('#nav-history')) { e.preventDefault(); openHistory(); return; }
     if (e.target.closest('#recent-viewall')) { e.preventDefault(); openHistory(); return; }
+    // ---- Projects routing ----
+    if (e.target.closest('#nav-projects, [data-projects-open]')) { e.preventDefault(); openProjects(); return; }
+    if (e.target.closest('[data-projects-close]')) { e.preventDefault(); closeProjects(); return; }
+    if (e.target.closest('[data-project-create]')) {
+      e.preventDefault();
+      const nameEl = $('new-project-name'), descEl = $('new-project-desc'), errEl = $('new-project-err');
+      if (errEl) errEl.classList.add('d-none');
+      Promise.resolve(CITADEL.projects.create(nameEl && nameEl.value, descEl && descEl.value))
+        .then(() => CITADEL.projects.renderProjects())
+        .catch(err => { if (errEl) { errEl.textContent = (err && err.message) || 'Could not create project.'; errEl.classList.remove('d-none'); } });
+      return;
+    }
+    const pSel = e.target.closest('[data-project-select]');
+    if (pSel) { e.preventDefault(); CITADEL.projects.setCurrent(pSel.getAttribute('data-project-select')); closeProjects(); return; }
+    const pHist = e.target.closest('[data-project-history]');
+    if (pHist) { e.preventDefault(); CITADEL.projects.setCurrent(pHist.getAttribute('data-project-history')); closeProjects(); openHistory(); return; }
+    const pRen = e.target.closest('[data-project-rename]');
+    if (pRen) {
+      e.preventDefault();
+      const id = pRen.getAttribute('data-project-rename');
+      const name = window.prompt('Rename project:', (CITADEL.projects.get(id) || {}).name || '');
+      if (name != null) Promise.resolve(CITADEL.projects.rename(id, name)).then(() => CITADEL.projects.renderProjects()).catch(() => {});
+      return;
+    }
+    const pDel = e.target.closest('[data-project-delete]');
+    if (pDel) {
+      e.preventDefault();
+      const id = pDel.getAttribute('data-project-delete');
+      const p = CITADEL.projects.get(id);
+      if (p && window.confirm('Delete project "' + p.name + '"? Scans stay in history but lose their project tag.')) {
+        Promise.resolve(CITADEL.projects.remove(id)).then(() => CITADEL.projects.renderProjects()).catch(() => {});
+      }
+      return;
+    }
     const recOpen = e.target.closest('[data-open-recent]');
     if (recOpen) { e.preventDefault(); openScanById(recOpen.getAttribute('data-open-recent')); return; }
     if (e.target.closest('#login-btn')) return openLogin();
