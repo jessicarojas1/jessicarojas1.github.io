@@ -34,6 +34,15 @@
   }
   function list() { return read(HKEY); }
   function clear() { write(HKEY, []); }
+  // Give a saved scan a human name so it's findable in history by name.
+  function rename(id, name) {
+    const l = read(HKEY);
+    const e = l.find(x => x.id === id);
+    if (!e) return null;
+    e.label = String(name == null ? '' : name).trim().slice(0, 200) || e.label;
+    write(HKEY, l);
+    return e;
+  }
   function compare(aId, bId) {
     const l = read(HKEY);
     const a = l.find(x => x.id === aId), b = l.find(x => x.id === bId);
@@ -93,7 +102,7 @@
   function suppressCount() { const m = effective(); return Object.keys(m).filter(k => m[k] && m[k] !== 'open').length; }
   function suppressed() { const m = effective(); return new Set(Object.keys(m).filter(k => m[k] && m[k] !== 'open')); }
 
-  CITADEL.history = { record, list, clear, compare };
+  CITADEL.history = { record, list, clear, compare, rename };
   CITADEL.suppress = { fingerprint: fpOf, isSuppressed, suppress, unsuppress, clear: clearSuppress, count: suppressCount, all: suppressed };
   CITADEL.disposition = { of: dispositionOf, set: setDisposition, counts: dispositionCounts, states: DISPOSITIONS, label: DISPO_LABEL, fpOf, syncServer, serverShared };
 })(window);

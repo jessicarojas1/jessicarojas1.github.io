@@ -163,8 +163,10 @@ jobs:
       - name: Trivy config scan
         if: steps.tf.outputs.present == 'true'
         continue-on-error: true
-        # Pinned to a released tag rather than the mutable @master branch.
-        uses: aquasecurity/trivy-action@0.28.0
+        # Pinned to a released tag rather than the mutable @master branch. Use a
+        # current release: older trivy-action tags transitively pull a now-removed
+        # aquasecurity/setup-trivy version and fail at action resolution.
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
           scan-ref: citadel/deploy

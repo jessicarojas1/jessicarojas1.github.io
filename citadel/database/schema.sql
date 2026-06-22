@@ -110,6 +110,8 @@ CREATE TABLE IF NOT EXISTS citadel_scans (
   report     jsonb NOT NULL
 );
 CREATE INDEX IF NOT EXISTS citadel_scans_ts_idx ON citadel_scans (id DESC);
+-- Optional human name for a saved scan so it can be found by name in history.
+ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS name text;
 
 -- ----------------------------------------------------------------------------
 -- Finding dispositions — shared triage state keyed by canonical fingerprint.

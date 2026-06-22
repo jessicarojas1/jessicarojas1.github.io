@@ -7,7 +7,13 @@
 <title><?= Security::h($pageTitle ?? $__brandName) ?> — <?= Security::h($__brandName) ?></title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
-<link rel="stylesheet" href="/public/css/app.css?v=12">
+<?php
+// Cache-bust app.css/app.js by file mtime so every deploy serves fresh assets.
+// (A hardcoded ?v= meant CSS/JS changes were masked by browser/CDN caches.)
+$__cssVer = @filemtime(AEGIS_ROOT . '/public/css/app.css') ?: time();
+$__jsVer  = @filemtime(AEGIS_ROOT . '/public/js/app.js')  ?: time();
+?>
+<link rel="stylesheet" href="/public/css/app.css?v=<?= $__cssVer ?>">
 <link rel="manifest" href="/public/manifest.json">
 <meta name="theme-color" content="var(--primary)">
 <meta name="csrf-token" content="<?= Security::generateCsrfToken() ?>">
@@ -85,7 +91,7 @@
     <?php endif; ?>
 
     <!-- Operations -->
-    <?php $__opsVisible = array_filter(['audit','policy','incident','playbooks','issue','change','bcp','incident_sla','questionnaire','awareness','account_reviews','privacy','projects'], fn($m) => moduleVisible($m, $__mv));
+    <?php $__opsVisible = array_filter(['audit','policy','playbooks','issue','bcp','incident_sla','questionnaire','awareness','privacy','projects'], fn($m) => moduleVisible($m, $__mv));
     if ($__opsVisible): ?>
     <div class="nav-acc">
       <button type="button" class="nav-acc-header" data-acc="operations">
@@ -94,15 +100,12 @@
       <div class="nav-acc-body" id="nav-acc-operations">
         <?php if (moduleVisible('audit',         $__mv)): ?><a href="/audit"        class="nav-item <?= $activeModule==='audit'?'active':'' ?>"><i class="bi bi-clipboard2-check-fill"></i><span>Audits</span></a><?php endif; ?>
         <?php if (moduleVisible('policy',        $__mv)): ?><a href="/policy"       class="nav-item <?= $activeModule==='policy'?'active':'' ?>"><i class="bi bi-file-earmark-text-fill"></i><span>Policies</span></a><?php endif; ?>
-        <?php if (moduleVisible('incident',      $__mv)): ?><a href="/incident"     class="nav-item <?= $activeModule==='incident'?'active':'' ?>"><i class="bi bi-fire"></i><span>Incidents</span></a><?php endif; ?>
         <?php if (moduleVisible('playbooks',     $__mv)): ?><a href="/playbooks"    class="nav-item <?= $activeModule==='playbooks'?'active':'' ?>"><i class="bi bi-journal-code"></i><span>Playbooks</span></a><?php endif; ?>
         <?php if (moduleVisible('issue',         $__mv)): ?><a href="/issue"        class="nav-item <?= $activeModule==='issue'?'active':'' ?>"><i class="bi bi-bug-fill"></i><span>Issues</span></a><?php endif; ?>
-        <?php if (moduleVisible('change',        $__mv)): ?><a href="/change"       class="nav-item <?= $activeModule==='change'?'active':'' ?>"><i class="bi bi-arrow-repeat"></i><span>Change Requests</span></a><?php endif; ?>
         <?php if (moduleVisible('bcp',           $__mv)): ?><a href="/bcp"          class="nav-item <?= $activeModule==='bcp'?'active':'' ?>"><i class="bi bi-shield-fill-exclamation"></i><span>BCP / DR</span></a><?php endif; ?>
         <?php if (moduleVisible('incident_sla',  $__mv)): ?><a href="/incident/sla" class="nav-item <?= $activeModule==='incident_sla'?'active':'' ?>"><i class="bi bi-stopwatch-fill"></i><span>Incident SLA</span></a><?php endif; ?>
         <?php if (moduleVisible('questionnaire',  $__mv)): ?><a href="/questionnaire"   class="nav-item <?= $activeModule==='questionnaire'?'active':'' ?>"><i class="bi bi-ui-checks-grid"></i><span>Questionnaires</span></a><?php endif; ?>
         <?php if (moduleVisible('awareness',      $__mv)): ?><a href="/awareness"       class="nav-item <?= $activeModule==='awareness'?'active':'' ?>"><i class="bi bi-mortarboard-fill"></i><span>Awareness Training</span></a><?php endif; ?>
-        <?php if (moduleVisible('account_reviews',$__mv)): ?><a href="/account-reviews" class="nav-item <?= $activeModule==='account_reviews'?'active':'' ?>"><i class="bi bi-person-check-fill"></i><span>Account Reviews</span></a><?php endif; ?>
         <?php if (moduleVisible('privacy',        $__mv)): ?><a href="/privacy"         class="nav-item <?= $activeModule==='privacy'?'active':'' ?>"><i class="bi bi-shield-lock-fill"></i><span>Data Privacy</span></a><?php endif; ?>
         <?php if (moduleVisible('projects',       $__mv)): ?><a href="/projects"        class="nav-item <?= $activeModule==='projects'?'active':'' ?>"><i class="bi bi-briefcase-fill"></i><span>GRC Projects</span></a><?php endif; ?>
       </div>
@@ -336,6 +339,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmRONQ7+/O31fY0B+Mzgj+qVXq0" crossorigin="anonymous" nonce="<?= Security::nonce() ?>"></script>
 <script src="/public/vendor/chart.js/chart.umd.js" integrity="sha384-tgbB5AKnszdcfwcZtTfuhR3Ko1XZdlDfsLtkxiiAZiVkkXCkFmp+FQFh+V/UTo54" crossorigin="anonymous" nonce="<?= Security::nonce() ?>"></script>
-<script src="/public/js/app.js?v=12" nonce="<?= Security::nonce() ?>"></script>
+<script nonce="<?= Security::nonce() ?>" src="/public/js/app.js?v=<?= $__jsVer ?>"></script>
 </body>
 </html>

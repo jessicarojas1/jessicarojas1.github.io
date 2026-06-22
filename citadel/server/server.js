@@ -564,6 +564,15 @@ app.delete('/api/scans/:id', requirePerm('tab-history'), async (req, res) => {
   audit.record('scan.delete', { actor: req.user && req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true });
   res.json({ ok: true });
 });
+// Name a saved scan so it can be found by name in history (owner/admin scoped).
+app.patch('/api/scans/:id', requirePerm('tab-history'), async (req, res) => {
+  try {
+    const ok = await scans.rename(req.params.id, (req.body && req.body.name) || '', scanScope(req));
+    if (!ok) return res.status(404).json({ error: 'Scan not found.' });
+    audit.record('scan.rename', { actor: req.user && req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true });
+    res.json({ ok: true });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
 
 /* ---- Shared finding dispositions (triage state by fingerprint) ----
  * Read for anyone who can view findings; write for anyone who can run/triage. */
@@ -687,7 +696,7 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000, { failClosed: 
     const scannerResult = await scanners.runAll(scanRoot);
     const report = await engine.analyzeDir(scanRoot, scannerResult, null, { isolate: true });
     report.meta.source = source;
-    scans.record(report, { user: req.user, source }).catch(() => {});
+    scans.record(report, { user: req.user, source, name: req.body && req.body.name }).catch(() => {});
     notify.scanComplete(report, { user: req.user, source });
     res.json(report);
   } catch (err) {
@@ -716,7 +725,7 @@ app.post('/api/scan', rateLimited('scan', 20, 10 * 60000, { failClosed: true }),
     const scannerResult = await scanners.runAll(work);
     const report = await engine.analyzeDir(work, scannerResult, null, { isolate: true });
     metrics.inc('citadel_scans_total', { mode: 'upload' });
-    scans.record(report, { user: req.user, source: req.files.length + ' file(s)' }).catch(() => {});
+    scans.record(report, { user: req.user, source: req.files.length + ' file(s)', name: req.body && req.body.name }).catch(() => {});
     notify.scanComplete(report, { user: req.user, source: req.files.length + ' file(s)' });
     res.json(report);
   } catch (err) {
