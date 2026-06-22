@@ -131,6 +131,15 @@ class ApprovalController {
         $step = $this->actionableStep($req, Auth::id(), Auth::role());
         if (!$step) { $_SESSION['flash_error'] = 'No step is awaiting your decision.'; header('Location: /approvals/' . $id); return; }
 
+        // Separation of duties: a user may not decide on their own submission.
+        // The submitter can withdraw via /approvals/{id}/cancel, but never act as
+        // an approver/reviewer for the request they raised (even if a step happens
+        // to target their role/user). Applies to admins too.
+        if ((int)$req['requested_by'] === Auth::id()) {
+            $_SESSION['flash_error'] = 'Separation of duties: you cannot approve or decide on your own submission.';
+            header('Location: /approvals/' . $id); return;
+        }
+
         $decision = Security::sanitizeInput($_POST['decision'] ?? '');
         $comment  = Security::sanitizeInput($_POST['comment'] ?? '');
         if (!in_array($decision, ['approve','reject','return'], true)) { http_response_code(400); return; }

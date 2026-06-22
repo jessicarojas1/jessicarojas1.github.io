@@ -12,18 +12,20 @@ are read from :mod:`app.core.config` (env only — secrets are not admin-editabl
 
 from __future__ import annotations
 
+import http.client
 import json
 import logging
 import smtplib
+import ssl
 import threading
-import urllib.request
 from dataclasses import dataclass
 from email.message import EmailMessage
+from urllib.parse import urlsplit
 
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.net_guard import is_public_http_url
+from app.core.net_guard import ResolvedTarget, resolve_public_url
 
 logger = logging.getLogger("app.notifications")
 
@@ -89,24 +91,62 @@ def resolve_channels(db: Session) -> ChannelConfig:
     )
 
 
+def _connect_pinned(target: ResolvedTarget) -> http.client.HTTPConnection:
+    """Open a connection pinned to a pre-validated IP (rebinding-safe).
+
+    The host is resolved and validated ONCE in :func:`resolve_public_url`; here we
+    connect straight to that IP so no second DNS lookup can swap in an internal
+    address. The original hostname is still used for the TLS SNI/cert check and
+    the HTTP Host header, so the request stays correct.
+    """
+    if target.scheme == "https":
+        ctx = ssl.create_default_context()
+        conn = http.client.HTTPSConnection(
+            target.ip,
+            target.port,
+            timeout=_HTTP_TIMEOUT,
+            context=ctx,
+            server_hostname=target.host,  # SNI / cert validation use the real host
+        )
+    else:
+        conn = http.client.HTTPConnection(target.ip, target.port, timeout=_HTTP_TIMEOUT)
+    return conn
+
+
 def _post_json(url: str, payload: dict) -> tuple[bool, str]:
-    """POST a JSON body to ``url`` (stdlib). Returns (ok, detail), never raises."""
-    if not is_public_http_url(url):
+    """POST a JSON body to ``url`` (stdlib). Returns (ok, detail), never raises.
+
+    SSRF defense: the host is resolved and validated once, then the request is
+    pinned to the validated IP (with the original Host header / SNI) so a
+    DNS-rebinding answer cannot redirect the connection to internal infra.
+    """
+    target = resolve_public_url(url)
+    if target is None:
         logger.warning("webhook blocked: non-public URL")
         return False, "blocked: webhook URL must resolve to a public address"
+    conn: http.client.HTTPConnection | None = None
     try:
         data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(
-            url,
-            data=data,
-            headers={"Content-Type": "application/json"},
-            method="POST",
+        split = urlsplit(url)
+        request_path = split.path or "/"
+        if split.query:
+            request_path = f"{request_path}?{split.query}"
+        conn = _connect_pinned(target)
+        conn.request(
+            "POST",
+            request_path,
+            body=data,
+            headers={"Content-Type": "application/json", "Host": target.host},
         )
-        urllib.request.urlopen(req, timeout=_HTTP_TIMEOUT)  # noqa: S310
+        resp = conn.getresponse()
+        resp.read()  # drain so the connection can be closed cleanly
         return True, "sent"
     except Exception as exc:  # noqa: BLE001 — best-effort; never raise to the caller
         logger.warning("webhook_dispatch_failed", exc_info=True)
         return False, str(exc) or exc.__class__.__name__
+    finally:
+        if conn is not None:
+            conn.close()
 
 
 def send_email(

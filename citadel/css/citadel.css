@@ -409,3 +409,64 @@ html { scroll-behavior: smooth; }
 .project-card { transition:border-color .15s ease, box-shadow .15s ease; height:100%; }
 .project-card.project-current { border-color:var(--citadel-accent); box-shadow:0 0 0 1px var(--citadel-accent) inset; }
 .dz-disabled { opacity:.55; }
+
+/* =============================================================================
+   CSP-safe utilities — these replace inline style="..." attributes so the page
+   can run under a strict Content-Security-Policy without style-src 'unsafe-inline'.
+   Dynamic values that genuinely vary at runtime (score-ring --val, hotspot-bar
+   --w) are set via element.style.setProperty() in JS, which is not governed by
+   style-src, and consumed by the rules below.
+   ============================================================================= */
+
+/* Severity background colours (fixed enum) — replaces style="background:<hex>".
+   Mirrors the SEV_COLOR map in js/report.js. */
+.sev-bg-critical { background:#dc3545 !important; }
+.sev-bg-high     { background:#fd7e14 !important; }
+.sev-bg-medium   { background:#ffc107 !important; }
+.sev-bg-low      { background:#0dcaf0 !important; }
+.sev-bg-info     { background:#6c757d !important; }
+
+/* Scanner-status dot states — replaces style="background:<hex>". */
+.scanner-dot.st-ok          { background:#1a9d57; }
+.scanner-dot.st-failed      { background:#e0a106; }
+.scanner-dot.st-unavailable { background:#9aa3af; }
+
+/* "AI on" badge accent — replaces style="background:#10b981". */
+.badge-ai-on { background:#10b981 !important; }
+
+/* Dynamic conic-gradient ring value is applied via JS (--val); the .score-ring
+   base rule above already consumes --val. Dynamic hotspot bar width: */
+.hotspot-bar { width: var(--w, 0%); }
+
+/* Width helpers (static max/min widths previously inlined). */
+.maxw-200 { max-width:200px; }
+.maxw-220 { max-width:220px; }
+.maxw-260 { max-width:260px; }
+.maxw-280 { max-width:280px; }
+.maxw-300 { max-width:300px; }
+.maxw-340 { max-width:340px; }
+.maxw-720 { max-width:720px; }
+.minw-150 { min-width:150px; }
+.w-auto-sel { width:auto; }
+
+/* Brand logo image sizing (previously inline on the <img>). */
+.brand-logo-img { width:auto; border-radius:6px; object-fit:contain; height:28px; }
+.brand-logo-sm  { height:26px; }
+.brand-logo-lg  { height:32px; }
+
+/* Misc inlined styles converted to classes. */
+.progress-bar-init { width:0; }
+.deep-mode-divider { border-color:var(--bs-border-color) !important; }
+.brand-preview-surface { background:var(--ct-surface, var(--bs-body-bg)); }
+
+/* ---------- Admin console (moved from inline <style> in admin.html) ---------- */
+.admin-login-wrap { min-height: calc(100vh - 64px); display:flex; align-items:center; justify-content:center; padding:1.5rem; }
+.admin-login-card { width:100%; max-width:400px; }
+.perm-group-head { font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--bs-secondary-color); white-space:nowrap; }
+.perm-matrix th, .perm-matrix td { text-align:center; vertical-align:middle; }
+.perm-matrix th.user-col, .perm-matrix td.user-col { text-align:left; position:sticky; left:0; background:var(--ct-surface, var(--bs-body-bg)); z-index:2; }
+.perm-matrix thead th { white-space:nowrap; }
+.perm-col-label { font-size:.72rem; color:var(--bs-secondary-color); }
+.role-badge { text-transform:capitalize; }
+.admin-empty { padding:1.5rem; text-align:center; color:var(--bs-secondary-color); }
+.matrix-cell input { cursor:pointer; }

@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError, PermissionDeniedError, ValidationAppError
+from app.core.http import content_disposition_attachment
 from app.core.permissions import effective_levels, level_at_least
 from app.models.apqp import ApqpProject
 from app.models.audit_mgmt import Audit
@@ -135,7 +136,9 @@ def share_pdf(
     return Response(
         content=data,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{filename(obj)}.pdf"'},
+        headers={
+            "Content-Disposition": content_disposition_attachment(f"{filename(obj)}.pdf")
+        },
     )
 
 

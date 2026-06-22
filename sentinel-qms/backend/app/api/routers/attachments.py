@@ -10,13 +10,14 @@ from app.api.deps import get_current_user
 from app.core import audit
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.http import content_disposition_attachment
 from app.core.entity_access import require_entity_view
 from app.core.exceptions import NotFoundError, ValidationAppError
 from app.models.user import Attachment
 from app.schemas.attachment import AttachmentRead, AttachmentUploadResult
 from app.schemas.auth import CurrentUser
 from app.services.crud import request_context
-from app.services.storage import get_storage, is_allowed_content_type
+from app.services.storage import get_storage, is_allowed_content_type, sniff_matches_declared
 
 router = APIRouter(prefix="/attachments", tags=["attachments"])
 
@@ -44,6 +45,13 @@ async def upload_attachment(
         )
     if not data:
         raise ValidationAppError("Uploaded file is empty.")
+    # Authoritative check: sniff the file's magic bytes and confirm they match
+    # the declared (and allowlisted) content type. The client Content-Type alone
+    # is not trusted — a mismatch means a spoofed type, so reject.
+    if not sniff_matches_declared(data, content_type):
+        raise ValidationAppError(
+            f"File contents do not match the declared type '{content_type}'."
+        )
 
     storage = get_storage()
     stored = storage.save(
@@ -122,5 +130,7 @@ def download_attachment(
     return Response(
         content=data,
         media_type=attachment.content_type,
-        headers={"Content-Disposition": f'attachment; filename="{attachment.original_filename}"'},
+        headers={
+            "Content-Disposition": content_disposition_attachment(attachment.original_filename)
+        },
     )

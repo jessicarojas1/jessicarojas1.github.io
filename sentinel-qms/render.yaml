@@ -4,9 +4,11 @@
 # ONE Docker web service (FastAPI serves both the /api/v1 API and the React SPA)
 # plus a PostgreSQL database. Same-origin, so no CORS or cross-service URLs.
 #
-# This is a DEMO profile (free plans; runs in development mode so a login is
-# seeded; ephemeral local file storage). For CUI / production, deploy to AWS
-# GovCloud or Azure Government with the Terraform in infra/ — see docs/deployment/.
+# This is a DEMO blueprint (free plans; ephemeral local file storage). It ships
+# SECURE defaults — ENVIRONMENT=production and no auto-seeded admin. To run the
+# convenience demo profile (seeded admin login), flip the two clearly-marked
+# opt-in vars below. For CUI / production, deploy to AWS GovCloud or Azure
+# Government with the Terraform in infra/ — see docs/deployment/.
 #
 # Paths assume this file is at the REPOSITORY ROOT. Easiest way to get there:
 #     ./scripts/extract-to-standalone-repo.sh
@@ -40,7 +42,10 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: ENVIRONMENT
-        value: development          # DEMO ONLY — enables the seeded admin login
+        value: production           # secure default: HSTS on, strict secret guard.
+        # DEMO CONVENIENCE (opt-in ONLY): set this to `development` to enable the
+        # seeded-admin demo login. Doing so drops HSTS and relaxes the secret
+        # guard — never use it for a deployment holding real data.
       - key: LOG_LEVEL
         value: INFO
       - key: WEB_CONCURRENCY
@@ -52,7 +57,10 @@ services:
       - key: AUTO_SEED
         value: "1"
       - key: ADMIN_AUTO_CREATE
-        value: "true"
+        value: "false"              # secure default: no auto-seeded admin.
+        # DEMO CONVENIENCE (opt-in ONLY): set to "true" to auto-create the
+        # bootstrap admin from ADMIN_EMAIL/ADMIN_PASSWORD. Leave "false" for any
+        # real deployment and create accounts explicitly instead.
       # ADMIN_EMAIL and ADMIN_PASSWORD are intentionally NOT defined here — set
       # them as secrets in the Render dashboard (Environment). No admin
       # credentials are committed to the repo; if unset, admin bootstrap is

@@ -640,7 +640,8 @@ The following headers are set on every response:
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | Forces HTTPS for one year; eligible for browser preload lists |
 | `X-Frame-Options` | `DENY` | Prevents all iframe embedding (clickjacking defence) |
 | `X-Content-Type-Options` | `nosniff` | Prevents MIME-type sniffing of responses |
-| `X-XSS-Protection` | `1; mode=block` | Legacy browser XSS filter (complementary) |
+| `Content-Security-Policy` | per-request nonce (see `Security.php`) | Primary XSS defence; restricts script/style/connect origins |
+| `X-XSS-Protection` | `0` | Disables the deprecated legacy XSS filter (OWASP/CISA guidance); CSP above is the real defence |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Limits referrer leakage on cross-origin navigation |
 | `Permissions-Policy` | `geolocation=(), microphone=(), camera=(), payment=()` | Explicitly disables sensitive browser APIs |
 | `Cross-Origin-Opener-Policy` | `same-origin` | Prevents cross-origin window references |

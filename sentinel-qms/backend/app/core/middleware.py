@@ -94,6 +94,25 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         return response
 
 
+def _client_ip_from_xff(xff: str) -> str | None:
+    """Pick the trustworthy client IP from an ``X-Forwarded-For`` value.
+
+    XFF is ``client, proxy1, proxy2, ...`` where each hop *appends* the address
+    it received from. The leftmost entry is the client-claimed origin and is
+    freely spoofable, so it must NOT be used. The trustworthy hop is the one just
+    before our own trusted proxies — i.e. the ``TRUSTED_PROXY_COUNT``-th entry
+    from the RIGHT. Returns ``None`` when the header has no usable entry.
+    """
+    hops = [h.strip() for h in xff.split(",") if h.strip()]
+    if not hops:
+        return None
+    # Index of the rightmost-untrusted hop: drop our trusted proxies from the
+    # right, but never index past the start (clamp so a short list still yields
+    # the leftmost remaining, real hop the edge proxy observed).
+    idx = len(hops) - 1 - max(0, settings.TRUSTED_PROXY_COUNT - 1)
+    return hops[max(0, idx)]
+
+
 def _client_key(request: Request) -> str:
     """Stable per-caller bucket key, keyed strictly on source IP.
 
@@ -102,13 +121,13 @@ def _client_key(request: Request) -> str:
     would let an attacker mint a fresh budget per request simply by varying it.
     So we key on the transport peer address. ``X-Forwarded-For`` is honored ONLY
     when ``TRUST_PROXY_HEADERS`` is set — otherwise a direct attacker could spoof
-    it to the same effect. Behind a real proxy/LB, set that flag so the true
-    client IP (not the proxy's) is used.
+    it to the same effect. Even when trusted, we take the rightmost-untrusted hop
+    (per ``TRUSTED_PROXY_COUNT``), NOT the client-spoofable leftmost entry.
     """
     if settings.TRUST_PROXY_HEADERS:
-        fwd = request.headers.get("X-Forwarded-For", "")
-        if fwd:
-            return "ip:" + fwd.split(",")[0].strip()
+        client_ip = _client_ip_from_xff(request.headers.get("X-Forwarded-For", ""))
+        if client_ip:
+            return "ip:" + client_ip
     client = request.client
     return "ip:" + (client.host if client else "unknown")
 

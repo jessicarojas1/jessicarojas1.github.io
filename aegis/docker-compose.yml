@@ -15,10 +15,10 @@ services:
       - DB_PORT=5432
       - DB_NAME=${DB_NAME:-aegis}
       - DB_USER=${DB_USER:-aegis}
-      - DB_PASS=${DB_PASS}
+      - DB_PASS=${DB_PASS:?DB_PASS is required}
       - APP_URL=${APP_URL:-http://localhost}
       - APP_ENV=${APP_ENV:-production}
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
       # Dedicated cryptographic keys (key separation — NIST SC-12). Fall back to
       # JWT_SECRET-derived keys when unset, but set distinct values in production.
       - AUDIT_HMAC_KEY=${AUDIT_HMAC_KEY:-}
@@ -55,7 +55,7 @@ services:
     environment:
       POSTGRES_DB: ${DB_NAME:-aegis}
       POSTGRES_USER: ${DB_USER:-aegis}
-      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_PASSWORD: ${DB_PASS:?DB_PASS is required}
     volumes:
       - pg_data:/var/lib/postgresql/data
       # Apply schema + ALL migrations in order on first boot (see docker/initdb.sh).
@@ -74,7 +74,7 @@ services:
       retries: 5
 
   nginx:
-    image: nginx:alpine
+    image: nginx:1.27-alpine
     container_name: aegis_nginx
     restart: unless-stopped
     depends_on:
@@ -108,10 +108,10 @@ services:
       - DB_PORT=5432
       - DB_NAME=${DB_NAME:-aegis}
       - DB_USER=${DB_USER:-aegis}
-      - DB_PASS=${DB_PASS}
+      - DB_PASS=${DB_PASS:?DB_PASS is required}
       - APP_URL=${APP_URL:-http://localhost}
       - APP_ENV=${APP_ENV:-production}
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
       - AUDIT_HMAC_KEY=${AUDIT_HMAC_KEY:-}
       - APP_ENCRYPTION_KEY=${APP_ENCRYPTION_KEY:-}
     volumes:

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https: data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net; img-src 'self' https: data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="js/theme-init.js"></script>
   <link rel="icon" href="../favicon.ico" />
@@ -12,25 +12,13 @@
   <link rel="stylesheet" href="css/citadel.css" />
   <title>CITADEL — Admin console</title>
   <meta name="description" content="CITADEL admin console — manage users, roles and page-level access control." />
-  <style>
-    .admin-login-wrap { min-height: calc(100vh - 64px); display:flex; align-items:center; justify-content:center; padding:1.5rem; }
-    .admin-login-card { width:100%; max-width:400px; }
-    .perm-group-head { font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--bs-secondary-color); white-space:nowrap; }
-    .perm-matrix th, .perm-matrix td { text-align:center; vertical-align:middle; }
-    .perm-matrix th.user-col, .perm-matrix td.user-col { text-align:left; position:sticky; left:0; background:var(--ct-surface, var(--bs-body-bg)); z-index:2; }
-    .perm-matrix thead th { white-space:nowrap; }
-    .perm-col-label { font-size:.72rem; color:var(--bs-secondary-color); }
-    .role-badge { text-transform:capitalize; }
-    .admin-empty { padding:1.5rem; text-align:center; color:var(--bs-secondary-color); }
-    .matrix-cell input { cursor:pointer; }
-  </style>
 </head>
 <body>
   <!-- Top bar -->
   <nav class="navbar navbar-expand-lg sticky-top citadel-bar" aria-label="CITADEL admin navigation">
     <div class="container-fluid px-3 px-lg-4">
       <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.html">
-        <img id="brand-logo" alt="" class="d-none" style="height:26px;width:auto;border-radius:6px;object-fit:contain">
+        <img id="brand-logo" alt="" class="d-none brand-logo-img brand-logo-sm">
         <span id="brand-mark" class="d-flex">
           <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true">
             <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
@@ -202,7 +190,7 @@
             <p class="small text-body-secondary mb-1">Add the secret to your authenticator app (manual entry or via the link), then enter the 6-digit code to enable.</p>
             <div class="mb-1 small">Secret: <code id="mfa-secret" class="user-select-all"></code></div>
             <div class="mb-2"><a id="mfa-otpauth" class="small" target="_blank" rel="noopener">otpauth:// enrollment link</a></div>
-            <div class="input-group input-group-sm" style="max-width:300px">
+            <div class="input-group input-group-sm maxw-300">
               <input type="text" class="form-control" id="mfa-code" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code">
               <button class="btn btn-primary" id="mfa-enable-btn">Enable</button>
             </div>
@@ -211,7 +199,7 @@
             <p class="small text-success mb-1"><i class="bi bi-check-circle"></i> MFA enabled. Save these one-time backup codes — they won't be shown again:</p>
             <pre id="mfa-backup-codes" class="small p-2 border rounded mb-0"></pre>
           </div>
-          <div class="input-group input-group-sm d-none mt-2" id="mfa-disable-wrap" style="max-width:340px">
+          <div class="input-group input-group-sm d-none mt-2 maxw-340" id="mfa-disable-wrap">
             <input type="password" class="form-control" id="mfa-disable-pass" placeholder="Confirm password to disable">
             <button class="btn btn-outline-danger" id="mfa-disable-btn">Disable MFA</button>
           </div>
@@ -265,7 +253,7 @@
                   <label class="form-label small" for="brand-logo-url">Logo URL</label>
                   <input type="url" class="form-control form-control-sm" id="brand-logo-url" placeholder="https://example.com/logo.png">
                   <div class="d-flex align-items-center gap-2 mt-1">
-                    <input type="file" class="form-control form-control-sm" id="brand-logo-file" accept="image/png,image/jpeg,image/gif,image/webp" style="max-width:260px">
+                    <input type="file" class="form-control form-control-sm maxw-260" id="brand-logo-file" accept="image/png,image/jpeg,image/gif,image/webp">
                     <span class="form-text mb-0">Paste a public https URL, or upload a small image (embedded inline). Blank = built-in mark.</span>
                   </div>
                 </div>
@@ -286,8 +274,8 @@
             </div>
             <div class="col-lg-4">
               <label class="form-label small d-block">Preview</label>
-              <div class="d-flex align-items-center gap-2 p-3 rounded border" style="background:var(--ct-surface, var(--bs-body-bg))">
-                <img id="brand-preview-logo" alt="" class="d-none" style="height:32px;width:auto;border-radius:6px;object-fit:contain">
+              <div class="d-flex align-items-center gap-2 p-3 rounded border brand-preview-surface">
+                <img id="brand-preview-logo" alt="" class="d-none brand-logo-img brand-logo-lg">
                 <svg id="brand-preview-mark" width="32" height="32" viewBox="0 0 40 40" aria-hidden="true">
                   <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
                   <path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
@@ -311,7 +299,7 @@
               <p class="small text-body-secondary mb-0">Recent logins, lockouts, permission &amp; settings changes. In-memory and resets on redeploy.</p>
             </div>
             <div class="d-flex align-items-center gap-2">
-              <select class="form-select form-select-sm" id="audit-filter" style="width:auto" aria-label="Filter activity by type">
+              <select class="form-select form-select-sm w-auto-sel" id="audit-filter" aria-label="Filter activity by type">
                 <option value="">All events</option>
                 <option value="login">Logins &amp; lockouts</option>
                 <option value="user">User changes</option>

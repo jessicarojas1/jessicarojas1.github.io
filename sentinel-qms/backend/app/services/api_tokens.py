@@ -2,7 +2,11 @@
 
 Token format: ``sntl_<random>`` where ``<random>`` is URL-safe base64. We store
 only ``SHA-256(full_token)`` plus a short non-secret prefix for identification.
-Authentication is a constant-time hash comparison against the stored digest.
+Authentication hashes the presented token and looks the SHA-256 digest up via an
+indexed equality query (not a byte-by-byte ``==`` on the raw secret). This is an
+*indexed digest lookup*, not a constant-time compare — but it is not exploitable
+as a timing oracle: the token has 256 bits of entropy and the lookup matches on
+its irreversible hash, so observed timing cannot be steered toward a valid token.
 """
 
 from __future__ import annotations

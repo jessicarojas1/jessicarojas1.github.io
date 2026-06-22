@@ -69,10 +69,16 @@ def create_app() -> FastAPI:
     if settings.RATE_LIMIT_ENABLED:
         # Added after SecurityHeaders but before RequestContext so the limiter
         # runs with a request id already assigned (for the 429 problem body).
+        # RATE_LIMIT_PER_MINUTE is a per-MINUTE budget; scale it to the actual
+        # fixed window so the configured number always means "per minute"
+        # regardless of RATE_LIMIT_WINDOW_SECONDS (otherwise a non-60s window
+        # silently changes the effective rate).
+        window_seconds = settings.RATE_LIMIT_WINDOW_SECONDS
+        per_window_limit = max(1, round(settings.RATE_LIMIT_PER_MINUTE * window_seconds / 60))
         app.add_middleware(
             RateLimitMiddleware,
-            limit=settings.RATE_LIMIT_PER_MINUTE,
-            window_seconds=settings.RATE_LIMIT_WINDOW_SECONDS,
+            limit=per_window_limit,
+            window_seconds=window_seconds,
             redis_url=settings.REDIS_URL or None,
         )
     app.add_middleware(RequestContextMiddleware)

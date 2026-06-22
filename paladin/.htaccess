@@ -1,5 +1,25 @@
 # PALADIN — Apache front controller
+Options -Indexes -MultiViews
 RewriteEngine On
+
+# Force HTTPS (trust X-Forwarded-Proto from reverse proxy / Render / Heroku)
+RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Static security headers (CSP is set dynamically in PHP with per-request nonce).
+# X-XSS-Protection is deliberately omitted — the legacy XSS auditor is deprecated
+# and can itself introduce vulnerabilities; the nonce-based CSP is the real defense.
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+  Header always set X-Frame-Options "DENY"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
+  Header always unset X-Powered-By
+</IfModule>
 
 # Serve existing files/directories directly
 RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -13,8 +33,3 @@ RewriteRule ^ index.php [L]
 RedirectMatch 403 ^/\.env
 RedirectMatch 403 ^/(config|src|controllers|database|scripts|docker)/
 RedirectMatch 403 ^/install\.php$
-
-<IfModule mod_headers.c>
-  Header always set X-Content-Type-Options "nosniff"
-  Header always set X-Frame-Options "DENY"
-</IfModule>

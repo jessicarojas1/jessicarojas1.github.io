@@ -74,6 +74,10 @@ check(stripos(Security::sanitizeHtml('<svg><a xlink:href="javascript:alert(1)">x
 check(stripos(Security::sanitizeHtml('<svg><a><set attributeName="href" to="javascript:alert(1)"/></a></svg>'), 'javascript:') === false, 'svg <set> href javascript: stripped');
 check(stripos(Security::sanitizeHtml('<svg><a><animate attributeName="href" values="javascript:alert(1)"/></a></svg>'), 'javascript:') === false, 'svg <animate> href javascript: stripped');
 check(stripos(Security::sanitizeHtml('<svg><foreignObject><img src=x onerror=alert(1)></foreignObject></svg>'), '<svg') === false, 'svg/foreignObject element removed');
+// Defense-in-depth: javascript: with embedded whitespace / HTML entities.
+check(stripos(Security::sanitizeHtml('<a href="java&#9;script:alert(1)">x</a>'), 'script:') === false, 'javascript: with embedded tab entity stripped');
+check(stripos(Security::sanitizeHtml('<a href="&#106;avascript:alert(1)">x</a>'), 'javascript:') === false, 'entity-encoded javascript: stripped');
+check(stripos(Security::sanitizeHtml('<a href="  JaVaScRiPt:alert(1)">x</a>'), 'javascript:') === false, 'mixed-case/leading-space javascript: stripped');
 
 echo "— Output escaping (Security::h) —\n";
 check(Security::h('<b>&"') === '&lt;b&gt;&amp;&quot;', 'h() encodes < > & "');

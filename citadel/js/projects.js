@@ -122,7 +122,7 @@
     const opts = list.map(p => `<option value="${esc(p.id)}"${p.id === cur.id ? ' selected' : ''}>${esc(p.name)}</option>`).join('');
     el.innerHTML = `<div class="d-flex align-items-center gap-2 flex-wrap">
         <span class="text-body-secondary small text-uppercase fw-bold"><i class="bi bi-folder-fill"></i> Project</span>
-        <select class="form-select form-select-sm" id="project-switch" style="max-width:240px" aria-label="Current project">${opts}</select>
+        <select class="form-select form-select-sm maxw-260" id="project-switch" aria-label="Current project">${opts}</select>
         <span class="badge text-bg-secondary" title="Scans in this project">${scanCountOf(cur)} scan(s)</span>
       </div>
       <button class="btn btn-sm btn-outline-secondary" data-projects-open><i class="bi bi-folder2-open"></i> Manage projects</button>`;
