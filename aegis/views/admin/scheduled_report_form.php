@@ -195,7 +195,7 @@ ob_start();
 <style nonce="<?= Security::nonce() ?>">
 .pill-toggle { position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0 }
 .pill-toggle input[type="checkbox"] { opacity:0;width:0;height:0;position:absolute }
-.pill-track { position:absolute;inset:0;border-radius:24px;background:#d1d5db;cursor:pointer;transition:background .2s }
+.pill-track { position:absolute;inset:0;border-radius:24px;background:var(--border-light);cursor:pointer;transition:background .2s }
 .pill-toggle input:checked + .pill-track { background:var(--primary) }
 .pill-track::before { content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s }
 .pill-toggle input:checked + .pill-track::before { transform:translateX(20px) }

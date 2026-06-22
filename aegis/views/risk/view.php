@@ -477,7 +477,7 @@ ob_start();
           ?>
           <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:var(--moderate-subtle);color:var(--moderate);padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
           <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:var(--success-subtle);color:var(--success);padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
-          <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:#fef3c7;color:var(--warning);padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
+          <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:var(--warning-subtle);color:var(--warning);padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
         </div>
       </div>
       <?php if (!empty($responseActions)): ?>
