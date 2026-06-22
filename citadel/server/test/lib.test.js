@@ -445,6 +445,16 @@ test('dispositions: valid states; degrades to no-op without a database', async (
   assert.equal(await d.set('fp123', 'accepted', 'tester'), null);
 });
 
+/* ---------------- Projects (graceful without a DB) ---------------- */
+test('projects: exports documented API; degrades to no-op without a database', async () => {
+  const p = require('../lib/projects');
+  for (const fn of ['list', 'get', 'create', 'rename', 'remove', 'enabled']) {
+    assert.equal(typeof p[fn], 'function', 'projects.' + fn + ' should be a function');
+  }
+  assert.equal(p.enabled(), false);               // no DATABASE_URL in tests
+  assert.deepEqual(await p.list(null), []);
+});
+
 /* ---------------- ReDoS isolation (worker + timeout) ---------------- */
 test('engine: isolated heuristic scan runs in a worker and degrades on timeout', async () => {
   const fsx = require('fs'), osx = require('os'), px = require('path');

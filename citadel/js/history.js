@@ -13,12 +13,17 @@
   function write(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
 
   /* ---------- History ---------- */
-  function record(report, label) {
+  function record(report, label, project) {
     const list = read(HKEY);
+    // Tag the scan with its project (passed in, or the current project) so history
+    // can be filtered/found by project.
+    const cur = project || (CITADEL.projects && CITADEL.projects.current && CITADEL.projects.current()) || null;
     const entry = {
       id: 'h' + Date.now(),
       at: report.meta.scannedAt || new Date().toISOString(),
       label: label || ('Scan ' + new Date().toLocaleString()),
+      projectId: (cur && cur.id) || '',
+      projectName: (cur && cur.name) || '',
       engine: (report.meta && report.meta.engine) || 'quick',
       grade: report.scoring.grade,
       security: report.scoring.security,
