@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Build stage ----
-FROM node:20-alpine AS build
+FROM node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 AS build  # node:20-alpine
 WORKDIR /app
 
 # Install dependencies based on lockfile when present for reproducible builds.
@@ -14,7 +14,7 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
 # ---- Runtime stage ----
-FROM nginx:alpine AS runtime
+FROM nginx:alpine@sha256:20316569d8f81a160065d7d2a5eeffc7ca97d79022462ee255fd23fa103a6b5c AS runtime  # nginx:alpine
 
 # Run as an unprivileged user (DoD STIG / least privilege).
 RUN addgroup -S sentinel && adduser -S sentinel -G sentinel

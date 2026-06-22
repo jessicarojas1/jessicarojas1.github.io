@@ -19,7 +19,7 @@ name: sentinel-qms
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb  # postgres:16-alpine
     container_name: sentinel-postgres
     restart: unless-stopped
     environment:
@@ -41,7 +41,7 @@ services:
       - sentinel
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:latest@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e  # minio/minio:latest
     container_name: sentinel-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -64,7 +64,7 @@ services:
 
   # One-shot container that provisions the bucket then exits.
   minio-init:
-    image: minio/mc:latest
+    image: minio/mc:latest@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727  # minio/mc:latest
     container_name: sentinel-minio-init
     depends_on:
       minio:

@@ -10,7 +10,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ---- Stage 1: build the React SPA ----
-FROM node:20-alpine AS frontend
+FROM node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 AS frontend  # node:20-alpine
 WORKDIR /fe
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm ci || npm install
@@ -20,7 +20,7 @@ ENV VITE_API_BASE_URL=/api/v1
 RUN npm run build        # -> /fe/dist
 
 # ---- Stage 2: build backend wheels ----
-FROM python:3.12-slim AS builder
+FROM python:3.12-slim@sha256:d764629ce0ddd8c71fd371e9901efb324a95789d2315a47db7e4d27e78f1b0e9 AS builder  # python:3.12-slim
 ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1
@@ -34,7 +34,7 @@ RUN pip install --upgrade pip build \
     && pip wheel --wheel-dir /wheels .
 
 # ---- Stage 3: runtime ----
-FROM python:3.12-slim AS runtime
+FROM python:3.12-slim@sha256:d764629ce0ddd8c71fd371e9901efb324a95789d2315a47db7e4d27e78f1b0e9 AS runtime  # python:3.12-slim
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     ENVIRONMENT=production \
