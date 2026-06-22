@@ -48,14 +48,14 @@ $typeLabels = [
 
 <!-- Desktop calendar grid -->
 <div class="card cal-desktop" style="margin-bottom:24px;overflow:hidden">
-  <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)">
+  <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid var(--border)">
     <?php foreach (['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] as $d): ?>
       <div style="padding:10px 0;text-align:center;font-size:0.78rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);letter-spacing:.05em;background:var(--bg-secondary)">
         <?= $d ?>
       </div>
     <?php endforeach; ?>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(7,1fr)">
+  <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr))">
     <?php
     // Empty cells before first day
     for ($i = 0; $i < $firstDayOfWeek; $i++):
