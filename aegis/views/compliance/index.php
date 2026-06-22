@@ -132,7 +132,7 @@ ob_start();
   background: var(--danger); border-color: var(--danger); color: #fff;
 }
 .package-card.selected {
-  outline: 2px solid #ef4444;
+  outline: 2px solid var(--danger);
   outline-offset: 2px;
 }
 </style>

@@ -15,10 +15,10 @@ $breadcrumbs = [['Compliance', '/compliance'], ['Scorecard', null]];
 .score-summary { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
 .score-chip { text-align: center; padding: 12px 20px; border-radius: 8px; min-width: 90px; }
 .score-bar { height: 16px; border-radius: 8px; overflow: hidden; display: flex; margin-bottom: 20px; }
-.sig-block { margin-top: 40px; border-top: 1px solid #e4e4e7; padding-top: 24px; }
+.sig-block { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 24px; }
 .sig-line { display: flex; gap: 40px; margin-bottom: 24px; }
 .sig-field { flex: 1; border-bottom: 1px solid #333; padding-bottom: 4px; }
-.scorecard-header { border-bottom: 2px solid #e4e4e7; margin-bottom: 24px; padding-bottom: 16px; }
+.scorecard-header { border-bottom: 2px solid var(--border); margin-bottom: 24px; padding-bottom: 16px; }
 .scorecard-logo { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
 .scorecard-logo span { color: var(--primary); }
 .domain-header-row { background: #111111; color: #fff; padding: 10px 14px; font-weight: 600; font-size: 13px; }
@@ -26,8 +26,8 @@ $breadcrumbs = [['Compliance', '/compliance'], ['Scorecard', null]];
 .badge-compliant { background: #dcfce7; color: #166534; }
 .badge-non_compliant { background: #fee2e2; color: #991b1b; }
 .badge-partial { background: #fef9c3; color: #854d0e; }
-.badge-not_applicable { background: #f4f4f5; color: var(--text-muted); }
-.badge-not_started { background: #f4f4f5; color: var(--text-muted); }
+.badge-not_applicable { background: var(--bg-secondary); color: var(--text-muted); }
+.badge-not_started { background: var(--bg-secondary); color: var(--text-muted); }
 .domain-section { margin-bottom: 24px; page-break-before: auto; }
 </style>
 
