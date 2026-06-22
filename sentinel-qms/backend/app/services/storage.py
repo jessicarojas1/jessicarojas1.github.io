@@ -27,6 +27,31 @@ ALLOWED_CONTENT_TYPES: dict[str, str] = {
     "application/zip": ".zip",
 }
 
+# Curated magic-byte signatures for the allowed types. Each entry maps a declared
+# content type to the leading byte prefixes that legitimately identify that
+# format. ``sniff_matches_declared`` uses this as the AUTHORITATIVE check so a
+# spoofed client Content-Type cannot smuggle a mismatched payload past the
+# allowlist. Container-based OOXML files (.docx/.xlsx) and legacy OLE docs
+# (.doc/.xls) share the ZIP / OLE2 container signatures, so those are grouped.
+_ZIP_SIGS = (b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08")  # incl. empty/spanned archives
+_OLE2_SIG = (b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1",)  # legacy MS Office (doc/xls)
+_MAGIC_SIGNATURES: dict[str, tuple[bytes, ...]] = {
+    "application/pdf": (b"%PDF-",),
+    "image/png": (b"\x89PNG\r\n\x1a\n",),
+    "image/jpeg": (b"\xff\xd8\xff",),
+    "image/tiff": (b"II*\x00", b"MM\x00*"),
+    "application/zip": _ZIP_SIGS,
+    # OOXML files are ZIP containers.
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": _ZIP_SIGS,
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": _ZIP_SIGS,
+    # Legacy binary Office documents are OLE2 compound files.
+    "application/msword": _OLE2_SIG,
+    "application/vnd.ms-excel": _OLE2_SIG,
+}
+# Text formats (text/plain, text/csv) have no reliable magic bytes; they are
+# accepted when the leading bytes decode as UTF-8 / ASCII and contain no NUL.
+_TEXT_TYPES = frozenset({"text/plain", "text/csv"})
+
 
 @dataclass
 class StoredObject:
@@ -217,3 +242,37 @@ def get_storage() -> StorageBackend:
 
 def is_allowed_content_type(content_type: str) -> bool:
     return content_type in ALLOWED_CONTENT_TYPES
+
+
+def _looks_like_text(head: bytes) -> bool:
+    """Heuristic for plain-text/CSV: no NUL bytes and valid UTF-8 decode."""
+    if b"\x00" in head:
+        return False
+    try:
+        head.decode("utf-8")
+    except UnicodeDecodeError:
+        # A multibyte sequence may be split at the sampled boundary; tolerate a
+        # short trailing fragment but reject obvious binary content.
+        try:
+            head[: max(0, len(head) - 3)].decode("utf-8")
+        except UnicodeDecodeError:
+            return False
+    return True
+
+
+def sniff_matches_declared(data: bytes, declared_type: str) -> bool:
+    """Authoritatively validate file content against its declared content type.
+
+    Reads the leading magic bytes of ``data`` and confirms they match a
+    signature registered for ``declared_type``. Text types (which have no
+    reliable signature) are accepted when the head decodes as text. Returns
+    ``False`` on any mismatch so the caller can reject the upload — this is the
+    real defense; the client-supplied Content-Type is not trusted on its own.
+    """
+    if declared_type in _TEXT_TYPES:
+        return _looks_like_text(data[:512])
+    sigs = _MAGIC_SIGNATURES.get(declared_type)
+    if not sigs:
+        # Allowlisted but no signature mapping → cannot verify; fail-closed.
+        return False
+    return any(data.startswith(sig) for sig in sigs)

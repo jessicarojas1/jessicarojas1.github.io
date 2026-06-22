@@ -58,6 +58,14 @@ class Settings(BaseSettings):
     # Generous defaults so normal interactive use is never throttled; tightens
     # abusive/runaway programmatic traffic. Disable per-deployment if a fronting
     # gateway/WAF already enforces limits.
+    #
+    # RATE_LIMIT_PER_MINUTE is a per-MINUTE budget. The enforced fixed window is
+    # RATE_LIMIT_WINDOW_SECONDS; the app scales the per-minute budget to that
+    # window (limit = round(per_minute * window / 60)) so the configured number
+    # always means the same rate regardless of the window length. Note: a
+    # fixed-window limiter can admit up to ~2x the budget across a window
+    # boundary (two adjacent windows back-to-back) — acceptable for this
+    # defense-in-depth guard; a sliding window/WAF is recommended for hard caps.
     RATE_LIMIT_ENABLED: bool = True
     RATE_LIMIT_PER_MINUTE: int = 300
     RATE_LIMIT_WINDOW_SECONDS: int = 60
@@ -69,6 +77,13 @@ class Settings(BaseSettings):
     # ONLY when the app sits behind a trusted proxy/LB that sets the header;
     # otherwise a direct client could spoof it. Render/ALB/Nginx → set true.
     TRUST_PROXY_HEADERS: bool = False
+    # Number of trusted reverse proxies in front of the app. X-Forwarded-For is a
+    # client-appended list (leftmost is the spoofable, client-claimed origin);
+    # the trustworthy client IP is the Nth-from-the-RIGHT hop, where N is the
+    # count of proxies that appended a value. Taking the rightmost-untrusted hop
+    # (not the leftmost) is what stops a client from spoofing its rate-limit
+    # bucket / logged IP. Only consulted when TRUST_PROXY_HEADERS is true.
+    TRUSTED_PROXY_COUNT: int = 1
 
     # Outbound webhooks: emit signed lifecycle events to registered endpoints.
     # Enqueue is atomic with the change; dispatch is backgrounded with retries.
