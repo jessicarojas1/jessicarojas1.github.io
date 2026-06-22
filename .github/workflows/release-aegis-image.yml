@@ -133,6 +133,24 @@ jobs:
             | tee /dev/null
           echo "Signed & verified: ${IMAGE}@${DIGEST}"
 
+      # Verify-at-build gate (fail-closed): confirm the GitHub build-provenance
+      # attestation minted above (actions/attest-build-provenance, push-to-
+      # registry) is present and verifiable for THIS digest. This workflow only
+      # builds/publishes (no deploy), so the gate proves the attestation was
+      # actually produced — a release without verifiable provenance fails here.
+      # GHCR hosts the GH attestations API and the runner is logged into GHCR, so
+      # `gh attestation verify` resolves the oci:// subject directly. `gh` is
+      # preinstalled on ubuntu-latest. Needs attestations:read — the job already
+      # grants attestations:write, which subsumes it.
+      - name: Verify build provenance attestation (gate)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          gh attestation verify "oci://${IMAGE}@${DIGEST}" \
+            --owner "${{ github.repository_owner }}"
+          echo "Build provenance attestation verified: ${IMAGE}@${DIGEST}"
+
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

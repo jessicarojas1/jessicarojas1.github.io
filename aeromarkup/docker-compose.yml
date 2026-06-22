@@ -4,7 +4,7 @@
 #   docker compose up --build   →  http://localhost:8080
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb  # postgres:16-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-aeromarkup}
       # Required: the stack refuses to start without a real password.

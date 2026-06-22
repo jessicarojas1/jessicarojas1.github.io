@@ -1,5 +1,35 @@
 name: Security Scan
 
+# =============================================================================
+# GATING POLICY (enforceable, not permanently red)
+# -----------------------------------------------------------------------------
+# Dependency / secret / image vulnerability scanners are BLOCKING — a real
+# finding fails the build — but with thresholds so the gate stays actionable:
+#
+#   gitleaks   : GATING. Any leaked secret blocks the build (no threshold —
+#                secrets must never merge).
+#   pip-audit  : GATING. Fails on any known-vulnerable Python dependency.
+#   npm audit  : GATING at --audit-level=high (high/critical advisories block;
+#                low/moderate are reported but do not fail).
+#   trivy      : GATING. exit-code 1 on severity HIGH,CRITICAL with
+#                ignore-unfixed:true (so unfixable base-image CVEs don't wedge
+#                the pipeline). A separate non-blocking pass still uploads SARIF
+#                to the Security tab for the full picture.
+#   checkov    : REPORTING-ONLY -> SARIF. IaC misconfig findings on this Terraform
+#                /K8s/Dockerfile estate are still being triaged; hard-failing now
+#                would be permanently red. Findings surface in the Security tab.
+#                Promote to gating once the baseline is clean (soft_fail removed).
+#   tfsec      : REPORTING-ONLY -> SARIF (same rationale as checkov).
+#   CodeQL     : Unchanged — findings go to the code-scanning Security tab; not a
+#                build gate here by design.
+#
+# Rationale for keeping IaC scanners reporting-only: dependency/secret/image
+# gates protect against shipping known-vulnerable code & leaked credentials
+# (highest signal, lowest false-positive rate). IaC scanners on a multi-cloud
+# Terraform estate carry more false positives / accepted-risk findings, so they
+# report to SARIF until the baseline is curated.
+# =============================================================================
+
 on:
   push:
     branches: [main]
@@ -24,6 +54,8 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
+      # GATING: gitleaks-action exits non-zero when secrets are found (default),
+      # which fails the job. No continue-on-error — leaked secrets must block.
       - uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2
         env:
           GITLEAKS_CONFIG: ""
@@ -34,10 +66,11 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Checkov (Terraform + Kubernetes + Dockerfile)
-        # Pinned to a released major tag rather than the mutable @master branch,
-        # which would execute any upstream commit immediately in a job that holds
-        # security-events: write. TODO: pin to a full commit SHA for SLSA-grade
-        # supply-chain integrity once network access allows resolving it.
+        # REPORTING-ONLY (soft_fail: true) -> SARIF. See gating policy header:
+        # IaC findings are triaged via the Security tab, not a build gate, until
+        # the baseline is curated. Pinned to a released major tag rather than the
+        # mutable @master branch (which would execute any upstream commit in a
+        # job that holds security-events: write).
         uses: bridgecrewio/checkov-action@fa9edf8f0a491c59a924ea6accd5bdcf07752cff # v12
         with:
           directory: sentinel-qms/infra
@@ -52,6 +85,8 @@ jobs:
           sarif_file: checkov.sarif
           category: checkov
       - name: tfsec
+        # REPORTING-ONLY -> SARIF (same rationale as checkov). The SARIF upload
+        # action does not fail on findings; tfsec-sarif-action writes the report.
         uses: aquasecurity/tfsec-sarif-action@21ded20e8ca120cd9d3d6ab04ef746477542a608 # v0.1.4
         with:
           working_directory: sentinel-qms/infra/terraform
@@ -71,18 +106,21 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
-      - name: pip-audit
+      # GATING: pip-audit returns non-zero on any vulnerable dependency, failing
+      # the build. The backend uses pyproject.toml, so audit the project dir.
+      - name: pip-audit (gating)
         run: |
           pip install pip-audit
-          pip-audit -r sentinel-qms/backend/requirements.txt || \
-          pip-audit --project-path sentinel-qms/backend || \
-          echo "::warning::pip-audit found advisories"
+          pip-audit --project-path sentinel-qms/backend
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
-      - name: npm audit
+      # GATING: npm audit exits non-zero when advisories at/above the level are
+      # present, failing the build. Threshold = high (high/critical block;
+      # low/moderate are reported by the command but do not fail it).
+      - name: npm audit (gating, high+)
         working-directory: sentinel-qms/frontend
-        run: npm audit --audit-level=high || echo "::warning::npm audit found advisories"
+        run: npm audit --audit-level=high
 
   image-scan:
     name: Image vulnerability scan (trivy)
@@ -94,7 +132,10 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Build image
         run: docker build -t sentinel-qms/${{ matrix.component }}:scan sentinel-qms/${{ matrix.component }}
-      - name: Trivy scan
+      # Reporting pass: full SARIF for the Security tab. Non-blocking
+      # (exit-code defaults to 0 with format=sarif), runs first so the report is
+      # always produced even if the gating pass below fails the job.
+      - name: Trivy scan (SARIF report)
         uses: aquasecurity/trivy-action@6e7b7d1fd3e4fef0c5fa8cce1229c54b2c9bd0d8 # 0.24.0
         with:
           image-ref: sentinel-qms/${{ matrix.component }}:scan
@@ -108,6 +149,17 @@ jobs:
         with:
           sarif_file: trivy-${{ matrix.component }}.sarif
           category: trivy-${{ matrix.component }}
+      # GATING pass: exit-code 1 on HIGH/CRITICAL, ignore-unfixed so unfixable
+      # base-image CVEs don't permanently wedge the pipeline. Fails the job on
+      # real, fixable vulnerabilities.
+      - name: Trivy scan (gating, HIGH/CRITICAL fixable)
+        uses: aquasecurity/trivy-action@6e7b7d1fd3e4fef0c5fa8cce1229c54b2c9bd0d8 # 0.24.0
+        with:
+          image-ref: sentinel-qms/${{ matrix.component }}:scan
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
 
   codeql:
     name: CodeQL (python + javascript)

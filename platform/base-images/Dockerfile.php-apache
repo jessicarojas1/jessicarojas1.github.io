@@ -1,0 +1,90 @@
+# =============================================================================
+# Hardened PHP-Apache base image  —  platform standard
+# -----------------------------------------------------------------------------
+# The shared, security-reviewed base every PHP-Apache app in this repo should
+# adopt (aegis, apex, paladin). It bakes in the hardening those apps each repeat
+# by hand, so app Dockerfiles can shrink to "FROM this base + COPY app + USER".
+#
+# What it gives you:
+#   - Upstream pinned to an immutable @sha256 digest (supply-chain integrity).
+#   - Apache listens on the UNPRIVILEGED port 8080 and runs entirely as the
+#     non-root www-data user (no root PID 1) -> runAsNonRoot + drop ALL caps.
+#   - Logs to stdout/stderr, PidFile/lock in /tmp -> readOnlyRootFilesystem
+#     friendly (mount /tmp + the app's writable dirs as tmpfs/volumes).
+#   - setuid/setgid bits stripped from the filesystem (no SUID escalation path).
+#   - Production php.ini + OPcache, expose_php Off, display_errors Off.
+#
+# Model / prior art: citadel/server/Dockerfile and aegis/docker/Dockerfile.hardened.
+#
+# Re-pin the digest below from your own registry mirror as part of patch cycles:
+#   TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:library/php:pull" \
+#     | python3 -c "import sys,json;print(json.load(sys.stdin)['token'])")
+#   curl -sI -H "Authorization: Bearer $TOKEN" \
+#     -H "Accept: application/vnd.oci.image.index.v1+json" \
+#     https://registry-1.docker.io/v2/library/php/manifests/8.3-apache \
+#     | tr -d '\r' | awk -F': ' 'tolower($1)=="docker-content-digest"{print $2}'
+# =============================================================================
+# base image: php:8.3-apache
+FROM php:8.3-apache@sha256:954d6198d9877b396382aa8a93d8be4832ab4908a7dc64f58dcc4be2833b8e29
+
+LABEL org.opencontainers.image.title="platform-php-apache" \
+      org.opencontainers.image.description="Hardened non-root PHP-Apache base (port 8080, read-only-rootfs friendly)" \
+      org.opencontainers.image.vendor="platform"
+
+# Common PHP extensions used across the GRC apps. Trim per app if you fork this.
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        libpq-dev libpng-dev libjpeg-dev libfreetype6-dev libzip-dev curl; \
+    docker-php-ext-configure gd --with-freetype --with-jpeg; \
+    docker-php-ext-install pdo pdo_pgsql gd opcache zip; \
+    a2enmod rewrite headers; \
+    rm -rf /var/lib/apt/lists/*
+
+# php.ini hardening + OPcache (CM-7 / SI-2 baseline).
+RUN set -eux; \
+    cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"; \
+    { \
+        echo 'expose_php = Off'; \
+        echo 'display_errors = Off'; \
+        echo 'log_errors = On'; \
+        echo 'session.cookie_httponly = 1'; \
+        echo 'session.cookie_samesite = Strict'; \
+    } >> "$PHP_INI_DIR/php.ini"; \
+    { \
+        echo 'opcache.enable=1'; \
+        echo 'opcache.memory_consumption=128'; \
+        echo 'opcache.max_accelerated_files=10000'; \
+        echo 'opcache.validate_timestamps=0'; \
+    } >> "$PHP_INI_DIR/conf.d/opcache.ini"
+
+# Non-root Apache: unprivileged port 8080, logs to stdout/stderr, PidFile + lock
+# in /tmp so the root filesystem can be mounted read-only at runtime.
+RUN set -eux; \
+    sed -i 's|AllowOverride None|AllowOverride All|g' /etc/apache2/apache2.conf; \
+    sed -i 's|Listen 80$|Listen 8080|' /etc/apache2/ports.conf; \
+    sed -i 's|:80>|:8080>|' /etc/apache2/sites-available/000-default.conf; \
+    printf '%s\n' \
+        'ServerName localhost' \
+        'PidFile /tmp/apache2.pid' \
+        'Mutex file:/tmp' \
+        'ErrorLog /dev/stderr' \
+        'TransferLog /dev/stdout' \
+        > /etc/apache2/conf-available/platform-hardened.conf; \
+    a2enconf platform-hardened; \
+    # www-data must own the Apache runtime/log dirs to run unprivileged.
+    chown -R www-data:www-data /var/log/apache2 /var/run/apache2 /var/www/html
+
+# Strip setuid/setgid bits — no app here needs them, and removing them closes a
+# common privilege-escalation path (defence-in-depth alongside no-new-privileges).
+RUN set -eux; \
+    find / -xdev -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true
+
+WORKDIR /var/www/html
+
+EXPOSE 8080
+USER www-data
+
+# Apps SHOULD add their own HEALTHCHECK hitting their liveness route on :8080,
+# e.g.  HEALTHCHECK CMD curl -fsS http://localhost:8080/healthz || exit 1
+CMD ["apache2-foreground"]

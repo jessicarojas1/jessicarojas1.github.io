@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 # ── Multi-stage build for the Sentinel QMS API ──────────────────────────────
 
-FROM python:3.12-slim AS builder
+# base image: python:3.12-slim
+FROM python:3.12-slim@sha256:d764629ce0ddd8c71fd371e9901efb324a95789d2315a47db7e4d27e78f1b0e9 AS builder
 
 ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -20,7 +21,8 @@ RUN pip install --upgrade pip build \
     && pip wheel --wheel-dir /wheels .
 
 
-FROM python:3.12-slim AS runtime
+# base image: python:3.12-slim
+FROM python:3.12-slim@sha256:d764629ce0ddd8c71fd371e9901efb324a95789d2315a47db7e4d27e78f1b0e9 AS runtime
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
