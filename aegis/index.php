@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+// Application root — index.php is the front controller (all requests rewrite to
+// it via .htaccess), so it must define AEGIS_ROOT before anything uses it.
+define('AEGIS_ROOT', __DIR__);
+
 // Per-request correlation ID — surfaced in error logs, the 500 page, and the
 // X-Request-Id response header so an operator can trace a user-reported error
 // back to its log entry without exposing any internal detail to the user.
