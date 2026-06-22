@@ -1,4 +1,5 @@
-FROM php:8.3-apache@sha256:954d6198d9877b396382aa8a93d8be4832ab4908a7dc64f58dcc4be2833b8e29  # php:8.3-apache
+# base image: php:8.3-apache
+FROM php:8.3-apache@sha256:954d6198d9877b396382aa8a93d8be4832ab4908a7dc64f58dcc4be2833b8e29
 
 RUN apt-get update && apt-get install -y \
     libpq-dev \

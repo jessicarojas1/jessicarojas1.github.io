@@ -2,7 +2,8 @@
 # Portable image for Render, AWS GovCloud (ECS/Fargate, EKS) and
 # Azure Government (Container Apps, AKS). Single stateless web process;
 # all state lives in PostgreSQL (RDS / Azure DB) + the client's IndexedDB.
-FROM python:3.12-slim@sha256:d764629ce0ddd8c71fd371e9901efb324a95789d2315a47db7e4d27e78f1b0e9  # python:3.12-slim
+# base image: python:3.12-slim
+FROM python:3.12-slim@sha256:d764629ce0ddd8c71fd371e9901efb324a95789d2315a47db7e4d27e78f1b0e9
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \

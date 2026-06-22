@@ -21,7 +21,8 @@
 #     https://registry-1.docker.io/v2/library/node/manifests/20-bookworm-slim \
 #     | tr -d '\r' | awk -F': ' 'tolower($1)=="docker-content-digest"{print $2}'
 # =============================================================================
-FROM node:20-bookworm-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0  # node:20-bookworm-slim
+# base image: node:20-bookworm-slim
+FROM node:20-bookworm-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0
 
 LABEL org.opencontainers.image.title="platform-node" \
       org.opencontainers.image.description="Hardened non-root Node 20 base (UID 10001, read-only-rootfs friendly)" \

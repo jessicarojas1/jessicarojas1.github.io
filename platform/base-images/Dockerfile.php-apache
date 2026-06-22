@@ -24,7 +24,8 @@
 #     https://registry-1.docker.io/v2/library/php/manifests/8.3-apache \
 #     | tr -d '\r' | awk -F': ' 'tolower($1)=="docker-content-digest"{print $2}'
 # =============================================================================
-FROM php:8.3-apache@sha256:954d6198d9877b396382aa8a93d8be4832ab4908a7dc64f58dcc4be2833b8e29  # php:8.3-apache
+# base image: php:8.3-apache
+FROM php:8.3-apache@sha256:954d6198d9877b396382aa8a93d8be4832ab4908a7dc64f58dcc4be2833b8e29
 
 LABEL org.opencontainers.image.title="platform-php-apache" \
       org.opencontainers.image.description="Hardened non-root PHP-Apache base (port 8080, read-only-rootfs friendly)" \

@@ -15,7 +15,8 @@
 # =============================================================================
 
 # ---- Stage 1: build / assemble the SPA --------------------------------------
-FROM node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 AS build  # node:20-alpine
+# base image: node:20-alpine
+FROM node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 AS build
 WORKDIR /src
 
 # Copy the public client-side SPA sources. Adjust the build context as needed;
@@ -36,7 +37,8 @@ RUN if [ -f package.json ]; then \
 
 # ---- Stage 2: hardened runtime ----------------------------------------------
 # Pinned to an immutable digest for supply-chain integrity (SI-7, CM-2).
-FROM nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10 AS runtime  # nginx:1.27-alpine
+# base image: nginx:1.27-alpine
+FROM nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10 AS runtime
 
 LABEL org.opencontainers.image.title="CITADEL" \
       org.opencontainers.image.description="Code Inspection, Threat Analysis & Deployment Evaluation Lab" \

@@ -19,7 +19,8 @@
 # CPython. Single, well-commented stage: most of the image size IS the scanner
 # toolchain, so a multi-stage split buys little here.
 # =============================================================================
-FROM node:20-bookworm-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0  # node:20-bookworm-slim
+# base image: node:20-bookworm-slim
+FROM node:20-bookworm-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0
 
 LABEL org.opencontainers.image.title="CITADEL Deep-Scan Backend" \
       org.opencontainers.image.description="Express API running Semgrep/Bandit/Trivy/Syft/Grype/Gitleaks/ClamAV over uploaded code" \
