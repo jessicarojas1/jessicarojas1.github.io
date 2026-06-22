@@ -197,6 +197,9 @@ ALTER TABLE citadel_users ADD COLUMN IF NOT EXISTS mfa_backup  jsonb NOT NULL DE
 -- Each row binds the previous row's hash; verifyChain() re-walks to detect edits.
 ALTER TABLE citadel_audit ADD COLUMN IF NOT EXISTS prev_hash text;
 ALTER TABLE citadel_audit ADD COLUMN IF NOT EXISTS hash      text;
+
+-- Optional human name for a saved scan so it can be found by name in history.
+ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS name text;
 `;
 
 async function init() {
