@@ -78,7 +78,9 @@ class OidcController {
                 $_SESSION['flash_error'] = 'No active account exists for ' . Security::h($email) . '.';
                 header('Location: /login'); return;
             }
-            $role = in_array($cfg['default_role'], ['viewer','contributor','approver','admin'], true) ? $cfg['default_role'] : 'viewer';
+            // Auto-provisioned SSO users must never land as admin: 'admin' is
+            // deliberately excluded from the allowable auto-assigned default roles.
+            $role = in_array($cfg['default_role'], ['viewer','contributor','approver'], true) ? $cfg['default_role'] : 'viewer';
             $uid = Database::insert('users', [
                 'name'          => $name,
                 'email'         => $email,

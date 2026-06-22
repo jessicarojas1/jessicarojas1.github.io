@@ -38,7 +38,9 @@ class SamlController {
                 $_SESSION['flash_error'] = 'No active account exists for ' . Security::h($identity['email']) . '.';
                 header('Location: /login'); return;
             }
-            $role = in_array($cfg['default_role'], ['viewer','contributor','approver','admin'], true) ? $cfg['default_role'] : 'viewer';
+            // Auto-provisioned SSO users must never land as admin: 'admin' is
+            // deliberately excluded from the allowable auto-assigned default roles.
+            $role = in_array($cfg['default_role'], ['viewer','contributor','approver'], true) ? $cfg['default_role'] : 'viewer';
             $uid = Database::insert('users', [
                 'name'          => $identity['name'],
                 'email'         => $identity['email'],
@@ -94,7 +96,11 @@ class SamlController {
             }
             Auth::logout();
             if (Saml::sloEnabled()) {
+                // Constrain RelayState to a local path (same regex used by acs/login
+                // redirects) before round-tripping it — never reflect an arbitrary
+                // attacker-controlled value (open-redirect defense-in-depth).
                 $relay = isset($_GET['RelayState']) ? (string)$_GET['RelayState'] : null;
+                if ($relay !== null && !preg_match('#^/[A-Za-z0-9/_-]*$#', $relay)) { $relay = '/'; }
                 header('Location: ' . Saml::logoutResponseUrl($inResponseTo, $relay));
                 return;
             }

@@ -109,7 +109,16 @@ class Security {
                           || in_array($name, ['to', 'values', 'from', 'by'], true);
                 if ($isUrlAttr) {
                     $val = trim($attr->nodeValue);
-                    if ($val !== '' && !str_starts_with($val, '/') && !str_starts_with($val, '#') && !str_starts_with($val, '?')) {
+                    // Defense-in-depth: reject any value that resolves to a
+                    // javascript: (or vbscript:/data:) scheme regardless of case,
+                    // embedded whitespace/control chars, or HTML-entity encoding.
+                    // DOMDocument decodes entities into nodeValue already; we also
+                    // strip whitespace/control chars before matching the scheme so
+                    // "java\tscript:" / "  javascript:" cannot smuggle a payload.
+                    $collapsed = strtolower(preg_replace('/[\s\x00-\x20]+/', '', $val) ?? '');
+                    if ($collapsed !== '' && preg_match('/^(javascript|vbscript|data):/', $collapsed)) {
+                        $attrsToRemove[] = $attr->nodeName;
+                    } elseif ($val !== '' && !str_starts_with($val, '/') && !str_starts_with($val, '#') && !str_starts_with($val, '?')) {
                         $scheme = strtolower(explode(':', $val)[0] ?? '');
                         if (!in_array($scheme, ['http', 'https', 'mailto'], true)) {
                             $attrsToRemove[] = $attr->nodeName;
