@@ -261,10 +261,12 @@ jobs:
 
       - name: Vulnerability scan (Trivy filesystem)
         # Pinned to a released tag rather than the mutable @master branch, so an
-        # arbitrary upstream commit can't run in CI. (0.24.0 had stopped
-        # resolving; 0.28.0 is a current valid release.) The scan stays advisory
-        # via continue-on-error.
-        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2 # 0.28.0
+        # arbitrary upstream commit can't run in CI. trivy-action transitively
+        # pulls aquasecurity/setup-trivy, and upstream keeps retagging/removing it
+        # (0.24.0 -> stopped resolving; 0.28.0 -> setup-trivy@v0.2.1 was removed),
+        # which fails at the action-RESOLUTION step BEFORE continue-on-error can
+        # apply. Bump to a current release when that recurs. The scan is advisory.
+        uses: aquasecurity/trivy-action@v0.36.0
         continue-on-error: true
         with:
           scan-type: fs
