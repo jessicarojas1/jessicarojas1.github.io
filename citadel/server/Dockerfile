@@ -20,7 +20,7 @@
 # toolchain, so a multi-stage split buys little here.
 # =============================================================================
 # base image: node:20-bookworm-slim
-FROM node:20-bookworm-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0
+FROM node:26-bookworm-slim@sha256:4e2e85a824f938e41a61e9e819f0c7c11432f7d60f470b96214d3ead2f0dd63e
 
 LABEL org.opencontainers.image.title="CITADEL Deep-Scan Backend" \
       org.opencontainers.image.description="Express API running Semgrep/Bandit/Trivy/Syft/Grype/Gitleaks/ClamAV over uploaded code" \
