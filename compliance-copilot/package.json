@@ -19,7 +19,7 @@
     "react-dom": "^19",
     "recharts": "^2.13.3",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^2.5.4",
+    "tailwind-merge": "^3.6.0",
     "date-fns": "^4.1.0",
     "react-dropzone": "^14.3.4",
     "react-hot-toast": "^2.4.1",
