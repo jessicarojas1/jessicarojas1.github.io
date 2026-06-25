@@ -89,7 +89,16 @@ function toggleAlertPanel() {
 // Wire up layout alert bell, panel close, and overlay (previously used inline onclick)
 (function () {
   var bell = document.getElementById('alertBell');
-  if (bell) bell.addEventListener('click', toggleAlertPanel);
+  if (bell) {
+    bell.addEventListener('click', toggleAlertPanel);
+    // role="button" needs explicit keyboard activation (Enter / Space)
+    bell.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        toggleAlertPanel();
+      }
+    });
+  }
 
   var closeBtn = document.getElementById('alertPanelClose');
   if (closeBtn) closeBtn.addEventListener('click', toggleAlertPanel);
