@@ -53,11 +53,12 @@ On top of those existing signals it runs **four new reviewers**:
 | Test coverage | `review-testing.js` | Findings + test-presence/coverage summary |
 | Threat model | `review-threatmodel.js` | A generated STRIDE threat-model artifact (no findings) |
 | Architecture risk | `review-architecture.js` | Heuristic architecture-risk findings + summary |
+| Container security | `review-container.js` | Dockerfile / docker-compose / K8s container-hardening findings + summary |
 
 The orchestrator then computes:
 
-- **Per-dimension scores** across **11 dimensions** (`security`, `dependency`,
-  `secrets`, `configuration`, `auth`, `api`, `data`, `logging`, `cicd`, `test`,
+- **Per-dimension scores** across **12 dimensions** (`security`, `dependency`,
+  `secrets`, `configuration`, `container`, `auth`, `api`, `data`, `logging`, `cicd`, `test`,
   `compliance`).
 - An **overall 0–100 readiness score**.
 - A **gate decision**, one of:
@@ -123,7 +124,8 @@ because it rolls their findings + summaries into dimensions.
 | `js/review-testing.js` | `CITADEL.reviewTesting.analyze(entries, report)` | Detect test presence/kinds, coverage config, and CI test/coverage gates; emit findings + a testing summary. |
 | `js/review-threatmodel.js` | `CITADEL.reviewThreatModel.analyze(entries, report)` | Build a STRIDE threat model from detected surfaces. **Generated artifact — does not push into `report.findings`.** |
 | `js/review-architecture.js` | `CITADEL.reviewArchitecture.analyze(entries, report)` | Heuristic architecture-risk review (Low/Medium confidence); emit findings + an architecture summary. |
-| `js/review-readiness.js` | `CITADEL.readiness.analyze(report)` | **Orchestrator + gate.** Roll reviewer + scan signals into 11 dimensions, compute the overall score, and apply the gate decision rules → `report.readiness`. |
+| `js/review-container.js` | `CITADEL.reviewContainer.analyze(entries)` | Container-hardening review of Dockerfiles / docker-compose / K8s container specs; emit findings + a container summary. |
+| `js/review-readiness.js` | `CITADEL.readiness.analyze(report)` | **Orchestrator + gate.** Roll reviewer + scan signals into 12 dimensions, compute the overall score, and apply the gate decision rules → `report.readiness`. |
 | `js/review-report.js` | `CITADEL.reviewReport.*` | **Main-thread UI + exporters.** Render the Release Readiness tab; produce the three audience reports and MD/HTML/JSON/CSV exports. |
 
 The reviewers attach to `report.reviews` (e.g. `report.reviews.logging`,
