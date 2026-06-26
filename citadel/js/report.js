@@ -34,6 +34,7 @@
     renderCompliance(report);
     renderSbom(report);
     if (CITADEL.depreview && CITADEL.depreview.render) { try { CITADEL.depreview.render(report); } catch (e) {} }
+    if (CITADEL.readiness && CITADEL.readiness.render) { try { CITADEL.readiness.render(report); } catch (e) {} }
     renderBinary(report);
     renderQuality(report);
     renderDeploy(report);

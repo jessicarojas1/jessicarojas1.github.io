@@ -288,6 +288,18 @@
       remediation: 'Weak-copyleft / reciprocal license — confirm compatibility with your licensing policy before distribution.'
     }));
 
+    // Enterprise review modules that EMIT findings (logging/auditability, test
+    // coverage, architecture risk). Run before scoring so their findings flow
+    // into the score + compliance mapping. Defensive: a reviewer failure must
+    // never break the scan.
+    const safeRun = (fn) => { try { return fn(); } catch (e) { return null; } };
+    const reviewCtx = { findings, languages: langs, sbom: { components: sbomComponents }, deployment, licenses };
+    let rvLogging = null, rvTesting = null, rvArch = null;
+    if (CITADEL.reviewLogging) { stage('Reviewing logging & auditability…'); rvLogging = safeRun(() => CITADEL.reviewLogging.analyze(entries, reviewCtx)); }
+    if (CITADEL.reviewTesting) { stage('Reviewing test coverage…'); rvTesting = safeRun(() => CITADEL.reviewTesting.analyze(entries, reviewCtx)); }
+    if (CITADEL.reviewArchitecture) { stage('Reviewing architecture risk…'); rvArch = safeRun(() => CITADEL.reviewArchitecture.analyze(entries, reviewCtx)); }
+    [rvLogging, rvTesting, rvArch].forEach(r => { if (r && Array.isArray(r.findings)) r.findings.forEach(f => findings.push(f)); });
+
     // Stable fingerprints + kind/detection classification, then merge findings
     // that share a fingerprint (e.g. a rule that fired twice on the same line).
     if (CITADEL.fingerprint) findings = CITADEL.fingerprint.merge(findings);
@@ -306,11 +318,29 @@
       depreview = CITADEL.depreview.analyze(entries, sbomComponents, findings);
     }
 
-    return {
+    // Threat model (STRIDE) — derived from the detected attack surfaces, so it
+    // runs after the dependency review that inventories those surfaces.
+    let threatModel = null;
+    if (CITADEL.reviewThreatModel) {
+      stage('Generating threat model…');
+      threatModel = safeRun(() => CITADEL.reviewThreatModel.analyze(entries, { findings, depreview, deployment, sbom: { components: sbomComponents } }));
+    }
+
+    const reviews = { logging: rvLogging, testing: rvTesting, threatModel, architecture: rvArch };
+
+    const report = {
       meta: { scannedAt: new Date().toISOString(), fileCount: entries.filter(e => !e.archive).length, totalBytes: entries.reduce((a, e) => a + e.size, 0) },
       languages: langs, findings, sbom: { components: sbomComponents, doc: CITADEL.sbom.cyclonedx(sbomComponents) },
-      binaries, quality: q, deployment, licenses, scoring, posture, depreview
+      binaries, quality: q, deployment, licenses, scoring, posture, depreview, reviews
     };
+
+    // Release Readiness & Security Gate — the enterprise decision layer that
+    // rolls every signal up into per-dimension scores and a gate decision.
+    if (CITADEL.readiness && CITADEL.readiness.analyze) {
+      stage('Computing release readiness & security gate…');
+      report.readiness = safeRun(() => CITADEL.readiness.analyze(report));
+    }
+    return report;
   }
 
   /* License policy. Default tiers reflect a typical proprietary-distribution

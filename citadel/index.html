@@ -212,6 +212,7 @@
       <!-- Tabs -->
       <ul class="nav citadel-tabs mb-3" id="result-tabs" role="tablist">
         <li><button class="tab-btn active" data-tab="tab-report"><i class="bi bi-file-earmark-text-fill"></i> Report</button></li>
+        <li><button class="tab-btn" data-tab="tab-readiness"><i class="bi bi-shield-check"></i> Release Readiness</button></li>
         <li><button class="tab-btn" data-tab="tab-overview"><i class="bi bi-speedometer2"></i> Overview</button></li>
         <li><button class="tab-btn" data-tab="tab-findings"><i class="bi bi-bug"></i> Findings <span class="badge bg-secondary" id="findings-count">0</span></button></li>
         <li><button class="tab-btn" data-tab="tab-compliance"><i class="bi bi-clipboard-check"></i> Compliance</button></li>
@@ -226,6 +227,7 @@
       </ul>
 
       <div class="tab-panel" id="tab-report"></div>
+      <div class="tab-panel d-none" id="tab-readiness"></div>
       <div class="tab-panel d-none" id="tab-overview"></div>
       <div class="tab-panel d-none" id="tab-findings"></div>
       <div class="tab-panel d-none" id="tab-compliance"></div>
@@ -274,6 +276,12 @@
   <script src="js/depreview-security.js"></script>
   <script src="js/depreview-report.js"></script>
   <script src="js/depreview.js"></script>
+  <script src="js/review-logging.js"></script>
+  <script src="js/review-testing.js"></script>
+  <script src="js/review-threatmodel.js"></script>
+  <script src="js/review-architecture.js"></script>
+  <script src="js/review-readiness.js"></script>
+  <script src="js/review-report.js"></script>
   <script src="js/binary.js"></script>
   <script src="js/fingerprint.js"></script>
   <script src="js/ingest.js"></script>
