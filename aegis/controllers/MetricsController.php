@@ -60,17 +60,21 @@ class MetricsController {
             $live = [];
         }
 
+        // These chart aggregates are all org-wide (no per-user filter) and
+        // tenant-scoped, so each is cached per tenant for a short TTL. Cache is
+        // tenant-namespaced and a no-op pass-through without APCu (TD-6).
+
         // 90-day trend data for chart
-        $trend = Database::fetchAll(
+        $trend = Cache::remember('metrics:trend90', Cache::DEFAULT_TTL, fn() => Database::fetchAll(
             "SELECT snapshot_date, grc_score, compliance_pct, risk_health, policy_health, audit_health,
                     open_risks, open_incidents, open_issues
              FROM metrics_snapshots
              WHERE snapshot_date >= CURRENT_DATE - INTERVAL '90 days'
              ORDER BY snapshot_date ASC"
-        );
+        ));
 
         // Per-framework compliance
-        $frameworks = Database::fetchAll(
+        $frameworks = Cache::remember('metrics:frameworks', Cache::DEFAULT_TTL, fn() => Database::fetchAll(
             "SELECT cp.name,
                     COUNT(co.id) as total_controls,
                     COUNT(ci.id) FILTER (WHERE ci.status = 'compliant')     as compliant,
@@ -82,31 +86,31 @@ class MetricsController {
              LEFT JOIN control_implementations ci ON ci.objective_id = co.id
              WHERE cp.is_active = TRUE
              GROUP BY cp.id, cp.name ORDER BY cp.name"
-        );
+        ));
 
         // Risk distribution by score band
-        $riskDist = Database::fetchAll(
+        $riskDist = Cache::remember('metrics:risk_dist', Cache::DEFAULT_TTL, fn() => Database::fetchAll(
             "SELECT
                COUNT(*) FILTER (WHERE inherent_score <= 4)               as low,
                COUNT(*) FILTER (WHERE inherent_score BETWEEN 5 AND 9)   as medium,
                COUNT(*) FILTER (WHERE inherent_score BETWEEN 10 AND 14) as high,
                COUNT(*) FILTER (WHERE inherent_score >= 15)             as critical
              FROM risks WHERE status NOT IN ('closed','transferred')"
-        );
+        ));
 
         // Policy review status
-        $policyStatus = Database::fetchAll(
+        $policyStatus = Cache::remember('metrics:policy_status', Cache::DEFAULT_TTL, fn() => Database::fetchAll(
             "SELECT status, COUNT(*) as count FROM policies GROUP BY status ORDER BY status"
-        );
+        ));
 
         // Incident trend (last 12 months monthly)
-        $incidentTrend = Database::fetchAll(
+        $incidentTrend = Cache::remember('metrics:incident_trend12', Cache::DEFAULT_TTL, fn() => Database::fetchAll(
             "SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count,
                     COUNT(*) FILTER (WHERE severity IN ('critical','high')) as critical_high
              FROM incidents
              WHERE created_at >= CURRENT_DATE - INTERVAL '12 months'
              GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY 1"
-        );
+        ));
 
         // Scheduled reports
         $reportSchedules = Database::fetchAll(
