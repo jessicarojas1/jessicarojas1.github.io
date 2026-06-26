@@ -33,6 +33,7 @@
     renderFindings(report);
     renderCompliance(report);
     renderSbom(report);
+    if (CITADEL.depreview && CITADEL.depreview.render) { try { CITADEL.depreview.render(report); } catch (e) {} }
     renderBinary(report);
     renderQuality(report);
     renderDeploy(report);
