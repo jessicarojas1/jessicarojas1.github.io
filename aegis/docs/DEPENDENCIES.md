@@ -518,6 +518,7 @@ controllers" is the count of controllers referencing `Class::` in `controllers/`
 | `Csv` | CSV export helper | (stdlib only) | `AdminController`, `ExportController` |
 | `CustomFields` | Custom-field definitions/values | `Database` | views/helpers (0 direct controller `::` hits) |
 | `DueStatus` | Due-date status computation | `Database` | views/helpers (0 direct controller `::` hits) |
+| `Cache` | Short-TTL aggregate cache (APCu; tenant-namespaced; pass-through when absent) | `Database` (tenant context only) | `DashboardController`, `CustomDashboardController` |
 | `Secrets` | `*_FILE` secret hydration at bootstrap | (stdlib only) | `index.php` bootstrap |
 | `Kms` | Envelope-encryption key unwrap (Vault/exec); inert by default | `ext-curl` (vault) | `index.php` bootstrap |
 | `PgSessionHandler` | Opt-in Postgres session store for horizontal scaling | `Database` | `index.php` bootstrap (`SESSION_DRIVER=pg`) |
