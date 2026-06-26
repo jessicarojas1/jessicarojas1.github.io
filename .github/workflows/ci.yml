@@ -188,6 +188,10 @@ jobs:
         working-directory: aegis
         run: php scripts/check_csrf.php
 
+      - name: Write-permission coverage (no write gated on a read permission)
+        working-directory: aegis
+        run: php scripts/check_write_permissions.php
+
       - name: CSV export safety
         working-directory: aegis
         run: php scripts/check_csv_export.php

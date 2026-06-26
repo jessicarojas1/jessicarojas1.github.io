@@ -27,8 +27,6 @@ class DashboardController {
 
         // New module stats — safe try/catch for environments running older migrations
         $moduleQueries = [
-            'open_incidents'  => ["SELECT COUNT(*) as c FROM incidents WHERE status NOT IN ('resolved','closed')", []],
-            'open_changes'    => ["SELECT COUNT(*) as c FROM change_requests WHERE status NOT IN ('implemented','closed','rejected')", []],
             'active_bcp'      => ["SELECT COUNT(*) as c FROM bcp_plans WHERE status = 'active'", []],
             'total_assets'    => ["SELECT COUNT(*) as c FROM assets WHERE status = 'active'", []],
             'critical_assets' => ["SELECT COUNT(*) as c FROM assets WHERE criticality = 'critical' AND status = 'active'", []],
@@ -105,22 +103,6 @@ class DashboardController {
             "SELECT * FROM alerts WHERE user_id = ? AND is_read = FALSE ORDER BY created_at DESC LIMIT 10",
             [Auth::id()]
         );
-
-        $recentChanges = [];
-        $openIncidents = [];
-        try {
-            $recentChanges = Database::fetchAll(
-                "SELECT cr.id, cr.title, cr.status, cr.change_type, cr.risk_level, u.name as submitter_name
-                 FROM change_requests cr LEFT JOIN users u ON u.id = cr.submitter_id
-                 WHERE cr.status NOT IN ('implemented','closed','rejected')
-                 ORDER BY cr.created_at DESC LIMIT 5"
-            );
-            $openIncidents = Database::fetchAll(
-                "SELECT id, title, severity, status, created_at FROM incidents
-                 WHERE status NOT IN ('resolved','closed')
-                 ORDER BY created_at DESC LIMIT 5"
-            );
-        } catch (Throwable) {}
 
         // Due-items widget — policies and audits bucketed by urgency
         $dueBuckets = ['expired' => [], 'overdue' => [], 'due7' => [], 'due30' => []];

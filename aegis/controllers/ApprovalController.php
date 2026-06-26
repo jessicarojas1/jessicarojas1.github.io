@@ -182,6 +182,11 @@ class ApprovalController {
             "SELECT * FROM approval_request_steps WHERE request_id = ? AND step_number = ?",
             [$id, $req['current_step']]
         );
+        if (!$currentStep) {
+            // Inconsistent workflow state (current_step has no matching step row).
+            $_SESSION['flash_error'] = 'Approval workflow step not found.';
+            header("Location: /approvals/{$id}"); exit;
+        }
 
         // Authorization
         $canAct = $role === 'admin'
@@ -208,7 +213,6 @@ class ApprovalController {
         $entityCreatorMap = [
             'risk'     => "SELECT created_by FROM risks WHERE id = ?",
             'policy'   => "SELECT created_by FROM policies WHERE id = ?",
-            'change'   => "SELECT submitter_id AS created_by FROM change_requests WHERE id = ?",
         ];
         if (isset($entityCreatorMap[$req['entity_type']])) {
             $creator = Database::fetchOne($entityCreatorMap[$req['entity_type']], [$req['entity_id']]);
@@ -314,7 +318,7 @@ class ApprovalController {
         $entityType = Security::sanitizeInput($_POST['entity_type'] ?? '');
         $conditions = Security::sanitizeInput($_POST['conditions'] ?? '{}');
 
-        if (!$name || !in_array($entityType, ['risk', 'policy', 'change', 'audit', 'incident', 'vendor'])) {
+        if (!$name || !in_array($entityType, ['risk', 'policy', 'audit', 'incident', 'vendor'])) {
             $_SESSION['flash_error'] = 'Name and valid entity type required.';
             header('Location: /admin/approval-templates');
             return;

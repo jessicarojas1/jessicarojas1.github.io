@@ -184,7 +184,7 @@ class Auth {
 
     private static array $aliases = [
         'risk.read'        => ['risk.view'],
-        'risk.write'       => ['risk.create','risk.edit','risk.delete','risk.accept','risk.review','risk.treatment','risk.scenarios'],
+        'risk.write'       => ['risk.create','risk.edit','risk.delete','risk.accept','risk.review','risk.treatment','risk.scenarios','risk.bowtie'],
         'risk.edit'        => ['risk.edit','risk.delete'],
         'compliance.read'  => ['compliance.view'],
         'compliance.write' => ['compliance.create','compliance.assess','compliance.import','compliance.test','compliance.gap'],
