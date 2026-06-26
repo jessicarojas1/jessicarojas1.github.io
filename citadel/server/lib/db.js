@@ -217,6 +217,15 @@ CREATE INDEX IF NOT EXISTS citadel_scans_project_idx ON citadel_scans (project_i
 
 -- Reviewer note stored alongside a disposition (idempotent for upgrades).
 ALTER TABLE citadel_dispositions ADD COLUMN IF NOT EXISTS note text;
+
+-- Per-project threat-model overlay: reviewer additions/edits/deletions layered
+-- over the generated STRIDE model, stored whole as a JSON blob keyed by project.
+CREATE TABLE IF NOT EXISTS citadel_threatmodel (
+  project_id text PRIMARY KEY,
+  data       jsonb NOT NULL,
+  actor      text,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
 `;
 
 async function init() {

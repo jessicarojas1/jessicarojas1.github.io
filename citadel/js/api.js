@@ -213,5 +213,24 @@
     } catch (e) { return false; }
   }
 
-  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, scanRename, projectsList, projectCreate, projectRename, projectDelete, dispositionsList, dispositionSet, getToken, getRefresh };
+  /* ---------- Shared per-project threat-model overlay ---------- */
+  // Returns { enabled, overlay } (overlay may be null), or null on any error
+  // (no DB / not signed in / denied). Never throws.
+  async function threatmodelGet(projectId) {
+    try {
+      const res = await apiFetch('api/threatmodel?projectId=' + encodeURIComponent(projectId || ''));
+      if (!res.ok) return null;
+      return res.json();
+    } catch (e) { return null; }
+  }
+  // Persist the whole overlay for a project; returns true on success (false if
+  // not shared / denied / on any error). Never throws.
+  async function threatmodelSet(projectId, overlay) {
+    try {
+      const res = await apiFetch('api/threatmodel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ projectId, overlay }) });
+      return res.ok;
+    } catch (e) { return false; }
+  }
+
+  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, scanRename, projectsList, projectCreate, projectRename, projectDelete, dispositionsList, dispositionSet, threatmodelGet, threatmodelSet, getToken, getRefresh };
 })(window);

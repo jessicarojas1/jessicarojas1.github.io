@@ -142,6 +142,17 @@ CREATE TABLE IF NOT EXISTS citadel_dispositions (
 ALTER TABLE citadel_dispositions ADD COLUMN IF NOT EXISTS note text;
 
 -- ----------------------------------------------------------------------------
+-- Threat-model overlay — per-project reviewer additions/edits/deletions layered
+-- over the generated STRIDE model, stored whole as a JSON blob keyed by project.
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS citadel_threatmodel (
+  project_id text PRIMARY KEY,
+  data       jsonb NOT NULL,
+  actor      text,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- ----------------------------------------------------------------------------
 -- Tenant registry (schema-per-tenant multi-tenancy; OPT-IN, CITADEL_MULTITENANT=1)
 -- Lives in the public schema and maps a tenant slug to its dedicated Postgres
 -- schema (citadel_t_<slug>), which holds its own copy of all the tables above.

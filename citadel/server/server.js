@@ -36,6 +36,7 @@ const oidc = require('./lib/oidc');
 const scans = require('./lib/scans');
 const projects = require('./lib/projects');
 const dispositions = require('./lib/dispositions');
+const threatmodel = require('./lib/threatmodel');
 const notify = require('./lib/notify');
 const fips = require('./lib/fips');
 const tenancy = require('./lib/tenancy');
@@ -612,6 +613,25 @@ app.post('/api/dispositions', requirePerm('analyze'), async (req, res) => {
     const state = await dispositions.set((req.body && req.body.fingerprint) || '', (req.body && req.body.state) || '', req.user && req.user.email, note);
     audit.record('finding.disposition', { actor: req.user && req.user.email, ip: clientIp(req), detail: state + ' ' + ((req.body && req.body.fingerprint) || '').slice(0, 32) + (note ? ' +note' : ''), ok: true });
     res.json({ ok: true, state });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+/* ---- Shared per-project threat-model overlay (reviewer edits to STRIDE) ----
+ * Read for anyone who can view findings; write for anyone who can run/triage.
+ * The overlay JSON is never written to the audit log — only the project id. */
+app.get('/api/threatmodel', requirePerm('tab-findings'), async (req, res) => {
+  try {
+    const projectId = (req.query && req.query.projectId) || '';
+    res.json({ enabled: threatmodel.enabled(), overlay: await threatmodel.get(projectId) });
+  } catch (e) { res.status(500).json({ error: 'Could not load threat model overlay.' }); }
+});
+app.post('/api/threatmodel', requirePerm('analyze'), async (req, res) => {
+  if (!threatmodel.enabled()) return res.status(501).json({ error: 'Shared threat-model edits require a database (set DATABASE_URL); local state is used otherwise.' });
+  try {
+    const projectId = (req.body && req.body.projectId) || '';
+    await threatmodel.set(projectId, req.body && req.body.overlay, req.user && req.user.email);
+    audit.record('threatmodel.set', { actor: req.user && req.user.email, ip: clientIp(req), detail: String(projectId).slice(0, 64), ok: true });
+    res.json({ ok: true });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
