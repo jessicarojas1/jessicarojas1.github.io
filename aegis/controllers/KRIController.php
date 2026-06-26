@@ -14,10 +14,10 @@ class KRIController {
              FROM kris k
              LEFT JOIN users u ON u.id = k.owner_id
              LEFT JOIN risks r ON r.id = k.linked_risk_id
-             LEFT JOIN kri_values kv ON kv.id = (
-                 SELECT id FROM kri_values WHERE kri_id = k.id
+             LEFT JOIN LATERAL (
+                 SELECT value, recorded_at FROM kri_values WHERE kri_id = k.id
                  ORDER BY recorded_at DESC, id DESC LIMIT 1
-             )
+             ) kv ON TRUE
              WHERE k.is_active = TRUE
              ORDER BY k.title"
         );
