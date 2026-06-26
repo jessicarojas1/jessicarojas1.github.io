@@ -31,7 +31,8 @@
     random:           'Insecure Randomness',
     malware:          'Malicious / Suspicious Binary',
     privacy:          'Sensitive Data / Privacy Exposure',
-    quality:          'Code Quality & Maintainability'
+    quality:          'Code Quality & Maintainability',
+    testing:          'Insufficient Security Testing & Verification'
   };
 
   /* Why a weakness of each category implicates the mapped control families —
@@ -60,7 +61,8 @@
     random:           'Predictable randomness weakens cryptographic & session controls (NIST SC-13, CWE-330).',
     malware:          'Malicious/suspicious binary triggers malicious-code-protection controls (NIST SI-3, CWE-506).',
     privacy:          'Exposed regulated data violates privacy & media-protection controls (GDPR/HIPAA/PCI, NIST MP/PT, CWE-359).',
-    quality:          'Poor maintainability weakens the secure-development and change-management posture (NIST SA family).'
+    quality:          'Poor maintainability weakens the secure-development and change-management posture (NIST SA family).',
+    testing:          'Missing security tests / verification weakens developer-testing and assessment controls (NIST SA-11/CA-2, OWASP ASVS V1.1, CIS 16/18, SSDF PW.7-8, CWE-1120).'
   };
   function rationale(cat) { return RATIONALE[cat] || 'Maps to the control families governing this weakness category.'; }
 
@@ -208,6 +210,14 @@
       csf:['DE.CM-01','DE.AE-02'], cmmc:['AU.L2-3.3.1'], iso:['A.8.15 Logging','A.8.16 Monitoring'],
       soc2:['CC7.2','CC7.3'], pci:['10.2'], hipaa:['164.312(b)'], fedramp:['AU-2'],
       cis:['8.2','8.5'], stig:['APSC-DV-000810']
+    },
+    testing: {
+      owasp:['A04:2021 Insecure Design'], asvs:['V1.1 Secure SDLC & Verification','V14.2 Dependency Management'],
+      apisec:['API9:2023 Improper Inventory Management'], cwe:['CWE-1120'],
+      nist53:['SA-11','CA-2','CA-8'], nist171:['3.12.1','3.12.3'], ssdf:['PW.7.1','PW.8.1','RV.1.1'],
+      csf:['ID.RA-01','PR.PS-06'], cmmc:['CA.L2-3.12.1'], iso:['A.8.29 Security testing in development & acceptance'],
+      soc2:['CC8.1','CC4.1'], pci:['6.3.1','11.3'], fedramp:['SA-11','CA-2'],
+      cis:['16.1','16.13','18.1'], stig:['APSC-DV-003170']
     },
     config: {
       owasp:['A05:2021 Security Misconfiguration'], asvs:['V14 Configuration'],
