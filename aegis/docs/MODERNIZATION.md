@@ -141,6 +141,21 @@ real code and left unchanged for the stated reason:
   `/kris`, `/dashboards`, `/risk`, `/threats`, `/admin/users`, `/metrics` —
   returned HTTP 200 with no uncaught exceptions in the server log.
 
+## 6a. Systematic security sweep (follow-up)
+
+After the cluster audit, the security-critical surfaces were swept directly
+(grep + read) — which is how the two highest-value follow-up fixes were found:
+
+| Surface | Result |
+|---|---|
+| **Write-on-read-permission** (POST gated on a `.view`) | **2 fixed** — RACI `save`/`saveResponsibility` (#345), Privacy `createRequest` (#347). `SSPController::generate()` flagged but verified read-only. |
+| **`sanitizeHtml` attribute stripping** | **1 fixed** — now strips `data-*` (app.js delegation hooks), not just `on*` (#346). |
+| **SQL injection** | Clean — zero string-concatenated queries in `controllers/` or `src/`. |
+| **Open redirect** | Clean — every `HTTP_REFERER`/redirect target validated against a strict path regex (Evidence also checks host); SSO blocks `/admin`,`/login`,`/mfa`. |
+| **File upload** | Clean — extension allowlists + `finfo` MIME across handlers; Evidence uses randomized stored names, SHA-256 hashing, path-traversal guard. |
+| **Output encoding (XSS)** | Clean — every script-context `json_encode` uses `JSON_HEX_TAG\|JSON_HEX_AMP`; output via `Security::h()`. |
+| **CSRF / auth coverage** | Clean — `check_csrf` and `check_route_auth` pass on every route. |
+
 ## 7. Remaining risks
 
 - The backlog items above (none security-critical).
