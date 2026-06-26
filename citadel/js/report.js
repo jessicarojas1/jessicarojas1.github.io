@@ -699,6 +699,39 @@
       '<circle cx="' + lp[0] + '" cy="' + lp[1] + '" r="2.4" fill="' + col + '"/></svg>';
   }
 
+  // Bootstrap badge class for a release-gate decision.
+  function decisionBadgeClass(d) {
+    switch (String(d || '')) {
+      case 'Approved': return 'text-bg-success';
+      case 'Conditional Approval': return 'text-bg-warning';
+      case 'Requires Manual Review': return 'text-bg-info';
+      case 'Rejected': return 'text-bg-danger';
+      default: return 'text-bg-secondary';
+    }
+  }
+  // A readiness-trend strip from a chronological (oldest→newest) scan list whose
+  // entries carry readinessDecision / readinessOverall. Empty string if none have it.
+  function readinessTrend(chrono) {
+    const withRd = (chrono || []).filter(s => s && (s.readinessDecision || typeof s.readinessOverall === 'number'));
+    if (!withRd.length) return '';
+    const overalls = withRd.map(s => s.readinessOverall | 0);
+    const spark = sparkline(overalls);
+    const latest = withRd[withRd.length - 1];
+    const counts = {};
+    withRd.forEach(s => { if (s.readinessDecision) counts[s.readinessDecision] = (counts[s.readinessDecision] || 0) + 1; });
+    const badges = Object.keys(counts).map(d =>
+      `<span class="badge ${decisionBadgeClass(d)} me-1 mb-1">${esc(d)}: ${counts[d]}</span>`).join('');
+    return `<div class="card citadel-card mb-3"><div class="card-body py-2">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="small"><span class="text-uppercase text-body-secondary fw-bold me-2"><i class="bi bi-shield-check"></i> Readiness trend</span>
+            latest: <span class="badge ${decisionBadgeClass(latest.readinessDecision)}">${esc(latest.readinessDecision || '—')}</span>
+            <span class="ms-2 text-body-secondary">overall ${latest.readinessOverall == null ? '—' : esc(latest.readinessOverall)}/100</span></div>
+          ${spark ? `<span class="d-inline-flex align-items-center gap-2 small text-body-secondary" title="Overall readiness score (oldest → newest)">${spark}</span>` : ''}
+        </div>
+        <div class="mt-1">${badges}</div>
+      </div></div>`;
+  }
+
   let _histList = [];
   let _baselineId = (function () { try { return localStorage.getItem('citadel.baseline') || null; } catch (e) { return null; } })();
   function setBaseline(id) { _baselineId = id; try { id ? localStorage.setItem('citadel.baseline', id) : localStorage.removeItem('citadel.baseline'); } catch (e) {} }
@@ -802,6 +835,7 @@
           <button class="btn btn-sm btn-outline-secondary" id="hist-refresh" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
         </div>
       </div>
+      ${readinessTrend(chrono)}
       ${_baselineId ? '<div class="small text-body-secondary mb-2"><i class="bi bi-flag-fill text-warning"></i> A baseline is set — use the <i class="bi bi-arrow-left-right"></i> button on any scan to see what\'s <span class="text-danger">new</span> or <span class="text-success">fixed</span> since then.</div>' : '<div class="small text-body-secondary mb-2"><i class="bi bi-flag"></i> Tip: flag a scan as <strong>baseline</strong>, then diff later scans against it to catch regressions.</div>'}
       <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
         <thead><tr><th>Name</th><th>When</th><th>Source</th><th>Grade</th><th>Security</th><th>Findings</th><th>Crit+High</th><th class="text-end">Actions</th></tr></thead>
@@ -898,6 +932,7 @@
           <button class="btn btn-sm btn-outline-danger" id="hist-clear"><i class="bi bi-trash"></i> Clear history</button>
         </div>
       </div>
+      ${readinessTrend(hist.slice().reverse())}
       <div class="card citadel-card mb-3"><div class="card-body">
         <h6 class="text-uppercase text-body-secondary small fw-bold mb-2">Compare two runs</h6>
         <div class="d-flex flex-wrap gap-2 align-items-center">

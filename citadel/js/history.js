@@ -31,7 +31,10 @@
       findings: report.findings.length,
       sev: report.scoring.sev,
       files: report.meta.fileCount,
-      frameworks: report.posture.filter(p => p.findings > 0).length
+      frameworks: report.posture.filter(p => p.findings > 0).length,
+      // Release-readiness summary (for the readiness trend view).
+      readinessDecision: (report.readiness && report.readiness.decision) || '',
+      readinessOverall: (report.readiness && typeof report.readiness.overall === 'number') ? report.readiness.overall : null
     };
     list.unshift(entry);
     write(HKEY, list.slice(0, MAX));

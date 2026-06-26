@@ -116,6 +116,10 @@ ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS name text;
 ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS project_id   text;
 ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS project_name text;
 CREATE INDEX IF NOT EXISTS citadel_scans_project_idx ON citadel_scans (project_id);
+-- Compact readiness summary so a readiness trend can be read from history
+-- without fetching each full report (idempotent for upgrades).
+ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS readiness_decision text;
+ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS readiness_overall  int;
 
 -- ----------------------------------------------------------------------------
 -- Projects — named groupings a scan can be filed under (owner-scoped).

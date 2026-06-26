@@ -389,6 +389,11 @@
   // Shared finish: render, record history, reveal, then enrich quick scans with live CVEs.
   function finishScan(report, mode) {
     showProgress(100, mode === 'deep' ? 'Done (deep scan).' : 'Done.', report.findings.length + ' finding(s)');
+    // Deep-scan reports come from the server and bypass the in-browser scanner,
+    // so they have no readiness yet — compute it client-side before render.
+    if (report && !report.readiness && CITADEL.readiness && CITADEL.readiness.analyze) {
+      try { report.readiness = CITADEL.readiness.analyze(report); } catch (e) {}
+    }
     CITADEL.report.render(report);
     try { CITADEL.history.record(report, null, CITADEL.projects && CITADEL.projects.current && CITADEL.projects.current()); } catch (e) {}
     applyAccess();
