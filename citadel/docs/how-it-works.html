@@ -2,31 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net; img-src 'self' https://cdn.jsdelivr.net data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self';">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <script src="../js/theme-init.js"></script>
   <link rel="icon" href="../../favicon.ico" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../../theme.css" />
   <link rel="stylesheet" href="../css/citadel.css" />
+  <link rel="stylesheet" href="docs.css" />
   <title>CITADEL — How It Works (Work Instructions)</title>
-  <style>
-    .guide-toc{position:sticky;top:80px;font-size:.86rem}
-    .guide-toc a{display:block;padding:.18rem 0 .18rem .7rem;color:var(--bs-secondary-color);text-decoration:none;border-left:2px solid transparent}
-    .guide-toc a:hover{color:var(--bs-body-color);border-left-color:var(--citadel-accent)}
-    .guide section{padding:1.8rem 0;border-bottom:1px solid var(--bs-border-color);scroll-margin-top:80px}
-    .guide h2{font-size:1.45rem;margin-bottom:.8rem}
-    .guide h3{font-size:1.05rem;margin:1.1rem 0 .5rem}
-    .step{display:flex;gap:.9rem;padding:.6rem 0;border-bottom:1px dashed var(--bs-border-color)}
-    .step:last-child{border-bottom:0}
-    .step-n{flex:0 0 30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--citadel-accent) 18%,transparent);color:var(--citadel-accent);font-weight:700;display:grid;place-items:center}
-    .ascii{background:var(--bs-tertiary-bg);border:1px solid var(--bs-border-color);border-radius:10px;padding:1rem;font-size:.72rem;line-height:1.3;overflow-x:auto}
-    .role-card{border:1px solid var(--bs-border-color);border-radius:12px;padding:1rem;height:100%}
-    .role-card h6{display:flex;align-items:center;gap:.4rem}
-    code.k{background:var(--bs-tertiary-bg);padding:.05rem .3rem;border-radius:3px}
-    table td,table th{font-size:.88rem}
-  </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg sticky-top citadel-bar">
@@ -47,7 +32,7 @@
     <div class="container">
       <span class="badge rounded-pill citadel-pill mb-3"><i class="bi bi-journal-check"></i> Work instructions</span>
       <h1 class="display-6 fw-bold">How CITADEL Works</h1>
-      <p class="lead mx-auto" style="max-width:760px">The end-to-end process, step-by-step usage, how to read the results, and how to run it in CI/CD and the cloud.</p>
+      <p class="lead mx-auto hero-lead--narrow">The end-to-end process, step-by-step usage, how to read the results, and how to run it in CI/CD and the cloud.</p>
     </div>
   </section>
 
@@ -219,7 +204,7 @@ docker run -p 8080:8080 citadel-server      # http://localhost:8080/</pre>
         </div>
       </section>
 
-      <section id="limits" style="border-bottom:0">
+      <section id="limits" class="no-border-bottom">
         <h2>12. Scope &amp; limitations</h2>
         <p>The browser engine is <strong>heuristic</strong> (pattern-based) for fast, transparent triage across all 117 languages.
         The deep-scan backend adds data-flow-grade scanners for the languages those tools support. Neither replaces a
@@ -233,9 +218,6 @@ docker run -p 8080:8080 citadel-server      # http://localhost:8080/</pre>
 
   <footer class="citadel-footer text-center py-4"><div class="container small text-body-secondary">CITADEL — work instructions · <a href="capabilities.html">capabilities</a> · <a href="index.html">architecture</a></div></footer>
 
-  <script>
-  (function(){function icon(){var t=document.documentElement.getAttribute('data-bs-theme');var i=document.querySelector('#themeToggleBtn .theme-icon');if(i)i.textContent=t==='dark'?'☀️':'🌙';}
-  document.getElementById('themeToggleBtn').addEventListener('click',function(){var c=document.documentElement.getAttribute('data-bs-theme');var n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-bs-theme',n);try{localStorage.setItem('bsTheme',n);}catch(e){}icon();});icon();})();
-  </script>
+  <script src="docs-how-it-works.js"></script>
 </body>
 </html>

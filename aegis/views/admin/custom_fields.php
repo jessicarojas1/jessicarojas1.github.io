@@ -102,13 +102,13 @@ $breadcrumbs = [['Admin', '/admin'], ['Custom Fields', null]];
     <table class="table">
       <thead>
         <tr>
-          <th>Label</th>
-          <th>Key</th>
-          <th>Type</th>
-          <th>Options</th>
-          <th>Required</th>
-          <th>Sort</th>
-          <th style="width:80px"></th>
+          <th scope="col">Label</th>
+          <th scope="col">Key</th>
+          <th scope="col">Type</th>
+          <th scope="col">Options</th>
+          <th scope="col">Required</th>
+          <th scope="col">Sort</th>
+          <th scope="col" style="width:80px"></th>
         </tr>
       </thead>
       <tbody>

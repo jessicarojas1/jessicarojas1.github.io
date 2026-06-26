@@ -62,7 +62,7 @@ ob_start();
 <div class="card">
   <div class="card-body p0">
     <table class="table">
-      <thead><tr><th>Name</th><th>User</th><th>Prefix</th><th>Permissions</th><th>Expires</th><th>Last Used</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th scope="col">Name</th><th scope="col">User</th><th scope="col">Prefix</th><th scope="col">Permissions</th><th scope="col">Expires</th><th scope="col">Last Used</th><th scope="col">Status</th><th scope="col"></th></tr></thead>
       <tbody>
         <?php if ($keys): foreach ($keys as $key): ?>
           <tr <?= !$key['is_active'] ? 'class="row-muted"' : '' ?>>

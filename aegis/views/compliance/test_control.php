@@ -100,13 +100,13 @@ function testResultBadge(string $result): string {
     <table class="table">
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Tester</th>
-          <th>Result</th>
-          <th>Effectiveness</th>
-          <th>Method</th>
-          <th>Findings</th>
-          <th>Next Test</th>
+          <th scope="col">Date</th>
+          <th scope="col">Tester</th>
+          <th scope="col">Result</th>
+          <th scope="col">Effectiveness</th>
+          <th scope="col">Method</th>
+          <th scope="col">Findings</th>
+          <th scope="col">Next Test</th>
         </tr>
       </thead>
       <tbody>

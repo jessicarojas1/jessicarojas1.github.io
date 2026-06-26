@@ -120,11 +120,11 @@ ob_start();
           <table class="table">
             <thead>
               <tr>
-                <th>Assigned To</th>
-                <th>Entity</th>
-                <th>Due Date</th>
-                <th>Status</th>
-                <th></th>
+                <th scope="col">Assigned To</th>
+                <th scope="col">Entity</th>
+                <th scope="col">Due Date</th>
+                <th scope="col">Status</th>
+                <th scope="col"></th>
               </tr>
             </thead>
             <tbody>

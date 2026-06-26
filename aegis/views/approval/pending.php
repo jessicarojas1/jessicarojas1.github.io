@@ -22,14 +22,14 @@ $statusColors = ['pending' => '#f59e0b', 'approved' => '#22c55e', 'rejected' => 
   <table class="data-table">
     <thead>
       <tr>
-        <th>#</th>
-        <th>Template</th>
-        <th>Entity</th>
-        <th>Step</th>
-        <th>Requested By</th>
-        <th>Due</th>
-        <th>Status</th>
-        <th></th>
+        <th scope="col">#</th>
+        <th scope="col">Template</th>
+        <th scope="col">Entity</th>
+        <th scope="col">Step</th>
+        <th scope="col">Requested By</th>
+        <th scope="col">Due</th>
+        <th scope="col">Status</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>

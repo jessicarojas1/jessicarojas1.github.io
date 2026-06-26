@@ -43,7 +43,7 @@ $open    = array_filter($findings, fn($f) => in_array($f['status'], ['open','in_
 <?php else: ?>
 <div class="card">
   <table class="table">
-    <thead><tr><th>Finding #</th><th>Title</th><th>Severity</th><th>Status</th><th>Source</th><th>Linked Audit</th><th>Owner</th><th>Deadline</th><th></th></tr></thead>
+    <thead><tr><th scope="col">Finding #</th><th scope="col">Title</th><th scope="col">Severity</th><th scope="col">Status</th><th scope="col">Source</th><th scope="col">Linked Audit</th><th scope="col">Owner</th><th scope="col">Deadline</th><th scope="col"></th></tr></thead>
     <tbody>
     <?php foreach ($filtered as $f):
       $overdueCls = ($f['deadline'] && strtotime($f['deadline']) < $now && !in_array($f['status'],['closed','resolved'])) ? 'color:var(--danger);font-weight:600;' : '';

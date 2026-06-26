@@ -98,7 +98,7 @@ ob_start();
         <!-- Existing mappings -->
         <?php if ($mappings): ?>
         <table class="table" style="margin-top:16px">
-          <thead><tr><th>Code</th><th>Control</th><th>Package</th><th>Notes</th><th></th></tr></thead>
+          <thead><tr><th scope="col">Code</th><th scope="col">Control</th><th scope="col">Package</th><th scope="col">Notes</th><th scope="col"></th></tr></thead>
           <tbody>
             <?php foreach ($mappings as $m): ?>
               <tr>

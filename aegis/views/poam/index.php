@@ -45,7 +45,7 @@ $statusLabels = [
 <div class="card">
   <table class="table">
     <thead>
-      <tr><th>POAM #</th><th>Title</th><th>Package</th><th>Owner</th><th>Status</th><th>Scheduled Completion</th><th>Milestones</th><th></th></tr>
+      <tr><th scope="col">POAM #</th><th scope="col">Title</th><th scope="col">Package</th><th scope="col">Owner</th><th scope="col">Status</th><th scope="col">Scheduled Completion</th><th scope="col">Milestones</th><th scope="col"></th></tr>
     </thead>
     <tbody>
     <?php foreach ($items as $item):
@@ -197,7 +197,7 @@ $statusLabels = [
     <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:20px;">
       <h4 style="font-size:0.95rem;margin-bottom:12px;">CSV Field Reference</h4>
       <table class="table" style="font-size:0.8rem;">
-        <thead><tr><th>Column</th><th>Required</th><th>Type</th><th>Notes</th></tr></thead>
+        <thead><tr><th scope="col">Column</th><th scope="col">Required</th><th scope="col">Type</th><th scope="col">Notes</th></tr></thead>
         <tbody>
           <tr><td><code>title</code></td><td><span class="badge badge-danger">Required</span></td><td>Text</td><td>Short name for the POA&amp;M item</td></tr>
           <tr><td><code>weakness_description</code></td><td><span class="badge badge-secondary">Optional</span></td><td>Text</td><td>Description of the identified gap or weakness</td></tr>

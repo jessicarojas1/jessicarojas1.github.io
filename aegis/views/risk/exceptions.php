@@ -86,12 +86,12 @@ ob_start();
       <table class="table">
         <thead>
           <tr>
-            <th>Risk</th>
-            <th>Type</th>
-            <th>Requested By</th>
-            <th>Status</th>
-            <th>Expiry Date</th>
-            <th style="width:120px;"></th>
+            <th scope="col">Risk</th>
+            <th scope="col">Type</th>
+            <th scope="col">Requested By</th>
+            <th scope="col">Status</th>
+            <th scope="col">Expiry Date</th>
+            <th scope="col" style="width:120px;"></th>
           </tr>
         </thead>
         <tbody>

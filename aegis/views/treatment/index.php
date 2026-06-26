@@ -68,14 +68,14 @@ $statusStyles = [
       <table class="data-table">
         <thead>
           <tr>
-            <th>Risk</th>
-            <th>Plan Title</th>
-            <th>Strategy</th>
-            <th>Status</th>
-            <th>Progress</th>
-            <th>Owner</th>
-            <th>Target Date</th>
-            <th>Actions</th>
+            <th scope="col">Risk</th>
+            <th scope="col">Plan Title</th>
+            <th scope="col">Strategy</th>
+            <th scope="col">Status</th>
+            <th scope="col">Progress</th>
+            <th scope="col">Owner</th>
+            <th scope="col">Target Date</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>

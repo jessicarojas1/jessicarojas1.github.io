@@ -59,7 +59,7 @@ class RACIController {
     }
 
     public function save(int $packageId): void {
-        Auth::requirePermission('risk.view');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         Database::query("DELETE FROM raci_assignments WHERE package_id=?", [$packageId]);
@@ -115,7 +115,7 @@ class RACIController {
     }
 
     public function saveResponsibility(int $packageId): void {
-        Auth::requirePermission('risk.view');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $data = $_POST['srm'] ?? [];

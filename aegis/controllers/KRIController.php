@@ -14,10 +14,10 @@ class KRIController {
              FROM kris k
              LEFT JOIN users u ON u.id = k.owner_id
              LEFT JOIN risks r ON r.id = k.linked_risk_id
-             LEFT JOIN kri_values kv ON kv.id = (
-                 SELECT id FROM kri_values WHERE kri_id = k.id
+             LEFT JOIN LATERAL (
+                 SELECT value, recorded_at FROM kri_values WHERE kri_id = k.id
                  ORDER BY recorded_at DESC, id DESC LIMIT 1
-             )
+             ) kv ON TRUE
              WHERE k.is_active = TRUE
              ORDER BY k.title"
         );
@@ -60,14 +60,30 @@ class KRIController {
         $validFreqs = ['daily','weekly','monthly','quarterly'];
         $direction  = in_array($_POST['direction'] ?? '', $validDirs, true) ? $_POST['direction'] : 'higher_worse';
         $frequency  = in_array($_POST['frequency'] ?? '', $validFreqs, true) ? $_POST['frequency'] : 'monthly';
+
+        // Thresholds must be ordered consistently with the direction, otherwise
+        // ragStatus() mis-classifies values (e.g. amber below green for higher_worse).
+        $tGreen = (float)($_POST['threshold_green'] ?? 0);
+        $tAmber = (float)($_POST['threshold_amber'] ?? 0);
+        $tRed   = (float)($_POST['threshold_red'] ?? 0);
+        $ordered = $direction === 'higher_worse'
+            ? ($tGreen <= $tAmber && $tAmber <= $tRed)
+            : ($tGreen >= $tAmber && $tAmber >= $tRed);
+        if (!$ordered) {
+            $_SESSION['flash_error'] = $direction === 'higher_worse'
+                ? 'Thresholds must satisfy green ≤ amber ≤ red for a "higher is worse" KRI.'
+                : 'Thresholds must satisfy green ≥ amber ≥ red for a "lower is worse" KRI.';
+            header('Location: /kris/create'); return;
+        }
+
         $id = Database::insert('kris', [
             'title'           => $title,
             'description'     => Security::sanitizeInput($_POST['description'] ?? ''),
             'unit'            => Security::sanitizeInput($_POST['unit'] ?? 'count'),
             'direction'       => $direction,
-            'threshold_green' => (float)($_POST['threshold_green'] ?? 0),
-            'threshold_amber' => (float)($_POST['threshold_amber'] ?? 0),
-            'threshold_red'   => (float)($_POST['threshold_red'] ?? 0),
+            'threshold_green' => $tGreen,
+            'threshold_amber' => $tAmber,
+            'threshold_red'   => $tRed,
             'frequency'       => $frequency,
             'owner_id'        => (int)($_POST['owner_id'] ?? 0) ?: null,
             'linked_risk_id'  => (int)($_POST['linked_risk_id'] ?? 0) ?: null,

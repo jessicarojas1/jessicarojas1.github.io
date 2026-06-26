@@ -5,10 +5,11 @@
 #   - Apache listens on 8080 and runs as the non-root www-data user.
 #   - No setuid privilege drop needed → works with runAsNonRoot + drop ALL caps.
 #   - Writes only to tmpfs paths (logs/run/lock) → works with readOnlyRootFilesystem.
-#   - Base image pinned by tag (pin by @sha256 digest in your registry mirror).
+#   - Base image pinned by @sha256 digest below (re-pin from your mirror as needed).
 #
 # Pair with deploy/k8s/ which sets the matching securityContext + tmpfs mounts.
-FROM php:8.3-apache
+# base image: php:8.3-apache
+FROM php:8.3-apache@sha256:954d6198d9877b396382aa8a93d8be4832ab4908a7dc64f58dcc4be2833b8e29
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev libpng-dev libjpeg-dev libfreetype6-dev poppler-utils curl \

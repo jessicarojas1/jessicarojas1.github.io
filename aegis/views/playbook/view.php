@@ -144,11 +144,11 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
           <table class="data-table">
             <thead>
               <tr>
-                <th>Incident</th>
-                <th>Started By</th>
-                <th>Started At</th>
-                <th>Completed At</th>
-                <th>Status</th>
+                <th scope="col">Incident</th>
+                <th scope="col">Started By</th>
+                <th scope="col">Started At</th>
+                <th scope="col">Completed At</th>
+                <th scope="col">Status</th>
               </tr>
             </thead>
             <tbody>

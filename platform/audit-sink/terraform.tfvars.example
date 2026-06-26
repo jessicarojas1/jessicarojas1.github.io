@@ -1,0 +1,33 @@
+# Example configuration for the central audit-sink module.
+# Copy to terraform.tfvars and adjust. Never commit a real tfvars with ARNs.
+
+name_prefix = "platform-prod"
+
+# Source apps that ship their per-app audit log here.
+log_group_names = ["aegis", "paladin", "sentinel-qms"]
+
+# Write-once archive policy (NIST AU-9 / AU-11, CMMC AU.L2, HIPAA 164.312(b)).
+object_lock_mode           = "COMPLIANCE"
+object_lock_retention_days = 1095 # 3 years
+
+# Hot/queryable CloudWatch retention (the SIEM feed tier).
+log_retention_days = 400
+
+# Leave kms_key_arn empty to let the module create a dedicated, rotated CMK.
+kms_key_arn = ""
+
+# Task/instance roles of the source apps, granted append-only log access.
+writer_principal_arns = [
+  # "arn:aws-us-gov:iam::123456789012:role/aegis-task",
+  # "arn:aws-us-gov:iam::123456789012:role/sentinel-qms-backend-task",
+]
+
+enable_legal_hold_role = true
+
+tags = {
+  DataClassification = "CUI"
+  Compliance         = "NIST-800-171;NIST-AU-9;CMMC-AU-L2;HIPAA-164.312b"
+  ManagedBy          = "terraform"
+  Component          = "central-audit-sink"
+  Owner              = "platform-security"
+}

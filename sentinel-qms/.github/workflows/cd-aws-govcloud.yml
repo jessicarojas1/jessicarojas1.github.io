@@ -14,7 +14,8 @@ on:
 permissions:
   id-token: write       # OIDC: AWS role assumption + GitHub attestation signing
   contents: read        # checkout
-  attestations: write   # actions/attest-build-provenance
+  attestations: write   # actions/attest-build-provenance (write subsumes the
+                        # read needed by the `gh attestation verify` gate below)
 
 concurrency:
   group: cd-aws-govcloud
@@ -90,6 +91,53 @@ jobs:
         with:
           subject-name: ${{ steps.ecr.outputs.registry }}/sentinel-qms/frontend
           subject-digest: ${{ steps.build-frontend.outputs.digest }}
+
+      # ---------------------------------------------------------------------
+      # SLSA VERIFY-AT-DEPLOY GATE (fail-closed).
+      # Before any ECS rollout, verify the GitHub build provenance for the exact
+      # digests just pushed. If verification fails the job stops here and NOTHING
+      # is deployed — Terraform apply / ECS roll only run on a verified image.
+      #
+      # Method: `gh attestation verify` against the GitHub attestations API
+      # (where `actions/attest-build-provenance` stored the provenance above).
+      # ECR GovCloud does not host the GH attestations API, so verification uses
+      # the API rather than registry-side attestations. The `oci://...@<digest>`
+      # subject is resolved by gh from the registry; the runner is already
+      # authenticated to ECR (amazon-ecr-login above), so gh can read the
+      # manifest. `gh` is preinstalled on ubuntu-latest GitHub-hosted runners.
+      #
+      # ASSUMPTIONS (need a real Actions run to confirm):
+      #   - `gh attestation verify` (GitHub CLI >= 2.49) is available on the
+      #     runner image. If a pinned/older runner lacks it, add a `gh extension`
+      #     / CLI install step.
+      #   - the GITHUB_TOKEN has attestations:read (granted below) and can read
+      #     the org's attestations.
+      #   - gh can pull the OCI subject from ECR GovCloud using the ambient
+      #     docker credential helper. If the GovCloud registry endpoint is not
+      #     reachable by gh's OCI resolver, switch to verifying by
+      #     `--digest-alg sha256` with a locally re-pulled digest, or use
+      #     `cosign verify-attestation` against the buildx provenance on the image.
+      - name: Verify build provenance (gate) — backend
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: ${{ steps.ecr.outputs.registry }}/sentinel-qms/backend
+          DIGEST: ${{ steps.build-backend.outputs.digest }}
+        run: |
+          echo "Verifying provenance for ${IMAGE}@${DIGEST}"
+          gh attestation verify "oci://${IMAGE}@${DIGEST}" \
+            --owner "${{ github.repository_owner }}"
+          echo "Backend image provenance verified."
+
+      - name: Verify build provenance (gate) — frontend
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: ${{ steps.ecr.outputs.registry }}/sentinel-qms/frontend
+          DIGEST: ${{ steps.build-frontend.outputs.digest }}
+        run: |
+          echo "Verifying provenance for ${IMAGE}@${DIGEST}"
+          gh attestation verify "oci://${IMAGE}@${DIGEST}" \
+            --owner "${{ github.repository_owner }}"
+          echo "Frontend image provenance verified."
 
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
         with:

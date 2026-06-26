@@ -197,8 +197,19 @@ class ReportController {
         $kriHealth = Database::fetchAll("SELECT k.title, k.unit, k.threshold_red, k.threshold_amber,
             kv.value AS latest_value, kv.recorded_at AS latest_date, r.title AS risk_title
             FROM kris k LEFT JOIN risks r ON r.id=k.linked_risk_id
-            LEFT JOIN kri_values kv ON kv.id=(SELECT id FROM kri_values WHERE kri_id=k.id ORDER BY recorded_at DESC LIMIT 1)
+            LEFT JOIN LATERAL (SELECT value, recorded_at FROM kri_values WHERE kri_id=k.id ORDER BY recorded_at DESC LIMIT 1) kv ON TRUE
             WHERE k.is_active=TRUE ORDER BY k.title");
+
+        // Risk concentration by category (open risks)
+        $riskByCategory = Database::fetchAll("SELECT rc.name AS category,
+            COUNT(r.id) AS total,
+            COUNT(*) FILTER (WHERE r.inherent_score > 14) AS critical,
+            COUNT(*) FILTER (WHERE r.inherent_score BETWEEN 10 AND 14) AS high,
+            ROUND(AVG(r.inherent_score),1) AS avg_score
+            FROM risk_categories rc
+            JOIN risks r ON r.category_id=rc.id AND r.status NOT IN ('closed','transferred')
+            GROUP BY rc.id, rc.name
+            ORDER BY COUNT(*) FILTER (WHERE r.inherent_score > 14) DESC, AVG(r.inherent_score) DESC NULLS LAST");
 
         $reportDate = date('F j, Y');
         $orgName = Database::fetchOne("SELECT value FROM settings WHERE key='org_name'")['value'] ?? 'Organisation';

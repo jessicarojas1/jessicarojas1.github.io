@@ -536,10 +536,10 @@ if (!empty($trendData)) {
         <table class="rdash-compact-table">
           <thead>
             <tr>
-              <th>Risk ID</th>
-              <th style="width:100%">Title</th>
-              <th>Score</th>
-              <th>Owner</th>
+              <th scope="col">Risk ID</th>
+              <th scope="col" style="width:100%">Title</th>
+              <th scope="col">Score</th>
+              <th scope="col">Owner</th>
             </tr>
           </thead>
           <tbody>
@@ -690,7 +690,7 @@ if (!empty($trendData)) {
       <i class="bi bi-shield-x" style="color:var(--warning)"></i>
       Uncontrolled Risks
       <?php if ($uncontrolledCount > 0): ?>
-        <span style="margin-left:auto;background:#fef3c7;color:var(--warning);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid #fde68a"><?= $uncontrolledCount ?> risks</span>
+        <span style="margin-left:auto;background:var(--warning-subtle);color:var(--warning);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid #fde68a"><?= $uncontrolledCount ?> risks</span>
       <?php endif; ?>
     </div>
     <?php if (empty($uncontrolled)): ?>

@@ -42,14 +42,14 @@ services:
     mem_limit: 512m
     cpus: 1.0
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
 
   db:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb  # postgres:16-alpine
     container_name: aegis_db
     restart: unless-stopped
     environment:
@@ -74,7 +74,7 @@ services:
       retries: 5
 
   nginx:
-    image: nginx:1.27-alpine
+    image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10  # nginx:1.27-alpine
     container_name: aegis_nginx
     restart: unless-stopped
     depends_on:

@@ -19,7 +19,7 @@ $csrf = Security::generateCsrfToken(); ?>
 <?php else: ?>
 <div class="card">
   <table class="table">
-    <thead><tr><th>Name</th><th>Trigger</th><th>Action</th><th>Status</th><th>Last Triggered</th><th>Triggers</th><th>7-day Activity</th><th></th></tr></thead>
+    <thead><tr><th scope="col">Name</th><th scope="col">Trigger</th><th scope="col">Action</th><th scope="col">Status</th><th scope="col">Last Triggered</th><th scope="col">Triggers</th><th scope="col">7-day Activity</th><th scope="col"></th></tr></thead>
     <tbody>
     <?php foreach ($rules as $rule): ?>
       <tr>

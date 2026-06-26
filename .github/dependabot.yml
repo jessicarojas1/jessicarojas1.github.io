@@ -1,0 +1,318 @@
+# Dependabot configuration — automated dependency & action updates.
+#
+# Scope: every package ecosystem present in this monorepo. One `updates` entry
+# per (ecosystem, directory). Paths are verified to exist before being listed;
+# ecosystems with no manifest in the repo (e.g. composer — no composer.json
+# anywhere) are intentionally omitted (see REPORT).
+#
+# Conventions:
+#   - schedule: weekly (Monday) to keep PR volume predictable.
+#   - open-pull-requests-limit: capped per ecosystem to bound noise.
+#   - groups: minor + patch updates are batched into a single PR per ecosystem
+#     directory; majors stay separate so breaking changes get individual review.
+#   - labels: "dependencies" everywhere; "security" added so security-relevant
+#     bumps are easy to triage. Ecosystem labels aid filtering.
+#
+# NOTE: third-party GitHub Actions in this repo are pinned to commit SHAs with a
+# `# vX` comment. Dependabot's github-actions updater understands SHA pins and
+# will bump the SHA while preserving the version comment — keep that convention.
+version: 2
+updates:
+  # ---------------------------------------------------------------------------
+  # GitHub Actions. Dependabot scans `<directory>/.github/workflows`, so each
+  # nested project that ships its own workflows needs its own entry.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/" # root .github/workflows (ci, release-image, release-aegis-image, aegis-integration)
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "github-actions"
+    groups:
+      actions-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/sentinel-qms" # sentinel-qms/.github/workflows (ci, cd-aws, cd-azure, security-scan)
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "github-actions"
+    groups:
+      actions-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/aegis" # aegis/.github/workflows (azure-deploy)
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "github-actions"
+    groups:
+      actions-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ---------------------------------------------------------------------------
+  # npm — JavaScript/TypeScript apps (each has a package.json + lockfile).
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "npm"
+    directory: "/compliance-copilot"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+      - "javascript"
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "npm"
+    directory: "/citadel/server"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+      - "javascript"
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "npm"
+    directory: "/sentinel-qms/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+      - "javascript"
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ---------------------------------------------------------------------------
+  # pip — Python apps. Sentinel QMS backend uses pyproject.toml; the others use
+  # requirements.txt. Dependabot detects either within the directory.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "pip"
+    directory: "/sentinel-qms/backend" # pyproject.toml
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+      - "python"
+    groups:
+      pip-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "pip"
+    directory: "/aeromarkup" # requirements.txt
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "python"
+    groups:
+      pip-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "pip"
+    directory: "/cmmc-agent" # requirements.txt
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "python"
+    groups:
+      pip-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "pip"
+    directory: "/business-insight-dashboard" # requirements.txt
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "python"
+    groups:
+      pip-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ---------------------------------------------------------------------------
+  # Docker — base-image updates for every directory containing a Dockerfile.
+  # Dependabot scans the named directory for a `Dockerfile` (default name); for
+  # non-default filenames the directory still needs its own entry. Build/
+  # benchmark-fixture Dockerfiles (citadel/benchmark/corpus/*) and node_modules
+  # copies are intentionally excluded.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "docker"
+    directory: "/paladin"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/apex"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/aeromarkup"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/aegis" # aegis/Dockerfile
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/aegis/docker" # Dockerfile.hardened (non-default name)
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/sentinel-qms" # sentinel-qms/Dockerfile
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/sentinel-qms/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/sentinel-qms/frontend" # Dockerfile + Dockerfile.render
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/citadel/server"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/citadel/deploy/aws-gov"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/citadel/deploy/azure-gov"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"

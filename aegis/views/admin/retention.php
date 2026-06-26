@@ -25,12 +25,12 @@ $breadcrumbs = [['Admin', '/admin'], ['Data Retention', null]]; ?>
       <table class="data-table">
         <thead>
           <tr>
-            <th>Entity Type</th>
-            <th>Retention (days)</th>
-            <th>Action</th>
-            <th>Enabled</th>
-            <th>Last Run</th>
-            <th>Status</th>
+            <th scope="col">Entity Type</th>
+            <th scope="col">Retention (days)</th>
+            <th scope="col">Action</th>
+            <th scope="col">Enabled</th>
+            <th scope="col">Last Run</th>
+            <th scope="col">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -128,7 +128,7 @@ function runRetentionNow() {
                      + '</tr>';
             }).join('');
             res.innerHTML = '<div class="card"><div class="card-header"><h3>Run Results</h3></div>'
-                          + '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Entity</th><th>Result</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+                          + '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th scope="col">Entity</th><th scope="col">Result</th><th scope="col">Status</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
         } else {
             res.innerHTML = '<div class="alert-box error"><i class="bi bi-x-circle-fill"></i> Failed to run retention.</div>';
         }

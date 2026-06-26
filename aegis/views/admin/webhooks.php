@@ -57,13 +57,13 @@ $providerLabels = [
     <table class="table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Provider</th>
-          <th>URL</th>
-          <th>Events</th>
-          <th>Status</th>
-          <th>Last Delivery</th>
-          <th></th>
+          <th scope="col">Name</th>
+          <th scope="col">Provider</th>
+          <th scope="col">URL</th>
+          <th scope="col">Events</th>
+          <th scope="col">Status</th>
+          <th scope="col">Last Delivery</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>

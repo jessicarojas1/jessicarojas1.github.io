@@ -209,6 +209,11 @@ class Storage {
         $bodyHash    = hash('sha256', $body);
         $encodedKey  = implode('/', array_map('rawurlencode', explode('/', ltrim($key, '/'))));
         $host        = parse_url($endpoint, PHP_URL_HOST);
+        // SSRF guard: a configured S3 endpoint may legitimately be a private host
+        // (self-hosted MinIO/R2), but never loopback or cloud-metadata/link-local.
+        if ($host !== null && Ssrf::isDangerousInfraHost($host)) {
+            throw new RuntimeException('S3 endpoint host is blocked (loopback/metadata): ' . $host);
+        }
         $url         = "{$endpoint}/{$bucket}/{$encodedKey}";
 
         $headers = array_merge([

@@ -133,14 +133,14 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     background: none;
     border: none;
     cursor: pointer;
-    color: #a1a1aa;
+    color: var(--text-light);
     padding: 2px 4px;
     border-radius: 4px;
     font-size: 11px;
     line-height: 1;
     transition: color .12s, background .12s;
 }
-.bt-item-delete:hover { color: #dc2626; background: #dc262618; }
+.bt-item-delete:hover { color: var(--danger); background: #dc262618; }
 
 /* Arrow connector zones */
 .bt-arrow-zone {
@@ -238,7 +238,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #a1a1aa;
+    color: var(--text-light);
     margin-bottom: 8px;
 }
 .bt-event-title {

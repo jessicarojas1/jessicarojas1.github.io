@@ -72,12 +72,12 @@ if (!function_exists('sspVal')) {
         <div class="card-header"><h3 class="card-title"><i class="bi bi-pc-display-horizontal" style="color:var(--primary)"></i> System Information</h3></div>
         <div class="card-body">
           <table class="desc-table">
-            <tr><th>System Name</th><td><?= sspVal($plan['system_name']) ?></td></tr>
-            <tr><th>System Owner</th><td><?= sspVal($plan['system_owner']) ?></td></tr>
-            <tr><th>Owner Email</th><td><?= sspVal($plan['system_owner_email']) ?></td></tr>
-            <tr><th>Information Owner</th><td><?= sspVal($plan['information_owner']) ?></td></tr>
-            <tr><th>Authorizing Official</th><td><?= sspVal($plan['authorizing_official']) ?></td></tr>
-            <tr><th>System Type</th><td><?= sspVal(str_replace('_',' ',ucfirst($plan['system_type']))) ?></td></tr>
+            <tr><th scope="row">System Name</th><td><?= sspVal($plan['system_name']) ?></td></tr>
+            <tr><th scope="row">System Owner</th><td><?= sspVal($plan['system_owner']) ?></td></tr>
+            <tr><th scope="row">Owner Email</th><td><?= sspVal($plan['system_owner_email']) ?></td></tr>
+            <tr><th scope="row">Information Owner</th><td><?= sspVal($plan['information_owner']) ?></td></tr>
+            <tr><th scope="row">Authorizing Official</th><td><?= sspVal($plan['authorizing_official']) ?></td></tr>
+            <tr><th scope="row">System Type</th><td><?= sspVal(str_replace('_',' ',ucfirst($plan['system_type']))) ?></td></tr>
           </table>
           <?php if ($plan['system_description']): ?>
           <div style="margin-top:14px"><div class="text-xs text-muted" style="margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Description</div><p style="margin:0;white-space:pre-wrap;font-size:13px"><?= Security::h($plan['system_description']) ?></p></div>
@@ -93,12 +93,12 @@ if (!function_exists('sspVal')) {
         <div class="card-header"><h3 class="card-title"><i class="bi bi-building" style="color:var(--primary)"></i> Company Information</h3></div>
         <div class="card-body">
           <table class="desc-table">
-            <tr><th>Company Name</th><td><?= sspVal($plan['company_name']) ?></td></tr>
-            <tr><th>DUNS Number</th><td><?= sspVal($plan['duns_number']) ?></td></tr>
-            <tr><th>CAGE Code</th><td><?= sspVal($plan['cage_code']) ?></td></tr>
-            <tr><th>Framework</th><td><?= sspVal($plan['framework']) ?></td></tr>
-            <tr><th>Assessment Scope</th><td><?= sspVal($plan['assessment_scope']) ?></td></tr>
-            <tr><th>Presentation Mode</th><td><?= sspVal(ucfirst($plan['presentation_mode'] ?? 'standard')) ?></td></tr>
+            <tr><th scope="row">Company Name</th><td><?= sspVal($plan['company_name']) ?></td></tr>
+            <tr><th scope="row">DUNS Number</th><td><?= sspVal($plan['duns_number']) ?></td></tr>
+            <tr><th scope="row">CAGE Code</th><td><?= sspVal($plan['cage_code']) ?></td></tr>
+            <tr><th scope="row">Framework</th><td><?= sspVal($plan['framework']) ?></td></tr>
+            <tr><th scope="row">Assessment Scope</th><td><?= sspVal($plan['assessment_scope']) ?></td></tr>
+            <tr><th scope="row">Presentation Mode</th><td><?= sspVal(ucfirst($plan['presentation_mode'] ?? 'standard')) ?></td></tr>
           </table>
         </div>
       </div>
@@ -138,11 +138,11 @@ if (!function_exists('sspVal')) {
       <div class="card-header"><h3 class="card-title"><i class="bi bi-check-circle-fill" style="color:var(--primary)"></i> Approval Information</h3></div>
       <div class="card-body">
         <table class="desc-table">
-          <tr><th>Approval Status</th><td><?php $as=$plan['approval_status']??''; echo $as ? '<span class="badge '.($as==='approved'?'badge-success':($as==='rejected'?'badge-danger':'badge-warning')).'">'.Security::h(ucfirst($as)).'</span>' : '—'; ?></td></tr>
-          <tr><th>Approver Name</th><td><?= sspVal($plan['approver_name']) ?></td></tr>
-          <tr><th>Approver Title</th><td><?= sspVal($plan['approver_title']) ?></td></tr>
-          <tr><th>Approval Date</th><td><?= $plan['approval_date'] ? date('M j, Y', strtotime($plan['approval_date'])) : '—' ?></td></tr>
-          <tr><th>Notes</th><td><?= sspVal($plan['approval_notes']) ?></td></tr>
+          <tr><th scope="row">Approval Status</th><td><?php $as=$plan['approval_status']??''; echo $as ? '<span class="badge '.($as==='approved'?'badge-success':($as==='rejected'?'badge-danger':'badge-warning')).'">'.Security::h(ucfirst($as)).'</span>' : '—'; ?></td></tr>
+          <tr><th scope="row">Approver Name</th><td><?= sspVal($plan['approver_name']) ?></td></tr>
+          <tr><th scope="row">Approver Title</th><td><?= sspVal($plan['approver_title']) ?></td></tr>
+          <tr><th scope="row">Approval Date</th><td><?= $plan['approval_date'] ? date('M j, Y', strtotime($plan['approval_date'])) : '—' ?></td></tr>
+          <tr><th scope="row">Notes</th><td><?= sspVal($plan['approval_notes']) ?></td></tr>
         </table>
       </div>
     </div>
@@ -150,9 +150,9 @@ if (!function_exists('sspVal')) {
       <div class="card-header"><h3 class="card-title"><i class="bi bi-pen-fill" style="color:var(--primary)"></i> Digital Certification</h3></div>
       <div class="card-body">
         <table class="desc-table">
-          <tr><th>Affirming Official</th><td><?= sspVal($plan['certifying_official_name']) ?></td></tr>
-          <tr><th>Title</th><td><?= sspVal($plan['certifying_official_title']) ?></td></tr>
-          <tr><th>Certification Date</th><td><?= $plan['certification_date'] ? date('M j, Y', strtotime($plan['certification_date'])) : '—' ?></td></tr>
+          <tr><th scope="row">Affirming Official</th><td><?= sspVal($plan['certifying_official_name']) ?></td></tr>
+          <tr><th scope="row">Title</th><td><?= sspVal($plan['certifying_official_title']) ?></td></tr>
+          <tr><th scope="row">Certification Date</th><td><?= $plan['certification_date'] ? date('M j, Y', strtotime($plan['certification_date'])) : '—' ?></td></tr>
         </table>
         <?php if ($plan['certification_statement']): ?>
         <div style="margin-top:14px;padding:14px;background:var(--bg-secondary);border-radius:8px;border-left:3px solid var(--primary)">
@@ -177,7 +177,7 @@ if (!function_exists('sspVal')) {
     <?php else: ?>
     <div class="card-body p0">
       <table class="table">
-        <thead><tr><th>Name</th><th>Title</th><th>Role</th><th>Email</th><th>Phone</th><th></th></tr></thead>
+        <thead><tr><th scope="col">Name</th><th scope="col">Title</th><th scope="col">Role</th><th scope="col">Email</th><th scope="col">Phone</th><th scope="col"></th></tr></thead>
         <tbody>
           <?php foreach ($teamContacts as $idx => $c): ?>
           <tr>
@@ -256,25 +256,25 @@ if (!function_exists('sspVal')) {
       <?php if (!empty($serverInv)): ?>
       <div class="card">
         <div class="card-header"><h3 class="card-title"><i class="bi bi-hdd-stack-fill" style="color:var(--primary)"></i> Servers (<?= count($serverInv) ?>)</h3></div>
-        <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th>Name</th><th>Role</th><th>OS</th><th>IP</th></tr></thead><tbody><?php foreach($serverInv as $s): ?><tr><td><?= Security::h($s['name']??'') ?></td><td><?= Security::h($s['role']??'') ?></td><td><?= Security::h($s['os']??'') ?></td><td><?= Security::h($s['ip']??'') ?></td></tr><?php endforeach; ?></tbody></table></div>
+        <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">OS</th><th scope="col">IP</th></tr></thead><tbody><?php foreach($serverInv as $s): ?><tr><td><?= Security::h($s['name']??'') ?></td><td><?= Security::h($s['role']??'') ?></td><td><?= Security::h($s['os']??'') ?></td><td><?= Security::h($s['ip']??'') ?></td></tr><?php endforeach; ?></tbody></table></div>
       </div>
       <?php endif; ?>
       <?php if (!empty($networkDevices)): ?>
       <div class="card">
         <div class="card-header"><h3 class="card-title"><i class="bi bi-router-fill" style="color:var(--primary)"></i> Network Devices (<?= count($networkDevices) ?>)</h3></div>
-        <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th>Name</th><th>Type</th><th>IP/Location</th></tr></thead><tbody><?php foreach($networkDevices as $d): ?><tr><td><?= Security::h($d['name']??'') ?></td><td><?= Security::h($d['type']??'') ?></td><td><?= Security::h($d['ip']??'') ?></td></tr><?php endforeach; ?></tbody></table></div>
+        <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">IP/Location</th></tr></thead><tbody><?php foreach($networkDevices as $d): ?><tr><td><?= Security::h($d['name']??'') ?></td><td><?= Security::h($d['type']??'') ?></td><td><?= Security::h($d['ip']??'') ?></td></tr><?php endforeach; ?></tbody></table></div>
       </div>
       <?php endif; ?>
       <?php if (!empty($userDevices)): ?>
       <div class="card">
         <div class="card-header"><h3 class="card-title"><i class="bi bi-laptop" style="color:var(--primary)"></i> User Devices (<?= count($userDevices) ?>)</h3></div>
-        <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th>Type</th><th>Count</th><th>OS</th></tr></thead><tbody><?php foreach($userDevices as $d): ?><tr><td><?= Security::h($d['type']??'') ?></td><td><?= Security::h($d['count']??'') ?></td><td><?= Security::h($d['os']??'') ?></td></tr><?php endforeach; ?></tbody></table></div>
+        <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th scope="col">Type</th><th scope="col">Count</th><th scope="col">OS</th></tr></thead><tbody><?php foreach($userDevices as $d): ?><tr><td><?= Security::h($d['type']??'') ?></td><td><?= Security::h($d['count']??'') ?></td><td><?= Security::h($d['os']??'') ?></td></tr><?php endforeach; ?></tbody></table></div>
       </div>
       <?php endif; ?>
       <?php if (!empty($otherSystems)): ?>
       <div class="card">
         <div class="card-header"><h3 class="card-title"><i class="bi bi-cloud-fill" style="color:var(--primary)"></i> Other Connected Systems</h3></div>
-        <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th>System</th><th>Connection Type</th><th>Data Shared</th></tr></thead><tbody><?php foreach($otherSystems as $s): ?><tr><td><?= Security::h($s['name']??'') ?></td><td><?= Security::h($s['connection']??'') ?></td><td><?= Security::h($s['data']??'') ?></td></tr><?php endforeach; ?></tbody></table></div>
+        <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th scope="col">System</th><th scope="col">Connection Type</th><th scope="col">Data Shared</th></tr></thead><tbody><?php foreach($otherSystems as $s): ?><tr><td><?= Security::h($s['name']??'') ?></td><td><?= Security::h($s['connection']??'') ?></td><td><?= Security::h($s['data']??'') ?></td></tr><?php endforeach; ?></tbody></table></div>
       </div>
       <?php endif; ?>
       <?php if ($plan['maintenance_info']): ?>
@@ -299,7 +299,7 @@ if (!function_exists('sspVal')) {
       </div>
       <?php if (empty($hwInventory)): ?><div class="card-body" style="text-align:center;padding:30px"><p class="text-muted">No hardware items added.</p></div>
       <?php else: ?>
-      <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th>Make/Model</th><th>Serial</th><th>Function</th><th>Location</th><th></th></tr></thead><tbody>
+      <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th scope="col">Make/Model</th><th scope="col">Serial</th><th scope="col">Function</th><th scope="col">Location</th><th scope="col"></th></tr></thead><tbody>
       <?php foreach($hwInventory as $idx=>$h): ?>
       <tr><td><?= Security::h($h['make_model']??'') ?></td><td><?= Security::h($h['serial']??'') ?></td><td><?= Security::h($h['function']??'') ?></td><td><?= Security::h($h['location']??'') ?></td><td><button class="btn btn-ghost btn-sm text-danger" data-click="removeHw" data-arg="<?= $idx ?>"><i class="bi bi-trash"></i></button></td></tr>
       <?php endforeach; ?>
@@ -315,7 +315,7 @@ if (!function_exists('sspVal')) {
       </div>
       <?php if (empty($swInventory)): ?><div class="card-body" style="text-align:center;padding:30px"><p class="text-muted">No software items added.</p></div>
       <?php else: ?>
-      <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th>Name</th><th>Version</th><th>Vendor</th><th>Purpose</th><th>License</th><th></th></tr></thead><tbody>
+      <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th scope="col">Name</th><th scope="col">Version</th><th scope="col">Vendor</th><th scope="col">Purpose</th><th scope="col">License</th><th scope="col"></th></tr></thead><tbody>
       <?php foreach($swInventory as $idx=>$s): ?>
       <tr><td><?= Security::h($s['name']??'') ?></td><td><?= Security::h($s['version']??'') ?></td><td><?= Security::h($s['vendor']??'') ?></td><td><?= Security::h($s['purpose']??'') ?></td><td><?= Security::h($s['license']??'') ?></td><td><button class="btn btn-ghost btn-sm text-danger" data-click="removeSw" data-arg="<?= $idx ?>"><i class="bi bi-trash"></i></button></td></tr>
       <?php endforeach; ?>
@@ -331,7 +331,7 @@ if (!function_exists('sspVal')) {
       </div>
       <?php if (empty($dataInventory)): ?><div class="card-body" style="text-align:center;padding:30px"><p class="text-muted">No data types recorded.</p></div>
       <?php else: ?>
-      <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th>Data Type</th><th>Classification</th><th>Volume</th><th>Location</th><th>Retention</th><th></th></tr></thead><tbody>
+      <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th scope="col">Data Type</th><th scope="col">Classification</th><th scope="col">Volume</th><th scope="col">Location</th><th scope="col">Retention</th><th scope="col"></th></tr></thead><tbody>
       <?php foreach($dataInventory as $idx=>$d): ?>
       <tr><td><?= Security::h($d['type']??'') ?></td><td><span class="badge badge-<?= ($d['classification']??'')==='CUI'?'warning':(($d['classification']??'')==='Public'?'success':'secondary') ?>"><?= Security::h($d['classification']??'') ?></span></td><td><?= Security::h($d['volume']??'') ?></td><td><?= Security::h($d['location']??'') ?></td><td><?= Security::h($d['retention']??'') ?></td><td><button class="btn btn-ghost btn-sm text-danger" data-click="removeData" data-arg="<?= $idx ?>"><i class="bi bi-trash"></i></button></td></tr>
       <?php endforeach; ?>
@@ -347,7 +347,7 @@ if (!function_exists('sspVal')) {
       </div>
       <?php if (empty($contracts)): ?><div class="card-body" style="text-align:center;padding:30px"><p class="text-muted">No contracts recorded.</p></div>
       <?php else: ?>
-      <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th>Contract #</th><th>CAGE Code</th><th>Vendor</th><th>Description</th><th>Expiry</th><th></th></tr></thead><tbody>
+      <div class="card-body p0"><table class="table" style="font-size:12px"><thead><tr><th scope="col">Contract #</th><th scope="col">CAGE Code</th><th scope="col">Vendor</th><th scope="col">Description</th><th scope="col">Expiry</th><th scope="col"></th></tr></thead><tbody>
       <?php foreach($contracts as $idx=>$c): ?>
       <tr><td><code><?= Security::h($c['number']??'') ?></code></td><td><?= Security::h($c['cage_code']??'') ?></td><td><?= Security::h($c['vendor']??'') ?></td><td><?= Security::h($c['description']??'') ?></td><td><?= Security::h($c['expiry']??'') ?></td><td><button class="btn btn-ghost btn-sm text-danger" data-click="removeContract" data-arg="<?= $idx ?>"><i class="bi bi-trash"></i></button></td></tr>
       <?php endforeach; ?>
@@ -369,7 +369,7 @@ if (!function_exists('sspVal')) {
     <div class="card-body" style="text-align:center;padding:40px"><p class="text-muted">No packages linked.</p></div>
     <?php else: ?>
     <table class="table">
-      <thead><tr><th>Package</th><th>Standard</th><th>Controls</th><th>Compliant</th><th></th></tr></thead>
+      <thead><tr><th scope="col">Package</th><th scope="col">Standard</th><th scope="col">Controls</th><th scope="col">Compliant</th><th scope="col"></th></tr></thead>
       <tbody>
       <?php foreach ($linkedPackages as $pkg): $total=(int)$pkg['control_count'];$compliant=(int)$pkg['compliant_count'];$pct=$total>0?round($compliant/$total*100):0; ?>
         <tr>

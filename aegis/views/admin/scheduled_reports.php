@@ -59,14 +59,14 @@ ob_start();
     <table class="table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Report Type</th>
-          <th>Frequency</th>
-          <th>Recipients</th>
-          <th>Status</th>
-          <th>Last Sent</th>
-          <th>Next Send</th>
-          <th></th>
+          <th scope="col">Name</th>
+          <th scope="col">Report Type</th>
+          <th scope="col">Frequency</th>
+          <th scope="col">Recipients</th>
+          <th scope="col">Status</th>
+          <th scope="col">Last Sent</th>
+          <th scope="col">Next Send</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>

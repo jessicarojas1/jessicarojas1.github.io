@@ -14,7 +14,8 @@ on:
 permissions:
   id-token: write       # OIDC: Entra ID login + GitHub attestation signing
   contents: read        # checkout
-  attestations: write   # actions/attest-build-provenance
+  attestations: write   # actions/attest-build-provenance (write subsumes the
+                        # read needed by the `gh attestation verify` gate below)
 
 concurrency:
   group: cd-azure-gov
@@ -117,6 +118,49 @@ jobs:
         with:
           subject-name: ${{ steps.acr.outputs.login_server }}/sentinel-qms/frontend
           subject-digest: ${{ steps.build-frontend.outputs.digest }}
+
+      # ---------------------------------------------------------------------
+      # SLSA VERIFY-AT-DEPLOY GATE (fail-closed).
+      # Before the migration job and the Container App rollout (the second
+      # terraform apply), verify the GitHub build provenance for the exact
+      # digests just pushed. If verification fails the job stops here and the
+      # rollout never runs — only a verified image is deployed.
+      #
+      # Method: `gh attestation verify` against the GitHub attestations API
+      # (where `actions/attest-build-provenance` stored the provenance above).
+      # ACR (Azure Gov) is not the GH attestations host, so verification uses the
+      # API. The `oci://...@<digest>` subject is resolved by gh from ACR; the
+      # runner is authenticated to ACR (az acr login above). `gh` is preinstalled
+      # on ubuntu-latest GitHub-hosted runners.
+      #
+      # ASSUMPTIONS (need a real Actions run to confirm):
+      #   - `gh attestation verify` (GitHub CLI >= 2.49) is on the runner image;
+      #     add a CLI install step if a pinned/older image lacks it.
+      #   - GITHUB_TOKEN has attestations:read (granted below).
+      #   - gh can pull the OCI subject from ACR Gov via the ambient docker
+      #     credential helper; if not reachable, fall back to
+      #     `cosign verify-attestation` against the buildx provenance on the image.
+      - name: Verify build provenance (gate) — backend
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: ${{ steps.acr.outputs.login_server }}/sentinel-qms/backend
+          DIGEST: ${{ steps.build-backend.outputs.digest }}
+        run: |
+          echo "Verifying provenance for ${IMAGE}@${DIGEST}"
+          gh attestation verify "oci://${IMAGE}@${DIGEST}" \
+            --owner "${{ github.repository_owner }}"
+          echo "Backend image provenance verified."
+
+      - name: Verify build provenance (gate) — frontend
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: ${{ steps.acr.outputs.login_server }}/sentinel-qms/frontend
+          DIGEST: ${{ steps.build-frontend.outputs.digest }}
+        run: |
+          echo "Verifying provenance for ${IMAGE}@${DIGEST}"
+          gh attestation verify "oci://${IMAGE}@${DIGEST}" \
+            --owner "${{ github.repository_owner }}"
+          echo "Frontend image provenance verified."
 
       - name: Database migrations (Container App job)
         working-directory: ${{ env.TF_DIR }}

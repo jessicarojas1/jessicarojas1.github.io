@@ -97,10 +97,10 @@ $barColor    = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 
           <table class="table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Attested On</th>
-                <th>IP Address</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Attested On</th>
+                <th scope="col">IP Address</th>
               </tr>
             </thead>
             <tbody>
@@ -134,8 +134,8 @@ $barColor    = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 
           <table class="table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
               </tr>
             </thead>
             <tbody>

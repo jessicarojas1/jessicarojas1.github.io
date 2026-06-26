@@ -37,12 +37,12 @@ ob_start();
     <table class="table">
       <thead>
         <tr>
-          <th>Type</th>
-          <th>Name</th>
-          <th>Subject Preview</th>
-          <th>Status</th>
-          <th>Last Updated</th>
-          <th></th>
+          <th scope="col">Type</th>
+          <th scope="col">Name</th>
+          <th scope="col">Subject Preview</th>
+          <th scope="col">Status</th>
+          <th scope="col">Last Updated</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>

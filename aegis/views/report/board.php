@@ -22,6 +22,8 @@ $appetiteBreaches = $appetiteBreaches ?? [];
 $treatmentBacklog = $treatmentBacklog ?? [];
 $kriHealth        = $kriHealth        ?? [];
 
+$riskByCategory   = $riskByCategory   ?? [];
+
 $tb = $treatmentBacklog;
 $tbTotal    = (int)($tb['total']       ?? 0);
 $tbPlanned  = (int)($tb['planned']     ?? 0);
@@ -39,6 +41,53 @@ $complianceAvg = 0;
 if (count($compliance) > 0) {
     $complianceAvg = (int)round(array_sum(array_column($compliance, 'pct')) / count($compliance));
 }
+
+// ── Overall risk posture (RAG) — drives the executive summary banner ──────────
+$breachCount = count($appetiteBreaches);
+if ($criticalRisks > 0 || $breachCount > 0) {
+    $posture = ['label' => 'Elevated', 'cl' => 'var(--danger)',  'bg' => 'var(--danger-subtle)',  'icon' => 'exclamation-octagon-fill'];
+} elseif ($highRisks > 0 || $tbOverdue > 0 || $overdueReview > 0 || $complianceAvg < 70) {
+    $posture = ['label' => 'Guarded',  'cl' => 'var(--warning)', 'bg' => 'var(--warning-subtle)', 'icon' => 'exclamation-triangle-fill'];
+} else {
+    $posture = ['label' => 'Stable',   'cl' => 'var(--success)', 'bg' => 'var(--success-subtle)', 'icon' => 'check2-circle'];
+}
+
+// ── Auto-generated executive narrative bullets ────────────────────────────────
+$insights = [];
+if ($criticalRisks > 0) {
+    $insights[] = ['cl' => 'var(--danger)', 'icon' => 'exclamation-octagon-fill',
+        'text' => "<strong>{$criticalRisks}</strong> critical risk" . ($criticalRisks === 1 ? '' : 's') . " above tolerance require board attention."];
+}
+if ($breachCount > 0) {
+    $catList = array_values(array_unique(array_filter(array_column($appetiteBreaches, 'category_name'))));
+    $catStr  = $catList ? Security::h(implode(', ', array_slice($catList, 0, 3))) : 'multiple categories';
+    $insights[] = ['cl' => 'var(--danger)', 'icon' => 'shield-slash-fill',
+        'text' => "<strong>{$breachCount}</strong> risk" . ($breachCount === 1 ? '' : 's') . " exceed defined appetite ({$catStr})."];
+}
+$insights[] = ['cl' => ($complianceAvg >= 80 ? 'var(--success)' : ($complianceAvg >= 60 ? 'var(--warning)' : 'var(--danger)')),
+    'icon' => 'bar-chart-steps',
+    'text' => "Compliance posture averages <strong>{$complianceAvg}%</strong> across " . count($compliance) . " framework" . (count($compliance) === 1 ? '' : 's') . "."];
+if ($tbOverdue > 0) {
+    $insights[] = ['cl' => 'var(--warning)', 'icon' => 'tools',
+        'text' => "<strong>{$tbOverdue}</strong> treatment action" . ($tbOverdue === 1 ? '' : 's') . " overdue out of {$tbTotal} tracked."];
+}
+if ($incOpen > 0) {
+    $insights[] = ['cl' => ($incHighSev > 0 ? 'var(--danger)' : 'var(--orange)'), 'icon' => 'fire',
+        'text' => "<strong>{$incOpen}</strong> open incident" . ($incOpen === 1 ? '' : 's') . ($incHighSev > 0 ? ", <strong>{$incHighSev}</strong> high-severity" : '') . "."];
+}
+if ($overdueReview > 0) {
+    $insights[] = ['cl' => 'var(--warning)', 'icon' => 'calendar-x-fill',
+        'text' => "<strong>{$overdueReview}</strong> risk review" . ($overdueReview === 1 ? '' : 's') . " overdue."];
+}
+if ($criticalRisks === 0 && $breachCount === 0 && $tbOverdue === 0 && $overdueReview === 0) {
+    $insights[] = ['cl' => 'var(--success)', 'icon' => 'check-circle-fill',
+        'text' => "No critical risks, appetite breaches, or overdue items outstanding."];
+}
+
+// Largest category concentration (for narrative)
+$topCat = $riskByCategory[0] ?? null;
+$catMax = 0;
+foreach ($riskByCategory as $c) { $catMax = max($catMax, (int)$c['total']); }
 
 // Trend chart data (12-week)
 $trendWeeks  = [];
@@ -233,7 +282,45 @@ $nonce = Security::nonce();
   cursor: pointer;
   text-decoration: none;
 }
-.bp-print-btn:hover { background: var(--primary); }
+.bp-print-btn:hover { filter: brightness(.92); }
+
+/* Executive summary */
+.bp-exec {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+@media (max-width: 760px) { .bp-exec { grid-template-columns: 1fr; } }
+.bp-posture {
+  border: 1.5px solid;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+.bp-posture-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+}
+.bp-posture-val { font-size: 26px; font-weight: 800; line-height: 1.1; }
+.bp-posture-meta { font-size: 12px; color: var(--text-muted); }
+.bp-insights { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.bp-insights li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.bp-insights li i { font-size: 15px; margin-top: 1px; flex-shrink: 0; }
+.bp-insights li strong { font-weight: 700; }
 
 /* Page footer (print only) */
 .bp-footer {
@@ -381,6 +468,30 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
 
 </div>
 
+<!-- ── Executive Summary ──────────────────────────────────────────────────── -->
+<div class="bp-section">
+  <div class="bp-section-header"><i class="bi bi-card-text"></i> Executive Summary</div>
+  <div class="bp-section-body">
+    <div class="bp-exec">
+      <div class="bp-posture" style="background:<?= $posture['bg'] ?>;border-color:<?= $posture['cl'] ?>;">
+        <div class="bp-posture-label">Overall Risk Posture</div>
+        <div class="bp-posture-val" style="color:<?= $posture['cl'] ?>;">
+          <i class="bi bi-<?= $posture['icon'] ?>"></i> <?= Security::h($posture['label']) ?>
+        </div>
+        <div class="bp-posture-meta"><?= $totalRisks ?> risks tracked &middot; <?= $complianceAvg ?>% compliant</div>
+      </div>
+      <ul class="bp-insights">
+        <?php foreach ($insights as $ins): ?>
+        <li>
+          <i class="bi bi-<?= $ins['icon'] ?>" style="color:<?= $ins['cl'] ?>;"></i>
+          <span><?= $ins['text'] /* pre-escaped: literals + casted ints, category via Security::h */ ?></span>
+        </li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+  </div>
+</div>
+
 <!-- ── Risk Landscape ─────────────────────────────────────────────────────── -->
 <div class="bp-section">
   <div class="bp-section-header"><i class="bi bi-diagram-3-fill"></i> Risk Landscape — Top <?= count($topRisks) ?> Open Risks</div>
@@ -389,13 +500,13 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr style="background:var(--bg-secondary);">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk ID</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Title</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Category</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Owner</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Strategy</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Review Date</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk ID</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Title</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Category</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Owner</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Strategy</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Review Date</th>
         </tr>
       </thead>
       <tbody>
@@ -453,6 +564,38 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   </div>
 </div>
 
+<!-- ── Risk Concentration by Category ─────────────────────────────────────── -->
+<div class="bp-section">
+  <div class="bp-section-header"><i class="bi bi-pie-chart-fill"></i> Risk Concentration by Category</div>
+  <div class="bp-section-body">
+    <?php if ($riskByCategory): foreach ($riskByCategory as $c):
+      $cTotal = (int)($c['total'] ?? 0);
+      $cCrit  = (int)($c['critical'] ?? 0);
+      $cHigh  = (int)($c['high'] ?? 0);
+      $cAvg   = (float)($c['avg_score'] ?? 0);
+      $cPct   = $catMax > 0 ? round($cTotal / $catMax * 100) : 0;
+      $cCl    = $cAvg > 14 ? 'var(--danger)' : ($cAvg >= 10 ? 'var(--warning)' : 'var(--success)');
+    ?>
+    <div class="cp-bar-wrap">
+      <div class="cp-bar-label">
+        <div style="font-weight:600;"><?= Security::h($c['category']) ?></div>
+        <div style="font-size:11px;color:var(--text-muted);">avg score <?= Security::h(number_format($cAvg, 1)) ?></div>
+      </div>
+      <div class="cp-bar-track">
+        <div class="cp-bar-fill" style="width:<?= $cPct ?>%;background:<?= $cCl ?>;"></div>
+      </div>
+      <div class="cp-bar-pct" style="color:<?= $cCl ?>;"><?= $cTotal ?></div>
+      <div style="font-size:11px;color:var(--text-muted);min-width:120px;text-align:right;">
+        <?php if ($cCrit > 0): ?><span style="color:var(--danger);font-weight:700;"><?= $cCrit ?> crit</span> &middot; <?php endif; ?>
+        <?php if ($cHigh > 0): ?><span style="color:var(--warning);font-weight:700;"><?= $cHigh ?> high</span><?php else: ?>—<?php endif; ?>
+      </div>
+    </div>
+    <?php endforeach; else: ?>
+    <p style="text-align:center;color:var(--text-muted);padding:24px;">No categorised open risks.</p>
+    <?php endif; ?>
+  </div>
+</div>
+
 <!-- ── Compliance Status ───────────────────────────────────────────────────── -->
 <div class="bp-section">
   <div class="bp-section-header"><i class="bi bi-bar-chart-steps"></i> Compliance Status by Framework</div>
@@ -492,12 +635,12 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr style="background:var(--bg-secondary);">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Category</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Max Appetite</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Breach</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Appetite Statement</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Category</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Max Appetite</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Breach</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Appetite Statement</th>
         </tr>
       </thead>
       <tbody>
@@ -585,13 +728,13 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr style="background:var(--bg-secondary);">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">KRI</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Linked Risk</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Latest Value</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Amber Threshold</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Red Threshold</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">RAG</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Recorded</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">KRI</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Linked Risk</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Latest Value</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Amber Threshold</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Red Threshold</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">RAG</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Recorded</th>
         </tr>
       </thead>
       <tbody>
@@ -642,11 +785,11 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr style="background:var(--bg-secondary);">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk ID</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Title</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Owner</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Review Date</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk ID</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Title</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Owner</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Review Date</th>
         </tr>
       </thead>
       <tbody>
@@ -688,6 +831,11 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   var scores = <?= json_encode(array_values($trendScores), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
   var ctx = canvas.getContext('2d');
+  var css = getComputedStyle(document.documentElement);
+  var primaryColor = css.getPropertyValue('--primary').trim()    || '#16a34a';
+  var mutedColor   = css.getPropertyValue('--text-muted').trim() || '#a1a1aa';
+  var gridColor    = css.getPropertyValue('--border').trim()     || 'rgba(0,0,0,.08)';
+  var pointRing    = css.getPropertyValue('--card-bg').trim()    || '#fff';
   var W = canvas.parentElement.clientWidth || 800;
   canvas.width  = W;
   canvas.height = 280;
@@ -704,24 +852,20 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   function yPos(v) { return padT + chartH - ((v - minVal) / range) * chartH; }
 
   // Grid lines
-  ctx.strokeStyle = 'rgba(0,0,0,.05)';
+  ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
   var steps = 5;
   for (var s = 0; s <= steps; s++) {
     var yg = padT + (s / steps) * chartH;
     ctx.beginPath(); ctx.moveTo(padL, yg); ctx.lineTo(padL + chartW, yg); ctx.stroke();
     var label = (maxVal - (s / steps) * range).toFixed(1);
-    ctx.fillStyle = '#a1a1aa';
+    ctx.fillStyle = mutedColor;
     ctx.font = '11px Inter, sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(label, padL - 6, yg + 4);
   }
 
-  // Gradient fill
-  var grad = ctx.createLinearGradient(0, padT, 0, padT + chartH);
-  grad.addColorStop(0, 'rgba(99,102,241,.18)');
-  grad.addColorStop(1, 'rgba(99,102,241,0)');
-
+  // Area fill — derived from the primary accent so it tracks the theme.
   ctx.beginPath();
   ctx.moveTo(xPos(0), yPos(scores[0]));
   for (var i = 1; i < scores.length; i++) {
@@ -733,12 +877,14 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   ctx.lineTo(xPos(scores.length - 1), padT + chartH);
   ctx.lineTo(xPos(0), padT + chartH);
   ctx.closePath();
-  ctx.fillStyle = grad;
+  ctx.save();
+  ctx.globalAlpha = 0.14;
+  ctx.fillStyle = primaryColor;
   ctx.fill();
+  ctx.restore();
 
   // Line
   ctx.beginPath();
-  var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#16a34a';
   ctx.strokeStyle = primaryColor;
   ctx.lineWidth = 2.5;
   ctx.lineJoin = 'round';
@@ -758,13 +904,13 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     ctx.arc(xPos(k), yPos(scores[k]), 4, 0, Math.PI * 2);
     ctx.fillStyle = primaryColor;
     ctx.fill();
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = pointRing;
     ctx.lineWidth = 2;
     ctx.stroke();
   }
 
   // X-axis labels
-  ctx.fillStyle = '#a1a1aa';
+  ctx.fillStyle = mutedColor;
   ctx.font = '10px Inter, sans-serif';
   ctx.textAlign = 'center';
   for (var l = 0; l < labels.length; l++) {

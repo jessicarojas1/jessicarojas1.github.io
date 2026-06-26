@@ -47,7 +47,7 @@
 <div class="card">
   <table class="table">
     <thead>
-      <tr><th>Package</th><th>Standard</th><th>Controls</th><th>Compliant</th><th>Partial</th><th>Non-Compliant</th><th>Not Assessed</th><th>Score Est.</th><th>%</th></tr>
+      <tr><th scope="col">Package</th><th scope="col">Standard</th><th scope="col">Controls</th><th scope="col">Compliant</th><th scope="col">Partial</th><th scope="col">Non-Compliant</th><th scope="col">Not Assessed</th><th scope="col">Score Est.</th><th scope="col">%</th></tr>
     </thead>
     <tbody>
     <?php foreach ($packages as $pkg):

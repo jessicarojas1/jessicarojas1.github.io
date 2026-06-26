@@ -1,0 +1,59 @@
+# =============================================================================
+# Hardened Node.js base image  —  platform standard
+# -----------------------------------------------------------------------------
+# The shared base for Node services in this repo (model: citadel/server). Use it
+# as the RUNTIME stage of a multi-stage build: build/install deps in a fat stage,
+# then copy the production node_modules + app into a derivative of THIS image.
+#
+# What it gives you:
+#   - Upstream pinned to an immutable @sha256 digest (supply-chain integrity).
+#   - A dedicated non-root user/group (UID/GID 10001) -> runAsNonRoot.
+#   - NODE_ENV=production, tini-free clean signal handling via `node` as PID 1's
+#     direct child (use an orchestrator or `--init` for zombie reaping).
+#   - setuid/setgid bits stripped from the filesystem.
+#   - Read-only-rootfs friendly: the app should write only to /tmp (tmpfs).
+#
+# Re-pin the digest below as part of patch cycles (same method as the PHP base):
+#   TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:library/node:pull" \
+#     | python3 -c "import sys,json;print(json.load(sys.stdin)['token'])")
+#   curl -sI -H "Authorization: Bearer $TOKEN" \
+#     -H "Accept: application/vnd.oci.image.index.v1+json" \
+#     https://registry-1.docker.io/v2/library/node/manifests/20-bookworm-slim \
+#     | tr -d '\r' | awk -F': ' 'tolower($1)=="docker-content-digest"{print $2}'
+# =============================================================================
+# base image: node:20-bookworm-slim
+FROM node:20-bookworm-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0
+
+LABEL org.opencontainers.image.title="platform-node" \
+      org.opencontainers.image.description="Hardened non-root Node 20 base (UID 10001, read-only-rootfs friendly)" \
+      org.opencontainers.image.vendor="platform"
+
+ENV NODE_ENV=production \
+    PORT=8080 \
+    NPM_CONFIG_FUND=false \
+    NPM_CONFIG_AUDIT=false
+
+# curl is handy for HEALTHCHECK; keep the layer minimal.
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends curl ca-certificates; \
+    rm -rf /var/lib/apt/lists/*
+
+# Dedicated non-root identity (numeric so runAsNonRoot works without /etc/passwd).
+RUN set -eux; \
+    groupadd -g 10001 app; \
+    useradd  -u 10001 -g 10001 -M -s /usr/sbin/nologin app
+
+# Strip setuid/setgid bits — no Node app needs them.
+RUN set -eux; \
+    find / -xdev -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true
+
+WORKDIR /app
+RUN chown 10001:10001 /app
+
+EXPOSE 8080
+USER 10001:10001
+
+# Apps SHOULD add their own HEALTHCHECK, e.g.
+#   HEALTHCHECK CMD curl -fsS http://127.0.0.1:8080/api/health || exit 1
+CMD ["node", "--init", "server.js"]

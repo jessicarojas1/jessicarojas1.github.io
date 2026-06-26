@@ -168,7 +168,7 @@ services:
   # postgres — application database (PRIVATE; never published to the host)
   # ===========================================================================
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb  # postgres:16-alpine
     restart: unless-stopped
 
     # Credentials come exclusively from .env. Postgres reads these on first boot
@@ -212,7 +212,7 @@ services:
   # proxy — nginx TLS-terminating reverse proxy (the ONLY public surface)
   # ===========================================================================
   proxy:
-    image: nginx:1.27-alpine
+    image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10  # nginx:1.27-alpine
     restart: unless-stopped
 
     # The ONLY service that publishes ports. 80 redirects to 443; 443 serves TLS

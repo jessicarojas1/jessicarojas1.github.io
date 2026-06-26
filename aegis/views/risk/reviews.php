@@ -152,13 +152,13 @@ ob_start();
     <table class="table">
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Type</th>
-          <th>Scheduled Date</th>
-          <th>Status</th>
-          <th>Lead Reviewer</th>
-          <th>Progress</th>
-          <th style="width:80px"></th>
+          <th scope="col">Title</th>
+          <th scope="col">Type</th>
+          <th scope="col">Scheduled Date</th>
+          <th scope="col">Status</th>
+          <th scope="col">Lead Reviewer</th>
+          <th scope="col">Progress</th>
+          <th scope="col" style="width:80px"></th>
         </tr>
       </thead>
       <tbody>

@@ -61,7 +61,7 @@ $csrf = Security::generateCsrfToken(); ?>
       <div class="card-body"><p style="color:var(--text-muted);font-size:0.875rem;">No execution history yet.</p></div>
       <?php else: ?>
       <table class="table">
-        <thead><tr><th>Time</th><th>Status</th><th>Details</th></tr></thead>
+        <thead><tr><th scope="col">Time</th><th scope="col">Status</th><th scope="col">Details</th></tr></thead>
         <tbody>
         <?php foreach ($logs as $log): ?>
           <tr>

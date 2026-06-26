@@ -94,7 +94,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
       <div class="card-body"><p style="color:var(--text-muted);font-size:0.875rem;">No linked items.</p></div>
       <?php else: ?>
       <table class="table">
-        <thead><tr><th>Type</th><th>ID</th><th></th></tr></thead>
+        <thead><tr><th scope="col">Type</th><th scope="col">ID</th><th scope="col"></th></tr></thead>
         <tbody>
         <?php foreach ($links as $lk): ?>
         <tr>

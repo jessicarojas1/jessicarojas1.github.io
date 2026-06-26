@@ -82,13 +82,13 @@ ob_start(); ?>
   <table class="table" style="font-size:0.875rem;">
     <thead>
       <tr>
-        <th>Policy</th>
-        <th>Status</th>
-        <th>Package</th>
-        <th>Control Code</th>
-        <th>Control Title</th>
-        <th>Next Review</th>
-        <th></th>
+        <th scope="col">Policy</th>
+        <th scope="col">Status</th>
+        <th scope="col">Package</th>
+        <th scope="col">Control Code</th>
+        <th scope="col">Control Title</th>
+        <th scope="col">Next Review</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>

@@ -263,9 +263,9 @@ function scenarioLevelClass(int $s): string {
           <table class="ref-table">
             <thead>
               <tr>
-                <th>Multiplier</th>
-                <th>Meaning</th>
-                <th>Example</th>
+                <th scope="col">Multiplier</th>
+                <th scope="col">Meaning</th>
+                <th scope="col">Example</th>
               </tr>
             </thead>
             <tbody>
