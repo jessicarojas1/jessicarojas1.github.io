@@ -71,6 +71,13 @@ class Mailer {
         $subject  = self::sanitizeHeaderValue($subject);
         $host     = self::sanitizeHeaderValue($host);
 
+        // SSRF guard: an SMTP relay may legitimately be a private host, but never
+        // loopback or cloud-metadata/link-local (credential-exfil escalation).
+        if (Ssrf::isDangerousInfraHost($host)) {
+            error_log("[Mailer] Refusing SMTP connection to blocked host: {$host}");
+            return false;
+        }
+
         try {
             $errno  = 0;
             $errstr = '';
