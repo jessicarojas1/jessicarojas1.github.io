@@ -298,10 +298,18 @@
     stage('Mapping to compliance frameworks…');
     const posture = CITADEL.frameworks.posture(findings);
 
+    // Dependency Review & Runtime Requirements — inventories deps, runtime,
+    // services, env vars, ports, build/infra, supply-chain + license review.
+    let depreview = null;
+    if (CITADEL.depreview && CITADEL.depreview.analyze) {
+      stage('Reviewing dependencies & runtime requirements…');
+      depreview = CITADEL.depreview.analyze(entries, sbomComponents, findings);
+    }
+
     return {
       meta: { scannedAt: new Date().toISOString(), fileCount: entries.filter(e => !e.archive).length, totalBytes: entries.reduce((a, e) => a + e.size, 0) },
       languages: langs, findings, sbom: { components: sbomComponents, doc: CITADEL.sbom.cyclonedx(sbomComponents) },
-      binaries, quality: q, deployment, licenses, scoring, posture
+      binaries, quality: q, deployment, licenses, scoring, posture, depreview
     };
   }
 

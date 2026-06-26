@@ -14,7 +14,9 @@ try {
     'controls-federal.js', 'controls-appsec.js', 'controls-extra.js',
     'rules.js', 'rules-extra.js', 'rules-mobile.js', 'rules-pii.js',
     'rules-iac.js', 'rules-api.js', 'rules-cicd.js', 'rules-java.js',
-    'secrets.js', 'sbom.js', 'binary.js', 'fingerprint.js', 'scanner.js'
+    'secrets.js', 'sbom.js', 'binary.js', 'fingerprint.js',
+    'depreview-deps.js', 'depreview-runtime.js', 'depreview-security.js', 'depreview.js',
+    'scanner.js'
   );
 } catch (e) {
   self.postMessage({ type: 'fatal', message: 'worker import failed: ' + (e && e.message || e) });
