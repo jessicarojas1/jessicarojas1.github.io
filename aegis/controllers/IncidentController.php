@@ -248,7 +248,6 @@ class IncidentController {
             'impact_description' => $impactDescription ?: null,
             'root_cause'         => $rootCause ?: null,
             'lessons_learned'    => $lessonsLearned ?: null,
-            'updated_at'         => date('Y-m-d H:i:s'),
         ];
 
         if ($status === 'contained') {
@@ -309,7 +308,7 @@ class IncidentController {
             }
             Database::update('incidents', $updateData, 'id = ?', [$id]);
         } else {
-            Database::update('incidents', ['updated_at' => date('Y-m-d H:i:s')], 'id = ?', [$id]);
+            Database::query("UPDATE incidents SET updated_at = NOW() WHERE id = ?", [$id]);
         }
 
         Auth::log('add_incident_update', 'incidents', $id, ['update_type' => $updateType]);
@@ -331,7 +330,6 @@ class IncidentController {
         Database::update('incidents', [
             'status'      => 'closed',
             'resolved_at' => date('Y-m-d H:i:s'),
-            'updated_at'  => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
         Database::insert('incident_updates', [

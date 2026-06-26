@@ -182,6 +182,11 @@ class ApprovalController {
             "SELECT * FROM approval_request_steps WHERE request_id = ? AND step_number = ?",
             [$id, $req['current_step']]
         );
+        if (!$currentStep) {
+            // Inconsistent workflow state (current_step has no matching step row).
+            $_SESSION['flash_error'] = 'Approval workflow step not found.';
+            header("Location: /approvals/{$id}"); exit;
+        }
 
         // Authorization
         $canAct = $role === 'admin'
