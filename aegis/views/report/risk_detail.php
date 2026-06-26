@@ -77,8 +77,8 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 @media (max-width: 560px) { .rd-stat-row { grid-template-columns: repeat(2,1fr); } }
 
 .rd-stat {
-  background: #fff;
-  border: 1px solid #e4e4e7;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 16px 14px;
   text-align: center;
@@ -87,8 +87,8 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 .rd-stat .lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
 
 .rd-table-wrap {
-  background: #fff;
-  border: 1px solid #e4e4e7;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 24px;
@@ -115,13 +115,13 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   text-align: left;
   font-weight: 700;
   color: var(--text-muted);
-  background: #f9fafb;
-  border-bottom: 1px solid #e4e4e7;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 .rd-table thead th.center { text-align: center; }
-.rd-table tbody tr { border-bottom: 1px solid #f4f4f5; }
-.rd-table tbody tr:hover { background: #fafafa; }
+.rd-table tbody tr { border-bottom: 1px solid var(--border-light); }
+.rd-table tbody tr:hover { background: var(--bg-secondary); }
 .rd-table tbody td { padding: 9px 10px; vertical-align: top; }
 .rd-table tbody td.center { text-align: center; }
 
@@ -157,8 +157,8 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   display: none;
   text-align: center;
   font-size: 11px;
-  color: #a1a1aa;
-  border-top: 1px solid #e4e4e7;
+  color: var(--text-light);
+  border-top: 1px solid var(--border);
   padding-top: 12px;
   margin-top: 32px;
 }
