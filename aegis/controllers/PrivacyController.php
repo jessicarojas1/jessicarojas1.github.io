@@ -119,7 +119,9 @@ class PrivacyController {
     }
 
     public function createRequest(): void {
-        Auth::requirePermission('compliance.view');
+        // Writing a data-subject request is an assess-level action (matches
+        // updateRequest), not a read — a view-only user must not create records.
+        Auth::requirePermission('compliance.assess');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $validTypes = ['access','erasure','rectification','portability','objection','restriction'];
