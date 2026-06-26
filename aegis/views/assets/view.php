@@ -291,10 +291,10 @@ function riskScoreLevel(int $score): string {
           <table class="table" style="font-size:13px;">
             <thead>
               <tr>
-                <th>Risk</th>
-                <th style="text-align:center;">Score</th>
-                <th>Status</th>
-                <?php if (Auth::can('asset.edit')): ?><th style="width:50px;"></th><?php endif; ?>
+                <th scope="col">Risk</th>
+                <th scope="col" style="text-align:center;">Score</th>
+                <th scope="col">Status</th>
+                <?php if (Auth::can('asset.edit')): ?><th scope="col" style="width:50px;"></th><?php endif; ?>
               </tr>
             </thead>
             <tbody>

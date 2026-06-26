@@ -264,20 +264,20 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   <table class="rd-table">
     <thead>
       <tr>
-        <th>Risk ID</th>
-        <th>Title</th>
-        <th>Category</th>
-        <th class="center">L</th>
-        <th class="center">I</th>
-        <th class="center">Score</th>
-        <th class="center">Level</th>
-        <th class="center">Residual</th>
-        <th>Status</th>
-        <th>Strategy</th>
-        <th>Owner</th>
-        <th>Review Date</th>
-        <th class="center">Open Treatments</th>
-        <th class="center">Linked Controls</th>
+        <th scope="col">Risk ID</th>
+        <th scope="col">Title</th>
+        <th scope="col">Category</th>
+        <th scope="col" class="center">L</th>
+        <th scope="col" class="center">I</th>
+        <th scope="col" class="center">Score</th>
+        <th scope="col" class="center">Level</th>
+        <th scope="col" class="center">Residual</th>
+        <th scope="col">Status</th>
+        <th scope="col">Strategy</th>
+        <th scope="col">Owner</th>
+        <th scope="col">Review Date</th>
+        <th scope="col" class="center">Open Treatments</th>
+        <th scope="col" class="center">Linked Controls</th>
       </tr>
     </thead>
     <tbody>

@@ -116,16 +116,16 @@ $urgent = array_filter($expiring, function($c) {
       <table class="data-table" style="min-width:900px">
         <thead>
           <tr>
-            <th>Vendor</th>
-            <th>Contract</th>
-            <th>Number</th>
-            <th>Status</th>
-            <th>Value</th>
-            <th>Start</th>
-            <th>End</th>
-            <th>Auto-Renewal</th>
-            <th>Owner</th>
-            <th>Actions</th>
+            <th scope="col">Vendor</th>
+            <th scope="col">Contract</th>
+            <th scope="col">Number</th>
+            <th scope="col">Status</th>
+            <th scope="col">Value</th>
+            <th scope="col">Start</th>
+            <th scope="col">End</th>
+            <th scope="col">Auto-Renewal</th>
+            <th scope="col">Owner</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>

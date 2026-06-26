@@ -28,12 +28,12 @@ ob_start();
     <table class="table">
       <thead>
         <tr>
-          <th>Program</th>
-          <th>Type</th>
-          <th>Due Date</th>
-          <th>Progress</th>
-          <th>Status</th>
-          <th></th>
+          <th scope="col">Program</th>
+          <th scope="col">Type</th>
+          <th scope="col">Due Date</th>
+          <th scope="col">Progress</th>
+          <th scope="col">Status</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>

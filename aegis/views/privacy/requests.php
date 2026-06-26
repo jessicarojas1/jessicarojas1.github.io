@@ -26,7 +26,7 @@ $typeColors = ['access'=>'blue','erasure'=>'red','rectification'=>'yellow','port
     <?php if ($requests): ?>
     <table class="table">
       <thead>
-        <tr><th>Type</th><th>Subject</th><th>Assigned To</th><th>Due</th><th>Status</th><th></th></tr>
+        <tr><th scope="col">Type</th><th scope="col">Subject</th><th scope="col">Assigned To</th><th scope="col">Due</th><th scope="col">Status</th><th scope="col"></th></tr>
       </thead>
       <tbody>
         <?php foreach ($requests as $r):

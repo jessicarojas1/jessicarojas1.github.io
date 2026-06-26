@@ -194,10 +194,10 @@ $_filterCount = count(array_filter([
     <table class="table risk-table">
       <thead>
         <tr>
-          <th style="width:32px"><input type="checkbox" id="selectAll" data-change="toggleAllRisks"></th>
-          <th>Risk ID</th><th>Title</th><th>Category</th>
-          <th>Likelihood</th><th>Impact</th><th>Score</th><th>Level</th>
-          <th>Residual</th><th>Status</th><th>Strategy</th><th>Assessment</th><th>Owner</th><th></th>
+          <th scope="col" style="width:32px"><input type="checkbox" id="selectAll" data-change="toggleAllRisks"></th>
+          <th scope="col">Risk ID</th><th scope="col">Title</th><th scope="col">Category</th>
+          <th scope="col">Likelihood</th><th scope="col">Impact</th><th scope="col">Score</th><th scope="col">Level</th>
+          <th scope="col">Residual</th><th scope="col">Status</th><th scope="col">Strategy</th><th scope="col">Assessment</th><th scope="col">Owner</th><th scope="col"></th>
         </tr>
       </thead>
       <tbody>

@@ -71,14 +71,14 @@ $failed    = count(array_filter($deliveries, fn($d) => $d['status'] === 'failed'
     <table class="table">
       <thead>
         <tr>
-          <th>Event Type</th>
-          <th>Status</th>
-          <th>Attempts</th>
-          <th>Response Code</th>
-          <th>Created</th>
-          <th>Delivered At</th>
-          <th>Next Retry</th>
-          <th></th>
+          <th scope="col">Event Type</th>
+          <th scope="col">Status</th>
+          <th scope="col">Attempts</th>
+          <th scope="col">Response Code</th>
+          <th scope="col">Created</th>
+          <th scope="col">Delivered At</th>
+          <th scope="col">Next Retry</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>

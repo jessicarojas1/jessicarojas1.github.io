@@ -26,10 +26,10 @@ $breadcrumbs  = [['Policies', '/policy'], ['My Attestations', null]];
       <table class="table">
         <thead>
           <tr>
-            <th>Campaign</th>
-            <th>Policy</th>
-            <th>Due Date</th>
-            <th>Action</th>
+            <th scope="col">Campaign</th>
+            <th scope="col">Policy</th>
+            <th scope="col">Due Date</th>
+            <th scope="col">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -77,10 +77,10 @@ $breadcrumbs  = [['Policies', '/policy'], ['My Attestations', null]];
       <table class="table">
         <thead>
           <tr>
-            <th>Policy</th>
-            <th>Attested On</th>
-            <th>IP Address</th>
-            <th>Notes</th>
+            <th scope="col">Policy</th>
+            <th scope="col">Attested On</th>
+            <th scope="col">IP Address</th>
+            <th scope="col">Notes</th>
           </tr>
         </thead>
         <tbody>

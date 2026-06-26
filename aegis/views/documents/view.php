@@ -74,7 +74,7 @@ $canEdit = Auth::can('policy.edit');
       <div class="card-body text-muted">No versions uploaded yet.</div>
     <?php else: ?>
       <table class="data-table">
-        <thead><tr><th>Version</th><th>File</th><th>Size</th><th>Uploaded By</th><th>Date</th><th>Summary</th></tr></thead>
+        <thead><tr><th scope="col">Version</th><th scope="col">File</th><th scope="col">Size</th><th scope="col">Uploaded By</th><th scope="col">Date</th><th scope="col">Summary</th></tr></thead>
         <tbody>
           <?php foreach ($versions as $v): ?>
             <tr>
@@ -172,9 +172,9 @@ $canEdit = Auth::can('policy.edit');
             <div style="font-weight:600;color:var(--text);margin-bottom:6px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Accepted File Formats</div>
             <table style="width:100%;border-collapse:collapse;">
               <thead><tr style="color:var(--text-muted);font-size:0.75rem;">
-                <th style="text-align:left;padding:3px 8px;">Format</th>
-                <th style="text-align:left;padding:3px 8px;">Extension</th>
-                <th style="text-align:left;padding:3px 8px;">Notes</th>
+                <th scope="col" style="text-align:left;padding:3px 8px;">Format</th>
+                <th scope="col" style="text-align:left;padding:3px 8px;">Extension</th>
+                <th scope="col" style="text-align:left;padding:3px 8px;">Notes</th>
               </tr></thead>
               <tbody style="color:var(--text);">
                 <tr><td style="padding:3px 8px;">PDF Document</td><td style="padding:3px 8px;font-family:monospace">.pdf</td><td style="padding:3px 8px;color:var(--text-muted);">Preferred for finalized policies</td></tr>

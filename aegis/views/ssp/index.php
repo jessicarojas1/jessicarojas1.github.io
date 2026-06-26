@@ -27,13 +27,13 @@ $statusLabels = [
   <table class="table">
     <thead>
       <tr>
-        <th>Title</th>
-        <th>System Name</th>
-        <th>Status</th>
-        <th>Packages</th>
-        <th>Created By</th>
-        <th>Last Updated</th>
-        <th></th>
+        <th scope="col">Title</th>
+        <th scope="col">System Name</th>
+        <th scope="col">Status</th>
+        <th scope="col">Packages</th>
+        <th scope="col">Created By</th>
+        <th scope="col">Last Updated</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>

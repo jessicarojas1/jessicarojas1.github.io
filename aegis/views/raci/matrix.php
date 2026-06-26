@@ -32,9 +32,9 @@ $breadcrumbs = [['Compliance', '/compliance'], ['RACI', '/raci'], ['Matrix', nul
     <table class="table" style="min-width:600px;">
       <thead>
         <tr>
-          <th style="min-width:200px;">Domain</th>
+          <th scope="col" style="min-width:200px;">Domain</th>
           <?php foreach ($users as $u): ?>
-          <th style="text-align:center;min-width:80px;font-size:0.78rem;"><?= Security::h($u['name']) ?></th>
+          <th scope="col" style="text-align:center;min-width:80px;font-size:0.78rem;"><?= Security::h($u['name']) ?></th>
           <?php endforeach; ?>
         </tr>
       </thead>

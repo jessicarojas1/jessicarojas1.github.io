@@ -18,11 +18,11 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Package</th>
-        <th>Standard</th>
-        <th>Domains</th>
-        <th>Assignments</th>
-        <th></th>
+        <th scope="col">Package</th>
+        <th scope="col">Standard</th>
+        <th scope="col">Domains</th>
+        <th scope="col">Assignments</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>

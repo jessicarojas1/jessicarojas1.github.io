@@ -23,7 +23,7 @@ ob_start();
 <div class="card">
   <div class="card-body p0">
     <table class="table">
-      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Status</th><th>Last Login</th><th></th></tr></thead>
+      <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Department</th><th scope="col">Status</th><th scope="col">Last Login</th><th scope="col"></th></tr></thead>
       <tbody>
         <?php foreach ($users as $u): ?>
           <tr <?= !$u['is_active'] ? 'class="row-muted"' : '' ?>>
@@ -170,7 +170,7 @@ ob_start();
         <div class="form-group">
           <p class="form-label" style="margin-bottom:6px">CSV Field Reference</p>
           <table class="table" style="font-size:0.85rem">
-            <thead><tr><th>Field</th><th>Type</th><th>Required</th></tr></thead>
+            <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Required</th></tr></thead>
             <tbody>
               <tr><td><code>name</code></td><td>text</td><td>Yes</td></tr>
               <tr><td><code>email</code></td><td>email</td><td>Yes</td></tr>

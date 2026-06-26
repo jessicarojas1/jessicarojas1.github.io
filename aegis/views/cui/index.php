@@ -36,14 +36,14 @@ $csrf = Security::generateCsrfToken(); ?>
   <table class="table">
     <thead>
       <tr>
-        <th>#</th>
-        <th>Description</th>
-        <th>CUI Category</th>
-        <th>System / Asset</th>
-        <th>Storage</th>
-        <th>Encrypted</th>
-        <th>Owner</th>
-        <th></th>
+        <th scope="col">#</th>
+        <th scope="col">Description</th>
+        <th scope="col">CUI Category</th>
+        <th scope="col">System / Asset</th>
+        <th scope="col">Storage</th>
+        <th scope="col">Encrypted</th>
+        <th scope="col">Owner</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>

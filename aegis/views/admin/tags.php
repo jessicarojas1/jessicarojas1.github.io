@@ -54,10 +54,10 @@ $breadcrumbs = [['Admin', '/admin'], ['Tags', null]]; ?>
           <table class="data-table">
             <thead>
               <tr>
-                <th>Tag</th>
-                <th>Color</th>
-                <th>Usage</th>
-                <th>Actions</th>
+                <th scope="col">Tag</th>
+                <th scope="col">Color</th>
+                <th scope="col">Usage</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>

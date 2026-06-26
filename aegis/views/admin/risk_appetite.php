@@ -54,13 +54,13 @@ $breadcrumbs = [['Admin', '/admin'], ['Risk Appetite', null]];
         <table class="table" id="appetiteTable" style="min-width:900px">
           <thead>
             <tr>
-              <th style="width:160px">Category</th>
-              <th style="width:140px">Appetite Level</th>
-              <th style="width:90px">Max Score</th>
-              <th style="width:90px">Amber ≥</th>
-              <th style="width:90px">Red ≥</th>
-              <th>Statement</th>
-              <th style="width:80px">Actions</th>
+              <th scope="col" style="width:160px">Category</th>
+              <th scope="col" style="width:140px">Appetite Level</th>
+              <th scope="col" style="width:90px">Max Score</th>
+              <th scope="col" style="width:90px">Amber ≥</th>
+              <th scope="col" style="width:90px">Red ≥</th>
+              <th scope="col">Statement</th>
+              <th scope="col" style="width:80px">Actions</th>
             </tr>
           </thead>
           <tbody id="appetiteBody">

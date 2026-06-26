@@ -96,9 +96,9 @@ ob_start();
       <table class="risk-matrix-admin-table">
         <thead>
           <tr>
-            <th class="rm-corner"></th>
+            <th scope="col" class="rm-corner"></th>
             <?php for ($c = 1; $c <= $cols; $c++): ?>
-              <th class="rm-col-head">Impact (<?= Security::h($colLabels[$c-1] ?? $c) ?> [<?= $c ?>])</th>
+              <th scope="col" class="rm-col-head">Impact (<?= Security::h($colLabels[$c-1] ?? $c) ?> [<?= $c ?>])</th>
             <?php endfor; ?>
           </tr>
         </thead>

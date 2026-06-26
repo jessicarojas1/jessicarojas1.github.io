@@ -140,9 +140,9 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
     <table class="table">
       <thead>
         <tr>
-          <th>Risk</th><th>Category</th><th>Inherent</th><th>Residual</th><th>Strategies</th>
-          <?php if ($groupStatus === 'reviewed' || $groupStatus !== 'pending'): ?><th>Outcome</th><?php endif; ?>
-          <?php if ($canAct): ?><th style="width:280px">Review</th><?php endif; ?>
+          <th scope="col">Risk</th><th scope="col">Category</th><th scope="col">Inherent</th><th scope="col">Residual</th><th scope="col">Strategies</th>
+          <?php if ($groupStatus === 'reviewed' || $groupStatus !== 'pending'): ?><th scope="col">Outcome</th><?php endif; ?>
+          <?php if ($canAct): ?><th scope="col" style="width:280px">Review</th><?php endif; ?>
         </tr>
       </thead>
       <tbody>

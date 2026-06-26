@@ -43,11 +43,11 @@ $switched = $activeId !== $homeId;
   <table class="table">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Slug</th>
-        <th>Status</th>
-        <th style="text-align:right;">Action</th>
+        <th scope="col">ID</th>
+        <th scope="col">Name</th>
+        <th scope="col">Slug</th>
+        <th scope="col">Status</th>
+        <th scope="col" style="text-align:right;">Action</th>
       </tr>
     </thead>
     <tbody>

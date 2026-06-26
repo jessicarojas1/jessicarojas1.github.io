@@ -77,7 +77,7 @@ function metricColor(float $pct): string {
 <div class="card" style="margin-bottom:24px">
   <div class="card-header"><h3>Compliance by Framework</h3></div>
   <table class="data-table">
-    <thead><tr><th>Framework</th><th>Compliant</th><th>Partial</th><th>Non-Compliant</th><th>N/A</th><th>Total</th><th>%</th></tr></thead>
+    <thead><tr><th scope="col">Framework</th><th scope="col">Compliant</th><th scope="col">Partial</th><th scope="col">Non-Compliant</th><th scope="col">N/A</th><th scope="col">Total</th><th scope="col">%</th></tr></thead>
     <tbody>
       <?php foreach ($frameworks as $fw):
         $pct = $fw['total_controls'] > 0 ? round($fw['compliant'] / $fw['total_controls'] * 100) : 0;
@@ -117,7 +117,7 @@ function metricColor(float $pct): string {
     <div class="card-body text-muted">No scheduled reports configured. Click "Add Schedule" to set up automated report delivery.</div>
   <?php else: ?>
     <table class="data-table">
-      <thead><tr><th>Name</th><th>Type</th><th>Frequency</th><th>Recipients</th><th>Last Sent</th><th>Active</th><th></th></tr></thead>
+      <thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Frequency</th><th scope="col">Recipients</th><th scope="col">Last Sent</th><th scope="col">Active</th><th scope="col"></th></tr></thead>
       <tbody>
         <?php foreach ($reportSchedules as $rs): ?>
           <tr>

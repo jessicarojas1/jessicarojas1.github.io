@@ -44,12 +44,12 @@ $reportTitle = 'Compliance Status Report';
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
         <tr style="background:var(--bg-subtle)">
-          <th style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Package</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--success)">Compliant</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--warning)">Partial</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--danger)">Non-Compliant</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--text-muted)">Not Started</th>
-          <th style="padding:10px 16px;text-align:right;font-weight:600;color:var(--text-muted)">Score</th>
+          <th scope="col" style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Package</th>
+          <th scope="col" style="padding:10px 8px;text-align:center;font-weight:600;color:var(--success)">Compliant</th>
+          <th scope="col" style="padding:10px 8px;text-align:center;font-weight:600;color:var(--warning)">Partial</th>
+          <th scope="col" style="padding:10px 8px;text-align:center;font-weight:600;color:var(--danger)">Non-Compliant</th>
+          <th scope="col" style="padding:10px 8px;text-align:center;font-weight:600;color:var(--text-muted)">Not Started</th>
+          <th scope="col" style="padding:10px 16px;text-align:right;font-weight:600;color:var(--text-muted)">Score</th>
         </tr>
       </thead>
       <tbody>
@@ -84,11 +84,11 @@ $reportTitle = 'Compliance Status Report';
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
         <tr style="background:var(--bg-subtle)">
-          <th style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Code</th>
-          <th style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Control</th>
-          <th style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Package</th>
-          <th style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Assigned</th>
-          <th style="padding:10px 16px;text-align:right;font-weight:600;color:var(--text-muted)">Due</th>
+          <th scope="col" style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Code</th>
+          <th scope="col" style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Control</th>
+          <th scope="col" style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Package</th>
+          <th scope="col" style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Assigned</th>
+          <th scope="col" style="padding:10px 16px;text-align:right;font-weight:600;color:var(--text-muted)">Due</th>
         </tr>
       </thead>
       <tbody>

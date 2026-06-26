@@ -311,10 +311,10 @@ $widgetTypes = [
         <div style="overflow-x:auto;">
           <table style="width:100%;font-size:0.8rem;border-collapse:collapse;">
             <thead><tr style="color:var(--text-muted);">
-              <th style="text-align:left;padding:4px 6px;font-weight:600;">Risk</th>
-              <th style="padding:4px 6px;font-weight:600;">L</th>
-              <th style="padding:4px 6px;font-weight:600;">I</th>
-              <th style="padding:4px 6px;font-weight:600;">Score</th>
+              <th scope="col" style="text-align:left;padding:4px 6px;font-weight:600;">Risk</th>
+              <th scope="col" style="padding:4px 6px;font-weight:600;">L</th>
+              <th scope="col" style="padding:4px 6px;font-weight:600;">I</th>
+              <th scope="col" style="padding:4px 6px;font-weight:600;">Score</th>
             </tr></thead>
             <tbody>
             <?php foreach ($w['data'] as $r):

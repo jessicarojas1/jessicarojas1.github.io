@@ -181,7 +181,7 @@ ob_start();
         <div style="margin-top:16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:0.78rem;">
           <div style="font-weight:600;color:var(--text);margin-bottom:4px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Branding — Field Reference</div>
           <table style="width:100%;border-collapse:collapse;font-size:0.75rem;">
-            <thead><tr><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Field</th><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Type</th><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Stored as</th></tr></thead>
+            <thead><tr><th scope="col" style="text-align:left;padding:3px 6px;color:var(--text-muted);">Field</th><th scope="col" style="text-align:left;padding:3px 6px;color:var(--text-muted);">Type</th><th scope="col" style="text-align:left;padding:3px 6px;color:var(--text-muted);">Stored as</th></tr></thead>
             <tbody>
               <tr><td style="padding:2px 6px;font-family:monospace;">org_name</td><td style="padding:2px 6px;">text</td><td style="padding:2px 6px;font-family:monospace;">settings.org_name</td></tr>
               <tr><td style="padding:2px 6px;font-family:monospace;">brand_accent</td><td style="padding:2px 6px;">color (#RRGGBB hex)</td><td style="padding:2px 6px;font-family:monospace;">settings.brand_accent</td></tr>

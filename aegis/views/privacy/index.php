@@ -51,12 +51,12 @@ $basisLabels = [
     <table class="table">
       <thead>
         <tr>
-          <th>Activity</th>
-          <th>Legal Basis</th>
-          <th>Controller</th>
-          <th>DPIA</th>
-          <th>Status</th>
-          <th></th>
+          <th scope="col">Activity</th>
+          <th scope="col">Legal Basis</th>
+          <th scope="col">Controller</th>
+          <th scope="col">DPIA</th>
+          <th scope="col">Status</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
@@ -105,7 +105,7 @@ $basisLabels = [
   </div>
   <div class="card-body" style="padding:0">
     <table class="table">
-      <thead><tr><th>Type</th><th>Subject</th><th>Status</th><th>Due</th><th></th></tr></thead>
+      <thead><tr><th scope="col">Type</th><th scope="col">Subject</th><th scope="col">Status</th><th scope="col">Due</th><th scope="col"></th></tr></thead>
       <tbody>
         <?php foreach ($dsr as $r):
           $typeLabels=['access'=>'Access','erasure'=>'Erasure','rectification'=>'Rectification','portability'=>'Portability','objection'=>'Objection','restriction'=>'Restriction'];

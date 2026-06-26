@@ -140,14 +140,14 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
       <table class="data-table" style="min-width:820px" id="gapsTable">
         <thead>
           <tr>
-            <th style="width:108px">Standard</th>
-            <th style="width:150px">Code</th>
-            <th>Control Title</th>
-            <th style="width:150px">Package</th>
-            <th style="width:120px">Status</th>
-            <th style="width:104px">Due Date</th>
-            <th style="width:150px">Assigned To</th>
-            <th style="width:48px"></th>
+            <th scope="col" style="width:108px">Standard</th>
+            <th scope="col" style="width:150px">Code</th>
+            <th scope="col">Control Title</th>
+            <th scope="col" style="width:150px">Package</th>
+            <th scope="col" style="width:120px">Status</th>
+            <th scope="col" style="width:104px">Due Date</th>
+            <th scope="col" style="width:150px">Assigned To</th>
+            <th scope="col" style="width:48px"></th>
           </tr>
         </thead>
         <tbody>
@@ -244,10 +244,10 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
       <table class="data-table">
         <thead>
           <tr>
-            <th>Control Title</th>
-            <th>Frameworks Affected</th>
-            <th style="text-align:center">Count</th>
-            <th style="text-align:center">Implemented In</th>
+            <th scope="col">Control Title</th>
+            <th scope="col">Frameworks Affected</th>
+            <th scope="col" style="text-align:center">Count</th>
+            <th scope="col" style="text-align:center">Implemented In</th>
           </tr>
         </thead>
         <tbody>

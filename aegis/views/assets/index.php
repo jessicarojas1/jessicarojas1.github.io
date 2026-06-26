@@ -162,14 +162,14 @@ function criticalityBadge(string $crit): string {
     <table class="table data-table" style="min-width:900px;">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Criticality</th>
-          <th>Classification</th>
-          <th>Status</th>
-          <th>Owner</th>
-          <th>Last Scanned</th>
-          <th style="width:80px;"></th>
+          <th scope="col">Name</th>
+          <th scope="col">Type</th>
+          <th scope="col">Criticality</th>
+          <th scope="col">Classification</th>
+          <th scope="col">Status</th>
+          <th scope="col">Owner</th>
+          <th scope="col">Last Scanned</th>
+          <th scope="col" style="width:80px;"></th>
         </tr>
       </thead>
       <tbody>

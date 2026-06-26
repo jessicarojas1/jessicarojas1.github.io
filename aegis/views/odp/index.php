@@ -15,7 +15,7 @@
 <?php else: ?>
 <div class="card">
   <table class="table">
-    <thead><tr><th>Package</th><th>Standard</th><th>ODP Entries</th><th></th></tr></thead>
+    <thead><tr><th scope="col">Package</th><th scope="col">Standard</th><th scope="col">ODP Entries</th><th scope="col"></th></tr></thead>
     <tbody>
     <?php foreach ($packages as $pkg): ?>
       <tr>

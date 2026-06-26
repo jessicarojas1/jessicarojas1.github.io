@@ -500,13 +500,13 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr style="background:var(--bg-secondary);">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk ID</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Title</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Category</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Owner</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Strategy</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Review Date</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk ID</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Title</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Category</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Owner</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Strategy</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Review Date</th>
         </tr>
       </thead>
       <tbody>
@@ -635,12 +635,12 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr style="background:var(--bg-secondary);">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Category</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Max Appetite</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Breach</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Appetite Statement</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Category</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Max Appetite</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Breach</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Appetite Statement</th>
         </tr>
       </thead>
       <tbody>
@@ -728,13 +728,13 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr style="background:var(--bg-secondary);">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">KRI</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Linked Risk</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Latest Value</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Amber Threshold</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Red Threshold</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">RAG</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Recorded</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">KRI</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Linked Risk</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Latest Value</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Amber Threshold</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Red Threshold</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">RAG</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Recorded</th>
         </tr>
       </thead>
       <tbody>
@@ -785,11 +785,11 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr style="background:var(--bg-secondary);">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk ID</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Title</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Owner</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Review Date</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk ID</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Title</th>
+          <th scope="col" style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Owner</th>
+          <th scope="col" style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Review Date</th>
         </tr>
       </thead>
       <tbody>

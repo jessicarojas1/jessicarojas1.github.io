@@ -72,12 +72,12 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <table class="table">
       <thead>
         <tr>
-          <th>Control Code</th>
-          <th>Title</th>
-          <th>Package</th>
-          <th>Last Result</th>
-          <th>Next Test Was Due</th>
-          <th></th>
+          <th scope="col">Control Code</th>
+          <th scope="col">Title</th>
+          <th scope="col">Package</th>
+          <th scope="col">Last Result</th>
+          <th scope="col">Next Test Was Due</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
@@ -118,14 +118,14 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
       <table class="table" style="min-width:900px">
         <thead>
           <tr>
-            <th>Code</th>
-            <th>Control Title</th>
-            <th>Package</th>
-            <th>Date</th>
-            <th>Tester</th>
-            <th>Result</th>
-            <th style="width:160px">Effectiveness</th>
-            <th></th>
+            <th scope="col">Code</th>
+            <th scope="col">Control Title</th>
+            <th scope="col">Package</th>
+            <th scope="col">Date</th>
+            <th scope="col">Tester</th>
+            <th scope="col">Result</th>
+            <th scope="col" style="width:160px">Effectiveness</th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
