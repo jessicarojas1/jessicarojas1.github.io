@@ -43,14 +43,17 @@ class AuthController {
                 // Store that password was verified, require MFA step
                 $_SESSION['mfa_pending']  = true;
                 $_SESSION['mfa_user_id']  = Auth::id();
-                // Temporarily un-auth until MFA passes
+                // Temporarily un-auth until MFA passes. Capture the post-login
+                // redirect BEFORE destroying the session — otherwise it reads from
+                // the fresh (empty) session and always lands on '/'.
                 $saved = $_SESSION['user'];
+                $savedRedirect = $_SESSION['redirect_after_login'] ?? '/';
                 session_unset();
                 session_destroy();
                 session_start();
                 $_SESSION['mfa_pending']      = true;
                 $_SESSION['mfa_user_id']      = $saved['id'];
-                $_SESSION['mfa_redirect']     = $_SESSION['redirect_after_login'] ?? '/';
+                $_SESSION['mfa_redirect']     = $savedRedirect;
                 header('Location: /mfa/verify'); exit;
             }
 

@@ -187,6 +187,75 @@ final class Ssrf
         return false;
     }
 
+    /**
+     * Narrow SSRF guard for operator-configured infrastructure endpoints
+     * (SMTP relay host, S3-compatible endpoint). Unlike isSafeUrl(), this does
+     * NOT block RFC-1918 private ranges — internal mail relays and self-hosted
+     * MinIO legitimately live there. It blocks ONLY the ranges that are never a
+     * valid such target yet are the actual SSRF escalation risk: loopback,
+     * cloud-metadata / link-local, and the unspecified "this network" block.
+     * Returns true when the host is, or resolves to, such an address.
+     */
+    public static function isDangerousInfraHost(string $host): bool
+    {
+        $host = trim($host, "[] \t");
+        if ($host === '') {
+            return true;
+        }
+        $ips = filter_var($host, FILTER_VALIDATE_IP) !== false ? [$host] : self::resolveAll($host);
+        if (!$ips) {
+            return false; // unresolvable → let the connection attempt fail naturally
+        }
+        foreach ($ips as $ip) {
+            if (self::isMetadataOrLoopback($ip)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static function isMetadataOrLoopback(string $ip): bool
+    {
+        // IPv4-mapped IPv6 (e.g. ::ffff:169.254.169.254) → re-check embedded v4.
+        if (str_contains($ip, '.') && str_contains($ip, ':')) {
+            $tail = substr($ip, (int)strrpos($ip, ':') + 1);
+            if (filter_var($tail, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+                return self::isMetadataOrLoopback($tail);
+            }
+        }
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+            $long = ip2long($ip);
+            foreach (self::DANGEROUS_IPV4_CIDRS as [$base, $bits]) {
+                $mask = -1 << (32 - $bits);
+                if (($long & $mask) === (ip2long($base) & $mask)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        // IPv6: loopback, unspecified, link-local. NOT ULA (fc00::/7) — that is the
+        // v6 analogue of a private range and may host a legitimate internal endpoint.
+        $packed = @inet_pton($ip);
+        if ($packed === false) {
+            return true;
+        }
+        if ($ip === '::1' || $ip === '::') {
+            return true;
+        }
+        $first = ord($packed[0]);
+        if ($first === 0xFE && (ord($packed[1]) & 0xC0) === 0x80) { // fe80::/10 link-local
+            return true;
+        }
+        return false;
+    }
+
+    /** Ranges that are NEVER a valid operator endpoint: [network, prefix-bits]. */
+    private const DANGEROUS_IPV4_CIDRS = [
+        ['0.0.0.0',     8],   // "this network" / unspecified
+        ['127.0.0.0',   8],   // loopback
+        ['169.254.0.0', 16],  // link-local + cloud metadata (169.254.169.254)
+    ];
+
     /** IPv4 CIDR ranges to block: [network, prefix-bits]. */
     private const IPV4_BLOCK_CIDRS = [
         ['0.0.0.0',        8],   // "this network"

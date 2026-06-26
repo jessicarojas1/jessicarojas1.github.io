@@ -179,7 +179,9 @@ class AutomationController {
                     $matches = ['message' => 'Scheduled trigger — would run on schedule', 'items' => []];
             }
         } catch (Throwable $e) {
-            $matches = ['message' => 'Test error: ' . $e->getMessage(), 'items' => []];
+            // Log the detail server-side; don't leak internal exception text to the client.
+            error_log('[Automation] testRun failed: ' . $e->getMessage());
+            $matches = ['message' => 'Test run failed — see server logs for details.', 'items' => []];
         }
 
         header('Content-Type: application/json');

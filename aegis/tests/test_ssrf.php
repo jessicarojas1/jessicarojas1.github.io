@@ -31,3 +31,18 @@ it('curlResolve pins safe host', function () {
     expect_eq('1.1.1.1:8443:1.1.1.1', $r[0], 'resolve entry');
 });
 it('curlResolve returns null for blocked host', fn() => expect(Ssrf::curlResolve('http://127.0.0.1/x') === null, 'blocked host returned entry'));
+
+// isDangerousInfraHost — narrow guard for operator endpoints (SMTP/S3).
+// Blocks loopback + cloud-metadata/link-local, but ALLOWS private ranges
+// (on-prem mail relays / self-hosted MinIO must keep working).
+it('infra guard blocks cloud metadata', fn() => expect(Ssrf::isDangerousInfraHost('169.254.169.254'), 'metadata allowed'));
+it('infra guard blocks loopback v4', fn() => expect(Ssrf::isDangerousInfraHost('127.0.0.1'), 'loopback allowed'));
+it('infra guard blocks localhost name', fn() => expect(Ssrf::isDangerousInfraHost('localhost'), 'localhost allowed'));
+it('infra guard blocks loopback v6', fn() => expect(Ssrf::isDangerousInfraHost('::1'), '::1 allowed'));
+it('infra guard blocks 0.0.0.0', fn() => expect(Ssrf::isDangerousInfraHost('0.0.0.0'), '0.0.0.0 allowed'));
+it('infra guard blocks mapped metadata', fn() => expect(Ssrf::isDangerousInfraHost('::ffff:169.254.169.254'), 'mapped metadata allowed'));
+it('infra guard blocks empty host', fn() => expect(Ssrf::isDangerousInfraHost(''), 'empty allowed'));
+it('infra guard ALLOWS private 10/8', fn() => expect(!Ssrf::isDangerousInfraHost('10.0.0.5'), 'private 10/8 blocked'));
+it('infra guard ALLOWS private 192.168/16', fn() => expect(!Ssrf::isDangerousInfraHost('192.168.1.50'), 'private 192.168 blocked'));
+it('infra guard ALLOWS private 172.16/12', fn() => expect(!Ssrf::isDangerousInfraHost('172.16.0.10'), 'private 172.16 blocked'));
+it('infra guard ALLOWS public IP', fn() => expect(!Ssrf::isDangerousInfraHost('8.8.8.8'), 'public IP blocked'));

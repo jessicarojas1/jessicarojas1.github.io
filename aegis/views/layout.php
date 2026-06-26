@@ -254,7 +254,7 @@ $__jsVer  = @filemtime(AEGIS_ROOT . '/public/js/app.js')  ?: time();
       </div>
       <form method="POST" action="/logout" style="display:inline;margin:0;padding:0">
         <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
-        <button type="submit" class="btn-logout" title="Logout" style="background:none;border:none;cursor:pointer;padding:0"><i class="bi bi-box-arrow-right"></i></button>
+        <button type="submit" class="btn-logout" title="Logout" aria-label="Log out" style="background:none;border:none;cursor:pointer;padding:0"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></button>
       </form>
     </div>
   </div>
@@ -287,11 +287,11 @@ $__jsVer  = @filemtime(AEGIS_ROOT . '/public/js/app.js')  ?: time();
       <?php
       $unreadAlerts = Database::fetchOne("SELECT COUNT(*) as c FROM alerts WHERE user_id = ? AND is_read = FALSE", [Auth::id()])['c'] ?? 0;
       ?>
-      <button id="themeToggle" class="theme-toggle" title="Toggle dark mode" type="button">
-        <i class="bi bi-moon-fill" id="themeIcon"></i>
+      <button id="themeToggle" class="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode" type="button">
+        <i class="bi bi-moon-fill" id="themeIcon" aria-hidden="true"></i>
       </button>
-      <div class="alert-bell" id="alertBell">
-        <i class="bi bi-bell<?= $unreadAlerts > 0 ? '-fill' : '' ?>"></i>
+      <div class="alert-bell" id="alertBell" role="button" tabindex="0" aria-label="Notifications" aria-haspopup="true">
+        <i class="bi bi-bell<?= $unreadAlerts > 0 ? '-fill' : '' ?>" aria-hidden="true"></i>
         <?php if ($unreadAlerts > 0): ?>
           <span class="alert-badge"><?= min($unreadAlerts, 99) ?></span>
         <?php endif; ?>

@@ -23,7 +23,10 @@ class SearchController {
             $like = '%' . $q . '%';
 
             // ── risks ─────────────────────────────────────────────────────────
-            try {
+            // Each block is gated by the viewer's module permission so global
+            // search never leaks titles/IDs of records the user can't open.
+            $risks = [];
+            if (Auth::can('risk.view')) try {
                 $risks = Database::fetchAll(
                     "SELECT id, title AS label, risk_id AS sub, 'risk' AS type,
                             '/risk/'||id AS url, inherent_score AS score_num
@@ -40,7 +43,8 @@ class SearchController {
             }
 
             // ── policies ──────────────────────────────────────────────────────
-            try {
+            $policies = [];
+            if (Auth::can('policy.view')) try {
                 $policies = Database::fetchAll(
                     "SELECT id, title AS label, status AS sub, 'policy' AS type,
                             '/policy/'||id AS url, NULL AS score_num
@@ -55,7 +59,8 @@ class SearchController {
             }
 
             // ── audits ────────────────────────────────────────────────────────
-            try {
+            $audits = [];
+            if (Auth::can('audit.view')) try {
                 $audits = Database::fetchAll(
                     "SELECT id, name AS label, status AS sub, 'audit' AS type,
                             '/audit/'||id AS url, score AS score_num
@@ -69,24 +74,9 @@ class SearchController {
                 $audits = [];
             }
 
-            // ── incidents ─────────────────────────────────────────────────────
-            try {
-                $incidents = Database::fetchAll(
-                    "SELECT id, title AS label, severity AS sub, 'incident' AS type,
-                            '/incident/'||id AS url, NULL AS score_num
-                     FROM incidents
-                     WHERE (title ILIKE ? OR description ILIKE ?)
-                       AND status NOT IN ('resolved','closed')
-                     LIMIT 10",
-                    [$like, $like]
-                );
-            } catch (\Throwable $e) {
-                error_log('Search incidents error: ' . $e->getMessage());
-                $incidents = [];
-            }
-
             // ── vendors ───────────────────────────────────────────────────────
-            try {
+            $vendors = [];
+            if (Auth::can('vendor.view')) try {
                 $vendors = Database::fetchAll(
                     "SELECT id, name AS label, category AS sub, 'vendor' AS type,
                             '/vendor/'||id AS url, NULL AS score_num
@@ -101,7 +91,8 @@ class SearchController {
             }
 
             // ── controls (compliance_objectives level=2) ───────────────────────
-            try {
+            $controls = [];
+            if (Auth::can('compliance.view')) try {
                 $controls = Database::fetchAll(
                     "SELECT co.id, co.title AS label, co.code AS sub, 'control' AS type,
                             '/compliance/'||co.package_id AS url, NULL AS score_num
@@ -117,7 +108,8 @@ class SearchController {
             }
 
             // ── assets (table may not exist yet) ──────────────────────────────
-            try {
+            $assets = [];
+            if (Auth::can('asset.view')) try {
                 $assets = Database::fetchAll(
                     "SELECT id, name AS label, asset_type AS sub, 'asset' AS type,
                             '/assets/'||id AS url, NULL AS score_num
@@ -136,7 +128,6 @@ class SearchController {
                 'risk'     => $risks,
                 'policy'   => $policies,
                 'audit'    => $audits,
-                'incident' => $incidents,
                 'vendor'   => $vendors,
                 'control'  => $controls,
                 'asset'    => $assets,
