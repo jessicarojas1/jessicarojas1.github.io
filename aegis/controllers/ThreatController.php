@@ -157,6 +157,12 @@ class ThreatController {
         $id     = (int)$id;
         $riskId = (int)($_POST['risk_id'] ?? 0);
         if (!$riskId) { header("Location: /threats/{$id}"); return; }
+        // Validate the target risk exists in this tenant (RLS scopes the lookup),
+        // so an arbitrary or cross-tenant risk_id can't be linked.
+        if (!Database::fetchOne("SELECT id FROM risks WHERE id = ?", [$riskId])) {
+            $_SESSION['flash_error'] = 'Risk not found.';
+            header("Location: /threats/{$id}"); return;
+        }
         try {
             Database::insert('threat_risk_links', ['threat_id' => $id, 'risk_id' => $riskId]);
             $_SESSION['flash_success'] = 'Risk linked.';
