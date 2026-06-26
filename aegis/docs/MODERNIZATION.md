@@ -94,27 +94,32 @@ real code and left unchanged for the stated reason:
 
 ---
 
-## 5. Remaining backlog (real, deferred — prioritized)
+## 5. Backlog — status
 
-These are genuine but were deferred (effort, design decision, or low real-world
-impact). None are blocking; none are security-critical.
+### Completed (follow-up batches 8–9)
+- ✅ **KRI latest-value subqueries → `LATERAL` joins** — the board report, KRI
+  dashboard, and custom-dashboard `kri_status` widget each used a correlated
+  `(SELECT id ... ORDER BY recorded_at DESC LIMIT 1)` subquery per row; all three
+  rewritten as `LEFT JOIN LATERAL (...) ON TRUE`. Verified against live Postgres.
+- ✅ **Table semantics** — `scope="col"` added to 675 `<thead>` column headers
+  across 85 views; `scope="row"` added to 27 detail-table row headers
+  (documents, SSP). Screen readers now associate cells with the right header.
+- ✅ **Breadcrumb consistency** — audited: 40/41 full-page views set
+  `$breadcrumbs`; the only exception (`mfa_setup`) is an auth-flow page where it
+  is intentional. No change needed.
 
-**Medium**
-- **Admin list pagination** — `AdminController::users()` / `apiKeys()` load all rows.
-  Add `LIMIT/OFFSET` + pager controls. Low urgency at typical GRC user counts.
-- **Board KRI subquery** — correlated `LIMIT 1` latest-value subquery per KRI;
-  rewrite as a `LATERAL` join or window function for large KRI sets.
+### Deferred (effort / design decision / low impact — none blocking or security)
+- **Admin list pagination** — `AdminController::users()` loads all rows. Left as-is
+  **by design**: the mandated IAM layout uses a scrollable list with live
+  *client-side* search, which requires all rows; server-side pagination would
+  regress that UX. Revisit only at multi-thousand-user scale.
 - **CustomDashboard widget queries** — no caching; a dashboard with many widgets
-  issues many queries per load. Candidate for short-TTL caching.
-
-**Low (polish)**
+  issues many queries per load. Candidate for short-TTL caching (needs a cache
+  backend decision).
 - **Data-driven category-color hex** (threat/treatment views) — category/status
-  color arrays use literal hex; needs a token mapping decision (which `--var` per
-  semantic category) before converting for dark-mode fidelity.
-- **Table semantics** — add `scope="col"` to `<thead>` headers and `<caption>`s
-  across list views for screen-reader table navigation.
-- **Empty-state / breadcrumb consistency** — a few views deviate from the
-  `empty-state-sm` / `page-header` conventions.
+  color arrays use literal hex. These are vivid mid-tone hues that remain legible
+  in dark mode; full tokenization needs a per-category `--var` mapping decision
+  and is cosmetic only.
 
 **Needs a deployment decision**
 - **SSRF depth for infra endpoints** — Batch 3 blocks metadata/loopback only. If a
@@ -131,6 +136,10 @@ impact). None are blocking; none are security-critical.
 - **Manual reasoning:** each fix traced through its call path; SSRF guard exercised
   against block/allow IP fixtures; modal a11y behavior reasoned against the
   centralized open/close/Escape paths.
+- **Runtime smoke test:** the app was booted against a live Postgres instance;
+  login succeeded and every changed route — `/`, `/search`, `/report/board`,
+  `/kris`, `/dashboards`, `/risk`, `/threats`, `/admin/users`, `/metrics` —
+  returned HTTP 200 with no uncaught exceptions in the server log.
 
 ## 7. Remaining risks
 
