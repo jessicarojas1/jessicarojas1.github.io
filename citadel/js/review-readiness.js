@@ -85,15 +85,39 @@
   }
   function statusOf(score, pol) { return score >= pol.warnAt ? 'pass' : score >= pol.failAt ? 'warn' : 'fail'; }
 
+  // A finding's triage disposition (live shared/local store when present, else
+  // the finding's own field). Drives which findings the gate still counts.
+  function dispoOf(f) {
+    try { if (CITADEL.disposition && CITADEL.disposition.of) return CITADEL.disposition.of(f); } catch (e) {}
+    return (f && f.disposition) || 'open';
+  }
+  function noteOf(f) {
+    try { if (CITADEL.disposition && CITADEL.disposition.note) return CITADEL.disposition.note(f) || ''; } catch (e) {}
+    return '';
+  }
+
   function analyze(report) {
     report = report || {};
     const pol = policy();
-    const findings = Array.isArray(report.findings) ? report.findings : [];
-    const reviews = report.depreview ? report : report;   // noop guard
+    const allFindings = Array.isArray(report.findings) ? report.findings : [];
     const dep = report.depreview || {};
     const rv = report.reviews || {};
 
-    // Bucket findings by dimension.
+    // Partition by triage disposition: 'open' findings still count toward the
+    // gate; 'accepted' become risk-acceptance items; false-positive/remediated/
+    // na are excluded entirely.
+    const findings = [], accepted = [];
+    for (const f of allFindings) {
+      const d = dispoOf(f);
+      if (d === 'accepted') accepted.push(f);
+      else if (d === 'open') findings.push(f);
+    }
+    const acceptedRisks = accepted.map(f => ({
+      title: f.name || f.ruleId || 'Finding', severity: sev(f), module: f.module || f.category || '',
+      file: f.file || '', note: noteOf(f)
+    }));
+
+    // Bucket the active findings by dimension.
     const byDim = {}; DIMENSIONS.forEach(d => { byDim[d[0]] = []; });
     for (const f of findings) { const k = dimensionOf(f); (byDim[k] || byDim.security).push(f); }
 
@@ -123,14 +147,19 @@
     dimensions.forEach(d => { wsum += d.weight; acc += d.score * d.weight; });
     const overall = clampInt(wsum > 0 ? acc / wsum : 0);
 
-    const gate = decide(report, dimensions, dep, pol);
+    const gate = decide(report, dimensions, dep, pol, findings);
+    const acceptedSerious = accepted.some(f => ['critical', 'high'].includes(sev(f)));
+    if (acceptedSerious && !gate.rationale.some(r => /risk-accepted/i.test(r))) {
+      gate.rationale.push(acceptedRisks.length + ' finding(s) risk-accepted by a reviewer — see accepted risks.');
+    }
 
     return {
       generatedAt: new Date().toISOString(), policyName: pol.name,
       dimensions, overall,
       decision: gate.decision, rationale: gate.rationale, blockers: gate.blockers,
       requiredRemediation: gate.required, afterRemediation: gate.after,
-      riskAcceptanceRequired: gate.riskAcceptanceRequired, approverRoles: gate.approverRoles
+      riskAcceptanceRequired: gate.riskAcceptanceRequired || acceptedSerious,
+      approverRoles: gate.approverRoles, acceptedRisks: acceptedRisks
     };
   }
 
@@ -164,8 +193,8 @@
   }
 
   // ---- The security gate decision ------------------------------------------
-  function decide(report, dimensions, dep, pol) {
-    const findings = report.findings || [];
+  function decide(report, dimensions, dep, pol, findings) {
+    findings = findings || [];
     const dimMap = {}; dimensions.forEach(d => { dimMap[d.key] = d; });
     const rationale = [], blockers = [], required = [], after = [];
     let level = 0;   // index into DECISIONS

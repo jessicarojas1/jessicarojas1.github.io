@@ -69,6 +69,7 @@
    * Keyed by the canonical, line-stable fingerprint so a disposition survives
    * edits and re-scans. The legacy `suppress` API is kept (hidden = non-open). */
   const DKEY = 'citadel.disposition.v1';
+  const NKEY = 'citadel.disposition.note.v1';
   const DISPOSITIONS = ['open', 'accepted', 'false-positive', 'remediated', 'na'];
   const DISPO_LABEL = { open: 'Open', accepted: 'Accepted risk', 'false-positive': 'False positive', remediated: 'Remediated', na: 'Not applicable' };
   function fpOf(f) {
@@ -76,23 +77,46 @@
     return [f.ruleId || '', (f.file || '').replace(/^.*!\//, ''), f.name || ''].join('|');
   }
   function dmap() { try { return JSON.parse(localStorage.getItem(DKEY) || '{}'); } catch (e) { return {}; } }
+  function nmap() { try { return JSON.parse(localStorage.getItem(NKEY) || '{}'); } catch (e) { return {}; } }
   // When a backend is present, a shared server-side map (by fingerprint) is the
   // source of truth and wins over the per-browser localStorage map.
-  let _server = null;   // { fingerprint: state } or null when not loaded/unavailable
+  let _server = null;       // { fingerprint: state } or null when not loaded/unavailable
+  let _serverNotes = null;  // { fingerprint: note } (parallel to _server)
   function effective() { return _server ? Object.assign({}, dmap(), _server) : dmap(); }
   function dispositionOf(f) { const k = fpOf(f); return (_server && _server[k]) || dmap()[k] || 'open'; }
-  function setDisposition(f, state) {
+  // Reviewer note for a finding (shared server note wins over the local one).
+  function noteOf(f) { const k = fpOf(f); return (_serverNotes && _serverNotes[k]) || nmap()[k] || ''; }
+  // Set state and/or note. `note` undefined => keep the existing note; a string
+  // (incl. '') => replace it. Persists locally and, when shared, to the server.
+  function setDisposition(f, state, note) {
     const k = fpOf(f);
     const m = dmap();
     if (!state || state === 'open') delete m[k]; else if (DISPOSITIONS.indexOf(state) >= 0) m[k] = state;
     try { localStorage.setItem(DKEY, JSON.stringify(m)); } catch (e) {}
+    let noteVal = noteOf(f);
+    if (note !== undefined) {
+      noteVal = String(note || '').slice(0, 2000);
+      const nm = nmap();
+      if (noteVal) nm[k] = noteVal; else delete nm[k];
+      try { localStorage.setItem(NKEY, JSON.stringify(nm)); } catch (e) {}
+      if (_serverNotes) { if (noteVal) _serverNotes[k] = noteVal; else delete _serverNotes[k]; }
+    }
     if (_server) {                                  // optimistic shared update + persist
-      if (!state || state === 'open') delete _server[k]; else _server[k] = state;
-      if (CITADEL.api && CITADEL.api.dispositionSet) CITADEL.api.dispositionSet(k, state || 'open');
+      if ((!state || state === 'open') && !noteVal) delete _server[k]; else if (state && state !== 'open') _server[k] = state;
+      if (CITADEL.api && CITADEL.api.dispositionSet) CITADEL.api.dispositionSet(k, state || 'open', noteVal);
     }
   }
-  // Load the shared server map (called once a backend is detected).
-  function syncServer(map) { _server = map || {}; }
+  function setNote(f, note) { setDisposition(f, dispositionOf(f), note); }
+  // Load the shared server map. Tolerant of the legacy flat shape ({fp:state})
+  // and the rich shape ({fp:{state,note}}).
+  function syncServer(map) {
+    _server = {}; _serverNotes = {};
+    Object.keys(map || {}).forEach(k => {
+      const v = map[k];
+      if (v && typeof v === 'object') { if (v.state && v.state !== 'open') _server[k] = v.state; if (v.note) _serverNotes[k] = v.note; }
+      else if (v) { _server[k] = v; }
+    });
+  }
   function serverShared() { return !!_server; }
   function dispositionCounts() {
     const m = effective(); const c = { open: 0, accepted: 0, 'false-positive': 0, remediated: 0, na: 0 };
@@ -109,5 +133,5 @@
 
   CITADEL.history = { record, list, clear, compare, rename };
   CITADEL.suppress = { fingerprint: fpOf, isSuppressed, suppress, unsuppress, clear: clearSuppress, count: suppressCount, all: suppressed };
-  CITADEL.disposition = { of: dispositionOf, set: setDisposition, counts: dispositionCounts, states: DISPOSITIONS, label: DISPO_LABEL, fpOf, syncServer, serverShared };
+  CITADEL.disposition = { of: dispositionOf, set: setDisposition, note: noteOf, setNote: setNote, counts: dispositionCounts, states: DISPOSITIONS, label: DISPO_LABEL, fpOf, syncServer, serverShared };
 })(window);

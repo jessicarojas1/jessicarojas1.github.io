@@ -138,6 +138,9 @@ CREATE TABLE IF NOT EXISTS citadel_dispositions (
   updated_at  timestamptz NOT NULL DEFAULT now()
 );
 
+-- Reviewer note stored alongside a disposition (idempotent for upgrades).
+ALTER TABLE citadel_dispositions ADD COLUMN IF NOT EXISTS note text;
+
 -- ----------------------------------------------------------------------------
 -- Tenant registry (schema-per-tenant multi-tenancy; OPT-IN, CITADEL_MULTITENANT=1)
 -- Lives in the public schema and maps a tenant slug to its dedicated Postgres

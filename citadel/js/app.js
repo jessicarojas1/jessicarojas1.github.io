@@ -161,6 +161,14 @@
     ['pick-files', 'pick-folder', 'load-demo', 'scan-url-btn'].forEach(id => { const b = $(id); if (b) b.disabled = !has; });
     const dz = $('dropzone'); if (dz) dz.classList.toggle('dz-disabled', !has);
   }
+  // Re-run the release-readiness gate after a triage change (a disposition can
+  // exclude a false-positive or risk-accept a Critical, changing the decision).
+  function recomputeReadiness() {
+    const r = CITADEL.report && CITADEL.report.current;
+    if (r && CITADEL.readiness && CITADEL.readiness.analyze) {
+      try { r.readiness = CITADEL.readiness.analyze(r); CITADEL.readiness.render(r); } catch (e) {}
+    }
+  }
   // Load a saved scan's full report and show it (shared by Recent + History).
   async function openScanById(id) {
     try {
@@ -482,6 +490,11 @@
   // ---- Projects: switcher + react to project changes + boot ----------------
   document.addEventListener('change', (e) => {
     if (e.target && e.target.id === 'project-switch') CITADEL.projects.setCurrent(e.target.value);
+    const noteEl = e.target && e.target.closest && e.target.closest('[data-dispose-note]');
+    if (noteEl) {
+      const f = CITADEL.report.shownFinding(+noteEl.dataset.disposeNote);
+      if (f && CITADEL.disposition && CITADEL.disposition.setNote) CITADEL.disposition.setNote(f, noteEl.value);
+    }
   });
   document.addEventListener('citadel:project-change', () => {
     if (!CITADEL.projects) return;
@@ -613,7 +626,7 @@
     if (dispBtn) {
       const [idx, state] = dispBtn.dataset.disposeSet.split(':');
       const f = CITADEL.report.shownFinding(+idx);
-      if (f && CITADEL.disposition) { CITADEL.disposition.set(f, state); CITADEL.report.renderFindings(CITADEL.report.current); }
+      if (f && CITADEL.disposition) { CITADEL.disposition.set(f, state); CITADEL.report.renderFindings(CITADEL.report.current); recomputeReadiness(); }
       return;
     }
     // Suppress / un-suppress a finding (legacy button path; still supported)

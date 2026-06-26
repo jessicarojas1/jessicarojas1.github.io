@@ -438,11 +438,13 @@ test('scoring: distinct risk score weights confirmed findings; rationale is expl
 /* ---------------- Shared dispositions (graceful without a DB) ---------------- */
 test('dispositions: valid states; degrades to no-op without a database', async () => {
   const d = require('../lib/dispositions');
+  assert.ok(d.STATES.includes('accepted') && d.STATES.includes('false-positive'));
   assert.ok(d.valid('accepted') && d.valid('false-positive') && d.valid('open'));
   assert.equal(d.valid('bogus'), false);
   assert.equal(d.enabled(), false);              // no DATABASE_URL in tests
   assert.deepEqual(await d.list(), {});
   assert.equal(await d.set('fp123', 'accepted', 'tester'), null);
+  assert.equal(await d.set('fp', 'accepted', 'a@b', 'note'), null);   // note arg, no-DB path
 });
 
 /* ---------------- Projects (graceful without a DB) ---------------- */

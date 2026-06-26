@@ -214,6 +214,9 @@ ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS name text;
 ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS project_id   text;
 ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS project_name text;
 CREATE INDEX IF NOT EXISTS citadel_scans_project_idx ON citadel_scans (project_id);
+
+-- Reviewer note stored alongside a disposition (idempotent for upgrades).
+ALTER TABLE citadel_dispositions ADD COLUMN IF NOT EXISTS note text;
 `;
 
 async function init() {
