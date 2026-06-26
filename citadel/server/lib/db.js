@@ -215,6 +215,11 @@ ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS project_id   text;
 ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS project_name text;
 CREATE INDEX IF NOT EXISTS citadel_scans_project_idx ON citadel_scans (project_id);
 
+-- Compact readiness summary so a readiness trend can be read from history
+-- without fetching each full report (idempotent for upgrades).
+ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS readiness_decision text;
+ALTER TABLE citadel_scans ADD COLUMN IF NOT EXISTS readiness_overall  int;
+
 -- Reviewer note stored alongside a disposition (idempotent for upgrades).
 ALTER TABLE citadel_dispositions ADD COLUMN IF NOT EXISTS note text;
 

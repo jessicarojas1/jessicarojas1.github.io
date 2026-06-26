@@ -468,6 +468,15 @@ test('projects: exports documented API; degrades to no-op without a database', a
   assert.deepEqual(await p.list(null), []);
 });
 
+/* ---------------- Scans (durable history) ---------------- */
+test('scans: exports record/list/get + degrades without a database', () => {
+  const scans = require('../lib/scans');
+  for (const fn of ['record', 'list', 'get']) {
+    assert.equal(typeof scans[fn], 'function', 'scans.' + fn + ' should be a function');
+  }
+  assert.equal(scans.enabled(), false);             // no DATABASE_URL in tests
+});
+
 /* ---------------- ReDoS isolation (worker + timeout) ---------------- */
 test('engine: isolated heuristic scan runs in a worker and degrades on timeout', async () => {
   const fsx = require('fs'), osx = require('os'), px = require('path');
