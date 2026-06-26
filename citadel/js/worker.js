@@ -16,6 +16,7 @@ try {
     'rules-iac.js', 'rules-api.js', 'rules-cicd.js', 'rules-java.js',
     'secrets.js', 'sbom.js', 'binary.js', 'fingerprint.js',
     'depreview-deps.js', 'depreview-runtime.js', 'depreview-security.js', 'depreview.js',
+    'review-logging.js', 'review-testing.js', 'review-threatmodel.js', 'review-architecture.js', 'review-readiness.js',
     'scanner.js'
   );
 } catch (e) {
