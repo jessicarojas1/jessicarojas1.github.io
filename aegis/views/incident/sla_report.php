@@ -54,10 +54,10 @@ $sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
         <tr style="background:var(--bg-secondary)">
-          <th style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Severity</th>
-          <th style="padding:10px 16px;text-align:center;font-weight:600;color:var(--text-muted)">Acknowledge Within</th>
-          <th style="padding:10px 16px;text-align:center;font-weight:600;color:var(--text-muted)">Resolve Within</th>
-          <th style="padding:10px 16px;text-align:center;font-weight:600;color:var(--text-muted)">Escalate After</th>
+          <th scope="col" style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Severity</th>
+          <th scope="col" style="padding:10px 16px;text-align:center;font-weight:600;color:var(--text-muted)">Acknowledge Within</th>
+          <th scope="col" style="padding:10px 16px;text-align:center;font-weight:600;color:var(--text-muted)">Resolve Within</th>
+          <th scope="col" style="padding:10px 16px;text-align:center;font-weight:600;color:var(--text-muted)">Escalate After</th>
         </tr>
       </thead>
       <tbody>
@@ -127,12 +127,12 @@ $sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7
       <table style="width:100%;border-collapse:collapse;font-size:13px">
         <thead>
           <tr style="background:var(--bg-secondary)">
-            <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Severity</th>
-            <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Incident</th>
-            <th style="padding:10px 14px;text-align:center;font-weight:600;color:var(--text-muted)">Age</th>
-            <th style="padding:10px 14px;text-align:center;font-weight:600;color:var(--text-muted)">Acknowledge SLA</th>
-            <th style="padding:10px 14px;text-align:center;font-weight:600;color:var(--text-muted)">Resolve SLA</th>
-            <th style="padding:10px 14px;text-align:center;font-weight:600;color:var(--text-muted)"></th>
+            <th scope="col" style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Severity</th>
+            <th scope="col" style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Incident</th>
+            <th scope="col" style="padding:10px 14px;text-align:center;font-weight:600;color:var(--text-muted)">Age</th>
+            <th scope="col" style="padding:10px 14px;text-align:center;font-weight:600;color:var(--text-muted)">Acknowledge SLA</th>
+            <th scope="col" style="padding:10px 14px;text-align:center;font-weight:600;color:var(--text-muted)">Resolve SLA</th>
+            <th scope="col" style="padding:10px 14px;text-align:center;font-weight:600;color:var(--text-muted)"></th>
           </tr>
         </thead>
         <tbody>

@@ -127,15 +127,15 @@ $_filterCount = count(array_filter([
     <table class="table">
       <thead>
         <tr>
-          <th>Code</th>
-          <th>Vendor Name</th>
-          <th>Category</th>
-          <th>Risk Tier</th>
-          <th>Status</th>
-          <th>Data Access</th>
-          <th>Critical Svc</th>
-          <th>Contract End</th>
-          <th></th>
+          <th scope="col">Code</th>
+          <th scope="col">Vendor Name</th>
+          <th scope="col">Category</th>
+          <th scope="col">Risk Tier</th>
+          <th scope="col">Status</th>
+          <th scope="col">Data Access</th>
+          <th scope="col">Critical Svc</th>
+          <th scope="col">Contract End</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>

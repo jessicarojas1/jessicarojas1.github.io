@@ -82,10 +82,10 @@ $typeColors = [
     <table class="table">
       <thead>
         <tr>
-          <th>Sent At</th>
-          <th>Type</th>
-          <th>Recipient</th>
-          <th>Entity</th>
+          <th scope="col">Sent At</th>
+          <th scope="col">Type</th>
+          <th scope="col">Recipient</th>
+          <th scope="col">Entity</th>
         </tr>
       </thead>
       <tbody>

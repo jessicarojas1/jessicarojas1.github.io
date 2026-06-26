@@ -174,11 +174,11 @@ $contracts = Database::fetchAll(
     <table class="data-table">
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Status</th>
-          <th>Value</th>
-          <th>End Date</th>
-          <th>Auto-Renewal</th>
+          <th scope="col">Title</th>
+          <th scope="col">Status</th>
+          <th scope="col">Value</th>
+          <th scope="col">End Date</th>
+          <th scope="col">Auto-Renewal</th>
         </tr>
       </thead>
       <tbody>

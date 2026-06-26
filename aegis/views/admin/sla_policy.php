@@ -41,11 +41,11 @@ $breadcrumbs = [['Admin', '/admin'], ['SLA Policies', null]];
           <table style="width:100%;border-collapse:collapse;font-size:13px">
             <thead>
               <tr style="background:var(--bg-secondary)">
-                <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted);width:100px">Severity</th>
-                <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Acknowledge Within (hours)</th>
-                <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Resolve Within (hours)</th>
-                <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Escalate After (hours, optional)</th>
-                <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Effective SLA</th>
+                <th scope="col" style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted);width:100px">Severity</th>
+                <th scope="col" style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Acknowledge Within (hours)</th>
+                <th scope="col" style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Resolve Within (hours)</th>
+                <th scope="col" style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Escalate After (hours, optional)</th>
+                <th scope="col" style="padding:10px 14px;text-align:left;font-weight:600;color:var(--text-muted)">Effective SLA</th>
               </tr>
             </thead>
             <tbody>

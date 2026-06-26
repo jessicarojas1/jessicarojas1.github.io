@@ -63,7 +63,11 @@ class Security {
                         'form','input','button','select','textarea','link','meta','base'];
 
         // Dangerous attribute prefixes
-        $blockedAttrPrefixes = ['on']; // onclick, onload, onerror, etc.
+        // 'on*' = event handlers; 'data-*' = app.js delegation hooks (data-click,
+        // data-submit, data-show-modal, …). Neither belongs in user-submitted
+        // rich text, and allowing data-* would let stored content trigger UI
+        // actions when an admin/approver views it.
+        $blockedAttrPrefixes = ['on', 'data-'];
         $blockedAttrs = ['href', 'src', 'action', 'formaction', 'data', 'srcdoc', 'style'];
 
         $dom = new \DOMDocument();

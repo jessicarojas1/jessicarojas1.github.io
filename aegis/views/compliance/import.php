@@ -67,7 +67,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
             <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
               <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
               <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
-                <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
+                <thead><tr style="color:var(--text-muted)"><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Field</th><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Format</th><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th scope="col" style="text-align:left;">Required</th></tr></thead>
                 <tbody style="color:var(--text);">
                   <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">CSV (.csv)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:var(--danger)">Yes</strong></td></tr>
                 </tbody>
@@ -106,7 +106,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
             <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
               <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
               <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
-                <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
+                <thead><tr style="color:var(--text-muted)"><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Field</th><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Format</th><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th scope="col" style="text-align:left;">Required</th></tr></thead>
                 <tbody style="color:var(--text);">
                   <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">Excel (.xlsx)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:var(--danger)">Yes</strong></td></tr>
                 </tbody>
@@ -149,7 +149,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
             <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
               <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
               <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
-                <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
+                <thead><tr style="color:var(--text-muted)"><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Field</th><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Format</th><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th scope="col" style="text-align:left;">Required</th></tr></thead>
                 <tbody style="color:var(--text);">
                   <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">PDF (.pdf) — text-based only</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:var(--danger)">Yes</strong></td></tr>
                 </tbody>
@@ -184,7 +184,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
             <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
               <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
               <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
-                <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
+                <thead><tr style="color:var(--text-muted)"><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Field</th><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Format</th><th scope="col" style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th scope="col" style="text-align:left;">Required</th></tr></thead>
                 <tbody style="color:var(--text);">
                   <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">JSON (.json)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:var(--danger)">Yes</strong></td></tr>
                 </tbody>
@@ -282,8 +282,8 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
         <p class="text-muted" style="margin-bottom:10px;font-size:12px">Same column names for CSV and Excel (row 1 = headers):</p>
         <table style="width:100%;font-size:12px;border-collapse:collapse">
           <thead><tr style="border-bottom:1px solid var(--border)">
-            <th style="text-align:left;padding:4px 8px;color:var(--text-muted)">Column</th>
-            <th style="text-align:left;padding:4px 8px;color:var(--text-muted)">Required</th>
+            <th scope="col" style="text-align:left;padding:4px 8px;color:var(--text-muted)">Column</th>
+            <th scope="col" style="text-align:left;padding:4px 8px;color:var(--text-muted)">Required</th>
           </tr></thead>
           <tbody>
           <?php foreach ([

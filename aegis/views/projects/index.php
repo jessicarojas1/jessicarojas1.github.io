@@ -72,15 +72,15 @@ $priorityBadge = [
     <table class="table">
       <thead>
         <tr>
-          <th>Code</th>
-          <th>Title</th>
-          <th>Lead</th>
-          <th>Priority</th>
-          <th>Status</th>
-          <th>Progress</th>
-          <th>Budget</th>
-          <th>End Date</th>
-          <th>Actions</th>
+          <th scope="col">Code</th>
+          <th scope="col">Title</th>
+          <th scope="col">Lead</th>
+          <th scope="col">Priority</th>
+          <th scope="col">Status</th>
+          <th scope="col">Progress</th>
+          <th scope="col">Budget</th>
+          <th scope="col">End Date</th>
+          <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody>

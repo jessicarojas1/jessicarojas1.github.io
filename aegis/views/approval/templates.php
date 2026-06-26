@@ -63,11 +63,11 @@ $entityTypeLabels = [
     <table class="data-table">
       <thead>
         <tr>
-          <th>Template Name</th>
-          <th>Entity Type</th>
-          <th>Status</th>
-          <th>Created</th>
-          <th style="width:140px">Actions</th>
+          <th scope="col">Template Name</th>
+          <th scope="col">Entity Type</th>
+          <th scope="col">Status</th>
+          <th scope="col">Created</th>
+          <th scope="col" style="width:140px">Actions</th>
         </tr>
       </thead>
       <tbody>

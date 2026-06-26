@@ -51,13 +51,13 @@ function parseOS(string $ua): string {
     <table class="data-table" id="sessionsTable">
       <thead>
         <tr>
-          <th>User</th>
-          <th>Role</th>
-          <th>IP Address</th>
-          <th>Browser / OS</th>
-          <th>Last Seen</th>
-          <th>Session Age</th>
-          <th style="width:100px">Action</th>
+          <th scope="col">User</th>
+          <th scope="col">Role</th>
+          <th scope="col">IP Address</th>
+          <th scope="col">Browser / OS</th>
+          <th scope="col">Last Seen</th>
+          <th scope="col">Session Age</th>
+          <th scope="col" style="width:100px">Action</th>
         </tr>
       </thead>
       <tbody>

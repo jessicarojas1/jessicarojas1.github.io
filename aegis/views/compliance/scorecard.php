@@ -154,12 +154,12 @@ $breadcrumbs = [['Compliance', '/compliance'], ['Scorecard', null]];
   <table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead>
       <tr>
-        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:100px">Code</th>
-        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Control Title</th>
-        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:120px">Status</th>
-        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:120px">Assigned To</th>
-        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:90px">Due Date</th>
-        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Notes</th>
+        <th scope="col" style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:100px">Code</th>
+        <th scope="col" style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Control Title</th>
+        <th scope="col" style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:120px">Status</th>
+        <th scope="col" style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:120px">Assigned To</th>
+        <th scope="col" style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:90px">Due Date</th>
+        <th scope="col" style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Notes</th>
       </tr>
     </thead>
     <tbody>

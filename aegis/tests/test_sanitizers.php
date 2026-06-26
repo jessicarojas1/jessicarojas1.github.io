@@ -64,3 +64,18 @@ it('rejects weak passwords against the default policy', function () {
 it('accepts a strong password', function () {
     expect_eq([], Security::validatePasswordPolicy('Abcdef1!ghij'));
 });
+
+// sanitizeHtml must strip app.js delegation hooks (data-*) and event handlers (on*)
+// from user rich text, while preserving safe markup and http(s)/relative hrefs.
+it('sanitizeHtml strips data-* delegation attrs', function () {
+    expect(strpos(Security::sanitizeHtml('<span data-click="toggleAllRisks">x</span>'), 'data-') === false, 'data-click survived');
+    expect(strpos(Security::sanitizeHtml('<div data-show-modal="m">y</div>'), 'data-') === false, 'data-show-modal survived');
+});
+it('sanitizeHtml strips on* handlers but keeps safe href', function () {
+    $out = Security::sanitizeHtml('<a onclick="alert(1)" href="/ok">z</a>');
+    expect(stripos($out, 'onclick') === false, 'onclick survived');
+    expect(strpos($out, 'href="/ok"') !== false, 'safe href stripped');
+});
+it('sanitizeHtml preserves safe formatting', function () {
+    expect_eq('<p>hello <b>world</b></p>', Security::sanitizeHtml('<p>hello <b>world</b></p>'));
+});

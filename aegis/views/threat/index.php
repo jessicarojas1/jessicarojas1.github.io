@@ -129,15 +129,15 @@ $_threatActiveFilters = (int)!empty($filter) + (int)!empty($statusF);
     <table class="table data-table" style="min-width:960px;">
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Category</th>
-          <th>Status</th>
-          <th style="text-align:center;">Likelihood</th>
-          <th style="text-align:center;">Impact</th>
-          <th style="text-align:center;">Score</th>
-          <th style="text-align:center;">Linked Risks</th>
-          <th>Owner</th>
-          <th style="width:70px;"></th>
+          <th scope="col">Title</th>
+          <th scope="col">Category</th>
+          <th scope="col">Status</th>
+          <th scope="col" style="text-align:center;">Likelihood</th>
+          <th scope="col" style="text-align:center;">Impact</th>
+          <th scope="col" style="text-align:center;">Score</th>
+          <th scope="col" style="text-align:center;">Linked Risks</th>
+          <th scope="col">Owner</th>
+          <th scope="col" style="width:70px;"></th>
         </tr>
       </thead>
       <tbody>

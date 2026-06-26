@@ -138,14 +138,14 @@ if ($filterStatus !== '') {
     <table class="table">
       <thead>
         <tr>
-          <th>Risk</th>
-          <th>Accepted By</th>
-          <th>Score at Acceptance</th>
-          <th style="min-width:200px;">Acceptance Reason</th>
-          <th>Valid Until</th>
-          <th>Status</th>
-          <th>Days Remaining</th>
-          <th style="width:130px;"></th>
+          <th scope="col">Risk</th>
+          <th scope="col">Accepted By</th>
+          <th scope="col">Score at Acceptance</th>
+          <th scope="col" style="min-width:200px;">Acceptance Reason</th>
+          <th scope="col">Valid Until</th>
+          <th scope="col">Status</th>
+          <th scope="col">Days Remaining</th>
+          <th scope="col" style="width:130px;"></th>
         </tr>
       </thead>
       <tbody>

@@ -15,7 +15,7 @@ ob_start();
 <div class="card">
   <div class="card-body p0">
     <table class="table">
-      <thead><tr><th>Name</th><th>Trigger</th><th>Actions</th><th>Status</th><th>Created</th><th></th></tr></thead>
+      <thead><tr><th scope="col">Name</th><th scope="col">Trigger</th><th scope="col">Actions</th><th scope="col">Status</th><th scope="col">Created</th><th scope="col"></th></tr></thead>
       <tbody>
         <?php if ($workflows): foreach ($workflows as $wf): ?>
           <?php $actions = json_decode($wf['actions'], true) ?? []; ?>

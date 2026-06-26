@@ -68,7 +68,7 @@ $_filterCount = count(array_filter([
   <div class="card-body p0">
     <table class="table">
       <thead>
-        <tr><th>Audit</th><th>Package</th><th>Type</th><th>Auditor</th><th>Scheduled</th><th>Status</th><th>Score</th><th></th></tr>
+        <tr><th scope="col">Audit</th><th scope="col">Package</th><th scope="col">Type</th><th scope="col">Auditor</th><th scope="col">Scheduled</th><th scope="col">Status</th><th scope="col">Score</th><th scope="col"></th></tr>
       </thead>
       <tbody>
         <?php if ($audits): foreach ($audits as $audit): ?>

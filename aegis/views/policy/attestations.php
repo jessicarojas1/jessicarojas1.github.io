@@ -33,12 +33,12 @@ $breadcrumbs  = [['Policies', '/policy'], ['Attestations', null]];
       <table class="table">
         <thead>
           <tr>
-            <th>Campaign Title</th>
-            <th>Policy</th>
-            <th>Due Date</th>
-            <th>Progress</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th scope="col">Campaign Title</th>
+            <th scope="col">Policy</th>
+            <th scope="col">Due Date</th>
+            <th scope="col">Progress</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>

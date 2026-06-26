@@ -101,13 +101,13 @@ function scIdxLevelClass(int $s): string {
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
         <tr style="border-bottom:2px solid var(--border);background:var(--bg-secondary)">
-          <th style="padding:10px 14px;font-weight:600;color:var(--text-muted);text-align:left">Scenario</th>
-          <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:left">Risk</th>
-          <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">Base Score</th>
-          <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">Scenario Score</th>
-          <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">Delta</th>
-          <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Financial Est.</th>
-          <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Probability</th>
+          <th scope="col" style="padding:10px 14px;font-weight:600;color:var(--text-muted);text-align:left">Scenario</th>
+          <th scope="col" style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:left">Risk</th>
+          <th scope="col" style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">Base Score</th>
+          <th scope="col" style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">Scenario Score</th>
+          <th scope="col" style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">Delta</th>
+          <th scope="col" style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Financial Est.</th>
+          <th scope="col" style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Probability</th>
         </tr>
       </thead>
       <tbody>

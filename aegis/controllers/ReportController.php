@@ -197,7 +197,7 @@ class ReportController {
         $kriHealth = Database::fetchAll("SELECT k.title, k.unit, k.threshold_red, k.threshold_amber,
             kv.value AS latest_value, kv.recorded_at AS latest_date, r.title AS risk_title
             FROM kris k LEFT JOIN risks r ON r.id=k.linked_risk_id
-            LEFT JOIN kri_values kv ON kv.id=(SELECT id FROM kri_values WHERE kri_id=k.id ORDER BY recorded_at DESC LIMIT 1)
+            LEFT JOIN LATERAL (SELECT value, recorded_at FROM kri_values WHERE kri_id=k.id ORDER BY recorded_at DESC LIMIT 1) kv ON TRUE
             WHERE k.is_active=TRUE ORDER BY k.title");
 
         // Risk concentration by category (open risks)

@@ -74,13 +74,13 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
         <tr style="border-bottom:2px solid var(--border);background:var(--bg-secondary)">
-          <th style="padding:10px 14px;font-weight:600;color:var(--text-muted);text-align:left">Scenario</th>
-          <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">Scenario Score</th>
-          <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">vs Base</th>
-          <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Financial Est.</th>
-          <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Probability</th>
+          <th scope="col" style="padding:10px 14px;font-weight:600;color:var(--text-muted);text-align:left">Scenario</th>
+          <th scope="col" style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">Scenario Score</th>
+          <th scope="col" style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">vs Base</th>
+          <th scope="col" style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Financial Est.</th>
+          <th scope="col" style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Probability</th>
           <?php if (Auth::can('risk.scenarios')): ?>
-          <th style="padding:10px 12px;width:36px"></th>
+          <th scope="col" style="padding:10px 12px;width:36px"></th>
           <?php endif; ?>
         </tr>
       </thead>

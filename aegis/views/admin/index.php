@@ -87,7 +87,7 @@ ob_start();
     <div class="card-header"><h3 class="card-title"><i class="bi bi-activity"></i> Activity Log</h3></div>
     <div class="card-body p0">
       <table class="table">
-        <thead><tr><th>User</th><th>Action</th><th>Entity</th><th>IP</th><th>Time</th></tr></thead>
+        <thead><tr><th scope="col">User</th><th scope="col">Action</th><th scope="col">Entity</th><th scope="col">IP</th><th scope="col">Time</th></tr></thead>
         <tbody>
           <?php foreach ($activityLog as $log): ?>
             <tr>

@@ -280,11 +280,11 @@ function fmtNum(float $n): string {
         <table class="table data-table" style="min-width:0;">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Value</th>
-              <th style="width:60px;">RAG</th>
-              <th>Notes</th>
-              <th>Recorded By</th>
+              <th scope="col">Date</th>
+              <th scope="col">Value</th>
+              <th scope="col" style="width:60px;">RAG</th>
+              <th scope="col">Notes</th>
+              <th scope="col">Recorded By</th>
             </tr>
           </thead>
           <tbody>

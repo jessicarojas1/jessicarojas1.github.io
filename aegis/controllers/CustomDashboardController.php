@@ -178,9 +178,9 @@ class CustomDashboardController {
                         "SELECT k.id, k.title, k.threshold_red, k.threshold_amber, k.unit, k.direction,
                                 kv.value AS latest_value
                          FROM kris k
-                         LEFT JOIN kri_values kv ON kv.id = (
-                             SELECT id FROM kri_values WHERE kri_id = k.id ORDER BY recorded_at DESC LIMIT 1
-                         )
+                         LEFT JOIN LATERAL (
+                             SELECT value, recorded_at FROM kri_values WHERE kri_id = k.id ORDER BY recorded_at DESC LIMIT 1
+                         ) kv ON TRUE
                          ORDER BY k.title LIMIT 8"
                     );
                 case 'poam_tracker':

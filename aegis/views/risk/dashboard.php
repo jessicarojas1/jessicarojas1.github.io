@@ -536,10 +536,10 @@ if (!empty($trendData)) {
         <table class="rdash-compact-table">
           <thead>
             <tr>
-              <th>Risk ID</th>
-              <th style="width:100%">Title</th>
-              <th>Score</th>
-              <th>Owner</th>
+              <th scope="col">Risk ID</th>
+              <th scope="col" style="width:100%">Title</th>
+              <th scope="col">Score</th>
+              <th scope="col">Owner</th>
             </tr>
           </thead>
           <tbody>

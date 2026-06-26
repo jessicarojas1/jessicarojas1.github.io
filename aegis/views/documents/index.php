@@ -41,14 +41,14 @@ $classColors = ['public'=>'var(--primary-light)','internal'=>'var(--info)','conf
   <table class="data-table">
     <thead>
       <tr>
-        <th>Document</th>
-        <th>Classification</th>
-        <th>Status</th>
-        <th>Version</th>
-        <th>Owner</th>
-        <th>Next Review</th>
-        <th>Expiry</th>
-        <th></th>
+        <th scope="col">Document</th>
+        <th scope="col">Classification</th>
+        <th scope="col">Status</th>
+        <th scope="col">Version</th>
+        <th scope="col">Owner</th>
+        <th scope="col">Next Review</th>
+        <th scope="col">Expiry</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>

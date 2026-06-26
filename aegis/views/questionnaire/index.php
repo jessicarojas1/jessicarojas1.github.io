@@ -39,12 +39,12 @@ ob_start();
         <table class="table">
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Entity Type</th>
-              <th class="text-center">Questions</th>
-              <th class="text-center">Assignments</th>
-              <th>Created</th>
-              <th></th>
+              <th scope="col">Title</th>
+              <th scope="col">Entity Type</th>
+              <th scope="col" class="text-center">Questions</th>
+              <th scope="col" class="text-center">Assignments</th>
+              <th scope="col">Created</th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>

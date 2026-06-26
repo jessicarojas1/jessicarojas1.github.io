@@ -41,12 +41,12 @@ ob_start();
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
         <tr style="background:var(--bg-subtle)">
-          <th style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Risk</th>
-          <th style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Category</th>
-          <th style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Owner</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--text-muted)">Score</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--text-muted)">Treatments</th>
-          <th style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Status</th>
+          <th scope="col" style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Risk</th>
+          <th scope="col" style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Category</th>
+          <th scope="col" style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Owner</th>
+          <th scope="col" style="padding:10px 8px;text-align:center;font-weight:600;color:var(--text-muted)">Score</th>
+          <th scope="col" style="padding:10px 8px;text-align:center;font-weight:600;color:var(--text-muted)">Treatments</th>
+          <th scope="col" style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Status</th>
         </tr>
       </thead>
       <tbody>
@@ -87,11 +87,11 @@ ob_start();
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
         <tr style="background:var(--bg-subtle)">
-          <th style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Risk</th>
-          <th style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Treatment</th>
-          <th style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Owner</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--text-muted)">Status</th>
-          <th style="padding:10px 16px;text-align:right;font-weight:600;color:var(--text-muted)">Due</th>
+          <th scope="col" style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Risk</th>
+          <th scope="col" style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Treatment</th>
+          <th scope="col" style="padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted)">Owner</th>
+          <th scope="col" style="padding:10px 8px;text-align:center;font-weight:600;color:var(--text-muted)">Status</th>
+          <th scope="col" style="padding:10px 16px;text-align:right;font-weight:600;color:var(--text-muted)">Due</th>
         </tr>
       </thead>
       <tbody>

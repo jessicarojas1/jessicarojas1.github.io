@@ -61,7 +61,7 @@ ob_start(); ?>
   <?php if (!empty($exercises)): ?>
     <div class="card" style="margin-bottom:16px">
       <table class="data-table">
-        <thead><tr><th>Type</th><th>Name</th><th>Scheduled</th><th>Conducted</th><th>Outcome</th><th>Findings</th></tr></thead>
+        <thead><tr><th scope="col">Type</th><th scope="col">Name</th><th scope="col">Scheduled</th><th scope="col">Conducted</th><th scope="col">Outcome</th><th scope="col">Findings</th></tr></thead>
         <tbody>
           <?php foreach ($exercises as $ex): $oc = $outcomeColors[$ex['outcome'] ?? ''] ?? '#9ca3af'; ?>
             <tr>

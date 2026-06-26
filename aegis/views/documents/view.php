@@ -38,14 +38,14 @@ $canEdit = Auth::can('policy.edit');
     <div class="card-header"><h3>Details</h3></div>
     <div class="card-body">
       <table class="desc-table">
-        <tr><th>Owner</th><td><?= Security::h($doc['owner_name'] ?? '—') ?></td></tr>
-        <tr><th>Approver</th><td><?= Security::h($doc['approver_name'] ?? '—') ?></td></tr>
-        <tr><th>Version</th><td><?= Security::h($doc['current_version']) ?></td></tr>
-        <tr><th>Review Frequency</th><td><?= Security::h(ucfirst($doc['review_frequency'] ?? '')) ?></td></tr>
-        <tr><th>Next Review</th><td><?= $doc['next_review_date'] ? date('M j, Y', strtotime($doc['next_review_date'])) : '—' ?></td></tr>
-        <tr><th>Expiry</th><td><?= $doc['expiry_date'] ? date('M j, Y', strtotime($doc['expiry_date'])) : '—' ?></td></tr>
+        <tr><th scope="row">Owner</th><td><?= Security::h($doc['owner_name'] ?? '—') ?></td></tr>
+        <tr><th scope="row">Approver</th><td><?= Security::h($doc['approver_name'] ?? '—') ?></td></tr>
+        <tr><th scope="row">Version</th><td><?= Security::h($doc['current_version']) ?></td></tr>
+        <tr><th scope="row">Review Frequency</th><td><?= Security::h(ucfirst($doc['review_frequency'] ?? '')) ?></td></tr>
+        <tr><th scope="row">Next Review</th><td><?= $doc['next_review_date'] ? date('M j, Y', strtotime($doc['next_review_date'])) : '—' ?></td></tr>
+        <tr><th scope="row">Expiry</th><td><?= $doc['expiry_date'] ? date('M j, Y', strtotime($doc['expiry_date'])) : '—' ?></td></tr>
         <?php if (!empty(json_decode($doc['tags'] ?? '[]', true))): ?>
-        <tr><th>Tags</th><td>
+        <tr><th scope="row">Tags</th><td>
           <?php foreach (json_decode($doc['tags'], true) as $tag): ?>
             <span class="badge badge-gray" style="margin-right:4px"><?= Security::h($tag) ?></span>
           <?php endforeach; ?>
@@ -74,7 +74,7 @@ $canEdit = Auth::can('policy.edit');
       <div class="card-body text-muted">No versions uploaded yet.</div>
     <?php else: ?>
       <table class="data-table">
-        <thead><tr><th>Version</th><th>File</th><th>Size</th><th>Uploaded By</th><th>Date</th><th>Summary</th></tr></thead>
+        <thead><tr><th scope="col">Version</th><th scope="col">File</th><th scope="col">Size</th><th scope="col">Uploaded By</th><th scope="col">Date</th><th scope="col">Summary</th></tr></thead>
         <tbody>
           <?php foreach ($versions as $v): ?>
             <tr>
@@ -172,9 +172,9 @@ $canEdit = Auth::can('policy.edit');
             <div style="font-weight:600;color:var(--text);margin-bottom:6px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Accepted File Formats</div>
             <table style="width:100%;border-collapse:collapse;">
               <thead><tr style="color:var(--text-muted);font-size:0.75rem;">
-                <th style="text-align:left;padding:3px 8px;">Format</th>
-                <th style="text-align:left;padding:3px 8px;">Extension</th>
-                <th style="text-align:left;padding:3px 8px;">Notes</th>
+                <th scope="col" style="text-align:left;padding:3px 8px;">Format</th>
+                <th scope="col" style="text-align:left;padding:3px 8px;">Extension</th>
+                <th scope="col" style="text-align:left;padding:3px 8px;">Notes</th>
               </tr></thead>
               <tbody style="color:var(--text);">
                 <tr><td style="padding:3px 8px;">PDF Document</td><td style="padding:3px 8px;font-family:monospace">.pdf</td><td style="padding:3px 8px;color:var(--text-muted);">Preferred for finalized policies</td></tr>

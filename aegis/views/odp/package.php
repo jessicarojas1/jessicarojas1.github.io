@@ -57,7 +57,7 @@ $breadcrumbs = [['SSP', '/ssp'], ['ODP', '/odp'], ['Package', null]];
   </div>
   <div class="card-body">
     <table class="table">
-      <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th><th>Updated</th><th>Action</th></tr></thead>
+      <thead><tr><th scope="col">Parameter</th><th scope="col">Value</th><th scope="col">Notes</th><th scope="col">Updated</th><th scope="col">Action</th></tr></thead>
       <tbody>
       <?php foreach ($ctrl['odps'] as $odp): ?>
         <tr>

@@ -230,7 +230,7 @@ $bucketMeta = [
     <div class="card-body p0">
       <table class="table">
         <thead>
-          <tr><th>Risk ID</th><th>Title</th><th>Category</th><th>Score</th><th>Level</th><th>Status</th><th>Owner</th></tr>
+          <tr><th scope="col">Risk ID</th><th scope="col">Title</th><th scope="col">Category</th><th scope="col">Score</th><th scope="col">Level</th><th scope="col">Status</th><th scope="col">Owner</th></tr>
         </thead>
         <tbody>
           <?php if ($recentRisks): foreach ($recentRisks as $risk): ?>
