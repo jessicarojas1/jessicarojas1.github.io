@@ -227,7 +227,6 @@ class VendorController {
             'contract_end'    => $contractEnd ?: null,
             'data_access'     => $dataAccess,
             'critical_service' => $criticalService,
-            'updated_at'      => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
         Auth::log('update_vendor', 'vendors', $id, ['status' => $status, 'risk_tier' => $riskTier]);

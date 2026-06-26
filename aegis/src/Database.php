@@ -53,7 +53,10 @@ class Database {
     public static function update(string $table, array $data, string $where, array $whereParams = []): int {
         $q = fn(string $id) => '"' . str_replace('"', '', $id) . '"';
         $sets = implode(', ', array_map(fn($k) => "{$q($k)} = ?", array_keys($data)));
-        $stmt = self::query("UPDATE {$q($table)} SET {$sets}, updated_at = NOW() WHERE {$where}", [...array_values($data), ...$whereParams]);
+        // Auto-stamp updated_at — but defensively skip it if the caller already
+        // provided one, otherwise Postgres rejects the duplicate SET assignment.
+        $autoTs = array_key_exists('updated_at', $data) ? '' : ', updated_at = NOW()';
+        $stmt = self::query("UPDATE {$q($table)} SET {$sets}{$autoTs} WHERE {$where}", [...array_values($data), ...$whereParams]);
         return $stmt->rowCount();
     }
 
