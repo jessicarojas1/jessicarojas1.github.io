@@ -447,6 +447,17 @@ test('dispositions: valid states; degrades to no-op without a database', async (
   assert.equal(await d.set('fp', 'accepted', 'a@b', 'note'), null);   // note arg, no-DB path
 });
 
+/* ---------------- Threat-model overlay (graceful without a DB) ---------------- */
+test('threatmodel: exports get/set/enabled; degrades to no-op without a database', async () => {
+  const tm = require('../lib/threatmodel');
+  for (const fn of ['get', 'set', 'enabled']) {
+    assert.equal(typeof tm[fn], 'function', 'threatmodel.' + fn + ' should be a function');
+  }
+  assert.equal(tm.enabled(), false);                       // no DATABASE_URL in tests
+  assert.equal(await tm.get('p1'), null);                  // no-DB read -> null
+  assert.equal(await tm.set('p1', { custom: [] }, 'a@b'), false);   // no-DB write -> false
+});
+
 /* ---------------- Projects (graceful without a DB) ---------------- */
 test('projects: exports documented API; degrades to no-op without a database', async () => {
   const p = require('../lib/projects');

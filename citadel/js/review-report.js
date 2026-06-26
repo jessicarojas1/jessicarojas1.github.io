@@ -230,14 +230,23 @@
   }
 
   /* ---------- 6. Threat model ---------- */
-  function threatModelSection(tm) {
+  // Current project id + apply the per-project reviewer overlay (custom/edited/
+  // removed threats) over the generated model, for both the tab and exports.
+  function projId() { try { return (CITADEL.projects && CITADEL.projects.currentId && CITADEL.projects.currentId()) || ''; } catch (e) { return ''; } }
+  function applyTM(tm) { try { return (CITADEL.threatmodel && CITADEL.threatmodel.apply) ? CITADEL.threatmodel.apply(tm, projId()) : tm; } catch (e) { return tm; } }
+
+  function threatModelSection(tmRaw) {
+    const tm = applyTM(tmRaw);
     if (!tm) return card(SECTION('Threat Model') + EMPTY_NOTE('No threat model generated.'));
+    const editable = !!(CITADEL.threatmodel && CITADEL.threatmodel.apply);
     const summary = tm.summary || {};
     const byStride = summary.byStride || {};
-    const strideOrder = ['Spoofing', 'Tampering', 'Repudiation', 'InformationDisclosure', 'DenialOfService', 'ElevationOfPrivilege'];
+    const strideOrder = (CITADEL.threatmodel && CITADEL.threatmodel.STRIDE) || ['Spoofing', 'Tampering', 'Repudiation', 'InformationDisclosure', 'DenialOfService', 'ElevationOfPrivilege'];
+    const riskList = (CITADEL.threatmodel && CITADEL.threatmodel.RISK) || ['high', 'medium', 'low'];
+    const riskOpts = (sel) => riskList.map(r => `<option value="${esc(r)}"${r === sel ? ' selected' : ''}>${esc(r)}</option>`).join('');
     const strideBadges = strideOrder.map(k =>
       `<span class="badge text-bg-secondary me-1 mb-1">${esc(k)}: ${esc(num(byStride[k]))}</span>`).join('');
-    const parts = [SECTION('Threat Model')];
+    const parts = [SECTION('Threat Model') + (tm.edited ? ' <span class="badge text-bg-warning">edited</span>' : '')];
     if (tm.overview) parts.push(`<p class="mb-2">${esc(tm.overview)}</p>`);
     parts.push(`<div class="mb-2"><span class="small text-body-secondary me-2">STRIDE summary `
       + `(total ${esc(num(summary.total))}):</span>${strideBadges}</div>`);
@@ -256,17 +265,35 @@
     const threats = arr(tm.threats);
     if (threats.length) {
       const rows = threats.map(t => `<tr>
-          <td><span class="badge text-bg-secondary">${esc(t.stride || '—')}</span></td>
+          <td><span class="badge text-bg-secondary">${esc(t.stride || '—')}</span>${t.custom ? ' <span class="badge text-bg-info">custom</span>' : ''}</td>
           <td>${esc(t.title || '')}${t.description ? '<div class="small text-body-secondary">' + esc(t.description) + '</div>' : ''}</td>
           <td class="small">${esc(t.surface || '—')}</td>
-          <td><span class="badge ${residualClass(t.residualRisk)}">${esc(t.residualRisk || 'unknown')}</span></td>
-          <td class="small">${arr(t.missingMitigations).map(esc).join('; ') || '—'}</td>
+          <td>${editable
+    ? `<select class="form-select form-select-sm" data-threat-residual="${esc(t.id)}" aria-label="Residual risk">${riskOpts(t.residualRisk)}</select>`
+    : `<span class="badge ${residualClass(t.residualRisk)}">${esc(t.residualRisk || 'unknown')}</span>`}</td>
+          <td class="small">${editable
+    ? `<input type="text" class="form-control form-control-sm" data-threat-mitig="${esc(t.id)}" value="${esc(arr(t.missingMitigations).join('; '))}" placeholder="missing mitigations (; separated)">`
+    : (arr(t.missingMitigations).map(esc).join('; ') || '—')}</td>
+          ${editable ? `<td><button class="btn btn-sm btn-outline-danger" data-threat-remove="${esc(t.id)}" title="Remove threat"><i class="bi bi-trash"></i></button></td>` : ''}
         </tr>`).join('');
       parts.push('<div class="table-responsive"><table class="table table-sm align-middle citadel-table">'
-        + '<thead><tr><th>STRIDE</th><th>Threat</th><th>Surface</th><th>Residual</th><th>Missing mitigations</th></tr></thead>'
+        + '<thead><tr><th>STRIDE</th><th>Threat</th><th>Surface</th><th>Residual</th><th>Missing mitigations</th>' + (editable ? '<th></th>' : '') + '</tr></thead>'
         + `<tbody>${rows}</tbody></table></div>`);
     } else {
       parts.push(EMPTY_NOTE('No specific threats enumerated.'));
+    }
+    if (editable) {
+      const strideSel = strideOrder.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+      parts.push(`<div class="border-top pt-2 mt-2">
+        <div class="small text-uppercase text-body-secondary fw-bold mb-2"><i class="bi bi-plus-circle"></i> Add a threat</div>
+        <div class="row g-2 align-items-end">
+          <div class="col-sm-3"><select class="form-select form-select-sm" id="tm-add-stride" aria-label="STRIDE category">${strideSel}</select></div>
+          <div class="col-sm-3"><input type="text" class="form-control form-control-sm" id="tm-add-title" maxlength="200" placeholder="Threat title"></div>
+          <div class="col-sm-3"><input type="text" class="form-control form-control-sm" id="tm-add-surface" maxlength="200" placeholder="Surface / asset"></div>
+          <div class="col-sm-2"><select class="form-select form-select-sm" id="tm-add-residual" aria-label="Residual risk">${riskOpts('medium')}</select></div>
+          <div class="col-sm-1"><button class="btn btn-sm btn-primary w-100" data-threat-add title="Add threat"><i class="bi bi-plus-lg"></i></button></div>
+        </div>
+      </div>`);
     }
     return card(parts.join(''));
   }
@@ -695,9 +722,13 @@
    *  JSON
    * ===================================================================== */
   function json(report) {
+    const reviews = reviewsOf(report);
     const payload = {
       readiness: rdOf(report),
-      reviews: reviewsOf(report)
+      // Reflect reviewer threat-model edits (the per-project overlay) in the export.
+      reviews: reviews && reviews.threatModel
+        ? Object.assign({}, reviews, { threatModel: applyTM(reviews.threatModel) })
+        : reviews
     };
     if (payload.readiness == null) payload.readiness = null;
     return JSON.stringify(payload, null, 2);

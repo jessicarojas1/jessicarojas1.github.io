@@ -495,6 +495,14 @@
       const f = CITADEL.report.shownFinding(+noteEl.dataset.disposeNote);
       if (f && CITADEL.disposition && CITADEL.disposition.setNote) CITADEL.disposition.setNote(f, noteEl.value);
     }
+    // Editable threat model — residual risk + missing-mitigations edits.
+    if (CITADEL.threatmodel && e.target && e.target.closest) {
+      const pid = (CITADEL.projects && CITADEL.projects.currentId) ? CITADEL.projects.currentId() : '';
+      const res = e.target.closest('[data-threat-residual]');
+      const mit = e.target.closest('[data-threat-mitig]');
+      if (res) { CITADEL.threatmodel.updateThreat(pid, res.getAttribute('data-threat-residual'), { residualRisk: res.value }); if (CITADEL.readiness && CITADEL.report.current) CITADEL.readiness.render(CITADEL.report.current); }
+      else if (mit) { CITADEL.threatmodel.updateThreat(pid, mit.getAttribute('data-threat-mitig'), { missingMitigations: mit.value }); if (CITADEL.readiness && CITADEL.report.current) CITADEL.readiness.render(CITADEL.report.current); }
+    }
   });
   document.addEventListener('citadel:project-change', () => {
     if (!CITADEL.projects) return;
@@ -502,6 +510,13 @@
     applyProjectGate();
     const ps = $('projects-section');
     if (ps && !ps.classList.contains('d-none')) CITADEL.projects.renderProjects();
+    // Best-effort: load this project's shared threat-model overlay (server),
+    // then refresh the readiness tab if a report is shown. No-op without a DB.
+    if (CITADEL.threatmodel && CITADEL.threatmodel.load) {
+      Promise.resolve(CITADEL.threatmodel.load(CITADEL.projects.currentId()))
+        .then(() => { if (CITADEL.readiness && CITADEL.readiness.render && CITADEL.report.current) CITADEL.readiness.render(CITADEL.report.current); })
+        .catch(() => {});
+    }
   });
   if (CITADEL.projects) {
     CITADEL.projects.renderBar();
@@ -621,6 +636,18 @@
       return;
     }
 
+    // Editable threat model — add / remove a threat, then re-render the tab.
+    const tmPid = () => (CITADEL.projects && CITADEL.projects.currentId ? CITADEL.projects.currentId() : '');
+    const reRenderReadiness = () => { if (CITADEL.readiness && CITADEL.readiness.render && CITADEL.report.current) CITADEL.readiness.render(CITADEL.report.current); };
+    if (e.target.closest('[data-threat-add]') && CITADEL.threatmodel) {
+      e.preventDefault();
+      const v = id => { const el = $(id); return el ? el.value : ''; };
+      const title = v('tm-add-title');
+      if (title.trim()) { CITADEL.threatmodel.addThreat(tmPid(), { stride: v('tm-add-stride'), title, surface: v('tm-add-surface'), residualRisk: v('tm-add-residual') }); reRenderReadiness(); }
+      return;
+    }
+    const tRem = e.target.closest('[data-threat-remove]');
+    if (tRem && CITADEL.threatmodel) { e.preventDefault(); CITADEL.threatmodel.removeThreat(tmPid(), tRem.getAttribute('data-threat-remove')); reRenderReadiness(); return; }
     // Set a finding disposition (open / accepted / false-positive / remediated / na)
     const dispBtn = e.target.closest('[data-dispose-set]');
     if (dispBtn) {
