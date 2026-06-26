@@ -16,7 +16,7 @@
     --ssp-subtle: #64748b;
     --ssp-border: #e2e8f0;
     --ssp-surface: #f8fafc;
-    --ssp-domain-bg: #eef2ff;
+    --ssp-domain-bg: var(--indigo-subtle);
     --ssp-domain-border: #4f46e5;
     --ssp-domain-text: #3730a3;
     --ssp-accent: #4f46e5;
@@ -39,7 +39,7 @@
     --ssp-domain-bg: #1e1b4b;
     --ssp-domain-border: #818cf8;
     --ssp-domain-text: #a5b4fc;
-    --ssp-accent: #6366f1;
+    --ssp-accent: var(--indigo);
     --ssp-accent-hover: #4f46e5;
     --ssp-link: #818cf8;
     --ssp-input-bg: #1e293b;

@@ -14,10 +14,10 @@ foreach ($kris as $k) {
 
 // RAG color map
 $ragColors = [
-    'green' => ['var(--success-subtle)', 'var(--primary)', '#bbf7d0'],
-    'amber' => ['var(--warning-subtle)', 'var(--warning)', '#fde68a'],
-    'red'   => ['var(--danger-subtle)', 'var(--danger)', '#fecaca'],
-    'grey'  => ['#f9fafb', '#71717a', '#e4e4e7'],
+    'green' => ['var(--success-subtle)', 'var(--primary)', 'var(--success-border)'],
+    'amber' => ['var(--warning-subtle)', 'var(--warning)', 'var(--warning-border)'],
+    'red'   => ['var(--danger-subtle)', 'var(--danger)', 'var(--danger-border)'],
+    'grey'  => ['var(--surface-alt)', 'var(--neutral)', 'var(--neutral-border)'],
 ];
 
 // Active filter from query string
@@ -56,10 +56,10 @@ $freqLabels = [
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;">
   <?php
   $chipDefs = [
-    ['green', 'Green',   'bi-check-circle-fill', 'var(--primary)', 'var(--success-subtle)', '#bbf7d0'],
-    ['amber', 'Amber',   'bi-exclamation-triangle-fill', 'var(--warning)', 'var(--warning-subtle)', '#fde68a'],
-    ['red',   'Red',     'bi-exclamation-octagon-fill', 'var(--danger)', 'var(--danger-subtle)', '#fecaca'],
-    ['grey',  'No Data', 'bi-dash-circle-fill', '#71717a', '#f9fafb', '#e4e4e7'],
+    ['green', 'Green',   'bi-check-circle-fill', 'var(--primary)', 'var(--success-subtle)', 'var(--success-border)'],
+    ['amber', 'Amber',   'bi-exclamation-triangle-fill', 'var(--warning)', 'var(--warning-subtle)', 'var(--warning-border)'],
+    ['red',   'Red',     'bi-exclamation-octagon-fill', 'var(--danger)', 'var(--danger-subtle)', 'var(--danger-border)'],
+    ['grey',  'No Data', 'bi-dash-circle-fill', 'var(--neutral)', 'var(--surface-alt)', 'var(--neutral-border)'],
   ];
   foreach ($chipDefs as [$rag, $label, $icon, $color, $bg, $border]):
     $count   = $ragCounts[$rag];

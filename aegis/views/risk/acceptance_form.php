@@ -9,10 +9,10 @@ function acceptFormScoreLevel(int $s): string {
     return RiskScore::scoreLabel($s); // canonical bands — see src/RiskScore.php
 }
 function acceptFormScoreColor(int $s): string {
-    return $s > 14 ? '#ef4444' : ($s > 9 ? '#f97316' : ($s > 4 ? '#f59e0b' : '#22c55e'));
+    return $s > 14 ? '#ef4444' : ($s > 9 ? 'var(--orange)' : ($s > 4 ? '#f59e0b' : '#22c55e'));
 }
 function acceptFormScoreBg(int $s): string {
-    return $s > 14 ? '#fef2f2' : ($s > 9 ? '#fff7ed' : ($s > 4 ? '#fffbeb' : '#f0fdf4'));
+    return $s > 14 ? 'var(--danger-subtle)' : ($s > 9 ? 'var(--high-subtle)' : ($s > 4 ? 'var(--warning-subtle)' : 'var(--success-subtle)'));
 }
 
 $scoreLevel = acceptFormScoreLevel($score);
@@ -31,10 +31,10 @@ if (!empty($risk['treatment_strategies'])) {
     }
 }
 $strategyLabels = [
-    'mitigate' => ['label' => 'Mitigate', 'icon' => 'bi-shield-fill-check',   'color' => '#2563eb'],
-    'accept'   => ['label' => 'Accept',   'icon' => 'bi-check-circle-fill',    'color' => '#b45309'],
+    'mitigate' => ['label' => 'Mitigate', 'icon' => 'bi-shield-fill-check',   'color' => 'var(--moderate)'],
+    'accept'   => ['label' => 'Accept',   'icon' => 'bi-check-circle-fill',    'color' => 'var(--warning-dark)'],
     'transfer' => ['label' => 'Transfer', 'icon' => 'bi-arrow-left-right',     'color' => 'var(--secondary)'],
-    'avoid'    => ['label' => 'Avoid',    'icon' => 'bi-x-octagon-fill',       'color' => '#dc2626'],
+    'avoid'    => ['label' => 'Avoid',    'icon' => 'bi-x-octagon-fill',       'color' => 'var(--danger)'],
 ];
 
 // Pre-fill values (fresh form or renew)
@@ -101,7 +101,7 @@ ob_start();
               <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span style="font-size:12px;color:var(--text-muted);">Treatment:</span>
                 <?php foreach ($strategies as $strat):
-                  $sm = $strategyLabels[$strat] ?? ['label' => ucfirst($strat), 'icon' => 'bi-circle', 'color' => '#71717a'];
+                  $sm = $strategyLabels[$strat] ?? ['label' => ucfirst($strat), 'icon' => 'bi-circle', 'color' => 'var(--neutral)'];
                 ?>
                   <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:<?= $sm['color'] ?>18;color:<?= $sm['color'] ?>;border:1px solid <?= $sm['color'] ?>40;">
                     <i class="bi <?= $sm['icon'] ?>"></i> <?= Security::h($sm['label']) ?>

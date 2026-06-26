@@ -327,8 +327,8 @@ $nonce = Security::nonce();
   display: none;
   text-align: center;
   font-size: 11px;
-  color: #a1a1aa;
-  border-top: 1px solid #e4e4e7;
+  color: var(--neutral-light);
+  border-top: 1px solid var(--neutral-border);
   padding-top: 12px;
   margin-top: 40px;
 }
@@ -381,7 +381,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   .bp-stat-grid  { grid-template-columns: repeat(6,1fr); gap: 8px; }
   .bp-stat       { box-shadow: none; border: 1px solid #d4d4d8; padding: 12px 8px; }
   .bp-stat .stat-val { font-size: 24px; }
-  .card          { box-shadow: none !important; border: 1px solid #e4e4e7 !important; }
+  .card          { box-shadow: none !important; border: 1px solid var(--neutral-border) !important; }
   .bp-footer     { display: block !important; }
   canvas         { max-width: 100% !important; }
   a              { color: inherit !important; text-decoration: none !important; }

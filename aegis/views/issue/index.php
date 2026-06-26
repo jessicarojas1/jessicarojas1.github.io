@@ -6,13 +6,13 @@ ob_start();
 
 $severityColors = [
     'critical' => '#ef4444',
-    'high'     => '#f97316',
+    'high'     => 'var(--orange)',
     'medium'   => '#f59e0b',
     'low'      => '#22c55e',
 ];
 $statusColors = [
     'open'           => '#3b82f6',
-    'in_progress'    => '#8b5cf6',
+    'in_progress'    => 'var(--purple)',
     'pending_review' => '#f59e0b',
     'resolved'       => '#22c55e',
     'closed'         => '#6b7280',

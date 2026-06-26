@@ -300,7 +300,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         $statusColors = ['open' => ['var(--info-subtle)','var(--info)'], 'in_treatment' => ['var(--warning-subtle)','var(--warning)'],
                          'accepted' => ['rgba(55,65,81,.05)','var(--text-muted)'], 'closed' => ['var(--surface-alt)','var(--text-muted)'],
                          'transferred' => ['var(--success-subtle)','var(--success)']];
-        $stColor = $statusColors[$r['status'] ?? ''] ?? ['#f9fafb','#52525b'];
+        $stColor = $statusColors[$r['status'] ?? ''] ?? ['var(--surface-alt)','#52525b'];
 
         $strategy  = Security::h($r['treatment_strategy'] ?? $r['strategy'] ?? '—');
         $reviewDt  = $r['review_date'] ? date('j M Y', strtotime($r['review_date'])) : '—';

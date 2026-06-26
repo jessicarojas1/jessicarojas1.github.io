@@ -76,12 +76,19 @@
   --moderate:        #2563eb;
   --moderate-subtle: #eff6ff;
   --moderate-border: #93c5fd;
+  --high:            #ea580c;
+  --high-subtle:     #fff7ed;
+  --gold:            #ca8a04;
+  --gold-subtle:     #fefce8;
 
   /* Generic colour-name aliases used across views. */
   --green:   var(--primary);
   --red:     var(--danger);
   --yellow:  var(--warning);
-  --neutral: #71717a;
+  --neutral:        #71717a;
+  --neutral-light:  #a1a1aa;
+  --neutral-subtle: #f4f4f5;
+  --neutral-border: #e4e4e7;
 
   /* Darker companions for gradients / hovers. */
   --danger-dark:  #991b1b;
@@ -2006,7 +2013,14 @@ html[data-theme="dark"] {
   --moderate:        #60a5fa;
   --moderate-subtle: rgba(37, 99, 235, .15);
   --moderate-border: rgba(96, 165, 250, .40);
+  --high:            #fb923c;
+  --high-subtle:     rgba(234, 88, 12, .15);
+  --gold:            #eab308;
+  --gold-subtle:     rgba(202, 138, 4, .15);
   --neutral:         #a1a1aa;
+  --neutral-light:   #6e7681;
+  --neutral-subtle:  #1c2128;
+  --neutral-border:  #30363d;
 
   --danger-dark:  #dc2626;
   --success-dark: #059669;

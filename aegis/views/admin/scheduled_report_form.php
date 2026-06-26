@@ -171,7 +171,7 @@ ob_start();
         </div>
       </div>
 
-      <div style="display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--border,#e4e4e7)">
+      <div style="display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--border,var(--neutral-border))">
         <label class="pill-toggle">
           <input type="checkbox" id="sched_is_active" name="is_active" value="1"
                  <?= $v('is_active', true) ? 'checked' : '' ?>>
@@ -182,7 +182,7 @@ ob_start();
       </div>
 
     </div>
-    <div class="card-footer" style="padding:16px 20px;border-top:1px solid var(--border,#e4e4e7);display:flex;gap:10px">
+    <div class="card-footer" style="padding:16px 20px;border-top:1px solid var(--border,var(--neutral-border));display:flex;gap:10px">
       <button type="submit" class="btn btn-primary">
         <i class="bi bi-save"></i> <?= $isEdit ? 'Save Changes' : 'Create Schedule' ?>
       </button>
