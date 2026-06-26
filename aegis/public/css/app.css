@@ -64,6 +64,66 @@
   --shadow-lg: 0 8px 32px rgba(0,0,0,.16);
   --transition: 0.2s ease;
 
+  /* ---- Extended semantic tokens ----------------------------------------
+     Previously referenced by views as var(--x) but defined NOWHERE, so those
+     declarations were invalid and silently dropped (elements fell back to
+     inherited colors). Defining them here makes the theming actually resolve
+     and lets dark mode + branding reach these colors. Aliases that point at an
+     existing token via var() auto-adapt in dark mode through that token. */
+
+  /* Severity scale companion to --success/--warning/--danger:
+     low → moderate(blue) → high(orange) → critical(red). */
+  --moderate:        #2563eb;
+  --moderate-subtle: #eff6ff;
+  --moderate-border: #93c5fd;
+
+  /* Generic colour-name aliases used across views. */
+  --green:   var(--primary);
+  --red:     var(--danger);
+  --yellow:  var(--warning);
+  --neutral: #71717a;
+
+  /* Darker companions for gradients / hovers. */
+  --danger-dark:  #991b1b;
+  --success-dark: #047857;
+  --info-dark:    #0369a1;
+  --warning-dark: #b45309;
+
+  /* Very-light tints (badge backgrounds) — track the -subtle scale. */
+  --danger-tint:   var(--danger-subtle);
+  --success-tint:  var(--success-subtle);
+  --warning-tint:  var(--warning-subtle);
+  --info-tint:     var(--info-subtle);
+  --primary-tint:  var(--success-subtle);
+  --indigo-subtle: #eef2ff;
+
+  /* Mid-tone borders in each hue. */
+  --danger-border:  #fecaca;
+  --success-border: #bbf7d0;
+  --warning-border: #fde68a;
+  --info-border:    #bae6fd;
+
+  /* Readable text colour on a -subtle background. */
+  --info-text: #0369a1;
+
+  /* Focus / selection rings. */
+  --primary-ring: rgba(22, 163, 74, .35);
+  --danger-ring:  rgba(220, 38, 38, .35);
+  --ring-color:   rgba(99, 102, 241, .40);
+
+  /* Layout / text aliases (legacy names still used in views). */
+  --bg-body:        var(--bg);
+  --bg-card:        var(--card-bg);
+  --bg-primary:     var(--bg);
+  --surface:        var(--card-bg);
+  --border-color:   var(--border);
+  --text-primary:   var(--text);
+  --text-secondary: var(--text-muted);
+  --accent-color:   var(--primary);
+  --accent-bg:      var(--success-subtle);
+
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
   /* Force light-mode browser rendering regardless of OS preference */
   color-scheme: light;
 }
@@ -1938,6 +1998,32 @@ html[data-theme="dark"] {
   --bs-input-border-color:        #30363d;
   --bs-input-placeholder-color:   #8b949e;
   --bs-form-select-bg:            #0d1117;
+
+  /* ---- Extended semantic tokens — dark counterparts -------------------
+     Only the literal-valued tokens need overriding here; the var()-alias
+     tokens (--green/--red/--yellow/--bg-card/--text-secondary/--*-tint/…)
+     auto-adapt because the token they point at is itself overridden above. */
+  --moderate:        #60a5fa;
+  --moderate-subtle: rgba(37, 99, 235, .15);
+  --moderate-border: rgba(96, 165, 250, .40);
+  --neutral:         #a1a1aa;
+
+  --danger-dark:  #dc2626;
+  --success-dark: #059669;
+  --info-dark:    #0369a1;
+  --warning-dark: #b45309;
+
+  --indigo-subtle:  rgba(99, 102, 241, .18);
+  --danger-border:  rgba(248, 113, 113, .40);
+  --success-border: rgba(16, 185, 129, .40);
+  --warning-border: rgba(245, 158, 11, .40);
+  --info-border:    rgba(56, 189, 248, .40);
+  --info-text:      #7dd3fc;
+
+  --primary-ring: rgba(63, 185, 80, .40);
+  --danger-ring:  rgba(248, 113, 113, .40);
+  --ring-color:   rgba(129, 140, 248, .45);
+
   color-scheme: dark;
 }
 
