@@ -585,6 +585,12 @@
     } else {
       out.push('_No formal risk acceptance required for this assessment._');
     }
+    const acceptedItems = arr(rd && rd.acceptedRisks);
+    if (acceptedItems.length) {
+      out.push('\n**Reviewer-accepted findings** (' + acceptedItems.length + ') — formally dispositioned as accepted risk:');
+      out.push(acceptedItems.map(a => '- [' + String(a.severity || '').toUpperCase() + '] ' + (a.title || 'Finding')
+        + (a.file ? ' — `' + a.file + '`' : '') + (a.note ? ' — reviewer note: ' + a.note : '')).join('\n'));
+    }
     out.push('');
 
     out.push('## Remediation Tracking\n');

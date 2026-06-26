@@ -199,14 +199,16 @@
   }
 
   /* ---------- Shared finding dispositions ---------- */
-  // Returns the { fingerprint: state } map, or null when unavailable (no DB / not signed in).
+  // Returns the rich { fingerprint: { state, note, actor, updatedAt } } map, or
+  // null when unavailable (no DB / not signed in).
   async function dispositionsList() {
     try { const res = await apiFetch('api/dispositions'); if (!res.ok) return null; return res.json(); } catch (e) { return null; }
   }
-  // Persist a disposition; returns true on success (false if not shared / denied).
-  async function dispositionSet(fingerprint, state) {
+  // Persist a disposition (with an optional reviewer note); returns true on
+  // success (false if not shared / denied).
+  async function dispositionSet(fingerprint, state, note) {
     try {
-      const res = await apiFetch('api/dispositions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fingerprint, state }) });
+      const res = await apiFetch('api/dispositions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fingerprint, state, note: note || '' }) });
       return res.ok;
     } catch (e) { return false; }
   }

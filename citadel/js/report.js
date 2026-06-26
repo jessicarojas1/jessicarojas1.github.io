@@ -240,6 +240,7 @@
     const rows = shown.length ? shown.map((f, i) => {
       const isSup = sup.isSuppressed(f);
       const dispo = CITADEL.disposition ? CITADEL.disposition.of(f) : (isSup ? 'accepted' : 'open');
+      const dNote = (CITADEL.disposition && CITADEL.disposition.note) ? CITADEL.disposition.note(f) : '';
       const dLabel = (CITADEL.disposition && CITADEL.disposition.label) || {};
       const dStates = (CITADEL.disposition && CITADEL.disposition.states) || ['open'];
       const hasFix = !!(CITADEL.remediate && CITADEL.remediate.fix && CITADEL.remediate.fix(f));
@@ -280,6 +281,10 @@
                 ${dStates.map(s => `<li><button class="dropdown-item${s === dispo ? ' active' : ''}" data-dispose-set="${i}:${s}">${esc(dLabel[s] || s)}</button></li>`).join('')}
               </ul>
             </div>
+          </div>
+          <div class="finding-note input-group input-group-sm mt-2">
+            <span class="input-group-text"><i class="bi bi-chat-left-text"></i></span>
+            <input type="text" class="form-control" data-dispose-note="${i}" value="${esc(dNote)}" maxlength="2000" placeholder="Reviewer note — triage / risk-acceptance rationale (saved on Enter or blur)" aria-label="Reviewer note">
           </div>
           <div class="finding-ai d-none" id="finding-ai-${i}"></div>
         </div>
