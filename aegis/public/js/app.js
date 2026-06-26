@@ -266,6 +266,30 @@ document.addEventListener('keydown', function (e) {
   }
 });
 
+// ── Accessibility: associate orphan form labels with their control ───────────
+// Many forms use <label class="form-label">X</label><input name="x"> with no
+// for/id pairing, so screen readers never announce the field name. Pair them up
+// once at load (skips labels that already have for= or wrap their own control).
+(function () {
+  var n = 0;
+  function isControl(el) { return el && /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName); }
+  document.querySelectorAll('label.form-label').forEach(function (label) {
+    if (label.getAttribute('for')) return;
+    if (label.querySelector('input, select, textarea')) return; // label wraps the control
+    var ctrl = label.nextElementSibling;
+    while (ctrl && (!isControl(ctrl) || (ctrl.tagName === 'INPUT' && ctrl.type === 'hidden'))) {
+      ctrl = ctrl.nextElementSibling;
+    }
+    if (!ctrl) {
+      var grp = label.closest('.form-group');
+      if (grp) ctrl = grp.querySelector('input:not([type=hidden]), select, textarea');
+    }
+    if (!isControl(ctrl) || ctrl.type === 'hidden') return;
+    if (!ctrl.id) ctrl.id = 'fld-' + (++n);
+    label.setAttribute('for', ctrl.id);
+  });
+})();
+
 // Time-ago helper
 function timeAgo(dateStr) {
   const date = new Date(dateStr);
