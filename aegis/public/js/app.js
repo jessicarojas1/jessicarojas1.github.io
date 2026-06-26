@@ -163,6 +163,64 @@ document.addEventListener('click', function (e) {
   }
 });
 
+// ── Modal accessibility + focus management ──────────────────────────────────
+// Applied centrally so every modal (opened via showModal/openModal/data-*) is
+// announced as a dialog, traps Tab, focuses its first control, and restores
+// focus on close — without editing each of the ~25 modal markups individually.
+var _modalReturnFocus = null;
+function _modalDialog(overlay) {
+  return overlay.querySelector('.um-dialog, .modal-box, .modal-card, .modal-dialog, .modal-content') || overlay;
+}
+function _modalFocusables(dialog) {
+  return Array.prototype.slice.call(dialog.querySelectorAll(
+    'a[href],button:not([disabled]),input:not([type=hidden]):not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+  )).filter(function (el) { return el.offsetParent !== null; });
+}
+function _applyDialogA11y(overlay) {
+  var dialog = _modalDialog(overlay);
+  if (!dialog.getAttribute('role')) dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('aria-modal', 'true');
+  if (!dialog.getAttribute('aria-label') && !dialog.getAttribute('aria-labelledby')) {
+    var h = dialog.querySelector('h1,h2,h3,h4,.modal-title,.card-title');
+    if (h) {
+      if (!h.id) h.id = (overlay.id || 'modal') + '-title';
+      dialog.setAttribute('aria-labelledby', h.id);
+    } else {
+      dialog.setAttribute('aria-label', 'Dialog');
+    }
+  }
+  dialog.querySelectorAll('[data-close-modal],[data-modal-close],.modal-close').forEach(function (b) {
+    if (!b.getAttribute('aria-label') && !(b.textContent || '').trim()) b.setAttribute('aria-label', 'Close');
+  });
+  return dialog;
+}
+function _onModalOpen(overlay) {
+  if (!overlay) return;
+  _modalReturnFocus = document.activeElement;
+  var dialog = _applyDialogA11y(overlay);
+  setTimeout(function () {
+    var f = _modalFocusables(dialog);
+    if (f.length) { try { f[0].focus(); } catch (e) {} }
+    else { dialog.setAttribute('tabindex', '-1'); try { dialog.focus(); } catch (e) {} }
+  }, 50);
+}
+function _onModalClose() {
+  if (_modalReturnFocus && _modalReturnFocus.focus) { try { _modalReturnFocus.focus(); } catch (e) {} }
+  _modalReturnFocus = null;
+}
+// Trap Tab within the top-most open modal.
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Tab') return;
+  var open = Array.prototype.slice.call(document.querySelectorAll('.modal-overlay, .um-overlay'))
+    .filter(function (m) { return m.style.display !== 'none' && m.offsetParent !== null; });
+  if (!open.length) return;
+  var f = _modalFocusables(_modalDialog(open[open.length - 1]));
+  if (!f.length) return;
+  var first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+
 // Modal helpers
 var _modalOpenedAt = {};
 window.showModal = function (id) {
@@ -179,10 +237,11 @@ window.showModal = function (id) {
     el.style.pointerEvents = '';
     if (inner) inner.style.pointerEvents = '';
   }, 400);
+  _onModalOpen(el);
 };
 window.closeModal = function (id) {
   var el = document.getElementById(id);
-  if (el) el.style.display = 'none';
+  if (el) { el.style.display = 'none'; _onModalClose(); }
 };
 // openModal fallback (pages may define their own openModal; only set if not already defined)
 if (!window.openModal) window.openModal = window.showModal;
@@ -190,18 +249,20 @@ if (!window.openModal) window.openModal = window.showModal;
 // Data-attribute modal triggers: <button data-modal-open="id"> and <button data-modal-close="id">
 document.addEventListener('click', function (e) {
   var opener = e.target.closest('[data-modal-open]');
-  if (opener) { var m = document.getElementById(opener.dataset.modalOpen); if (m) m.style.display = 'flex'; }
+  if (opener) { var m = document.getElementById(opener.dataset.modalOpen); if (m) { m.style.display = 'flex'; _onModalOpen(m); } }
 
   var closer = e.target.closest('[data-modal-close]');
-  if (closer) { var mc = document.getElementById(closer.dataset.modalClose); if (mc) mc.style.display = 'none'; }
+  if (closer) { var mc = document.getElementById(closer.dataset.modalClose); if (mc) { mc.style.display = 'none'; _onModalClose(); } }
 });
 
 // Close modals on Escape
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') {
+    var any = false;
     document.querySelectorAll('.modal-overlay, .um-overlay').forEach(function (m) {
-      m.style.display = 'none';
+      if (m.style.display !== 'none') { m.style.display = 'none'; any = true; }
     });
+    if (any) _onModalClose();
   }
 });
 
