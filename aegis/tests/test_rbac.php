@@ -63,3 +63,16 @@ it('isValidRole accepts canonical roles and rejects others', function () {
     expect(!Auth::isValidRole('root'), 'root should be invalid');
     expect(!Auth::isValidRole(''), 'empty should be invalid');
 });
+
+it('risk.write alias expands to the granular write permissions incl. bowtie (regression)', function () {
+    // The coarse 'risk.write' alias must cover bow-tie like it already covers
+    // scenarios — both are the same diagram-editing feature class.
+    $ref = new ReflectionClass('Auth');
+    $prop = $ref->getProperty('aliases');
+    $prop->setAccessible(true);
+    $map = $prop->getValue();
+    $rw = $map['risk.write'] ?? [];
+    expect(in_array('risk.bowtie', $rw, true), 'risk.write alias is missing risk.bowtie (the regression)');
+    expect(in_array('risk.scenarios', $rw, true), 'risk.write alias is missing risk.scenarios');
+    expect(in_array('risk.create', $rw, true), 'risk.write alias is missing risk.create');
+});
