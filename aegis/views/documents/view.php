@@ -38,14 +38,14 @@ $canEdit = Auth::can('policy.edit');
     <div class="card-header"><h3>Details</h3></div>
     <div class="card-body">
       <table class="desc-table">
-        <tr><th>Owner</th><td><?= Security::h($doc['owner_name'] ?? '—') ?></td></tr>
-        <tr><th>Approver</th><td><?= Security::h($doc['approver_name'] ?? '—') ?></td></tr>
-        <tr><th>Version</th><td><?= Security::h($doc['current_version']) ?></td></tr>
-        <tr><th>Review Frequency</th><td><?= Security::h(ucfirst($doc['review_frequency'] ?? '')) ?></td></tr>
-        <tr><th>Next Review</th><td><?= $doc['next_review_date'] ? date('M j, Y', strtotime($doc['next_review_date'])) : '—' ?></td></tr>
-        <tr><th>Expiry</th><td><?= $doc['expiry_date'] ? date('M j, Y', strtotime($doc['expiry_date'])) : '—' ?></td></tr>
+        <tr><th scope="row">Owner</th><td><?= Security::h($doc['owner_name'] ?? '—') ?></td></tr>
+        <tr><th scope="row">Approver</th><td><?= Security::h($doc['approver_name'] ?? '—') ?></td></tr>
+        <tr><th scope="row">Version</th><td><?= Security::h($doc['current_version']) ?></td></tr>
+        <tr><th scope="row">Review Frequency</th><td><?= Security::h(ucfirst($doc['review_frequency'] ?? '')) ?></td></tr>
+        <tr><th scope="row">Next Review</th><td><?= $doc['next_review_date'] ? date('M j, Y', strtotime($doc['next_review_date'])) : '—' ?></td></tr>
+        <tr><th scope="row">Expiry</th><td><?= $doc['expiry_date'] ? date('M j, Y', strtotime($doc['expiry_date'])) : '—' ?></td></tr>
         <?php if (!empty(json_decode($doc['tags'] ?? '[]', true))): ?>
-        <tr><th>Tags</th><td>
+        <tr><th scope="row">Tags</th><td>
           <?php foreach (json_decode($doc['tags'], true) as $tag): ?>
             <span class="badge badge-gray" style="margin-right:4px"><?= Security::h($tag) ?></span>
           <?php endforeach; ?>

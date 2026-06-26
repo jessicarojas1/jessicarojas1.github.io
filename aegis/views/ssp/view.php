@@ -72,12 +72,12 @@ if (!function_exists('sspVal')) {
         <div class="card-header"><h3 class="card-title"><i class="bi bi-pc-display-horizontal" style="color:var(--primary)"></i> System Information</h3></div>
         <div class="card-body">
           <table class="desc-table">
-            <tr><th>System Name</th><td><?= sspVal($plan['system_name']) ?></td></tr>
-            <tr><th>System Owner</th><td><?= sspVal($plan['system_owner']) ?></td></tr>
-            <tr><th>Owner Email</th><td><?= sspVal($plan['system_owner_email']) ?></td></tr>
-            <tr><th>Information Owner</th><td><?= sspVal($plan['information_owner']) ?></td></tr>
-            <tr><th>Authorizing Official</th><td><?= sspVal($plan['authorizing_official']) ?></td></tr>
-            <tr><th>System Type</th><td><?= sspVal(str_replace('_',' ',ucfirst($plan['system_type']))) ?></td></tr>
+            <tr><th scope="row">System Name</th><td><?= sspVal($plan['system_name']) ?></td></tr>
+            <tr><th scope="row">System Owner</th><td><?= sspVal($plan['system_owner']) ?></td></tr>
+            <tr><th scope="row">Owner Email</th><td><?= sspVal($plan['system_owner_email']) ?></td></tr>
+            <tr><th scope="row">Information Owner</th><td><?= sspVal($plan['information_owner']) ?></td></tr>
+            <tr><th scope="row">Authorizing Official</th><td><?= sspVal($plan['authorizing_official']) ?></td></tr>
+            <tr><th scope="row">System Type</th><td><?= sspVal(str_replace('_',' ',ucfirst($plan['system_type']))) ?></td></tr>
           </table>
           <?php if ($plan['system_description']): ?>
           <div style="margin-top:14px"><div class="text-xs text-muted" style="margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Description</div><p style="margin:0;white-space:pre-wrap;font-size:13px"><?= Security::h($plan['system_description']) ?></p></div>
@@ -93,12 +93,12 @@ if (!function_exists('sspVal')) {
         <div class="card-header"><h3 class="card-title"><i class="bi bi-building" style="color:var(--primary)"></i> Company Information</h3></div>
         <div class="card-body">
           <table class="desc-table">
-            <tr><th>Company Name</th><td><?= sspVal($plan['company_name']) ?></td></tr>
-            <tr><th>DUNS Number</th><td><?= sspVal($plan['duns_number']) ?></td></tr>
-            <tr><th>CAGE Code</th><td><?= sspVal($plan['cage_code']) ?></td></tr>
-            <tr><th>Framework</th><td><?= sspVal($plan['framework']) ?></td></tr>
-            <tr><th>Assessment Scope</th><td><?= sspVal($plan['assessment_scope']) ?></td></tr>
-            <tr><th>Presentation Mode</th><td><?= sspVal(ucfirst($plan['presentation_mode'] ?? 'standard')) ?></td></tr>
+            <tr><th scope="row">Company Name</th><td><?= sspVal($plan['company_name']) ?></td></tr>
+            <tr><th scope="row">DUNS Number</th><td><?= sspVal($plan['duns_number']) ?></td></tr>
+            <tr><th scope="row">CAGE Code</th><td><?= sspVal($plan['cage_code']) ?></td></tr>
+            <tr><th scope="row">Framework</th><td><?= sspVal($plan['framework']) ?></td></tr>
+            <tr><th scope="row">Assessment Scope</th><td><?= sspVal($plan['assessment_scope']) ?></td></tr>
+            <tr><th scope="row">Presentation Mode</th><td><?= sspVal(ucfirst($plan['presentation_mode'] ?? 'standard')) ?></td></tr>
           </table>
         </div>
       </div>
@@ -138,11 +138,11 @@ if (!function_exists('sspVal')) {
       <div class="card-header"><h3 class="card-title"><i class="bi bi-check-circle-fill" style="color:var(--primary)"></i> Approval Information</h3></div>
       <div class="card-body">
         <table class="desc-table">
-          <tr><th>Approval Status</th><td><?php $as=$plan['approval_status']??''; echo $as ? '<span class="badge '.($as==='approved'?'badge-success':($as==='rejected'?'badge-danger':'badge-warning')).'">'.Security::h(ucfirst($as)).'</span>' : '—'; ?></td></tr>
-          <tr><th>Approver Name</th><td><?= sspVal($plan['approver_name']) ?></td></tr>
-          <tr><th>Approver Title</th><td><?= sspVal($plan['approver_title']) ?></td></tr>
-          <tr><th>Approval Date</th><td><?= $plan['approval_date'] ? date('M j, Y', strtotime($plan['approval_date'])) : '—' ?></td></tr>
-          <tr><th>Notes</th><td><?= sspVal($plan['approval_notes']) ?></td></tr>
+          <tr><th scope="row">Approval Status</th><td><?php $as=$plan['approval_status']??''; echo $as ? '<span class="badge '.($as==='approved'?'badge-success':($as==='rejected'?'badge-danger':'badge-warning')).'">'.Security::h(ucfirst($as)).'</span>' : '—'; ?></td></tr>
+          <tr><th scope="row">Approver Name</th><td><?= sspVal($plan['approver_name']) ?></td></tr>
+          <tr><th scope="row">Approver Title</th><td><?= sspVal($plan['approver_title']) ?></td></tr>
+          <tr><th scope="row">Approval Date</th><td><?= $plan['approval_date'] ? date('M j, Y', strtotime($plan['approval_date'])) : '—' ?></td></tr>
+          <tr><th scope="row">Notes</th><td><?= sspVal($plan['approval_notes']) ?></td></tr>
         </table>
       </div>
     </div>
@@ -150,9 +150,9 @@ if (!function_exists('sspVal')) {
       <div class="card-header"><h3 class="card-title"><i class="bi bi-pen-fill" style="color:var(--primary)"></i> Digital Certification</h3></div>
       <div class="card-body">
         <table class="desc-table">
-          <tr><th>Affirming Official</th><td><?= sspVal($plan['certifying_official_name']) ?></td></tr>
-          <tr><th>Title</th><td><?= sspVal($plan['certifying_official_title']) ?></td></tr>
-          <tr><th>Certification Date</th><td><?= $plan['certification_date'] ? date('M j, Y', strtotime($plan['certification_date'])) : '—' ?></td></tr>
+          <tr><th scope="row">Affirming Official</th><td><?= sspVal($plan['certifying_official_name']) ?></td></tr>
+          <tr><th scope="row">Title</th><td><?= sspVal($plan['certifying_official_title']) ?></td></tr>
+          <tr><th scope="row">Certification Date</th><td><?= $plan['certification_date'] ? date('M j, Y', strtotime($plan['certification_date'])) : '—' ?></td></tr>
         </table>
         <?php if ($plan['certification_statement']): ?>
         <div style="margin-top:14px;padding:14px;background:var(--bg-secondary);border-radius:8px;border-left:3px solid var(--primary)">
