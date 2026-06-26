@@ -283,7 +283,7 @@ The CSP directives (`:349-362`):
 
 ```
 default-src 'self'
-script-src  'self' 'nonce-{N}' https://cdn.jsdelivr.net
+script-src  'self' 'nonce-{N}'
 style-src   'self' 'unsafe-inline' https://cdn.jsdelivr.net
 font-src    'self'
 img-src     'self' data: blob: https:
@@ -296,9 +296,12 @@ object-src 'none'
 
 Notes from the source comments:
 
-- `script-src` allows `cdn.jsdelivr.net` only for Bootstrap, which is
-  **SRI-pinned** in markup; for air-gapped/IL5+ deployments the comment instructs
-  vendoring Bootstrap locally and dropping jsdelivr (`:343-348`).
+- `script-src` is locked to `'self'` + the per-request nonce — **no external
+  origin**. All JavaScript (app.js, Chart.js) is vendored locally, so a CDN
+  compromise cannot inject script.
+- `style-src` allows `cdn.jsdelivr.net` only for the Bootstrap **stylesheet**,
+  which is **SRI-pinned** in markup; for air-gapped/IL5+ deployments the comment
+  instructs vendoring that stylesheet locally and dropping jsdelivr (`:343-348`).
 - `style-src` still allows `'unsafe-inline'` (styles only, not scripts).
 - `img-src https:` exists to permit an externally-hosted branding logo URL;
   `data:`/`blob:` cover uploads/inline images (`:354-356`).
@@ -661,9 +664,10 @@ These are **observations from the code**, not invented behaviors:
   nonce-gated. Inline styles can still be injected if other layers fail.
 - **`img-src https:`** is broad (any HTTPS host) to support branding logo URLs
   (`:356`). This is an intentional trade-off documented in-code.
-- **CDN dependency**: `script-src`/`style-src` allow `cdn.jsdelivr.net`
-  (Bootstrap, SRI-pinned). For air-gapped/IL5+ the code comments instruct
-  vendoring locally and removing jsdelivr (`:343-348`).
+- **CDN dependency**: only `style-src` allows `cdn.jsdelivr.net` (Bootstrap
+  **stylesheet**, SRI-pinned); `script-src` has no external origin. For
+  air-gapped/IL5+ the code comments instruct vendoring the stylesheet locally
+  and removing jsdelivr (`:343-348`).
 - **Audit advisory lock is best-effort**: if `pg_advisory_lock` is unavailable,
   the row is still written (`src/Auth.php:510-517`), so under that failure mode
   concurrent appends *could* race the chain. Verification would surface the
