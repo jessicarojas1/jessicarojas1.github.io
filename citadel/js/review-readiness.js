@@ -210,6 +210,7 @@
     const deniedLicense = (report.licenses && (report.licenses.denied || []).length) || 0;
     const unknownLicense = (dep.licenses && (dep.licenses.unknown || []).length) || 0;
     const noSbom = !((report.sbom && report.sbom.components || []).length);
+    const kevFindings = findings.filter(f => f && f.kev === true);   // CISA Known-Exploited Vulns
     // Only apply logging/test/CI-gate penalties when the relevant reviewer
     // actually ran — absence of a reviewer must not fabricate a downgrade.
     const rv = report.reviews || {};
@@ -218,6 +219,7 @@
     const noCiGate = !!(rv.testing && rv.testing.summary && rv.testing.summary.hasCiTestGate === false);
 
     // Rejected-level conditions.
+    if (kevFindings.length) { raise(3, kevFindings.length + ' actively-exploited (CISA KEV) vulnerabilit(ies) present.'); blockers.push(kevFindings.length + ' actively-exploited (CISA KEV) CVE(s)'); required.push('Patch or remove the actively-exploited (CISA KEV) component(s) before release — these have confirmed in-the-wild exploitation and are the highest remediation priority.'); }
     if (exposedSecret) { raise(3, 'Exposed secret(s) detected — must be removed and rotated before release.'); blockers.push('Exposed/hardcoded secret(s)'); required.push('Remove every hardcoded secret from source, rotate the exposed credentials, and move them to an approved secrets manager. Review commit history for prior exposure.'); }
     if (criticalHigh.length) { raise(3, criticalHigh.length + ' high-confidence Critical finding(s) present.'); blockers.push(criticalHigh.length + ' Critical (high-confidence) finding(s)'); required.push('Resolve all high-confidence Critical findings (see Developer report) or obtain documented risk acceptance.'); }
     if (authFail) { raise(3, 'Authentication/authorization gaps on protected functionality.'); blockers.push('Auth/access-control gaps'); required.push('Enforce authentication on protected routes and add server-side authorization (RBAC / object-level checks).'); }

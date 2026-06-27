@@ -402,6 +402,20 @@
     hideProgress();
     $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (mode !== 'deep' && report.sbom && report.sbom.components.length) enrichOsv(report);
+    else if (mode === 'deep') enrichExploitability(report);   // deep CVEs are already present
+  }
+
+  // Add EPSS / CISA KEV exploitability context to CVE findings (best-effort,
+  // post-scan, in the browser), then recompute the gate (KEV escalates it).
+  async function enrichExploitability(report) {
+    if (!CITADEL.exploit || !report || !Array.isArray(report.findings)) return;
+    try {
+      const res = await CITADEL.exploit.enrich(report.findings, () => {});
+      if (res && res.enriched) {
+        if (CITADEL.readiness && CITADEL.readiness.analyze) { try { report.readiness = CITADEL.readiness.analyze(report); } catch (e) {} }
+        CITADEL.report.render(report);
+      }
+    } catch (e) {}
   }
 
   // Quick mode: query OSV.dev for real CVEs, merge, re-score, re-render.
@@ -417,6 +431,7 @@
       report.posture = CITADEL.frameworks.posture(report.findings);
       CITADEL.report.render(report);
       try { CITADEL.history.record(report, 'Scan + OSV ' + new Date().toLocaleString(), CITADEL.projects && CITADEL.projects.current && CITADEL.projects.current()); } catch (e) {}
+      enrichExploitability(report);   // EPSS + CISA KEV on the freshly-merged CVEs
     } catch (e) {
       const s = $('osv-status'); if (s) s.innerHTML = '<i class="bi bi-exclamation-circle"></i> OSV.dev lookup unavailable (offline?).';
     }
