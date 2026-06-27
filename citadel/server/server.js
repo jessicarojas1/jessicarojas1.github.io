@@ -36,6 +36,7 @@ const oidc = require('./lib/oidc');
 const scans = require('./lib/scans');
 const projects = require('./lib/projects');
 const dispositions = require('./lib/dispositions');
+const depapprovals = require('./lib/depapprovals');
 const threatmodel = require('./lib/threatmodel');
 const notify = require('./lib/notify');
 const fips = require('./lib/fips');
@@ -613,6 +614,21 @@ app.post('/api/dispositions', requirePerm('analyze'), async (req, res) => {
     const state = await dispositions.set((req.body && req.body.fingerprint) || '', (req.body && req.body.state) || '', req.user && req.user.email, note);
     audit.record('finding.disposition', { actor: req.user && req.user.email, ip: clientIp(req), detail: state + ' ' + ((req.body && req.body.fingerprint) || '').slice(0, 32) + (note ? ' +note' : ''), ok: true });
     res.json({ ok: true, state });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+/* ---- Shared dependency-approval workflow (sign-off decision per package) ----
+ * Read for anyone who can view findings; write for anyone who can run/triage.
+ * The justification text is never written to the audit log. */
+app.get('/api/dep-approvals', requirePerm('tab-findings'), async (req, res) => {
+  try { res.json(await depapprovals.list()); } catch (e) { res.status(500).json({ error: 'Could not load dependency approvals.' }); }
+});
+app.post('/api/dep-approvals', requirePerm('analyze'), async (req, res) => {
+  if (!depapprovals.enabled()) return res.status(501).json({ error: 'Shared dependency approvals require a database (set DATABASE_URL); local state is used otherwise.' });
+  try {
+    const status = await depapprovals.set(req.body && req.body.key, req.body, req.user && req.user.email);
+    audit.record('dep.approval', { actor: req.user && req.user.email, ip: clientIp(req), detail: ((req.body && req.body.status) || '') + ' ' + String((req.body && req.body.key) || '').slice(0, 48), ok: true });
+    res.json({ ok: true, status });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 

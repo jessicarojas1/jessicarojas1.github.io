@@ -169,6 +169,18 @@
       try { r.readiness = CITADEL.readiness.analyze(r); CITADEL.readiness.render(r); } catch (e) {}
     }
   }
+  // Re-apply dependency-approval decisions after a change, then re-render + re-gate.
+  function refreshApproval() {
+    const r = CITADEL.report && CITADEL.report.current;
+    if (!r || !CITADEL.depapproval || !CITADEL.depapproval.apply) return;
+    try {
+      r.findings = r.findings.filter(f => f.ruleId !== 'dep-approval');
+      const a = CITADEL.depapproval.apply(r);
+      if (a.findings.length) r.findings = r.findings.concat(a.findings);
+      if (CITADEL.readiness && CITADEL.readiness.analyze) r.readiness = CITADEL.readiness.analyze(r);
+      CITADEL.report.render(r);
+    } catch (e) {}
+  }
   // Load a saved scan's full report and show it (shared by Recent + History).
   async function openScanById(id) {
     try {
@@ -288,6 +300,10 @@
         if (map) { CITADEL.disposition.syncServer(map); if (CITADEL.report.current) CITADEL.report.renderFindings(CITADEL.report.current); }
       });
     }
+    // Shared dependency-approval decisions (server-side), then re-render if shown.
+    if (CITADEL.depapproval && CITADEL.depapproval.load) {
+      Promise.resolve(CITADEL.depapproval.load()).then(() => { if (CITADEL.report.current) CITADEL.report.render(CITADEL.report.current); }).catch(() => {});
+    }
     loadRecentActivity();
     CITADEL.report.setAi(aiAvailable);
     $('deep-mode-row').classList.remove('d-none');
@@ -389,9 +405,18 @@
   // Shared finish: render, record history, reveal, then enrich quick scans with live CVEs.
   function finishScan(report, mode) {
     showProgress(100, mode === 'deep' ? 'Done (deep scan).' : 'Done.', report.findings.length + ' finding(s)');
-    // Deep-scan reports come from the server and bypass the in-browser scanner,
-    // so they have no readiness yet — compute it client-side before render.
-    if (report && !report.readiness && CITADEL.readiness && CITADEL.readiness.analyze) {
+    // Apply persisted dependency-approval decisions (prohibited/restricted emit
+    // findings) before scoring the gate.
+    if (CITADEL.depapproval && CITADEL.depapproval.apply) {
+      try {
+        report.findings = report.findings.filter(f => f.ruleId !== 'dep-approval');
+        const a = CITADEL.depapproval.apply(report);
+        if (a.findings.length) report.findings = report.findings.concat(a.findings);
+      } catch (e) {}
+    }
+    // Recompute the gate on the main thread (deep reports have none yet; quick
+    // reports need it refreshed to include approval findings).
+    if (report && CITADEL.readiness && CITADEL.readiness.analyze) {
       try { report.readiness = CITADEL.readiness.analyze(report); } catch (e) {}
     }
     CITADEL.report.render(report);
@@ -522,6 +547,16 @@
       const mit = e.target.closest('[data-threat-mitig]');
       if (res) { CITADEL.threatmodel.updateThreat(pid, res.getAttribute('data-threat-residual'), { residualRisk: res.value }); if (CITADEL.readiness && CITADEL.report.current) CITADEL.readiness.render(CITADEL.report.current); }
       else if (mit) { CITADEL.threatmodel.updateThreat(pid, mit.getAttribute('data-threat-mitig'), { missingMitigations: mit.value }); if (CITADEL.readiness && CITADEL.report.current) CITADEL.readiness.render(CITADEL.report.current); }
+    }
+    // Dependency approval — status / justification / security+license sign-off.
+    if (CITADEL.depapproval && e.target && e.target.closest) {
+      const r = CITADEL.report && CITADEL.report.current;
+      const aset = e.target.closest('[data-approve-set]');
+      const ajust = e.target.closest('[data-approve-just]');
+      const aflag = e.target.closest('[data-approve-flag]');
+      if (r && aset) { const c = CITADEL.depapproval.componentByKey(r, aset.getAttribute('data-approve-set')); if (c) { CITADEL.depapproval.set(c, { status: aset.value }); refreshApproval(); } }
+      else if (r && ajust) { const c = CITADEL.depapproval.componentByKey(r, ajust.getAttribute('data-approve-just')); if (c) { CITADEL.depapproval.set(c, { justification: ajust.value }); refreshApproval(); } }
+      else if (r && aflag) { const parts = aflag.getAttribute('data-approve-flag').split(':'); const c = CITADEL.depapproval.componentByKey(r, parts[0]); if (c) { const patch = {}; patch[parts[1] === 'security' ? 'securityApproved' : 'licenseApproved'] = aflag.checked; CITADEL.depapproval.set(c, patch); } }
     }
   });
   document.addEventListener('citadel:project-change', () => {

@@ -213,6 +213,22 @@
     } catch (e) { return false; }
   }
 
+  /* ---------- Shared dependency-approval workflow ---------- */
+  // Returns the rich { key: { status, justification, approver, securityApproved,
+  // licenseApproved, updatedAt } } map, or null when unavailable (no DB / not
+  // signed in).
+  async function depApprovalsList() {
+    try { const res = await apiFetch('api/dep-approvals'); if (!res.ok) return null; return res.json(); } catch (e) { return null; }
+  }
+  // Persist a dependency-approval decision (key = `ecosystem|name`); returns true
+  // on success (false if not shared / denied).
+  async function depApprovalSet(key, data) {
+    try {
+      const res = await apiFetch('api/dep-approvals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ key: key }, data || {})) });
+      return res.ok;
+    } catch (e) { return false; }
+  }
+
   /* ---------- Shared per-project threat-model overlay ---------- */
   // Returns { enabled, overlay } (overlay may be null), or null on any error
   // (no DB / not signed in / denied). Never throws.
@@ -232,5 +248,5 @@
     } catch (e) { return false; }
   }
 
-  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, scanRename, projectsList, projectCreate, projectRename, projectDelete, dispositionsList, dispositionSet, threatmodelGet, threatmodelSet, getToken, getRefresh };
+  CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMfaVerify, authChangePassword, authMe, authLogout, refresh, scansList, scanGet, scanDelete, scanRename, projectsList, projectCreate, projectRename, projectDelete, dispositionsList, dispositionSet, depApprovalsList, depApprovalSet, threatmodelGet, threatmodelSet, getToken, getRefresh };
 })(window);

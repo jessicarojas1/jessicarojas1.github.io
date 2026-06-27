@@ -146,6 +146,21 @@ CREATE TABLE IF NOT EXISTS citadel_dispositions (
 ALTER TABLE citadel_dispositions ADD COLUMN IF NOT EXISTS note text;
 
 -- ----------------------------------------------------------------------------
+-- Dependency-approval workflow — shared sign-off decision for a package, keyed
+-- by `ecosystem|name` (lowercased). status approved/restricted/prohibited/pending,
+-- with separate security/license approval flags. 'pending' resets are deleted.
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS citadel_dep_approvals (
+  key              text PRIMARY KEY,
+  status           text NOT NULL,
+  justification    text,
+  approver         text,
+  security_approved boolean NOT NULL DEFAULT false,
+  license_approved  boolean NOT NULL DEFAULT false,
+  updated_at       timestamptz NOT NULL DEFAULT now()
+);
+
+-- ----------------------------------------------------------------------------
 -- Threat-model overlay — per-project reviewer additions/edits/deletions layered
 -- over the generated STRIDE model, stored whole as a JSON blob keyed by project.
 -- ----------------------------------------------------------------------------

@@ -502,6 +502,7 @@
         <button class="btn btn-sm btn-outline-primary" id="dl-sbom"><i class="bi bi-box-arrow-down"></i> Download SBOM (JSON)</button>
       </div>
       ${integrityCard(r)}
+      ${CITADEL.depapproval && CITADEL.depapproval.renderSection ? CITADEL.depapproval.renderSection(r) : ''}
       <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
         <thead><tr><th>Component</th><th>Version</th><th>Ecosystem</th><th>Scope</th><th>Supply-chain</th></tr></thead>
         <tbody>${rows}</tbody>
