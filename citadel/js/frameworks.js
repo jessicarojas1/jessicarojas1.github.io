@@ -119,6 +119,9 @@
       url:'https://gdpr-info.eu/', desc:'EU data protection — technical measures (Art. 32).' },
     { id:'slsa',   name:'SLSA', version:'v1.0', tag:'Supply Chain',
       url:'https://slsa.dev/', desc:'Supply-chain Levels for Software Artifacts.' },
+    { id:'scvs',   name:'OWASP SCVS', version:'1.0', tag:'Supply Chain',
+      url:'https://owasp.org/www-project-software-component-verification-standard/',
+      desc:'Software Component Verification Standard — inventory, integrity & provenance of components.' },
     { id:'fips',   name:'FIPS 140-3', version:'2019', tag:'Crypto',
       url:'https://csrc.nist.gov/pubs/fips/140-3/final',
       desc:'Security requirements for cryptographic modules.' },
@@ -234,7 +237,7 @@
       csf:['ID.RA-01','PR.PS-02'], cmmc:['RA.L2-3.11.2','SI.L1-3.14.1'],
       iso:['A.8.8 Management of technical vulnerabilities'], soc2:['CC7.1'], pci:['6.3.3','11.3'],
       hipaa:['164.308(a)(1)(ii)(A)'], fedramp:['RA-5'], cis:['7.3','16.4'],
-      slsa:['Dependencies tracked'], stig:['APSC-DV-003480']
+      slsa:['Dependencies tracked'], scvs:['V1 Inventory','V2 Package Management'], stig:['APSC-DV-003480']
     },
     'supply-chain': {
       owasp:['A08:2021 Software & Data Integrity Failures'], asvs:['V10 Malicious Code'],
@@ -242,7 +245,8 @@
       ssdf:['PS.1.1','PS.2.1','PS.3.1','PW.4.4'], csf:['ID.RA-09','GV.SC-01'],
       cmmc:['CM.L2-3.4.1'], iso:['A.5.23 Cloud services','A.8.30 Outsourced development'],
       soc2:['CC9.2'], pci:['6.3.2'], fedramp:['SR-3'], cis:['16.4'],
-      slsa:['Build provenance / hermetic build'], stig:['APSC-DV-003290'], dfars:['(m) Subcontracts']
+      slsa:['Build provenance / hermetic build'], scvs:['V4 Component Integrity','V6 Component Provenance'],
+      stig:['APSC-DV-003290'], dfars:['(m) Subcontracts']
     },
     'input-validation': {
       owasp:['A03:2021 Injection'], asvs:['V5.1 Input Validation'], cwe:['CWE-20'],
