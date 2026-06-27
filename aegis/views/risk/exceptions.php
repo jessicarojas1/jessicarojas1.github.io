@@ -101,9 +101,9 @@ ob_start();
                 'pending'  => ['bg' => 'var(--warning-subtle)', 'fg' => 'var(--warning)'],
                 'approved' => ['bg' => 'var(--success-subtle)', 'fg' => 'var(--primary)'],
                 'rejected' => ['bg' => 'var(--danger-subtle)', 'fg' => 'var(--danger)'],
-                'expired'  => ['bg' => '#f9fafb', 'fg' => '#71717a'],
+                'expired'  => ['bg' => 'var(--surface-alt)', 'fg' => 'var(--neutral)'],
             ];
-            $sStyle = $statusStyles[$ex['status']] ?? ['bg' => '#f4f4f5', 'fg' => '#71717a'];
+            $sStyle = $statusStyles[$ex['status']] ?? ['bg' => 'var(--neutral-subtle)', 'fg' => 'var(--neutral)'];
 
             // Type labels
             $typeLabels = ['accept' => 'Accept', 'transfer' => 'Transfer', 'defer' => 'Defer'];

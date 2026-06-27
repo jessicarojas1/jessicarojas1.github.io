@@ -29,14 +29,14 @@ try {
     $_appetiteRows = Database::fetchAll("SELECT category, appetite, max_score FROM risk_appetite ORDER BY category LIMIT 10") ?: [];
 } catch (Throwable $_e) { $_appetiteRows = []; }
 if (!empty($_appetiteRows)):
-$_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>'#16a34a'];
+$_appColors = ['zero'=>'var(--danger)','low'=>'var(--warning)','moderate'=>'var(--moderate)','high'=>'var(--primary)'];
 ?>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px">
   <span style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;flex-shrink:0">
     <i class="bi bi-speedometer2" style="color:var(--primary);margin-right:3px"></i>Risk Appetite:
   </span>
   <?php foreach ($_appetiteRows as $_ar):
-    $_c = $_appColors[$_ar['appetite']] ?? '#71717a';
+    $_c = $_appColors[$_ar['appetite']] ?? 'var(--neutral)';
   ?>
   <span style="font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;background:<?= $_c ?>15;color:<?= $_c ?>;border:1px solid <?= $_c ?>35;white-space:nowrap">
     <?= Security::h($_ar['category']) ?>: <?= ucfirst($_ar['appetite']) ?><?= $_ar['max_score'] !== null ? ' (≤'.Security::h($_ar['max_score']).')' : '' ?>
@@ -229,9 +229,9 @@ $_filterCount = count(array_filter([
             <td>
               <?php
               $strategies = json_decode($risk['treatment_strategies'] ?? '[]', true) ?: [];
-              $stratColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'#dc2626'];
+              $stratColors = ['mitigate'=>'var(--moderate)','accept'=>'var(--warning-dark)','transfer'=>'var(--secondary)','avoid'=>'var(--danger)'];
               foreach ($strategies as $strat):
-                $sc = $stratColors[$strat] ?? '#71717a';
+                $sc = $stratColors[$strat] ?? 'var(--neutral)';
               ?>
               <span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:<?= $sc ?>18;color:<?= $sc ?>;border:1px solid <?= $sc ?>30;white-space:nowrap;margin-right:2px">
                 <?= ucfirst($strat) ?>
@@ -241,7 +241,7 @@ $_filterCount = count(array_filter([
             <td>
               <?php
               $aStatus = $risk['assessment_status'] ?? 'draft';
-              $aColors = ['draft'=>['#71717a','#f4f4f5'],'pending_review'=>['#d97706','#fffbeb'],'approved'=>['#16a34a','#f0fdf4']];
+              $aColors = ['draft'=>['var(--neutral)','var(--neutral-subtle)'],'pending_review'=>['var(--warning)','var(--warning-subtle)'],'approved'=>['var(--primary)','var(--success-subtle)']];
               [$aFg,$aBg] = $aColors[$aStatus] ?? $aColors['draft'];
               $aLabel = ['draft'=>'Draft','pending_review'=>'Pending Review','approved'=>'Approved'][$aStatus] ?? ucfirst($aStatus);
               ?>

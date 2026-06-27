@@ -4,24 +4,24 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['Threat', null]
 
 $catConfig = [
     'people'     => ['label' => 'People',     'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.05)', 'icon' => 'bi-person-fill'],
-    'process'    => ['label' => 'Process',    'color' => '#2563eb', 'bg' => '#eff6ff', 'icon' => 'bi-diagram-3-fill'],
+    'process'    => ['label' => 'Process',    'color' => 'var(--moderate)', 'bg' => 'var(--info-subtle)', 'icon' => 'bi-diagram-3-fill'],
     'technology' => ['label' => 'Technology', 'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)', 'icon' => 'bi-cpu-fill'],
-    'natural'    => ['label' => 'Natural',    'color' => '#16a34a', 'bg' => '#f0fdf4', 'icon' => 'bi-cloud-lightning-rain-fill'],
-    'regulatory' => ['label' => 'Regulatory', 'color' => '#ea580c', 'bg' => '#fff7ed', 'icon' => 'bi-file-earmark-ruled-fill'],
-    'financial'  => ['label' => 'Financial',  'color' => '#ca8a04', 'bg' => '#fefce8', 'icon' => 'bi-currency-dollar'],
+    'natural'    => ['label' => 'Natural',    'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'icon' => 'bi-cloud-lightning-rain-fill'],
+    'regulatory' => ['label' => 'Regulatory', 'color' => 'var(--high)', 'bg' => 'var(--high-subtle)', 'icon' => 'bi-file-earmark-ruled-fill'],
+    'financial'  => ['label' => 'Financial',  'color' => 'var(--gold)', 'bg' => 'var(--gold-subtle)', 'icon' => 'bi-currency-dollar'],
 ];
 
 $statusConfig = [
-    'active'    => ['label' => 'Active',    'color' => '#16a34a', 'bg' => '#f0fdf4'],
-    'mitigated' => ['label' => 'Mitigated', 'color' => '#2563eb', 'bg' => '#eff6ff'],
-    'accepted'  => ['label' => 'Accepted',  'color' => '#d97706', 'bg' => '#fffbeb'],
-    'retired'   => ['label' => 'Retired',   'color' => '#71717a', 'bg' => '#f9fafb'],
+    'active'    => ['label' => 'Active',    'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)'],
+    'mitigated' => ['label' => 'Mitigated', 'color' => 'var(--moderate)', 'bg' => 'var(--info-subtle)'],
+    'accepted'  => ['label' => 'Accepted',  'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
+    'retired'   => ['label' => 'Retired',   'color' => 'var(--neutral)', 'bg' => 'var(--surface-alt)'],
 ];
 
 $cat     = $threat['category'] ?? 'technology';
-$catCfg  = $catConfig[$cat] ?? ['label' => ucfirst($cat), 'color' => '#71717a', 'bg' => '#f4f4f5', 'icon' => 'bi-question'];
+$catCfg  = $catConfig[$cat] ?? ['label' => ucfirst($cat), 'color' => 'var(--neutral)', 'bg' => 'var(--neutral-subtle)', 'icon' => 'bi-question'];
 $status  = $threat['status'] ?? 'active';
-$stCfg   = $statusConfig[$status] ?? ['label' => ucfirst($status), 'color' => '#71717a', 'bg' => '#f9fafb'];
+$stCfg   = $statusConfig[$status] ?? ['label' => ucfirst($status), 'color' => 'var(--neutral)', 'bg' => 'var(--surface-alt)'];
 
 $likelihood = (int)($threat['likelihood'] ?? 0);
 $impact     = (int)($threat['impact'] ?? 0);

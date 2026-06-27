@@ -205,10 +205,11 @@ AEGIS a defensible, verifiable record of who did what and when.
 ### Nonce-based, `unsafe-inline`-free CSP
 `Security::setSecurityHeaders()` (`src/Security.php:337-374`) emits a strict
 **Content-Security-Policy** with a per-request **script nonce** and **no `'unsafe-inline'`** for
-scripts: `script-src 'self' 'nonce-…' https://cdn.jsdelivr.net`. Every `<script>` tag carries
-`nonce="<?= Security::nonce() ?>"`, and all event handlers are delegated through `data-*`
-attributes in `app.js` — there are no inline `onclick`/`onchange` handlers anywhere. The CDN
-asset (Bootstrap) is Subresource-Integrity pinned. The response also sets `X-Frame-Options:
+scripts: `script-src 'self' 'nonce-…'` — no external origin, since all JavaScript is vendored
+locally. Every `<script>` tag carries `nonce="<?= Security::nonce() ?>"`, and all event handlers
+are delegated through `data-*` attributes in `app.js` — there are no inline `onclick`/`onchange`
+handlers anywhere. The one remaining CDN asset (the Bootstrap stylesheet, allowed only in
+`style-src`) is Subresource-Integrity pinned. The response also sets `X-Frame-Options:
 DENY`, `frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`, a strict `Referrer-Policy`,
 cross-origin isolation headers, and a locked-down `Permissions-Policy`.
 

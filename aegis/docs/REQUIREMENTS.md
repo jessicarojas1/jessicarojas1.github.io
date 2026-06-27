@@ -718,7 +718,7 @@ These conventions are observed in essentially every controller and are therefore
 
 ### REQ-SEC-001 — Content Security Policy with per-request nonce _(Inferred from implementation)_
 - **Description:** A strict, nonce-based CSP is set on every response.
-- **Expected behavior:** `Security::setSecurityHeaders()` (`Security.php:337-380`) emits a CSP with `script-src 'self' 'nonce-…' cdn.jsdelivr.net` (no `unsafe-inline` for scripts), `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, plus `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, COOP/CORP, `Permissions-Policy`, and HSTS over HTTPS.
+- **Expected behavior:** `Security::setSecurityHeaders()` (`Security.php:337-380`) emits a CSP with `script-src 'self' 'nonce-…'` (no external origin, no `unsafe-inline` for scripts; `cdn.jsdelivr.net` remains only in `style-src` for the Bootstrap stylesheet), `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, plus `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, COOP/CORP, `Permissions-Policy`, and HSTS over HTTPS.
 - **Acceptance criteria:** Inline event handlers are not used; every `<script>` carries the request nonce; the response includes the listed headers.
 
 ### REQ-SEC-002 — CSRF protection on all state changes _(Inferred from implementation)_

@@ -53,7 +53,7 @@ ob_start();
         <?php else: ?>
           <?php foreach ($sections as $sectionName => $sectionQuestions): ?>
             <details open class="section-accordion" style="margin-bottom:.5rem">
-              <summary style="padding:.75rem 1.25rem;cursor:pointer;font-weight:600;background:var(--surface-alt,#f9fafb);border-bottom:1px solid var(--border);list-style:none;display:flex;align-items:center;gap:.5rem">
+              <summary style="padding:.75rem 1.25rem;cursor:pointer;font-weight:600;background:var(--surface-alt,var(--surface-alt));border-bottom:1px solid var(--border);list-style:none;display:flex;align-items:center;gap:.5rem">
                 <i class="bi bi-chevron-down" style="font-size:.8rem;transition:transform .2s"></i>
                 <?= Security::h($sectionName) ?>
                 <span class="badge badge-secondary" style="margin-left:.5rem"><?= count($sectionQuestions) ?></span>

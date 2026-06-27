@@ -56,7 +56,7 @@ ob_start();
         ?>
           <tr>
             <td>
-              <code style="font-size:12px;background:var(--bg-secondary,#f9fafb);padding:2px 7px;border-radius:4px;color:var(--text-muted)"><?= Security::h($tmpl['type']) ?></code>
+              <code style="font-size:12px;background:var(--bg-secondary,var(--surface-alt));padding:2px 7px;border-radius:4px;color:var(--text-muted)"><?= Security::h($tmpl['type']) ?></code>
             </td>
             <td><strong><?= Security::h($tmpl['name']) ?></strong></td>
             <td style="color:var(--text-muted);font-size:13px"><?= Security::h($subjectPreview) ?></td>

@@ -1,8 +1,8 @@
 <?php
-$sevColors = ['critical'=>'var(--danger)','high'=>'var(--warning)','medium'=>'#0284c7','low'=>'var(--success)'];
-$statusColors = ['open'=>'var(--danger)','in_progress'=>'var(--warning)','pending_review'=>'var(--secondary)','resolved'=>'var(--success)','closed'=>'#71717a','wont_fix'=>'#71717a'];
-$sevColor = $sevColors[$issue['severity']] ?? '#71717a';
-$stColor  = $statusColors[$issue['status']] ?? '#71717a';
+$sevColors = ['critical'=>'var(--danger)','high'=>'var(--warning)','medium'=>'var(--info)','low'=>'var(--success)'];
+$statusColors = ['open'=>'var(--danger)','in_progress'=>'var(--warning)','pending_review'=>'var(--secondary)','resolved'=>'var(--success)','closed'=>'var(--neutral)','wont_fix'=>'var(--neutral)'];
+$sevColor = $sevColors[$issue['severity']] ?? 'var(--neutral)';
+$stColor  = $statusColors[$issue['status']] ?? 'var(--neutral)';
 $pageTitle    = 'Issue: ' . $issue['issue_number'];
 $activeModule = 'issue';
 $breadcrumbs  = [['Issues', '/issue'], [$issue['issue_number'], null]];
