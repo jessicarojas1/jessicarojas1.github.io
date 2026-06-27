@@ -114,6 +114,7 @@
       threatModelSection(rev.threatModel),
       loggingSection(rev.logging),
       testingSection(rev.testing),
+      operationsSection(rev.operations),
       architectureSection(rev.architecture)
     ].join('\n');
   }
@@ -332,6 +333,22 @@
       + (kinds.length ? kinds.map(k => `<span class="badge text-bg-info me-1 mb-1">${esc(k)}</span>`).join('') : '<span class="text-body-secondary small">none</span>') + '</div>'
       + (frameworks.length ? '<div><span class="small text-body-secondary me-2">Frameworks:</span>'
         + frameworks.map(f => `<span class="badge text-bg-secondary me-1 mb-1">${esc(f)}</span>`).join('') + '</div>' : '');
+    return card(body);
+  }
+
+  /* ---------- 8b. Operational readiness ---------- */
+  function operationsSection(operations) {
+    const s = (operations && operations.summary) || null;
+    if (!s) return '';
+    const chip = (label, on) => `<span class="badge ${on ? 'text-bg-success' : 'text-bg-secondary'} me-1 mb-1">${esc(label)}: ${on ? 'yes' : 'no'}</span>`;
+    const health = arr(s.healthEndpoints), mon = arr(s.monitoring);
+    const body = SECTION('Operational Readiness')
+      + `<div class="mb-2"><span class="badge ${scoreClass(s.score)} fs-6">${esc(s.score == null ? '—' : num(s.score))}/100</span></div>`
+      + '<div class="mb-2"><span class="small text-body-secondary me-2">Health endpoints:</span>'
+      + (health.length ? health.map(h => `<span class="badge text-bg-info me-1 mb-1">${esc(h)}</span>`).join('') : '<span class="text-body-secondary small">none detected</span>') + '</div>'
+      + '<div class="mb-2"><span class="small text-body-secondary me-2">Monitoring:</span>'
+      + (mon.length ? mon.map(m => `<span class="badge text-bg-info me-1 mb-1">${esc(m)}</span>`).join('') : '<span class="text-body-secondary small">none detected</span>') + '</div>'
+      + '<div>' + chip('Backup', s.backup) + chip('Restore', s.restore) + chip('Alerting', s.alerting) + chip('DR', s.dr) + '</div>';
     return card(body);
   }
 

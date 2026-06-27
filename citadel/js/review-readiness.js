@@ -29,7 +29,7 @@
     // Dimension weights for the overall score (should sum to ~1).
     weights: {
       security: 0.15, dependency: 0.12, secrets: 0.12, configuration: 0.08,
-      container: 0.06, auth: 0.12, api: 0.08, data: 0.08, logging: 0.06, cicd: 0.06, test: 0.06, compliance: 0.07
+      container: 0.06, auth: 0.12, api: 0.08, data: 0.08, logging: 0.06, operations: 0.05, cicd: 0.06, test: 0.06, compliance: 0.07
     },
     multipleHighThreshold: 3,   // >= this many High findings => at least Conditional
     warnAt: 80, failAt: 50      // dimension status thresholds
@@ -39,6 +39,7 @@
     ['secrets', 'Secrets'], ['configuration', 'Configuration'], ['container', 'Containers'],
     ['auth', 'Auth & Access'],
     ['api', 'API Security'], ['data', 'Data Protection'], ['logging', 'Logging & Audit'],
+    ['operations', 'Operational Readiness'],
     ['cicd', 'CI/CD Pipeline'], ['test', 'Test Readiness'], ['compliance', 'Compliance']
   ];
   const DECISIONS = ['Approved', 'Conditional Approval', 'Requires Manual Review', 'Rejected'];
@@ -68,6 +69,7 @@
     if (mod === 'logging') return 'logging';
     if (mod === 'testing') return 'test';
     if (mod === 'container') return 'container';
+    if (mod === 'operations') return 'operations';
     if (cat === 'secrets' || /secret|credential|api[-_]?key|token|password/.test(rid)) return 'secrets';
     if (cat === 'authn' || cat === 'authz' || /auth|rbac|jwt|session|login/.test(rid)) return 'auth';
     if (/(^|[-_/])api([-_/]|$)/.test(rid) || (/route|controller|endpoint|graphql|swagger|openapi/.test(file) && cat !== 'privacy')) return 'api';
@@ -130,6 +132,7 @@
       const items = byDim[key] || [];
       let score;
       if (key === 'logging') score = clampInt(rv.logging && rv.logging.summary ? rv.logging.summary.score : scoreFromFindings(items, pol));
+      else if (key === 'operations') score = clampInt(rv.operations && rv.operations.summary ? rv.operations.summary.score : scoreFromFindings(items, pol));
       else if (key === 'test') score = clampInt(rv.testing && rv.testing.summary ? rv.testing.summary.score : scoreFromFindings(items, pol));
       else if (key === 'compliance') score = complianceScore(report, items, pol);
       else if (key === 'dependency') score = clampInt(scoreFromFindings(items, pol) - (cve.critical * 20 + cve.high * 8));
