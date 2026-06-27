@@ -294,13 +294,14 @@
     // never break the scan.
     const safeRun = (fn) => { try { return fn(); } catch (e) { return null; } };
     const reviewCtx = { findings, languages: langs, sbom: { components: sbomComponents }, deployment, licenses };
-    let rvLogging = null, rvTesting = null, rvArch = null, rvContainer = null, rvIntegrity = null;
+    let rvLogging = null, rvTesting = null, rvArch = null, rvContainer = null, rvIntegrity = null, rvOps = null;
     if (CITADEL.reviewLogging) { stage('Reviewing logging & auditability…'); rvLogging = safeRun(() => CITADEL.reviewLogging.analyze(entries, reviewCtx)); }
     if (CITADEL.reviewTesting) { stage('Reviewing test coverage…'); rvTesting = safeRun(() => CITADEL.reviewTesting.analyze(entries, reviewCtx)); }
     if (CITADEL.reviewArchitecture) { stage('Reviewing architecture risk…'); rvArch = safeRun(() => CITADEL.reviewArchitecture.analyze(entries, reviewCtx)); }
     if (CITADEL.reviewContainer) { stage('Reviewing container security…'); rvContainer = safeRun(() => CITADEL.reviewContainer.analyze(entries)); }
+    if (CITADEL.reviewOperations) { stage('Reviewing operational readiness…'); rvOps = safeRun(() => CITADEL.reviewOperations.analyze(entries, reviewCtx)); }
     if (CITADEL.integrity) { stage('Verifying package integrity…'); rvIntegrity = safeRun(() => CITADEL.integrity.analyze(entries, sbomComponents)); }
-    [rvLogging, rvTesting, rvArch, rvContainer, rvIntegrity].forEach(r => { if (r && Array.isArray(r.findings)) r.findings.forEach(f => findings.push(f)); });
+    [rvLogging, rvTesting, rvArch, rvContainer, rvOps, rvIntegrity].forEach(r => { if (r && Array.isArray(r.findings)) r.findings.forEach(f => findings.push(f)); });
 
     // Stable fingerprints + kind/detection classification, then merge findings
     // that share a fingerprint (e.g. a rule that fired twice on the same line).
@@ -328,7 +329,7 @@
       threatModel = safeRun(() => CITADEL.reviewThreatModel.analyze(entries, { findings, depreview, deployment, sbom: { components: sbomComponents } }));
     }
 
-    const reviews = { logging: rvLogging, testing: rvTesting, threatModel, architecture: rvArch, container: rvContainer };
+    const reviews = { logging: rvLogging, testing: rvTesting, threatModel, architecture: rvArch, container: rvContainer, operations: rvOps };
 
     const report = {
       meta: { scannedAt: new Date().toISOString(), fileCount: entries.filter(e => !e.archive).length, totalBytes: entries.reduce((a, e) => a + e.size, 0) },
