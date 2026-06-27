@@ -438,6 +438,26 @@
   }
 
   /* ---------- SBOM ---------- */
+  // Package-integrity summary strip (lockfiles, hash coverage, drift) for the SBOM tab.
+  function integrityCard(r) {
+    const it = r.integrity; if (!it || !it.summary) return '';
+    const s = it.summary;
+    const pct = Math.round((s.hashCoverage || 0) * 100);
+    const cls = s.score >= 80 ? 'text-bg-success' : s.score >= 50 ? 'text-bg-warning' : 'text-bg-danger';
+    return `<div class="card citadel-card mb-3"><div class="card-body py-2">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="small"><span class="text-uppercase text-body-secondary fw-bold me-2"><i class="bi bi-fingerprint"></i> Package integrity</span>
+            <span class="badge ${cls}">${esc(s.score)}/100</span></div>
+          <div class="small text-body-secondary">
+            <span class="me-3" title="Lockfiles found">${esc(s.lockfileCount)} lockfile(s)</span>
+            <span class="me-3" title="Components carrying an integrity hash">${pct}% hashed</span>
+            ${s.manifestsWithoutLock ? `<span class="me-3 text-danger">${esc(s.manifestsWithoutLock)} without lockfile</span>` : ''}
+            ${s.drift ? `<span class="me-3 text-warning">${esc(s.drift)} drift</span>` : ''}
+            ${s.gitOrHttpDeps ? `<span class="me-3 text-warning">${esc(s.gitOrHttpDeps)} git/http dep(s)</span>` : ''}
+          </div>
+        </div>
+      </div></div>`;
+  }
   function renderSbom(r) {
     const comps = r.sbom.components;
     const flags = {};
@@ -464,9 +484,10 @@
       ${cveBox}
       ${renderLicenses(r)}
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-        <p class="text-body-secondary mb-0">${comps.length} component(s) across ${[...new Set(comps.map(c => c.ecosystem))].length} ecosystem(s). CycloneDX 1.5 SBOM available in <strong>Export</strong>.</p>
+        <p class="text-body-secondary mb-0">${comps.length} component(s) across ${[...new Set(comps.map(c => c.ecosystem))].length} ecosystem(s). CycloneDX 1.5 &amp; SPDX 2.3 SBOMs available in <strong>Export</strong>.</p>
         <button class="btn btn-sm btn-outline-primary" id="dl-sbom"><i class="bi bi-box-arrow-down"></i> Download SBOM (JSON)</button>
       </div>
+      ${integrityCard(r)}
       <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
         <thead><tr><th>Component</th><th>Version</th><th>Ecosystem</th><th>Scope</th><th>Supply-chain</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -563,6 +584,7 @@
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-json"><i class="bi bi-filetype-json"></i><span>Full report<br><small>JSON</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-sarif"><i class="bi bi-shield-check"></i><span>SARIF<br><small>2.1.0 · code scanning</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-sbom"><i class="bi bi-box-seam"></i><span>SBOM<br><small>CycloneDX 1.5</small></span></button></div>
+        <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-spdx"><i class="bi bi-box-seam"></i><span>SBOM<br><small>SPDX 2.3</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-poam"><i class="bi bi-list-check"></i><span>POA&amp;M<br><small>CSV</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-ssp"><i class="bi bi-file-earmark-text"></i><span>Control appendix<br><small>SSP · Markdown</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-junit"><i class="bi bi-filetype-xml"></i><span>JUnit<br><small>CI test report</small></span></button></div>
@@ -586,6 +608,17 @@
   }
   function exportJson() { download('citadel-report.json', JSON.stringify(current, null, 2), 'application/json'); }
   function exportSbom() { download('citadel-sbom.cdx.json', JSON.stringify(current.sbom.doc, null, 2), 'application/json'); }
+  // SPDX 2.3 SBOM, built from the components + integrity hashes at export time.
+  function exportSpdx() {
+    if (!CITADEL.spdx || !current) return;
+    const comps = (current.sbom && current.sbom.components) || [];
+    const hashes = (current.integrity && current.integrity.hashes) || {};
+    const doc = CITADEL.spdx.document(comps, hashes, {
+      name: (current.meta && current.meta.projectName) || 'CITADEL SBOM',
+      timestamp: (current.meta && current.meta.scannedAt) || ''
+    });
+    download('citadel-sbom.spdx.json', JSON.stringify(doc, null, 2), 'application/json');
+  }
   function exportMarkdown() {
     const r = current, s = r.scoring;
     let md = `# CITADEL Security & Compliance Report\n\n`;
@@ -1226,7 +1259,7 @@ ul{padding-left:1.1rem}</style></head>
   CITADEL.report = {
     render, renderHistory, renderCompare, renderFindings, renderReport, renderAiFix, setAi, sparkline,
     shownFinding, toggleSuppressedView, applyFilters: applyFindingFilters, resetFilters: resetFindingFilters, copyAiFix, downloadAiFix, downloadHtmlReport,
-    exportJson, exportSbom, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp, exportJUnit, exportPrComment,
+    exportJson, exportSbom, exportSpdx, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp, exportJUnit, exportPrComment,
     get current() { return current; }
   };
 })(window);

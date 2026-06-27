@@ -725,6 +725,7 @@
     if (e.target.closest('#dl-aifix')) return CITADEL.report.downloadAiFix();
 
     if (e.target.closest('#exp-sbom') || e.target.closest('#dl-sbom')) return CITADEL.report.exportSbom();
+    if (e.target.closest('#exp-spdx')) return CITADEL.report.exportSpdx();
     if (e.target.closest('#exp-sarif')) return CITADEL.report.exportSarif();
     if (e.target.closest('#exp-poam')) return CITADEL.report.exportPoam();
     if (e.target.closest('#exp-ssp')) return CITADEL.report.exportSsp();
