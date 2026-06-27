@@ -230,6 +230,8 @@
       out += `<span class="badge ${cls}" title="Exploit-based remediation priority">${esc(f.exploitPriority)}${f.exploitPriorityLabel ? ' · ' + esc(f.exploitPriorityLabel) : ''}</span> `;
     }
     if (typeof f.epss === 'number') out += `<span class="badge text-bg-light text-dark" title="EPSS — estimated probability of exploitation in the next 30 days">EPSS ${esc((f.epss * 100).toFixed(1))}%</span> `;
+    if (f.reachability === 'direct') out += '<span class="badge text-bg-warning" title="The vulnerable package is imported in first-party source — likely reachable (low-confidence hint)"><i class="bi bi-diagram-2"></i> used</span> ';
+    else if (f.reachability === 'transitive') out += '<span class="badge text-bg-light text-dark" title="Transitive dependency — not directly imported in source, so lower reachability (low-confidence hint)">transitive</span> ';
     return out;
   }
   function renderFindings(r) {

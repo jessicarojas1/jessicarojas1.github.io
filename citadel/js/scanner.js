@@ -331,7 +331,11 @@
 
     const reviews = { logging: rvLogging, testing: rvTesting, threatModel, architecture: rvArch, container: rvContainer, operations: rvOps };
 
+    // Directly-imported package names (for the post-scan reachability hint).
+    const imports = CITADEL.reachability ? (safeRun(() => CITADEL.reachability.index(entries)) || []) : [];
+
     const report = {
+      imports: imports,
       meta: { scannedAt: new Date().toISOString(), fileCount: entries.filter(e => !e.archive).length, totalBytes: entries.reduce((a, e) => a + e.size, 0) },
       languages: langs, findings, sbom: { components: sbomComponents, doc: CITADEL.sbom.cyclonedx(sbomComponents) },
       binaries, quality: q, deployment, licenses, scoring, posture, depreview, reviews,
