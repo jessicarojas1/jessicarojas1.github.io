@@ -447,6 +447,17 @@ test('dispositions: valid states; degrades to no-op without a database', async (
   assert.equal(await d.set('fp', 'accepted', 'a@b', 'note'), null);   // note arg, no-DB path
 });
 
+/* ---------------- Dependency-approval workflow (graceful without a DB) ---------------- */
+test('dep-approvals: valid statuses; degrades to no-op without a database', async () => {
+  const a = require('../lib/depapprovals');
+  assert.ok(a.STATUSES.includes('approved') && a.STATUSES.includes('prohibited'));
+  assert.equal(a.valid('approved'), true);
+  assert.equal(a.valid('bogus'), false);
+  assert.equal(a.enabled(), false);              // no DATABASE_URL in tests
+  assert.deepEqual(await a.list(), {});
+  assert.equal(await a.set('npm|left-pad', { status: 'prohibited', justification: 'x' }, 'a@b'), null);
+});
+
 /* ---------------- Threat-model overlay (graceful without a DB) ---------------- */
 test('threatmodel: exports get/set/enabled; degrades to no-op without a database', async () => {
   const tm = require('../lib/threatmodel');

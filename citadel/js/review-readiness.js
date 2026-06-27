@@ -211,6 +211,7 @@
     const unknownLicense = (dep.licenses && (dep.licenses.unknown || []).length) || 0;
     const noSbom = !((report.sbom && report.sbom.components || []).length);
     const kevFindings = findings.filter(f => f && f.kev === true);   // CISA Known-Exploited Vulns
+    const prohibitedDeps = findings.filter(f => f && f.ruleId === 'dep-approval' && sev(f) === 'high');
     // Only apply logging/test/CI-gate penalties when the relevant reviewer
     // actually ran — absence of a reviewer must not fabricate a downgrade.
     const rv = report.reviews || {};
@@ -223,6 +224,7 @@
     if (exposedSecret) { raise(3, 'Exposed secret(s) detected — must be removed and rotated before release.'); blockers.push('Exposed/hardcoded secret(s)'); required.push('Remove every hardcoded secret from source, rotate the exposed credentials, and move them to an approved secrets manager. Review commit history for prior exposure.'); }
     if (criticalHigh.length) { raise(3, criticalHigh.length + ' high-confidence Critical finding(s) present.'); blockers.push(criticalHigh.length + ' Critical (high-confidence) finding(s)'); required.push('Resolve all high-confidence Critical findings (see Developer report) or obtain documented risk acceptance.'); }
     if (authFail) { raise(3, 'Authentication/authorization gaps on protected functionality.'); blockers.push('Auth/access-control gaps'); required.push('Enforce authentication on protected routes and add server-side authorization (RBAC / object-level checks).'); }
+    if (prohibitedDeps.length) { raise(3, prohibitedDeps.length + ' prohibited dependenc(ies) present.'); blockers.push(prohibitedDeps.length + ' prohibited dependenc(ies)'); required.push('Remove the prohibited dependenc(ies) (see the Dependency approval table) or obtain a documented exception from the security + risk owners.'); }
     if (deniedLicense) { raise(3, deniedLicense + ' prohibited license(s) present.'); blockers.push(deniedLicense + ' prohibited license(s)'); required.push('Replace or obtain an exception for components under prohibited (strong/network copyleft) licenses.'); }
 
     // Manual-review conditions (uncertainty the tool will not auto-clear).
