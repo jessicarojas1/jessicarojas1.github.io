@@ -600,6 +600,7 @@
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-sarif"><i class="bi bi-shield-check"></i><span>SARIF<br><small>2.1.0 · code scanning</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-sbom"><i class="bi bi-box-seam"></i><span>SBOM<br><small>CycloneDX 1.5</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-spdx"><i class="bi bi-box-seam"></i><span>SBOM<br><small>SPDX 2.3</small></span></button></div>
+        <div class="col-md-6 col-lg-3"><button class="btn btn-primary w-100 export-btn" id="exp-evidence"><i class="bi bi-archive-fill"></i><span>Evidence package<br><small>ZIP · all artifacts</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-poam"><i class="bi bi-list-check"></i><span>POA&amp;M<br><small>CSV</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-ssp"><i class="bi bi-file-earmark-text"></i><span>Control appendix<br><small>SSP · Markdown</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-junit"><i class="bi bi-filetype-xml"></i><span>JUnit<br><small>CI test report</small></span></button></div>
@@ -634,6 +635,8 @@
     });
     download('citadel-sbom.spdx.json', JSON.stringify(doc, null, 2), 'application/json');
   }
+  // Consolidated reviewer-ready evidence package (ZIP of all artifacts).
+  function exportEvidence() { if (CITADEL.evidence && CITADEL.evidence.download && current) CITADEL.evidence.download(current); }
   function exportMarkdown() {
     const r = current, s = r.scoring;
     let md = `# CITADEL Security & Compliance Report\n\n`;
@@ -1274,7 +1277,7 @@ ul{padding-left:1.1rem}</style></head>
   CITADEL.report = {
     render, renderHistory, renderCompare, renderFindings, renderReport, renderAiFix, setAi, sparkline,
     shownFinding, toggleSuppressedView, applyFilters: applyFindingFilters, resetFilters: resetFindingFilters, copyAiFix, downloadAiFix, downloadHtmlReport,
-    exportJson, exportSbom, exportSpdx, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp, exportJUnit, exportPrComment,
+    exportJson, exportSbom, exportSpdx, exportEvidence, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp, exportJUnit, exportPrComment,
     get current() { return current; }
   };
 })(window);
