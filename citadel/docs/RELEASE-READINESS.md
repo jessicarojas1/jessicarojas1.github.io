@@ -501,29 +501,44 @@ New reviewers follow one repeatable pattern.
   binaries are inspected only at the byte level. Detection depends on the files
   actually being present in the upload.
 
-### Explicitly NOT done in Phase 1
+### Deferred past Phase 1 (now delivered in Phases 2–6)
 
 - Per-finding triage **persistence** (`status` / `false_positive` /
-  `reviewer_notes`) — Phase 2.
-- A standalone, deep container/threat-model module — Phase 2.
-- An editable threat model — the Phase 1 STRIDE model is **generated, read-only**.
-- DB-backed readiness **history / trend** of the gate decision — Phase 2.
+  `reviewer_notes`) — delivered in Phase 2.
+- A standalone, deep container module — delivered in Phase 3.
+- An editable threat model (the Phase 1 STRIDE model was generated, read-only) —
+  delivered in Phase 4.
+- DB-backed readiness **history / trend** of the gate decision — delivered in
+  Phase 5.
 
 ---
 
 ## 12. Roadmap (Phase 2+)
 
-> Everything in this section is **aspirational / planned** and not part of the
-> Phase 1 contract.
+> **Status: the original Phase 2+ roadmap is fully delivered** (Phases 2–6). The
+> items below are kept for history with their delivering phase; new ideas follow.
 
-- **Finding-triage persistence.** Durable `status` / `false_positive` /
-  `reviewer_notes` on findings, backed by server-side models + an API, so triage
-  survives across sessions and machines and feeds the gate.
-- **Deeper standalone container module.** A dedicated container/image analysis
-  module beyond the current IaC/deployment detection.
-- **Editable threat model.** Let reviewers edit the generated STRIDE model
-  (add/adjust assets, threats, mitigations, residual risk) instead of read-only.
-- **ASVS / CIS expansion.** Broaden compliance coverage to OWASP ASVS and a fuller
-  CIS Controls cross-walk.
-- **DB-backed readiness history.** Persist gate decisions and dimension scores
-  over time for run-to-run trend and audit trails.
+**Delivered**
+
+- ✅ **Finding-triage persistence** — durable `status` / `false_positive` and
+  **reviewer notes** on findings (server models + API, localStorage fallback);
+  `accepted` / `false-positive` dispositions now feed the gate. *(Phase 2)*
+- ✅ **Standalone Container Security module** — `review-container.js` deep-checks
+  Dockerfiles / docker-compose / K8s container specs; a `container` gate
+  dimension. *(Phase 3)*
+- ✅ **Editable threat model** — reviewers add / edit / remove STRIDE threats +
+  mitigations + residual risk; a per-project overlay persisted to
+  localStorage + Postgres. *(Phase 4)*
+- ✅ **ASVS / CIS expansion** — OWASP ASVS + CIS Controls map across every
+  finding category, including the new test-readiness dimension. *(Phase 6)*
+- ✅ **DB-backed readiness history & trend** — each scan persists its gate
+  decision + overall score; the History tab shows a readiness trend. *(Phase 5)*
+
+**Possible next ideas** (not yet planned)
+
+- Risk-acceptance **expiry + approver attribution** (who accepted, until when),
+  surfaced as auditor evidence and re-flagged on expiry.
+- Cross-project **portfolio dashboard** — gate decisions + trend across all
+  projects in one view.
+- **Server-side readiness recompute** for deep scans, so DB history is populated
+  without relying on the client pass.
