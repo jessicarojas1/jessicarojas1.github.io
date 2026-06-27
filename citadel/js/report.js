@@ -474,6 +474,13 @@
         </div>
       </div></div>`;
   }
+  // "Latest" cell for the SBOM table, populated by live registry enrichment.
+  function latestCell(c) {
+    if (c.registryDeprecated) return '<span class="badge text-bg-danger" title="Marked deprecated by the maintainer">deprecated</span>';
+    if (!c.latest) return '<span class="text-body-secondary">—</span>';
+    if (c.outdated) return `<code>${esc(c.latest)}</code> <span class="badge text-bg-warning" title="A newer version is available">outdated</span>`;
+    return `<code>${esc(c.latest)}</code> <span class="text-success" title="Up to date"><i class="bi bi-check"></i></span>`;
+  }
   function renderSbom(r) {
     const comps = r.sbom.components;
     const flags = {};
@@ -483,6 +490,7 @@
       return `<tr>
         <td><code>${esc(c.name)}</code></td>
         <td>${esc(c.version)}</td>
+        <td>${latestCell(c)}</td>
         <td><span class="badge bg-secondary">${esc(c.ecosystem)}</span></td>
         <td>${esc(c.scope)}</td>
         <td>${flag ? `<span class="text-warning"><i class="bi bi-exclamation-triangle"></i> ${esc(flag)}</span>` : '<span class="text-success"><i class="bi bi-check"></i></span>'}</td>
@@ -506,7 +514,7 @@
       ${integrityCard(r)}
       ${CITADEL.depapproval && CITADEL.depapproval.renderSection ? CITADEL.depapproval.renderSection(r) : ''}
       <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
-        <thead><tr><th>Component</th><th>Version</th><th>Ecosystem</th><th>Scope</th><th>Supply-chain</th></tr></thead>
+        <thead><tr><th>Component</th><th>Version</th><th>Latest</th><th>Ecosystem</th><th>Scope</th><th>Supply-chain</th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`;
   }
