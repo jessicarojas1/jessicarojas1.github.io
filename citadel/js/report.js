@@ -59,6 +59,11 @@
         <div class="grade-letter">${s.grade}</div>
         <div class="grade-sub">Security<br>Grade</div>
       </div>
+      ${r.readiness ? `<div class="d-flex flex-column align-items-center justify-content-center gap-1 px-2" title="Release readiness gate — see the Release Readiness tab">
+        <span class="small text-uppercase text-body-secondary fw-bold">Release gate</span>
+        <span class="badge ${decisionBadgeClass(r.readiness.decision)} fs-6 text-center">${esc(r.readiness.decision || '—')}</span>
+        <span class="score-hint">Readiness ${esc(r.readiness.overall == null ? '—' : r.readiness.overall)}/100</span>
+      </div>` : ''}
       <div class="score-rings">
         ${ring('Security', s.security, 'Weighted by severity & density')}
         ${ring('Quality', s.quality, 'Maintainability index')}
