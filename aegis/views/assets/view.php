@@ -3,19 +3,19 @@
 
 $criticality = $asset['criticality'] ?? 'low';
 $critColors  = [
-    'critical' => ['#fef2f2','#dc2626'],
-    'high'     => ['#fff7ed','#ea580c'],
-    'medium'   => ['#fffbeb','#d97706'],
-    'low'      => ['#f0fdf4','#16a34a'],
+    'critical' => ['var(--danger-subtle)','var(--danger)'],
+    'high'     => ['var(--high-subtle)','var(--high)'],
+    'medium'   => ['var(--warning-subtle)','var(--warning)'],
+    'low'      => ['var(--success-subtle)','var(--primary)'],
 ];
-[$critBg, $critColor] = $critColors[$criticality] ?? ['#f4f4f5','#71717a'];
+[$critBg, $critColor] = $critColors[$criticality] ?? ['var(--neutral-subtle)','var(--neutral)'];
 
 $statusColors = [
-    'active'         => ['#f0fdf4','#16a34a'],
-    'decommissioned' => ['#f9fafb','#71717a'],
-    'maintenance'    => ['#fffbeb','#d97706'],
+    'active'         => ['var(--success-subtle)','var(--primary)'],
+    'decommissioned' => ['var(--surface-alt)','var(--neutral)'],
+    'maintenance'    => ['var(--warning-subtle)','var(--warning)'],
 ];
-[$sBg, $sColor] = $statusColors[$asset['status'] ?? ''] ?? ['#f4f4f5','#71717a'];
+[$sBg, $sColor] = $statusColors[$asset['status'] ?? ''] ?? ['var(--neutral-subtle)','var(--neutral)'];
 
 $typeLabels = [
     'server'      => 'Server',
@@ -302,7 +302,7 @@ function riskScoreLevel(int $score): string {
                 $rScore = (int)$r['inherent_score'];
                 $rLevel = riskScoreLevel($rScore);
                 $rLevelColors = ['Critical'=>'var(--danger)','High'=>'var(--orange)','Medium'=>'var(--warning)','Low'=>'var(--primary-light)'];
-                $rLc = $rLevelColors[$rLevel] ?? '#71717a';
+                $rLc = $rLevelColors[$rLevel] ?? 'var(--neutral)';
               ?>
                 <tr>
                   <td>

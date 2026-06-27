@@ -3,7 +3,10 @@ class DashboardController {
     public function index(): void {
         Auth::requireAuth();
 
-        $stats = [
+        // Org-wide counts — user-independent and tenant-scoped, so safely cached
+        // for a short TTL (Cache is tenant-namespaced; per-user queries below are
+        // deliberately left uncached). See TECH_DEBT.md TD-6.
+        $stats = Cache::remember('dash:stats:core', Cache::DEFAULT_TTL, fn() => [
             'packages'      => Database::fetchOne("SELECT COUNT(*) as c FROM compliance_packages WHERE is_active = TRUE")['c'] ?? 0,
             'controls'      => Database::fetchOne("SELECT COUNT(*) as c FROM compliance_objectives WHERE level = 2")['c'] ?? 0,
             'compliant'     => Database::fetchOne("SELECT COUNT(*) as c FROM control_implementations WHERE status = 'compliant'")['c'] ?? 0,
@@ -12,8 +15,9 @@ class DashboardController {
             'policies'      => Database::fetchOne("SELECT COUNT(*) as c FROM policies")['c'] ?? 0,
             'audits_due'    => Database::fetchOne("SELECT COUNT(*) as c FROM audits WHERE status != 'completed' AND scheduled_date <= CURRENT_DATE + INTERVAL '30 days'")['c'] ?? 0,
             'reviews_due'   => Database::fetchOne("SELECT COUNT(*) as c FROM policies WHERE next_review_date <= CURRENT_DATE + INTERVAL '30 days' AND status = 'published'")['c'] ?? 0,
-        ];
+        ]);
         // approval_requests lives in the enterprise phase1 migration — guard in case not yet applied
+        // (per-user: depends on Auth::id()/role() — NOT cached under the tenant key)
         try {
             $stats['pending_approvals'] = (int)(Database::fetchOne(
                 "SELECT COUNT(*) as c FROM approval_requests ar
@@ -76,7 +80,8 @@ class DashboardController {
 
         $riskMatrix = Database::fetchOne("SELECT * FROM risk_matrix_config WHERE is_active = TRUE ORDER BY id LIMIT 1");
 
-        $riskDistribution = Database::fetchAll(
+        // Heavy org-wide GROUP BY aggregates — cached per tenant for a short TTL.
+        $riskDistribution = Cache::remember('dash:risk_distribution', Cache::DEFAULT_TTL, fn() => Database::fetchAll(
             "SELECT
                CASE WHEN inherent_score <= 4 THEN 'Low'
                     WHEN inherent_score <= 9 THEN 'Medium'
@@ -85,9 +90,9 @@ class DashboardController {
                COUNT(*) as count
              FROM risks WHERE status = 'open'
              GROUP BY level"
-        );
+        ));
 
-        $complianceByPackage = Database::fetchAll(
+        $complianceByPackage = Cache::remember('dash:compliance_by_package', Cache::DEFAULT_TTL, fn() => Database::fetchAll(
             "SELECT cp.name, cp.id,
                COUNT(co.id) as total,
                COUNT(ci.id) FILTER (WHERE ci.status = 'compliant') as compliant
@@ -97,7 +102,7 @@ class DashboardController {
              WHERE cp.is_active = TRUE
              GROUP BY cp.id, cp.name
              ORDER BY cp.imported_at ASC"
-        );
+        ));
 
         $alerts = Database::fetchAll(
             "SELECT * FROM alerts WHERE user_id = ? AND is_read = FALSE ORDER BY created_at DESC LIMIT 10",

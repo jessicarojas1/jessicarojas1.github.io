@@ -5,37 +5,37 @@
 
 $score = (int)($risk['inherent_score'] ?? 0);
 $scoreLevel = RiskScore::scoreLabel((int)$score); // canonical bands — see src/RiskScore.php
-$scoreBg    = $score > 14 ? '#fef2f2' : ($score > 9 ? '#fff7ed' : ($score > 4 ? '#fffbeb' : '#f0fdf4'));
-$scoreColor = $score > 14 ? '#dc2626' : ($score > 9 ? '#ea580c' : ($score > 4 ? '#d97706' : '#16a34a'));
+$scoreBg    = $score > 14 ? 'var(--danger-subtle)' : ($score > 9 ? 'var(--high-subtle)' : ($score > 4 ? 'var(--warning-subtle)' : 'var(--success-subtle)'));
+$scoreColor = $score > 14 ? 'var(--danger)' : ($score > 9 ? 'var(--high)' : ($score > 4 ? 'var(--warning)' : 'var(--primary)'));
 
 $causeTypeMeta = [
-    'threat'          => ['label' => 'Threat',        'color' => '#dc2626', 'bg' => '#fef2f2', 'icon' => 'bi-exclamation-octagon-fill'],
-    'vulnerability'   => ['label' => 'Vulnerability', 'color' => '#d97706', 'bg' => '#fffbeb', 'icon' => 'bi-shield-slash-fill'],
+    'threat'          => ['label' => 'Threat',        'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)', 'icon' => 'bi-exclamation-octagon-fill'],
+    'vulnerability'   => ['label' => 'Vulnerability', 'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)', 'icon' => 'bi-shield-slash-fill'],
     'hazard'          => ['label' => 'Hazard',         'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-biohazard'],
     'event'           => ['label' => 'Event',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-lightning-fill'],
 ];
 
 $consequenceTypeMeta = [
-    'financial'      => ['label' => 'Financial',     'color' => '#dc2626', 'bg' => '#fef2f2', 'icon' => 'bi-cash-coin'],
-    'operational'    => ['label' => 'Operational',   'color' => '#d97706', 'bg' => '#fffbeb', 'icon' => 'bi-gear-fill'],
+    'financial'      => ['label' => 'Financial',     'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)', 'icon' => 'bi-cash-coin'],
+    'operational'    => ['label' => 'Operational',   'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)', 'icon' => 'bi-gear-fill'],
     'reputational'   => ['label' => 'Reputational',  'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-star-fill'],
     'legal'          => ['label' => 'Legal',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-balance-scale'],
-    'safety'         => ['label' => 'Safety',         'color' => '#16a34a', 'bg' => '#f0fdf4', 'icon' => 'bi-heart-pulse-fill'],
-    'impact'         => ['label' => 'Impact',         'color' => '#71717a', 'bg' => '#f4f4f5', 'icon' => 'bi-arrow-down-circle-fill'],
+    'safety'         => ['label' => 'Safety',         'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'icon' => 'bi-heart-pulse-fill'],
+    'impact'         => ['label' => 'Impact',         'color' => 'var(--neutral)', 'bg' => 'var(--neutral-subtle)', 'icon' => 'bi-arrow-down-circle-fill'],
 ];
 
 $severityMeta = [
-    'low'      => ['label' => 'Low',      'color' => '#16a34a', 'bg' => '#f0fdf4'],
-    'medium'   => ['label' => 'Medium',   'color' => '#d97706', 'bg' => '#fffbeb'],
-    'high'     => ['label' => 'High',     'color' => '#ea580c', 'bg' => '#fff7ed'],
-    'critical' => ['label' => 'Critical', 'color' => '#dc2626', 'bg' => '#fef2f2'],
+    'low'      => ['label' => 'Low',      'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)'],
+    'medium'   => ['label' => 'Medium',   'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
+    'high'     => ['label' => 'High',     'color' => 'var(--high)', 'bg' => 'var(--high-subtle)'],
+    'critical' => ['label' => 'Critical', 'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)'],
 ];
 
 $effectivenessMeta = [
-    'degraded'    => ['label' => 'Degraded',    'color' => '#dc2626', 'ring' => '#fca5a5'],
-    'partial'     => ['label' => 'Partial',     'color' => '#d97706', 'ring' => '#fcd34d'],
-    'substantial' => ['label' => 'Substantial', 'color' => '#2563eb', 'ring' => '#93c5fd'],
-    'full'        => ['label' => 'Full',        'color' => '#16a34a', 'ring' => '#86efac'],
+    'degraded'    => ['label' => 'Degraded',    'color' => 'var(--danger)', 'ring' => '#fca5a5'],
+    'partial'     => ['label' => 'Partial',     'color' => 'var(--warning)', 'ring' => '#fcd34d'],
+    'substantial' => ['label' => 'Substantial', 'color' => 'var(--moderate)', 'ring' => 'var(--moderate-border)'],
+    'full'        => ['label' => 'Full',        'color' => 'var(--primary)', 'ring' => '#86efac'],
 ];
 
 $barrierTypeMeta = [
@@ -47,9 +47,9 @@ $barrierTypeMeta = [
 ];
 
 $likelihoodMeta = [
-    'low'    => ['label' => 'Low',    'color' => '#16a34a'],
-    'medium' => ['label' => 'Medium', 'color' => '#d97706'],
-    'high'   => ['label' => 'High',   'color' => '#dc2626'],
+    'low'    => ['label' => 'Low',    'color' => 'var(--primary)'],
+    'medium' => ['label' => 'Medium', 'color' => 'var(--warning)'],
+    'high'   => ['label' => 'High',   'color' => 'var(--danger)'],
 ];
 
 $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && empty($rightBarriers);
@@ -105,7 +105,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-item-card {
     position: relative;
     background: var(--card-bg);
-    border: 1.5px solid var(--border, #e4e4e7);
+    border: 1.5px solid var(--border, var(--neutral-border));
     border-radius: 8px;
     padding: 9px 11px;
     margin-bottom: 8px;
@@ -156,7 +156,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-arrow-line {
     width: 100%;
     height: 2px;
-    background: linear-gradient(90deg, #d4d4d8 0%, #a1a1aa 100%);
+    background: linear-gradient(90deg, #d4d4d8 0%, var(--neutral-light) 100%);
     position: relative;
 }
 .bt-arrow-line::after {
@@ -164,7 +164,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     position: absolute;
     right: -1px;
     top: -4px;
-    border-left: 8px solid #a1a1aa;
+    border-left: 8px solid var(--neutral-light);
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
 }
@@ -190,7 +190,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     font-size: 11.5px;
     line-height: 1.35;
     box-shadow: 0 1px 4px rgba(0,0,0,.07);
-    border: 2px solid var(--ring-color, #e4e4e7);
+    border: 2px solid var(--ring-color, var(--neutral-border));
     transition: box-shadow .15s;
 }
 .bt-barrier-pill:hover { box-shadow: 0 3px 8px rgba(0,0,0,.1); }
@@ -299,7 +299,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-tabs-nav {
     display: flex;
     gap: 0;
-    border-bottom: 2px solid var(--border, #e4e4e7);
+    border-bottom: 2px solid var(--border, var(--neutral-border));
     margin-bottom: 20px;
     flex-wrap: wrap;
 }

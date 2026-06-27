@@ -10,11 +10,11 @@ $baseL     = (int)$risk['likelihood'];
 $baseI     = (int)$risk['impact'];
 
 $typeMeta = [
-    'stress'       => ['label'=>'Stress',        'color'=>'#dc2626', 'bg'=>'#fef2f2', 'border'=>'#fca5a5', 'icon'=>'bi-graph-up-arrow'],
-    'base'         => ['label'=>'Base',           'color'=>'#71717a', 'bg'=>'#f4f4f5', 'border'=>'#d4d4d8', 'icon'=>'bi-circle-fill'],
-    'optimistic'   => ['label'=>'Optimistic',     'color'=>'#16a34a', 'bg'=>'#f0fdf4', 'border'=>'#86efac', 'icon'=>'bi-graph-down-arrow'],
-    'catastrophic' => ['label'=>'Catastrophic',   'color'=>'#111111', 'bg'=>'#f9fafb', 'border'=>'#a1a1aa', 'icon'=>'bi-exclamation-octagon-fill'],
-    'regulatory'   => ['label'=>'Regulatory',     'color'=>'#2563eb', 'bg'=>'#eff6ff', 'border'=>'#93c5fd', 'icon'=>'bi-bank'],
+    'stress'       => ['label'=>'Stress',        'color'=>'var(--danger)', 'bg'=>'var(--danger-subtle)', 'border'=>'#fca5a5', 'icon'=>'bi-graph-up-arrow'],
+    'base'         => ['label'=>'Base',           'color'=>'var(--neutral)', 'bg'=>'var(--neutral-subtle)', 'border'=>'#d4d4d8', 'icon'=>'bi-circle-fill'],
+    'optimistic'   => ['label'=>'Optimistic',     'color'=>'var(--primary)', 'bg'=>'var(--success-subtle)', 'border'=>'#86efac', 'icon'=>'bi-graph-down-arrow'],
+    'catastrophic' => ['label'=>'Catastrophic',   'color'=>'#111111', 'bg'=>'var(--surface-alt)', 'border'=>'var(--neutral-light)', 'icon'=>'bi-exclamation-octagon-fill'],
+    'regulatory'   => ['label'=>'Regulatory',     'color'=>'var(--moderate)', 'bg'=>'var(--info-subtle)', 'border'=>'var(--moderate-border)', 'icon'=>'bi-bank'],
 ];
 
 function scenPartialLevel(int $s): string {

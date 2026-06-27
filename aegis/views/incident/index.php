@@ -128,7 +128,7 @@ $_filterCount = count(array_filter([
           $sevColors = [
             'critical' => 'var(--danger)',
             'high'     => 'var(--warning)',
-            'medium'   => '#0284c7',
+            'medium'   => 'var(--info)',
             'low'      => 'var(--success)',
           ];
           $sev = $inc['severity'] ?? 'medium';
@@ -143,7 +143,7 @@ $_filterCount = count(array_filter([
           $statusColors = [
             'open'          => 'var(--danger)',
             'investigating' => 'var(--warning)',
-            'contained'     => '#0284c7',
+            'contained'     => 'var(--info)',
             'resolved'      => 'var(--success)',
             'closed'        => '#6b7280',
           ];

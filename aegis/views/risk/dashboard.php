@@ -65,8 +65,8 @@ if (!empty($trendData)) {
 .rdash-kpi {
     flex: 0 0 auto;
     min-width: 110px;
-    background: var(--bg-secondary, #f9fafb);
-    border: 1px solid var(--border, #e4e4e7);
+    background: var(--bg-secondary, var(--surface-alt));
+    border: 1px solid var(--border, var(--neutral-border));
     border-radius: 12px;
     padding: 14px 16px;
     display: flex;
@@ -79,7 +79,7 @@ if (!empty($trendData)) {
 .rdash-kpi:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
 .rdash-kpi .kpi-icon { font-size: 20px; margin-bottom: 2px; }
 .rdash-kpi .kpi-num  { font-size: 26px; font-weight: 800; line-height: 1; }
-.rdash-kpi .kpi-lbl  { font-size: 11px; font-weight: 600; color: var(--text-muted, #71717a); text-transform: uppercase; letter-spacing: .04em; }
+.rdash-kpi .kpi-lbl  { font-size: 11px; font-weight: 600; color: var(--text-muted, var(--neutral)); text-transform: uppercase; letter-spacing: .04em; }
 
 /* ── Two-column layout ────────────────────────────── */
 .rdash-cols {
@@ -109,7 +109,7 @@ if (!empty($trendData)) {
 .rdash-card-title {
     font-size: 13px;
     font-weight: 700;
-    color: var(--text-muted, #71717a);
+    color: var(--text-muted, var(--neutral));
     text-transform: uppercase;
     letter-spacing: .05em;
     display: flex;
@@ -152,7 +152,7 @@ if (!empty($trendData)) {
     justify-content: center;
     font-size: 11px;
     font-weight: 600;
-    color: var(--text-muted, #71717a);
+    color: var(--text-muted, var(--neutral));
 }
 .rdash-hm-axis-title {
     display: flex;
@@ -160,7 +160,7 @@ if (!empty($trendData)) {
     justify-content: center;
     font-size: 11px;
     font-weight: 700;
-    color: var(--text-muted, #71717a);
+    color: var(--text-muted, var(--neutral));
     text-transform: uppercase;
     letter-spacing: .04em;
 }
@@ -173,7 +173,7 @@ if (!empty($trendData)) {
     left: 50%;
     transform: translateX(-50%);
     background: #111111;
-    color: #f9fafb;
+    color: var(--surface-alt);
     font-size: 11px;
     font-weight: 500;
     padding: 5px 8px;
@@ -212,14 +212,14 @@ if (!empty($trendData)) {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .04em;
-    color: var(--text-muted, #71717a);
+    color: var(--text-muted, var(--neutral));
     padding: 0 8px 8px;
-    border-bottom: 1px solid var(--border, #e4e4e7);
+    border-bottom: 1px solid var(--border, var(--neutral-border));
     white-space: nowrap;
 }
 .rdash-compact-table td {
     padding: 7px 8px;
-    border-bottom: 1px solid var(--border, #e4e4e7);
+    border-bottom: 1px solid var(--border, var(--neutral-border));
     vertical-align: middle;
 }
 .rdash-compact-table tr:last-child td { border-bottom: none; }
@@ -236,13 +236,13 @@ if (!empty($trendData)) {
     align-items: flex-start;
     gap: 10px;
     padding: 9px 0;
-    border-bottom: 1px solid var(--border, #e4e4e7);
+    border-bottom: 1px solid var(--border, var(--neutral-border));
 }
 .rdash-review-item:last-child { border-bottom: none; }
 .rdash-review-date {
     flex: 0 0 44px;
     text-align: center;
-    background: var(--bg-secondary, #f9fafb);
+    background: var(--bg-secondary, var(--surface-alt));
     border-radius: 8px;
     padding: 4px 2px;
     font-size: 11px;
@@ -257,7 +257,7 @@ if (!empty($trendData)) {
     align-items: center;
     gap: 8px;
     padding: 8px 0;
-    border-bottom: 1px solid var(--border, #e4e4e7);
+    border-bottom: 1px solid var(--border, var(--neutral-border));
     font-size: 13px;
 }
 .rdash-list-item:last-child { border-bottom: none; }
@@ -278,7 +278,7 @@ if (!empty($trendData)) {
 .rdash-bar-track {
     flex: 1;
     height: 10px;
-    background: var(--border, #e4e4e7);
+    background: var(--border, var(--neutral-border));
     border-radius: 20px;
     overflow: hidden;
 }
@@ -302,16 +302,16 @@ if (!empty($trendData)) {
     flex: 0 0 auto;
     min-width: 180px;
     max-width: 220px;
-    background: var(--bg-secondary, #f9fafb);
-    border: 1px solid var(--border, #e4e4e7);
+    background: var(--bg-secondary, var(--surface-alt));
+    border: 1px solid var(--border, var(--neutral-border));
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 12px;
 }
-.rdash-change-card .rcc-id   { font-size: 11px; color: var(--text-muted, #71717a); font-weight: 600; margin-bottom: 2px; }
+.rdash-change-card .rcc-id   { font-size: 11px; color: var(--text-muted, var(--neutral)); font-weight: 600; margin-bottom: 2px; }
 .rdash-change-card .rcc-title{ font-weight: 600; font-size: 12px; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rdash-change-card .rcc-score{ display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
-.rdash-change-card .rcc-meta { color: var(--text-muted, #71717a); font-size: 11px; }
+.rdash-change-card .rcc-meta { color: var(--text-muted, var(--neutral)); font-size: 11px; }
 
 /* ── Canvas chart ─────────────────────────────────── */
 #rdash-trend-canvas {
@@ -324,7 +324,7 @@ if (!empty($trendData)) {
 .rdash-empty {
     text-align: center;
     padding: 28px 16px;
-    color: var(--text-muted, #71717a);
+    color: var(--text-muted, var(--neutral));
     font-size: 13px;
 }
 .rdash-empty i { font-size: 28px; display: block; margin-bottom: 8px; }
@@ -512,7 +512,7 @@ if (!empty($trendData)) {
         <!-- Legend -->
         <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;font-size:11px;font-weight:600">
           <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--success-subtle);border:1.5px solid var(--success-border);display:inline-block"></span>Low (≤4)</span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#fefce8;border:1.5px solid #fde68a;display:inline-block"></span>Medium (5–9)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--gold-subtle);border:1.5px solid var(--warning-border);display:inline-block"></span>Medium (5–9)</span>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#ffedd5;border:1.5px solid #fdba74;display:inline-block"></span>High (10–14)</span>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--danger-subtle);border:1.5px solid var(--danger-border);display:inline-block"></span>Critical (&gt;14)</span>
         </div>
@@ -690,7 +690,7 @@ if (!empty($trendData)) {
       <i class="bi bi-shield-x" style="color:var(--warning)"></i>
       Uncontrolled Risks
       <?php if ($uncontrolledCount > 0): ?>
-        <span style="margin-left:auto;background:var(--warning-subtle);color:var(--warning);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid #fde68a"><?= $uncontrolledCount ?> risks</span>
+        <span style="margin-left:auto;background:var(--warning-subtle);color:var(--warning);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--warning-border)"><?= $uncontrolledCount ?> risks</span>
       <?php endif; ?>
     </div>
     <?php if (empty($uncontrolled)): ?>

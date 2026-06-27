@@ -64,7 +64,7 @@ ob_start();
 
         <!-- Question Row Template (index 0) -->
         <div class="question-row" data-index="0"
-             style="border:1px solid var(--border);border-radius:.5rem;padding:1rem;margin-bottom:1rem;background:var(--surface-alt,#f9fafb)">
+             style="border:1px solid var(--border);border-radius:.5rem;padding:1rem;margin-bottom:1rem;background:var(--surface-alt,var(--surface-alt))">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
             <span class="fw-600 text-sm text-muted">Question #<span class="q-num">1</span></span>
             <button type="button" class="btn btn-ghost btn-sm remove-question" style="color:var(--danger)">

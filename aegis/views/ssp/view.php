@@ -27,7 +27,7 @@ if (!function_exists('sspVal')) {
     <p class="page-subtitle" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span class="badge <?= $statusClass ?>"><?= $statusLabel ?></span>
       <?php if ($plan['framework']): ?><span class="badge badge-secondary"><?= Security::h($plan['framework']) ?></span><?php endif; ?>
-      <?php if ($plan['presentation_mode'] ?? ''): ?><span class="badge" style="background:var(--indigo-subtle,rgba(99,102,241,.1));color:var(--indigo,#6366f1)"><?= Security::h(ucfirst($plan['presentation_mode'] ?? 'standard')) ?> Mode</span><?php endif; ?>
+      <?php if ($plan['presentation_mode'] ?? ''): ?><span class="badge" style="background:var(--indigo-subtle,rgba(99,102,241,.1));color:var(--indigo,var(--indigo))"><?= Security::h(ucfirst($plan['presentation_mode'] ?? 'standard')) ?> Mode</span><?php endif; ?>
     </p>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
