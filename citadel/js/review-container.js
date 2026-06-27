@@ -174,6 +174,39 @@
     };
   }
 
+  // End-of-life base-image knowledge — a CONSERVATIVE, point-in-time snapshot
+  // (high-confidence EOL lines only, to avoid false positives). Verify against
+  // each vendor's lifecycle; this is a heuristic, not an authoritative feed.
+  const BASE_EOL_SNAPSHOT = '2026-06';
+  function eolName(ref, tag) {
+    let n = String(ref).split('@')[0];
+    if (tag != null) { const i = n.lastIndexOf(':'); if (i >= 0) n = n.slice(0, i); }
+    return n.split('/').pop().toLowerCase();
+  }
+  function numVer(tag) {
+    const m = String(tag).match(/^(\d+)(?:\.(\d+))?/);
+    return m ? { major: parseInt(m[1], 10), minor: m[2] != null ? parseInt(m[2], 10) : null } : null;
+  }
+  // Returns { detail } when the base image's tag is a known-EOL release, else null.
+  function baseImageEol(ref, tag) {
+    if (tag == null) return null;
+    try {
+      const name = eolName(ref, tag);
+      const t = String(tag).toLowerCase().replace(/-(slim|alpine|bullseye|bookworm|buster|trixie)$/, '');
+      const v = numVer(tag);
+      const hit = (d) => ({ detail: d });
+      if (name === 'node' && v && v.major <= 18) return hit('Node ' + v.major + ' is end-of-life.');
+      if (name === 'python' && v) { if (v.major < 3) return hit('Python 2 is end-of-life.'); if (v.major === 3 && v.minor != null && v.minor <= 8) return hit('Python 3.' + v.minor + ' is end-of-life.'); }
+      if (name === 'ruby' && v) { if (v.major < 3) return hit('Ruby ' + v.major + '.x is end-of-life.'); if (v.major === 3 && v.minor === 0) return hit('Ruby 3.0 is end-of-life.'); }
+      if (name === 'php' && v) { if (v.major < 8) return hit('PHP ' + v.major + '.x is end-of-life.'); if (v.major === 8 && v.minor === 0) return hit('PHP 8.0 is end-of-life.'); }
+      if (name === 'alpine' && v && v.major === 3 && v.minor != null && v.minor <= 15) return hit('Alpine 3.' + v.minor + ' is end-of-life.');
+      if ((name === 'golang' || name === 'go') && v && v.major === 1 && v.minor != null && v.minor < 21) return hit('Go 1.' + v.minor + ' is no longer supported.');
+      if (name === 'debian') { if (['wheezy', 'jessie', 'stretch', 'buster'].indexOf(t) >= 0) return hit('Debian ' + t + ' is end-of-life.'); if (v && v.major <= 10) return hit('Debian ' + v.major + ' is end-of-life.'); }
+      if (name === 'ubuntu') { if (['trusty', 'xenial', 'bionic'].indexOf(t) >= 0) return hit('Ubuntu ' + t + ' is end-of-standard-support.'); if (v && v.major <= 18) return hit('Ubuntu ' + tag + ' is end-of-standard-support.'); }
+    } catch (e) { /* defensive */ }
+    return null;
+  }
+
   // ===========================================================================
   // Detection regexes
   // ===========================================================================
@@ -250,7 +283,24 @@
           // Multi-stage: a new FROM resets the effective USER for that stage.
           sawUser = false;
           lastUser = null;
-          summary.images.push({ ref: f.ref, pinned: !!f.pinned, latest: !!f.latest });
+          const eolHit = baseImageEol(f.ref, f.tag);
+          summary.images.push({ ref: f.ref, pinned: !!f.pinned, latest: !!f.latest, eol: !!eolHit });
+          if (eolHit) {
+            out.push(finding({
+              ruleId: 'container.docker-base-image-eol',
+              name: 'End-of-life base image: ' + f.ref,
+              severity: 'high', confidence: 'medium', cwe: 'CWE-1104',
+              file: entry.path, line: ins.line, snippet: 'FROM ' + f.ref,
+              impact: eolHit.detail + ' End-of-life images receive no security patches, so known OS/runtime CVEs accumulate unfixed.',
+              likelihood: 'high', remediationEffort: 'medium',
+              remediation: 'Upgrade to a currently-supported base-image release and rebuild. (EOL data is a point-in-time snapshot, ' + BASE_EOL_SNAPSHOT + ' — verify against the vendor lifecycle.)',
+              complianceMappings: [
+                cis('4.2', 'Mapped control impact: use trusted, supported, patched base images.'),
+                nist('SI-2', 'Flaw remediation: relevant to running supported, patched software.'),
+                nist('SA-22', 'Unsupported system components: an EOL base image is unsupported software.')
+              ]
+            }));
+          }
           if (f.latest) {
             out.push(finding({
               ruleId: 'container.docker-base-image-latest',
