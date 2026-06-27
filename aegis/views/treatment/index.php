@@ -3,16 +3,16 @@ $breadcrumbs    = $breadcrumbs    ?? [['Treatments', null]];
 // Strategy badge colors
 $strategyColors = [
     'mitigate' => ['bg' => '#3b82f620', 'color' => '#3b82f6', 'border' => '#3b82f640'],
-    'transfer' => ['bg' => '#8b5cf620', 'color' => '#8b5cf6', 'border' => '#8b5cf640'],
+    'transfer' => ['bg' => '#8b5cf620', 'color' => 'var(--purple)', 'border' => '#8b5cf640'],
     'accept'   => ['bg' => '#f59e0b20', 'color' => '#f59e0b', 'border' => '#f59e0b40'],
     'avoid'    => ['bg' => '#ef444420', 'color' => '#ef4444', 'border' => '#ef444440'],
 ];
 // Status badge styles
 $statusStyles = [
-    'draft'     => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
+    'draft'     => ['bg' => '#a1a1aa20', 'color' => 'var(--neutral-light)', 'border' => '#a1a1aa40'],
     'active'    => ['bg' => 'rgba(22, 163, 74, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(22, 163, 74, .20)'],
-    'completed' => ['bg' => '#05966920', 'color' => '#059669', 'border' => '#05966940'],
-    'cancelled' => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
+    'completed' => ['bg' => '#05966920', 'color' => 'var(--success)', 'border' => '#05966940'],
+    'cancelled' => ['bg' => '#a1a1aa20', 'color' => 'var(--neutral-light)', 'border' => '#a1a1aa40'],
 ];
 ?>
 

@@ -8,15 +8,15 @@ $catConfig = [
     'process'    => ['label' => 'Process',    'color' => 'var(--moderate)', 'bg' => 'var(--info-subtle)', 'icon' => 'bi-diagram-3-fill'],
     'technology' => ['label' => 'Technology', 'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)', 'icon' => 'bi-cpu-fill'],
     'natural'    => ['label' => 'Natural',    'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'icon' => 'bi-cloud-lightning-rain-fill'],
-    'regulatory' => ['label' => 'Regulatory', 'color' => '#ea580c', 'bg' => '#fff7ed', 'icon' => 'bi-file-earmark-ruled-fill'],
-    'financial'  => ['label' => 'Financial',  'color' => '#ca8a04', 'bg' => '#fefce8', 'icon' => 'bi-currency-dollar'],
+    'regulatory' => ['label' => 'Regulatory', 'color' => 'var(--high)', 'bg' => 'var(--high-subtle)', 'icon' => 'bi-file-earmark-ruled-fill'],
+    'financial'  => ['label' => 'Financial',  'color' => 'var(--gold)', 'bg' => 'var(--gold-subtle)', 'icon' => 'bi-currency-dollar'],
 ];
 
 $statusConfig = [
     'active'    => ['label' => 'Active',    'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)'],
     'mitigated' => ['label' => 'Mitigated', 'color' => 'var(--moderate)', 'bg' => 'var(--info-subtle)'],
     'accepted'  => ['label' => 'Accepted',  'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
-    'retired'   => ['label' => 'Retired',   'color' => '#71717a', 'bg' => '#f9fafb'],
+    'retired'   => ['label' => 'Retired',   'color' => 'var(--neutral)', 'bg' => 'var(--surface-alt)'],
 ];
 
 // Index stats by category
@@ -28,13 +28,13 @@ foreach ($stats as $s) {
 function threatScoreColor(int $score): string {
     if ($score <= 4)  return 'var(--primary)';
     if ($score <= 9)  return 'var(--warning)';
-    if ($score <= 16) return '#ea580c';
+    if ($score <= 16) return 'var(--high)';
     return 'var(--danger)';
 }
 function threatScoreBg(int $score): string {
     if ($score <= 4)  return 'var(--success-subtle)';
     if ($score <= 9)  return 'var(--warning-subtle)';
-    if ($score <= 16) return '#fff7ed';
+    if ($score <= 16) return 'var(--high-subtle)';
     return 'var(--danger-subtle)';
 }
 ?>
@@ -143,8 +143,8 @@ $_threatActiveFilters = (int)!empty($filter) + (int)!empty($statusF);
       <tbody>
         <?php if ($threats): foreach ($threats as $t):
           $cat     = $t['category'] ?? 'technology';
-          $catCfg  = $catConfig[$cat]    ?? ['label' => ucfirst($cat), 'color' => '#71717a', 'bg' => '#f4f4f5', 'icon' => 'bi-question'];
-          $stCfg   = $statusConfig[$t['status'] ?? 'active'] ?? ['label' => ucfirst($t['status'] ?? ''), 'color' => '#71717a', 'bg' => '#f9fafb'];
+          $catCfg  = $catConfig[$cat]    ?? ['label' => ucfirst($cat), 'color' => 'var(--neutral)', 'bg' => 'var(--neutral-subtle)', 'icon' => 'bi-question'];
+          $stCfg   = $statusConfig[$t['status'] ?? 'active'] ?? ['label' => ucfirst($t['status'] ?? ''), 'color' => 'var(--neutral)', 'bg' => 'var(--surface-alt)'];
           $score   = (int)($t['likelihood'] ?? 0) * (int)($t['impact'] ?? 0);
           $sColor  = threatScoreColor($score);
           $sBg     = threatScoreBg($score);

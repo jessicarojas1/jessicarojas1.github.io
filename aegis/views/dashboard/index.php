@@ -34,7 +34,7 @@ ob_start();
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),var(--danger-dark,#991b1b))">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),var(--danger-dark,var(--danger-dark)))">
       <i class="bi bi-exclamation-triangle-fill"></i>
     </div>
     <div class="stat-body">
@@ -54,7 +54,7 @@ ob_start();
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--success-dark,#047857))">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--success-dark,var(--success-dark)))">
       <i class="bi bi-file-earmark-text-fill"></i>
     </div>
     <div class="stat-body">
@@ -65,7 +65,7 @@ ob_start();
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),var(--info-dark,#0369a1))">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),var(--info-dark,var(--info-dark)))">
       <i class="bi bi-clipboard2-check-fill"></i>
     </div>
     <div class="stat-body">

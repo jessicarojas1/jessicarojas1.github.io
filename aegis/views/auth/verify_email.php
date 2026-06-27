@@ -16,7 +16,7 @@ h1{font-size:24px;font-weight:700;color:var(--text);margin-bottom:12px}
 p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
 .btn{display:inline-block;padding:12px 28px;background:var(--primary);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px;transition:opacity .15s}
 .btn:hover{opacity:.9}
-.logo{font-size:13px;color:var(--text-muted);margin-top:32px;padding-top:24px;border-top:1px solid #f4f4f5}
+.logo{font-size:13px;color:var(--text-muted);margin-top:32px;padding-top:24px;border-top:1px solid var(--neutral-subtle)}
 </style>
 <?= Branding::accentStyleTag() ?>
 </head>

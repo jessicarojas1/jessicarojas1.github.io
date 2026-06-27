@@ -6,23 +6,23 @@ $nonce = Security::nonce();
 ob_start();
 
 $statusColors = [
-    'planned'     => ['#3b82f6','#eff6ff','#bfdbfe'],
-    'in_progress' => ['#f59e0b','#fffbeb','#fde68a'],
-    'completed'   => ['#16a34a','#f0fdf4','#bbf7d0'],
-    'cancelled'   => ['#71717a','#f9fafb','#e4e4e7'],
+    'planned'     => ['#3b82f6','var(--info-subtle)','#bfdbfe'],
+    'in_progress' => ['#f59e0b','var(--warning-subtle)','var(--warning-border)'],
+    'completed'   => ['var(--primary)','var(--success-subtle)','var(--success-border)'],
+    'cancelled'   => ['var(--neutral)','var(--surface-alt)','var(--neutral-border)'],
 ];
 [$stFg,$stBg,$stBd] = $statusColors[$review['status']] ?? $statusColors['planned'];
 
 $typeLabels = ['periodic'=>'Periodic','triggered'=>'Triggered','ad_hoc'=>'Ad Hoc','board'=>'Board'];
 $itemStatusColors = [
-    'pending'        => '#71717a',
-    'reviewed'       => '#16a34a',
+    'pending'        => 'var(--neutral)',
+    'reviewed'       => 'var(--primary)',
     'escalated'      => '#ef4444',
     'deferred'       => '#f59e0b',
-    'not_applicable' => '#a1a1aa',
+    'not_applicable' => 'var(--neutral-light)',
 ];
 $riskLevelFn = fn(int $s) => RiskScore::scoreLabel($s); // canonical bands — see src/RiskScore.php
-$riskColors  = ['Critical'=>'#ef4444','High'=>'#f97316','Medium'=>'#f59e0b','Low'=>'#22c55e'];
+$riskColors  = ['Critical'=>'#ef4444','High'=>'var(--orange)','Medium'=>'#f59e0b','Low'=>'#22c55e'];
 
 // Group items
 $groups = ['pending'=>[],'reviewed'=>[],'escalated'=>[],'deferred'=>[],'not_applicable'=>[]];
@@ -154,7 +154,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
           $iColor  = $riskColors[$iLevel];
           $rColor  = $riskColors[$rLevel];
           $strats  = json_decode($item['treatment_strategies'] ?? '[]', true) ?: [];
-          $sColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'#dc2626'];
+          $sColors = ['mitigate'=>'var(--moderate)','accept'=>'var(--warning-dark)','transfer'=>'var(--secondary)','avoid'=>'var(--danger)'];
         ?>
         <tr class="risk-item-row">
           <td>
@@ -182,7 +182,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
             </span>
           </td>
           <td>
-            <?php foreach ($strats as $st): $sc = $sColors[$st]??'#71717a'; ?>
+            <?php foreach ($strats as $st): $sc = $sColors[$st]??'var(--neutral)'; ?>
               <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:20px;background:<?= $sc ?>18;color:<?= $sc ?>;border:1px solid <?= $sc ?>30;white-space:nowrap;margin-right:2px"><?= ucfirst($st) ?></span>
             <?php endforeach; if(empty($strats)):?>—<?php endif;?>
           </td>

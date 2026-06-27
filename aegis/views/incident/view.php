@@ -1,8 +1,8 @@
 <?php
-$sevColors = ['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669'];
-$statusColors = ['open'=>'#dc2626','investigating'=>'#d97706','contained'=>'var(--secondary)','resolved'=>'#059669','closed'=>'#71717a'];
-$sevColor = $sevColors[$incident['severity']] ?? '#71717a';
-$stColor  = $statusColors[$incident['status']] ?? '#71717a';
+$sevColors = ['critical'=>'var(--danger)','high'=>'var(--warning)','medium'=>'var(--info)','low'=>'var(--success)'];
+$statusColors = ['open'=>'var(--danger)','investigating'=>'var(--warning)','contained'=>'var(--secondary)','resolved'=>'var(--success)','closed'=>'var(--neutral)'];
+$sevColor = $sevColors[$incident['severity']] ?? 'var(--neutral)';
+$stColor  = $statusColors[$incident['status']] ?? 'var(--neutral)';
 $pageTitle    = 'Incident: ' . $incident['incident_number'];
 $activeModule = 'incident';
 $breadcrumbs  = [['Incidents','/incident'],[$incident['incident_number'],null]];

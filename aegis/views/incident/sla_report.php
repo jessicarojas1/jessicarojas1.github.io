@@ -3,13 +3,13 @@ $breadcrumbs = $breadcrumbs ?? [['Incidents', '/incident'], ['SLA Report', null]
 // SLA badge helper
 function slaBadge(string $status): string {
     $map = [
-        'on_track' => ['success',  '#059669', 'On Track'],
-        'at_risk'  => ['warning',  '#d97706', 'At Risk'],
-        'breached' => ['danger',   '#dc2626', 'Breached'],
-        'met'      => ['met',      '#71717a', 'Met'],
-        'n/a'      => ['muted',    '#a1a1aa', 'N/A'],
+        'on_track' => ['success',  'var(--success)', 'On Track'],
+        'at_risk'  => ['warning',  'var(--warning)', 'At Risk'],
+        'breached' => ['danger',   'var(--danger)', 'Breached'],
+        'met'      => ['met',      'var(--neutral)', 'Met'],
+        'n/a'      => ['muted',    'var(--neutral-light)', 'N/A'],
     ];
-    [$cls, $color, $label] = $map[$status] ?? ['muted', '#a1a1aa', ucfirst($status)];
+    [$cls, $color, $label] = $map[$status] ?? ['muted', 'var(--neutral-light)', ucfirst($status)];
     $extra = $status === 'met' ? 'text-decoration:line-through;' : '';
     return '<span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;'
          . 'background:' . $color . '20;color:' . $color . ';border:1px solid ' . $color . '40;' . $extra . '">'
@@ -28,7 +28,7 @@ foreach ($incidents as $inc) {
     $ackCounts[$inc['ack_sla_status']]     = ($ackCounts[$inc['ack_sla_status']] ?? 0) + 1;
     $resCounts[$inc['resolve_sla_status']] = ($resCounts[$inc['resolve_sla_status']] ?? 0) + 1;
 }
-$sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7', 'low' => '#059669'];
+$sevColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium' => 'var(--info)', 'low' => 'var(--success)'];
 ?>
 
 <div class="page-header">
@@ -61,7 +61,7 @@ $sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($slaPolicies as $pol): $sc = $sevColors[$pol['severity']] ?? '#71717a'; ?>
+        <?php foreach ($slaPolicies as $pol): $sc = $sevColors[$pol['severity']] ?? 'var(--neutral)'; ?>
         <tr style="border-top:1px solid var(--border)">
           <td style="padding:10px 16px">
             <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:700;background:<?= $sc ?>20;color:<?= $sc ?>;border:1px solid <?= $sc ?>40">
@@ -90,12 +90,12 @@ $sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px">
   <?php
   $chips = [
-    ['label' => 'Ack On Track',  'count' => $ackCounts['on_track'],  'color' => '#059669'],
-    ['label' => 'Ack At Risk',   'count' => $ackCounts['at_risk'],   'color' => '#d97706'],
-    ['label' => 'Ack Breached',  'count' => $ackCounts['breached'],  'color' => '#dc2626'],
-    ['label' => 'Res On Track',  'count' => $resCounts['on_track'],  'color' => '#059669'],
-    ['label' => 'Res At Risk',   'count' => $resCounts['at_risk'],   'color' => '#d97706'],
-    ['label' => 'Res Breached',  'count' => $resCounts['breached'],  'color' => '#dc2626'],
+    ['label' => 'Ack On Track',  'count' => $ackCounts['on_track'],  'color' => 'var(--success)'],
+    ['label' => 'Ack At Risk',   'count' => $ackCounts['at_risk'],   'color' => 'var(--warning)'],
+    ['label' => 'Ack Breached',  'count' => $ackCounts['breached'],  'color' => 'var(--danger)'],
+    ['label' => 'Res On Track',  'count' => $resCounts['on_track'],  'color' => 'var(--success)'],
+    ['label' => 'Res At Risk',   'count' => $resCounts['at_risk'],   'color' => 'var(--warning)'],
+    ['label' => 'Res Breached',  'count' => $resCounts['breached'],  'color' => 'var(--danger)'],
   ];
   foreach ($chips as $chip): ?>
   <div class="card" style="padding:16px;text-align:center;border-top:3px solid <?= $chip['color'] ?>">
@@ -137,7 +137,7 @@ $sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7
         </thead>
         <tbody>
           <?php foreach ($incidents as $inc):
-            $sc = $sevColors[$inc['severity']] ?? '#71717a';
+            $sc = $sevColors[$inc['severity']] ?? 'var(--neutral)';
             $ageH = $inc['age_hours'];
             $ageStr = $ageH >= 48 ? round($ageH / 24, 1) . ' days' : $ageH . ' hrs';
           ?>

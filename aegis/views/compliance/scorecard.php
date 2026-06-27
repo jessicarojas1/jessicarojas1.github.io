@@ -10,7 +10,7 @@ $breadcrumbs = [['Compliance', '/compliance'], ['Scorecard', null]];
   body { font-size: 11px; }
   table { page-break-inside: auto; }
   tr { page-break-inside: avoid; }
-  th { background: #e4e4e7 !important; -webkit-print-color-adjust: exact; }
+  th { background: var(--neutral-border) !important; -webkit-print-color-adjust: exact; }
 }
 .score-summary { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
 .score-chip { text-align: center; padding: 12px 20px; border-radius: 8px; min-width: 90px; }
@@ -24,7 +24,7 @@ $breadcrumbs = [['Compliance', '/compliance'], ['Scorecard', null]];
 .domain-header-row { background: #111111; color: #fff; padding: 10px 14px; font-weight: 600; font-size: 13px; }
 .status-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 .badge-compliant { background: #dcfce7; color: #166534; }
-.badge-non_compliant { background: #fee2e2; color: #991b1b; }
+.badge-non_compliant { background: #fee2e2; color: var(--danger-dark); }
 .badge-partial { background: #fef9c3; color: #854d0e; }
 .badge-not_applicable { background: var(--bg-secondary); color: var(--text-muted); }
 .badge-not_started { background: var(--bg-secondary); color: var(--text-muted); }

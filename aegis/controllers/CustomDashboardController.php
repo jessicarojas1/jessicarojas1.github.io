@@ -119,7 +119,20 @@ class CustomDashboardController {
         header('Location: /dashboards');
     }
 
+    /**
+     * Widget data is a read-only aggregate that tolerates a few seconds of
+     * staleness, so it is cached per (tenant, widget-type, config) for a short
+     * TTL. Cache::remember is tenant-namespaced and degrades to a pass-through
+     * when APCu is absent, so this is identical to an uncached fetch on any host
+     * without the extension (CI, dev) — see TECH_DEBT.md TD-6.
+     */
     private function fetchWidgetData(string $type, array $config): mixed {
+        ksort($config); // stable key regardless of config insertion order
+        $key = 'widget:' . $type . ':' . md5(json_encode($config));
+        return Cache::remember($key, Cache::DEFAULT_TTL, fn() => $this->computeWidgetData($type, $config));
+    }
+
+    private function computeWidgetData(string $type, array $config): mixed {
         try {
             switch ($type) {
                 case 'stat_card':

@@ -140,7 +140,7 @@ $_filterCount = count(array_filter([
       </thead>
       <tbody>
         <?php if ($vendors): foreach ($vendors as $v):
-          $tierColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium' => '#0284c7', 'low' => 'var(--success)'];
+          $tierColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium' => 'var(--info)', 'low' => 'var(--success)'];
           $tierColor  = $tierColors[$v['risk_tier']] ?? 'var(--text-muted)';
 
           $statusColors = [

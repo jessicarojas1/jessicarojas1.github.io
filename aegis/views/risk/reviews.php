@@ -26,7 +26,7 @@ $statusConfig = [
     'planned'     => ['fg'=>'var(--moderate)','bg'=>'var(--info-subtle)','label'=>'Planned'],
     'in_progress' => ['fg'=>'var(--warning)','bg'=>'var(--warning-subtle)','label'=>'In Progress'],
     'completed'   => ['fg'=>'var(--primary)','bg'=>'var(--success-subtle)','label'=>'Completed'],
-    'cancelled'   => ['fg'=>'#71717a','bg'=>'#f4f4f5','label'=>'Cancelled'],
+    'cancelled'   => ['fg'=>'var(--neutral)','bg'=>'var(--neutral-subtle)','label'=>'Cancelled'],
 ];
 
 $filterStatus = $_GET['status'] ?? '';
@@ -163,8 +163,8 @@ ob_start();
       </thead>
       <tbody>
         <?php foreach ($displayedReviews as $rev):
-          $sc    = $statusConfig[$rev['status']] ?? ['fg'=>'#71717a','bg'=>'#f4f4f5','label'=>ucfirst($rev['status'])];
-          [$tFg, $tBg] = $typeBadgeColors[$rev['review_type']] ?? ['#71717a','#f4f4f5'];
+          $sc    = $statusConfig[$rev['status']] ?? ['fg'=>'var(--neutral)','bg'=>'var(--neutral-subtle)','label'=>ucfirst($rev['status'])];
+          [$tFg, $tBg] = $typeBadgeColors[$rev['review_type']] ?? ['var(--neutral)','var(--neutral-subtle)'];
           $total    = max(1, (int)$rev['total_risks']);
           $reviewed = (int)$rev['reviewed_count'];
           $pct      = $total > 0 ? round($reviewed / $total * 100) : 0;

@@ -12,10 +12,10 @@ body{font-family:Inter,system-ui,sans-serif;background:var(--surface-alt);displa
 .icon{width:72px;height:72px;border-radius:50%;background:var(--success-subtle);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px}
 h1{font-size:24px;font-weight:700;color:var(--text);margin-bottom:12px}
 p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
-.type-badge{display:inline-block;padding:4px 14px;background:var(--info-subtle);color:var(--info);border:1px solid #bae6fd;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:20px}
+.type-badge{display:inline-block;padding:4px 14px;background:var(--info-subtle);color:var(--info);border:1px solid var(--info-border);border-radius:20px;font-size:13px;font-weight:600;margin-bottom:20px}
 .btn{display:inline-block;padding:12px 28px;background:var(--primary);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px}
 .btn-ghost{background:transparent;color:var(--primary);border:1px solid var(--primary);margin-left:8px}
-.logo{font-size:13px;color:var(--text-muted);margin-top:32px;padding-top:24px;border-top:1px solid #f4f4f5}
+.logo{font-size:13px;color:var(--text-muted);margin-top:32px;padding-top:24px;border-top:1px solid var(--neutral-subtle)}
 </style>
 <?= Branding::accentStyleTag() ?>
 </head>
