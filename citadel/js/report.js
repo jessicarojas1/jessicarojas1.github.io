@@ -219,6 +219,19 @@
 
   /* ---------- Findings ---------- */
   let showSuppressed = false;
+  // Exploitability badges (EPSS / CISA KEV / exploit-priority) for a CVE finding.
+  function exploitBadges(f) {
+    if (!f) return '';
+    let out = '';
+    if (f.kev) out += '<span class="badge text-bg-danger" title="On the CISA Known Exploited Vulnerabilities catalog — confirmed exploited in the wild"><i class="bi bi-fire"></i> KEV</span> ';
+    if (f.exploitPriority) {
+      const cls = f.exploitPriority === 'P0' ? 'text-bg-danger' : f.exploitPriority === 'P1' ? 'text-bg-warning'
+        : f.exploitPriority === 'P2' ? 'text-bg-info' : 'text-bg-secondary';
+      out += `<span class="badge ${cls}" title="Exploit-based remediation priority">${esc(f.exploitPriority)}${f.exploitPriorityLabel ? ' · ' + esc(f.exploitPriorityLabel) : ''}</span> `;
+    }
+    if (typeof f.epss === 'number') out += `<span class="badge text-bg-light text-dark" title="EPSS — estimated probability of exploitation in the next 30 days">EPSS ${esc((f.epss * 100).toFixed(1))}%</span> `;
+    return out;
+  }
   function renderFindings(r) {
     const all = r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
     const sup = CITADEL.suppress;
@@ -261,6 +274,7 @@
           <span class="badge sev-badge ${sevBg(f.severity)}">${f.severity}</span>
           ${confBadge}
           ${f.tainted ? '<span class="badge bg-warning text-dark" title="User input flows into this sink (data-flow taint)">tainted</span>' : ''}
+          ${exploitBadges(f)}
           <span class="text-body-secondary small ms-auto d-none d-md-inline">${esc((f.sources && f.sources.join('+')) || f.source || 'heuristic')} · ${esc(f.cwe || '')}</span>
           <i class="bi bi-chevron-down finding-chev"></i>
         </div>
