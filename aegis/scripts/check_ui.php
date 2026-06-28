@@ -26,9 +26,12 @@ $HANDLERS = ['onclick','ondblclick','onchange','onsubmit','oninput','onload','on
     'onfocus','onblur','onscroll','onerror','onreset','onselect','ontoggle','oncontextmenu'];
 $handlerRe = '/\s(' . implode('|', $HANDLERS) . ')\s*=/i';
 
-// External asset hosts permitted in <link>/<script>. jsdelivr serves Bootstrap
-// CSS/JS (SRI-pinned in the markup). Everything else must be vendored locally.
-$CDN_ALLOWLIST = ['cdn.jsdelivr.net'];
+// External asset hosts permitted in <link>/<script>. EMPTY by design: every
+// front-end asset (Bootstrap CSS, Bootstrap Icons, Chart.js, app JS/CSS) is now
+// vendored locally under public/vendor, so the app pulls nothing from a CDN. This
+// keeps the "fully self-contained / air-gap-safe" property from regressing — any
+// new external <link>/<script> host fails CI until it is vendored or allowlisted.
+$CDN_ALLOWLIST = [];
 
 $violations = [];
 
@@ -48,10 +51,10 @@ foreach ($rii as $file) {
         if (preg_match('/<script\b(?![^>]*\bnonce=)(?![^>]*application\/ld\+json)/i', $line)) {
             $violations[] = sprintf('%s:%d  <script> without nonce → add nonce="<?= Security::nonce() ?>"', $rel, $n + 1);
         }
-        // Rule 3: external <link>/<script> hosts must be on the CSP allowlist.
-        // Keeps Google Fonts and other third-party origins from creeping back in
-        // (supply-chain + air-gap + GDPR). Only jsdelivr (Bootstrap, SRI-pinned)
-        // is permitted; vendor it locally to drop this too.
+        // Rule 3: external <link>/<script> hosts must be on the CSP allowlist
+        // (now empty). Keeps Google Fonts, jsdelivr and any other third-party
+        // origin from creeping back in (supply-chain + air-gap + GDPR) — all
+        // front-end assets are vendored under public/vendor.
         if (preg_match_all('/<(?:link|script)\b[^>]*\b(?:href|src)\s*=\s*["\']https?:\/\/([^"\'\/ >]+)/i', $line, $hm)) {
             foreach ($hm[1] as $host) {
                 if (!in_array(strtolower($host), $CDN_ALLOWLIST, true)) {

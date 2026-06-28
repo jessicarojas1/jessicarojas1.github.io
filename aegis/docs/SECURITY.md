@@ -284,7 +284,7 @@ The CSP directives (`:349-362`):
 ```
 default-src 'self'
 script-src  'self' 'nonce-{N}'
-style-src   'self' 'unsafe-inline' https://cdn.jsdelivr.net
+style-src   'self' 'unsafe-inline'
 font-src    'self'
 img-src     'self' data: blob: https:
 connect-src 'self'
@@ -296,13 +296,14 @@ object-src 'none'
 
 Notes from the source comments:
 
-- `script-src` is locked to `'self'` + the per-request nonce — **no external
-  origin**. All JavaScript (app.js, Chart.js) is vendored locally, so a CDN
-  compromise cannot inject script.
-- `style-src` allows `cdn.jsdelivr.net` only for the Bootstrap **stylesheet**,
-  which is **SRI-pinned** in markup; for air-gapped/IL5+ deployments the comment
-  instructs vendoring that stylesheet locally and dropping jsdelivr (`:343-348`).
-- `style-src` still allows `'unsafe-inline'` (styles only, not scripts).
+- **No fetch directive carries an external origin.** Every front-end asset —
+  Bootstrap CSS, Bootstrap Icons, Chart.js, app.js and app.css — is vendored
+  locally under `public/vendor` / `public/css` / `public/js` and SRI-pinned, so a
+  CDN compromise can inject neither script nor style. `check_ui.php` enforces an
+  empty external-host allowlist to keep it that way.
+- `script-src` is locked to `'self'` + the per-request nonce.
+- `style-src` allows `'unsafe-inline'` (styles only, not scripts) for inline
+  `style=""` attributes.
 - `img-src https:` exists to permit an externally-hosted branding logo URL;
   `data:`/`blob:` cover uploads/inline images (`:354-356`).
 
@@ -664,10 +665,10 @@ These are **observations from the code**, not invented behaviors:
   nonce-gated. Inline styles can still be injected if other layers fail.
 - **`img-src https:`** is broad (any HTTPS host) to support branding logo URLs
   (`:356`). This is an intentional trade-off documented in-code.
-- **CDN dependency**: only `style-src` allows `cdn.jsdelivr.net` (Bootstrap
-  **stylesheet**, SRI-pinned); `script-src` has no external origin. For
-  air-gapped/IL5+ the code comments instruct vendoring the stylesheet locally
-  and removing jsdelivr (`:343-348`).
+- **No CDN dependency**: all front-end assets are vendored locally under
+  `public/vendor` and SRI-pinned, so the CSP carries no external origin in any
+  directive and the app runs fully air-gapped. `check_ui.php`'s empty external-host
+  allowlist fails CI if a CDN `<link>`/`<script>` is reintroduced.
 - **Audit advisory lock is best-effort**: if `pg_advisory_lock` is unavailable,
   the row is still written (`src/Auth.php:510-517`), so under that failure mode
   concurrent appends *could* race the chain. Verification would surface the

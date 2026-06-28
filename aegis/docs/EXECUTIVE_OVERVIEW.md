@@ -174,8 +174,8 @@ From `README.md` (Tech Stack section), `render.yaml`, and the source:
 
 **Frontend**
 - **Vanilla HTML5/CSS3 and ES2020** — no framework, no bundler, **no build step**.
-- **Chart.js 4.4.3** for visualizations; **Bootstrap 5.3.3 CSS** + **Bootstrap Icons** (CDN,
-  Subresource-Integrity pinned); single `public/css/app.css` + `public/js/app.js`, cache-busted
+- **Chart.js 4.4.3** for visualizations; **Bootstrap 5.3.3 CSS** + **Bootstrap Icons** (all
+  vendored locally under `public/vendor/`, Subresource-Integrity pinned — no CDN); single `public/css/app.css` + `public/js/app.js`, cache-busted
   by file mtime (`layout.php:10-16`).
 - Theming via **CSS custom properties**; full dark/light toggle persisted in `localStorage`.
 - All interactivity uses **`data-*` attributes + event delegation in `app.js`** — no inline
@@ -208,8 +208,8 @@ AEGIS a defensible, verifiable record of who did what and when.
 scripts: `script-src 'self' 'nonce-…'` — no external origin, since all JavaScript is vendored
 locally. Every `<script>` tag carries `nonce="<?= Security::nonce() ?>"`, and all event handlers
 are delegated through `data-*` attributes in `app.js` — there are no inline `onclick`/`onchange`
-handlers anywhere. The one remaining CDN asset (the Bootstrap stylesheet, allowed only in
-`style-src`) is Subresource-Integrity pinned. The response also sets `X-Frame-Options:
+handlers anywhere. No directive carries an external origin — every asset (Bootstrap CSS/Icons,
+Chart.js, app JS/CSS) is vendored locally and Subresource-Integrity pinned. The response also sets `X-Frame-Options:
 DENY`, `frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`, a strict `Referrer-Policy`,
 cross-origin isolation headers, and a locked-down `Permissions-Policy`.
 
