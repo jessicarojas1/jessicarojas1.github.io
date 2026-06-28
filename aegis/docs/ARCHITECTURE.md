@@ -387,12 +387,12 @@ Independently of the session driver, every authenticated request upserts a row i
 
 `Security::setSecurityHeaders()` (`src/Security.php:337-380`), called at `index.php:162`, sets a strict header set on every response:
 
-- **Content-Security-Policy** (nonce-based, no `'unsafe-inline'` for scripts): `default-src 'self'`; `script-src 'self' 'nonce-{nonce}'` (no external origin — all JS is vendored locally); `style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net`; `img-src 'self' data: blob: https:` (the `https:` allows externally-hosted branding logos); `connect-src 'self'`; `frame-ancestors 'none'`; `base-uri 'self'`; `form-action 'self'`; `object-src 'none'`.
+- **Content-Security-Policy** (nonce-based, no `'unsafe-inline'` for scripts): `default-src 'self'`; `script-src 'self' 'nonce-{nonce}'`; `style-src 'self' 'unsafe-inline'`; `img-src 'self' data: blob: https:` (the `https:` allows externally-hosted branding logos); `connect-src 'self'`; `frame-ancestors 'none'`; `base-uri 'self'`; `form-action 'self'`; `object-src 'none'`. **No fetch directive carries an external origin** — every front-end asset is vendored locally.
 - The **per-request nonce** is generated once via `Security::nonce()` (`src/Security.php:330-335`, 18 random bytes base64) and reused across all `<script>` tags — every script tag must carry it (per project rules).
 - Additional headers: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `X-XSS-Protection: 0` (deliberately disabled per current OWASP guidance), `Referrer-Policy: strict-origin-when-cross-origin`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`, `X-Permitted-Cross-Domain-Policies: none`, and a restrictive `Permissions-Policy`.
 - **HSTS** (`max-age=31536000; includeSubDomains; preload`) is added only when the request is HTTPS (`src/Security.php:375-379`).
 
-The only external asset is the Bootstrap **stylesheet** from jsdelivr, **Subresource-Integrity pinned** in the markup (`style-src`); all JavaScript is vendored locally so `script-src` carries no CDN origin. The header comments note that for air-gapped/IL5+ deployments you should vendor that stylesheet locally and drop the CDN origin from `style-src`.
+There are **no external assets**: Bootstrap CSS, Bootstrap Icons, Chart.js and all app JS/CSS are vendored under `public/vendor/`, each still **Subresource-Integrity pinned** in the markup. The CSP therefore needs no CDN origin in any directive, and `check_ui.php` enforces an empty external-host allowlist so a third-party `<link>`/`<script>` fails CI. The app is fully self-contained (air-gap / IL5+ safe).
 
 ---
 

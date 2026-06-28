@@ -340,18 +340,16 @@ class Security {
         // Nonce-based CSP without 'unsafe-inline'. All event handlers migrated to
         // data-* attributes via app.js delegation. Every <script> must carry the nonce.
         $n = self::nonce();
-        // Fonts are self-hosted (no Google Fonts); icons, Chart.js and all app
-        // JavaScript are vendored locally, so script-src needs no external origin
-        // — it is locked to 'self' + the per-request nonce. The only remaining
-        // external origin is jsdelivr for Bootstrap *CSS* (style-src), which is
-        // Subresource-Integrity (SRI) pinned in the markup so a CDN compromise
-        // can't substitute tampered styles. For air-gapped / IL5+ deployments,
-        // vendor that stylesheet locally and drop jsdelivr from style-src below.
-        $cdn = 'https://cdn.jsdelivr.net';
+        // Fonts are self-hosted (no Google Fonts); icons, Chart.js, Bootstrap CSS
+        // and all app JS/CSS are vendored locally under /public/vendor, so the CSP
+        // needs NO external origin at all — every fetch directive is locked to
+        // 'self'. This makes the app fully self-contained (air-gapped / IL5+ safe)
+        // with no CDN/supply-chain exposure. 'unsafe-inline' remains on style-src
+        // only (inline style attributes); scripts are strictly nonce-gated.
         $csp = implode('; ', [
             "default-src 'self'",
             "script-src 'self' 'nonce-{$n}'",
-            "style-src 'self' 'unsafe-inline' {$cdn}",
+            "style-src 'self' 'unsafe-inline'",
             "font-src 'self'",
             // https: permits an externally-hosted branding logo set via URL
             // (Settings → Branding); data:/blob: cover uploads and inline images.
