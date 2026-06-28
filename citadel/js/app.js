@@ -436,15 +436,24 @@
     if (!report || !Array.isArray(report.findings)) return;
     // Reachability hint (uses report.imports computed at scan time + CVE findings).
     if (CITADEL.reachability && CITADEL.reachability.apply) { try { CITADEL.reachability.apply(report); } catch (e) {} }
-    if (!CITADEL.exploit) { CITADEL.report.render(report); return; }
-    try {
-      const res = await CITADEL.exploit.enrich(report.findings, () => {});
-      if (CITADEL.reachability && CITADEL.reachability.apply) { try { CITADEL.reachability.apply(report); } catch (e) {} }
-      if (res && res.enriched) {
-        if (CITADEL.readiness && CITADEL.readiness.analyze) { try { report.readiness = CITADEL.readiness.analyze(report); } catch (e) {} }
-      }
-      CITADEL.report.render(report);
-    } catch (e) {}
+    if (CITADEL.exploit) {
+      try {
+        const res = await CITADEL.exploit.enrich(report.findings, () => {});
+        if (CITADEL.reachability && CITADEL.reachability.apply) { try { CITADEL.reachability.apply(report); } catch (e) {} }
+        if (res && res.enriched && CITADEL.readiness && CITADEL.readiness.analyze) { try { report.readiness = CITADEL.readiness.analyze(report); } catch (e) {} }
+      } catch (e) {}
+    }
+    CITADEL.report.render(report);
+    // Live registry enrichment (latest version / maintainer / deprecated) — slower
+    // and network-heavy, so it runs last and re-renders the report when it lands.
+    if (CITADEL.registry && CITADEL.registry.enrich) {
+      Promise.resolve(CITADEL.registry.enrich(report, () => {})).then(r => {
+        if (r && (r.queried || r.deprecated)) {
+          if (r.deprecated && CITADEL.readiness && CITADEL.readiness.analyze) { try { report.readiness = CITADEL.readiness.analyze(report); } catch (e) {} }
+          CITADEL.report.render(report);
+        }
+      }).catch(() => {});
+    }
   }
 
   // Quick mode: query OSV.dev for real CVEs, merge, re-score, re-render.
