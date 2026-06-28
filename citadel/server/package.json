@@ -6,8 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/smoke.js && node --test test/lib.test.js test/api.test.js",
-    "lint": "cd .. && server/node_modules/.bin/eslint js server scripts"
+    "test": "node test/smoke.js && node --test test/lib.test.js test/api.test.js test/cli.test.js",
+    "lint": "cd .. && server/node_modules/.bin/eslint js server scripts cli"
   },
   "engines": {
     "node": ">=18"
