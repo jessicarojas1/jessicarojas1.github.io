@@ -221,7 +221,7 @@ aegis/
 │   ├── ScenarioController.php       # Risk scenario modelling
 │   ├── SearchController.php         # Global full-text search across modules
 │   ├── SPRSController.php           # Supplier Performance Risk System (SPRS) score tracking
-│   ├── SSOController.php            # SSO/SAML2/OIDC settings (settings UI; flow in progress)
+│   ├── SSOController.php            # SSO settings + live OIDC/OAuth2 login & callback (SAML2 not implemented)
 │   ├── SSPController.php            # System Security Plans: 7-tab authoring, versioning,
 │   │                                # presentation modes, JSONB inventories
 │   ├── TagController.php            # Cross-module tagging system
@@ -891,7 +891,7 @@ The following are known constraints and trade-offs in the current release.
 | **No compliance frameworks included** | The platform ships with no pre-loaded standards. All compliance packages must be imported via JSON, CSV, or Excel upload, or created manually |
 | **No background job runner** | There is no built-in cron or queue system. Scheduled features (metric snapshots, due-date reminders, SLA alerts) rely on web-request triggers or an external cron call; missed triggers are not retried |
 | **SMTP required for email** | Email notifications, review reminders, and attestation campaigns only function when a working SMTP server is configured in admin settings. Failed sends are silently dropped — there is no queue or retry mechanism |
-| **SSO (SAML2/OIDC) not yet live** | The settings UI and placeholder controller exist but the full authentication flow is not implemented. Scoped for a future phase |
+| **SAML2 SSO not implemented** | **OIDC / OAuth2 SSO is fully live** — `SSOController::login`/`callback` + `src/SSO.php` (discovery, authorization URL, state validation, code exchange, JIT user provisioning with role mapping, MFA hand-off, open-redirect-guarded post-login redirect). Only **SAML2** specifically is not implemented; it is scoped for a future phase |
 | **Single-tenant only** | All data lives in one PostgreSQL schema. There is no multi-organisation mode; separate deployments are required for data isolation between organisations |
 | **AI Advisor requires an API key** | The AI-assisted gap analysis and risk advisor features require an Anthropic (Claude) API key configured in admin settings. Without it those features are inactive |
 
@@ -1057,7 +1057,7 @@ Major UX feature additions: collapsible sidebar nav, bulk compliance actions, an
 | **Risk Roadmap Gantt** | Gantt-style visualisation of open treatment plans with drag-to-reschedule and owner swimlanes |
 | **Automated Evidence Collection** | Webhook receiver accepting structured evidence payloads from CI/CD pipelines and security tools, auto-attached to mapped controls |
 | **Attestation Campaigns v2** | Bulk-assign policy attestation campaigns by role or department; track completion percentage; reminder emails via SMTP |
-| **SSO / SAML2 live integration** | Complete the SAML2 authentication flow (`SSOController`) with IdP metadata exchange, SP-initiated login, and role attribute mapping |
+| **SAML2 SSO** | OIDC/OAuth2 SSO is already live; add a SAML2 path alongside it (IdP metadata exchange, SP-initiated login, assertion validation, role attribute mapping) for IdPs that don't speak OIDC |
 | **Multi-tenant organisations** | Namespace all tables under an `organisation_id` for data isolation between tenants on a single AEGIS instance |
 | **Mobile-first view layer** | Responsive card-based views for compliance and risk modules optimised for small screens; swipe gestures for quick status updates |
 
