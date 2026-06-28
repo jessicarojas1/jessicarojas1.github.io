@@ -161,7 +161,31 @@ require_once AEGIS_ROOT . '/src/SSO.php';
 
 Security::setSecurityHeaders();
 
-// Runtime schema migrations — safe to run on every request (no-op when already applied)
+// Runtime schema migrations — idempotent DDL guards that bring an older database
+// up to the current schema. They are individually safe to re-run, but EXPENSIVE
+// (dozens of information_schema probes + conditional ALTER/CREATE), so running
+// them on every request added real per-request latency (TECH_DEBT TD-1).
+//
+// They are now gated behind a one-row version check: the block runs in full on a
+// fresh database and once after each version bump, records RUNTIME_SCHEMA_VERSION
+// in schema_runtime_state, and every later request skips the whole block after a
+// single primary-key SELECT. The guards stay individually idempotent, so the gate
+// is purely a latency optimization — never the thing that makes a migration
+// correct. **Bump RUNTIME_SCHEMA_VERSION whenever you add or change a guard below**
+// so the block re-runs once across the fleet.
+const RUNTIME_SCHEMA_VERSION = '2026-06-28.1';
+$__runMigrations = true;
+try {
+    $__schemaState = Database::fetchOne("SELECT version FROM schema_runtime_state WHERE id = 1");
+    if ($__schemaState && ($__schemaState['version'] ?? null) === RUNTIME_SCHEMA_VERSION) {
+        $__runMigrations = false; // steady state: one indexed SELECT, then skip the block
+    }
+} catch (Throwable) {
+    // schema_runtime_state absent (fresh DB) → fall through and run the full block,
+    // which creates the table and records the version at the end.
+}
+
+if ($__runMigrations) {
 try {
     // KRI unit column: varchar(10) → varchar(50); direction: varchar(10) → varchar(20)
     // (direction values 'higher_worse'=12, 'lower_worse'=11 exceed original varchar(10))
@@ -681,6 +705,27 @@ try {
          )"
     );
 } catch (Throwable) {}
+
+// All guards above ran for this version — record it so subsequent requests skip
+// the whole block after a single SELECT. Created last so the marker only exists
+// once the migrations have actually been applied (a mid-block failure leaves the
+// marker stale/absent, so the block simply re-runs next request — fail-safe).
+try {
+    Database::query(
+        "CREATE TABLE IF NOT EXISTS schema_runtime_state (
+            id         INTEGER     PRIMARY KEY,
+            version    TEXT        NOT NULL,
+            applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+         )"
+    );
+    Database::query(
+        "INSERT INTO schema_runtime_state (id, version) VALUES (1, ?)
+         ON CONFLICT (id) DO UPDATE SET version = EXCLUDED.version, applied_at = NOW()",
+        [RUNTIME_SCHEMA_VERSION]
+    );
+} catch (Throwable) {}
+
+} // end if ($__runMigrations)
 
 // Parse route
 $uri    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
