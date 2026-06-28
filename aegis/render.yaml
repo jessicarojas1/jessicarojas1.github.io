@@ -1,3 +1,27 @@
+# AEGIS GRC — Render blueprint.
+#
+# Defines the web service, the Postgres database, and the BACKGROUND CRON
+# services that run AEGIS's time-based features (TECH_DEBT TD-10). Previously
+# only the web service + DB were declared, so on a stock Render deploy the
+# scheduled jobs below never ran — reminders, SLA alerts, metric snapshots,
+# webhook delivery and scheduled reports silently did nothing. They are now
+# provisioned as `cron` services.
+#
+# OPERATOR NOTES (please read before deploying):
+#   1. Render `cron` services require a PAID instance plan (`free` does not run
+#      cron). They are set to `starter` below — review the cost, or consolidate
+#      the five jobs into fewer services to reduce it (each script self-gates on
+#      what is actually due, so e.g. notifications + reports + workflows could
+#      share one hourly service via `sh -c 'php a && php b'`).
+#   2. Set the shared secrets ONCE in the `aegis-secrets` env-var group below
+#      (APP_ENCRYPTION_KEY, AUDIT_HMAC_KEY, SMTP_*). The web service and every
+#      cron service read the SAME values from that group, so settings decrypt and
+#      the audit-log HMAC chain stay consistent across processes. Until they are
+#      set they are simply unset (the app falls back to a JWT_SECRET-derived key,
+#      exactly as today) — declaring the group is non-disruptive.
+#   3. The crypto-sensitive secrets that MUST match the web service (JWT_SECRET)
+#      are inherited via `fromService`, so nothing is regenerated for cron.
+
 services:
   - type: web
     name: aegis-grc
@@ -21,6 +45,182 @@ services:
       - key: ADMIN_PASSWORD
         generateValue: true
       - key: APP_URL
+        sync: false
+      # Shared crypto + SMTP secrets (set once in the group; see operator note 2).
+      - fromGroup: aegis-secrets
+
+  # ---------------------------------------------------------------------------
+  # Background cron jobs. Each runs the same Docker image as the web service but
+  # overrides the entrypoint with `dockerCommand` to invoke a CLI script (every
+  # script is CLI-guarded and self-decides what work is due). DATABASE_URL points
+  # at the same database; JWT_SECRET is inherited from the web service so the
+  # encryption fallback + tokens match; the rest come from the shared group.
+  # ---------------------------------------------------------------------------
+  - type: cron
+    name: aegis-cron-notifications
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    schedule: "0 * * * *"            # hourly — due-date reminders / digest sends
+    dockerCommand: php scripts/send_notifications.php
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aegis-db
+          property: connectionString
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: AEGIS GRC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: aegis-grc
+          envVarKey: JWT_SECRET
+      - key: APP_URL
+        fromService:
+          type: web
+          name: aegis-grc
+          envVarKey: APP_URL
+      - fromGroup: aegis-secrets
+
+  - type: cron
+    name: aegis-cron-webhooks
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    # Every minute, as the script documents. NOTE: a per-minute cron cold-starts a
+    # container each run, so webhook latency is ~1 min + cold start. For high
+    # webhook volume a long-running background worker is a better fit than cron.
+    schedule: "* * * * *"
+    dockerCommand: php scripts/dispatch_webhooks.php
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aegis-db
+          property: connectionString
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: AEGIS GRC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: aegis-grc
+          envVarKey: JWT_SECRET
+      - key: APP_URL
+        fromService:
+          type: web
+          name: aegis-grc
+          envVarKey: APP_URL
+      - fromGroup: aegis-secrets
+
+  - type: cron
+    name: aegis-cron-reports
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    schedule: "0 * * * *"            # hourly — the script picks which schedules are due
+    dockerCommand: php scripts/send_scheduled_reports.php
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aegis-db
+          property: connectionString
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: AEGIS GRC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: aegis-grc
+          envVarKey: JWT_SECRET
+      - key: APP_URL
+        fromService:
+          type: web
+          name: aegis-grc
+          envVarKey: APP_URL
+      - fromGroup: aegis-secrets
+
+  - type: cron
+    name: aegis-cron-workflows
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    schedule: "*/15 * * * *"         # every 15 min — automation rules / overdue escalations
+    dockerCommand: php scripts/run_workflows.php
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aegis-db
+          property: connectionString
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: AEGIS GRC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: aegis-grc
+          envVarKey: JWT_SECRET
+      - key: APP_URL
+        fromService:
+          type: web
+          name: aegis-grc
+          envVarKey: APP_URL
+      - fromGroup: aegis-secrets
+
+  - type: cron
+    name: aegis-cron-metrics
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    schedule: "0 1 * * *"            # daily at 01:00 — GRC metrics snapshot for trends
+    dockerCommand: php scripts/capture_metrics_snapshot.php
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aegis-db
+          property: connectionString
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: AEGIS GRC
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: aegis-grc
+          envVarKey: JWT_SECRET
+      - key: APP_URL
+        fromService:
+          type: web
+          name: aegis-grc
+          envVarKey: APP_URL
+      - fromGroup: aegis-secrets
+
+# Shared secrets — set ONCE here, read by the web service and every cron service.
+# All sync:false (operator enters them in the Render dashboard). Leaving them
+# unset preserves today's behaviour (the app derives an encryption key from
+# JWT_SECRET as a fallback); set them to use dedicated keys + real SMTP.
+envVarGroups:
+  - name: aegis-secrets
+    envVars:
+      - key: APP_ENCRYPTION_KEY
+        sync: false
+      - key: AUDIT_HMAC_KEY
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_FROM_NAME
         sync: false
 
 databases:
