@@ -10,7 +10,7 @@ Everything here is derived from three source files:
 | Design tokens, components, dark mode, responsive | `public/css/app.css` |
 | Event model (`data-*` delegation), modal a11y, alerts, mobile sidebar | `public/js/app.js` |
 
-There is **no front-end framework and no build step**. The stack is server-rendered PHP that emits HTML, one global stylesheet, one global vanilla-JS file, plus CDN-loaded Bootstrap 5.3.3 CSS/JS and Chart.js. Bootstrap is present mostly for utility classes and a few widgets; the bulk of the look and feel is the custom AEGIS design system in `app.css`.
+There is **no front-end framework and no build step**. The stack is server-rendered PHP that emits HTML, one global stylesheet, one global vanilla-JS file, plus locally-vendored Bootstrap 5.3.3 CSS, Bootstrap Icons and Chart.js (under `public/vendor/`, SRI-pinned — no CDN). The unused Bootstrap *JS* bundle was removed; only its CSS utility classes remain in use, and the bulk of the look and feel is the custom AEGIS design system in `app.css`.
 
 ---
 
