@@ -3998,6 +3998,19 @@ CREATE TABLE IF NOT EXISTS aegis.settings (
 
 
 --
+-- Name: schema_runtime_state; Type: TABLE; Schema: aegis; Owner: -
+-- Tracks the applied version of index.php's runtime schema-migration block so it
+-- runs once per version instead of on every request (see RUNTIME_SCHEMA_VERSION).
+--
+
+CREATE TABLE IF NOT EXISTS aegis.schema_runtime_state (
+    id integer PRIMARY KEY,
+    version text NOT NULL,
+    applied_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: shared_responsibility; Type: TABLE; Schema: aegis; Owner: -
 --
 
