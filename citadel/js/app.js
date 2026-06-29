@@ -400,6 +400,22 @@
   }
   function hideProgress() { setTimeout(() => $('progress-wrap').classList.add('d-none'), 600); }
 
+  // Turn a deep-scan failure into a headline + actionable remedy. A bare 502/503/
+  // 504 never comes from our app (it returns JSON 500) — it's the proxy in front
+  // of a scan service that crashed, was OOM-killed, or exceeded the gateway
+  // timeout while running the real scanners (Semgrep/Trivy/Grype/ClamAV are heavy,
+  // and the first scan also downloads their vulnerability databases).
+  function deepError(err) {
+    const status = err && err.status;
+    if (status === 502 || status === 503 || status === 504) {
+      return { stage: 'Deep scan failed — the scan service was overloaded, timed out, or ran out of memory.',
+        detail: 'The upload worked; the server crashed running the real scanners. Try a single subfolder or a smaller zip and retry — the first scan is slowest (it downloads scanner databases). If you host the backend, give it ~2 GB+ RAM.' };
+    }
+    if (status === 413) return { stage: 'Deep scan failed — upload too large for the scan service.', detail: 'Scan a single subfolder or a smaller zip.' };
+    if (status === 429) return { stage: 'Deep scan failed — too many scans, rate limited.', detail: 'Wait a moment and retry.' };
+    return { stage: 'Deep scan failed: ' + ((err && err.message) || err), detail: '' };
+  }
+
   /* ---------- Run pipeline ---------- */
   async function handleDeep(files) {
     try {
@@ -408,7 +424,7 @@
       const report = await CITADEL.api.scan(files, (stage) => { p = Math.min(90, p + 18); showProgress(p, stage, ''); }, projectOpts());
       finishScan(report, 'deep');
     } catch (err) {
-      if (!handleAuthError(err)) showProgress(100, 'Deep scan failed: ' + (err.message || err), '');
+      if (!handleAuthError(err)) { const m = deepError(err); showProgress(100, m.stage, m.detail); }
       console.error(err);
     }
   }

@@ -183,6 +183,7 @@ The machine-readable contract for all of the above is served at
 | `CITADEL_SCAN_TIMEOUT_MS` | `30000` | Wall-clock deadline for the heuristic SAST pass. On `/api/scan` and `/api/scan-url` it runs in an **isolated worker thread** that is terminated if it exceeds this — a defense against catastrophic-backtracking (ReDoS) inputs. On timeout the scan still completes with the external-scanner findings and a `meta.warnings` note. |
 | `CITADEL_SCAN_ISOLATION` | auto | `1` forces worker isolation everywhere, `0` disables it. **Auto (default):** the server isolates upload/URL scans only when the host has enough RAM — worker isolation loads a second copy of the engine and can OOM a small instance (a 512 MB free tier), which surfaces as a **502**. |
 | `CITADEL_ISOLATION_MIN_MEM_MB` | `900` | Below this total RAM, auto mode runs the heuristic pass in-process instead of a worker, to avoid OOM on small instances. |
+| `SCAN_CONCURRENCY` | `4` | How many external scanners run at once. Semgrep, Trivy, Grype, ClamAV and Checkov are each CPU/RAM-heavy; launching all 11 simultaneously can OOM-kill a small instance (surfacing as a **502**). Lower this (e.g. `2`) on memory-constrained hosts; raise it on a big box for faster scans. |
 | `CITADEL_MAX_TOTAL_BYTES` | `67108864` (64 MB) | Per-scan memory budget for loaded file content. Past this, files are still counted but not read into memory/scanned — bounds memory on very large repos. |
 
 **Observability.** Logs are structured JSON lines; Prometheus metrics are at

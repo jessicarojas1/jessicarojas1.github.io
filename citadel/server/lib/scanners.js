@@ -452,13 +452,32 @@ async function codeql(dir) {
 }
 
 /* ---------------- Orchestrate all ---------------- */
+// Bounded-concurrency runner: preserves result order and never rejects on its
+// own (adapters resolve to a status object), so it's a drop-in for Promise.all
+// that caps how many scanners run at once.
+function pool(jobs, limit) {
+  const results = new Array(jobs.length);
+  let next = 0;
+  async function worker() {
+    for (let i = next++; i < jobs.length; i = next++) results[i] = await jobs[i]();
+  }
+  const n = Math.min(Math.max(1, limit), jobs.length);
+  return Promise.all(Array.from({ length: n }, worker)).then(() => results);
+}
+
 async function runAll(dir, onStage) {
   const stage = (s) => onStage && onStage(s);
   stage('Launching scanners…');
-  const results = await Promise.all([
-    semgrep(dir), bandit(dir), gitleaks(dir), trivy(dir), grype(dir), syft(dir), clamav(dir),
-    checkov(dir), osvScanner(dir), hadolint(dir), codeql(dir)
-  ]);
+  // Run with bounded concurrency: Semgrep, Trivy, Grype, ClamAV and Checkov are
+  // each CPU- and RAM-heavy, and launching all 11 at once can OOM-kill the
+  // service on a small instance (the proxy then returns 502). A pool keeps peak
+  // memory down while preserving parallelism. Tunable via SCAN_CONCURRENCY.
+  const limit = Math.max(1, parseInt(process.env.SCAN_CONCURRENCY || '4', 10));
+  const results = await pool([
+    () => semgrep(dir), () => bandit(dir), () => gitleaks(dir), () => trivy(dir),
+    () => grype(dir), () => syft(dir), () => clamav(dir), () => checkov(dir),
+    () => osvScanner(dir), () => hadolint(dir), () => codeql(dir)
+  ], limit);
   const findings = [];
   const tools = [];
   const summary = { ran: 0, unavailable: 0, failed: 0, total: results.length };
