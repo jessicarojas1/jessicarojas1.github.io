@@ -57,15 +57,36 @@ try {
         log_msg('[PALADIN] Schema baseline warning (continuing to migrations): ' . $e->getMessage());
     }
 
-    // Run incremental migrations in order. Each runs in its own statement/exec so
-    // one failing migration cannot block the others; all are idempotent.
+    // Track applied migrations in schema_migrations so each file is applied once
+    // and skipped on subsequent boots. On an existing database that predates this
+    // tracking the table is empty, so every (idempotent) migration is applied once
+    // to reconcile drift and then recorded; thereafter boots skip them and are fast.
+    $pdo->exec("SET search_path TO paladin");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS schema_migrations (
+        filename   TEXT PRIMARY KEY,
+        applied_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )");
+    $applied = [];
+    foreach (Database::fetchAll("SELECT filename FROM schema_migrations") as $row) {
+        $applied[$row['filename']] = true;
+    }
+
+    // Run pending incremental migrations in order. Each runs in its own exec so one
+    // failing migration cannot block the others, and is recorded only on success so
+    // a failure is retried next boot. All migrations are idempotent.
     foreach (glob(PALADIN_ROOT . '/database/migrations/*.sql') ?: [] as $path) {
+        $name = basename($path);
+        if (isset($applied[$name])) { continue; }
         try {
             $pdo->exec("SET search_path TO paladin");
             $pdo->exec(file_get_contents($path));
-            log_msg('[PALADIN] Applied migration: ' . basename($path));
+            Database::query(
+                "INSERT INTO schema_migrations (filename) VALUES (?) ON CONFLICT (filename) DO NOTHING",
+                [$name]
+            );
+            log_msg('[PALADIN] Applied migration: ' . $name);
         } catch (PDOException $e) {
-            log_msg('[PALADIN] Migration ' . basename($path) . ' warning: ' . $e->getMessage());
+            log_msg('[PALADIN] Migration ' . $name . ' warning: ' . $e->getMessage());
         }
     }
 

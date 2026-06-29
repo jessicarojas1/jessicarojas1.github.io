@@ -15,6 +15,17 @@ CREATE SCHEMA IF NOT EXISTS paladin;
 SET search_path TO paladin, public;
 
 -- ============================================================================
+-- MIGRATION TRACKING
+-- Records which database/migrations/*.sql files install.php has applied so each
+-- is run once and skipped thereafter. Populated by the installer, not here.
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS schema_migrations (
+    filename   TEXT PRIMARY KEY,
+    applied_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================================
 -- IDENTITY & ACCESS
 -- ============================================================================
 
