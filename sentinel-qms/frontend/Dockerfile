@@ -2,7 +2,7 @@
 
 # ---- Build stage ----
 # base image: node:20-alpine
-FROM node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 AS build
+FROM node:26-alpine@sha256:a2dc166a387cc6ca1e62d0c8e265e49ca985d6e60abc9fe6e6c3d6ce8e63f606 AS build
 WORKDIR /app
 
 # Install dependencies based on lockfile when present for reproducible builds.
