@@ -1926,6 +1926,29 @@ html[data-theme="dark"] .um-close:hover { color:var(--text); }
 .theme-toggle:hover { background: var(--bg); color: var(--text); }
 
 /* ============================================================
+   Pagination (server-side list paging — src/Pagination.php, TD-5)
+   ============================================================ */
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-top: 16px; padding: 4px 2px;
+}
+.pagination-info { color: var(--text-muted); font-size: 13px; }
+.pagination-links { display: inline-flex; align-items: center; gap: 4px; }
+.pagination .page-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 34px; height: 34px; padding: 0 10px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--card-bg); color: var(--text); font-size: 13px;
+  text-decoration: none; transition: background var(--transition), border-color var(--transition);
+}
+.pagination .page-link:hover { background: var(--bg-secondary); border-color: var(--primary); }
+.pagination .page-link.active {
+  background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600;
+}
+.pagination .page-link.disabled { color: var(--text-light); background: var(--bg-secondary); cursor: default; }
+.pagination .page-gap { color: var(--text-light); padding: 0 4px; }
+
+/* ============================================================
    Dark Mode
    ============================================================ */
 html[data-theme="dark"] {

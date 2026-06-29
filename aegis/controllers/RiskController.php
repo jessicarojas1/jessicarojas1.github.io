@@ -184,6 +184,12 @@ class RiskController {
 
         $whereSQL = implode(' AND ', $where);
 
+        // Server-side pagination (TD-5): count matching rows, then fetch one page.
+        // The filter clauses reference only r.*, so COUNT needs no joins.
+        $matchTotal = (int) (Database::fetchOne("SELECT COUNT(*) AS c FROM risks r WHERE {$whereSQL}", $params)['c'] ?? 0);
+        $pagination = Pagination::build($matchTotal);
+
+        $pageParams = array_merge($params, [$pagination['perPage'], $pagination['offset']]);
         $risks = Database::fetchAll(
             "SELECT r.*,
                     rc.name AS category_name, rc.color AS category_color,
@@ -197,8 +203,9 @@ class RiskController {
              LEFT JOIN risk_categories rc ON r.category_id = rc.id
              LEFT JOIN users u ON r.owner_id = u.id
              WHERE {$whereSQL}
-             ORDER BY r.inherent_score DESC, r.created_at DESC",
-            $params
+             ORDER BY r.inherent_score DESC, r.created_at DESC
+             LIMIT ? OFFSET ?",
+            $pageParams
         );
 
         $categories = Database::fetchAll("SELECT * FROM risk_categories ORDER BY sort_order");

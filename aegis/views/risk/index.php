@@ -262,6 +262,7 @@ $_filterCount = count(array_filter([
       </tbody>
     </table>
   </div>
+  <?php if (!empty($pagination)): ?><?= Pagination::render($pagination, '/risk') ?><?php endif; ?>
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
