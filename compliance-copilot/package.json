@@ -10,9 +10,9 @@
     "db:seed": "npx ts-node --project tsconfig.json scripts/seed.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.27.0",
-    "@supabase/supabase-js": "^2.45.4",
-    "@supabase/ssr": "^0.5.1",
+    "@anthropic-ai/sdk": "^0.107.0",
+    "@supabase/supabase-js": "^2.108.2",
+    "@supabase/ssr": "^0.12.0",
     "lucide-react": "^0.469.0",
     "next": "16.2.9",
     "react": "^19",
@@ -30,7 +30,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^10",
-    "autoprefixer": "^10.0.1",
+    "autoprefixer": "^10.5.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "postcss": "^8",
