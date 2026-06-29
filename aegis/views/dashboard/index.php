@@ -278,9 +278,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Resolve theme-aware colors from CSS vars at runtime
   const style = getComputedStyle(document.documentElement);
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const clrText     = isDark ? 'rgba(248,250,252,0.65)' : 'rgba(30,41,59,0.65)';
-  const clrGrid     = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
-  const clrBg       = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  // Derive chart text/grid/track colours from the SAME CSS custom properties that
+  // style the rest of the page, so they always track the active theme. The
+  // previous isDark-ternary could mis-detect dark mode and render near-black axis
+  // labels on the dark canvas (invisible); reading --text-muted (light in dark
+  // mode, dark in light mode) is robust because it's the value that already makes
+  // the surrounding text readable.
+  const clrText     = style.getPropertyValue('--text-muted').trim() || (isDark ? 'rgba(248,250,252,0.65)' : 'rgba(30,41,59,0.65)');
+  const clrGrid     = style.getPropertyValue('--border').trim()      || (isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)');
+  const clrBg       = style.getPropertyValue('--bg-subtle').trim()   || (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)');
   const clrGreen    = style.getPropertyValue('--primary-light').trim() || '#22c55e';
   const clrYellow   = style.getPropertyValue('--warning').trim() || '#f59e0b';
   const clrRed      = style.getPropertyValue('--danger').trim() || '#ef4444';

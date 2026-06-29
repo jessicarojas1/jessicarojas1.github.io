@@ -203,21 +203,35 @@ function metricColor(float $pct): string {
 document.querySelectorAll('[data-href]').forEach(function(el) {
   el.addEventListener('click', function() { location.href = el.dataset.href; });
 });
+// Resolve theme colours from CSS vars — Chart.js draws on a canvas and cannot
+// parse var(); read the values so axis text/lines are readable in dark mode too.
+const css   = getComputedStyle(document.documentElement);
+const txt   = css.getPropertyValue('--text-muted').trim() || '#8b949e';
+const grid  = css.getPropertyValue('--border').trim()     || 'rgba(0,0,0,.06)';
+const clGrc = css.getPropertyValue('--primary').trim()    || '#16a34a';
+const clInf = css.getPropertyValue('--info').trim()       || '#0284c7';
+const clWrn = css.getPropertyValue('--warning').trim()    || '#d97706';
+Chart.defaults.color = txt;       // legend + default tick colour
+Chart.defaults.borderColor = grid;
+
 const ctx = document.getElementById('trendChart').getContext('2d');
 new Chart(ctx, {
   type: 'line',
   data: {
     labels: <?= json_encode($trendDates, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
     datasets: [
-      { label: 'GRC Score',   data: <?= json_encode($trendGRC, JSON_HEX_TAG | JSON_HEX_AMP) ?>,  borderColor:'#1e3a5f', backgroundColor:'#1e3a5f20', tension:.3, fill:true },
-      { label: 'Compliance',  data: <?= json_encode($trendComp, JSON_HEX_TAG | JSON_HEX_AMP) ?>, borderColor:'var(--info)', backgroundColor:'transparent', tension:.3 },
-      { label: 'Risk Health', data: <?= json_encode($trendRisk, JSON_HEX_TAG | JSON_HEX_AMP) ?>, borderColor:'var(--warning)', backgroundColor:'transparent', tension:.3 },
+      { label: 'GRC Score',   data: <?= json_encode($trendGRC, JSON_HEX_TAG | JSON_HEX_AMP) ?>,  borderColor:clGrc, backgroundColor:'transparent', tension:.3, fill:false },
+      { label: 'Compliance',  data: <?= json_encode($trendComp, JSON_HEX_TAG | JSON_HEX_AMP) ?>, borderColor:clInf, backgroundColor:'transparent', tension:.3 },
+      { label: 'Risk Health', data: <?= json_encode($trendRisk, JSON_HEX_TAG | JSON_HEX_AMP) ?>, borderColor:clWrn, backgroundColor:'transparent', tension:.3 },
     ]
   },
   options: {
     responsive:true,
-    plugins:{ legend:{ position:'top' } },
-    scales:{ y:{ min:0, max:100, ticks:{ callback: v => v + '%' } } }
+    plugins:{ legend:{ position:'top', labels:{ color: txt } } },
+    scales:{
+      y:{ min:0, max:100, ticks:{ callback: v => v + '%', color: txt }, grid:{ color: grid } },
+      x:{ ticks:{ color: txt }, grid:{ color: grid } }
+    }
   }
 });
 </script>
