@@ -612,8 +612,10 @@ app.post('/api/dispositions', requirePerm('analyze'), async (req, res) => {
   if (!dispositions.enabled()) return res.status(501).json({ error: 'Shared dispositions require a database (set DATABASE_URL); local state is used otherwise.' });
   try {
     const note = (req.body && req.body.note) || '';
-    const state = await dispositions.set((req.body && req.body.fingerprint) || '', (req.body && req.body.state) || '', req.user && req.user.email, note);
-    audit.record('finding.disposition', { actor: req.user && req.user.email, ip: clientIp(req), detail: state + ' ' + ((req.body && req.body.fingerprint) || '').slice(0, 32) + (note ? ' +note' : ''), ok: true });
+    const approver = (req.body && req.body.approver) || '';
+    const acceptedUntil = (req.body && req.body.acceptedUntil) || '';
+    const state = await dispositions.set((req.body && req.body.fingerprint) || '', (req.body && req.body.state) || '', req.user && req.user.email, note, { approver, acceptedUntil });
+    audit.record('finding.disposition', { actor: req.user && req.user.email, ip: clientIp(req), detail: state + ' ' + ((req.body && req.body.fingerprint) || '').slice(0, 32) + (note ? ' +note' : '') + (acceptedUntil ? ' +accepted_until' : ''), ok: true });
     res.json({ ok: true, state });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });

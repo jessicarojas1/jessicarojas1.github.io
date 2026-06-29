@@ -145,6 +145,11 @@ CREATE TABLE IF NOT EXISTS citadel_dispositions (
 -- Reviewer note stored alongside a disposition (idempotent for upgrades).
 ALTER TABLE citadel_dispositions ADD COLUMN IF NOT EXISTS note text;
 
+-- Risk-acceptance metadata: approver + expiry, stored alongside a disposition
+-- (idempotent for upgrades).
+ALTER TABLE citadel_dispositions ADD COLUMN IF NOT EXISTS approver       text;
+ALTER TABLE citadel_dispositions ADD COLUMN IF NOT EXISTS accepted_until timestamptz;
+
 -- ----------------------------------------------------------------------------
 -- Dependency-approval workflow — shared sign-off decision for a package, keyed
 -- by `ecosystem|name` (lowercased). status approved/restricted/prohibited/pending,

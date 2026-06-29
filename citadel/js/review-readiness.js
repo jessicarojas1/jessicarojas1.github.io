@@ -99,6 +99,14 @@
     try { if (CITADEL.disposition && CITADEL.disposition.note) return CITADEL.disposition.note(f) || ''; } catch (e) {}
     return '';
   }
+  function acceptMeta(f) {
+    try { if (CITADEL.disposition && CITADEL.disposition.acceptance) return CITADEL.disposition.acceptance(f) || {}; } catch (e) {}
+    return {};
+  }
+  function acceptExpired(f) {
+    try { if (CITADEL.disposition && CITADEL.disposition.acceptanceExpired) return !!CITADEL.disposition.acceptanceExpired(f); } catch (e) {}
+    return false;
+  }
 
   function analyze(report) {
     report = report || {};
@@ -109,17 +117,23 @@
 
     // Partition by triage disposition: 'open' findings still count toward the
     // gate; 'accepted' become risk-acceptance items; false-positive/remediated/
-    // na are excluded entirely.
+    // na are excluded entirely. An EXPIRED acceptance reverts to a live finding.
     const findings = [], accepted = [];
+    let expiredAcceptances = 0;
     for (const f of allFindings) {
       const d = dispoOf(f);
-      if (d === 'accepted') accepted.push(f);
-      else if (d === 'open') findings.push(f);
+      if (d === 'accepted') {
+        if (acceptExpired(f)) { f.acceptanceExpired = true; findings.push(f); expiredAcceptances++; }
+        else accepted.push(f);
+      } else if (d === 'open') findings.push(f);
     }
-    const acceptedRisks = accepted.map(f => ({
-      title: f.name || f.ruleId || 'Finding', severity: sev(f), module: f.module || f.category || '',
-      file: f.file || '', note: noteOf(f)
-    }));
+    const acceptedRisks = accepted.map(f => {
+      const a = acceptMeta(f);
+      return {
+        title: f.name || f.ruleId || 'Finding', severity: sev(f), module: f.module || f.category || '',
+        file: f.file || '', note: noteOf(f), approver: a.approver || '', acceptedUntil: a.until || ''
+      };
+    });
 
     // Bucket the active findings by dimension.
     const byDim = {}; DIMENSIONS.forEach(d => { byDim[d[0]] = []; });
@@ -157,6 +171,10 @@
     if (acceptedSerious && !gate.rationale.some(r => /risk-accepted/i.test(r))) {
       gate.rationale.push(acceptedRisks.length + ' finding(s) risk-accepted by a reviewer — see accepted risks.');
     }
+    if (expiredAcceptances) {
+      gate.rationale.push(expiredAcceptances + ' risk acceptance(s) have EXPIRED and are blocking again — re-review and re-approve or remediate.');
+      gate.blockers.push(expiredAcceptances + ' expired risk acceptance(s)');
+    }
 
     return {
       generatedAt: new Date().toISOString(), policyName: pol.name,
@@ -164,7 +182,7 @@
       decision: gate.decision, rationale: gate.rationale, blockers: gate.blockers,
       requiredRemediation: gate.required, afterRemediation: gate.after,
       riskAcceptanceRequired: gate.riskAcceptanceRequired || acceptedSerious,
-      approverRoles: gate.approverRoles, acceptedRisks: acceptedRisks
+      approverRoles: gate.approverRoles, acceptedRisks: acceptedRisks, expiredAcceptances: expiredAcceptances
     };
   }
 

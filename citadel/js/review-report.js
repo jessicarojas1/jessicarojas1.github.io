@@ -633,8 +633,13 @@
     if (acceptedItems.length) {
       out.push('\n**Reviewer-accepted findings** (' + acceptedItems.length + ') — formally dispositioned as accepted risk:');
       out.push(acceptedItems.map(a => '- [' + String(a.severity || '').toUpperCase() + '] ' + (a.title || 'Finding')
-        + (a.file ? ' — `' + a.file + '`' : '') + (a.note ? ' — reviewer note: ' + a.note : '')).join('\n'));
+        + (a.file ? ' — `' + a.file + '`' : '')
+        + (a.approver ? ' — approved by: ' + a.approver : '')
+        + (a.acceptedUntil ? ' — until: ' + a.acceptedUntil : '')
+        + (a.note ? ' — reviewer note: ' + a.note : '')).join('\n'));
     }
+    const expired = (rd && rd.expiredAcceptances) | 0;
+    if (expired) out.push('\n**' + expired + ' risk acceptance(s) have EXPIRED** and are blocking again pending re-review/re-approval.');
     out.push('');
 
     out.push('## Remediation Tracking\n');

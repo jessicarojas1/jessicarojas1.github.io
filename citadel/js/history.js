@@ -73,6 +73,7 @@
    * edits and re-scans. The legacy `suppress` API is kept (hidden = non-open). */
   const DKEY = 'citadel.disposition.v1';
   const NKEY = 'citadel.disposition.note.v1';
+  const AKEY = 'citadel.disposition.accept.v1';   // { fp: { approver, until } }
   const DISPOSITIONS = ['open', 'accepted', 'false-positive', 'remediated', 'na'];
   const DISPO_LABEL = { open: 'Open', accepted: 'Accepted risk', 'false-positive': 'False positive', remediated: 'Remediated', na: 'Not applicable' };
   function fpOf(f) {
@@ -81,17 +82,27 @@
   }
   function dmap() { try { return JSON.parse(localStorage.getItem(DKEY) || '{}'); } catch (e) { return {}; } }
   function nmap() { try { return JSON.parse(localStorage.getItem(NKEY) || '{}'); } catch (e) { return {}; } }
+  function amap() { try { return JSON.parse(localStorage.getItem(AKEY) || '{}'); } catch (e) { return {}; } }
   // When a backend is present, a shared server-side map (by fingerprint) is the
   // source of truth and wins over the per-browser localStorage map.
   let _server = null;       // { fingerprint: state } or null when not loaded/unavailable
   let _serverNotes = null;  // { fingerprint: note } (parallel to _server)
+  let _serverMeta = null;   // { fingerprint: { approver, until } } (parallel to _server)
   function effective() { return _server ? Object.assign({}, dmap(), _server) : dmap(); }
   function dispositionOf(f) { const k = fpOf(f); return (_server && _server[k]) || dmap()[k] || 'open'; }
   // Reviewer note for a finding (shared server note wins over the local one).
   function noteOf(f) { const k = fpOf(f); return (_serverNotes && _serverNotes[k]) || nmap()[k] || ''; }
-  // Set state and/or note. `note` undefined => keep the existing note; a string
-  // (incl. '') => replace it. Persists locally and, when shared, to the server.
-  function setDisposition(f, state, note) {
+  // Risk-acceptance metadata (approver + expiry) for an accepted finding, or null.
+  function acceptanceOf(f) { const k = fpOf(f); return (_serverMeta && _serverMeta[k]) || amap()[k] || null; }
+  // True when an 'accepted' finding's acceptance has lapsed (expiry in the past).
+  function acceptanceExpired(f) {
+    if (dispositionOf(f) !== 'accepted') return false;
+    const a = acceptanceOf(f); if (!a || !a.until) return false;
+    const t = Date.parse(a.until); return !isNaN(t) && t < Date.now();
+  }
+  // Set state and/or note and/or acceptance meta. `note`/`meta` undefined => keep
+  // existing. Persists locally and, when shared, to the server.
+  function setDisposition(f, state, note, meta) {
     const k = fpOf(f);
     const m = dmap();
     if (!state || state === 'open') delete m[k]; else if (DISPOSITIONS.indexOf(state) >= 0) m[k] = state;
@@ -104,20 +115,35 @@
       try { localStorage.setItem(NKEY, JSON.stringify(nm)); } catch (e) {}
       if (_serverNotes) { if (noteVal) _serverNotes[k] = noteVal; else delete _serverNotes[k]; }
     }
+    // Acceptance meta is only meaningful for 'accepted'; cleared otherwise.
+    let metaVal = acceptanceOf(f);
+    const am = amap();
+    if (state !== 'accepted') { metaVal = null; delete am[k]; if (_serverMeta) delete _serverMeta[k]; }
+    else if (meta !== undefined) {
+      metaVal = { approver: String((meta && meta.approver) || '').slice(0, 200), until: String((meta && meta.until) || '').slice(0, 40) };
+      if (!metaVal.approver && !metaVal.until) metaVal = null;
+      if (metaVal) am[k] = metaVal; else delete am[k];
+      if (_serverMeta) { if (metaVal) _serverMeta[k] = metaVal; else delete _serverMeta[k]; }
+    }
+    try { localStorage.setItem(AKEY, JSON.stringify(am)); } catch (e) {}
     if (_server) {                                  // optimistic shared update + persist
-      if ((!state || state === 'open') && !noteVal) delete _server[k]; else if (state && state !== 'open') _server[k] = state;
-      if (CITADEL.api && CITADEL.api.dispositionSet) CITADEL.api.dispositionSet(k, state || 'open', noteVal);
+      if ((!state || state === 'open') && !noteVal && !metaVal) delete _server[k]; else if (state && state !== 'open') _server[k] = state;
+      if (CITADEL.api && CITADEL.api.dispositionSet) CITADEL.api.dispositionSet(k, state || 'open', noteVal, metaVal ? { approver: metaVal.approver, acceptedUntil: metaVal.until } : undefined);
     }
   }
   function setNote(f, note) { setDisposition(f, dispositionOf(f), note); }
+  function setAcceptance(f, approver, until) { setDisposition(f, 'accepted', undefined, { approver: approver, until: until }); }
   // Load the shared server map. Tolerant of the legacy flat shape ({fp:state})
   // and the rich shape ({fp:{state,note}}).
   function syncServer(map) {
-    _server = {}; _serverNotes = {};
+    _server = {}; _serverNotes = {}; _serverMeta = {};
     Object.keys(map || {}).forEach(k => {
       const v = map[k];
-      if (v && typeof v === 'object') { if (v.state && v.state !== 'open') _server[k] = v.state; if (v.note) _serverNotes[k] = v.note; }
-      else if (v) { _server[k] = v; }
+      if (v && typeof v === 'object') {
+        if (v.state && v.state !== 'open') _server[k] = v.state;
+        if (v.note) _serverNotes[k] = v.note;
+        if (v.approver || v.acceptedUntil) _serverMeta[k] = { approver: v.approver || '', until: v.acceptedUntil || '' };
+      } else if (v) { _server[k] = v; }
     });
   }
   function serverShared() { return !!_server; }
@@ -136,5 +162,5 @@
 
   CITADEL.history = { record, list, clear, compare, rename };
   CITADEL.suppress = { fingerprint: fpOf, isSuppressed, suppress, unsuppress, clear: clearSuppress, count: suppressCount, all: suppressed };
-  CITADEL.disposition = { of: dispositionOf, set: setDisposition, note: noteOf, setNote: setNote, counts: dispositionCounts, states: DISPOSITIONS, label: DISPO_LABEL, fpOf, syncServer, serverShared };
+  CITADEL.disposition = { of: dispositionOf, set: setDisposition, note: noteOf, setNote: setNote, acceptance: acceptanceOf, acceptanceExpired: acceptanceExpired, setAcceptance: setAcceptance, counts: dispositionCounts, states: DISPOSITIONS, label: DISPO_LABEL, fpOf, syncServer, serverShared };
 })(window);

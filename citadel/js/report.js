@@ -261,6 +261,8 @@
       const isSup = sup.isSuppressed(f);
       const dispo = CITADEL.disposition ? CITADEL.disposition.of(f) : (isSup ? 'accepted' : 'open');
       const dNote = (CITADEL.disposition && CITADEL.disposition.note) ? CITADEL.disposition.note(f) : '';
+      const dAcc = (CITADEL.disposition && CITADEL.disposition.acceptance) ? (CITADEL.disposition.acceptance(f) || {}) : {};
+      const dExpired = (CITADEL.disposition && CITADEL.disposition.acceptanceExpired) ? CITADEL.disposition.acceptanceExpired(f) : false;
       const dLabel = (CITADEL.disposition && CITADEL.disposition.label) || {};
       const dStates = (CITADEL.disposition && CITADEL.disposition.states) || ['open'];
       const hasFix = !!(CITADEL.remediate && CITADEL.remediate.fix && CITADEL.remediate.fix(f));
@@ -272,7 +274,7 @@
       <div class="finding${isSup ? ' finding-suppressed' : ''}" data-sev="${f.severity}" data-kind="${esc(f.kind || 'vuln')}" data-conf="${f.confirmed ? 'confirmed' : 'potential'}" data-fix="${hasFix ? '1' : '0'}" data-taint="${f.tainted ? '1' : '0'}" data-dispo="${esc(dispo)}" data-scanner="${esc((f.sources && f.sources.join(',')) || f.source || 'heuristic')}" data-cwe="${esc(f.cwe || '')}" data-frameworks="${esc(fwIds.join(','))}">
         <div class="finding-head" data-finding-toggle="${i}">
           <span class="sev-dot ${sevBg(f.severity)}"></span>
-          <span class="finding-name">${esc(f.name)}${dispo !== 'open' ? ' <span class="badge bg-secondary">' + esc(dLabel[dispo] || dispo) + '</span>' : ''}</span>
+          <span class="finding-name">${esc(f.name)}${dispo !== 'open' ? ' <span class="badge bg-secondary">' + esc(dLabel[dispo] || dispo) + '</span>' : ''}${dExpired ? ' <span class="badge text-bg-danger" title="Risk acceptance has expired — re-review required">acceptance expired</span>' : ''}</span>
           <span class="badge sev-badge ${sevBg(f.severity)}">${f.severity}</span>
           ${confBadge}
           ${f.tainted ? '<span class="badge bg-warning text-dark" title="User input flows into this sink (data-flow taint)">tainted</span>' : ''}
@@ -307,6 +309,12 @@
             <span class="input-group-text"><i class="bi bi-chat-left-text"></i></span>
             <input type="text" class="form-control" data-dispose-note="${i}" value="${esc(dNote)}" maxlength="2000" placeholder="Reviewer note — triage / risk-acceptance rationale (saved on Enter or blur)" aria-label="Reviewer note">
           </div>
+          ${dispo === 'accepted' ? `<div class="finding-accept input-group input-group-sm mt-1">
+            <span class="input-group-text" title="Approver"><i class="bi bi-person-check"></i></span>
+            <input type="text" class="form-control" data-accept-approver="${i}" value="${esc(dAcc.approver || '')}" maxlength="200" placeholder="Approved by" aria-label="Approver">
+            <span class="input-group-text" title="Accepted until (expiry)"><i class="bi bi-calendar-event"></i></span>
+            <input type="date" class="form-control${dExpired ? ' is-invalid' : ''}" data-accept-until="${i}" value="${esc(dAcc.until || '')}" aria-label="Accepted until">
+          </div>` : ''}
           <div class="finding-ai d-none" id="finding-ai-${i}"></div>
         </div>
       </div>`; }).join('') :
