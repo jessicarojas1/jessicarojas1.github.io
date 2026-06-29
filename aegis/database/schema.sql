@@ -401,6 +401,24 @@ CREATE TABLE IF NOT EXISTS schema_runtime_state (
     applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Outbound email retry queue (TD-9). Failed immediate sends are enqueued here
+-- and retried with exponential backoff by scripts/drain_email_queue.php.
+CREATE TABLE IF NOT EXISTS email_queue (
+    id              SERIAL PRIMARY KEY,
+    to_email        VARCHAR(255) NOT NULL,
+    to_name         VARCHAR(255) DEFAULT '',
+    subject         TEXT NOT NULL,
+    body_html       TEXT NOT NULL,
+    status          VARCHAR(20) NOT NULL DEFAULT 'queued',
+    attempts        INTEGER NOT NULL DEFAULT 0,
+    max_attempts    INTEGER NOT NULL DEFAULT 6,
+    last_error      TEXT,
+    next_attempt_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+    sent_at         TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_email_queue_due ON email_queue (status, next_attempt_at);
+
 CREATE TABLE IF NOT EXISTS activity_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),

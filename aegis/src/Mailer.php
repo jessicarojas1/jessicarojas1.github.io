@@ -3,25 +3,63 @@ declare(strict_types=1);
 
 class Mailer {
 
-    public static function sendFromSettings(string $to, string $toName, string $subject, string $htmlBody): bool {
+    /**
+     * Resolve SMTP settings into send() arguments, or null when email is not
+     * configured/enabled. Shared by sendFromSettings() and the queue drainer
+     * (scripts/drain_email_queue.php) so both speak to the same relay.
+     */
+    public static function smtpConfig(): ?array {
         $rows = Database::fetchAll(
             "SELECT key, value FROM settings WHERE key LIKE 'smtp_%' OR key = 'email_notifications'"
         );
         $cfg = array_column($rows, 'value', 'key');
+        if (empty($cfg['smtp_host'])) return null;
+        if (($cfg['email_notifications'] ?? '0') === '0') return null;
+        return [
+            'host'     => $cfg['smtp_host'],
+            'port'     => (int)($cfg['smtp_port'] ?? 587),
+            'user'     => $cfg['smtp_user'] ?? '',
+            'pass'     => Security::decryptSetting($cfg['smtp_pass'] ?? ''),
+            'from'     => $cfg['smtp_from'] ?? $cfg['smtp_user'] ?? '',
+            'fromName' => $cfg['smtp_from_name'] ?? 'AEGIS GRC',
+            'tls'      => (bool)($cfg['smtp_tls'] ?? true),
+        ];
+    }
 
-        if (empty($cfg['smtp_host'])) return false;
-        if (($cfg['email_notifications'] ?? '0') === '0') return false;
+    public static function sendFromSettings(string $to, string $toName, string $subject, string $htmlBody): bool {
+        $cfg = self::smtpConfig();
+        if ($cfg === null) return false; // email disabled — not a failure, don't queue
 
-        return self::send(
+        $ok = self::send(
             $to, $toName, $subject, $htmlBody,
-            $cfg['smtp_host'],
-            (int)($cfg['smtp_port'] ?? 587),
-            $cfg['smtp_user'] ?? '',
-            Security::decryptSetting($cfg['smtp_pass'] ?? ''),
-            $cfg['smtp_from'] ?? $cfg['smtp_user'] ?? '',
-            $cfg['smtp_from_name'] ?? 'AEGIS GRC',
-            (bool)($cfg['smtp_tls'] ?? true)
+            $cfg['host'], $cfg['port'], $cfg['user'], $cfg['pass'],
+            $cfg['from'], $cfg['fromName'], $cfg['tls']
         );
+
+        // TD-9: instead of silently dropping a failed send, queue it for retry by
+        // the drain cron (exponential backoff). The happy path still sends
+        // immediately, so latency-sensitive mail (password reset, MFA) is unaffected.
+        if (!$ok) {
+            self::queue($to, $toName, $subject, $htmlBody);
+        }
+        return $ok;
+    }
+
+    /**
+     * Persist an email for later retry. Best-effort: if the email_queue table is
+     * absent (pre-migration) or the insert fails, we log and move on — exactly the
+     * fire-and-forget resilience the rest of the mail path already assumes.
+     */
+    public static function queue(string $to, string $toName, string $subject, string $htmlBody): void {
+        try {
+            Database::query(
+                "INSERT INTO email_queue (to_email, to_name, subject, body_html, status, next_attempt_at)
+                 VALUES (?, ?, ?, ?, 'queued', NOW())",
+                [$to, $toName, $subject, $htmlBody]
+            );
+        } catch (Throwable $e) {
+            error_log("[Mailer] Could not queue email for retry: " . $e->getMessage());
+        }
     }
 
     /**
