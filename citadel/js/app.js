@@ -155,6 +155,17 @@
     const sec = $('projects-section'); if (sec) sec.classList.add('d-none');
     const intake = $('intake-section'); if (intake) intake.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  function openPortfolio() {
+    if (CITADEL.portfolio && CITADEL.portfolio.render) CITADEL.portfolio.render();
+    const sec = $('portfolio-section'); if (sec) sec.classList.remove('d-none');
+    const ps = $('projects-section'); if (ps) ps.classList.add('d-none');
+    const res = $('results'); if (res) res.classList.add('d-none');
+    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function closePortfolio() {
+    const sec = $('portfolio-section'); if (sec) sec.classList.add('d-none');
+    const intake = $('intake-section'); if (intake) intake.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
   // Disable scan controls until a project is selected (UX cue; gateScan enforces).
   function applyProjectGate() {
     const has = !!(CITADEL.projects && CITADEL.projects.current && CITADEL.projects.current());
@@ -621,6 +632,10 @@
     // ---- Projects routing ----
     if (e.target.closest('#nav-projects, [data-projects-open]')) { e.preventDefault(); openProjects(); return; }
     if (e.target.closest('[data-projects-close]')) { e.preventDefault(); closeProjects(); return; }
+    if (e.target.closest('#nav-portfolio')) { e.preventDefault(); openPortfolio(); return; }
+    if (e.target.closest('[data-portfolio-close]')) { e.preventDefault(); closePortfolio(); return; }
+    const pfOpen = e.target.closest('[data-portfolio-open]');
+    if (pfOpen) { e.preventDefault(); if (CITADEL.projects && CITADEL.projects.setCurrent) CITADEL.projects.setCurrent(pfOpen.getAttribute('data-portfolio-open')); closePortfolio(); openHistory(); return; }
     if (e.target.closest('[data-project-create]')) {
       e.preventDefault();
       const nameEl = $('new-project-name'), descEl = $('new-project-desc'), errEl = $('new-project-err');
