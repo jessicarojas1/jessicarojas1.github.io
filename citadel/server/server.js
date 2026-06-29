@@ -34,6 +34,7 @@ const log = require('./lib/log');
 const metrics = require('./lib/metrics');
 const oidc = require('./lib/oidc');
 const scans = require('./lib/scans');
+const readinessSrv = require('./lib/readiness');
 const projects = require('./lib/projects');
 const dispositions = require('./lib/dispositions');
 const depapprovals = require('./lib/depapprovals');
@@ -759,6 +760,7 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000, { failClosed: 
     const scannerResult = await scanners.runAll(scanRoot);
     const report = await engine.analyzeDir(scanRoot, scannerResult, null, { isolate: true });
     report.meta.source = source;
+    readinessSrv.ensure(report);   // server-side gate decision -> persisted + returned
     scans.record(report, { user: req.user, source, name: req.body && req.body.name, projectId: req.body && req.body.projectId, projectName: req.body && req.body.projectName }).catch(() => {});
     notify.scanComplete(report, { user: req.user, source });
     res.json(report);
@@ -787,6 +789,7 @@ app.post('/api/scan', rateLimited('scan', 20, 10 * 60000, { failClosed: true }),
     work = buildWorkdir(req.files);
     const scannerResult = await scanners.runAll(work);
     const report = await engine.analyzeDir(work, scannerResult, null, { isolate: true });
+    readinessSrv.ensure(report);   // server-side gate decision -> persisted + returned
     metrics.inc('citadel_scans_total', { mode: 'upload' });
     scans.record(report, { user: req.user, source: req.files.length + ' file(s)', name: req.body && req.body.name, projectId: req.body && req.body.projectId, projectName: req.body && req.body.projectName }).catch(() => {});
     notify.scanComplete(report, { user: req.user, source: req.files.length + ' file(s)' });

@@ -573,3 +573,33 @@ test('license policy: tiers denied/review/allowed', () => {
   assert.equal(tier('MIT'), 'allowed');
   assert.equal(tier('Apache-2.0'), 'allowed');
 });
+
+/* ---------------- Server-side readiness gate (engine-in-Node) ---------------- */
+test('readiness: loads the engine in Node and decides Rejected on an exposed secret', () => {
+  const rs = require('../lib/readiness');
+  assert.equal(rs.available(), true);
+  const report = {
+    findings: [{ ruleId: 'secret-aws', category: 'secrets', severity: 'critical', confidence: 'high', name: 'AWS key', file: '.env' }],
+    sbom: { components: [{ name: 'x', version: '1', ecosystem: 'npm', scope: 'runtime' }] },
+    licenses: { denied: [], review: [], allowed: [], detected: [] },
+    scoring: { sev: { critical: 1, high: 0, medium: 0, low: 0, info: 0 } },
+    posture: [{ id: 'n', name: 'NIST', status: 'partial', findings: 1, controlCount: 110 }]
+  };
+  const rd = rs.analyze(report);
+  assert.ok(rd && rd.decision === 'Rejected');
+  assert.ok(Array.isArray(rd.dimensions) && rd.dimensions.length >= 11);
+});
+test('readiness: ensure() attaches a decision to a clean report and is idempotent', () => {
+  const rs = require('../lib/readiness');
+  const report = {
+    findings: [{ severity: 'low', confidence: 'medium', category: 'config' }],
+    sbom: { components: [{ name: 'x', version: '1', ecosystem: 'npm', scope: 'runtime' }] },
+    licenses: { denied: [], review: [], allowed: [], detected: [] },
+    scoring: { sev: { critical: 0, high: 0, medium: 0, low: 1, info: 0 } }, posture: []
+  };
+  rs.ensure(report);
+  assert.ok(report.readiness && typeof report.readiness.overall === 'number');
+  const first = report.readiness;
+  rs.ensure(report);
+  assert.equal(report.readiness, first); // not recomputed when already present
+});
