@@ -392,6 +392,15 @@ CREATE TABLE IF NOT EXISTS settings (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tracks which version of index.php's runtime schema-migration block has been
+-- applied, so the block (dozens of information_schema probes) runs once per
+-- version instead of on every request. See index.php RUNTIME_SCHEMA_VERSION.
+CREATE TABLE IF NOT EXISTS schema_runtime_state (
+    id         INTEGER     PRIMARY KEY,
+    version    TEXT        NOT NULL,
+    applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS activity_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
