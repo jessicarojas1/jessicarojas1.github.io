@@ -1,0 +1,27 @@
+name: 'CITADEL Release Readiness Gate'
+description: 'Run the CITADEL secure-software readiness gate and fail the build when a project is not production-ready.'
+branding:
+  icon: 'shield'
+  color: 'blue'
+inputs:
+  path:
+    description: 'Directory to scan'
+    required: false
+    default: '.'
+  fail-on:
+    description: 'Gate level that fails the build (and worse): approved | conditional | manual | rejected'
+    required: false
+    default: 'manual'
+  policy:
+    description: 'Optional path to a JSON readiness-policy override'
+    required: false
+    default: ''
+runs:
+  using: 'composite'
+  steps:
+    - name: CITADEL readiness gate
+      shell: bash
+      run: |
+        ARGS=("${{ inputs.path }}" "--fail-on=${{ inputs.fail-on }}")
+        if [ -n "${{ inputs.policy }}" ]; then ARGS+=("--policy=${{ inputs.policy }}"); fi
+        node "${{ github.action_path }}/citadel-gate.js" "${ARGS[@]}"
