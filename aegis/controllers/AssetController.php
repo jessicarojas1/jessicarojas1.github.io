@@ -33,6 +33,10 @@ class AssetController {
 
         $whereSQL = implode(' AND ', $where);
 
+        // Server-side pagination (TD-5). Filters reference a.* only, so COUNT needs no joins.
+        $assetTotal = (int) (Database::fetchOne("SELECT COUNT(*) AS c FROM assets a WHERE {$whereSQL}", $params)['c'] ?? 0);
+        $pagination = Pagination::build($assetTotal);
+
         $assets = Database::fetchAll(
             "SELECT a.*, u.name AS owner_name
              FROM assets a
@@ -40,8 +44,9 @@ class AssetController {
              WHERE {$whereSQL}
              ORDER BY
                CASE a.criticality WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 ELSE 4 END,
-               a.name ASC",
-            $params
+               a.name ASC
+             LIMIT ? OFFSET ?",
+            array_merge($params, [$pagination['perPage'], $pagination['offset']])
         );
 
         $summary = Database::fetchOne(

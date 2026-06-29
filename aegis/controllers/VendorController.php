@@ -38,14 +38,19 @@ class VendorController {
 
         $whereSQL = implode(' AND ', $where);
 
+        // Server-side pagination (TD-5).
+        $vendorTotal = (int) (Database::fetchOne("SELECT COUNT(*) AS c FROM vendors v WHERE {$whereSQL}", $params)['c'] ?? 0);
+        $pagination = Pagination::build($vendorTotal);
+
         $vendors = Database::fetchAll(
             "SELECT v.*
              FROM vendors v
              WHERE {$whereSQL}
              ORDER BY
                CASE v.risk_tier WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 ELSE 5 END,
-               v.name ASC",
-            $params
+               v.name ASC
+             LIMIT ? OFFSET ?",
+            array_merge($params, [$pagination['perPage'], $pagination['offset']])
         );
 
         $stats = Database::fetchOne(

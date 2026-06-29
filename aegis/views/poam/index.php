@@ -74,6 +74,7 @@ $statusLabels = [
     </tbody>
   </table>
 </div>
+<?php if (!empty($pagination)): ?><?= Pagination::render($pagination, '/poam') ?><?php endif; ?>
 <?php endif; ?>
 
 <!-- ── Generate from Package Modal ── -->

@@ -3,7 +3,9 @@ class ComplianceController {
     public function index(): void {
         Auth::requirePermission('compliance.view');
 
-        $packages = Database::fetchAll(
+        // Heavy org-wide rollup (per-package compliance counts) — cached per
+        // tenant for a short TTL (TD-6). Tenant-namespaced; no per-user filter.
+        $packages = Cache::remember('compliance:packages', Cache::DEFAULT_TTL, fn() => Database::fetchAll(
             "SELECT cp.*, COALESCE(s.name, cp.name) as standard_name,
                COALESCE(s.code, 'CUSTOM') as standard_code,
                COALESCE(s.category, 'custom') as standard_category,
@@ -18,7 +20,7 @@ class ComplianceController {
              WHERE cp.is_active = TRUE
              GROUP BY cp.id, s.name, s.code, s.category
              ORDER BY cp.imported_at ASC"
-        );
+        ));
 
         require AEGIS_ROOT . '/views/compliance/index.php';
     }

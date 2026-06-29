@@ -99,6 +99,7 @@ $_filterCount = count(array_filter([
       </tbody>
     </table>
   </div>
+  <?php if (!empty($pagination)): ?><?= Pagination::render($pagination, '/audit') ?><?php endif; ?>
 </div>
 
 <?php

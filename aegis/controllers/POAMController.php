@@ -9,6 +9,11 @@ class POAMController {
     public function index(): void {
         Auth::requirePermission('compliance.view');
 
+        // Server-side pagination (TD-5). One row per POA&M item (grouped), so
+        // COUNT the base table and LIMIT/OFFSET the groups.
+        $poamTotal = (int) (Database::fetchOne("SELECT COUNT(*) AS c FROM poam_items")['c'] ?? 0);
+        $pagination = Pagination::build($poamTotal);
+
         $items = Database::fetchAll(
             "SELECT pi.*, cp.name AS package_name,
                     u.name AS owner_name,
@@ -27,7 +32,9 @@ class POAMController {
                  WHEN 'cancelled'   THEN 4
                  ELSE 5
                END,
-               pi.scheduled_completion ASC NULLS LAST"
+               pi.scheduled_completion ASC NULLS LAST
+             LIMIT ? OFFSET ?",
+            [$pagination['perPage'], $pagination['offset']]
         );
 
         $packages = Database::fetchAll(
