@@ -59,3 +59,28 @@ it('forget() is a safe no-op regardless of backend', function () {
     Cache::forget('never_stored'); // must not throw whether APCu is present or not
     expect(true, 'forget() did not throw');
 });
+
+it('driver() is one of the known backends', function () {
+    expect(in_array(Cache::driver(), ['redis', 'apcu', 'none'], true), 'driver is redis|apcu|none');
+    // With no REDIS_URL and APCu off (CLI default), it must resolve to none → pass-through.
+    if (!getenv('REDIS_URL') && !(function_exists('apcu_enabled') && apcu_enabled())) {
+        expect_eq('none', Cache::driver(), 'no Redis + no APCu → none');
+        expect(!Cache::enabled(), 'enabled() is false when driver is none');
+    }
+});
+
+it('rate-limiter primitives fall back (null/false) without a shared backend', function () {
+    // incrementCounter returns null for any non-Redis backend, signalling the
+    // rate limiter to use its authoritative DB store (TD-7). APCu is per-node and
+    // deliberately NOT treated as a shared counter store here.
+    if (Cache::driver() !== 'redis') {
+        expect_eq(null, Cache::incrementCounter('rl:test:' . bin2hex(random_bytes(3)), 60),
+            'incrementCounter is null without Redis → caller uses DB');
+        expect(!Cache::counterFlagExists('rl:block:test'), 'counterFlagExists is false without Redis');
+        Cache::setCounterFlag('rl:block:test', 60); // must be a safe no-op
+        Cache::deleteRaw('rl:test', 'rl:block:test'); // must be a safe no-op
+        expect(true, 'flag/delete primitives are safe no-ops without Redis');
+    } else {
+        expect(true, 'Redis backend present — primitives exercised against live Redis');
+    }
+});

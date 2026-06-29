@@ -1231,19 +1231,29 @@ if (Auth::check()) {
     }
 }
 
-// Track active session for admin session management
+// Track active session for admin session management. Throttled (TD-2): this was
+// a Postgres write on EVERY authenticated request (write amplification on a hot
+// table). last_seen_at only feeds the admin "active sessions" view, so updating
+// it at most once per ACTIVE_SESSION_WRITE_INTERVAL seconds is plenty; session
+// validity + revocation are governed by users.sessions_revoked_at in
+// Auth::requireAuth, not by this row, so throttling can't affect auth.
+const ACTIVE_SESSION_WRITE_INTERVAL = 60;
 if (!empty($_SESSION['user_id']) || !empty($_SESSION['user']['id'])) {
-    try {
-        $trackUserId = (int)($_SESSION['user']['id'] ?? $_SESSION['user_id'] ?? 0);
-        if ($trackUserId > 0 && session_id() !== '') {
-            Database::query(
-                "INSERT INTO active_sessions (id, user_id, ip_address, user_agent, last_seen_at)
-                 VALUES (?,?,?,?,NOW())
-                 ON CONFLICT (id) DO UPDATE SET last_seen_at=NOW(), ip_address=EXCLUDED.ip_address",
-                [session_id(), $trackUserId, $_SERVER['REMOTE_ADDR'] ?? '', substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500)]
-            );
-        }
-    } catch (Throwable) {}
+    $__lastWrite = (int)($_SESSION['_active_session_written_at'] ?? 0);
+    if (time() - $__lastWrite >= ACTIVE_SESSION_WRITE_INTERVAL) {
+        try {
+            $trackUserId = (int)($_SESSION['user']['id'] ?? $_SESSION['user_id'] ?? 0);
+            if ($trackUserId > 0 && session_id() !== '') {
+                Database::query(
+                    "INSERT INTO active_sessions (id, user_id, ip_address, user_agent, last_seen_at)
+                     VALUES (?,?,?,?,NOW())
+                     ON CONFLICT (id) DO UPDATE SET last_seen_at=NOW(), ip_address=EXCLUDED.ip_address",
+                    [session_id(), $trackUserId, $_SERVER['REMOTE_ADDR'] ?? '', substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500)]
+                );
+                $_SESSION['_active_session_written_at'] = time();
+            }
+        } catch (Throwable) {}
+    }
 }
 
 // Static routes
