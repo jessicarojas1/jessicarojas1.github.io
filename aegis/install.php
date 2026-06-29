@@ -137,6 +137,23 @@ if (!$needsFullInstall) {
 function runMigrations(PDO $pdo): void {
     $pdo->exec("SET search_path TO aegis");
 
+    // ── Outbound email queue (TD-9: retry instead of dropping failed sends) ───
+    $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.email_queue (
+        id              SERIAL PRIMARY KEY,
+        to_email        VARCHAR(255) NOT NULL,
+        to_name         VARCHAR(255) DEFAULT '',
+        subject         TEXT NOT NULL,
+        body_html       TEXT NOT NULL,
+        status          VARCHAR(20) NOT NULL DEFAULT 'queued',
+        attempts        INTEGER NOT NULL DEFAULT 0,
+        max_attempts    INTEGER NOT NULL DEFAULT 6,
+        last_error      TEXT,
+        next_attempt_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+        sent_at         TIMESTAMP
+    )");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_email_queue_due ON aegis.email_queue (status, next_attempt_at)");
+
     // ── Incidents ────────────────────────────────────────────────────────────
     $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.incidents (
         id               SERIAL PRIMARY KEY,

@@ -4011,6 +4011,34 @@ CREATE TABLE IF NOT EXISTS aegis.schema_runtime_state (
 
 
 --
+-- Name: email_queue; Type: TABLE; Schema: aegis; Owner: -
+-- Outbound email retry queue (TD-9): failed sends are enqueued and retried with
+-- exponential backoff by scripts/drain_email_queue.php.
+--
+
+CREATE TABLE IF NOT EXISTS aegis.email_queue (
+    id integer NOT NULL,
+    to_email character varying(255) NOT NULL,
+    to_name character varying(255) DEFAULT ''::character varying,
+    subject text NOT NULL,
+    body_html text NOT NULL,
+    status character varying(20) DEFAULT 'queued'::character varying NOT NULL,
+    attempts integer DEFAULT 0 NOT NULL,
+    max_attempts integer DEFAULT 6 NOT NULL,
+    last_error text,
+    next_attempt_at timestamp without time zone DEFAULT now() NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    sent_at timestamp without time zone
+);
+
+CREATE SEQUENCE IF NOT EXISTS aegis.email_queue_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE aegis.email_queue_id_seq OWNED BY aegis.email_queue.id;
+ALTER TABLE ONLY aegis.email_queue ALTER COLUMN id SET DEFAULT nextval('aegis.email_queue_id_seq'::regclass);
+ALTER TABLE ONLY aegis.email_queue ADD CONSTRAINT email_queue_pkey PRIMARY KEY (id);
+CREATE INDEX IF NOT EXISTS idx_email_queue_due ON aegis.email_queue USING btree (status, next_attempt_at);
+
+
+--
 -- Name: shared_responsibility; Type: TABLE; Schema: aegis; Owner: -
 --
 

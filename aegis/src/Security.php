@@ -292,6 +292,27 @@ class Security {
         $cfg = require __DIR__ . '/../config/app.php';
         $r = $cfg['rate_limit'];
 
+        // Shared in-memory fast path (TD-7): when Redis is configured, use it as
+        // the authoritative, cross-instance counter instead of the hot rate_limits
+        // row. Mirrors the DB semantics below — allow `login_attempts` tries per
+        // `window_seconds`, then lock out for `lockout_seconds`. Cache returns null
+        // for any non-Redis backend (APCu is per-node, so not safe for shared rate
+        // limiting), in which case we fall through to the authoritative DB store.
+        $rlKey    = 'aegis:rl:' . $identifier;
+        $blockKey = 'aegis:rl:block:' . $identifier;
+        if (Cache::counterFlagExists($blockKey)) {
+            return false; // currently locked out
+        }
+        $count = Cache::incrementCounter($rlKey, (int) $r['window_seconds']);
+        if ($count !== null) {
+            if ($count > (int) $r['login_attempts']) {
+                Cache::setCounterFlag($blockKey, (int) $r['lockout_seconds']);
+                return false;
+            }
+            return true;
+        }
+        // No shared in-memory backend → authoritative DB store (original path).
+
         $row = Database::fetchOne(
             "SELECT attempts, window_start, blocked_until FROM rate_limits WHERE key = ?",
             [$identifier]
@@ -321,6 +342,9 @@ class Security {
     }
 
     public static function resetRateLimit(string $identifier): void {
+        // Clear both stores so a successful login lifts the limit regardless of
+        // which backend recorded the attempts.
+        Cache::deleteRaw('aegis:rl:' . $identifier, 'aegis:rl:block:' . $identifier);
         Database::query("DELETE FROM rate_limits WHERE key = ?", [$identifier]);
     }
 
