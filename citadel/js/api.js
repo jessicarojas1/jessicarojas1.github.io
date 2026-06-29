@@ -204,11 +204,17 @@
   async function dispositionsList() {
     try { const res = await apiFetch('api/dispositions'); if (!res.ok) return null; return res.json(); } catch (e) { return null; }
   }
-  // Persist a disposition (with an optional reviewer note); returns true on
+  // Persist a disposition (with an optional reviewer note and, for a risk
+  // acceptance, an optional { approver, acceptedUntil } meta); returns true on
   // success (false if not shared / denied).
-  async function dispositionSet(fingerprint, state, note) {
+  async function dispositionSet(fingerprint, state, note, meta) {
     try {
-      const res = await apiFetch('api/dispositions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fingerprint, state, note: note || '' }) });
+      const body = { fingerprint, state, note: note || '' };
+      if (meta) {
+        if (meta.approver) body.approver = meta.approver;
+        if (meta.acceptedUntil) body.acceptedUntil = meta.acceptedUntil;
+      }
+      const res = await apiFetch('api/dispositions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       return res.ok;
     } catch (e) { return false; }
   }

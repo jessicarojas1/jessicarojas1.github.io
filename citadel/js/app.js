@@ -553,6 +553,19 @@
       const f = CITADEL.report.shownFinding(+noteEl.dataset.disposeNote);
       if (f && CITADEL.disposition && CITADEL.disposition.setNote) CITADEL.disposition.setNote(f, noteEl.value);
     }
+    // Risk-acceptance approver / expiry — re-render findings (expiry badge) + re-gate.
+    const accEl = e.target && e.target.closest && e.target.closest('[data-accept-approver],[data-accept-until]');
+    if (accEl && CITADEL.disposition && CITADEL.disposition.setAcceptance) {
+      const idx = accEl.getAttribute('data-accept-approver') || accEl.getAttribute('data-accept-until');
+      const f = CITADEL.report.shownFinding(+idx);
+      if (f) {
+        const ap = document.querySelector('[data-accept-approver="' + idx + '"]');
+        const un = document.querySelector('[data-accept-until="' + idx + '"]');
+        CITADEL.disposition.setAcceptance(f, ap ? ap.value : '', un ? un.value : '');
+        CITADEL.report.renderFindings(CITADEL.report.current);
+        recomputeReadiness();
+      }
+    }
     // Editable threat model — residual risk + missing-mitigations edits.
     if (CITADEL.threatmodel && e.target && e.target.closest) {
       const pid = (CITADEL.projects && CITADEL.projects.currentId) ? CITADEL.projects.currentId() : '';

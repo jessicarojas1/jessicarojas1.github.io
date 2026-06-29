@@ -445,6 +445,12 @@ test('dispositions: valid states; degrades to no-op without a database', async (
   assert.deepEqual(await d.list(), {});
   assert.equal(await d.set('fp123', 'accepted', 'tester'), null);
   assert.equal(await d.set('fp', 'accepted', 'a@b', 'note'), null);   // note arg, no-DB path
+  // risk-acceptance meta (approver + expiry) also degrades to no-op without a DB
+  assert.equal(await d.set('fp', 'accepted', 'a@b', 'note', { approver: 'sec@corp', acceptedUntil: '2026-12-31' }), null);
+  for (const fn of ['list', 'set', 'valid']) {
+    assert.equal(typeof d[fn], 'function', 'dispositions.' + fn + ' should be a function');
+  }
+  assert.ok(Array.isArray(d.STATES) && d.STATES.includes('accepted'));   // exported state list
 });
 
 /* ---------------- Dependency-approval workflow (graceful without a DB) ---------------- */
