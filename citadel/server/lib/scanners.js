@@ -472,7 +472,7 @@ async function runAll(dir, onStage) {
   // each CPU- and RAM-heavy, and launching all 11 at once can OOM-kill the
   // service on a small instance (the proxy then returns 502). A pool keeps peak
   // memory down while preserving parallelism. Tunable via SCAN_CONCURRENCY.
-  const limit = Math.max(1, parseInt(process.env.SCAN_CONCURRENCY || '4', 10));
+  const limit = Math.max(1, parseInt(process.env.SCAN_CONCURRENCY || '2', 10));
   const results = await pool([
     () => semgrep(dir), () => bandit(dir), () => gitleaks(dir), () => trivy(dir),
     () => grype(dir), () => syft(dir), () => clamav(dir), () => checkov(dir),
