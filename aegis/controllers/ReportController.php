@@ -68,53 +68,65 @@ class ReportController {
     public function executive(): void {
         Auth::requirePermission('report.view');
 
-        // Compliance health
-        $totalCtrl      = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM control_implementations")['c'] ?? 0);
-        $compliantCtrl  = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM control_implementations WHERE status = 'compliant'")['c'] ?? 0);
-        $compliancePct  = $totalCtrl > 0 ? round($compliantCtrl / $totalCtrl * 100) : 0;
+        // The executive summary is ~13 org-wide aggregate round-trips plus two
+        // ranked lists — all user-independent and tenant-scoped, so the whole set
+        // is cached per tenant for a short TTL (TD-6). Per-request fields
+        // (generatedAt/By) are computed outside the cache below.
+        $m = Cache::remember('report:executive', Cache::DEFAULT_TTL, function () {
+            // Compliance health
+            $totalCtrl      = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM control_implementations")['c'] ?? 0);
+            $compliantCtrl  = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM control_implementations WHERE status = 'compliant'")['c'] ?? 0);
+            $compliancePct  = $totalCtrl > 0 ? round($compliantCtrl / $totalCtrl * 100) : 0;
 
-        // Risk health (fewer high/critical = better)
-        $totalRisks     = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE status NOT IN ('closed','accepted')")['c'] ?? 0);
-        $critRisks      = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE inherent_score >= 20 AND status NOT IN ('closed','accepted')")['c'] ?? 0);
-        $highRisks      = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE inherent_score BETWEEN 15 AND 19 AND status NOT IN ('closed','accepted')")['c'] ?? 0);
-        $riskHealth     = $totalRisks > 0 ? max(0, round(100 - (($critRisks * 20 + $highRisks * 10) / $totalRisks * 100))) : 100;
+            // Risk health (fewer high/critical = better)
+            $totalRisks     = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE status NOT IN ('closed','accepted')")['c'] ?? 0);
+            $critRisks      = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE inherent_score >= 20 AND status NOT IN ('closed','accepted')")['c'] ?? 0);
+            $highRisks      = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE inherent_score BETWEEN 15 AND 19 AND status NOT IN ('closed','accepted')")['c'] ?? 0);
+            $riskHealth     = $totalRisks > 0 ? max(0, round(100 - (($critRisks * 20 + $highRisks * 10) / $totalRisks * 100))) : 100;
 
-        // Policy health
-        $totalPolicies   = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM policies")['c'] ?? 0);
-        $publishedPols   = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM policies WHERE status = 'published'")['c'] ?? 0);
-        $policyHealth    = $totalPolicies > 0 ? round($publishedPols / $totalPolicies * 100) : 0;
+            // Policy health
+            $totalPolicies   = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM policies")['c'] ?? 0);
+            $publishedPols   = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM policies WHERE status = 'published'")['c'] ?? 0);
+            $policyHealth    = $totalPolicies > 0 ? round($publishedPols / $totalPolicies * 100) : 0;
 
-        // Audit health (last 90 days)
-        $totalAudits    = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM audits WHERE scheduled_date >= NOW() - INTERVAL '90 days'")['c'] ?? 0);
-        $completedAudits = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM audits WHERE status = 'completed' AND scheduled_date >= NOW() - INTERVAL '90 days'")['c'] ?? 0);
-        $auditHealth    = $totalAudits > 0 ? round($completedAudits / $totalAudits * 100) : 100;
+            // Audit health (last 90 days)
+            $totalAudits    = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM audits WHERE scheduled_date >= NOW() - INTERVAL '90 days'")['c'] ?? 0);
+            $completedAudits = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM audits WHERE status = 'completed' AND scheduled_date >= NOW() - INTERVAL '90 days'")['c'] ?? 0);
+            $auditHealth    = $totalAudits > 0 ? round($completedAudits / $totalAudits * 100) : 100;
 
-        $grcScore = (int)round($compliancePct * 0.4 + $riskHealth * 0.3 + $policyHealth * 0.2 + $auditHealth * 0.1);
+            $grcScore = (int)round($compliancePct * 0.4 + $riskHealth * 0.3 + $policyHealth * 0.2 + $auditHealth * 0.1);
 
-        // Incidents (may not exist yet)
-        $openIncidents = 0;
-        try {
-            $openIncidents = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM incidents WHERE status NOT IN ('resolved','closed')")['c'] ?? 0);
-        } catch (Exception) {}
+            // Incidents (may not exist yet)
+            $openIncidents = 0;
+            try {
+                $openIncidents = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM incidents WHERE status NOT IN ('resolved','closed')")['c'] ?? 0);
+            } catch (Exception) {}
 
-        $upcomingAudits = (int)(Database::fetchOne(
-            "SELECT COUNT(*) AS c FROM audits WHERE status IN ('planned','in_progress') AND scheduled_date <= NOW() + INTERVAL '30 days'"
-        )['c'] ?? 0);
+            $upcomingAudits = (int)(Database::fetchOne(
+                "SELECT COUNT(*) AS c FROM audits WHERE status IN ('planned','in_progress') AND scheduled_date <= NOW() + INTERVAL '30 days'"
+            )['c'] ?? 0);
 
-        $topRisks = Database::fetchAll(
-            "SELECT r.title, r.inherent_score, r.status, rc.name AS category_name
-             FROM risks r LEFT JOIN risk_categories rc ON rc.id = r.category_id
-             WHERE r.status NOT IN ('closed')
-             ORDER BY r.inherent_score DESC LIMIT 5"
-        );
+            $topRisks = Database::fetchAll(
+                "SELECT r.title, r.inherent_score, r.status, rc.name AS category_name
+                 FROM risks r LEFT JOIN risk_categories rc ON rc.id = r.category_id
+                 WHERE r.status NOT IN ('closed')
+                 ORDER BY r.inherent_score DESC LIMIT 5"
+            );
 
-        $reviewsDue = Database::fetchAll(
-            "SELECT p.title, p.next_review_date, u.name AS owner_name
-             FROM policies p LEFT JOIN users u ON u.id = p.owner_id
-             WHERE p.status = 'published' AND p.next_review_date IS NOT NULL
-               AND p.next_review_date <= NOW() + INTERVAL '30 days'
-             ORDER BY p.next_review_date ASC LIMIT 5"
-        );
+            $reviewsDue = Database::fetchAll(
+                "SELECT p.title, p.next_review_date, u.name AS owner_name
+                 FROM policies p LEFT JOIN users u ON u.id = p.owner_id
+                 WHERE p.status = 'published' AND p.next_review_date IS NOT NULL
+                   AND p.next_review_date <= NOW() + INTERVAL '30 days'
+                 ORDER BY p.next_review_date ASC LIMIT 5"
+            );
+
+            return compact(
+                'compliancePct', 'riskHealth', 'policyHealth', 'auditHealth', 'grcScore',
+                'openIncidents', 'upcomingAudits', 'topRisks', 'reviewsDue'
+            );
+        });
+        extract($m);
 
         $generatedAt  = date('Y-m-d H:i:s');
         $generatedBy  = Auth::user()['name'];

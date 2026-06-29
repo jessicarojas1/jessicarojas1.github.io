@@ -223,4 +223,5 @@ $_threatActiveFilters = (int)!empty($filter) + (int)!empty($statusF);
       </tbody>
     </table>
   </div>
+  <?php if (!empty($pagination)): ?><?= Pagination::render($pagination, '/threats') ?><?php endif; ?>
 </div>
