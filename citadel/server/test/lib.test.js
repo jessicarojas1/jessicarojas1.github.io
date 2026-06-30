@@ -639,6 +639,27 @@ test('secrets: only Luhn-valid PANs flag, and the number is masked', async () =>
   assert.ok(/1111$/.test(pans[0].snippet.replace(/["';\s]+$/, '')) || /1111/.test(pans[0].snippet), 'masked to last four');
 });
 
+/* ---------------- Input validators (lib/validate) ---------------- */
+test('validate: logoUrl accepts https/data-raster, rejects http and svg', () => {
+  const v = require('../lib/validate');
+  assert.equal(v.logoUrl('https://cdn.example.com/logo.png'), 'https://cdn.example.com/logo.png');
+  assert.equal(v.logoUrl('data:image/png;base64,AAAA'), 'data:image/png;base64,AAAA');
+  assert.equal(v.logoUrl('http://example.com/logo.png'), '', 'plain http rejected (mixed content)');
+  assert.equal(v.logoUrl('data:image/svg+xml;base64,AAAA'), '', 'svg rejected (script-carrying)');
+  assert.equal(v.logoUrl('javascript:alert(1)'), '');
+});
+test('validate: hexColor normalizes, isEmail + inEnum behave', () => {
+  const v = require('../lib/validate');
+  assert.equal(v.hexColor('0d6efd'), '#0d6efd');
+  assert.equal(v.hexColor('#ABC'), '#ABC');
+  assert.equal(v.hexColor('not-a-color'), '');
+  assert.ok(v.isEmail('a@b.co'));
+  assert.ok(!v.isEmail('nope'));
+  assert.equal(v.inEnum(['a', 'b'], 'b'), 'b');
+  assert.equal(v.inEnum(['a', 'b'], 'z'), null);
+  assert.equal(v.trimStr('  hi  ', 80), 'hi');
+});
+
 /* ---------------- Server-side readiness gate (engine-in-Node) ---------------- */
 test('readiness: loads the engine in Node and decides Rejected on an exposed secret', () => {
   const rs = require('../lib/readiness');

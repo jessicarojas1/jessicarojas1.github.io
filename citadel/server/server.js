@@ -35,6 +35,7 @@ const metrics = require('./lib/metrics');
 const oidc = require('./lib/oidc');
 const scans = require('./lib/scans');
 const readinessSrv = require('./lib/readiness');
+const validate = require('./lib/validate');
 const projects = require('./lib/projects');
 const dispositions = require('./lib/dispositions');
 const depapprovals = require('./lib/depapprovals');
@@ -507,19 +508,13 @@ app.patch('/api/auth/settings', requireAdmin, (req, res) => {
 app.get('/api/branding', (req, res) => res.json(users.settings().branding || {}));
 app.patch('/api/branding', requireAdmin, (req, res) => {
   const b = req.body || {};
-  const url = typeof b.logoUrl === 'string' ? b.logoUrl.trim() : '';
-  const accent = typeof b.accent === 'string' ? b.accent.trim() : '';
-  // Allow public https URLs or inline data: image URIs (file uploads). Plain
-  // http:// is rejected to avoid mixed-content + privacy leakage when the logo
-  // loads. SVG is intentionally excluded: an SVG can carry script and, while an
-  // <img> never executes it, accepting it would be a latent stored-XSS vector if
-  // a logo is ever inlined. Raster formats only.
-  const isHttp = /^https:\/\/\S+$/i.test(url);
-  const isDataImg = /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=\s]+$/i.test(url);
+  // Validation is centralized in lib/validate: logoUrl accepts only https:// or
+  // an inline raster data: URI (no SVG — script-carrying), accent is normalized
+  // hex, orgName is trimmed + bounded. http:// is rejected (mixed-content).
   const clean = {
-    logoUrl: isHttp ? url.slice(0, 500) : (isDataImg ? url.slice(0, 200000) : ''),
-    orgName: (typeof b.orgName === 'string' ? b.orgName.trim() : '').slice(0, 80),
-    accent: /^#?[0-9a-fA-F]{3,8}$/.test(accent) ? (accent[0] === '#' ? accent : '#' + accent) : ''
+    logoUrl: validate.logoUrl(b.logoUrl),
+    orgName: validate.trimStr(b.orgName, 80),
+    accent: validate.hexColor(b.accent)
   };
   users.setSetting('branding', clean);
   audit.record('settings.change', { actor: req.user.email, ip: clientIp(req), detail: 'branding', ok: true });
