@@ -66,6 +66,21 @@ $NOTIF_TYPES = [
         'description' => 'When evidence files you uploaded are approaching their expiry date',
         'icon'        => 'paperclip',
     ],
+    'policy_expiring' => [
+        'label'       => 'Policies expiring',
+        'description' => 'When a published policy you own is approaching its expiry date',
+        'icon'        => 'file-earmark-x',
+    ],
+    'risk_acceptance_expiring' => [
+        'label'       => 'Risk acceptances expiring',
+        'description' => 'When a risk acceptance you own is approaching its valid-until date',
+        'icon'        => 'shield-check',
+    ],
+    'kri_breached' => [
+        'label'       => 'KRI threshold breaches',
+        'description' => 'When a Key Risk Indicator you own breaches its red threshold',
+        'icon'        => 'speedometer2',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────

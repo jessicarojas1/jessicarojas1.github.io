@@ -149,7 +149,13 @@ class KRIController {
         header('Location: /kris');
     }
 
-    private static function ragStatus(array $kri): string {
+    /**
+     * RAG classification of a KRI's latest value vs its thresholds, honouring
+     * direction. Returns 'grey' (no data), 'green', 'amber' or 'red'. A 'red'
+     * result is a threshold breach. Public + static so breach detection is
+     * reusable by the notifier and unit-testable in isolation.
+     */
+    public static function ragStatus(array $kri): string {
         $val = $kri['latest_value'] ?? null;
         if ($val === null) return 'grey';
         $val = (float)$val;
