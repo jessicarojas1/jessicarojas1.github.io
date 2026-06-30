@@ -209,6 +209,7 @@ $sentSlaBreach       = 0;
 $sentBcpExerciseOverdue = 0;
 $sentBcpPlanReviewDue   = 0;
 $sentPoamOverdue        = 0;
+$sentAwarenessOverdue   = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -930,6 +931,81 @@ HTML;
     }
 } catch (\Throwable $e) {
     fwrite(STDERR, "[poam_item_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2i. AWARENESS TRAINING OVERDUE (incomplete assignment past its program due date)
+// ═══════════════════════════════════════════════════════════════════════════════
+// The deadline lives on the program; an assignment is overdue when it is not yet
+// completed and the program's due_date has passed. Alerts the ASSIGNEE (the user
+// who must complete the training), not the program creator.
+try {
+    $awRows = Database::fetchAll(
+        "SELECT aa.id AS assignment_id, ap.id AS program_id, ap.title, ap.due_date,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM awareness_assignments aa
+         JOIN awareness_programs ap ON ap.id = aa.program_id
+         JOIN users u ON u.id = aa.user_id
+         WHERE aa.completed = FALSE
+           AND ap.due_date IS NOT NULL
+           AND ap.due_date < CURRENT_DATE
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $awByUser = [];
+    foreach ($awRows as $row) {
+        $awByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($awByUser as $userId => $assignments) {
+        if (!notifEnabled((int) $userId, 'awareness_training_overdue')) {
+            continue;
+        }
+        $email    = $assignments[0]['email'];
+        $userName = $assignments[0]['user_name'];
+
+        foreach ($assignments as $asg) {
+            // Throttle: one reminder per assignment per 7 days.
+            if (alreadyNotified((int) $userId, 'awareness_training_overdue', 'awareness_assignment', (int) $asg['assignment_id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((time() - strtotime($asg['due_date'])) / 86400);
+            $dueDate     = date('M j, Y', strtotime($asg['due_date']));
+            $title       = htmlspecialchars($asg['title'], ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>You have <span style="color:#ef4444;font-weight:600">overdue ({$daysOverdue} days)</span> security-awareness training to complete:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Training</th>
+    <th style="padding:8px;text-align:left">Due</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$title}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$dueDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to complete this training.</p>
+HTML;
+
+            $subject = "Training overdue: {$asg['title']}";
+            $body    = emailShell('Security Training Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'awareness_training_overdue', $email, $userName, $subject, $body,
+                ['assignment' => $asg, 'daysOverdue' => $daysOverdue, 'dueDate' => $dueDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'awareness_training_overdue', 'awareness_assignment', (int) $asg['assignment_id']);
+                $sentAwarenessOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[awareness_training_overdue] ERROR: " . $e->getMessage() . "\n");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1840,6 +1916,7 @@ if (!empty($digestQueue)) {
         'bcp_exercise_overdue'       => 'BCP Exercises Overdue',
         'bcp_plan_review_due'        => 'BCP Plans Due for Testing',
         'poam_item_overdue'          => 'POA&M Items Overdue',
+        'awareness_training_overdue' => 'Security Training Overdue',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -1974,4 +2051,4 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentEvidenceExpiry} evidence expiry, {$sentAcceptExpiring} acceptance expiry, "
    . "{$sentKriBreach} KRI breaches, {$sentSlaBreach} SLA breaches, "
    . "{$sentBcpExerciseOverdue} BCP exercises overdue, {$sentBcpPlanReviewDue} BCP plans due, "
-   . "{$sentPoamOverdue} POA&M overdue, {$sentDigests} digest(s) sent\n";
+   . "{$sentPoamOverdue} POA&M overdue, {$sentAwarenessOverdue} training overdue, {$sentDigests} digest(s) sent\n";
