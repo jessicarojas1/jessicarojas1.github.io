@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import csv
+import io
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import (
@@ -88,6 +90,79 @@ def list_ncrs(
     stmt = apply_sort(stmt, Nonconformance, sort)
     items, total = paginate(db, stmt, Nonconformance, pagination)
     return Page[NonconformanceList](items=items, **page_meta(total, pagination))
+
+
+@router.get("/export.csv")
+def export_ncrs_csv(
+    request: Request,
+    db: Session = Depends(get_db),
+    status_filter: NcStatus | None = Query(None, alias="status"),
+    severity: NcSeverity | None = Query(None),
+    supplier_id: int | None = Query(None),
+    search: str | None = Query(None, description="Match NCR number or title"),
+    actor: CurrentUser = Depends(require_page("nonconformances", "view")),
+) -> Response:
+    """Stream the filtered NCR list as a CSV attachment (max 50,000 rows)."""
+    stmt = base_select(Nonconformance)
+    if status_filter:
+        stmt = stmt.where(Nonconformance.status == status_filter)
+    if severity:
+        stmt = stmt.where(Nonconformance.severity == severity)
+    if supplier_id:
+        stmt = stmt.where(Nonconformance.supplier_id == supplier_id)
+    if search:
+        like = f"%{search}%"
+        stmt = stmt.where(Nonconformance.ncr_number.ilike(like) | Nonconformance.title.ilike(like))
+    stmt = stmt.order_by(Nonconformance.id.desc()).limit(50_000)
+    rows = db.execute(stmt).scalars().all()
+
+    columns = [
+        "ncr_number",
+        "title",
+        "status",
+        "severity",
+        "source",
+        "part_number",
+        "detected_at",
+        "created_at",
+        "closed_at",
+        "assigned_to",
+    ]
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(columns)
+    for ncr in rows:
+        writer.writerow(
+            [
+                ncr.ncr_number,
+                ncr.title,
+                ncr.status.value if ncr.status else "",
+                ncr.severity.value if ncr.severity else "",
+                ncr.source or "",
+                ncr.part_number or "",
+                ncr.detected_at.isoformat() if ncr.detected_at else "",
+                ncr.created_at.isoformat() if ncr.created_at else "",
+                ncr.closed_at.isoformat() if ncr.closed_at else "",
+                ncr.assigned_to if ncr.assigned_to is not None else "",
+            ]
+        )
+
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="export",
+        entity_type=ENTITY,
+        after={"count": len(rows), "format": "csv"},
+        **request_context(request),
+    )
+    db.commit()
+
+    return Response(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="nonconformances.csv"'},
+    )
 
 
 @router.post("", response_model=NonconformanceRead, status_code=status.HTTP_201_CREATED)

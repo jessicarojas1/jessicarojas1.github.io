@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import csv
+import io
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import (
@@ -110,6 +112,83 @@ def list_capas(
     stmt = apply_sort(stmt, Capa, sort)
     items, total = paginate(db, stmt, Capa, pagination)
     return Page[CapaList](items=items, **page_meta(total, pagination))
+
+
+@router.get("/export.csv")
+def export_capas_csv(
+    request: Request,
+    db: Session = Depends(get_db),
+    status_filter: CapaStatus | None = Query(None, alias="status"),
+    owner_id: int | None = Query(None),
+    overdue: bool | None = Query(None),
+    search: str | None = Query(None),
+    actor: CurrentUser = Depends(require_page("capa", "view")),
+) -> Response:
+    """Stream the filtered CAPA list as a CSV attachment (max 50,000 rows)."""
+    stmt = base_select(Capa)
+    if status_filter:
+        stmt = stmt.where(Capa.status == status_filter)
+    if owner_id:
+        stmt = stmt.where(Capa.owner_id == owner_id)
+    if overdue:
+        from datetime import date
+
+        stmt = stmt.where(
+            Capa.due_date.is_not(None),
+            Capa.due_date < date.today(),
+            Capa.status.in_(OPEN_STATES),
+        )
+    if search:
+        like = f"%{search}%"
+        stmt = stmt.where(Capa.capa_number.ilike(like) | Capa.title.ilike(like))
+    stmt = stmt.order_by(Capa.id.desc()).limit(50_000)
+    rows = db.execute(stmt).scalars().all()
+
+    columns = [
+        "capa_number",
+        "title",
+        "capa_type",
+        "status",
+        "owner_id",
+        "root_cause_method",
+        "due_date",
+        "created_at",
+        "closed_at",
+    ]
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(columns)
+    for capa in rows:
+        writer.writerow(
+            [
+                capa.capa_number,
+                capa.title,
+                capa.capa_type.value if capa.capa_type else "",
+                capa.status.value if capa.status else "",
+                capa.owner_id if capa.owner_id is not None else "",
+                capa.root_cause_method or "",
+                capa.due_date.isoformat() if capa.due_date else "",
+                capa.created_at.isoformat() if capa.created_at else "",
+                capa.closed_at.isoformat() if capa.closed_at else "",
+            ]
+        )
+
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="export",
+        entity_type=ENTITY,
+        after={"count": len(rows), "format": "csv"},
+        **request_context(request),
+    )
+    db.commit()
+
+    return Response(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="capas.csv"'},
+    )
 
 
 @router.post("", response_model=CapaRead, status_code=status.HTTP_201_CREATED)
