@@ -64,6 +64,18 @@
     { eco: 'npm', name: 'ws', id: 'CVE-2024-37890', sev: 'high', cwe: 'CWE-1333', ranges: [{ fixed: '8.17.1' }], summary: 'ReDoS via crafted headers (ws <8.17.1).' },
     { eco: 'npm', name: 'jsonwebtoken', id: 'CVE-2022-23529', sev: 'high', cwe: 'CWE-327', ranges: [{ fixed: '9.0.0' }], summary: 'Insecure verification allowing key confusion (jsonwebtoken <9.0.0).' },
     { eco: 'npm', name: 'node-fetch', id: 'CVE-2022-0235', sev: 'medium', cwe: 'CWE-200', ranges: [{ fixed: '2.6.7' }], summary: 'Credential/cookie leak to third-party on redirect (node-fetch <2.6.7).' },
+    { eco: 'npm', name: 'handlebars', id: 'CVE-2019-19919', sev: 'critical', cwe: 'CWE-1321', ranges: [{ fixed: '4.5.3' }], summary: 'Prototype pollution in the compiler leading to RCE (handlebars <4.5.3).' },
+    { eco: 'npm', name: 'handlebars', id: 'CVE-2021-23369', sev: 'critical', cwe: 'CWE-94', ranges: [{ fixed: '4.7.7' }], summary: 'Remote code execution via compile() when strict mode is not enforced (handlebars <4.7.7).' },
+    { eco: 'npm', name: 'ejs', id: 'CVE-2022-29078', sev: 'critical', cwe: 'CWE-94', ranges: [{ fixed: '3.1.7' }], summary: 'Server-side template injection leading to RCE via settings/outputFunctionName (ejs <3.1.7).' },
+    { eco: 'npm', name: 'marked', id: 'CVE-2022-21680', sev: 'high', cwe: 'CWE-1333', ranges: [{ fixed: '4.0.10' }], summary: 'ReDoS via crafted Markdown input (marked <4.0.10).' },
+    { eco: 'npm', name: 'trim-newlines', id: 'CVE-2021-33623', sev: 'high', cwe: 'CWE-1333', ranges: [{ fixed: '3.0.1' }], summary: 'ReDoS in the trailing-newline regex (trim-newlines <3.0.1).' },
+    { eco: 'npm', name: 'set-value', id: 'CVE-2021-23440', sev: 'critical', cwe: 'CWE-1321', ranges: [{ fixed: '4.0.1' }], summary: 'Prototype pollution via the set() path parser (set-value <4.0.1).' },
+    { eco: 'npm', name: 'mixin-deep', id: 'CVE-2019-10746', sev: 'critical', cwe: 'CWE-1321', ranges: [{ fixed: '1.3.2' }], summary: 'Prototype pollution via mixin-deep merge (mixin-deep <1.3.2).' },
+    { eco: 'npm', name: 'shelljs', id: 'CVE-2022-0144', sev: 'high', cwe: 'CWE-269', ranges: [{ fixed: '0.8.5' }], summary: 'Improper privilege management lets a local file overwrite escalate to RCE (shelljs <0.8.5).' },
+    { eco: 'npm', name: 'vm2', id: 'CVE-2023-37466', sev: 'critical', cwe: 'CWE-94', ranges: [{ fixed: '3.9.18' }], summary: 'Sandbox escape via Promise handler manipulation leading to RCE (vm2 <3.9.18).' },
+    { eco: 'npm', name: 'vm2', id: 'CVE-2023-37903', sev: 'critical', cwe: 'CWE-94', ranges: [{ fixed: '3.9.18' }], summary: 'Sandbox escape via Error/stack-trace prep manipulation leading to RCE (vm2 <3.9.18).' },
+    { eco: 'npm', name: 'json-schema', id: 'CVE-2021-3918', sev: 'critical', cwe: 'CWE-1321', ranges: [{ fixed: '0.4.0' }], summary: 'Prototype pollution via the validate() function (json-schema <0.4.0).' },
+    { eco: 'npm', name: 'ansi-regex', id: 'CVE-2021-3807', sev: 'high', cwe: 'CWE-1333', ranges: [{ fixed: '5.0.1' }, { introduced: '6.0.0', fixed: '6.0.1' }], summary: 'ReDoS via crafted ANSI escape sequences (ansi-regex <5.0.1 / <6.0.1).' },
     // ---- PyPI ----
     { eco: 'pypi', name: 'pyyaml', id: 'CVE-2020-14343', sev: 'critical', cwe: 'CWE-20', ranges: [{ fixed: '5.4' }], summary: 'Arbitrary code execution via unsafe full_load (PyYAML <5.4).' },
     { eco: 'pypi', name: 'requests', id: 'CVE-2023-32681', sev: 'medium', cwe: 'CWE-200', ranges: [{ fixed: '2.31.0' }], summary: 'Proxy-Authorization leaked over HTTP redirect (requests <2.31.0).' },
@@ -72,16 +84,24 @@
     { eco: 'pypi', name: 'cryptography', id: 'CVE-2023-50782', sev: 'high', cwe: 'CWE-208', ranges: [{ fixed: '42.0.0' }], summary: 'Bleichenbacher timing oracle in RSA decryption (cryptography <42.0.0).' },
     { eco: 'pypi', name: 'flask', id: 'CVE-2023-30861', sev: 'high', cwe: 'CWE-525', ranges: [{ fixed: '2.2.5' }], summary: 'Cached response may leak session cookie to other clients (Flask <2.2.5).' },
     { eco: 'pypi', name: 'django', id: 'CVE-2022-28346', sev: 'high', cwe: 'CWE-89', ranges: [{ fixed: '3.2.13' }], summary: 'SQL injection via QuerySet.annotate/aggregate (Django <3.2.13).' },
+    { eco: 'pypi', name: 'django', id: 'CVE-2024-27351', sev: 'high', cwe: 'CWE-1333', ranges: [{ introduced: '4.2.0', fixed: '4.2.10' }, { introduced: '5.0.0', fixed: '5.0.2' }], summary: 'ReDoS in django.utils.text.Truncator (Django <4.2.10 / <5.0.2).' },
+    { eco: 'pypi', name: 'pillow', id: 'CVE-2022-22817', sev: 'critical', cwe: 'CWE-94', ranges: [{ fixed: '9.0.0' }], summary: 'Arbitrary code execution via ImageMath.eval (Pillow <9.0.0).' },
+    { eco: 'pypi', name: 'pillow', id: 'CVE-2023-50447', sev: 'critical', cwe: 'CWE-94', ranges: [{ fixed: '10.2.0' }], summary: 'Arbitrary code execution via ImageMath.eval environment escape (Pillow <10.2.0).' },
+    { eco: 'pypi', name: 'pyjwt', id: 'CVE-2022-29217', sev: 'high', cwe: 'CWE-347', ranges: [{ fixed: '2.4.0' }], summary: 'Algorithm/key confusion allows JWT signature forgery (PyJWT <2.4.0).' },
     // ---- Maven (groupId:artifactId) ----
     { eco: 'maven', name: 'org.apache.logging.log4j:log4j-core', id: 'CVE-2021-44228', sev: 'critical', cwe: 'CWE-502', ranges: [{ introduced: '2.0.0', fixed: '2.17.1' }], summary: 'Log4Shell — JNDI lookup remote code execution (log4j-core 2.0–2.17.0).' },
     { eco: 'maven', name: 'org.apache.commons:commons-text', id: 'CVE-2022-42889', sev: 'critical', cwe: 'CWE-94', ranges: [{ introduced: '1.5.0', fixed: '1.10.0' }], summary: 'Text4Shell — code execution via string interpolation (commons-text 1.5–1.9).' },
     { eco: 'maven', name: 'org.yaml:snakeyaml', id: 'CVE-2022-1471', sev: 'high', cwe: 'CWE-502', ranges: [{ fixed: '2.0' }], summary: 'Unsafe deserialization to RCE via Constructor (snakeyaml <2.0).' },
     { eco: 'maven', name: 'com.fasterxml.jackson.core:jackson-databind', id: 'CVE-2020-36518', sev: 'high', cwe: 'CWE-787', ranges: [{ fixed: '2.13.2.1', introduced: '2.0.0' }], summary: 'Deeply nested JSON causes stack overflow DoS (jackson-databind <2.13.2.1).' },
+    { eco: 'maven', name: 'org.springframework:spring-webmvc', id: 'CVE-2022-22965', sev: 'critical', cwe: 'CWE-94', ranges: [{ introduced: '5.3.0', fixed: '5.3.18' }, { introduced: '5.2.0', fixed: '5.2.20' }], summary: 'Spring4Shell — remote code execution via class-loader property binding on JDK 9+ (spring-webmvc <5.3.18 / <5.2.20).' },
+    { eco: 'maven', name: 'com.h2database:h2', id: 'CVE-2021-42392', sev: 'critical', cwe: 'CWE-502', ranges: [{ fixed: '2.0.206' }], summary: 'Remote code execution via unauthenticated JNDI lookup in the H2 console/JdbcUtils (h2 <2.0.206).' },
     // ---- Packagist ----
     { eco: 'composer', name: 'guzzlehttp/guzzle', id: 'CVE-2022-31090', sev: 'medium', cwe: 'CWE-200', ranges: [{ introduced: '7.0.0', fixed: '7.4.5' }], summary: 'Curl cross-host Authorization header leak (guzzle <7.4.5).' },
     // ---- RubyGems ----
     { eco: 'gem', name: 'nokogiri', id: 'CVE-2022-24836', sev: 'high', cwe: 'CWE-1333', ranges: [{ fixed: '1.13.4' }], summary: 'ReDoS in HTML/XML parsing (nokogiri <1.13.4).' },
-    { eco: 'gem', name: 'rack', id: 'CVE-2022-44570', sev: 'high', cwe: 'CWE-1333', ranges: [{ fixed: '2.2.6.1' }], summary: 'ReDoS in Range header parsing (rack <2.2.6.1).' }
+    { eco: 'gem', name: 'rack', id: 'CVE-2022-44570', sev: 'high', cwe: 'CWE-1333', ranges: [{ fixed: '2.2.6.1' }], summary: 'ReDoS in Range header parsing (rack <2.2.6.1).' },
+    // ---- Go ----
+    { eco: 'golang', name: 'golang.org/x/text', id: 'CVE-2022-32149', sev: 'high', cwe: 'CWE-400', ranges: [{ fixed: '0.3.8' }], summary: 'Denial of service via excessive resource consumption parsing a malformed language tag (golang.org/x/text <0.3.8).' }
   ];
 
   // Index by eco+lowercased name for fast lookup, plus a maven artifact-suffix
