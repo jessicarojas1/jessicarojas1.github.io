@@ -154,31 +154,9 @@ function runMigrations(PDO $pdo): void {
     )");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_email_queue_due ON aegis.email_queue (status, next_attempt_at)");
 
-    // ── Finding ↔ Risk traceability (Phase 2: link audit findings to risks) ──
-    $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.finding_risk_links (
-        id                SERIAL PRIMARY KEY,
-        finding_id        INTEGER NOT NULL REFERENCES aegis.audit_findings(id) ON DELETE CASCADE,
-        risk_id           INTEGER NOT NULL REFERENCES aegis.risks(id) ON DELETE CASCADE,
-        relationship_type VARCHAR(30) NOT NULL DEFAULT 'related',
-        notes             TEXT,
-        created_by        INTEGER REFERENCES aegis.users(id),
-        created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
-        tenant_id         BIGINT NOT NULL DEFAULT 1,
-        UNIQUE (finding_id, risk_id)
-    )");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_frl_finding ON aegis.finding_risk_links (finding_id)");
-    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_frl_risk ON aegis.finding_risk_links (risk_id)");
-    // Tenant isolation (permissive when the GUC is unset), matching migration 029.
-    $pdo->exec("ALTER TABLE aegis.finding_risk_links ENABLE ROW LEVEL SECURITY");
-    $pdo->exec("ALTER TABLE aegis.finding_risk_links FORCE ROW LEVEL SECURITY");
-    $pdo->exec("DROP POLICY IF EXISTS tenant_isolation ON aegis.finding_risk_links");
-    $pdo->exec("CREATE POLICY tenant_isolation ON aegis.finding_risk_links
-        USING (
-            NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
-            OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)
-        WITH CHECK (
-            NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
-            OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)");
+    // Note: finding_risk_links (Phase 2 traceability) is created by migration
+    // 033 below — it depends on audit_findings (migration 016) and so must run
+    // after the migration-file loop, not inline here.
 
     // ── Incidents ────────────────────────────────────────────────────────────
     $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.incidents (
@@ -363,6 +341,7 @@ function runMigrations(PDO $pdo): void {
         '030_php_sessions.sql',
         '031_platform_admin.sql',
         '032_remove_modules.sql',
+        '033_finding_risk_links.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;
