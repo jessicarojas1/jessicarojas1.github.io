@@ -174,11 +174,13 @@ class IssueController {
         $dueDate               = Security::sanitizeInput($_POST['due_date']                ?? '');
         $resolution            = Security::sanitizeInput($_POST['resolution']              ?? '');
         $recurrencePrevention  = Security::sanitizeInput($_POST['recurrence_prevention']   ?? '');
+        $rootCause             = Security::sanitizeInput($_POST['root_cause']              ?? '');
+        $preventiveAction      = Security::sanitizeInput($_POST['preventive_action']       ?? '');
 
         if (!in_array($severity, ['critical', 'high', 'medium', 'low'])) {
             $severity = 'medium';
         }
-        if (!in_array($status, ['open', 'in_progress', 'pending_review', 'resolved', 'closed', 'wont_fix'])) {
+        if (!in_array($status, ['open', 'in_progress', 'pending_review', 'resolved', 'closed', 'wont_fix', 'reopened'])) {
             $status = 'open';
         }
 
@@ -191,6 +193,8 @@ class IssueController {
             'due_date'              => $dueDate ?: null,
             'resolution'            => $resolution ?: null,
             'recurrence_prevention' => $recurrencePrevention ?: null,
+            'root_cause'            => $rootCause ?: null,
+            'preventive_action'     => $preventiveAction ?: null,
         ];
 
         if ($status === 'resolved') {
@@ -202,6 +206,37 @@ class IssueController {
         Auth::log('update_issue', 'issues', $id, ['status' => $status, 'severity' => $severity]);
 
         $_SESSION['flash_success'] = 'Issue updated successfully.';
+        header('Location: /issue/' . $id);
+    }
+
+    /** Reopen a resolved/closed issue (CAPA reopen workflow). */
+    public function reopen(string $id): void {
+        Auth::requirePermission('issue.edit');
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            return;
+        }
+
+        $id  = (int)$id;
+        $rec = Database::fetchOne("SELECT status FROM issues WHERE id = ?", [$id]);
+        if (!$rec) { $_SESSION['flash_error'] = 'Issue not found.'; header('Location: /issue'); return; }
+        if (!in_array($rec['status'], ['resolved', 'closed', 'wont_fix'], true)) {
+            $_SESSION['flash_error'] = 'Only resolved or closed issues can be reopened.';
+            header('Location: /issue/' . $id); return;
+        }
+
+        $reason = Security::sanitizeInput($_POST['reopen_reason'] ?? '');
+        Database::update('issues', ['status' => 'reopened', 'resolved_at' => null], 'id = ?', [$id]);
+        Database::insert('issue_updates', [
+            'issue_id' => $id,
+            'user_id'  => Auth::id(),
+            'content'  => 'Issue reopened.' . ($reason !== '' ? ' Reason: ' . $reason : ''),
+        ]);
+
+        Auth::log('reopen_issue', 'issues', $id, ['from_status' => $rec['status'], 'reason' => $reason]);
+
+        $_SESSION['flash_success'] = 'Issue reopened.';
         header('Location: /issue/' . $id);
     }
 

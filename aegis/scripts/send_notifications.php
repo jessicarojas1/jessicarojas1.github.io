@@ -192,6 +192,7 @@ function maybeSendOrQueue(
 // ── Counters ──────────────────────────────────────────────────────────────────
 $sentOverdue         = 0;
 $sentPolicy          = 0;
+$sentPolicyExpiry    = 0;
 $sentApprovals       = 0;
 $sentRisks           = 0;
 $sentIncidents       = 0;
@@ -362,6 +363,79 @@ HTML;
     }
 } catch (\Throwable $e) {
     fwrite(STDERR, "[policy_review_due] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2b. POLICY EXPIRING (hard expiry date, distinct from review cadence)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $policyExpRows = Database::fetchAll(
+        "SELECT p.id, p.title, p.expires_at,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM policies p
+         JOIN users u ON u.id = p.owner_id
+         WHERE p.status = 'published'
+           AND p.expires_at IS NOT NULL
+           AND p.expires_at BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $policyExpByUser = [];
+    foreach ($policyExpRows as $row) {
+        $policyExpByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($policyExpByUser as $userId => $policies) {
+        if (!notifEnabled((int) $userId, 'policy_expiring')) {
+            continue;
+        }
+        $email    = $policies[0]['email'];
+        $userName = $policies[0]['user_name'];
+
+        foreach ($policies as $policy) {
+            // Throttle: one reminder per policy per 7 days.
+            if (alreadyNotified((int) $userId, 'policy_expiring', 'policy', (int) $policy['id'], 604800)) {
+                continue;
+            }
+
+            $expDate   = date('M j, Y', strtotime($policy['expires_at']));
+            $daysLeft  = (int) ceil((strtotime($policy['expires_at']) - time()) / 86400);
+            $urgency   = $daysLeft <= 1
+                ? '<span style="color:#ef4444;font-weight:600">expires today</span>'
+                : "<span style=\"color:#f59e0b;font-weight:600\">expires in {$daysLeft} days ({$expDate})</span>";
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>The following policy {$urgency} and may need renewal or formal retirement:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Policy</th>
+    <th style="padding:8px;text-align:left">Expiry Date</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$policy['title']}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$expDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to renew, supersede, or retire this policy.</p>
+HTML;
+
+            $subject = "Policy expiring: {$policy['title']}";
+            $body    = emailShell('Policy Expiry Reminder', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'policy_expiring', $email, $userName, $subject, $body,
+                ['policy' => $policy, 'daysLeft' => $daysLeft, 'expDate' => $expDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'policy_expiring', 'policy', (int) $policy['id']);
+                $sentPolicyExpiry++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[policy_expiring] ERROR: " . $e->getMessage() . "\n");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1392,7 +1466,7 @@ HTML;
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 $timestamp = date('Y-m-d H:i:s');
-echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} reviews, "
+echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} reviews, {$sentPolicyExpiry} policy expiry, "
    . "{$sentApprovals} approvals, {$sentRisks} risk assignments, {$sentIncidents} aging incidents, "
    . "{$sentRiskReview} risk reviews, {$sentTreatment} treatments, {$sentScoreWorsened} score alerts, "
    . "{$sentVendorAssess} vendor assessments, {$sentDocExpiring} doc expiry, {$sentAssessStale} stale assessments, "

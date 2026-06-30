@@ -20,6 +20,12 @@ ob_start();
   <div class="page-actions">
     <?php if (Auth::can('issue.edit')): ?>
       <button data-show-modal="editModal" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
+      <?php if (in_array($issue['status'], ['resolved','closed','wont_fix'], true)): ?>
+        <form method="post" action="/issue/<?= (int)$issue['id'] ?>/reopen" style="margin:0" data-confirm="Reopen this issue?">
+          <?= Security::csrfField() ?>
+          <button type="submit" class="btn btn-warning"><i class="bi bi-arrow-counterclockwise"></i> Reopen</button>
+        </form>
+      <?php endif; ?>
     <?php endif; ?>
   </div>
 </div>
@@ -34,10 +40,24 @@ ob_start();
     </div>
     <?php endif; ?>
 
+    <?php if (!empty($issue['root_cause'])): ?>
+    <div class="card">
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-diagram-3" style="color:var(--warning)"></i><span class="card-title">Root Cause</span></div></div>
+      <div class="card-body"><p style="white-space:pre-wrap;margin:0"><?= Security::h($issue['root_cause']) ?></p></div>
+    </div>
+    <?php endif; ?>
+
     <?php if ($issue['resolution']): ?>
     <div class="card">
-      <div class="card-header"><div class="card-header-left"><i class="bi bi-check-circle" style="color:var(--success)"></i><span class="card-title">Resolution</span></div></div>
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-check-circle" style="color:var(--success)"></i><span class="card-title">Corrective Action</span></div></div>
       <div class="card-body"><p style="white-space:pre-wrap;margin:0"><?= Security::h($issue['resolution']) ?></p></div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (!empty($issue['preventive_action'])): ?>
+    <div class="card">
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-shield-plus" style="color:var(--info)"></i><span class="card-title">Preventive Action</span></div></div>
+      <div class="card-body"><p style="white-space:pre-wrap;margin:0"><?= Security::h($issue['preventive_action']) ?></p></div>
     </div>
     <?php endif; ?>
 
@@ -171,7 +191,9 @@ ob_start();
           </div>
         </div>
         <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3"><?= Security::h($issue['description'] ?? '') ?></textarea></div>
-        <div class="form-group"><label class="form-label">Resolution</label><textarea name="resolution" class="form-control" rows="2"><?= Security::h($issue['resolution'] ?? '') ?></textarea></div>
+        <div class="form-group"><label class="form-label">Root Cause</label><textarea name="root_cause" class="form-control" rows="2" placeholder="Underlying cause identified through analysis..."><?= Security::h($issue['root_cause'] ?? '') ?></textarea></div>
+        <div class="form-group"><label class="form-label">Corrective Action (Resolution)</label><textarea name="resolution" class="form-control" rows="2"><?= Security::h($issue['resolution'] ?? '') ?></textarea></div>
+        <div class="form-group"><label class="form-label">Preventive Action</label><textarea name="preventive_action" class="form-control" rows="2" placeholder="Action to prevent recurrence elsewhere..."><?= Security::h($issue['preventive_action'] ?? '') ?></textarea></div>
         <div class="form-group"><label class="form-label">Recurrence Prevention</label><textarea name="recurrence_prevention" class="form-control" rows="2"><?= Security::h($issue['recurrence_prevention'] ?? '') ?></textarea></div>
         <div class="modal-footer">
           <button type="button" data-close-modal="editModal" class="btn btn-secondary">Cancel</button>

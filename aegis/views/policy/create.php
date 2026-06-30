@@ -58,6 +58,10 @@ ob_start();
           <label class="form-label">Next Review Date</label>
           <input type="date" name="next_review_date" class="form-control" value="<?= Security::h($policy['next_review_date'] ?? '') ?>">
         </div>
+        <div class="form-group">
+          <label class="form-label">Expiry Date <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+          <input type="date" name="expires_at" class="form-control" value="<?= Security::h($policy['expires_at'] ?? '') ?>">
+        </div>
       </div>
 
       <div class="form-row">

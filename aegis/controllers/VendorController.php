@@ -166,6 +166,15 @@ class VendorController {
             [$id]
         );
 
+        $certifications = Database::fetchAll(
+            "SELECT vc.*, u.name AS owner_name
+             FROM vendor_certifications vc
+             LEFT JOIN users u ON u.id = vc.owner_id
+             WHERE vc.vendor_id = ?
+             ORDER BY vc.expiry_date ASC NULLS LAST, vc.created_at DESC",
+            [$id]
+        );
+
         $users = Database::fetchAll(
             "SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name"
         );
@@ -287,6 +296,79 @@ class VendorController {
 
         $_SESSION['flash_success'] = 'Assessment scheduled successfully.';
         header('Location: /vendor/' . $vendorId . '?assess_added=1');
+    }
+
+    // ----------------------------------------------------- addCertification
+    public function addCertification(string $id): void {
+        Auth::requirePermission('vendor.edit');
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            return;
+        }
+
+        $vendorId = (int)$id;
+        $vendor = Database::fetchOne("SELECT id FROM vendors WHERE id = ?", [$vendorId]);
+        if (!$vendor) { http_response_code(404); return; }
+
+        $certType = Security::sanitizeInput($_POST['certification_type'] ?? '');
+        if ($certType === '') {
+            $_SESSION['flash_error'] = 'Certification type is required.';
+            header('Location: /vendor/' . $vendorId); return;
+        }
+
+        $validStatuses = ['active', 'expired', 'revoked', 'pending'];
+        $status = Security::sanitizeInput($_POST['status'] ?? 'active');
+        if (!in_array($status, $validStatuses, true)) { $status = 'active'; }
+
+        $issued = Security::sanitizeInput($_POST['issued_date'] ?? '');
+        $expiry = Security::sanitizeInput($_POST['expiry_date'] ?? '');
+
+        $certId = Database::insert('vendor_certifications', [
+            'vendor_id'          => $vendorId,
+            'certification_type' => $certType,
+            'certificate_number' => Security::sanitizeInput($_POST['certificate_number'] ?? '') ?: null,
+            'issuer'             => Security::sanitizeInput($_POST['issuer'] ?? '') ?: null,
+            'issued_date'        => $issued ?: null,
+            'expiry_date'        => $expiry ?: null,
+            'status'             => $status,
+            'notes'              => Security::sanitizeInput($_POST['notes'] ?? '') ?: null,
+            'owner_id'           => !empty($_POST['owner_id']) ? (int)$_POST['owner_id'] : null,
+            'created_by'         => Auth::id(),
+        ]);
+
+        Auth::log('create_vendor_certification', 'vendor_certifications', $certId, [
+            'vendor_id'          => $vendorId,
+            'certification_type' => $certType,
+        ]);
+
+        $_SESSION['flash_success'] = 'Certification added.';
+        header('Location: /vendor/' . $vendorId . '?cert_added=1');
+    }
+
+    // -------------------------------------------------- deleteCertification
+    public function deleteCertification(string $vendorId, string $certId): void {
+        Auth::requirePermission('vendor.edit');
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            return;
+        }
+
+        $vendorId = (int)$vendorId;
+        $certId   = (int)$certId;
+
+        $cert = Database::fetchOne(
+            "SELECT id FROM vendor_certifications WHERE id = ? AND vendor_id = ?",
+            [$certId, $vendorId]
+        );
+        if (!$cert) { $_SESSION['flash_error'] = 'Certification not found.'; header('Location: /vendor/' . $vendorId); return; }
+
+        Database::query("DELETE FROM vendor_certifications WHERE id = ?", [$certId]);
+        Auth::log('delete_vendor_certification', 'vendor_certifications', $certId, ['vendor_id' => $vendorId]);
+
+        $_SESSION['flash_success'] = 'Certification removed.';
+        header('Location: /vendor/' . $vendorId);
     }
 
     // ------------------------------------------- generatePortalLink

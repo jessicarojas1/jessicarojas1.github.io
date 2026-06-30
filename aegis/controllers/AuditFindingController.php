@@ -4,7 +4,7 @@ declare(strict_types=1);
 class AuditFindingController {
 
     private const VALID_SEVERITIES = ['critical', 'high', 'medium', 'low', 'info'];
-    private const VALID_STATUSES   = ['open', 'in_progress', 'resolved', 'risk_accepted', 'closed'];
+    private const VALID_STATUSES   = ['open', 'in_progress', 'resolved', 'risk_accepted', 'closed', 'reopened'];
     private const VALID_SOURCES    = ['external_audit', 'pentest', 'certification', 'assessment', 'regulatory', 'other'];
 
     public function index(): void {
@@ -222,6 +222,8 @@ class AuditFindingController {
         $ownerId     = !empty($_POST['owner_id'])   ? (int)$_POST['owner_id']   : null;
         $packageId   = !empty($_POST['package_id']) ? (int)$_POST['package_id'] : null;
         $objectiveId = !empty($_POST['objective_id']) ? (int)$_POST['objective_id'] : null;
+        $rootCause        = Security::sanitizeInput($_POST['root_cause']        ?? '');
+        $preventiveAction = Security::sanitizeInput($_POST['preventive_action'] ?? '');
 
         if (!in_array($severity, self::VALID_SEVERITIES, true)) {
             $severity = 'medium';
@@ -247,6 +249,8 @@ class AuditFindingController {
             'owner_id'       => $ownerId,
             'package_id'     => $packageId,
             'objective_id'   => $objectiveId,
+            'root_cause'        => $rootCause ?: null,
+            'preventive_action' => $preventiveAction ?: null,
         ];
 
         if ($status === 'closed') {
@@ -258,6 +262,40 @@ class AuditFindingController {
         Auth::log('updated', 'audit_findings', $id, ['status' => $status, 'severity' => $severity]);
 
         $_SESSION['flash_success'] = 'Finding updated successfully.';
+        header('Location: /audit-findings/' . $id);
+    }
+
+    /** Reopen a closed/resolved finding (CAPA reopen workflow). */
+    public function reopen(string $id): void {
+        Auth::requirePermission('audit.findings');
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            return;
+        }
+
+        $id  = (int)$id;
+        $rec = Database::fetchOne("SELECT status FROM audit_findings WHERE id = ?", [$id]);
+        if (!$rec) { $_SESSION['flash_error'] = 'Finding not found.'; header('Location: /audit-findings'); return; }
+        if (!in_array($rec['status'], ['resolved', 'closed', 'risk_accepted'], true)) {
+            $_SESSION['flash_error'] = 'Only resolved, closed, or risk-accepted findings can be reopened.';
+            header('Location: /audit-findings/' . $id); return;
+        }
+
+        $reason = Security::sanitizeInput($_POST['reopen_reason'] ?? '');
+        Database::query(
+            "UPDATE audit_findings SET status = 'reopened', closed_at = NULL, updated_at = NOW() WHERE id = ?",
+            [$id]
+        );
+        Database::insert('finding_updates', [
+            'finding_id' => $id,
+            'user_id'    => Auth::id(),
+            'content'    => 'Finding reopened.' . ($reason !== '' ? ' Reason: ' . $reason : ''),
+        ]);
+
+        Auth::log('reopened', 'audit_findings', $id, ['from_status' => $rec['status'], 'reason' => $reason]);
+
+        $_SESSION['flash_success'] = 'Finding reopened.';
         header('Location: /audit-findings/' . $id);
     }
 

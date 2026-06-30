@@ -472,7 +472,9 @@ CREATE TABLE IF NOT EXISTS aegis.audit_findings (
     created_by integer,
     created_at timestamp without time zone DEFAULT now(),
     updated_at timestamp without time zone DEFAULT now(),
-    tenant_id bigint DEFAULT 1 NOT NULL
+    tenant_id bigint DEFAULT 1 NOT NULL,
+    root_cause text,
+    preventive_action text
 );
 
 ALTER TABLE ONLY aegis.audit_findings FORCE ROW LEVEL SECURITY;
@@ -2141,8 +2143,10 @@ CREATE TABLE IF NOT EXISTS aegis.issues (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     tenant_id bigint DEFAULT 1 NOT NULL,
+    root_cause text,
+    preventive_action text,
     CONSTRAINT issues_severity_check CHECK (((severity)::text = ANY ((ARRAY['critical'::character varying, 'high'::character varying, 'medium'::character varying, 'low'::character varying])::text[]))),
-    CONSTRAINT issues_status_check CHECK (((status)::text = ANY ((ARRAY['open'::character varying, 'in_progress'::character varying, 'resolved'::character varying, 'closed'::character varying])::text[])))
+    CONSTRAINT issues_status_check CHECK (((status)::text = ANY ((ARRAY['open'::character varying, 'in_progress'::character varying, 'pending_review'::character varying, 'resolved'::character varying, 'closed'::character varying, 'wont_fix'::character varying, 'reopened'::character varying])::text[])))
 );
 
 ALTER TABLE ONLY aegis.issues FORCE ROW LEVEL SECURITY;
@@ -2659,7 +2663,8 @@ CREATE TABLE IF NOT EXISTS aegis.policies (
     published_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    tenant_id bigint DEFAULT 1 NOT NULL
+    tenant_id bigint DEFAULT 1 NOT NULL,
+    expires_at date
 );
 
 ALTER TABLE ONLY aegis.policies FORCE ROW LEVEL SECURITY;
@@ -4772,6 +4777,48 @@ CREATE TABLE IF NOT EXISTS aegis.vendor_contracts (
 );
 
 ALTER TABLE ONLY aegis.vendor_contracts FORCE ROW LEVEL SECURITY;
+
+
+--
+-- Name: vendor_certifications; Type: TABLE; Schema: aegis; Owner: -
+-- Vendor certification tracking (Phase 4). Tenant-isolated via RLS.
+-- vendors/users are defined earlier; the FK is appended at end-of-file.
+--
+
+CREATE TABLE IF NOT EXISTS aegis.vendor_certifications (
+    id integer NOT NULL,
+    vendor_id integer NOT NULL,
+    certification_type character varying(100) NOT NULL,
+    certificate_number character varying(100),
+    issuer character varying(255),
+    issued_date date,
+    expiry_date date,
+    status character varying(20) DEFAULT 'active'::character varying NOT NULL,
+    notes text,
+    owner_id integer,
+    created_by integer,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    tenant_id bigint DEFAULT 1 NOT NULL,
+    CONSTRAINT vendor_certifications_status_check CHECK (((status)::text = ANY ((ARRAY['active'::character varying, 'expired'::character varying, 'revoked'::character varying, 'pending'::character varying])::text[])))
+);
+
+CREATE SEQUENCE IF NOT EXISTS aegis.vendor_certifications_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE aegis.vendor_certifications_id_seq OWNED BY aegis.vendor_certifications.id;
+ALTER TABLE ONLY aegis.vendor_certifications ALTER COLUMN id SET DEFAULT nextval('aegis.vendor_certifications_id_seq'::regclass);
+ALTER TABLE ONLY aegis.vendor_certifications ADD CONSTRAINT vendor_certifications_pkey PRIMARY KEY (id);
+CREATE INDEX IF NOT EXISTS idx_vcert_vendor ON aegis.vendor_certifications USING btree (vendor_id);
+CREATE INDEX IF NOT EXISTS idx_vcert_expiry ON aegis.vendor_certifications USING btree (expiry_date);
+ALTER TABLE aegis.vendor_certifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE aegis.vendor_certifications FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON aegis.vendor_certifications;
+CREATE POLICY tenant_isolation ON aegis.vendor_certifications
+    USING (
+        NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
+        OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)
+    WITH CHECK (
+        NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
+        OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint);
 
 
 --
@@ -11794,3 +11841,10 @@ ALTER TABLE ONLY aegis.finding_risk_links ADD CONSTRAINT finding_risk_links_risk
 --
 ALTER TABLE ONLY aegis.evidence_downloads ADD CONSTRAINT evidence_downloads_evidence_fk FOREIGN KEY (evidence_id) REFERENCES aegis.evidence_files(id) ON DELETE CASCADE;
 ALTER TABLE ONLY aegis.evidence_downloads ADD CONSTRAINT evidence_downloads_user_fk FOREIGN KEY (user_id) REFERENCES aegis.users(id);
+
+--
+-- vendor_certifications foreign keys (placed last: reference vendors/users PKs).
+--
+ALTER TABLE ONLY aegis.vendor_certifications ADD CONSTRAINT vendor_certifications_vendor_fk FOREIGN KEY (vendor_id) REFERENCES aegis.vendors(id) ON DELETE CASCADE;
+ALTER TABLE ONLY aegis.vendor_certifications ADD CONSTRAINT vendor_certifications_owner_fk FOREIGN KEY (owner_id) REFERENCES aegis.users(id);
+ALTER TABLE ONLY aegis.vendor_certifications ADD CONSTRAINT vendor_certifications_createdby_fk FOREIGN KEY (created_by) REFERENCES aegis.users(id);
