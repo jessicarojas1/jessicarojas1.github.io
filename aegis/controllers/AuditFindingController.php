@@ -173,6 +173,24 @@ class AuditFindingController {
 
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
 
+        // Phase 2: risks linked to this finding (traceability) + risks available to link.
+        $linkedRisks = Database::fetchAll(
+            "SELECT frl.id AS link_id, frl.relationship_type,
+                    r.id, r.risk_id AS risk_code, r.title, r.status, r.inherent_score
+             FROM finding_risk_links frl
+             JOIN risks r ON r.id = frl.risk_id
+             WHERE frl.finding_id = ?
+             ORDER BY r.inherent_score DESC NULLS LAST",
+            [$id]
+        );
+        $availableRisks = Database::fetchAll(
+            "SELECT id, risk_id AS risk_code, title FROM risks
+             WHERE id NOT IN (SELECT risk_id FROM finding_risk_links WHERE finding_id = ?)
+             ORDER BY risk_id NULLS LAST, id LIMIT 1000",
+            [$id]
+        );
+        $canLinkRisk = Auth::can('risk.view');
+
         $pageTitle    = 'Finding: ' . $finding['finding_number'];
         $activeModule = 'audit_findings';
         $breadcrumbs  = [['External Audit Findings', '/audit-findings'], [$finding['finding_number'], null]];
@@ -320,5 +338,56 @@ class AuditFindingController {
 
         $_SESSION['flash_success'] = 'Finding deleted.';
         header('Location: /audit-findings');
+    }
+
+    /** Relationship types between a finding and a risk. */
+    private const RISK_REL_TYPES = ['causes', 'indicates', 'mitigated_by', 'related'];
+
+    /** Link a risk to a finding (Phase 2 traceability). */
+    public function linkRisk(string $id): void {
+        Auth::requirePermission('audit.findings');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $id     = (int)$id;
+        $riskId = (int)($_POST['risk_id'] ?? 0);
+        $rel    = in_array($_POST['relationship_type'] ?? '', self::RISK_REL_TYPES, true) ? $_POST['relationship_type'] : 'related';
+        $back   = "/audit-findings/{$id}";
+
+        // Both ends must exist (RLS scopes these to the tenant).
+        $finding = Database::fetchOne("SELECT id FROM audit_findings WHERE id = ?", [$id]);
+        $risk    = Database::fetchOne("SELECT id FROM risks WHERE id = ?", [$riskId]);
+        if (!$finding || !$risk) {
+            $_SESSION['flash_error'] = 'Finding or risk not found.';
+            header("Location: {$back}"); return;
+        }
+        $dup = Database::fetchOne("SELECT id FROM finding_risk_links WHERE finding_id = ? AND risk_id = ?", [$id, $riskId]);
+        if ($dup) {
+            $_SESSION['flash_error'] = 'That risk is already linked to this finding.';
+            header("Location: {$back}"); return;
+        }
+        $linkId = Database::insert('finding_risk_links', [
+            'finding_id'        => $id,
+            'risk_id'           => $riskId,
+            'relationship_type' => $rel,
+            'created_by'        => Auth::id(),
+        ]);
+        Auth::log('link_finding_risk', 'finding_risk_links', $linkId,
+            ['finding_id' => $id, 'risk_id' => $riskId, 'relationship_type' => $rel]);
+        $_SESSION['flash_success'] = 'Risk linked to finding.';
+        header("Location: {$back}");
+    }
+
+    /** Remove a finding↔risk link. */
+    public function unlinkRisk(string $id): void {
+        Auth::requirePermission('audit.findings');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $id     = (int)$id;
+        $linkId = (int)($_POST['link_id'] ?? 0);
+        if ($linkId > 0) {
+            // Scope the delete to this finding (and RLS to the tenant).
+            Database::query("DELETE FROM finding_risk_links WHERE id = ? AND finding_id = ?", [$linkId, $id]);
+            Auth::log('unlink_finding_risk', 'finding_risk_links', $linkId, ['finding_id' => $id]);
+            $_SESSION['flash_success'] = 'Risk unlinked.';
+        }
+        header("Location: /audit-findings/{$id}");
     }
 }

@@ -466,6 +466,25 @@ ob_start();
       <?php endif; ?>
     </div>
 
+    <!-- ── Linked Audit Findings (Phase 2 traceability) ───────────────────── -->
+    <?php if (!empty($linkedFindings)): ?>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="bi bi-clipboard-x-fill"></i> Linked Audit Findings <span class="badge badge-secondary"><?= count($linkedFindings) ?></span></h3>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+        <?php foreach ($linkedFindings as $lf): ?>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm)">
+            <a href="/audit-findings/<?= (int)$lf['id'] ?>" style="font-weight:600;color:var(--primary)"><?= Security::h((string)$lf['finding_number']) ?></a>
+            <span class="badge" style="background:var(--info-subtle);color:var(--moderate);font-size:10px;text-transform:uppercase"><?= Security::h(str_replace('_', ' ', $lf['relationship_type'])) ?></span>
+            <span style="font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1"><?= Security::h((string)$lf['title']) ?></span>
+            <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase"><?= Security::h((string)$lf['status']) ?></span>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
     <!-- ── Response Actions ───────────────────────────────────────────────── -->
     <div class="card">
       <div class="card-header">

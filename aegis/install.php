@@ -154,6 +154,10 @@ function runMigrations(PDO $pdo): void {
     )");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_email_queue_due ON aegis.email_queue (status, next_attempt_at)");
 
+    // Note: finding_risk_links (Phase 2 traceability) is created by migration
+    // 033 below — it depends on audit_findings (migration 016) and so must run
+    // after the migration-file loop, not inline here.
+
     // ── Incidents ────────────────────────────────────────────────────────────
     $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.incidents (
         id               SERIAL PRIMARY KEY,
@@ -337,6 +341,7 @@ function runMigrations(PDO $pdo): void {
         '030_php_sessions.sql',
         '031_platform_admin.sql',
         '032_remove_modules.sql',
+        '033_finding_risk_links.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;

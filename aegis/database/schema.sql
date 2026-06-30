@@ -419,6 +419,11 @@ CREATE TABLE IF NOT EXISTS email_queue (
 );
 CREATE INDEX IF NOT EXISTS idx_email_queue_due ON email_queue (status, next_attempt_at);
 
+-- Finding ↔ Risk traceability (Phase 2) lives in migration
+-- 033_finding_risk_links.sql: it references audit_findings (created by migration
+-- 016, not this bootstrap file), so it is applied by the installer's migration
+-- loop after that dependency exists rather than inline here.
+
 CREATE TABLE IF NOT EXISTS activity_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),

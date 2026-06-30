@@ -4039,6 +4039,33 @@ CREATE INDEX IF NOT EXISTS idx_email_queue_due ON aegis.email_queue USING btree 
 
 
 --
+-- Name: finding_risk_links; Type: TABLE; Schema: aegis; Owner: -
+-- Finding ↔ Risk traceability (Phase 2). Tenant-isolated via RLS (installer).
+--
+
+CREATE TABLE IF NOT EXISTS aegis.finding_risk_links (
+    id integer NOT NULL,
+    finding_id integer NOT NULL,
+    risk_id integer NOT NULL,
+    relationship_type character varying(30) DEFAULT 'related'::character varying NOT NULL,
+    notes text,
+    created_by integer,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    tenant_id bigint DEFAULT 1 NOT NULL
+);
+
+CREATE SEQUENCE IF NOT EXISTS aegis.finding_risk_links_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE aegis.finding_risk_links_id_seq OWNED BY aegis.finding_risk_links.id;
+ALTER TABLE ONLY aegis.finding_risk_links ALTER COLUMN id SET DEFAULT nextval('aegis.finding_risk_links_id_seq'::regclass);
+ALTER TABLE ONLY aegis.finding_risk_links ADD CONSTRAINT finding_risk_links_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY aegis.finding_risk_links ADD CONSTRAINT finding_risk_links_uniq UNIQUE (finding_id, risk_id);
+CREATE INDEX IF NOT EXISTS idx_frl_finding ON aegis.finding_risk_links USING btree (finding_id);
+CREATE INDEX IF NOT EXISTS idx_frl_risk ON aegis.finding_risk_links USING btree (risk_id);
+-- (FK constraints to audit_findings/risks are appended at end-of-file, after
+--  those tables' primary keys are defined — see pg_dump constraint ordering.)
+
+
+--
 -- Name: shared_responsibility; Type: TABLE; Schema: aegis; Owner: -
 --
 
@@ -11714,3 +11741,9 @@ ALTER TABLE aegis.vendors ENABLE ROW LEVEL SECURITY;
 
 \unrestrict 69b5oeru0PkoFR9Em0Wcwon5TaTn0KCUJwAISnf98imOaxV1mApSGq1GhzQDKDF
 
+
+--
+-- finding_risk_links foreign keys (placed last: reference audit_findings/risks PKs).
+--
+ALTER TABLE ONLY aegis.finding_risk_links ADD CONSTRAINT finding_risk_links_finding_fk FOREIGN KEY (finding_id) REFERENCES aegis.audit_findings(id) ON DELETE CASCADE;
+ALTER TABLE ONLY aegis.finding_risk_links ADD CONSTRAINT finding_risk_links_risk_fk FOREIGN KEY (risk_id) REFERENCES aegis.risks(id) ON DELETE CASCADE;
