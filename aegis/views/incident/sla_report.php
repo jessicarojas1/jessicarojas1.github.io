@@ -148,7 +148,12 @@ $sevColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium
               </span>
             </td>
             <td style="padding:10px 14px">
-              <div style="font-weight:600"><?= Security::h($inc['incident_number'] ?? '') ?></div>
+              <div style="font-weight:600">
+                <?= Security::h($inc['incident_number'] ?? '') ?>
+                <?php if (!empty($inc['breach_recorded_at'])): ?>
+                  <span title="SLA breach recorded <?= Security::h(date('M j, Y g:ia', strtotime($inc['breach_recorded_at']))) ?> and the assignee alerted" style="display:inline-block;margin-left:6px;padding:1px 7px;border-radius:12px;font-size:10px;font-weight:700;background:var(--danger-subtle);color:var(--danger)"><i class="bi bi-bell-fill"></i> Breach logged</span>
+                <?php endif; ?>
+              </div>
               <div style="color:var(--text-muted);font-size:12px"><?= Security::h(mb_strimwidth($inc['title'] ?? '', 0, 60, '…')) ?></div>
             </td>
             <td style="padding:10px 14px;text-align:center;color:var(--text-muted)"><?= Security::h($ageStr) ?></td>

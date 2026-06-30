@@ -31,7 +31,7 @@ class ProfileController {
             'new_risk_assigned','open_incident_aging','risk_review_overdue',
             'treatment_due','risk_score_worsened','vendor_assessment_expiring',
             'document_expiring','assessment_pending_stale','evidence_expiring',
-            'risk_acceptance_expiring','kri_breached',
+            'risk_acceptance_expiring','kri_breached','incident_sla_breach',
         ];
         foreach ($types as $type) {
             $enabled = isset($_POST['types'][$type]);

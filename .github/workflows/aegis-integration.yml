@@ -112,6 +112,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/lifecycle_db.php
 
+      - name: Incident SLA breach — predicate, event recording, cascade
+        working-directory: aegis
+        run: php tests/integration/incident_sla_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

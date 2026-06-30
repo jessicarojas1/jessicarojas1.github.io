@@ -205,6 +205,7 @@ $sentAssessStale     = 0;
 $sentEvidenceExpiry  = 0;
 $sentAcceptExpiring  = 0;
 $sentKriBreach       = 0;
+$sentSlaBreach       = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -594,6 +595,104 @@ HTML;
     }
 } catch (\Throwable $e) {
     fwrite(STDERR, "[kri_breached] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2e. INCIDENT SLA BREACH (resolution SLA passed without a 'resolved' event)
+// ═══════════════════════════════════════════════════════════════════════════════
+// The Incident module UI was retired (migration 032) but the SLA report
+// (/incident/sla) is retained. This records a one-time 'breach' SLA event when a
+// still-open incident passes its resolution SLA, and alerts the assignee/reporter
+// — closing the gap where only 'acknowledged' events were ever written.
+try {
+    $slaRows = Database::fetchAll(
+        "SELECT i.id, i.incident_number, i.title, i.severity, i.created_at,
+                isp.resolve_hours,
+                res_evt.occurred_at AS resolved_at,
+                brk_evt.id          AS breach_event_id,
+                COALESCE(i.assigned_to, i.reported_by) AS recipient_id,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM incidents i
+         JOIN incident_sla_policies isp ON isp.severity = i.severity
+         JOIN users u ON u.id = COALESCE(i.assigned_to, i.reported_by)
+         LEFT JOIN incident_sla_events res_evt ON res_evt.incident_id = i.id AND res_evt.event_type = 'resolved'
+         LEFT JOIN incident_sla_events brk_evt ON brk_evt.incident_id = i.id AND brk_evt.event_type = 'breach'
+         WHERE i.status NOT IN ('resolved','closed')
+           AND u.is_active = TRUE
+           AND res_evt.occurred_at IS NULL
+           AND isp.resolve_hours IS NOT NULL
+           AND i.created_at + (isp.resolve_hours * INTERVAL '1 hour') < NOW()",
+        []
+    );
+
+    foreach ($slaRows as $row) {
+        $incidentId = (int) $row['id'];
+
+        // Record the breach once (idempotent): the 'breach' event is the durable
+        // marker so the SLA report and audit trail reflect it even after the
+        // throttle window expires.
+        if (empty($row['breach_event_id'])) {
+            try {
+                Database::insert('incident_sla_events', [
+                    'incident_id' => $incidentId,
+                    'event_type'  => 'breach',
+                    'recorded_by' => null,
+                    'notes'       => 'Resolution SLA (' . (int) $row['resolve_hours'] . 'h) breached — auto-detected.',
+                ]);
+            } catch (\Throwable $e) {
+                // A logging failure must not block the alert.
+            }
+        }
+
+        $userId = (int) $row['user_id'];
+        if (!notifEnabled($userId, 'incident_sla_breach')) {
+            continue;
+        }
+        // Throttle: one reminder per incident per 7 days.
+        if (alreadyNotified($userId, 'incident_sla_breach', 'incident', $incidentId, 604800)) {
+            continue;
+        }
+
+        $ageHours = (int) floor((time() - strtotime($row['created_at'])) / 3600);
+        $incNum   = htmlspecialchars($row['incident_number'], ENT_QUOTES, 'UTF-8');
+        $incTitle = htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8');
+        $sev      = htmlspecialchars(ucfirst($row['severity']), ENT_QUOTES, 'UTF-8');
+        $target   = (int) $row['resolve_hours'];
+
+        $inner = <<<HTML
+<p style="margin-top:0">Hi {$row['user_name']},</p>
+<p>An incident assigned to you has <span style="color:#ef4444;font-weight:600">breached its resolution SLA</span>:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Incident</th>
+    <th style="padding:8px;text-align:left">Severity</th>
+    <th style="padding:8px;text-align:left">SLA Target</th>
+    <th style="padding:8px;text-align:left">Age</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$incNum} — {$incTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$sev}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$target}h</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:700;color:#ef4444">{$ageHours}h</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please progress this incident to resolution. See the <strong>SLA Report</strong> in AEGIS GRC for the full picture.</p>
+HTML;
+
+        $subject = "Incident SLA breached: {$row['incident_number']}";
+        $body    = emailShell('Incident SLA Breach', $inner);
+
+        $sent = maybeSendOrQueue(
+            $userId, 'incident_sla_breach', $row['email'], $row['user_name'], $subject, $body,
+            ['incident' => $row, 'ageHours' => $ageHours, 'target' => $target]
+        );
+        if ($sent) {
+            logNotification($userId, 'incident_sla_breach', 'incident', $incidentId);
+            $sentSlaBreach++;
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[incident_sla_breach] ERROR: " . $e->getMessage() . "\n");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1500,6 +1599,7 @@ if (!empty($digestQueue)) {
         'policy_expiring'            => 'Policies Expiring Soon',
         'risk_acceptance_expiring'   => 'Risk Acceptances Expiring',
         'kri_breached'               => 'KRI Threshold Breaches',
+        'incident_sla_breach'        => 'Incident SLA Breaches',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -1632,4 +1732,4 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentRiskReview} risk reviews, {$sentTreatment} treatments, {$sentScoreWorsened} score alerts, "
    . "{$sentVendorAssess} vendor assessments, {$sentDocExpiring} doc expiry, {$sentAssessStale} stale assessments, "
    . "{$sentEvidenceExpiry} evidence expiry, {$sentAcceptExpiring} acceptance expiry, "
-   . "{$sentKriBreach} KRI breaches, {$sentDigests} digest(s) sent\n";
+   . "{$sentKriBreach} KRI breaches, {$sentSlaBreach} SLA breaches, {$sentDigests} digest(s) sent\n";

@@ -81,6 +81,11 @@ $NOTIF_TYPES = [
         'description' => 'When a Key Risk Indicator you own breaches its red threshold',
         'icon'        => 'speedometer2',
     ],
+    'incident_sla_breach' => [
+        'label'       => 'Incident SLA breaches',
+        'description' => 'When an incident assigned to you breaches its resolution SLA',
+        'icon'        => 'stopwatch',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────
