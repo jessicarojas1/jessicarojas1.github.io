@@ -22,6 +22,12 @@ class DocumentController {
         'expired'    => ['draft', 'archived'],
     ];
 
+    /**
+     * Statuses in which a document's controlled content may be edited in place.
+     * Every other status is locked; changes require a new revision (revise()).
+     */
+    private const EDITABLE_STATES = ['draft', 'rejected'];
+
     public function index(): void {
         Auth::requirePermission('document.view');
         $type   = Security::sanitizeInput($_GET['type'] ?? '');
@@ -393,6 +399,15 @@ class DocumentController {
         if ($doc['checked_out_by'] && (int)$doc['checked_out_by'] !== Auth::id() && Auth::role() !== 'admin') {
             $_SESSION['flash_error'] = 'Document is checked out by another user.'; header('Location: /documents/' . $id); return;
         }
+        // Controlled-content integrity: an approved/published/end-state document is
+        // immutable in place. Changing it requires a new controlled revision (see
+        // revise()), which preserves the prior version and re-enters the lifecycle.
+        // Only draft and rejected documents may be edited directly.
+        if (!in_array($doc['status'], self::EDITABLE_STATES, true)) {
+            $_SESSION['flash_error'] = 'This document is ' . str_replace('_', ' ', $doc['status'])
+                . ' and is locked for direct editing. Start a new revision to make changes.';
+            header('Location: /documents/' . $id); return;
+        }
 
         $docType = Security::sanitizeInput($_POST['doc_type'] ?? $doc['doc_type']);
         if (!in_array($docType, View::docTypes(), true)) $docType = $doc['doc_type'];
@@ -429,9 +444,21 @@ class DocumentController {
         $allowed = self::TRANSITIONS[$doc['status']] ?? [];
         if (!in_array($to, $allowed, true)) { $_SESSION['flash_error'] = 'Invalid status transition.'; header('Location: /documents/' . $id); return; }
 
-        // Publishing / approving may require permission
-        if (in_array($to, ['approved','published'], true) && !Auth::can('document.publish') && !Auth::can('document.approve')) {
-            $_SESSION['flash_error'] = 'You do not have permission to approve/publish.'; header('Location: /documents/' . $id); return;
+        // Approving requires the approve permission; publishing requires publish
+        // (or approve). Checked against the specific granular permission.
+        if ($to === 'approved' && !Auth::can('document.approve')) {
+            $_SESSION['flash_error'] = 'You do not have permission to approve documents.'; header('Location: /documents/' . $id); return;
+        }
+        if ($to === 'published' && !Auth::can('document.publish') && !Auth::can('document.approve')) {
+            $_SESSION['flash_error'] = 'You do not have permission to publish documents.'; header('Location: /documents/' . $id); return;
+        }
+        // Separation of duties: a document's owner may not approve their own
+        // document via the quick transition. Route it through the approval
+        // workflow (reviewer/approver + e-signature), mirroring ApprovalController
+        // where a submitter cannot decide their own request.
+        if ($to === 'approved' && (int)($doc['owner_id'] ?? 0) === Auth::id()) {
+            $_SESSION['flash_error'] = 'Separation of duties: you cannot approve a document you own. Route it through the approval workflow to another approver.';
+            header('Location: /documents/' . $id); return;
         }
         $data = ['status' => $to];
         if ($to === 'published') {
