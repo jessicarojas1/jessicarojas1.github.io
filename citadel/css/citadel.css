@@ -470,3 +470,29 @@ html { scroll-behavior: smooth; }
 .role-badge { text-transform:capitalize; }
 .admin-empty { padding:1.5rem; text-align:center; color:var(--bs-secondary-color); }
 .matrix-cell input { cursor:pointer; }
+
+/* ---------------- Toasts + modal dialogs (js/ui.js) ---------------- */
+.citadel-toasts { position:fixed; top:1rem; right:1rem; z-index:1080; display:flex; flex-direction:column; gap:.5rem; max-width:min(92vw, 380px); }
+.citadel-toast { display:flex; align-items:flex-start; gap:.55rem; padding:.65rem .8rem; border-radius:10px; background:var(--bs-body-bg); color:var(--bs-body-color); border:1px solid var(--bs-border-color); box-shadow:0 6px 24px rgba(0,0,0,.18); font-size:.9rem; animation:citadel-toast-in .18s ease-out; }
+.citadel-toast .bi { font-size:1.05rem; line-height:1.3; }
+.citadel-toast-msg { flex:1; word-break:break-word; }
+.citadel-toast-x { background:none; border:0; color:var(--bs-secondary-color); padding:0 .1rem; cursor:pointer; line-height:1; }
+.citadel-toast-x:hover { color:var(--bs-body-color); }
+.citadel-toast-success { border-left:4px solid var(--success,#1a9d57); }
+.citadel-toast-success .bi:first-child { color:var(--success,#1a9d57); }
+.citadel-toast-error { border-left:4px solid var(--danger,#dc3545); }
+.citadel-toast-error .bi:first-child { color:var(--danger,#dc3545); }
+.citadel-toast-warning { border-left:4px solid var(--warning,#f59e0b); }
+.citadel-toast-warning .bi:first-child { color:var(--warning,#f59e0b); }
+.citadel-toast-info { border-left:4px solid var(--bs-primary,#0d6efd); }
+.citadel-toast-info .bi:first-child { color:var(--bs-primary,#0d6efd); }
+.citadel-toast-out { opacity:0; transform:translateX(8px); transition:opacity .2s, transform .2s; }
+@keyframes citadel-toast-in { from { opacity:0; transform:translateX(12px); } to { opacity:1; transform:none; } }
+
+.citadel-modal-back { position:fixed; inset:0; z-index:1090; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; padding:1rem; animation:citadel-fade .12s ease-out; }
+.citadel-modal-card { background:var(--bs-body-bg); color:var(--bs-body-color); border:1px solid var(--bs-border-color); border-radius:14px; box-shadow:0 12px 40px rgba(0,0,0,.32); max-width:440px; width:100%; padding:1.25rem 1.35rem; }
+.citadel-modal-title { font-size:1.05rem; font-weight:650; margin:0 0 .5rem; }
+.citadel-modal-msg { color:var(--bs-secondary-color); font-size:.92rem; margin:0 0 .9rem; white-space:pre-wrap; }
+.citadel-modal-input { margin-bottom:.9rem; }
+.citadel-modal-actions { display:flex; justify-content:flex-end; gap:.5rem; }
+@keyframes citadel-fade { from { opacity:0; } to { opacity:1; } }

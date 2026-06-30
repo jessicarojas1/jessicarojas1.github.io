@@ -147,9 +147,9 @@
               ${isCur
                 ? '<button class="btn btn-sm btn-success" disabled><i class="bi bi-check-lg"></i> Selected</button>'
                 : `<button class="btn btn-sm btn-primary" data-project-select="${esc(p.id)}"><i class="bi bi-box-arrow-in-right"></i> Select</button>`}
-              <button class="btn btn-sm btn-outline-secondary" data-project-history="${esc(p.id)}" title="View this project's scan history"><i class="bi bi-clock-history"></i></button>
-              <button class="btn btn-sm btn-outline-secondary" data-project-rename="${esc(p.id)}" title="Rename"><i class="bi bi-pencil"></i></button>
-              <button class="btn btn-sm btn-outline-danger" data-project-delete="${esc(p.id)}" title="Delete project"><i class="bi bi-trash"></i></button>
+              <button class="btn btn-sm btn-outline-secondary" data-project-history="${esc(p.id)}" title="View this project's scan history" aria-label="View this project's scan history"><i class="bi bi-clock-history"></i></button>
+              <button class="btn btn-sm btn-outline-secondary" data-project-rename="${esc(p.id)}" title="Rename" aria-label="Rename"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-outline-danger" data-project-delete="${esc(p.id)}" title="Delete project" aria-label="Delete project"><i class="bi bi-trash"></i></button>
             </div>
           </div>
         </div></div>`;

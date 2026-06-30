@@ -82,7 +82,7 @@
         <td>${sparkline(r.series) || '<span class="text-body-secondary small">—</span>'}</td>
         <td class="small text-body-secondary">${esc(r.count)}</td>
         <td class="small text-body-secondary">${r.lastAt ? esc(new Date(r.lastAt).toLocaleDateString()) : '—'}</td>
-        <td><button class="btn btn-sm btn-outline-secondary" data-portfolio-open="${esc(r.id)}" title="Open this project's history"><i class="bi bi-clock-history"></i></button></td>
+        <td><button class="btn btn-sm btn-outline-secondary" data-portfolio-open="${esc(r.id)}" title="Open this project's history" aria-label="Open this project's history"><i class="bi bi-clock-history"></i></button></td>
       </tr>`).join('');
     el.innerHTML = `
       <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">

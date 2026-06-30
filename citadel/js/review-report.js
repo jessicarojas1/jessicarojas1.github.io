@@ -275,7 +275,7 @@
           <td class="small">${editable
     ? `<input type="text" class="form-control form-control-sm" data-threat-mitig="${esc(t.id)}" value="${esc(arr(t.missingMitigations).join('; '))}" placeholder="missing mitigations (; separated)">`
     : (arr(t.missingMitigations).map(esc).join('; ') || '—')}</td>
-          ${editable ? `<td><button class="btn btn-sm btn-outline-danger" data-threat-remove="${esc(t.id)}" title="Remove threat"><i class="bi bi-trash"></i></button></td>` : ''}
+          ${editable ? `<td><button class="btn btn-sm btn-outline-danger" data-threat-remove="${esc(t.id)}" title="Remove threat" aria-label="Remove threat"><i class="bi bi-trash"></i></button></td>` : ''}
         </tr>`).join('');
       parts.push('<div class="table-responsive"><table class="table table-sm align-middle citadel-table">'
         + '<thead><tr><th>STRIDE</th><th>Threat</th><th>Surface</th><th>Residual</th><th>Missing mitigations</th>' + (editable ? '<th></th>' : '') + '</tr></thead>'
@@ -292,7 +292,7 @@
           <div class="col-sm-3"><input type="text" class="form-control form-control-sm" id="tm-add-title" maxlength="200" placeholder="Threat title"></div>
           <div class="col-sm-3"><input type="text" class="form-control form-control-sm" id="tm-add-surface" maxlength="200" placeholder="Surface / asset"></div>
           <div class="col-sm-2"><select class="form-select form-select-sm" id="tm-add-residual" aria-label="Residual risk">${riskOpts('medium')}</select></div>
-          <div class="col-sm-1"><button class="btn btn-sm btn-primary w-100" data-threat-add title="Add threat"><i class="bi bi-plus-lg"></i></button></div>
+          <div class="col-sm-1"><button class="btn btn-sm btn-primary w-100" data-threat-add title="Add threat" aria-label="Add threat"><i class="bi bi-plus-lg"></i></button></div>
         </div>
       </div>`);
     }

@@ -87,7 +87,7 @@
     const u = curUser();
     const adm = $('nav-admin'); if (adm) adm.classList.toggle('d-none', !(u && u.role === 'admin'));
     ua.innerHTML = u
-      ? `<span class="badge bg-secondary">${escH(u.role)}</span><span class="small d-none d-sm-inline">${escH(u.name || u.email)}</span><button class="btn btn-sm btn-outline-secondary" id="logout-btn" title="Sign out"><i class="bi bi-box-arrow-right"></i></button>`
+      ? `<span class="badge bg-secondary">${escH(u.role)}</span><span class="small d-none d-sm-inline">${escH(u.name || u.email)}</span><button class="btn btn-sm btn-outline-secondary" id="logout-btn" title="Sign out" aria-label="Sign out"><i class="bi bi-box-arrow-right"></i></button>`
       : `<button class="btn btn-sm btn-outline-primary" id="login-btn"><i class="bi bi-box-arrow-in-right"></i> Login</button>`;
   }
   function applyAccess() {
@@ -673,8 +673,9 @@
     if (pRen) {
       e.preventDefault();
       const id = pRen.getAttribute('data-project-rename');
-      const name = window.prompt('Rename project:', (CITADEL.projects.get(id) || {}).name || '');
-      if (name != null) Promise.resolve(CITADEL.projects.rename(id, name)).then(() => CITADEL.projects.renderProjects()).catch(() => {});
+      CITADEL.ui.prompt('Rename project:', (CITADEL.projects.get(id) || {}).name || '', { okLabel: 'Rename' }).then(name => {
+        if (name != null && name.trim()) Promise.resolve(CITADEL.projects.rename(id, name.trim())).then(() => CITADEL.projects.renderProjects()).catch(() => {});
+      });
       return;
     }
     const pDel = e.target.closest('[data-project-delete]');
@@ -682,9 +683,9 @@
       e.preventDefault();
       const id = pDel.getAttribute('data-project-delete');
       const p = CITADEL.projects.get(id);
-      if (p && window.confirm('Delete project "' + p.name + '"? Scans stay in history but lose their project tag.')) {
-        Promise.resolve(CITADEL.projects.remove(id)).then(() => CITADEL.projects.renderProjects()).catch(() => {});
-      }
+      if (p) CITADEL.ui.confirm('Delete project "' + p.name + '"? Scans stay in history but lose their project tag.', { danger: true, okLabel: 'Delete project' }).then(ok => {
+        if (ok) Promise.resolve(CITADEL.projects.remove(id)).then(() => CITADEL.projects.renderProjects()).catch(() => {});
+      });
       return;
     }
     const recOpen = e.target.closest('[data-open-recent]');
