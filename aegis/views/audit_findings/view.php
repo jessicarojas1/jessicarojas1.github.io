@@ -16,6 +16,12 @@ $statusBadge = ['open'=>'badge-danger','in_progress'=>'badge-warning','resolved'
       <button id="btnCloseFinding" type="button" class="btn btn-secondary"><i class="bi bi-check-circle"></i> Close</button>
     </form>
     <?php endif; ?>
+    <?php if (in_array($finding['status'],['closed','resolved','risk_accepted'])): ?>
+    <form method="POST" action="/audit-findings/<?= (int)$finding['id'] ?>/reopen" style="margin:0" data-confirm="Reopen this finding?">
+      <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+      <button type="submit" class="btn btn-warning"><i class="bi bi-arrow-counterclockwise"></i> Reopen</button>
+    </form>
+    <?php endif; ?>
     <form id="deleteForm" method="POST" action="/audit-findings/<?= (int)$finding['id'] ?>/delete" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button id="btnDeleteFinding" type="button" class="btn btn-danger"><i class="bi bi-trash"></i></button>
@@ -39,10 +45,18 @@ $statusBadge = ['open'=>'badge-danger','in_progress'=>'badge-warning','resolved'
             <label class="form-label">Response Notes</label>
             <textarea name="response_notes" class="form-control" rows="4" placeholder="Document your organization's response and remediation plan..."><?= Security::h($finding['response_notes'] ?? '') ?></textarea>
           </div>
+          <div class="form-group">
+            <label class="form-label">Root Cause</label>
+            <textarea name="root_cause" class="form-control" rows="2" placeholder="Underlying cause identified through analysis (5-why, fishbone)..."><?= Security::h($finding['root_cause'] ?? '') ?></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preventive Action</label>
+            <textarea name="preventive_action" class="form-control" rows="2" placeholder="Action to prevent recurrence across the organization..."><?= Security::h($finding['preventive_action'] ?? '') ?></textarea>
+          </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
             <div class="form-group"><label class="form-label">Status</label>
               <select name="status" class="form-control">
-                <?php foreach (['open'=>'Open','in_progress'=>'In Progress','resolved'=>'Resolved','risk_accepted'=>'Risk Accepted','closed'=>'Closed'] as $v=>$l): ?>
+                <?php foreach (['open'=>'Open','in_progress'=>'In Progress','resolved'=>'Resolved','risk_accepted'=>'Risk Accepted','closed'=>'Closed','reopened'=>'Reopened'] as $v=>$l): ?>
                 <option value="<?= $v ?>" <?= $finding['status']===$v?'selected':'' ?>><?= $l ?></option>
                 <?php endforeach; ?>
               </select>

@@ -176,6 +176,7 @@ CREATE TABLE IF NOT EXISTS policies (
     approver_id INTEGER REFERENCES users(id),
     review_frequency VARCHAR(50) DEFAULT 'annual',
     next_review_date DATE,
+    expires_at DATE,
     approved_at TIMESTAMP,
     published_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -522,13 +523,17 @@ CREATE TABLE IF NOT EXISTS issues (
     severity     VARCHAR(20) NOT NULL DEFAULT 'medium'
                  CHECK (severity IN ('critical','high','medium','low')),
     status       VARCHAR(20) NOT NULL DEFAULT 'open'
-                 CHECK (status IN ('open','in_progress','resolved','closed')),
+                 CHECK (status IN ('open','in_progress','pending_review','resolved','closed','wont_fix','reopened')),
     source_type  VARCHAR(100),
     source_id    INTEGER,
     assigned_to  INTEGER REFERENCES users(id),
     created_by   INTEGER REFERENCES users(id),
     due_date     DATE,
     resolved_at  TIMESTAMP,
+    resolution            TEXT,
+    recurrence_prevention TEXT,
+    root_cause            TEXT,
+    preventive_action     TEXT,
     created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -579,6 +584,27 @@ CREATE TABLE IF NOT EXISTS vendor_assessments (
     updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_va_vendor ON vendor_assessments(vendor_id);
+
+-- Vendor certification tracking (Phase 4). RLS applied by migration 035.
+CREATE TABLE IF NOT EXISTS vendor_certifications (
+    id                 SERIAL PRIMARY KEY,
+    vendor_id          INTEGER NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
+    certification_type VARCHAR(100) NOT NULL,
+    certificate_number VARCHAR(100),
+    issuer             VARCHAR(255),
+    issued_date        DATE,
+    expiry_date        DATE,
+    status             VARCHAR(20) NOT NULL DEFAULT 'active'
+                       CHECK (status IN ('active','expired','revoked','pending')),
+    notes              TEXT,
+    owner_id           INTEGER REFERENCES users(id),
+    created_by         INTEGER REFERENCES users(id),
+    created_at         TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at         TIMESTAMP NOT NULL DEFAULT NOW(),
+    tenant_id          BIGINT NOT NULL DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS idx_vcert_vendor ON vendor_certifications(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_vcert_expiry ON vendor_certifications(expiry_date);
 
 CREATE TABLE IF NOT EXISTS evidence (
     id           SERIAL PRIMARY KEY,

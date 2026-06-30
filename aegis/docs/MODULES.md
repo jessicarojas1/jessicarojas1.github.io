@@ -498,6 +498,7 @@ Third-party risk management: vendor inventory, assessments, contracts, and a **p
 - Filterable vendor list (risk tier, status, search) + stats; create/view/update.
 - Assessments: schedule (`addAssessment`), update with score/rating/findings/recommendations.
 - Contracts: list (with expiring-soon ≤60 days), create/save/update.
+- **Certifications (Phase 4):** `addCertification`/`deleteCertification` track cert type, issuer, certificate #, issued/expiry dates, and status (`active|expired|revoked|pending`). The vendor view renders a certifications card with expiry freshness (via `EvidenceController::freshness`: expired = red, expiring ≤30d = amber). Stored in `vendor_certifications` (RLS, `ON DELETE CASCADE` with the vendor). Gated on `vendor.edit`, CSRF-validated, audit-logged.
 - Vendor portal: `generatePortalLink` issues a hashed 32-byte token (30-day expiry) with default 10-question self-assessment; `portalView`/`portalSubmit` are **public, no-auth** endpoints.
 
 ### Business Rules
@@ -589,10 +590,12 @@ Track findings from external audits, pentests, certifications, regulators, etc.,
 List ordered by severity + stats (total, open, critical/high open, overdue); create/view/update; add threaded update (`finding_updates`); close; delete.
 - **Finding ↔ Risk traceability** (Phase 2, `linkRisk`/`unlinkRisk` → `finding_risk_links`): link a finding to the risk(s) it causes / indicates / is mitigated by / relates to. The link is shown on both the finding view (with an add/remove form) and, in reverse, on the risk view ("Linked Audit Findings"). Authoring gated on `audit.findings`; CSRF-validated; audit-logged with structured before/after. The table is tenant-isolated via RLS and `created by` is stamped.
 
+- **CAPA depth (Phase 4):** findings carry `root_cause` and `preventive_action` (editable on the finding form), and a **reopen workflow** (`reopen`) returns a closed/resolved/risk-accepted finding to `reopened`, clearing `closed_at` and appending a "Finding reopened." update. Gated on `audit.findings`, CSRF-validated, audit-logged.
+
 ### Business Rules / Validation
 - Finding number `FIND-####`.
-- Severity ∈ `critical, high, medium, low, info`; status ∈ `open, in_progress, resolved, risk_accepted, closed`; source ∈ `external_audit, pentest, certification, assessment, regulatory, other`.
-- Closing sets `closed_at` and appends an automatic "Finding closed." update.
+- Severity ∈ `critical, high, medium, low, info`; status ∈ `open, in_progress, resolved, risk_accepted, closed, reopened`; source ∈ `external_audit, pentest, certification, assessment, regulatory, other`.
+- Closing sets `closed_at` and appends an automatic "Finding closed." update; reopening clears it.
 - `title` required on create; enum fallbacks on invalid input.
 
 ### Permissions
@@ -608,14 +611,15 @@ All methods require `audit.findings`. (`createForm` redirects to `/audit-finding
 **Controller:** `controllers/PolicyController.php` (477 lines) · **Views:** `views/policy/`
 
 ### Purpose
-Policy lifecycle (draft → review → published → archived), versioning, control mapping, and attestation campaigns.
+Policy lifecycle (draft → review → published → archived/retired), versioning, control mapping, and attestation campaigns.
 
 ### Features
-Filterable list (status, package, review window) + summary; policy ↔ control mapping view; create (seeds `policy_versions` v1.0); view with versions/mappings/reviews/available objectives; update (save / submit_review / approve / publish / archive, optional new version); map/unmap objectives; attestation campaigns (list/create/view matrix) and per-user attest + "my attestations".
+Filterable list (status, package, review window) + summary; policy ↔ control mapping view; create (seeds `policy_versions` v1.0); view with versions/mappings/reviews/available objectives; update (save / submit_review / approve / publish / archive / **retire**, optional new version); map/unmap objectives; attestation campaigns (list/create/view matrix) and per-user attest + "my attestations".
+- **Lifecycle (Phase 4):** a **retired** state (`action=retire`, requires `policy.publish`) formally withdraws a once-in-force policy (distinct from `archived` draft cleanup); the status bar and badges reflect it. Policies carry an optional hard **`expires_at`** date (settable on create/edit) surfaced in the sidebar with freshness colour. `scripts/send_notifications.php` emails the owner when a published policy is **expiring within 30 days** (`policy_expiring`, throttled per policy per 7 days) — alongside the existing `policy_review_due` review-cadence alert.
 
 ### Business Rules
 - Policy number `POL-####`; review frequencies `monthly, quarterly, biannual, annual, biennial`; default `next_review_date` computed from frequency if not supplied.
-- Status transitions gated: `publish`, `approve`, `archive` additionally require `policy.publish`; `submit_review` does not.
+- Status: `draft, under_review, published, archived, retired`. Transitions gated: `publish`, `approve`, `archive`, `retire` additionally require `policy.publish`; `submit_review` does not.
 - Content stored via `Security::sanitizeHtml` (rich text allowed).
 - Attestation upsert keyed `(policy_id, user_id)`, records IP and notes; campaigns reference `published` policies only.
 
@@ -691,18 +695,19 @@ Lightweight issue tracker that can originate from audits/risks/incidents/complia
 
 ### Features
 Filterable list (severity, status, assignee) + stats; create; view with update thread; update; add update (optionally driving a status change).
+- **CAPA depth (Phase 4):** issues carry `root_cause`, `resolution` (corrective action), `preventive_action`, and `recurrence_prevention` (all editable on the issue form and shown as read-only cards). A **reopen workflow** (`reopen`) returns a resolved/closed/wont-fix issue to `reopened`, clears `resolved_at`, and appends a "reopened" update. Gated on `issue.edit`, CSRF-validated, audit-logged.
 
 ### Business Rules / Validation
 - Issue number `ISS-####`.
-- Severity ∈ `critical, high, medium, low`; status ∈ `open, in_progress, pending_review, resolved, closed, wont_fix`; source type ∈ `audit, risk, incident, manual, compliance`.
-- Setting status `resolved` sets `resolved_at`.
+- Severity ∈ `critical, high, medium, low`; status ∈ `open, in_progress, pending_review, resolved, closed, wont_fix, reopened` (DB `CHECK`); source type ∈ `audit, risk, incident, manual, compliance`.
+- Setting status `resolved` sets `resolved_at`; reopening clears it.
 - Update type ∈ `comment, status_change, assignment`.
 - `title` required (create); update content required.
 
 ### Permissions
 - `issue.view` — index, view.
 - `issue.create` — createForm, create.
-- `issue.edit` — update, addUpdate.
+- `issue.edit` — update, addUpdate, reopen.
 
 ### Error/Edge
 404 if issue missing.

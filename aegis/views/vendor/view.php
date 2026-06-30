@@ -239,6 +239,129 @@ $contracts = Database::fetchAll(
   </div>
 </div>
 
+<!-- Certifications Section -->
+<div class="card" style="margin-top:20px">
+  <div class="card-header">
+    <div class="card-header-left">
+      <i class="bi bi-patch-check" style="color:var(--success)"></i>
+      <span class="card-title">Certifications</span>
+    </div>
+    <?php if (Auth::can('vendor.edit')): ?>
+    <div class="card-header-right">
+      <button data-show-modal="certModal" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Add Certification</button>
+    </div>
+    <?php endif; ?>
+  </div>
+  <div class="card-body" style="padding:0">
+    <?php if (!empty($certifications)): ?>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">Type</th>
+          <th scope="col">Issuer</th>
+          <th scope="col">Status</th>
+          <th scope="col">Expiry</th>
+          <?php if (Auth::can('vendor.edit')): ?><th scope="col"></th><?php endif; ?>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($certifications as $vcert):
+          $certStatusMap = [
+            'active'  => ['color'=>'var(--success)','bg'=>'var(--success-subtle)','label'=>'Active'],
+            'pending' => ['color'=>'var(--warning)','bg'=>'var(--warning-subtle)','label'=>'Pending'],
+            'expired' => ['color'=>'var(--danger)','bg'=>'var(--danger-subtle)','label'=>'Expired'],
+            'revoked' => ['color'=>'var(--text-muted)','bg'=>'var(--surface-alt)','label'=>'Revoked'],
+          ];
+          $certBadge = $certStatusMap[$vcert['status']] ?? ['color'=>'var(--text-muted)','bg'=>'var(--bg-subtle)','label'=>ucfirst($vcert['status'])];
+          $certFresh = EvidenceController::freshness($vcert['expiry_date'] ?? null);
+          $certColor = $certFresh === 'expired' ? 'var(--danger)' : ($certFresh === 'expiring' ? 'var(--warning)' : 'inherit');
+          $certDays  = $vcert['expiry_date'] ? (int)ceil((strtotime($vcert['expiry_date']) - time()) / 86400) : null;
+        ?>
+        <tr>
+          <td style="font-weight:500"><?= Security::h($vcert['certification_type']) ?><?= $vcert['certificate_number'] ? ' <small style="color:var(--text-muted);font-weight:400">('.Security::h($vcert['certificate_number']).')</small>' : '' ?></td>
+          <td style="font-size:13px"><?= Security::h($vcert['issuer'] ?: '—') ?></td>
+          <td><span class="status-chip" style="background:<?= $certBadge['bg'] ?>;color:<?= $certBadge['color'] ?>"><?= $certBadge['label'] ?></span></td>
+          <td style="font-size:13px;white-space:nowrap">
+            <?php if ($vcert['expiry_date']): ?>
+              <span style="color:<?= $certColor ?>">
+                <?= date('M j, Y', strtotime($vcert['expiry_date'])) ?>
+                <?php if ($certFresh === 'expiring' && $certDays !== null): ?><small>(<?= $certDays ?>d)</small>
+                <?php elseif ($certFresh === 'expired'): ?><small>(expired)</small><?php endif; ?>
+              </span>
+            <?php else: ?>—<?php endif; ?>
+          </td>
+          <?php if (Auth::can('vendor.edit')): ?>
+          <td style="text-align:right">
+            <form method="post" action="/vendor/<?= (int)$vendor['id'] ?>/certification/<?= (int)$vcert['id'] ?>/delete" style="margin:0" data-confirm="Remove this certification?">
+              <?= Security::csrfField() ?>
+              <button type="submit" class="btn-unstyled" style="cursor:pointer;color:var(--danger)" title="Remove" aria-label="Remove certification"><i class="bi bi-x-lg"></i></button>
+            </form>
+          </td>
+          <?php endif; ?>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+    <?php else: ?>
+    <div class="empty-state-sm">
+      <i class="bi bi-patch-check" style="font-size:32px"></i>
+      <p style="margin:0;font-size:14px">No certifications recorded.</p>
+      <?php if (Auth::can('vendor.edit')): ?>
+        <button data-show-modal="certModal" class="btn btn-primary btn-sm" style="margin-top:12px"><i class="bi bi-plus-lg"></i> Add Certification</button>
+      <?php endif; ?>
+    </div>
+    <?php endif; ?>
+  </div>
+</div>
+
+<?php if (Auth::can('vendor.edit')): ?>
+<!-- Add Certification Modal -->
+<div class="um-overlay" id="certModal" style="display:none">
+  <div class="um-dialog" style="max-width:520px;width:100%">
+    <div class="um-header">
+      <span>Add Certification</span>
+      <button class="um-close" data-close-modal="certModal"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="um-body">
+      <form method="post" action="/vendor/<?= (int)$vendor['id'] ?>/certification">
+        <?= Security::csrfField() ?>
+        <div class="form-group"><label class="form-label">Certification Type *</label>
+          <input name="certification_type" class="form-control" placeholder="e.g. ISO 27001, SOC 2 Type II, PCI DSS" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label class="form-label">Issuer</label><input name="issuer" class="form-control" placeholder="Certifying body"></div>
+          <div class="form-group" style="flex:1"><label class="form-label">Certificate #</label><input name="certificate_number" class="form-control"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label class="form-label">Issued Date</label><input type="date" name="issued_date" class="form-control"></div>
+          <div class="form-group" style="flex:1"><label class="form-label">Expiry Date</label><input type="date" name="expiry_date" class="form-control"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label class="form-label">Status</label>
+            <select name="status" class="form-control">
+              <?php foreach (['active'=>'Active','pending'=>'Pending','expired'=>'Expired','revoked'=>'Revoked'] as $v=>$l): ?>
+                <option value="<?= $v ?>"><?= $l ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1"><label class="form-label">Owner</label>
+            <select name="owner_id" class="form-control">
+              <option value="">Unassigned</option>
+              <?php foreach ($users as $u): ?><option value="<?= (int)$u['id'] ?>"><?= Security::h($u['name']) ?></option><?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Notes</label><textarea name="notes" class="form-control" rows="2"></textarea></div>
+        <div class="modal-footer">
+          <button type="button" data-close-modal="certModal" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Certification</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<?php endif; ?>
+
 <!-- Edit Modal -->
 <?php if (Auth::can('vendor.edit')): ?>
 <div class="um-overlay" id="editModal" style="display:none">

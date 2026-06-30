@@ -173,7 +173,7 @@ Security::setSecurityHeaders();
 // is purely a latency optimization — never the thing that makes a migration
 // correct. **Bump RUNTIME_SCHEMA_VERSION whenever you add or change a guard below**
 // so the block re-runs once across the fleet.
-const RUNTIME_SCHEMA_VERSION = '2026-06-28.1';
+const RUNTIME_SCHEMA_VERSION = '2026-06-30.1';
 $__runMigrations = true;
 try {
     $__schemaState = Database::fetchOne("SELECT version FROM schema_runtime_state WHERE id = 1");
@@ -506,11 +506,12 @@ try {
 } catch (Throwable) {}
 
 try {
-    // issues: widen status CHECK constraint to include 'pending_review' and 'wont_fix'
+    // issues: widen status CHECK to include 'pending_review', 'wont_fix' and the
+    // CAPA reopen state 'reopened' (Phase 4).
     Database::query("ALTER TABLE issues DROP CONSTRAINT IF EXISTS issues_status_check");
     Database::query(
         "ALTER TABLE issues ADD CONSTRAINT issues_status_check
-         CHECK (status IN ('open','in_progress','pending_review','resolved','closed','wont_fix'))"
+         CHECK (status IN ('open','in_progress','pending_review','resolved','closed','wont_fix','reopened'))"
     );
 } catch (Throwable) {}
 
@@ -1089,8 +1090,11 @@ $dynamicRoutes = [
         '#^/vendor/(\d+)/assessment/(\d+)/update$#'    => ['VendorController', 'updateAssessment'],
         '#^/vendor/(\d+)/contract/save$#'              => ['VendorController', 'saveContract'],
         '#^/vendor/contract/(\d+)/update$#'            => ['VendorController', 'updateContract'],
+        '#^/vendor/(\d+)/certification$#'              => ['VendorController', 'addCertification'],
+        '#^/vendor/(\d+)/certification/(\d+)/delete$#' => ['VendorController', 'deleteCertification'],
         '#^/issue/(\d+)/update$#'                      => ['IssueController', 'update'],
         '#^/issue/(\d+)/add-update$#'                  => ['IssueController', 'addUpdate'],
+        '#^/issue/(\d+)/reopen$#'                      => ['IssueController', 'reopen'],
         '#^/evidence/(\d+)/delete$#'                   => ['EvidenceController', 'delete'],
         '#^/evidence/(\d+)/approve$#'                  => ['EvidenceController', 'approve'],
         '#^/evidence/(\d+)/reject$#'                   => ['EvidenceController', 'reject'],
@@ -1184,6 +1188,7 @@ $dynamicRoutes = [
         '#^/audit-findings/(\d+)/update$#'          => ['AuditFindingController', 'update'],
         '#^/audit-findings/(\d+)/add-update$#'      => ['AuditFindingController', 'addUpdate'],
         '#^/audit-findings/(\d+)/close$#'           => ['AuditFindingController', 'close'],
+        '#^/audit-findings/(\d+)/reopen$#'          => ['AuditFindingController', 'reopen'],
         '#^/audit-findings/(\d+)/delete$#'          => ['AuditFindingController', 'delete'],
         '#^/audit-findings/(\d+)/link-risk$#'       => ['AuditFindingController', 'linkRisk'],
         '#^/audit-findings/(\d+)/unlink-risk$#'     => ['AuditFindingController', 'unlinkRisk'],
