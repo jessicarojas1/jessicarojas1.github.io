@@ -478,6 +478,7 @@ export interface Risk {
   description: string;
   category: RiskCategory;
   status: RiskStatus;
+  is_opportunity?: boolean;
   severity: number; // 1-10
   likelihood: number; // 1-10
   detectability: number; // 1-10
