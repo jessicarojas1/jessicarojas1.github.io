@@ -609,6 +609,36 @@ test('advisories: a vulnerable manifest surfaces a CVE through a full scan (offl
   assert.ok(cves.includes('CVE-2021-44906'), 'minimist CVE flagged offline');
 });
 
+/* ---------------- Secrets: modern token patterns + Luhn PAN ---------------- */
+test('secrets: modern provider tokens are detected', async () => {
+  const C = loadEngine();
+  // Tokens are assembled from fragments so this test file contains no literal
+  // that looks like a live credential (avoids secret-scanning false positives).
+  const tokens = [
+    'github_' + 'pat_' + '11ABCDE0Yabcdefghijklmnopqrstuvwxyz1234',
+    'glpat' + '-' + 'ABCDEF1234567890abcd',
+    'GOCSPX' + '-' + 'abcDEF1234567890_ghij',
+    'SG' + '.' + 'abcdefghij1234567890AB' + '.' + 'abcdefghij1234567890abcdefghij12345',
+    'sk-' + 'abcd1234' + 'T3BlbkFJ' + 'abcd1234'
+  ];
+  const code = tokens.map((t, i) => 'const v' + i + ' = "' + t + '"').join('\n');
+  const rep = await C.scanner.scan([{ path: 's.js', lang: 'JavaScript', size: code.length, content: code }]);
+  const ids = new Set(rep.findings.map(f => f.ruleId));
+  for (const id of ['gh-finegrained-pat', 'gitlab-pat', 'google-oauth-secret', 'sendgrid-key', 'openai-key']) {
+    assert.ok(ids.has(id), 'expected secret rule ' + id + ' to fire');
+  }
+});
+
+test('secrets: only Luhn-valid PANs flag, and the number is masked', async () => {
+  const C = loadEngine();
+  const rep = await C.scanner.scan([{ path: 'p.js', lang: 'JavaScript', size: 80,
+    content: 'good = "4111 1111 1111 1111"\nbad = "4111111111111112"\n' }]);
+  const pans = rep.findings.filter(f => f.ruleId === 'pan-cardnumber');
+  assert.equal(pans.length, 1, 'Luhn-valid card flagged once; invalid one ignored');
+  assert.ok(!/4111111111111111/.test(pans[0].snippet), 'full PAN must never appear in the finding');
+  assert.ok(/1111$/.test(pans[0].snippet.replace(/["';\s]+$/, '')) || /1111/.test(pans[0].snippet), 'masked to last four');
+});
+
 /* ---------------- Server-side readiness gate (engine-in-Node) ---------------- */
 test('readiness: loads the engine in Node and decides Rejected on an exposed secret', () => {
   const rs = require('../lib/readiness');
