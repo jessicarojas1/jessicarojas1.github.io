@@ -116,6 +116,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/incident_sla_db.php
 
+      - name: BCP lifecycle — overdue exercise / plan-testing-due / cascade
+        working-directory: aegis
+        run: php tests/integration/bcp_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

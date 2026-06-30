@@ -726,6 +726,7 @@ Business continuity / disaster recovery plans with RTO/RPO, sections, and exerci
 
 ### Features
 List with exercise/section counts; create with inline sections; view (sections + exercises); update; add exercise (sets plan `last_tested` when conducted).
+- **Lifecycle monitoring (Phase 7):** `BCPController` gained two `public static` pure helpers — `exerciseOverdue(scheduledDate, conductedDate)` (overdue = `scheduled_date` in the past **and** never conducted) and `planTestStatus(nextTestDate)` (bands `none`/`overdue`/`due` (within 30 days)/`ok` from a plan's `next_test_date`). The UI surfaces these: `views/bcp/view.php` highlights overdue exercise rows with an "OVERDUE" badge and shows a "Testing overdue"/"Testing due" badge on the plan header; `views/bcp/index.php` cards show an "N overdue exercises" badge (from an `overdue_exercise_count` subquery added to `index()`), a "Testing overdue" badge, and colour the Next Test date. `scripts/send_notifications.php` adds two owner-scoped, 7-day-throttled email alerts: `bcp_exercise_overdue` (per exercise with `scheduled_date < today` and no `conducted_date`, emails the plan owner) and `bcp_plan_review_due` (per `active` plan whose `next_test_date <= today + 30`, emails the owner). No schema migration was needed — uses existing `bcp_exercises.scheduled_date`/`conducted_date` and `bcp_plans.next_test_date`/`owner_id`/`status`.
 
 ### Business Rules / Validation
 - Plan code `BCP-####`; status ∈ `draft, active, archived`.

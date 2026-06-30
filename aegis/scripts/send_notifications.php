@@ -206,6 +206,8 @@ $sentEvidenceExpiry  = 0;
 $sentAcceptExpiring  = 0;
 $sentKriBreach       = 0;
 $sentSlaBreach       = 0;
+$sentBcpExerciseOverdue = 0;
+$sentBcpPlanReviewDue   = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -693,6 +695,159 @@ HTML;
     }
 } catch (\Throwable $e) {
     fwrite(STDERR, "[incident_sla_breach] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2f. BCP EXERCISE OVERDUE (scheduled in the past, never conducted)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $bcpExRows = Database::fetchAll(
+        "SELECT be.id, be.name, be.exercise_type, be.scheduled_date,
+                bp.id AS plan_id, bp.title AS plan_title,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM bcp_exercises be
+         JOIN bcp_plans bp ON bp.id = be.plan_id
+         JOIN users u ON u.id = bp.owner_id
+         WHERE be.conducted_date IS NULL
+           AND be.scheduled_date IS NOT NULL
+           AND be.scheduled_date < CURRENT_DATE
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $bcpExByUser = [];
+    foreach ($bcpExRows as $row) {
+        $bcpExByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($bcpExByUser as $userId => $exercises) {
+        if (!notifEnabled((int) $userId, 'bcp_exercise_overdue')) {
+            continue;
+        }
+        $email    = $exercises[0]['email'];
+        $userName = $exercises[0]['user_name'];
+
+        foreach ($exercises as $ex) {
+            // Throttle: one reminder per exercise per 7 days.
+            if (alreadyNotified((int) $userId, 'bcp_exercise_overdue', 'bcp_exercise', (int) $ex['id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((time() - strtotime($ex['scheduled_date'])) / 86400);
+            $schedDate   = date('M j, Y', strtotime($ex['scheduled_date']));
+            $exName      = htmlspecialchars($ex['name'], ENT_QUOTES, 'UTF-8');
+            $planTitle   = htmlspecialchars($ex['plan_title'], ENT_QUOTES, 'UTF-8');
+            $exType      = htmlspecialchars(str_replace('_', ' ', ucfirst($ex['exercise_type'])), ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A continuity exercise for a plan you own is <span style="color:#ef4444;font-weight:600">overdue ({$daysOverdue} days)</span> and has not been conducted:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Plan</th>
+    <th style="padding:8px;text-align:left">Exercise</th>
+    <th style="padding:8px;text-align:left">Type</th>
+    <th style="padding:8px;text-align:left">Scheduled</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$planTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$exName}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$exType}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$schedDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to conduct the exercise and record its outcome.</p>
+HTML;
+
+            $subject = "BCP exercise overdue: {$ex['name']}";
+            $body    = emailShell('BCP Exercise Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'bcp_exercise_overdue', $email, $userName, $subject, $body,
+                ['exercise' => $ex, 'daysOverdue' => $daysOverdue, 'schedDate' => $schedDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'bcp_exercise_overdue', 'bcp_exercise', (int) $ex['id']);
+                $sentBcpExerciseOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[bcp_exercise_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2g. BCP PLAN REVIEW/TESTING DUE (active plans whose next_test_date is near/past)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $bcpPlanRows = Database::fetchAll(
+        "SELECT bp.id, bp.title, bp.next_test_date,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM bcp_plans bp
+         JOIN users u ON u.id = bp.owner_id
+         WHERE bp.status = 'active'
+           AND bp.next_test_date IS NOT NULL
+           AND bp.next_test_date <= CURRENT_DATE + INTERVAL '30 days'
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $bcpPlanByUser = [];
+    foreach ($bcpPlanRows as $row) {
+        $bcpPlanByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($bcpPlanByUser as $userId => $plans) {
+        if (!notifEnabled((int) $userId, 'bcp_plan_review_due')) {
+            continue;
+        }
+        $email    = $plans[0]['email'];
+        $userName = $plans[0]['user_name'];
+
+        foreach ($plans as $plan) {
+            // Throttle: one reminder per plan per 7 days.
+            if (alreadyNotified((int) $userId, 'bcp_plan_review_due', 'bcp_plan', (int) $plan['id'], 604800)) {
+                continue;
+            }
+
+            $daysLeft  = (int) ceil((strtotime($plan['next_test_date']) - strtotime('today')) / 86400);
+            $testDate  = date('M j, Y', strtotime($plan['next_test_date']));
+            $planTitle = htmlspecialchars($plan['title'], ENT_QUOTES, 'UTF-8');
+            $state     = $daysLeft < 0
+                ? '<span style="color:#ef4444;font-weight:600">is overdue for testing (' . abs($daysLeft) . ' days)</span>'
+                : "<span style=\"color:#f59e0b;font-weight:600\">is due for testing in {$daysLeft} days</span>";
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A business continuity plan you own {$state} — a periodic exercise keeps the plan validated:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Plan</th>
+    <th style="padding:8px;text-align:left">Next Test Date</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$planTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$testDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to schedule or record a continuity exercise for this plan.</p>
+HTML;
+
+            $subject = "BCP plan due for testing: {$plan['title']}";
+            $body    = emailShell('BCP Plan Testing Due', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'bcp_plan_review_due', $email, $userName, $subject, $body,
+                ['plan' => $plan, 'daysLeft' => $daysLeft, 'testDate' => $testDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'bcp_plan_review_due', 'bcp_plan', (int) $plan['id']);
+                $sentBcpPlanReviewDue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[bcp_plan_review_due] ERROR: " . $e->getMessage() . "\n");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1600,6 +1755,8 @@ if (!empty($digestQueue)) {
         'risk_acceptance_expiring'   => 'Risk Acceptances Expiring',
         'kri_breached'               => 'KRI Threshold Breaches',
         'incident_sla_breach'        => 'Incident SLA Breaches',
+        'bcp_exercise_overdue'       => 'BCP Exercises Overdue',
+        'bcp_plan_review_due'        => 'BCP Plans Due for Testing',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -1732,4 +1889,5 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentRiskReview} risk reviews, {$sentTreatment} treatments, {$sentScoreWorsened} score alerts, "
    . "{$sentVendorAssess} vendor assessments, {$sentDocExpiring} doc expiry, {$sentAssessStale} stale assessments, "
    . "{$sentEvidenceExpiry} evidence expiry, {$sentAcceptExpiring} acceptance expiry, "
-   . "{$sentKriBreach} KRI breaches, {$sentSlaBreach} SLA breaches, {$sentDigests} digest(s) sent\n";
+   . "{$sentKriBreach} KRI breaches, {$sentSlaBreach} SLA breaches, "
+   . "{$sentBcpExerciseOverdue} BCP exercises overdue, {$sentBcpPlanReviewDue} BCP plans due, {$sentDigests} digest(s) sent\n";

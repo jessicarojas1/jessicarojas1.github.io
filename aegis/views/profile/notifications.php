@@ -86,6 +86,16 @@ $NOTIF_TYPES = [
         'description' => 'When an incident assigned to you breaches its resolution SLA',
         'icon'        => 'stopwatch',
     ],
+    'bcp_exercise_overdue' => [
+        'label'       => 'BCP exercises overdue',
+        'description' => 'When a continuity exercise for a plan you own is past its scheduled date and not conducted',
+        'icon'        => 'calendar-x-fill',
+    ],
+    'bcp_plan_review_due' => [
+        'label'       => 'BCP plans due for testing',
+        'description' => 'When a BCP plan you own is approaching or past its next test date',
+        'icon'        => 'shield-check',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────

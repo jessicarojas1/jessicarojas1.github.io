@@ -18,6 +18,13 @@ ob_start(); ?>
       <span class="badge" style="background:<?= $sc ?>20;color:<?= $sc ?>;margin-left:8px"><?= ucfirst($plan['status']) ?></span>
       <?php if ($plan['rto_hours']): ?><span class="badge badge-gray" style="margin-left:4px">RTO ≤<?= (int)$plan['rto_hours'] ?>h</span><?php endif; ?>
       <?php if ($plan['rpo_hours']): ?><span class="badge badge-gray" style="margin-left:4px">RPO ≤<?= (int)$plan['rpo_hours'] ?>h</span><?php endif; ?>
+      <?php
+        $planTest = BCPController::planTestStatus($plan['next_test_date'] ?? null);
+        if ($planTest === 'overdue'): ?>
+        <span class="badge" style="background:var(--danger-subtle);color:var(--danger);margin-left:4px" title="Next test was due <?= Security::h(date('M j, Y', strtotime($plan['next_test_date']))) ?>"><i class="bi bi-calendar-x"></i> Testing overdue</span>
+      <?php elseif ($planTest === 'due'): ?>
+        <span class="badge" style="background:var(--warning-subtle);color:var(--warning);margin-left:4px" title="Next test due <?= Security::h(date('M j, Y', strtotime($plan['next_test_date']))) ?>"><i class="bi bi-calendar-event"></i> Testing due</span>
+      <?php endif; ?>
     </p>
   </div>
   <div class="page-actions">
@@ -63,11 +70,17 @@ ob_start(); ?>
       <table class="data-table">
         <thead><tr><th scope="col">Type</th><th scope="col">Name</th><th scope="col">Scheduled</th><th scope="col">Conducted</th><th scope="col">Outcome</th><th scope="col">Findings</th></tr></thead>
         <tbody>
-          <?php foreach ($exercises as $ex): $oc = $outcomeColors[$ex['outcome'] ?? ''] ?? '#9ca3af'; ?>
-            <tr>
+          <?php foreach ($exercises as $ex):
+            $oc = $outcomeColors[$ex['outcome'] ?? ''] ?? '#9ca3af';
+            $exOverdue = BCPController::exerciseOverdue($ex['scheduled_date'] ?? null, $ex['conducted_date'] ?? null);
+          ?>
+            <tr<?= $exOverdue ? ' style="background:var(--danger-subtle)"' : '' ?>>
               <td class="text-sm"><?= Security::h(str_replace('_',' ',ucfirst($ex['exercise_type']))) ?></td>
               <td class="fw-600"><?= Security::h($ex['name']) ?></td>
-              <td class="text-sm text-muted"><?= $ex['scheduled_date'] ? date('M j, Y', strtotime($ex['scheduled_date'])) : '—' ?></td>
+              <td class="text-sm<?= $exOverdue ? '' : ' text-muted' ?>" <?= $exOverdue ? 'style="color:var(--danger);font-weight:600"' : '' ?>>
+                <?= $ex['scheduled_date'] ? date('M j, Y', strtotime($ex['scheduled_date'])) : '—' ?>
+                <?php if ($exOverdue): ?><span class="badge" style="background:var(--danger);color:#fff;font-size:10px;margin-left:4px">OVERDUE</span><?php endif; ?>
+              </td>
               <td class="text-sm text-muted"><?= $ex['conducted_date'] ? date('M j, Y', strtotime($ex['conducted_date'])) : '—' ?></td>
               <td><?php if ($ex['outcome']): ?><span class="badge" style="background:<?= $oc ?>20;color:<?= $oc ?>"><?= Security::h(str_replace('_',' ',ucfirst($ex['outcome'] ?? ''))) ?></span><?php else: ?>—<?php endif; ?></td>
               <td class="text-sm text-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><?= Security::h(substr($ex['findings'] ?? '', 0, 80)) ?></td>
