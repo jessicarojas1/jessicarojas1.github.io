@@ -613,9 +613,30 @@ CREATE TABLE IF NOT EXISTS evidence_files (
     description   TEXT,
     expires_at    TIMESTAMP,
     uploaded_by   INTEGER REFERENCES users(id),
-    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Approval/rejection workflow (Phase 3 evidence lifecycle; see migration 034)
+    review_status VARCHAR(20) NOT NULL DEFAULT 'pending'
+                  CHECK (review_status IN ('pending','approved','rejected')),
+    reviewed_by   INTEGER REFERENCES users(id),
+    reviewed_at   TIMESTAMP,
+    review_notes  TEXT,
+    updated_at    TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_ef_entity ON evidence_files(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_ef_entity        ON evidence_files(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_ef_review_status ON evidence_files(review_status);
+CREATE INDEX IF NOT EXISTS idx_ef_expires_at    ON evidence_files(expires_at);
+
+-- Evidence download log (Phase 3): tamper-aware record of who pulled which file.
+CREATE TABLE IF NOT EXISTS evidence_downloads (
+    id          SERIAL PRIMARY KEY,
+    evidence_id INTEGER NOT NULL REFERENCES evidence_files(id) ON DELETE CASCADE,
+    user_id     INTEGER REFERENCES users(id),
+    ip_address  VARCHAR(50),
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    tenant_id   BIGINT NOT NULL DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS idx_ed_evidence ON evidence_downloads(evidence_id);
+CREATE INDEX IF NOT EXISTS idx_ed_user     ON evidence_downloads(user_id);
 
 -- Notification log (used by data-retention cleanup in AdminController)
 CREATE TABLE IF NOT EXISTS notification_log (

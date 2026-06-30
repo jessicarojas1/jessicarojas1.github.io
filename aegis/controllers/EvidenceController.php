@@ -3,6 +3,42 @@ declare(strict_types=1);
 
 class EvidenceController {
 
+    /**
+     * Maps an evidence entity_type to the RBAC permission module that governs
+     * it. Used for upload (write), download/list (read) and review (write)
+     * authorization. audit_item evidence (uploaded via the audit finding form)
+     * is governed by the audit module.
+     */
+    private const MODULE_MAP = [
+        'control'    => 'compliance',
+        'risk'       => 'risk',
+        'audit'      => 'audit',
+        'audit_item' => 'audit',
+        'incident'   => 'incident',
+        'policy'     => 'policy',
+        'vendor'     => 'vendor',
+        'issue'      => 'issue',
+    ];
+
+    private static function moduleFor(string $entityType): ?string {
+        return self::MODULE_MAP[$entityType] ?? null;
+    }
+
+    /**
+     * Freshness state derived from expires_at: 'expired', 'expiring' (within 30
+     * days) or 'valid'. Null expires_at means no expiry tracked ('none').
+     * Public so the lifecycle rule is unit-testable in isolation.
+     */
+    public static function freshness(?string $expiresAt): string {
+        if (empty($expiresAt)) return 'none';
+        $ts = strtotime($expiresAt);
+        if ($ts === false) return 'none';
+        $now = time();
+        if ($ts < $now) return 'expired';
+        if ($ts < $now + 30 * 86400) return 'expiring';
+        return 'valid';
+    }
+
     private static function uploadDir(): string {
         $dir = AEGIS_ROOT . '/uploads';
         if (!is_dir($dir)) mkdir($dir, 0750, true);
@@ -39,9 +75,7 @@ class EvidenceController {
         }
 
         // Verify the uploading user has write permission to the target entity module (IDOR prevention)
-        $moduleMap = ['control'=>'compliance','risk'=>'risk','audit'=>'audit',
-                      'incident'=>'incident','policy'=>'policy','vendor'=>'vendor','issue'=>'issue'];
-        $module = $moduleMap[$entityType] ?? null;
+        $module = self::moduleFor($entityType);
         if (!$module || !Auth::can($module . '.write')) {
             http_response_code(403);
             $_SESSION['flash_error'] = 'You do not have permission to upload evidence for this item.';
@@ -118,17 +152,7 @@ class EvidenceController {
         // Admin can access everything
         if (Auth::role() === 'admin') return true;
 
-        // Map entity types to the permission module
-        $moduleMap = [
-            'control'  => 'compliance',
-            'risk'     => 'risk',
-            'audit'    => 'audit',
-            'incident' => 'incident',
-            'policy'   => 'policy',
-            'vendor'   => 'vendor',
-            'issue'    => 'issue',
-        ];
-        $module = $moduleMap[$entityType] ?? null;
+        $module = self::moduleFor($entityType);
         if (!$module) return false;
 
         return Auth::can($module . '.read');
@@ -170,6 +194,20 @@ class EvidenceController {
         if (!in_array($mimeType, $safeMimes)) {
             $mimeType = 'application/octet-stream';
         }
+
+        // Record the access (tamper-evident audit chain + queryable download log)
+        // BEFORE streaming, since readfile()/exit terminates the request.
+        try {
+            Database::insert('evidence_downloads', [
+                'evidence_id' => $id,
+                'user_id'     => Auth::id(),
+                'ip_address'  => substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 50),
+            ]);
+        } catch (Throwable $e) {
+            // A logging failure must never block legitimate access to evidence.
+        }
+        Auth::log('download_evidence', $rec['entity_type'], (int)$rec['entity_id'],
+                  ['evidence_id' => $id, 'file' => $rec['original_name']]);
 
         header('Content-Type: ' . $mimeType);
         header('Content-Disposition: attachment; filename="' . $safeAscii . '"; filename*=UTF-8\'\'' . $encodedName);
@@ -213,6 +251,66 @@ class EvidenceController {
         $this->redirectBack();
     }
 
+    /** Approve a piece of evidence (review workflow). */
+    public function approve(string $id): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $this->review((int)$id, 'approved');
+    }
+
+    /** Reject a piece of evidence (review workflow). */
+    public function reject(string $id): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $this->review((int)$id, 'rejected');
+    }
+
+    /**
+     * Shared approve/reject handler. CSRF + auth are enforced by the public
+     * approve()/reject() callers. Enforces write permission on the parent
+     * module and segregation of duties: the uploader may not review their own
+     * evidence (admins excepted). The state change is audit-logged.
+     */
+    private function review(int $id, string $status): void {
+        if (!in_array($status, ['approved','rejected'], true)) {
+            http_response_code(400); return;
+        }
+
+        $rec = Database::fetchOne("SELECT * FROM evidence_files WHERE id = ?", [$id]);
+        if (!$rec) { $_SESSION['flash_error'] = 'File not found.'; $this->redirectBack(); return; }
+
+        // Write permission on the governing module (IDOR + privilege check).
+        $module = self::moduleFor($rec['entity_type']);
+        if (!$module || !Auth::can($module . '.write')) {
+            http_response_code(403);
+            $_SESSION['flash_error'] = 'You do not have permission to review this evidence.';
+            $this->redirectBack(); return;
+        }
+
+        // Segregation of duties: the uploader cannot review their own evidence.
+        if ((int)$rec['uploaded_by'] === Auth::id() && Auth::role() !== 'admin') {
+            http_response_code(403);
+            $_SESSION['flash_error'] = 'Evidence must be reviewed by someone other than the uploader.';
+            $this->redirectBack(); return;
+        }
+
+        $notes = Security::sanitizeInput($_POST['review_notes'] ?? '');
+
+        Database::update('evidence_files', [
+            'review_status' => $status,
+            'reviewed_by'   => Auth::id(),
+            'reviewed_at'   => date('Y-m-d H:i:s'),
+            'review_notes'  => $notes !== '' ? $notes : null,
+        ], 'id = ?', [$id]);
+
+        Auth::log($status === 'approved' ? 'approve_evidence' : 'reject_evidence',
+                  $rec['entity_type'], (int)$rec['entity_id'],
+                  ['evidence_id' => $id, 'file' => $rec['original_name'], 'notes' => $notes]);
+
+        $_SESSION['flash_success'] = 'Evidence ' . $status . '.';
+        $this->redirectBack();
+    }
+
     public function listForEntity(): void {
         Auth::requireAuth();
         header('Content-Type: application/json');
@@ -230,13 +328,22 @@ class EvidenceController {
         $files = Database::fetchAll(
             "SELECT ef.id, ef.original_name, ef.file_size, ef.mime_type,
                     ef.description, ef.expires_at, ef.created_at,
-                    u.name AS uploaded_by_name
+                    ef.review_status, ef.reviewed_at, ef.review_notes,
+                    u.name  AS uploaded_by_name,
+                    r.name  AS reviewed_by_name,
+                    (SELECT COUNT(*) FROM evidence_downloads ed WHERE ed.evidence_id = ef.id) AS download_count
              FROM evidence_files ef
              LEFT JOIN users u ON u.id = ef.uploaded_by
+             LEFT JOIN users r ON r.id = ef.reviewed_by
              WHERE ef.entity_type = ? AND ef.entity_id = ?
              ORDER BY ef.created_at DESC",
             [$entityType, $entityId]
         );
+        foreach ($files as &$f) {
+            $f['freshness']      = self::freshness($f['expires_at'] ?? null);
+            $f['download_count'] = (int)($f['download_count'] ?? 0);
+        }
+        unset($f);
         echo json_encode($files);
     }
 

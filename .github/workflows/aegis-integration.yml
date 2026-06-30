@@ -104,6 +104,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/database_db.php
 
+      - name: Evidence lifecycle — review workflow + download log + cascade
+        working-directory: aegis
+        run: php tests/integration/evidence_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

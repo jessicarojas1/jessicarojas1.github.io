@@ -192,17 +192,40 @@ ob_start();
           </div>
           <?php
           $existingFiles = Database::fetchAll(
-              "SELECT id, original_name, file_size FROM evidence_files WHERE entity_type='audit_item' AND entity_id=? ORDER BY created_at DESC",
+              "SELECT id, original_name, file_size, review_status, expires_at, uploaded_by
+                 FROM evidence_files WHERE entity_type='audit_item' AND entity_id=? ORDER BY created_at DESC",
               [(int)$item['id']]
           );
+          $canReviewEvidence = Auth::can('audit.write');
+          $reviewBadge = ['pending'=>'badge-warning','approved'=>'badge-success','rejected'=>'badge-danger'];
+          $freshMeta   = ['expired'=>['Expired','var(--danger)'],'expiring'=>['Expiring soon','var(--warning)']];
           ?>
           <?php if ($existingFiles): ?>
-          <div class="evidence-file-list" id="efile-<?= $item['id'] ?>" style="margin-bottom:8px">
-            <?php foreach ($existingFiles as $ef): ?>
-              <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px">
+          <div class="evidence-file-list" id="efile-<?= $item['id'] ?>" style="margin-bottom:8px;display:flex;flex-direction:column;gap:6px">
+            <?php foreach ($existingFiles as $ef):
+              $fresh = EvidenceController::freshness($ef['expires_at'] ?? null);
+              $rs    = $ef['review_status'] ?? 'pending';
+            ?>
+              <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;flex-wrap:wrap">
                 <i class="bi bi-paperclip" style="color:var(--primary)"></i>
-                <a href="/evidence/<?= $ef['id'] ?>/download" target="_blank" style="color:var(--primary)"><?= Security::h($ef['original_name']) ?></a>
+                <a href="/evidence/<?= (int)$ef['id'] ?>/download" target="_blank" style="color:var(--primary)"><?= Security::h($ef['original_name']) ?></a>
                 <span style="color:var(--text-muted);font-size:11px">(<?= round($ef['file_size']/1024,1) ?>KB)</span>
+                <span class="badge <?= $reviewBadge[$rs] ?? 'badge-secondary' ?>" style="font-size:10px"><?= Security::h(ucfirst($rs)) ?></span>
+                <?php if (isset($freshMeta[$fresh])): ?>
+                  <span class="badge" style="font-size:10px;background:<?= $freshMeta[$fresh][1] ?>;color:#fff"><?= Security::h($freshMeta[$fresh][0]) ?></span>
+                <?php endif; ?>
+                <?php if ($canReviewEvidence && $rs !== 'approved' && (int)$ef['uploaded_by'] !== Auth::id()): ?>
+                  <form method="POST" action="/evidence/<?= (int)$ef['id'] ?>/approve" style="margin:0">
+                    <?= Security::csrfField() ?>
+                    <button type="submit" class="btn-unstyled" style="cursor:pointer;color:var(--success);font-size:12px" title="Approve evidence"><i class="bi bi-check-circle"></i></button>
+                  </form>
+                <?php endif; ?>
+                <?php if ($canReviewEvidence && $rs !== 'rejected' && (int)$ef['uploaded_by'] !== Auth::id()): ?>
+                  <form method="POST" action="/evidence/<?= (int)$ef['id'] ?>/reject" style="margin:0">
+                    <?= Security::csrfField() ?>
+                    <button type="submit" class="btn-unstyled" style="cursor:pointer;color:var(--danger);font-size:12px" title="Reject evidence"><i class="bi bi-x-circle"></i></button>
+                  </form>
+                <?php endif; ?>
               </div>
             <?php endforeach; ?>
           </div>
