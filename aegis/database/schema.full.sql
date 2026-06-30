@@ -2341,7 +2341,9 @@ ALTER SEQUENCE aegis.mfa_backup_codes_id_seq OWNED BY aegis.mfa_backup_codes.id;
 
 CREATE TABLE IF NOT EXISTS aegis.notification_log (
     id integer NOT NULL,
+    user_id integer,
     notification_type character varying(100) NOT NULL,
+    entity_type character varying(100),
     entity_id integer,
     recipient_email character varying(255),
     sent_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL

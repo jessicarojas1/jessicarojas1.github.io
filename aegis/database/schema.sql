@@ -664,14 +664,20 @@ CREATE TABLE IF NOT EXISTS evidence_downloads (
 CREATE INDEX IF NOT EXISTS idx_ed_evidence ON evidence_downloads(evidence_id);
 CREATE INDEX IF NOT EXISTS idx_ed_user     ON evidence_downloads(user_id);
 
--- Notification log (used by data-retention cleanup in AdminController)
+-- Notification log: written by scripts/send_notifications.php (per-user, per-entity
+-- throttle + audit) and read by AdminController (delivery log + data-retention cleanup).
 CREATE TABLE IF NOT EXISTS notification_log (
     id                  SERIAL PRIMARY KEY,
+    user_id             INTEGER,
     notification_type   VARCHAR(100) NOT NULL,
+    entity_type         VARCHAR(100),
     entity_id           INTEGER,
     recipient_email     VARCHAR(255),
     sent_at             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- Reconcile older installs whose notification_log predates the per-user throttle.
+ALTER TABLE notification_log ADD COLUMN IF NOT EXISTS user_id     INTEGER;
+ALTER TABLE notification_log ADD COLUMN IF NOT EXISTS entity_type VARCHAR(100);
 CREATE INDEX IF NOT EXISTS idx_nl_sent_at   ON notification_log(sent_at);
 CREATE INDEX IF NOT EXISTS idx_nl_type      ON notification_log(notification_type, entity_id, sent_at);
 CREATE INDEX IF NOT EXISTS idx_nl_recipient ON notification_log(recipient_email);
