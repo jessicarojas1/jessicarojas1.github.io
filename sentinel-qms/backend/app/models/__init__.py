@@ -70,6 +70,7 @@ from app.models.customer_satisfaction import CustomerSurvey, SurveyMethod
 from app.models.document import (
     Department,
     Document,
+    DocumentAcknowledgement,
     DocumentApproval,
     DocumentRevision,
     DocumentStatus,
@@ -91,6 +92,12 @@ from app.models.inspection import (
     Inspection,
     InspectionResult,
     InspectionType,
+)
+from app.models.lesson import (
+    LessonCategory,
+    LessonLearned,
+    LessonSource,
+    LessonStatus,
 )
 from app.models.mgmt_review import (
     ActionItem,
@@ -129,7 +136,6 @@ from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
 from app.models.spc import KcClass, KeyCharacteristic, Measurement
 from app.models.standard import CoverageStatus, Standard, StandardRequirement
-from app.models.token_denylist import AccessTokenDenylist
 from app.models.supplier import (
     ApprovedSupplierListEntry,
     ScarStatus,
@@ -138,6 +144,7 @@ from app.models.supplier import (
     SupplierScar,
     SupplierStatus,
 )
+from app.models.token_denylist import AccessTokenDenylist
 from app.models.training import (
     CompetencyLevel,
     CompetencyMatrixEntry,
@@ -175,6 +182,7 @@ __all__ = [
     "Document",
     "DocumentRevision",
     "DocumentApproval",
+    "DocumentAcknowledgement",
     "DocumentStatus",
     "DocumentType",
     "Nonconformance",
@@ -298,4 +306,8 @@ __all__ = [
     "RefreshToken",
     "PasswordResetToken",
     "AccessTokenDenylist",
+    "LessonLearned",
+    "LessonCategory",
+    "LessonSource",
+    "LessonStatus",
 ]

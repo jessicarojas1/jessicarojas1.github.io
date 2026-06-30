@@ -1688,7 +1688,13 @@ CREATE TABLE IF NOT EXISTS aegis.evidence_files (
     expires_at timestamp without time zone,
     uploaded_by integer,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    tenant_id bigint DEFAULT 1 NOT NULL
+    tenant_id bigint DEFAULT 1 NOT NULL,
+    review_status character varying(20) DEFAULT 'pending'::character varying NOT NULL,
+    reviewed_by integer,
+    reviewed_at timestamp without time zone,
+    review_notes text,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    CONSTRAINT evidence_files_review_status_chk CHECK (((review_status)::text = ANY ((ARRAY['pending'::character varying, 'approved'::character varying, 'rejected'::character varying])::text[])))
 );
 
 ALTER TABLE ONLY aegis.evidence_files FORCE ROW LEVEL SECURITY;
@@ -4008,6 +4014,96 @@ CREATE TABLE IF NOT EXISTS aegis.schema_runtime_state (
     version text NOT NULL,
     applied_at timestamp with time zone DEFAULT now() NOT NULL
 );
+
+
+--
+-- Name: email_queue; Type: TABLE; Schema: aegis; Owner: -
+-- Outbound email retry queue (TD-9): failed sends are enqueued and retried with
+-- exponential backoff by scripts/drain_email_queue.php.
+--
+
+CREATE TABLE IF NOT EXISTS aegis.email_queue (
+    id integer NOT NULL,
+    to_email character varying(255) NOT NULL,
+    to_name character varying(255) DEFAULT ''::character varying,
+    subject text NOT NULL,
+    body_html text NOT NULL,
+    status character varying(20) DEFAULT 'queued'::character varying NOT NULL,
+    attempts integer DEFAULT 0 NOT NULL,
+    max_attempts integer DEFAULT 6 NOT NULL,
+    last_error text,
+    next_attempt_at timestamp without time zone DEFAULT now() NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    sent_at timestamp without time zone
+);
+
+CREATE SEQUENCE IF NOT EXISTS aegis.email_queue_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE aegis.email_queue_id_seq OWNED BY aegis.email_queue.id;
+ALTER TABLE ONLY aegis.email_queue ALTER COLUMN id SET DEFAULT nextval('aegis.email_queue_id_seq'::regclass);
+ALTER TABLE ONLY aegis.email_queue ADD CONSTRAINT email_queue_pkey PRIMARY KEY (id);
+CREATE INDEX IF NOT EXISTS idx_email_queue_due ON aegis.email_queue USING btree (status, next_attempt_at);
+
+
+--
+-- Name: finding_risk_links; Type: TABLE; Schema: aegis; Owner: -
+-- Finding ↔ Risk traceability (Phase 2). Tenant-isolated via RLS (installer).
+--
+
+CREATE TABLE IF NOT EXISTS aegis.finding_risk_links (
+    id integer NOT NULL,
+    finding_id integer NOT NULL,
+    risk_id integer NOT NULL,
+    relationship_type character varying(30) DEFAULT 'related'::character varying NOT NULL,
+    notes text,
+    created_by integer,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    tenant_id bigint DEFAULT 1 NOT NULL
+);
+
+CREATE SEQUENCE IF NOT EXISTS aegis.finding_risk_links_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE aegis.finding_risk_links_id_seq OWNED BY aegis.finding_risk_links.id;
+ALTER TABLE ONLY aegis.finding_risk_links ALTER COLUMN id SET DEFAULT nextval('aegis.finding_risk_links_id_seq'::regclass);
+ALTER TABLE ONLY aegis.finding_risk_links ADD CONSTRAINT finding_risk_links_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY aegis.finding_risk_links ADD CONSTRAINT finding_risk_links_uniq UNIQUE (finding_id, risk_id);
+CREATE INDEX IF NOT EXISTS idx_frl_finding ON aegis.finding_risk_links USING btree (finding_id);
+CREATE INDEX IF NOT EXISTS idx_frl_risk ON aegis.finding_risk_links USING btree (risk_id);
+-- (FK constraints to audit_findings/risks are appended at end-of-file, after
+--  those tables' primary keys are defined — see pg_dump constraint ordering.)
+
+
+--
+-- Name: evidence_downloads; Type: TABLE; Schema: aegis; Owner: -
+-- Evidence download log (Phase 3 lifecycle). Tenant-isolated via RLS.
+-- evidence_files is defined earlier, so the FK resolves inline here.
+--
+
+CREATE TABLE IF NOT EXISTS aegis.evidence_downloads (
+    id integer NOT NULL,
+    evidence_id integer NOT NULL,
+    user_id integer,
+    ip_address character varying(50),
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    tenant_id bigint DEFAULT 1 NOT NULL
+);
+
+CREATE SEQUENCE IF NOT EXISTS aegis.evidence_downloads_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+ALTER SEQUENCE aegis.evidence_downloads_id_seq OWNED BY aegis.evidence_downloads.id;
+ALTER TABLE ONLY aegis.evidence_downloads ALTER COLUMN id SET DEFAULT nextval('aegis.evidence_downloads_id_seq'::regclass);
+ALTER TABLE ONLY aegis.evidence_downloads ADD CONSTRAINT evidence_downloads_pkey PRIMARY KEY (id);
+-- (FK constraints to evidence_files/users are appended at end-of-file, after
+--  evidence_files' primary key is defined — see pg_dump constraint ordering.)
+CREATE INDEX IF NOT EXISTS idx_ed_evidence ON aegis.evidence_downloads USING btree (evidence_id);
+CREATE INDEX IF NOT EXISTS idx_ed_user ON aegis.evidence_downloads USING btree (user_id);
+ALTER TABLE aegis.evidence_downloads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE aegis.evidence_downloads FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation ON aegis.evidence_downloads;
+CREATE POLICY tenant_isolation ON aegis.evidence_downloads
+    USING (
+        NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
+        OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint)
+    WITH CHECK (
+        NULLIF(current_setting('aegis.tenant_id', true), '') IS NULL
+        OR tenant_id = NULLIF(current_setting('aegis.tenant_id', true), '')::bigint);
 
 
 --
@@ -11686,3 +11782,15 @@ ALTER TABLE aegis.vendors ENABLE ROW LEVEL SECURITY;
 
 \unrestrict 69b5oeru0PkoFR9Em0Wcwon5TaTn0KCUJwAISnf98imOaxV1mApSGq1GhzQDKDF
 
+
+--
+-- finding_risk_links foreign keys (placed last: reference audit_findings/risks PKs).
+--
+ALTER TABLE ONLY aegis.finding_risk_links ADD CONSTRAINT finding_risk_links_finding_fk FOREIGN KEY (finding_id) REFERENCES aegis.audit_findings(id) ON DELETE CASCADE;
+ALTER TABLE ONLY aegis.finding_risk_links ADD CONSTRAINT finding_risk_links_risk_fk FOREIGN KEY (risk_id) REFERENCES aegis.risks(id) ON DELETE CASCADE;
+
+--
+-- evidence_downloads foreign keys (placed last: reference evidence_files/users PKs).
+--
+ALTER TABLE ONLY aegis.evidence_downloads ADD CONSTRAINT evidence_downloads_evidence_fk FOREIGN KEY (evidence_id) REFERENCES aegis.evidence_files(id) ON DELETE CASCADE;
+ALTER TABLE ONLY aegis.evidence_downloads ADD CONSTRAINT evidence_downloads_user_fk FOREIGN KEY (user_id) REFERENCES aegis.users(id);

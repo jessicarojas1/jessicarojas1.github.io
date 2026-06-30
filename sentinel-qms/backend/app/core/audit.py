@@ -62,6 +62,7 @@ def record(
     before: dict | Any | None = None,
     after: dict | Any | None = None,
     ip: str | None = None,
+    user_agent: str | None = None,
     request_id: str | None = None,
     flush: bool = True,
 ) -> AuditLog:
@@ -85,6 +86,7 @@ def record(
         before=before,
         after=after,
         ip_address=ip,
+        user_agent=user_agent[:256] if user_agent else None,
         request_id=request_id,
     )
     db.add(entry)

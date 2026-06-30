@@ -77,6 +77,56 @@ $statusBadge = ['open'=>'badge-danger','in_progress'=>'badge-warning','resolved'
         </form>
       </div>
     </div>
+
+    <!-- Linked risks (Phase 2 traceability) -->
+    <div class="card">
+      <div class="card-header"><h3 class="card-title"><i class="bi bi-shield-exclamation"></i> Linked Risks <span class="badge badge-secondary"><?= count($linkedRisks ?? []) ?></span></h3></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+        <?php if (empty($linkedRisks)): ?>
+          <div class="empty-state-sm"><i class="bi bi-link-45deg"></i><p>No risks linked to this finding yet.</p></div>
+        <?php else: foreach ($linkedRisks as $lr): ?>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm)">
+            <div style="min-width:0">
+              <a href="/risk/<?= (int)$lr['id'] ?>" style="font-weight:600;color:var(--primary)"><?= Security::h($lr['risk_code'] ?: ('Risk #' . (int)$lr['id'])) ?></a>
+              <span class="badge" style="background:var(--info-subtle);color:var(--moderate);font-size:10px;text-transform:uppercase;margin-left:6px"><?= Security::h(str_replace('_', ' ', $lr['relationship_type'])) ?></span>
+              <div style="font-size:12px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><?= Security::h((string)$lr['title']) ?></div>
+            </div>
+            <?php if (!empty($canLinkRisk)): ?>
+              <form method="POST" action="/audit-findings/<?= (int)$finding['id'] ?>/unlink-risk" data-confirm="Unlink this risk?" style="flex-shrink:0">
+                <?= Security::csrfField() ?>
+                <input type="hidden" name="link_id" value="<?= (int)$lr['link_id'] ?>">
+                <button type="submit" class="btn-unstyled" style="cursor:pointer;color:var(--danger)" title="Unlink" aria-label="Unlink risk"><i class="bi bi-x-lg"></i></button>
+              </form>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; endif; ?>
+
+        <?php if (!empty($canLinkRisk) && !empty($availableRisks)): ?>
+          <form method="POST" action="/audit-findings/<?= (int)$finding['id'] ?>/link-risk" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:12px">
+            <?= Security::csrfField() ?>
+            <div class="form-group" style="margin:0;flex:1;min-width:200px">
+              <label class="form-label">Link a risk</label>
+              <select name="risk_id" class="form-control" required>
+                <option value="">Select risk…</option>
+                <?php foreach ($availableRisks as $ar): ?>
+                  <option value="<?= (int)$ar['id'] ?>"><?= Security::h(($ar['risk_code'] ? $ar['risk_code'] . ' — ' : '') . mb_strimwidth((string)$ar['title'], 0, 50, '…')) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Relationship</label>
+              <select name="relationship_type" class="form-control">
+                <option value="causes">Causes</option>
+                <option value="indicates">Indicates</option>
+                <option value="mitigated_by">Mitigated by</option>
+                <option value="related" selected>Related</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-link-45deg"></i> Link</button>
+          </form>
+        <?php endif; ?>
+      </div>
+    </div>
   </div>
 
   <!-- Sidebar -->

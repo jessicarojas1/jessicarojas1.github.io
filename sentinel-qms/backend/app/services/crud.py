@@ -17,11 +17,16 @@ ModelT = TypeVar("ModelT")
 
 
 def request_context(request: Request) -> dict[str, str | None]:
-    """Extract client IP and request-id for audit logging."""
+    """Extract client IP, User-Agent, and request-id for audit logging."""
     client = request.client.host if request.client else None
     fwd = request.headers.get("X-Forwarded-For")
     ip = fwd.split(",")[0].strip() if fwd else client
-    return {"ip": ip, "request_id": getattr(request.state, "request_id", None)}
+    ua = request.headers.get("User-Agent")
+    return {
+        "ip": ip,
+        "user_agent": ua[:256] if ua else None,
+        "request_id": getattr(request.state, "request_id", None),
+    }
 
 
 def get_or_404(db: Session, model: type[ModelT], pk: int, *, name: str = "Record") -> ModelT:

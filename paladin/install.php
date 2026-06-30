@@ -39,20 +39,66 @@ try {
 
     $freshInstall = !Database::tableExists('users');
 
-    // schema.sql is idempotent — safe to run on every deploy.
+    // schema.sql is the full, idempotent baseline. It is safe to re-run, BUT on
+    // a pre-existing database `CREATE TABLE IF NOT EXISTS` is a no-op, so columns
+    // added to a table after its first creation are NOT applied by schema.sql —
+    // and any later statement in the same file that references such a column
+    // (e.g. an index on it) fails, aborting the whole multi-statement exec in
+    // one rolled-back transaction. The incremental migrations below carry those
+    // `ADD COLUMN IF NOT EXISTS` deltas, so a schema.sql failure must NOT stop
+    // them from running. Treat the baseline as best-effort and always proceed to
+    // migrations, which are what bring an existing database up to date.
     $schema = file_get_contents(PALADIN_ROOT . '/database/schema.sql');
-    $pdo->exec($schema);
-    log_msg('[PALADIN] Schema applied.');
+    try {
+        $pdo->exec("SET search_path TO paladin");
+        $pdo->exec($schema);
+        log_msg('[PALADIN] Schema baseline applied.');
+    } catch (PDOException $e) {
+        log_msg('[PALADIN] Schema baseline warning (continuing to migrations): ' . $e->getMessage());
+    }
 
-    // Run any incremental migrations (kept in sync with schema.sql).
+    // Track applied migrations in schema_migrations so each file is applied once
+    // and skipped on subsequent boots. On an existing database that predates this
+    // tracking the table is empty, so every (idempotent) migration is applied once
+    // to reconcile drift and then recorded; thereafter boots skip them and are fast.
+    $pdo->exec("SET search_path TO paladin");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS schema_migrations (
+        filename   TEXT PRIMARY KEY,
+        applied_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )");
+    $applied = [];
+    foreach (Database::fetchAll("SELECT filename FROM schema_migrations") as $row) {
+        $applied[$row['filename']] = true;
+    }
+
+    // Run pending incremental migrations in order. Each runs in its own exec so one
+    // failing migration cannot block the others, and is recorded only on success so
+    // a failure is retried next boot. All migrations are idempotent.
     foreach (glob(PALADIN_ROOT . '/database/migrations/*.sql') ?: [] as $path) {
+        $name = basename($path);
+        if (isset($applied[$name])) { continue; }
         try {
             $pdo->exec("SET search_path TO paladin");
             $pdo->exec(file_get_contents($path));
-            log_msg('[PALADIN] Applied migration: ' . basename($path));
+            Database::query(
+                "INSERT INTO schema_migrations (filename) VALUES (?) ON CONFLICT (filename) DO NOTHING",
+                [$name]
+            );
+            log_msg('[PALADIN] Applied migration: ' . $name);
         } catch (PDOException $e) {
-            log_msg('[PALADIN] Migration ' . basename($path) . ' warning: ' . $e->getMessage());
+            log_msg('[PALADIN] Migration ' . $name . ' warning: ' . $e->getMessage());
         }
+    }
+
+    // Re-run the schema baseline once more now that migrations have added any
+    // missing columns — this lets previously-skipped objects (indexes/views that
+    // depend on those columns) settle on an existing database. Still best-effort.
+    try {
+        $pdo->exec("SET search_path TO paladin");
+        $pdo->exec($schema);
+        log_msg('[PALADIN] Schema baseline reconciled.');
+    } catch (PDOException $e) {
+        log_msg('[PALADIN] Schema reconcile warning: ' . $e->getMessage());
     }
 
     if ($freshInstall) {

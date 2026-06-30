@@ -401,6 +401,29 @@ CREATE TABLE IF NOT EXISTS schema_runtime_state (
     applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Outbound email retry queue (TD-9). Failed immediate sends are enqueued here
+-- and retried with exponential backoff by scripts/drain_email_queue.php.
+CREATE TABLE IF NOT EXISTS email_queue (
+    id              SERIAL PRIMARY KEY,
+    to_email        VARCHAR(255) NOT NULL,
+    to_name         VARCHAR(255) DEFAULT '',
+    subject         TEXT NOT NULL,
+    body_html       TEXT NOT NULL,
+    status          VARCHAR(20) NOT NULL DEFAULT 'queued',
+    attempts        INTEGER NOT NULL DEFAULT 0,
+    max_attempts    INTEGER NOT NULL DEFAULT 6,
+    last_error      TEXT,
+    next_attempt_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+    sent_at         TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_email_queue_due ON email_queue (status, next_attempt_at);
+
+-- Finding ↔ Risk traceability (Phase 2) lives in migration
+-- 033_finding_risk_links.sql: it references audit_findings (created by migration
+-- 016, not this bootstrap file), so it is applied by the installer's migration
+-- loop after that dependency exists rather than inline here.
+
 CREATE TABLE IF NOT EXISTS activity_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
@@ -590,9 +613,30 @@ CREATE TABLE IF NOT EXISTS evidence_files (
     description   TEXT,
     expires_at    TIMESTAMP,
     uploaded_by   INTEGER REFERENCES users(id),
-    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Approval/rejection workflow (Phase 3 evidence lifecycle; see migration 034)
+    review_status VARCHAR(20) NOT NULL DEFAULT 'pending'
+                  CHECK (review_status IN ('pending','approved','rejected')),
+    reviewed_by   INTEGER REFERENCES users(id),
+    reviewed_at   TIMESTAMP,
+    review_notes  TEXT,
+    updated_at    TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_ef_entity ON evidence_files(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_ef_entity        ON evidence_files(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_ef_review_status ON evidence_files(review_status);
+CREATE INDEX IF NOT EXISTS idx_ef_expires_at    ON evidence_files(expires_at);
+
+-- Evidence download log (Phase 3): tamper-aware record of who pulled which file.
+CREATE TABLE IF NOT EXISTS evidence_downloads (
+    id          SERIAL PRIMARY KEY,
+    evidence_id INTEGER NOT NULL REFERENCES evidence_files(id) ON DELETE CASCADE,
+    user_id     INTEGER REFERENCES users(id),
+    ip_address  VARCHAR(50),
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    tenant_id   BIGINT NOT NULL DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS idx_ed_evidence ON evidence_downloads(evidence_id);
+CREATE INDEX IF NOT EXISTS idx_ed_user     ON evidence_downloads(user_id);
 
 -- Notification log (used by data-retention cleanup in AdminController)
 CREATE TABLE IF NOT EXISTS notification_log (

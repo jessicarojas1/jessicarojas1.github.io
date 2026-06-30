@@ -184,6 +184,12 @@ class RiskController {
 
         $whereSQL = implode(' AND ', $where);
 
+        // Server-side pagination (TD-5): count matching rows, then fetch one page.
+        // The filter clauses reference only r.*, so COUNT needs no joins.
+        $matchTotal = (int) (Database::fetchOne("SELECT COUNT(*) AS c FROM risks r WHERE {$whereSQL}", $params)['c'] ?? 0);
+        $pagination = Pagination::build($matchTotal);
+
+        $pageParams = array_merge($params, [$pagination['perPage'], $pagination['offset']]);
         $risks = Database::fetchAll(
             "SELECT r.*,
                     rc.name AS category_name, rc.color AS category_color,
@@ -197,8 +203,9 @@ class RiskController {
              LEFT JOIN risk_categories rc ON r.category_id = rc.id
              LEFT JOIN users u ON r.owner_id = u.id
              WHERE {$whereSQL}
-             ORDER BY r.inherent_score DESC, r.created_at DESC",
-            $params
+             ORDER BY r.inherent_score DESC, r.created_at DESC
+             LIMIT ? OFFSET ?",
+            $pageParams
         );
 
         $categories = Database::fetchAll("SELECT * FROM risk_categories ORDER BY sort_order");
@@ -502,6 +509,16 @@ class RiskController {
                 'score'          => $sugL * $sugI,
             ];
         }
+
+        // Phase 2: audit findings linked to this risk (reverse traceability).
+        $linkedFindings = Database::fetchAll(
+            "SELECT frl.relationship_type, af.id, af.finding_number, af.title, af.severity, af.status
+             FROM finding_risk_links frl
+             JOIN audit_findings af ON af.id = frl.finding_id
+             WHERE frl.risk_id = ?
+             ORDER BY af.created_at DESC",
+            [(int)$id]
+        );
 
         require AEGIS_ROOT . '/views/risk/view.php';
     }

@@ -12,6 +12,13 @@ class ThreatController {
         if ($filter) { $where[] = 't.category = ?'; $params[] = $filter; }
         if ($statusF) { $where[] = 't.status = ?'; $params[] = $statusF; }
         $whereStr = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        // Server-side pagination (TD-5). The grouped query returns one row per
+        // threat, so COUNT the base table (filter references t.* only) and
+        // LIMIT/OFFSET the groups.
+        $threatTotal = (int) (Database::fetchOne("SELECT COUNT(*) AS c FROM threats t {$whereStr}", $params)['c'] ?? 0);
+        $pagination = Pagination::build($threatTotal);
+
         $threats = Database::fetchAll(
             "SELECT t.*, u.name as owner_name,
                     COUNT(trl.risk_id) as linked_risks,
@@ -20,8 +27,9 @@ class ThreatController {
              LEFT JOIN users u ON u.id = t.owner_id
              LEFT JOIN threat_risk_links trl ON trl.threat_id = t.id
              {$whereStr}
-             GROUP BY t.id, u.name ORDER BY (t.likelihood * t.impact) DESC NULLS LAST, t.title",
-            $params
+             GROUP BY t.id, u.name ORDER BY (t.likelihood * t.impact) DESC NULLS LAST, t.title
+             LIMIT ? OFFSET ?",
+            array_merge($params, [$pagination['perPage'], $pagination['offset']])
         );
         // Category stats
         $stats = Database::fetchAll(

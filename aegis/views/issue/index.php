@@ -236,6 +236,7 @@ $_filterCount = count(array_filter([
       </tbody>
     </table>
   </div>
+  <?php if (!empty($pagination)): ?><?= Pagination::render($pagination, '/issue') ?><?php endif; ?>
 </div>
 
 <?php

@@ -366,6 +366,7 @@ Core compliance engine: frameworks (`standards`) → packages (`compliance_packa
 - Objective detail with implementation, child controls, mapped policies, recent audit findings.
 - Control testing (`testControl`/`saveTest` → `control_tests`) and a testing dashboard.
 - Scorecard per package; gap analysis (per-package stats, top gaps, cross-framework overlaps).
+- **Cross-framework crosswalk** (`crosswalk`/`addMapping`/`removeMapping` → `control_mappings`): pick a source + target framework and author/view equivalence mappings between their control objectives (e.g. CMMC `AC.L2-3.1.1` ↔ NIST 800-171 `3.1.1`), with a mapping type (equivalent/partial/related/superset/subset), coverage summary, and a paginated control grid. Read gated on `compliance.view`; authoring on `compliance.edit`; every add/remove is audit-logged with structured before/after detail.
 - AI suggestions via `AIAdvisor` (rate-limited).
 - Import: JSON, CSV, Excel (.xlsx via ZipArchive, plus SpreadsheetML), PDF (poppler `pdftotext`). CSV/Excel templates downloadable.
 
@@ -586,6 +587,7 @@ Track findings from external audits, pentests, certifications, regulators, etc.,
 
 ### Features
 List ordered by severity + stats (total, open, critical/high open, overdue); create/view/update; add threaded update (`finding_updates`); close; delete.
+- **Finding ↔ Risk traceability** (Phase 2, `linkRisk`/`unlinkRisk` → `finding_risk_links`): link a finding to the risk(s) it causes / indicates / is mitigated by / relates to. The link is shown on both the finding view (with an add/remove form) and, in reverse, on the risk view ("Linked Audit Findings"). Authoring gated on `audit.findings`; CSRF-validated; audit-logged with structured before/after. The table is tenant-isolated via RLS and `created by` is stamped.
 
 ### Business Rules / Validation
 - Finding number `FIND-####`.
@@ -944,24 +946,30 @@ Purely read; no 404 paths (aggregate queries).
 **Controller:** `controllers/EvidenceController.php` · **Views:** rendered inline / JSON
 
 ### Purpose
-Generic evidence-file attachment for many entity types (control, risk, audit, incident, policy, vendor, issue) with IDOR protection.
+Generic evidence-file attachment for many entity types (control, risk, audit, audit_item, incident, policy, vendor, issue) with IDOR protection, plus a full **evidence lifecycle** (Phase 3): approval/rejection workflow, download logging, and freshness/expiration surfacing.
 
 ### Features
-Upload, download, delete, and list (JSON) evidence for an entity.
+Upload, download, delete, list (JSON), and **review (approve/reject)** evidence for an entity. Each download is logged; expiry is surfaced as a freshness state.
 
 ### Business Rules
-- Entity types: `control, risk, audit, incident, policy, vendor, issue`; each maps to a permission module (`control→compliance`, etc.).
+- Entity types: `control, risk, audit, audit_item, incident, policy, vendor, issue`; each maps to a permission module (`control→compliance`, `audit_item→audit`, etc.) via `EvidenceController::MODULE_MAP`.
 - **Upload** requires `Auth::can(module.write)` for the target entity (IDOR prevention).
 - **Download/list** require `canAccessEntity()` → admin or `Auth::can(module.read)`.
 - **Delete** allowed only to the uploader or an admin.
+- **Review (approve/reject)** requires `Auth::can(module.write)` on the governing module **and** segregation of duties — the uploader may not review their own evidence (admins excepted). Sets `review_status` ∈ `pending|approved|rejected` (DB `CHECK`), records `reviewed_by`/`reviewed_at`/`review_notes`, and writes an `approve_evidence`/`reject_evidence` audit row.
+- **Download logging:** every download inserts an `evidence_downloads` row (`evidence_id`, `user_id`, `ip_address`) — tenant-isolated under RLS, cascade-deleted with the file — and writes a tamper-evident `download_evidence` audit row. A logging failure never blocks legitimate access.
+- **Freshness:** `EvidenceController::freshness(expires_at)` returns `none|valid|expiring` (within 30 days) `|expired`; surfaced in the list JSON and as UI badges.
 - Allowed extensions/size are **settings-driven** (`upload_allowed_types`, `upload_max_size_mb`); MIME validated against an allow-list; stored as `bin2hex(16).ext` under `uploads/`; SHA-256 recorded.
 - Download forces `attachment`, RFC 5987 filename encoding, `nosniff`, and downgrades non-whitelisted MIME to `application/octet-stream`.
 
+### Schema (migration 034)
+`evidence_files` gains `review_status, reviewed_by, reviewed_at, review_notes, updated_at` (+ indexes on review_status/expires_at). New `evidence_downloads` table (RLS-isolated) records accesses.
+
 ### Permissions
-`Auth::requireAuth()` plus the per-entity `module.read`/`module.write` checks above (admin bypass).
+`Auth::requireAuth()` plus the per-entity `module.read`/`module.write` checks above (admin bypass). Approve/reject are POST routes (`/evidence/{id}/approve`, `/evidence/{id}/reject`) with CSRF + SoD enforced server-side.
 
 ### Error Conditions
-403 on insufficient permission or CSRF; 404 if record/file missing; 400 on invalid `stored_name` (path-traversal guard via hex regex).
+403 on insufficient permission, CSRF failure, or self-review (SoD); 404 if record/file missing; 400 on invalid `stored_name` (path-traversal guard via hex regex) or unknown review state.
 
 ### Edge Cases
 `redirectBack()` validates `HTTP_REFERER` to same-origin local paths only (open-redirect guard).

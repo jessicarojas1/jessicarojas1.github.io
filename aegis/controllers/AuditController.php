@@ -9,14 +9,19 @@ class AuditController {
         $where  = $status ? "WHERE a.status = ?" : "WHERE 1=1";
         $params = $status ? [$status] : [];
 
+        // Server-side pagination (TD-5). The filter references a.* only.
+        $auditTotal = (int) (Database::fetchOne("SELECT COUNT(*) AS c FROM audits a {$where}", $params)['c'] ?? 0);
+        $pagination = Pagination::build($auditTotal);
+
         $audits = Database::fetchAll(
             "SELECT a.*, cp.name as package_name, u.name as auditor_name, u2.name as created_by_name
              FROM audits a
              LEFT JOIN compliance_packages cp ON a.package_id = cp.id
              LEFT JOIN users u ON a.auditor_id = u.id
              LEFT JOIN users u2 ON a.created_by = u2.id
-             {$where} ORDER BY a.scheduled_date DESC",
-            $params
+             {$where} ORDER BY a.scheduled_date DESC
+             LIMIT ? OFFSET ?",
+            array_merge($params, [$pagination['perPage'], $pagination['offset']])
         );
 
         $summary = Database::fetchOne(

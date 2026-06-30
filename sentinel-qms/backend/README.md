@@ -39,6 +39,19 @@ Open the interactive docs at <http://localhost:8000/docs>.
 Default dev admin (only when `ADMIN_AUTO_CREATE=true` and not production):
 `admin@sentinel-qms.local` / `ChangeMe!Admin123`.
 
+### Reset an admin password
+
+Locked out, or need to (re)provision an administrator without changing env vars
+or redeploying? From a deploy shell (e.g. the Render service shell):
+
+```bash
+python -m app.reset_admin <email> <password>
+```
+
+It creates-or-resyncs that account, (re)activates it, ensures the `Admin` role,
+and writes the action to the audit log. Passwords shorter than 12 characters are
+rejected. Sign in afterward and change the password from **My Profile**.
+
 ## Environment variables
 
 See [`.env.example`](./.env.example). Key variables:

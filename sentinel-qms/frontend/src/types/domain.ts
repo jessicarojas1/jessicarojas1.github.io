@@ -64,6 +64,7 @@ export interface ControlledDocument {
   next_review_date?: Iso8601;
   last_review_date?: Iso8601;
   as9100_clause?: string;
+  acknowledgement_required?: boolean;
   // Fixed-template body sections.
   purpose?: string;
   scope?: string;
@@ -1179,6 +1180,48 @@ export interface Improvement {
   realized_benefit?: number | null;
   target_date?: Iso8601 | null;
   clause_ref?: string | null;
+}
+
+/* ------------------------------------------------------------------ */
+/* Lessons Learned registry (organizational learning)                  */
+/* ------------------------------------------------------------------ */
+
+export type LessonCategory =
+  | 'process'
+  | 'quality'
+  | 'supplier'
+  | 'design'
+  | 'safety'
+  | 'project'
+  | 'other';
+export type LessonSource =
+  | 'ncr'
+  | 'capa'
+  | 'audit'
+  | 'complaint'
+  | 'project'
+  | 'incident'
+  | 'customer'
+  | 'other';
+export type LessonStatus = 'draft' | 'published' | 'archived';
+
+export interface LessonLearned {
+  id: number;
+  lesson_number: string;
+  title: string;
+  category: LessonCategory;
+  source: LessonSource;
+  source_ref?: string | null;
+  status: LessonStatus;
+  department?: string | null;
+  owner_id?: number | null;
+  event_date?: Iso8601 | null;
+  what_happened?: string | null;
+  root_cause?: string | null;
+  recommendation?: string | null;
+  published_at?: Iso8601 | null;
+  created_at?: Iso8601 | null;
+  updated_at?: Iso8601 | null;
 }
 
 /* ------------------------------------------------------------------ */

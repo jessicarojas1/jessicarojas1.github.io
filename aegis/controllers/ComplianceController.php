@@ -3,7 +3,9 @@ class ComplianceController {
     public function index(): void {
         Auth::requirePermission('compliance.view');
 
-        $packages = Database::fetchAll(
+        // Heavy org-wide rollup (per-package compliance counts) — cached per
+        // tenant for a short TTL (TD-6). Tenant-namespaced; no per-user filter.
+        $packages = Cache::remember('compliance:packages', Cache::DEFAULT_TTL, fn() => Database::fetchAll(
             "SELECT cp.*, COALESCE(s.name, cp.name) as standard_name,
                COALESCE(s.code, 'CUSTOM') as standard_code,
                COALESCE(s.category, 'custom') as standard_category,
@@ -18,7 +20,7 @@ class ComplianceController {
              WHERE cp.is_active = TRUE
              GROUP BY cp.id, s.name, s.code, s.category
              ORDER BY cp.imported_at ASC"
-        );
+        ));
 
         require AEGIS_ROOT . '/views/compliance/index.php';
     }
@@ -1127,5 +1129,161 @@ class ComplianceController {
         require AEGIS_ROOT . '/views/compliance/testing_dashboard.php';
         $content = ob_get_clean();
         require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    /** Mapping relationship types between two control objectives. */
+    private const MAPPING_TYPES = ['equivalent', 'partial', 'related', 'superset', 'subset'];
+
+    /**
+     * Cross-framework control crosswalk (TD: activates the control_mappings table).
+     * Pick a source + target framework and author/view mappings between their
+     * control objectives (e.g. CMMC AC.L2-3.1.1 ↔ NIST 800-171 3.1.1). Read-only
+     * view gated on compliance.view; authoring is gated on compliance.edit below.
+     */
+    public function crosswalk(): void {
+        Auth::requirePermission('compliance.view');
+
+        $packages = Database::fetchAll(
+            "SELECT cp.id, cp.name, s.code AS standard_code
+             FROM compliance_packages cp
+             LEFT JOIN standards s ON s.id = cp.standard_id
+             WHERE cp.is_active = TRUE
+             ORDER BY s.code NULLS LAST, cp.name"
+        );
+
+        $sourcePkg = (int)($_GET['source'] ?? 0);
+        $targetPkg = (int)($_GET['target'] ?? 0);
+
+        $sourceControls = [];
+        $allSourceControls = [];
+        $targetControls = [];
+        $mappingsByControl = [];   // source control id => list of mapped target controls
+        $pagination = null;
+        $mappedCount = 0;
+
+        if ($sourcePkg > 0 && $targetPkg > 0 && $sourcePkg !== $targetPkg) {
+            // Full control lists for the "add mapping" pickers (id + code, lightweight).
+            $allSourceControls = Database::fetchAll(
+                "SELECT id, code FROM compliance_objectives
+                 WHERE package_id = ? AND level = 2 ORDER BY code",
+                [$sourcePkg]
+            );
+            $targetControls = Database::fetchAll(
+                "SELECT id, code, title FROM compliance_objectives
+                 WHERE package_id = ? AND level = 2 ORDER BY code",
+                [$targetPkg]
+            );
+
+            // Existing mappings touching one source-pkg control and one target-pkg
+            // control, in EITHER stored direction — normalised to source→target below.
+            $maps = Database::fetchAll(
+                "SELECT cm.id, cm.mapping_type, cm.notes,
+                        so.id AS so_id, so.code AS so_code, so.title AS so_title, so.package_id AS so_pkg,
+                        tt.id AS tt_id, tt.code AS tt_code, tt.title AS tt_title, tt.package_id AS tt_pkg
+                 FROM control_mappings cm
+                 JOIN compliance_objectives so ON so.id = cm.source_obj_id
+                 JOIN compliance_objectives tt ON tt.id = cm.target_obj_id
+                 WHERE (so.package_id = ? AND tt.package_id = ?)
+                    OR (so.package_id = ? AND tt.package_id = ?)",
+                [$sourcePkg, $targetPkg, $targetPkg, $sourcePkg]
+            );
+            foreach ($maps as $m) {
+                if ((int)$m['so_pkg'] === $sourcePkg) {
+                    $srcId = (int)$m['so_id'];
+                    $tgt = ['code' => $m['tt_code'], 'title' => $m['tt_title']];
+                } else {
+                    $srcId = (int)$m['tt_id'];
+                    $tgt = ['code' => $m['so_code'], 'title' => $m['so_title']];
+                }
+                $mappingsByControl[$srcId][] = [
+                    'id' => (int)$m['id'], 'type' => $m['mapping_type'],
+                    'notes' => $m['notes'], 'code' => $tgt['code'], 'title' => $tgt['title'],
+                ];
+            }
+            $mappedCount = count($mappingsByControl);
+
+            // Source controls (paginated — frameworks can have hundreds of controls).
+            $total = (int)(Database::fetchOne(
+                "SELECT COUNT(*) AS c FROM compliance_objectives WHERE package_id = ? AND level = 2",
+                [$sourcePkg]
+            )['c'] ?? 0);
+            $pagination = Pagination::build($total);
+            $sourceControls = Database::fetchAll(
+                "SELECT id, code, title FROM compliance_objectives
+                 WHERE package_id = ? AND level = 2 ORDER BY code LIMIT ? OFFSET ?",
+                [$sourcePkg, $pagination['perPage'], $pagination['offset']]
+            );
+        }
+
+        $canEdit = Auth::can('compliance.edit');
+        $pageTitle    = 'Control Crosswalk';
+        $activeModule = 'compliance';
+        $breadcrumbs  = [['Compliance', '/compliance'], ['Crosswalk', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/compliance/crosswalk.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    /** Create a cross-framework control mapping (compliance.edit). */
+    public function addMapping(): void {
+        Auth::requirePermission('compliance.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $sourceObj = (int)($_POST['source_obj_id'] ?? 0);
+        $targetObj = (int)($_POST['target_obj_id'] ?? 0);
+        $type      = in_array($_POST['mapping_type'] ?? '', self::MAPPING_TYPES, true) ? $_POST['mapping_type'] : 'equivalent';
+        $notes     = Security::sanitizeInput($_POST['notes'] ?? '');
+        $back      = '/compliance/crosswalk?source=' . (int)($_POST['source_pkg'] ?? 0) . '&target=' . (int)($_POST['target_pkg'] ?? 0);
+
+        if ($sourceObj <= 0 || $targetObj <= 0 || $sourceObj === $targetObj) {
+            $_SESSION['flash_error'] = 'Select two different controls to map.';
+            header("Location: {$back}"); return;
+        }
+        // Both objectives must exist (RLS scopes this to the tenant).
+        $exists = Database::fetchOne(
+            "SELECT COUNT(*) AS c FROM compliance_objectives WHERE id IN (?, ?)",
+            [$sourceObj, $targetObj]
+        );
+        if ((int)($exists['c'] ?? 0) !== 2) {
+            $_SESSION['flash_error'] = 'One or both controls were not found.';
+            header("Location: {$back}"); return;
+        }
+        // Skip duplicates (either direction).
+        $dup = Database::fetchOne(
+            "SELECT id FROM control_mappings
+             WHERE (source_obj_id = ? AND target_obj_id = ?) OR (source_obj_id = ? AND target_obj_id = ?)",
+            [$sourceObj, $targetObj, $targetObj, $sourceObj]
+        );
+        if ($dup) {
+            $_SESSION['flash_error'] = 'These controls are already mapped.';
+            header("Location: {$back}"); return;
+        }
+        $id = Database::insert('control_mappings', [
+            'source_obj_id' => $sourceObj,
+            'target_obj_id' => $targetObj,
+            'mapping_type'  => $type,
+            'notes'         => $notes,
+            'created_by'    => Auth::id(),
+        ]);
+        Auth::log('add_control_mapping', 'control_mappings', $id,
+            ['source_obj_id' => $sourceObj, 'target_obj_id' => $targetObj, 'mapping_type' => $type]);
+        $_SESSION['flash_success'] = 'Control mapping added.';
+        header("Location: {$back}");
+    }
+
+    /** Remove a cross-framework control mapping (compliance.edit). */
+    public function removeMapping(): void {
+        Auth::requirePermission('compliance.edit');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $id   = (int)($_POST['mapping_id'] ?? 0);
+        $back = '/compliance/crosswalk?source=' . (int)($_POST['source_pkg'] ?? 0) . '&target=' . (int)($_POST['target_pkg'] ?? 0);
+        if ($id > 0) {
+            Database::query("DELETE FROM control_mappings WHERE id = ?", [$id]); // RLS scopes to tenant
+            Auth::log('remove_control_mapping', 'control_mappings', $id);
+            $_SESSION['flash_success'] = 'Control mapping removed.';
+        }
+        header("Location: {$back}");
     }
 }

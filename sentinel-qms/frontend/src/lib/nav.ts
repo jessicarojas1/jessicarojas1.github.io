@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   Award,
+  BookMarked,
   BookOpen,
   Boxes,
   Briefcase,
@@ -103,6 +104,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Management Review', to: '/mgmt-reviews', icon: GaugeCircle, capability: 'mgmt_reviews.read', page: 'mgmt_reviews' },
       { label: 'Quality Objectives', to: '/quality-objectives', icon: Target, capability: 'quality_objectives.read', page: 'quality_objectives' },
       { label: 'Continual Improvement', to: '/improvements', icon: Lightbulb, capability: 'improvements.read', page: 'improvements' },
+      { label: 'Lessons Learned', to: '/lessons-learned', icon: BookMarked, capability: 'lessons_learned.read', page: 'lessons_learned' },
       { label: 'Customer Satisfaction', to: '/customer-satisfaction', icon: Smile, capability: 'csat.read', page: 'customer_satisfaction' },
     ],
   },

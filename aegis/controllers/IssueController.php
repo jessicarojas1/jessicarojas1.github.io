@@ -28,6 +28,10 @@ class IssueController {
 
         $whereSQL = implode(' AND ', $where);
 
+        // Server-side pagination (TD-5). Filters reference only i.*, so COUNT needs no joins.
+        $issueTotal = (int) (Database::fetchOne("SELECT COUNT(*) AS c FROM issues i WHERE {$whereSQL}", $params)['c'] ?? 0);
+        $pagination = Pagination::build($issueTotal);
+
         $issues = Database::fetchAll(
             "SELECT i.*,
                     u1.name AS assigned_to_name,
@@ -36,8 +40,9 @@ class IssueController {
              LEFT JOIN users u1 ON i.assigned_to  = u1.id
              LEFT JOIN users u2 ON i.created_by   = u2.id
              WHERE {$whereSQL}
-             ORDER BY i.created_at DESC",
-            $params
+             ORDER BY i.created_at DESC
+             LIMIT ? OFFSET ?",
+            array_merge($params, [$pagination['perPage'], $pagination['offset']])
         );
 
         $stats = Database::fetchOne(

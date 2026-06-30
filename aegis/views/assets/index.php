@@ -238,6 +238,7 @@ function criticalityBadge(string $crit): string {
       </tbody>
     </table>
   </div>
+  <?php if (!empty($pagination)): ?><?= Pagination::render($pagination, '/assets') ?><?php endif; ?>
 </div>
 
 <?php
