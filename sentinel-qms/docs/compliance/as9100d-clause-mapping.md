@@ -41,7 +41,7 @@ is organizational rather than software-satisfiable, the platform's supporting ro
 |--------|-------------|----------------------|
 | 7.1.1–7.1.4 | Resources, people, infrastructure, environment | **Supports** — Equipment register; Training & Competency; records of resource provision |
 | 7.1.5 | Monitoring and measuring resources (incl. 7.1.5.2 measurement traceability) | **Satisfies** — Calibration & Equipment module: M&TE register, NIST-traceable certificates, intervals, recall on out-of-tolerance |
-| 7.1.6 | Organizational knowledge | **Supports** — Document Control retains lessons-learned, CAPA knowledge base |
+| 7.1.6 | Organizational knowledge | **Satisfies** — dedicated Lessons Learned registry (sourced from NCR/CAPA/audit/complaint/project/incident, draft→published workflow, searchable) plus Document Control and the CAPA knowledge base |
 | 7.2 | Competence | **Satisfies** — Training & Competency module ties qualifications to roles with recurrence and expiry |
 | 7.3 | Awareness | **Satisfies** — Document acknowledgements (read-and-understood) on released documents |
 | 7.4 | Communication | **Supports** — Workflow notifications, escalations |

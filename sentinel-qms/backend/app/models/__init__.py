@@ -93,6 +93,12 @@ from app.models.inspection import (
     InspectionResult,
     InspectionType,
 )
+from app.models.lesson import (
+    LessonCategory,
+    LessonLearned,
+    LessonSource,
+    LessonStatus,
+)
 from app.models.mgmt_review import (
     ActionItem,
     ActionItemStatus,
@@ -300,4 +306,8 @@ __all__ = [
     "RefreshToken",
     "PasswordResetToken",
     "AccessTokenDenylist",
+    "LessonLearned",
+    "LessonCategory",
+    "LessonSource",
+    "LessonStatus",
 ]

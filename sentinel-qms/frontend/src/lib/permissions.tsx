@@ -51,6 +51,7 @@ export const PAGE_FALLBACK_CAPS: Record<
   mgmt_reviews: { read: 'mgmt_reviews.read', write: 'mgmt_reviews.write' },
   quality_objectives: { read: 'quality_objectives.read', write: 'quality_objectives.write' },
   improvements: { read: 'improvements.read', write: 'improvements.write' },
+  lessons_learned: { read: 'lessons_learned.read', write: 'lessons_learned.write' },
   customer_satisfaction: { read: 'csat.read', write: 'csat.write' },
   fmea: { read: 'fmea.read', write: 'fmea.write' },
   users: { read: 'admin.users', write: 'admin.users' },

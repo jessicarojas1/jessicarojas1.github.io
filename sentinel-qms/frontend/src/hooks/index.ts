@@ -42,6 +42,7 @@ export * from './useCustomers';
 export * from './useCustomerSatisfaction';
 export * from './useAuditPrograms';
 export * from './useImprovements';
+export * from './useLessons';
 export * from './useMsa';
 export * from './useQualityObjectives';
 export * from './useSpc';
