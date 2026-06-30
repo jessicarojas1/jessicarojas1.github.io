@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import csv
+import io
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import (
@@ -65,6 +67,75 @@ def list_complaints(
     stmt = apply_sort(stmt, Complaint, sort)
     items, total = paginate(db, stmt, Complaint, pagination)
     return Page[ComplaintList](items=items, **page_meta(total, pagination))
+
+
+@router.get("/export.csv")
+def export_complaints_csv(
+    request: Request,
+    db: Session = Depends(get_db),
+    status_filter: ComplaintStatus | None = Query(None, alias="status"),
+    severity: ComplaintSeverity | None = Query(None),
+    is_rma: bool | None = Query(None),
+    actor: CurrentUser = Depends(require_page("complaints", "view")),
+) -> Response:
+    """Stream the filtered complaint list as a CSV attachment (max 50,000 rows)."""
+    stmt = base_select(Complaint)
+    if status_filter:
+        stmt = stmt.where(Complaint.status == status_filter)
+    if severity:
+        stmt = stmt.where(Complaint.severity == severity)
+    if is_rma is not None:
+        stmt = stmt.where(Complaint.is_rma.is_(is_rma))
+    stmt = stmt.order_by(Complaint.id.desc()).limit(50_000)
+    rows = db.execute(stmt).scalars().all()
+
+    columns = [
+        "complaint_number",
+        "title",
+        "customer_name",
+        "status",
+        "severity",
+        "is_rma",
+        "rma_number",
+        "received_date",
+        "created_at",
+        "closed_at",
+    ]
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(columns)
+    for complaint in rows:
+        writer.writerow(
+            [
+                complaint.complaint_number,
+                complaint.title,
+                complaint.customer_name,
+                complaint.status.value if complaint.status else "",
+                complaint.severity.value if complaint.severity else "",
+                complaint.is_rma,
+                complaint.rma_number or "",
+                complaint.received_date.isoformat() if complaint.received_date else "",
+                complaint.created_at.isoformat() if complaint.created_at else "",
+                complaint.closed_at.isoformat() if complaint.closed_at else "",
+            ]
+        )
+
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="export",
+        entity_type=ENTITY,
+        after={"count": len(rows), "format": "csv"},
+        **request_context(request),
+    )
+    db.commit()
+
+    return Response(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="complaints.csv"'},
+    )
 
 
 @router.post("", response_model=ComplaintRead, status_code=status.HTTP_201_CREATED)

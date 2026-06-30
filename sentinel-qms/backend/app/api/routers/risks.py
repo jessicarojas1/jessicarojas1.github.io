@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
+import csv
+import io
+
+from fastapi import APIRouter, Depends, File, Query, Request, Response, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import (
@@ -84,6 +87,77 @@ def list_risks(
     stmt = apply_sort(stmt, Risk, sort, default_col="rpn")
     items, total = paginate(db, stmt, Risk, pagination)
     return Page[RiskList](items=items, **page_meta(total, pagination))
+
+
+@router.get("/export.csv")
+def export_risks_csv(
+    request: Request,
+    db: Session = Depends(get_db),
+    status_filter: RiskStatus | None = Query(None, alias="status"),
+    category: RiskCategory | None = Query(None),
+    min_rpn: int | None = Query(None, ge=1),
+    actor: CurrentUser = Depends(require_page("risks", "view")),
+) -> Response:
+    """Stream the filtered risk register as a CSV attachment (max 50,000 rows)."""
+    stmt = base_select(Risk)
+    if status_filter:
+        stmt = stmt.where(Risk.status == status_filter)
+    if category:
+        stmt = stmt.where(Risk.category == category)
+    if min_rpn:
+        stmt = stmt.where(Risk.rpn >= min_rpn)
+    stmt = stmt.order_by(Risk.id.desc()).limit(50_000)
+    rows = db.execute(stmt).scalars().all()
+
+    columns = [
+        "risk_number",
+        "title",
+        "category",
+        "status",
+        "severity",
+        "likelihood",
+        "detectability",
+        "rpn",
+        "residual_rpn",
+        "review_date",
+        "created_at",
+    ]
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(columns)
+    for risk in rows:
+        writer.writerow(
+            [
+                risk.risk_number,
+                risk.title,
+                risk.category.value if risk.category else "",
+                risk.status.value if risk.status else "",
+                risk.severity if risk.severity is not None else "",
+                risk.likelihood if risk.likelihood is not None else "",
+                risk.detectability if risk.detectability is not None else "",
+                risk.rpn if risk.rpn is not None else "",
+                risk.residual_rpn if risk.residual_rpn is not None else "",
+                risk.review_date.isoformat() if risk.review_date else "",
+                risk.created_at.isoformat() if risk.created_at else "",
+            ]
+        )
+
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="export",
+        entity_type=ENTITY,
+        after={"count": len(rows), "format": "csv"},
+        **request_context(request),
+    )
+    db.commit()
+
+    return Response(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="risks.csv"'},
+    )
 
 
 @router.post("", response_model=RiskRead, status_code=status.HTTP_201_CREATED)
