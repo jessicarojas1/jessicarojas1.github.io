@@ -366,6 +366,7 @@ Core compliance engine: frameworks (`standards`) → packages (`compliance_packa
 - Objective detail with implementation, child controls, mapped policies, recent audit findings.
 - Control testing (`testControl`/`saveTest` → `control_tests`) and a testing dashboard.
 - Scorecard per package; gap analysis (per-package stats, top gaps, cross-framework overlaps).
+- **Cross-framework crosswalk** (`crosswalk`/`addMapping`/`removeMapping` → `control_mappings`): pick a source + target framework and author/view equivalence mappings between their control objectives (e.g. CMMC `AC.L2-3.1.1` ↔ NIST 800-171 `3.1.1`), with a mapping type (equivalent/partial/related/superset/subset), coverage summary, and a paginated control grid. Read gated on `compliance.view`; authoring on `compliance.edit`; every add/remove is audit-logged with structured before/after detail.
 - AI suggestions via `AIAdvisor` (rate-limited).
 - Import: JSON, CSV, Excel (.xlsx via ZipArchive, plus SpreadsheetML), PDF (poppler `pdftotext`). CSV/Excel templates downloadable.
 
