@@ -18,6 +18,7 @@ const schema = z.object({
   version: z.string().optional(),
   current_revision: z.string().optional(),
   next_review_date: z.string().optional(),
+  acknowledgement_required: z.boolean().optional(),
   owner_id: z.string().optional(),
   description: z.string().optional(),
   purpose: z.string().optional(),
@@ -37,6 +38,7 @@ const EMPTY: FormValues = {
   version: '',
   current_revision: '',
   next_review_date: '',
+  acknowledgement_required: false,
   owner_id: '',
   description: '',
   purpose: '',
@@ -97,6 +99,7 @@ export function DocumentFormModal({
         version: doc.version ?? '',
         current_revision: doc.current_revision ?? '',
         next_review_date: doc.next_review_date?.slice(0, 10) ?? '',
+        acknowledgement_required: doc.acknowledgement_required ?? false,
         owner_id: doc.owner_id != null ? String(doc.owner_id) : '',
         description: doc.description ?? '',
         purpose: doc.purpose ?? '',
@@ -120,6 +123,7 @@ export function DocumentFormModal({
       version: values.version || undefined,
       current_revision: values.current_revision || undefined,
       next_review_date: values.next_review_date || undefined,
+      acknowledgement_required: values.acknowledgement_required ?? false,
       owner_id: values.owner_id || undefined,
       description: values.description || undefined,
       purpose: values.purpose || undefined,
@@ -212,6 +216,10 @@ export function DocumentFormModal({
             <TextInput id="doc-owner" {...register('owner_id')} placeholder="Owner user ID" />
           </FormField>
         </div>
+        <label className="checkbox-row" style={{ marginTop: 4 }}>
+          <input type="checkbox" className="checkbox" {...register('acknowledgement_required')} />
+          <span>Require read &amp; acknowledge (named users must attest to the approved revision)</span>
+        </label>
         <FormField label="Description" htmlFor="doc-desc" error={errors.description?.message}>
           <TextArea id="doc-desc" rows={2} {...register('description')} />
         </FormField>

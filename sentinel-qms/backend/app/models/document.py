@@ -6,6 +6,7 @@ import enum
 from datetime import date, datetime
 
 from sqlalchemy import (
+    Boolean,
     Date,
     DateTime,
     Enum,
@@ -104,6 +105,9 @@ class Document(Base, TimestampMixin, SoftDeleteMixin):
     next_review_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     last_review_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     as9100_clause: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    # When true, named users must read-and-acknowledge the current revision
+    # (controlled-document awareness / training linkage).
+    acknowledgement_required: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     # Fixed-template body sections.
     purpose: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -166,4 +170,34 @@ class DocumentApproval(Base):
 
     revision: Mapped[DocumentRevision] = relationship(
         "DocumentRevision", back_populates="approvals"
+    )
+
+
+class DocumentAcknowledgement(Base):
+    """A user's read-and-acknowledge attestation for a specific document revision.
+
+    One row per (document, revision, user): proof that the named person read and
+    acknowledged the controlled revision. Acknowledgements are append-only; a new
+    revision requires a fresh acknowledgement.
+    """
+
+    __tablename__ = "document_acknowledgements"
+    __table_args__ = (
+        UniqueConstraint("document_id", "revision", "user_id", name="uq_doc_ack_doc_rev_user"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    document_id: Mapped[int] = mapped_column(
+        ForeignKey("documents.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    # The document revision label that was acknowledged (e.g. "B"); may be blank
+    # for an unrevisioned controlled doc.
+    revision: Mapped[str] = mapped_column(String(16), nullable=False, default="")
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    user_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    acknowledged_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )

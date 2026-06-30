@@ -19,6 +19,7 @@ class DocumentBase(BaseModel):
     version: str | None = Field(default=None, max_length=16)
     current_revision: str | None = Field(default=None, max_length=16)
     as9100_clause: str | None = Field(default=None, max_length=32)
+    acknowledgement_required: bool | None = None
     next_review_date: date | None = None
     last_review_date: date | None = None
     # Fixed-template body sections.
@@ -44,6 +45,7 @@ class DocumentUpdate(BaseModel):
     version: str | None = Field(default=None, max_length=16)
     current_revision: str | None = Field(default=None, max_length=16)
     as9100_clause: str | None = Field(default=None, max_length=32)
+    acknowledgement_required: bool | None = None
     next_review_date: date | None = None
     last_review_date: date | None = None
     purpose: str | None = None
@@ -137,6 +139,7 @@ class DocumentRead(ORMModel):
     next_review_date: date | None
     last_review_date: date | None
     as9100_clause: str | None
+    acknowledgement_required: bool = False
     purpose: str | None
     scope: str | None
     definitions: str | None
@@ -161,3 +164,26 @@ class DocumentList(ORMModel):
     effective_date: date | None
     next_review_date: date | None
     created_at: datetime | None = None
+
+
+class AcknowledgeRequest(BaseModel):
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class AcknowledgementRead(ORMModel):
+    id: int
+    document_id: int
+    revision: str
+    user_id: int
+    user_name: str
+    note: str | None = None
+    acknowledged_at: datetime
+
+
+class PendingAcknowledgement(BaseModel):
+    """A controlled document the current user still needs to acknowledge."""
+
+    document_id: int
+    document_number: str
+    title: str
+    current_revision: str | None = None
