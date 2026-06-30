@@ -203,6 +203,8 @@ $sentVendorAssess    = 0;
 $sentDocExpiring     = 0;
 $sentAssessStale     = 0;
 $sentEvidenceExpiry  = 0;
+$sentAcceptExpiring  = 0;
+$sentKriBreach       = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -436,6 +438,162 @@ HTML;
     }
 } catch (\Throwable $e) {
     fwrite(STDERR, "[policy_expiring] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2c. RISK ACCEPTANCE EXPIRING (active acceptances nearing valid_until)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $acceptRows = Database::fetchAll(
+        "SELECT ra.id, ra.valid_until,
+                r.id AS risk_id, r.title AS risk_title,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM risk_acceptances ra
+         JOIN risks r ON r.id = ra.risk_id
+         JOIN users u ON u.id = r.owner_id
+         WHERE ra.status = 'active'
+           AND ra.valid_until BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $acceptByUser = [];
+    foreach ($acceptRows as $row) {
+        $acceptByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($acceptByUser as $userId => $accepts) {
+        if (!notifEnabled((int) $userId, 'risk_acceptance_expiring')) {
+            continue;
+        }
+        $email    = $accepts[0]['email'];
+        $userName = $accepts[0]['user_name'];
+
+        foreach ($accepts as $accept) {
+            // Throttle: one reminder per acceptance per 7 days.
+            if (alreadyNotified((int) $userId, 'risk_acceptance_expiring', 'risk_acceptance', (int) $accept['id'], 604800)) {
+                continue;
+            }
+
+            $expDate  = date('M j, Y', strtotime($accept['valid_until']));
+            $daysLeft = (int) ceil((strtotime($accept['valid_until']) - time()) / 86400);
+            $urgency  = $daysLeft <= 1
+                ? '<span style="color:#ef4444;font-weight:600">expires today</span>'
+                : "<span style=\"color:#f59e0b;font-weight:600\">expires in {$daysLeft} days ({$expDate})</span>";
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A risk acceptance you own {$urgency} and will need renewal or the risk re-treated:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Risk</th>
+    <th style="padding:8px;text-align:left">Acceptance Valid Until</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$accept['risk_title']}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$expDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to renew the acceptance or re-treat the risk before it lapses.</p>
+HTML;
+
+            $subject = "Risk acceptance expiring: {$accept['risk_title']}";
+            $body    = emailShell('Risk Acceptance Expiry Reminder', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'risk_acceptance_expiring', $email, $userName, $subject, $body,
+                ['acceptance' => $accept, 'daysLeft' => $daysLeft, 'expDate' => $expDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'risk_acceptance_expiring', 'risk_acceptance', (int) $accept['id']);
+                $sentAcceptExpiring++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[risk_acceptance_expiring] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2d. KRI BREACH (latest recorded value in the red zone)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    // A breach is the 'red' RAG band: for higher_worse the value is above amber;
+    // for lower_worse it is below amber (mirrors KRIController::ragStatus()).
+    $kriRows = Database::fetchAll(
+        "SELECT k.id, k.title, k.unit, kv.value AS latest_value, kv.recorded_at,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM kris k
+         JOIN users u ON u.id = k.owner_id
+         LEFT JOIN LATERAL (
+             SELECT value, recorded_at FROM kri_values WHERE kri_id = k.id
+             ORDER BY recorded_at DESC, id DESC LIMIT 1
+         ) kv ON TRUE
+         WHERE k.is_active = TRUE
+           AND k.owner_id IS NOT NULL
+           AND u.is_active = TRUE
+           AND kv.value IS NOT NULL
+           AND ( (k.direction = 'higher_worse' AND kv.value > k.threshold_amber)
+              OR (k.direction = 'lower_worse'  AND kv.value < k.threshold_amber) )",
+        []
+    );
+
+    $kriByUser = [];
+    foreach ($kriRows as $row) {
+        $kriByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($kriByUser as $userId => $kris) {
+        if (!notifEnabled((int) $userId, 'kri_breached')) {
+            continue;
+        }
+        $email    = $kris[0]['email'];
+        $userName = $kris[0]['user_name'];
+
+        foreach ($kris as $kri) {
+            // Throttle: one breach reminder per KRI per 7 days.
+            if (alreadyNotified((int) $userId, 'kri_breached', 'kri', (int) $kri['id'], 604800)) {
+                continue;
+            }
+
+            $val      = rtrim(rtrim(number_format((float) $kri['latest_value'], 4, '.', ''), '0'), '.');
+            $unit     = htmlspecialchars($kri['unit'] ?? '', ENT_QUOTES, 'UTF-8');
+            $kriTitle = htmlspecialchars($kri['title'], ENT_QUOTES, 'UTF-8');
+            $measured = date('M j, Y', strtotime($kri['recorded_at']));
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A Key Risk Indicator you own has <span style="color:#ef4444;font-weight:600">breached its red threshold</span>:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">KRI</th>
+    <th style="padding:8px;text-align:left">Latest Value</th>
+    <th style="padding:8px;text-align:left">Measured</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$kriTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:700;color:#ef4444">{$val} {$unit}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$measured}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to review the indicator and escalate the linked risk if required.</p>
+HTML;
+
+            $subject = "KRI breach: {$kri['title']}";
+            $body    = emailShell('KRI Threshold Breach', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'kri_breached', $email, $userName, $subject, $body,
+                ['kri' => $kri, 'value' => $val]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'kri_breached', 'kri', (int) $kri['id']);
+                $sentKriBreach++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[kri_breached] ERROR: " . $e->getMessage() . "\n");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1339,6 +1497,9 @@ if (!empty($digestQueue)) {
         'document_expiring'          => 'Documents Expiring Soon',
         'assessment_pending_stale'   => 'Stale Risk Assessments',
         'evidence_expiring'          => 'Evidence Files Expiring',
+        'policy_expiring'            => 'Policies Expiring Soon',
+        'risk_acceptance_expiring'   => 'Risk Acceptances Expiring',
+        'kri_breached'               => 'KRI Threshold Breaches',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -1470,4 +1631,5 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentApprovals} approvals, {$sentRisks} risk assignments, {$sentIncidents} aging incidents, "
    . "{$sentRiskReview} risk reviews, {$sentTreatment} treatments, {$sentScoreWorsened} score alerts, "
    . "{$sentVendorAssess} vendor assessments, {$sentDocExpiring} doc expiry, {$sentAssessStale} stale assessments, "
-   . "{$sentEvidenceExpiry} evidence expiry, {$sentDigests} digest(s) sent\n";
+   . "{$sentEvidenceExpiry} evidence expiry, {$sentAcceptExpiring} acceptance expiry, "
+   . "{$sentKriBreach} KRI breaches, {$sentDigests} digest(s) sent\n";

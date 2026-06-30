@@ -27,10 +27,11 @@ class ProfileController {
             http_response_code(403); return;
         }
         $types = [
-            'overdue_controls','policy_review_due','pending_approval',
+            'overdue_controls','policy_review_due','policy_expiring','pending_approval',
             'new_risk_assigned','open_incident_aging','risk_review_overdue',
             'treatment_due','risk_score_worsened','vendor_assessment_expiring',
             'document_expiring','assessment_pending_stale','evidence_expiring',
+            'risk_acceptance_expiring','kri_breached',
         ];
         foreach ($types as $type) {
             $enabled = isset($_POST['types'][$type]);

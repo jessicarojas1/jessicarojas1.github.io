@@ -24,6 +24,13 @@ require_once AEGIS_ROOT . '/src/Database.php';
 function fail(string $m): never { fwrite(STDERR, "[lifecycle_db] FAIL: $m\n"); exit(1); }
 function ok(string $m): void { echo "[lifecycle_db] ok: $m\n"; }
 
+// Idempotency: remove any rows left by a previous run (CI uses a fresh DB, but
+// this keeps the test re-runnable against a reused database).
+Database::query("DELETE FROM issues WHERE issue_number = 'ISS-T001'");
+Database::query("DELETE FROM audit_findings WHERE finding_number = 'FIND-T001'");
+Database::query("DELETE FROM policies WHERE title = 'Phase4 policy'");
+Database::query("DELETE FROM vendors WHERE name = 'Phase4 Vendor'");
+
 // ── (a) issues: reopened state + CAPA columns ──────────────────────────────────
 $issueId = (int)(Database::fetchOne(
     "INSERT INTO issues (issue_number, title, status) VALUES ('ISS-T001','Phase4 test','closed') RETURNING id"

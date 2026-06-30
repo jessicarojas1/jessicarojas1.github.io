@@ -7,6 +7,7 @@ $planned    = (int)($summary['planned']     ?? 0);
 $inProgress = (int)($summary['in_progress'] ?? 0);
 $completed  = (int)($summary['completed']   ?? 0);
 $cancelled  = (int)($summary['cancelled']   ?? 0);
+$overdue    = (int)($summary['overdue']      ?? 0);
 
 $typeLabels = [
     'periodic'  => 'Periodic',
@@ -61,7 +62,19 @@ ob_start();
 <?php endif; ?>
 
 <!-- KPI Summary Row -->
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px;">
+
+  <div class="card" style="border-left:4px solid var(--danger);">
+    <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
+      <div style="width:44px;height:44px;border-radius:10px;background:var(--danger-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <i class="bi bi-calendar-x-fill" style="font-size:20px;color:var(--danger);"></i>
+      </div>
+      <div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--danger);"><?= $overdue ?></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Overdue</div>
+      </div>
+    </div>
+  </div>
 
   <div class="card" style="border-left:4px solid var(--moderate);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
@@ -180,7 +193,15 @@ ob_start();
               <?= Security::h($typeLabels[$rev['review_type']] ?? ucfirst($rev['review_type'])) ?>
             </span>
           </td>
-          <td style="white-space:nowrap;"><?= $rev['scheduled_date'] ? date('M j, Y', strtotime($rev['scheduled_date'])) : '—' ?></td>
+          <?php $revOverdue = !empty($rev['scheduled_date'])
+                && strtotime($rev['scheduled_date']) < strtotime('today')
+                && !in_array($rev['status'], ['completed','cancelled'], true); ?>
+          <td style="white-space:nowrap;<?= $revOverdue ? 'color:var(--danger);font-weight:600;' : '' ?>">
+            <?= $rev['scheduled_date'] ? date('M j, Y', strtotime($rev['scheduled_date'])) : '—' ?>
+            <?php if ($revOverdue): ?>
+              <span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:var(--danger-subtle);color:var(--danger);margin-left:4px;">OVERDUE</span>
+            <?php endif; ?>
+          </td>
           <td>
             <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:<?= $sc['bg'] ?>;color:<?= $sc['fg'] ?>;white-space:nowrap;">
               <?= $sc['label'] ?>

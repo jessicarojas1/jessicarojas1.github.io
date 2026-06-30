@@ -118,6 +118,14 @@ function fmtNum(float $n): string {
   <!-- Left column -->
   <div style="display:flex;flex-direction:column;gap:20px;">
 
+    <?php if ($rag === 'red'): ?>
+    <!-- Threshold breach banner (Phase 5) -->
+    <div class="alert-box danger" style="display:flex;align-items:center;gap:10px;">
+      <i class="bi bi-exclamation-octagon-fill"></i>
+      <span><strong>Threshold breached.</strong> The latest reading is in the red zone<?= $latestVal !== null ? ' (' . Security::h(rtrim(rtrim(number_format($latestVal, 4, '.', ''), '0'), '.')) . ' ' . Security::h($kri['unit'] ?? '') . ')' : '' ?>. Review the linked risk and escalate if required.</span>
+    </div>
+    <?php endif; ?>
+
     <!-- Hero RAG Banner -->
     <div class="card" style="border-left:6px solid <?= $ragColor ?>;background:<?= $ragColor ?>12;">
       <div class="card-body" style="padding:24px;">

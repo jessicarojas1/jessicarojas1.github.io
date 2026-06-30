@@ -133,6 +133,7 @@ Issue, renew, and revoke formal risk-acceptance certificates with validity windo
 
 ### Features
 List with status ordering (active → expired → superseded → revoked) and summary stats (active, expired, revoked, superseded, expiring-soon ≤30 days); issue form; renewal form pre-populated from an existing certificate; revoke with reason.
+- **Expiry alerting (Phase 5):** the list already surfaces per-row days-left / expired badges and an "Expiring <30 Days" stat. `scripts/send_notifications.php` (`risk_acceptance_expiring`) now emails the **risk owner** when an `active` acceptance's `valid_until` is within 30 days, throttled per acceptance per 7 days, so acceptances are renewed or the risk re-treated before they lapse.
 
 ### Inputs
 `acceptance_reason`, `conditions`, `valid_until`, `renewal_required`, `renewed_from`; `revocation_reason` (revoke).
@@ -201,6 +202,7 @@ Schedule periodic/triggered/board risk-review sessions that auto-populate a scop
 
 ### Features
 List + status summary; scheduling form with scope filters (category, owner, min score, status); per-item review (confirm score, propose new L/I, treatment adequacy, action required, notes); start/complete/cancel; auto reschedule of `review_date` on completion based on score.
+- **Overdue surfacing (Phase 5):** the list flags review **sessions** whose `scheduled_date` has passed while not `completed`/`cancelled` with a red "OVERDUE" badge, plus an "Overdue" summary stat (`COUNT(*) FILTER (...)`). This is distinct from the existing `risk_review_overdue` notification, which alerts owners about individual `risks.review_date`, not review sessions.
 
 ### Business Rules
 - Review types: `periodic, triggered, ad_hoc, board`.
@@ -308,11 +310,12 @@ Define KRIs with RAG thresholds and record time-series values; surface RAG statu
 
 ### Features
 KRI dashboard with latest value (LATERAL join) and computed RAG; create; detail with last 24 values; record value; activate/deactivate toggle.
+- **Breach detection + alerting (Phase 5):** a `red` RAG is a threshold breach. The KRI detail view shows a prominent breach banner when in the red band, and the dashboard's red RAG chip/count surfaces breaches across the portfolio. `scripts/send_notifications.php` (`kri_breached`) emails the KRI owner when the latest value is in the red zone — for `higher_worse` when value > amber, for `lower_worse` when value < amber (mirroring `KRIController::ragStatus`, now `public static` for reuse) — throttled per KRI per 7 days.
 
 ### Business Rules
 - Direction ∈ `higher_worse, lower_worse`; frequency ∈ `daily, weekly, monthly, quarterly`.
 - **Threshold ordering enforced**: for `higher_worse`, green ≤ amber ≤ red; for `lower_worse`, green ≥ amber ≥ red (else rejected).
-- RAG (`ragStatus`): no value → `grey`; otherwise green/amber/red by direction-aware comparison.
+- RAG (`ragStatus`): no value → `grey`; otherwise green/amber/red by direction-aware comparison. A `red` result is a breach.
 
 ### Validation Rules
 `title` required; recorded `value` must be numeric.
