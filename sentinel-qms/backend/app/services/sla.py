@@ -30,6 +30,7 @@ from app.models.audit_mgmt import Audit, AuditStatus
 from app.models.calibration import Equipment, EquipmentStatus
 from app.models.capa import Capa, CapaAction, CapaActionStatus, CapaStatus
 from app.models.concession import Concession, ConcessionStatus
+from app.models.document import Document, DocumentStatus
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
@@ -176,6 +177,7 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
         "concession_expired": 0,
         "training_expired": 0,
         "training_expiring_soon": 0,
+        "document_review_overdue": 0,
     }
     if not org or not org.sla_enabled:
         return summary
@@ -441,5 +443,38 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
             )
             db.commit()
             summary["training_expiring_soon"] += 1
+
+    # ── Controlled documents past their periodic-review date (AS9100 7.5) ─────
+    docs = (
+        db.execute(
+            select(Document).where(
+                Document.is_deleted.is_(False),
+                Document.status == DocumentStatus.APPROVED,
+                Document.next_review_date.is_not(None),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for doc in docs:
+        due = _basis_date(doc.next_review_date)
+        if due is None or due >= today:
+            continue
+        if _claim(db, "document", doc.id, "review_overdue"):
+            days = (today - due).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=doc.owner_id,
+                title=f"Document review overdue: {doc.document_number}",
+                body=(
+                    f"{doc.title} — periodic review was due {due.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} overdue). Review or re-approve."
+                ),
+                entity_type="document",
+                entity_id=doc.id,
+            )
+            db.commit()
+            summary["document_review_overdue"] += 1
 
     return summary
