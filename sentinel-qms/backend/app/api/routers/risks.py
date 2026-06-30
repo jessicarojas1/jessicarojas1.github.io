@@ -75,6 +75,7 @@ def list_risks(
     status_filter: RiskStatus | None = Query(None, alias="status"),
     category: RiskCategory | None = Query(None),
     min_rpn: int | None = Query(None, ge=1),
+    opportunity: bool | None = Query(None),
     _: CurrentUser = Depends(require_page("risks", "view")),
 ) -> Page[RiskList]:
     stmt = base_select(Risk)
@@ -84,6 +85,8 @@ def list_risks(
         stmt = stmt.where(Risk.category == category)
     if min_rpn:
         stmt = stmt.where(Risk.rpn >= min_rpn)
+    if opportunity is not None:
+        stmt = stmt.where(Risk.is_opportunity.is_(opportunity))
     stmt = apply_sort(stmt, Risk, sort, default_col="rpn")
     items, total = paginate(db, stmt, Risk, pagination)
     return Page[RiskList](items=items, **page_meta(total, pagination))
@@ -96,6 +99,7 @@ def export_risks_csv(
     status_filter: RiskStatus | None = Query(None, alias="status"),
     category: RiskCategory | None = Query(None),
     min_rpn: int | None = Query(None, ge=1),
+    opportunity: bool | None = Query(None),
     actor: CurrentUser = Depends(require_page("risks", "view")),
 ) -> Response:
     """Stream the filtered risk register as a CSV attachment (max 50,000 rows)."""
@@ -106,6 +110,8 @@ def export_risks_csv(
         stmt = stmt.where(Risk.category == category)
     if min_rpn:
         stmt = stmt.where(Risk.rpn >= min_rpn)
+    if opportunity is not None:
+        stmt = stmt.where(Risk.is_opportunity.is_(opportunity))
     stmt = stmt.order_by(Risk.id.desc()).limit(50_000)
     rows = db.execute(stmt).scalars().all()
 
@@ -114,6 +120,7 @@ def export_risks_csv(
         "title",
         "category",
         "status",
+        "is_opportunity",
         "severity",
         "likelihood",
         "detectability",
@@ -132,6 +139,7 @@ def export_risks_csv(
                 risk.title,
                 risk.category.value if risk.category else "",
                 risk.status.value if risk.status else "",
+                risk.is_opportunity,
                 risk.severity if risk.severity is not None else "",
                 risk.likelihood if risk.likelihood is not None else "",
                 risk.detectability if risk.detectability is not None else "",

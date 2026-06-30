@@ -38,6 +38,7 @@ RISK_COLUMNS = [
     "title",
     "category",
     "status",
+    "is_opportunity",
     "severity",
     "likelihood",
     "detectability",
