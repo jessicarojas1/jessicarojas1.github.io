@@ -510,6 +510,16 @@ class RiskController {
             ];
         }
 
+        // Phase 2: audit findings linked to this risk (reverse traceability).
+        $linkedFindings = Database::fetchAll(
+            "SELECT frl.relationship_type, af.id, af.finding_number, af.title, af.severity, af.status
+             FROM finding_risk_links frl
+             JOIN audit_findings af ON af.id = frl.finding_id
+             WHERE frl.risk_id = ?
+             ORDER BY af.created_at DESC",
+            [(int)$id]
+        );
+
         require AEGIS_ROOT . '/views/risk/view.php';
     }
 

@@ -419,6 +419,22 @@ CREATE TABLE IF NOT EXISTS email_queue (
 );
 CREATE INDEX IF NOT EXISTS idx_email_queue_due ON email_queue (status, next_attempt_at);
 
+-- Finding ↔ Risk traceability (Phase 2): link audit findings to the risks they
+-- cause / indicate / are mitigated by. Tenant-isolated via RLS (see installer).
+CREATE TABLE IF NOT EXISTS finding_risk_links (
+    id                SERIAL PRIMARY KEY,
+    finding_id        INTEGER NOT NULL REFERENCES audit_findings(id) ON DELETE CASCADE,
+    risk_id           INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    relationship_type VARCHAR(30) NOT NULL DEFAULT 'related',
+    notes             TEXT,
+    created_by        INTEGER REFERENCES users(id),
+    created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
+    tenant_id         BIGINT NOT NULL DEFAULT 1,
+    UNIQUE (finding_id, risk_id)
+);
+CREATE INDEX IF NOT EXISTS idx_frl_finding ON finding_risk_links (finding_id);
+CREATE INDEX IF NOT EXISTS idx_frl_risk ON finding_risk_links (risk_id);
+
 CREATE TABLE IF NOT EXISTS activity_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),

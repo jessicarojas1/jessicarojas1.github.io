@@ -587,6 +587,7 @@ Track findings from external audits, pentests, certifications, regulators, etc.,
 
 ### Features
 List ordered by severity + stats (total, open, critical/high open, overdue); create/view/update; add threaded update (`finding_updates`); close; delete.
+- **Finding ↔ Risk traceability** (Phase 2, `linkRisk`/`unlinkRisk` → `finding_risk_links`): link a finding to the risk(s) it causes / indicates / is mitigated by / relates to. The link is shown on both the finding view (with an add/remove form) and, in reverse, on the risk view ("Linked Audit Findings"). Authoring gated on `audit.findings`; CSRF-validated; audit-logged with structured before/after. The table is tenant-isolated via RLS and `created by` is stamped.
 
 ### Business Rules / Validation
 - Finding number `FIND-####`.
