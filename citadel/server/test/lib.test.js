@@ -639,6 +639,36 @@ test('secrets: only Luhn-valid PANs flag, and the number is masked', async () =>
   assert.ok(/1111$/.test(pans[0].snippet.replace(/["';\s]+$/, '')) || /1111/.test(pans[0].snippet), 'masked to last four');
 });
 
+/* ---------------- SBOM manifest parsing (browser engine) ---------------- */
+test('sbom: parses manifests across ecosystems with scope', () => {
+  const S = loadEngine().sbom;
+  const find = (comps, name) => comps.find(c => c.name === name);
+  const npm = S.parse('package.json', '{"dependencies":{"express":"^4.18.0"},"devDependencies":{"jest":"29.0.0"}}');
+  assert.equal(find(npm, 'express').ecosystem, 'npm');
+  assert.equal(find(npm, 'express').version, '^4.18.0');
+  assert.equal(find(npm, 'jest').scope, 'dev', 'devDependencies tagged dev scope');
+  assert.equal(find(S.parse('requirements.txt', 'flask==2.0.1\nrequests>=2.28'), 'flask').ecosystem, 'pypi');
+  assert.equal(find(S.parse('pom.xml', '<dependency><groupId>org.yaml</groupId><artifactId>snakeyaml</artifactId><version>1.30</version></dependency>'), 'org.yaml:snakeyaml').version, '1.30');
+  assert.equal(find(S.parse('go.mod', 'module x\nrequire (\n  github.com/gin-gonic/gin v1.9.0\n)\n'), 'github.com/gin-gonic/gin').ecosystem, 'golang');
+  assert.equal(find(S.parse('composer.json', '{"require":{"guzzlehttp/guzzle":"7.4.0"}}'), 'guzzlehttp/guzzle').ecosystem, 'composer');
+  assert.equal(find(S.parse('Gemfile', 'gem "rails", "7.0.0"'), 'rails').ecosystem, 'gem');
+  assert.equal(find(S.parse('Cargo.toml', '[dependencies]\nserde = "1.0"'), 'serde').ecosystem, 'cargo');
+});
+test('sbom: cyclonedx output is well-formed with PURLs', () => {
+  const S = loadEngine().sbom;
+  const comps = S.parse('package.json', '{"dependencies":{"express":"4.18.0"}}');
+  const cdx = S.cyclonedx(comps, 'demo');
+  assert.equal(cdx.bomFormat, 'CycloneDX');
+  assert.ok(/^1\./.test(cdx.specVersion));
+  assert.equal(cdx.components.length, 1);
+  assert.equal(cdx.components[0].purl, 'pkg:npm/express@4.18.0');
+});
+test('sbom: floating versions are flagged as a supply-chain risk', () => {
+  const S = loadEngine().sbom;
+  const flags = S.riskFlags(S.parse('package.json', '{"dependencies":{"left-pad":"*","ok":"1.2.3"}}'));
+  assert.ok(flags.some(f => /floating|unpinned/i.test(f.reason)), 'a wildcard version is flagged');
+});
+
 /* ---------------- Input validators (lib/validate) ---------------- */
 test('validate: logoUrl accepts https/data-raster, rejects http and svg', () => {
   const v = require('../lib/validate');
