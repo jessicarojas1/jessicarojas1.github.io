@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query, Request, status
+import csv
+import io
+
+from fastapi import APIRouter, Depends, Query, Request, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -73,6 +76,70 @@ def list_audits(
     stmt = apply_sort(stmt, Audit, sort)
     items, total = paginate(db, stmt, Audit, pagination)
     return Page[AuditList](items=items, **page_meta(total, pagination))
+
+
+@router.get("/export.csv")
+def export_audits_csv(
+    request: Request,
+    db: Session = Depends(get_db),
+    status_filter: AuditStatus | None = Query(None, alias="status"),
+    audit_type: AuditType | None = Query(None),
+    actor: CurrentUser = Depends(require_page("audits", "view")),
+) -> Response:
+    """Stream the filtered audit list as a CSV attachment (max 50,000 rows)."""
+    stmt = base_select(Audit)
+    if status_filter:
+        stmt = stmt.where(Audit.status == status_filter)
+    if audit_type:
+        stmt = stmt.where(Audit.audit_type == audit_type)
+    stmt = stmt.order_by(Audit.id.desc()).limit(50_000)
+    rows = db.execute(stmt).scalars().all()
+
+    columns = [
+        "audit_number",
+        "title",
+        "audit_type",
+        "status",
+        "standard",
+        "auditee_area",
+        "planned_date",
+        "actual_date",
+        "created_at",
+    ]
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(columns)
+    for rec in rows:
+        writer.writerow(
+            [
+                rec.audit_number,
+                rec.title,
+                rec.audit_type.value if rec.audit_type else "",
+                rec.status.value if rec.status else "",
+                rec.standard or "",
+                rec.auditee_area or "",
+                rec.planned_date.isoformat() if rec.planned_date else "",
+                rec.actual_date.isoformat() if rec.actual_date else "",
+                rec.created_at.isoformat() if rec.created_at else "",
+            ]
+        )
+
+    audit_log.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="export",
+        entity_type=ENTITY,
+        after={"count": len(rows), "format": "csv"},
+        **request_context(request),
+    )
+    db.commit()
+
+    return Response(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="audits.csv"'},
+    )
 
 
 @router.post("", response_model=AuditRead, status_code=status.HTTP_201_CREATED)
