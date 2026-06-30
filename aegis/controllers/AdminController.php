@@ -733,6 +733,18 @@ class AdminController {
                     $_SESSION['flash_error'] = 'Logo URL must start with http(s):// or data:image/.';
                     header('Location: /admin/settings'); return;
                 }
+                // SSRF hardening: an http(s) logo URL is fetched by clients' browsers,
+                // so reject hosts that resolve to loopback / cloud-metadata / link-local
+                // (internal-recon vectors). Private/on-prem ranges are allowed, matching
+                // the rest of the app's SSRF policy (Ssrf::isDangerousInfraHost), so an
+                // internal logo CDN still works.
+                if (!str_starts_with($clean, 'data:')) {
+                    $logoHost = (string) parse_url($clean, PHP_URL_HOST);
+                    if ($logoHost === '' || Ssrf::isDangerousInfraHost($logoHost)) {
+                        $_SESSION['flash_error'] = 'Logo URL host is not allowed (resolves to a loopback or metadata address).';
+                        header('Location: /admin/settings'); return;
+                    }
+                }
                 Database::query(
                     "INSERT INTO settings (key, value) VALUES ('company_logo_data', ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
                     [$clean]
