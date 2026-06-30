@@ -504,3 +504,8 @@ html { scroll-behavior: smooth; }
 .perm-dot { display:inline-block; width:9px; height:9px; border-radius:50%; vertical-align:middle; margin-right:.15rem; }
 .perm-dot-default { background:var(--success,#1a9d57); }
 .perm-dot-override { background:var(--warning,#f59e0b); }
+
+/* ---------------- Help & shortcuts overlay: about + footer ---------------- */
+.kbd-about { font-size:.82rem; color:var(--bs-secondary-color); border-top:1px solid var(--bs-border-color); border-bottom:1px solid var(--bs-border-color); padding:.6rem 0; margin:.4rem 0 .2rem; line-height:1.5; }
+.kbd-about a { color:var(--bs-link-color); }
+.kbd-foot { display:flex; justify-content:flex-end; margin-top:.6rem; }
