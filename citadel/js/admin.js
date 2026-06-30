@@ -539,6 +539,9 @@
       }
       tbody.innerHTML = users.map((u) => {
         const isAdmin = u.role === 'admin';
+        // Role defaults for this user's role — lets us flag cells that have been
+        // explicitly overridden away from the role's baseline (tri-state cue).
+        const roleDef = (DA.ROLES && DA.ROLES[u.role] && DA.ROLES[u.role].perms) || {};
         let row = '<tr><td class="user-col">' +
           '<div class="d-flex flex-column">' +
             '<span>' + esc(u.name) + '</span>' +
@@ -551,11 +554,13 @@
           const inGroup = pages.filter((p) => p.group === g);
           inGroup.forEach((p, i) => {
             const checked = isAdmin ? true : !!(u.permissions && u.permissions[p.id]);
-            row += '<td class="matrix-cell' + (i === 0 ? ' border-start' : '') + '">' +
+            const isOverride = !isAdmin && checked !== !!roleDef[p.id];
+            row += '<td class="matrix-cell' + (i === 0 ? ' border-start' : '') + (isOverride ? ' matrix-cell-override' : '') + '"' +
+                (isOverride ? ' title="' + esc('Explicit override — role default for ' + u.role + ' is ' + (roleDef[p.id] ? 'granted' : 'denied')) + '"' : '') + '>' +
               '<input type="checkbox" class="form-check-input" ' +
                 (checked ? 'checked ' : '') + (isAdmin ? 'disabled ' : '') +
                 'data-perm-user="' + esc(u.id) + '" data-perm-page="' + esc(p.id) + '" ' +
-                'aria-label="' + esc(u.name + ' — ' + p.label) + '">' +
+                'aria-label="' + esc(u.name + ' — ' + p.label + (isOverride ? ' (override)' : '')) + '">' +
               '</td>';
           });
         });
