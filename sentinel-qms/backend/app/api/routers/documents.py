@@ -5,11 +5,13 @@ from __future__ import annotations
 from datetime import date
 
 from fastapi import APIRouter, Depends, Query, Request, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import (
     Pagination,
     SortParams,
+    get_current_user,
     pagination_params,
     require_page,
     require_perm,
@@ -20,6 +22,7 @@ from app.core.database import get_db
 from app.core.exceptions import NotFoundError, WorkflowError
 from app.models.document import (
     Document,
+    DocumentAcknowledgement,
     DocumentApproval,
     DocumentRevision,
     DocumentStatus,
@@ -30,12 +33,15 @@ from app.schemas.auth import CurrentUser
 from app.schemas.common import Page
 from app.schemas.document import (
     CONTENT_FIELDS,
+    AcknowledgementRead,
+    AcknowledgeRequest,
     ApprovalDecision,
     ApprovalRead,
     DocumentCreate,
     DocumentList,
     DocumentRead,
     DocumentUpdate,
+    PendingAcknowledgement,
     RevisionCreate,
     RevisionRead,
     TransitionRequest,
@@ -410,3 +416,114 @@ def soft_delete_document(
     db.commit()
     db.refresh(doc)
     return doc
+
+
+# --------------------------------------------------------------------------- #
+# Read-and-acknowledge workflow                                               #
+# --------------------------------------------------------------------------- #
+@router.get("/acknowledgements/pending", response_model=list[PendingAcknowledgement])
+def my_pending_acknowledgements(
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_page("documents", "view")),
+) -> list[PendingAcknowledgement]:
+    """Approved, acknowledgement-required documents the current user hasn't yet
+    acknowledged at their current revision."""
+    docs = (
+        db.execute(
+            select(Document)
+            .where(
+                Document.acknowledgement_required.is_(True),
+                Document.status == DocumentStatus.APPROVED,
+                Document.is_deleted.is_(False),
+            )
+            .order_by(Document.document_number)
+        )
+        .scalars()
+        .all()
+    )
+    # (document_id, revision) pairs this user has already acknowledged.
+    my_acks = set(
+        db.execute(
+            select(DocumentAcknowledgement.document_id, DocumentAcknowledgement.revision).where(
+                DocumentAcknowledgement.user_id == actor.id
+            )
+        ).all()
+    )
+    return [
+        PendingAcknowledgement(
+            document_id=d.id,
+            document_number=d.document_number,
+            title=d.title,
+            current_revision=d.current_revision,
+        )
+        for d in docs
+        if (d.id, d.current_revision or "") not in my_acks
+    ]
+
+
+@router.get("/{doc_id}/acknowledgements", response_model=list[AcknowledgementRead])
+def list_acknowledgements(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_page("documents", "view")),
+) -> list[DocumentAcknowledgement]:
+    """Who has acknowledged this document (compliance / awareness evidence)."""
+    get_or_404(db, Document, doc_id, name="Document")
+    stmt = (
+        select(DocumentAcknowledgement)
+        .where(DocumentAcknowledgement.document_id == doc_id)
+        .order_by(DocumentAcknowledgement.acknowledged_at.desc())
+    )
+    return list(db.execute(stmt).scalars().all())
+
+
+@router.post(
+    "/{doc_id}/acknowledge",
+    response_model=AcknowledgementRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def acknowledge_document(
+    doc_id: int,
+    body: AcknowledgeRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(get_current_user),
+) -> DocumentAcknowledgement:
+    """Record the current user's read-and-acknowledge attestation for the current
+    revision. Idempotent: re-acknowledging the same revision returns the existing
+    record."""
+    doc = get_or_404(db, Document, doc_id, name="Document")
+    if doc.status != DocumentStatus.APPROVED:
+        raise WorkflowError("Only approved documents can be acknowledged.")
+    revision = doc.current_revision or ""
+    existing = db.execute(
+        select(DocumentAcknowledgement).where(
+            DocumentAcknowledgement.document_id == doc_id,
+            DocumentAcknowledgement.revision == revision,
+            DocumentAcknowledgement.user_id == actor.id,
+        )
+    ).scalar_one_or_none()
+    if existing is not None:
+        return existing
+    ack = DocumentAcknowledgement(
+        document_id=doc_id,
+        revision=revision,
+        user_id=actor.id,
+        user_name=actor.full_name,
+        note=body.note,
+    )
+    db.add(ack)
+    db.flush()
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="acknowledge",
+        entity_type=ENTITY,
+        entity_id=doc.id,
+        after={"revision": revision},
+        **request_context(request),
+    )
+    db.commit()
+    db.refresh(ack)
+    return ack

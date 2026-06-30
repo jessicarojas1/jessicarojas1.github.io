@@ -53,6 +53,7 @@ export * from './useSearch';
 export * from './useNotifications';
 export * from './useApiTokens';
 export * from './useSsoInfo';
+export * from './useDocumentAck';
 export * from './useAnalytics';
 export * from './useReports';
 export * from './useAuditLogs';

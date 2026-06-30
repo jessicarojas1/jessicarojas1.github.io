@@ -17,6 +17,7 @@ import { PrintButton } from '@/components/PrintButton';
 import { DataList, DetailState } from '@/components/detail';
 import { RecordDetailHeader } from '@/components/RecordDetailHeader';
 import { RecordSupplements } from '@/components/RecordSupplements';
+import { AcknowledgementCard } from '@/components/AcknowledgementCard';
 import { UserName } from '@/components/UserName';
 import { DocumentFormModal } from './DocumentFormModal';
 import {
@@ -204,6 +205,14 @@ export default function DocumentDetailPage() {
               </div>
             </div>
           </div>
+
+          {doc.acknowledgement_required && (
+            <AcknowledgementCard
+              documentId={Number(doc.id)}
+              revision={doc.current_revision}
+              approved={doc.status === 'approved'}
+            />
+          )}
 
           <RecordSupplements entityType="document" entityId={doc.id} canEditPage="documents" />
 

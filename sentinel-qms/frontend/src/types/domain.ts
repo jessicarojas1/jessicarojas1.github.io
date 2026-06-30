@@ -64,6 +64,7 @@ export interface ControlledDocument {
   next_review_date?: Iso8601;
   last_review_date?: Iso8601;
   as9100_clause?: string;
+  acknowledgement_required?: boolean;
   // Fixed-template body sections.
   purpose?: string;
   scope?: string;
