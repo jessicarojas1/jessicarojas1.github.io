@@ -91,6 +91,10 @@ citadel/
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** — the same content in Markdown.
 - **[FRAMEWORKS.md](FRAMEWORKS.md)** — the full catalog of standards and the weakness-to-control
   cross-walk.
+- **[docs/RBAC.md](docs/RBAC.md)** — roles, page permissions, backend enforcement, and SSO mapping.
+- **[docs/UPLOAD-SECURITY.md](docs/UPLOAD-SECURITY.md)** — zip-slip / decompression-bomb caps, isolation, and limits.
+- **[docs/TESTING.md](docs/TESTING.md)** — how to run the suites, what's covered, and what CI gates.
+- **[docs/ENV.md](docs/ENV.md)** — full environment-variable reference.
 - **[deploy/README.md](deploy/README.md)** — choosing and using a government deployment target.
 
 ## Deep scan (real scanners)
