@@ -262,7 +262,7 @@ function buildWorkdir(files) {
           fs.writeFileSync(dest, data);
         }
       } catch (err) {
-        if (/too many entries|size limit/.test(err.message)) { rmrf(work); throw new Error('Upload rejected: ' + err.message + '.'); }
+        if (/too many entries|size limit/.test(err.message)) { rmrf(work); throw Object.assign(new Error('Upload rejected: ' + err.message + '.'), { status: 400 }); }
         // not a valid zip — keep the raw file for binary analysis
         const dest = safeJoin(work, orig);
         fs.mkdirSync(path.dirname(dest), { recursive: true });
@@ -509,11 +509,12 @@ app.patch('/api/branding', requireAdmin, (req, res) => {
   const b = req.body || {};
   const url = typeof b.logoUrl === 'string' ? b.logoUrl.trim() : '';
   const accent = typeof b.accent === 'string' ? b.accent.trim() : '';
-  // Allow public https(/http) URLs or inline data: image URIs (file uploads).
-  // SVG is intentionally excluded: an SVG can carry script and, while an <img>
-  // never executes it, accepting it would be a latent stored-XSS vector if a
-  // logo is ever inlined. Raster formats only.
-  const isHttp = /^https?:\/\/\S+$/i.test(url);
+  // Allow public https URLs or inline data: image URIs (file uploads). Plain
+  // http:// is rejected to avoid mixed-content + privacy leakage when the logo
+  // loads. SVG is intentionally excluded: an SVG can carry script and, while an
+  // <img> never executes it, accepting it would be a latent stored-XSS vector if
+  // a logo is ever inlined. Raster formats only.
+  const isHttp = /^https:\/\/\S+$/i.test(url);
   const isDataImg = /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=\s]+$/i.test(url);
   const clean = {
     logoUrl: isHttp ? url.slice(0, 500) : (isDataImg ? url.slice(0, 200000) : ''),
@@ -555,6 +556,15 @@ app.post('/api/tenants', async (req, res) => {
 /* ---------------- Scan history (durable, requires DATABASE_URL) ---------------- */
 // Non-admins are scoped to their own scans (no cross-user IDOR by sequential id).
 function scanScope(req) { return req.user ? { userId: req.user.id, isAdmin: req.user.role === 'admin' } : null; }
+// Guard project-keyed resources against IDOR: a caller may only touch a project
+// they own (admins see all). Returns true when access is allowed. With no DB the
+// store is local/per-browser, so there is no cross-user surface to protect.
+async function ownsProject(req, projectId) {
+  if (!projectId) return true;            // unscoped request — nothing project-specific to leak
+  if (!projects.enabled()) return true;   // no shared store without a database
+  try { return !!(await projects.get(String(projectId), scanScope(req))); }
+  catch (e) { return false; }
+}
 app.get('/api/scans', requirePerm('tab-history'), async (req, res) => {
   res.json({ enabled: scans.enabled(), scans: await scans.list(parseInt(req.query.limit, 10) || 100, scanScope(req), req.query.projectId) });
 });
@@ -641,6 +651,7 @@ app.post('/api/dep-approvals', requirePerm('analyze'), async (req, res) => {
 app.get('/api/threatmodel', requirePerm('tab-findings'), async (req, res) => {
   try {
     const projectId = (req.query && req.query.projectId) || '';
+    if (!await ownsProject(req, projectId)) return res.status(404).json({ error: 'Project not found.' });
     res.json({ enabled: threatmodel.enabled(), overlay: await threatmodel.get(projectId) });
   } catch (e) { res.status(500).json({ error: 'Could not load threat model overlay.' }); }
 });
@@ -648,6 +659,7 @@ app.post('/api/threatmodel', requirePerm('analyze'), async (req, res) => {
   if (!threatmodel.enabled()) return res.status(501).json({ error: 'Shared threat-model edits require a database (set DATABASE_URL); local state is used otherwise.' });
   try {
     const projectId = (req.body && req.body.projectId) || '';
+    if (!await ownsProject(req, projectId)) return res.status(404).json({ error: 'Project not found.' });
     await threatmodel.set(projectId, req.body && req.body.overlay, req.user && req.user.email);
     audit.record('threatmodel.set', { actor: req.user && req.user.email, ip: clientIp(req), detail: String(projectId).slice(0, 64), ok: true });
     res.json({ ok: true });
@@ -745,7 +757,7 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000, { failClosed: 
       execFile('git', ['-c', 'http.followRedirects=false', '-c', `http.curloptResolve=${host}:${port}:${pinnedIp}`,
         'clone', '--depth', '1', '--single-branch', url, work],
         { timeout: 120000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } },
-        (err) => err ? reject(new Error('Clone failed (is the repository public?).')) : resolve());
+        (err) => err ? reject(Object.assign(new Error('Clone failed (is the repository public?).'), { status: 400 })) : resolve());
     });
     // Resolve + confine the subpath to the clone (defense-in-depth against
     // symlink/traversal escapes), then require it to be a real directory.
@@ -753,9 +765,9 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000, { failClosed: 
     if (subpath) {
       const resolved = path.resolve(work, subpath);
       const rel = path.relative(work, resolved);
-      if (rel.startsWith('..') || path.isAbsolute(rel)) throw new Error('Subpath escapes the repository.');
+      if (rel.startsWith('..') || path.isAbsolute(rel)) throw Object.assign(new Error('Subpath escapes the repository.'), { status: 400 });
       let st = null; try { st = fs.statSync(resolved); } catch (e) {}
-      if (!st || !st.isDirectory()) throw new Error('Subpath "' + subpath + '" is not a folder in the repository.');
+      if (!st || !st.isDirectory()) throw Object.assign(new Error('Subpath "' + subpath + '" is not a folder in the repository.'), { status: 400 });
       scanRoot = resolved;
     }
     const source = url + (subpath ? ' (/' + subpath + ')' : '');
@@ -767,7 +779,11 @@ app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000, { failClosed: 
     notify.scanComplete(report, { user: req.user, source });
     res.json(report);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    // Known client errors carry a safe message + status; everything else gets a
+    // generic 500 so internal paths/messages never leak to the caller.
+    if (err && err.status === 400) return res.status(400).json({ error: err.message });
+    log.error('scan-url failed', { err: err && err.message });
+    res.status(500).json({ error: 'Repository scan failed.' });
   } finally {
     rmrf(work);
   }
@@ -780,7 +796,8 @@ app.post('/api/explain', rateLimited('explain', 30, 10 * 60000, { failClosed: tr
     const out = await ai.explain((req.body && req.body.finding) || {});
     res.json(out);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    log.error('ai explain failed', { err: err && err.message });
+    res.status(500).json({ error: 'AI remediation failed.' });
   }
 });
 
@@ -798,8 +815,11 @@ app.post('/api/scan', rateLimited('scan', 20, 10 * 60000, { failClosed: true }),
     res.json(report);
   } catch (err) {
     metrics.inc('citadel_scan_errors_total');
+    // Upload-rejection (zip bomb / too many entries) is a client error -> 400 with
+    // its safe message; anything else is a generic 500 that never leaks internals.
+    if (err && err.status === 400) return res.status(400).json({ error: err.message });
     log.error('scan failed', { err: err.message });
-    res.status(500).json({ error: 'Scan failed: ' + err.message });
+    res.status(500).json({ error: 'Scan failed.' });
   } finally {
     if (work) rmrf(work);
   }
