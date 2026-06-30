@@ -120,6 +120,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/bcp_db.php
 
+      - name: POA&M overdue — item predicate / milestone count / cascade
+        working-directory: aegis
+        run: php tests/integration/poam_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

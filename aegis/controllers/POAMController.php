@@ -3,6 +3,19 @@ declare(strict_types=1);
 
 class POAMController {
 
+    /**
+     * A POA&M item is overdue when it is still being worked (status not closed/
+     * cancelled) and its scheduled completion date is in the past. Pure function
+     * (date math only) — public + static so the notifier and views reuse it and
+     * it is unit-testable in isolation.
+     */
+    public static function itemOverdue(?string $status, ?string $scheduledCompletion): bool {
+        if (in_array($status, ['closed', 'cancelled'], true)) return false;
+        if (empty($scheduledCompletion)) return false;
+        $ts = strtotime($scheduledCompletion);
+        return $ts !== false && $ts < strtotime('today');
+    }
+
     // ──────────────────────────────────────────────────
     // GET /poam
     // ──────────────────────────────────────────────────
@@ -18,7 +31,8 @@ class POAMController {
             "SELECT pi.*, cp.name AS package_name,
                     u.name AS owner_name,
                     COUNT(pm.id) AS total_milestones,
-                    COUNT(pm.id) FILTER (WHERE pm.is_complete = TRUE) AS completed_milestones
+                    COUNT(pm.id) FILTER (WHERE pm.is_complete = TRUE) AS completed_milestones,
+                    COUNT(pm.id) FILTER (WHERE pm.is_complete = FALSE AND pm.due_date < CURRENT_DATE) AS overdue_milestones
              FROM poam_items pi
              LEFT JOIN compliance_packages cp ON cp.id = pi.package_id
              LEFT JOIN users u ON u.id = pi.owner_id

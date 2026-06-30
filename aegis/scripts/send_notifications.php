@@ -208,6 +208,7 @@ $sentKriBreach       = 0;
 $sentSlaBreach       = 0;
 $sentBcpExerciseOverdue = 0;
 $sentBcpPlanReviewDue   = 0;
+$sentPoamOverdue        = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -848,6 +849,87 @@ HTML;
     }
 } catch (\Throwable $e) {
     fwrite(STDERR, "[bcp_plan_review_due] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2h. POA&M ITEM OVERDUE (open/in-progress past its scheduled completion date)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $poamRows = Database::fetchAll(
+        "SELECT pi.id, pi.poam_number, pi.title, pi.scheduled_completion,
+                (SELECT COUNT(*) FROM poam_milestones pm
+                   WHERE pm.poam_id = pi.id AND pm.is_complete = FALSE AND pm.due_date < CURRENT_DATE) AS overdue_milestones,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM poam_items pi
+         JOIN users u ON u.id = pi.owner_id
+         WHERE pi.status NOT IN ('closed','cancelled')
+           AND pi.scheduled_completion IS NOT NULL
+           AND pi.scheduled_completion < CURRENT_DATE
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $poamByUser = [];
+    foreach ($poamRows as $row) {
+        $poamByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($poamByUser as $userId => $items) {
+        if (!notifEnabled((int) $userId, 'poam_item_overdue')) {
+            continue;
+        }
+        $email    = $items[0]['email'];
+        $userName = $items[0]['user_name'];
+
+        foreach ($items as $item) {
+            // Throttle: one reminder per POA&M item per 7 days.
+            if (alreadyNotified((int) $userId, 'poam_item_overdue', 'poam_item', (int) $item['id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((time() - strtotime($item['scheduled_completion'])) / 86400);
+            $schedDate   = date('M j, Y', strtotime($item['scheduled_completion']));
+            $poamNum     = htmlspecialchars($item['poam_number'], ENT_QUOTES, 'UTF-8');
+            $poamTitle   = htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8');
+            $overdueMs   = (int) $item['overdue_milestones'];
+            $msNote      = $overdueMs > 0
+                ? "<p style=\"font-size:13px;color:#6b7280\">It also has <strong>{$overdueMs}</strong> overdue milestone" . ($overdueMs !== 1 ? 's' : '') . ".</p>"
+                : '';
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A POA&M item you own is <span style="color:#ef4444;font-weight:600">overdue ({$daysOverdue} days)</span> past its scheduled completion:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">POA&M</th>
+    <th style="padding:8px;text-align:left">Title</th>
+    <th style="padding:8px;text-align:left">Scheduled Completion</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$poamNum}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$poamTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$schedDate}</td>
+  </tr>
+</table>
+{$msNote}
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to update the remediation status or re-baseline the completion date.</p>
+HTML;
+
+            $subject = "POA&M overdue: {$item['poam_number']}";
+            $body    = emailShell('POA&M Item Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'poam_item_overdue', $email, $userName, $subject, $body,
+                ['item' => $item, 'daysOverdue' => $daysOverdue, 'schedDate' => $schedDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'poam_item_overdue', 'poam_item', (int) $item['id']);
+                $sentPoamOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[poam_item_overdue] ERROR: " . $e->getMessage() . "\n");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1757,6 +1839,7 @@ if (!empty($digestQueue)) {
         'incident_sla_breach'        => 'Incident SLA Breaches',
         'bcp_exercise_overdue'       => 'BCP Exercises Overdue',
         'bcp_plan_review_due'        => 'BCP Plans Due for Testing',
+        'poam_item_overdue'          => 'POA&M Items Overdue',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -1890,4 +1973,5 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentVendorAssess} vendor assessments, {$sentDocExpiring} doc expiry, {$sentAssessStale} stale assessments, "
    . "{$sentEvidenceExpiry} evidence expiry, {$sentAcceptExpiring} acceptance expiry, "
    . "{$sentKriBreach} KRI breaches, {$sentSlaBreach} SLA breaches, "
-   . "{$sentBcpExerciseOverdue} BCP exercises overdue, {$sentBcpPlanReviewDue} BCP plans due, {$sentDigests} digest(s) sent\n";
+   . "{$sentBcpExerciseOverdue} BCP exercises overdue, {$sentBcpPlanReviewDue} BCP plans due, "
+   . "{$sentPoamOverdue} POA&M overdue, {$sentDigests} digest(s) sent\n";
