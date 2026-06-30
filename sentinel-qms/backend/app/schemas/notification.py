@@ -25,6 +25,7 @@ _URL_MAP: dict[str, str] = {
     "key_characteristic": "/key-characteristics/{id}",
     "fmea": "/fmea/{id}",
     "quality_objective": "/quality-objectives",
+    "training": "/training",
 }
 
 
