@@ -96,6 +96,11 @@ $NOTIF_TYPES = [
         'description' => 'When a BCP plan you own is approaching or past its next test date',
         'icon'        => 'shield-check',
     ],
+    'poam_item_overdue' => [
+        'label'       => 'POA&M items overdue',
+        'description' => 'When a POA&M item you own is past its scheduled completion date',
+        'icon'        => 'flag-fill',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────

@@ -907,6 +907,8 @@ FedRAMP/NIST POA&M items with milestones, auto-generated from non-compliant cont
 ### Features
 List with milestone progress (ordered open → in_progress → closed → cancelled); auto-generate from a package's non-compliant/partial controls; manual create; CSV import; view (with linked control); update; delete; add/complete milestone.
 
+- **Overdue monitoring (Phase 8):** the pure helper `POAMController::itemOverdue($status, $scheduledCompletion)` flags an item as overdue when its `status` is **not** in `closed`/`cancelled` **and** `scheduled_completion` is in the past. The item view header shows a red "Overdue" badge next to the status badge; the index highlights overdue rows with an "Overdue" badge, an "N overdue milestones" flag badge, and a coloured scheduled-completion cell (the count comes from an `overdue_milestones` `FILTER` subquery over `poam_milestones`). `scripts/send_notifications.php` (`poam_item_overdue`) emails the item **owner** (`owner_id`) for each item with `status NOT IN (closed,cancelled)` and `scheduled_completion < today`, mentioning any overdue-milestone count, throttled per item per 7 days. Per-**milestone** "Overdue" badges (on `poam_milestones.due_date` while not `is_complete`) already existed, so Phase 8 adds the **item-level** overdue surfacing plus the owner alert. **No schema migration** — reuses existing `poam_items.scheduled_completion`/`status`/`owner_id` and `poam_milestones.due_date`/`is_complete`.
+
 ### Business Rules
 - POA&M number `POAM-####` (derived via regex on existing numbers).
 - `generate()` skips controls that already have a POA&M (`objective_id` unique guard); only `non_compliant`/`partial`/unassessed controls.

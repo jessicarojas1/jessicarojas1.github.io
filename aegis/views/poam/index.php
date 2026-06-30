@@ -52,14 +52,20 @@ $statusLabels = [
       [$statusLabel, $statusClass] = $statusLabels[$item['status']] ?? ['Unknown', 'badge-secondary'];
       $totalM = (int)$item['total_milestones'];
       $doneM  = (int)$item['completed_milestones'];
+      $overdueM = (int)($item['overdue_milestones'] ?? 0);
+      $itemOverdue = POAMController::itemOverdue($item['status'] ?? null, $item['scheduled_completion'] ?? null);
     ?>
-      <tr>
+      <tr<?= $itemOverdue ? ' style="background:var(--danger-subtle)"' : '' ?>>
         <td><strong><?= Security::h($item['poam_number']) ?></strong></td>
         <td><?= Security::h($item['title']) ?></td>
         <td><?= Security::h($item['package_name'] ?? '—') ?></td>
         <td><?= Security::h($item['owner_name'] ?? '—') ?></td>
-        <td><span class="badge <?= $statusClass ?>"><?= $statusLabel ?></span></td>
-        <td><?= $item['scheduled_completion'] ? date('M j, Y', strtotime($item['scheduled_completion'])) : '—' ?></td>
+        <td>
+          <span class="badge <?= $statusClass ?>"><?= $statusLabel ?></span>
+          <?php if ($itemOverdue): ?><span class="badge badge-danger" style="font-size:0.7rem;margin-left:4px;">Overdue</span><?php endif; ?>
+          <?php if ($overdueM > 0): ?><span class="badge badge-danger" style="font-size:0.7rem;margin-left:4px;" title="<?= $overdueM ?> overdue milestone<?= $overdueM !== 1 ? 's' : '' ?>"><i class="bi bi-flag"></i> <?= $overdueM ?></span><?php endif; ?>
+        </td>
+        <td style="<?= $itemOverdue ? 'color:var(--danger);font-weight:600;' : '' ?>"><?= $item['scheduled_completion'] ? date('M j, Y', strtotime($item['scheduled_completion'])) : '—' ?></td>
         <td>
           <?php if ($totalM > 0): ?>
             <span style="font-size:0.85rem;"><?= $doneM ?>/<?= $totalM ?></span>

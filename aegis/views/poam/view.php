@@ -31,7 +31,12 @@ $completedMilestones = count(array_filter($milestones, fn($m) => $m['is_complete
     <h1 class="page-title"><?= Security::h($item['poam_number']) ?></h1>
     <p class="page-subtitle"><?= Security::h($item['title']) ?></p>
   </div>
-  <span class="badge <?= $statusClass ?>" style="font-size:0.9rem;padding:6px 14px;"><?= $statusLabel ?></span>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <?php if (POAMController::itemOverdue($item['status'] ?? null, $item['scheduled_completion'] ?? null)): ?>
+      <span class="badge badge-danger" style="font-size:0.9rem;padding:6px 14px;" title="Scheduled completion was <?= Security::h(date('M j, Y', strtotime($item['scheduled_completion']))) ?>"><i class="bi bi-calendar-x"></i> Overdue</span>
+    <?php endif; ?>
+    <span class="badge <?= $statusClass ?>" style="font-size:0.9rem;padding:6px 14px;"><?= $statusLabel ?></span>
+  </div>
 </div>
 
 <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start;">
