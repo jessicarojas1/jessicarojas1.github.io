@@ -63,6 +63,10 @@ ob_start();
     <div class="ov-stat"><span class="ov-num" style="color:var(--warning)"><?= $partial ?></span><span>Partial</span></div>
     <div class="ov-stat"><span class="ov-num" style="color:var(--danger)"><?= $nonComp ?></span><span>Non-compliant</span></div>
     <div class="ov-stat"><span class="ov-num" style="color:var(--text-muted)"><?= max(0,$total-$compliant-$partial-$nonComp) ?></span><span>Not Started</span></div>
+    <?php $retestOverdue = (int)($retestStats['overdue'] ?? 0); $retestDue = (int)($retestStats['due_soon'] ?? 0); ?>
+    <?php if ($retestOverdue > 0 || $retestDue > 0): ?>
+    <div class="ov-stat" title="Controls with the latest test past (or nearing) its next re-test date"><span class="ov-num" style="color:<?= $retestOverdue > 0 ? 'var(--danger)' : 'var(--warning)' ?>"><?= $retestOverdue + $retestDue ?></span><span>Due for Re-test</span></div>
+    <?php endif; ?>
   </div>
   <?php if ($package['standard_desc']): ?>
   <div class="overview-desc">
@@ -175,10 +179,17 @@ ob_start();
   <div class="domain-controls" id="controls-<?= $domain['id'] ?>" style="display:none">
     <?php
     $controls = Database::fetchAll(
-      "SELECT co.*, ci.status as impl_status, u.name as assignee
+      "SELECT co.*, ci.status as impl_status, u.name as assignee,
+              latest.next_test_date
        FROM compliance_objectives co
        LEFT JOIN control_implementations ci ON ci.objective_id = co.id
        LEFT JOIN users u ON u.id = ci.assigned_to
+       LEFT JOIN LATERAL (
+         SELECT ct.next_test_date
+         FROM control_tests ct
+         WHERE ct.objective_id = co.id AND ct.next_test_date IS NOT NULL
+         ORDER BY ct.id DESC LIMIT 1
+       ) latest ON TRUE
        WHERE co.parent_id = ? ORDER BY co.sort_order",
       [$domain['id']]
     );
@@ -202,6 +213,12 @@ ob_start();
           <div class="control-info">
             <span class="control-code"><?= Security::h($ctrl['code']) ?></span>
             <span class="control-title"><?= Security::h($ctrl['title']) ?></span>
+            <?php $retest = ComplianceController::retestStatus($ctrl['next_test_date'] ?? null); ?>
+            <?php if ($retest === 'overdue'): ?>
+              <span class="badge badge-danger" style="font-size:0.7rem" title="Re-test overdue (was due <?= Security::h(date('M j, Y', strtotime($ctrl['next_test_date']))) ?>)"><i class="bi bi-clock-history"></i> Re-test overdue</span>
+            <?php elseif ($retest === 'due'): ?>
+              <span class="badge badge-warning" style="font-size:0.7rem" title="Re-test due <?= Security::h(date('M j, Y', strtotime($ctrl['next_test_date']))) ?>"><i class="bi bi-clock"></i> Re-test due</span>
+            <?php endif; ?>
             <?php if ($ctrl['assignee']): ?>
               <span class="control-assignee"><i class="bi bi-person-fill"></i> <?= Security::h($ctrl['assignee']) ?></span>
             <?php endif; ?>

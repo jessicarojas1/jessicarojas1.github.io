@@ -210,6 +210,7 @@ $sentBcpExerciseOverdue = 0;
 $sentBcpPlanReviewDue   = 0;
 $sentPoamOverdue        = 0;
 $sentAwarenessOverdue   = 0;
+$sentControlRetestDue   = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -1006,6 +1007,92 @@ HTML;
     }
 } catch (\Throwable $e) {
     fwrite(STDERR, "[awareness_training_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2b. CONTROL RE-TEST CADENCE  (control_retest_due)
+// ═══════════════════════════════════════════════════════════════════════════════
+// A control is due for re-testing once the LATEST control_tests.next_test_date for
+// its objective has passed. Distinct from "overdue_controls" above, which tracks
+// control_implementations.due_date (remediation), not the testing cadence. Alerts
+// the control OWNER (control_implementations.assigned_to).
+try {
+    $retestRows = Database::fetchAll(
+        "SELECT co.id, co.code, co.title, cp.name AS package_name,
+                latest.next_test_date,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM control_implementations ci
+         JOIN compliance_objectives co ON co.id = ci.objective_id
+         JOIN compliance_packages   cp ON cp.id = co.package_id
+         JOIN users u ON u.id = ci.assigned_to
+         JOIN LATERAL (
+           SELECT ct.next_test_date
+           FROM control_tests ct
+           WHERE ct.objective_id = co.id AND ct.next_test_date IS NOT NULL
+           ORDER BY ct.id DESC LIMIT 1
+         ) latest ON TRUE
+         WHERE latest.next_test_date < CURRENT_DATE
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $retestByUser = [];
+    foreach ($retestRows as $row) {
+        $retestByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($retestByUser as $userId => $controls) {
+        if (!notifEnabled((int) $userId, 'control_retest_due')) {
+            continue;
+        }
+        $email    = $controls[0]['email'];
+        $userName = $controls[0]['user_name'];
+
+        foreach ($controls as $ctrl) {
+            // Throttle: one reminder per control per 7 days.
+            if (alreadyNotified((int) $userId, 'control_retest_due', 'compliance_objective', (int) $ctrl['id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((time() - strtotime($ctrl['next_test_date'])) / 86400);
+            $dueDate     = date('M j, Y', strtotime($ctrl['next_test_date']));
+            $code        = htmlspecialchars($ctrl['code'], ENT_QUOTES, 'UTF-8');
+            $title       = htmlspecialchars($ctrl['title'], ENT_QUOTES, 'UTF-8');
+            $pkg         = htmlspecialchars($ctrl['package_name'], ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A control you own is <span style="color:#ef4444;font-weight:600">due for re-testing ({$daysOverdue} days overdue)</span>:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Control</th>
+    <th style="padding:8px;text-align:left">Framework</th>
+    <th style="padding:8px;text-align:left">Next test due</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$code} — {$title}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$pkg}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$dueDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC and record a fresh test result for this control.</p>
+HTML;
+
+            $subject = "Control re-test overdue: {$ctrl['code']}";
+            $body    = emailShell('Control Re-test Due', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'control_retest_due', $email, $userName, $subject, $body,
+                ['control' => $ctrl, 'daysOverdue' => $daysOverdue, 'dueDate' => $dueDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'control_retest_due', 'compliance_objective', (int) $ctrl['id']);
+                $sentControlRetestDue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[control_retest_due] ERROR: " . $e->getMessage() . "\n");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1917,6 +2004,7 @@ if (!empty($digestQueue)) {
         'bcp_plan_review_due'        => 'BCP Plans Due for Testing',
         'poam_item_overdue'          => 'POA&M Items Overdue',
         'awareness_training_overdue' => 'Security Training Overdue',
+        'control_retest_due'         => 'Control Re-test Due',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -2051,4 +2139,5 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentEvidenceExpiry} evidence expiry, {$sentAcceptExpiring} acceptance expiry, "
    . "{$sentKriBreach} KRI breaches, {$sentSlaBreach} SLA breaches, "
    . "{$sentBcpExerciseOverdue} BCP exercises overdue, {$sentBcpPlanReviewDue} BCP plans due, "
-   . "{$sentPoamOverdue} POA&M overdue, {$sentAwarenessOverdue} training overdue, {$sentDigests} digest(s) sent\n";
+   . "{$sentPoamOverdue} POA&M overdue, {$sentAwarenessOverdue} training overdue, "
+   . "{$sentControlRetestDue} control re-tests due, {$sentDigests} digest(s) sent\n";
