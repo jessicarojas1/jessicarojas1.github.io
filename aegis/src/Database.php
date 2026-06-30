@@ -130,7 +130,7 @@ class Database {
         'questionnaire_answers',
         'grc_project_tasks','grc_project_links',
         'control_mappings','control_tests','raci_assignments','shared_responsibility',
-        'evidence','evidence_files',
+        'evidence','evidence_files','evidence_downloads',
         'finding_risk_links',
     ];
 
