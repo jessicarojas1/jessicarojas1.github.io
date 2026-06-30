@@ -222,4 +222,4 @@ async function analyzeDir(dir, scannerResult, onStage, opts) {
   };
 }
 
-module.exports = { loadEngine, ingestDir, analyzeDir, dedupe };
+module.exports = { loadEngine, ingestDir, analyzeDir };

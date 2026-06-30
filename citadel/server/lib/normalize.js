@@ -20,8 +20,6 @@ function normSeverity(raw) {
   return 'medium';
 }
 
-function worse(a, b) { return SEV[a] >= SEV[b] ? a : b; }
-
 // CWE number -> CITADEL weakness category
 const CWE_CAT = {
   20: 'input-validation',
@@ -107,4 +105,4 @@ function relPath(p, base) {
   return r.replace(/^[./]+/, '');
 }
 
-module.exports = { normSeverity, worse, categorize, firstCwe, relPath, CWE_CAT, SEV };
+module.exports = { normSeverity, categorize, firstCwe, relPath, CWE_CAT, SEV };

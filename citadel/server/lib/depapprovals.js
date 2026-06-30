@@ -10,6 +10,7 @@
  * Justification text is never logged.
  */
 const db = require('./db');
+const log = require('./log');
 
 const STATUSES = ['approved', 'restricted', 'prohibited', 'pending'];
 function valid(status) { return STATUSES.indexOf(status) >= 0; }
@@ -35,7 +36,7 @@ async function list() {
       };
     });
     return out;
-  } catch (e) { return {}; }
+  } catch (e) { log.warn('dep-approvals list: DB read failed; returning empty set', { err: e.message }); return {}; }
 }
 
 // Upsert (or delete when status === 'pending' and there is neither a
