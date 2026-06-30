@@ -119,6 +119,45 @@ $jsonBody = static function (): array {
     return is_array($d) ? $d : [];
 };
 
+// ── Object-level authorization (private-space membership) ───────────────────
+// Mirrors the web layer's space-privacy model: a non-admin principal may only
+// see or modify content in open spaces, or in private spaces it belongs to. A
+// session user and a Personal Access Token both act as their owning user
+// (id + role). A legacy server-issued api_key has no user context and is
+// treated as a trusted privileged principal with full access (document this
+// trust level for operators issuing such keys).
+$principalRole = $principal['user']['role'] ?? null;
+$principalUid  = $actorId();
+$seeAll = ($principal['type'] === 'api_key') || ($principalRole === 'admin');
+
+// SQL predicate (+ bound params) restricting a query whose table exposes a
+// space-id column to spaces the principal may view. Pass the column name (e.g.
+// 'space_id'). Admins / server keys get an always-true clause.
+$spacePrivacy = static function (string $spaceCol) use ($seeAll, $principalUid): array {
+    if ($seeAll) { return ['TRUE', []]; }
+    return [
+        "({$spaceCol} IS NULL OR EXISTS (
+            SELECT 1 FROM spaces s WHERE s.id = {$spaceCol}
+              AND (s.is_private = FALSE
+                   OR EXISTS (SELECT 1 FROM space_members m
+                              WHERE m.space_id = s.id AND m.user_id = ?))))",
+        [$principalUid],
+    ];
+};
+// True when the principal may create/modify content in $spaceId: an open space,
+// a private space it is a member of, unfiled content (null), or a privileged
+// principal. A non-existent space yields false (caller surfaces 403/422).
+$canWriteSpace = static function (?int $spaceId) use ($seeAll, $principalUid): bool {
+    if ($seeAll || !$spaceId) { return true; }
+    return (bool) Database::fetchOne(
+        "SELECT 1 FROM spaces s WHERE s.id = ?
+           AND (s.is_private = FALSE
+                OR EXISTS (SELECT 1 FROM space_members m
+                           WHERE m.space_id = s.id AND m.user_id = ?))",
+        [$spaceId, $principalUid]
+    );
+};
+
 try {
     // ── WRITE: POST /v1/documents ────────────────────────────────────────────
     if ($segments === ['v1', 'documents'] && $method === 'POST') {
@@ -129,12 +168,14 @@ try {
         $docType = (string)($b['doc_type'] ?? 'policy');
         $allowedTypes = ['policy','procedure','process','standard','guideline','work_instruction','plan','form','template','record','evidence','training'];
         if (!in_array($docType, $allowedTypes, true)) { $docType = 'policy'; }
+        $spaceId = !empty($b['space_id']) ? (int)$b['space_id'] : null;
+        if (!$canWriteSpace($spaceId)) { $sendError('Forbidden — no access to target space', 403); }
         $code = DocNumbering::next($docType);
         $id = Database::insert('documents', [
             'document_code' => $code,
             'title'         => Security::sanitizeInput($title),
             'doc_type'      => $docType,
-            'space_id'      => !empty($b['space_id']) ? (int)$b['space_id'] : null,
+            'space_id'      => $spaceId,
             'description'   => isset($b['description']) ? Security::sanitizeInput((string)$b['description']) : null,
             'body'          => isset($b['body']) ? Security::sanitizeHtml((string)$b['body']) : null,
             'status'        => 'draft',
@@ -151,8 +192,9 @@ try {
         && isset($segments[2]) && $segments[2] !== '' && in_array($method, ['PATCH', 'PUT'], true)) {
         if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
         $id  = (int)$segments[2];
-        $doc = Database::fetchOne("SELECT id FROM documents WHERE id = ?", [$id]);
+        $doc = Database::fetchOne("SELECT id, space_id FROM documents WHERE id = ?", [$id]);
         if (!$doc) { $sendError('Not found', 404); }
+        if (!$canWriteSpace($doc['space_id'] !== null ? (int)$doc['space_id'] : null)) { $sendError('Forbidden — no access to this document\'s space', 403); }
         $b = $jsonBody();
         $data = [];
         if (isset($b['title']))           { $data['title']           = Security::sanitizeInput((string)$b['title']); }
@@ -173,7 +215,9 @@ try {
         $title   = trim((string)($b['title'] ?? ''));
         if (!$spaceId || $title === '') { $sendError('space_id and title are required', 422); }
         if (!Database::fetchOne("SELECT 1 FROM spaces WHERE id = ?", [$spaceId])) { $sendError('space not found', 422); }
-        $status = in_array(($b['status'] ?? 'draft'), ['draft', 'published'], true) ? $b['status'] : 'draft';
+        if (!$canWriteSpace($spaceId)) { $sendError('Forbidden — no access to target space', 403); }
+        $status = ($b['status'] ?? 'draft');
+        if (!in_array($status, ['draft', 'published'], true)) { $status = 'draft'; }
         $body   = Security::sanitizeHtml((string)($b['body'] ?? ''));
         $id = Database::insert('pages', [
             'space_id'     => $spaceId,
@@ -196,6 +240,7 @@ try {
         $id   = (int)$segments[2];
         $page = Database::fetchOne("SELECT * FROM pages WHERE id = ? AND deleted_at IS NULL", [$id]);
         if (!$page) { $sendError('Not found', 404); }
+        if (!$canWriteSpace($page['space_id'] !== null ? (int)$page['space_id'] : null)) { $sendError('Forbidden — no access to this page\'s space', 403); }
         $b = $jsonBody();
         $title = array_key_exists('title', $b) ? Security::sanitizeInput((string)$b['title']) : $page['title'];
         $body  = array_key_exists('body', $b)  ? Security::sanitizeHtml((string)$b['body'])   : $page['body'];
@@ -218,8 +263,9 @@ try {
         && isset($segments[2]) && $segments[2] !== '' && $method === 'DELETE') {
         if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
         $id   = (int)$segments[2];
-        $page = Database::fetchOne("SELECT id, parent_id FROM pages WHERE id = ? AND deleted_at IS NULL", [$id]);
+        $page = Database::fetchOne("SELECT id, parent_id, space_id FROM pages WHERE id = ? AND deleted_at IS NULL", [$id]);
         if (!$page) { $sendError('Not found', 404); }
+        if (!$canWriteSpace($page['space_id'] !== null ? (int)$page['space_id'] : null)) { $sendError('Forbidden — no access to this page\'s space', 403); }
         // Re-parent direct children so they remain visible, then soft-delete.
         Database::query("UPDATE pages SET parent_id = ? WHERE parent_id = ? AND deleted_at IS NULL", [$page['parent_id'], $id]);
         Database::query("UPDATE pages SET deleted_at = NOW(), deleted_by = ? WHERE id = ?", [$actorId(), $id]);
@@ -231,7 +277,9 @@ try {
         && isset($segments[2]) && $segments[2] !== '' && $method === 'DELETE') {
         if (!$canWrite()) { $sendError('Forbidden — write scope required', 403); }
         $id  = (int)$segments[2];
-        if (!Database::fetchOne("SELECT id FROM documents WHERE id = ?", [$id])) { $sendError('Not found', 404); }
+        $doc = Database::fetchOne("SELECT id, space_id FROM documents WHERE id = ?", [$id]);
+        if (!$doc) { $sendError('Not found', 404); }
+        if (!$canWriteSpace($doc['space_id'] !== null ? (int)$doc['space_id'] : null)) { $sendError('Forbidden — no access to this document\'s space', 403); }
         Database::update('documents', ['status' => 'archived'], 'id = ?', [$id]);
         $sendJson(['archived' => true, 'id' => $id]);
     }
@@ -321,12 +369,14 @@ try {
     if (($segments[0] ?? '') === 'v1' && ($segments[1] ?? '') === 'documents') {
         $requireGet();
 
-        // Single document
+        // Single document — hidden (404) when in a private space the principal
+        // cannot view, so existence is not disclosed.
         if (isset($segments[2]) && $segments[2] !== '') {
             $id  = (int)$segments[2];
+            [$priv, $pp] = $spacePrivacy('space_id');
             $doc = Database::fetchOne(
-                "SELECT {$DOC_LIST_FIELDS}, description FROM documents WHERE id = ?",
-                [$id]
+                "SELECT {$DOC_LIST_FIELDS}, description FROM documents WHERE id = ? AND {$priv}",
+                array_merge([$id], $pp)
             );
             if (!$doc) {
                 $sendError('Not found', 404);
@@ -337,6 +387,10 @@ try {
         // List
         $where  = [];
         $params = [];
+        // Hide documents in private spaces the principal is not a member of.
+        [$privList, $privParams] = $spacePrivacy('space_id');
+        $where[] = $privList;
+        foreach ($privParams as $pp) { $params[] = $pp; }
         if (isset($_GET['status']) && $_GET['status'] !== '') {
             $where[] = 'status = ?';
             $params[] = (string)$_GET['status'];
@@ -368,12 +422,16 @@ try {
     if (($segments[0] ?? '') === 'v1' && ($segments[1] ?? '') === 'spaces') {
         $requireGet();
         $fields = 'id, space_key, name, type, owner_id, is_private, is_archived';
+        // Private spaces are visible only to members (and privileged principals).
+        [$sv, $svp] = $seeAll
+            ? ['TRUE', []]
+            : ['(is_private = FALSE OR EXISTS (SELECT 1 FROM space_members m WHERE m.space_id = spaces.id AND m.user_id = ?))', [$principalUid]];
 
         if (isset($segments[2]) && $segments[2] !== '') {
             $id  = (int)$segments[2];
             $row = Database::fetchOne(
-                "SELECT {$fields} FROM spaces WHERE id = ?",
-                [$id]
+                "SELECT {$fields} FROM spaces WHERE id = ? AND {$sv}",
+                array_merge([$id], $svp)
             );
             if (!$row) {
                 $sendError('Not found', 404);
@@ -382,7 +440,8 @@ try {
         }
 
         $rows = Database::fetchAll(
-            "SELECT {$fields} FROM spaces WHERE is_archived = FALSE ORDER BY name ASC"
+            "SELECT {$fields} FROM spaces WHERE is_archived = FALSE AND {$sv} ORDER BY name ASC",
+            $svp
         );
         $sendJson(['data' => $rows, 'count' => count($rows)]);
     }
@@ -390,9 +449,12 @@ try {
     // ── /v1/processes ──────────────────────────────────────────────────────
     if ($segments === ['v1', 'processes']) {
         $requireGet();
+        // Hide processes in private spaces the principal is not a member of.
+        [$priv, $pp] = $spacePrivacy('space_id');
         $rows = Database::fetchAll(
             "SELECT id, process_code, name, status, version, owner_id, space_id, updated_at
-             FROM processes ORDER BY updated_at DESC LIMIT 200"
+             FROM processes WHERE {$priv} ORDER BY updated_at DESC LIMIT 200",
+            $pp
         );
         $sendJson(['data' => $rows, 'count' => count($rows)]);
     }
@@ -434,16 +496,23 @@ try {
         $requireGet();
         $fields = 'id, space_id, parent_id, title, slug, status, current_version, updated_at';
         if (isset($segments[2]) && $segments[2] !== '') {
-            $row = Database::fetchOne("SELECT {$fields} FROM pages WHERE id = ?", [(int)$segments[2]]);
+            [$priv, $pp] = $spacePrivacy('space_id');
+            $row = Database::fetchOne(
+                "SELECT {$fields} FROM pages WHERE id = ? AND deleted_at IS NULL AND {$priv}",
+                array_merge([(int)$segments[2]], $pp)
+            );
             if (!$row) { $sendError('Not found', 404); }
             $sendJson($row);
         }
-        $where = []; $params = [];
+        // Exclude trashed pages and pages in private spaces the principal can't see.
+        $where = ['deleted_at IS NULL']; $params = [];
         if (isset($_GET['space_id']) && $_GET['space_id'] !== '') { $where[] = 'space_id = ?'; $params[] = (int)$_GET['space_id']; }
         if (isset($_GET['status'])   && $_GET['status']   !== '') { $where[] = 'status = ?';   $params[] = (string)$_GET['status']; }
-        $sql = "SELECT {$fields} FROM pages";
-        if ($where) { $sql .= ' WHERE ' . implode(' AND ', $where); }
-        $sql .= ' ORDER BY updated_at DESC LIMIT 200';
+        [$privList, $privParams] = $spacePrivacy('space_id');
+        $where[] = $privList;
+        foreach ($privParams as $pp) { $params[] = $pp; }
+        $sql = "SELECT {$fields} FROM pages WHERE " . implode(' AND ', $where)
+             . ' ORDER BY updated_at DESC LIMIT 200';
         $rows = Database::fetchAll($sql, $params);
         $sendJson(['data' => $rows, 'count' => count($rows)]);
     }
