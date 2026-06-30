@@ -85,5 +85,6 @@ class AuditLogRead(ORMModel):
     before: dict | None
     after: dict | None
     ip_address: str | None
+    user_agent: str | None = None
     request_id: str | None
     created_at: datetime
