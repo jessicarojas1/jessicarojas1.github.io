@@ -34,6 +34,7 @@ from app.models.document import Document, DocumentStatus
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
+from app.models.supplier import ScarStatus, Supplier, SupplierScar
 from app.models.training import TrainingRecord, TrainingStatus
 from app.models.user import Notification, User
 from app.models.user import Role as RoleModel
@@ -55,6 +56,13 @@ _CAPA_OPEN = (
 _ACTION_OPEN = (CapaActionStatus.OPEN, CapaActionStatus.IN_PROGRESS)
 # NCR states that still require attention (and so can breach an SLA).
 _NCR_OPEN = (NcStatus.OPEN, NcStatus.UNDER_REVIEW)
+# SCAR states still awaiting a supplier response (i.e. not yet closed).
+_SCAR_OPEN = (
+    ScarStatus.ISSUED,
+    ScarStatus.ACKNOWLEDGED,
+    ScarStatus.RESPONSE_RECEIVED,
+    ScarStatus.VERIFIED,
+)
 
 # Roles that receive a copy of every escalation in addition to the owner.
 _ESCALATION_ROLES = (Role.QUALITY_MANAGER, Role.ADMIN)
@@ -178,6 +186,8 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
         "training_expired": 0,
         "training_expiring_soon": 0,
         "document_review_overdue": 0,
+        "scar_response_overdue": 0,
+        "supplier_cert_expired": 0,
     }
     if not org or not org.sla_enabled:
         return summary
@@ -476,5 +486,62 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
             )
             db.commit()
             summary["document_review_overdue"] += 1
+
+    # ── Supplier SCARs past their response-due date (AS9100 8.4 supplier mgmt) ─
+    scars = (
+        db.execute(select(SupplierScar).where(SupplierScar.status.in_(_SCAR_OPEN))).scalars().all()
+    )
+    for scar in scars:
+        due = _basis_date(scar.response_due_date)
+        if due is None or due >= today:
+            continue
+        if _claim(db, "supplier_scar", scar.id, "response_overdue"):
+            days = (today - due).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=None,
+                title=f"SCAR {scar.scar_number} response overdue",
+                body=(
+                    f"{scar.title} — supplier response was due {due.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} overdue)."
+                ),
+                entity_type="supplier",
+                entity_id=scar.supplier_id,
+            )
+            db.commit()
+            summary["scar_response_overdue"] += 1
+
+    # ── Suppliers whose certification has lapsed (AS9100 8.4 supplier mgmt) ────
+    suppliers = (
+        db.execute(
+            select(Supplier).where(
+                Supplier.is_deleted.is_(False),
+                Supplier.cert_expiry.is_not(None),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for supplier in suppliers:
+        exp = _basis_date(supplier.cert_expiry)
+        if exp is None or exp >= today:
+            continue
+        if _claim(db, "supplier", supplier.id, "cert_expired"):
+            days = (today - exp).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=None,
+                title=f"Supplier certification expired: {supplier.name}",
+                body=(
+                    f"{supplier.supplier_code} — certification expired {exp.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} ago). Re-qualify supplier."
+                ),
+                entity_type="supplier",
+                entity_id=supplier.id,
+            )
+            db.commit()
+            summary["supplier_cert_expired"] += 1
 
     return summary
