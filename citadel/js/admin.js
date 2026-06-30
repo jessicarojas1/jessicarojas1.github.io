@@ -376,7 +376,7 @@
         const editBtn = '<button class="btn btn-sm btn-outline-secondary" data-edit-user="' + esc(u.id) + '" title="Edit name, email & role"><i class="bi bi-pencil"></i> Edit</button>';
         const resetBtn = '<button class="btn btn-sm btn-outline-secondary" data-reset-pass="' + esc(u.id) + '"><i class="bi bi-key"></i> Reset password</button>';
         const removeBtn = isMe
-          ? '<button class="btn btn-sm btn-outline-danger" disabled title="You cannot remove your own account"><i class="bi bi-trash"></i></button>'
+          ? '<button class="btn btn-sm btn-outline-danger" disabled title="You cannot remove your own account" aria-label="You cannot remove your own account"><i class="bi bi-trash"></i></button>'
           : '<button class="btn btn-sm btn-outline-danger" data-remove="' + esc(u.id) + '"><i class="bi bi-trash"></i></button>';
         return '<tr data-user-row="' + esc(u.id) + '">' +
           '<td data-cell="name">' + esc(u.name) + (isMe ? ' <span class="badge text-bg-light text-dark">you</span>' : '') + '</td>' +
@@ -485,23 +485,23 @@
           const id = resetPass.getAttribute('data-reset-pass');
           const me = DA.current();
           const isSelf = me && me.id === id;
-          const pw = window.prompt(isSelf
+          const pw = await CITADEL.ui.prompt(isSelf
             ? 'Enter your new password:'
-            : 'Enter a temporary password for this user. They will be required to set their own at next sign-in.');
+            : 'Enter a temporary password for this user. They will be required to set their own at next sign-in.', '', { okLabel: 'Set password' });
           if (pw) {
             try {
               await DA.setPassword(id, pw);
-              window.alert(isSelf ? 'Password updated.' : 'Temporary password set. The user must change it at their next sign-in.');
+              CITADEL.ui.toast(isSelf ? 'Password updated.' : 'Temporary password set. The user must change it at their next sign-in.', 'success');
             }
-            catch (ex) { window.alert(ex && ex.message ? ex.message : 'Could not update password.'); }
+            catch (ex) { CITADEL.ui.toast(ex && ex.message ? ex.message : 'Could not update password.', 'error'); }
           }
           return;
         }
         const remove = e.target.closest('[data-remove]');
         if (remove) {
-          if (!window.confirm('Remove this user? This cannot be undone.')) return;
+          if (!await CITADEL.ui.confirm('Remove this user? This cannot be undone.', { danger: true, okLabel: 'Remove user' })) return;
           try { await DA.removeUser(remove.getAttribute('data-remove')); render(); }
-          catch (ex) { window.alert(ex && ex.message ? ex.message : 'Could not remove user.'); }
+          catch (ex) { CITADEL.ui.toast(ex && ex.message ? ex.message : 'Could not remove user.', 'error'); }
         }
       });
     }
@@ -539,23 +539,28 @@
       }
       tbody.innerHTML = users.map((u) => {
         const isAdmin = u.role === 'admin';
+        // Role defaults for this user's role — lets us flag cells that have been
+        // explicitly overridden away from the role's baseline (tri-state cue).
+        const roleDef = (DA.ROLES && DA.ROLES[u.role] && DA.ROLES[u.role].perms) || {};
         let row = '<tr><td class="user-col">' +
           '<div class="d-flex flex-column">' +
             '<span>' + esc(u.name) + '</span>' +
             '<span class="d-flex align-items-center gap-2 mt-1">' +
               '<span class="badge text-bg-secondary role-badge">' + esc(u.role) + '</span>' +
-              '<button class="btn btn-sm btn-outline-secondary py-0 px-1" data-reset-perms="' + esc(u.id) + '" data-role="' + esc(u.role) + '" title="Reset to role defaults"><i class="bi bi-arrow-counterclockwise"></i></button>' +
+              '<button class="btn btn-sm btn-outline-secondary py-0 px-1" data-reset-perms="' + esc(u.id) + '" data-role="' + esc(u.role) + '" title="Reset to role defaults" aria-label="Reset to role defaults"><i class="bi bi-arrow-counterclockwise"></i></button>' +
             '</span>' +
           '</div></td>';
         groups.forEach((g) => {
           const inGroup = pages.filter((p) => p.group === g);
           inGroup.forEach((p, i) => {
             const checked = isAdmin ? true : !!(u.permissions && u.permissions[p.id]);
-            row += '<td class="matrix-cell' + (i === 0 ? ' border-start' : '') + '">' +
+            const isOverride = !isAdmin && checked !== !!roleDef[p.id];
+            row += '<td class="matrix-cell' + (i === 0 ? ' border-start' : '') + (isOverride ? ' matrix-cell-override' : '') + '"' +
+                (isOverride ? ' title="' + esc('Explicit override — role default for ' + u.role + ' is ' + (roleDef[p.id] ? 'granted' : 'denied')) + '"' : '') + '>' +
               '<input type="checkbox" class="form-check-input" ' +
                 (checked ? 'checked ' : '') + (isAdmin ? 'disabled ' : '') +
                 'data-perm-user="' + esc(u.id) + '" data-perm-page="' + esc(p.id) + '" ' +
-                'aria-label="' + esc(u.name + ' — ' + p.label) + '">' +
+                'aria-label="' + esc(u.name + ' — ' + p.label + (isOverride ? ' (override)' : '')) + '">' +
               '</td>';
           });
         });
@@ -574,7 +579,7 @@
           try {
             await DA.setPermission(cb.getAttribute('data-perm-user'), cb.getAttribute('data-perm-page'), cb.checked);
           } catch (ex) {
-            window.alert(ex && ex.message ? ex.message : 'Could not update permission.');
+            CITADEL.ui.toast(ex && ex.message ? ex.message : 'Could not update permission.', 'error');
             renderPerms();
           }
         }
@@ -586,7 +591,7 @@
             await DA.updateUser(reset.getAttribute('data-reset-perms'), { role: reset.getAttribute('data-role'), resetPerms: true });
             render();
           } catch (ex) {
-            window.alert(ex && ex.message ? ex.message : 'Could not reset permissions.');
+            CITADEL.ui.toast(ex && ex.message ? ex.message : 'Could not reset permissions.', 'error');
           }
         }
       });
@@ -623,7 +628,7 @@
         try {
           await DA.setSetting('enforce', sw.checked);
         } catch (ex) {
-          window.alert(ex && ex.message ? ex.message : 'Could not update setting.');
+          CITADEL.ui.toast(ex && ex.message ? ex.message : 'Could not update setting.', 'error');
         }
         renderSettings();
       });
@@ -686,7 +691,7 @@
       return head + '\r\n' + body;
     }
     function exportAudit(fmt) {
-      if (!_lastAudit.length) { window.alert('Nothing to export yet — refresh the activity list first.'); return; }
+      if (!_lastAudit.length) { CITADEL.ui.toast('Nothing to export yet — refresh the activity list first.', 'warning'); return; }
       const stamp = new Date().toISOString().replace(/[:.]/g, '-');
       if (fmt === 'csv') downloadFile('citadel-audit-' + stamp + '.csv', 'text/csv', toCsv(_lastAudit, ['seq', 'ts', 'type', 'actor', 'ip', 'detail', 'ok']));
       else downloadFile('citadel-audit-' + stamp + '.json', 'application/json', JSON.stringify(_lastAudit, null, 2));
@@ -732,9 +737,9 @@
         tbody.addEventListener('click', async (e) => {
           const r = e.target.closest('[data-revoke-session]');
           if (!r) return;
-          if (!window.confirm('Revoke this session? The user will have to sign in again.')) return;
+          if (!await CITADEL.ui.confirm('Revoke this session? The user will have to sign in again.', { danger: true, okLabel: 'Revoke' })) return;
           try { await DA.revokeSession(r.getAttribute('data-revoke-session')); renderSessions(); }
-          catch (ex) { window.alert(ex && ex.message ? ex.message : 'Could not revoke session.'); }
+          catch (ex) { CITADEL.ui.toast(ex && ex.message ? ex.message : 'Could not revoke session.', 'error'); }
         });
       }
     }
@@ -863,7 +868,7 @@
         file.dataset.wired = '1';
         file.addEventListener('change', () => {
           const f = file.files && file.files[0]; if (!f) return;
-          if (f.size > 180 * 1024) { window.alert('Image is too large (max ~180 KB). Use a URL for larger logos.'); file.value = ''; return; }
+          if (f.size > 180 * 1024) { CITADEL.ui.toast('Image is too large (max ~180 KB). Use a URL for larger logos.', 'error'); file.value = ''; return; }
           const reader = new FileReader();
           reader.onload = () => { if (u) { u.value = String(reader.result || ''); updateBrandPreview(); } };
           reader.readAsDataURL(f);

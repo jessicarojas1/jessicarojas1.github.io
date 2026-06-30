@@ -87,7 +87,7 @@
     const u = curUser();
     const adm = $('nav-admin'); if (adm) adm.classList.toggle('d-none', !(u && u.role === 'admin'));
     ua.innerHTML = u
-      ? `<span class="badge bg-secondary">${escH(u.role)}</span><span class="small d-none d-sm-inline">${escH(u.name || u.email)}</span><button class="btn btn-sm btn-outline-secondary" id="logout-btn" title="Sign out"><i class="bi bi-box-arrow-right"></i></button>`
+      ? `<span class="badge bg-secondary">${escH(u.role)}</span><span class="small d-none d-sm-inline">${escH(u.name || u.email)}</span><button class="btn btn-sm btn-outline-secondary" id="logout-btn" title="Sign out" aria-label="Sign out"><i class="bi bi-box-arrow-right"></i></button>`
       : `<button class="btn btn-sm btn-outline-primary" id="login-btn"><i class="bi bi-box-arrow-in-right"></i> Login</button>`;
   }
   function applyAccess() {
@@ -491,7 +491,11 @@
         const s = $('osv-status'); if (s) s.innerHTML = '<i class="bi bi-check-circle text-success"></i> No known vulnerabilities for the ' + res.queried + ' pinned dependenc(ies) checked via OSV.dev.';
         return;
       }
-      report.findings = report.findings.concat(res.findings);
+      // Merge live OSV findings, skipping any CVE+component already flagged by
+      // the offline advisory DB so the same vuln isn't listed twice.
+      const have = new Set(report.findings.map(f => f.ruleId + '|' + f.file));
+      const fresh = res.findings.filter(f => !have.has(f.ruleId + '|' + f.file));
+      report.findings = report.findings.concat(fresh);
       report.scoring = CITADEL.scanner.score(report.findings, report.quality);
       report.posture = CITADEL.frameworks.posture(report.findings);
       CITADEL.report.render(report);
@@ -669,8 +673,9 @@
     if (pRen) {
       e.preventDefault();
       const id = pRen.getAttribute('data-project-rename');
-      const name = window.prompt('Rename project:', (CITADEL.projects.get(id) || {}).name || '');
-      if (name != null) Promise.resolve(CITADEL.projects.rename(id, name)).then(() => CITADEL.projects.renderProjects()).catch(() => {});
+      CITADEL.ui.prompt('Rename project:', (CITADEL.projects.get(id) || {}).name || '', { okLabel: 'Rename' }).then(name => {
+        if (name != null && name.trim()) Promise.resolve(CITADEL.projects.rename(id, name.trim())).then(() => CITADEL.projects.renderProjects()).catch(() => {});
+      });
       return;
     }
     const pDel = e.target.closest('[data-project-delete]');
@@ -678,9 +683,9 @@
       e.preventDefault();
       const id = pDel.getAttribute('data-project-delete');
       const p = CITADEL.projects.get(id);
-      if (p && window.confirm('Delete project "' + p.name + '"? Scans stay in history but lose their project tag.')) {
-        Promise.resolve(CITADEL.projects.remove(id)).then(() => CITADEL.projects.renderProjects()).catch(() => {});
-      }
+      if (p) CITADEL.ui.confirm('Delete project "' + p.name + '"? Scans stay in history but lose their project tag.', { danger: true, okLabel: 'Delete project' }).then(ok => {
+        if (ok) Promise.resolve(CITADEL.projects.remove(id)).then(() => CITADEL.projects.renderProjects()).catch(() => {});
+      });
       return;
     }
     const recOpen = e.target.closest('[data-open-recent]');
@@ -885,9 +890,19 @@
 
       const h = document.createElement('div');
       h.className = 'kbd-card-head';
-      h.innerHTML = '<span class="kbd-title"><i class="bi bi-keyboard"></i> Keyboard shortcuts</span>'
+      h.innerHTML = '<span class="kbd-title"><i class="bi bi-question-circle"></i> Help &amp; shortcuts</span>'
         + '<span class="kbd-esc-hint"><kbd>Esc</kbd> to close</span>';
       card.appendChild(h);
+
+      // About / help block — gives the overlay a real in-app "About" surface
+      // (what the tool is, where the docs are) alongside the shortcut list.
+      const about = document.createElement('div');
+      about.className = 'kbd-about';
+      about.innerHTML = 'CITADEL — browser-first secure code review &amp; compliance analyzer. '
+        + 'Source is parsed locally; a deep scan adds real server-side scanners when a backend is present. '
+        + '<a href="docs/index.html">Architecture</a> · <a href="FRAMEWORKS.md">Compliance mapping</a> · '
+        + '<a href="docs/RBAC.md">Roles</a> · <a href="docs/UPLOAD-SECURITY.md">Upload security</a>';
+      card.appendChild(about);
 
       const list = document.createElement('div');
       list.className = 'kbd-list';
@@ -916,6 +931,15 @@
         list.appendChild(row);
       });
       card.appendChild(list);
+
+      const foot = document.createElement('div');
+      foot.className = 'kbd-foot';
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'btn btn-sm btn-outline-secondary';
+      closeBtn.textContent = 'Close';
+      closeBtn.addEventListener('click', hideOverlay);
+      foot.appendChild(closeBtn);
+      card.appendChild(foot);
       ov.appendChild(card);
 
       // Close when clicking the dimmed backdrop (but not the card itself).
@@ -964,6 +988,18 @@
 
       // Escape always closes the overlay if it is open.
       if (e.key === 'Escape') { if (isOpen()) { hideOverlay(); e.preventDefault(); } clearChord(); return; }
+
+      // Trap Tab within the overlay while it is open (focus can't escape to the
+      // page behind it).
+      if (isOpen() && e.key === 'Tab') {
+        const f = overlay.querySelectorAll('a[href], button, [tabindex]:not([tabindex="-1"])');
+        if (f.length) {
+          const first = f[0], last = f[f.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        } else { e.preventDefault(); }
+        return;
+      }
 
       // Ignore everything else while typing in a field / contenteditable.
       if (isTyping()) { clearChord(); return; }

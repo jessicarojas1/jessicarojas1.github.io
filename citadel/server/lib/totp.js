@@ -52,11 +52,17 @@ function verify(secret, token, window = 1, step = 30) {
   if (!secret || !token) return false;
   const tok = String(token).replace(/\s+/g, '');
   if (!/^\d{6}$/.test(tok)) return false;
+  const tokBuf = Buffer.from(tok);
   const counter = Math.floor((Date.now() / 1000) / step);
+  // Constant-time: compare every candidate with timingSafeEqual and never
+  // early-return on a match, so neither the digit values nor which window
+  // matched leak through response timing.
+  let ok = false;
   for (let w = -window; w <= window; w++) {
-    if (hotp(secret, counter + w) === tok) return true;
+    const cand = Buffer.from(hotp(secret, counter + w));
+    if (cand.length === tokBuf.length && crypto.timingSafeEqual(cand, tokBuf)) ok = true;
   }
-  return false;
+  return ok;
 }
 
 // otpauth:// URI for authenticator enrollment (QR or manual entry).

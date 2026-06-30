@@ -8,6 +8,7 @@
  * per-browser local overlay.
  */
 const db = require('./db');
+const log = require('./log');
 
 const MAX_BYTES = 200 * 1024;   // ~200 KB serialized cap on a stored overlay
 
@@ -21,7 +22,7 @@ async function get(projectId) {
     const r = await db.query('SELECT data FROM citadel_threatmodel WHERE project_id=$1', [projectId]);
     if (!r.rows.length) return null;
     return r.rows[0].data || null;
-  } catch (e) { return null; }
+  } catch (e) { log.warn('threatmodel get: DB read failed; returning null overlay', { err: e.message }); return null; }
 }
 
 // Upsert the whole overlay for a project. `projectId` is required; `data` must

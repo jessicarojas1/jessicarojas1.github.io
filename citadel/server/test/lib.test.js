@@ -338,6 +338,7 @@ function loadEngine() {
   require('../../js/languages.js'); require('../../js/frameworks.js');
   require('../../js/rules.js'); require('../../js/rules-java.js');
   require('../../js/secrets.js'); require('../../js/sbom.js');
+  require('../../js/advisories.js');
   require('../../js/binary.js'); require('../../js/scanner.js');
   return global.CITADEL;
 }
@@ -578,6 +579,115 @@ test('license policy: tiers denied/review/allowed', () => {
   assert.equal(tier('MPL-2.0'), 'review');
   assert.equal(tier('MIT'), 'allowed');
   assert.equal(tier('Apache-2.0'), 'allowed');
+});
+
+/* ---------------- Offline advisory DB (known-vulnerable deps) ---------------- */
+test('advisories: flags vulnerable versions, clears fixed ones, resolves ranges', () => {
+  const A = loadEngine().advisories;
+  const hit = (comps) => A.scan(comps).map(f => f.ruleId);
+  // exact vulnerable version is flagged; the patched version is not
+  assert.ok(hit([{ name: 'lodash', version: '4.17.20', ecosystem: 'npm' }]).includes('CVE-2021-23337'));
+  assert.equal(hit([{ name: 'lodash', version: '4.17.21', ecosystem: 'npm' }]).length, 0);
+  // a floating range is resolved to its floor and still matched (was skipped before)
+  const floating = A.scan([{ name: 'lodash', version: '^4.17.15', ecosystem: 'npm' }]);
+  assert.equal(floating.length, 1);
+  assert.equal(floating[0].confidence, 'medium', 'range-inferred match is lower confidence than an exact pin');
+  // Maven Log4Shell matches by full coordinate AND by bare artifactId
+  assert.ok(hit([{ name: 'org.apache.logging.log4j:log4j-core', version: '2.14.1', ecosystem: 'maven' }]).includes('CVE-2021-44228'));
+  assert.ok(hit([{ name: 'log4j-core', version: '2.14.1', ecosystem: 'maven' }]).includes('CVE-2021-44228'));
+  // unresolvable (*/latest) and unknown packages produce nothing
+  assert.equal(hit([{ name: 'requests', version: '*', ecosystem: 'pypi' }]).length, 0);
+  assert.equal(hit([{ name: 'totally-made-up-pkg', version: '1.0.0', ecosystem: 'npm' }]).length, 0);
+});
+
+test('advisories: a vulnerable manifest surfaces a CVE through a full scan (offline)', async () => {
+  const C = loadEngine();
+  const rep = await C.scanner.scan([{ path: 'package.json', lang: 'JSON', size: 60,
+    content: '{"dependencies":{"lodash":"4.17.20","minimist":"1.2.5"}}' }]);
+  const cves = (rep.findings || []).filter(f => f.source === 'advisory-db').map(f => f.ruleId);
+  assert.ok(cves.includes('CVE-2021-23337'), 'lodash CVE flagged offline');
+  assert.ok(cves.includes('CVE-2021-44906'), 'minimist CVE flagged offline');
+});
+
+/* ---------------- Secrets: modern token patterns + Luhn PAN ---------------- */
+test('secrets: modern provider tokens are detected', async () => {
+  const C = loadEngine();
+  // Tokens are assembled from fragments so this test file contains no literal
+  // that looks like a live credential (avoids secret-scanning false positives).
+  const tokens = [
+    'github_' + 'pat_' + '11ABCDE0Yabcdefghijklmnopqrstuvwxyz1234',
+    'glpat' + '-' + 'ABCDEF1234567890abcd',
+    'GOCSPX' + '-' + 'abcDEF1234567890_ghij',
+    'SG' + '.' + 'abcdefghij1234567890AB' + '.' + 'abcdefghij1234567890abcdefghij12345',
+    'sk-' + 'abcd1234' + 'T3BlbkFJ' + 'abcd1234'
+  ];
+  const code = tokens.map((t, i) => 'const v' + i + ' = "' + t + '"').join('\n');
+  const rep = await C.scanner.scan([{ path: 's.js', lang: 'JavaScript', size: code.length, content: code }]);
+  const ids = new Set(rep.findings.map(f => f.ruleId));
+  for (const id of ['gh-finegrained-pat', 'gitlab-pat', 'google-oauth-secret', 'sendgrid-key', 'openai-key']) {
+    assert.ok(ids.has(id), 'expected secret rule ' + id + ' to fire');
+  }
+});
+
+test('secrets: only Luhn-valid PANs flag, and the number is masked', async () => {
+  const C = loadEngine();
+  const rep = await C.scanner.scan([{ path: 'p.js', lang: 'JavaScript', size: 80,
+    content: 'good = "4111 1111 1111 1111"\nbad = "4111111111111112"\n' }]);
+  const pans = rep.findings.filter(f => f.ruleId === 'pan-cardnumber');
+  assert.equal(pans.length, 1, 'Luhn-valid card flagged once; invalid one ignored');
+  assert.ok(!/4111111111111111/.test(pans[0].snippet), 'full PAN must never appear in the finding');
+  assert.ok(/1111$/.test(pans[0].snippet.replace(/["';\s]+$/, '')) || /1111/.test(pans[0].snippet), 'masked to last four');
+});
+
+/* ---------------- SBOM manifest parsing (browser engine) ---------------- */
+test('sbom: parses manifests across ecosystems with scope', () => {
+  const S = loadEngine().sbom;
+  const find = (comps, name) => comps.find(c => c.name === name);
+  const npm = S.parse('package.json', '{"dependencies":{"express":"^4.18.0"},"devDependencies":{"jest":"29.0.0"}}');
+  assert.equal(find(npm, 'express').ecosystem, 'npm');
+  assert.equal(find(npm, 'express').version, '^4.18.0');
+  assert.equal(find(npm, 'jest').scope, 'dev', 'devDependencies tagged dev scope');
+  assert.equal(find(S.parse('requirements.txt', 'flask==2.0.1\nrequests>=2.28'), 'flask').ecosystem, 'pypi');
+  assert.equal(find(S.parse('pom.xml', '<dependency><groupId>org.yaml</groupId><artifactId>snakeyaml</artifactId><version>1.30</version></dependency>'), 'org.yaml:snakeyaml').version, '1.30');
+  assert.equal(find(S.parse('go.mod', 'module x\nrequire (\n  github.com/gin-gonic/gin v1.9.0\n)\n'), 'github.com/gin-gonic/gin').ecosystem, 'golang');
+  assert.equal(find(S.parse('composer.json', '{"require":{"guzzlehttp/guzzle":"7.4.0"}}'), 'guzzlehttp/guzzle').ecosystem, 'composer');
+  assert.equal(find(S.parse('Gemfile', 'gem "rails", "7.0.0"'), 'rails').ecosystem, 'gem');
+  assert.equal(find(S.parse('Cargo.toml', '[dependencies]\nserde = "1.0"'), 'serde').ecosystem, 'cargo');
+});
+test('sbom: cyclonedx output is well-formed with PURLs', () => {
+  const S = loadEngine().sbom;
+  const comps = S.parse('package.json', '{"dependencies":{"express":"4.18.0"}}');
+  const cdx = S.cyclonedx(comps, 'demo');
+  assert.equal(cdx.bomFormat, 'CycloneDX');
+  assert.ok(/^1\./.test(cdx.specVersion));
+  assert.equal(cdx.components.length, 1);
+  assert.equal(cdx.components[0].purl, 'pkg:npm/express@4.18.0');
+});
+test('sbom: floating versions are flagged as a supply-chain risk', () => {
+  const S = loadEngine().sbom;
+  const flags = S.riskFlags(S.parse('package.json', '{"dependencies":{"left-pad":"*","ok":"1.2.3"}}'));
+  assert.ok(flags.some(f => /floating|unpinned/i.test(f.reason)), 'a wildcard version is flagged');
+});
+
+/* ---------------- Input validators (lib/validate) ---------------- */
+test('validate: logoUrl accepts https/data-raster, rejects http and svg', () => {
+  const v = require('../lib/validate');
+  assert.equal(v.logoUrl('https://cdn.example.com/logo.png'), 'https://cdn.example.com/logo.png');
+  assert.equal(v.logoUrl('data:image/png;base64,AAAA'), 'data:image/png;base64,AAAA');
+  assert.equal(v.logoUrl('http://example.com/logo.png'), '', 'plain http rejected (mixed content)');
+  assert.equal(v.logoUrl('data:image/svg+xml;base64,AAAA'), '', 'svg rejected (script-carrying)');
+  assert.equal(v.logoUrl('javascript:alert(1)'), '');
+});
+test('validate: hexColor normalizes, isEmail + inEnum behave', () => {
+  const v = require('../lib/validate');
+  assert.equal(v.hexColor('0d6efd'), '#0d6efd');
+  assert.equal(v.hexColor('#ABC'), '#ABC');
+  assert.equal(v.hexColor('not-a-color'), '');
+  assert.ok(v.isEmail('a@b.co'));
+  assert.ok(!v.isEmail('nope'));
+  assert.equal(v.inEnum(['a', 'b'], 'b'), 'b');
+  assert.equal(v.inEnum(['a', 'b'], 'z'), null);
+  assert.equal(v.trimStr('  hi  ', 80), 'hi');
 });
 
 /* ---------------- Server-side readiness gate (engine-in-Node) ---------------- */

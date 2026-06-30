@@ -23,6 +23,7 @@
  */
 const crypto = require('crypto');
 const db = require('./db');
+const log = require('./log');
 
 const CAP = parseInt(process.env.CITADEL_AUDIT_CAP || '500', 10);
 const SINK_URL = process.env.CITADEL_AUDIT_SINK_URL || '';
@@ -88,6 +89,7 @@ async function init() {
 async function verifyChain() {
   let rows;
   let store = 'memory';
+  let dbError = false;
   if (db.enabled()) {
     try {
       const r = await db.query('SELECT seq, ts, type, actor, ip, detail, ok, prev_hash, hash FROM citadel_audit ORDER BY seq ASC');
@@ -97,9 +99,15 @@ async function verifyChain() {
         prevHash: x.prev_hash, hash: x.hash
       }));
       store = 'postgres';
-    } catch (e) { rows = null; }
+    } catch (e) {
+      // A DB read failure must NOT masquerade as a clean verification: log it and
+      // mark the result degraded so the caller knows the persistent chain wasn't
+      // checked (only the in-memory ring was).
+      log.error('audit verifyChain: DB read failed; verifying in-memory ring only', { err: e.message });
+      rows = null; dbError = true;
+    }
   }
-  if (!rows) { rows = _events.slice(); store = 'memory'; }
+  if (!rows) { rows = _events.slice(); store = dbError ? 'memory (db read failed)' : 'memory'; }
 
   let head = GENESIS;
   let count = 0;
@@ -124,7 +132,7 @@ async function list(n = 200, prefix = null) {
       const r = await db.query(
         `SELECT seq, ts, type, actor, ip, detail, ok FROM citadel_audit ${where} ORDER BY seq DESC LIMIT $1`, params);
       return r.rows.map(x => ({ seq: Number(x.seq), ts: (x.ts instanceof Date ? x.ts.toISOString() : x.ts), type: x.type, actor: x.actor, ip: x.ip, detail: x.detail, ok: x.ok }));
-    } catch (e) { /* fall back to memory */ }
+    } catch (e) { log.warn('audit list: DB read failed; serving in-memory ring', { err: e.message }); }
   }
   let out = _events;
   if (prefix) out = out.filter(e => e.type === prefix || e.type.startsWith(prefix + '.'));
@@ -138,7 +146,7 @@ async function stats() {
       const by = await db.query('SELECT type, count(*)::int AS n FROM citadel_audit GROUP BY type');
       const byType = {}; for (const r of by.rows) byType[r.type] = r.n;
       return { total: tot.rows[0].n, capacity: null, byType, store: 'postgres' };
-    } catch (e) { /* fall back */ }
+    } catch (e) { log.warn('audit stats: DB read failed; serving in-memory ring', { err: e.message }); }
   }
   const byType = {};
   for (const e of _events) byType[e.type] = (byType[e.type] || 0) + 1;

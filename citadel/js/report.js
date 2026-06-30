@@ -346,7 +346,7 @@
       ${dispoSummary}
       <div class="d-flex flex-wrap gap-2 mb-2 align-items-center" id="finding-filters">${filterBtns}${supToggle}</div>
       ${filterBar2}
-      <div id="findings-list">${rows}</div>
+      <div id="findings-list" aria-live="polite">${rows}</div>
       <div id="fnd-no-match" class="empty-state d-none"><i class="bi bi-funnel"></i><p>No findings match these filters. <button class="btn btn-sm btn-link p-0 align-baseline" id="fnd-reset2">Clear filters</button></p></div>`;
     applyFindingFilters();
   }
@@ -813,7 +813,7 @@
     const isBase = _baselineId === h.id;
     return `<tr>
       <td class="small fw-semibold">${esc(h.name || '')}
-        <button class="btn btn-sm btn-link p-0 ms-1 align-baseline" data-rename-scan="${esc(h.id)}" title="Rename this scan"><i class="bi bi-pencil"></i></button></td>
+        <button class="btn btn-sm btn-link p-0 ms-1 align-baseline" data-rename-scan="${esc(h.id)}" title="Rename this scan" aria-label="Rename this scan"><i class="bi bi-pencil"></i></button></td>
       <td class="text-nowrap small">${esc(new Date(h.ts).toLocaleString())}${isBase ? ' <span class="badge text-bg-warning">baseline</span>' : ''}</td>
       <td class="small">${esc(h.source || '')}${h.user ? ' <span class="text-body-secondary">· ' + esc(h.user) + '</span>' : ''}</td>
       <td><span class="badge grade-pill ${gradeCls(h.grade)}">${esc(h.grade)}</span></td>
@@ -821,12 +821,12 @@
       <td>${h.findings | 0}</td>
       <td class="text-danger">${(h.critical | 0) + (h.high | 0)}</td>
       <td class="text-end text-nowrap">
-        <button class="btn btn-sm btn-outline-primary py-0 px-1" data-open-scan="${esc(h.id)}" title="Open report"><i class="bi bi-box-arrow-up-right"></i></button>
-        ${(_baselineId && !isBase) ? `<button class="btn btn-sm btn-outline-info py-0 px-1" data-diff-scan="${esc(h.id)}" title="Compare to baseline"><i class="bi bi-arrow-left-right"></i></button>` : ''}
-        <button class="btn btn-sm ${isBase ? 'btn-warning' : 'btn-outline-secondary'} py-0 px-1" data-baseline-scan="${esc(h.id)}" title="${isBase ? 'Clear baseline' : 'Set as baseline for diffs'}"><i class="bi bi-flag${isBase ? '-fill' : ''}"></i></button>
-        <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-html-scan="${esc(h.id)}" title="Download HTML report"><i class="bi bi-filetype-html"></i></button>
-        <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-json-scan="${esc(h.id)}" title="Download JSON"><i class="bi bi-filetype-json"></i></button>
-        <button class="btn btn-sm btn-outline-danger py-0 px-1" data-del-scan="${esc(h.id)}" title="Delete"><i class="bi bi-trash"></i></button>
+        <button class="btn btn-sm btn-outline-primary py-0 px-1" data-open-scan="${esc(h.id)}" title="Open report" aria-label="Open report"><i class="bi bi-box-arrow-up-right"></i></button>
+        ${(_baselineId && !isBase) ? `<button class="btn btn-sm btn-outline-info py-0 px-1" data-diff-scan="${esc(h.id)}" title="Compare to baseline" aria-label="Compare to baseline"><i class="bi bi-arrow-left-right"></i></button>` : ''}
+        <button class="btn btn-sm ${isBase ? 'btn-warning' : 'btn-outline-secondary'} py-0 px-1" data-baseline-scan="${esc(h.id)}" title="${isBase ? 'Clear baseline' : 'Set as baseline for diffs'}" aria-label="${isBase ? 'Clear baseline' : 'Set as baseline for diffs'}"><i class="bi bi-flag${isBase ? '-fill' : ''}"></i></button>
+        <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-html-scan="${esc(h.id)}" title="Download HTML report" aria-label="Download HTML report"><i class="bi bi-filetype-html"></i></button>
+        <button class="btn btn-sm btn-outline-secondary py-0 px-1" data-json-scan="${esc(h.id)}" title="Download JSON" aria-label="Download JSON"><i class="bi bi-filetype-json"></i></button>
+        <button class="btn btn-sm btn-outline-danger py-0 px-1" data-del-scan="${esc(h.id)}" title="Delete" aria-label="Delete"><i class="bi bi-trash"></i></button>
       </td></tr>`;
   }
   // Finding-level diff between a baseline scan and another scan.
@@ -853,7 +853,7 @@
       <div class="card citadel-card"><div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h6 class="mb-0"><i class="bi bi-arrow-left-right"></i> Diff vs baseline ${baseScan ? '<span class="text-body-secondary small">(' + esc(new Date(baseScan.ts).toLocaleDateString()) + ')</span>' : ''}</h6>
-          <button class="btn btn-sm btn-outline-secondary py-0 px-1" id="hist-diff-close" title="Close"><i class="bi bi-x-lg"></i></button>
+          <button class="btn btn-sm btn-outline-secondary py-0 px-1" id="hist-diff-close" title="Close" aria-label="Close"><i class="bi bi-x-lg"></i></button>
         </div>
         <div class="d-flex gap-3 flex-wrap mb-2">
           <span class="badge text-bg-danger">${added.length} new</span>
@@ -906,7 +906,7 @@
         <div class="d-flex gap-2">
           <input type="search" class="form-control form-control-sm maxw-200" id="hist-search" placeholder="Find by name…" aria-label="Find scans by name">
           <button class="btn btn-sm btn-outline-secondary" id="hist-csv" title="Export history as CSV"><i class="bi bi-filetype-csv"></i> CSV</button>
-          <button class="btn btn-sm btn-outline-secondary" id="hist-refresh" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
+          <button class="btn btn-sm btn-outline-secondary" id="hist-refresh" title="Refresh" aria-label="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
         </div>
       </div>
       ${readinessTrend(chrono)}
@@ -932,10 +932,10 @@
       if (ren) {
         const id = ren.getAttribute('data-rename-scan');
         const cur = (_histList.find(s => s.id === id) || {}).name || '';
-        const name = window.prompt('Name this scan (shown in history and searchable):', cur);
+        const name = await CITADEL.ui.prompt('Name this scan (shown in history and searchable):', cur, { okLabel: 'Save name' });
         if (name == null) return;               // cancelled
         try { await CITADEL.api.scanRename(id, name); renderHistory('tab-history'); }
-        catch (ex) { window.alert(ex && ex.message ? ex.message : 'Could not rename scan.'); }
+        catch (ex) { CITADEL.ui.toast(ex && ex.message ? ex.message : 'Could not rename scan.', 'error'); }
         return;
       }
       const base = e.target.closest('[data-baseline-scan]');
@@ -960,11 +960,11 @@
           const r = await CITADEL.api.scanGet(json.getAttribute('data-json-scan'));
           download('citadel-report-' + (r.meta && r.meta.scannedAt || 'scan') + '.json', JSON.stringify(r, null, 2), 'application/json');
         } else if (del) {
-          if (!window.confirm('Delete this saved scan?')) return;
+          if (!await CITADEL.ui.confirm('Delete this saved scan?', { danger: true, okLabel: 'Delete scan' })) return;
           await CITADEL.api.scanDelete(del.getAttribute('data-del-scan'));
           renderHistory('tab-history');
         }
-      } catch (ex) { window.alert(ex && ex.message ? ex.message : 'Action failed.'); }
+      } catch (ex) { CITADEL.ui.toast(ex && ex.message ? ex.message : 'Action failed.', 'error'); }
     });
   }
 
@@ -972,7 +972,7 @@
   function localRow(h) {
     return `<tr>
       <td class="small fw-semibold">${esc(h.label || '')}
-        <button class="btn btn-sm btn-link p-0 ms-1 align-baseline" data-rename-local="${esc(h.id)}" title="Rename this scan"><i class="bi bi-pencil"></i></button></td>
+        <button class="btn btn-sm btn-link p-0 ms-1 align-baseline" data-rename-local="${esc(h.id)}" title="Rename this scan" aria-label="Rename this scan"><i class="bi bi-pencil"></i></button></td>
       <td class="text-nowrap small">${esc(new Date(h.at).toLocaleString())}</td>
       <td><span class="badge ${h.engine === 'deep' ? 'bg-info text-dark' : 'bg-secondary'}">${esc(h.engine)}</span></td>
       <td><span class="badge grade-pill grade-${String(h.grade || '?').toLowerCase()}">${esc(h.grade)}</span></td>
@@ -1034,10 +1034,11 @@
       if (!rl) return;
       const id = rl.getAttribute('data-rename-local');
       const cur = (_localHist.find(h => h.id === id) || {}).label || '';
-      const name = window.prompt('Name this scan (shown in history and searchable):', cur);
-      if (name == null) return;                 // cancelled
-      CITADEL.history.rename(id, name);
-      renderHistory('tab-history');
+      CITADEL.ui.prompt('Name this scan (shown in history and searchable):', cur, { okLabel: 'Save name' }).then(name => {
+        if (name == null) return;               // cancelled
+        CITADEL.history.rename(id, name);
+        renderHistory('tab-history');
+      });
     });
   }
 

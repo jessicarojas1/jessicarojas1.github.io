@@ -10,6 +10,7 @@ const os = require('node:os');
 const path = require('node:path');
 const fs = require('node:fs');
 const totp = require('../lib/totp');
+const AdmZip = require('adm-zip');
 
 const PORT = 8400 + Math.floor(Math.random() * 300);
 const BASE = 'http://127.0.0.1:' + PORT;
@@ -27,7 +28,8 @@ before(async () => {
     env: Object.assign({}, process.env, {
       PORT: String(PORT), CITADEL_DATA_DIR: DATA, CITADEL_TMP: TMP,
       DATABASE_URL: '', REDIS_URL: '', CITADEL_ADMIN_PASSWORD: '', NODE_ENV: 'test',
-      CITADEL_ALLOW_OPEN: '1'   // these tests exercise open-mode behavior; prod now defaults closed
+      CITADEL_ALLOW_OPEN: '1',  // these tests exercise open-mode behavior; prod now defaults closed
+      CITADEL_MAX_UNZIP_ENTRIES: '3', CITADEL_MAX_UNZIP_BYTES: '4096'   // low caps so the bomb test triggers cheaply
     }),
     stdio: 'ignore'
   });
@@ -169,6 +171,44 @@ test('scan an uploaded file returns a report with findings', async () => {
   const rep = await r.json();
   assert.ok(Array.isArray(rep.findings) && rep.findings.length >= 1);
   assert.ok(rep.scoring && rep.scoring.grade);
+});
+
+test('RBAC: a non-admin (analyst) token is denied admin-only routes (403)', async () => {
+  const a = await json('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin@citadel.local', password: 'citadel-admin' }) });
+  const tok = a.body.token; assert.ok(tok, 'admin signs in');
+  const created = await json('/api/users', { method: 'POST', headers: authed(tok, { 'Content-Type': 'application/json' }), body: JSON.stringify({ name: 'Ana', email: 'ana@corp.com', role: 'analyst', password: 'AnaStrong123' }) });
+  assert.equal(created.status, 200);
+  const al = await json('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'ana@corp.com', password: 'AnaStrong123' }) });
+  const atok = al.body.token; assert.ok(atok, 'analyst signs in cleanly (no must-change)');
+  // Admin-only surfaces must be denied server-side for a non-admin, not just hidden in the UI.
+  for (const r of [
+    await api('/api/users', { headers: authed(atok) }),
+    await api('/api/audit', { headers: authed(atok) }),
+    await api('/api/sessions', { headers: authed(atok) }),
+    await api('/api/users', { method: 'POST', headers: authed(atok, { 'Content-Type': 'application/json' }), body: '{}' }),
+    await api('/api/branding', { method: 'PATCH', headers: authed(atok, { 'Content-Type': 'application/json' }), body: JSON.stringify({ orgName: 'x' }) })
+  ]) assert.equal(r.status, 403, 'admin-only route must reject a non-admin token');
+});
+
+test('upload: a zip-slip archive cannot write outside the scan workdir', async () => {
+  const zip = new AdmZip();
+  zip.addFile('../zipslip-escape.txt', Buffer.from('pwned'));   // entry name escapes the extraction root
+  const fd = new FormData();
+  fd.append('files', new Blob([zip.toBuffer()], { type: 'application/zip' }), 'evil.zip');
+  const r = await api('/api/scan', { method: 'POST', body: fd });
+  assert.ok(r.status === 200 || r.status === 400, 'handled, not crashed');
+  // The traversal target resolves to TMP_ROOT/zipslip-escape.txt (workdir/..); it must never be written.
+  assert.equal(fs.existsSync(path.join(TMP, 'zipslip-escape.txt')), false, 'zip-slip escape blocked');
+});
+
+test('upload: a zip with too many entries is rejected with 400 (decompression-bomb cap)', async () => {
+  const zip = new AdmZip();
+  for (let i = 0; i < 5; i++) zip.addFile('f' + i + '.txt', Buffer.from('x'));   // > CITADEL_MAX_UNZIP_ENTRIES (3)
+  const fd = new FormData();
+  fd.append('files', new Blob([zip.toBuffer()], { type: 'application/zip' }), 'bomb.zip');
+  const r = await json('/api/scan', { method: 'POST', body: fd });
+  assert.equal(r.status, 400);
+  assert.match(r.body.error, /Upload rejected/);
 });
 
 test('logout revokes the session (token then rejected)', async () => {

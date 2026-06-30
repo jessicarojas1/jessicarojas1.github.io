@@ -7,6 +7,7 @@
  * per-browser localStorage dispositions.
  */
 const db = require('./db');
+const log = require('./log');
 
 const STATES = ['open', 'accepted', 'false-positive', 'remediated', 'na'];
 function valid(state) { return STATES.indexOf(state) >= 0; }
@@ -31,7 +32,7 @@ async function list() {
       };
     });
     return out;
-  } catch (e) { return {}; }
+  } catch (e) { log.warn('dispositions list: DB read failed; returning empty set', { err: e.message }); return {}; }
 }
 
 // Parse an ISO date string (or Date) to an ISO string for storage; a bad/blank

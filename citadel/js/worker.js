@@ -14,7 +14,7 @@ try {
     'controls-federal.js', 'controls-appsec.js', 'controls-extra.js',
     'rules.js', 'rules-extra.js', 'rules-mobile.js', 'rules-pii.js',
     'rules-iac.js', 'rules-api.js', 'rules-cicd.js', 'rules-java.js',
-    'secrets.js', 'sbom.js', 'binary.js', 'fingerprint.js',
+    'secrets.js', 'sbom.js', 'advisories.js', 'binary.js', 'fingerprint.js',
     'depreview-deps.js', 'depreview-runtime.js', 'depreview-security.js', 'depreview.js',
     'review-logging.js', 'review-testing.js', 'review-threatmodel.js', 'review-architecture.js',
     'review-container.js', 'review-operations.js', 'review-readiness.js', 'integrity.js', 'reachability.js',
