@@ -77,10 +77,25 @@
 
   /* Enrich components with live OSV data. Returns { findings, queried, vulnerable }.
    * Bounded: queries in batches and only fetches detail for components with hits. */
+  // Resolve a version spec to a concrete version to query. Exact versions pass
+  // through; a floating range ("^1.2.3", ">=1.2.0 <2") is queried at its FLOOR so
+  // range-pinned deps (the majority of real manifests) are no longer skipped —
+  // OSV checks whether that concrete version is affected. Wildcards stay
+  // unresolvable. Reuses advisories.resolve() when present, else a local copy.
+  function queryVersion(spec) {
+    if (CITADEL.advisories && CITADEL.advisories.resolve) {
+      const r = CITADEL.advisories.resolve(spec);
+      return r ? r.ver.join('.') : null;
+    }
+    const m = String(spec == null ? '' : spec).match(/(\d+)(?:\.(\d+))?(?:\.(\d+))?/);
+    if (!m || /\*|latest/i.test(String(spec))) return null;
+    return [parseInt(m[1], 10), parseInt(m[2] || '0', 10), parseInt(m[3] || '0', 10)].join('.');
+  }
+
   async function enrich(components, onProgress) {
     const queryable = components
-      .map(c => ({ c, eco: ECO[c.ecosystem] }))
-      .filter(x => x.eco && x.c.version && x.c.version !== '*' && !/[\^~><=*x]/.test(x.c.version));
+      .map(c => ({ c, eco: ECO[c.ecosystem], qv: queryVersion(c.version) }))
+      .filter(x => x.eco && x.qv);
     if (!queryable.length) return { findings: [], queried: 0, vulnerable: 0, skipped: components.length };
 
     const findings = [];
@@ -92,7 +107,7 @@
       let batch;
       try {
         batch = await postJson('https://api.osv.dev/v1/querybatch', {
-          queries: slice.map(x => ({ package: { name: x.c.name, ecosystem: x.eco }, version: x.c.version }))
+          queries: slice.map(x => ({ package: { name: x.c.name, ecosystem: x.eco }, version: x.qv }))
         });
       } catch (e) { continue; }
       const results = (batch && batch.results) || [];
@@ -105,7 +120,7 @@
         for (const v of vulns.slice(0, 8)) {
           try {
             const detail = await postJson('https://api.osv.dev/v1/query', {
-              package: { name: comp.name, ecosystem: slice[j].eco }, version: comp.version
+              package: { name: comp.name, ecosystem: slice[j].eco }, version: slice[j].qv
             });
             (detail.vulns || []).forEach(d => findings.push(toFinding(d, comp)));
             break; // /v1/query returns all vulns for the component at once

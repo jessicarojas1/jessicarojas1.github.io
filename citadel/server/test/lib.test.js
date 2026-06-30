@@ -338,6 +338,7 @@ function loadEngine() {
   require('../../js/languages.js'); require('../../js/frameworks.js');
   require('../../js/rules.js'); require('../../js/rules-java.js');
   require('../../js/secrets.js'); require('../../js/sbom.js');
+  require('../../js/advisories.js');
   require('../../js/binary.js'); require('../../js/scanner.js');
   return global.CITADEL;
 }
@@ -578,6 +579,34 @@ test('license policy: tiers denied/review/allowed', () => {
   assert.equal(tier('MPL-2.0'), 'review');
   assert.equal(tier('MIT'), 'allowed');
   assert.equal(tier('Apache-2.0'), 'allowed');
+});
+
+/* ---------------- Offline advisory DB (known-vulnerable deps) ---------------- */
+test('advisories: flags vulnerable versions, clears fixed ones, resolves ranges', () => {
+  const A = loadEngine().advisories;
+  const hit = (comps) => A.scan(comps).map(f => f.ruleId);
+  // exact vulnerable version is flagged; the patched version is not
+  assert.ok(hit([{ name: 'lodash', version: '4.17.20', ecosystem: 'npm' }]).includes('CVE-2021-23337'));
+  assert.equal(hit([{ name: 'lodash', version: '4.17.21', ecosystem: 'npm' }]).length, 0);
+  // a floating range is resolved to its floor and still matched (was skipped before)
+  const floating = A.scan([{ name: 'lodash', version: '^4.17.15', ecosystem: 'npm' }]);
+  assert.equal(floating.length, 1);
+  assert.equal(floating[0].confidence, 'medium', 'range-inferred match is lower confidence than an exact pin');
+  // Maven Log4Shell matches by full coordinate AND by bare artifactId
+  assert.ok(hit([{ name: 'org.apache.logging.log4j:log4j-core', version: '2.14.1', ecosystem: 'maven' }]).includes('CVE-2021-44228'));
+  assert.ok(hit([{ name: 'log4j-core', version: '2.14.1', ecosystem: 'maven' }]).includes('CVE-2021-44228'));
+  // unresolvable (*/latest) and unknown packages produce nothing
+  assert.equal(hit([{ name: 'requests', version: '*', ecosystem: 'pypi' }]).length, 0);
+  assert.equal(hit([{ name: 'totally-made-up-pkg', version: '1.0.0', ecosystem: 'npm' }]).length, 0);
+});
+
+test('advisories: a vulnerable manifest surfaces a CVE through a full scan (offline)', async () => {
+  const C = loadEngine();
+  const rep = await C.scanner.scan([{ path: 'package.json', lang: 'JSON', size: 60,
+    content: '{"dependencies":{"lodash":"4.17.20","minimist":"1.2.5"}}' }]);
+  const cves = (rep.findings || []).filter(f => f.source === 'advisory-db').map(f => f.ruleId);
+  assert.ok(cves.includes('CVE-2021-23337'), 'lodash CVE flagged offline');
+  assert.ok(cves.includes('CVE-2021-44906'), 'minimist CVE flagged offline');
 });
 
 /* ---------------- Server-side readiness gate (engine-in-Node) ---------------- */

@@ -491,7 +491,11 @@
         const s = $('osv-status'); if (s) s.innerHTML = '<i class="bi bi-check-circle text-success"></i> No known vulnerabilities for the ' + res.queried + ' pinned dependenc(ies) checked via OSV.dev.';
         return;
       }
-      report.findings = report.findings.concat(res.findings);
+      // Merge live OSV findings, skipping any CVE+component already flagged by
+      // the offline advisory DB so the same vuln isn't listed twice.
+      const have = new Set(report.findings.map(f => f.ruleId + '|' + f.file));
+      const fresh = res.findings.filter(f => !have.has(f.ruleId + '|' + f.file));
+      report.findings = report.findings.concat(fresh);
       report.scoring = CITADEL.scanner.score(report.findings, report.quality);
       report.posture = CITADEL.frameworks.posture(report.findings);
       CITADEL.report.render(report);

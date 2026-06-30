@@ -267,6 +267,14 @@
       remediation: 'Pin to a fixed, vetted version and monitor advisories (OSV/NVD).'
     }));
 
+    // Offline known-vulnerability check: a curated advisory set flags well-known
+    // vulnerable dependency versions with NO network (the live OSV path adds more
+    // when online). Dependency-free, so it runs in the worker too.
+    if (CITADEL.advisories) {
+      stage('Checking known-vulnerable dependencies…');
+      try { CITADEL.advisories.scan(sbomComponents).forEach(f => findings.push(f)); } catch (e) {}
+    }
+
     stage('Measuring quality & maintainability…');
     const q = quality(entries);
 
