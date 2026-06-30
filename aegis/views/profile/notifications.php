@@ -101,6 +101,11 @@ $NOTIF_TYPES = [
         'description' => 'When a POA&M item you own is past its scheduled completion date',
         'icon'        => 'flag-fill',
     ],
+    'awareness_training_overdue' => [
+        'label'       => 'Security training overdue',
+        'description' => 'When training assigned to you is past its due date and not completed',
+        'icon'        => 'mortarboard-fill',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────

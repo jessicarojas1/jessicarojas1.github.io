@@ -124,6 +124,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/poam_db.php
 
+      - name: Awareness training overdue — predicate / cascade
+        working-directory: aegis
+        run: php tests/integration/awareness_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

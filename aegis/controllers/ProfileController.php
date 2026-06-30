@@ -33,6 +33,7 @@ class ProfileController {
             'document_expiring','assessment_pending_stale','evidence_expiring',
             'risk_acceptance_expiring','kri_breached','incident_sla_breach',
             'bcp_exercise_overdue','bcp_plan_review_due','poam_item_overdue',
+            'awareness_training_overdue',
         ];
         foreach ($types as $type) {
             $enabled = isset($_POST['types'][$type]);
