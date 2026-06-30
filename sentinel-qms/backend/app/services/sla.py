@@ -32,6 +32,7 @@ from app.models.capa import Capa, CapaAction, CapaActionStatus, CapaStatus
 from app.models.concession import Concession, ConcessionStatus
 from app.models.document import Document, DocumentStatus
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
+from app.models.risk import Risk, RiskStatus
 from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
 from app.models.supplier import ScarStatus, Supplier, SupplierScar
@@ -56,6 +57,14 @@ _CAPA_OPEN = (
 _ACTION_OPEN = (CapaActionStatus.OPEN, CapaActionStatus.IN_PROGRESS)
 # NCR states that still require attention (and so can breach an SLA).
 _NCR_OPEN = (NcStatus.OPEN, NcStatus.UNDER_REVIEW)
+# Risk states still active (i.e. not yet closed) and so due for periodic review.
+_RISK_OPEN = (
+    RiskStatus.IDENTIFIED,
+    RiskStatus.ASSESSED,
+    RiskStatus.TREATMENT_PLANNED,
+    RiskStatus.MITIGATING,
+    RiskStatus.MONITORING,
+)
 # SCAR states still awaiting a supplier response (i.e. not yet closed).
 _SCAR_OPEN = (
     ScarStatus.ISSUED,
@@ -186,6 +195,7 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
         "training_expired": 0,
         "training_expiring_soon": 0,
         "document_review_overdue": 0,
+        "risk_review_overdue": 0,
         "scar_response_overdue": 0,
         "supplier_cert_expired": 0,
     }
@@ -543,5 +553,32 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
             )
             db.commit()
             summary["supplier_cert_expired"] += 1
+
+    # ── Risks overdue for periodic re-assessment (ISO 9001 6.1 risk-based) ─────
+    risks = (
+        db.execute(select(Risk).where(Risk.is_deleted.is_(False), Risk.status.in_(_RISK_OPEN)))
+        .scalars()
+        .all()
+    )
+    for risk in risks:
+        due = _basis_date(risk.review_date)
+        if due is None or due >= today:
+            continue
+        if _claim(db, "risk", risk.id, "review_overdue"):
+            days = (today - due).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=risk.owner_id,
+                title=f"Risk review overdue: {risk.risk_number}",
+                body=(
+                    f"{risk.title} — periodic re-assessment was due {due.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} overdue). Re-assess this risk."
+                ),
+                entity_type="risk",
+                entity_id=risk.id,
+            )
+            db.commit()
+            summary["risk_review_overdue"] += 1
 
     return summary
