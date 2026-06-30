@@ -33,6 +33,7 @@ from app.models.concession import Concession, ConcessionStatus
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
 from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
+from app.models.training import TrainingRecord, TrainingStatus
 from app.models.user import Notification, User
 from app.models.user import Role as RoleModel
 from app.schemas.notification import notification_url
@@ -173,6 +174,8 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
         "audit_overdue": 0,
         "calibration_overdue": 0,
         "concession_expired": 0,
+        "training_expired": 0,
+        "training_expiring_soon": 0,
     }
     if not org or not org.sla_enabled:
         return summary
@@ -297,9 +300,7 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
     # ── Audits past their planned date ───────────────────────────────────────
     audit_open = (AuditStatus.PLANNED, AuditStatus.IN_PROGRESS, AuditStatus.REPORTING)
     audits = (
-        db.execute(
-            select(Audit).where(Audit.is_deleted.is_(False), Audit.status.in_(audit_open))
-        )
+        db.execute(select(Audit).where(Audit.is_deleted.is_(False), Audit.status.in_(audit_open)))
         .scalars()
         .all()
     )
@@ -385,5 +386,60 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
             )
             db.commit()
             summary["concession_expired"] += 1
+
+    # ── Training records past or nearing expiry (ISO 9001 7.2 competence) ─────
+    records = (
+        db.execute(
+            select(TrainingRecord).where(
+                TrainingRecord.expiry_date.is_not(None),
+                TrainingRecord.status != TrainingStatus.EXPIRED,
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for rec in records:
+        exp = _basis_date(rec.expiry_date)
+        if exp is None:
+            continue
+        person = rec.personnel
+        course = rec.course
+        who = person.full_name if person is not None else f"personnel {rec.personnel_id}"
+        what = course.title if course is not None else f"course {rec.course_id}"
+        primary = person.user_id if person is not None else None
+        if exp < today:
+            if _claim(db, "training", rec.id, "expired"):
+                rec.status = TrainingStatus.EXPIRED
+                days = (today - exp).days
+                _escalate(
+                    db,
+                    recipient_ids=managers,
+                    primary_user_id=primary,
+                    title=f"Training expired: {what}",
+                    body=(
+                        f"{who} — '{what}' expired {exp.isoformat()} "
+                        f"({days} day{'s' if days != 1 else ''} ago). Renewal required."
+                    ),
+                    entity_type="training",
+                    entity_id=rec.id,
+                )
+                db.commit()
+                summary["training_expired"] += 1
+        elif exp <= due_soon_cutoff and _claim(db, "training", rec.id, "expiring_soon"):
+            days = (exp - today).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=primary,
+                title=f"Training expiring soon: {what}",
+                body=(
+                    f"{who} — '{what}' expires {exp.isoformat()} "
+                    f"(in {days} day{'s' if days != 1 else ''}). Schedule renewal."
+                ),
+                entity_type="training",
+                entity_id=rec.id,
+            )
+            db.commit()
+            summary["training_expiring_soon"] += 1
 
     return summary
