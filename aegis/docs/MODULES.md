@@ -751,6 +751,7 @@ Security-incident management with lifecycle, threaded updates, playbook runs, ac
 
 ### Features
 Filterable list (severity, status, search) + summary; create; view (updates + playbook runs with step state + available playbooks to start); update; add update (optionally changing status); close; acknowledge (records `incident_sla_events`); SLA report computing per-incident ack/resolve SLA status.
+- **SLA breach monitoring (Phase 6):** the incident module UI was retired in migration 032, but the **SLA report (`/incident/sla`)** is retained and live. `IncidentController::slaStatus()` is now `public static` (pure function returning `n/a`/`met`/`on_track`/`at_risk`/`breached` from start time, event time, and allowed hours), and `slaReport()` LEFT JOINs the `breach` event and shows a red "Breach logged" badge on incidents with a recorded breach. `scripts/send_notifications.php` (`incident_sla_breach`) closes the prior gap where only `acknowledged` events were written: for each still-open incident past `created_at + resolve_hours` with no `resolved` event, it records a one-time `breach` event in `incident_sla_events` (idempotent — only if none exists) and emails the owner (`assigned_to`, fallback `reported_by`), throttled per incident per 7 days. No schema migration was needed (uses pre-existing `incident_sla_policies` / `incident_sla_events`).
 
 ### Business Rules
 - Incident number `INC-####`.

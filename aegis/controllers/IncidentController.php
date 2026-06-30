@@ -376,19 +376,25 @@ class IncidentController {
         $incidents = Database::fetchAll(
             "SELECT i.*, isp.acknowledge_hours, isp.resolve_hours,
                     ack_evt.occurred_at as acknowledged_at,
-                    res_evt.occurred_at as resolved_at
+                    res_evt.occurred_at as resolved_at,
+                    brk_evt.occurred_at as breach_recorded_at
              FROM incidents i
              LEFT JOIN incident_sla_policies isp ON isp.severity = i.severity
              LEFT JOIN incident_sla_events ack_evt ON ack_evt.incident_id=i.id AND ack_evt.event_type='acknowledged'
              LEFT JOIN incident_sla_events res_evt ON res_evt.incident_id=i.id AND res_evt.event_type='resolved'
+             LEFT JOIN incident_sla_events brk_evt ON brk_evt.incident_id=i.id AND brk_evt.event_type='breach'
              WHERE i.status != 'closed'
              ORDER BY i.created_at DESC"
         );
         // Add computed SLA fields
+        $breachCount = 0;
         foreach ($incidents as &$inc) {
             $inc['ack_sla_status']     = self::slaStatus($inc['created_at'], $inc['acknowledged_at'], $inc['acknowledge_hours']);
             $inc['resolve_sla_status'] = self::slaStatus($inc['created_at'], $inc['resolved_at'], $inc['resolve_hours']);
             $inc['age_hours']          = round((time() - strtotime($inc['created_at'])) / 3600, 1);
+            if ($inc['ack_sla_status'] === 'breached' || $inc['resolve_sla_status'] === 'breached') {
+                $breachCount++;
+            }
         }
         unset($inc);
         $pageTitle    = 'SLA Report';
@@ -400,7 +406,13 @@ class IncidentController {
         require AEGIS_ROOT . '/views/layout.php';
     }
 
-    private static function slaStatus(?string $startedAt, ?string $eventAt, ?int $hoursAllowed): string {
+    /**
+     * SLA status for one clock: 'n/a' (no policy/start), 'met' (event recorded),
+     * 'breached' (deadline passed, no event), 'at_risk' (>75% elapsed) or
+     * 'on_track'. Public + static so breach detection is reusable by the
+     * notifier and unit-testable in isolation.
+     */
+    public static function slaStatus(?string $startedAt, ?string $eventAt, ?int $hoursAllowed): string {
         if (!$startedAt || !$hoursAllowed) return 'n/a';
         if ($eventAt) return 'met'; // Completed within SLA (assume met if done)
         $elapsed = (time() - strtotime($startedAt)) / 3600;
