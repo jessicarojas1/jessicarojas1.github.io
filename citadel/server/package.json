@@ -28,7 +28,7 @@
     "@opentelemetry/sdk-node": "^0.218.0"
   },
   "devDependencies": {
-    "eslint": "^9.39.4",
+    "eslint": "^10.5.0",
     "globals": "^17.6.0"
   }
 }
