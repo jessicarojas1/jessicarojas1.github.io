@@ -42,6 +42,7 @@ def list_lessons(
     status_filter: LessonStatus | None = Query(None, alias="status"),
     category_filter: LessonCategory | None = Query(None, alias="category"),
     source_filter: LessonSource | None = Query(None, alias="source"),
+    department: str | None = Query(None),
     search: str | None = Query(None),
     _: CurrentUser = Depends(_READ),
 ) -> list[LessonLearned]:
@@ -52,6 +53,8 @@ def list_lessons(
         stmt = stmt.where(LessonLearned.category == category_filter)
     if source_filter:
         stmt = stmt.where(LessonLearned.source == source_filter)
+    if department:
+        stmt = stmt.where(LessonLearned.department.ilike(department))
     if search:
         like = f"%{search}%"
         stmt = stmt.where(

@@ -59,6 +59,7 @@ def list_training_records(
     pagination: Pagination = Depends(pagination_params),
     search: str | None = Query(None),
     status_filter: TrainingStatus | None = Query(None, alias="status"),
+    department: str | None = Query(None),
     _: CurrentUser = Depends(require_page("training", "view")),
 ) -> Page[TrainingRecordListItem]:
     stmt = (
@@ -68,6 +69,8 @@ def list_training_records(
     )
     if status_filter:
         stmt = stmt.where(TrainingRecord.status == status_filter)
+    if department:
+        stmt = stmt.where(Personnel.department.ilike(department))
     if search:
         like = f"%{search}%"
         stmt = stmt.where(
@@ -85,6 +88,7 @@ def list_training_records(
             id=rec.id,
             employee_id=person.employee_id,
             employee_name=person.full_name,
+            department=person.department,
             course=course.title,
             course_code=course.course_code,
             status=rec.status,

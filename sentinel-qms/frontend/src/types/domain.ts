@@ -386,6 +386,7 @@ export interface TrainingRecord {
   id: string;
   employee_id: string;
   employee_name: string;
+  department?: string | null;
   course: string;
   course_code?: string;
   status: 'assigned' | 'in_progress' | 'completed' | 'overdue';
