@@ -1,0 +1,45 @@
+# Render Blueprint — ISMS Document Library (static site)
+# -----------------------------------------------------------------------------
+# Type A static website: HTML/CSS/JS only. No backend, no DB, no build step,
+# no secrets. Rendered as a Render **Static Site**.
+#
+# The library lives in isms/ and links to a handful of shared assets in the
+# parent portfolio via ../ relative paths (../theme.css, ../script.js, etc.).
+# To keep those links working, this blueprint publishes the REPOSITORY ROOT and
+# rewrites "/" to the ISMS entry page. The whole portfolio is served, but the
+# ISMS library is fully functional at /isms/ with every shared asset resolved.
+#
+# If you want to publish ONLY isms/ standalone, set `staticPublishPath: isms`
+# and vendor the shared assets into isms/ first (see deployments/AIRGAPPED.md),
+# otherwise the ../theme.css / ../script.js references 404.
+# -----------------------------------------------------------------------------
+services:
+  - type: web
+    name: isms-document-library
+    runtime: static
+    # Publish the repo root so ../ shared assets resolve; library is at /isms/.
+    staticPublishPath: .
+    # No build tooling — the artifact is the source.
+    buildCommand: ""
+    pullRequestPreviewsEnabled: true
+    routes:
+      # Land visitors on the ISMS library entry page.
+      - type: rewrite
+        source: /
+        destination: /isms/index.html
+    headers:
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: "geolocation=(), microphone=(), camera=()"

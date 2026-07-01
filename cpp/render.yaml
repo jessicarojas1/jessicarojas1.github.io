@@ -1,0 +1,33 @@
+# ============================================================================
+#  render.yaml — CPP Defense & Signal-Processing Tool Collection
+#  ---------------------------------------------------------------------------
+#  Applicability: N/A (CLI tools, not a web service).
+#
+#  This project is a portfolio of 12 standalone C++ command-line utilities.
+#  None of them binds a socket, serves HTTP, or runs as a persistent daemon,
+#  so there is no Render web/private service to declare and no health-check
+#  URL to expose. A `type: web` service here would be fabricated.
+#
+#  How to run these on Render instead:
+#    * Build the Docker image (see ./Dockerfile) in CI or via Render's Docker
+#      support, then invoke a tool as a one-off job:
+#         docker run --rm cpp-tools:latest entropy-scanner /data --json
+#    * For scheduled batch processing (e.g. nightly CUI or entropy sweeps),
+#      use a Render **Cron Job** that runs the built image with a tool command.
+#
+#  A cron-job blueprint is provided below but left commented out: enable and
+#  edit only if you actually want Render to run a batch sweep on a schedule.
+#  See docs/DEPLOYMENT.md and deployments/KUBERNETES.md for the batch/Job model.
+# ============================================================================
+
+# services: []   # intentionally empty — no long-running service
+
+# ---- OPTIONAL: uncomment to run a tool as a scheduled batch job -------------
+# services:
+#   - type: cron
+#     name: cpp-tools-cui-sweep
+#     runtime: image
+#     image:
+#       url: docker.io/youracct/cpp-tools:latest   # image built from ./Dockerfile
+#     schedule: "0 3 * * *"                          # 03:00 UTC daily
+#     dockerCommand: cui-classifier /data --json
