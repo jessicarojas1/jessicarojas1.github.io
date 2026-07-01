@@ -106,6 +106,11 @@ $NOTIF_TYPES = [
         'description' => 'When training assigned to you is past its due date and not completed',
         'icon'        => 'mortarboard-fill',
     ],
+    'control_retest_due' => [
+        'label'       => 'Control re-test due',
+        'description' => 'When a control you own is past its scheduled next-test date and needs re-testing',
+        'icon'        => 'clock-history',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────

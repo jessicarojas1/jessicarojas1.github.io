@@ -372,6 +372,7 @@ Core compliance engine: frameworks (`standards`) → packages (`compliance_packa
 - **Cross-framework crosswalk** (`crosswalk`/`addMapping`/`removeMapping` → `control_mappings`): pick a source + target framework and author/view equivalence mappings between their control objectives (e.g. CMMC `AC.L2-3.1.1` ↔ NIST 800-171 `3.1.1`), with a mapping type (equivalent/partial/related/superset/subset), coverage summary, and a paginated control grid. Read gated on `compliance.view`; authoring on `compliance.edit`; every add/remove is audit-logged with structured before/after detail.
 - AI suggestions via `AIAdvisor` (rate-limited).
 - Import: JSON, CSV, Excel (.xlsx via ZipArchive, plus SpreadsheetML), PDF (poppler `pdftotext`). CSV/Excel templates downloadable.
+- **Re-test cadence monitoring (Phase 10):** surfaces controls that are **due or overdue for re-testing** based on the **latest** `control_tests.next_test_date` per objective. This is **distinct** from the pre-existing `overdue_controls` alert, which tracks `control_implementations.due_date` (the remediation deadline), not the testing cadence. The pure helper `ComplianceController::retestStatus(?string $nextTestDate)` (`public static`) returns `none` (no usable date), `overdue` (past), `due` (today through 30 days out), or `ok` (>30 days out). `views/compliance/package.php` shows a per-control "Re-test overdue" (red) / "Re-test due" (amber, within 30 days) badge plus a "Due for Re-test" stat in the package overview bar. `scripts/send_notifications.php` adds a `control_retest_due` section that emails the control **owner** (`control_implementations.assigned_to`) when the latest test for their objective is past `next_test_date`, throttled to one reminder per control per 7 days; the type is registered as a user-toggleable preference (`ProfileController` + `views/profile/notifications.php`, label "Control re-test due"). **No schema migration** — reuses the existing `control_tests.next_test_date` column. Covered by `tests/test_compliance_retest.php` (unit, `retestStatus` buckets) and `tests/integration/control_retest_db.php` (DB-level latest-test predicate, owner join, cascade; wired into `.github/workflows/aegis-integration.yml`).
 
 ### Business Rules
 - Control statuses: `compliant, partial, non_compliant, not_started, not_applicable`.
@@ -1208,7 +1209,7 @@ On MFA pending, the session is destroyed/recreated and the post-login redirect c
 Self-service profile: notification preferences, profile edit, and password change.
 
 ### Features
-Notification preferences (12 toggle types + a `__digest__` delivery row: immediate/daily/weekly + time); profile edit (name, email); change password.
+Notification preferences (21 toggle types — including `control_retest_due` "Control re-test due" — plus a `__digest__` delivery row: immediate/daily/weekly + time); profile edit (name, email); change password.
 
 ### Business Rules / Validation
 - Name 2–100 chars; email valid and unique (excluding self).
