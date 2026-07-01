@@ -53,11 +53,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/public           ./public
 USER nextjs
 EXPOSE 3000
 
-# No dedicated /api/health route exists yet; the login status endpoint returns
-# 200 JSON without auth and is a good liveness signal. Uses Node (no curl on
-# alpine) so the check has no extra package footprint.
+# Dedicated liveness/readiness probe: /api/health returns 200 JSON without auth
+# and (when configured) pings Supabase. Uses Node (no curl on alpine) so the
+# check has no extra package footprint.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/auth/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 # server.js is emitted by Next.js standalone output at the repo root of /app.
 CMD ["node", "server.js"]

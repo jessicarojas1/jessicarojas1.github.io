@@ -30,13 +30,15 @@ app container talks only to in-enclave **self-hosted Supabase** and (optionally)
 | Secrets | Offline secret store (Vault in-enclave) or `chmod 600` env files |
 | Updates | Manual transfer bundles (images + npm cache + CVE feeds) via approved media |
 
-> **AI relay + Ollama:** the app's `/api/ai/generate` route is hard-coded to call
-> `api.anthropic.com` with the Anthropic message schema. In an air-gap that host is unreachable,
-> so the AI Copilot has two supported modes: **(a) demo mode** — leave `ANTHROPIC_API_KEY` unset
-> and the panel returns realistic demo output with no egress (fully functional app minus live
-> AI); or **(b) Ollama mode** — front the app with an in-enclave reverse proxy / DNS override
-> that maps `api.anthropic.com` to an **Anthropic-compatible shim in front of Ollama**, or
-> patch the relay's upstream URL to the Ollama endpoint. Either way, inference stays local.
+> **AI relay + Ollama:** the app's `/api/ai/generate` route (`app/api/ai/generate/route.ts`)
+> selects its upstream from `AI_PROVIDER`. Setting **`AI_PROVIDER=ollama`** routes inference to
+> the in-enclave Ollama server natively — the relay posts to `${OLLAMA_BASE_URL}/api/chat` with
+> `OLLAMA_MODEL` — **no shim, DNS override, or code change required**. Two supported modes:
+> **(a) demo mode** — leave `AI_PROVIDER` at `anthropic` with `ANTHROPIC_API_KEY` unset and the
+> panel returns realistic demo output with no egress (fully functional app minus live AI); or
+> **(b) Ollama mode** — set `AI_PROVIDER=ollama` and point `OLLAMA_BASE_URL`/`OLLAMA_MODEL` at
+> the in-enclave server. Either way, inference stays local and `ANTHROPIC_API_KEY` stays unset
+> (no Anthropic egress).
 
 ---
 
@@ -98,6 +100,11 @@ openssl rand -hex 32      # AI_PROXY_TOKEN / BRANDING_ADMIN_TOKEN
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJhbGci...` | Self-hosted anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | *(offline Vault)* | Self-hosted service role key (server-only) |
 | `ANTHROPIC_API_KEY` | *(unset)* | Leave unset — no hosted AI egress; demo/Ollama used instead |
+| `AI_PROVIDER` | `ollama` | Selects the Ollama backend in `app/api/ai/generate/route.ts` (no code change); keep `ollama` — no Anthropic egress |
+| `AI_MODEL` | `claude-opus-4-6` | Anthropic model id (unused when `AI_PROVIDER=ollama`) |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Self-hosted Ollama endpoint; relay posts to `${OLLAMA_BASE_URL}/api/chat` |
+| `OLLAMA_MODEL` | `llama3.1` | Self-hosted model (when AI_PROVIDER=ollama) |
+| `LOG_LEVEL` | `info` | Structured-log verbosity (debug|info|warn|error) |
 | `AI_PROXY_TOKEN` | *(offline Vault)* | Gate `/api/ai/generate` for programmatic callers |
 | `APP_SESSION_SECRET` | *(offline Vault)* | HMAC signs `cc_session` (≥16 chars) |
 | `APP_AUTH_USERNAME` | `issoadmin` | Login username |
@@ -107,12 +114,12 @@ openssl rand -hex 32      # AI_PROXY_TOKEN / BRANDING_ADMIN_TOKEN
 | `NODE_ENV` | `production` | Secure cookies + fail-closed relay |
 | `PORT` | `3000` | Listen port |
 | `HOSTNAME` | `0.0.0.0` | Bind all interfaces |
-| `OLLAMA_HOST` (shim) | `http://ollama.enclave.local:11434` | Ollama endpoint for the AI shim (if using Ollama mode) |
 
-> In **demo mode** (no live AI), leave `ANTHROPIC_API_KEY` unset; the app is fully usable and
-> the AI panel returns realistic canned narratives/gaps/POA&M. In **Ollama mode**, route the
-> relay upstream to the Ollama endpoint via an Anthropic-compatible shim or a patched upstream
-> URL, and keep `ANTHROPIC_API_KEY` unset.
+> In **demo mode** (no live AI), leave `AI_PROVIDER=anthropic` with `ANTHROPIC_API_KEY` unset;
+> the app is fully usable and the AI panel returns realistic canned narratives/gaps/POA&M. In
+> **Ollama mode**, set `AI_PROVIDER=ollama` and point `OLLAMA_BASE_URL`/`OLLAMA_MODEL` at the
+> in-enclave server; the relay posts natively to `${OLLAMA_BASE_URL}/api/chat` — no shim needed —
+> and `ANTHROPIC_API_KEY` stays unset.
 
 ---
 
@@ -124,7 +131,7 @@ openssl rand -hex 32      # AI_PROXY_TOKEN / BRANDING_ADMIN_TOKEN
 | `next.config.js` `remotePatterns` | `supabase.enclave.local` | Allow images from the in-enclave Supabase host (patch if not `*.supabase.co`) |
 | Ollama model | `llama3.1:8b` / `mistral` | Local inference model for the AI Copilot |
 | GPU | optional NVIDIA runtime | Accelerates Ollama; degrades to CPU if absent |
-| Health path | `/` | Homepage health surface |
+| Health path | `/api/health` | Dedicated probe (pings Supabase; HTTP 200, `status:"degraded"` if Supabase down) |
 
 ---
 
@@ -147,7 +154,10 @@ ollama create llama3.1 -f ./Modelfile   # or load a pre-pulled blob
 
 # Apply DB schema to self-hosted Supabase Postgres
 psql "$SUPABASE_DB_URL" -f supabase/schema.sql
-# Create bucket 'evidence-files' in self-hosted Supabase Studio
+# Create bucket 'evidence-files' in self-hosted Supabase Studio — MUST be PRIVATE (not public).
+# Evidence is uploaded server-side via POST /api/evidence/upload (service-role; extension+MIME
+# allowlist, 25 MB cap, randomized object name), which writes an 'evidence' row and returns a
+# short-lived signed URL; objects are read back only via signed URLs.
 ```
 
 Checks (all internal hostnames):
@@ -155,8 +165,8 @@ Checks (all internal hostnames):
 ```bash
 APP=https://grc.enclave.local
 
-# Health / homepage
-curl -sI $APP/ | head -1                                        # 200
+# Health (dedicated probe: pings in-enclave Supabase, HTTP 200 always, status:"degraded" if down)
+curl -s $APP/api/health                                         # {"status":"ok","supabase":"ok",...}
 
 # Login works (secrets resolved from offline Vault)
 curl -s -X POST $APP/api/auth/login -H 'Content-Type: application/json' \

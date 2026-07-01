@@ -101,7 +101,7 @@ aws s3 sync s3://<supabase-bucket>/evidence-files ./evidence-backup --sse
 
 After every restore **and** on a scheduled drill (quarterly recommended):
 
-- [ ] **Health:** `curl -sf https://<host>/api/auth/login` returns 200 JSON.
+- [ ] **Health:** `curl -sf https://<host>/api/health` returns 200 JSON with `status` and `supabase: "ok"` (confirms the app and its Supabase dependency are reachable).
 - [ ] **Login:** POST valid creds to `/api/auth/login` → `{ ok: true }` + `cc_session` cookie.
 - [ ] **Secrets resolved:** AI panel returns real output (not demo) — confirms `ANTHROPIC_API_KEY` present; branding save returns `persisted: 'server'` — confirms `SUPABASE_SERVICE_ROLE_KEY`.
 - [ ] **DB row present:**

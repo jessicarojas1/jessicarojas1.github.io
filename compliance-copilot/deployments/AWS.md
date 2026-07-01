@@ -109,6 +109,11 @@ upstream). Inject secret-backed vars via ECS `secrets` (from Secrets Manager) an
 | `SUPABASE_SERVICE_ROLE_KEY` | *(Secrets Manager)* | *(Secrets Manager, gov)* | Service role key (server-only) |
 | `ANTHROPIC_API_KEY` | `sk-ant-...` | *(usually unset — Ollama)* | Hosted AI upstream |
 | `AI_PROXY_TOKEN` | *(Secrets Manager)* | *(Secrets Manager)* | Gate `/api/ai/generate` (required in prod) |
+| `AI_PROVIDER` | `anthropic` | `ollama` | AI upstream: `anthropic` (default) or `ollama` (self-hosted; gov) |
+| `AI_MODEL` | `claude-opus-4-6` | *(n/a with Ollama)* | Anthropic model id (configurable; default kept) |
+| `OLLAMA_BASE_URL` | *(unset)* | `http://ollama.internal:11434` | Self-hosted Ollama endpoint (when AI_PROVIDER=ollama) |
+| `OLLAMA_MODEL` | *(unset)* | `llama3.1` | Self-hosted model (when AI_PROVIDER=ollama) |
+| `LOG_LEVEL` | `info` | `info` | Structured-log verbosity (debug|info|warn|error) |
 | `APP_SESSION_SECRET` | *(Secrets Manager)* | *(Secrets Manager)* | HMAC signs `cc_session` (≥16 chars) |
 | `APP_AUTH_USERNAME` | `issoadmin` | `issoadmin` | Login username |
 | `APP_AUTH_PASSWORD` | *(Secrets Manager)* | *(Secrets Manager)* | Login password |
@@ -128,7 +133,7 @@ upstream). Inject secret-backed vars via ECS `secrets` (from Secrets Manager) an
 
 | Variable | Example | Purpose |
 |---|---|---|
-| ALB health-check path | `/` | Target group health (dashboard = health surface) |
+| ALB health-check path | `/api/health` | Target group health (pings Supabase; HTTP 200, `status:"degraded"` if Supabase down) |
 | ALB health-check port | `3000` | Container port |
 | ECS `containerPort` | `3000` | Task listen port |
 | `next.config.js` `remotePatterns` | `*.supabase.co` / self-host host | Allowed image hosts |
@@ -141,12 +146,15 @@ upstream). Inject secret-backed vars via ECS `secrets` (from Secrets Manager) an
 ```bash
 # Self-hosted Supabase (required for GovCloud CUI): provision RDS + apply schema
 psql "$SUPABASE_DB_URL" -f supabase/schema.sql
-# Create Storage bucket 'evidence-files' (Supabase Studio; backed by S3 in self-host)
+# Create Storage bucket 'evidence-files' (Supabase Studio; backed by S3 in self-host) — MUST be
+# PRIVATE (not public). Evidence is uploaded server-side via POST /api/evidence/upload
+# (service-role; extension+MIME allowlist, 25 MB cap, randomized object name), which writes an
+# 'evidence' row and returns a short-lived signed URL; objects are read back only via signed URLs.
 
 APP=https://grc.example.com   # ALB DNS / Route 53 record
 
-# Health / homepage
-curl -sI $APP/ | head -1                                        # 200
+# Health (dedicated probe: pings Supabase, HTTP 200 always, status:"degraded" if Supabase down)
+curl -s $APP/api/health                                         # {"status":"ok","supabase":"ok",...}
 
 # Secrets resolved (Secrets Manager via task role) → login works
 curl -s -X POST $APP/api/auth/login -H 'Content-Type: application/json' \
@@ -186,7 +194,7 @@ show no "unable to retrieve secret" errors.
 | Symptom | Cause | Fix |
 |---|---|---|
 | Task fails to start | Task role lacks `secretsmanager:GetSecretValue`/`kms:Decrypt` | Attach the least-privilege policy in §4 |
-| ALB 502/503 | Health check path/port wrong | Set health check `/` on 3000; app must be healthy |
+| ALB 502/503 | Health check path/port wrong | Set health check `/api/health` on 3000; app must be healthy |
 | GovCloud reaches hosted Supabase | Wrong `NEXT_PUBLIC_SUPABASE_URL` | Point at in-partition self-hosted Supabase; keep CUI in `aws-us-gov` |
 | `InvalidClientTokenId` in gov | Commercial endpoints/partition used | Set `AWS_REGION=us-gov-west-1`, use `aws-us-gov` ARNs + FIPS endpoints |
 | AI relay 503 | Prod + no `AI_PROXY_TOKEN` | Provide token from Secrets Manager; or use Ollama in gov |

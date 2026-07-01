@@ -20,7 +20,7 @@ observability, and deployment topology.
 | Language | TypeScript 5 (strict) |
 | Styling | Tailwind CSS 3, dark enterprise theme (`darkMode: 'class'`) |
 | Backend data plane | **Supabase** — PostgreSQL + Row Level Security, Storage, (optional) Auth |
-| AI | Anthropic Claude API via a server-side relay (`claude-opus-4-6`) |
+| AI | Anthropic Claude API or self-hosted Ollama via a server-side relay (`AI_PROVIDER`; Anthropic model `AI_MODEL`, default `claude-opus-4-6`) |
 | Session auth | Self-contained HMAC-signed cookie (`lib/session.ts` + Edge verifier) |
 | Charts / icons | Recharts, lucide-react |
 | Uploads | react-dropzone (client), Supabase Storage (server) |
@@ -143,12 +143,17 @@ into the image.
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://xyz.supabase.co` | Supabase project URL (public, inlined into browser bundle) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJhbGciOi...` | Supabase anon key — RLS-scoped, browser-safe |
 | `SUPABASE_SERVICE_ROLE_KEY` | `eyJhbGciOi...` | **Secret.** Server-only; bypasses RLS for writes |
-| `ANTHROPIC_API_KEY` | `sk-ant-...` | **Secret.** Upstream AI key, used only inside the relay |
+| `ANTHROPIC_API_KEY` | `sk-ant-...` | **Secret.** Upstream AI key, used only inside the relay (Anthropic provider) |
+| `AI_PROVIDER` | `anthropic` | AI upstream: `anthropic` (default) or `ollama` (self-hosted/air-gapped) |
+| `AI_MODEL` | `claude-opus-4-6` | Anthropic model id (configurable; default kept) |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Self-hosted Ollama endpoint (when `AI_PROVIDER=ollama`) |
+| `OLLAMA_MODEL` | `llama3.1` | Self-hosted model name (when `AI_PROVIDER=ollama`) |
 | `AI_PROXY_TOKEN` | `<random>` | Shared bearer token for programmatic AI callers; required in prod if no session |
+| `LOG_LEVEL` | `info` | Structured-log verbosity (`debug`\|`info`\|`warn`\|`error`) |
 | `APP_SESSION_SECRET` | `openssl rand -base64 48` | **Secret.** HMAC key for session cookies (≥16 chars or sessions disabled) |
 | `APP_AUTH_USERNAME` | `isso` | Single-tenant login username |
 | `APP_AUTH_PASSWORD` | `<strong>` | **Secret.** Single-tenant login password |
-| `NEXT_PUBLIC_EVIDENCE_BUCKET` | `evidence-files` | Storage bucket name for evidence |
+| `NEXT_PUBLIC_EVIDENCE_BUCKET` | `evidence-files` | **Private** Storage bucket for evidence (served via signed URLs) |
 | `BRANDING_ADMIN_TOKEN` | `<random>` | Optional. Gates the shared branding write (PUT) |
 
 **Precedence for branding:** server value (Supabase `app_settings`) wins over the
@@ -166,10 +171,12 @@ per-browser `localStorage` copy; built-in defaults apply when neither exists.
 
 | Route | Method | Success | Notable errors |
 |---|---|---|---|
+| `/api/health` | `GET` | `{ status, version, uptime_s, supabase, req_id }` (200; `status: degraded` if Supabase ping fails) | — |
 | `/api/auth/login` | `GET` | `{ authenticated, user, configured }` | — |
 | `/api/auth/login` | `POST` | `{ ok: true, user }` + `Set-Cookie: cc_session` | 400 invalid JSON, 401 bad creds, 429 rate-limited, 503 not configured |
 | `/api/auth/login` | `DELETE` | `{ ok: true }` (clears cookie) | — |
 | `/api/ai/generate` | `POST` | `{ text }` | 400 missing/too-long prompt, 401 unauthorized, 429 rate-limited, 502 upstream, 503 not configured / no key, 500 internal |
+| `/api/evidence/upload` | `POST` (multipart) | `{ ok, evidence, signedUrl, expires_in_s }` (201) | 400 no/invalid file, 401 unauthorized (prod), 413 too large, 415 unsupported type, 502 store/insert failed, 503 storage not configured |
 | `/api/settings/branding` | `GET` | `{ branding }` or **204** (no backend/row) | — |
 | `/api/settings/branding` | `PUT` | `{ ok, persisted: 'server'\|'local', branding }` | 400 invalid JSON, 401 unauthorized (admin token) |
 
@@ -212,13 +219,18 @@ See [SECURITY.md](./SECURITY.md) for the full treatment.
 
 ## 8. Observability
 
-- **Logs.** Next.js server logs to stdout/stderr (captured by the platform:
-  Vercel/Render logs, `docker logs`, `kubectl logs`, or journald). No structured
-  logging framework is bundled; add one at the platform edge if needed.
-- **Health / liveness.** No dedicated `/api/health` route yet. `GET
-  /api/auth/login` returns `200` JSON without auth and is used as the container
-  `HEALTHCHECK` and Render `healthCheckPath`. Adding a first-class `/api/health`
-  that also pings Supabase is an [open item](../OPEN_ITEMS.md).
+- **Logs.** API route handlers emit **structured JSON log lines** via `lib/logger.ts`
+  (one object per line: `ts`, `level`, `msg`, `req_id`, plus route-specific fields)
+  to stdout/stderr, captured by the platform (Vercel/Render logs, `docker logs`,
+  `kubectl logs`, journald). Each request gets a `req_id` (honoring an inbound
+  `x-request-id`/`x-correlation-id` header, else minted) for correlation. Verbosity
+  is set by `LOG_LEVEL` (default `info` in prod). Secrets and prompt/response bodies
+  are never logged.
+- **Health / liveness.** `GET /api/health` returns `200` JSON without auth
+  (`{ status, version, uptime_s, supabase, req_id }`) and performs a lightweight
+  read-only Supabase reachability ping (degrading to `status: "degraded"` — still
+  HTTP 200 — if the dependency is down). It backs the container `HEALTHCHECK` and
+  the Render `healthCheckPath`.
 - **Metrics / traces.** Not instrumented in-app. Use the hosting platform's
   request metrics (Vercel Analytics, Render metrics, or an ingress/APM layer).
 - **Rate-limit state.** In-memory, per-process, best-effort — not a metric source
@@ -236,9 +248,11 @@ See [SECURITY.md](./SECURITY.md) for the full treatment.
                          │                              │
                          │  middleware (Edge) — auth gate│
                          │  route handlers (Node):       │
-                         │   /api/ai/generate  ──────────┼──▶ Anthropic API
+                         │   /api/health                 │
+                         │   /api/ai/generate  ──────────┼──▶ Anthropic API / Ollama
                          │   /api/auth/login             │    (server key only)
-                         │   /api/settings/branding ─────┼──┐
+                         │   /api/evidence/upload ───────┼──┐ (service-role)
+                         │   /api/settings/branding ─────┼──┤
                          └──────────────────────────────┘  │
                                     │ anon (RLS)            │ service-role
                                     ▼                       ▼

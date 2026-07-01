@@ -57,13 +57,18 @@ Set via `.env.local` (dev) or platform secrets (prod). Full reference in
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://xyz.supabase.co` | Supabase URL (public, inlined at build) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJ...` | Anon key (RLS-scoped, browser-safe) |
 | `SUPABASE_SERVICE_ROLE_KEY` | `eyJ...` | **Secret.** Server-only writes; bypasses RLS |
-| `ANTHROPIC_API_KEY` | `sk-ant-...` | **Secret.** AI relay upstream key |
+| `ANTHROPIC_API_KEY` | `sk-ant-...` | **Secret.** AI relay upstream key (Anthropic provider) |
+| `AI_PROVIDER` | `anthropic` | AI upstream: `anthropic` (default) or `ollama` (self-hosted) |
+| `AI_MODEL` | `claude-opus-4-6` | Anthropic model id (configurable; default kept) |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Self-hosted Ollama endpoint (when `AI_PROVIDER=ollama`) |
+| `OLLAMA_MODEL` | `llama3.1` | Self-hosted model (when `AI_PROVIDER=ollama`) |
 | `AI_PROXY_TOKEN` | `<random>` | Bearer for programmatic AI callers; required in prod w/o session |
 | `APP_SESSION_SECRET` | `openssl rand -base64 48` | **Secret.** Session cookie HMAC key (≥16 chars) |
 | `APP_AUTH_USERNAME` | `isso` | Login username |
 | `APP_AUTH_PASSWORD` | `<strong>` | **Secret.** Login password |
-| `NEXT_PUBLIC_EVIDENCE_BUCKET` | `evidence-files` | Storage bucket for evidence |
+| `NEXT_PUBLIC_EVIDENCE_BUCKET` | `evidence-files` | **Private** Storage bucket for evidence (signed URLs only) |
 | `BRANDING_ADMIN_TOKEN` | `<random>` | Optional. Gates the shared branding write |
+| `LOG_LEVEL` | `info` | Structured-log verbosity (`debug`\|`info`\|`warn`\|`error`) |
 
 **Never commit `.env` / `.env.local`** — only `.env.local.example` with
 placeholders. Prefer a secret manager (Vault, AWS Secrets Manager, Azure Key
@@ -113,8 +118,14 @@ go through server route handlers using the service-role key.
 ## 5. Storage bucket
 
 Create a Storage bucket for evidence files (default name `evidence-files`, override
-via `NEXT_PUBLIC_EVIDENCE_BUCKET`). Prefer a **private** bucket with signed URLs.
-In Supabase: Storage → New bucket → `evidence-files`.
+via `NEXT_PUBLIC_EVIDENCE_BUCKET`). **Create it PRIVATE** (uncheck "Public bucket").
+In Supabase: Storage → New bucket → `evidence-files` → keep private.
+
+Evidence is uploaded server-side by `POST /api/evidence/upload` using the
+service-role key (extension + MIME allowlist, 25 MB cap, randomized stored object
+name), which writes an `evidence` metadata row and returns a short-lived **signed
+URL** (1 h). The bucket is never public — objects are read back only through signed
+URLs, so a leaked object path is not directly retrievable.
 
 ---
 
@@ -129,27 +140,29 @@ deployed today, so no separate process, sidecar, or cron entry is required.
 
 ## 7. Ollama configuration (self-hosted / air-gapped AI)
 
-For air-gapped or no-hosted-API deployments, replace the Anthropic relay with a
-self-hosted **Ollama** endpoint. The relay in `app/api/ai/generate/route.ts`
-currently posts to `https://api.anthropic.com/v1/messages`; to use Ollama, point
-that call at the local Ollama server (OpenAI-compatible or native `/api/generate`).
+For air-gapped or no-hosted-API deployments, the relay in
+`app/api/ai/generate/route.ts` supports a self-hosted **Ollama** backend directly —
+set `AI_PROVIDER=ollama` and the relay posts to the Ollama chat API
+(`${OLLAMA_BASE_URL}/api/chat`, `stream:false`) instead of Anthropic. No code change
+is required; no traffic leaves the enclave.
 
 ```bash
 # Install + run Ollama on the app host or an adjacent GPU node
-ollama pull llama3.1:8b        # or a larger model if GPU allows
-ollama serve                   # serves http://127.0.0.1:11434
+ollama pull llama3.1          # or a larger model if GPU allows
+ollama serve                  # serves http://127.0.0.1:11434
 ```
 
-Suggested env for the self-hosted path (introduce when wiring Ollama):
+Env for the self-hosted path:
 
 | Variable | Example | Purpose |
 |---|---|---|
+| `AI_PROVIDER` | `ollama` | Select the Ollama backend (`anthropic` is the default) |
 | `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Local Ollama endpoint |
-| `OLLAMA_MODEL` | `llama3.1:8b` | Model to use for narratives/gaps/POA&M |
-| `AI_PROVIDER` | `ollama` \| `anthropic` | Select relay backend |
+| `OLLAMA_MODEL` | `llama3.1` | Model to use for narratives/gaps/POA&M |
 
-Keep the same fail-closed auth, rate limits, and prompt/output caps in front of
-Ollama. See [AIRGAPPED.md](../deployments/AIRGAPPED.md).
+The same fail-closed auth, per-identity rate limits, and prompt/output caps apply to
+the Ollama path (the server-fixed output ceiling maps to Ollama's `num_predict`). See
+[AIRGAPPED.md](../deployments/AIRGAPPED.md).
 
 ---
 
@@ -189,7 +202,7 @@ Only relevant when running Ollama (the hosted Anthropic path needs no local GPU)
 - [ ] Rate limits backed by a shared store (Redis) and/or a WAF for multi-instance deployments.
 
 ### Resilience & operations
-- [ ] Health check wired (`/api/auth/login`) in the platform/orchestrator.
+- [ ] Health check wired (`/api/health`) in the platform/orchestrator.
 - [ ] Supabase PITR / backups enabled (see [DISASTER_RECOVERY.md](./DISASTER_RECOVERY.md)).
 - [ ] Logs shipped off-host; log retention meets CUI requirements.
 - [ ] Restore drill scheduled; RPO/RTO documented and tested.

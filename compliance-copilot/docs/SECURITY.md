@@ -68,15 +68,26 @@ reads to authenticated callers.
   enforced on **both** client and server (`lib/branding.ts`).
 - **AI cost/DoS controls:** per-identity fixed-window rate limit (20/min), prompt
   cap `MAX_PROMPT_CHARS=8000`, server-fixed `max_tokens=1024` (never client-set).
-  Upstream error bodies are never forwarded to clients.
+  Upstream error bodies are never forwarded to clients. The provider and model are
+  server config (`AI_PROVIDER`/`AI_MODEL`/`OLLAMA_*`), never client input.
+- **Evidence uploads:** `POST /api/evidence/upload` runs server-side with the
+  service-role key. It requires a valid session (+ `x-requested-with` CSRF header,
+  fail-closed in production), enforces an extension **and** MIME allowlist, a 25 MB
+  size cap, and stores objects under a **randomized** name (never the client
+  filename) in a **private** bucket. Files are returned only via short-lived (1 h)
+  **signed URLs** — the bucket is never public.
 
 ---
 
 ## 4. Auditability
 
-- **Current state:** the app relies on Supabase Postgres logs, Storage access logs,
-  and the hosting platform's request logs (Vercel/Render/`docker logs`/`kubectl
-  logs`). `updated_at` triggers on every table record last-modified time.
+- **Current state:** API route handlers emit **structured JSON logs** (`lib/logger.ts`)
+  with a per-request `req_id` (honoring an inbound `x-request-id`/`x-correlation-id`
+  header) — auth outcomes, AI-relay decisions (auth path, rate-limit, upstream
+  status), evidence uploads, and health checks. Verbosity via `LOG_LEVEL`. Secrets
+  and prompt/response bodies are never logged. These sit alongside Supabase Postgres
+  logs, Storage access logs, and the platform's request logs. `updated_at` triggers
+  record each row's last-modified time.
 - **Gaps:** there is **no in-app, per-control change-history / audit trail** yet
   (tracked in [OPEN_ITEMS.md](../OPEN_ITEMS.md) and README v2). For a system of
   record, add an append-only audit table capturing who/what/when for control and

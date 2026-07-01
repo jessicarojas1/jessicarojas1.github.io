@@ -104,6 +104,11 @@ cp .env.local.example .env.local
 | `SUPABASE_SERVICE_ROLE_KEY` | `eyJhbGci...` | Service role key (server API routes only; bypasses RLS) |
 | `ANTHROPIC_API_KEY` | `sk-ant-...` | Enables real AI Copilot; omit for demo output |
 | `AI_PROXY_TOKEN` | *(empty in dev)* | Gates `/api/ai/generate` for programmatic callers; optional in dev |
+| `AI_PROVIDER` | `anthropic` | AI upstream: `anthropic` (default) or `ollama` (self-hosted/air-gapped) |
+| `AI_MODEL` | `claude-opus-4-6` | Anthropic model id (configurable; default kept) |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Self-hosted Ollama endpoint (when AI_PROVIDER=ollama) |
+| `OLLAMA_MODEL` | `llama3.1` | Self-hosted model (when AI_PROVIDER=ollama) |
+| `LOG_LEVEL` | `info` | Structured-log verbosity (debug|info|warn|error) |
 | `APP_SESSION_SECRET` | `<48+ random bytes>` | HMAC signs `cc_session`; must be ≥16 chars or sessions disabled |
 | `APP_AUTH_USERNAME` | `admin` | Single-tenant login username |
 | `APP_AUTH_PASSWORD` | `<strong password>` | Single-tenant login password |
@@ -145,12 +150,12 @@ Set up the database once (hosted Supabase: SQL Editor; local CLI: `psql`):
 psql "$SUPABASE_DB_URL" -f supabase/schema.sql
 ```
 
-Create the storage bucket `evidence-files` (Supabase Studio → Storage → New bucket).
+Create the storage bucket `evidence-files` (Supabase Studio → Storage → New bucket) — it **must be PRIVATE** (not public). Evidence is uploaded server-side via `POST /api/evidence/upload` (service-role; extension+MIME allowlist, 25 MB cap, randomized object name), which writes an `evidence` row and returns a short-lived signed URL; objects are read back only via signed URLs.
 
-**Health / homepage** (the dashboard `/` is the health surface — no dedicated `/healthz`):
+**Health** (dedicated probe `GET /api/health` — pings Supabase when configured, HTTP 200 always, `status:"degraded"` if Supabase is down):
 
 ```bash
-curl -sI http://localhost:3000/ | head -1        # expect: HTTP/1.1 200 OK
+curl -s http://localhost:3000/api/health         # {"status":"ok","version":"...","uptime_s":...,"supabase":"ok","req_id":"..."}
 ```
 
 **Login works** (only when session auth is configured):

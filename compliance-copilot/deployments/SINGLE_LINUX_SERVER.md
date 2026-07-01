@@ -98,6 +98,11 @@ Least-privilege guidance:
 | `SUPABASE_SERVICE_ROLE_KEY` | `eyJhbGci...` | Service role key (server-only) |
 | `ANTHROPIC_API_KEY` | `sk-ant-...` | AI Copilot upstream key (server-only) |
 | `AI_PROXY_TOKEN` | `<hex 32>` | **Required in prod** to gate `/api/ai/generate` for token callers |
+| `AI_PROVIDER` | `anthropic` | AI upstream: `anthropic` (default) or `ollama` (self-hosted/air-gapped) |
+| `AI_MODEL` | `claude-opus-4-6` | Anthropic model id (configurable; default kept) |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Self-hosted Ollama endpoint (when AI_PROVIDER=ollama) |
+| `OLLAMA_MODEL` | `llama3.1` | Self-hosted model (when AI_PROVIDER=ollama) |
+| `LOG_LEVEL` | `info` | Structured-log verbosity (debug|info|warn|error) |
 | `APP_SESSION_SECRET` | `<48+ random>` | HMAC signs `cc_session`; ≥16 chars |
 | `APP_AUTH_USERNAME` | `issoadmin` | Login username |
 | `APP_AUTH_PASSWORD` | `<strong>` | Login password |
@@ -164,14 +169,17 @@ sudo systemctl enable --now compliance-copilot
 
 ```bash
 psql "$SUPABASE_DB_URL" -f supabase/schema.sql   # idempotent
-# Create bucket 'evidence-files' in Supabase Studio → Storage
+# Create bucket 'evidence-files' in Supabase Studio → Storage — MUST be PRIVATE (not public).
+# Evidence is uploaded server-side via POST /api/evidence/upload (service-role; extension+MIME
+# allowlist, 25 MB cap, randomized object name), which writes an 'evidence' row and returns a
+# short-lived signed URL; objects are read back only via signed URLs.
 ```
 
 ### Checks
 
 ```bash
-# Health / homepage (dashboard is the health surface)
-curl -sI https://grc.example.com/ | head -1                 # HTTP/2 200
+# Health (dedicated probe: pings Supabase, HTTP 200 always, status:"degraded" if Supabase down)
+curl -s https://grc.example.com/api/health                  # {"status":"ok","version":...,"supabase":"ok"}
 
 # Login works
 curl -s https://grc.example.com/api/auth/login              # {"configured":true,...}

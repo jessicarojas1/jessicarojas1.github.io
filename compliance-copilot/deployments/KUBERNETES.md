@@ -41,7 +41,7 @@ Secrets are delivered via the **Secrets Store CSI driver** or **External Secrets
         ┌──────────┼──────────┐
         ▼          ▼          ▼
      ┌─────┐    ┌─────┐    ┌─────┐   Deployment (HPA 2..N), PodDisruptionBudget
-     │ pod │    │ pod │    │ pod │   next start :3000, readiness=/  liveness=/
+     │ pod │    │ pod │    │ pod │   next start :3000, readiness=/api/health  liveness=/api/health
      └──┬──┘    └──┬──┘    └──┬──┘
         └──────────┴──────────┘
                    │ HTTPS (anon + service role via CSI-mounted secret)
@@ -115,6 +115,11 @@ Delivered via CSI-mounted secret (synced to env) or ExternalSecret → `Secret` 
 | `SUPABASE_SERVICE_ROLE_KEY` | *(from secret store)* | Service role key (server-only) |
 | `ANTHROPIC_API_KEY` | *(from secret store)* | AI Copilot upstream key |
 | `AI_PROXY_TOKEN` | *(from secret store)* | Required in prod to gate token callers on `/api/ai/generate` |
+| `AI_PROVIDER` | `anthropic` | AI upstream: `anthropic` (default) or `ollama` (self-hosted/air-gapped) |
+| `AI_MODEL` | `claude-opus-4-6` | Anthropic model id (configurable; default kept) |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Self-hosted Ollama endpoint (when AI_PROVIDER=ollama) |
+| `OLLAMA_MODEL` | `llama3.1` | Self-hosted model (when AI_PROVIDER=ollama) |
+| `LOG_LEVEL` | `info` | Structured-log verbosity (debug|info|warn|error) |
 | `APP_SESSION_SECRET` | *(from secret store)* | HMAC signs `cc_session`; ≥16 chars |
 | `APP_AUTH_USERNAME` | `issoadmin` | Login username |
 | `APP_AUTH_PASSWORD` | *(from secret store)* | Login password |
@@ -130,8 +135,8 @@ Delivered via CSI-mounted secret (synced to env) or ExternalSecret → `Secret` 
 
 | Variable | Example | Purpose |
 |---|---|---|
-| Readiness probe | `GET /` :3000 | Marks pod ready (dashboard is the health surface) |
-| Liveness probe | `GET /` :3000 | Restarts wedged pods |
+| Readiness probe | `GET /api/health` :3000 | Marks pod ready (pings Supabase; HTTP 200, `status:"degraded"` if Supabase down) |
+| Liveness probe | `GET /api/health` :3000 | Restarts wedged pods |
 | Ingress rate-limit | `nginx.ingress.kubernetes.io/limit-rpm: "60"` | Global limit (compensates per-pod limiter) |
 | `next.config.js` `remotePatterns` | `*.supabase.co` | Supabase image hosts |
 | HPA target | CPU 70% | Scale trigger |
@@ -159,8 +164,8 @@ spec:
           image: <registry>/compliance-copilot:<tag>
           ports: [{ containerPort: 3000 }]
           envFrom: [{ secretRef: { name: cc-secrets } }]
-          readinessProbe: { httpGet: { path: /, port: 3000 }, initialDelaySeconds: 5 }
-          livenessProbe:  { httpGet: { path: /, port: 3000 }, initialDelaySeconds: 15 }
+          readinessProbe: { httpGet: { path: /api/health, port: 3000 }, initialDelaySeconds: 5 }
+          livenessProbe:  { httpGet: { path: /api/health, port: 3000 }, initialDelaySeconds: 15 }
           resources: { requests: { cpu: 250m, memory: 256Mi }, limits: { cpu: "1", memory: 512Mi } }
           securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
 ```
@@ -172,7 +177,10 @@ One-time DB + bucket setup (external Supabase):
 
 ```bash
 psql "$SUPABASE_DB_URL" -f supabase/schema.sql
-# Create bucket 'evidence-files' in Supabase Studio
+# Create bucket 'evidence-files' in Supabase Studio — MUST be PRIVATE (not public). Evidence is
+# uploaded server-side via POST /api/evidence/upload (service-role; extension+MIME allowlist,
+# 25 MB cap, randomized object name), which writes an 'evidence' row and returns a short-lived
+# signed URL; objects are read back only via signed URLs.
 ```
 
 Checks:
@@ -181,8 +189,8 @@ Checks:
 kubectl -n grc rollout status deploy/compliance-copilot
 kubectl -n grc get pods -l app=compliance-copilot
 
-# Health / homepage
-curl -sI https://grc.example.com/ | head -1                       # 200
+# Health (dedicated probe: pings Supabase, HTTP 200 always, status:"degraded" if Supabase down)
+curl -s https://grc.example.com/api/health                        # {"status":"ok","supabase":"ok",...}
 
 # Login works
 curl -s -X POST https://grc.example.com/api/auth/login \
@@ -220,7 +228,7 @@ psql "$SUPABASE_DB_URL" -c "select file_name from evidence order by created_at d
 | Symptom | Cause | Fix |
 |---|---|---|
 | Pods `CrashLoopBackOff` | Missing required env | Confirm `NEXT_PUBLIC_SUPABASE_*` in the mounted secret |
-| Readiness never passes | App not up on :3000 / probe path wrong | Probe must target `/` on 3000 |
+| Readiness never passes | App not up on :3000 / probe path wrong | Probe must target `/api/health` on 3000 |
 | Secrets empty | CSI/ESO not synced or IAM/identity missing | Check SecretProviderClass + ServiceAccount identity annotation |
 | AI relay 503 | Prod + no `AI_PROXY_TOKEN` + no session | Provide token via secret store |
 | Rate limit ineffective | Per-pod limiter only | Add Ingress `limit-rpm` / WAF rule |

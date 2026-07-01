@@ -2,14 +2,17 @@
 
 **CMMC Level 2 & NIST SP 800-171 Readiness Platform**
 
-![build](https://img.shields.io/badge/build-manual-lightgrey)
+[![CI](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/ci.yml)
 ![next](https://img.shields.io/badge/Next.js-16-black)
 ![node](https://img.shields.io/badge/Node-20%2B-brightgreen)
 ![license](https://img.shields.io/badge/license-MIT-blue)
 
 A compliance management application built with **Next.js (App Router)**, **Tailwind CSS**, and **Supabase**.
 
-> Build badges are placeholders until CI is wired — see [OPEN_ITEMS.md](./OPEN_ITEMS.md).
+> CI (typecheck · lint · build · `npm audit`) runs on every push/PR via the
+> monorepo [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) —
+> the *Compliance Copilot (Node 20)* job. Dependencies are kept current by
+> Dependabot ([`.github/dependabot.yml`](../.github/dependabot.yml)).
 
 ## Why it exists
 
@@ -56,7 +59,8 @@ air-gapped (self-hosted Supabase + Ollama). See [`docs/DEPLOYMENT.md`](./docs/DE
 - **Framework**: Next.js 16 (App Router), React 19, TypeScript 5 (strict)
 - **Styling**: Tailwind CSS 3 — dark enterprise theme
 - **Database**: Supabase (PostgreSQL + Row Level Security + Storage)
-- **AI**: Anthropic Claude API (`claude-opus-4-6`) via a hardened server-side relay
+- **AI**: Anthropic Claude API (model via `AI_MODEL`, default `claude-opus-4-6`) or a
+  self-hosted **Ollama** endpoint (`AI_PROVIDER=ollama`) via a hardened server-side relay
 - **Charts**: Recharts
 - **Icons**: Lucide React
 - **File Upload**: react-dropzone
@@ -122,7 +126,9 @@ AI_PROXY_TOKEN=              # required in production so the AI relay isn't open
 
 1. Create a project at [supabase.com](https://supabase.com)
 2. Run `supabase/schema.sql` in the SQL Editor
-3. Create a Storage bucket named `evidence-files` (public or private)
+3. Create a Storage bucket named `evidence-files` — **create it PRIVATE**. Evidence
+   is uploaded server-side (`POST /api/evidence/upload`, service role) and read back
+   only through short-lived signed URLs; never make this bucket public.
 
 ### 4. Run development server
 
@@ -148,8 +154,10 @@ compliance-copilot/
 │   ├── reports/page.tsx                 # Reports + CSV/JSON export
 │   ├── settings/page.tsx                # Branding settings
 │   └── api/
-│       ├── ai/generate/route.ts         # Hardened AI relay (POST)
+│       ├── health/route.ts              # Liveness/readiness probe (+ Supabase ping)
+│       ├── ai/generate/route.ts         # Hardened AI relay (POST, Anthropic|Ollama)
 │       ├── auth/login/route.ts          # GET status / POST login / DELETE logout
+│       ├── evidence/upload/route.ts     # Service-role upload → evidence row + signed URL
 │       └── settings/branding/route.ts   # GET/PUT shared branding (service-role)
 ├── components/
 │   ├── layout/AppShell.tsx              # Sidebar + responsive shell (logo → home)
@@ -160,6 +168,7 @@ compliance-copilot/
 │   ├── types.ts   utils.ts   data.ts    # Types, score computation, seed data
 │   ├── supabase.ts                      # Anon client + createServiceClient()
 │   ├── branding.ts                      # Branding sanitize + persistence
+│   ├── logger.ts                        # Structured JSON logger + request ids
 │   └── session.ts   session-edge.ts     # HMAC cookie session (Node + Edge)
 ├── middleware.ts                        # Edge auth gate
 ├── supabase/schema.sql                  # DB schema + RLS + triggers
@@ -187,16 +196,27 @@ compliance-copilot/
 
 ## Seeded Controls
 
-The app ships with 20 seeded NIST 800-171 controls across 6 domains:
+The app ships with the **complete NIST SP 800-171 Rev 2 catalog — all 110 practices
+across the 14 control families** (`lib/data.ts`). Requirement text is the official
+Rev 2 practice statement; statuses/narratives are representative seed data.
 
-| Domain | Controls |
-|---|---|
-| AC — Access Control | 3.1.1, 3.1.2, 3.1.3, 3.1.5, 3.1.6, 3.1.12 |
-| IA — Identification & Authentication | 3.5.1, 3.5.2, 3.5.3, 3.5.4 |
-| AU — Audit & Accountability | 3.3.1, 3.3.2, 3.3.5 |
-| CM — Configuration Management | 3.4.1, 3.4.2, 3.4.6 |
-| IR — Incident Response | 3.6.1, 3.6.2 |
-| SI — System & Info Integrity | 3.14.1, 3.14.2, 3.14.3, 3.14.6 |
+| Family | # | Control IDs |
+|---|---|---|
+| AC — Access Control | 22 | 3.1.1 – 3.1.22 |
+| AT — Awareness & Training | 3 | 3.2.1 – 3.2.3 |
+| AU — Audit & Accountability | 9 | 3.3.1 – 3.3.9 |
+| CM — Configuration Management | 9 | 3.4.1 – 3.4.9 |
+| IA — Identification & Authentication | 11 | 3.5.1 – 3.5.11 |
+| IR — Incident Response | 3 | 3.6.1 – 3.6.3 |
+| MA — Maintenance | 6 | 3.7.1 – 3.7.6 |
+| MP — Media Protection | 9 | 3.8.1 – 3.8.9 |
+| PS — Personnel Security | 2 | 3.9.1 – 3.9.2 |
+| PE — Physical Protection | 6 | 3.10.1 – 3.10.6 |
+| RA — Risk Assessment | 3 | 3.11.1 – 3.11.3 |
+| CA — Security Assessment | 4 | 3.12.1 – 3.12.4 |
+| SC — System & Communications Protection | 16 | 3.13.1 – 3.13.16 |
+| SI — System & Information Integrity | 7 | 3.14.1 – 3.14.7 |
+| **Total** | **110** | |
 
 ---
 
@@ -209,7 +229,12 @@ The AI panel (powered by Claude) supports 4 actions per control:
 - **Suggest Improvements** — Actionable technical improvements
 - **Generate POA&M** — Draft POA&M item with milestones
 
-Without `ANTHROPIC_API_KEY`, the panel returns realistic demo output.
+The upstream provider and model are configuration, never client input:
+`AI_PROVIDER` (`anthropic` default, or `ollama` for air-gapped/self-hosted),
+`AI_MODEL` (Anthropic model id, default `claude-opus-4-6`), and `OLLAMA_BASE_URL` /
+`OLLAMA_MODEL` for the self-hosted path. The relay fails closed in production when
+unauthenticated/misconfigured. Without a configured provider, the panel returns
+realistic demo output.
 
 ---
 
@@ -217,8 +242,9 @@ Without `ANTHROPIC_API_KEY`, the panel returns realistic demo output.
 
 - [ ] Supabase Auth (email/SSO) + role-based access (ISSO, assessor, read-only)
 - [ ] Full Supabase persistence (replace seed data with live DB)
-- [ ] Evidence file upload to Supabase Storage with virus scanning
-- [ ] All 110 NIST SP 800-171 controls
+- [x] Evidence file upload to Supabase Storage (service-role route, private bucket,
+      signed URLs) — virus scanning still to add
+- [x] All 110 NIST SP 800-171 controls (full Rev 2 catalog seeded)
 - [ ] Assessment workflow (create assessment, assign controls, track findings)
 - [ ] Multi-tenant org support
 - [ ] CMMC L3 / NIST 800-172 controls

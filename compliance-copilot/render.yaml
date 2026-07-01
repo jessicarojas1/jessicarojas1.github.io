@@ -19,7 +19,7 @@ services:
     rootDir: compliance-copilot
     buildCommand: npm ci && npm run build
     startCommand: npm start
-    healthCheckPath: /api/auth/login
+    healthCheckPath: /api/health
     autoDeploy: true
     envVars:
       - key: NODE_VERSION
@@ -41,6 +41,16 @@ services:
         sync: false
       - key: AI_PROXY_TOKEN
         sync: false
+      # AI provider/model selection. Default = hosted Anthropic. For air-gapped
+      # deployments set AI_PROVIDER=ollama and the OLLAMA_* vars instead.
+      - key: AI_PROVIDER
+        value: anthropic
+      - key: AI_MODEL
+        value: claude-opus-4-6
+      # - key: OLLAMA_BASE_URL
+      #   value: http://ollama:11434
+      # - key: OLLAMA_MODEL
+      #   value: llama3.1
       # ── In-app session login (set all three to enable auth gate) ──────────
       - key: APP_SESSION_SECRET
         generateValue: true
@@ -49,7 +59,10 @@ services:
       - key: APP_AUTH_PASSWORD
         sync: false
       # ── Optional ──────────────────────────────────────────────────────────
+      # Evidence Storage bucket — create it PRIVATE; served via signed URLs only.
       - key: NEXT_PUBLIC_EVIDENCE_BUCKET
         value: evidence-files
       - key: BRANDING_ADMIN_TOKEN
         sync: false
+      - key: LOG_LEVEL
+        value: info

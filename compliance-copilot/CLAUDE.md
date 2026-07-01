@@ -14,7 +14,9 @@ evidence repository, POA&M tracking, and reports/export.
 - **Next.js 16 (App Router)**, React 19, TypeScript 5 (strict).
 - **Tailwind CSS 3**, dark enterprise theme (`darkMode: 'class'`).
 - **Supabase** — Postgres (with RLS), Storage, optional Auth.
-- **Anthropic Claude API** via a server-side relay (model `claude-opus-4-6`).
+- **Anthropic Claude API** (or self-hosted **Ollama**) via a server-side relay.
+  Provider is `AI_PROVIDER` (`anthropic`|`ollama`); Anthropic model is `AI_MODEL`
+  (default `claude-opus-4-6`); self-hosted uses `OLLAMA_BASE_URL`/`OLLAMA_MODEL`.
 - Recharts, lucide-react, react-dropzone, react-hot-toast.
 - Path alias `@/*` → project root.
 
@@ -64,7 +66,9 @@ npm run lint                       # next lint (ESLint 9 / eslint-config-next)
 Apply the schema in Supabase (SQL Editor or `psql -f supabase/schema.sql`); create
 the `evidence-files` Storage bucket. Container: `docker build -t compliance-copilot
 .` then run with env injected. Render: `render.yaml` blueprint. Health probe:
-`GET /api/auth/login`.
+`GET /api/health` (returns `{status, version, supabase}` and pings Supabase when
+configured). Create the `evidence-files` bucket **private** — evidence is written
+server-side via `POST /api/evidence/upload` and read back through signed URLs.
 
 ## Standing rule
 

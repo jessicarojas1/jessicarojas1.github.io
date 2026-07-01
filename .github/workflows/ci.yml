@@ -118,7 +118,9 @@ jobs:
         run: npm run lint
 
   # ---------------------------------------------------------------------------
-  # Compliance Copilot (Next.js + TS). npm ci (has lockfile) -> tsc --noEmit.
+  # Compliance Copilot (Next.js + TS). npm ci -> typecheck -> lint -> build ->
+  # dependency audit. Build uses placeholder NEXT_PUBLIC_* values (non-secret,
+  # inlined at build time) so it succeeds without a live Supabase project.
   # ---------------------------------------------------------------------------
   ts-compliance:
     name: Compliance Copilot (Node 20)
@@ -139,6 +141,24 @@ jobs:
       - name: Typecheck (tsc --noEmit)
         working-directory: compliance-copilot
         run: npx tsc --noEmit
+
+      - name: Lint (next lint)
+        working-directory: compliance-copilot
+        run: npm run lint
+
+      - name: Build (next build, standalone)
+        working-directory: compliance-copilot
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          # Placeholder public values so module-level Supabase client init and
+          # the production build succeed in CI (no real project required).
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+        run: npm run build
+
+      - name: Dependency audit (gating high+)
+        working-directory: compliance-copilot
+        run: npm audit --omit=dev --audit-level=high
 
   # ---------------------------------------------------------------------------
   # PHP lint (php -l) over every .php in aegis/ and apex/. Parallel via xargs.

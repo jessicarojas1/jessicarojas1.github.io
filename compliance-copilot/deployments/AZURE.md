@@ -103,6 +103,11 @@ identical.
 | `SUPABASE_SERVICE_ROLE_KEY` | *(Key Vault)* | *(Key Vault, self-hosted)* | Service role key (server-only) |
 | `ANTHROPIC_API_KEY` | `sk-ant-...` | *(usually unset — use Ollama)* | Hosted AI upstream |
 | `AI_PROXY_TOKEN` | *(Key Vault)* | *(Key Vault)* | Gate `/api/ai/generate` (required in prod) |
+| `AI_PROVIDER` | `anthropic` | `ollama` | AI upstream: `anthropic` (default) or `ollama` (self-hosted; gov) |
+| `AI_MODEL` | `claude-opus-4-6` | *(n/a with Ollama)* | Anthropic model id (configurable; default kept) |
+| `OLLAMA_BASE_URL` | *(unset)* | `http://ollama.internal:11434` | Self-hosted Ollama endpoint (when AI_PROVIDER=ollama) |
+| `OLLAMA_MODEL` | *(unset)* | `llama3.1` | Self-hosted model (when AI_PROVIDER=ollama) |
+| `LOG_LEVEL` | `info` | `info` | Structured-log verbosity (debug|info|warn|error) |
 | `APP_SESSION_SECRET` | *(Key Vault)* | *(Key Vault)* | HMAC signs `cc_session` (≥16 chars) |
 | `APP_AUTH_USERNAME` | `issoadmin` | `issoadmin` | Login username |
 | `APP_AUTH_PASSWORD` | *(Key Vault)* | *(Key Vault)* | Login password |
@@ -123,7 +128,7 @@ identical.
 
 | Variable | Example | Purpose |
 |---|---|---|
-| Ingress health path | `/` | Container Apps/App Service health probe (dashboard = health surface) |
+| Ingress health path | `/api/health` | Container Apps/App Service health probe (pings Supabase; HTTP 200, `status:"degraded"` if Supabase down) |
 | `WEBSITES_PORT` (App Service) | `3000` | Tell App Service which port the container listens on |
 | Container Apps `targetPort` | `3000` | Ingress target |
 | `next.config.js` `remotePatterns` | `*.supabase.co` (commercial) / self-host host | Allowed image hosts |
@@ -136,12 +141,15 @@ identical.
 ```bash
 # Provision Postgres (self-hosted Supabase / gov) and apply schema
 psql "$SUPABASE_DB_URL" -f supabase/schema.sql
-# Create bucket 'evidence-files' (Supabase Studio for self-host, or Storage UI)
+# Create bucket 'evidence-files' (Supabase Studio for self-host, or Storage UI) — MUST be PRIVATE
+# (not public). Evidence is uploaded server-side via POST /api/evidence/upload (service-role;
+# extension+MIME allowlist, 25 MB cap, randomized object name), which writes an 'evidence' row and
+# returns a short-lived signed URL; objects are read back only via signed URLs.
 
 APP=https://compliance-copilot.<region>.azurecontainerapps.io   # or *.azurewebsites.us in gov
 
-# Health / homepage
-curl -sI $APP/ | head -1                                        # 200
+# Health (dedicated probe: pings Supabase, HTTP 200 always, status:"degraded" if Supabase down)
+curl -s $APP/api/health                                         # {"status":"ok","supabase":"ok",...}
 
 # Secrets resolved from Key Vault → login works
 curl -s -X POST $APP/api/auth/login -H 'Content-Type: application/json' \
