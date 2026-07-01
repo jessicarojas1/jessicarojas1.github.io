@@ -97,9 +97,10 @@ secrets manager. This is a property of the tool, not a recoverable failure.
 
 ## Verification cadence (restore drills)
 
-- **Per release / per PR (recommended):** CI runs `make -j` and the demo
-  smoke-checks above — this *is* a continuous restore drill (build-from-source
-  proven on every change). See `OPEN_ITEMS.md` (CI is not yet configured).
+- **Per release / per PR (recommended):** CI (`.github/workflows/cpp-ci.yml`)
+  builds all 12 tools on a GCC+Clang matrix and runs `tests/run_tests.sh` (the
+  smoke/contract suite) on every push/PR touching `cpp/**` — this *is* a
+  continuous restore drill (build-from-source proven on every change).
 - **Quarterly:** perform a cold rebuild on a clean host (and, for air-gap, from
   the offline bundle) to prove toolchain + OpenSSL are still available and the
   binaries still pass the demo checks.

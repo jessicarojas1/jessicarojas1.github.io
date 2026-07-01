@@ -103,9 +103,12 @@ For Windows, MinGW builds most tools, but note GNU builtins and POSIX headers
 ## Static linking
 
 For maximum portability / air-gap, statically link the standard library on the
-portable tools:
+portable tools. The `static` make target does this for the 10 portable+threaded
+tools (output: `./bin/<tool>-static`; `aes-vault`/`memory-scanner` excluded):
 
 ```bash
+make static
+# or drive the flags directly:
 make portable CXXFLAGS="-std=c++17 -O2 -static -static-libstdc++ -static-libgcc"
 ```
 

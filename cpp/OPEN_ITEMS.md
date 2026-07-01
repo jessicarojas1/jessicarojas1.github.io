@@ -16,20 +16,21 @@ Legend: ✅ done · 🟡 partial · ⬜ outstanding · N/A not applicable
 | Top-level `Makefile` builds all 12 tools | ✅ | Reproducible one-command build | — |
 | `CMakeLists.txt` alternative build | ✅ | IDE / cross-platform builds | — |
 | All 12 compile clean on g++ 13.3.0 | ✅ | Verified locally | — |
-| Compiler warnings (`-Wall -Wextra`) resolved | 🟡 | A few unused-variable/`clang-format` warnings remain (e.g. `yara-lite` `use_builtin`, `cui-classifier` `using S`) | Trim dead code; consider `-Werror` once clean |
-| CI pipeline (build matrix, run demos) | ⬜ | No automated proof of build health on push | Add GitHub Actions: `make -j` + run each demo; matrix gcc/clang, Linux/macOS |
-| Reproducible / pinned toolchain | 🟡 | Dockerfile pins `debian:12-slim`; host builds float | Pin compiler version in CI; record `g++ --version` in build metadata |
-| Static-linked release artifacts | ⬜ | Air-gap installs currently rely on target libs | Provide `-static` / musl builds for portable tools (see `deployments/AIRGAPPED.md`) |
+| Compiler warnings (`-Wall -Wextra`) resolved | 🟡 | The two called-out warnings are fixed — removed `yara-lite` `use_builtin` (dead) and `cui-classifier` `using S` (unused typedef). A handful of unused-parameter/function warnings remain (`gps_detector` `nmea_checksum`/`verify_checksum`/`speed_kt`/`verbose`, `rf_anomaly` `center_freq`, `packet_analyzer` `swap16`/`hex_str`, `mil1553` `RT_BROADCAST`) | Trim remaining dead code; then flip to `-Werror` |
+| CI pipeline (build matrix, run demos) | ✅ | `.github/workflows/cpp-ci.yml`: Linux **GCC+Clang** matrix builds all 12 + runs `tests/run_tests.sh`; **static** job builds air-gap binaries; **macOS** job builds portable subset. Scoped to `cpp/**`. Verified: g++ and clang++ both build all 12 and pass all 19 tests locally | — |
+| Reproducible / pinned toolchain | ✅ | Build pinned to C++17 + `-O2 -Wall -Wextra` in `Makefile`; CI installs the toolchain explicitly and runs `make version` (records `CXX --version` + `CXXFLAGS`) as build metadata; Dockerfile still pins `debian:12-slim` | Optionally pin an exact compiler patch version per release |
+| Static-linked release artifacts | ✅ | `make static` links the 10 portable+threaded tools with `-static` → `./bin/*-static` (aes-vault/memory-scanner excluded by design); CI `static` job gates it; documented in `deployments/AIRGAPPED.md` | Optional: musl builds for smaller/more-portable artifacts |
 
 ## Testing & verification
 
 | Item | Status | Impact | Suggested action |
 |------|--------|--------|------------------|
 | Built-in demo/synthetic modes | ✅ | `mil1553-sim`, `arinc429-decoder --demo`, `gps-detector`, `rf-anomaly` self-verify without inputs | — |
-| Unit tests | ⬜ | No regression safety net for parsers/detectors | Add tests for pcap/TLS/DNS/NMEA/ARINC parsers and detection thresholds |
+| Test harness (smoke/contract) | ✅ | `tests/run_tests.sh` builds all 12 and runs **19 checks**: every demo, the exit-2 detection contracts (entropy/cui/yara + clean counter-cases), `packet-analyzer` on a generated pcap, `zt-policy` ALLOW, `log-correlator`, a full `aes-vault` encrypt→decrypt round-trip, and `memory-scanner --help` (auto-skipped off Linux). `make test`. All pass on g++ 13.3.0 and clang 18 | — |
+| Unit tests (deep per-parser) | 🟡 | The harness gives contract-level regression coverage, but there are no fine-grained unit/property tests of individual pcap/TLS/DNS/NMEA/ARINC parse paths | Add table-driven parser unit tests with malformed/edge inputs |
 | Fuzzing of untrusted parsers | ⬜ | `packet-analyzer`, `yara-lite`, `gps-detector`, `arinc429-decoder`, `log-correlator` parse attacker-influenced bytes | libFuzzer/AFL++ harnesses; run under ASan/UBSan |
 | Sanitizer build target | ⬜ | Memory-safety bugs would surface earlier | Add `make asan` / CMake `-fsanitize=address,undefined` preset |
-| Golden-output samples | 🟡 | Demos print, but outputs aren't asserted | Commit expected demo outputs; diff in CI |
+| Golden-output samples | ✅ | `tests/run_tests.sh` asserts stable output substrings **and** exit codes for every tool, and CI runs it on GCC+Clang — outputs are now asserted, not just printed | Extend to full byte-diff golden files if output stabilizes further |
 
 ## Memory safety & robustness (these tools parse untrusted input)
 

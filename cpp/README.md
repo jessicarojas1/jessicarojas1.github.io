@@ -1,5 +1,7 @@
 # CPP — Defense & Signal-Processing Tool Collection
 
+[![CPP Tools CI](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/cpp-ci.yml/badge.svg)](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/cpp-ci.yml)
+
 A portfolio of **12 standalone C++17 command-line utilities** for defense,
 aerospace, and cybersecurity work: authenticated encryption, memory & file
 forensics, log/packet correlation to MITRE ATT&CK, avionics bus decoding
@@ -107,6 +109,9 @@ echo "hello plaintext" > sample.txt
 ./bin/cui-classifier . --ext .md,.txt --json
 ./bin/yara-lite --builtin ./bin/mil1553-sim
 ./bin/zt-policy --builtin --request examples/request.txt   # see docs
+
+# Build + run the smoke/contract test suite (19 checks across all 12 tools)
+make test
 ```
 
 CMake alternative:
@@ -132,6 +137,9 @@ docker run --rm -v "$PWD:/data" cpp-tools:latest cui-classifier /data --json
 | `make` / `make all` | Build all 12 tools into `./bin` |
 | `make <tool>` | Build a single tool (e.g. `make yara-lite`) |
 | `make portable` | Build the 10 tools with no OpenSSL/Linux dependency |
+| `make static` | Statically link the portable+threaded tools for air-gap (`./bin/*-static`) |
+| `make test` | Build all, then run `tests/run_tests.sh` (smoke/contract suite) |
+| `make version` | Print compiler version + `CXXFLAGS` (build metadata) |
 | `make install PREFIX=/usr/local` | Install binaries to `$(PREFIX)/bin` |
 | `make clean` | Remove `./bin` |
 | `docker build -t cpp-tools .` | Build the multi-stage build/runtime image |
@@ -159,11 +167,33 @@ endpoint, login, upload, or DB).
 - [`docs/DISASTER_RECOVERY.md`](docs/DISASTER_RECOVERY.md) — git as source of truth, reproducible/pinned-toolchain builds.
 - [`docs/SECURITY.md`](docs/SECURITY.md) — these *are* security tools: memory safety, untrusted-input handling, CUI handling, supply chain, reporting.
 
+## Testing
+
+There is a real, dependency-free test harness at
+[`tests/run_tests.sh`](tests/run_tests.sh). It builds every tool and runs each
+one against a generated sample input, asserting both the **documented exit code**
+and a stable output substring — including the exit-code *contracts*
+(`entropy-scanner` / `packet-analyzer` / `cui-classifier` / `yara-lite` return
+`2` on a positive detection; `zt-policy` returns `0`/`1` for ALLOW/DENY), a full
+`aes-vault` encrypt→decrypt round-trip, and the `memory-scanner` Linux-only path
+(auto-skipped on non-Linux hosts).
+
+```bash
+make test                 # build all, then run the suite (19 checks)
+SKIP_BUILD=1 tests/run_tests.sh   # run against an already-built ./bin
+```
+
 ## Build status
 
-No CI is configured in this repository yet. The build is verified locally with
-`make -j` on g++ 13.3.0 (Ubuntu 24.04); all 12 tools compile and the demo modes
-run. See [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for the honest readiness register.
+CI runs on every push/PR that touches `cpp/**` via
+[`.github/workflows/cpp-ci.yml`](../.github/workflows/cpp-ci.yml): a Linux
+build matrix (**GCC + Clang**) compiles all 12 tools and runs the test harness,
+a **static/air-gap** job builds the `-static` portable binaries, and a **macOS**
+job builds the portable subset. The build is pinned to **C++17** with
+`-O2 -Wall -Wextra` (see the `Makefile`); `make version` records the exact
+compiler for build metadata. Verified locally with g++ 13.3.0 and clang 18 on
+Ubuntu 24.04 — all 12 tools compile and all 19 tests pass. See
+[`OPEN_ITEMS.md`](OPEN_ITEMS.md) for the honest readiness register.
 
 ## License
 

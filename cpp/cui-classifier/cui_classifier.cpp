@@ -72,7 +72,6 @@ static bool luhn_check(const std::string& digits) {
 }
 
 static std::vector<Pattern> build_patterns() {
-    using S = std::string;
     auto f = std::regex::ECMAScript | std::regex::icase;
 
     // clang-format off

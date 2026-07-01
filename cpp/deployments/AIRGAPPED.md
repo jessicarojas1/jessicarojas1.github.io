@@ -79,6 +79,10 @@ gpg --verify cpp-bundle.tar.gz.sig cpp-bundle.tar.gz     # or: cosign verify-blo
 tar xzf cpp-bundle.tar.gz && cd cpp
 
 # Option A: build from vendored toolchain (fully static portable tools)
+#   Convenience target — links the 10 portable+threaded tools with -static
+#   into ./bin/<tool>-static (aes-vault/memory-scanner excluded by design):
+make static
+#   Or drive the flags directly (equivalent, and lets you add -static-libstdc++):
 make portable CXXFLAGS="-std=c++17 -O2 -static -static-libstdc++ -static-libgcc"
 make aes-vault OPENSSL_LIBS="/opt/vendor/openssl/lib/libssl.a /opt/vendor/openssl/lib/libcrypto.a"
 # Option B: just install the prebuilt static binaries

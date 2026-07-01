@@ -52,7 +52,7 @@ LINUX_TOOLS    := memory-scanner
 
 ALL_TOOLS := $(OPENSSL_TOOLS) $(THREADED_TOOLS) $(LINUX_TOOLS) $(PORTABLE_TOOLS)
 
-.PHONY: all portable clean install help $(ALL_TOOLS)
+.PHONY: all portable static test clean install help version $(ALL_TOOLS)
 
 all: $(ALL_TOOLS)
 	@echo "Built: $(ALL_TOOLS)"
@@ -60,6 +60,33 @@ all: $(ALL_TOOLS)
 # Everything except the Linux-only and OpenSSL-linked tools — handy on macOS
 # without OpenSSL, or when /proc is unavailable.
 portable: $(PORTABLE_TOOLS) $(THREADED_TOOLS)
+
+# Statically-linked portable + threaded tools for air-gap / offline install.
+# aes-vault (OpenSSL) and memory-scanner (Linux-runtime) are intentionally
+# excluded — static OpenSSL and glibc NSS are non-portable. See
+# deployments/AIRGAPPED.md. Binaries land in ./$(BIN) with a '-static' suffix.
+static: | $(BIN)
+	@for t in $(PORTABLE_TOOLS) $(THREADED_TOOLS); do \
+		case $$t in \
+		  entropy-scanner) src=entropy-scanner/entropy_scanner.cpp; extra="$(PTHREAD)";; \
+		  log-correlator)  src=log-correlator/log_correlator.cpp;   extra="$(PTHREAD)";; \
+		  mil1553-sim)     src=mil-std-1553/mil1553_sim.cpp;        extra="";; \
+		  packet-analyzer) src=packet-analyzer/packet_analyzer.cpp; extra="";; \
+		  rf-anomaly)      src=rf-anomaly/rf_anomaly.cpp;           extra="";; \
+		  gps-detector)    src=gps-antispoofing/gps_detector.cpp;   extra="";; \
+		  arinc429-decoder)src=arinc429/arinc429_decoder.cpp;       extra="";; \
+		  cui-classifier)  src=cui-classifier/cui_classifier.cpp;   extra="";; \
+		  zt-policy)       src=zt-policy-engine/zt_policy.cpp;       extra="";; \
+		  yara-lite)       src=yara-lite/yara_lite.cpp;             extra="";; \
+		esac; \
+		echo "static: $$t"; \
+		$(CXX) $(CXXFLAGS) -static $$extra $$src -o $(BIN)/$$t-static || exit 1; \
+	done
+	@echo "Static builds in ./$(BIN) (suffix -static)"
+
+# Build everything, then run the smoke/contract test harness.
+test: all
+	@SKIP_BUILD=1 ./tests/run_tests.sh
 
 $(BIN):
 	@mkdir -p $(BIN)
@@ -111,10 +138,18 @@ clean:
 	@rm -rf $(BIN)
 	@echo "Removed $(BIN)"
 
+# Record the compiler version used for a build (reproducibility metadata).
+version:
+	@$(CXX) --version | head -1
+	@echo "CXXFLAGS = $(CXXFLAGS)"
+
 help:
 	@echo "Targets:"
 	@echo "  all       build all 12 tools into ./$(BIN) (default)"
 	@echo "  portable  build only tools with no OpenSSL/Linux-/proc dependency"
+	@echo "  static    statically link portable+threaded tools (air-gap) -> ./$(BIN)/*-static"
+	@echo "  test      build all, then run tests/run_tests.sh (smoke/contract suite)"
+	@echo "  version   print compiler version + CXXFLAGS (build metadata)"
 	@echo "  <tool>    build one tool, e.g. 'make aes-vault'"
 	@echo "  install   copy binaries to \$$(PREFIX)/bin  (PREFIX=$(PREFIX))"
 	@echo "  clean     remove ./$(BIN)"

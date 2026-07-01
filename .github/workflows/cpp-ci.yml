@@ -1,0 +1,83 @@
+name: CPP Tools CI
+
+# Build gate for the cpp/ tool collection (12 standalone C++17 CLI utilities).
+# Compiles every tool with the pinned standard/flags and runs the smoke/contract
+# test harness (tests/run_tests.sh). Scoped to cpp/** so it only runs when the
+# tools change.
+on:
+  push:
+    branches: [main]
+    paths: ['cpp/**', '.github/workflows/cpp-ci.yml']
+  pull_request:
+    paths: ['cpp/**', '.github/workflows/cpp-ci.yml']
+
+concurrency:
+  group: cpp-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: cpp
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Linux build matrix: GCC and Clang. Full 12-tool build (incl. aes-vault via
+  # libssl-dev and memory-scanner via Linux /proc) + the test harness.
+  # ---------------------------------------------------------------------------
+  linux:
+    name: Linux (${{ matrix.cxx }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cxx: [g++, clang++]
+    env:
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            g++ clang make libssl-dev
+
+      - name: Record toolchain (build metadata)
+        run: make version
+
+      - name: Build all 12 tools (make all)
+        run: make -j"$(nproc)" all
+
+      - name: Run test harness (build + smoke/contract tests)
+        run: SKIP_BUILD=1 ./tests/run_tests.sh
+
+  # ---------------------------------------------------------------------------
+  # Static / air-gap portable build (GCC). Confirms the -static target links so
+  # offline/air-gapped artifacts stay buildable (see deployments/AIRGAPPED.md).
+  # ---------------------------------------------------------------------------
+  static:
+    name: Static (air-gap portable)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends g++ make
+      - name: Build static portable binaries (make static)
+        run: make -j"$(nproc)" static
+
+  # ---------------------------------------------------------------------------
+  # macOS: build the portable + threaded tools (no OpenSSL/Linux /proc deps).
+  # aes-vault and memory-scanner are intentionally skipped on macOS.
+  # ---------------------------------------------------------------------------
+  macos:
+    name: macOS (portable subset)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Build portable + threaded tools (make portable)
+        run: make -j"$(sysctl -n hw.ncpu)" portable

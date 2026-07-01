@@ -71,6 +71,16 @@ No runtime config files. Per-tool behavior is entirely CLI flags — see
 There is **no health/login/DB/upload** to verify — say so and verify the real
 behaviors instead:
 
+The fastest full check is the bundled harness, which builds all 12 tools and
+asserts the exit code + output of each (19 checks):
+
+```bash
+cd cpp
+make test                         # build all + run tests/run_tests.sh
+```
+
+Or verify the pieces manually:
+
 ```bash
 cd cpp
 make -j"$(nproc)"                 # (a) compiles
@@ -92,14 +102,17 @@ echo "hello plaintext content" > /tmp/s.txt
 bin/entropy-scanner /tmp/s.txt --verbose | grep -q PLAINTEXT && echo "entropy OK"
 bin/yara-lite --builtin bin/mil1553-sim; echo "yara exit=$? (2=ELF match)"
 
-# aes-vault round-trip
-printf secret123'\n'secret123'\n' | true   # (passphrase is interactive; see note)
+# aes-vault round-trip (passphrase piped on stdin; encrypt reads it twice)
+printf 'pw\npw\n' | bin/aes-vault encrypt /tmp/s.txt /tmp/s.vault
+printf 'pw\n'      | bin/aes-vault decrypt /tmp/s.vault /tmp/s.out
+diff /tmp/s.txt /tmp/s.out && echo "aes-vault round-trip OK"
 ```
 
-> `aes-vault` reads its passphrase from the terminal with echo disabled, so a
-> non-interactive round-trip needs a PTY (e.g. `expect`) — interactively:
-> `bin/aes-vault encrypt --label "CUI//SP-CTI" /tmp/s.txt /tmp/s.vault` then
-> `bin/aes-vault decrypt /tmp/s.vault /tmp/s.out` and `diff /tmp/s.txt /tmp/s.out`.
+> `aes-vault` disables terminal echo when a TTY is present, but reads the
+> passphrase with `getline(std::cin, …)`, so piping it on stdin (as above and in
+> `tests/run_tests.sh`) works for scripted round-trips. Interactively it prompts
+> on the terminal: `bin/aes-vault encrypt --label "CUI//SP-CTI" /tmp/s.txt
+> /tmp/s.vault` then `bin/aes-vault decrypt /tmp/s.vault /tmp/s.out`.
 
 ## 8. Day-2 operations
 
