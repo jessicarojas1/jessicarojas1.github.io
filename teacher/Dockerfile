@@ -15,16 +15,18 @@
 FROM nginxinc/nginx-unprivileged:1.27-alpine
 
 # Hardened server config: security headers + CSP + cache policy.
-# (CSP keeps 'unsafe-inline' because the HTML uses inline handlers + inline
-#  <script>/<style>; tighten once those are externalized — see OPEN_ITEMS.md.)
+# (script-src is strict — NO 'unsafe-inline'; all JS is externalized and every
+#  handler is a data-* attribute wired by delegation — see OPEN_ITEMS.md.)
 COPY --chown=101:101 teacher/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Static content, reproducing repo-root layout under the web root so ../ resolves.
 WORKDIR /usr/share/nginx/html
 COPY --chown=101:101 theme.css      ./theme.css
 COPY --chown=101:101 favicon.ico    ./favicon.ico
-COPY --chown=101:101 teacher/index.html   ./teacher/index.html
-COPY --chown=101:101 teacher/branding.js  ./teacher/branding.js
+COPY --chown=101:101 teacher/index.html      ./teacher/index.html
+COPY --chown=101:101 teacher/theme-init.js   ./teacher/theme-init.js
+COPY --chown=101:101 teacher/branding.js     ./teacher/branding.js
+COPY --chown=101:101 teacher/app.js          ./teacher/app.js
 
 EXPOSE 8080
 

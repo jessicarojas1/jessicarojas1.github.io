@@ -164,7 +164,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      more_set_headers "Content-Security-Policy: default-src 'self'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'";
+      more_set_headers "Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'";
       more_set_headers "X-Content-Type-Options: nosniff";
       more_set_headers "Referrer-Policy: no-referrer";
 spec:
@@ -178,8 +178,10 @@ spec:
             backend: { service: { name: teacherhub, port: { number: 8080 } } }
 ```
 
-> The CSP keeps `'unsafe-inline'` because the HTML uses inline handlers + inline
-> `<script>`/`<style>`; tighten once externalized (see [../OPEN_ITEMS.md](../OPEN_ITEMS.md)).
+> `script-src` is strict (`'self'` + jsDelivr, no `'unsafe-inline'`) — all JS is
+> externalized and every handler is a `data-*` attribute wired by delegation.
+> `style-src` keeps `'unsafe-inline'` for inline `style=""` + the `<style>` block
+> (see [../OPEN_ITEMS.md](../OPEN_ITEMS.md)).
 
 ## 7. Verification
 
@@ -222,5 +224,5 @@ template print, branding) per [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) §7.
 | 403/permission on start | running as root in a non-root image | use `nginx-unprivileged`, port 8080, uid 101 |
 | 404 `/theme.css` | image missing root-level `theme.css` | ensure Docker build copies repo-root files (see [../Dockerfile](../Dockerfile)) |
 | No styles/icons | egress to jsDelivr blocked | allow egress, or bake vendored assets ([AIRGAPPED.md](AIRGAPPED.md)) |
-| CSP breaks page | dropped `'unsafe-inline'` too early | keep it until inline handlers are externalized |
+| CSP breaks page | dropped `'unsafe-inline'` from **style-src** | keep `'unsafe-inline'` on **style-src** (inline styles); `script-src` is already strict |
 | Ingress 502 | probe path wrong / port mismatch | probes and Service target `:8080`, path `/teacher/` |

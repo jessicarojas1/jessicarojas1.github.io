@@ -44,11 +44,15 @@ Plus a **Settings** modal (teacher/school/grade, student roster, PBIS goal) and 
 
 ## Technology
 
-- **HTML/CSS/JS**, single-file app (`index.html`) with all logic inline.
+- **HTML/CSS/JS**, static app. Markup in `index.html`; all app logic in external
+  **`app.js`**; the pre-paint theme bootstrap in **`theme-init.js`**. No inline
+  `<script>` and no inline `on*` handlers — every handler is a `data-*` attribute
+  dispatched by a delegated `addEventListener`, so the page runs under a **strict
+  CSP** (`script-src 'self' https://cdn.jsdelivr.net`, no `'unsafe-inline'`).
 - **Bootstrap 5.3.3** (CSS + `bootstrap.bundle.min.js`) via jsDelivr CDN, with
   **SRI** on the CSS and JS tags.
-- **Bootstrap Icons 1.11.3** via jsDelivr (SRI not yet applied — see
-  [OPEN_ITEMS.md](OPEN_ITEMS.md)).
+- **Bootstrap Icons 1.11.3** via jsDelivr, with **SRI** (`integrity` +
+  `crossorigin`).
 - **Shared theme** `../theme.css` and favicon `../favicon.ico` from the portfolio
   root. Dark mode is the default (`data-bs-theme` from `localStorage['bsTheme']`).
 - **`branding.js`** — logo/name/accent module (key `teacher.branding.v1`), no
@@ -59,23 +63,27 @@ Plus a **Settings** modal (teacher/school/grade, student roster, PBIS goal) and 
 > `../favicon.ico`, and the navbar brand links to `../` (portfolio home). Serve
 > from the repository **root** so those resolve. Unlike some sibling sites, it does
 > **not** load `../users.js`, `../roles.js`, `../script.js`, `../analytics.js`, or
-> `../siteSearch.js` — only `bootstrap.bundle.min.js` (CDN) and `branding.js`.
+> `../siteSearch.js` — only `bootstrap.bundle.min.js` (CDN), `theme-init.js`,
+> `branding.js`, and `app.js`.
 
 ## Repo layout
 
 ```
 teacher/
-├── index.html            single-file app (all tabs + inline app JS)
+├── index.html            markup only (all tabs; loads external scripts)
+├── app.js                all app logic + handler delegation + data backup
+├── theme-init.js         pre-paint dark/light theme bootstrap
 ├── branding.js           branding module (localStorage teacher.branding.v1)
 ├── nginx.conf            hardened static server config (used by Dockerfile)
 ├── Dockerfile            nginx static image, non-root, adds headers/CSP
 ├── render.yaml           Render static-site blueprint
 ├── README.md  OPEN_ITEMS.md  CLAUDE.md
+├── tests/                Playwright smoke suite (smoke.spec.js + config)
 ├── docs/
 │   ├── ARCHITECTURE.md   static SPA, localStorage model, CDN, security posture
 │   ├── DEPLOYMENT.md     deployment models + production checklist
 │   ├── DISASTER_RECOVERY.md  git = source of truth; localStorage data caveats
-│   └── SECURITY.md       no auth, missing CSP, inline handlers, FERPA/PII
+│   └── SECURITY.md       no auth, strict CSP, FERPA/PII posture
 └── deployments/
     ├── LOCAL_DEVELOPMENT.md   SINGLE_LINUX_SERVER.md   KUBERNETES.md
     └── AWS.md   AZURE.md   AIRGAPPED.md
@@ -126,7 +134,8 @@ print, and branding applies live. Full checklist:
 | Build container | `docker build -f teacher/Dockerfile -t teacherhub:local .` (context = repo root) |
 | Run container | `docker run --rm -p 8080:8080 teacherhub:local` → http://localhost:8080/teacher/ |
 | Regenerate SRI (on a version bump) | `openssl dgst -sha384 -binary FILE \| openssl base64 -A` |
-| Export classroom data | Gradebook → **Export CSV** (`gradebook.csv`) |
+| Run smoke tests | `npx playwright test --config teacher/tests/playwright.config.js` (see [tests/README.md](tests/README.md)) |
+| Export classroom data | Gradebook → **Export CSV** (`gradebook.csv`), or Settings → **Export All (JSON)** for a full backup |
 
 ## Data & privacy (read this)
 

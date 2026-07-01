@@ -20,11 +20,11 @@ Related: [SINGLE_LINUX_SERVER.md](SINGLE_LINUX_SERVER.md) ·
 
 Convert the two CDN dependencies to local files, then serve the whole bundle from
 an internal nginx with **zero external calls**. Once vendored, the site works with
-the network fully severed. Because inline handlers are gone from the *dependency*
-perspective (they remain in the app), the CSP can be **self-only** (`default-src
-'self'`) with **no jsDelivr origin** — but it must still allow `'unsafe-inline'`
-for the app's inline handlers/`<script>`/`<style>` until those are externalized
-(see [../OPEN_ITEMS.md](../OPEN_ITEMS.md)).
+the network fully severed, and the CSP can be **self-only** (`default-src 'self'`)
+with **no jsDelivr origin**. `script-src` stays strict (no `'unsafe-inline'`) — all
+app JS is external (`app.js`/`theme-init.js`/`branding.js`) and every handler is a
+`data-*` attribute; only `style-src` keeps `'unsafe-inline'` for the app's inline
+`style=""` + `<style>` block (see [../OPEN_ITEMS.md](../OPEN_ITEMS.md)).
 
 ## 2. Topology
 
@@ -161,6 +161,7 @@ still tries jsDelivr, DevTools Network will show a failed external request.
 | No icons offline | icon **webfonts** not vendored | copy `fonts/bootstrap-icons.woff2`/`.woff` next to the icons CSS |
 | Styles missing | `../vendor/...` path wrong | put `vendor/` at repo root; verify relative path from `/teacher/` |
 | Page still calls out | a CDN reference remained | `grep cdn.jsdelivr.net index.html` → 0; remove leftover tags |
-| CSP blocks app JS | dropped `'unsafe-inline'` | keep it until inline handlers are externalized |
+| CSP blocks styles | dropped `'unsafe-inline'` from **style-src** | keep `'unsafe-inline'` on **style-src**; `script-src` is strict and needs no inline allowance |
+| Vendored assets 404 under strict CSP | SRI/`crossorigin` on local `<link>` | when self-hosting, drop the jsDelivr `integrity`/`crossorigin` or keep the files byte-identical |
 | Bundle rejected | checksum mismatch | re-transfer; verify `sha256sum -c` |
 | SRI error | left `integrity=`/`crossorigin` on now-local files | remove those attributes for same-origin assets |

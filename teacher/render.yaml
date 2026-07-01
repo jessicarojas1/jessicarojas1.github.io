@@ -7,11 +7,13 @@
 # alongside teacher/. The site is then reachable at /teacher/. A rewrite maps "/"
 # to the hub so the apex opens Teacher Hub.
 #
-# HEADERS/CSP NOTE: the HTML does not ship a Content-Security-Policy or security
-# headers, so they are injected here via `headers`. The CSP keeps 'unsafe-inline'
-# because index.html uses inline onclick/onchange/oninput handlers + inline
-# <script>/<style>; tighten to drop 'unsafe-inline' once those are externalized
-# (see docs/SECURITY.md and OPEN_ITEMS.md).
+# HEADERS/CSP NOTE: index.html now also ships an equivalent CSP <meta>, but these
+# edge headers add the ones <meta> cannot set (HSTS, X-Frame-Options, etc.) and are
+# authoritative when a real host is used. script-src is strict ('self' + jsDelivr,
+# NO 'unsafe-inline') — all JS is externalized (app.js/theme-init.js/branding.js)
+# and every handler is a data-* attribute wired by delegation. style-src keeps
+# 'unsafe-inline' for inline style="" attributes + the <style> block.
+# See docs/SECURITY.md and OPEN_ITEMS.md.
 
 services:
   - type: web
@@ -30,7 +32,7 @@ services:
     headers:
       - path: /*
         name: Content-Security-Policy
-        value: "default-src 'self'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+        value: "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
       - path: /*
         name: X-Content-Type-Options
         value: nosniff

@@ -12,9 +12,12 @@ remaining risk in two places:
 
 1. **The browser** — it holds **FERPA-relevant student data** unencrypted in
    `localStorage`, often on a **shared classroom device**.
-2. **The delivery path** — third-party CDN assets (Bootstrap/Icons) and the
-   **absence of a Content-Security-Policy**, plus heavy use of **inline event
-   handlers**, which weaken defense-in-depth against XSS/injection.
+2. **The delivery path** — third-party CDN assets (Bootstrap/Icons, now all
+   **SRI-pinned**) served under a **strict Content-Security-Policy** (`<meta>` +
+   edge header; `script-src 'self' https://cdn.jsdelivr.net`, no `'unsafe-inline'`).
+   All app logic is external (`app.js`/`theme-init.js`/`branding.js`) and every
+   handler is a `data-*` attribute wired by delegation — no inline scripts or
+   `on*` handlers remain.
 
 ## Identity & authentication
 
@@ -95,24 +98,26 @@ These are real, verified against the code (`teacher/index.html`,
 
 | # | Gap | Evidence | Suggested action |
 |---|-----|----------|------------------|
-| 1 | **No Content-Security-Policy** | No CSP `<meta>` in `index.html` (siblings cmmc2/cmmi ship one; teacher does not) | Add a CSP — first at the **edge** as a response header (see deployment guides), then a `<meta>`; ultimately a strict CSP without `'unsafe-inline'`. |
-| 2 | **Heavy inline event handlers** | ~**109 `onclick`**, **16 `onchange`**, **3 `oninput`** (e.g. `onclick="switchTab(...)"`, `showStd(...)`, `showMgmt(...)`, `showRes(...)`, `showProg(...)`) + inline `<script>`/`<style>` | Externalize to `data-*` attributes wired via `addEventListener` (as `branding.js` already does), then the CSP can drop `'unsafe-inline'`. Repo rule is "no inline event handlers." |
-| 3 | **Missing SRI on Bootstrap Icons** | Bootstrap **CSS** (line 8) and **JS bundle** (line 422) have `integrity=`; the Bootstrap **Icons CSS** (line 9) does **not** | Add a `sha384` `integrity` + `crossorigin="anonymous"` to the icons `<link>`, or vendor the assets. |
-| 4 | **Third-party CDN dependency** | Bootstrap 5.3.3 + Icons 1.11.3 loaded from `cdn.jsdelivr.net` | Pin (done) + SRI (partial) mitigate tampering; **vendor** for offline/filtered networks ([../deployments/AIRGAPPED.md](../deployments/AIRGAPPED.md)). |
-| 5 | **Unencrypted student PII in `localStorage` on shared devices** | 20 app keys incl. `iep_notes`, `gb_grades`, roster | Device-level controls (MDM, disk encryption, screen lock, teacher-only OS login); teach export + clear-before-decommission. |
-| 6 | **No app-level data export/import or backup** | Only the Gradebook CSV export exists | Add "Export all data / Import backup (JSON)"; advise weekly CSV export (see [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)). |
+| 1 | ~~No Content-Security-Policy~~ **FIXED** | `index.html` ships a strict CSP `<meta>` (`script-src 'self' https://cdn.jsdelivr.net`, no `'unsafe-inline'`); the same policy is set at the edge in `nginx.conf`/`render.yaml`. | Keep meta + edge CSP in sync; edge still needed for HSTS/framing. |
+| 2 | ~~Heavy inline event handlers~~ **FIXED** | Zero inline `on*` handlers remain (verified by grep). All handlers are `data-onclick`/`data-onchange`/`data-oninput` dispatched by delegated `addEventListener` in `app.js` (safe parser, no `eval`); app logic externalized to `app.js`/`theme-init.js`. | Keep using `data-*` + delegation for new UI. |
+| 3 | ~~Missing SRI on Bootstrap Icons~~ **FIXED** | Icons `<link>` now carries `sha384` `integrity` + `crossorigin`. The Bootstrap **JS bundle** SRI was also **wrong** and is corrected. | Regenerate the SRI on any version bump. |
+| 4 | **Third-party CDN dependency** | Bootstrap 5.3.3 + Icons 1.11.3 loaded from `cdn.jsdelivr.net` | Pin (done) + SRI (now on all three) mitigate tampering; **vendor** for offline/filtered networks ([../deployments/AIRGAPPED.md](../deployments/AIRGAPPED.md)). |
+| 5 | **Unencrypted student PII in `localStorage` on shared devices** | 20+ app keys incl. `iep_notes`, `gb_grades`, roster | Device-level controls (MDM, disk encryption, screen lock, teacher-only OS login); teach export + clear-before-decommission. Optional client-side encryption with a teacher passphrase. |
+| 6 | ~~No app-level data export/import or backup~~ **FIXED** | Settings → **Export All (JSON)** / **Import Backup** covers every app key (item 4.2). | Advise periodic exports (see [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)). |
 
-> **What the app does well (verified):** `branding.js` has **no inline handlers**
-> (uses `addEventListener`), **sanitizes** logo URLs to `http(s)://` /
-> `data:image/...` only, **HTML-escapes** user-supplied strings before injecting
-> them, and **degrades gracefully** on a broken logo. Vendor versions are
-> **pinned**, and Bootstrap CSS/JS carry **SRI**. No secrets are present in the
-> repo. No data is transmitted anywhere.
+> **What the app does well (verified):** all handlers are `data-*` + delegated
+> `addEventListener` (no inline `on*`), app JS is external under a **strict CSP**,
+> and all three CDN assets carry **SRI**. `branding.js` **sanitizes** logo URLs to
+> `http(s)://` / `data:image/...` only, **HTML-escapes** user-supplied strings
+> before injecting them, and **degrades gracefully** on a broken logo. Vendor
+> versions are **pinned**. No secrets are present in the repo. No data is
+> transmitted anywhere.
 
 ## Operator responsibilities
 
-- Serve over **HTTPS** with **HSTS** and add the **security headers + CSP** at the
-  edge (the HTML doesn't ship them) — see each deployment guide's §6.
+- Serve over **HTTPS** with **HSTS**. The HTML ships a strict CSP `<meta>`, but
+  still add the **edge security headers + CSP** (HSTS, `X-Frame-Options`, etc. that
+  a `<meta>` cannot set) — see each deployment guide's §6.
 - Keep the **deploy identity** least-privilege and OIDC-based (no static keys).
 - Keep Bootstrap/Icons **pinned** and update the **SRI** hash on any bump.
 - On shared devices, enforce device access controls and educate teachers on the
@@ -133,8 +138,8 @@ host's managed renewal.
 - **Contact:** the portfolio owner — Jessica Rojas, `cuevasjessica40@yahoo.com`
   (or open an issue on the `jessicarojas1.github.io` repository).
 - **Scope:** this is a personal-portfolio classroom tool with no backend; the most
-  useful reports concern XSS via the branding/settings inputs, CSP bypasses once a
-  CSP is added, or dependency (Bootstrap/Icons) supply-chain issues.
+  useful reports concern XSS via the branding/settings inputs, CSP bypasses, or
+  dependency (Bootstrap/Icons) supply-chain issues.
 - **SLA (best-effort):** acknowledge within a reasonable window; because there is
   no server or user data collection, there is no incident-response obligation for
   server-side breaches — the realistic remediation for most findings is a code

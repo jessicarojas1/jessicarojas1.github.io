@@ -101,14 +101,15 @@ plugin. The site runs on any CPU that can render a web page.
       public).
 
 ### Hardening
-- [ ] **Add a Content-Security-Policy** at the edge — the HTML ships none. Start
-      with `default-src 'self'` + jsDelivr for style/script/font; keep
-      `'unsafe-inline'` only until inline handlers are externalized
-      ([../OPEN_ITEMS.md](../OPEN_ITEMS.md)).
+- [ ] **Keep the Content-Security-Policy in sync.** The HTML now ships a strict CSP
+      `<meta>` (`script-src 'self' https://cdn.jsdelivr.net`, no `'unsafe-inline'`;
+      `style-src` keeps `'unsafe-inline'`). Mirror it at the edge (already in
+      `nginx.conf`/`render.yaml`) so HSTS/framing headers a `<meta>` can't set are
+      also present ([../OPEN_ITEMS.md](../OPEN_ITEMS.md)).
 - [ ] Set `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`,
       `X-Frame-Options: DENY` / `frame-ancestors 'none'`.
-- [ ] Keep **SRI** on Bootstrap CSS/JS; **add SRI** to the Bootstrap Icons CSS
-      (currently missing).
+- [ ] Keep **SRI** on all three CDN assets (Bootstrap CSS, Bootstrap JS bundle,
+      Bootstrap Icons CSS); regenerate the hash on any version bump.
 - [ ] Prefer **vendoring** Bootstrap/Icons for offline or filtered networks
       ([../deployments/AIRGAPPED.md](../deployments/AIRGAPPED.md)).
 

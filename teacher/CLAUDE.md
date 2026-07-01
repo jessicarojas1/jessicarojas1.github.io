@@ -15,9 +15,14 @@ GitHub Pages (and any static host — see [deployments/](deployments/)).
 
 ## Stack & conventions
 
-- **Single-file app:** `index.html` (~196 KB) contains all ten tab sections and
-  the entire app as inline `<script>`. Tabs toggle via `switchTab('tab<Name>',
-  this)`; sub-views via `showStd/showMgmt/showRes/showProg(...)`.
+- **Markup + external JS:** `index.html` holds all ten tab sections (markup only);
+  the entire app lives in external **`app.js`**, with the pre-paint theme bootstrap
+  in **`theme-init.js`**. Tabs toggle via `switchTab('tab<Name>', this)`; sub-views
+  via `showStd/showMgmt/showRes/showProg(...)`. **No inline `<script>` and no inline
+  `on*` handlers** — every handler is a `data-onclick`/`data-onchange`/
+  `data-oninput` attribute dispatched by one delegated `addEventListener` per event
+  type (safe expression parser in `app.js`, no `eval`; looks up whitelisted global
+  functions). Add new interactivity the same way — never `onclick=`.
 - **Branding:** `branding.js` (key `teacher.branding.v1`; default name
   "Teacher Hub", default accent `#ff5811`). It sanitizes logo URLs
   (`http(s)://` / `data:image/...` only), escapes user strings, overrides
@@ -26,9 +31,10 @@ GitHub Pages (and any static host — see [deployments/](deployments/)).
 - **CSS:** Bootstrap **5.3.3** + Bootstrap Icons **1.11.3** from jsDelivr, plus
   shared `../theme.css`. Dark mode default via `data-bs-theme` from
   `localStorage['bsTheme']`.
-- **Scripts loaded:** only `bootstrap.bundle.min.js` (CDN) and `branding.js`. Do
-  **not** add `../users.js`, `../roles.js`, `../script.js`, `../analytics.js`, or
-  `../siteSearch.js` — teacher intentionally omits them.
+- **Scripts loaded:** `theme-init.js` (head, pre-paint), `bootstrap.bundle.min.js`
+  (CDN), `branding.js`, and `app.js` (all `defer`). Do **not** add `../users.js`,
+  `../roles.js`, `../script.js`, `../analytics.js`, or `../siteSearch.js` — teacher
+  intentionally omits them.
 - **Parent dependency:** references `../theme.css` and `../favicon.ico`; the navbar
   brand links to `../` (portfolio home). Serve from the repo **root** so these
   resolve. Keep the header logo linking home (repo rule).
@@ -39,8 +45,11 @@ GitHub Pages (and any static host — see [deployments/](deployments/)).
 
 | Thing | File / key |
 |-------|-----------|
-| App UI + logic | `index.html` (inline `<script>`) |
+| App UI (markup) | `index.html` |
+| App logic + handler delegation + data backup | `app.js` |
+| Pre-paint theme bootstrap | `theme-init.js` |
 | Branding module | `branding.js` (`teacher.branding.v1`) |
+| Smoke tests | `tests/smoke.spec.js`, `tests/playwright.config.js` |
 | Shared theme / favicon | `../theme.css`, `../favicon.ico` (repo root) |
 | Settings (teacher/school/grade, roster, PBIS goal) | `localStorage`: `teacher_settings`, `pbis_goal` |
 | Plans | `teacher_plans`, `teacher_units` |
@@ -52,18 +61,21 @@ GitHub Pages (and any static host — see [deployments/](deployments/)).
 ## Security & UI rules — target vs current (honest)
 
 The repo requires **no inline event handlers** and **CSP compliance**. Teacher Hub
-does **not** meet these yet. When you touch this code, move it toward compliance;
-do not add new violations.
+now **meets** these; keep it that way — do not add new violations.
 
-- ❌ **No CSP** in `index.html`. Add one at the edge now (see `nginx.conf`,
-  `render.yaml`, deployment guides); aim for a strict `<meta>`/header CSP once
-  handlers are externalized.
-- ❌ **Inline handlers**: ~**109 `onclick`, 16 `onchange`, 3 `oninput`** + inline
-  `<script>`/`<style>`. New interactivity must use `data-*` + `addEventListener`
-  (as `branding.js` does), not `onclick=`. Externalizing the existing ones is the
-  top open item.
-- ⚠️ **SRI**: present on Bootstrap CSS + JS; **missing on Bootstrap Icons CSS** —
-  add it (or vendor).
+- ✅ **Strict CSP** ships as a `<meta>` in `index.html` and as edge headers in
+  `nginx.conf`/`render.yaml`: `script-src 'self' https://cdn.jsdelivr.net` (no
+  `'unsafe-inline'`); `style-src` keeps `'unsafe-inline'` for inline `style=""` +
+  the `<style>` block. Keep meta and edge in sync when assets change.
+- ✅ **No inline handlers**: zero `on*` attributes and zero inline `<script>` in
+  `index.html`. New interactivity must use `data-*` + delegation (see `app.js`),
+  not `onclick=`. Any HTML you generate in JS `innerHTML` must also use `data-*`.
+- ✅ **SRI** present on **all three** CDN assets (Bootstrap CSS, Bootstrap JS
+  bundle, Bootstrap Icons). Regenerate hashes on any version bump
+  (`openssl dgst -sha384 -binary FILE | openssl base64 -A`).
+- ⚠️ **Popup print windows** (`window.open` + `document.write`) inherit this page's
+  CSP, so they must **not** contain inline `<script>`/`on*`. They now auto-print via
+  an opener-side `w.print()`. Keep new printables the same way.
 - Follow the rest of the repo UI rules for any new UI (page-header/breadcrumb
   patterns where applicable, dark-mode-safe CSS via `var(--…)`, no hardcoded
   colors that should be the accent var, graceful empty states).

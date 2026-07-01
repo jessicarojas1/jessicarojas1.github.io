@@ -12,7 +12,8 @@ are the files the browser runs. It lives at `teacher/` inside the
 
 | Concern | Choice |
 |---------|--------|
-| Markup/logic | A single `teacher/index.html` (~196 KB) containing all tab sections and the entire app as inline `<script>` code |
+| Markup | `teacher/index.html` — all tab sections (markup only; loads external scripts, no inline `<script>`/`on*`) |
+| Logic | `teacher/app.js` — all app behavior + handler delegation + data backup; `teacher/theme-init.js` — pre-paint theme |
 | Branding | `teacher/branding.js` (separate module; logo/name/accent) |
 | CSS framework | Bootstrap **5.3.3** (CSS + `bootstrap.bundle.min.js`) from jsDelivr |
 | Icons | Bootstrap Icons **1.11.3** from jsDelivr |
@@ -69,8 +70,11 @@ jessicarojas1.github.io/            (portfolio root; GitHub Pages)
 ├── index.html                      portfolio home ← navbar brand links to ../
 ├── cmmc2/ cmmi/ isms/ aitool/ …    sibling static sites
 └── teacher/                        ◄── THIS PROJECT
-    ├── index.html                  single-file app (all tabs + inline app JS)
+    ├── index.html                  markup only (all tabs; loads external scripts)
+    ├── app.js                      app logic + handler delegation + data backup
+    ├── theme-init.js               pre-paint theme bootstrap
     ├── branding.js                 branding module (localStorage teacher.branding.v1)
+    ├── tests/                      Playwright smoke suite
     ├── Dockerfile                  nginx static image (adds headers/CSP)
     ├── render.yaml                 Render static-site blueprint
     ├── README.md  OPEN_ITEMS.md  CLAUDE.md
@@ -78,8 +82,9 @@ jessicarojas1.github.io/            (portfolio root; GitHub Pages)
     └── deployments/ LOCAL · SINGLE_LINUX · KUBERNETES · AWS · AZURE · AIRGAPPED
 ```
 
-Unlike some siblings, Teacher Hub loads **only** `bootstrap.bundle.min.js` (CDN)
-and `branding.js`. It does **not** load `../users.js`, `../roles.js`,
+Unlike some siblings, Teacher Hub loads **only** `theme-init.js`,
+`bootstrap.bundle.min.js` (CDN), `branding.js`, and `app.js`. It does **not** load
+`../users.js`, `../roles.js`,
 `../script.js`, `../analytics.js`, or `../siteSearch.js`. It still depends on the
 parent `../theme.css` and `../favicon.ico`, and the navbar brand links to `../`
 (portfolio home) — note this parent dependency for standalone deploys.
@@ -116,14 +121,15 @@ are those of the static host (200 for the entry page; 404 for missing assets).
 - **All data client-side** → nothing exfiltrated by design; but data is
   unencrypted in `localStorage` on a possibly **shared classroom device** and is
   FERPA-relevant (student PII). See [SECURITY.md](SECURITY.md).
-- **Current gaps (honest):** the page ships **no Content-Security-Policy** and uses
-  **~109 inline `onclick`, 16 `onchange`, 3 `oninput`** handlers plus inline
-  `<script>`/`<style>`, which conflicts with the repo's "no inline handlers / CSP"
-  rule. SRI is present on the Bootstrap **CSS and JS** tags but **absent on the
-  Bootstrap Icons CSS**. Remediation is tracked in [../OPEN_ITEMS.md](../OPEN_ITEMS.md).
-- **Mitigation path:** add CSP + security headers at the edge/host now
-  (see deployment guides), externalize handlers to `data-*` + `addEventListener`
-  next, then drop `'unsafe-inline'`.
+- **Hardening (done):** the page ships a **strict CSP `<meta>`**
+  (`script-src 'self' https://cdn.jsdelivr.net`, no `'unsafe-inline'`; `style-src`
+  keeps `'unsafe-inline'`). **Zero** inline `on*` handlers and **no** inline
+  `<script>` remain — all logic is in `app.js`/`theme-init.js` and every handler is
+  a `data-*` attribute dispatched by delegated `addEventListener`. **SRI** is on all
+  three CDN assets (Bootstrap CSS, JS bundle, Icons CSS). Remediation history in
+  [../OPEN_ITEMS.md](../OPEN_ITEMS.md).
+- **Remaining:** add the edge security headers a `<meta>` can't set (HSTS/framing);
+  optionally vendor CDN assets for offline networks and encrypt PII at rest.
 
 ## Observability
 

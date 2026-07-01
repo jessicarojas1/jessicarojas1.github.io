@@ -109,7 +109,7 @@ SWA also lets you set global response headers):
   "navigationFallback": { "rewrite": "/teacher/index.html" },
   "routes": [{ "route": "/", "redirect": "/teacher/", "statusCode": 302 }],
   "globalHeaders": {
-    "Content-Security-Policy": "default-src 'self'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
     "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
@@ -118,8 +118,9 @@ SWA also lets you set global response headers):
 ```
 
 For **Blob `$web`**, headers come from the **Front Door rules engine** (Blob static
-website itself can't set arbitrary response headers). CSP keeps `'unsafe-inline'`
-until inline handlers are externalized (see [../OPEN_ITEMS.md](../OPEN_ITEMS.md)).
+website itself can't set arbitrary response headers). `script-src` is strict (no
+`'unsafe-inline'`); `style-src` keeps `'unsafe-inline'` for inline styles (see
+[../OPEN_ITEMS.md](../OPEN_ITEMS.md)).
 
 Example blob upload (Government endpoint suffix shown as a comment):
 

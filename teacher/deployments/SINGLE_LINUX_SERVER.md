@@ -116,15 +116,15 @@ server {
     ssl_certificate     /etc/letsencrypt/live/teacherhub.school.k12.us/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/teacherhub.school.k12.us/privkey.pem;
 
-    # --- Security response headers (site ships none of these itself) ---
+    # --- Security response headers (mirror the app's <meta> CSP + add HSTS/framing) ---
     add_header Content-Security-Policy
       "default-src 'self'; \
+       script-src 'self' https://cdn.jsdelivr.net; \
        style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; \
-       script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; \
        font-src  'self' https://cdn.jsdelivr.net; \
-       img-src   'self' data:; \
+       img-src   'self' data: https:; \
        connect-src 'self'; base-uri 'self'; frame-ancestors 'none'; \
-       object-src 'none'" always;
+       form-action 'self'; object-src 'none'" always;
     add_header X-Content-Type-Options    "nosniff" always;
     add_header X-Frame-Options           "DENY" always;
     add_header Referrer-Policy           "no-referrer" always;
@@ -144,11 +144,12 @@ server {
 server { listen 80; server_name teacherhub.school.k12.us; return 301 https://$host$request_uri; }
 ```
 
-> **Honest note on the CSP:** the app currently uses ~109 inline `onclick`, 16
-> `onchange`, and 3 `oninput` handlers plus inline `<script>`/`<style>`, so a
-> *strict* CSP would break it. The policy above keeps `'unsafe-inline'` to remain
-> functional. The correct long-term fix is to externalize handlers to `data-*`
-> attributes + `addEventListener`, then drop `'unsafe-inline'`. Tracked in
+> **Note on the CSP:** the app has **no inline `on*` handlers and no inline
+> `<script>`** — all logic is external (`app.js`/`theme-init.js`/`branding.js`) and
+> every handler is a `data-*` attribute wired by delegation. So `script-src` is
+> **strict** (`'self'` + jsDelivr, no `'unsafe-inline'`), matching the CSP `<meta>`
+> the HTML now ships. `style-src` keeps `'unsafe-inline'` only for inline
+> `style=""` attributes + the `<style>` block. Tracked in
 > [../OPEN_ITEMS.md](../OPEN_ITEMS.md).
 >
 > **Optional gating:** to restrict to staff, front the vhost with HTTP basic-auth
@@ -196,7 +197,7 @@ branding applies. See [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) §7.
 |---------|-------|-----|
 | 404 on `/theme.css` | doc root missing parent files | publish repo-root layout, or copy `theme.css`/`favicon.ico` into `root` |
 | Unstyled / no icons | jsDelivr blocked by school firewall | allowlist `cdn.jsdelivr.net`, or vendor assets ([AIRGAPPED.md](AIRGAPPED.md)) |
-| CSP blocks the page | strict CSP without `'unsafe-inline'` | keep `'unsafe-inline'` until handlers are externalized (see §6 note) |
+| CSP blocks the page | dropped `'unsafe-inline'` from **style-src** | keep `'unsafe-inline'` on **style-src** (inline styles); `script-src` is already strict |
 | Mixed-content warnings | referencing http assets over https | ensure all resources are https (they are, via jsDelivr) |
 | Cert renewal fails | port 80 closed for HTTP-01 | open 80 for the ACME challenge or use DNS-01 |
 | Old version cached | long `Cache-Control` on HTML | keep `no-cache` on `index.html`; hard-reload to confirm |
