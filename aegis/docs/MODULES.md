@@ -596,6 +596,8 @@ List ordered by severity + stats (total, open, critical/high open, overdue); cre
 
 - **CAPA depth (Phase 4):** findings carry `root_cause` and `preventive_action` (editable on the finding form), and a **reopen workflow** (`reopen`) returns a closed/resolved/risk-accepted finding to `reopened`, clearing `closed_at` and appending a "Finding reopened." update. Gated on `audit.findings`, CSRF-validated, audit-logged.
 
+- **Remediation cadence monitoring (Phase 11):** surfaces external-audit findings that are **past — or nearing (within 14 days)** — their remediation `deadline` while still open (status **NOT IN** the settled set `closed`/`resolved`/`risk_accepted`). The pure helper `AuditFindingController::remediationStatus(?string $deadline, string $status)` (`public static`) returns `none` (no usable deadline **or** a settled status — the settled statuses are shared via the `TERMINAL_STATUSES` const), `overdue` (deadline past), `due` (today through 14 days out), or `ok` (>14 days out). `views/audit_findings/index.php` shows a per-row "Overdue" (red) / "Due soon" (amber) badge; the existing **Overdue** overview stat was reconciled to use the helper (it previously counted `risk_accepted` findings, drifting from the controller stat). `scripts/send_notifications.php` adds a `finding_remediation_overdue` section that emails the finding **owner** (`audit_findings.owner_id`) when the deadline has passed and the finding is still open, throttled to one reminder per finding per 7 days; the type is registered as a user-toggleable preference (`ProfileController` + `views/profile/notifications.php`, label "Audit finding remediation overdue"). **No schema migration** — reuses the existing `audit_findings.deadline` and `owner_id` columns. Covered by `tests/test_finding_remediation.php` (unit, `remediationStatus` buckets) and `tests/integration/finding_remediation_db.php` (DB-level overdue predicate, owner join, terminal-status exclusion, cascade; wired into `.github/workflows/aegis-integration.yml`).
+
 ### Business Rules / Validation
 - Finding number `FIND-####`.
 - Severity ∈ `critical, high, medium, low, info`; status ∈ `open, in_progress, resolved, risk_accepted, closed, reopened`; source ∈ `external_audit, pentest, certification, assessment, regulatory, other`.
@@ -1209,7 +1211,7 @@ On MFA pending, the session is destroyed/recreated and the post-login redirect c
 Self-service profile: notification preferences, profile edit, and password change.
 
 ### Features
-Notification preferences (21 toggle types — including `control_retest_due` "Control re-test due" — plus a `__digest__` delivery row: immediate/daily/weekly + time); profile edit (name, email); change password.
+Notification preferences (22 toggle types — including `control_retest_due` "Control re-test due" and `finding_remediation_overdue` "Audit finding remediation overdue" — plus a `__digest__` delivery row: immediate/daily/weekly + time); profile edit (name, email); change password.
 
 ### Business Rules / Validation
 - Name 2–100 chars; email valid and unique (excluding self).
