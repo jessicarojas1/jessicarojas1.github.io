@@ -1,0 +1,36 @@
+# GolfTrack — Render Blueprint
+# =============================================================================
+# Applicability: N/A — GolfTrack is NOT a Render web workload.
+#
+# GolfTrack is an on-device SwiftUI application for iOS 17+ / macOS 14+ with an
+# Apple Watch (watchOS) companion and a Garmin Connect IQ companion. It has no
+# HTTP server, no web frontend, no database service, and no backend of any kind.
+# There is therefore no Render web service, private service, or static site to
+# declare here. Rendering a fake `type: web` service would be dishonest.
+#
+# The only thing that runs off-device is CI:
+#   * The Linux SwiftPM compile-check runs via the root ./Dockerfile
+#     (a CI/build image, NOT a shippable container — see its header).
+#   * The authoritative build/sign/distribute flow is Xcode + xcodebuild on
+#     macOS (App Store Connect / TestFlight / Ad-Hoc / MDM) and the Garmin
+#     Connect IQ store. Render does not provide macOS build agents.
+#
+# See:
+#   * docs/DEPLOYMENT.md            — build -> sign -> distribute
+#   * deployments/LOCAL_DEVELOPMENT.md
+#   * deployments/AWS.md / deployments/AZURE.md — distribution + CI identity
+#
+# If you want Render to run the Linux compile-check as a scheduled gate, you may
+# uncomment the cron job below. It only runs `swift build` in the CI image; it
+# does NOT produce or ship an app artifact.
+#
+# services: []
+#
+# jobs:
+#   - type: cron
+#     name: golftrack-swiftpm-compilecheck
+#     runtime: docker
+#     dockerfilePath: ./Dockerfile
+#     schedule: "0 6 * * 1"   # weekly, Monday 06:00 UTC
+#     plan: starter
+# =============================================================================

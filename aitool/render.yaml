@@ -1,0 +1,38 @@
+# Render Blueprint — AI Tool Evaluation Framework (aitool)
+# A pure static site: no backend, no database, no build step. Render serves the
+# files directly and provides TLS + a global CDN.
+#
+# `staticPublishPath: .` publishes this directory as-is. Because the pages reference
+# shared parent-repo assets (../theme.css, ../script.js, ../roles.js, ../users.js,
+# ../isms/isms.css, ../favicon.ico), a standalone deploy of aitool/ will 404 those.
+# To deploy the whole GitHub Pages repo instead, remove `rootDir` and set
+# `staticPublishPath: .` at the repo root. See README.md and docs/ARCHITECTURE.md.
+services:
+  - type: web
+    name: aitool
+    runtime: static
+    rootDir: aitool
+    staticPublishPath: .
+    # Redirect trailing paths to the entry page is unnecessary; index.html is default.
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*.html
+        name: Cache-Control
+        value: no-cache
+      - path: /*
+        name: Content-Security-Policy
+        # 'unsafe-inline' for script is required by the inline theme-bootstrap script
+        # and the inline print handlers (see docs/SECURITY.md / OPEN_ITEMS.md).
+        value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    routes:
+      - type: rewrite
+        source: /
+        destination: /index.html
