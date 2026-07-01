@@ -27,6 +27,7 @@ from app.services.crud import (
     apply_sort,
     base_select,
     get_or_404,
+    guard_concurrency,
     page_meta,
     paginate,
     request_context,
@@ -267,8 +268,9 @@ def update_risk(
     actor: CurrentUser = Depends(require_perm("risks.edit")),
 ) -> Risk:
     risk = get_or_404(db, Risk, risk_id, name="Risk")
+    guard_concurrency(risk, body.expected_updated_at)
     before = audit.snapshot(risk)
-    for key, value in body.model_dump(exclude_unset=True).items():
+    for key, value in body.model_dump(exclude_unset=True, exclude={"expected_updated_at"}).items():
         setattr(risk, key, value)
 
     # Recompute initial and residual RPN from current factors.
