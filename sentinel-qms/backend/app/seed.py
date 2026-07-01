@@ -27,6 +27,7 @@ from app.models import (  # noqa: F401 - ensure metadata is populated
     Customer,
     CustomerSurvey,
     Department,
+    DispositionAction,
     Document,
     DocumentStatus,
     DocumentType,
@@ -42,6 +43,10 @@ from app.models import (  # noqa: F401 - ensure metadata is populated
     OrgSettings,
     QualityObjective,
     QualityObjectiveMeasurement,
+    RetentionCategory,
+    RetentionPolicy,
+    RetentionStatus,
+    RetentionTrigger,
     Role,
     RolePagePermission,
     Standard,
@@ -491,6 +496,70 @@ def seed_quality_modules(db: Session, admin: User | None) -> None:
         logger.info("seeded demo FMEA")
 
 
+_RETENTION_SEED: list[dict] = [
+    {
+        "policy_number": "RET-2026-0001",
+        "title": "Quality records",
+        "record_category": RetentionCategory.QUALITY_RECORDS,
+        "retention_trigger": RetentionTrigger.CLOSURE,
+        "retention_years": 7,
+        "disposition_action": DispositionAction.REVIEW,
+        "authority_reference": "AS9100D 7.5.3",
+    },
+    {
+        "policy_number": "RET-2026-0002",
+        "title": "Design & development records",
+        "record_category": RetentionCategory.DESIGN_RECORDS,
+        "retention_trigger": RetentionTrigger.OBSOLESCENCE,
+        "retention_years": 10,
+        "disposition_action": DispositionAction.ARCHIVE,
+        "authority_reference": "AS9100D 8.3",
+    },
+    {
+        "policy_number": "RET-2026-0003",
+        "title": "Calibration records",
+        "record_category": RetentionCategory.CALIBRATION_RECORDS,
+        "retention_trigger": RetentionTrigger.CREATION,
+        "retention_years": 3,
+        "disposition_action": DispositionAction.REVIEW,
+        "authority_reference": "ISO 9001 7.1.5",
+    },
+    {
+        "policy_number": "RET-2026-0004",
+        "title": "Contract / CUI records (DFARS)",
+        "record_category": RetentionCategory.CONTRACT_RECORDS,
+        "retention_trigger": RetentionTrigger.CONTRACT_END,
+        "retention_years": 6,
+        "disposition_action": DispositionAction.REVIEW,
+        "authority_reference": "DFARS 252.204-7012",
+    },
+]
+
+
+def seed_retention_policies(db: Session, admin: User | None) -> None:
+    """Seed the default ACTIVE retention schedule (idempotent — get-or-create by
+    policy_number, so re-seeding is safe). These are documented retention rules;
+    disposition is a scheduled, manually-performed action — nothing is destroyed
+    automatically."""
+    actor_id = admin.id if admin else None
+    existing = {num for (num,) in db.execute(select(RetentionPolicy.policy_number)).all()}
+    created = False
+    for spec in _RETENTION_SEED:
+        if spec["policy_number"] in existing:
+            continue
+        db.add(
+            RetentionPolicy(
+                **spec,
+                status=RetentionStatus.ACTIVE,
+                created_by=actor_id,
+                updated_by=actor_id,
+            )
+        )
+        created = True
+    if created:
+        logger.info("seeded default retention policies")
+
+
 def seed_standards(db: Session) -> None:
     """Seed the standards-coverage matrix (idempotent — skips existing codes)."""
     existing = {code for (code,) in db.execute(select(Standard.code)).all()}
@@ -532,6 +601,7 @@ def run() -> None:
         try:
             seed_demo(db, admin)
             seed_quality_modules(db, admin)
+            seed_retention_policies(db, admin)
             db.commit()
         except Exception:  # noqa: BLE001 - demo data is best-effort
             db.rollback()
