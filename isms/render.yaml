@@ -28,6 +28,12 @@ services:
         source: /
         destination: /isms/index.html
     headers:
+      # NOTE: this blueprint publishes the whole repo root (staticPublishPath: .),
+      # so the CSP below also covers the parent portfolio pages, some of which still
+      # use inline handlers injected by ../script.js — hence 'unsafe-inline' remains
+      # in script-src at this edge. The ISMS pages themselves are stricter: each ships
+      # a CSP <meta> WITHOUT script 'unsafe-inline' (theme-init.js/hub.js/data-print),
+      # and the isms/nginx.conf image (which serves only /isms/) drops it entirely.
       - path: /*
         name: Content-Security-Policy
         value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"

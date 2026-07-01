@@ -65,28 +65,32 @@ in-page role badges are cosmetic UI only.
 | Accent color | `sanitizeHex()` validates 3-/6-digit hex; invalid → default `#ff5811` |
 | Logo `<img>` | Built via `document.createElement`/`.src` (no `innerHTML`); `error` handler falls back to the text mark |
 
-Wiring in `branding.js` and the hub filter/search module (`index.html`) uses
-`addEventListener` (no inline handlers). **Exception:** each document page's
-"Print / Save PDF" button uses an inline `onclick="window.print()"` handler (42
-pages). This is the only inline handler in the project; it requires
-`'unsafe-inline'` in `script-src` and is the item to externalize first when
-tightening the CSP (see below and [OPEN_ITEMS.md](../OPEN_ITEMS.md)).
+All script wiring — `branding.js`, the hub filter/search module (now `hub.js`),
+the pre-paint theme bootstrap (now `theme-init.js`), and the parent scripts — uses
+`addEventListener` with **no inline handlers**. The former per-page
+`onclick="window.print()"` Print buttons (42 pages) are now `<button … data-print>`,
+handled by one delegated listener in `theme-init.js`. There are **no inline event
+handlers left** in the project (`grep -c 'onclick='` across `isms/*.html` = 0).
 
 ## Content Security Policy & headers
 
-The HTML pages do **not** ship a CSP meta tag; CSP and security headers are
-applied at the **hosting layer** and are provided in this repo:
+CSP is now emitted **both** per page and at the edge:
 
-- [`../nginx.conf`](../nginx.conf) — container/VM
-- [`../render.yaml`](../render.yaml) — Render static site
-- replicate the same values on CloudFront (response-headers policy), Azure Front
-  Door / Static Web Apps `staticwebapp.config.json`, or k8s ingress annotations.
+- **Per page:** every HTML file ships a `<meta http-equiv="Content-Security-Policy">`
+  with **`script-src 'self' https://cdn.jsdelivr.net` (no `'unsafe-inline'`)**, so hosts
+  that don't set headers (e.g. GitHub Pages) still constrain scripts.
+- **Edge:** [`../nginx.conf`](../nginx.conf) (container image — serves only `/isms/`, so
+  it also drops script `'unsafe-inline'`) and [`../render.yaml`](../render.yaml) (Render
+  static site — publishes the **whole repo root**, so it *keeps* script `'unsafe-inline'`
+  for the parent portfolio pages that still use inline handlers; the ISMS pages remain
+  strict via their `<meta>`). Replicate the same values on CloudFront, Azure Front Door /
+  Static Web Apps `staticwebapp.config.json`, or k8s ingress annotations.
 
-Baseline policy shipped:
+Baseline policy shipped (per-page `<meta>` / `nginx.conf` — the strict form):
 
 ```
 Content-Security-Policy: default-src 'self';
-  script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+  script-src 'self' https://cdn.jsdelivr.net;
   style-src  'self' 'unsafe-inline' https://cdn.jsdelivr.net;
   img-src    'self' data: https://cdn.jsdelivr.net;
   font-src   'self' https://cdn.jsdelivr.net;
@@ -98,19 +102,23 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), microphone=(), camera=()
 ```
 
-`'unsafe-inline'` is currently required by: the per-page `onclick="window.print()"`
-Print buttons, the pre-paint theme snippet, the inline hub filter script, and
-inline branding `style=` attributes. **Hardening path:** replace the Print
-`onclick` with a `data-*` hook + `addEventListener`, externalize the hub script
-and theme snippet, move inline `style=` colors to classes, then drop
-`'unsafe-inline'` in favor of nonces/hashes.
+(`frame-ancestors` is set at the edge only; it is ignored inside a `<meta>` CSP.)
+`'unsafe-inline'` is now required **only by `style-src`** — for inline `style=` color
+attributes and branding accent styles. **Remaining hardening path:** move those inline
+`style=` colors to CSS classes, then drop `'unsafe-inline'` from `style-src` too.
 
 ## Supply chain (dependency / CDN risk)
 
 - **Bootstrap 5.3.3** CSS + JS are **SRI-pinned** (`integrity="sha384-…"
-  crossorigin="anonymous"`) — a tampered CDN response is rejected by the browser.
+  crossorigin="anonymous"`) — a tampered CDN response is rejected by the browser. The
+  bundle-JS hash was **corrected** to the real
+  `sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz` (recomputed
+  from the `bootstrap@5.3.3` npm tarball; the prior value was invalid and the browser
+  would have rejected the bundle).
 - **Devicon SVG icons** (footer GitHub/LinkedIn) are loaded from jsDelivr
-  **without SRI** (images) — low blast radius; add SRI or self-host to close it.
+  **without SRI**. Note the `integrity` attribute is **not honored on `<img>`**, so real
+  SRI is impossible; the CSP restricts `img-src` to `'self' data: https://cdn.jsdelivr.net`.
+  Self-hosting/inlining the two SVGs is the proper close-out (tracked in OPEN_ITEMS.md).
 - **Highest-assurance option:** vendor all third-party assets and remove the CDN
   entirely — see [../deployments/AIRGAPPED.md](../deployments/AIRGAPPED.md). This
   also lets you narrow the CSP to `'self'`.

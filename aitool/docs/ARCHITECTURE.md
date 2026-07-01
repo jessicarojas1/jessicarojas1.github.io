@@ -18,8 +18,9 @@ It is one project inside the `jessicarojas1.github.io` GitHub Pages monorepo.
    procedure, templates) plus lightweight interactive tools — not a platform.
 3. **Progressive enhancement.** Pages are readable as static HTML; JS adds theming,
    branding, checklist scoring, and the tracker.
-4. **CSP-friendliness / no inline handlers** (aspirational — see the known exceptions
-   in `../OPEN_ITEMS.md`).
+4. **CSP-friendliness / no inline handlers** — achieved: all scripts are external
+   (`theme-init.js`, per-page `*.js`, parent scripts) and Print uses `data-print` + a
+   delegated handler, so `script-src` needs no `'unsafe-inline'` (see `../OPEN_ITEMS.md`).
 5. **Data stays in the browser.** No PII or CUI is transmitted; `localStorage` holds
    all state.
 
@@ -97,8 +98,9 @@ Being static, the "contract" is HTTP file serving:
   allow-listed to `http(s)://` / `data:image/...` (`sanitizeLogoUrl()`).
 - **Client-side RBAC is a demo, not a control** — anyone with the URL can read all
   content. Real gating must be added at the edge (identity-aware proxy / CDN auth).
-- **CSP:** shipped by the hosting layer. Because of inline print handlers + the inline
-  theme script, the current CSP allows `script-src 'unsafe-inline'` — a documented gap.
+- **CSP:** shipped both per page (`<meta>`) and at the hosting layer. All scripts are
+  external and Print uses `data-print`, so `script-src` is `'self' https://cdn.jsdelivr.net`
+  (no `'unsafe-inline'`); `style-src` still allows inline for `style=`/accent styles.
 
 See `SECURITY.md` for the full model.
 

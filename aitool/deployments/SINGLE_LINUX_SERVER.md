@@ -77,7 +77,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "DENY" always;
     add_header Referrer-Policy "no-referrer" always;
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
 
     location ~* \.html$ { add_header Cache-Control "no-cache"; }
     location ~* \.(js|css|png|jpg|jpeg|gif|svg|ico|woff2?)$ { add_header Cache-Control "public, max-age=604800"; }
@@ -87,8 +87,9 @@ server {
 server { listen 80; server_name aitool.example.com; return 301 https://$host$request_uri; }
 ```
 
-> `'unsafe-inline'` in `script-src` is required by the inline print handlers + theme
-> script — see `../OPEN_ITEMS.md`.
+> `script-src` needs no `'unsafe-inline'`: the theme snippet, per-page scripts, and
+> Print handlers are all external (`theme-init.js` + `data-print`). `style-src` keeps
+> it for inline `style=`/branding accent styles — see `../OPEN_ITEMS.md`.
 
 Optional access gating: add HTTP basic-auth (`auth_basic`) or front with **oauth2-proxy**
 if the content must be restricted (the app has no auth of its own).

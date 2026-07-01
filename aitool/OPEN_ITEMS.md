@@ -10,10 +10,10 @@ each item lists impact + suggested action.
 
 | Status | Item | Impact | Suggested action |
 |--------|------|--------|------------------|
-| ⚠️ Outstanding | Inline `onclick="window.print()"` in 5 pages (`pol-ai-001`, `pro-ai-001`, `tmp-ai-001/002/003`) | Violates the repo "no inline event handlers" rule; forces `script-src 'unsafe-inline'` in CSP | Replace with a `data-print` button wired by a small script / parent `script.js` handler |
-| ⚠️ Outstanding | Inline `<head>` theme-bootstrap `<script>` in every page | Same — blocks a strict script CSP | Externalize to a tiny `theme-init.js`, or add a CSP hash for the exact inline block |
+| ✅ Done | Inline `onclick="window.print()"` in 5 pages (`pol-ai-001`, `pro-ai-001`, `tmp-ai-001/002/003`) | Was violating the repo "no inline event handlers" rule | **Fixed:** replaced with `data-print` + a delegated `addEventListener('click', … closest('[data-print]'))` handler in `theme-init.js`. Verified: `grep -c 'onclick=' aitool/*.html` = 0. |
+| ✅ Done | Inline `<head>` theme-bootstrap `<script>` in every page | Was blocking a strict script CSP | **Fixed:** externalized to `theme-init.js` (render-blocking in `<head>`, so still pre-paint / no flash). The 4 per-page inline scripts (`tmp-ai-001/002/003`, `vendor-tracker`) were also externalized to sibling `*.js`. Verified: zero bare `<script>` blocks remain; `node --check` passes on all new JS. |
 | ✅ Done | `branding.js` uses no inline handlers (all `addEventListener`) | Compliant | — |
-| ⚠️ Outstanding | No CSP is emitted by the site itself (only by the server config we ship) | Depends on the host to set headers | Ship CSP at every deploy target (done in `Dockerfile`/`nginx.conf`, `render.yaml`; replicate on S3/CF, Azure, k8s) |
+| ✅ Done | No CSP is emitted by the site itself (only by the server config we ship) | Now defends hosts that don't set headers (e.g. GitHub Pages) | **Fixed:** every page now ships a `<meta http-equiv="Content-Security-Policy">` with **`script-src 'self' https://cdn.jsdelivr.net` (no `'unsafe-inline'`)**. `nginx.conf` + `render.yaml` edge CSPs were tightened to match (script `'unsafe-inline'` dropped; `style-src` keeps it for inline `style=`/branding accent). |
 
 ## 2. Self-containment / shared assets
 
@@ -26,7 +26,7 @@ each item lists impact + suggested action.
 
 | Status | Item | Impact | Suggested action |
 |--------|------|--------|------------------|
-| ✅ Done | Bootstrap CSS + JS loaded with SRI `integrity=` + `crossorigin` | CDN tampering is detected | Keep hashes in sync on any version bump |
+| ✅ Done | Bootstrap CSS + JS loaded with SRI `integrity=` + `crossorigin` | CDN tampering is detected | **Corrected:** the Bootstrap **bundle JS** `integrity` was an invalid hash (browser would reject the bundle → dropdowns/modals/navbar broken). Recomputed the real `sha384` from the `bootstrap@5.3.3` npm tarball (`openssl dgst -sha384 -binary | openssl base64 -A` — CSS hash matched the tarball, confirming CDN parity) and pinned `sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz` on all 7 pages. CSS hash was already correct. Keep hashes in sync on any version bump. |
 | ⚠️ Outstanding | Shared parent JS (`script.js`, `roles.js`, `users.js`) loaded without SRI (same-origin) | Lower risk (same origin) but no integrity pin | Consider SRI or a build that fingerprints local assets |
 | ⚠️ Outstanding | No automated dependency/version monitoring | Missed Bootstrap security updates | Add a scheduled check / Dependabot-style reminder |
 

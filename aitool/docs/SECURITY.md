@@ -52,7 +52,10 @@ acknowledgment that **the site enforces no access control** on its own.
 
 - **Subresource Integrity (SRI):** Bootstrap CSS and JS are pinned with
   `integrity="sha384-…"` + `crossorigin="anonymous"`, so a tampered CDN response is
-  rejected by the browser. **Keep hashes in sync on any version bump.**
+  rejected by the browser. The bundle-JS hash was **corrected** to the real
+  `sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz`
+  (recomputed from the `bootstrap@5.3.3` npm tarball; the prior value was invalid and
+  the browser would have rejected the bundle). **Keep hashes in sync on any version bump.**
 - **Pinned version:** Bootstrap `5.3.3` is explicit in the URL (no floating `latest`).
 - **CDN risk:** availability and privacy depend on jsDelivr; for high-assurance or
   air-gapped use, **vendor** Bootstrap locally (`../deployments/AIRGAPPED.md`).
@@ -62,15 +65,19 @@ acknowledgment that **the site enforces no access control** on its own.
 
 ## Content Security Policy & client-side XSS
 
-- CSP is emitted by the **hosting layer** (`nginx.conf`, `render.yaml`, and each
-  `deployments/*` guide), scoped to `'self'` + `cdn.jsdelivr.net`, with
-  `img-src 'self' data:` (for uploaded logo `data:` URLs), `frame-ancestors 'none'`,
-  and `base-uri 'self'`.
-- ⚠️ **Honest gap:** the pages contain an inline `<head>` theme-bootstrap `<script>` and
-  five `onclick="window.print()"` handlers, so the current `script-src` must include
-  `'unsafe-inline'`. Remediation (move to `data-*` handlers + external init, or CSP
-  hashes) is tracked in `../OPEN_ITEMS.md`. Until then, XSS risk is mitigated by there
-  being **no user-generated content rendered from a server and no untrusted HTML sink**.
+- CSP is emitted **both** by each page (a `<meta http-equiv="Content-Security-Policy">`,
+  so hosts that don't set headers — e.g. GitHub Pages — are still constrained) **and**
+  by the hosting layer (`nginx.conf`, `render.yaml`, each `deployments/*` guide). Both
+  are scoped to `'self'` + `cdn.jsdelivr.net`, with `img-src 'self' data:` (for uploaded
+  logo `data:` URLs), `frame-ancestors 'none'` (edge only — ignored in `<meta>`), and
+  `base-uri 'self'`.
+- ✅ **`script-src` no longer needs `'unsafe-inline'`.** The former inline `<head>`
+  theme-bootstrap snippet is externalized to `theme-init.js`, the four per-page inline
+  scripts to sibling `*.js`, and the five `onclick="window.print()"` handlers to
+  `data-print` + one delegated `addEventListener` in `theme-init.js`. `script-src` is
+  now `'self' https://cdn.jsdelivr.net`. `style-src` keeps `'unsafe-inline'` for inline
+  `style=`/branding accent styles (a CSS-class refactor is the remaining step). XSS risk
+  is further mitigated by **no server-rendered user content and no untrusted HTML sink**.
 - **Branding input is sanitized in `branding.js`:** `esc()` HTML-escapes strings,
   `sanitizeLogoUrl()` allow-lists only `http(s)://` and `data:image/...` URLs (blocking
   `javascript:`/other schemes), and `isHex()` validates the accent color. A broken logo

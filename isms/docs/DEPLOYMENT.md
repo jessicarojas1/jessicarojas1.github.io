@@ -112,10 +112,12 @@ is CPU-trivial.
 - [ ] Consider **vendoring** CDN assets to narrow CSP to `'self'`
       ([../deployments/AIRGAPPED.md](../deployments/AIRGAPPED.md)).
 - [ ] Container image is non-root, pinned base, healthchecked; scanned (Trivy/Grype).
-- [ ] Known inline handlers accounted for: the only ones are the per-page
-      `onclick="window.print()"` Print buttons (`grep -Rc 'onclick="window.print()"'
-      isms/*.html`); the hub + `branding.js` use `addEventListener`. These require
-      `'unsafe-inline'` in the CSP today — externalize them to tighten it.
+- [ ] No inline event handlers remain (`grep -Rc 'onclick=' isms/*.html` = 0). The
+      Print buttons use `data-print` + a delegated listener in `theme-init.js`; the hub
+      (`hub.js`), theme bootstrap (`theme-init.js`), and `branding.js` all use
+      `addEventListener`. `script-src` therefore needs no `'unsafe-inline'` (per-page
+      `<meta>` and `nginx.conf` drop it; `render.yaml` keeps it only because it also
+      serves the parent portfolio). Only `style-src` still needs `'unsafe-inline'`.
 
 ### Resilience & operations
 

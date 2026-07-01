@@ -54,6 +54,8 @@ isms/
 ├── index.html                     # Searchable/filterable document hub (entry page)
 ├── isms.css                       # Document + hub styling (loads after ../theme.css)
 ├── branding.js                    # Settings → Branding (localStorage: isms_branding)
+├── theme-init.js                  # Pre-paint theme + delegated data-print handler
+├── hub.js                         # Externalized index.html filter/search module
 ├── nginx.conf                     # Server block for the container image
 ├── Dockerfile                     # nginx-unprivileged static image (non-root, :8080)
 ├── render.yaml                    # Render static-site blueprint
@@ -87,13 +89,15 @@ The hub cards in `index.html` carry `data-type` (`policy` / `procedure` /
   **Subresource Integrity** (`integrity="sha384-…" crossorigin="anonymous"`).
 - **Custom CSS**: `isms.css` (this app) layered over the shared portfolio
   `../theme.css`.
-- **Vanilla JavaScript** — no framework, no bundler:
-  - inline hub filter/search module in `index.html`;
+- **Vanilla JavaScript** — no framework, no bundler, **no inline event handlers or
+  inline `<script>`** (so `script-src` needs no `'unsafe-inline'`):
+  - `hub.js` — the index.html filter/search module (externalized);
+  - `theme-init.js` — pre-paint theme + the delegated `data-print` Print handler;
   - `branding.js` (this app);
   - shared portfolio scripts `../script.js` (theme toggle, reveal, footer year),
     `../roles.js` + `../users.js` (a **client-side RBAC demo** login modal).
-- **Dark mode**: pre-paint inline snippet reads `localStorage['bsTheme']`
-  (default `dark`) and sets `data-bs-theme` before first paint.
+- **Dark mode**: `theme-init.js` (render-blocking in `<head>`) reads
+  `localStorage['bsTheme']` (default `dark`) and sets `data-bs-theme` before first paint.
 - **Branding**: `branding.js` persists `{name, logoUrl, accent}` under
   `localStorage['isms_branding']` and applies it live (accent → `--bs-primary`,
   name → title + brand mark, logo → navbar + print header). Logo URLs are

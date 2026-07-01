@@ -60,6 +60,8 @@ aitool/
 ├── tmp-ai-00{1,2,3}-*.html                 # templates
 ├── vendor-tracker.html                     # pipeline tracker
 ├── branding.js                             # branding module (local)
+├── theme-init.js                           # pre-paint theme + delegated data-print handler
+├── tmp-ai-00{1,2,3}-*.js / vendor-tracker.js  # per-page scripts (externalized for CSP)
 ├── Dockerfile                              # nginx:alpine static image
 ├── render.yaml                             # Render static-site blueprint
 ├── README.md / OPEN_ITEMS.md / CLAUDE.md
@@ -78,8 +80,11 @@ aitool/
 
 - **HTML5 + Bootstrap 5.3.3** (CSS + `bootstrap.bundle.min.js`) delivered from
   `cdn.jsdelivr.net` with **Subresource Integrity** (`integrity=` + `crossorigin`).
-- **Vanilla JavaScript** (no framework, no bundler). `branding.js` is an IIFE; theme
-  and RBAC-demo helpers come from parent `script.js` / `roles.js` / `users.js`.
+- **Vanilla JavaScript** (no framework, no bundler), with **no inline event handlers**
+  and **no inline `<script>`**: `theme-init.js` (pre-paint theme + delegated `data-print`
+  handler) and per-page `*.js` are external, so `script-src` needs no `'unsafe-inline'`.
+  `branding.js` is an IIFE; theme and RBAC-demo helpers come from parent `script.js` /
+  `roles.js` / `users.js`.
 - **Browser `localStorage`** for all persistence (`bsTheme`, `aitool.branding.v1`,
   vendor-tracker store). No cookies, no server sessions.
 - **No backend, no database, no server-side language, no package manager, no build.**

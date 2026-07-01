@@ -28,10 +28,11 @@ object store + CDN. The only runtime is the visitor's browser.
    print-only branding header so each policy/procedure/template exports cleanly.
 4. **Auditability by convention.** Filenames encode type + sequence + slug; each
    document has a control-mapping header keyed to ISO/IEC 27001:2022.
-5. **Event wiring via `addEventListener`.** `branding.js` and the hub filter/
-   search module use no inline handlers; the sole exception is the per-page
-   `onclick="window.print()"` Print button (why the CSP still needs
-   `'unsafe-inline'`). User input is escaped/sanitized before it touches the DOM.
+5. **Event wiring via `addEventListener`.** `branding.js`, the hub filter/search
+   module (`hub.js`), and the theme bootstrap (`theme-init.js`) use no inline
+   handlers; the per-page Print button is now `data-print` handled by a delegated
+   listener — so `script-src` needs no `'unsafe-inline'` (only `style-src` still
+   does). User input is escaped/sanitized before it touches the DOM.
 
 ## Component overview
 
