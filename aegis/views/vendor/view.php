@@ -245,6 +245,21 @@ $contracts = Database::fetchAll(
     <div class="card-header-left">
       <i class="bi bi-patch-check" style="color:var(--success)"></i>
       <span class="card-title">Certifications</span>
+      <?php
+        // Active certs whose expiry has passed or is within 30 days need renewal.
+        $certRenewCount = 0;
+        foreach ($certifications as $vc) {
+          if (($vc['status'] ?? '') === 'active'
+              && in_array(EvidenceController::freshness($vc['expiry_date'] ?? null), ['expired','expiring'], true)) {
+            $certRenewCount++;
+          }
+        }
+      ?>
+      <?php if ($certRenewCount > 0): ?>
+      <span class="badge badge-warning" style="font-size:0.72rem;margin-left:8px" title="Active certifications expired or expiring within 30 days">
+        <i class="bi bi-clock-history"></i> <?= $certRenewCount ?> need<?= $certRenewCount === 1 ? 's' : '' ?> renewal
+      </span>
+      <?php endif; ?>
     </div>
     <?php if (Auth::can('vendor.edit')): ?>
     <div class="card-header-right">

@@ -116,6 +116,11 @@ $NOTIF_TYPES = [
         'description' => 'When an audit finding you own is past its remediation deadline and still open',
         'icon'        => 'exclamation-diamond-fill',
     ],
+    'vendor_cert_expiring' => [
+        'label'       => 'Vendor certification expiring',
+        'description' => 'When a vendor certification you own is expired or expiring within 30 days',
+        'icon'        => 'patch-check-fill',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────
