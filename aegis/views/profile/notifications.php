@@ -126,6 +126,11 @@ $NOTIF_TYPES = [
         'description' => 'When a vendor contract you own is expired or within its renewal-notice window',
         'icon'        => 'file-earmark-text-fill',
     ],
+    'kri_measurement_overdue' => [
+        'label'       => 'KRI measurement overdue',
+        'description' => 'When a KRI you own has no reading recorded within its measurement frequency',
+        'icon'        => 'speedometer2',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────
