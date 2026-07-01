@@ -144,6 +144,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/vendor_cert_expiry_db.php
 
+      - name: Vendor contract expiry — per-contract notice window / owner fallback / cascade
+        working-directory: aegis
+        run: php tests/integration/vendor_contract_expiry_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

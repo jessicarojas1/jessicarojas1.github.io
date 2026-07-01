@@ -3,6 +3,26 @@ declare(strict_types=1);
 
 class VendorController {
 
+    /**
+     * Renewal state for a vendor contract, honouring the contract's own
+     * per-contract notice window (renewal_notice_days, default 30):
+     * 'none' (not an in-force contract, or no end date), 'expired' (end date
+     * passed while still active), 'due' (end date within the notice window) or
+     * 'ok'. Pure function (status guard + date math) — public + static so the
+     * notifier and views share one definition and it is unit-testable.
+     */
+    public static function contractRenewalStatus(?string $endDate, string $status, ?int $noticeDays): string {
+        if ($status !== 'active') return 'none';          // draft not in force; expired/terminated are settled
+        if (empty($endDate)) return 'none';
+        $ts = strtotime($endDate);
+        if ($ts === false) return 'none';
+        $today  = strtotime('today');
+        if ($ts < $today) return 'expired';
+        $window = ($noticeDays !== null && $noticeDays > 0 ? $noticeDays : 30) * 86400;
+        if ($ts <= $today + $window) return 'due';
+        return 'ok';
+    }
+
     // ------------------------------------------------------------------ index
     public function index(): void {
         Auth::requirePermission('vendor.view');

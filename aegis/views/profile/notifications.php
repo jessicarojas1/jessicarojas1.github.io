@@ -121,6 +121,11 @@ $NOTIF_TYPES = [
         'description' => 'When a vendor certification you own is expired or expiring within 30 days',
         'icon'        => 'patch-check-fill',
     ],
+    'vendor_contract_expiring' => [
+        'label'       => 'Vendor contract expiring',
+        'description' => 'When a vendor contract you own is expired or within its renewal-notice window',
+        'icon'        => 'file-earmark-text-fill',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────
