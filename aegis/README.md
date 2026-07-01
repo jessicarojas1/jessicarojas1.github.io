@@ -9,6 +9,26 @@ AEGIS is a self-hosted Governance, Risk, and Compliance (GRC) platform built wit
 
 ### Documentation
 
+**Canonical operator-grade docs (`docs/`):**
+
+| Doc | Covers |
+|-----|--------|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Platform, request/error contract, config model, observability, deployment topology |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Deployment models, env/secrets, migrations, cron worker, Ollama/GPU, production checklist |
+| [`docs/SECURITY.md`](docs/SECURITY.md) | Auth, RBAC, data protection, audit chain, CUI/DLP, FIPS, rotation, reporting |
+| [`docs/DISASTER_RECOVERY.md`](docs/DISASTER_RECOVERY.md) | State, RPO/RTO, backups, restore runbook, drills, HA |
+| [`docs/DATABASE.md`](docs/DATABASE.md) · [`docs/MODULES.md`](docs/MODULES.md) · [`docs/DEPENDENCIES.md`](docs/DEPENDENCIES.md) | Schema/tables, per-module reference, dependency & PHP-extension inventory |
+
+**Deployment target guides (`deployments/`):**
+[`LOCAL_DEVELOPMENT`](deployments/LOCAL_DEVELOPMENT.md) ·
+[`SINGLE_LINUX_SERVER`](deployments/SINGLE_LINUX_SERVER.md) ·
+[`KUBERNETES`](deployments/KUBERNETES.md) ·
+[`AWS`](deployments/AWS.md) (Commercial + GovCloud) ·
+[`AZURE`](deployments/AZURE.md) (Commercial + Government) ·
+[`AIRGAPPED`](deployments/AIRGAPPED.md) (offline + self-hosted Ollama).
+
+**Topic guides (root):**
+
 | Doc | Covers |
 |-----|--------|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Request lifecycle, layout, core libraries, data model |
@@ -19,6 +39,7 @@ AEGIS is a self-hosted Governance, Risk, and Compliance (GRC) platform built wit
 | [`RISK_MODULE.md`](RISK_MODULE.md) | Risk scoring engine, bands, appetite |
 | [`AIADVISOR.md`](AIADVISOR.md) | AI governance: kill-switch, redaction, audit |
 | [`DEPLOYMENT.md`](DEPLOYMENT.md) | Env vars, Docker/Render, cron, backup/restore, checklist |
+| [`OPEN_ITEMS.md`](OPEN_ITEMS.md) · [`CLAUDE.md`](CLAUDE.md) | Production-readiness open items · project guidance |
 
 ### Quality gates (run locally or in CI)
 
@@ -89,7 +110,7 @@ php scripts/check_csrf.php         # every POST route validates CSRF
 ### Platform & Administration
 
 - **REST API v1** — Full API with API-key and JWT authentication, rate limiting, and CORS origin enforcement
-- **Role-Based Access Control** — Five built-in roles (admin, manager, auditor, analyst, viewer) with per-user per-module permission overrides
+- **Role-Based Access Control** — Eight built-in roles (admin, manager, auditor, control_owner, risk_owner, analyst, executive, viewer) with granular `module.action` permissions and per-user overrides
 - **Dark Mode** — Full dark/light theme toggle persisted via localStorage with CSS custom properties
 - **Admin Panel** — User management, API key management, alert configurations, workflow builder, risk matrix configurator, permission matrix editor, module visibility controls, SMTP settings, and SSO configuration
 - **Document Management** — Document store with version upload history
@@ -124,19 +145,44 @@ php scripts/check_csrf.php         # every POST route validates CSRF
 |---|---|
 | Markup / Style | Vanilla HTML5 / CSS3 (no framework) |
 | JavaScript | Vanilla ES2020 (no build step, no bundler) |
-| Charts | Chart.js 4.4.3 (CDN) |
-| Icons | Bootstrap Icons 1.11.3 (CDN, icon font only) |
-| Typography | Inter via Google Fonts (CDN) |
-| Theming | CSS custom properties (variables) |
+| Charts | Chart.js 4.x (**vendored** locally under `public/vendor`, SRI-pinned — no CDN) |
+| Icons | Bootstrap Icons (**vendored**, icon font only) |
+| Typography | Vendored web font (no external font CDN) |
+| Theming | CSS custom properties (variables); full dark mode |
+
+> All front-end assets are vendored locally and Subresource-Integrity pinned; the
+> CSP carries **no external origin**, so the app runs fully air-gapped (`check_ui.php`
+> fails CI if a CDN `<link>`/`<script>` is reintroduced).
 
 ### Infrastructure
 
 | Component | Choice |
 |---|---|
-| Container | Docker (`php:8.2-apache` base image) |
-| Hosting | Render.com (Docker web service, free tier) |
-| CI/Deploy | `render.yaml` manifest + `scripts/startup.sh` startup hook |
-| DB Isolation | PostgreSQL `aegis` schema (separate from `public`) |
+| Container | Docker (**`php:8.3-apache`** base image, digest-pinned; PHP 8.2-targeted code) |
+| Hosting | Render.com (Docker web service) + managed Postgres; also compose/K8s/AWS/Azure/air-gapped |
+| CI/Deploy | `render.yaml` (web + Postgres + **6 cron services**) + `scripts/startup.sh` startup hook; hardened image `docker/Dockerfile.hardened` |
+| DB Isolation | PostgreSQL `aegis` schema (separate from `public`); Row-Level Security per tenant |
+
+### Dependencies & Required Extensions
+
+AEGIS has **zero Composer/npm dependencies** — JWT, TOTP, OIDC, AWS SigV4, SMTP,
+and XLSX are all hand-rolled. What it needs is PHP extensions and one OS binary
+(all provided by the Docker image). Full inventory: [`docs/DEPENDENCIES.md`](docs/DEPENDENCIES.md).
+
+| Requirement | Why | Criticality |
+|---|---|---|
+| **PHP 8.2+** (image: 8.3) | Runtime (`strict_types`, `match`, union types) | Required |
+| `pdo` + `pdo_pgsql` | All database access | Required |
+| `sodium` (libsodium) | AES-256-GCM encryption of secrets at rest | Required |
+| `openssl` | RS256 verification of OIDC ID tokens | Required for SSO |
+| `curl` | Outbound HTTPS: S3, webhooks, AI, OIDC | Required |
+| `fileinfo` (finfo) | Upload MIME validation | Required for uploads |
+| `mbstring`, `ctype`, `json` | String/validation/JSON (pervasive) | Required |
+| `opcache` | Production bytecode cache | Recommended (perf) |
+| `gd` | Provisioned in image; no active caller today | Optional |
+| **`poppler-utils`** (OS pkg → `pdftotext`) | PDF compliance-package import only | Optional (PDF import) |
+| **PostgreSQL 16** | Database (Postgres-only) | Required |
+| Redis (optional) | Shared cache / rate-limit counter when configured | Optional (scale) |
 
 ---
 
@@ -146,7 +192,7 @@ php scripts/check_csrf.php         # every POST route validates CSRF
 aegis/
 ├── .htaccess                      # URL rewriting, security headers, access rules
 │                                  # Blocks install.php and sensitive directories post-deploy
-├── Dockerfile                     # php:8.2-apache image; installs pdo_pgsql + zip extensions
+├── Dockerfile                     # php:8.3-apache image; installs pdo_pgsql, gd, opcache + poppler-utils
 ├── docker-compose.yml             # Local dev stack: app container + postgres container
 ├── render.yaml                    # Render.com deployment manifest (web service + DB reference)
 ├── index.php                      # Front controller: loads .env, starts session, routes requests
@@ -821,19 +867,51 @@ open http://localhost:8080
 - To reset the database entirely, bring down the stack with `docker compose down -v` (drops the volume) and re-run `install.php`.
 - No `npm install`, `composer install`, or build step is required. The application runs directly from source.
 
+### Common Commands
+
+```bash
+php install.php                    # create/migrate schema + seed (idempotent; needs ADMIN_EMAIL/ADMIN_PASSWORD on first run)
+php -l <file>                      # PHP lint a file
+
+# Quality gates (mirror CI — see also the "Quality gates" block above):
+php tests/run.php                  # unit suite
+php scripts/verify_migrations.php  # migrations registered & ordered
+php scripts/check_ui.php           # CSP: no inline handlers; scripts carry a nonce
+php scripts/check_route_auth.php   # every public action enforces authz
+php scripts/check_csrf.php         # every POST route validates CSRF
+php scripts/check_csv_export.php   # formula-injection-safe CSV
+php scripts/verify_audit_log.php   # audit hash-chain intact (needs DB + AUDIT_HMAC_KEY)
+
+# Cron/worker scripts (run from ONE scheduler — see docs/DEPLOYMENT.md §13):
+php scripts/run_workflows.php          # automation rules            (~*/15 min)
+php scripts/dispatch_webhooks.php      # webhook delivery            (every minute)
+php scripts/send_notifications.php     # email notifications/digests (hourly)
+php scripts/send_scheduled_reports.php # scheduled reports           (hourly)
+php scripts/drain_email_queue.php      # retry failed emails         (every 5 min)
+php scripts/capture_metrics_snapshot.php # daily metrics snapshot    (daily 01:00)
+```
+
 ---
 
 ## User Roles
 
-| Role | Description | Default Permissions |
-|---|---|---|
-| `admin` | Full platform access | All modules, all actions, admin panel |
-| `manager` | Operational management | All modules: read, write, edit |
-| `auditor` | Audit-focused access | Compliance: read; Audit: read/write/edit; Policy: read; Risk: read |
-| `analyst` | Risk-focused access | Compliance: read; Audit: read; Policy: read; Risk: read/write/edit |
-| `viewer` | Read-only across all modules | All modules: read only |
+Eight built-in roles (`Auth::ROLES`). Permissions are granular `module.action`
+strings from `Auth::$roleDefaults`; the full matrix is in
+[`docs/SECURITY.md` §17](docs/SECURITY.md#17-permission-matrix).
 
-Explicit per-user, per-module permission grants stored in the `user_permissions` table **extend or override** these role defaults. The permission matrix editor is available in the admin panel at `/admin/permissions`.
+| Role | Description |
+|---|---|
+| `admin` | Full platform access (bypasses `can()`) + admin panel |
+| `manager` | Operational management across modules (create/edit/etc.) |
+| `auditor` | Audit-focused: audit create/edit/findings/close, read elsewhere |
+| `control_owner` | Owns controls/evidence/SSP for assigned areas |
+| `risk_owner` | Owns risks: accept/review/treatment/scenarios/KRIs |
+| `analyst` | Risk/compliance analysis (create/edit, no accept/close) |
+| `executive` | Read + export dashboards/reports; approvals |
+| `viewer` | Read-only across modules |
+
+Explicit per-user grants in the `user_permissions` table are **additive** on top
+of role defaults. The permission matrix editor is at `/admin/permissions`.
 
 ---
 

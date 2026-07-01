@@ -1,9 +1,45 @@
 # CITADEL
 
+![build](https://img.shields.io/badge/build-passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-86%20cases-blue)
+![accuracy gate](https://img.shields.io/badge/accuracy-recall%20%E2%89%A5%200.90%20%C2%B7%20precision%20%E2%89%A5%200.90-blueviolet)
+![node](https://img.shields.io/badge/node-%E2%89%A518-339933?logo=node.js&logoColor=white)
+![license](https://img.shields.io/badge/analysis-heuristic%20%2B%20real%20scanners-orange)
+
+> Badges are indicative; CI (`.github/workflows/ci.yml`, job `node-citadel`)
+> runs `node --check`, ESLint, `npm audit`, the 86-case suite, SARIF validation,
+> and the accuracy benchmark gate.
+
 **Code Inspection, Threat Analysis & Deployment Evaluation Lab** — an enterprise
 source-code, executable & script **security & compliance review platform** covering
-**117 languages & formats** (see **[CAPABILITIES.md](CAPABILITIES.md)** / **[LANGUAGES.md](LANGUAGES.md)**
+**100+ languages & formats** (see **[CAPABILITIES.md](CAPABILITIES.md)** / **[LANGUAGES.md](LANGUAGES.md)**
 or the in-app [capabilities page](docs/capabilities.html)).
+
+## Why it exists
+
+Security and compliance signal for a codebase is normally scattered across a SAST
+platform, an SBOM tool, a secret scanner, a CVE feed, and a pile of framework
+spreadsheets. CITADEL **consolidates** them into one framework-aware report: in a
+single pass it answers *how secure* the code is, *how well-written* it is, *what
+languages* it uses, *how it's deployed*, and *which compliance obligations* it
+touches — mapping every finding to the exact controls of 20+ standards, and
+producing the audit artifacts (SARIF, SBOM, POA&M, SSP appendix) an ATO package
+needs.
+
+## Supported deployment models
+
+| Model | What runs | Persistence |
+|---|---|---|
+| **SPA-only (static)** | `index.html` + `js/` on any static host | Browser `localStorage` |
+| **Full backend (container)** | `server/Dockerfile` image (SPA + all scanners) | In-memory/file, or Postgres |
+| **Kubernetes** | Same image + ingress/HPA/PDB | Postgres + Redis + tmpfs |
+| **Cloud** | ECS/Fargate · AKS/App Service · Cloud Run + managed PG/secrets | Managed Postgres |
+| **Air-gapped** | Bundled image, no egress, self-hosted LLM | In-enclave Postgres |
+
+See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** and the per-target runbooks under
+**[deploy/](deploy/)** ([compose](deploy/compose/), [aws](deploy/aws/),
+[aws-gov](deploy/aws-gov/), [azure-gov](deploy/azure-gov/), [gcp](deploy/gcp/),
+[kubernetes](deploy/kubernetes/)).
 
 Upload source code, archives (`.zip`/`.jar`/`.apk`), or executables and CITADEL runs static
 analysis, secrets detection, SBOM generation, and binary inspection — then maps every finding
@@ -84,18 +120,79 @@ citadel/
 └── ARCHITECTURE.md / FRAMEWORKS.md
 ```
 
+## Prerequisites
+
+| Model | Requirements |
+|---|---|
+| **SPA-only** | Any static host or `python3 -m http.server`. **No build step.** |
+| **Backend** | Docker (or Node **≥ 18**); **≥ 2 GB RAM** (ClamAV loads a ~1.4 GB signature DB); ~4 GB disk for the image + scanner DBs; outbound HTTPS for first-run CVE DBs (unless air-gapped). |
+| **CI gate** | Node 20 (see the [GitHub Action](CI.md) / `cli/`). |
+
+## Dependencies
+
+**Backend Node deps** (`server/package.json`): `express`, `multer`, `adm-zip`,
+`jsonwebtoken`, `pg`, `ioredis`, `@anthropic-ai/sdk`; optional OpenTelemetry
+(`@opentelemetry/*`); dev: `eslint`. **SPA** vendors Bootstrap 5.3, Chart.js, and
+**JSZip** (no npm install for the front-end).
+
+**External scanner binaries** (bundled in `server/Dockerfile`; each degrades
+gracefully if absent):
+
+| Binary | Provides |
+|---|---|
+| **Semgrep** | Multi-language SAST (core signal) |
+| **Bandit** | Python SAST |
+| **Trivy** | Dependency CVEs + secrets + IaC misconfig |
+| **Syft** | CycloneDX/SPDX SBOM |
+| **Grype** | Vulnerability matching (CVEs) |
+| **Gitleaks** | Secrets / credential detection |
+| **ClamAV** | Malware signatures |
+| **Checkov** | IaC misconfiguration |
+| **OSV-Scanner** | Lockfile/manifest vulns |
+| **Hadolint** | Dockerfile lint |
+| **CodeQL** *(opt-in)* | Deep dataflow SAST (`--build-arg CITADEL_WITH_CODEQL=1` + `CITADEL_ENABLE_CODEQL=1`) |
+
+Configuration is entirely environment variables — see **[docs/ENV.md](docs/ENV.md)**.
+
+## Common commands
+
+```bash
+# SPA (no build)
+python3 -m http.server 8000              # http://localhost:8000/citadel/
+
+# Backend: install, test, lint
+cd citadel/server && npm ci && npm test && npm run lint
+
+# Accuracy benchmark (CI-gated)
+node citadel/benchmark/run.js
+
+# Build + run the deep-scan image (build context = REPO ROOT)
+docker build -f citadel/server/Dockerfile -t citadel-server .
+docker run -p 8080:8080 citadel-server   # http://localhost:8080/
+
+# Release-readiness gate for CI
+node citadel/cli/citadel-gate.js . --fail-on=rejected
+```
+
 ## Documentation
 
-- **[docs/index.html](docs/index.html)** — interactive architecture, data flow, and a
-  module-by-module breakdown of how the engines interact.
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** — the same content in Markdown.
-- **[FRAMEWORKS.md](FRAMEWORKS.md)** — the full catalog of standards and the weakness-to-control
-  cross-walk.
-- **[docs/RBAC.md](docs/RBAC.md)** — roles, page permissions, backend enforcement, and SSO mapping.
-- **[docs/UPLOAD-SECURITY.md](docs/UPLOAD-SECURITY.md)** — zip-slip / decompression-bomb caps, isolation, and limits.
-- **[docs/TESTING.md](docs/TESTING.md)** — how to run the suites, what's covered, and what CI gates.
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — platform, design principles, component
+  overview, request & error contract, security model, observability, deploy topology + scan pipeline.
+- **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** — deployment models, config & secrets, scanner-DB
+  updates, Ollama/GPU for AI & air-gapped, verification, and the production checklist.
+- **[docs/SECURITY.md](docs/SECURITY.md)** — auth (JWT/MFA/OIDC), RBAC, data protection, audit,
+  CUI/DLP, FIPS, secrets rotation, and reporting.
+- **[docs/DISASTER_RECOVERY.md](docs/DISASTER_RECOVERY.md)** — state, RPO/RTO, backups, restore
+  runbook, drills, HA (and the free-tier ephemeral-store caveat).
+- **[OPEN_ITEMS.md](OPEN_ITEMS.md)** — honest production-readiness checklist (done vs outstanding).
+- **[docs/index.html](docs/index.html)** — interactive architecture & module-interaction map.
+- **[FRAMEWORKS.md](FRAMEWORKS.md)** — the full catalog of standards and the weakness-to-control cross-walk.
+- **[docs/RELEASE-READINESS.md](docs/RELEASE-READINESS.md)** — the readiness score + security gate.
+- **[docs/RBAC.md](docs/RBAC.md)** — roles, page permissions, backend enforcement, SSO mapping.
+- **[docs/UPLOAD-SECURITY.md](docs/UPLOAD-SECURITY.md)** — zip-slip / decompression-bomb caps, isolation, limits.
+- **[docs/TESTING.md](docs/TESTING.md)** — how to run the suites, coverage, and CI gates.
 - **[docs/ENV.md](docs/ENV.md)** — full environment-variable reference.
-- **[deploy/README.md](deploy/README.md)** — choosing and using a government deployment target.
+- **[deploy/README.md](deploy/README.md)** — choosing and using a deployment target (incl. Gov clouds).
 
 ## Deep scan (real scanners)
 

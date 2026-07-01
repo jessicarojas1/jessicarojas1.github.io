@@ -410,7 +410,123 @@ There are **no external assets**: Bootstrap CSS, Bootstrap Icons, Chart.js and a
 
 ---
 
-## 12. Notable Absences / Caveats (for new engineers)
+## 12. Configuration Model
+
+AEGIS reads **all** configuration at request time; there is no compiled or cached
+config. Three layers, in precedence order:
+
+1. **Environment variables** — `config/app.php` and `config/database.php` project
+   `$_ENV`/`getenv()` values into arrays. Sourced from `.env.local` → `.env` →
+   the process environment (12-factor; the `getenv()` merge is required because
+   `variables_order="GPCS"` leaves `$_ENV` empty on Docker/Render). Secret
+   indirection via `*_FILE` mounts (`Secrets::hydrate`) and optional KMS unwrap
+   (`Kms::hydrate`) resolve **before** the startup guards. This layer holds
+   **bootstrap** config: DB connection, `JWT_SECRET`, crypto keys, `APP_URL`,
+   `APP_ENV`, session/storage driver.
+2. **`settings` table (encrypted at rest)** — **runtime** operational config the
+   admin edits in the UI: SMTP, S3/storage, AI provider + key, branding, password
+   policy, upload limits, MFA enforcement. Sensitive values are AES-256-GCM
+   encrypted (`enc:` prefix). This is where SMTP/S3/AI live — **not** env vars.
+3. **Per-user / per-role** — RBAC role defaults (`Auth::$roleDefaults`) plus
+   `user_permissions` grants, and per-user notification/branding preferences.
+
+The precedence for secrets: a direct env value wins over a `*_FILE` mount; a set
+`APP_ENCRYPTION_KEY` wins over KMS unwrap. The full variable reference and the
+"template-only vs. code-read" distinction are in
+[`DEPLOYMENT.md` §7](DEPLOYMENT.md#7-environment-variable-reference).
+
+---
+
+## 13. Request & Error Contract
+
+### Routing contract
+
+- All paths rewrite to `index.php`. Method + normalized path are matched against
+  **static** route maps first (`$routes[$method][$uri]`), then **dynamic** regex
+  routes (`$dynamicRoutes[$method]`), with capture groups reflection-coerced to
+  the action's declared parameter types (see [§6](#6-routing--dispatch-mvc-ish)).
+- `/api/*` is delegated to `api/index.php`; `/healthz`, `/readyz`, `/health` are
+  handled before the route table. Unmatched → 404.
+
+### Response envelope
+
+- **HTML routes** render server-side PHP views; all user output flows through
+  `Security::h()` (`htmlspecialchars`, `ENT_QUOTES|ENT_HTML5`, UTF-8), and
+  `<script>` blocks carry the per-request CSP nonce.
+- **JSON routes** (`/api/*`, or when the client "wants JSON": `Accept:
+  application/json` / `X-Requested-With: XMLHttpRequest`) return a structured
+  body. Error bodies (`src/Errors.php`) have the shape:
+
+  ```json
+  {
+    "success": false,
+    "error": "Not Found",
+    "meta": { "status": 404, "request_id": "…", "timestamp": "…" }
+  }
+  ```
+
+  encoded with `JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT`.
+- Every response carries an **`X-Request-Id`** header (8 random bytes hex,
+  `AEGIS_REQUEST_ID`) for log correlation.
+
+### Error codes
+
+Error views exist for `400, 401, 403, 404, 419, 429, 500`
+(`views/errors/*.php`). `Errors::abort($code, $msg)` centralizes them and picks
+HTML vs. JSON. Notable mappings: **401** unauthenticated (redirect to `/login`
+for HTML), **403** permission denied (`Auth::requirePermission`), **419** CSRF
+expired/invalid, **429** rate-limited, **503** database unavailable
+(`Database::getInstance()` throws a catchable `RuntimeException('Database
+unavailable', 503)` — never `die()` mid-output). See [§7](#7-error-handling--logging).
+
+---
+
+## 14. Observability
+
+| Signal | How AEGIS exposes it | Notes |
+|---|---|---|
+| **Logs** | `error_log()` → Apache `ErrorLog /dev/stderr`, `TransferLog /dev/stdout` (12-factor). Lines are plain text prefixed `[AEGIS][{request_id}]` | No structured-log framework; ship container stdout/stderr to an aggregator |
+| **Health** | `/healthz` (liveness, DB `SELECT 1` + disk probe), `/readyz` (readiness). `/health` returns richer JSON with DB latency | Used by Docker `HEALTHCHECK`, Render `healthCheckPath`, K8s probes, CI smoke |
+| **Metrics** | Application-level GRC metrics (compliance %, risk trends, audit scores) rendered via Chart.js; `capture_metrics_snapshot.php` writes daily snapshots for trends. `ai_inference_log` records AI latency/tokens | **No** Prometheus `/metrics` endpoint — infra metrics come from the platform (Render/K8s/cloud) |
+| **Traces** | `X-Request-Id` per request for log correlation | No distributed tracing (no OpenTelemetry) — correlation is request-id based |
+| **Audit** | Tamper-evident hash-chained `activity_log`; verify with `scripts/verify_audit_log.php` | Security/accountability signal, not perf — see [`SECURITY.md`](SECURITY.md) |
+
+---
+
+## 15. Deployment Topology
+
+```mermaid
+graph LR
+    U["Users / API clients"] --> LB["TLS terminator\n(nginx / ingress / cloud LB)"]
+    LB --> APP1["AEGIS container\n(Apache+mod_php :8080, non-root)"]
+    LB --> APP2["AEGIS container\n(replica, SESSION_DRIVER=pg)"]
+    APP1 --> PG[("PostgreSQL 16\nManaged / Multi-AZ\nRLS per tenant")]
+    APP2 --> PG
+    APP1 --> OBJ["Object storage\nlocal volume | S3/MinIO/R2"]
+    APP2 --> OBJ
+    CRON["Cron/worker\n(scripts/*.php, single scheduler)"] --> PG
+    CRON --> SMTP["SMTP relay"]
+    CRON --> WH["Webhook targets"]
+    APP1 -. optional .-> AI["AI: Anthropic/OpenAI\nor self-hosted Ollama\n(air-gapped)"]
+    SEC["Secret manager / KMS\n(*_FILE, Vault, cloud KMS)"] -.-> APP1
+    SEC -.-> CRON
+```
+
+- **Stateless app tier** → scale to N replicas behind the LB; requires
+  `SESSION_DRIVER=pg` for shared sessions. The container never faces the internet
+  directly (TLS/nginx in front).
+- **Stateful stores** → PostgreSQL (source of truth, RLS-isolated per tenant) and
+  object storage (evidence/document binaries). See
+  [`DISASTER_RECOVERY.md`](DISASTER_RECOVERY.md) for what holds state, HA, and
+  backup/restore.
+- **Cron/worker** → runs the same image from a **single** scheduler; shares crypto
+  keys with the web tier. See [`DEPLOYMENT.md` §13](DEPLOYMENT.md#13-the-background--cron-worker-process).
+- Target-specific topologies (Render, single VM, K8s, AWS/GovCloud, Azure/Gov,
+  air-gapped) are in [`../deployments/`](../deployments/).
+
+---
+
+## 16. Notable Absences / Caveats (for new engineers)
 
 - **No framework, no Composer, no namespaces** — all classes are global and autoloaded from `src/` or `controllers/` only.
 - **No formal model layer** — persistence is direct parameterized SQL via the static `Database` wrapper; there is no ORM.

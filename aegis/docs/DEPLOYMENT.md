@@ -26,6 +26,10 @@ alternate Azure Container Apps and Kubernetes-friendly hardened-image paths).
 9. [The Least-Privilege Database Role](#9-the-least-privilege-database-role)
 10. [Deploy-From-Scratch Runbook](#10-deploy-from-scratch-runbook)
 11. [Troubleshooting](#11-troubleshooting)
+12. [Deployment Models & Target Guides](#12-deployment-models--target-guides)
+13. [The Background / Cron Worker Process](#13-the-background--cron-worker-process)
+14. [AI Advisor & Ollama (Self-Hosted / Air-Gapped LLM)](#14-ai-advisor--ollama-self-hosted--air-gapped-llm)
+15. [Production Readiness Checklist](#15-production-readiness-checklist)
 
 ---
 
@@ -667,9 +671,203 @@ the mailer cron scripts are scheduled.
 
 ---
 
+## 12. Deployment Models & Target Guides
+
+AEGIS is a single stateless container + Postgres + object storage, so it maps
+onto every common topology. Pick the target guide that matches your environment;
+each one is operator-grade (architecture, topology diagram, prerequisites,
+identity/least-privilege, env tables, verification, day-2 ops, troubleshooting):
+
+| Model | When to use | Guide |
+|---|---|---|
+| **Local development** | Laptop/dev via `docker-compose`; fast inner loop | [`../deployments/LOCAL_DEVELOPMENT.md`](../deployments/LOCAL_DEVELOPMENT.md) |
+| **Single Linux server** | One VM, nginx + TLS, systemd or compose, local backups | [`../deployments/SINGLE_LINUX_SERVER.md`](../deployments/SINGLE_LINUX_SERVER.md) |
+| **Kubernetes** | Manifests/Helm, ingress, CSI/ExternalSecrets, HPA/PDB, probes | [`../deployments/KUBERNETES.md`](../deployments/KUBERNETES.md) |
+| **Azure** | Commercial **and Azure Government** — AKS/App Service + Azure DB for PostgreSQL + Blob + Key Vault + Managed Identity + Entra ID | [`../deployments/AZURE.md`](../deployments/AZURE.md) |
+| **AWS** | **Commercial and GovCloud** — ECS/Fargate or EKS + RDS + S3 + Secrets Manager + IAM roles/IRSA + KMS | [`../deployments/AWS.md`](../deployments/AWS.md) |
+| **Air-gapped / IL5+** | Offline install, private registry mirror, no-internet secrets, **self-hosted LLM via Ollama** | [`../deployments/AIRGAPPED.md`](../deployments/AIRGAPPED.md) |
+| **Managed PaaS (Render)** | Fastest hosted path; blueprint provided | This doc, [§4](#4-the-deploy-process-render) + `render.yaml` |
+
+Related docs: [`ARCHITECTURE.md`](ARCHITECTURE.md) ·
+[`SECURITY.md`](SECURITY.md) · [`DISASTER_RECOVERY.md`](DISASTER_RECOVERY.md) ·
+[`DATABASE.md`](DATABASE.md) · [`DEPENDENCIES.md`](DEPENDENCIES.md).
+
+---
+
+## 13. The Background / Cron Worker Process
+
+AEGIS's time-based features are driven by **CLI scripts under `scripts/`**, not by
+an in-app scheduler or queue daemon. Every script is **CLI-guarded** (rejects a
+non-CLI SAPI) and **self-gating** (queries the DB for what is actually due), so it
+is safe to run on a fixed schedule and a no-op when nothing is pending.
+
+| Script | Purpose | Recommended cadence | `render.yaml` |
+|---|---|---|---|
+| `scripts/run_workflows.php` | Evaluate active automation rules; fire `create_alert` / `send_email` / `create_issue` on matching triggers (risk threshold, audit/policy/vendor overdue, incident severity, non-compliant control, scheduled) | script header says `*/5`; blueprint uses `*/15 * * * *` | `aegis-cron-workflows` |
+| `scripts/dispatch_webhooks.php` | Deliver pending `webhook_deliveries` (POST); exponential back-off, gives up after 5 attempts | `* * * * *` (every minute) | `aegis-cron-webhooks` |
+| `scripts/send_notifications.php` | 11 categories of email notifications by user preference; immediate + daily/weekly digest | `0 * * * *` (hourly) | `aegis-cron-notifications` |
+| `scripts/send_scheduled_reports.php` | Send scheduled GRC report emails; picks which schedules are due | `0 * * * *` (hourly) | `aegis-cron-reports` |
+| `scripts/drain_email_queue.php` | Retry emails that failed their immediate send (`email_queue`); exponential back-off, marks `failed` after max attempts | `*/5 * * * *` (every 5 min) | `aegis-cron-email` |
+| `scripts/capture_metrics_snapshot.php` | Daily GRC metrics snapshot for trend charts | `0 1 * * *` (daily 01:00) | `aegis-cron-metrics` |
+
+**How to run them per target:**
+
+- **Render** — `render.yaml` defines six `cron` services (one per script), each
+  running the **same Docker image** with `dockerCommand: php scripts/<name>.php`,
+  inheriting `JWT_SECRET` from the web service via `fromService` and reading the
+  shared `aegis-secrets` env-var group. Two operator caveats: Render `cron`
+  requires a **paid** instance plan (services are `plan: starter` while the web
+  service/DB are `free`), and the per-minute webhook cron cold-starts a container
+  each run. You may consolidate several hourly jobs into one service
+  (`sh -c 'php a && php b'`) to cut cost.
+- **docker-compose** — a dedicated `cron` service runs `run_workflows.php` +
+  `dispatch_webhooks.php` in a `while true; … sleep 60` loop as non-root
+  `www-data` with `cap_drop: ALL`. Add the other scripts to that loop or a host
+  crontab as needed.
+- **Kubernetes** — one `CronJob` per script (see
+  [`../deployments/KUBERNETES.md`](../deployments/KUBERNETES.md)).
+- **Single VM** — host `crontab` entries running `php /path/scripts/<name>.php`.
+
+> **Run from one scheduler only.** The jobs are idempotent but you should not fan
+> the same job across every app replica, or notifications/webhooks can double-send.
+> Every cron process must share the **same** `JWT_SECRET` / `APP_ENCRYPTION_KEY` /
+> `AUDIT_HMAC_KEY` as the web tier, or settings won't decrypt and the audit HMAC
+> chain will diverge across processes.
+
+---
+
+## 14. AI Advisor & Ollama (Self-Hosted / Air-Gapped LLM)
+
+AEGIS's optional **AI Advisor** (`src/AIAdvisor.php`) provides *advisory-only*
+control-gap suggestions and compliance narratives. It is **opt-in** (disabled
+until an admin sets a provider + key), has a global kill-switch (`ai_enabled`
+setting), redacts secrets/PII before egress, and logs every call to
+`ai_inference_log` and the audit trail. See [`SECURITY.md`](SECURITY.md) and the
+root `AIADVISOR.md` for the governance model.
+
+### 14.1 Hosted providers (current code)
+
+The shipped clients call **fixed, hard-coded HTTPS endpoints** (no user-supplied
+URL → no SSRF surface), configured via the encrypted `settings` table
+(`ai_settings` JSON, or `ai_provider` + `ai_api_key`), **not** environment
+variables:
+
+| Provider (`ai_provider`) | Endpoint | Model |
+|---|---|---|
+| `claude` (default) | `https://api.anthropic.com/v1/messages` | `claude-haiku-4-5-20251001` |
+| `openai` | `https://api.openai.com/v1/chat/completions` | `gpt-4o-mini` |
+
+For a hosted deployment, enable AI in the in-app **Settings** UI (provider + API
+key, encrypted at rest); no env var is involved.
+
+### 14.2 Ollama for self-hosted / air-gapped inference
+
+Air-gapped and data-sovereign deployments cannot reach `api.anthropic.com` or
+`api.openai.com`. **[Ollama](https://ollama.com)** runs open-weight models
+(Llama 3.x, Mistral, Qwen, etc.) entirely inside your network and exposes an
+**OpenAI-compatible Chat Completions API** at
+`http://<ollama-host>:11434/v1/chat/completions`.
+
+> **Implementation status (honest):** the current `src/AIAdvisor.php` OpenAI path
+> is pinned to `https://api.openai.com/...`. To route AEGIS to Ollama you must add
+> a small provider branch (or config-driven base URL) — the request/response
+> shape is already OpenAI-compatible, so the change is a **base-URL + model-name
+> swap**, plus (recommended) allowing the Ollama host through the `Ssrf` infra
+> guard since it is operator-configured internal infrastructure. Until that branch
+> exists, treat Ollama support as an **integration point**, not a shipped feature.
+> When AEGIS is deployed fully offline **without** that branch, simply leave AI
+> **disabled** (`ai_enabled=0`); every AI surface degrades gracefully to nothing.
+
+**Reference Ollama setup (Docker):**
+
+```bash
+# Pull and run Ollama, then load a model. Keep it on the internal network only.
+docker run -d --name ollama -p 11434:11434 \
+  -v ollama:/root/.ollama ollama/ollama:latest
+docker exec -it ollama ollama pull llama3.1:8b        # or mistral, qwen2.5, etc.
+
+# Smoke test the OpenAI-compatible endpoint AEGIS would call:
+curl -s http://localhost:11434/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"llama3.1:8b","messages":[{"role":"user","content":"ping"}]}'
+```
+
+Then point AEGIS's AI base URL at `http://ollama:11434/v1` (via the provider
+branch above) and set the model to the pulled tag. Full offline procedure — model
+bundling, private registry mirror, no-internet secrets — is in
+[`../deployments/AIRGAPPED.md`](../deployments/AIRGAPPED.md).
+
+### 14.3 GPU Acceleration for Ollama
+
+Ollama runs on CPU by default and **degrades gracefully to CPU** if no GPU is
+present (slower, but functional for small models). For acceptable latency on
+7B–70B models, use a GPU:
+
+| Environment | How to enable GPU | Degrade-to-CPU |
+|---|---|---|
+| **Docker (single host)** | Install the NVIDIA Container Toolkit, then `docker run --gpus all ... ollama/ollama`. Requires host NVIDIA driver + CUDA-capable GPU | Omit `--gpus`; Ollama auto-falls back to CPU |
+| **Kubernetes** | Deploy the **NVIDIA device plugin** DaemonSet; request `resources.limits: nvidia.com/gpu: 1` on the Ollama pod; schedule to a GPU node pool (taint/toleration or nodeSelector) | Pods without a GPU limit run CPU-only |
+| **AWS** | GPU instance types (e.g. `g5`/`g4dn`) for the node running Ollama; ECS with GPU task resource or EKS GPU node group + device plugin | CPU instance types run Ollama CPU-only |
+| **Azure** | GPU VM SKUs (NC/ND series) for the AKS GPU node pool + NVIDIA device plugin | Standard SKUs run CPU-only |
+
+Sizing rules of thumb: 8B models fit in ~6–8 GB VRAM (quantized); 70B needs
+~40+ GB VRAM or multi-GPU. Keep Ollama on a **private** network segment;
+AEGIS reaches it over cluster-internal DNS, never the public internet. AEGIS
+itself needs no GPU — only the Ollama inference host does.
+
+---
+
+## 15. Production Readiness Checklist
+
+Work through this before declaring a deployment production-ready. Cross-links to
+the controls that implement each item.
+
+### 15.1 Secrets & identity
+
+- [ ] `JWT_SECRET` set to a unique ≥ 32-char value (`php -r "echo bin2hex(random_bytes(32));"`); **not** the same across environments.
+- [ ] Dedicated `APP_ENCRYPTION_KEY` **and** `AUDIT_HMAC_KEY` set (do not rely on the `JWT_SECRET`-derived fallback in production — see [`SECURITY.md`](SECURITY.md) §12/§14).
+- [ ] Secrets delivered via `*_FILE` mounts or a secret manager / **KMS envelope** (`KMS_PROVIDER=vault|exec`), never plaintext env in a shared config. See [§8](#8-secret-mounts-_file-and-kms-envelope-encryption).
+- [ ] Cloud identity uses **IAM roles / workload identity / managed identity** (IRSA, Azure Managed Identity) — no long-lived static cloud keys.
+- [ ] `ADMIN_PASSWORD` rotated after first login; the generated bootstrap password not left in place.
+- [ ] Same crypto keys shared by the web tier **and every cron process**.
+- [ ] `.env` never committed (only `.env.example`).
+
+### 15.2 Transport & exposure
+
+- [ ] TLS terminated in front of the app (nginx/ingress/LB); app container never public directly.
+- [ ] `APP_URL` set to the exact public HTTPS origin (it is the CORS allow-origin and the production startup guard).
+- [ ] HSTS confirmed present on HTTPS responses (`Strict-Transport-Security`, auto-added by `Security::setSecurityHeaders`).
+- [ ] CSP intact (nonce-based, no external origins); `scripts/check_ui.php` green.
+- [ ] Trusted-proxy config correct (`TRUSTED_PROXY_IPS`) so client IP / rate-limit keys are accurate behind the LB.
+- [ ] Only ports 80/443 exposed publicly; DB and Ollama on private segments.
+
+### 15.3 Hardening
+
+- [ ] Runtime DB role is the **DML-only `aegis_app`** (`database/roles.sql`), not the migration owner.
+- [ ] Prefer the **hardened image** (`docker/Dockerfile.hardened`) with `runAsNonRoot`, `drop ALL` caps, `readOnlyRootFilesystem` + tmpfs for `/tmp`, `logs/`, `uploads/`.
+- [ ] Container runs as non-root `www-data` (uid 33) — verified by the CI `image-smoke` job.
+- [ ] Optional **WORM audit log**: enable the `REVOKE UPDATE, DELETE, TRUNCATE ON aegis.activity_log` block in `roles.sql` for CUI / legal-hold (see [`SECURITY.md`](SECURITY.md)).
+- [ ] MFA enforcement configured for privileged roles (`mfa_enforcement` setting); SSO/OIDC wired if used.
+- [ ] Supply-chain gates green: SBOM + Trivy (HIGH/CRITICAL), cosign signature + provenance verified for released images.
+
+### 15.4 Resilience & operations
+
+- [ ] Managed / HA PostgreSQL (Multi-AZ or replica + failover); automated backups / PITR enabled.
+- [ ] Object storage on **S3-class** storage (versioned) for any multi-replica or production deployment — not a local `uploads/` volume.
+- [ ] `SESSION_DRIVER=pg` set when running **more than one** app replica (shared sessions).
+- [ ] Background cron/worker jobs scheduled and running from **one** scheduler ([§13](#13-the-background--cron-worker-process)); SMTP configured so notifications actually send.
+- [ ] Health probes wired: `/healthz` (liveness), `/readyz` (readiness); orchestrator restart/rollback tested.
+- [ ] Backups **and restore drills** in place per [`DISASTER_RECOVERY.md`](DISASTER_RECOVERY.md); keys escrowed separately from the DB.
+- [ ] Logs shipped from container stdout/stderr to an aggregator; alerting on backup-job and cron failures.
+- [ ] `php tests/run.php` + `scripts/verify_migrations.php` + `verify_audit_log.php` green against the target.
+
+---
+
 *Everything above is derived from the repository sources: `render.yaml`,
-`Dockerfile`, `docker/Dockerfile.hardened`, `scripts/startup.sh`, `install.php`,
-`config/app.php`, `config/database.php`, `.env.example`, `database/roles.sql`,
-`src/Security.php`, `src/Secrets.php`, `src/Kms.php`, `index.php`, and the
-workflows in `.github/workflows/` (`ci.yml`, `aegis-integration.yml`,
-`release-aegis-image.yml`) and `aegis/.github/workflows/azure-deploy.yml`.*
+`Dockerfile`, `docker/Dockerfile.hardened`, `docker-compose.yml`, `docker/initdb.sh`,
+`scripts/startup.sh`, `scripts/*.php` (cron), `install.php`, `config/app.php`,
+`config/database.php`, `.env.example`, `database/roles.sql`, `src/AIAdvisor.php`,
+`src/Security.php`, `src/Secrets.php`, `src/Kms.php`, `src/Storage.php`,
+`index.php`, and the workflows in `.github/workflows/` (`ci.yml`,
+`aegis-integration.yml`, `release-aegis-image.yml`) and
+`aegis/.github/workflows/azure-deploy.yml`.*
