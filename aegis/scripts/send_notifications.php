@@ -213,6 +213,7 @@ $sentAwarenessOverdue   = 0;
 $sentControlRetestDue   = 0;
 $sentFindingOverdue     = 0;
 $sentVendorCertExpiring = 0;
+$sentVendorContractExp  = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -1855,6 +1856,93 @@ HTML;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// 9c. VENDOR CONTRACT EXPIRING / UP FOR RENEWAL  (vendor_contract_expiring)
+// ═══════════════════════════════════════════════════════════════════════════════
+// An active vendor contract is within its own renewal-notice window (or already
+// past its end date). Honours the per-contract renewal_notice_days (default 30)
+// rather than a fixed window. Alerts the contract OWNER (vendor_contracts.owner_id,
+// falling back to the vendor's creator).
+try {
+    $contractRows = Database::fetchAll(
+        "SELECT vc.id, vc.title, vc.contract_number, vc.end_date, vc.auto_renewal,
+                v.name AS vendor_name,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM vendor_contracts vc
+         JOIN vendors v ON v.id = vc.vendor_id
+         JOIN users u ON u.id = COALESCE(vc.owner_id, v.created_by)
+         WHERE vc.status = 'active'
+           AND vc.end_date IS NOT NULL
+           AND vc.end_date <= CURRENT_DATE + (COALESCE(vc.renewal_notice_days, 30) || ' days')::interval
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $contractByUser = [];
+    foreach ($contractRows as $row) {
+        $contractByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($contractByUser as $userId => $contracts) {
+        $userId = (int) $userId;
+        if (!notifEnabled($userId, 'vendor_contract_expiring')) {
+            continue;
+        }
+        $email    = $contracts[0]['email'];
+        $userName = $contracts[0]['user_name'];
+
+        foreach ($contracts as $ct) {
+            // Throttle: one reminder per contract per 7 days.
+            if (alreadyNotified($userId, 'vendor_contract_expiring', 'vendor_contract', (int) $ct['id'], 604800)) {
+                continue;
+            }
+
+            $daysLeft    = (int) floor((strtotime($ct['end_date']) - strtotime('today')) / 86400);
+            $endDate     = date('M j, Y', strtotime($ct['end_date']));
+            $lapsed      = $daysLeft < 0;
+            $statusText  = $lapsed ? 'expired ' . abs($daysLeft) . ' day' . (abs($daysLeft) === 1 ? '' : 's') . ' ago'
+                                   : 'expiring in ' . $daysLeft . ' day' . ($daysLeft === 1 ? '' : 's');
+            $autoNote    = $ct['auto_renewal'] ? ' <em>(auto-renewal is enabled — confirm terms)</em>' : '';
+            $ctTitle     = htmlspecialchars($ct['title'], ENT_QUOTES, 'UTF-8');
+            $ctNum       = htmlspecialchars($ct['contract_number'] ?? '', ENT_QUOTES, 'UTF-8');
+            $vendorName  = htmlspecialchars($ct['vendor_name'], ENT_QUOTES, 'UTF-8');
+            $ctLabel     = $ctNum !== '' ? "{$ctTitle} ({$ctNum})" : $ctTitle;
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A vendor contract you own is <span style="color:#ef4444;font-weight:600">{$statusText}</span>{$autoNote} and needs review:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Vendor</th>
+    <th style="padding:8px;text-align:left">Contract</th>
+    <th style="padding:8px;text-align:left">End date</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$vendorName}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$ctLabel}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$endDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to renew, renegotiate or update this contract.</p>
+HTML;
+
+            $subject = "Vendor contract {$statusText}: {$ct['title']} ({$ct['vendor_name']})";
+            $body    = emailShell('Vendor Contract Expiring', $inner);
+
+            $sent = maybeSendOrQueue(
+                $userId, 'vendor_contract_expiring', $email, $userName, $subject, $body,
+                ['contract' => $ct, 'daysLeft' => $daysLeft, 'endDate' => $endDate]
+            );
+            if ($sent) {
+                logNotification($userId, 'vendor_contract_expiring', 'vendor_contract', (int) $ct['id']);
+                $sentVendorContractExp++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[vendor_contract_expiring] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // 10. DOCUMENT EXPIRING
 // Query: documents WHERE expiry_date BETWEEN today AND today+30
 //        AND status NOT IN ('archived','expired') AND owner_id IS NOT NULL
@@ -2175,6 +2263,7 @@ if (!empty($digestQueue)) {
         'control_retest_due'         => 'Control Re-test Due',
         'finding_remediation_overdue' => 'Audit Finding Remediation Overdue',
         'vendor_cert_expiring'        => 'Vendor Certifications Expiring',
+        'vendor_contract_expiring'    => 'Vendor Contracts Expiring',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -2311,4 +2400,5 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentBcpExerciseOverdue} BCP exercises overdue, {$sentBcpPlanReviewDue} BCP plans due, "
    . "{$sentPoamOverdue} POA&M overdue, {$sentAwarenessOverdue} training overdue, "
    . "{$sentControlRetestDue} control re-tests due, {$sentFindingOverdue} findings overdue, "
-   . "{$sentVendorCertExpiring} vendor certs expiring, {$sentDigests} digest(s) sent\n";
+   . "{$sentVendorCertExpiring} vendor certs expiring, {$sentVendorContractExp} vendor contracts expiring, "
+   . "{$sentDigests} digest(s) sent\n";

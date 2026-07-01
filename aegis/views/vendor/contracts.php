@@ -156,10 +156,15 @@ $urgent = array_filter($expiring, function($c) {
             <td style="font-size:13px;white-space:nowrap">
               <?php if ($c['end_date']): ?>
                 <?php
-                  $dLeft = (int)ceil((strtotime($c['end_date']) - time()) / 86400);
-                  $endColor = ($c['status'] === 'active' && $dLeft <= 30) ? 'var(--danger)' : (($c['status'] === 'active' && $dLeft <= 60) ? 'var(--warning)' : 'inherit');
+                  $renewal  = VendorController::contractRenewalStatus($c['end_date'], $c['status'], isset($c['renewal_notice_days']) ? (int)$c['renewal_notice_days'] : null);
+                  $endColor = $renewal === 'expired' ? 'var(--danger)' : ($renewal === 'due' ? 'var(--warning)' : 'inherit');
                 ?>
                 <span style="color:<?= $endColor ?>"><?= date('M j, Y', strtotime($c['end_date'])) ?></span>
+                <?php if ($renewal === 'expired'): ?>
+                  <span class="badge badge-danger" style="font-size:0.68rem"><i class="bi bi-calendar-x"></i> Expired</span>
+                <?php elseif ($renewal === 'due'): ?>
+                  <span class="badge badge-warning" style="font-size:0.68rem"><i class="bi bi-clock-history"></i> Renewal due</span>
+                <?php endif; ?>
               <?php else: ?>—<?php endif; ?>
             </td>
             <td style="text-align:center">

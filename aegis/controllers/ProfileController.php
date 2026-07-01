@@ -35,6 +35,7 @@ class ProfileController {
             'bcp_exercise_overdue','bcp_plan_review_due','poam_item_overdue',
             'awareness_training_overdue','control_retest_due',
             'finding_remediation_overdue','vendor_cert_expiring',
+            'vendor_contract_expiring',
         ];
         foreach ($types as $type) {
             $enabled = isset($_POST['types'][$type]);
