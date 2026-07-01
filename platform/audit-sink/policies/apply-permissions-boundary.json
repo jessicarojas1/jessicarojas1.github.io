@@ -1,0 +1,152 @@
+{
+  "//": "Reference IAM PERMISSIONS BOUNDARY for the Terraform *apply* role that provisions the audit-sink. The apply role is external to this module (assumed via CI OIDC), so attach this boundary to it out-of-band: create it as an IAM managed policy and set the apply role's PermissionsBoundary to its ARN. It CAPS the apply role to exactly the service surface the module touches and forces any IAM role the apply role creates to itself carry a permissions boundary (iam:PermissionsBoundary condition). Replace 123456789012 with your account id and aws with aws-us-gov in GovCloud.",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "KmsForSinkCmk",
+      "Effect": "Allow",
+      "Action": [
+        "kms:CreateKey",
+        "kms:CreateAlias",
+        "kms:DeleteAlias",
+        "kms:TagResource",
+        "kms:PutKeyPolicy",
+        "kms:GetKeyPolicy",
+        "kms:GetKeyRotationStatus",
+        "kms:EnableKeyRotation",
+        "kms:DescribeKey",
+        "kms:ScheduleKeyDeletion",
+        "kms:ListAliases",
+        "kms:ListResourceTags"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "S3ForAuditAndStateBuckets",
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:PutBucketPolicy",
+        "s3:GetBucketPolicy",
+        "s3:PutBucketVersioning",
+        "s3:GetBucketVersioning",
+        "s3:PutBucketPublicAccessBlock",
+        "s3:GetBucketPublicAccessBlock",
+        "s3:PutEncryptionConfiguration",
+        "s3:GetEncryptionConfiguration",
+        "s3:PutBucketObjectLockConfiguration",
+        "s3:GetBucketObjectLockConfiguration",
+        "s3:PutLifecycleConfiguration",
+        "s3:GetLifecycleConfiguration",
+        "s3:PutBucketOwnershipControls",
+        "s3:GetBucketOwnershipControls",
+        "s3:PutReplicationConfiguration",
+        "s3:GetReplicationConfiguration",
+        "s3:PutBucketTagging",
+        "s3:GetBucketTagging",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::*-audit-sink-*",
+        "arn:aws:s3:::*-tfstate-*"
+      ]
+    },
+    {
+      "Sid": "LogsAndFirehoseAndSnsAndAlarms",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:DeleteLogGroup",
+        "logs:PutRetentionPolicy",
+        "logs:AssociateKmsKey",
+        "logs:CreateLogStream",
+        "logs:PutSubscriptionFilter",
+        "logs:DeleteSubscriptionFilter",
+        "logs:PutMetricFilter",
+        "logs:DeleteMetricFilter",
+        "logs:TagResource",
+        "logs:DescribeLogGroups",
+        "logs:ListTagsForResource",
+        "firehose:CreateDeliveryStream",
+        "firehose:DeleteDeliveryStream",
+        "firehose:UpdateDestination",
+        "firehose:DescribeDeliveryStream",
+        "firehose:TagDeliveryStream",
+        "firehose:ListTagsForDeliveryStream",
+        "sns:CreateTopic",
+        "sns:DeleteTopic",
+        "sns:Subscribe",
+        "sns:SetTopicAttributes",
+        "sns:GetTopicAttributes",
+        "sns:TagResource",
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:DeleteAlarms",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:TagResource",
+        "dynamodb:CreateTable",
+        "dynamodb:DeleteTable",
+        "dynamodb:DescribeTable",
+        "dynamodb:DescribeContinuousBackups",
+        "dynamodb:UpdateContinuousBackups",
+        "dynamodb:TagResource",
+        "dynamodb:ListTagsOfResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "IamForModuleServiceRolesOnly",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:GetRole",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:GetRolePolicy",
+        "iam:CreatePolicy",
+        "iam:DeletePolicy",
+        "iam:GetPolicy",
+        "iam:GetPolicyVersion",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies",
+        "iam:TagRole",
+        "iam:TagPolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::123456789012:role/*-audit-*",
+        "arn:aws:iam::123456789012:policy/*-audit-*"
+      ]
+    },
+    {
+      "Sid": "RequireBoundaryOnCreatedRoles",
+      "Effect": "Deny",
+      "Action": [
+        "iam:CreateRole",
+        "iam:PutRolePermissionsBoundary"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "iam:PermissionsBoundary": "arn:aws:iam::123456789012:policy/audit-sink-service-role-boundary"
+        }
+      }
+    },
+    {
+      "Sid": "DenyBoundaryTampering",
+      "Effect": "Deny",
+      "Action": [
+        "iam:DeleteRolePermissionsBoundary",
+        "iam:DeletePolicy",
+        "iam:DeletePolicyVersion",
+        "iam:CreatePolicyVersion",
+        "iam:SetDefaultPolicyVersion"
+      ],
+      "Resource": [
+        "arn:aws:iam::123456789012:policy/audit-sink-apply-permissions-boundary",
+        "arn:aws:iam::123456789012:policy/audit-sink-service-role-boundary"
+      ]
+    }
+  ]
+}

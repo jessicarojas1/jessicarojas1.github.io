@@ -37,9 +37,21 @@ Data sources: `aws_caller_identity`, `aws_partition`, `aws_region`.
 | `aws_cloudwatch_log_subscription_filter.audit` (for_each) | Forwards all log events (`subscription_filter_pattern`) to Firehose |
 | `aws_iam_policy.writer` + `aws_iam_role_policy_attachment.writer` (for_each `writer_principal_arns`) | Append-only `logs:CreateLogStream`+`logs:PutLogEvents` on the audit groups; attached to each source-app role |
 | `aws_iam_role.legal_hold[0]` + `aws_iam_role_policy.legal_hold[0]` | (when `enable_legal_hold_role`) MFA-gated role that may `s3:PutObjectLegalHold`/`GetObjectLegalHold` — separation of duties |
+| `aws_sns_topic.alarms[0]` + `aws_sns_topic_subscription.alarms_email[0]` | (when `enable_delivery_alarm`) SNS topic (AWS-managed-key encrypted) + optional email sub for delivery alarms |
+| `aws_cloudwatch_log_metric_filter.firehose_errors[0]` + `aws_cloudwatch_metric_alarm.firehose_errors[0]` | Metric filter on `_firehose-errors` → alarm on any delivery error → SNS |
+| `aws_cloudwatch_metric_alarm.firehose_freshness[0]` | Alarm on `DeliveryToS3.DataFreshness > var.delivery_freshness_alarm_seconds` (silent stall) → SNS |
+| `aws_iam_role.replication[0]` + `aws_iam_role_policy.replication[0]` + `aws_s3_bucket_replication_configuration.audit[0]` | (when `enable_crr`) CRR role (min `Get*ForReplication`/`ReplicateObject` + source/replica KMS) and replication rule to the `replica/` destination bucket; delete markers not replicated |
+| `permissions_boundary` on all module roles | Attached when `permissions_boundary_arn` is set |
 
 Outputs: `bucket_name`, `bucket_arn`, `kms_key_arn`, `log_group_names` (map),
-`log_group_arns`, `firehose_stream_arn`, `writer_policy_arn`, `legal_hold_role_arn`.
+`log_group_arns`, `firehose_stream_arn`, `writer_policy_arn`, `legal_hold_role_arn`,
+`delivery_alarm_topic_arn`, `replication_role_arn`.
+
+The remote-state backend (S3 + DynamoDB lock + KMS) is provisioned by the
+[`../bootstrap/`](../bootstrap) module and bound via
+`terraform init -backend-config=backend.hcl` (see [DEPLOYMENT.md](../docs/DEPLOYMENT.md)).
+Cross-region replication uses the [`../audit-sink/replica/`](../audit-sink/replica)
+submodule for the Object-Locked destination bucket.
 
 ## 2. Topology
 
@@ -68,7 +80,7 @@ Outputs: `bucket_name`, `bucket_arn`, `kms_key_arn`, `log_group_names` (map),
 | Terraform | `>= 1.6.0` |
 | AWS provider | `>= 5.40.0, < 6.0.0` |
 | AWS account | Commercial or GovCloud; Object Lock, Firehose→S3, SSE-KMS all available in GovCloud |
-| A Terraform state backend | S3 + DynamoDB lock (see §8 and [DISASTER_RECOVERY.md](../docs/DISASTER_RECOVERY.md)) — `versions.tf` has **no backend block**, so configure one |
+| A Terraform state backend | S3 + DynamoDB lock + KMS — provision with [`../bootstrap/`](../bootstrap), bind via `backend.tf` + `terraform init -backend-config=backend.hcl` (see §8) |
 | Deploy identity | An OIDC-assumed **role** (§4), not static keys |
 
 ## 4. Identity & credentials
@@ -126,14 +138,20 @@ automatically — no code change needed to switch partitions.
 | `kms_deletion_window_days` | `30` | Deletion window for a created CMK |
 | `firehose_buffer_size_mb` | `5` | Firehose buffer (MB) before S3 flush (1–128) |
 | `firehose_buffer_interval_seconds` | `300` | Firehose buffer (s) before flush (60–900) |
-| `writer_principal_arns` | `["arn:aws-us-gov:iam::123…:role/aegis-task"]` | App roles granted append-only log access |
+| `writer_principal_arns` | `["arn:aws-us-gov:iam::123…:role/aegis-task"]` | App roles granted append-only log access. **Plain role ARNs only** — no path/user/STS session (enforced by a `validation` block; the module extracts the role name with `regex("role/(.+)$", …)`) |
 | `enable_legal_hold_role` | `true` | Create the MFA-gated legal-hold role |
+| `permissions_boundary_arn` | `""` | IAM boundary attached to every role the module creates |
+| `enable_delivery_alarm` | `true` | CloudWatch delivery-error + freshness alarms → SNS |
+| `alarm_email` | `""` | Email subscribed to the alarm SNS topic (optional) |
+| `delivery_freshness_alarm_seconds` | `900` | Data-freshness alarm threshold (seconds) |
+| `enable_crr` | `false` | Cross-region replication to the `replica/` Object-Locked bucket |
+| `crr_destination_bucket_arn` / `crr_replica_kms_key_arn` | (from `replica/`) | Destination bucket + replica CMK (required when `enable_crr = true`) |
 
 ## 7. Verification
 
 ```bash
 cd platform/audit-sink
-terraform init            # downloads hashicorp/aws >= 5.40
+terraform init -backend-config=backend.hcl   # downloads hashicorp/aws >= 5.40; remote state
 terraform validate        # "Success! The configuration is valid."
 terraform plan            # review the resource graph — clean
 terraform apply
@@ -163,8 +181,14 @@ control being verified is *write-once immutability and least-privilege*, not upt
 
 ## 8. Day-2 operations
 
-- **Remote state:** configure an S3 backend + DynamoDB state lock **before** prod
-  applies (`versions.tf` ships without a `backend` block). Encrypt state with KMS.
+- **Remote state:** provision the backend with `../bootstrap` (S3 versioned + SSE-KMS,
+  DynamoDB `LockID` lock, rotated CMK) **before** prod applies, then
+  `terraform init -backend-config=backend.hcl`. `backend.tf` sets `key` + `encrypt`;
+  `backend.hcl` (git-ignored) supplies bucket/region/table/key.
+- **Delivery monitoring:** `enable_delivery_alarm` (default) creates the error + stall
+  alarms and an SNS topic; subscribe `delivery_alarm_topic_arn` to your on-call.
+- **Regional durability:** set `enable_crr = true` with the `../audit-sink/replica/`
+  submodule to replicate the archive to a second Object-Locked bucket/region.
 - **Provider upgrades:** stay within `>= 5.40.0, < 6.0.0`; `terraform init -upgrade`,
   re-`plan`.
 - **Adding a source app:** append its base name to `log_group_names` and its role

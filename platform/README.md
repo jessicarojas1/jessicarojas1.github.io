@@ -1,5 +1,8 @@
 # platform — shared GRC infrastructure
 
+[![audit-sink](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/platform-audit-sink.yml/badge.svg)](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/platform-audit-sink.yml)
+[![base-images](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/platform-base-images.yml/badge.svg)](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/platform-base-images.yml)
+
 `platform` is the **shared-infrastructure** directory for the GRC monorepo. It is not
 an application — it packages the security-critical building blocks the apps (aegis,
 apex, paladin, sentinel-qms, citadel) reuse instead of re-implementing by hand:
@@ -40,7 +43,10 @@ apex, paladin, sentinel-qms, citadel) reuse instead of re-implementing by hand:
 ```
 platform/
 ├── audit-sink/         # Terraform module (AWS): main.tf, variables.tf, outputs.tf,
-│                       # versions.tf, terraform.tfvars.example, README.md
+│   │                   # versions.tf, backend.tf, backend.hcl.example, README.md
+│   ├── replica/        # CRR destination submodule (hardened Object-Locked bucket)
+│   └── policies/       # apply-permissions-boundary.json (reference IAM boundary)
+├── bootstrap/          # Terraform remote-state backend (S3 + DynamoDB lock + KMS)
 ├── base-images/        # Dockerfile.node, Dockerfile.php-apache, README.md
 ├── deployments/        # 6 operator guides (LOCAL/SINGLE_LINUX/K8S/AWS/AZURE/AIRGAPPED)
 ├── docs/               # ARCHITECTURE, DEPLOYMENT, DISASTER_RECOVERY, SECURITY
@@ -110,9 +116,18 @@ placeholder because this is an infra module, not a Render web service.
 
 ## Build status
 
-No CI badge is wired for this directory yet (see [OPEN_ITEMS.md](OPEN_ITEMS.md)).
-Local gate: `terraform fmt -check` + `terraform validate` clean and both base images
-build.
+Two GitHub Actions workflows gate this directory (badges above):
+
+- **`platform-audit-sink.yml`** — `terraform fmt -check -recursive`, `validate`
+  (`-backend=false`), **Trivy config** (tfsec engine, HIGH/CRITICAL hard gate), and
+  **Checkov** policy-as-code (SARIF).
+- **`platform-base-images.yml`** — builds both hardened bases and runs a **Trivy**
+  image scan (HIGH/CRITICAL gate); on a `platform-images-v*` tag it pushes to GHCR and
+  signs the digests with **keyless cosign** + SBOM/SLSA provenance.
+
+Local gate: `terraform fmt -check -recursive` clean (verified) and both base images
+build. `terraform validate`/`plan` need the AWS provider from the Terraform Registry
+(blocked by egress policy in some build envs) — they run in the CI workflow.
 
 ## Documentation
 

@@ -41,3 +41,13 @@ output "legal_hold_role_arn" {
   description = "ARN of the separation-of-duties role permitted to toggle S3 Object Lock legal holds (null if disabled)."
   value       = var.enable_legal_hold_role ? aws_iam_role.legal_hold[0].arn : null
 }
+
+output "delivery_alarm_topic_arn" {
+  description = "ARN of the SNS topic that receives Firehose delivery-error / stall alarms (null if enable_delivery_alarm = false)."
+  value       = var.enable_delivery_alarm ? aws_sns_topic.alarms[0].arn : null
+}
+
+output "replication_role_arn" {
+  description = "ARN of the S3 cross-region replication role (null if enable_crr = false)."
+  value       = var.enable_crr ? aws_iam_role.replication[0].arn : null
+}

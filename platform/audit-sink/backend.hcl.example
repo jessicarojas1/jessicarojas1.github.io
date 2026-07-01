@@ -1,0 +1,18 @@
+# Partial backend configuration for the audit-sink remote state.
+# Copy to backend.hcl and fill in with the outputs of the bootstrap module
+# (../bootstrap). Then:  terraform init -backend-config=backend.hcl
+#
+# NEVER commit a real backend.hcl (it is git-ignored) — it names your state
+# bucket, lock table, and CMK. `key` and `encrypt` are already set in backend.tf.
+
+# S3 bucket holding the state object (versioned, SSE-KMS, TLS-only).
+bucket = "platform-tfstate-123456789012"
+
+# Region of the state bucket + lock table. Use a us-gov-* region for GovCloud.
+region = "us-gov-west-1"
+
+# DynamoDB table used for state locking (hash key: LockID).
+dynamodb_table = "platform-tfstate-locks"
+
+# CMK that encrypts the state object at rest (SSE-KMS).
+kms_key_id = "arn:aws-us-gov:kms:us-gov-west-1:123456789012:key/00000000-0000-0000-0000-000000000000"

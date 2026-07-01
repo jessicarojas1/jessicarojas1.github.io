@@ -46,24 +46,32 @@ as if they exist.
   `no-new-privileges`.
 - **Never commit a real `terraform.tfvars`** — only `terraform.tfvars.example` with
   placeholder ARNs. No secrets in the repo.
-- **Terraform state is critical state** — remote backend + locking + KMS encryption
-  (currently missing a `backend` block — see OPEN_ITEMS.md).
+- **Terraform state is critical state** — remote backend + locking + KMS encryption.
+  `audit-sink/backend.tf` holds a partial `backend "s3"`; `bootstrap/` provisions the
+  S3 bucket + DynamoDB lock + CMK; bind with `terraform init -backend-config=backend.hcl`.
+  Never commit `backend.hcl` (git-ignored).
 
 ## Where things live
 
 ```
-audit-sink/   main.tf variables.tf outputs.tf versions.tf terraform.tfvars.example README.md
+audit-sink/   main.tf variables.tf outputs.tf versions.tf backend.tf backend.hcl.example
+              terraform.tfvars.example README.md
+audit-sink/replica/   CRR destination submodule (Object-Locked bucket + CMK)
+audit-sink/policies/  apply-permissions-boundary.json (reference IAM boundary)
+bootstrap/    Terraform remote-state backend (S3 + DynamoDB lock + KMS)
 base-images/  Dockerfile.node Dockerfile.php-apache README.md
 deployments/  LOCAL_DEVELOPMENT SINGLE_LINUX_SERVER KUBERNETES AZURE AWS AIRGAPPED (.md)
 docs/         ARCHITECTURE DEPLOYMENT DISASTER_RECOVERY SECURITY (.md)
+.github/workflows/  platform-audit-sink.yml  platform-base-images.yml (repo root)
 README.md OPEN_ITEMS.md CLAUDE.md render.yaml
 ```
 
 ## Build / test / deploy
 
 ```bash
-# audit-sink
-cd audit-sink && terraform fmt -check && terraform init && terraform validate && terraform plan
+# audit-sink (backend provisioned once via ../bootstrap)
+cd audit-sink && terraform fmt -check -recursive
+terraform init -backend-config=backend.hcl && terraform validate && terraform plan
 terraform apply           # AWS; uses an OIDC-assumed role
 
 # base-images (build context = repo root)

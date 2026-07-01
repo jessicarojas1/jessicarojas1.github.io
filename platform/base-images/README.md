@@ -39,22 +39,48 @@ Every image in this directory enforces the same baseline:
    writable path needed is `/tmp` (mount it as `tmpfs`). Mount app data dirs
    (`uploads/`, `logs/`) as named volumes/tmpfs.
 
+## CI: build · scan · sign
+
+`.github/workflows/platform-base-images.yml` gates these images:
+
+- **Every push/PR** touching `base-images/**` builds both images and runs a **Trivy**
+  image scan with a **HIGH/CRITICAL** hard gate (`ignore-unfixed`, `os,library`) — so
+  CVE exposure between digest re-pins is caught.
+- **On a `platform-images-v*` tag** the images are pushed to **GHCR**
+  (`ghcr.io/<owner>/platform/php-apache`, `…/platform/node`), get a BuildKit **SBOM +
+  SLSA provenance** and a GitHub build-provenance attestation, and are signed with
+  **keyless cosign** (Sigstore / GitHub OIDC) with a `cosign verify` gate.
+
+Verify a published image locally:
+
+```bash
+cosign verify ghcr.io/<owner>/platform/php-apache@sha256:<digest> \
+  --certificate-identity-regexp '^https://github.com/<owner>/<repo>/' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
+```
+
 ## How an app adopts a base
 
-These bases are referenced **by path** today (build them as named local images,
-or push them to your registry and reference by name). Example adoption for a
-PHP-Apache app:
+Two adoption paths:
+
+**A. By registry tag (recommended once published).** After a `platform-images-v*`
+release, reference the signed image by name+tag (or, best, by digest):
 
 ```dockerfile
-# 1. Build the base once (or pull it from your registry):
-#    docker build -f platform/base-images/Dockerfile.php-apache -t platform/php-apache:1 .
-#
-# 2. App Dockerfile becomes:
-FROM platform/php-apache:1
+FROM ghcr.io/<owner>/platform/php-apache:<tag>
 COPY --chown=www-data:www-data . /var/www/html
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
     CMD curl -fsS http://localhost:8080/healthz || exit 1
 # USER www-data and EXPOSE 8080 are already set by the base.
+```
+
+**B. By local build (path).** Before publishing, build the base as a named local image
+and reference it by name:
+
+```dockerfile
+# docker build -f platform/base-images/Dockerfile.php-apache -t platform/php-apache:1 .
+FROM platform/php-apache:1
+COPY --chown=www-data:www-data . /var/www/html
 ```
 
 Recommended runtime hardening (compose / Kubernetes) to go with these images:
