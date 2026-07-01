@@ -2,6 +2,59 @@
 
 A native SwiftUI pickleball scorekeeper and stats app for **iOS 17+** and **macOS 14+**.
 
+> **Build status:** Phase 1 feature-complete. No CI configured yet and no `Tests/` target exists
+> (`swift test` reports "no tests"). A Linux SwiftPM compile-check image is provided in
+> [`Dockerfile`](Dockerfile). Real app builds require Xcode/`xcodebuild` on macOS.
+
+## Documentation & Deployment
+
+Full operator-grade documentation and deployment guides live alongside this app:
+
+**docs/**
+- [Architecture](docs/ARCHITECTURE.md) — SwiftPM layout, data model, serve state machine, on-device data flow
+- [Deployment](docs/DEPLOYMENT.md) — build → sign → distribute (Simulator, TestFlight, App Store, Ad-Hoc, MDM)
+- [Disaster Recovery](docs/DISASTER_RECOVERY.md) — git + signing-asset backup/restore runbook
+- [Security](docs/SECURITY.md) — on-device data protection, permissions, signing identity, reporting
+
+**deployments/**
+- [Local Development](deployments/LOCAL_DEVELOPMENT.md) — Xcode + Simulator, SwiftPM compile-check caveats
+- [Single Linux Server](deployments/SINGLE_LINUX_SERVER.md) — N/A for on-device app; CI/build host equivalent
+- [Kubernetes](deployments/KUBERNETES.md) — N/A for the app; k8s-based compile-check pipeline
+- [Azure](deployments/AZURE.md) — build pipeline + Key Vault + Intune (Commercial + Government)
+- [AWS](deployments/AWS.md) — build pipeline + Secrets Manager + distribution (Commercial + GovCloud)
+- [Air-Gapped](deployments/AIRGAPPED.md) — offline build + internal MDM (no external deps)
+
+See also: [OPEN_ITEMS.md](OPEN_ITEMS.md) (production-readiness register) · [CLAUDE.md](CLAUDE.md) (project guidance).
+
+## Technology
+
+- **Language / build:** Swift 5.9, Swift Package Manager (`swift-tools-version: 5.9`), single `.executableTarget`
+- **Platforms:** iOS 17+, macOS 14+
+- **Frameworks (Apple only):** SwiftUI, SwiftData (`ModelContainer(for: PBMatch.self, PBGame.self)`), MapKit (`MKLocalSearch`), CoreLocation (`CLLocationManager`)
+- **Concurrency:** experimental **`StrictConcurrency`** feature enabled in `Package.swift` (compile-time data-race checks)
+- **Dependencies:** **none** — no external SwiftPM packages; Apple frameworks only (trivial air-gap, minimal supply-chain risk)
+
+## Prerequisites
+
+- macOS 14+ with **Xcode 15+** (bundles the Swift 5.9 toolchain + iOS 17 SDK/Simulator)
+- Apple Developer account (free for Simulator/personal device; paid for TestFlight/App Store)
+- A signing **Team** + Bundle Identifier for on-device/distribution builds
+- (optional) Docker + `swift:slim` for the Linux compile-check ([`Dockerfile`](Dockerfile))
+
+## Common Commands
+
+```bash
+swift build       # compile the package (Linux = compile-check only; app needs macOS/Xcode)
+swift test        # no Tests/ target yet → "no tests"
+
+# Full app build for a Simulator (macOS + Xcode)
+xcodebuild -scheme PickleTrack -destination 'platform=iOS Simulator,name=iPhone 15' build
+
+# Archive + export a signed .ipa (see docs/DEPLOYMENT.md)
+xcodebuild -scheme PickleTrack -destination 'generic/platform=iOS' \
+  -archivePath build/PickleTrack.xcarchive archive
+```
+
 ## Features
 
 - **Live Scoring** — tap to score points with full side-out serving logic (first-serve rule, server rotation in doubles)
