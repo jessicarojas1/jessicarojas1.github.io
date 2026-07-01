@@ -16,8 +16,14 @@ export default function TrainingListPage() {
   const ctl = useListController({ sort: 'due_date', order: 'asc' });
   const { data, isLoading, error } = trainingHooks.useList(ctl.params, { enabled: tab === 'records' });
 
+  // Distinct department values present in the current result set (sorted) for the filter dropdown.
+  const departments = Array.from(
+    new Set((data?.items ?? []).map((r) => r.department).filter((d): d is string => !!d)),
+  ).sort((a, b) => a.localeCompare(b));
+
   const columns: Column<TrainingRecord>[] = [
     { key: 'employee_name', header: 'Employee', sortable: true, render: (r) => <strong>{r.employee_name}</strong> },
+    { key: 'department', header: 'Dept', render: (r) => r.department ?? '—' },
     { key: 'course', header: 'Course', sortable: true },
     { key: 'course_code', header: 'Code', render: (r) => r.course_code ? <span className="mono">{r.course_code}</span> : '—' },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
@@ -64,14 +70,24 @@ export default function TrainingListPage() {
           onPageChange={ctl.setPage}
         exportFilename="training"
           filters={
-            <div className="field">
-              <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>
-                <option value="">All statuses</option>
-                {['assigned', 'in_progress', 'completed', 'overdue'].map((s) => (
-                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
-                ))}
-              </Select>
-            </div>
+            <>
+              <div className="field">
+                <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>
+                  <option value="">All statuses</option>
+                  {['assigned', 'in_progress', 'completed', 'overdue'].map((s) => (
+                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  ))}
+                </Select>
+              </div>
+              <div className="field">
+                <Select aria-label="Filter by department" value={ctl.filters.department ?? ''} onChange={(e) => ctl.setFilter('department', e.target.value)}>
+                  <option value="">All departments</option>
+                  {departments.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </Select>
+              </div>
+            </>
           }
         />
       ) : (
