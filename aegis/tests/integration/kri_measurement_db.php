@@ -36,12 +36,12 @@ if (!$owner) fail('could not seed owner');
 $mkKri = function (string $title, string $freq, ?int $ownerId, bool $active, int $createdDaysAgo): int {
     return (int) (Database::fetchOne(
         "INSERT INTO kris (title,unit,direction,threshold_green,threshold_amber,threshold_red,frequency,owner_id,is_active,created_at)
-         VALUES (?, 'count','higher_worse',10,20,30,?,?,?, NOW() - (? || ' days')::interval) RETURNING id",
-        [$title, $freq, $ownerId, $active, $createdDaysAgo]
+         VALUES (?, 'count','higher_worse',10,20,30,?,?,?::boolean, NOW() - (? || ' days')::interval) RETURNING id",
+        [$title, $freq, $ownerId, $active ? 'true' : 'false', $createdDaysAgo]
     )['id'] ?? 0);
 };
 $rec = function (int $kriId, int $daysAgo): void {
-    Database::query("INSERT INTO kri_values (kri_id,value,recorded_at) VALUES (?, 15, CURRENT_DATE - ?)", [$kriId, $daysAgo]);
+    Database::query("INSERT INTO kri_values (kri_id,value,recorded_at) VALUES (?, 15, CURRENT_DATE - (?::integer))", [$kriId, $daysAgo]);
 };
 
 // monthly KRI, last recorded 40 days ago -> OVERDUE
