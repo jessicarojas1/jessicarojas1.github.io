@@ -133,6 +133,9 @@ export interface Nonconformance {
   closed_at?: Iso8601;
   created_at: Iso8601;
   updated_at: Iso8601;
+  // Optimistic-concurrency token echoed back on PATCH: set to the updated_at
+  // the form loaded so the server can reject a stale (lost-update) write.
+  expected_updated_at?: Iso8601;
   attachments?: Attachment[];
   audit_trail?: AuditTrailEntry[];
 }
@@ -212,6 +215,9 @@ export interface Capa {
   closure_signature_id?: string;
   created_at: Iso8601;
   updated_at: Iso8601;
+  // Optimistic-concurrency token echoed back on PATCH: set to the updated_at
+  // the form loaded so the server can reject a stale (lost-update) write.
+  expected_updated_at?: Iso8601;
   actions?: CapaAction[];
   attachments?: Attachment[];
 }
@@ -497,6 +503,9 @@ export interface Risk {
   capa_id?: string;
   created_at: Iso8601;
   updated_at: Iso8601;
+  // Optimistic-concurrency token echoed back on PATCH: set to the updated_at
+  // the form loaded so the server can reject a stale (lost-update) write.
+  expected_updated_at?: Iso8601;
 }
 
 /* ------------------------------------------------------------------ */

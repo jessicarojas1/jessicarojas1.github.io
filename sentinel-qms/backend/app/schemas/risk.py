@@ -47,6 +47,10 @@ class RiskUpdate(BaseModel):
     residual_detectability: int | None = _SCALE_OPT
     owner_id: int | None = None
     review_date: date | None = None
+    # Optimistic-concurrency token: the updated_at the client last saw. When
+    # supplied and stale, the update is rejected with 409 (lost-update guard).
+    # Omitting it preserves legacy last-write-wins behavior.
+    expected_updated_at: datetime | None = None
 
 
 class RiskRead(ORMModel):

@@ -46,6 +46,7 @@ from app.services.crud import (
     apply_sort,
     base_select,
     get_or_404,
+    guard_concurrency,
     page_meta,
     paginate,
     request_context,
@@ -259,11 +260,12 @@ def update_capa(
     actor: CurrentUser = Depends(require_perm("capa.edit")),
 ) -> Capa:
     capa = get_or_404(db, Capa, capa_id, name="CAPA")
+    guard_concurrency(capa, body.expected_updated_at)
     if capa.status in (CapaStatus.CLOSED, CapaStatus.CANCELLED):
         raise WorkflowError("Cannot edit a closed or cancelled CAPA.")
     before = audit.snapshot(capa)
     prev_owner = capa.owner_id
-    for key, value in body.model_dump(exclude_unset=True).items():
+    for key, value in body.model_dump(exclude_unset=True, exclude={"expected_updated_at"}).items():
         setattr(capa, key, value)
     capa.updated_by = actor.id
     db.flush()

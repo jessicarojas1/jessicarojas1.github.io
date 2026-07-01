@@ -42,6 +42,7 @@ from app.services.crud import (
     apply_sort,
     base_select,
     get_or_404,
+    guard_concurrency,
     page_meta,
     paginate,
     request_context,
@@ -258,9 +259,10 @@ def update_ncr(
     actor: CurrentUser = Depends(require_perm("nonconformances.edit")),
 ) -> Nonconformance:
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
+    guard_concurrency(ncr, body.expected_updated_at)
     before = audit.snapshot(ncr)
     prev_assignee = ncr.assigned_to
-    for key, value in body.model_dump(exclude_unset=True).items():
+    for key, value in body.model_dump(exclude_unset=True, exclude={"expected_updated_at"}).items():
         setattr(ncr, key, value)
     ncr.updated_by = actor.id
     db.flush()
