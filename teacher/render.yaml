@@ -1,0 +1,45 @@
+# Render Blueprint — Teacher Hub (static site)
+# Teacher Hub is a client-side static site (HTML/CSS/JS, no backend, no build).
+# This deploys it as a Render Static Site.
+#
+# LAYOUT NOTE: the app references ../theme.css and ../favicon.ico (repo root), and
+# staticPublishPath is set to the repo ROOT (".") so those parent files publish
+# alongside teacher/. The site is then reachable at /teacher/. A rewrite maps "/"
+# to the hub so the apex opens Teacher Hub.
+#
+# HEADERS/CSP NOTE: the HTML does not ship a Content-Security-Policy or security
+# headers, so they are injected here via `headers`. The CSP keeps 'unsafe-inline'
+# because index.html uses inline onclick/onchange/oninput handlers + inline
+# <script>/<style>; tighten to drop 'unsafe-inline' once those are externalized
+# (see docs/SECURITY.md and OPEN_ITEMS.md).
+
+services:
+  - type: web
+    name: teacher-hub
+    runtime: static
+    # Build from the repo root so ../theme.css / ../favicon.ico are included.
+    rootDir: .
+    buildCommand: ""            # nothing to build — static files ship as-is
+    staticPublishPath: .
+    pullRequestPreviewsEnabled: true
+    routes:
+      # Open the hub at the site root.
+      - type: rewrite
+        source: /
+        destination: /teacher/index.html
+    headers:
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Strict-Transport-Security
+        value: "max-age=31536000; includeSubDomains"
