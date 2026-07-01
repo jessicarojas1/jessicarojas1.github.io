@@ -1238,6 +1238,52 @@ export interface LessonLearned {
 }
 
 /* ------------------------------------------------------------------ */
+/* Records Retention & Disposition Schedule                            */
+/* ------------------------------------------------------------------ */
+
+export type RetentionCategory =
+  | 'quality_records'
+  | 'design_records'
+  | 'supplier_records'
+  | 'calibration_records'
+  | 'training_records'
+  | 'audit_records'
+  | 'capa_records'
+  | 'contract_records'
+  | 'inspection_records'
+  | 'other';
+/** The event that starts the retention clock. */
+export type RetentionTrigger =
+  | 'creation'
+  | 'closure'
+  | 'delivery'
+  | 'contract_end'
+  | 'obsolescence'
+  | 'superseded';
+/** The action SCHEDULED at end of retention — performed manually, not automated. */
+export type DispositionAction = 'review' | 'archive' | 'destroy' | 'permanent';
+export type RetentionStatus = 'draft' | 'active' | 'superseded';
+
+export interface RetentionPolicy {
+  id: number;
+  policy_number: string;
+  title: string;
+  record_category: RetentionCategory;
+  retention_trigger: RetentionTrigger;
+  /** null => permanent / indefinite retention. */
+  retention_years?: number | null;
+  disposition_action: DispositionAction;
+  /** When true, disposition is suspended regardless of retention_years. */
+  legal_hold: boolean;
+  authority_reference?: string | null;
+  status: RetentionStatus;
+  owner_id?: number | null;
+  notes?: string | null;
+  created_at?: Iso8601 | null;
+  updated_at?: Iso8601 | null;
+}
+
+/* ------------------------------------------------------------------ */
 /* Customer Satisfaction surveys (clause 9.1.2)                        */
 /* ------------------------------------------------------------------ */
 

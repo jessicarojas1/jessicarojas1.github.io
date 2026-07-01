@@ -125,6 +125,13 @@ from app.models.quality_objective import (
 )
 from app.models.record_share import RecordShare
 from app.models.refresh_token import RefreshToken
+from app.models.retention import (
+    DispositionAction,
+    RetentionCategory,
+    RetentionPolicy,
+    RetentionStatus,
+    RetentionTrigger,
+)
 from app.models.risk import (
     Risk,
     RiskCategory,
@@ -310,4 +317,9 @@ __all__ = [
     "LessonCategory",
     "LessonSource",
     "LessonStatus",
+    "RetentionPolicy",
+    "RetentionCategory",
+    "RetentionTrigger",
+    "DispositionAction",
+    "RetentionStatus",
 ]

@@ -49,6 +49,8 @@ const MgmtReviewListPage = lazy(() => import('./pages/mgmtReviews/MgmtReviewList
 const QualityObjectivesPage = lazy(() => import('./pages/objectives/QualityObjectivesPage'));
 const ImprovementsPage = lazy(() => import('./pages/improvements/ImprovementsPage'));
 const LessonsPage = lazy(() => import('./pages/lessons/LessonsPage'));
+const RetentionListPage = lazy(() => import('./pages/retention/RetentionListPage'));
+const RetentionDetailPage = lazy(() => import('./pages/retention/RetentionDetailPage'));
 const CustomerSatisfactionPage = lazy(() => import('./pages/satisfaction/CustomerSatisfactionPage'));
 const FmeaListPage = lazy(() => import('./pages/fmea/FmeaListPage'));
 const FmeaDetailPage = lazy(() => import('./pages/fmea/FmeaDetailPage'));
@@ -239,6 +241,10 @@ export function AppRouter() {
             path="lessons-learned"
             element={<Guard page="lessons_learned" capability="lessons_learned.read"><LessonsPage /></Guard>}
           />
+          <Route path="retention">
+            <Route index element={<Guard page="retention" capability="retention.read"><RetentionListPage /></Guard>} />
+            <Route path=":id" element={<Guard page="retention" capability="retention.read"><RetentionDetailPage /></Guard>} />
+          </Route>
           <Route
             path="customer-satisfaction"
             element={<Guard page="customer_satisfaction" capability="csat.read"><CustomerSatisfactionPage /></Guard>}

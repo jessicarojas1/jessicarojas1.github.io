@@ -38,6 +38,7 @@ from app.api.routers import (
     quality_objectives,
     record_shares,
     reports,
+    retention,
     risks,
     saved_views,
     search,
@@ -94,6 +95,7 @@ api_router.include_router(record_shares.router)
 api_router.include_router(quality_objectives.router)
 api_router.include_router(improvements.router)
 api_router.include_router(lessons.router)
+api_router.include_router(retention.router)
 api_router.include_router(customer_satisfaction.router)
 api_router.include_router(fmea.router)
 api_router.include_router(webhooks.router)
