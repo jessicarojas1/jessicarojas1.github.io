@@ -214,6 +214,7 @@ $sentControlRetestDue   = 0;
 $sentFindingOverdue     = 0;
 $sentVendorCertExpiring = 0;
 $sentVendorContractExp  = 0;
+$sentKriMeasureOverdue  = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -603,6 +604,103 @@ HTML;
     }
 } catch (\Throwable $e) {
     fwrite(STDERR, "[kri_breached] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2d-ii. KRI MEASUREMENT OVERDUE  (kri_measurement_overdue)
+// ═══════════════════════════════════════════════════════════════════════════════
+// An active KRI has not been recorded within its measurement frequency (daily/
+// weekly/monthly/quarterly). Distinct from kri_breached, which reads the latest
+// recorded value against a threshold — this fires when NO fresh value exists.
+// Baseline is the last recorded date, or the KRI's creation date if never
+// measured. Alerts the KRI OWNER (kris.owner_id).
+try {
+    $kriDueRows = Database::fetchAll(
+        "SELECT k.id, k.title, k.frequency,
+                latest.recorded_at,
+                (CURRENT_DATE - COALESCE(latest.recorded_at, k.created_at::date)) AS days_since,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM kris k
+         JOIN users u ON u.id = k.owner_id
+         LEFT JOIN LATERAL (
+             SELECT kv.recorded_at
+             FROM kri_values kv
+             WHERE kv.kri_id = k.id
+             ORDER BY kv.recorded_at DESC, kv.id DESC
+             LIMIT 1
+         ) latest ON TRUE
+         WHERE k.is_active = TRUE
+           AND u.is_active = TRUE
+           AND (CURRENT_DATE - COALESCE(latest.recorded_at, k.created_at::date))
+               > CASE k.frequency
+                   WHEN 'daily'     THEN 1
+                   WHEN 'weekly'    THEN 7
+                   WHEN 'monthly'   THEN 31
+                   WHEN 'quarterly' THEN 92
+                   ELSE 31
+                 END",
+        []
+    );
+
+    $kriDueByUser = [];
+    foreach ($kriDueRows as $row) {
+        $kriDueByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($kriDueByUser as $userId => $kris) {
+        $userId = (int) $userId;
+        if (!notifEnabled($userId, 'kri_measurement_overdue')) {
+            continue;
+        }
+        $email    = $kris[0]['email'];
+        $userName = $kris[0]['user_name'];
+
+        foreach ($kris as $kri) {
+            // Throttle: one reminder per KRI per 7 days.
+            if (alreadyNotified($userId, 'kri_measurement_overdue', 'kri', (int) $kri['id'], 604800)) {
+                continue;
+            }
+
+            $freq     = htmlspecialchars(ucfirst($kri['frequency']), ENT_QUOTES, 'UTF-8');
+            $kriTitle = htmlspecialchars($kri['title'], ENT_QUOTES, 'UTF-8');
+            $daysSince = (int) $kri['days_since'];
+            $lastText = $kri['recorded_at']
+                ? 'last recorded ' . date('M j, Y', strtotime($kri['recorded_at'])) . " ({$daysSince} days ago)"
+                : 'never recorded';
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A Key Risk Indicator you own is <span style="color:#ef4444;font-weight:600">overdue for measurement</span> ({$freq} cadence — {$lastText}):</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">KRI</th>
+    <th style="padding:8px;text-align:left">Cadence</th>
+    <th style="padding:8px;text-align:left">Status</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$kriTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$freq}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$lastText}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC and record a fresh reading for this indicator.</p>
+HTML;
+
+            $subject = "KRI measurement overdue: {$kri['title']}";
+            $body    = emailShell('KRI Measurement Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                $userId, 'kri_measurement_overdue', $email, $userName, $subject, $body,
+                ['kri' => $kri, 'daysSince' => $daysSince]
+            );
+            if ($sent) {
+                logNotification($userId, 'kri_measurement_overdue', 'kri', (int) $kri['id']);
+                $sentKriMeasureOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[kri_measurement_overdue] ERROR: " . $e->getMessage() . "\n");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2264,6 +2362,7 @@ if (!empty($digestQueue)) {
         'finding_remediation_overdue' => 'Audit Finding Remediation Overdue',
         'vendor_cert_expiring'        => 'Vendor Certifications Expiring',
         'vendor_contract_expiring'    => 'Vendor Contracts Expiring',
+        'kri_measurement_overdue'     => 'KRI Measurements Overdue',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -2401,4 +2500,4 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentPoamOverdue} POA&M overdue, {$sentAwarenessOverdue} training overdue, "
    . "{$sentControlRetestDue} control re-tests due, {$sentFindingOverdue} findings overdue, "
    . "{$sentVendorCertExpiring} vendor certs expiring, {$sentVendorContractExp} vendor contracts expiring, "
-   . "{$sentDigests} digest(s) sent\n";
+   . "{$sentKriMeasureOverdue} KRI measurements overdue, {$sentDigests} digest(s) sent\n";
