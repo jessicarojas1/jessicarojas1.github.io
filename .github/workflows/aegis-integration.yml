@@ -136,6 +136,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/finding_remediation_db.php
 
+      - name: Notifier smoke — every section runs without a broken column reference
+        working-directory: aegis
+        run: php tests/integration/notifier_smoke_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image
