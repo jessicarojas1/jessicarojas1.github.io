@@ -38,6 +38,7 @@ Every project roadmap must include:
 - [ ] Security & compliance audit (CSP, XSS, CSRF, SQLi, auth, uploads, redirects)
 - [ ] UI consistency check (handlers, modals, filters, empty states, dark mode, breadcrumbs)
 - [ ] `database/schema.sql` updated to reflect all current migrations
+- [ ] Standard documentation & deployment set present and current (`deployments/` ×6, `docs/` ×4, `README.md`, `OPEN_ITEMS.md`, `CLAUDE.md`, `Dockerfile`, `render.yaml` — see "Standard Documentation & Deployment Set")
 - [ ] Fix all findings before marking the milestone complete
 
 ## User & Permission Management UI Standard
@@ -86,6 +87,68 @@ Requirements:
 - Follow all existing rules: no inline event handlers, and never hardcode colors
   that should be the accent var.
 
+## Standard Documentation & Deployment Set (Every Project)
+
+Every app or project — new or existing, moving forward — **must** carry the same
+standardized documentation + deployment set, kept accurate to the code and
+updated as the app changes. This is the format established for AEGIS, Sentinel
+QMS, and CITADEL; apply it to every project going forward. Do not invent
+commands, env vars, ports, or paths — verify every claim against the real code.
+
+**1. `deployments/` folder — one operator guide per target.** Each of the six
+files below must contain, tailored to that target and the app: (1) deployment
+architecture, (2) topology diagram, (3) prerequisites, (4) identity &
+credentials — **prefer IAM roles / IRSA / managed & workload identity** over
+static keys, with a least-privilege policy, (5) environment variables as a
+`Variable | Example | Purpose` table, splitting **AWS Commercial vs GovCloud**
+(partition `aws` vs `aws-us-gov`, FIPS/regional endpoints) and **Azure
+Commercial vs Government** where they differ, (6) configuration references
+(`Variable | Example | Purpose`), (7) verification (health, login, secrets
+resolved, upload accepted + indexed/scanned, object written), (8) day-2
+operations, (9) troubleshooting.
+- `deployments/LOCAL_DEVELOPMENT.md`
+- `deployments/SINGLE_LINUX_SERVER.md`
+- `deployments/KUBERNETES.md`
+- `deployments/AZURE.md` (Commercial + Azure Government)
+- `deployments/AWS.md` (Commercial + GovCloud)
+- `deployments/AIRGAPPED.md` (offline registry/bundles, offline secrets & CVE
+  feeds, self-hosted LLM inference via **Ollama** replacing any hosted AI API)
+
+**2. `docs/` folder — four canonical guides.**
+- `docs/ARCHITECTURE.md` — the platform it's built on, design principles,
+  component overview, monorepo structure (placement + internal layout),
+  configuration model, request & error contract, security model, observability,
+  deployment topology.
+- `docs/DEPLOYMENT.md` — deployment guide + contents/TOC, deployment models,
+  prerequisites, configuration & secrets, database migrations (exact commands),
+  the worker/background process, **Ollama configuration**, **GPU acceleration**,
+  and a production checklist with sub-sections: **Secrets & identity**,
+  **Transport & exposure**, **Hardening**, **Resilience & operations**.
+- `docs/DISASTER_RECOVERY.md` — what holds state, RPO/RTO targets, backups,
+  restore runbook (numbered, copy-pasteable), verification cadence (restore
+  drills), high availability.
+- `docs/SECURITY.md` — security guide, identity & authentication, authorization,
+  data protection, auditability, classification & DLP, FIPS readiness, operator
+  responsibilities, secrets rotation, reporting.
+
+**3. Root project files.**
+- `Dockerfile` — builds the app (multi-stage, non-root, healthcheck).
+- `render.yaml` — a valid Render Blueprint for the project.
+- `README.md` — what the app is, why it exists, supported deployment models,
+  repo layout, technology, prerequisites, quick start (local development),
+  common commands, build status, and all package dependencies & extensions
+  required. Cross-links `docs/` and `deployments/`.
+- `OPEN_ITEMS.md` — honest production-readiness register (done vs outstanding,
+  grouped by theme, each with impact + suggested action).
+- `CLAUDE.md` — project guidance for that app, including the standing rule that
+  this doc set must be kept current as the app changes.
+
+Every project must be **dockerized (Docker deploy) and Render-deploy
+compatible**. Whenever a feature, migration, or config change lands, update the
+affected `deployments/`, `docs/`, `README.md`, and `OPEN_ITEMS.md` in the same
+change — treat this doc set as part of "done," and add it to every project
+roadmap alongside the security and UI audits.
+
 ## Other Permanent Rules
 
 - **Header logo links home** — in every app/project, the top-left logo / brand
@@ -95,6 +158,8 @@ Requirements:
 - **No inline event handlers** — CSP compliance required at all times
 - **Always push to production (main branch)** after completing work
 - **Always spawn multiple agents in parallel** for independent subtasks
+- **Every project ships the standard doc set** — `deployments/` (×6), `docs/` (×4: Architecture, Deployment, Disaster Recovery, Security), `README.md`, `OPEN_ITEMS.md`, `CLAUDE.md`, `Dockerfile`, `render.yaml` — and it is kept current (see "Standard Documentation & Deployment Set")
+- **Every project must be Docker- and Render-deploy compatible**
 - **Every section with file upload** must include a field reference key below it
 - **`Database::update()`** automatically appends `updated_at = NOW()` — never include `updated_at` in data arrays passed to it
 - **Never commit `.env`** — only `.env.example` with placeholder values
