@@ -132,6 +132,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/control_retest_db.php
 
+      - name: Audit finding remediation overdue — predicate / owner join / cascade
+        working-directory: aegis
+        run: php tests/integration/finding_remediation_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

@@ -7,6 +7,28 @@ class AuditFindingController {
     private const VALID_STATUSES   = ['open', 'in_progress', 'resolved', 'risk_accepted', 'closed', 'reopened'];
     private const VALID_SOURCES    = ['external_audit', 'pentest', 'certification', 'assessment', 'regulatory', 'other'];
 
+    // A finding is "settled" once its remediation is no longer being tracked — the
+    // deadline stops mattering. Kept in one place so the view, the overview stat
+    // and the notifier agree on which statuses are terminal.
+    public const TERMINAL_STATUSES = ['closed', 'resolved', 'risk_accepted'];
+
+    /**
+     * Remediation-deadline state for a finding: 'none' (no deadline, or a
+     * settled status), 'overdue' (deadline passed and still open), 'due'
+     * (deadline within 14 days) or 'ok'. Pure function (date math only) —
+     * public + static so the notifier and views reuse it and it is unit-testable.
+     */
+    public static function remediationStatus(?string $deadline, string $status): string {
+        if (in_array($status, self::TERMINAL_STATUSES, true)) return 'none';
+        if (empty($deadline)) return 'none';
+        $ts = strtotime($deadline);
+        if ($ts === false) return 'none';
+        $today = strtotime('today');
+        if ($ts < $today) return 'overdue';
+        if ($ts < $today + 14 * 86400) return 'due';
+        return 'ok';
+    }
+
     public function index(): void {
         Auth::requirePermission('audit.findings');
 

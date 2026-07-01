@@ -211,6 +211,7 @@ $sentBcpPlanReviewDue   = 0;
 $sentPoamOverdue        = 0;
 $sentAwarenessOverdue   = 0;
 $sentControlRetestDue   = 0;
+$sentFindingOverdue     = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -1093,6 +1094,84 @@ HTML;
     }
 } catch (\Throwable $e) {
     fwrite(STDERR, "[control_retest_due] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2c. AUDIT FINDING REMEDIATION OVERDUE  (finding_remediation_overdue)
+// ═══════════════════════════════════════════════════════════════════════════════
+// An external-audit finding whose remediation deadline has passed while it is
+// still open (not closed / resolved / risk_accepted). Alerts the finding OWNER
+// (audit_findings.owner_id) so remediation is not silently missed.
+try {
+    $findingRows = Database::fetchAll(
+        "SELECT af.id, af.finding_number, af.title, af.severity, af.deadline,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM audit_findings af
+         JOIN users u ON u.id = af.owner_id
+         WHERE af.deadline IS NOT NULL
+           AND af.deadline < CURRENT_DATE
+           AND af.status NOT IN ('closed','resolved','risk_accepted')
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $findingByUser = [];
+    foreach ($findingRows as $row) {
+        $findingByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($findingByUser as $userId => $findings) {
+        if (!notifEnabled((int) $userId, 'finding_remediation_overdue')) {
+            continue;
+        }
+        $email    = $findings[0]['email'];
+        $userName = $findings[0]['user_name'];
+
+        foreach ($findings as $fnd) {
+            // Throttle: one reminder per finding per 7 days.
+            if (alreadyNotified((int) $userId, 'finding_remediation_overdue', 'audit_finding', (int) $fnd['id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((time() - strtotime($fnd['deadline'])) / 86400);
+            $dueDate     = date('M j, Y', strtotime($fnd['deadline']));
+            $num         = htmlspecialchars($fnd['finding_number'], ENT_QUOTES, 'UTF-8');
+            $title       = htmlspecialchars($fnd['title'], ENT_QUOTES, 'UTF-8');
+            $severity    = htmlspecialchars(ucfirst($fnd['severity']), ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>An audit finding you own is <span style="color:#ef4444;font-weight:600">past its remediation deadline ({$daysOverdue} days overdue)</span>:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Finding</th>
+    <th style="padding:8px;text-align:left">Severity</th>
+    <th style="padding:8px;text-align:left">Deadline</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$num} — {$title}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$severity}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$dueDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to record remediation progress or update the finding.</p>
+HTML;
+
+            $subject = "Finding remediation overdue: {$fnd['finding_number']}";
+            $body    = emailShell('Audit Finding Remediation Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'finding_remediation_overdue', $email, $userName, $subject, $body,
+                ['finding' => $fnd, 'daysOverdue' => $daysOverdue, 'dueDate' => $dueDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'finding_remediation_overdue', 'audit_finding', (int) $fnd['id']);
+                $sentFindingOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[finding_remediation_overdue] ERROR: " . $e->getMessage() . "\n");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2005,6 +2084,7 @@ if (!empty($digestQueue)) {
         'poam_item_overdue'          => 'POA&M Items Overdue',
         'awareness_training_overdue' => 'Security Training Overdue',
         'control_retest_due'         => 'Control Re-test Due',
+        'finding_remediation_overdue' => 'Audit Finding Remediation Overdue',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -2140,4 +2220,5 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentKriBreach} KRI breaches, {$sentSlaBreach} SLA breaches, "
    . "{$sentBcpExerciseOverdue} BCP exercises overdue, {$sentBcpPlanReviewDue} BCP plans due, "
    . "{$sentPoamOverdue} POA&M overdue, {$sentAwarenessOverdue} training overdue, "
-   . "{$sentControlRetestDue} control re-tests due, {$sentDigests} digest(s) sent\n";
+   . "{$sentControlRetestDue} control re-tests due, {$sentFindingOverdue} findings overdue, "
+   . "{$sentDigests} digest(s) sent\n";

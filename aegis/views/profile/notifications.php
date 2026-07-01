@@ -111,6 +111,11 @@ $NOTIF_TYPES = [
         'description' => 'When a control you own is past its scheduled next-test date and needs re-testing',
         'icon'        => 'clock-history',
     ],
+    'finding_remediation_overdue' => [
+        'label'       => 'Audit finding remediation overdue',
+        'description' => 'When an audit finding you own is past its remediation deadline and still open',
+        'icon'        => 'exclamation-diamond-fill',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────
