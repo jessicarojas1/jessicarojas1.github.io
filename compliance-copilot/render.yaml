@@ -1,0 +1,55 @@
+# Render Blueprint — Compliance Copilot (Next.js 14 + Supabase)
+# https://render.com/docs/blueprint-spec
+#
+# Deploys the app as a managed Node web service. State (Postgres, storage, auth)
+# lives in Supabase, so no Render database is provisioned here — point the
+# service at your Supabase project via the env vars below (set `sync: false`
+# secrets in the Render dashboard; never commit real values).
+#
+# This blueprint uses the native Node runtime (`npm start` → `next start`). To
+# deploy the container image instead, switch `runtime: node` to `runtime: docker`
+# with `dockerfilePath: ./Dockerfile` and drop build/start commands.
+
+services:
+  - type: web
+    name: compliance-copilot
+    runtime: node
+    plan: starter
+    region: oregon
+    rootDir: compliance-copilot
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/auth/login
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      # ── Supabase (public — safe to expose to the browser bundle) ──────────
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      # ── Supabase service role (SECRET — server-side only) ─────────────────
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # ── AI relay (SECRET — never reaches the browser) ─────────────────────
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: AI_PROXY_TOKEN
+        sync: false
+      # ── In-app session login (set all three to enable auth gate) ──────────
+      - key: APP_SESSION_SECRET
+        generateValue: true
+      - key: APP_AUTH_USERNAME
+        sync: false
+      - key: APP_AUTH_PASSWORD
+        sync: false
+      # ── Optional ──────────────────────────────────────────────────────────
+      - key: NEXT_PUBLIC_EVIDENCE_BUCKET
+        value: evidence-files
+      - key: BRANDING_ADMIN_TOKEN
+        sync: false

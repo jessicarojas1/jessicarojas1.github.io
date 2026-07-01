@@ -1,7 +1,93 @@
 # Business Insight Dashboard
 
+![build](https://img.shields.io/badge/build-passing-brightgreen)
+![python](https://img.shields.io/badge/python-3.11.9-blue)
+![framework](https://img.shields.io/badge/streamlit-%E2%89%A51.58-red)
+![license](https://img.shields.io/badge/license-internal-lightgrey)
+
 Upload a CSV → instant KPIs, charts, and plain-English business insights.
 No code required. Runs locally in 60 seconds.
+
+---
+
+## What it is & why it exists
+
+Small business owners rarely have a BI team, but they usually have a sales or
+operations CSV. **Business Insight Dashboard** turns that CSV into an
+executive-grade view — KPI cards, revenue trends, product/channel breakdowns,
+and rule-based, plain-English insights — in under a minute, with **no account,
+no setup, and no code**.
+
+It is deliberately **privacy-first and near-stateless**: the uploaded CSV is
+parsed **in memory** with pandas and is **never written to disk or transmitted**.
+The only server-side state is a small `branding.json` (organization name, accent
+color, logo) so the dashboard can be white-labeled.
+
+## Technology
+
+| Layer | Technology |
+|-------|-----------|
+| Runtime | Python 3.11.9 (`.python-version`) |
+| UI | Streamlit (`>=1.58.0`) |
+| Data | pandas (`>=2.1.0`), numpy (`>=1.26.0`) |
+| Charts | Plotly (`>=5.20.0`) |
+| Persistence | none for data; `branding.json` on disk for branding only |
+| Auth | none built in — front with a reverse proxy / SSO |
+| Health | `GET /_stcore/health` |
+
+**Package dependencies** (`requirements.txt`) — all pure-Python wheels, no
+external system binaries or database required:
+
+```
+streamlit>=1.58.0
+pandas>=2.1.0
+plotly>=5.20.0
+numpy>=1.26.0
+```
+
+## Prerequisites
+
+- Python **3.11** (3.11.9 pinned in `.python-version`)
+- `pip` / `venv` (or Docker for the container path)
+- A modern browser (Streamlit serves over WebSockets)
+
+## Supported deployment models
+
+| Model | Guide |
+|-------|-------|
+| Managed PaaS (Render Blueprint) | `render.yaml` + [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
+| Laptop / local dev (native or Docker) | [deployments/LOCAL_DEVELOPMENT.md](deployments/LOCAL_DEVELOPMENT.md) |
+| Single Linux server (systemd/compose + nginx/TLS) | [deployments/SINGLE_LINUX_SERVER.md](deployments/SINGLE_LINUX_SERVER.md) |
+| Kubernetes | [deployments/KUBERNETES.md](deployments/KUBERNETES.md) |
+| AWS (Commercial + GovCloud) | [deployments/AWS.md](deployments/AWS.md) |
+| Azure (Commercial + Government) | [deployments/AZURE.md](deployments/AZURE.md) |
+| Airgapped / offline | [deployments/AIRGAPPED.md](deployments/AIRGAPPED.md) |
+
+## Documentation
+
+- Architecture — [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Deployment — [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+- Disaster recovery — [docs/DISASTER_RECOVERY.md](docs/DISASTER_RECOVERY.md)
+- Security — [docs/SECURITY.md](docs/SECURITY.md)
+- Production-readiness register — [OPEN_ITEMS.md](OPEN_ITEMS.md)
+- Contributor / agent guidance — [CLAUDE.md](CLAUDE.md)
+
+## Common commands
+
+```bash
+# Run locally (native)
+streamlit run app.py                        # http://localhost:8501
+
+# Run in Docker
+docker build -t business-insight-dashboard .
+docker run -p 8501:8501 business-insight-dashboard
+
+# Health check
+curl -fsS http://localhost:8501/_stcore/health   # -> ok
+```
+
+> Note: there is **no database migration** step and **no background/worker
+> process** — all computation runs synchronously inside the Streamlit rerun.
 
 ---
 

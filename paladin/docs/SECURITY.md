@@ -143,6 +143,115 @@ rejected and audited (`esignature_failed`).
 
 ---
 
+## 15. Identity & authentication (summary)
+
+| Mechanism | Detail |
+|---|---|
+| **Local passwords** | Argon2id (`memory=64 MB, time=4, threads=2`); policy: min 12 chars, upper/number/special (`config/app.php`, `Security::validatePasswordPolicy`). Forced-change flag (`users.force_password_change`). |
+| **MFA (TOTP)** | `src/TOTP.php`; secret stored server-side; single-use **recovery codes** hashed in `mfa_recovery_codes`. MFA policy is `off` / `admins` / `all` (`Auth::mfaPolicy`). MFA verification is rate-limited per IP and per pending user. |
+| **SAML 2.0** | `src/Saml.php` — XML-DSig assertion verification, encrypted-assertion support, metadata import, NameID/email + role mapping. |
+| **OIDC** | `src/Oidc.php` — Authorization Code + **PKCE (S256)**, `state` + `nonce` validation, JWKS RS256 signature verification (`JWT::verifyRS256`), issuer/audience checks. |
+| **SCIM 2.0** | `scim/index.php` — Bearer-token auth (`scim_token`, encrypted at rest; constant-time compare); Users create/read/replace/patch/deactivate (soft delete); every change audited (`scim_*`). Gated by `scim_enabled`. |
+| **API tokens** | Admin API keys (`api_keys`) and per-user **personal access tokens** (`personal_access_tokens`, `paladin_pat_*`, HMAC-SHA256 hashed, scoped, expiring). |
+
+## 16. Authorization (RBAC + object-level)
+
+- **Global permissions:** granular `module.action` strings (e.g. `document.publish`,
+  `approval.approve`), enforced server-side in every controller
+  (`Auth::requirePermission`) and gated in views (`Auth::can`). Nine built-in
+  roles (`admin`, `pal_admin`, `compliance_admin`, `space_owner`, `contributor`,
+  `reviewer`, `approver`, `auditor`, `viewer`) plus admin-defined **custom roles**;
+  **explicit per-user grants** (`user_permissions`) override role defaults;
+  backward-compatible coarse aliases (`module.read`/`module.write`).
+- **Object-level (anti-IDOR):** access is the *conjunction* of authentication +
+  global permission + space scope + object check — a global permission is
+  necessary but not sufficient. Private-space membership (`SpaceAccess`), per-page
+  view/edit restrictions with ancestor inheritance (`PageAccess`), and
+  parent-entity re-checks on attachments (`AttachmentController::canAccessParent`).
+  See `PERMISSIONS_MODEL.md`.
+
+## 17. Data protection
+
+- **In transit:** TLS terminated at the reverse proxy; **HSTS**
+  (`max-age=31536000; includeSubDomains; preload`) set under HTTPS. In-container
+  traffic is plain HTTP behind the proxy on a private network.
+- **At rest (secrets):** sensitive `settings` (SMTP/S3 credentials, SCIM token)
+  are encrypted with **AES-256-GCM** (`sodium_crypto_aead_aes256gcm`), key =
+  `SHA-256('paladin_settings_v1:' + JWT_SECRET)`; format `enc:base64(nonce|ct)`
+  (`Security::encryptSetting/decryptSetting`). **`JWT_SECRET` is therefore the
+  master key** — protect and escrow it.
+- **At rest (infrastructure):** enable KMS/CMK encryption on the database and the
+  object store; PALADIN adds no plaintext of secrets to logs or error pages.
+- **Passwords / tokens:** Argon2id for passwords; HMAC-SHA256 for API-key/PAT
+  hashes; only hashes are stored.
+- **Key management:** keep `JWT_SECRET` unique per environment in a secret
+  manager; rotating it invalidates existing at-rest secret ciphertext and issued
+  tokens (re-enter settings + re-issue tokens after rotation — see §20).
+
+## 18. Classification & DLP (CUI / data handling)
+
+- Controlled documents carry a **`classification`** field and a **`doc_type`**
+  (policy, procedure, record, evidence, …); use private spaces to compartmentalise
+  sensitive material (object-level access, §16).
+- **Egress control:** the SSRF guard (`Security::safeOutboundIp`) blocks outbound
+  requests to loopback/link-local/private/reserved ranges (incl. the cloud
+  metadata endpoint `169.254.169.254`), so webhooks and OIDC/JWKS/AI calls cannot
+  be steered at internal targets. Run air-gapped for the strongest DLP posture
+  (`../deployments/AIRGAPPED.md`).
+- **Export safety:** all CSV exports are neutralised against formula injection
+  (`Csv::put`); downloads are served `nosniff` + `Content-Disposition: attachment`.
+- **Handling guidance:** for CUI/regulated data, restrict the DB and object store
+  to authorized networks, enable at-rest encryption, ship the audit log to
+  WORM/SIEM, and set retention to the longest applicable requirement
+  (`src/Retention.php`, Admin → Retention).
+
+## 19. FIPS readiness
+
+- Cryptographic primitives are standard, FIPS-approvable algorithms: **AES-256-GCM**
+  (at-rest secrets), **SHA-256 / HMAC-SHA256** (audit chain, token/key hashing,
+  SigV4), **RSA/SHA-256** (OIDC RS256), Argon2id for password storage (note:
+  Argon2 is not FIPS 140-validated — where a validated KDF is mandated, front the
+  app with an IdP via SAML/OIDC so password storage is delegated).
+- For FIPS operation: run on a **FIPS-validated OpenSSL / libsodium** platform
+  build, terminate TLS on FIPS-approved endpoints, and use **FIPS regional
+  endpoints** for S3/KMS/STS (e.g. `s3-fips.us-gov-west-1.amazonaws.com`,
+  set via `S3_ENDPOINT`). See `../deployments/AWS.md` (GovCloud) and
+  `../deployments/AZURE.md` (Azure Government).
+
+## 20. Operator responsibilities
+
+- Provide secrets from a secret manager (never commit `.env`); prefer **IAM roles /
+  IRSA / Managed Identity** over static keys.
+- Keep `JWT_SECRET` unique, ≥ 64 hex, escrowed; rotate `ADMIN_PASSWORD` after first
+  login; remove/disable demo seed users in production.
+- Terminate TLS, enable HSTS, set `TRUSTED_PROXY_IPS` to the real proxy.
+- Restrict the DB role on `activity_log` to `INSERT`/`SELECT`; ship the log to
+  WORM/SIEM; enable DB + object-store encryption at rest and backups (see
+  `DISASTER_RECOVERY.md`).
+- Configure SSO + MFA policy; review webhook/SSRF allowlists; keep the doc set and
+  migrations current.
+
+## 21. Secrets rotation
+
+| Secret | Rotate by | Impact |
+|---|---|---|
+| `JWT_SECRET` | Generate a new value, update the secret store, redeploy. | Invalidates issued JWTs/PATs **and** at-rest ciphertext — **re-enter** SMTP/S3/SCIM settings and re-issue tokens afterwards. Rotate on suspected compromise or per policy. |
+| DB / S3 / SMTP credentials | Rotate in the provider + secret store, then in **Admin → Settings** (re-encrypted at rest). | Brief reconnection; no data change. |
+| API keys / PATs | Revoke + reissue in **Admin → API Keys** / user token page (set `expires_at`, `is_active=false`). | Old key rejected immediately. |
+| Admin / user passwords | User self-service or admin force-change (`force_password_change`). | Session revocation via `sessions_revoked_at`. |
+| SCIM token | Regenerate in Admin → Settings (encrypted). | Update the IdP's SCIM connector. |
+
+## 22. Vulnerability reporting
+
+- **Report privately** — open a private security advisory or email the maintainer
+  listed in the repository. **Do not file public issues** for security reports.
+- Include affected version/commit, reproduction steps, and impact.
+- **Target SLA:** acknowledge within **2 business days**; triage/severity within
+  **5 business days**; fix or mitigation for high/critical issues prioritised in the
+  next release cycle. Coordinated disclosure is preferred.
+
+---
+
 ### Verification quick-reference
 
 | Control | Code |
