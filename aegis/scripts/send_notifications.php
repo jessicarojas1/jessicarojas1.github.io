@@ -1313,7 +1313,7 @@ try {
         "SELECT i.id, i.title, i.severity, i.created_at,
                 u.id AS user_id, u.email, u.name AS user_name
          FROM incidents i
-         JOIN users u ON u.id = i.owner_id
+         JOIN users u ON u.id = i.assigned_to
          WHERE i.status NOT IN ('resolved','closed')
            AND i.created_at < NOW() - INTERVAL '48 hours'
            AND u.is_active = TRUE",
@@ -1691,7 +1691,7 @@ try {
     $vendorRows = Database::fetchAll(
         "SELECT DISTINCT ON (v.id)
                 v.id AS vendor_id, v.name AS vendor_name, v.created_by,
-                va.id AS assessment_id, va.next_assessment_date, va.assessed_by,
+                va.id AS assessment_id, va.scheduled_date AS next_assessment_date, va.assessed_by,
                 COALESCE(u_assessor.id, u_creator.id) AS user_id,
                 COALESCE(u_assessor.email, u_creator.email) AS email,
                 COALESCE(u_assessor.name, u_creator.name) AS user_name
@@ -1699,9 +1699,10 @@ try {
          JOIN vendor_assessments va ON va.vendor_id = v.id
          LEFT JOIN users u_assessor ON u_assessor.id = va.assessed_by AND u_assessor.is_active = TRUE
          LEFT JOIN users u_creator  ON u_creator.id  = v.created_by   AND u_creator.is_active  = TRUE
-         WHERE va.next_assessment_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+         WHERE va.scheduled_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+           AND va.status IN ('planned','in_progress')
            AND COALESCE(u_assessor.id, u_creator.id) IS NOT NULL
-         ORDER BY v.id, va.next_assessment_date ASC",
+         ORDER BY v.id, va.scheduled_date ASC",
         []
     );
 
@@ -1773,7 +1774,7 @@ HTML;
 // ═══════════════════════════════════════════════════════════════════════════════
 try {
     $docRows = Database::fetchAll(
-        "SELECT d.id, d.title, d.document_number, d.expiry_date, d.owner_id,
+        "SELECT d.id, d.title, d.doc_number AS document_number, d.expiry_date, d.owner_id,
                 u.id AS user_id, u.email, u.name AS user_name
          FROM documents d
          JOIN users u ON u.id = d.owner_id
@@ -1973,7 +1974,7 @@ HTML;
 // ═══════════════════════════════════════════════════════════════════════════════
 try {
     $evRows = Database::fetchAll(
-        "SELECT ef.id, ef.filename, ef.entity_type, ef.entity_id, ef.expires_at, ef.uploaded_by,
+        "SELECT ef.id, ef.original_name AS filename, ef.entity_type, ef.entity_id, ef.expires_at, ef.uploaded_by,
                 u.id AS user_id, u.email, u.name AS user_name
          FROM evidence_files ef
          JOIN users u ON u.id = ef.uploaded_by
