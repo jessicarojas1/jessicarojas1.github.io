@@ -148,6 +148,7 @@ export default function CapaDetailPage() {
                         label: 'Verified',
                         value: <StatusBadge status={capa.effectiveness_verified ? 'verified' : 'pending'} />,
                       },
+                      { label: 'Effectiveness Due', value: formatDate(capa.effectiveness_due_date) },
                       { label: 'Verified By', value: <UserName id={capa.effectiveness_verified_by} /> },
                       { label: 'Verified At', value: formatDateTime(capa.effectiveness_verified_at) },
                     ]}

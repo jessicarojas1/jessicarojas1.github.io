@@ -188,6 +188,7 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
         "capa_overdue": 0,
         "capa_due_soon": 0,
         "capa_action_overdue": 0,
+        "capa_effectiveness_overdue": 0,
         "ncr_overdue": 0,
         "audit_overdue": 0,
         "calibration_overdue": 0,
@@ -580,5 +581,39 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
             )
             db.commit()
             summary["risk_review_overdue"] += 1
+
+    # ── CAPAs overdue for effectiveness verification (AS9100 10.2 CAPA) ─────────
+    eff_capas = (
+        db.execute(
+            select(Capa).where(
+                Capa.is_deleted.is_(False),
+                Capa.status.in_(_CAPA_OPEN),
+                Capa.effectiveness_verified.is_(False),
+                Capa.effectiveness_due_date.is_not(None),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for capa in eff_capas:
+        due = _basis_date(capa.effectiveness_due_date)
+        if due is None or due >= today:
+            continue
+        if _claim(db, "capa", capa.id, "effectiveness_overdue"):
+            days = (today - due).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=capa.owner_id,
+                title=f"CAPA effectiveness verification overdue: {capa.capa_number}",
+                body=(
+                    f"{capa.title} — effectiveness verification was due {due.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} overdue). Verify effectiveness."
+                ),
+                entity_type="capa",
+                entity_id=capa.id,
+            )
+            db.commit()
+            summary["capa_effectiveness_overdue"] += 1
 
     return summary

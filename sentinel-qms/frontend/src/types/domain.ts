@@ -204,6 +204,7 @@ export interface Capa {
   effectiveness_notes?: string;
   effectiveness_verified_by?: string;
   effectiveness_verified_at?: Iso8601;
+  effectiveness_due_date?: Iso8601;
   owner_id?: string;
   supplier_id?: string;
   due_date?: Iso8601;

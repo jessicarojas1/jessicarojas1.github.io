@@ -94,6 +94,7 @@ class Capa(Base, TimestampMixin, SoftDeleteMixin):
     effectiveness_verified_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    effectiveness_due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
 
     owner_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     supplier_id: Mapped[int | None] = mapped_column(ForeignKey("suppliers.id"), nullable=True)

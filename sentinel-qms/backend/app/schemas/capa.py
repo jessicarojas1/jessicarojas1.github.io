@@ -64,6 +64,7 @@ class CapaBase(BaseModel):
     owner_id: int | None = None
     supplier_id: int | None = None
     due_date: date | None = None
+    effectiveness_due_date: date | None = None
 
 
 class CapaCreate(CapaBase):
@@ -88,6 +89,7 @@ class CapaUpdate(BaseModel):
     owner_id: int | None = None
     supplier_id: int | None = None
     due_date: date | None = None
+    effectiveness_due_date: date | None = None
 
 
 class CapaStatusChange(BaseModel):
@@ -129,6 +131,7 @@ class CapaRead(ORMModel):
     effectiveness_notes: str | None
     effectiveness_verified_by: int | None
     effectiveness_verified_at: datetime | None
+    effectiveness_due_date: date | None
     owner_id: int | None
     supplier_id: int | None
     due_date: date | None
