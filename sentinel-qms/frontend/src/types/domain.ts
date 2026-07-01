@@ -195,6 +195,7 @@ export interface Capa {
   d3_containment?: string;
   d4_root_cause?: string;
   root_cause_method?: string;
+  five_whys?: { why?: string; because?: string }[];
   d5_corrective_action?: string;
   d6_implementation?: string;
   d7_preventive_action?: string;

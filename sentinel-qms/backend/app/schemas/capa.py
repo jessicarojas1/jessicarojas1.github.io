@@ -10,6 +10,13 @@ from app.models.capa import CapaActionStatus, CapaStatus, CapaType
 from app.schemas.common import ESignatureIn, ORMModel
 
 
+class FiveWhyStep(BaseModel):
+    """One step in a structured 5-Why root-cause chain."""
+
+    why: str | None = None
+    because: str | None = None
+
+
 class CapaActionBase(BaseModel):
     description: str = Field(..., min_length=1)
     action_kind: str = Field(default="corrective", max_length=32)
@@ -49,6 +56,7 @@ class CapaBase(BaseModel):
     d3_containment: str | None = None
     d4_root_cause: str | None = None
     root_cause_method: str | None = Field(default=None, max_length=64)
+    five_whys: list[FiveWhyStep] | None = None
     d5_corrective_action: str | None = None
     d6_implementation: str | None = None
     d7_preventive_action: str | None = None
@@ -72,6 +80,7 @@ class CapaUpdate(BaseModel):
     d3_containment: str | None = None
     d4_root_cause: str | None = None
     root_cause_method: str | None = Field(default=None, max_length=64)
+    five_whys: list[FiveWhyStep] | None = None
     d5_corrective_action: str | None = None
     d6_implementation: str | None = None
     d7_preventive_action: str | None = None
@@ -111,6 +120,7 @@ class CapaRead(ORMModel):
     d3_containment: str | None
     d4_root_cause: str | None
     root_cause_method: str | None
+    five_whys: list[FiveWhyStep] | None = None
     d5_corrective_action: str | None
     d6_implementation: str | None
     d7_preventive_action: str | None
