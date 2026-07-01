@@ -14,10 +14,15 @@ from sqlalchemy import (
     String,
     Text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import JSON
 
 from app.core.database import Base
 from app.models.base import SoftDeleteMixin, TimestampMixin
+
+# Use JSONB on Postgres, plain JSON elsewhere (SQLite in tests).
+_JSON = JSON().with_variant(JSONB, "postgresql")
 
 
 class CapaStatus(str, enum.Enum):
@@ -69,6 +74,9 @@ class Capa(Base, TimestampMixin, SoftDeleteMixin):
     root_cause_method: Mapped[str | None] = mapped_column(
         String(64), nullable=True
     )  # 5why/fishbone
+    # Structured 5-Why chain: ordered list of {"why": str, "because": str} steps.
+    # Augments the free-text ``d4_root_cause`` so the chain is queryable/displayable.
+    five_whys: Mapped[list | None] = mapped_column(_JSON, nullable=True, default=None)
     # D5 — Permanent corrective action (chosen)
     d5_corrective_action: Mapped[str | None] = mapped_column(Text, nullable=True)
     # D6 — Implement & validate
