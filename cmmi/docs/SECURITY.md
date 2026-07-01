@@ -65,14 +65,20 @@ CSP changes, update this section and
 | CDN asset | Version | SRI |
 |-----------|---------|-----|
 | Bootstrap CSS | 5.3.3 | ✅ `integrity=sha384-…` + `crossorigin` |
-| Bootstrap JS bundle | 5.3.3 | ✅ `integrity=sha384-…` + `crossorigin` |
-| Bootstrap Icons CSS | 1.11.3 | ❌ missing |
-| SheetJS `xlsx.full.min.js` | floating `xlsx` dist tag | ❌ missing |
+| Bootstrap JS bundle | 5.3.3 | ✅ `integrity=sha384-…` + `crossorigin` (hash corrected — was malformed) |
+| Bootstrap Icons CSS | 1.11.3 | ✅ `integrity=sha384-XGjxt…` + `crossorigin` |
+| SheetJS `xlsx.full.min.js` | **pinned `xlsx@0.18.5`** | ✅ `integrity=sha384-vtjas…` + `crossorigin` |
 
-A tampered Icons or SheetJS response would not be caught. **Action:** add
-`integrity` + `crossorigin` to both, and pin SheetJS to an explicit version so
-the hash is stable (see [../OPEN_ITEMS.md](../OPEN_ITEMS.md)). For the strongest
-posture, vendor all three locally and drop the CDN from the CSP
+All four CDN assets now carry SRI. Icons and SheetJS `integrity` + `crossorigin`
+were added, SheetJS was pinned from the floating `xlsx` dist tag to `xlsx@0.18.5`,
+and the Bootstrap JS bundle `integrity` — which had been **malformed (63 base64
+chars → 47 decoded bytes instead of 48) and would have failed SRI enforcement** —
+was replaced with the real hash. Hashes were computed with
+`openssl dgst -sha384 -binary | openssl base64 -A` from the exact files in the
+npm package tarballs (jsDelivr mirrors them byte-for-byte; verified by reproducing
+the known-correct Bootstrap CSS hash the same way). See
+[../OPEN_ITEMS.md](../OPEN_ITEMS.md). For the strongest posture, vendor all three
+locally and drop the CDN from the CSP
 ([../deployments/AIRGAPPED.md](../deployments/AIRGAPPED.md)).
 
 ## Data protection
@@ -116,7 +122,7 @@ covered in [../deployments/AWS.md](../deployments/AWS.md) and
   (`X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`,
   `X-Frame-Options`/`frame-ancestors`).
 - Keep the CSP `<meta>` intact (or tighten it and update these docs).
-- Keep CDN pins current and add the missing SRI hashes.
+- Keep CDN pins current (Bootstrap 5.3.3, Bootstrap Icons 1.11.3, SheetJS `xlsx@0.18.5`), re-computing SRI on any bump.
 - Use OIDC roles / managed identity for deploys; no static keys committed.
 - Ensure every publish includes the parent assets (`../cmmidev3.js` et al.).
 

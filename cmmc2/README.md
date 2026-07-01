@@ -105,8 +105,8 @@ No package manager, no bundler, no `node_modules`. Dependencies are loaded at ru
 |---|---|---|---|
 | Bootstrap (CSS) | **5.3.3** | `cdn.jsdelivr.net` | SRI `sha384-QWTKZ…` present |
 | Bootstrap (JS bundle) | **5.3.3** | `cdn.jsdelivr.net` | SRI `sha384-Yvpcr…` present |
-| Bootstrap Icons | **1.11.3** | `cdn.jsdelivr.net` | (no SRI — see OPEN_ITEMS) |
-| SheetJS (`xlsx.full.min.js`) | latest (`/npm/xlsx`, unpinned) | `cdn.jsdelivr.net` | (no SRI/version pin — see OPEN_ITEMS) |
+| Bootstrap Icons | **1.11.3** | `cdn.jsdelivr.net` | SRI `sha384-XGjxt…` present |
+| SheetJS (`xlsx.full.min.js`) | **0.18.5** (`/npm/xlsx@0.18.5`, pinned) | `cdn.jsdelivr.net` | SRI `sha384-vtjas…` present |
 | Portfolio shared assets | repo-local | `../` | n/a |
 
 **Runtime:** any modern browser (Chromium, Firefox, Safari). Dark mode is the default

@@ -110,7 +110,7 @@ main thread (plus optional blob workers). No CUDA, no device plugin, no GPU node
       `frame-ancestors 'none'`.
 - [ ] `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`,
       minimal `Permissions-Policy`.
-- [ ] **SRI** present on all CDN assets (add to Bootstrap Icons + **pin & SRI SheetJS**).
+- [x] **SRI** present on all CDN assets — Bootstrap CSS + JS bundle, Bootstrap Icons, and SheetJS (pinned `xlsx@0.18.5`).
 - [ ] Consider self-hosting/vendoring CDN assets for regulated environments.
 
 ### Resilience & operations

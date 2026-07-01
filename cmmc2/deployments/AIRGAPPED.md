@@ -77,13 +77,13 @@ curl -Lo cmmc2/vendor/bootstrap/bootstrap.bundle.min.js https://cdn.jsdelivr.net
 curl -Lo cmmc2/vendor/bootstrap-icons/bootstrap-icons.min.css https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css
 curl -Lo cmmc2/vendor/bootstrap-icons/font/bootstrap-icons.woff2 https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/bootstrap-icons.woff2
 curl -Lo cmmc2/vendor/bootstrap-icons/font/bootstrap-icons.woff  https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/bootstrap-icons.woff
-# SheetJS — PIN a specific version for air-gap reproducibility (was unpinned upstream)
-curl -Lo cmmc2/vendor/xlsx/xlsx.full.min.js https://cdn.jsdelivr.net/npm/xlsx@0.20.3/dist/xlsx.full.min.js
+# SheetJS — pinned to the same version index.html now uses (xlsx@0.18.5, the last npm release)
+curl -Lo cmmc2/vendor/xlsx/xlsx.full.min.js https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js
 # Record integrity for the manifest
 sha384sum cmmc2/vendor/bootstrap/* cmmc2/vendor/bootstrap-icons/*.css cmmc2/vendor/xlsx/*.js
 ```
-> Fix the Icons CSS `url(...)` font paths to point at the vendored `font/` copies, and pin
-> SheetJS to a known version (upstream is unpinned — see [`../OPEN_ITEMS.md`](../OPEN_ITEMS.md)).
+> Fix the Icons CSS `url(...)` font paths to point at the vendored `font/` copies. SheetJS is
+> now pinned to `xlsx@0.18.5` in `index.html` (see [`../OPEN_ITEMS.md`](../OPEN_ITEMS.md)).
 
 ### 6.2 Rewrite `index.html` references (staging copy only)
 Repoint the four CDN references to local paths and drop the CDN hints:
@@ -93,7 +93,7 @@ Repoint the four CDN references to local paths and drop the CDN hints:
 | `https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css` | `vendor/bootstrap/bootstrap.min.css` |
 | `https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css` | `vendor/bootstrap-icons/bootstrap-icons.min.css` |
 | `https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js` | `vendor/bootstrap/bootstrap.bundle.min.js` |
-| `https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js` | `vendor/xlsx/xlsx.full.min.js` |
+| `https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js` | `vendor/xlsx/xlsx.full.min.js` |
 
 Also remove the `<link rel="preconnect"/dns-prefetch" href="https://cdn.jsdelivr.net">`
 hints (no external origin anymore).

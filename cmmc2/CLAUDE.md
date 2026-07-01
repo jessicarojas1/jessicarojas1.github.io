@@ -26,9 +26,9 @@ step.** All state is `localStorage`.
   `../users.js`, `../roles.js`, `../script.js`, `../analytics.js`, `../siteSearch.js`, and
   the navbar brand → `../index.html`. Editing those is a **repo-root** change, not a
   `cmmc2` change. A standalone deploy of `cmmc2/` must ship copies of these.
-- **CDN deps (pinned where noted):** Bootstrap **5.3.3** (CSS+JS, both with SRI),
-  Bootstrap Icons **1.11.3**, SheetJS `xlsx.full.min.js` (currently **unpinned** — a
-  known open item).
+- **CDN deps (all pinned + SRI):** Bootstrap **5.3.3** (CSS+JS), Bootstrap Icons
+  **1.11.3**, and SheetJS **`xlsx@0.18.5`** (`xlsx.full.min.js`). Every CDN `<link>`/
+  `<script>` carries a real `integrity` + `crossorigin`; recompute the hash on any bump.
 - **Theme:** dark by default; `data-bs-theme` is seeded from `localStorage['bsTheme']` by
   an inline head script and toggled by `#themeToggleBtn`.
 

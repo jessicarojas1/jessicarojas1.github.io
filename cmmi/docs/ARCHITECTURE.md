@@ -51,7 +51,7 @@ root via `../` references.
 6.      ../siteSearch.js   (defer)
 7.      branding.js        (defer)
 8.      ../cmmidev3.js         ← practice data + render/filter/export engine
-9. CDN  https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js  (no SRI — see OPEN_ITEMS)
+9. CDN  https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js  (pinned + SRI)
 ```
 
 An inline `<script>` in `<head>` runs first to set `data-bs-theme` from

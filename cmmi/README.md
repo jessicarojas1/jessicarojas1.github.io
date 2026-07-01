@@ -90,8 +90,8 @@ cmmi/
 | Component | Version | Source | SRI |
 |-----------|---------|--------|-----|
 | Bootstrap (CSS + JS bundle) | 5.3.3 | jsDelivr CDN | ✅ CSS + JS bundle |
-| Bootstrap Icons | 1.11.3 | jsDelivr CDN | ❌ (see OPEN_ITEMS) |
-| SheetJS (`xlsx.full.min.js`) | latest `xlsx` dist tag | jsDelivr CDN | ❌ (see OPEN_ITEMS) |
+| Bootstrap Icons | 1.11.3 | jsDelivr CDN | ✅ `sha384-XGjxt…` |
+| SheetJS (`xlsx.full.min.js`) | **0.18.5** (pinned) | jsDelivr CDN | ✅ `sha384-vtjas…` |
 | Excel export | SheetJS `XLSX.writeFile` | — | — |
 | Print output | `window.print()` | browser | — |
 | Theme | `data-bs-theme` from `localStorage['bsTheme']`, dark default | inline head script | — |

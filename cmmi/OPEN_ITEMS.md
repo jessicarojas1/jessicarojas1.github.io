@@ -24,6 +24,15 @@ Legend: ✅ done · 🟡 partial · 🔴 outstanding
     move to per-response **nonces** or **hashes** and drop `'unsafe-inline'`.
     Update the CSP verbatim copies in `docs/SECURITY.md` and
     `docs/ARCHITECTURE.md` when done.
+  - **Deferred this pass (honest):** dropping `'unsafe-inline'` is not a small,
+    safely-verifiable change. `index.html` has a large inline `<script>`, inline
+    `<style>`, and a few inline event handlers, and `../cmmidev3.js` injects
+    markup; the CSP ships via `<meta>`, which cannot mint a per-response nonce,
+    so the compliant paths are to externalize all inline JS/CSS (and rewrite
+    handlers to `addEventListener`) or enumerate script/style hashes — a full
+    behavioral refactor that can't be browser-verified here. Left tracked rather
+    than half-done. `frame-ancestors` is ignored in a `<meta>` CSP, so prefer it
+    in the edge header block (§7).
 
 - ✅ **Hardening wins already in place:** `default-src 'self'` (tighter than the
   sibling `cmmc2` site — no top-level `blob:`), `object-src 'none'`,
@@ -31,16 +40,27 @@ Legend: ✅ done · 🟡 partial · 🔴 outstanding
 
 ## 2. Subresource Integrity (SRI) coverage on CDN assets
 
-- 🟡 **SRI is present on only two of the four CDN assets.**
-  - **Present:** Bootstrap 5.3.3 CSS (`integrity=sha384-…`) and the Bootstrap
-    5.3.3 JS bundle (`integrity=sha384-…`).
-  - **Missing:** Bootstrap Icons 1.11.3 CSS and SheetJS `xlsx.full.min.js` have
-    **no** `integrity` attribute.
-  - **Impact:** A compromised/tampered CDN response for Icons or SheetJS would
-    not be caught by the browser; SheetJS runs at export time with DOM access.
-  - **Suggested action:** Add `integrity="sha384-…" crossorigin="anonymous"` to
-    the Icons `<link>` and the SheetJS `<script>` (pin SheetJS to an explicit
-    version rather than the floating `xlsx` dist tag so the hash is stable).
+- ✅ **All four CDN assets now carry SRI.**
+  - **Bootstrap 5.3.3 CSS:** already pinned + SRI (unchanged).
+  - **Bootstrap 5.3.3 JS bundle:** the `integrity` value was **malformed
+    (63 base64 chars → 47 decoded bytes instead of 48)** and did not match the
+    file jsDelivr serves — under SRI enforcement the bundle would have failed to
+    load, breaking modals / nav collapse / dropdowns. Replaced with the real
+    `sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz`.
+  - **Bootstrap Icons 1.11.3 CSS:** added
+    `integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"`.
+  - **SheetJS:** **pinned to `xlsx@0.18.5`** (was the floating `npm/xlsx` tag)
+    and added
+    `integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"`.
+  - **How the hashes were verified:** each hash was computed
+    (`openssl dgst -sha384 -binary | openssl base64 -A`) from the exact file
+    inside the corresponding npm package tarball, which jsDelivr mirrors
+    byte-for-byte. Sanity check: computing the Bootstrap **CSS** hash the same
+    way reproduces the already-present, correct CSS hash exactly, confirming the
+    method matches what the CDN serves.
+  - **Impact (closed):** a compromised/tampered CDN response for Icons or
+    SheetJS is now caught by the browser; SheetJS runs at export time with DOM
+    access, so pinning + SRI on it was the highest-value supply-chain fix.
 
 ## 3. Parent-asset coupling (`../cmmidev3.js` and friends)
 

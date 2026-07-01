@@ -19,6 +19,17 @@ apply and are marked as such.
 | Inline event handlers in `index.html` | TODO | Blocks the repo-wide "no inline handlers" standard; forces `'unsafe-inline'` | Migrate to `addEventListener` (as `branding.js` already does); use `data-*` hooks. |
 | `object-src 'none'`, `base-uri 'self'` | DONE | Hardening wins (no plugins, no `<base>` hijack) | Keep. |
 
+> **Deferred this pass (honest):** dropping `'unsafe-inline'` is **not** a small,
+> safely-verifiable change here. `index.html` (~2,800 lines) carries a large inline
+> `<script>`, inline `<style>`, and 39 inline event handlers; on a static host the CSP
+> is delivered via `<meta>`, which cannot mint a per-response **nonce**, so the only
+> compliant paths are (a) externalize *all* inline JS/CSS into files plus per-handler
+> `addEventListener` rewrites, or (b) enumerate script/style **hashes** — and inline
+> handlers can't be hash-allowed at all, so they must be externalized first. That is a
+> full behavioral refactor that cannot be browser-verified in this environment, so it is
+> left as a tracked item rather than half-done. Note `frame-ancestors` is **ignored** in
+> a `<meta>` CSP and therefore belongs in the edge header block (§3), not here.
+
 ---
 
 ## 2. Subresource Integrity (SRI) & dependency pinning
@@ -26,9 +37,9 @@ apply and are marked as such.
 | Item | Status | Impact | Suggested action |
 |---|---|---|---|
 | Bootstrap CSS `5.3.3` SRI | DONE | CDN tampering of core CSS detected | — |
-| Bootstrap JS bundle `5.3.3` SRI | DONE | CDN tampering of core JS detected | — |
-| Bootstrap Icons `1.11.3` SRI | TODO | Icon CSS could be swapped by a compromised CDN | Add `integrity` + `crossorigin` to the Icons `<link>`. |
-| SheetJS `xlsx.full.min.js` — **unpinned + no SRI** | TODO / HIGH | Loaded from `/npm/xlsx` (floating latest); a bad release or CDN compromise runs arbitrary JS in the user's browser | **Pin an exact version** (e.g. `xlsx@0.20.x`) and add SRI, or vendor it locally. |
+| Bootstrap JS bundle `5.3.3` SRI | ✅ DONE (hash corrected) | CDN tampering of core JS detected | The `integrity` value was **malformed (63 base64 chars → 47 decoded bytes, not 48)** and did not match the file jsDelivr serves — under SRI enforcement the Bootstrap bundle would have failed to load, breaking modals/nav/dropdowns. Replaced with the real `sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz` (computed from the `bootstrap@5.3.3` npm tarball that jsDelivr mirrors byte-for-byte — verified: the CSS hash computed the same way reproduces the existing, correct CSS hash exactly). |
+| Bootstrap Icons `1.11.3` SRI | ✅ DONE | Icon CSS could be swapped by a compromised CDN | Added `integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"` to the Icons `<link>`. Real hash from the `bootstrap-icons@1.11.3` npm tarball. |
+| SheetJS `xlsx.full.min.js` — **unpinned + no SRI** | ✅ DONE | Loaded from `/npm/xlsx` (floating latest); a bad release or CDN compromise runs arbitrary JS in the user's browser | **Pinned to `xlsx@0.18.5`** (the last npm-published release the floating tag resolved to — identical behavior) and added `integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"`. Real hash from the `xlsx@0.18.5` npm tarball. |
 | CDN availability / offline | PARTIAL | If jsDelivr is unreachable, Bootstrap/SheetJS fail and export breaks | Ship the **air-gapped/vendored** variant (see [`deployments/AIRGAPPED.md`](deployments/AIRGAPPED.md)) for offline/regulated environments; consider self-hosting all assets by default. |
 
 ---

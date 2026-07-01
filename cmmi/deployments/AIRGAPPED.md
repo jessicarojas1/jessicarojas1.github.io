@@ -81,9 +81,9 @@ curl -Lo cmmi/vendor/icons/fonts/bootstrap-icons.woff2 \
 curl -Lo cmmi/vendor/icons/fonts/bootstrap-icons.woff \
   https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/bootstrap-icons.woff
 
-# SheetJS (pin an explicit version for a stable offline copy)
+# SheetJS (pinned to the same version index.html now uses — xlsx@0.18.5)
 curl -Lo cmmi/vendor/xlsx/xlsx.full.min.js \
-  https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js
+  https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js
 ```
 
 Rewrite `cmmi/index.html` references (CDN → `vendor/`) and **tighten the CSP** so

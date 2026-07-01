@@ -63,15 +63,21 @@ default-src 'self' blob:; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inl
 | Asset | Version | SRI |
 |---|---|---|
 | Bootstrap CSS | 5.3.3 | ✅ `sha384-QWTKZ…` |
-| Bootstrap JS bundle | 5.3.3 | ✅ `sha384-Yvpcr…` |
-| Bootstrap Icons | 1.11.3 | ❌ add |
-| SheetJS `xlsx.full.min.js` | **unpinned** (`/npm/xlsx`) | ❌ pin + add |
+| Bootstrap JS bundle | 5.3.3 | ✅ `sha384-Yvpcr…5s9f…` (corrected — see note) |
+| Bootstrap Icons | 1.11.3 | ✅ `sha384-XGjxt…` |
+| SheetJS `xlsx.full.min.js` | **pinned `0.18.5`** (`/npm/xlsx@0.18.5`) | ✅ `sha384-vtjas…` |
 
-The unpinned SheetJS is the **highest supply-chain risk**: a floating `latest` served by a
+SheetJS was previously the **highest supply-chain risk**: a floating `latest` served by a
 compromised or mis-published CDN release would execute arbitrary JS in the user's browser
-with full access to the (CUI-adjacent) `localStorage` assessment. **Action:** pin an exact
-version and add SRI, or vendor SheetJS locally (default in the air-gapped build). The CSP's
-restriction of `script-src` to `cdn.jsdelivr.net` limits, but does not eliminate, this risk.
+with full access to the (CUI-adjacent) `localStorage` assessment. It is now **pinned to
+`xlsx@0.18.5` with SRI**; Bootstrap Icons now carries SRI; and the Bootstrap JS bundle's
+`integrity` value — which had been **malformed (63 base64 chars, decoding to 47 bytes
+instead of 48) and would have failed SRI enforcement** — was replaced with the real hash.
+All hashes were computed with `openssl dgst -sha384 -binary | openssl base64 -A` from the
+exact files in the corresponding npm tarballs (jsDelivr mirrors them byte-for-byte; verified
+by reproducing the known-correct Bootstrap CSS hash the same way). The remaining hardening
+step is to vendor SheetJS locally (default in the air-gapped build). The CSP's restriction
+of `script-src` to `cdn.jsdelivr.net` limits, but does not eliminate, CDN-origin risk.
 
 ## 5. Data protection
 
@@ -121,15 +127,15 @@ restriction of `script-src` to `cdn.jsdelivr.net` limits, but does not eliminate
 |---|---|---|
 | `'unsafe-inline'` scripts+styles | Weakens XSS defense | Externalize inline code; drop `'unsafe-inline'`; add nonces/hashes |
 | Inline event handlers in `index.html` | Forces `'unsafe-inline'`; violates repo standard | Migrate to `addEventListener` |
-| SheetJS unpinned, no SRI | Supply-chain RCE-in-browser risk | Pin + SRI or vendor |
-| Icons no SRI | CDN tamper risk | Add SRI |
+| ~~SheetJS unpinned, no SRI~~ ✅ fixed | Supply-chain RCE-in-browser risk | Pinned `xlsx@0.18.5` + SRI (vendor for air-gap) |
+| ~~Icons no SRI~~ ✅ fixed | CDN tamper risk | SRI added |
 | CSP only via `<meta>` | No `frame-ancestors`/reporting | Add CSP + security headers at edge |
 | `localStorage`-only data | Per-browser; remanence on shared devices | User guidance; add JSON export/import backup |
 
 ## 10. Operator responsibilities
 
 1. Serve over TLS with HSTS; add the security-header block from your deployment guide.
-2. Keep CDN pins current and add the missing SRI/pins (SheetJS, Icons).
+2. Keep CDN pins current (Bootstrap 5.3.3, Bootstrap Icons 1.11.3, SheetJS `xlsx@0.18.5`), re-computing SRI on any bump.
 3. Enable and retain edge access logs; wire CSP reporting if feasible.
 4. Restrict the deploy pipeline to a least-privilege OIDC role/managed identity.
 5. For CUI/regulated use, deploy the air-gapped vendored build.

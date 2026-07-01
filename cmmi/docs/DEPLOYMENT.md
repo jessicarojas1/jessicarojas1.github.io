@@ -95,8 +95,8 @@ a GPU.
 
 ### Hardening
 - [ ] CSP `<meta>` intact and unmodified (or tightened + docs updated).
-- [ ] Add SRI to Bootstrap Icons + SheetJS (currently missing — see
-      [../OPEN_ITEMS.md](../OPEN_ITEMS.md)).
+- [x] SRI present on all CDN assets — Bootstrap CSS + JS bundle, Bootstrap Icons,
+      and SheetJS (pinned `xlsx@0.18.5`); see [../OPEN_ITEMS.md](../OPEN_ITEMS.md).
 - [ ] Edge headers: `X-Content-Type-Options: nosniff`, `Referrer-Policy`,
       `Permissions-Policy`, `X-Frame-Options`/`frame-ancestors`.
 - [ ] `object-src 'none'` and `base-uri 'self'` preserved.

@@ -27,8 +27,8 @@ No Node/PHP/Python runtime is involved at serve time; hosting only needs to retu
    privacy/compliance stance for a DoD/CUI audience.
 2. **Zero build.** The artifact is the source. Ship `index.html` + `branding.js` (+ parent
    shared assets) verbatim. No transpile/bundle step to break or to trust.
-3. **Progressive dependency on the CDN.** Bootstrap/Icons/SheetJS come from jsDelivr with
-   SRI on the Bootstrap core. An air-gapped variant vendors them (see
+3. **Progressive dependency on the CDN.** Bootstrap/Icons/SheetJS come from jsDelivr, all
+   pinned and carrying SRI. An air-gapped variant vendors them (see
    [`../deployments/AIRGAPPED.md`](../deployments/AIRGAPPED.md)).
 4. **Standards-faithful content.** The datasets encode NIST SP 800-171 Rev 2 (17 L1 / 110
    L2 across 14 domains) and NIST SP 800-172 (24 L3 enhanced) practices, with SPRS scoring
@@ -92,7 +92,7 @@ There is **no server configuration and no environment variables** for the runnin
 | Theme (dark/light) | `data-bs-theme` | `localStorage['bsTheme']` | Seeded in `<head>`; toggled by `#themeToggleBtn` |
 | Branding (logo/name/accent) | `branding.js` | `localStorage['cmmc2.branding.v1']` | Sanitized + escaped; live-applied; default accent `#ff5811` |
 | Assessment state | inline script | `localStorage` | Per-control status/notes/flags, level selection |
-| CDN version pins | `index.html` `<link>`/`<script>` | source | Bootstrap 5.3.3 (pinned+SRI), Icons 1.11.3, SheetJS unpinned |
+| CDN version pins | `index.html` `<link>`/`<script>` | source | Bootstrap 5.3.3 (pinned+SRI), Icons 1.11.3 (pinned+SRI), SheetJS `xlsx@0.18.5` (pinned+SRI) |
 
 Deploy-time configuration (cache-control, security headers, CSP-as-header) lives in the
 hosting layer — see the `deployments/` guides and [`DEPLOYMENT.md`](DEPLOYMENT.md).
@@ -133,7 +133,7 @@ There are **no HTTP status/error codes to document** because the app owns no end
   export and blob-backed workers; `object-src 'none'` and `base-uri 'self'` are hardening.
   `'unsafe-inline'` on scripts/styles is a **known limitation** driven by inline code in
   `index.html` (tracked in [`../OPEN_ITEMS.md`](../OPEN_ITEMS.md)).
-- **SRI** on Bootstrap CSS + JS; **to add** on Icons + SheetJS.
+- **SRI** on all four CDN assets: Bootstrap CSS + JS bundle, Bootstrap Icons, and SheetJS (`xlsx@0.18.5`).
 - **No auth, no secrets, no PII egress.** The login modal is a shared UI stub and does not
   gate data; assessment content stays in `localStorage`.
 - **Input sanitization** in `branding.js` (URL allowlist + HTML escaping).
