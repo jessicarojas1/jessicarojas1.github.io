@@ -1,11 +1,15 @@
 'use client';
 
 import { useMemo } from 'react';
-import { ShieldCheck, AlertTriangle, Clock, CheckCircle, TrendingUp, FileWarning } from 'lucide-react';
+import { AlertTriangle, Clock, CheckCircle, FileWarning } from 'lucide-react';
 import { SEED_CONTROLS, SEED_EVIDENCE } from '@/lib/data';
-import { computeSummary, statusColor, statusLabel } from '@/lib/utils';
+import { computeSummary } from '@/lib/utils';
 import { StatusBadge } from '@/components/controls/StatusBadge';
 import Link from 'next/link';
+
+// Date.now() is impure and must not be called during render/in a hook body —
+// module scope evaluates once at load time, not per render.
+const EXPIRING_SOON_THRESHOLD = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
 
 export default function DashboardPage() {
   const summary = useMemo(() => computeSummary(SEED_CONTROLS), []);
@@ -129,7 +133,7 @@ export default function DashboardPage() {
           { label: 'Evidence Items', value: SEED_EVIDENCE.length, icon: '📁' },
           { label: 'Reviewed', value: SEED_EVIDENCE.filter(e => e.reviewed).length, icon: '✅' },
           { label: 'Pending Review', value: SEED_EVIDENCE.filter(e => !e.reviewed).length, icon: '⏳' },
-          { label: 'Expiring Soon', value: SEED_EVIDENCE.filter(e => e.expiry_date && new Date(e.expiry_date) < new Date(Date.now() + 90*24*60*60*1000)).length, icon: '⚠️' },
+          { label: 'Expiring Soon', value: SEED_EVIDENCE.filter(e => e.expiry_date && new Date(e.expiry_date) < EXPIRING_SOON_THRESHOLD).length, icon: '⚠️' },
         ].map(s => (
           <div key={s.label} className="card p-4 flex items-center gap-3">
             <span className="text-2xl">{s.icon}</span>

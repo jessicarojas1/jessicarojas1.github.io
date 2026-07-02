@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Search, FileText, Tag, CheckCircle, Clock, Trash2, ExternalLink } from 'lucide-react';
+import { Upload, Search, CheckCircle, Clock } from 'lucide-react';
 import { SEED_EVIDENCE, SEED_CONTROLS } from '@/lib/data';
 import { Evidence, EvidenceType } from '@/lib/types';
 import { formatDate, formatBytes } from '@/lib/utils';

@@ -60,7 +60,7 @@ npm install
 cp .env.local.example .env.local   # fill in values
 npm run dev                        # http://localhost:3000
 npm run build && npm start         # production build (standalone)
-npm run lint                       # next lint (ESLint 9 / eslint-config-next)
+npm run lint                       # eslint . (flat config, ESLint 9 / eslint-config-next; Next 16 removed `next lint`)
 ```
 
 Apply the schema in Supabase (SQL Editor or `psql -f supabase/schema.sql`); create
