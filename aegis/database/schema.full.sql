@@ -2219,7 +2219,7 @@ CREATE TABLE IF NOT EXISTS aegis.kris (
     title character varying(255) NOT NULL,
     description text,
     unit character varying(50) DEFAULT 'count'::character varying NOT NULL,
-    direction character varying(10) DEFAULT 'higher_worse'::character varying NOT NULL,
+    direction character varying(20) DEFAULT 'higher_worse'::character varying NOT NULL,
     threshold_green numeric(15,4) NOT NULL,
     threshold_amber numeric(15,4) NOT NULL,
     threshold_red numeric(15,4) NOT NULL,

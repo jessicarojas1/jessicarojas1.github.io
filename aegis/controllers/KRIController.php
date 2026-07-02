@@ -21,9 +21,10 @@ class KRIController {
              WHERE k.is_active = TRUE
              ORDER BY k.title"
         );
-        // Add RAG status to each KRI
+        // Add RAG status + measurement-cadence status to each KRI
         foreach ($kris as &$k) {
-            $k['rag'] = self::ragStatus($k);
+            $k['rag']     = self::ragStatus($k);
+            $k['measure'] = self::measurementStatus($k['frequency'] ?? 'monthly', $k['latest_date'] ?? null, $k['created_at'] ?? null);
         }
         unset($k);
         $pageTitle    = 'Key Risk Indicators';
@@ -155,6 +156,39 @@ class KRIController {
      * result is a threshold breach. Public + static so breach detection is
      * reusable by the notifier and unit-testable in isolation.
      */
+    /**
+     * The measurement cadence expressed in days — how long a recorded value
+     * "lasts" before the KRI is due for its next reading. Pure + public static.
+     */
+    public static function measurementWindowDays(string $frequency): int {
+        return match ($frequency) {
+            'daily'     => 1,
+            'weekly'    => 7,
+            'monthly'   => 31,
+            'quarterly' => 92,
+            default     => 31,
+        };
+    }
+
+    /**
+     * Whether an active KRI is behind on measurement, based on its cadence and
+     * the last time a value was recorded (falling back to the KRI's creation
+     * date when it has never been measured): 'overdue' (past the window),
+     * 'due' (within the last 20% of the window) or 'ok'. Pure + public static so
+     * the notifier and the dashboard share one definition and it is unit-tested.
+     */
+    public static function measurementStatus(string $frequency, ?string $lastRecordedAt, ?string $createdAt): string {
+        $baseline = $lastRecordedAt ?: $createdAt;
+        if (empty($baseline)) return 'ok';
+        $ts = strtotime($baseline);
+        if ($ts === false) return 'ok';
+        $window  = self::measurementWindowDays($frequency);
+        $elapsed = (int) floor((strtotime('today') - $ts) / 86400);
+        if ($elapsed > $window) return 'overdue';
+        if ($elapsed >= (int) ceil($window * 0.8)) return 'due';
+        return 'ok';
+    }
+
     public static function ragStatus(array $kri): string {
         $val = $kri['latest_value'] ?? null;
         if ($val === null) return 'grey';
