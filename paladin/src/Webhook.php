@@ -130,6 +130,91 @@ final class Webhook
         return $count;
     }
 
+    /**
+     * Dead-lettered deliveries: failures that have exhausted their retry budget
+     * (no further automatic attempt scheduled) and still have a replayable body.
+     * Surfaced in the admin dead-letter console so an operator can manually
+     * replay once the downstream endpoint is healthy again.
+     * @return array<int,array<string,mixed>>
+     */
+    public static function deadLettered(int $limit = 200): array
+    {
+        try {
+            return Database::fetchAll(
+                "SELECT d.id, d.webhook_id, d.event, d.status_code, d.error, d.attempts,
+                        d.created_at, d.payload IS NOT NULL AS replayable,
+                        w.name AS hook_name, w.url AS hook_url, w.is_active
+                 FROM webhook_deliveries d JOIN webhooks w ON w.id = d.webhook_id
+                 WHERE d.success = FALSE AND d.next_retry_at IS NULL AND d.attempts >= ?
+                 ORDER BY d.created_at DESC
+                 LIMIT ?",
+                [self::MAX_ATTEMPTS, $limit]
+            );
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /** Count of dead-lettered deliveries (for admin badges). */
+    public static function deadLetterCount(): int
+    {
+        try {
+            return (int)(Database::fetchOne(
+                "SELECT COUNT(*) c FROM webhook_deliveries
+                 WHERE success = FALSE AND next_retry_at IS NULL AND attempts >= ?",
+                [self::MAX_ATTEMPTS]
+            )['c'] ?? 0);
+        } catch (\Throwable) {
+            return 0;
+        }
+    }
+
+    /**
+     * Manually replay a single stored delivery, regardless of its retry budget.
+     * Re-sends the original payload to its (still-active) webhook and updates the
+     * same delivery row in place with the fresh outcome. On a transient failure
+     * the delivery re-enters the normal backoff queue; on a permanent one it
+     * returns to the dead-letter list. Returns the HTTP status (0 = unreachable),
+     * or -1 when the delivery can't be replayed (missing / no payload / inactive).
+     */
+    public static function replay(int $deliveryId): int
+    {
+        try {
+            $r = Database::fetchOne(
+                "SELECT d.id, d.webhook_id, d.event, d.payload, d.attempts, w.url, w.secret, w.is_active
+                 FROM webhook_deliveries d JOIN webhooks w ON w.id = d.webhook_id
+                 WHERE d.id = ?",
+                [$deliveryId]
+            );
+        } catch (\Throwable) {
+            return -1;
+        }
+        if (!$r || $r['payload'] === null) return -1;
+        if (!in_array(strtolower((string)($r['is_active'] ?? '')), ['1', 't', 'true'], true)
+            && $r['is_active'] !== true) {
+            return -1; // don't replay to a paused endpoint
+        }
+
+        $attempt = (int)$r['attempts'] + 1;
+        $hook = ['id' => (int)$r['webhook_id'], 'url' => $r['url'], 'secret' => $r['secret']];
+        [$status, $error] = self::send($hook, (string)$r['event'], (string)$r['payload']);
+        $success   = $status >= 200 && $status < 300;
+        // Manual replay is operator-driven, not scheduled: on success the row
+        // clears; on failure it returns to the dead-letter list (next_retry_at
+        // NULL) for another explicit attempt rather than re-entering the auto
+        // backoff queue (whose budget is already spent).
+        try {
+            Database::query(
+                "UPDATE webhook_deliveries
+                 SET attempts = ?, success = ?, status_code = ?, error = ?, next_retry_at = NULL
+                 WHERE id = ?",
+                [$attempt, $success ? 't' : 'f', $status ?: null, $error, (int)$r['id']]
+            );
+        } catch (\Throwable) { /* best effort */ }
+        self::updateHookCounters((int)$r['webhook_id'], $status, $success);
+        return $status;
+    }
+
     /** Perform the signed HTTP POST. Returns [statusCode, errorOrNull]. */
     private static function send(array $hook, string $event, string $body): array
     {

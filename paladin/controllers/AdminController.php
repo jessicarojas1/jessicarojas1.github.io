@@ -934,6 +934,39 @@ class AdminController {
         header('Location: /admin/webhooks');
     }
 
+    /**
+     * Dead-letter console: deliveries that exhausted their automatic retry
+     * budget and were dropped. Lets an operator replay them once the downstream
+     * endpoint is healthy again (closes the "no dead-letter replay UI" gap).
+     */
+    public function webhookDeadLetters(): void {
+        Auth::requireAdmin();
+        $deliveries = Webhook::deadLettered();
+        require PALADIN_ROOT . '/views/admin/webhook_dead_letters.php';
+    }
+
+    /** Manually replay one stored (dead-lettered or failed) delivery. */
+    public function replayWebhookDelivery(int $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $status = Webhook::replay($id);
+        Auth::log('replay_webhook_delivery', 'webhook_deliveries', $id, ['status' => $status]);
+        if ($status >= 200 && $status < 300) {
+            $_SESSION['flash_success'] = "Delivery replayed — endpoint returned HTTP {$status}.";
+        } elseif ($status === -1) {
+            $_SESSION['flash_error'] = 'Delivery cannot be replayed (missing payload or paused endpoint).';
+        } else {
+            $_SESSION['flash_error'] = $status > 0
+                ? "Replay failed — endpoint returned HTTP {$status}."
+                : 'Replay failed — endpoint unreachable.';
+        }
+        $back = $_SERVER['HTTP_REFERER'] ?? '';
+        $dest = (is_string($back) && preg_match('#^/admin/webhooks(/\d+/deliveries|/dead-letters)?$#', parse_url($back, PHP_URL_PATH) ?? ''))
+            ? parse_url($back, PHP_URL_PATH)
+            : '/admin/webhooks/dead-letters';
+        header('Location: ' . $dest);
+    }
+
     // ── Retention rules ──────────────────────────────────────────────────────
     public function retention(): void {
         Auth::requireAdmin();
