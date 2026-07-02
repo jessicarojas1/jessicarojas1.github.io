@@ -51,6 +51,89 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: account_review_items; Type: TABLE; Schema: aegis; Owner: -
+--
+
+CREATE TABLE IF NOT EXISTS aegis.account_review_items (
+    id integer NOT NULL,
+    review_id integer NOT NULL,
+    account_name character varying(255) NOT NULL,
+    user_full_name character varying(255),
+    system_name character varying(255),
+    access_level character varying(100),
+    decision character varying(20) DEFAULT 'pending'::character varying,
+    decision_notes text,
+    reviewed_at timestamp without time zone,
+    reviewed_by integer,
+    tenant_id bigint DEFAULT 1 NOT NULL
+);
+
+ALTER TABLE ONLY aegis.account_review_items FORCE ROW LEVEL SECURITY;
+
+
+--
+-- Name: account_review_items_id_seq; Type: SEQUENCE; Schema: aegis; Owner: -
+--
+
+CREATE SEQUENCE aegis.account_review_items_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: account_review_items_id_seq; Type: SEQUENCE OWNED BY; Schema: aegis; Owner: -
+--
+
+ALTER SEQUENCE aegis.account_review_items_id_seq OWNED BY aegis.account_review_items.id;
+
+
+--
+-- Name: account_reviews; Type: TABLE; Schema: aegis; Owner: -
+--
+
+CREATE TABLE IF NOT EXISTS aegis.account_reviews (
+    id integer NOT NULL,
+    title character varying(255) NOT NULL,
+    description text,
+    scope text,
+    reviewer_id integer,
+    status character varying(20) DEFAULT 'pending'::character varying,
+    due_date date,
+    completed_at timestamp without time zone,
+    created_by integer,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now(),
+    tenant_id bigint DEFAULT 1 NOT NULL
+);
+
+ALTER TABLE ONLY aegis.account_reviews FORCE ROW LEVEL SECURITY;
+
+
+--
+-- Name: account_reviews_id_seq; Type: SEQUENCE; Schema: aegis; Owner: -
+--
+
+CREATE SEQUENCE aegis.account_reviews_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: account_reviews_id_seq; Type: SEQUENCE OWNED BY; Schema: aegis; Owner: -
+--
+
+ALTER SEQUENCE aegis.account_reviews_id_seq OWNED BY aegis.account_reviews.id;
+
+
+--
 -- Name: active_sessions; Type: TABLE; Schema: aegis; Owner: -
 --
 
@@ -100,6 +183,45 @@ CREATE SEQUENCE aegis.activity_log_id_seq
 --
 
 ALTER SEQUENCE aegis.activity_log_id_seq OWNED BY aegis.activity_log.id;
+
+
+--
+-- Name: ai_inference_log; Type: TABLE; Schema: aegis; Owner: -
+--
+
+CREATE TABLE IF NOT EXISTS aegis.ai_inference_log (
+    id integer NOT NULL,
+    user_id integer,
+    provider character varying(50),
+    model character varying(100),
+    action character varying(100),
+    input_hash character varying(64),
+    tokens_used integer,
+    duration_ms integer,
+    success boolean DEFAULT true NOT NULL,
+    error_msg text,
+    created_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: ai_inference_log_id_seq; Type: SEQUENCE; Schema: aegis; Owner: -
+--
+
+CREATE SEQUENCE aegis.ai_inference_log_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ai_inference_log_id_seq; Type: SEQUENCE OWNED BY; Schema: aegis; Owner: -
+--
+
+ALTER SEQUENCE aegis.ai_inference_log_id_seq OWNED BY aegis.ai_inference_log.id;
 
 
 --
@@ -423,7 +545,8 @@ CREATE TABLE IF NOT EXISTS aegis.assets (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     asset_code character varying(20),
-    tenant_id bigint DEFAULT 1 NOT NULL
+    tenant_id bigint DEFAULT 1 NOT NULL,
+    created_by integer
 );
 
 ALTER TABLE ONLY aegis.assets FORCE ROW LEVEL SECURITY;
@@ -474,7 +597,8 @@ CREATE TABLE IF NOT EXISTS aegis.audit_findings (
     updated_at timestamp without time zone DEFAULT now(),
     tenant_id bigint DEFAULT 1 NOT NULL,
     root_cause text,
-    preventive_action text
+    preventive_action text,
+    audit_id integer
 );
 
 ALTER TABLE ONLY aegis.audit_findings FORCE ROW LEVEL SECURITY;
@@ -922,7 +1046,8 @@ CREATE TABLE IF NOT EXISTS aegis.compliance_objectives (
     weight numeric(5,2) DEFAULT 1.0,
     sort_order integer DEFAULT 0,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    tenant_id bigint DEFAULT 1 NOT NULL
+    tenant_id bigint DEFAULT 1 NOT NULL,
+    additional_information text
 );
 
 ALTER TABLE ONLY aegis.compliance_objectives FORCE ROW LEVEL SECURITY;
@@ -2013,7 +2138,8 @@ CREATE TABLE IF NOT EXISTS aegis.incident_updates (
     user_id integer,
     content text NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    tenant_id bigint DEFAULT 1 NOT NULL
+    tenant_id bigint DEFAULT 1 NOT NULL,
+    update_type character varying(50) DEFAULT 'comment'::character varying NOT NULL
 );
 
 ALTER TABLE ONLY aegis.incident_updates FORCE ROW LEVEL SECURITY;
@@ -2060,8 +2186,12 @@ CREATE TABLE IF NOT EXISTS aegis.incidents (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     tenant_id bigint DEFAULT 1 NOT NULL,
+    phi_involved boolean DEFAULT false NOT NULL,
+    breach_notification_required boolean DEFAULT false NOT NULL,
+    breach_notification_sent_at timestamp without time zone,
+    root_cause text,
     CONSTRAINT incidents_severity_check CHECK (((severity)::text = ANY ((ARRAY['critical'::character varying, 'high'::character varying, 'medium'::character varying, 'low'::character varying])::text[]))),
-    CONSTRAINT incidents_status_check CHECK (((status)::text = ANY ((ARRAY['open'::character varying, 'investigating'::character varying, 'resolved'::character varying, 'closed'::character varying])::text[])))
+    CONSTRAINT incidents_status_check CHECK (((status)::text = ANY ((ARRAY['open'::character varying, 'investigating'::character varying, 'contained'::character varying, 'resolved'::character varying, 'closed'::character varying])::text[])))
 );
 
 ALTER TABLE ONLY aegis.incidents FORCE ROW LEVEL SECURITY;
@@ -2097,7 +2227,8 @@ CREATE TABLE IF NOT EXISTS aegis.issue_updates (
     user_id integer,
     content text NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    tenant_id bigint DEFAULT 1 NOT NULL
+    tenant_id bigint DEFAULT 1 NOT NULL,
+    update_type character varying(50) DEFAULT 'comment'::character varying NOT NULL
 );
 
 ALTER TABLE ONLY aegis.issue_updates FORCE ROW LEVEL SECURITY;
@@ -2145,6 +2276,7 @@ CREATE TABLE IF NOT EXISTS aegis.issues (
     tenant_id bigint DEFAULT 1 NOT NULL,
     root_cause text,
     preventive_action text,
+    resolution text,
     CONSTRAINT issues_severity_check CHECK (((severity)::text = ANY ((ARRAY['critical'::character varying, 'high'::character varying, 'medium'::character varying, 'low'::character varying])::text[]))),
     CONSTRAINT issues_status_check CHECK (((status)::text = ANY ((ARRAY['open'::character varying, 'in_progress'::character varying, 'pending_review'::character varying, 'resolved'::character varying, 'closed'::character varying, 'wont_fix'::character varying, 'reopened'::character varying])::text[])))
 );
@@ -2406,6 +2538,38 @@ CREATE SEQUENCE aegis.odp_entries_id_seq
 --
 
 ALTER SEQUENCE aegis.odp_entries_id_seq OWNED BY aegis.odp_entries.id;
+
+
+--
+-- Name: password_history; Type: TABLE; Schema: aegis; Owner: -
+--
+
+CREATE TABLE IF NOT EXISTS aegis.password_history (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    password_hash character varying(255) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: password_history_id_seq; Type: SEQUENCE; Schema: aegis; Owner: -
+--
+
+CREATE SEQUENCE aegis.password_history_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: password_history_id_seq; Type: SEQUENCE OWNED BY; Schema: aegis; Owner: -
+--
+
+ALTER SEQUENCE aegis.password_history_id_seq OWNED BY aegis.password_history.id;
 
 
 --
@@ -4503,6 +4667,38 @@ ALTER SEQUENCE aegis.threats_id_seq OWNED BY aegis.threats.id;
 
 
 --
+-- Name: totp_used_codes; Type: TABLE; Schema: aegis; Owner: -
+--
+
+CREATE TABLE IF NOT EXISTS aegis.totp_used_codes (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    window_counter bigint NOT NULL,
+    used_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: totp_used_codes_id_seq; Type: SEQUENCE; Schema: aegis; Owner: -
+--
+
+CREATE SEQUENCE aegis.totp_used_codes_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: totp_used_codes_id_seq; Type: SEQUENCE OWNED BY; Schema: aegis; Owner: -
+--
+
+ALTER SEQUENCE aegis.totp_used_codes_id_seq OWNED BY aegis.totp_used_codes.id;
+
+
+--
 -- Name: treatment_milestones; Type: TABLE; Schema: aegis; Owner: -
 --
 
@@ -4682,7 +4878,10 @@ CREATE TABLE IF NOT EXISTS aegis.users (
     mfa_enabled boolean DEFAULT false,
     sso_provider character varying(100),
     sso_subject character varying(500),
-    sso_only boolean DEFAULT false NOT NULL
+    sso_only boolean DEFAULT false NOT NULL,
+    sessions_revoked_at timestamp without time zone,
+    force_password_change boolean DEFAULT false NOT NULL,
+    password_changed_at timestamp without time zone
 );
 
 ALTER TABLE ONLY aegis.users FORCE ROW LEVEL SECURITY;
