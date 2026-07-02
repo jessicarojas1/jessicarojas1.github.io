@@ -158,14 +158,14 @@ app boots but will error on first DB use — see [§11](#11-troubleshooting).)
    (`mfa_secret`, `mfa_enabled`), plus an additional `settings` upsert block,
    plus a tolerant `CREATE INDEX IF NOT EXISTS` loop (index failures are logged,
    not fatal).
-2. **Applies the 32 numbered SQL migration files** from `database/migrations/`,
+2. **Applies the 38 numbered SQL migration files** from `database/migrations/`,
    in order, `001_enterprise_phase1.sql` … `032_remove_modules.sql`. Each file
    is executed inside a `try/catch`: a `PDOException` is logged as a **warning**
    and the loop continues, so a migration that is already partially applied
    cannot wedge the boot.
 3. Logs `Migrations applied.`
 
-> The list of 32 migration files is **hard-coded** in `install.php`. The
+> The list of 38 migration files is **hard-coded** in `install.php`. The
 > migration-integrity CI job (`scripts/verify_migrations.php`) statically checks
 > that every file on disk is registered (see [§6](#6-the-cicd-pipeline)). When
 > you add a migration file, you **must** also add it to that list.
@@ -562,7 +562,7 @@ What `roles.sql` does:
      from the DB.)
 3. **Push to `main`.** Render builds the image and deploys.
 4. **First boot.** `scripts/startup.sh` runs `install.php` → creates the `aegis`
-   schema, applies `schema.sql` + all 32 migrations, seeds defaults, and creates
+   schema, applies `schema.sql` + all 38 migrations, seeds defaults, and creates
    the admin user from `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
 5. **Health.** Render polls `/healthz`; traffic routes once healthy.
 6. **Harden the DB (recommended).** Connect as the DB owner, run

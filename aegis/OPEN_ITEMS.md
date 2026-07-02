@@ -27,7 +27,7 @@ Legend: **P1** address soon · **P2** opportunistic · **P3** polish · **DONE**
 | ID | Item | Impact | Suggested action |
 |---|---|---|---|
 | TD-8 (P1) | Legacy README/feature copy under-states SSO: **OIDC is fully implemented and wired** (`src/SSO.php`, `SSOController`); **SAML2 is not** implemented | Engineers may distrust/rebuild working OIDC, or expect SAML2 | Ensure all docs say "OIDC SSO implemented; SAML2 not supported" (this README/doc set does) |
-| — (P3) | `render.yaml` header comment says "five cron services" but defines **six** | Minor internal doc drift | Fix the comment to say six |
+| — (✅ resolved, Phase 23) | `render.yaml` header comment said "five" cron jobs but defines **six** — corrected to "six". Doc-set migration counts (32/36) also refreshed to **38** across `docs/` | — | Done |
 
 ---
 

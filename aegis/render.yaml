@@ -10,7 +10,7 @@
 # OPERATOR NOTES (please read before deploying):
 #   1. Render `cron` services require a PAID instance plan (`free` does not run
 #      cron). They are set to `starter` below — review the cost, or consolidate
-#      the five jobs into fewer services to reduce it (each script self-gates on
+#      the six jobs into fewer services to reduce it (each script self-gates on
 #      what is actually due, so e.g. notifications + reports + workflows could
 #      share one hourly service via `sh -c 'php a && php b'`).
 #   2. Set the shared secrets ONCE in the `aegis-secrets` env-var group below
