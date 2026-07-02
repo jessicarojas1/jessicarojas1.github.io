@@ -215,6 +215,7 @@ $sentFindingOverdue     = 0;
 $sentVendorCertExpiring = 0;
 $sentVendorContractExp  = 0;
 $sentKriMeasureOverdue  = 0;
+$sentAuditOverdue       = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -1272,6 +1273,86 @@ HTML;
     }
 } catch (\Throwable $e) {
     fwrite(STDERR, "[finding_remediation_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2c-ii. AUDIT SCHEDULE OVERDUE  (audit_schedule_overdue)
+// ═══════════════════════════════════════════════════════════════════════════════
+// A scheduled audit whose planned date has passed while it is still open (not
+// completed or cancelled, and no completed_date). Alerts the assigned auditor
+// (audits.auditor_id, falling back to the audit's creator). Distinct from
+// finding_remediation_overdue, which is on audit_findings, not the audit itself.
+try {
+    $auditRows = Database::fetchAll(
+        "SELECT a.id, a.name, a.audit_type, a.scheduled_date,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM audits a
+         JOIN users u ON u.id = COALESCE(a.auditor_id, a.created_by)
+         WHERE a.scheduled_date IS NOT NULL
+           AND a.scheduled_date < CURRENT_DATE
+           AND a.completed_date IS NULL
+           AND a.status NOT IN ('completed','cancelled')
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $auditByUser = [];
+    foreach ($auditRows as $row) {
+        $auditByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($auditByUser as $userId => $audits) {
+        $userId = (int) $userId;
+        if (!notifEnabled($userId, 'audit_schedule_overdue')) {
+            continue;
+        }
+        $email    = $audits[0]['email'];
+        $userName = $audits[0]['user_name'];
+
+        foreach ($audits as $audit) {
+            // Throttle: one reminder per audit per 7 days.
+            if (alreadyNotified($userId, 'audit_schedule_overdue', 'audit', (int) $audit['id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((strtotime('today') - strtotime($audit['scheduled_date'])) / 86400);
+            $schedDate   = date('M j, Y', strtotime($audit['scheduled_date']));
+            $auditName   = htmlspecialchars($audit['name'], ENT_QUOTES, 'UTF-8');
+            $auditType   = htmlspecialchars(ucfirst(str_replace('_', ' ', $audit['audit_type'])), ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>An audit assigned to you is <span style="color:#ef4444;font-weight:600">overdue to start ({$daysOverdue} days past its scheduled date)</span>:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Audit</th>
+    <th style="padding:8px;text-align:left">Type</th>
+    <th style="padding:8px;text-align:left">Scheduled</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$auditName}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$auditType}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$schedDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to start this audit or reschedule it.</p>
+HTML;
+
+            $subject = "Audit overdue: {$audit['name']}";
+            $body    = emailShell('Audit Schedule Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                $userId, 'audit_schedule_overdue', $email, $userName, $subject, $body,
+                ['audit' => $audit, 'daysOverdue' => $daysOverdue, 'scheduledDate' => $schedDate]
+            );
+            if ($sent) {
+                logNotification($userId, 'audit_schedule_overdue', 'audit', (int) $audit['id']);
+                $sentAuditOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[audit_schedule_overdue] ERROR: " . $e->getMessage() . "\n");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2363,6 +2444,7 @@ if (!empty($digestQueue)) {
         'vendor_cert_expiring'        => 'Vendor Certifications Expiring',
         'vendor_contract_expiring'    => 'Vendor Contracts Expiring',
         'kri_measurement_overdue'     => 'KRI Measurements Overdue',
+        'audit_schedule_overdue'      => 'Audits Overdue to Start',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -2500,4 +2582,5 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentPoamOverdue} POA&M overdue, {$sentAwarenessOverdue} training overdue, "
    . "{$sentControlRetestDue} control re-tests due, {$sentFindingOverdue} findings overdue, "
    . "{$sentVendorCertExpiring} vendor certs expiring, {$sentVendorContractExp} vendor contracts expiring, "
-   . "{$sentKriMeasureOverdue} KRI measurements overdue, {$sentDigests} digest(s) sent\n";
+   . "{$sentKriMeasureOverdue} KRI measurements overdue, {$sentAuditOverdue} audits overdue, "
+   . "{$sentDigests} digest(s) sent\n";

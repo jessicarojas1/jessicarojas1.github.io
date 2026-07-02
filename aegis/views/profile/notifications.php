@@ -131,6 +131,11 @@ $NOTIF_TYPES = [
         'description' => 'When a KRI you own has no reading recorded within its measurement frequency',
         'icon'        => 'speedometer2',
     ],
+    'audit_schedule_overdue' => [
+        'label'       => 'Audit overdue to start',
+        'description' => 'When an audit assigned to you is past its scheduled date and not yet completed',
+        'icon'        => 'calendar-check-fill',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────
