@@ -167,7 +167,11 @@ class SSO {
 
         $c       = self::config();
         $subject = $claims['sub'] ?? '';
-        $name    = trim(($claims['name'] ?? '') ?: ($claims['given_name'] ?? '') . ' ' . ($claims['family_name'] ?? ''));
+        // Sanitize the IdP-supplied display name on write (strip_tags), matching
+        // the profile-edit path (ProfileController uses Security::sanitizeInput).
+        // Names are interpolated into notification email bodies, so an untrusted
+        // or loosely-validated IdP claim must not carry markup into stored data.
+        $name    = Security::sanitizeInput(($claims['name'] ?? '') ?: (($claims['given_name'] ?? '') . ' ' . ($claims['family_name'] ?? '')));
         if (!$name) $name = explode('@', $email)[0];
 
         // Map IdP role claim to local AEGIS role
