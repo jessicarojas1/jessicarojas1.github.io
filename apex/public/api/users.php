@@ -122,6 +122,9 @@ $router->patch('/api/users/{id}/pin', function ($args) {
     $updated = Database::execute('UPDATE users SET pin_hash = :h WHERE id = :id', [':h' => $hash, ':id' => $args['id']]);
     if ($updated === 0) Response::notFound('User not found');
 
+    // Auth-event audit: record the credential change (actor + target).
+    Auth::recordAuthEvent('pin_change', $me['username'] ?? ($me['sub'] ?? null), $args['id']);
+
     Response::ok(['ok' => true]);
 });
 

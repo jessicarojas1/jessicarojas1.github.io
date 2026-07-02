@@ -29,8 +29,37 @@ try {
         $pdo->exec($sql);
         echo "[migrate] Done.\n";
     } else {
-        echo "[migrate] Schema already present — skipping.\n";
+        echo "[migrate] Schema already present — skipping full apply.\n";
     }
+
+    // Idempotently ensure the operational auth tables exist even on an
+    // already-populated DB. These are append-only / denylist tables that are
+    // never dropped or reseeded, so it is always safe to (re)ensure them.
+    // This is the forward-only slice for auth-event audit, login throttling,
+    // and JWT revocation (see OPEN_ITEMS.md).
+    $pdo->exec(<<<'SQL'
+        CREATE TABLE IF NOT EXISTS auth_events (
+          id         VARCHAR(30)  PRIMARY KEY,
+          identity   VARCHAR(255),
+          user_id    VARCHAR(10),
+          event      VARCHAR(30)  NOT NULL,
+          ip         VARCHAR(64),
+          user_agent VARCHAR(500),
+          created_at TIMESTAMPTZ  DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS idx_auth_events_identity ON auth_events(identity, created_at);
+        CREATE INDEX IF NOT EXISTS idx_auth_events_ip       ON auth_events(ip, created_at);
+
+        CREATE TABLE IF NOT EXISTS revoked_tokens (
+          jti        VARCHAR(64)  PRIMARY KEY,
+          user_id    VARCHAR(10),
+          expires_at TIMESTAMPTZ  NOT NULL,
+          revoked_at TIMESTAMPTZ  DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS idx_revoked_tokens_exp ON revoked_tokens(expires_at);
+        SQL
+    );
+    echo "[migrate] Auth tables ensured.\n";
 } catch (Throwable $e) {
     echo "[migrate] ERROR: " . $e->getMessage() . "\n";
     exit(1);

@@ -2,7 +2,7 @@
 FROM php:8.2-apache@sha256:034cb2b91d74209744da4eec2696075ed97f52788668ffa68967fdd6ee6a306f
 
 RUN apt-get update -qq && \
-    apt-get install -y --no-install-recommends libpq-dev && \
+    apt-get install -y --no-install-recommends libpq-dev curl && \
     docker-php-ext-install pdo pdo_pgsql && \
     a2enmod rewrite && \
     rm -rf /var/lib/apt/lists/*
@@ -46,5 +46,11 @@ RUN chmod +x /usr/local/bin/start.sh
 # drop-ALL-caps + read-only-rootfs (with /tmp as tmpfs). Render's PORT model
 # maps the platform port to 8080.
 EXPOSE 8080
+
+# Docker-native liveness probe (managed platforms use their own probes). Hits
+# the app's health endpoint on the unprivileged port.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD curl -fsS http://localhost:8080/api/health || exit 1
+
 USER www-data
 CMD ["start.sh"]

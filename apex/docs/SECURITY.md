@@ -31,7 +31,16 @@ PIN → verify.
   key rather than falling back. The dev-only fallback key is never used when
   `APP_ENV=production`.
 - **Token verification.** `verifyJWT()` recomputes the HMAC with `hash_equals()`
-  (constant-time) and rejects expired tokens. Only HS256 is accepted.
+  (constant-time), rejects expired tokens, and rejects any token whose `jti` is on
+  the **`revoked_tokens`** denylist. Only HS256 is accepted.
+- **Server-side revocation / logout.** Each JWT carries a random `jti`. `POST
+  /api/auth/logout` adds that `jti` to the `revoked_tokens` denylist (kept until
+  the token's natural `exp`, then purged), so a leaked bearer token cannot be
+  reused after logout — not just cleared from the cookie.
+- **Login throttling.** Failed logins are recorded in `auth_events` and an
+  identity or client IP is blocked (HTTP 429) after `APEX_LOGIN_MAX_ATTEMPTS`
+  (default 5) failures within `APEX_LOGIN_WINDOW_MIN` minutes (default 15). Set
+  `APEX_LOGIN_MAX_ATTEMPTS=0` to disable. Durable, cross-replica (DB-backed).
 - **Default PINs.** The seed accounts have well-known PINs, accepted **only** when
   `APEX_ALLOW_DEFAULT_PINS=1` and **never** in production. Rotate them at first
   login and keep the flag `0`.
@@ -67,8 +76,9 @@ enforced in `PATCH /api/users/{id}/pin`.
 - Apache forces HTTPS via `public/.htaccess` (redirects unless
   `X-Forwarded-Proto: https` or `HTTPS=on`) and sets **HSTS**
   (`max-age=31536000; includeSubDomains; preload`).
-- App→DB traffic honors `?sslmode=` in `DATABASE_URL`; use `require` or
-  `verify-full` in production.
+- App→DB traffic honors `?sslmode=` in `DATABASE_URL`; when `APP_ENV=production`
+  and no `sslmode` is specified, the connection **defaults to `sslmode=require`**
+  (TLS enforced). Set `verify-full` with a CA for MITM protection.
 - The auth cookie is `Secure` in production and always `HttpOnly` + `SameSite=Lax`.
 
 **At rest**
@@ -120,9 +130,10 @@ attributes; there are no inline event handlers (CSP-compliant per repo rules).
   and captured by the platform log pipeline. Ship these to a central,
   tamper-evident log store (CloudWatch/Log Analytics/SIEM) for retention and
   alerting.
-- **Gap to close for accreditation:** authentication events (login success/fail,
-  logout, PIN change) are not yet written to `history`. Add an auth-audit sink and
-  centralize logs before an ATO. See [OPEN_ITEMS.md](../OPEN_ITEMS.md).
+- **Authentication events** (login success/fail, logout, PIN change, lockout) are
+  persisted to the append-only **`auth_events`** audit sink with the submitted
+  identity, resolved `user_id`, client IP, and user agent. Centralize these to a
+  SIEM alongside `history` for retention and alerting before an ATO.
 
 ---
 

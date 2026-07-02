@@ -31,6 +31,9 @@ final class Auth
             'role'        => $user['role']     ?? 'viewer',
             'clearance'   => $user['clearance'] ?? null,
             'org'         => $user['org']      ?? null,
+            // jti: unique token id so the token can be revoked server-side
+            // (logout / logout-everywhere) via the revoked_tokens denylist.
+            'jti'         => bin2hex(random_bytes(16)),
             'iat'         => $now,
             'exp'         => $now + self::JWT_TTL_SECS,
         ];
@@ -57,6 +60,11 @@ final class Auth
             return null;
         }
         if (isset($payload['exp']) && $payload['exp'] < time()) {
+            return null;
+        }
+        // Server-side revocation: a token whose jti is on the denylist is
+        // rejected even though its signature is valid and it has not expired.
+        if (!empty($payload['jti']) && self::isRevoked((string)$payload['jti'])) {
             return null;
         }
         return $payload;
@@ -124,6 +132,113 @@ final class Auth
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
+    }
+
+    // ── Server-side token revocation (denylist keyed on jti) ─────────────
+
+    /** Revoke a token by its jti so it is rejected before its natural exp. */
+    public static function revokeJti(string $jti, int $exp, ?string $userId = null): void
+    {
+        if ($jti === '') {
+            return;
+        }
+        try {
+            Database::execute(
+                'INSERT INTO revoked_tokens (jti, user_id, expires_at)
+                      VALUES (:jti, :uid, to_timestamp(:exp))
+                 ON CONFLICT (jti) DO NOTHING',
+                [':jti' => $jti, ':uid' => $userId, ':exp' => $exp]
+            );
+            // Opportunistic cleanup so the denylist stays small.
+            Database::execute('DELETE FROM revoked_tokens WHERE expires_at < NOW()');
+        } catch (\Throwable $e) {
+            error_log('[apex-auth] revokeJti failed: ' . $e->getMessage());
+        }
+    }
+
+    private static function isRevoked(string $jti): bool
+    {
+        try {
+            $row = Database::fetchOne(
+                'SELECT 1 AS x FROM revoked_tokens WHERE jti = :jti AND expires_at > NOW()',
+                [':jti' => $jti]
+            );
+            return $row !== null;
+        } catch (\Throwable $e) {
+            // Fail open on denylist lookup errors (e.g. table missing on a
+            // partial deploy) rather than locking every user out; log loudly.
+            error_log('[apex-auth] isRevoked lookup failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    // ── Auth-event audit sink + login throttling ─────────────────────────
+
+    /**
+     * Persist an auth event (login_success | login_failed | logout |
+     * pin_change | locked_out) for audit and brute-force throttling.
+     * `identity` is the submitted userId/username (may be unknown); `userId`
+     * is the resolved account id when known.
+     */
+    public static function recordAuthEvent(string $event, ?string $identity, ?string $userId = null): void
+    {
+        try {
+            Database::execute(
+                'INSERT INTO auth_events (id, identity, user_id, event, ip, user_agent)
+                      VALUES (:id, :ident, :uid, :ev, :ip, :ua)',
+                [
+                    ':id'    => Database::newId('ae'),
+                    ':ident' => $identity !== null ? substr($identity, 0, 255) : null,
+                    ':uid'   => $userId,
+                    ':ev'    => $event,
+                    ':ip'    => self::clientIp(),
+                    ':ua'    => substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 500),
+                ]
+            );
+        } catch (\Throwable $e) {
+            error_log('[apex-auth] recordAuthEvent failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * True when the identity or client IP has exceeded the failed-login
+     * threshold inside the rolling window. Tunable via
+     * APEX_LOGIN_MAX_ATTEMPTS (default 5) and APEX_LOGIN_WINDOW_MIN (default 15).
+     */
+    public static function loginBlocked(string $identity, ?string $ip = null): bool
+    {
+        $max    = (int)(getenv('APEX_LOGIN_MAX_ATTEMPTS') ?: 5);
+        $window = (int)(getenv('APEX_LOGIN_WINDOW_MIN') ?: 15);
+        if ($max <= 0) {
+            return false; // throttling disabled
+        }
+        $ip = $ip ?? self::clientIp();
+        try {
+            $row = Database::fetchOne(
+                "SELECT COUNT(*) AS n FROM auth_events
+                  WHERE event = 'login_failed'
+                    AND created_at > NOW() - (:mins || ' minutes')::interval
+                    AND (identity = :ident OR ip = :ip)",
+                [':mins' => (string)$window, ':ident' => substr($identity, 0, 255), ':ip' => $ip]
+            );
+            return $row !== null && (int)$row['n'] >= $max;
+        } catch (\Throwable $e) {
+            error_log('[apex-auth] loginBlocked check failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /** Best-effort client IP for audit/throttle (trusts the front proxy XFF). */
+    public static function clientIp(): string
+    {
+        $xff = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+        if ($xff !== '') {
+            $first = trim(explode(',', $xff)[0]);
+            if ($first !== '') {
+                return substr($first, 0, 64);
+            }
+        }
+        return substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 64);
     }
 
     /** Read JWT from Authorization header or cookie. */

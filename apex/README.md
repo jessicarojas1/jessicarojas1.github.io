@@ -142,13 +142,17 @@ All routes return JSON. Successful responses are `{ "data": ..., "meta": ... }`.
 Errors are `{ "error": "...", "code": "..." }`.
 
 Authentication: send the JWT either in `Authorization: Bearer <token>` or
-via the `nexus_token` HttpOnly cookie set on login.
+via the `apex_token` HttpOnly cookie set on login. Each token carries a `jti`;
+logout adds it to the `revoked_tokens` denylist so the token cannot be reused
+until it expires. Failed logins are throttled per identity/IP
+(`APEX_LOGIN_MAX_ATTEMPTS` / `APEX_LOGIN_WINDOW_MIN`) and all auth events
+(login/logout/PIN change/lockout) are recorded in the `auth_events` audit sink.
 
 | Method  | Path                                       | Auth     | Notes |
 |---------|--------------------------------------------|----------|-------|
 | GET     | `/api/health`                              | none     | Liveness probe |
 | POST    | `/api/auth/login`                          | none     | Body: `{ userId, pin }` |
-| POST    | `/api/auth/logout`                         | any      | Clears the cookie |
+| POST    | `/api/auth/logout`                         | any      | Clears the cookie + revokes the token's `jti` |
 | GET     | `/api/auth/me`                             | any      | Current user payload |
 | GET     | `/api/projects`                            | any      | Projects the caller is a member of |
 | POST    | `/api/projects`                            | admin    | Creates a project + auto-adds creator |

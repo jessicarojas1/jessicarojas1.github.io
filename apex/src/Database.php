@@ -40,8 +40,13 @@ final class Database
             $user = $parts['user'] ?? '';
             $pass = isset($parts['pass']) ? urldecode($parts['pass']) : '';
 
-            // Honour ?sslmode= if present.
-            $sslmode = 'prefer';
+            // Honour ?sslmode= if present. Default to a TLS-requiring mode in
+            // production (fail closed on transport), and 'prefer' in dev so a
+            // local non-TLS Postgres still connects. Set an explicit
+            // sslmode=verify-full (with a CA) in prod DATABASE_URL for the
+            // strongest guarantee against MITM.
+            $isProd  = (getenv('APP_ENV') ?: 'development') === 'production';
+            $sslmode = $isProd ? 'require' : 'prefer';
             if (!empty($parts['query'])) {
                 parse_str($parts['query'], $q);
                 if (!empty($q['sslmode'])) {

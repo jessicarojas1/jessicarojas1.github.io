@@ -31,15 +31,26 @@ $router->post('/api/auth/login', function () {
         Response::error('userId and pin are required', 422, 'VALIDATION');
     }
 
+    // Brute-force throttle: block by identity or client IP once the failed
+    // attempt threshold is exceeded within the rolling window.
+    if (Auth::loginBlocked($userId)) {
+        Auth::recordAuthEvent('locked_out', $userId, null);
+        Response::error('Too many failed attempts. Try again later.', 429, 'RATE_LIMITED');
+    }
+
     $user = Database::fetchOne('SELECT * FROM users WHERE id = :id OR username = :id LIMIT 1', [':id' => $userId]);
     if ($user === null) {
         // Don't leak whether user exists.
+        Auth::recordAuthEvent('login_failed', $userId, null);
         Response::unauthorized('Invalid credentials');
     }
 
     if (!verifyPin($user, $pin)) {
+        Auth::recordAuthEvent('login_failed', $userId, $user['id']);
         Response::unauthorized('Invalid credentials');
     }
+
+    Auth::recordAuthEvent('login_success', $userId, $user['id']);
 
     $token = Auth::issueJWT($user);
     Auth::setCookie($token);
@@ -51,6 +62,13 @@ $router->post('/api/auth/login', function () {
 });
 
 $router->post('/api/auth/logout', function () {
+    // Server-side revocation: if a valid token is presented, add its jti to
+    // the denylist so a leaked bearer token cannot be reused until exp.
+    $payload = Auth::optionalAuth();
+    if ($payload !== null && !empty($payload['jti']) && !empty($payload['exp'])) {
+        Auth::revokeJti((string)$payload['jti'], (int)$payload['exp'], $payload['sub'] ?? null);
+        Auth::recordAuthEvent('logout', $payload['username'] ?? null, $payload['sub'] ?? null);
+    }
     Auth::clearCookie();
     Response::ok(['ok' => true]);
 });

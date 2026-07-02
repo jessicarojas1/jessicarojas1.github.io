@@ -1,6 +1,12 @@
 -- ════════════════════════════════════════════════════════════════════════
---  NEXUS  ·  PostgreSQL schema + seed data
+--  APEX  ·  PostgreSQL schema + seed data
 --  Apply with:  psql $DATABASE_URL -f schema.sql
+--
+--  NOTE: this file DROPS and reseeds the core tables — it is the fresh-install
+--  reference applied by scripts/migrate.php only when the `users` table is
+--  absent. migrate.php ALSO idempotently ensures the operational auth tables
+--  (auth_events, revoked_tokens) exist on every boot, so those are defined
+--  here with CREATE ... IF NOT EXISTS and are never dropped/reseeded.
 -- ════════════════════════════════════════════════════════════════════════
 
 DROP TABLE IF EXISTS app_settings    CASCADE;
@@ -145,6 +151,36 @@ CREATE TABLE IF NOT EXISTS app_settings (
   updated_at TIMESTAMPTZ  DEFAULT NOW()
 );
 
+-- ─── auth_events (auth-audit sink + login-throttle backing store) ───────
+-- Append-only record of authentication events (login_success, login_failed,
+-- logout, pin_change, locked_out). Powers the auth audit trail and the
+-- brute-force login throttle. `identity` is the submitted userId/username
+-- (may be unknown); `user_id` is the resolved account when known. Not dropped
+-- on reseed, and ensured on every boot by scripts/migrate.php.
+CREATE TABLE IF NOT EXISTS auth_events (
+  id         VARCHAR(30)  PRIMARY KEY,
+  identity   VARCHAR(255),
+  user_id    VARCHAR(10),
+  event      VARCHAR(30)  NOT NULL,
+  ip         VARCHAR(64),
+  user_agent VARCHAR(500),
+  created_at TIMESTAMPTZ  DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_auth_events_identity ON auth_events(identity, created_at);
+CREATE INDEX IF NOT EXISTS idx_auth_events_ip       ON auth_events(ip, created_at);
+
+-- ─── revoked_tokens (JWT denylist keyed on jti for server-side logout) ──
+-- A logged-out / revoked JWT jti is stored here until its natural expiry so a
+-- leaked bearer token cannot be reused. Rows past expires_at are purged
+-- opportunistically. Not dropped on reseed; ensured on every boot.
+CREATE TABLE IF NOT EXISTS revoked_tokens (
+  jti        VARCHAR(64)  PRIMARY KEY,
+  user_id    VARCHAR(10),
+  expires_at TIMESTAMPTZ  NOT NULL,
+  revoked_at TIMESTAMPTZ  DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_revoked_tokens_exp ON revoked_tokens(expires_at);
+
 -- ════════════════════════════════════════════════════════════════════════
 --  SEED DATA
 -- ════════════════════════════════════════════════════════════════════════
@@ -161,7 +197,7 @@ INSERT INTO users (id, username, display_name, first_name, last_name, role, clea
   ('brown', 'brown', 'Sarah Brown',   'Sarah',   'Brown', 'viewer', 'UNCLASSIFIED', 'DISA', '$2y$12$G69IfpcRABdTiLLEKa/uc.kaW2vd2nWCM/G/TjPIAFyG8VN.egCfK');
 
 -- The auth handler ALSO accepts the default PIN fallback when
--- the env var NEXUS_ALLOW_DEFAULT_PINS=1. This is convenient for first-run
+-- the env var APEX_ALLOW_DEFAULT_PINS=1 (non-production only). Convenient for first-run
 -- Render deploys. After first login, run `php scripts/hash-pins.php` to
 -- regenerate fresh bcrypt hashes if desired.
 
