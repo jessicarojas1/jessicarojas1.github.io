@@ -361,7 +361,7 @@
   dz.addEventListener('drop', async (e) => {
     dz.classList.remove('dragover');
     const items = e.dataTransfer.items;
-    let files = [];
+    let files;
     if (items && items.length && items[0].webkitGetAsEntry) {
       files = await readDataTransfer(items);
     } else {

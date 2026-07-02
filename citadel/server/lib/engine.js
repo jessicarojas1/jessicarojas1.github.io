@@ -50,7 +50,7 @@ const MAX_TEXT = 2 * 1024 * 1024;
 const MAX_TOTAL_BYTES = parseInt(process.env.CITADEL_MAX_TOTAL_BYTES || String(64 * 1024 * 1024), 10);
 
 function walk(dir, base, out) {
-  let items = [];
+  let items;
   try { items = fs.readdirSync(dir, { withFileTypes: true }); } catch (e) { return out; }
   for (const it of items) {
     const full = path.join(dir, it.name);
