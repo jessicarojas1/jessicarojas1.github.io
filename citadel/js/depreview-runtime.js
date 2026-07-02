@@ -1014,10 +1014,10 @@
     const text = textEntries(entries);
     const manifests = collectManifests(text);
 
-    let languages = [], frameworks = [], runtimes = [], sdks = [], compilers = [];
-    let packageManagers = [], os = [], arch = [], shells = [], cloud = [];
-    let services = [], databases = [], envVars = [], ports = [];
-    let build = null, externalServices = [], infra = [];
+    let languages, frameworks, runtimes, sdks, compilers;
+    let packageManagers, os, arch, shells, cloud;
+    let services, databases, envVars, ports;
+    let build, externalServices, infra;
 
     try { languages = detectLanguages(text); } catch (e) { languages = []; }
     try { frameworks = detectFrameworks(text, manifests); } catch (e) { frameworks = []; }

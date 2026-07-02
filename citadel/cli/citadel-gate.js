@@ -78,7 +78,7 @@ function ingest(C, root, maxFiles) {
     try { st = fs.lstatSync(abs); } catch (e) { continue; }
     if (st.isSymbolicLink()) continue;
     if (st.isDirectory()) {
-      let names = [];
+      let names;
       try { names = fs.readdirSync(abs); } catch (e) { continue; }
       for (const name of names) {
         if (SKIP_DIRS.has(name)) continue;

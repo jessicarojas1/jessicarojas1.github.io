@@ -56,7 +56,7 @@
         if (res.status === 401 && !_retried && this._hasSession()) {
           if (await this._refresh()) return this._api(path, opts, true);
         }
-        let data = null;
+        let data;
         try { data = await res.json(); } catch (e) { data = null; }
         if (!res.ok) {
           const msg = (data && data.error) ? data.error : ('Request failed (' + res.status + ').');
