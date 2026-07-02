@@ -216,6 +216,7 @@ $sentVendorCertExpiring = 0;
 $sentVendorContractExp  = 0;
 $sentKriMeasureOverdue  = 0;
 $sentAuditOverdue       = 0;
+$sentAttestationOverdue = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -1356,6 +1357,91 @@ HTML;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// 2c-iii. POLICY ATTESTATION OVERDUE  (policy_attestation_overdue)
+// ═══════════════════════════════════════════════════════════════════════════════
+// An active attestation campaign is past its due date and some active users have
+// not yet attested to its policy. Alerts each outstanding USER (the person who
+// must attest), mirroring the app's own model where every active user is expected
+// to attest (attestations link by policy_id + user_id, no per-user assignment).
+try {
+    $attestRows = Database::fetchAll(
+        "SELECT pac.id AS campaign_id, pac.title, pac.due_date,
+                p.title AS policy_title,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM policy_attestation_campaigns pac
+         JOIN policies p ON p.id = pac.policy_id
+         CROSS JOIN users u
+         WHERE pac.is_active = TRUE
+           AND pac.due_date IS NOT NULL
+           AND pac.due_date < CURRENT_DATE
+           AND u.is_active = TRUE
+           AND NOT EXISTS (
+             SELECT 1 FROM policy_attestations pa
+             WHERE pa.policy_id = pac.policy_id AND pa.user_id = u.id
+           )",
+        []
+    );
+
+    $attestByUser = [];
+    foreach ($attestRows as $row) {
+        $attestByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($attestByUser as $userId => $campaigns) {
+        $userId = (int) $userId;
+        if (!notifEnabled($userId, 'policy_attestation_overdue')) {
+            continue;
+        }
+        $email    = $campaigns[0]['email'];
+        $userName = $campaigns[0]['user_name'];
+
+        foreach ($campaigns as $camp) {
+            // Throttle: one reminder per campaign per user per 7 days.
+            if (alreadyNotified($userId, 'policy_attestation_overdue', 'policy_attestation_campaign', (int) $camp['campaign_id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((strtotime('today') - strtotime($camp['due_date'])) / 86400);
+            $dueDate     = date('M j, Y', strtotime($camp['due_date']));
+            $campTitle   = htmlspecialchars($camp['title'], ENT_QUOTES, 'UTF-8');
+            $policyTitle = htmlspecialchars($camp['policy_title'], ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>You have an <span style="color:#ef4444;font-weight:600">overdue policy attestation ({$daysOverdue} days past due)</span> to complete:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Campaign</th>
+    <th style="padding:8px;text-align:left">Policy</th>
+    <th style="padding:8px;text-align:left">Due</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$campTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$policyTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$dueDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC and attest to this policy.</p>
+HTML;
+
+            $subject = "Policy attestation overdue: {$camp['title']}";
+            $body    = emailShell('Policy Attestation Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                $userId, 'policy_attestation_overdue', $email, $userName, $subject, $body,
+                ['campaign' => $camp, 'daysOverdue' => $daysOverdue, 'dueDate' => $dueDate]
+            );
+            if ($sent) {
+                logNotification($userId, 'policy_attestation_overdue', 'policy_attestation_campaign', (int) $camp['campaign_id']);
+                $sentAttestationOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[policy_attestation_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // 3. PENDING APPROVAL REMINDERS
 // ═══════════════════════════════════════════════════════════════════════════════
 try {
@@ -2445,6 +2531,7 @@ if (!empty($digestQueue)) {
         'vendor_contract_expiring'    => 'Vendor Contracts Expiring',
         'kri_measurement_overdue'     => 'KRI Measurements Overdue',
         'audit_schedule_overdue'      => 'Audits Overdue to Start',
+        'policy_attestation_overdue'  => 'Policy Attestations Overdue',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -2583,4 +2670,4 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentControlRetestDue} control re-tests due, {$sentFindingOverdue} findings overdue, "
    . "{$sentVendorCertExpiring} vendor certs expiring, {$sentVendorContractExp} vendor contracts expiring, "
    . "{$sentKriMeasureOverdue} KRI measurements overdue, {$sentAuditOverdue} audits overdue, "
-   . "{$sentDigests} digest(s) sent\n";
+   . "{$sentAttestationOverdue} attestations overdue, {$sentDigests} digest(s) sent\n";
