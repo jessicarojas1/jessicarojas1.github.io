@@ -168,6 +168,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/asset_review_db.php
 
+      - name: Compliance calendar — aggregates all cadence categories for the month
+        working-directory: aegis
+        run: php tests/integration/calendar_events_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

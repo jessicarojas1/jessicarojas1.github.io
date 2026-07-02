@@ -11,22 +11,38 @@ if ($nextMonth > 12) { $nextMonth = 1; $nextYear++; }
 $monthName = date('F', mktime(0, 0, 0, $month, 1, $year));
 
 $typeColors = [
-    'control'      => 'var(--danger)',
-    'policy_review'=> 'var(--info)',
-    'audit'        => 'var(--primary)',
-    'treatment'    => 'var(--orange)',
+    'control'         => 'var(--danger)',
+    'policy_review'   => 'var(--info)',
+    'audit'           => 'var(--primary)',
+    'treatment'       => 'var(--orange)',
+    'control_retest'  => 'var(--warning)',
+    'finding'         => 'var(--danger)',
+    'vendor_cert'     => 'var(--info)',
+    'vendor_contract' => 'var(--primary)',
+    'attestation'     => 'var(--success)',
+    'ssp_review'      => 'var(--orange)',
+    'asset_review'    => 'var(--text-muted)',
+    'kri_measurement' => 'var(--info)',
 ];
 $typeLabels = [
-    'control'       => 'Control Due',
-    'policy_review' => 'Policy Review',
-    'audit'         => 'Audit',
-    'treatment'     => 'Risk Treatment',
+    'control'         => 'Control Due',
+    'policy_review'   => 'Policy Review',
+    'audit'           => 'Audit',
+    'treatment'       => 'Risk Treatment',
+    'control_retest'  => 'Control Re-test',
+    'finding'         => 'Finding Remediation',
+    'vendor_cert'     => 'Vendor Certification',
+    'vendor_contract' => 'Vendor Contract',
+    'attestation'     => 'Policy Attestation',
+    'ssp_review'      => 'SSP Review',
+    'asset_review'    => 'Asset Review',
+    'kri_measurement' => 'KRI Measurement',
 ];
 ?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Compliance Calendar</h1>
-    <p class="page-subtitle">Upcoming compliance deadlines, audits, policy reviews, and risk treatments</p>
+    <p class="page-subtitle">Upcoming deadlines across controls, audits, findings, policies, vendors, KRIs, SSPs and assets</p>
   </div>
 </div>
 
