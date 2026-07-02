@@ -17,8 +17,8 @@ business insights. No account, no setup, no code. Uploaded data is processed
 |-------|-----------|
 | Runtime | Python 3.11.9 (see `.python-version`) |
 | UI framework | Streamlit (`>=1.58.0`) |
-| Data | pandas (`>=2.1.0`), numpy (`>=1.26.0`) |
-| Charts | Plotly (`>=5.20.0`) |
+| Data | pandas (`>=3.0.4`), numpy (`>=2.4.6`) |
+| Charts | Plotly (`>=6.8.0`) |
 | Persistence | none for data; `branding.json` on local disk for branding only |
 | Auth | none built in — must be fronted by a reverse-proxy / SSO |
 | Health | `GET /_stcore/health` (Streamlit core) |
