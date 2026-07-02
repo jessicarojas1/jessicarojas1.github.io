@@ -217,6 +217,7 @@ $sentVendorContractExp  = 0;
 $sentKriMeasureOverdue  = 0;
 $sentAuditOverdue       = 0;
 $sentAttestationOverdue = 0;
+$sentSspReviewOverdue   = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -1442,6 +1443,83 @@ HTML;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// 2c-iv. SSP REVIEW OVERDUE  (ssp_review_overdue)
+// ═══════════════════════════════════════════════════════════════════════════════
+// A System Security Plan whose next_review_date has passed. Alerts the plan
+// owner (ssp_plans.created_by). Distinct from policy_review_due / control re-test
+// — this is the SSP document's own review cadence.
+try {
+    $sspRows = Database::fetchAll(
+        "SELECT sp.id, sp.title, sp.system_name, sp.next_review_date,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM ssp_plans sp
+         JOIN users u ON u.id = sp.created_by
+         WHERE sp.next_review_date IS NOT NULL
+           AND sp.next_review_date < CURRENT_DATE
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $sspByUser = [];
+    foreach ($sspRows as $row) {
+        $sspByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($sspByUser as $userId => $plans) {
+        $userId = (int) $userId;
+        if (!notifEnabled($userId, 'ssp_review_overdue')) {
+            continue;
+        }
+        $email    = $plans[0]['email'];
+        $userName = $plans[0]['user_name'];
+
+        foreach ($plans as $plan) {
+            // Throttle: one reminder per SSP per 7 days.
+            if (alreadyNotified($userId, 'ssp_review_overdue', 'ssp_plan', (int) $plan['id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((strtotime('today') - strtotime($plan['next_review_date'])) / 86400);
+            $reviewDate  = date('M j, Y', strtotime($plan['next_review_date']));
+            $planTitle   = htmlspecialchars($plan['title'], ENT_QUOTES, 'UTF-8');
+            $systemName  = htmlspecialchars($plan['system_name'] ?? '', ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A System Security Plan you own is <span style="color:#ef4444;font-weight:600">overdue for review ({$daysOverdue} days past due)</span>:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Plan</th>
+    <th style="padding:8px;text-align:left">System</th>
+    <th style="padding:8px;text-align:left">Review due</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$planTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$systemName}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$reviewDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to review and re-authorize this system security plan.</p>
+HTML;
+
+            $subject = "SSP review overdue: {$plan['title']}";
+            $body    = emailShell('SSP Review Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                $userId, 'ssp_review_overdue', $email, $userName, $subject, $body,
+                ['ssp' => $plan, 'daysOverdue' => $daysOverdue, 'reviewDate' => $reviewDate]
+            );
+            if ($sent) {
+                logNotification($userId, 'ssp_review_overdue', 'ssp_plan', (int) $plan['id']);
+                $sentSspReviewOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[ssp_review_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // 3. PENDING APPROVAL REMINDERS
 // ═══════════════════════════════════════════════════════════════════════════════
 try {
@@ -2532,6 +2610,7 @@ if (!empty($digestQueue)) {
         'kri_measurement_overdue'     => 'KRI Measurements Overdue',
         'audit_schedule_overdue'      => 'Audits Overdue to Start',
         'policy_attestation_overdue'  => 'Policy Attestations Overdue',
+        'ssp_review_overdue'          => 'SSP Reviews Overdue',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -2670,4 +2749,5 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentControlRetestDue} control re-tests due, {$sentFindingOverdue} findings overdue, "
    . "{$sentVendorCertExpiring} vendor certs expiring, {$sentVendorContractExp} vendor contracts expiring, "
    . "{$sentKriMeasureOverdue} KRI measurements overdue, {$sentAuditOverdue} audits overdue, "
-   . "{$sentAttestationOverdue} attestations overdue, {$sentDigests} digest(s) sent\n";
+   . "{$sentAttestationOverdue} attestations overdue, {$sentSspReviewOverdue} SSP reviews overdue, "
+   . "{$sentDigests} digest(s) sent\n";
