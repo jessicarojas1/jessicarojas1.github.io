@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any, TypeVar
 
 from fastapi import Request
@@ -10,10 +11,42 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import Pagination, SortParams
 from app.core import audit
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import ConflictError, NotFoundError
 from app.schemas.auth import CurrentUser
 
 ModelT = TypeVar("ModelT")
+
+
+def _as_utc_seconds(value: datetime) -> datetime:
+    """Normalize a datetime to timezone-aware UTC truncated to whole seconds.
+
+    Naive datetimes are assumed to already be UTC. Truncating to the second
+    avoids sub-second serialization drift between the DB and a client that
+    round-trips ``updated_at`` as an ISO string through JSON.
+    """
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=UTC)
+    return value.astimezone(UTC).replace(microsecond=0)
+
+
+def guard_concurrency(obj, expected_updated_at) -> None:  # noqa: ANN001
+    """Raise ConflictError if the client's expected updated_at is stale.
+
+    Optimistic-concurrency lost-update guard. No-op when expected_updated_at is
+    None (client opted out / legacy client). Compares to the whole second to
+    avoid sub-second serialization drift between DB and client.
+    """
+    if expected_updated_at is None:
+        return
+    current = getattr(obj, "updated_at", None)
+    if current is None:
+        return
+    if _as_utc_seconds(current) != _as_utc_seconds(expected_updated_at):
+        raise ConflictError(
+            "This record was modified by someone else since you loaded it. "
+            "Reload and reapply your changes.",
+            code="stale_write",
+        )
 
 
 def request_context(request: Request) -> dict[str, str | None]:

@@ -130,6 +130,13 @@ $color     = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'v
   <!-- Sidebar -->
   <div style="display:flex;flex-direction:column;gap:16px">
 
+    <?php
+      $overdueCount = 0;
+      foreach ($assignments as $a) {
+          if (AwarenessController::assignmentOverdue($a['completed'], $program['due_date'] ?? null)) $overdueCount++;
+      }
+      $dueOverdue = !empty($program['due_date']) && strtotime($program['due_date']) < strtotime('today');
+    ?>
     <!-- Stats -->
     <div class="card">
       <div class="card-header"><div class="card-header-left"><i class="bi bi-bar-chart-fill" style="color:var(--primary)"></i><span class="card-title">Completion</span></div></div>
@@ -142,8 +149,13 @@ $color     = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'v
           <div style="width:<?= $pct ?>%;height:100%;background:<?= $color ?>;border-radius:4px;transition:width .4s"></div>
         </div>
         <?php if ($program['due_date']): ?>
-        <div style="margin-top:12px;font-size:12px;color:var(--text-muted)">
-          <i class="bi bi-calendar3"></i> Due <?= date('M j, Y', strtotime($program['due_date'])) ?>
+        <div style="margin-top:12px;font-size:12px;color:<?= $dueOverdue ? 'var(--danger);font-weight:600' : 'var(--text-muted)' ?>">
+          <i class="bi bi-calendar3"></i> Due <?= date('M j, Y', strtotime($program['due_date'])) ?><?= $dueOverdue ? ' (passed)' : '' ?>
+        </div>
+        <?php endif; ?>
+        <?php if ($overdueCount > 0): ?>
+        <div style="margin-top:8px;padding:8px 10px;background:var(--danger-subtle);color:var(--danger);border-radius:6px;font-size:12px;font-weight:600;text-align:center">
+          <i class="bi bi-exclamation-triangle-fill"></i> <?= $overdueCount ?> overdue assignment<?= $overdueCount !== 1 ? 's' : '' ?>
         </div>
         <?php endif; ?>
       </div>
@@ -153,16 +165,22 @@ $color     = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'v
     <div class="card">
       <div class="card-header"><div class="card-header-left"><i class="bi bi-people-fill" style="color:var(--primary)"></i><span class="card-title">Assignments (<?= count($assignments) ?>)</span></div></div>
       <div class="card-body" style="padding:0;max-height:400px;overflow-y:auto">
-        <?php foreach ($assignments as $a): ?>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border)">
+        <?php foreach ($assignments as $a):
+          $aOverdue = AwarenessController::assignmentOverdue($a['completed'], $program['due_date'] ?? null);
+        ?>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);<?= $aOverdue ? 'background:var(--danger-subtle)' : '' ?>">
           <div>
             <div style="font-size:13px;font-weight:600"><?= Security::h($a['user_name']) ?></div>
             <?php if ($a['completed'] && $a['completed_at']): ?>
             <div style="font-size:11px;color:var(--success)"><?= date('M j, Y', strtotime($a['completed_at'])) ?></div>
+            <?php elseif ($aOverdue): ?>
+            <div style="font-size:11px;color:var(--danger);font-weight:600">Overdue</div>
             <?php endif; ?>
           </div>
           <?php if ($a['completed']): ?>
           <i class="bi bi-check-circle-fill" style="color:var(--success)" title="Complete"></i>
+          <?php elseif ($aOverdue): ?>
+          <i class="bi bi-exclamation-circle-fill" style="color:var(--danger)" title="Overdue"></i>
           <?php else: ?>
           <i class="bi bi-clock" style="color:var(--text-muted)" title="Pending"></i>
           <?php endif; ?>

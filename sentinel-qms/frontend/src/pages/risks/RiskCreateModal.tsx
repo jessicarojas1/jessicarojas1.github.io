@@ -26,6 +26,7 @@ const scale = z.coerce.number().int().min(1).max(10);
 const schema = z.object({
   title: z.string().min(3, 'Title is required'),
   category: z.enum(CATEGORIES),
+  is_opportunity: z.boolean().optional(),
   description: z.string().min(5, 'Describe the risk'),
   severity: scale,
   likelihood: scale,
@@ -58,6 +59,7 @@ export function RiskCreateModal({
     resolver: zodResolver(schema),
     defaultValues: {
       category: 'quality',
+      is_opportunity: false,
       severity: 5,
       likelihood: 5,
       detectability: 5,
@@ -77,6 +79,7 @@ export function RiskCreateModal({
       const payload: Omit<Partial<Risk>, 'owner_id'> & { owner_id?: number } = {
         title: values.title,
         category: values.category,
+        is_opportunity: values.is_opportunity ?? false,
         description: values.description,
         severity: values.severity,
         likelihood: values.likelihood,
@@ -128,6 +131,10 @@ export function RiskCreateModal({
         <FormField label="Title" htmlFor="risk-title" required error={errors.title?.message}>
           <TextInput id="risk-title" {...register('title')} placeholder="Short description of the risk" />
         </FormField>
+        <label className="checkbox-row" htmlFor="risk-opportunity" style={{ marginTop: 4 }}>
+          <input id="risk-opportunity" type="checkbox" className="checkbox" {...register('is_opportunity')} />
+          <span>Track as an opportunity (ISO 9001 6.1 — a positive opportunity rather than a risk)</span>
+        </label>
         <div className="form-grid">
           <FormField label="Category" htmlFor="risk-category" required error={errors.category?.message}>
             <Select id="risk-category" {...register('category')}>

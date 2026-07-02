@@ -17,6 +17,7 @@ class RiskBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=512)
     category: RiskCategory = RiskCategory.QUALITY
     description: str = Field(..., min_length=1)
+    is_opportunity: bool = False
     severity: int = _SCALE
     likelihood: int = _SCALE
     detectability: int = _SCALE
@@ -35,6 +36,7 @@ class RiskUpdate(BaseModel):
     category: RiskCategory | None = None
     status: RiskStatus | None = None
     description: str | None = None
+    is_opportunity: bool | None = None
     severity: int | None = _SCALE_OPT
     likelihood: int | None = _SCALE_OPT
     detectability: int | None = _SCALE_OPT
@@ -45,6 +47,10 @@ class RiskUpdate(BaseModel):
     residual_detectability: int | None = _SCALE_OPT
     owner_id: int | None = None
     review_date: date | None = None
+    # Optimistic-concurrency token: the updated_at the client last saw. When
+    # supplied and stale, the update is rejected with 409 (lost-update guard).
+    # Omitting it preserves legacy last-write-wins behavior.
+    expected_updated_at: datetime | None = None
 
 
 class RiskRead(ORMModel):
@@ -54,6 +60,7 @@ class RiskRead(ORMModel):
     category: RiskCategory
     status: RiskStatus
     description: str
+    is_opportunity: bool
     severity: int
     likelihood: int
     detectability: int

@@ -30,9 +30,12 @@ from app.models.audit_mgmt import Audit, AuditStatus
 from app.models.calibration import Equipment, EquipmentStatus
 from app.models.capa import Capa, CapaAction, CapaActionStatus, CapaStatus
 from app.models.concession import Concession, ConcessionStatus
+from app.models.document import Document, DocumentStatus
 from app.models.nonconformance import NcSeverity, NcStatus, Nonconformance
+from app.models.risk import Risk, RiskStatus
 from app.models.settings import OrgSettings
 from app.models.sla import SlaEscalation
+from app.models.supplier import ScarStatus, Supplier, SupplierScar
 from app.models.training import TrainingRecord, TrainingStatus
 from app.models.user import Notification, User
 from app.models.user import Role as RoleModel
@@ -54,6 +57,21 @@ _CAPA_OPEN = (
 _ACTION_OPEN = (CapaActionStatus.OPEN, CapaActionStatus.IN_PROGRESS)
 # NCR states that still require attention (and so can breach an SLA).
 _NCR_OPEN = (NcStatus.OPEN, NcStatus.UNDER_REVIEW)
+# Risk states still active (i.e. not yet closed) and so due for periodic review.
+_RISK_OPEN = (
+    RiskStatus.IDENTIFIED,
+    RiskStatus.ASSESSED,
+    RiskStatus.TREATMENT_PLANNED,
+    RiskStatus.MITIGATING,
+    RiskStatus.MONITORING,
+)
+# SCAR states still awaiting a supplier response (i.e. not yet closed).
+_SCAR_OPEN = (
+    ScarStatus.ISSUED,
+    ScarStatus.ACKNOWLEDGED,
+    ScarStatus.RESPONSE_RECEIVED,
+    ScarStatus.VERIFIED,
+)
 
 # Roles that receive a copy of every escalation in addition to the owner.
 _ESCALATION_ROLES = (Role.QUALITY_MANAGER, Role.ADMIN)
@@ -170,12 +188,17 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
         "capa_overdue": 0,
         "capa_due_soon": 0,
         "capa_action_overdue": 0,
+        "capa_effectiveness_overdue": 0,
         "ncr_overdue": 0,
         "audit_overdue": 0,
         "calibration_overdue": 0,
         "concession_expired": 0,
         "training_expired": 0,
         "training_expiring_soon": 0,
+        "document_review_overdue": 0,
+        "risk_review_overdue": 0,
+        "scar_response_overdue": 0,
+        "supplier_cert_expired": 0,
     }
     if not org or not org.sla_enabled:
         return summary
@@ -441,5 +464,156 @@ def run_sla_sweep(db: Session, *, now: datetime | None = None) -> dict:
             )
             db.commit()
             summary["training_expiring_soon"] += 1
+
+    # ── Controlled documents past their periodic-review date (AS9100 7.5) ─────
+    docs = (
+        db.execute(
+            select(Document).where(
+                Document.is_deleted.is_(False),
+                Document.status == DocumentStatus.APPROVED,
+                Document.next_review_date.is_not(None),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for doc in docs:
+        due = _basis_date(doc.next_review_date)
+        if due is None or due >= today:
+            continue
+        if _claim(db, "document", doc.id, "review_overdue"):
+            days = (today - due).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=doc.owner_id,
+                title=f"Document review overdue: {doc.document_number}",
+                body=(
+                    f"{doc.title} — periodic review was due {due.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} overdue). Review or re-approve."
+                ),
+                entity_type="document",
+                entity_id=doc.id,
+            )
+            db.commit()
+            summary["document_review_overdue"] += 1
+
+    # ── Supplier SCARs past their response-due date (AS9100 8.4 supplier mgmt) ─
+    scars = (
+        db.execute(select(SupplierScar).where(SupplierScar.status.in_(_SCAR_OPEN))).scalars().all()
+    )
+    for scar in scars:
+        due = _basis_date(scar.response_due_date)
+        if due is None or due >= today:
+            continue
+        if _claim(db, "supplier_scar", scar.id, "response_overdue"):
+            days = (today - due).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=None,
+                title=f"SCAR {scar.scar_number} response overdue",
+                body=(
+                    f"{scar.title} — supplier response was due {due.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} overdue)."
+                ),
+                entity_type="supplier",
+                entity_id=scar.supplier_id,
+            )
+            db.commit()
+            summary["scar_response_overdue"] += 1
+
+    # ── Suppliers whose certification has lapsed (AS9100 8.4 supplier mgmt) ────
+    suppliers = (
+        db.execute(
+            select(Supplier).where(
+                Supplier.is_deleted.is_(False),
+                Supplier.cert_expiry.is_not(None),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for supplier in suppliers:
+        exp = _basis_date(supplier.cert_expiry)
+        if exp is None or exp >= today:
+            continue
+        if _claim(db, "supplier", supplier.id, "cert_expired"):
+            days = (today - exp).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=None,
+                title=f"Supplier certification expired: {supplier.name}",
+                body=(
+                    f"{supplier.supplier_code} — certification expired {exp.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} ago). Re-qualify supplier."
+                ),
+                entity_type="supplier",
+                entity_id=supplier.id,
+            )
+            db.commit()
+            summary["supplier_cert_expired"] += 1
+
+    # ── Risks overdue for periodic re-assessment (ISO 9001 6.1 risk-based) ─────
+    risks = (
+        db.execute(select(Risk).where(Risk.is_deleted.is_(False), Risk.status.in_(_RISK_OPEN)))
+        .scalars()
+        .all()
+    )
+    for risk in risks:
+        due = _basis_date(risk.review_date)
+        if due is None or due >= today:
+            continue
+        if _claim(db, "risk", risk.id, "review_overdue"):
+            days = (today - due).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=risk.owner_id,
+                title=f"Risk review overdue: {risk.risk_number}",
+                body=(
+                    f"{risk.title} — periodic re-assessment was due {due.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} overdue). Re-assess this risk."
+                ),
+                entity_type="risk",
+                entity_id=risk.id,
+            )
+            db.commit()
+            summary["risk_review_overdue"] += 1
+
+    # ── CAPAs overdue for effectiveness verification (AS9100 10.2 CAPA) ─────────
+    eff_capas = (
+        db.execute(
+            select(Capa).where(
+                Capa.is_deleted.is_(False),
+                Capa.status.in_(_CAPA_OPEN),
+                Capa.effectiveness_verified.is_(False),
+                Capa.effectiveness_due_date.is_not(None),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for capa in eff_capas:
+        due = _basis_date(capa.effectiveness_due_date)
+        if due is None or due >= today:
+            continue
+        if _claim(db, "capa", capa.id, "effectiveness_overdue"):
+            days = (today - due).days
+            _escalate(
+                db,
+                recipient_ids=managers,
+                primary_user_id=capa.owner_id,
+                title=f"CAPA effectiveness verification overdue: {capa.capa_number}",
+                body=(
+                    f"{capa.title} — effectiveness verification was due {due.isoformat()} "
+                    f"({days} day{'s' if days != 1 else ''} overdue). Verify effectiveness."
+                ),
+                entity_type="capa",
+                entity_id=capa.id,
+            )
+            db.commit()
+            summary["capa_effectiveness_overdue"] += 1
 
     return summary

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { timingSafeEqual } from 'crypto';
 import { getSession } from '@/lib/session';
+import { requestId, withRequestId } from '@/lib/logger';
 
 // --- Abuse / cost controls -------------------------------------------------
 // This route relays to the Anthropic API using the server's ANTHROPIC_API_KEY.
@@ -29,6 +30,72 @@ const MAX_PROMPT_CHARS = 8000;
 const MAX_TOKENS = 1024;
 const RATE_LIMIT = 20; // requests
 const RATE_WINDOW_MS = 60_000; // per minute, per identity
+
+// --- Provider / model selection (env-driven) -------------------------------
+// The upstream AI provider and model are configuration, never client input.
+//   AI_PROVIDER   'anthropic' (default) | 'ollama' (self-hosted, air-gapped)
+//   AI_MODEL      overrides the Anthropic model id (default kept for back-compat)
+//   OLLAMA_BASE_URL / OLLAMA_MODEL   the self-hosted endpoint + model
+// Air-gapped / CUI deployments set AI_PROVIDER=ollama so no traffic leaves the
+// enclave; hosted deployments keep the default Anthropic path.
+const AI_PROVIDER = (process.env.AI_PROVIDER || 'anthropic').toLowerCase();
+const ANTHROPIC_MODEL = process.env.AI_MODEL || 'claude-opus-4-6';
+const OLLAMA_BASE_URL = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/+$/, '');
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.1';
+
+// Result of an upstream call, normalized across providers. `configured` is false
+// when the selected provider has no credentials/endpoint (→ 503 service down).
+type UpstreamResult =
+  | { configured: false }
+  | { configured: true; ok: boolean; status: number; text: string };
+
+async function callAnthropic(prompt: string): Promise<UpstreamResult> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return { configured: false };
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: ANTHROPIC_MODEL,
+      max_tokens: MAX_TOKENS, // hard output ceiling — never client-controlled
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!response.ok) return { configured: true, ok: false, status: response.status, text: '' };
+  const data = await response.json();
+  const text = data.content?.[0]?.text ?? '';
+  return { configured: true, ok: true, status: 200, text };
+}
+
+async function callOllama(prompt: string): Promise<UpstreamResult> {
+  // Self-hosted inference — no API key needed; the endpoint itself is the trust
+  // boundary. `num_predict` mirrors the Anthropic max_tokens output ceiling.
+  const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: OLLAMA_MODEL,
+      stream: false,
+      options: { num_predict: MAX_TOKENS },
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!response.ok) return { configured: true, ok: false, status: response.status, text: '' };
+  const data = await response.json();
+  const text = data.message?.content ?? data.response ?? '';
+  return { configured: true, ok: true, status: 200, text };
+}
+
+function callUpstream(prompt: string): Promise<UpstreamResult> {
+  return AI_PROVIDER === 'ollama' ? callOllama(prompt) : callAnthropic(prompt);
+}
 
 // NOTE: the in-memory limiter is per-process / best-effort only. Behind multiple
 // instances (serverless, autoscaled) it does NOT enforce a global limit — also
@@ -85,6 +152,8 @@ function extractToken(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
+  const rid = requestId(req.headers);
+  const log = withRequestId(rid, { route: '/api/ai/generate', provider: AI_PROVIDER });
   try {
     const expectedToken = process.env.AI_PROXY_TOKEN || '';
     const provided = extractToken(req);
@@ -106,6 +175,7 @@ export async function POST(req: NextRequest) {
         // No shared token configured. In production refuse to act as an open
         // relay (fail closed). In dev, allow through for local convenience.
         if (process.env.NODE_ENV === 'production') {
+          log.warn('relay rejected: fail-closed (no token, no session)', { status: 503 });
           return NextResponse.json(
             { error: 'AI relay is not configured for use.' },
             { status: 503 },
@@ -115,12 +185,14 @@ export async function POST(req: NextRequest) {
       } else {
         // A shared token IS configured but the caller presented neither a valid
         // session nor the correct token.
+        log.warn('relay rejected: unauthorized', { status: 401 });
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
     }
 
     // 2. Rate limit (always on). Keyed per session user / credential.
     if (rateLimited(identityKey(req, tokenValid ? provided : '', sessionUser))) {
+      log.warn('relay rejected: rate limited', { status: 429, auth: sessionUser ? 'session' : 'token' });
       return NextResponse.json(
         { error: 'Rate limit exceeded. Try again shortly.' },
         { status: 429, headers: { 'Retry-After': String(Math.ceil(RATE_WINDOW_MS / 1000)) } },
@@ -146,38 +218,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
+    // 4. Relay to the selected upstream provider (Anthropic or self-hosted Ollama).
+    const result = await callUpstream(prompt);
+
+    if (!result.configured) {
+      // The selected provider has no credentials/endpoint configured.
+      log.error('relay upstream not configured', { status: 503 });
       return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 });
     }
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-6',
-        max_tokens: MAX_TOKENS, // hard output ceiling — never client-controlled
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
-
-    if (!response.ok) {
+    if (!result.ok) {
       // Do not leak upstream error bodies (may contain provider internals).
+      log.error('relay upstream error', { upstream_status: result.status });
       return NextResponse.json(
         { error: 'AI request failed' },
-        { status: response.status === 429 ? 429 : 502 },
+        { status: result.status === 429 ? 429 : 502 },
       );
     }
 
-    const data = await response.json();
-    const text = data.content?.[0]?.text ?? '';
-    return NextResponse.json({ text });
-  } catch {
+    log.info('relay ok', { auth: sessionUser ? 'session' : 'token', chars_out: result.text.length });
+    return NextResponse.json({ text: result.text });
+  } catch (err) {
     // Never surface internals (incl. the upstream API key) to the client.
+    log.error('relay internal error', { error: err instanceof Error ? err.name : 'unknown' });
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

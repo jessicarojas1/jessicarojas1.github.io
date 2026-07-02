@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import csv
+import io
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
+from fastapi import APIRouter, Depends, File, Query, Request, Response, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -113,6 +115,69 @@ def list_suppliers(
     stmt = apply_sort(stmt, Supplier, sort)
     items, total = paginate(db, stmt, Supplier, pagination)
     return Page[SupplierList](items=items, **page_meta(total, pagination))
+
+
+@router.get("/export.csv")
+def export_suppliers_csv(
+    request: Request,
+    db: Session = Depends(get_db),
+    status_filter: SupplierStatus | None = Query(None, alias="status"),
+    search: str | None = Query(None),
+    actor: CurrentUser = Depends(require_page("suppliers", "view")),
+) -> Response:
+    """Stream the filtered supplier list as a CSV attachment (max 50,000 rows)."""
+    stmt = base_select(Supplier)
+    if status_filter:
+        stmt = stmt.where(Supplier.status == status_filter)
+    if search:
+        like = f"%{search}%"
+        stmt = stmt.where(Supplier.name.ilike(like) | Supplier.supplier_code.ilike(like))
+    stmt = stmt.order_by(Supplier.id.desc()).limit(50_000)
+    rows = db.execute(stmt).scalars().all()
+
+    columns = [
+        "supplier_code",
+        "name",
+        "status",
+        "certification",
+        "cert_expiry",
+        "cage_code",
+        "country",
+        "created_at",
+    ]
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(columns)
+    for supplier in rows:
+        writer.writerow(
+            [
+                supplier.supplier_code,
+                supplier.name,
+                supplier.status.value if supplier.status else "",
+                supplier.certification or "",
+                supplier.cert_expiry.isoformat() if supplier.cert_expiry else "",
+                supplier.cage_code or "",
+                supplier.country or "",
+                supplier.created_at.isoformat() if supplier.created_at else "",
+            ]
+        )
+
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="export",
+        entity_type=ENTITY,
+        after={"count": len(rows), "format": "csv"},
+        **request_context(request),
+    )
+    db.commit()
+
+    return Response(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="suppliers.csv"'},
+    )
 
 
 @router.post("", response_model=SupplierRead, status_code=status.HTTP_201_CREATED)

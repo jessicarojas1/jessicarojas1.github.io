@@ -67,12 +67,20 @@ export default function LessonsPage() {
   const [sourceRef, setSourceRef] = useState('');
   const [fStatus, setFStatus] = useState('');
   const [fCategory, setFCategory] = useState('');
+  const [fDepartment, setFDepartment] = useState('');
 
   const rows = data ?? [];
+  // Distinct department values present in the loaded rows (sorted) for the filter dropdown.
+  const departments = Array.from(
+    new Set(rows.map((l) => l.department).filter((d): d is string => !!d)),
+  ).sort((a, b) => a.localeCompare(b));
   const filtered = rows.filter(
-    (l) => (!fStatus || l.status === fStatus) && (!fCategory || l.category === fCategory),
+    (l) =>
+      (!fStatus || l.status === fStatus) &&
+      (!fCategory || l.category === fCategory) &&
+      (!fDepartment || l.department === fDepartment),
   );
-  const activeFilters = (fStatus ? 1 : 0) + (fCategory ? 1 : 0);
+  const activeFilters = (fStatus ? 1 : 0) + (fCategory ? 1 : 0) + (fDepartment ? 1 : 0);
 
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,6 +205,19 @@ export default function LessonsPage() {
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {label(c)}
+                </option>
+              ))}
+            </select>
+            <select
+              className="input field"
+              value={fDepartment}
+              onChange={(e) => setFDepartment(e.target.value)}
+              aria-label="Filter by department"
+            >
+              <option value="">All departments</option>
+              {departments.map((d) => (
+                <option key={d} value={d}>
+                  {d}
                 </option>
               ))}
             </select>

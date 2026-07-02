@@ -96,9 +96,44 @@ api.interceptors.response.use(
   },
 );
 
+/** The app's error envelope: {"error":{"code","message","request_id"}}. */
+interface AppErrorEnvelope {
+  code?: string;
+  message?: string;
+  request_id?: string;
+}
+
+function appErrorEnvelope(error: unknown): AppErrorEnvelope | undefined {
+  if (axios.isAxiosError(error)) {
+    const env = (error.response?.data as { error?: AppErrorEnvelope } | undefined)?.error;
+    if (env && typeof env === 'object') return env;
+  }
+  return undefined;
+}
+
+/** Machine-readable error code from the app envelope, if present. */
+export function getErrorCode(error: unknown): string | undefined {
+  return appErrorEnvelope(error)?.code;
+}
+
+/**
+ * True when the server rejected a PATCH because the record was modified since
+ * it was loaded (optimistic-concurrency lost-update guard).
+ */
+export function isStaleWriteError(error: unknown): boolean {
+  return (
+    axios.isAxiosError(error) &&
+    error.response?.status === 409 &&
+    getErrorCode(error) === 'stale_write'
+  );
+}
+
 /** Normalize an axios error into a user-facing message. */
 export function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
+    // Prefer the app error envelope's human message.
+    const envelopeMessage = appErrorEnvelope(error)?.message;
+    if (typeof envelopeMessage === 'string' && envelopeMessage) return envelopeMessage;
     const detail = error.response?.data?.detail;
     if (typeof detail === 'string') return detail;
     if (Array.isArray(detail) && detail[0]?.msg) return String(detail[0].msg);

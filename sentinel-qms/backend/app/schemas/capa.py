@@ -10,6 +10,13 @@ from app.models.capa import CapaActionStatus, CapaStatus, CapaType
 from app.schemas.common import ESignatureIn, ORMModel
 
 
+class FiveWhyStep(BaseModel):
+    """One step in a structured 5-Why root-cause chain."""
+
+    why: str | None = None
+    because: str | None = None
+
+
 class CapaActionBase(BaseModel):
     description: str = Field(..., min_length=1)
     action_kind: str = Field(default="corrective", max_length=32)
@@ -49,6 +56,7 @@ class CapaBase(BaseModel):
     d3_containment: str | None = None
     d4_root_cause: str | None = None
     root_cause_method: str | None = Field(default=None, max_length=64)
+    five_whys: list[FiveWhyStep] | None = None
     d5_corrective_action: str | None = None
     d6_implementation: str | None = None
     d7_preventive_action: str | None = None
@@ -56,6 +64,7 @@ class CapaBase(BaseModel):
     owner_id: int | None = None
     supplier_id: int | None = None
     due_date: date | None = None
+    effectiveness_due_date: date | None = None
 
 
 class CapaCreate(CapaBase):
@@ -72,6 +81,7 @@ class CapaUpdate(BaseModel):
     d3_containment: str | None = None
     d4_root_cause: str | None = None
     root_cause_method: str | None = Field(default=None, max_length=64)
+    five_whys: list[FiveWhyStep] | None = None
     d5_corrective_action: str | None = None
     d6_implementation: str | None = None
     d7_preventive_action: str | None = None
@@ -79,6 +89,11 @@ class CapaUpdate(BaseModel):
     owner_id: int | None = None
     supplier_id: int | None = None
     due_date: date | None = None
+    effectiveness_due_date: date | None = None
+    # Optimistic-concurrency token: the updated_at the client last saw. When
+    # supplied and stale, the update is rejected with 409 (lost-update guard).
+    # Omitting it preserves legacy last-write-wins behavior.
+    expected_updated_at: datetime | None = None
 
 
 class CapaStatusChange(BaseModel):
@@ -111,6 +126,7 @@ class CapaRead(ORMModel):
     d3_containment: str | None
     d4_root_cause: str | None
     root_cause_method: str | None
+    five_whys: list[FiveWhyStep] | None = None
     d5_corrective_action: str | None
     d6_implementation: str | None
     d7_preventive_action: str | None
@@ -119,6 +135,7 @@ class CapaRead(ORMModel):
     effectiveness_notes: str | None
     effectiveness_verified_by: int | None
     effectiveness_verified_at: datetime | None
+    effectiveness_due_date: date | None
     owner_id: int | None
     supplier_id: int | None
     due_date: date | None

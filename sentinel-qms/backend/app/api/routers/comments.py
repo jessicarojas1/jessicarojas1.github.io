@@ -18,6 +18,7 @@ from app.models.comment import Comment
 from app.schemas.auth import CurrentUser
 from app.schemas.comment import CommentCreate, CommentRead
 from app.services.crud import request_context
+from app.services.mentions import resolve_mentions
 from app.services.notifications import notify_assignment
 
 router = APIRouter(prefix="/comments", tags=["comments"])
@@ -68,11 +69,20 @@ def create_comment(
     db.add(comment)
     db.flush()
 
-    # Best-effort: notify each mentioned user (skip self-mentions).
-    for mentioned_id in dict.fromkeys(payload.mentions):
-        if mentioned_id == actor.id:
-            continue
-        # Mention notification must never break the comment.
+    # Trust the server-parsed @mentions + validated client ids, never the raw
+    # client list: resolve to existing, active users who can view this entity,
+    # excluding the author. These are the ids actually notified and audited.
+    mentioned_ids = resolve_mentions(
+        db,
+        payload.body,
+        payload.mentions,
+        author_id=actor.id,
+        entity_type=payload.entity_type,
+    )
+
+    # Best-effort: notify each resolved user. A notification must never break
+    # the comment.
+    for mentioned_id in mentioned_ids:
         with contextlib.suppress(Exception):
             notify_assignment(
                 db,
@@ -93,7 +103,7 @@ def create_comment(
         after={
             "linked_to": f"{payload.entity_type}:{payload.entity_id}",
             "parent_id": payload.parent_id,
-            "mentions": payload.mentions,
+            "mentions": mentioned_ids,
         },
         **request_context(request),
     )

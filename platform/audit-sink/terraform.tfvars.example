@@ -24,6 +24,25 @@ writer_principal_arns = [
 
 enable_legal_hold_role = true
 
+# Optional IAM permissions boundary attached to the module's service roles
+# (Firehose, CWL->Firehose, replication, legal-hold). Empty = none.
+# permissions_boundary_arn = "arn:aws-us-gov:iam::123456789012:policy/audit-sink-service-role-boundary"
+
+# ── Firehose delivery monitoring ──────────────────────────────────────────
+# CloudWatch alarm + SNS on delivery errors / stalls (recommended). Set an
+# email to receive alerts, or wire the topic to your alerting system out-of-band.
+enable_delivery_alarm            = true
+alarm_email                      = "" # e.g. "audit-oncall@example.com"
+delivery_freshness_alarm_seconds = 900
+
+# ── Cross-region replication (optional) ───────────────────────────────────
+# Replicate the immutable archive to a second Object-Locked bucket in another
+# region. Create the destination with the ../audit-sink/replica submodule and
+# paste its outputs here. Keep enable_crr = false to skip CRR.
+enable_crr = false
+# crr_destination_bucket_arn = "arn:aws-us-gov:s3:::platform-prod-audit-sink-replica-123456789012"
+# crr_replica_kms_key_arn    = "arn:aws-us-gov:kms:us-gov-east-1:123456789012:key/00000000-0000-0000-0000-000000000000"
+
 tags = {
   DataClassification = "CUI"
   Compliance         = "NIST-800-171;NIST-AU-9;CMMC-AU-L2;HIPAA-164.312b"

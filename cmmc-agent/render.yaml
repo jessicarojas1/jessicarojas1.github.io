@@ -1,13 +1,31 @@
 services:
   - type: web
     name: cmmc-compliance-agent
-    runtime: python
+    runtime: python            # Python runtime; see docker alternative below
     rootDir: cmmc-agent
     buildCommand: pip install -r requirements.txt
     startCommand: python server.py
     plan: free
+    healthCheckPath: /api/dashboard   # returns JSON, no ANTHROPIC_API_KEY required
     envVars:
       - key: ANTHROPIC_API_KEY
-        sync: false          # you set this manually in the Render dashboard
+        sync: false            # set manually in the Render dashboard / secret store
       - key: PORT
-        value: 10000         # Render assigns this port automatically
+        value: 10000           # Render routes traffic to this port
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Docker runtime alternative (uncomment to build from the repo Dockerfile):
+#
+#   - type: web
+#     name: cmmc-compliance-agent
+#     runtime: docker
+#     rootDir: cmmc-agent
+#     dockerfilePath: cmmc-agent/Dockerfile
+#     plan: free
+#     healthCheckPath: /api/dashboard
+#     envVars:
+#       - key: ANTHROPIC_API_KEY
+#         sync: false
+#       - key: PORT
+#         value: 10000
+# ─────────────────────────────────────────────────────────────────────────────

@@ -120,7 +120,7 @@ class Database {
         'risk_bowtie_barriers','risk_scenarios','risk_reviews','risk_review_items',
         'risk_exceptions','treatment_plans','treatment_milestones',
         'incident_updates','incident_sla_events','issue_updates',
-        'vendor_assessments','vendor_contracts',
+        'vendor_assessments','vendor_contracts','vendor_certifications',
         'asset_risk_links','threat_risk_links',
         'poam_milestones','kri_values','document_versions',
         'bcp_plan_sections','bcp_exercises',

@@ -133,6 +133,7 @@ Issue, renew, and revoke formal risk-acceptance certificates with validity windo
 
 ### Features
 List with status ordering (active → expired → superseded → revoked) and summary stats (active, expired, revoked, superseded, expiring-soon ≤30 days); issue form; renewal form pre-populated from an existing certificate; revoke with reason.
+- **Expiry alerting (Phase 5):** the list already surfaces per-row days-left / expired badges and an "Expiring <30 Days" stat. `scripts/send_notifications.php` (`risk_acceptance_expiring`) now emails the **risk owner** when an `active` acceptance's `valid_until` is within 30 days, throttled per acceptance per 7 days, so acceptances are renewed or the risk re-treated before they lapse.
 
 ### Inputs
 `acceptance_reason`, `conditions`, `valid_until`, `renewal_required`, `renewed_from`; `revocation_reason` (revoke).
@@ -201,6 +202,7 @@ Schedule periodic/triggered/board risk-review sessions that auto-populate a scop
 
 ### Features
 List + status summary; scheduling form with scope filters (category, owner, min score, status); per-item review (confirm score, propose new L/I, treatment adequacy, action required, notes); start/complete/cancel; auto reschedule of `review_date` on completion based on score.
+- **Overdue surfacing (Phase 5):** the list flags review **sessions** whose `scheduled_date` has passed while not `completed`/`cancelled` with a red "OVERDUE" badge, plus an "Overdue" summary stat (`COUNT(*) FILTER (...)`). This is distinct from the existing `risk_review_overdue` notification, which alerts owners about individual `risks.review_date`, not review sessions.
 
 ### Business Rules
 - Review types: `periodic, triggered, ad_hoc, board`.
@@ -308,11 +310,13 @@ Define KRIs with RAG thresholds and record time-series values; surface RAG statu
 
 ### Features
 KRI dashboard with latest value (LATERAL join) and computed RAG; create; detail with last 24 values; record value; activate/deactivate toggle.
+- **Breach detection + alerting (Phase 5):** a `red` RAG is a threshold breach. The KRI detail view shows a prominent breach banner when in the red band, and the dashboard's red RAG chip/count surfaces breaches across the portfolio. `scripts/send_notifications.php` (`kri_breached`) emails the KRI owner when the latest value is in the red zone — for `higher_worse` when value > amber, for `lower_worse` when value < amber (mirroring `KRIController::ragStatus`, now `public static` for reuse) — throttled per KRI per 7 days.
+- **Measurement-cadence monitoring (Phase 15):** surfaces KRIs that have **not been recorded within their measurement frequency** — i.e. behind on measurement. This is **distinct** from `kri_breached`, which reads the latest recorded value against a red threshold; this new alert fires when **no fresh value exists**. Two pure helpers (`public static`): `KRIController::measurementWindowDays(string $frequency)` maps `daily`=1 / `weekly`=7 / `monthly`=31 / `quarterly`=92 days, and `KRIController::measurementStatus(string $frequency, ?string $lastRecordedAt, ?string $createdAt)` returns `overdue` (elapsed > window), `due` (within the last 20% of the window), or `ok` — the baseline is the last recorded date, **falling back to the KRI's creation date when never measured**. `views/kri/index.php` shows a per-card "Measurement overdue" (red) / "Measurement due" (amber) badge next to the frequency/RAG badges via the helper. `scripts/send_notifications.php` adds a `kri_measurement_overdue` section that emails the KRI **owner** (`kris.owner_id`) when the elapsed days since the last reading (or `created_at` if never measured) exceeds the frequency window, throttled to one reminder per KRI per 7 days; the type is registered as a user-toggleable preference (`ProfileController` + `views/profile/notifications.php`, label "KRI measurement overdue"). **No schema migration** — reuses the existing `kris.frequency` / `owner_id` / `is_active` / `created_at` and `kri_values.recorded_at` columns. Covered by `tests/test_kri_measurement.php` (unit, window map + status buckets + never-measured fallback + predicate drift guard) and `tests/integration/kri_measurement_db.php` (DB-level cadence predicate, never-measured judged from creation date, fresh/inactive/owner-less exclusion, kri→values cascade; wired into `.github/workflows/aegis-integration.yml`).
 
 ### Business Rules
 - Direction ∈ `higher_worse, lower_worse`; frequency ∈ `daily, weekly, monthly, quarterly`.
 - **Threshold ordering enforced**: for `higher_worse`, green ≤ amber ≤ red; for `lower_worse`, green ≥ amber ≥ red (else rejected).
-- RAG (`ragStatus`): no value → `grey`; otherwise green/amber/red by direction-aware comparison.
+- RAG (`ragStatus`): no value → `grey`; otherwise green/amber/red by direction-aware comparison. A `red` result is a breach.
 
 ### Validation Rules
 `title` required; recorded `value` must be numeric.
@@ -369,6 +373,7 @@ Core compliance engine: frameworks (`standards`) → packages (`compliance_packa
 - **Cross-framework crosswalk** (`crosswalk`/`addMapping`/`removeMapping` → `control_mappings`): pick a source + target framework and author/view equivalence mappings between their control objectives (e.g. CMMC `AC.L2-3.1.1` ↔ NIST 800-171 `3.1.1`), with a mapping type (equivalent/partial/related/superset/subset), coverage summary, and a paginated control grid. Read gated on `compliance.view`; authoring on `compliance.edit`; every add/remove is audit-logged with structured before/after detail.
 - AI suggestions via `AIAdvisor` (rate-limited).
 - Import: JSON, CSV, Excel (.xlsx via ZipArchive, plus SpreadsheetML), PDF (poppler `pdftotext`). CSV/Excel templates downloadable.
+- **Re-test cadence monitoring (Phase 10):** surfaces controls that are **due or overdue for re-testing** based on the **latest** `control_tests.next_test_date` per objective. This is **distinct** from the pre-existing `overdue_controls` alert, which tracks `control_implementations.due_date` (the remediation deadline), not the testing cadence. The pure helper `ComplianceController::retestStatus(?string $nextTestDate)` (`public static`) returns `none` (no usable date), `overdue` (past), `due` (today through 30 days out), or `ok` (>30 days out). `views/compliance/package.php` shows a per-control "Re-test overdue" (red) / "Re-test due" (amber, within 30 days) badge plus a "Due for Re-test" stat in the package overview bar. `scripts/send_notifications.php` adds a `control_retest_due` section that emails the control **owner** (`control_implementations.assigned_to`) when the latest test for their objective is past `next_test_date`, throttled to one reminder per control per 7 days; the type is registered as a user-toggleable preference (`ProfileController` + `views/profile/notifications.php`, label "Control re-test due"). **No schema migration** — reuses the existing `control_tests.next_test_date` column. Covered by `tests/test_compliance_retest.php` (unit, `retestStatus` buckets) and `tests/integration/control_retest_db.php` (DB-level latest-test predicate, owner join, cascade; wired into `.github/workflows/aegis-integration.yml`).
 
 ### Business Rules
 - Control statuses: `compliant, partial, non_compliant, not_started, not_applicable`.
@@ -498,6 +503,9 @@ Third-party risk management: vendor inventory, assessments, contracts, and a **p
 - Filterable vendor list (risk tier, status, search) + stats; create/view/update.
 - Assessments: schedule (`addAssessment`), update with score/rating/findings/recommendations.
 - Contracts: list (with expiring-soon ≤60 days), create/save/update.
+- **Certifications (Phase 4):** `addCertification`/`deleteCertification` track cert type, issuer, certificate #, issued/expiry dates, and status (`active|expired|revoked|pending`). The vendor view renders a certifications card with expiry freshness (via `EvidenceController::freshness`: expired = red, expiring ≤30d = amber). Stored in `vendor_certifications` (RLS, `ON DELETE CASCADE` with the vendor). Gated on `vendor.edit`, CSRF-validated, audit-logged.
+- **Certification expiry monitoring (Phase 13):** surfaces vendor certifications (ISO 27001, SOC 2, PCI DSS, etc.) that are **lapsed or expiring within 30 days**. This is **distinct** from the pre-existing `vendor_assessment_expiring` alert, which tracks vendor **assessments**, not certificates. `views/vendor/view.php` adds an "N need(s) renewal" badge to the Certifications card header, counting **active** certs whose `expiry_date` has passed or is within 30 days; it **reuses the existing `EvidenceController::freshness()` helper** (`none`/`expired`/`expiring`/`valid`) that already drives the per-row expiry badge — **no new helper**. `scripts/send_notifications.php` adds a `vendor_cert_expiring` section that emails the certification **owner** (`vendor_certifications.owner_id`, falling back to the vendor's `created_by`) when an active certification's `expiry_date` has passed or is within 30 days, throttled to one reminder per certificate per 7 days; the type is registered as a user-toggleable preference (`ProfileController` + `views/profile/notifications.php`, label "Vendor certification expiring"). **No schema migration** — reuses the existing `vendor_certifications.expiry_date` / `owner_id` / `status` columns. Covered by `tests/test_vendor_cert_expiry.php` (unit, pins the `freshness()` contract the badge + notifier share) and `tests/integration/vendor_cert_expiry_db.php` (DB-level expiry predicate, owner `COALESCE` fallback, future/revoked/pending exclusion, vendor→cert cascade; wired into `.github/workflows/aegis-integration.yml`).
+- **Contract renewal/expiry monitoring (Phase 14):** surfaces vendor **contracts** that are **expired or within their renewal-notice window** while still active. This is **distinct** from both `vendor_cert_expiring` (certificates) and `vendor_assessment_expiring` (assessments) — it covers `vendor_contracts`. The pure helper `VendorController::contractRenewalStatus(?string $endDate, string $status, ?int $noticeDays)` (`public static`) returns `none` (non-active status or no end date), `expired` (active + past end date), `due` (active + end date within the contract's own `renewal_notice_days` window, default 30), or `ok`; crucially the notice window is **per-contract** (`renewal_notice_days`), not a fixed 30/60 days. `views/vendor/contracts.php` shows a per-row "Renewal due" (amber) / "Expired" (red) badge in the End column via the helper — respecting each contract's own window, more accurate than the prior fixed 30/60-day colouring; the existing "Expiring ≤60 Days" stat and "Expiring Soon" cards are unchanged. `scripts/send_notifications.php` adds a `vendor_contract_expiring` section that emails the contract **owner** (`vendor_contracts.owner_id`, falling back to the vendor's `created_by`) when an active contract's `end_date` is within its `renewal_notice_days` window or has passed, throttled to one reminder per contract per 7 days; the email notes whether `auto_renewal` is enabled. Registered as a user-toggleable preference (`ProfileController` + `views/profile/notifications.php`, label "Vendor contract expiring"). **No schema migration** — reuses the existing `vendor_contracts` columns (`end_date`, `status`, `renewal_notice_days`, `owner_id`, `created_by`, `auto_renewal`). Covered by `tests/test_vendor_contract_renewal.php` (unit, `contractRenewalStatus` buckets + per-contract notice-window sensitivity) and `tests/integration/vendor_contract_expiry_db.php` (DB-level window predicate, owner `COALESCE` fallback, draft/terminated/narrow-notice exclusion, vendor→contract cascade; wired into `.github/workflows/aegis-integration.yml`).
 - Vendor portal: `generatePortalLink` issues a hashed 32-byte token (30-day expiry) with default 10-question self-assessment; `portalView`/`portalSubmit` are **public, no-auth** endpoints.
 
 ### Business Rules
@@ -589,10 +597,14 @@ Track findings from external audits, pentests, certifications, regulators, etc.,
 List ordered by severity + stats (total, open, critical/high open, overdue); create/view/update; add threaded update (`finding_updates`); close; delete.
 - **Finding ↔ Risk traceability** (Phase 2, `linkRisk`/`unlinkRisk` → `finding_risk_links`): link a finding to the risk(s) it causes / indicates / is mitigated by / relates to. The link is shown on both the finding view (with an add/remove form) and, in reverse, on the risk view ("Linked Audit Findings"). Authoring gated on `audit.findings`; CSRF-validated; audit-logged with structured before/after. The table is tenant-isolated via RLS and `created by` is stamped.
 
+- **CAPA depth (Phase 4):** findings carry `root_cause` and `preventive_action` (editable on the finding form), and a **reopen workflow** (`reopen`) returns a closed/resolved/risk-accepted finding to `reopened`, clearing `closed_at` and appending a "Finding reopened." update. Gated on `audit.findings`, CSRF-validated, audit-logged.
+
+- **Remediation cadence monitoring (Phase 11):** surfaces external-audit findings that are **past — or nearing (within 14 days)** — their remediation `deadline` while still open (status **NOT IN** the settled set `closed`/`resolved`/`risk_accepted`). The pure helper `AuditFindingController::remediationStatus(?string $deadline, string $status)` (`public static`) returns `none` (no usable deadline **or** a settled status — the settled statuses are shared via the `TERMINAL_STATUSES` const), `overdue` (deadline past), `due` (today through 14 days out), or `ok` (>14 days out). `views/audit_findings/index.php` shows a per-row "Overdue" (red) / "Due soon" (amber) badge; the existing **Overdue** overview stat was reconciled to use the helper (it previously counted `risk_accepted` findings, drifting from the controller stat). `scripts/send_notifications.php` adds a `finding_remediation_overdue` section that emails the finding **owner** (`audit_findings.owner_id`) when the deadline has passed and the finding is still open, throttled to one reminder per finding per 7 days; the type is registered as a user-toggleable preference (`ProfileController` + `views/profile/notifications.php`, label "Audit finding remediation overdue"). **No schema migration** — reuses the existing `audit_findings.deadline` and `owner_id` columns. Covered by `tests/test_finding_remediation.php` (unit, `remediationStatus` buckets) and `tests/integration/finding_remediation_db.php` (DB-level overdue predicate, owner join, terminal-status exclusion, cascade; wired into `.github/workflows/aegis-integration.yml`).
+
 ### Business Rules / Validation
 - Finding number `FIND-####`.
-- Severity ∈ `critical, high, medium, low, info`; status ∈ `open, in_progress, resolved, risk_accepted, closed`; source ∈ `external_audit, pentest, certification, assessment, regulatory, other`.
-- Closing sets `closed_at` and appends an automatic "Finding closed." update.
+- Severity ∈ `critical, high, medium, low, info`; status ∈ `open, in_progress, resolved, risk_accepted, closed, reopened`; source ∈ `external_audit, pentest, certification, assessment, regulatory, other`.
+- Closing sets `closed_at` and appends an automatic "Finding closed." update; reopening clears it.
 - `title` required on create; enum fallbacks on invalid input.
 
 ### Permissions
@@ -608,14 +620,15 @@ All methods require `audit.findings`. (`createForm` redirects to `/audit-finding
 **Controller:** `controllers/PolicyController.php` (477 lines) · **Views:** `views/policy/`
 
 ### Purpose
-Policy lifecycle (draft → review → published → archived), versioning, control mapping, and attestation campaigns.
+Policy lifecycle (draft → review → published → archived/retired), versioning, control mapping, and attestation campaigns.
 
 ### Features
-Filterable list (status, package, review window) + summary; policy ↔ control mapping view; create (seeds `policy_versions` v1.0); view with versions/mappings/reviews/available objectives; update (save / submit_review / approve / publish / archive, optional new version); map/unmap objectives; attestation campaigns (list/create/view matrix) and per-user attest + "my attestations".
+Filterable list (status, package, review window) + summary; policy ↔ control mapping view; create (seeds `policy_versions` v1.0); view with versions/mappings/reviews/available objectives; update (save / submit_review / approve / publish / archive / **retire**, optional new version); map/unmap objectives; attestation campaigns (list/create/view matrix) and per-user attest + "my attestations".
+- **Lifecycle (Phase 4):** a **retired** state (`action=retire`, requires `policy.publish`) formally withdraws a once-in-force policy (distinct from `archived` draft cleanup); the status bar and badges reflect it. Policies carry an optional hard **`expires_at`** date (settable on create/edit) surfaced in the sidebar with freshness colour. `scripts/send_notifications.php` emails the owner when a published policy is **expiring within 30 days** (`policy_expiring`, throttled per policy per 7 days) — alongside the existing `policy_review_due` review-cadence alert.
 
 ### Business Rules
 - Policy number `POL-####`; review frequencies `monthly, quarterly, biannual, annual, biennial`; default `next_review_date` computed from frequency if not supplied.
-- Status transitions gated: `publish`, `approve`, `archive` additionally require `policy.publish`; `submit_review` does not.
+- Status: `draft, under_review, published, archived, retired`. Transitions gated: `publish`, `approve`, `archive`, `retire` additionally require `policy.publish`; `submit_review` does not.
 - Content stored via `Security::sanitizeHtml` (rich text allowed).
 - Attestation upsert keyed `(policy_id, user_id)`, records IP and notes; campaigns reference `published` policies only.
 
@@ -691,18 +704,19 @@ Lightweight issue tracker that can originate from audits/risks/incidents/complia
 
 ### Features
 Filterable list (severity, status, assignee) + stats; create; view with update thread; update; add update (optionally driving a status change).
+- **CAPA depth (Phase 4):** issues carry `root_cause`, `resolution` (corrective action), `preventive_action`, and `recurrence_prevention` (all editable on the issue form and shown as read-only cards). A **reopen workflow** (`reopen`) returns a resolved/closed/wont-fix issue to `reopened`, clears `resolved_at`, and appends a "reopened" update. Gated on `issue.edit`, CSRF-validated, audit-logged.
 
 ### Business Rules / Validation
 - Issue number `ISS-####`.
-- Severity ∈ `critical, high, medium, low`; status ∈ `open, in_progress, pending_review, resolved, closed, wont_fix`; source type ∈ `audit, risk, incident, manual, compliance`.
-- Setting status `resolved` sets `resolved_at`.
+- Severity ∈ `critical, high, medium, low`; status ∈ `open, in_progress, pending_review, resolved, closed, wont_fix, reopened` (DB `CHECK`); source type ∈ `audit, risk, incident, manual, compliance`.
+- Setting status `resolved` sets `resolved_at`; reopening clears it.
 - Update type ∈ `comment, status_change, assignment`.
 - `title` required (create); update content required.
 
 ### Permissions
 - `issue.view` — index, view.
 - `issue.create` — createForm, create.
-- `issue.edit` — update, addUpdate.
+- `issue.edit` — update, addUpdate, reopen.
 
 ### Error/Edge
 404 if issue missing.
@@ -718,6 +732,7 @@ Business continuity / disaster recovery plans with RTO/RPO, sections, and exerci
 
 ### Features
 List with exercise/section counts; create with inline sections; view (sections + exercises); update; add exercise (sets plan `last_tested` when conducted).
+- **Lifecycle monitoring (Phase 7):** `BCPController` gained two `public static` pure helpers — `exerciseOverdue(scheduledDate, conductedDate)` (overdue = `scheduled_date` in the past **and** never conducted) and `planTestStatus(nextTestDate)` (bands `none`/`overdue`/`due` (within 30 days)/`ok` from a plan's `next_test_date`). The UI surfaces these: `views/bcp/view.php` highlights overdue exercise rows with an "OVERDUE" badge and shows a "Testing overdue"/"Testing due" badge on the plan header; `views/bcp/index.php` cards show an "N overdue exercises" badge (from an `overdue_exercise_count` subquery added to `index()`), a "Testing overdue" badge, and colour the Next Test date. `scripts/send_notifications.php` adds two owner-scoped, 7-day-throttled email alerts: `bcp_exercise_overdue` (per exercise with `scheduled_date < today` and no `conducted_date`, emails the plan owner) and `bcp_plan_review_due` (per `active` plan whose `next_test_date <= today + 30`, emails the owner). No schema migration was needed — uses existing `bcp_exercises.scheduled_date`/`conducted_date` and `bcp_plans.next_test_date`/`owner_id`/`status`.
 
 ### Business Rules / Validation
 - Plan code `BCP-####`; status ∈ `draft, active, archived`.
@@ -743,6 +758,8 @@ Security-incident management with lifecycle, threaded updates, playbook runs, ac
 
 ### Features
 Filterable list (severity, status, search) + summary; create; view (updates + playbook runs with step state + available playbooks to start); update; add update (optionally changing status); close; acknowledge (records `incident_sla_events`); SLA report computing per-incident ack/resolve SLA status.
+- **SLA breach monitoring (Phase 6):** the incident module UI was retired in migration 032, but the **SLA report (`/incident/sla`)** is retained and live. `IncidentController::slaStatus()` is now `public static` (pure function returning `n/a`/`met`/`on_track`/`at_risk`/`breached` from start time, event time, and allowed hours), and `slaReport()` LEFT JOINs the `breach` event and shows a red "Breach logged" badge on incidents with a recorded breach. `scripts/send_notifications.php` (`incident_sla_breach`) closes the prior gap where only `acknowledged` events were written: for each still-open incident past `created_at + resolve_hours` with no `resolved` event, it records a one-time `breach` event in `incident_sla_events` (idempotent — only if none exists) and emails the owner (`assigned_to`, fallback `reported_by`), throttled per incident per 7 days. No schema migration was needed (uses pre-existing `incident_sla_policies` / `incident_sla_events`).
+- **Notifier query repair (Phase 12):** four `scripts/send_notifications.php` sections referenced columns that do not exist, so their queries errored — each caught in its own `try/catch` — and the alerts had **never fired in production** (Postgres validates column names at plan time, so a bad column errors even with zero matching rows). Corrected against the real schema: `open_incident_aging` `incidents.owner_id → assigned_to`; `document_expiring` `documents.document_number → doc_number` (aliased `AS document_number`); `evidence_expiring` `evidence_files.filename → original_name` (aliased `AS filename`); `vendor_assessment_expiring` `vendor_assessments.next_assessment_date → scheduled_date` (aliased), scoped to `planned`/`in_progress` assessments due within 30 days. **No schema migration** — all four columns already existed. Regression guard: `tests/integration/notifier_smoke_db.php` seeds one qualifying row per repaired section, runs the notifier, and asserts no "column ... does not exist" / "[section] ERROR:" line appears and that the summary line prints; wired into `.github/workflows/aegis-integration.yml`.
 
 ### Business Rules
 - Incident number `INC-####`.
@@ -800,6 +817,7 @@ Security-awareness programs assigned to users, with completion tracking.
 
 ### Features
 Program list with assigned/completed counts; create (assign selected users and/or all active users); view (assignment matrix); user self-mark complete; bulk assign; delete.
+- **Overdue monitoring (Phase 9):** the deadline lives on the **program** (`awareness_programs.due_date`), not the assignment — assignments only carry `completed` / `completed_at` / `user_id`. `AwarenessController::assignmentOverdue($completed, $programDueDate)` is a pure helper returning true when an assignment is **not completed** and the program's `due_date` is in the past. The program view (`views/awareness/view.php`) flags each overdue assignment row (red icon + "Overdue" label, highlighted row) and the Completion stat card shows an "N overdue assignments" banner with the due date marked "(passed)"; the index (`views/awareness/index.php`) highlights affected program rows, shows an "N overdue" badge (overdue = incomplete = `total − completed` once the due date passes), and colours the due-date cell. `scripts/send_notifications.php` adds an `awareness_training_overdue` section that emails the **assignee** (`awareness_assignments.user_id`) for each incomplete assignment whose program `due_date` is past, throttled per assignment per 7 days (try/catch-wrapped); the type is registered in `ProfileController`'s `$types`, the notification-preferences UI (`$NOTIF_TYPES`), and the digest `$sectionLabels`. **No schema migration** — reuses existing columns.
 
 ### Business Rules / Validation
 - Content type ∈ `document, video, policy, quiz`.
@@ -896,6 +914,8 @@ FedRAMP/NIST POA&M items with milestones, auto-generated from non-compliant cont
 
 ### Features
 List with milestone progress (ordered open → in_progress → closed → cancelled); auto-generate from a package's non-compliant/partial controls; manual create; CSV import; view (with linked control); update; delete; add/complete milestone.
+
+- **Overdue monitoring (Phase 8):** the pure helper `POAMController::itemOverdue($status, $scheduledCompletion)` flags an item as overdue when its `status` is **not** in `closed`/`cancelled` **and** `scheduled_completion` is in the past. The item view header shows a red "Overdue" badge next to the status badge; the index highlights overdue rows with an "Overdue" badge, an "N overdue milestones" flag badge, and a coloured scheduled-completion cell (the count comes from an `overdue_milestones` `FILTER` subquery over `poam_milestones`). `scripts/send_notifications.php` (`poam_item_overdue`) emails the item **owner** (`owner_id`) for each item with `status NOT IN (closed,cancelled)` and `scheduled_completion < today`, mentioning any overdue-milestone count, throttled per item per 7 days. Per-**milestone** "Overdue" badges (on `poam_milestones.due_date` while not `is_complete`) already existed, so Phase 8 adds the **item-level** overdue surfacing plus the owner alert. **No schema migration** — reuses existing `poam_items.scheduled_completion`/`status`/`owner_id` and `poam_milestones.due_date`/`is_complete`.
 
 ### Business Rules
 - POA&M number `POAM-####` (derived via regex on existing numbers).
@@ -1195,7 +1215,7 @@ On MFA pending, the session is destroyed/recreated and the post-login redirect c
 Self-service profile: notification preferences, profile edit, and password change.
 
 ### Features
-Notification preferences (12 toggle types + a `__digest__` delivery row: immediate/daily/weekly + time); profile edit (name, email); change password.
+Notification preferences (25 toggle types — including `control_retest_due` "Control re-test due", `finding_remediation_overdue` "Audit finding remediation overdue", `vendor_cert_expiring` "Vendor certification expiring", `vendor_contract_expiring` "Vendor contract expiring", and `kri_measurement_overdue` "KRI measurement overdue" — plus a `__digest__` delivery row: immediate/daily/weekly + time); profile edit (name, email); change password.
 
 ### Business Rules / Validation
 - Name 2–100 chars; email valid and unique (excluding self).

@@ -1,0 +1,105 @@
+name: platform audit-sink (terraform · tfsec · checkov)
+
+# Policy-as-code gate for the shared audit-sink Terraform (and the state-backend
+# bootstrap + CRR replica submodules). Runs formatting, provider-schema
+# validation, and TWO IaC scanners:
+#   - Trivy config scan (the tfsec engine, now shipped inside Trivy) — HARD gate
+#     on HIGH/CRITICAL misconfigurations.
+#   - Checkov — broad policy-as-code, reported as an annotated SARIF (soft gate
+#     initially; tighten to hard-fail once the baseline is triaged).
+# init uses -backend=false so no AWS credentials or remote state are needed.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'platform/audit-sink/**'
+      - 'platform/bootstrap/**'
+      - '.github/workflows/platform-audit-sink.yml'
+  pull_request:
+    paths:
+      - 'platform/audit-sink/**'
+      - 'platform/bootstrap/**'
+      - '.github/workflows/platform-audit-sink.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: platform-audit-sink-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  terraform:
+    name: fmt · validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      # NOTE: tag-pinned; dependabot/renovate should SHA-pin to match repo convention.
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+          terraform_wrapper: false
+
+      - name: terraform fmt -check (recursive)
+        run: terraform fmt -check -recursive platform/
+
+      - name: Validate each module (no backend, no creds)
+        run: |
+          set -euo pipefail
+          for dir in platform/audit-sink platform/audit-sink/replica platform/bootstrap; do
+            echo "::group::validate $dir"
+            terraform -chdir="$dir" init -backend=false -input=false -no-color
+            terraform -chdir="$dir" validate -no-color
+            echo "::endgroup::"
+          done
+
+  tfsec:
+    name: Trivy config (tfsec engine) — HIGH/CRITICAL gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Trivy IaC misconfiguration scan
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: config
+          scan-ref: platform/audit-sink
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          trivy-config: ''
+
+  checkov:
+    name: Checkov policy-as-code
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # upload SARIF
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Checkov
+        run: pip install --disable-pip-version-check checkov==3.2.334
+
+      # soft_fail: reports findings as SARIF annotations without blocking merges
+      # yet. Flip to `--hard-fail-on HIGH,CRITICAL` once the baseline is triaged.
+      - name: Run Checkov
+        run: |
+          checkov -d platform/audit-sink --framework terraform \
+            --output cli --output sarif --output-file-path console,checkov.sarif \
+            --soft-fail
+
+      - name: Upload Checkov SARIF
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: checkov-sarif
+          path: checkov.sarif
+          if-no-files-found: warn

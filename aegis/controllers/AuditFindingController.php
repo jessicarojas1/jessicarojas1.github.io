@@ -4,8 +4,30 @@ declare(strict_types=1);
 class AuditFindingController {
 
     private const VALID_SEVERITIES = ['critical', 'high', 'medium', 'low', 'info'];
-    private const VALID_STATUSES   = ['open', 'in_progress', 'resolved', 'risk_accepted', 'closed'];
+    private const VALID_STATUSES   = ['open', 'in_progress', 'resolved', 'risk_accepted', 'closed', 'reopened'];
     private const VALID_SOURCES    = ['external_audit', 'pentest', 'certification', 'assessment', 'regulatory', 'other'];
+
+    // A finding is "settled" once its remediation is no longer being tracked — the
+    // deadline stops mattering. Kept in one place so the view, the overview stat
+    // and the notifier agree on which statuses are terminal.
+    public const TERMINAL_STATUSES = ['closed', 'resolved', 'risk_accepted'];
+
+    /**
+     * Remediation-deadline state for a finding: 'none' (no deadline, or a
+     * settled status), 'overdue' (deadline passed and still open), 'due'
+     * (deadline within 14 days) or 'ok'. Pure function (date math only) —
+     * public + static so the notifier and views reuse it and it is unit-testable.
+     */
+    public static function remediationStatus(?string $deadline, string $status): string {
+        if (in_array($status, self::TERMINAL_STATUSES, true)) return 'none';
+        if (empty($deadline)) return 'none';
+        $ts = strtotime($deadline);
+        if ($ts === false) return 'none';
+        $today = strtotime('today');
+        if ($ts < $today) return 'overdue';
+        if ($ts < $today + 14 * 86400) return 'due';
+        return 'ok';
+    }
 
     public function index(): void {
         Auth::requirePermission('audit.findings');
@@ -222,6 +244,8 @@ class AuditFindingController {
         $ownerId     = !empty($_POST['owner_id'])   ? (int)$_POST['owner_id']   : null;
         $packageId   = !empty($_POST['package_id']) ? (int)$_POST['package_id'] : null;
         $objectiveId = !empty($_POST['objective_id']) ? (int)$_POST['objective_id'] : null;
+        $rootCause        = Security::sanitizeInput($_POST['root_cause']        ?? '');
+        $preventiveAction = Security::sanitizeInput($_POST['preventive_action'] ?? '');
 
         if (!in_array($severity, self::VALID_SEVERITIES, true)) {
             $severity = 'medium';
@@ -247,6 +271,8 @@ class AuditFindingController {
             'owner_id'       => $ownerId,
             'package_id'     => $packageId,
             'objective_id'   => $objectiveId,
+            'root_cause'        => $rootCause ?: null,
+            'preventive_action' => $preventiveAction ?: null,
         ];
 
         if ($status === 'closed') {
@@ -258,6 +284,40 @@ class AuditFindingController {
         Auth::log('updated', 'audit_findings', $id, ['status' => $status, 'severity' => $severity]);
 
         $_SESSION['flash_success'] = 'Finding updated successfully.';
+        header('Location: /audit-findings/' . $id);
+    }
+
+    /** Reopen a closed/resolved finding (CAPA reopen workflow). */
+    public function reopen(string $id): void {
+        Auth::requirePermission('audit.findings');
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            return;
+        }
+
+        $id  = (int)$id;
+        $rec = Database::fetchOne("SELECT status FROM audit_findings WHERE id = ?", [$id]);
+        if (!$rec) { $_SESSION['flash_error'] = 'Finding not found.'; header('Location: /audit-findings'); return; }
+        if (!in_array($rec['status'], ['resolved', 'closed', 'risk_accepted'], true)) {
+            $_SESSION['flash_error'] = 'Only resolved, closed, or risk-accepted findings can be reopened.';
+            header('Location: /audit-findings/' . $id); return;
+        }
+
+        $reason = Security::sanitizeInput($_POST['reopen_reason'] ?? '');
+        Database::query(
+            "UPDATE audit_findings SET status = 'reopened', closed_at = NULL, updated_at = NOW() WHERE id = ?",
+            [$id]
+        );
+        Database::insert('finding_updates', [
+            'finding_id' => $id,
+            'user_id'    => Auth::id(),
+            'content'    => 'Finding reopened.' . ($reason !== '' ? ' Reason: ' . $reason : ''),
+        ]);
+
+        Auth::log('reopened', 'audit_findings', $id, ['from_status' => $rec['status'], 'reason' => $reason]);
+
+        $_SESSION['flash_success'] = 'Finding reopened.';
         header('Location: /audit-findings/' . $id);
     }
 

@@ -133,6 +133,9 @@ export interface Nonconformance {
   closed_at?: Iso8601;
   created_at: Iso8601;
   updated_at: Iso8601;
+  // Optimistic-concurrency token echoed back on PATCH: set to the updated_at
+  // the form loaded so the server can reject a stale (lost-update) write.
+  expected_updated_at?: Iso8601;
   attachments?: Attachment[];
   audit_trail?: AuditTrailEntry[];
 }
@@ -195,6 +198,7 @@ export interface Capa {
   d3_containment?: string;
   d4_root_cause?: string;
   root_cause_method?: string;
+  five_whys?: { why?: string; because?: string }[];
   d5_corrective_action?: string;
   d6_implementation?: string;
   d7_preventive_action?: string;
@@ -203,6 +207,7 @@ export interface Capa {
   effectiveness_notes?: string;
   effectiveness_verified_by?: string;
   effectiveness_verified_at?: Iso8601;
+  effectiveness_due_date?: Iso8601;
   owner_id?: string;
   supplier_id?: string;
   due_date?: Iso8601;
@@ -210,6 +215,9 @@ export interface Capa {
   closure_signature_id?: string;
   created_at: Iso8601;
   updated_at: Iso8601;
+  // Optimistic-concurrency token echoed back on PATCH: set to the updated_at
+  // the form loaded so the server can reject a stale (lost-update) write.
+  expected_updated_at?: Iso8601;
   actions?: CapaAction[];
   attachments?: Attachment[];
 }
@@ -384,6 +392,7 @@ export interface TrainingRecord {
   id: string;
   employee_id: string;
   employee_name: string;
+  department?: string | null;
   course: string;
   course_code?: string;
   status: 'assigned' | 'in_progress' | 'completed' | 'overdue';
@@ -478,6 +487,7 @@ export interface Risk {
   description: string;
   category: RiskCategory;
   status: RiskStatus;
+  is_opportunity?: boolean;
   severity: number; // 1-10
   likelihood: number; // 1-10
   detectability: number; // 1-10
@@ -493,6 +503,9 @@ export interface Risk {
   capa_id?: string;
   created_at: Iso8601;
   updated_at: Iso8601;
+  // Optimistic-concurrency token echoed back on PATCH: set to the updated_at
+  // the form loaded so the server can reject a stale (lost-update) write.
+  expected_updated_at?: Iso8601;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1220,6 +1233,52 @@ export interface LessonLearned {
   root_cause?: string | null;
   recommendation?: string | null;
   published_at?: Iso8601 | null;
+  created_at?: Iso8601 | null;
+  updated_at?: Iso8601 | null;
+}
+
+/* ------------------------------------------------------------------ */
+/* Records Retention & Disposition Schedule                            */
+/* ------------------------------------------------------------------ */
+
+export type RetentionCategory =
+  | 'quality_records'
+  | 'design_records'
+  | 'supplier_records'
+  | 'calibration_records'
+  | 'training_records'
+  | 'audit_records'
+  | 'capa_records'
+  | 'contract_records'
+  | 'inspection_records'
+  | 'other';
+/** The event that starts the retention clock. */
+export type RetentionTrigger =
+  | 'creation'
+  | 'closure'
+  | 'delivery'
+  | 'contract_end'
+  | 'obsolescence'
+  | 'superseded';
+/** The action SCHEDULED at end of retention — performed manually, not automated. */
+export type DispositionAction = 'review' | 'archive' | 'destroy' | 'permanent';
+export type RetentionStatus = 'draft' | 'active' | 'superseded';
+
+export interface RetentionPolicy {
+  id: number;
+  policy_number: string;
+  title: string;
+  record_category: RetentionCategory;
+  retention_trigger: RetentionTrigger;
+  /** null => permanent / indefinite retention. */
+  retention_years?: number | null;
+  disposition_action: DispositionAction;
+  /** When true, disposition is suspended regardless of retention_years. */
+  legal_hold: boolean;
+  authority_reference?: string | null;
+  status: RetentionStatus;
+  owner_id?: number | null;
+  notes?: string | null;
   created_at?: Iso8601 | null;
   updated_at?: Iso8601 | null;
 }

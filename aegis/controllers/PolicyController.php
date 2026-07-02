@@ -126,6 +126,7 @@ class PolicyController {
         $approverId = !empty($_POST['approver_id']) ? (int)$_POST['approver_id'] : null;
         $frequency = in_array($_POST['review_frequency'] ?? '', ['monthly','quarterly','biannual','annual','biennial']) ? $_POST['review_frequency'] : 'annual';
         $reviewDate = Security::sanitizeInput($_POST['next_review_date'] ?? '');
+        $expiresAt  = Security::sanitizeInput($_POST['expires_at'] ?? '');
 
         if (!$title) {
             $_SESSION['policy_error'] = 'Policy title is required.';
@@ -156,6 +157,7 @@ class PolicyController {
             'approver_id'      => $approverId,
             'review_frequency' => $frequency,
             'next_review_date' => $reviewDate,
+            'expires_at'       => $expiresAt ?: null,
             'status'           => 'draft',
             'version'          => '1.0',
         ]);
@@ -243,16 +245,23 @@ class PolicyController {
         } elseif ($action === 'archive') {
             Auth::requirePermission('policy.publish');
             Database::query("UPDATE policies SET status='archived', updated_at=NOW() WHERE id=?", [$id]);
+        } elseif ($action === 'retire') {
+            // Retire a superseded/obsolete policy. Distinct from 'archived'
+            // (draft cleanup): a retired policy was once in force and is now
+            // formally withdrawn. Requires publish authority.
+            Auth::requirePermission('policy.publish');
+            Database::query("UPDATE policies SET status='retired', updated_at=NOW() WHERE id=?", [$id]);
         } else {
             $title   = Security::sanitizeInput($_POST['title'] ?? '');
             $desc    = Security::sanitizeInput($_POST['description'] ?? '');
             $content = Security::sanitizeHtml($_POST['content'] ?? '');
             $reviewDate = Security::sanitizeInput($_POST['next_review_date'] ?? '');
+            $expiresAt  = Security::sanitizeInput($_POST['expires_at'] ?? '');
             $newVersion = $_POST['new_version'] ?? '';
 
             Database::query(
-                "UPDATE policies SET title=?, description=?, content=?, next_review_date=?, updated_at=NOW() WHERE id=?",
-                [$title, $desc, $content, $reviewDate ?: null, $id]
+                "UPDATE policies SET title=?, description=?, content=?, next_review_date=?, expires_at=?, updated_at=NOW() WHERE id=?",
+                [$title, $desc, $content, $reviewDate ?: null, $expiresAt ?: null, $id]
             );
 
             if ($newVersion) {

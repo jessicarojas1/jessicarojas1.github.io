@@ -1,0 +1,26 @@
+# =============================================================================
+# render.yaml — platform (shared GRC infrastructure)
+#
+# Applicability: N/A — this is NOT a Render web service.
+#
+# `platform/` is shared infrastructure, not a deployable application:
+#   - audit-sink/   : a Terraform module (AWS) for a central, write-once audit
+#                     log sink (KMS + S3 Object Lock + CloudWatch Logs + Kinesis
+#                     Firehose + least-privilege IAM). It is deployed with
+#                     `terraform apply` against AWS, NOT hosted on Render.
+#   - base-images/  : hardened container BASE images (Dockerfile.php-apache,
+#                     Dockerfile.node) that downstream apps build FROM. A base
+#                     image is not a runnable service on its own.
+#
+# There is no HTTP server, health endpoint, port, or process for Render to run,
+# so no `services:` block is defined here on purpose. Fabricating a web service
+# would be dishonest and would not deploy anything meaningful.
+#
+# How this project is actually deployed:
+#   - audit-sink  -> platform/deployments/AWS.md   (terraform init/plan/apply)
+#   - base-images -> platform/docs/DEPLOYMENT.md   (docker build / tag / push)
+#
+# If a downstream GRC app needs a Render Blueprint, it lives in THAT app's own
+# repo/dir and its Dockerfile builds FROM these base images
+# (see platform/base-images/README.md).
+# =============================================================================

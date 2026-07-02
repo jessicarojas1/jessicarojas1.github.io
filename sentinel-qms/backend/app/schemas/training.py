@@ -103,6 +103,7 @@ class TrainingRecordListItem(BaseModel):
     id: int
     employee_id: str
     employee_name: str
+    department: str | None = None
     course: str
     course_code: str | None
     status: TrainingStatus

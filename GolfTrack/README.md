@@ -2,6 +2,71 @@
 
 A SwiftUI golf scorecard, handicap tracker, and stats app for **iOS 17+** and **macOS 14+**, with an **Apple Watch companion app** and **in-round music controls**.
 
+> **Build status:** iOS/watchOS/macOS builds are produced with **Xcode on macOS**
+> (`xcodebuild`). A Linux **SwiftPM compile check** (`swift build` via the root
+> [`Dockerfile`](Dockerfile)) runs as a CI gate only — Apple-framework code does
+> not compile off-Apple platforms, and there is **no `Tests/` target yet**
+> (`swift test` reports no tests). See [OPEN_ITEMS.md](OPEN_ITEMS.md).
+
+## Documentation & Deployment
+
+Full operator-grade documentation lives in [`docs/`](docs/) and
+[`deployments/`](deployments/):
+
+**docs/**
+- [ARCHITECTURE](docs/ARCHITECTURE.md) — SwiftPM layout, targets, frameworks, data model, device message contract
+- [DEPLOYMENT](docs/DEPLOYMENT.md) — build → sign → distribute (Simulator, TestFlight, App Store, Ad-Hoc, MDM, Garmin)
+- [DISASTER_RECOVERY](docs/DISASTER_RECOVERY.md) — signing-asset backup + rebuild/re-provision runbook
+- [SECURITY](docs/SECURITY.md) — on-device data protection, permissions, signing identity, reporting
+
+**deployments/**
+- [LOCAL_DEVELOPMENT](deployments/LOCAL_DEVELOPMENT.md) — Xcode + Simulator, `swift build`/`swift test`
+- [SINGLE_LINUX_SERVER](deployments/SINGLE_LINUX_SERVER.md) — CI build/test host (N/A as app host)
+- [KUBERNETES](deployments/KUBERNETES.md) — k8s CI compile-check pipeline (N/A as app host)
+- [AZURE](deployments/AZURE.md) — distribution + Intune + Key Vault (Commercial + Government)
+- [AWS](deployments/AWS.md) — distribution + Secrets Manager + IAM role (Commercial + GovCloud)
+- [AIRGAPPED](deployments/AIRGAPPED.md) — offline build + MDM distribution + Garmin sideload
+
+**Project guidance:** [CLAUDE.md](CLAUDE.md) · **Production-readiness register:** [OPEN_ITEMS.md](OPEN_ITEMS.md)
+
+## Technology
+
+| Area | Choice |
+|------|--------|
+| Language / tooling | Swift 5.9, Swift Package Manager (`swift-tools-version: 5.9`) |
+| UI | SwiftUI (iOS 17 / macOS 14 / watchOS 10) |
+| Persistence | SwiftData (`Round`, `HoleScore`, `CustomCourse` `@Model`s) |
+| Frameworks | MapKit (`MKLocalSearch`), CoreLocation, MediaPlayer, WatchConnectivity |
+| Watch | `Sources/GolfTrackWatch/` (watchOS `@main`) |
+| Garmin | `GarminApp/GolfTrack.mc` (Monkey C, Connect IQ SDK 4.x, device CIQ 3.4+) |
+
+### Dependencies
+
+- **No external SwiftPM dependencies** — GolfTrack uses **Apple frameworks only**;
+  `Package.swift` declares zero package dependencies (air-gapped SwiftPM is trivial).
+- **Garmin companion** requires the **Garmin Connect IQ SDK 4.x** (Monkey C) and a
+  device running Connect IQ 3.4+ — external to the Swift package.
+
+### Prerequisites
+
+- macOS 14+ with **Xcode 15+** (iOS 17 / watchOS 10 / macOS 14 SDKs + Simulators).
+- Swift 5.9 toolchain (bundled with Xcode).
+- Apple Developer account — free tier for Simulator; paid ($99/yr) for device / TestFlight / App Store.
+- (Optional) Garmin Connect IQ SDK 4.x + developer key for the Garmin companion.
+- (Optional) Docker for the Linux SwiftPM compile-check image.
+
+### Common commands
+
+```bash
+swift build            # package resolve + compile-check (Linux = CI gate only)
+swift test             # NOTE: no Tests/ target yet → "no tests" is expected
+
+# Full build / archive (macOS + Xcode — authoritative)
+xcodebuild -scheme GolfTrack -destination 'platform=iOS Simulator,name=iPhone 15' build
+xcodebuild -scheme GolfTrack -destination 'generic/platform=iOS' \
+  -archivePath build/GolfTrack.xcarchive archive
+```
+
 ## Features
 
 - **Find Nearby Courses** — GPS-based search using MapKit finds real golf courses near you, shows them on a map with distance, address, and phone number

@@ -1,5 +1,21 @@
 <?php
 class ComplianceController {
+    /**
+     * Re-test cadence state derived from a control's latest next_test_date:
+     * 'none' (never tested / no next date), 'overdue' (past due), 'due' (within
+     * 30 days) or 'ok'. Pure function (date math only) — public + static so the
+     * notifier and views reuse it and it is unit-testable in isolation.
+     */
+    public static function retestStatus(?string $nextTestDate): string {
+        if (empty($nextTestDate)) return 'none';
+        $ts = strtotime($nextTestDate);
+        if ($ts === false) return 'none';
+        $today = strtotime('today');
+        if ($ts < $today) return 'overdue';
+        if ($ts < $today + 30 * 86400) return 'due';
+        return 'ok';
+    }
+
     public function index(): void {
         Auth::requirePermission('compliance.view');
 
@@ -367,6 +383,23 @@ class ComplianceController {
         $filter   = $_GET['status'] ?? '';
         $search   = Security::sanitizeInput($_GET['q'] ?? '');
         $users    = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
+
+        // Re-test cadence rollup for this package: count controls whose LATEST
+        // test's next_test_date is overdue / due within 30 days. Distinct from
+        // remediation due_date — this is the test-execution cadence.
+        $retestStats = Database::fetchOne(
+            "SELECT
+               COUNT(*) FILTER (WHERE latest.next_test_date < CURRENT_DATE) AS overdue,
+               COUNT(*) FILTER (WHERE latest.next_test_date >= CURRENT_DATE
+                                  AND latest.next_test_date < CURRENT_DATE + INTERVAL '30 days') AS due_soon
+             FROM (
+               SELECT DISTINCT ON (ct.objective_id) ct.objective_id, ct.next_test_date
+               FROM control_tests ct
+               JOIN compliance_objectives co ON co.id = ct.objective_id
+               WHERE co.package_id = ? AND ct.next_test_date IS NOT NULL
+               ORDER BY ct.objective_id, ct.id DESC
+             ) latest", [$id]
+        );
 
         require AEGIS_ROOT . '/views/compliance/package.php';
     }

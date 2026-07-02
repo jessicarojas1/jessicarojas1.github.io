@@ -31,6 +31,13 @@ ob_start();
         <button class="btn btn-success"><i class="bi bi-check-lg"></i> Approve & Publish</button>
       <?php endif; ?>
     </form>
+    <?php if (in_array($policy['status'], ['published','archived'], true) && Auth::can('policy.publish')): ?>
+    <form method="POST" action="/policy/<?= $policy['id'] ?>/update" style="display:inline" data-confirm="Retire this policy? It will be marked as formally withdrawn.">
+      <?= Security::csrfField() ?>
+      <input type="hidden" name="action" value="retire">
+      <button class="btn btn-warning"><i class="bi bi-archive"></i> Retire</button>
+    </form>
+    <?php endif; ?>
     <a href="/policy/<?= $policy['id'] ?>/attest" class="btn btn-primary"><i class="bi bi-pen-fill"></i> Attest Policy</a>
     <button class="btn btn-ghost" id="btnPolicyWord"><i class="bi bi-file-word-fill"></i> Word</button>
     <button class="btn btn-ghost" id="btnPolicyPrint"><i class="bi bi-printer-fill"></i> Print</button>
@@ -40,8 +47,9 @@ ob_start();
 
 <!-- Status bar -->
 <div class="policy-status-bar card">
-  <?php $steps = ['draft'=>0,'under_review'=>1,'published'=>2,'archived'=>3]; $curStep = $steps[$policy['status']] ?? 0; ?>
-  <?php foreach (['Draft','Under Review','Published','Archived'] as $i => $step): ?>
+  <?php $steps = ['draft'=>0,'under_review'=>1,'published'=>2,'archived'=>3,'retired'=>3]; $curStep = $steps[$policy['status']] ?? 0;
+        $lastLabel = $policy['status'] === 'retired' ? 'Retired' : 'Archived'; ?>
+  <?php foreach (['Draft','Under Review','Published',$lastLabel] as $i => $step): ?>
     <div class="status-step <?= $i < $curStep ? 'done' : ($i == $curStep ? 'current' : '') ?>">
       <div class="step-circle"><?= $i < $curStep ? '<i class="bi bi-check-lg"></i>' : ($i+1) ?></div>
       <div class="step-label"><?= $step ?></div>
@@ -134,6 +142,11 @@ ob_start();
         <div class="detail-row"><span>Owner</span><strong><?= Security::h($policy['owner_name'] ?? 'Unassigned') ?></strong></div>
         <div class="detail-row"><span>Frequency</span><strong><?= ucfirst($policy['review_frequency'] ?? 'annual') ?></strong></div>
         <div class="detail-row"><span>Next Review</span><strong <?= $policy['next_review_date'] && strtotime($policy['next_review_date']) < time() ? 'style="color:var(--danger)"' : '' ?>><?= $policy['next_review_date'] ? date('M j, Y', strtotime($policy['next_review_date'])) : 'Not set' ?></strong></div>
+        <?php
+          $polExpFresh = EvidenceController::freshness($policy['expires_at'] ?? null);
+          $polExpStyle = $polExpFresh === 'expired' ? 'style="color:var(--danger)"' : ($polExpFresh === 'expiring' ? 'style="color:var(--warning)"' : '');
+        ?>
+        <div class="detail-row"><span>Expires</span><strong <?= $polExpStyle ?>><?= !empty($policy['expires_at']) ? date('M j, Y', strtotime($policy['expires_at'])) . ($polExpFresh === 'expired' ? ' (expired)' : '') : 'No expiry' ?></strong></div>
         <div class="detail-row"><span>Mappings</span><strong><?= count($mappings) ?> controls</strong></div>
       </div>
     </div>

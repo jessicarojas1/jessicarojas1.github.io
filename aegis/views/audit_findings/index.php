@@ -3,10 +3,9 @@ $breadcrumbs  = $breadcrumbs  ?? [['Audits', '/audit'], ['Findings', null]];
 $csrf = Security::generateCsrfToken();
 $sevBadge = ['critical'=>'badge-danger','high'=>'badge-danger','medium'=>'badge-warning','low'=>'badge-info','info'=>'badge-secondary'];
 $statusBadge = ['open'=>'badge-danger','in_progress'=>'badge-warning','resolved'=>'badge-success','risk_accepted'=>'badge-info','closed'=>'badge-secondary'];
-$now = time();
 $filter = $_GET['status'] ?? 'all';
 $filtered = $filter === 'all' ? $findings : array_filter($findings, fn($f) => $f['status'] === $filter);
-$overdue = array_filter($findings, fn($f) => $f['deadline'] && strtotime($f['deadline']) < $now && !in_array($f['status'], ['closed','resolved']));
+$overdue = array_filter($findings, fn($f) => AuditFindingController::remediationStatus($f['deadline'], $f['status']) === 'overdue');
 $open    = array_filter($findings, fn($f) => in_array($f['status'], ['open','in_progress']));
 ?>
 <div class="page-header">
@@ -46,8 +45,9 @@ $open    = array_filter($findings, fn($f) => in_array($f['status'], ['open','in_
     <thead><tr><th scope="col">Finding #</th><th scope="col">Title</th><th scope="col">Severity</th><th scope="col">Status</th><th scope="col">Source</th><th scope="col">Linked Audit</th><th scope="col">Owner</th><th scope="col">Deadline</th><th scope="col"></th></tr></thead>
     <tbody>
     <?php foreach ($filtered as $f):
-      $overdueCls = ($f['deadline'] && strtotime($f['deadline']) < $now && !in_array($f['status'],['closed','resolved'])) ? 'color:var(--danger);font-weight:600;' : '';
-      $auditLabel = $f['linked_audit_name'] ?? $f['audit_name'] ?? '—';
+      $remediation = AuditFindingController::remediationStatus($f['deadline'], $f['status']);
+      $overdueCls  = $remediation === 'overdue' ? 'color:var(--danger);font-weight:600;' : '';
+      $auditLabel  = $f['linked_audit_name'] ?? $f['audit_name'] ?? '—';
     ?>
       <tr>
         <td style="font-family:monospace;font-weight:600;"><?= Security::h($f['finding_number']) ?></td>
@@ -57,7 +57,14 @@ $open    = array_filter($findings, fn($f) => in_array($f['status'], ['open','in_
         <td><?= Security::h(ucwords(str_replace('_',' ',$f['source']))) ?></td>
         <td><?php if (!empty($f['audit_id'])): ?><a href="/audit/<?= (int)$f['audit_id'] ?>"><?= Security::h($auditLabel) ?></a><?php else: ?><?= Security::h($auditLabel) ?><?php endif; ?></td>
         <td><?= Security::h($f['owner_name'] ?: '—') ?></td>
-        <td style="<?= $overdueCls ?>"><?= $f['deadline'] ? date('M j, Y', strtotime($f['deadline'])) : '—' ?></td>
+        <td style="<?= $overdueCls ?>">
+          <?= $f['deadline'] ? date('M j, Y', strtotime($f['deadline'])) : '—' ?>
+          <?php if ($remediation === 'overdue'): ?>
+            <span class="badge badge-danger" style="font-size:0.7rem"><i class="bi bi-exclamation-triangle-fill"></i> Overdue</span>
+          <?php elseif ($remediation === 'due'): ?>
+            <span class="badge badge-warning" style="font-size:0.7rem"><i class="bi bi-clock"></i> Due soon</span>
+          <?php endif; ?>
+        </td>
         <td><a href="/audit-findings/<?= (int)$f['id'] ?>" class="btn btn-sm btn-secondary">View</a></td>
       </tr>
     <?php endforeach; ?>

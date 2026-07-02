@@ -19,7 +19,9 @@ class RiskReviewController {
                COUNT(*) FILTER (WHERE status = 'planned')     AS planned,
                COUNT(*) FILTER (WHERE status = 'in_progress') AS in_progress,
                COUNT(*) FILTER (WHERE status = 'completed')   AS completed,
-               COUNT(*) FILTER (WHERE status = 'cancelled')   AS cancelled
+               COUNT(*) FILTER (WHERE status = 'cancelled')   AS cancelled,
+               COUNT(*) FILTER (WHERE scheduled_date < CURRENT_DATE
+                                  AND status NOT IN ('completed','cancelled')) AS overdue
              FROM risk_reviews"
         );
 

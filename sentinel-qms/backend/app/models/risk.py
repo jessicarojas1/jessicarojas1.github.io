@@ -5,7 +5,7 @@ from __future__ import annotations
 import enum
 from datetime import date
 
-from sqlalchemy import Date, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Date, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -53,6 +53,10 @@ class Risk(Base, TimestampMixin, SoftDeleteMixin):
         Enum(RiskStatus, name="risk_status"), default=RiskStatus.IDENTIFIED, nullable=False
     )
     description: Mapped[str] = mapped_column(Text, nullable=False)
+
+    # ISO 9001 6.1 — the register holds both risks and opportunities; this flag
+    # distinguishes a positive opportunity from a (negative) risk.
+    is_opportunity: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     # RPN inputs (1–10 scales) and computed product.
     severity: Mapped[int] = mapped_column(Integer, default=1, nullable=False)

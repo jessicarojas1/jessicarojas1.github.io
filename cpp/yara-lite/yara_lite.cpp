@@ -509,7 +509,6 @@ int main(int argc, char* argv[]) {
     std::string rules_source;
     std::string target;
     bool recursive = false;
-    bool use_builtin = false;
 
     for (int i = 1; i < argc; ++i) {
         std::string a = argv[i];
@@ -520,7 +519,6 @@ int main(int argc, char* argv[]) {
             rules_source = std::string((std::istreambuf_iterator<char>(rf)),
                                         std::istreambuf_iterator<char>());
         } else if (a == "--builtin") {
-            use_builtin = true;
             rules_source = BUILTIN_RULES;
         } else if (a == "--recursive") {
             recursive = true;

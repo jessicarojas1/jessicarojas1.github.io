@@ -1,0 +1,42 @@
+# =============================================================================
+# CITADEL — standalone Render Blueprint
+# -----------------------------------------------------------------------------
+# Deploys the CITADEL deep-scan backend as a single Docker web service. The
+# image bundles the SPA + real scanners (Semgrep, Bandit, Trivy, Syft, Grype,
+# Gitleaks, ClamAV, Checkov, OSV-Scanner, Hadolint). Mirrors the `citadel`
+# service in the repo-root render.yaml so this folder can be deployed on its own
+# (point Render at this file, or at the root blueprint for the whole monorepo).
+#
+# Build context MUST be the repo root so the Dockerfile can COPY both the SPA
+# (citadel/) and the backend (citadel/server/).
+#
+# RAM: ClamAV loads a ~1.4 GB signature DB — use `standard` (or higher). The
+# free/starter tiers will OOM when ClamAV is present. Free tiers also have no
+# persistent disk, so the user store + scan history reset on each deploy unless
+# you attach DATABASE_URL (Postgres). See docs/DISASTER_RECOVERY.md.
+# =============================================================================
+services:
+  - type: web
+    name: citadel
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ..            # repo root, relative to this file
+    plan: standard               # ClamAV needs >=2 GB RAM
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Stable HS256 signing secret for session JWTs. Set a fixed value in the
+      # dashboard so sessions survive redeploys. Without a database, the user
+      # store itself still resets on each deploy (no persistent disk on free).
+      - key: CITADEL_JWT_SECRET
+        sync: false
+      # Optional: enables the AI "Explain & fix" feature (egress to Anthropic).
+      # Leave unset for an air-gapped / no-egress posture. Set in the dashboard.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Optional: attach a managed Postgres for durable users / scan history /
+      # audit. Without it CITADEL runs on an in-memory / JSON-file store.
+      # - key: DATABASE_URL
+      #   sync: false

@@ -21,6 +21,7 @@ from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError, WorkflowError
 from app.models.document import (
+    Department,
     Document,
     DocumentAcknowledgement,
     DocumentApproval,
@@ -69,6 +70,7 @@ def list_documents(
     sort: SortParams = Depends(sort_params),
     status_filter: DocumentStatus | None = Query(None, alias="status"),
     doc_type: DocumentType | None = Query(None),
+    department: Department | None = Query(None),
     search: str | None = Query(None),
     _: CurrentUser = Depends(require_page("documents", "view")),
 ) -> Page[DocumentList]:
@@ -77,6 +79,8 @@ def list_documents(
         stmt = stmt.where(Document.status == status_filter)
     if doc_type:
         stmt = stmt.where(Document.doc_type == doc_type)
+    if department:
+        stmt = stmt.where(Document.department == department)
     if search:
         like = f"%{search}%"
         stmt = stmt.where(Document.document_number.ilike(like) | Document.title.ilike(like))

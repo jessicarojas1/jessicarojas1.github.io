@@ -176,6 +176,7 @@ CREATE TABLE IF NOT EXISTS policies (
     approver_id INTEGER REFERENCES users(id),
     review_frequency VARCHAR(50) DEFAULT 'annual',
     next_review_date DATE,
+    expires_at DATE,
     approved_at TIMESTAMP,
     published_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -522,13 +523,17 @@ CREATE TABLE IF NOT EXISTS issues (
     severity     VARCHAR(20) NOT NULL DEFAULT 'medium'
                  CHECK (severity IN ('critical','high','medium','low')),
     status       VARCHAR(20) NOT NULL DEFAULT 'open'
-                 CHECK (status IN ('open','in_progress','resolved','closed')),
+                 CHECK (status IN ('open','in_progress','pending_review','resolved','closed','wont_fix','reopened')),
     source_type  VARCHAR(100),
     source_id    INTEGER,
     assigned_to  INTEGER REFERENCES users(id),
     created_by   INTEGER REFERENCES users(id),
     due_date     DATE,
     resolved_at  TIMESTAMP,
+    resolution            TEXT,
+    recurrence_prevention TEXT,
+    root_cause            TEXT,
+    preventive_action     TEXT,
     created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -579,6 +584,27 @@ CREATE TABLE IF NOT EXISTS vendor_assessments (
     updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_va_vendor ON vendor_assessments(vendor_id);
+
+-- Vendor certification tracking (Phase 4). RLS applied by migration 035.
+CREATE TABLE IF NOT EXISTS vendor_certifications (
+    id                 SERIAL PRIMARY KEY,
+    vendor_id          INTEGER NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
+    certification_type VARCHAR(100) NOT NULL,
+    certificate_number VARCHAR(100),
+    issuer             VARCHAR(255),
+    issued_date        DATE,
+    expiry_date        DATE,
+    status             VARCHAR(20) NOT NULL DEFAULT 'active'
+                       CHECK (status IN ('active','expired','revoked','pending')),
+    notes              TEXT,
+    owner_id           INTEGER REFERENCES users(id),
+    created_by         INTEGER REFERENCES users(id),
+    created_at         TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at         TIMESTAMP NOT NULL DEFAULT NOW(),
+    tenant_id          BIGINT NOT NULL DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS idx_vcert_vendor ON vendor_certifications(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_vcert_expiry ON vendor_certifications(expiry_date);
 
 CREATE TABLE IF NOT EXISTS evidence (
     id           SERIAL PRIMARY KEY,
@@ -638,14 +664,20 @@ CREATE TABLE IF NOT EXISTS evidence_downloads (
 CREATE INDEX IF NOT EXISTS idx_ed_evidence ON evidence_downloads(evidence_id);
 CREATE INDEX IF NOT EXISTS idx_ed_user     ON evidence_downloads(user_id);
 
--- Notification log (used by data-retention cleanup in AdminController)
+-- Notification log: written by scripts/send_notifications.php (per-user, per-entity
+-- throttle + audit) and read by AdminController (delivery log + data-retention cleanup).
 CREATE TABLE IF NOT EXISTS notification_log (
     id                  SERIAL PRIMARY KEY,
+    user_id             INTEGER,
     notification_type   VARCHAR(100) NOT NULL,
+    entity_type         VARCHAR(100),
     entity_id           INTEGER,
     recipient_email     VARCHAR(255),
     sent_at             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- Reconcile older installs whose notification_log predates the per-user throttle.
+ALTER TABLE notification_log ADD COLUMN IF NOT EXISTS user_id     INTEGER;
+ALTER TABLE notification_log ADD COLUMN IF NOT EXISTS entity_type VARCHAR(100);
 CREATE INDEX IF NOT EXISTS idx_nl_sent_at   ON notification_log(sent_at);
 CREATE INDEX IF NOT EXISTS idx_nl_type      ON notification_log(notification_type, entity_id, sent_at);
 CREATE INDEX IF NOT EXISTS idx_nl_recipient ON notification_log(recipient_email);

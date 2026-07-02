@@ -36,6 +36,12 @@ enforced).
 17. [Permission Matrix](#17-permission-matrix)
 18. [Validation Matrix](#18-validation-matrix)
 19. [Known Gaps & Notes](#19-known-gaps--notes)
+20. [Data Protection — In Transit & Key Management](#20-data-protection--in-transit--key-management)
+21. [Classification, CUI & DLP](#21-classification-cui--dlp)
+22. [FIPS Readiness](#22-fips-readiness)
+23. [Operator Responsibilities](#23-operator-responsibilities)
+24. [Secrets Rotation](#24-secrets-rotation)
+25. [Vulnerability Reporting & Disclosure](#25-vulnerability-reporting--disclosure)
 
 ---
 
@@ -685,6 +691,154 @@ These are **observations from the code**, not invented behaviors:
   rather than `Security::clientIp()`, so behind a proxy the audit IP is the proxy
   IP unless your nginx writes `REMOTE_ADDR` accordingly. Rate limiting *does* use
   `clientIp()`.
+
+---
+
+## 20. Data Protection — In Transit & Key Management
+
+### 20.1 In transit
+
+- **External**: TLS is terminated in front of the app (nginx / ingress / cloud
+  LB); the app container listens on plain `:8080` on a private network and is
+  never public directly. HSTS (`max-age=31536000; includeSubDomains; preload`) is
+  emitted on HTTPS responses; session cookies become `Secure` + `__Host-AEGIS`.
+- **Outbound**: all egress (webhooks, OIDC/JWKS, AI, S3) goes over HTTPS through
+  the SSRF guard (`src/Ssrf.php`); OIDC/JWKS require HTTPS and are IP-pinned
+  against DNS rebinding. The AI Advisor calls fixed vendor HTTPS endpoints
+  (no user-supplied URL).
+- **Database**: use TLS to Postgres in production (`sslmode=require`/`verify-full`
+  on managed PG — set via `DATABASE_URL`).
+
+### 20.2 At rest & key management
+
+| Data | Mechanism | Key |
+|---|---|---|
+| App secrets in `settings` (SMTP/S3/AI keys) | AES-256-GCM (libsodium), `enc:` prefix | `APP_ENCRYPTION_KEY` (or `JWT_SECRET`-derived fallback) |
+| Passwords | Argon2id (64 MiB / t=4 / p=2) | n/a (one-way) |
+| Backup codes | Argon2id | n/a |
+| API keys | HMAC-SHA256 (keyed) | `JWT_SECRET` |
+| Audit chain | HMAC-SHA256 | `AUDIT_HMAC_KEY` (or `JWT_SECRET`-derived fallback) |
+| DB / object storage | Provider-side encryption (RDS/Azure DB/S3/Blob SSE) | Cloud KMS / managed |
+
+**Key hierarchy & separation.** For the strongest posture, set **dedicated**
+`APP_ENCRYPTION_KEY` and `AUDIT_HMAC_KEY` (env or `*_FILE`), so rotating
+`JWT_SECRET` neither breaks stored secrets nor the audit chain. Optional **KMS
+envelope encryption** (`src/Kms.php`, `KMS_PROVIDER=vault|exec`) keeps the data
+key wrapped: only `APP_ENCRYPTION_KEY_CIPHERTEXT` is stored, unwrapped in-process
+at boot and never written to disk. Deliver all keys via secret manager / `*_FILE`
+mounts, not plaintext env in shared config.
+
+---
+
+## 21. Classification, CUI & DLP
+
+AEGIS is built to hold regulated data (CUI, CMMC/NIST-scoped) and supports it with
+process + technical controls, not label-based mandatory access control:
+
+- **CUI Inventory module** (`CUIController`) tracks Controlled Unclassified
+  Information holdings; SSP/POA&M/SPRS/ODP modules support NIST 800-171 / CMMC L2
+  and FedRAMP-style assessment workflows.
+- **Tenant isolation** via Postgres RLS (migration 028) confines data to its
+  tenant in the database, so an app-layer bypass still can't cross tenants.
+- **Egress minimization (DLP-lite)**: the AI Advisor sends only the minimum data
+  needed and runs it through `AIAdvisor::redact()` (emails, IPv4, `sk/pk/rk-` and
+  `AKIA…` keys, `Bearer` tokens, long hex secrets) **before** any external call;
+  it is opt-in, kill-switchable, and audited. For sovereign/air-gapped sites,
+  point AI at **self-hosted Ollama** so no data leaves the boundary (see
+  [`DEPLOYMENT.md` §14](DEPLOYMENT.md#14-ai-advisor--ollama-self-hosted--air-gapped-llm)).
+- **Upload handling**: dangerous types blocked at the storage floor + MIME/ext/size
+  allowlists per upload; stored filenames randomized; downloads PHP-gated (no
+  direct static serving of `uploads/`) — see [§11](#11-file-upload-security).
+- **Fully self-contained / air-gap safe**: no CDN or external asset origin in the
+  CSP; the app runs with no internet egress (IL5+ friendly).
+
+> AEGIS provides no automatic data-labeling or content-inspection DLP engine.
+> Redaction is best-effort defense-in-depth; treat any configured external AI
+> provider as a third-party processor and record it in your processing register.
+
+---
+
+## 22. FIPS Readiness
+
+AEGIS's crypto primitives map to FIPS-validated algorithms **when run on a
+FIPS-validated module** — but AEGIS bundles no cryptographic module itself; FIPS
+posture is a property of the **host platform**, not the app.
+
+| Use | Algorithm | FIPS 140 status |
+|---|---|---|
+| Password hashing | Argon2id | Not FIPS-approved (KDF); acceptable where Argon2 is permitted, else front with a FIPS TLS/HSM boundary |
+| Settings at rest | AES-256-GCM (libsodium) | AES-GCM is FIPS-approved; libsodium's build is **not** a validated module — for strict FIPS use KMS/HSM-backed envelope encryption |
+| API keys / audit chain | HMAC-SHA256 | FIPS-approved |
+| JWT (HS256 / RS256) | HMAC-SHA256 / RSA-SHA256 (openssl) | FIPS-approved; run OpenSSL in FIPS mode for validation |
+| TLS | Terminated upstream | Use a **FIPS-validated** TLS terminator + cloud FIPS endpoints |
+
+**To operate toward FIPS 140-2/3:** deploy on a FIPS-enabled OS/OpenSSL (or FIPS
+node image), terminate TLS with a FIPS-validated module, use **FIPS regional
+endpoints** for cloud services (in AWS GovCloud / Azure Government use the
+`aws-us-gov` partition and `*-fips` STS/KMS/S3 endpoints), and back
+`APP_ENCRYPTION_KEY` with a FIPS-validated **KMS/HSM** via envelope encryption.
+See [`../deployments/AWS.md`](../deployments/AWS.md) and
+[`../deployments/AZURE.md`](../deployments/AZURE.md) for gov-partition/FIPS
+endpoint guidance.
+
+---
+
+## 23. Operator Responsibilities
+
+AEGIS enforces a great deal in code, but the following are **operator-owned**:
+
+- Set unique, ≥ 32-char `JWT_SECRET` per environment; set dedicated
+  `APP_ENCRYPTION_KEY` + `AUDIT_HMAC_KEY` (don't rely on fallbacks in prod).
+- Terminate TLS in front; set `APP_URL` to the exact HTTPS origin; keep the app
+  container off the public internet.
+- Run as the **DML-only `aegis_app`** role (`database/roles.sql`); apply migrations
+  as the owner; optionally enable the **WORM audit** revoke for CUI/legal-hold.
+- Deliver secrets via `*_FILE` / secret manager / KMS; never commit `.env`.
+- Configure MFA enforcement for privileged roles; wire SSO if used.
+- Schedule the cron/worker jobs from **one** scheduler and configure SMTP.
+- Run backups + restore drills and escrow keys separately
+  ([`DISASTER_RECOVERY.md`](DISASTER_RECOVERY.md)).
+- Periodically run `verify_audit_log.php` and review the supply-chain gates.
+- Keep the base image patched (Trivy gates fixable HIGH/CRITICAL in CI).
+
+---
+
+## 24. Secrets Rotation
+
+| Secret | Rotation procedure | Impact |
+|---|---|---|
+| `JWT_SECRET` | Roll the value; existing JWTs/API-key HMACs signed with the old value stop verifying. If it also derived the encryption/audit keys, migrate to **dedicated** `APP_ENCRYPTION_KEY`/`AUDIT_HMAC_KEY` **first** so rotating `JWT_SECRET` doesn't break stored secrets or the chain | Active sessions/JWTs invalidated |
+| `APP_ENCRYPTION_KEY` | Set the new key as primary; the legacy `JWT_SECRET`-derived key remains **decrypt-only** so old ciphertext still reads. Re-save settings to re-encrypt under the new key. With KMS, rotate the wrapped `APP_ENCRYPTION_KEY_CIPHERTEXT` | Encrypted settings must be re-saved to fully rotate |
+| `AUDIT_HMAC_KEY` | New rows chain under the new key; the verifier accepts prior rows (legacy/old-key) so the historical chain still validates. Do **not** discard the old key while old rows must be verified | Verifier must retain trust in prior key |
+| DB / SMTP / S3 / AI keys | Rotate at the provider, update `DATABASE_URL` / the `settings` values (re-encrypted on save) / `*_FILE` mounts | Brief reconnect / next-call effect |
+| `ADMIN_PASSWORD` | Change in-app after first login; rotate the bootstrap value | Login only |
+| API keys | Revoke (`is_active=false`) + issue new in Admin; legacy SHA-256 keys auto-upgrade to HMAC on use | Per-integration |
+
+General rule: prefer secret-manager/KMS rotation with `*_FILE` mounts so rotation
+is a mount/restart, not a code or committed-config change.
+
+---
+
+## 25. Vulnerability Reporting & Disclosure
+
+- **Report** suspected vulnerabilities privately to the security contact for this
+  deployment (the operating organization's security team / the address in the
+  repository's `SECURITY.md` / security policy). Do **not** open a public issue
+  with exploit details.
+- **Include**: affected version/commit, a minimal reproduction, impact, and any
+  logs referencing the `X-Request-Id`.
+- **Coordinated disclosure**: allow the maintainers reasonable time to remediate
+  before public disclosure. Suggested SLA — acknowledge within **2 business
+  days**, triage/severity within **5 business days**, fix or mitigation for
+  Critical/High issues on a risk-prioritized schedule.
+- **Supply chain**: images are SBOM'd (CycloneDX), Trivy-scanned (fixable
+  HIGH/CRITICAL gate), and released images are cosign-signed with verified build
+  provenance — verify signatures before running a released image.
+
+See also: [`ARCHITECTURE.md`](ARCHITECTURE.md) ·
+[`DEPLOYMENT.md`](DEPLOYMENT.md) · [`DISASTER_RECOVERY.md`](DISASTER_RECOVERY.md)
+· [`DATABASE.md`](DATABASE.md) · the target guides in
+[`../deployments/`](../deployments/).
 
 ---
 

@@ -3,6 +3,19 @@ declare(strict_types=1);
 
 class AwarenessController {
 
+    /**
+     * A training assignment is overdue when it is not yet completed and its
+     * program's due date is in the past. (The deadline lives on the program,
+     * not the assignment.) Pure function (truthiness + date math) — public +
+     * static so the notifier and views reuse it and it is unit-testable.
+     */
+    public static function assignmentOverdue($completed, ?string $programDueDate): bool {
+        if ($completed) return false;
+        if (empty($programDueDate)) return false;
+        $ts = strtotime($programDueDate);
+        return $ts !== false && $ts < strtotime('today');
+    }
+
     public function index(): void {
         Auth::requirePermission('awareness.view');
         $programs = Database::fetchAll(

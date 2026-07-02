@@ -77,6 +77,15 @@ export default function RiskListPage() {
     { key: 'risk_number', header: 'Risk ID', sortable: true, width: '110px', render: (r) => <span className="mono">{r.risk_number}</span> },
     { key: 'title', header: 'Title', sortable: true, render: (r) => <strong>{r.title}</strong> },
     { key: 'category', header: 'Category', render: (r) => humanize(r.category) },
+    {
+      key: 'is_opportunity',
+      header: 'Type',
+      render: (r) => (
+        <span className={`badge badge--no-dot badge--${r.is_opportunity ? 'success' : 'neutral'}`}>
+          {r.is_opportunity ? 'Opportunity' : 'Risk'}
+        </span>
+      ),
+    },
     { key: 'likelihood', header: 'Likelihood', align: 'center', sortable: true, render: (r) => <span className="score-cell">{r.likelihood}</span> },
     { key: 'severity', header: 'Impact', align: 'center', sortable: true, render: (r) => <span className="score-cell">{r.severity}</span> },
     { key: 'rpn', header: 'Score (RPN)', align: 'right', sortable: true, render: (r) => <RpnBadge rpn={r.rpn} /> },
@@ -188,6 +197,13 @@ export default function RiskListPage() {
                   {['identified', 'assessed', 'treatment_planned', 'mitigating', 'monitoring', 'closed'].map((s) => (
                     <option key={s} value={s}>{humanize(s)}</option>
                   ))}
+                </Select>
+              </div>
+              <div className="field">
+                <Select aria-label="Filter by type" value={ctl.filters.opportunity ?? ''} onChange={(e) => ctl.setFilter('opportunity', e.target.value)}>
+                  <option value="">All types</option>
+                  <option value="false">Risks</option>
+                  <option value="true">Opportunities</option>
                 </Select>
               </div>
               <div className="field">

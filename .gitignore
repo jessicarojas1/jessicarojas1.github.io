@@ -18,7 +18,29 @@ secrets.*
 id_rsa
 id_ed25519
 
+# Terraform — never commit state, provider caches, real tfvars, or backend config.
+# Only *.example files are tracked (see platform/audit-sink, platform/bootstrap).
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+backend.hcl
+!backend.hcl.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+tfplan
+*.tfplan
+
 # C++ compiled binaries
+cpp/bin/
+cpp/build/
 cpp/entropy-scanner/entropy-scanner
 cpp/cui-classifier/cui-classifier
 cpp/yara-lite/yara-lite

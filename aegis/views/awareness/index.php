@@ -44,18 +44,24 @@ ob_start();
           $color     = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)');
           $typeIcons = ['document'=>'file-earmark-text','video'=>'play-btn-fill','policy'=>'file-earmark-check','quiz'=>'patch-question-fill'];
           $icon = $typeIcons[$p['content_type']] ?? 'book';
+          // A program's pending assignments are all overdue once its due date passes.
+          $dueOverdue = !empty($p['due_date']) && strtotime($p['due_date']) < strtotime('today');
+          $overdueCount = $dueOverdue ? max(0, $total - $completed) : 0;
         ?>
-        <tr>
+        <tr<?= $overdueCount > 0 ? ' style="background:var(--danger-subtle)"' : '' ?>>
           <td>
             <a href="/awareness/<?= (int)$p['id'] ?>" style="font-weight:600;color:var(--primary);text-decoration:none">
               <?= Security::h($p['title']) ?>
             </a>
+            <?php if ($overdueCount > 0): ?>
+              <span class="badge badge-danger" style="font-size:0.7rem;margin-left:6px"><i class="bi bi-exclamation-triangle-fill"></i> <?= $overdueCount ?> overdue</span>
+            <?php endif; ?>
             <?php if ($p['description']): ?>
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px"><?= Security::h(substr($p['description'],0,80)) ?>…</div>
             <?php endif; ?>
           </td>
           <td><i class="bi bi-<?= $icon ?>" style="color:var(--primary)"></i> <?= ucfirst(Security::h($p['content_type'])) ?></td>
-          <td><?= $p['due_date'] ? date('M j, Y', strtotime($p['due_date'])) : '<span style="color:var(--text-muted)">—</span>' ?></td>
+          <td style="<?= $dueOverdue ? 'color:var(--danger);font-weight:600' : '' ?>"><?= $p['due_date'] ? date('M j, Y', strtotime($p['due_date'])) : '<span style="color:var(--text-muted)">—</span>' ?></td>
           <td style="min-width:160px">
             <div style="display:flex;align-items:center;gap:8px">
               <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">

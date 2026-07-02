@@ -7,6 +7,7 @@ import {
   sessionCookieOptions,
   verifyCredentials,
 } from '@/lib/session';
+import { requestId, withRequestId } from '@/lib/logger';
 
 // Best-effort, in-memory rate limit for login attempts (per client IP) to slow
 // credential brute-forcing. Per-process only; pair with a WAF in production.
@@ -42,6 +43,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/auth/login — exchange username+password for a session cookie.
 export async function POST(req: NextRequest) {
+  const log = withRequestId(requestId(req.headers), { route: '/api/auth/login' });
   if (!sessionAuthConfigured()) {
     return NextResponse.json(
       { ok: false, error: 'Login is not configured on this server.' },
@@ -50,6 +52,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (tooManyAttempts(clientIp(req))) {
+    log.warn('login rate limited', { status: 429 });
     return NextResponse.json(
       { ok: false, error: 'Too many attempts. Try again shortly.' },
       { status: 429, headers: { 'Retry-After': String(Math.ceil(WINDOW_MS / 1000)) } },
@@ -67,6 +70,7 @@ export async function POST(req: NextRequest) {
   const password = typeof body.password === 'string' ? body.password : '';
 
   if (!verifyCredentials(username, password)) {
+    log.warn('login failed', { status: 401 });
     return NextResponse.json({ ok: false, error: 'Invalid credentials' }, { status: 401 });
   }
 
@@ -78,6 +82,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  log.info('login ok', { user: username });
   const res = NextResponse.json({ ok: true, user: username });
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions);
   return res;

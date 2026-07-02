@@ -11,7 +11,7 @@ import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select } from '@/components/FormField';
 import { DocumentFormModal } from './DocumentFormModal';
-import { STATUS_OPTIONS, departmentLabel, docTypeLabel } from './documentOptions';
+import { DEPARTMENT_OPTIONS, STATUS_OPTIONS, departmentLabel, docTypeLabel } from './documentOptions';
 import type { ControlledDocument } from '@/types';
 
 export default function DocumentListPage() {
@@ -65,20 +65,36 @@ export default function DocumentListPage() {
         onPageChange={ctl.setPage}
         exportFilename="documents"
         filters={
-          <div className="field">
-            <Select
-              aria-label="Filter by status"
-              value={ctl.filters.status ?? ''}
-              onChange={(e) => ctl.setFilter('status', e.target.value)}
-            >
-              <option value="">All statuses</option>
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </Select>
-          </div>
+          <>
+            <div className="field">
+              <Select
+                aria-label="Filter by status"
+                value={ctl.filters.status ?? ''}
+                onChange={(e) => ctl.setFilter('status', e.target.value)}
+              >
+                <option value="">All statuses</option>
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="field">
+              <Select
+                aria-label="Filter by department"
+                value={ctl.filters.department ?? ''}
+                onChange={(e) => ctl.setFilter('department', e.target.value)}
+              >
+                <option value="">All departments</option>
+                {DEPARTMENT_OPTIONS.map((d) => (
+                  <option key={d.value} value={d.value}>
+                    {d.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          </>
         }
       />
       <DocumentFormModal

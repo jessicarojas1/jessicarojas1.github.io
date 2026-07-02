@@ -208,7 +208,8 @@ resource "aws_cloudwatch_log_group" "audit" {
 # Kinesis Firehose — CloudWatch Logs -> S3 delivery
 # -----------------------------------------------------------------------------
 resource "aws_iam_role" "firehose" {
-  name = "${var.name_prefix}-audit-firehose"
+  name                 = "${var.name_prefix}-audit-firehose"
+  permissions_boundary = var.permissions_boundary_arn != "" ? var.permissions_boundary_arn : null
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -297,7 +298,8 @@ resource "aws_kinesis_firehose_delivery_stream" "audit" {
 # Subscription filters — forward every audit record to Firehose
 # -----------------------------------------------------------------------------
 resource "aws_iam_role" "cwl_to_firehose" {
-  name = "${var.name_prefix}-audit-cwl-to-firehose"
+  name                 = "${var.name_prefix}-audit-cwl-to-firehose"
+  permissions_boundary = var.permissions_boundary_arn != "" ? var.permissions_boundary_arn : null
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -360,8 +362,9 @@ resource "aws_iam_role_policy_attachment" "writer" {
 # Legal-hold role (separation of duties — distinct from writers/operators)
 # -----------------------------------------------------------------------------
 resource "aws_iam_role" "legal_hold" {
-  count = var.enable_legal_hold_role ? 1 : 0
-  name  = "${var.name_prefix}-audit-legal-hold"
+  count                = var.enable_legal_hold_role ? 1 : 0
+  name                 = "${var.name_prefix}-audit-legal-hold"
+  permissions_boundary = var.permissions_boundary_arn != "" ? var.permissions_boundary_arn : null
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -387,4 +390,194 @@ resource "aws_iam_role_policy" "legal_hold" {
       Resource = "${aws_s3_bucket.audit.arn}/*"
     }]
   })
+}
+
+# -----------------------------------------------------------------------------
+# Cross-region replication (CRR) — optional regional durability for the archive
+#
+# Replicates every new object to a second, independently Object-Locked bucket in
+# another region (create it with the ../replica submodule and pass its ARN via
+# crr_destination_bucket_arn). Delete markers are NOT replicated (the source is
+# WORM; there are no legitimate deletes to propagate). Requires source versioning
+# (already enabled). The replica bucket keeps its own Object Lock, so a regional
+# loss of the primary still leaves a tamper-evident copy.
+# -----------------------------------------------------------------------------
+resource "aws_iam_role" "replication" {
+  count                = var.enable_crr ? 1 : 0
+  name                 = "${var.name_prefix}-audit-replication"
+  permissions_boundary = var.permissions_boundary_arn != "" ? var.permissions_boundary_arn : null
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "s3.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+  tags = local.tags
+}
+
+resource "aws_iam_role_policy" "replication" {
+  count = var.enable_crr ? 1 : 0
+  name  = "${var.name_prefix}-audit-replication"
+  role  = aws_iam_role.replication[0].id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "ReadSourceForReplication"
+        Effect   = "Allow"
+        Action   = ["s3:GetReplicationConfiguration", "s3:ListBucket"]
+        Resource = aws_s3_bucket.audit.arn
+      },
+      {
+        Sid    = "ReadSourceObjectsAndLockMetadata"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObjectVersionForReplication",
+          "s3:GetObjectVersionAcl",
+          "s3:GetObjectVersionTagging",
+          "s3:GetObjectRetention",
+          "s3:GetObjectLegalHold"
+        ]
+        Resource = "${aws_s3_bucket.audit.arn}/*"
+      },
+      {
+        Sid    = "WriteToReplicaBucket"
+        Effect = "Allow"
+        Action = [
+          "s3:ReplicateObject",
+          "s3:ReplicateDelete",
+          "s3:ReplicateTags",
+          "s3:ObjectOwnerOverrideToBucketOwner"
+        ]
+        Resource = "${var.crr_destination_bucket_arn}/*"
+      },
+      {
+        Sid      = "DecryptSourceCmk"
+        Effect   = "Allow"
+        Action   = ["kms:Decrypt"]
+        Resource = local.kms_key_arn
+      },
+      {
+        Sid      = "EncryptWithReplicaCmk"
+        Effect   = "Allow"
+        Action   = ["kms:Encrypt", "kms:GenerateDataKey"]
+        Resource = var.crr_replica_kms_key_arn
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket_replication_configuration" "audit" {
+  count      = var.enable_crr ? 1 : 0
+  role       = aws_iam_role.replication[0].arn
+  bucket     = aws_s3_bucket.audit.id
+  depends_on = [aws_s3_bucket_versioning.audit]
+
+  rule {
+    id       = "replicate-all-audit-objects"
+    status   = "Enabled"
+    priority = 0
+    filter {} # all objects
+
+    # WORM source: never propagate deletes/delete-markers to the replica.
+    delete_marker_replication {
+      status = "Disabled"
+    }
+
+    # Replicate SSE-KMS-encrypted objects (they all are).
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+
+    destination {
+      bucket        = var.crr_destination_bucket_arn
+      storage_class = "STANDARD"
+
+      # Replica objects are re-encrypted with the replica-region CMK. No
+      # access_control_translation: same-account replication into a
+      # BucketOwnerEnforced destination already lands under the bucket owner.
+      encryption_configuration {
+        replica_kms_key_id = var.crr_replica_kms_key_arn
+      }
+    }
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Delivery monitoring — alarm on Firehose delivery errors / stalls -> SNS
+#
+# Silent audit-delivery gaps are an availability risk for the audit trail. Two
+# alarms cover it: (1) any record written to the dedicated _firehose-errors log
+# group (delivery failures), and (2) Firehose DeliveryToS3.DataFreshness rising
+# above the threshold (records buffered but not landing — a silent stall). Both
+# notify the SNS topic. The topic is encrypted with the AWS-managed SNS key so
+# the tightly-scoped audit CMK policy is not widened for CloudWatch/SNS.
+# -----------------------------------------------------------------------------
+resource "aws_sns_topic" "alarms" {
+  count             = var.enable_delivery_alarm ? 1 : 0
+  name              = "${var.name_prefix}-audit-delivery-alarms"
+  kms_master_key_id = "alias/aws/sns"
+  tags              = local.tags
+}
+
+resource "aws_sns_topic_subscription" "alarms_email" {
+  count     = var.enable_delivery_alarm && var.alarm_email != "" ? 1 : 0
+  topic_arn = aws_sns_topic.alarms[0].arn
+  protocol  = "email"
+  endpoint  = var.alarm_email
+}
+
+# Turn every event in the errors-only log group into a metric data point.
+resource "aws_cloudwatch_log_metric_filter" "firehose_errors" {
+  count          = var.enable_delivery_alarm ? 1 : 0
+  name           = "${var.name_prefix}-audit-firehose-errors"
+  log_group_name = aws_cloudwatch_log_group.firehose_errors.name
+  pattern        = "" # any line in this group is a delivery error
+
+  metric_transformation {
+    name          = "FirehoseDeliveryErrors"
+    namespace     = "Platform/AuditSink"
+    value         = "1"
+    default_value = "0"
+    unit          = "Count"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "firehose_errors" {
+  count               = var.enable_delivery_alarm ? 1 : 0
+  alarm_name          = "${var.name_prefix}-audit-firehose-delivery-errors"
+  alarm_description   = "Audit records failed to deliver to the S3 archive (events present in /audit/${var.name_prefix}/_firehose-errors). Investigate Firehose role/KMS/bucket-policy."
+  namespace           = "Platform/AuditSink"
+  metric_name         = "FirehoseDeliveryErrors"
+  statistic           = "Sum"
+  period              = 300
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  treat_missing_data  = "notBreaching" # default_value=0 emits points; missing == no errors
+  alarm_actions       = [aws_sns_topic.alarms[0].arn]
+  ok_actions          = [aws_sns_topic.alarms[0].arn]
+  tags                = local.tags
+}
+
+resource "aws_cloudwatch_metric_alarm" "firehose_freshness" {
+  count               = var.enable_delivery_alarm ? 1 : 0
+  alarm_name          = "${var.name_prefix}-audit-firehose-delivery-stalled"
+  alarm_description   = "Firehose DeliveryToS3.DataFreshness exceeded ${var.delivery_freshness_alarm_seconds}s — audit records are buffered but not landing in S3 (silent stall)."
+  namespace           = "AWS/Firehose"
+  metric_name         = "DeliveryToS3.DataFreshness"
+  dimensions          = { DeliveryStreamName = aws_kinesis_firehose_delivery_stream.audit.name }
+  statistic           = "Maximum"
+  period              = 300
+  evaluation_periods  = 1
+  threshold           = var.delivery_freshness_alarm_seconds
+  comparison_operator = "GreaterThanThreshold"
+  treat_missing_data  = "notBreaching" # no records flowing == nothing to deliver
+  alarm_actions       = [aws_sns_topic.alarms[0].arn]
+  ok_actions          = [aws_sns_topic.alarms[0].arn]
+  tags                = local.tags
 }

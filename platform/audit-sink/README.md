@@ -71,14 +71,43 @@ Each source app then ships its existing per-app audit log to the matching CloudW
 | `object_lock_retention_days` | `1095` | Default WORM retention per object. |
 | `log_retention_days` | `400` | CloudWatch hot-tier retention. |
 | `kms_key_arn` | `""` | Existing CMK; empty = module creates a rotated CMK. |
-| `writer_principal_arns` | `[]` | App roles granted append-only log access. |
+| `writer_principal_arns` | `[]` | App roles granted append-only log access. **Must be plain IAM role ARNs** (no path/user/STS session) — enforced by a `validation` block, since the module derives the role name via `regex("role/(.+)$", …)`. |
 | `enable_legal_hold_role` | `true` | Create the MFA-gated legal-hold role. |
+| `permissions_boundary_arn` | `""` | IAM permissions boundary attached to every role the module creates (Firehose, CWL→Firehose, replication, legal-hold). |
+| `enable_delivery_alarm` | `true` | CloudWatch alarms (errors in `_firehose-errors` + `DeliveryToS3.DataFreshness` stall) → SNS. |
+| `alarm_email` | `""` | Optional email subscribed to the alarm SNS topic. |
+| `delivery_freshness_alarm_seconds` | `900` | Data-freshness threshold for the stall alarm. |
+| `enable_crr` | `false` | Cross-region replication to a second Object-Locked bucket (see `replica/`). |
+| `crr_destination_bucket_arn` / `crr_replica_kms_key_arn` | `""` | Destination bucket + replica CMK (from the `replica/` submodule) — required when `enable_crr = true`. |
 
 See `variables.tf` for the full list and `terraform.tfvars.example` for a starting point.
 
+## Remote state backend
+
+`backend.tf` declares a **partial** `backend "s3"` (with `key` + `encrypt` set;
+`bucket`/`region`/`dynamodb_table`/`kms_key_id` supplied at init). Provision the backend
+with [`../bootstrap`](../bootstrap) (S3 versioned + SSE-KMS, DynamoDB `LockID` lock table,
+rotated CMK), then:
+
+```bash
+cd ../bootstrap && terraform init && terraform apply
+terraform output -raw backend_hcl > ../audit-sink/backend.hcl   # git-ignored
+cd ../audit-sink && terraform init -backend-config=backend.hcl
+```
+
+## Cross-region replication (optional)
+
+Set `enable_crr = true` and instantiate the [`replica/`](replica/) submodule (an
+`aws.replica`-provider, second-region, hardened Object-Locked bucket), feeding its
+`bucket_arn`/`kms_key_arn` into `crr_destination_bucket_arn`/`crr_replica_kms_key_arn`
+and the sink's `replication_role_arn` into the replica's `source_replication_role_arn`.
+See [replica/README.md](replica/README.md).
+
 ## Outputs
 
-`bucket_name`, `bucket_arn`, `kms_key_arn`, `log_group_names` (map), `log_group_arns`, `firehose_stream_arn`, `writer_policy_arn`, `legal_hold_role_arn`.
+`bucket_name`, `bucket_arn`, `kms_key_arn`, `log_group_names` (map), `log_group_arns`,
+`firehose_stream_arn`, `writer_policy_arn`, `legal_hold_role_arn`,
+`delivery_alarm_topic_arn`, `replication_role_arn`.
 
 ## Operational notes
 
@@ -90,4 +119,10 @@ See `variables.tf` for the full list and `terraform.tfvars.example` for a starti
 
 ## Validation
 
-`terraform fmt` passes clean. `terraform validate`/`plan` require provider download from the Terraform Registry (network-restricted in this build environment); run them in your own pipeline against the `hashicorp/aws >= 5.40` provider before applying.
+`terraform fmt -check -recursive` passes clean (verified here with Terraform 1.9.8,
+covering this module plus `replica/` and `../bootstrap`). `terraform validate`/`plan`
+require the `hashicorp/aws` provider from `registry.terraform.io`, whose download is
+blocked by egress policy in this build environment (HTTP 403) — so they cannot be run
+in-repo. The `.github/workflows/platform-audit-sink.yml` CI job runs
+`init -backend=false` + `validate` (plus Trivy config and Checkov) on every push/PR;
+run `plan` in your own pipeline with AWS credentials before applying.

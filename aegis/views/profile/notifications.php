@@ -66,6 +66,71 @@ $NOTIF_TYPES = [
         'description' => 'When evidence files you uploaded are approaching their expiry date',
         'icon'        => 'paperclip',
     ],
+    'policy_expiring' => [
+        'label'       => 'Policies expiring',
+        'description' => 'When a published policy you own is approaching its expiry date',
+        'icon'        => 'file-earmark-x',
+    ],
+    'risk_acceptance_expiring' => [
+        'label'       => 'Risk acceptances expiring',
+        'description' => 'When a risk acceptance you own is approaching its valid-until date',
+        'icon'        => 'shield-check',
+    ],
+    'kri_breached' => [
+        'label'       => 'KRI threshold breaches',
+        'description' => 'When a Key Risk Indicator you own breaches its red threshold',
+        'icon'        => 'speedometer2',
+    ],
+    'incident_sla_breach' => [
+        'label'       => 'Incident SLA breaches',
+        'description' => 'When an incident assigned to you breaches its resolution SLA',
+        'icon'        => 'stopwatch',
+    ],
+    'bcp_exercise_overdue' => [
+        'label'       => 'BCP exercises overdue',
+        'description' => 'When a continuity exercise for a plan you own is past its scheduled date and not conducted',
+        'icon'        => 'calendar-x-fill',
+    ],
+    'bcp_plan_review_due' => [
+        'label'       => 'BCP plans due for testing',
+        'description' => 'When a BCP plan you own is approaching or past its next test date',
+        'icon'        => 'shield-check',
+    ],
+    'poam_item_overdue' => [
+        'label'       => 'POA&M items overdue',
+        'description' => 'When a POA&M item you own is past its scheduled completion date',
+        'icon'        => 'flag-fill',
+    ],
+    'awareness_training_overdue' => [
+        'label'       => 'Security training overdue',
+        'description' => 'When training assigned to you is past its due date and not completed',
+        'icon'        => 'mortarboard-fill',
+    ],
+    'control_retest_due' => [
+        'label'       => 'Control re-test due',
+        'description' => 'When a control you own is past its scheduled next-test date and needs re-testing',
+        'icon'        => 'clock-history',
+    ],
+    'finding_remediation_overdue' => [
+        'label'       => 'Audit finding remediation overdue',
+        'description' => 'When an audit finding you own is past its remediation deadline and still open',
+        'icon'        => 'exclamation-diamond-fill',
+    ],
+    'vendor_cert_expiring' => [
+        'label'       => 'Vendor certification expiring',
+        'description' => 'When a vendor certification you own is expired or expiring within 30 days',
+        'icon'        => 'patch-check-fill',
+    ],
+    'vendor_contract_expiring' => [
+        'label'       => 'Vendor contract expiring',
+        'description' => 'When a vendor contract you own is expired or within its renewal-notice window',
+        'icon'        => 'file-earmark-text-fill',
+    ],
+    'kri_measurement_overdue' => [
+        'label'       => 'KRI measurement overdue',
+        'description' => 'When a KRI you own has no reading recorded within its measurement frequency',
+        'icon'        => 'speedometer2',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────

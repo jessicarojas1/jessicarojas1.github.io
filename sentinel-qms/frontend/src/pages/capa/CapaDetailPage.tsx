@@ -115,6 +115,28 @@ export default function CapaDetailPage() {
                 </div>
               )}
 
+              {capa.five_whys && capa.five_whys.length > 0 && (
+                <div className="card">
+                  <div className="card__header">
+                    <div className="card__title">5-Why Analysis</div>
+                  </div>
+                  <div className="card__body">
+                    <ol className="stack" style={{ margin: 0, paddingLeft: '1.25rem' }}>
+                      {capa.five_whys.map((step, i) => (
+                        <li key={i}>
+                          <div>
+                            <strong>Why?</strong> {step.why ?? '—'}
+                          </div>
+                          <div style={{ color: 'var(--text-muted)' }}>
+                            <strong>Because:</strong> {step.because ?? '—'}
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </div>
+              )}
+
               <div className="card">
                 <div className="card__header">
                   <div className="card__title">Effectiveness Verification</div>
@@ -126,6 +148,7 @@ export default function CapaDetailPage() {
                         label: 'Verified',
                         value: <StatusBadge status={capa.effectiveness_verified ? 'verified' : 'pending'} />,
                       },
+                      { label: 'Effectiveness Due', value: formatDate(capa.effectiveness_due_date) },
                       { label: 'Verified By', value: <UserName id={capa.effectiveness_verified_by} /> },
                       { label: 'Verified At', value: formatDateTime(capa.effectiveness_verified_at) },
                     ]}

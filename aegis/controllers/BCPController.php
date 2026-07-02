@@ -1,10 +1,37 @@
 <?php
 class BCPController {
+    /**
+     * An exercise is overdue when it has a scheduled date in the past and was
+     * never conducted. Pure function (date math only) — public + static so the
+     * notifier and views reuse it and it is unit-testable in isolation.
+     */
+    public static function exerciseOverdue(?string $scheduledDate, ?string $conductedDate): bool {
+        if (empty($scheduledDate) || !empty($conductedDate)) return false;
+        $ts = strtotime($scheduledDate);
+        return $ts !== false && $ts < strtotime('today');
+    }
+
+    /**
+     * A BCP plan's testing/review cadence state from next_test_date:
+     * 'none' (untracked), 'overdue' (past due), 'due' (within 30 days) or 'ok'.
+     */
+    public static function planTestStatus(?string $nextTestDate): string {
+        if (empty($nextTestDate)) return 'none';
+        $ts = strtotime($nextTestDate);
+        if ($ts === false) return 'none';
+        $today = strtotime('today');
+        if ($ts < $today) return 'overdue';
+        if ($ts < $today + 30 * 86400) return 'due';
+        return 'ok';
+    }
+
     public function index(): void {
         Auth::requirePermission('bcp.view');
         $plans = Database::fetchAll(
             "SELECT bp.*, u.name AS owner_name,
                (SELECT COUNT(*) FROM bcp_exercises be WHERE be.plan_id = bp.id) AS exercise_count,
+               (SELECT COUNT(*) FROM bcp_exercises be WHERE be.plan_id = bp.id
+                  AND be.conducted_date IS NULL AND be.scheduled_date < CURRENT_DATE) AS overdue_exercise_count,
                (SELECT COUNT(*) FROM bcp_plan_sections bs WHERE bs.plan_id = bp.id) AS section_count
              FROM bcp_plans bp LEFT JOIN users u ON u.id = bp.owner_id
              ORDER BY bp.created_at DESC"

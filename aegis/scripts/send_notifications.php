@@ -192,6 +192,7 @@ function maybeSendOrQueue(
 // ── Counters ──────────────────────────────────────────────────────────────────
 $sentOverdue         = 0;
 $sentPolicy          = 0;
+$sentPolicyExpiry    = 0;
 $sentApprovals       = 0;
 $sentRisks           = 0;
 $sentIncidents       = 0;
@@ -202,6 +203,18 @@ $sentVendorAssess    = 0;
 $sentDocExpiring     = 0;
 $sentAssessStale     = 0;
 $sentEvidenceExpiry  = 0;
+$sentAcceptExpiring  = 0;
+$sentKriBreach       = 0;
+$sentSlaBreach       = 0;
+$sentBcpExerciseOverdue = 0;
+$sentBcpPlanReviewDue   = 0;
+$sentPoamOverdue        = 0;
+$sentAwarenessOverdue   = 0;
+$sentControlRetestDue   = 0;
+$sentFindingOverdue     = 0;
+$sentVendorCertExpiring = 0;
+$sentVendorContractExp  = 0;
+$sentKriMeasureOverdue  = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -365,6 +378,903 @@ HTML;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// 2b. POLICY EXPIRING (hard expiry date, distinct from review cadence)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $policyExpRows = Database::fetchAll(
+        "SELECT p.id, p.title, p.expires_at,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM policies p
+         JOIN users u ON u.id = p.owner_id
+         WHERE p.status = 'published'
+           AND p.expires_at IS NOT NULL
+           AND p.expires_at BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $policyExpByUser = [];
+    foreach ($policyExpRows as $row) {
+        $policyExpByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($policyExpByUser as $userId => $policies) {
+        if (!notifEnabled((int) $userId, 'policy_expiring')) {
+            continue;
+        }
+        $email    = $policies[0]['email'];
+        $userName = $policies[0]['user_name'];
+
+        foreach ($policies as $policy) {
+            // Throttle: one reminder per policy per 7 days.
+            if (alreadyNotified((int) $userId, 'policy_expiring', 'policy', (int) $policy['id'], 604800)) {
+                continue;
+            }
+
+            $expDate   = date('M j, Y', strtotime($policy['expires_at']));
+            $daysLeft  = (int) ceil((strtotime($policy['expires_at']) - time()) / 86400);
+            $urgency   = $daysLeft <= 1
+                ? '<span style="color:#ef4444;font-weight:600">expires today</span>'
+                : "<span style=\"color:#f59e0b;font-weight:600\">expires in {$daysLeft} days ({$expDate})</span>";
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>The following policy {$urgency} and may need renewal or formal retirement:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Policy</th>
+    <th style="padding:8px;text-align:left">Expiry Date</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$policy['title']}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$expDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to renew, supersede, or retire this policy.</p>
+HTML;
+
+            $subject = "Policy expiring: {$policy['title']}";
+            $body    = emailShell('Policy Expiry Reminder', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'policy_expiring', $email, $userName, $subject, $body,
+                ['policy' => $policy, 'daysLeft' => $daysLeft, 'expDate' => $expDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'policy_expiring', 'policy', (int) $policy['id']);
+                $sentPolicyExpiry++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[policy_expiring] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2c. RISK ACCEPTANCE EXPIRING (active acceptances nearing valid_until)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $acceptRows = Database::fetchAll(
+        "SELECT ra.id, ra.valid_until,
+                r.id AS risk_id, r.title AS risk_title,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM risk_acceptances ra
+         JOIN risks r ON r.id = ra.risk_id
+         JOIN users u ON u.id = r.owner_id
+         WHERE ra.status = 'active'
+           AND ra.valid_until BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $acceptByUser = [];
+    foreach ($acceptRows as $row) {
+        $acceptByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($acceptByUser as $userId => $accepts) {
+        if (!notifEnabled((int) $userId, 'risk_acceptance_expiring')) {
+            continue;
+        }
+        $email    = $accepts[0]['email'];
+        $userName = $accepts[0]['user_name'];
+
+        foreach ($accepts as $accept) {
+            // Throttle: one reminder per acceptance per 7 days.
+            if (alreadyNotified((int) $userId, 'risk_acceptance_expiring', 'risk_acceptance', (int) $accept['id'], 604800)) {
+                continue;
+            }
+
+            $expDate  = date('M j, Y', strtotime($accept['valid_until']));
+            $daysLeft = (int) ceil((strtotime($accept['valid_until']) - time()) / 86400);
+            $urgency  = $daysLeft <= 1
+                ? '<span style="color:#ef4444;font-weight:600">expires today</span>'
+                : "<span style=\"color:#f59e0b;font-weight:600\">expires in {$daysLeft} days ({$expDate})</span>";
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A risk acceptance you own {$urgency} and will need renewal or the risk re-treated:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Risk</th>
+    <th style="padding:8px;text-align:left">Acceptance Valid Until</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$accept['risk_title']}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$expDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to renew the acceptance or re-treat the risk before it lapses.</p>
+HTML;
+
+            $subject = "Risk acceptance expiring: {$accept['risk_title']}";
+            $body    = emailShell('Risk Acceptance Expiry Reminder', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'risk_acceptance_expiring', $email, $userName, $subject, $body,
+                ['acceptance' => $accept, 'daysLeft' => $daysLeft, 'expDate' => $expDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'risk_acceptance_expiring', 'risk_acceptance', (int) $accept['id']);
+                $sentAcceptExpiring++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[risk_acceptance_expiring] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2d. KRI BREACH (latest recorded value in the red zone)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    // A breach is the 'red' RAG band: for higher_worse the value is above amber;
+    // for lower_worse it is below amber (mirrors KRIController::ragStatus()).
+    $kriRows = Database::fetchAll(
+        "SELECT k.id, k.title, k.unit, kv.value AS latest_value, kv.recorded_at,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM kris k
+         JOIN users u ON u.id = k.owner_id
+         LEFT JOIN LATERAL (
+             SELECT value, recorded_at FROM kri_values WHERE kri_id = k.id
+             ORDER BY recorded_at DESC, id DESC LIMIT 1
+         ) kv ON TRUE
+         WHERE k.is_active = TRUE
+           AND k.owner_id IS NOT NULL
+           AND u.is_active = TRUE
+           AND kv.value IS NOT NULL
+           AND ( (k.direction = 'higher_worse' AND kv.value > k.threshold_amber)
+              OR (k.direction = 'lower_worse'  AND kv.value < k.threshold_amber) )",
+        []
+    );
+
+    $kriByUser = [];
+    foreach ($kriRows as $row) {
+        $kriByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($kriByUser as $userId => $kris) {
+        if (!notifEnabled((int) $userId, 'kri_breached')) {
+            continue;
+        }
+        $email    = $kris[0]['email'];
+        $userName = $kris[0]['user_name'];
+
+        foreach ($kris as $kri) {
+            // Throttle: one breach reminder per KRI per 7 days.
+            if (alreadyNotified((int) $userId, 'kri_breached', 'kri', (int) $kri['id'], 604800)) {
+                continue;
+            }
+
+            $val      = rtrim(rtrim(number_format((float) $kri['latest_value'], 4, '.', ''), '0'), '.');
+            $unit     = htmlspecialchars($kri['unit'] ?? '', ENT_QUOTES, 'UTF-8');
+            $kriTitle = htmlspecialchars($kri['title'], ENT_QUOTES, 'UTF-8');
+            $measured = date('M j, Y', strtotime($kri['recorded_at']));
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A Key Risk Indicator you own has <span style="color:#ef4444;font-weight:600">breached its red threshold</span>:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">KRI</th>
+    <th style="padding:8px;text-align:left">Latest Value</th>
+    <th style="padding:8px;text-align:left">Measured</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$kriTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:700;color:#ef4444">{$val} {$unit}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$measured}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to review the indicator and escalate the linked risk if required.</p>
+HTML;
+
+            $subject = "KRI breach: {$kri['title']}";
+            $body    = emailShell('KRI Threshold Breach', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'kri_breached', $email, $userName, $subject, $body,
+                ['kri' => $kri, 'value' => $val]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'kri_breached', 'kri', (int) $kri['id']);
+                $sentKriBreach++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[kri_breached] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2d-ii. KRI MEASUREMENT OVERDUE  (kri_measurement_overdue)
+// ═══════════════════════════════════════════════════════════════════════════════
+// An active KRI has not been recorded within its measurement frequency (daily/
+// weekly/monthly/quarterly). Distinct from kri_breached, which reads the latest
+// recorded value against a threshold — this fires when NO fresh value exists.
+// Baseline is the last recorded date, or the KRI's creation date if never
+// measured. Alerts the KRI OWNER (kris.owner_id).
+try {
+    $kriDueRows = Database::fetchAll(
+        "SELECT k.id, k.title, k.frequency,
+                latest.recorded_at,
+                (CURRENT_DATE - COALESCE(latest.recorded_at, k.created_at::date)) AS days_since,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM kris k
+         JOIN users u ON u.id = k.owner_id
+         LEFT JOIN LATERAL (
+             SELECT kv.recorded_at
+             FROM kri_values kv
+             WHERE kv.kri_id = k.id
+             ORDER BY kv.recorded_at DESC, kv.id DESC
+             LIMIT 1
+         ) latest ON TRUE
+         WHERE k.is_active = TRUE
+           AND u.is_active = TRUE
+           AND (CURRENT_DATE - COALESCE(latest.recorded_at, k.created_at::date))
+               > CASE k.frequency
+                   WHEN 'daily'     THEN 1
+                   WHEN 'weekly'    THEN 7
+                   WHEN 'monthly'   THEN 31
+                   WHEN 'quarterly' THEN 92
+                   ELSE 31
+                 END",
+        []
+    );
+
+    $kriDueByUser = [];
+    foreach ($kriDueRows as $row) {
+        $kriDueByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($kriDueByUser as $userId => $kris) {
+        $userId = (int) $userId;
+        if (!notifEnabled($userId, 'kri_measurement_overdue')) {
+            continue;
+        }
+        $email    = $kris[0]['email'];
+        $userName = $kris[0]['user_name'];
+
+        foreach ($kris as $kri) {
+            // Throttle: one reminder per KRI per 7 days.
+            if (alreadyNotified($userId, 'kri_measurement_overdue', 'kri', (int) $kri['id'], 604800)) {
+                continue;
+            }
+
+            $freq     = htmlspecialchars(ucfirst($kri['frequency']), ENT_QUOTES, 'UTF-8');
+            $kriTitle = htmlspecialchars($kri['title'], ENT_QUOTES, 'UTF-8');
+            $daysSince = (int) $kri['days_since'];
+            $lastText = $kri['recorded_at']
+                ? 'last recorded ' . date('M j, Y', strtotime($kri['recorded_at'])) . " ({$daysSince} days ago)"
+                : 'never recorded';
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A Key Risk Indicator you own is <span style="color:#ef4444;font-weight:600">overdue for measurement</span> ({$freq} cadence — {$lastText}):</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">KRI</th>
+    <th style="padding:8px;text-align:left">Cadence</th>
+    <th style="padding:8px;text-align:left">Status</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$kriTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$freq}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$lastText}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC and record a fresh reading for this indicator.</p>
+HTML;
+
+            $subject = "KRI measurement overdue: {$kri['title']}";
+            $body    = emailShell('KRI Measurement Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                $userId, 'kri_measurement_overdue', $email, $userName, $subject, $body,
+                ['kri' => $kri, 'daysSince' => $daysSince]
+            );
+            if ($sent) {
+                logNotification($userId, 'kri_measurement_overdue', 'kri', (int) $kri['id']);
+                $sentKriMeasureOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[kri_measurement_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2e. INCIDENT SLA BREACH (resolution SLA passed without a 'resolved' event)
+// ═══════════════════════════════════════════════════════════════════════════════
+// The Incident module UI was retired (migration 032) but the SLA report
+// (/incident/sla) is retained. This records a one-time 'breach' SLA event when a
+// still-open incident passes its resolution SLA, and alerts the assignee/reporter
+// — closing the gap where only 'acknowledged' events were ever written.
+try {
+    $slaRows = Database::fetchAll(
+        "SELECT i.id, i.incident_number, i.title, i.severity, i.created_at,
+                isp.resolve_hours,
+                res_evt.occurred_at AS resolved_at,
+                brk_evt.id          AS breach_event_id,
+                COALESCE(i.assigned_to, i.reported_by) AS recipient_id,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM incidents i
+         JOIN incident_sla_policies isp ON isp.severity = i.severity
+         JOIN users u ON u.id = COALESCE(i.assigned_to, i.reported_by)
+         LEFT JOIN incident_sla_events res_evt ON res_evt.incident_id = i.id AND res_evt.event_type = 'resolved'
+         LEFT JOIN incident_sla_events brk_evt ON brk_evt.incident_id = i.id AND brk_evt.event_type = 'breach'
+         WHERE i.status NOT IN ('resolved','closed')
+           AND u.is_active = TRUE
+           AND res_evt.occurred_at IS NULL
+           AND isp.resolve_hours IS NOT NULL
+           AND i.created_at + (isp.resolve_hours * INTERVAL '1 hour') < NOW()",
+        []
+    );
+
+    foreach ($slaRows as $row) {
+        $incidentId = (int) $row['id'];
+
+        // Record the breach once (idempotent): the 'breach' event is the durable
+        // marker so the SLA report and audit trail reflect it even after the
+        // throttle window expires.
+        if (empty($row['breach_event_id'])) {
+            try {
+                Database::insert('incident_sla_events', [
+                    'incident_id' => $incidentId,
+                    'event_type'  => 'breach',
+                    'recorded_by' => null,
+                    'notes'       => 'Resolution SLA (' . (int) $row['resolve_hours'] . 'h) breached — auto-detected.',
+                ]);
+            } catch (\Throwable $e) {
+                // A logging failure must not block the alert.
+            }
+        }
+
+        $userId = (int) $row['user_id'];
+        if (!notifEnabled($userId, 'incident_sla_breach')) {
+            continue;
+        }
+        // Throttle: one reminder per incident per 7 days.
+        if (alreadyNotified($userId, 'incident_sla_breach', 'incident', $incidentId, 604800)) {
+            continue;
+        }
+
+        $ageHours = (int) floor((time() - strtotime($row['created_at'])) / 3600);
+        $incNum   = htmlspecialchars($row['incident_number'], ENT_QUOTES, 'UTF-8');
+        $incTitle = htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8');
+        $sev      = htmlspecialchars(ucfirst($row['severity']), ENT_QUOTES, 'UTF-8');
+        $target   = (int) $row['resolve_hours'];
+
+        $inner = <<<HTML
+<p style="margin-top:0">Hi {$row['user_name']},</p>
+<p>An incident assigned to you has <span style="color:#ef4444;font-weight:600">breached its resolution SLA</span>:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Incident</th>
+    <th style="padding:8px;text-align:left">Severity</th>
+    <th style="padding:8px;text-align:left">SLA Target</th>
+    <th style="padding:8px;text-align:left">Age</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$incNum} — {$incTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$sev}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$target}h</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:700;color:#ef4444">{$ageHours}h</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please progress this incident to resolution. See the <strong>SLA Report</strong> in AEGIS GRC for the full picture.</p>
+HTML;
+
+        $subject = "Incident SLA breached: {$row['incident_number']}";
+        $body    = emailShell('Incident SLA Breach', $inner);
+
+        $sent = maybeSendOrQueue(
+            $userId, 'incident_sla_breach', $row['email'], $row['user_name'], $subject, $body,
+            ['incident' => $row, 'ageHours' => $ageHours, 'target' => $target]
+        );
+        if ($sent) {
+            logNotification($userId, 'incident_sla_breach', 'incident', $incidentId);
+            $sentSlaBreach++;
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[incident_sla_breach] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2f. BCP EXERCISE OVERDUE (scheduled in the past, never conducted)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $bcpExRows = Database::fetchAll(
+        "SELECT be.id, be.name, be.exercise_type, be.scheduled_date,
+                bp.id AS plan_id, bp.title AS plan_title,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM bcp_exercises be
+         JOIN bcp_plans bp ON bp.id = be.plan_id
+         JOIN users u ON u.id = bp.owner_id
+         WHERE be.conducted_date IS NULL
+           AND be.scheduled_date IS NOT NULL
+           AND be.scheduled_date < CURRENT_DATE
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $bcpExByUser = [];
+    foreach ($bcpExRows as $row) {
+        $bcpExByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($bcpExByUser as $userId => $exercises) {
+        if (!notifEnabled((int) $userId, 'bcp_exercise_overdue')) {
+            continue;
+        }
+        $email    = $exercises[0]['email'];
+        $userName = $exercises[0]['user_name'];
+
+        foreach ($exercises as $ex) {
+            // Throttle: one reminder per exercise per 7 days.
+            if (alreadyNotified((int) $userId, 'bcp_exercise_overdue', 'bcp_exercise', (int) $ex['id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((time() - strtotime($ex['scheduled_date'])) / 86400);
+            $schedDate   = date('M j, Y', strtotime($ex['scheduled_date']));
+            $exName      = htmlspecialchars($ex['name'], ENT_QUOTES, 'UTF-8');
+            $planTitle   = htmlspecialchars($ex['plan_title'], ENT_QUOTES, 'UTF-8');
+            $exType      = htmlspecialchars(str_replace('_', ' ', ucfirst($ex['exercise_type'])), ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A continuity exercise for a plan you own is <span style="color:#ef4444;font-weight:600">overdue ({$daysOverdue} days)</span> and has not been conducted:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Plan</th>
+    <th style="padding:8px;text-align:left">Exercise</th>
+    <th style="padding:8px;text-align:left">Type</th>
+    <th style="padding:8px;text-align:left">Scheduled</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$planTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$exName}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$exType}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$schedDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to conduct the exercise and record its outcome.</p>
+HTML;
+
+            $subject = "BCP exercise overdue: {$ex['name']}";
+            $body    = emailShell('BCP Exercise Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'bcp_exercise_overdue', $email, $userName, $subject, $body,
+                ['exercise' => $ex, 'daysOverdue' => $daysOverdue, 'schedDate' => $schedDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'bcp_exercise_overdue', 'bcp_exercise', (int) $ex['id']);
+                $sentBcpExerciseOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[bcp_exercise_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2g. BCP PLAN REVIEW/TESTING DUE (active plans whose next_test_date is near/past)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $bcpPlanRows = Database::fetchAll(
+        "SELECT bp.id, bp.title, bp.next_test_date,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM bcp_plans bp
+         JOIN users u ON u.id = bp.owner_id
+         WHERE bp.status = 'active'
+           AND bp.next_test_date IS NOT NULL
+           AND bp.next_test_date <= CURRENT_DATE + INTERVAL '30 days'
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $bcpPlanByUser = [];
+    foreach ($bcpPlanRows as $row) {
+        $bcpPlanByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($bcpPlanByUser as $userId => $plans) {
+        if (!notifEnabled((int) $userId, 'bcp_plan_review_due')) {
+            continue;
+        }
+        $email    = $plans[0]['email'];
+        $userName = $plans[0]['user_name'];
+
+        foreach ($plans as $plan) {
+            // Throttle: one reminder per plan per 7 days.
+            if (alreadyNotified((int) $userId, 'bcp_plan_review_due', 'bcp_plan', (int) $plan['id'], 604800)) {
+                continue;
+            }
+
+            $daysLeft  = (int) ceil((strtotime($plan['next_test_date']) - strtotime('today')) / 86400);
+            $testDate  = date('M j, Y', strtotime($plan['next_test_date']));
+            $planTitle = htmlspecialchars($plan['title'], ENT_QUOTES, 'UTF-8');
+            $state     = $daysLeft < 0
+                ? '<span style="color:#ef4444;font-weight:600">is overdue for testing (' . abs($daysLeft) . ' days)</span>'
+                : "<span style=\"color:#f59e0b;font-weight:600\">is due for testing in {$daysLeft} days</span>";
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A business continuity plan you own {$state} — a periodic exercise keeps the plan validated:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Plan</th>
+    <th style="padding:8px;text-align:left">Next Test Date</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$planTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$testDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to schedule or record a continuity exercise for this plan.</p>
+HTML;
+
+            $subject = "BCP plan due for testing: {$plan['title']}";
+            $body    = emailShell('BCP Plan Testing Due', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'bcp_plan_review_due', $email, $userName, $subject, $body,
+                ['plan' => $plan, 'daysLeft' => $daysLeft, 'testDate' => $testDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'bcp_plan_review_due', 'bcp_plan', (int) $plan['id']);
+                $sentBcpPlanReviewDue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[bcp_plan_review_due] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2h. POA&M ITEM OVERDUE (open/in-progress past its scheduled completion date)
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $poamRows = Database::fetchAll(
+        "SELECT pi.id, pi.poam_number, pi.title, pi.scheduled_completion,
+                (SELECT COUNT(*) FROM poam_milestones pm
+                   WHERE pm.poam_id = pi.id AND pm.is_complete = FALSE AND pm.due_date < CURRENT_DATE) AS overdue_milestones,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM poam_items pi
+         JOIN users u ON u.id = pi.owner_id
+         WHERE pi.status NOT IN ('closed','cancelled')
+           AND pi.scheduled_completion IS NOT NULL
+           AND pi.scheduled_completion < CURRENT_DATE
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $poamByUser = [];
+    foreach ($poamRows as $row) {
+        $poamByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($poamByUser as $userId => $items) {
+        if (!notifEnabled((int) $userId, 'poam_item_overdue')) {
+            continue;
+        }
+        $email    = $items[0]['email'];
+        $userName = $items[0]['user_name'];
+
+        foreach ($items as $item) {
+            // Throttle: one reminder per POA&M item per 7 days.
+            if (alreadyNotified((int) $userId, 'poam_item_overdue', 'poam_item', (int) $item['id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((time() - strtotime($item['scheduled_completion'])) / 86400);
+            $schedDate   = date('M j, Y', strtotime($item['scheduled_completion']));
+            $poamNum     = htmlspecialchars($item['poam_number'], ENT_QUOTES, 'UTF-8');
+            $poamTitle   = htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8');
+            $overdueMs   = (int) $item['overdue_milestones'];
+            $msNote      = $overdueMs > 0
+                ? "<p style=\"font-size:13px;color:#6b7280\">It also has <strong>{$overdueMs}</strong> overdue milestone" . ($overdueMs !== 1 ? 's' : '') . ".</p>"
+                : '';
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A POA&M item you own is <span style="color:#ef4444;font-weight:600">overdue ({$daysOverdue} days)</span> past its scheduled completion:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">POA&M</th>
+    <th style="padding:8px;text-align:left">Title</th>
+    <th style="padding:8px;text-align:left">Scheduled Completion</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$poamNum}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$poamTitle}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$schedDate}</td>
+  </tr>
+</table>
+{$msNote}
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to update the remediation status or re-baseline the completion date.</p>
+HTML;
+
+            $subject = "POA&M overdue: {$item['poam_number']}";
+            $body    = emailShell('POA&M Item Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'poam_item_overdue', $email, $userName, $subject, $body,
+                ['item' => $item, 'daysOverdue' => $daysOverdue, 'schedDate' => $schedDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'poam_item_overdue', 'poam_item', (int) $item['id']);
+                $sentPoamOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[poam_item_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2i. AWARENESS TRAINING OVERDUE (incomplete assignment past its program due date)
+// ═══════════════════════════════════════════════════════════════════════════════
+// The deadline lives on the program; an assignment is overdue when it is not yet
+// completed and the program's due_date has passed. Alerts the ASSIGNEE (the user
+// who must complete the training), not the program creator.
+try {
+    $awRows = Database::fetchAll(
+        "SELECT aa.id AS assignment_id, ap.id AS program_id, ap.title, ap.due_date,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM awareness_assignments aa
+         JOIN awareness_programs ap ON ap.id = aa.program_id
+         JOIN users u ON u.id = aa.user_id
+         WHERE aa.completed = FALSE
+           AND ap.due_date IS NOT NULL
+           AND ap.due_date < CURRENT_DATE
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $awByUser = [];
+    foreach ($awRows as $row) {
+        $awByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($awByUser as $userId => $assignments) {
+        if (!notifEnabled((int) $userId, 'awareness_training_overdue')) {
+            continue;
+        }
+        $email    = $assignments[0]['email'];
+        $userName = $assignments[0]['user_name'];
+
+        foreach ($assignments as $asg) {
+            // Throttle: one reminder per assignment per 7 days.
+            if (alreadyNotified((int) $userId, 'awareness_training_overdue', 'awareness_assignment', (int) $asg['assignment_id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((time() - strtotime($asg['due_date'])) / 86400);
+            $dueDate     = date('M j, Y', strtotime($asg['due_date']));
+            $title       = htmlspecialchars($asg['title'], ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>You have <span style="color:#ef4444;font-weight:600">overdue ({$daysOverdue} days)</span> security-awareness training to complete:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Training</th>
+    <th style="padding:8px;text-align:left">Due</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$title}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$dueDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to complete this training.</p>
+HTML;
+
+            $subject = "Training overdue: {$asg['title']}";
+            $body    = emailShell('Security Training Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'awareness_training_overdue', $email, $userName, $subject, $body,
+                ['assignment' => $asg, 'daysOverdue' => $daysOverdue, 'dueDate' => $dueDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'awareness_training_overdue', 'awareness_assignment', (int) $asg['assignment_id']);
+                $sentAwarenessOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[awareness_training_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2b. CONTROL RE-TEST CADENCE  (control_retest_due)
+// ═══════════════════════════════════════════════════════════════════════════════
+// A control is due for re-testing once the LATEST control_tests.next_test_date for
+// its objective has passed. Distinct from "overdue_controls" above, which tracks
+// control_implementations.due_date (remediation), not the testing cadence. Alerts
+// the control OWNER (control_implementations.assigned_to).
+try {
+    $retestRows = Database::fetchAll(
+        "SELECT co.id, co.code, co.title, cp.name AS package_name,
+                latest.next_test_date,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM control_implementations ci
+         JOIN compliance_objectives co ON co.id = ci.objective_id
+         JOIN compliance_packages   cp ON cp.id = co.package_id
+         JOIN users u ON u.id = ci.assigned_to
+         JOIN LATERAL (
+           SELECT ct.next_test_date
+           FROM control_tests ct
+           WHERE ct.objective_id = co.id AND ct.next_test_date IS NOT NULL
+           ORDER BY ct.id DESC LIMIT 1
+         ) latest ON TRUE
+         WHERE latest.next_test_date < CURRENT_DATE
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $retestByUser = [];
+    foreach ($retestRows as $row) {
+        $retestByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($retestByUser as $userId => $controls) {
+        if (!notifEnabled((int) $userId, 'control_retest_due')) {
+            continue;
+        }
+        $email    = $controls[0]['email'];
+        $userName = $controls[0]['user_name'];
+
+        foreach ($controls as $ctrl) {
+            // Throttle: one reminder per control per 7 days.
+            if (alreadyNotified((int) $userId, 'control_retest_due', 'compliance_objective', (int) $ctrl['id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((time() - strtotime($ctrl['next_test_date'])) / 86400);
+            $dueDate     = date('M j, Y', strtotime($ctrl['next_test_date']));
+            $code        = htmlspecialchars($ctrl['code'], ENT_QUOTES, 'UTF-8');
+            $title       = htmlspecialchars($ctrl['title'], ENT_QUOTES, 'UTF-8');
+            $pkg         = htmlspecialchars($ctrl['package_name'], ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A control you own is <span style="color:#ef4444;font-weight:600">due for re-testing ({$daysOverdue} days overdue)</span>:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Control</th>
+    <th style="padding:8px;text-align:left">Framework</th>
+    <th style="padding:8px;text-align:left">Next test due</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$code} — {$title}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$pkg}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$dueDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC and record a fresh test result for this control.</p>
+HTML;
+
+            $subject = "Control re-test overdue: {$ctrl['code']}";
+            $body    = emailShell('Control Re-test Due', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'control_retest_due', $email, $userName, $subject, $body,
+                ['control' => $ctrl, 'daysOverdue' => $daysOverdue, 'dueDate' => $dueDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'control_retest_due', 'compliance_objective', (int) $ctrl['id']);
+                $sentControlRetestDue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[control_retest_due] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2c. AUDIT FINDING REMEDIATION OVERDUE  (finding_remediation_overdue)
+// ═══════════════════════════════════════════════════════════════════════════════
+// An external-audit finding whose remediation deadline has passed while it is
+// still open (not closed / resolved / risk_accepted). Alerts the finding OWNER
+// (audit_findings.owner_id) so remediation is not silently missed.
+try {
+    $findingRows = Database::fetchAll(
+        "SELECT af.id, af.finding_number, af.title, af.severity, af.deadline,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM audit_findings af
+         JOIN users u ON u.id = af.owner_id
+         WHERE af.deadline IS NOT NULL
+           AND af.deadline < CURRENT_DATE
+           AND af.status NOT IN ('closed','resolved','risk_accepted')
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $findingByUser = [];
+    foreach ($findingRows as $row) {
+        $findingByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($findingByUser as $userId => $findings) {
+        if (!notifEnabled((int) $userId, 'finding_remediation_overdue')) {
+            continue;
+        }
+        $email    = $findings[0]['email'];
+        $userName = $findings[0]['user_name'];
+
+        foreach ($findings as $fnd) {
+            // Throttle: one reminder per finding per 7 days.
+            if (alreadyNotified((int) $userId, 'finding_remediation_overdue', 'audit_finding', (int) $fnd['id'], 604800)) {
+                continue;
+            }
+
+            $daysOverdue = (int) floor((time() - strtotime($fnd['deadline'])) / 86400);
+            $dueDate     = date('M j, Y', strtotime($fnd['deadline']));
+            $num         = htmlspecialchars($fnd['finding_number'], ENT_QUOTES, 'UTF-8');
+            $title       = htmlspecialchars($fnd['title'], ENT_QUOTES, 'UTF-8');
+            $severity    = htmlspecialchars(ucfirst($fnd['severity']), ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>An audit finding you own is <span style="color:#ef4444;font-weight:600">past its remediation deadline ({$daysOverdue} days overdue)</span>:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Finding</th>
+    <th style="padding:8px;text-align:left">Severity</th>
+    <th style="padding:8px;text-align:left">Deadline</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$num} — {$title}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$severity}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$dueDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to record remediation progress or update the finding.</p>
+HTML;
+
+            $subject = "Finding remediation overdue: {$fnd['finding_number']}";
+            $body    = emailShell('Audit Finding Remediation Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                (int) $userId, 'finding_remediation_overdue', $email, $userName, $subject, $body,
+                ['finding' => $fnd, 'daysOverdue' => $daysOverdue, 'dueDate' => $dueDate]
+            );
+            if ($sent) {
+                logNotification((int) $userId, 'finding_remediation_overdue', 'audit_finding', (int) $fnd['id']);
+                $sentFindingOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[finding_remediation_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // 3. PENDING APPROVAL REMINDERS
 // ═══════════════════════════════════════════════════════════════════════════════
 try {
@@ -503,7 +1413,7 @@ try {
         "SELECT i.id, i.title, i.severity, i.created_at,
                 u.id AS user_id, u.email, u.name AS user_name
          FROM incidents i
-         JOIN users u ON u.id = i.owner_id
+         JOIN users u ON u.id = i.assigned_to
          WHERE i.status NOT IN ('resolved','closed')
            AND i.created_at < NOW() - INTERVAL '48 hours'
            AND u.is_active = TRUE",
@@ -881,7 +1791,7 @@ try {
     $vendorRows = Database::fetchAll(
         "SELECT DISTINCT ON (v.id)
                 v.id AS vendor_id, v.name AS vendor_name, v.created_by,
-                va.id AS assessment_id, va.next_assessment_date, va.assessed_by,
+                va.id AS assessment_id, va.scheduled_date AS next_assessment_date, va.assessed_by,
                 COALESCE(u_assessor.id, u_creator.id) AS user_id,
                 COALESCE(u_assessor.email, u_creator.email) AS email,
                 COALESCE(u_assessor.name, u_creator.name) AS user_name
@@ -889,9 +1799,10 @@ try {
          JOIN vendor_assessments va ON va.vendor_id = v.id
          LEFT JOIN users u_assessor ON u_assessor.id = va.assessed_by AND u_assessor.is_active = TRUE
          LEFT JOIN users u_creator  ON u_creator.id  = v.created_by   AND u_creator.is_active  = TRUE
-         WHERE va.next_assessment_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+         WHERE va.scheduled_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+           AND va.status IN ('planned','in_progress')
            AND COALESCE(u_assessor.id, u_creator.id) IS NOT NULL
-         ORDER BY v.id, va.next_assessment_date ASC",
+         ORDER BY v.id, va.scheduled_date ASC",
         []
     );
 
@@ -956,6 +1867,180 @@ HTML;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// 9b. VENDOR CERTIFICATION EXPIRING  (vendor_cert_expiring)
+// ═══════════════════════════════════════════════════════════════════════════════
+// A vendor's certification (ISO 27001, SOC 2, PCI DSS, …) is still marked active
+// but its expiry date has passed or is within 30 days — it needs renewal. Alerts
+// the certification OWNER (vendor_certifications.owner_id, falling back to the
+// vendor's creator). Distinct from vendor_assessment_expiring (assessments, not
+// certificates).
+try {
+    $certRows = Database::fetchAll(
+        "SELECT vc.id, vc.certification_type, vc.certificate_number, vc.expiry_date,
+                v.name AS vendor_name,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM vendor_certifications vc
+         JOIN vendors v ON v.id = vc.vendor_id
+         JOIN users u ON u.id = COALESCE(vc.owner_id, v.created_by)
+         WHERE vc.status = 'active'
+           AND vc.expiry_date IS NOT NULL
+           AND vc.expiry_date <= CURRENT_DATE + INTERVAL '30 days'
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $certByUser = [];
+    foreach ($certRows as $row) {
+        $certByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($certByUser as $userId => $certs) {
+        $userId = (int) $userId;
+        if (!notifEnabled($userId, 'vendor_cert_expiring')) {
+            continue;
+        }
+        $email    = $certs[0]['email'];
+        $userName = $certs[0]['user_name'];
+
+        foreach ($certs as $cert) {
+            // Throttle: one reminder per certificate per 7 days.
+            if (alreadyNotified($userId, 'vendor_cert_expiring', 'vendor_certification', (int) $cert['id'], 604800)) {
+                continue;
+            }
+
+            $daysLeft    = (int) floor((strtotime($cert['expiry_date']) - strtotime('today')) / 86400);
+            $expiryDate  = date('M j, Y', strtotime($cert['expiry_date']));
+            $lapsed      = $daysLeft < 0;
+            $statusText  = $lapsed ? 'expired ' . abs($daysLeft) . ' day' . (abs($daysLeft) === 1 ? '' : 's') . ' ago'
+                                   : 'expiring in ' . $daysLeft . ' day' . ($daysLeft === 1 ? '' : 's');
+            $certType    = htmlspecialchars($cert['certification_type'], ENT_QUOTES, 'UTF-8');
+            $certNum     = htmlspecialchars($cert['certificate_number'] ?? '', ENT_QUOTES, 'UTF-8');
+            $vendorName  = htmlspecialchars($cert['vendor_name'], ENT_QUOTES, 'UTF-8');
+            $certLabel   = $certNum !== '' ? "{$certType} ({$certNum})" : $certType;
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A vendor certification you own is <span style="color:#ef4444;font-weight:600">{$statusText}</span> and needs renewal:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Vendor</th>
+    <th style="padding:8px;text-align:left">Certification</th>
+    <th style="padding:8px;text-align:left">Expiry</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$vendorName}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$certLabel}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$expiryDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to renew or update this certification.</p>
+HTML;
+
+            $subject = "Vendor certification {$statusText}: {$cert['certification_type']} ({$cert['vendor_name']})";
+            $body    = emailShell('Vendor Certification Expiring', $inner);
+
+            $sent = maybeSendOrQueue(
+                $userId, 'vendor_cert_expiring', $email, $userName, $subject, $body,
+                ['certification' => $cert, 'daysLeft' => $daysLeft, 'expiryDate' => $expiryDate]
+            );
+            if ($sent) {
+                logNotification($userId, 'vendor_cert_expiring', 'vendor_certification', (int) $cert['id']);
+                $sentVendorCertExpiring++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[vendor_cert_expiring] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 9c. VENDOR CONTRACT EXPIRING / UP FOR RENEWAL  (vendor_contract_expiring)
+// ═══════════════════════════════════════════════════════════════════════════════
+// An active vendor contract is within its own renewal-notice window (or already
+// past its end date). Honours the per-contract renewal_notice_days (default 30)
+// rather than a fixed window. Alerts the contract OWNER (vendor_contracts.owner_id,
+// falling back to the vendor's creator).
+try {
+    $contractRows = Database::fetchAll(
+        "SELECT vc.id, vc.title, vc.contract_number, vc.end_date, vc.auto_renewal,
+                v.name AS vendor_name,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM vendor_contracts vc
+         JOIN vendors v ON v.id = vc.vendor_id
+         JOIN users u ON u.id = COALESCE(vc.owner_id, v.created_by)
+         WHERE vc.status = 'active'
+           AND vc.end_date IS NOT NULL
+           AND vc.end_date <= CURRENT_DATE + (COALESCE(vc.renewal_notice_days, 30) || ' days')::interval
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $contractByUser = [];
+    foreach ($contractRows as $row) {
+        $contractByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($contractByUser as $userId => $contracts) {
+        $userId = (int) $userId;
+        if (!notifEnabled($userId, 'vendor_contract_expiring')) {
+            continue;
+        }
+        $email    = $contracts[0]['email'];
+        $userName = $contracts[0]['user_name'];
+
+        foreach ($contracts as $ct) {
+            // Throttle: one reminder per contract per 7 days.
+            if (alreadyNotified($userId, 'vendor_contract_expiring', 'vendor_contract', (int) $ct['id'], 604800)) {
+                continue;
+            }
+
+            $daysLeft    = (int) floor((strtotime($ct['end_date']) - strtotime('today')) / 86400);
+            $endDate     = date('M j, Y', strtotime($ct['end_date']));
+            $lapsed      = $daysLeft < 0;
+            $statusText  = $lapsed ? 'expired ' . abs($daysLeft) . ' day' . (abs($daysLeft) === 1 ? '' : 's') . ' ago'
+                                   : 'expiring in ' . $daysLeft . ' day' . ($daysLeft === 1 ? '' : 's');
+            $autoNote    = $ct['auto_renewal'] ? ' <em>(auto-renewal is enabled — confirm terms)</em>' : '';
+            $ctTitle     = htmlspecialchars($ct['title'], ENT_QUOTES, 'UTF-8');
+            $ctNum       = htmlspecialchars($ct['contract_number'] ?? '', ENT_QUOTES, 'UTF-8');
+            $vendorName  = htmlspecialchars($ct['vendor_name'], ENT_QUOTES, 'UTF-8');
+            $ctLabel     = $ctNum !== '' ? "{$ctTitle} ({$ctNum})" : $ctTitle;
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>A vendor contract you own is <span style="color:#ef4444;font-weight:600">{$statusText}</span>{$autoNote} and needs review:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Vendor</th>
+    <th style="padding:8px;text-align:left">Contract</th>
+    <th style="padding:8px;text-align:left">End date</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$vendorName}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$ctLabel}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$endDate}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to renew, renegotiate or update this contract.</p>
+HTML;
+
+            $subject = "Vendor contract {$statusText}: {$ct['title']} ({$ct['vendor_name']})";
+            $body    = emailShell('Vendor Contract Expiring', $inner);
+
+            $sent = maybeSendOrQueue(
+                $userId, 'vendor_contract_expiring', $email, $userName, $subject, $body,
+                ['contract' => $ct, 'daysLeft' => $daysLeft, 'endDate' => $endDate]
+            );
+            if ($sent) {
+                logNotification($userId, 'vendor_contract_expiring', 'vendor_contract', (int) $ct['id']);
+                $sentVendorContractExp++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[vendor_contract_expiring] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // 10. DOCUMENT EXPIRING
 // Query: documents WHERE expiry_date BETWEEN today AND today+30
 //        AND status NOT IN ('archived','expired') AND owner_id IS NOT NULL
@@ -963,7 +2048,7 @@ HTML;
 // ═══════════════════════════════════════════════════════════════════════════════
 try {
     $docRows = Database::fetchAll(
-        "SELECT d.id, d.title, d.document_number, d.expiry_date, d.owner_id,
+        "SELECT d.id, d.title, d.doc_number AS document_number, d.expiry_date, d.owner_id,
                 u.id AS user_id, u.email, u.name AS user_name
          FROM documents d
          JOIN users u ON u.id = d.owner_id
@@ -1163,7 +2248,7 @@ HTML;
 // ═══════════════════════════════════════════════════════════════════════════════
 try {
     $evRows = Database::fetchAll(
-        "SELECT ef.id, ef.filename, ef.entity_type, ef.entity_id, ef.expires_at, ef.uploaded_by,
+        "SELECT ef.id, ef.original_name AS filename, ef.entity_type, ef.entity_id, ef.expires_at, ef.uploaded_by,
                 u.id AS user_id, u.email, u.name AS user_name
          FROM evidence_files ef
          JOIN users u ON u.id = ef.uploaded_by
@@ -1265,6 +2350,19 @@ if (!empty($digestQueue)) {
         'document_expiring'          => 'Documents Expiring Soon',
         'assessment_pending_stale'   => 'Stale Risk Assessments',
         'evidence_expiring'          => 'Evidence Files Expiring',
+        'policy_expiring'            => 'Policies Expiring Soon',
+        'risk_acceptance_expiring'   => 'Risk Acceptances Expiring',
+        'kri_breached'               => 'KRI Threshold Breaches',
+        'incident_sla_breach'        => 'Incident SLA Breaches',
+        'bcp_exercise_overdue'       => 'BCP Exercises Overdue',
+        'bcp_plan_review_due'        => 'BCP Plans Due for Testing',
+        'poam_item_overdue'          => 'POA&M Items Overdue',
+        'awareness_training_overdue' => 'Security Training Overdue',
+        'control_retest_due'         => 'Control Re-test Due',
+        'finding_remediation_overdue' => 'Audit Finding Remediation Overdue',
+        'vendor_cert_expiring'        => 'Vendor Certifications Expiring',
+        'vendor_contract_expiring'    => 'Vendor Contracts Expiring',
+        'kri_measurement_overdue'     => 'KRI Measurements Overdue',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -1392,8 +2490,14 @@ HTML;
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 $timestamp = date('Y-m-d H:i:s');
-echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} reviews, "
+echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} reviews, {$sentPolicyExpiry} policy expiry, "
    . "{$sentApprovals} approvals, {$sentRisks} risk assignments, {$sentIncidents} aging incidents, "
    . "{$sentRiskReview} risk reviews, {$sentTreatment} treatments, {$sentScoreWorsened} score alerts, "
    . "{$sentVendorAssess} vendor assessments, {$sentDocExpiring} doc expiry, {$sentAssessStale} stale assessments, "
-   . "{$sentEvidenceExpiry} evidence expiry, {$sentDigests} digest(s) sent\n";
+   . "{$sentEvidenceExpiry} evidence expiry, {$sentAcceptExpiring} acceptance expiry, "
+   . "{$sentKriBreach} KRI breaches, {$sentSlaBreach} SLA breaches, "
+   . "{$sentBcpExerciseOverdue} BCP exercises overdue, {$sentBcpPlanReviewDue} BCP plans due, "
+   . "{$sentPoamOverdue} POA&M overdue, {$sentAwarenessOverdue} training overdue, "
+   . "{$sentControlRetestDue} control re-tests due, {$sentFindingOverdue} findings overdue, "
+   . "{$sentVendorCertExpiring} vendor certs expiring, {$sentVendorContractExp} vendor contracts expiring, "
+   . "{$sentKriMeasureOverdue} KRI measurements overdue, {$sentDigests} digest(s) sent\n";

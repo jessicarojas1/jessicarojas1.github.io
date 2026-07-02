@@ -168,6 +168,16 @@ $displayKris = $activeFilter
             <span style="background:<?= $ragColor ?>20;color:<?= $ragColor ?>;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid <?= $ragColor ?>40;">
               <i class="bi <?= $ragIcon ?>"></i> <?= $ragLabel ?>
             </span>
+            <?php $measure = $k['measure'] ?? 'ok'; ?>
+            <?php if ($measure === 'overdue'): ?>
+              <span title="No reading recorded within this KRI's measurement frequency" style="background:var(--danger)20;color:var(--danger);padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid var(--danger)40;">
+                <i class="bi bi-clock-history"></i> Measurement overdue
+              </span>
+            <?php elseif ($measure === 'due'): ?>
+              <span title="A new reading is due soon for this KRI" style="background:var(--warning)20;color:var(--warning);padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid var(--warning)40;">
+                <i class="bi bi-clock"></i> Measurement due
+              </span>
+            <?php endif; ?>
           </div>
         </div>
 

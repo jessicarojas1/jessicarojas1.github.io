@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Branding, normalizeBranding } from '@/lib/branding';
+import { requestId, withRequestId } from '@/lib/logger';
 
 // Shared branding is stored as a single row in the `app_settings` table
 // (key = 'branding', value = jsonb). Requires the Supabase service role key.
@@ -43,11 +44,13 @@ export async function PUT(req: NextRequest) {
   // callers must send it as `Authorization: Bearer <token>`. When unset, the route
   // stays open (single-user/demo default) — set the env var in any shared
   // deployment to prevent anonymous branding changes (defacement).
+  const log = withRequestId(requestId(req.headers), { route: '/api/settings/branding' });
   const adminToken = process.env.BRANDING_ADMIN_TOKEN;
   if (adminToken) {
     const auth = req.headers.get('authorization') || '';
     const provided = /^bearer\s+/i.test(auth) ? auth.replace(/^bearer\s+/i, '').trim() : '';
     if (provided !== adminToken) {
+      log.warn('branding write rejected: unauthorized', { status: 401 });
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     }
   }
@@ -74,8 +77,10 @@ export async function PUT(req: NextRequest) {
       .upsert({ key: SETTINGS_KEY, value: branding }, { onConflict: 'key' });
 
     if (error) {
+      log.warn('branding write fell back to local (db error)');
       return NextResponse.json({ ok: false, persisted: 'local', branding }, { status: 200 });
     }
+    log.info('branding write ok', { persisted: 'server' });
     return NextResponse.json({ ok: true, persisted: 'server', branding });
   } catch {
     return NextResponse.json({ ok: false, persisted: 'local', branding }, { status: 200 });

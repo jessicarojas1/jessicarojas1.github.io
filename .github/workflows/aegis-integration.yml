@@ -108,6 +108,50 @@ jobs:
         working-directory: aegis
         run: php tests/integration/evidence_db.php
 
+      - name: Policy/vendor/CAPA lifecycle — states, certs, cascade
+        working-directory: aegis
+        run: php tests/integration/lifecycle_db.php
+
+      - name: Incident SLA breach — predicate, event recording, cascade
+        working-directory: aegis
+        run: php tests/integration/incident_sla_db.php
+
+      - name: BCP lifecycle — overdue exercise / plan-testing-due / cascade
+        working-directory: aegis
+        run: php tests/integration/bcp_db.php
+
+      - name: POA&M overdue — item predicate / milestone count / cascade
+        working-directory: aegis
+        run: php tests/integration/poam_db.php
+
+      - name: Awareness training overdue — predicate / cascade
+        working-directory: aegis
+        run: php tests/integration/awareness_db.php
+
+      - name: Control re-test cadence — latest-test predicate / owner join / cascade
+        working-directory: aegis
+        run: php tests/integration/control_retest_db.php
+
+      - name: Audit finding remediation overdue — predicate / owner join / cascade
+        working-directory: aegis
+        run: php tests/integration/finding_remediation_db.php
+
+      - name: Notifier smoke — every section runs without a broken column reference
+        working-directory: aegis
+        run: php tests/integration/notifier_smoke_db.php
+
+      - name: Vendor certification expiry — predicate / owner fallback / cascade
+        working-directory: aegis
+        run: php tests/integration/vendor_cert_expiry_db.php
+
+      - name: Vendor contract expiry — per-contract notice window / owner fallback / cascade
+        working-directory: aegis
+        run: php tests/integration/vendor_contract_expiry_db.php
+
+      - name: KRI measurement overdue — cadence predicate / never-measured / cascade
+        working-directory: aegis
+        run: php tests/integration/kri_measurement_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

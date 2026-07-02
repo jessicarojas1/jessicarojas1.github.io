@@ -1,0 +1,44 @@
+# Render Blueprint for the cmmc2 static site.
+# https://render.com/docs/blueprint-spec
+#
+# cmmc2 is a client-side static site with NO build step. It depends on parent-relative
+# shared assets (../theme.css, ../favicon.ico, ../users.js, ../roles.js, ../script.js,
+# ../analytics.js, ../siteSearch.js) and the navbar brand links to ../index.html. Those
+# files live at the REPO ROOT. So the static site publishes from the repo root ('.') and
+# the app is served at the /cmmc2/ subpath — exactly as it runs in the portfolio. This
+# keeps the ../ references resolvable without duplicating files.
+#
+# There is no server, database, secret, or worker — a static site is the correct type.
+# For a hardened container alternative (edge CSP + security headers), deploy the Dockerfile
+# instead (a web service with runtime: image / dockerfilePath: cmmc2/Dockerfile).
+
+services:
+  - type: web
+    name: cmmc2
+    runtime: static
+    # Publish the repo root so parent ../ assets resolve. App entry: /cmmc2/index.html.
+    rootDir: .
+    buildCommand: ""            # nothing to build
+    staticPublishPath: .
+    pullRequestPreviewsEnabled: true
+    headers:
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self' blob:; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net blob:; worker-src blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*
+        name: Strict-Transport-Security
+        value: "max-age=63072000; includeSubDomains"
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+    routes:
+      # Convenience: send the site root to the app entry.
+      - type: redirect
+        source: /
+        destination: /cmmc2/

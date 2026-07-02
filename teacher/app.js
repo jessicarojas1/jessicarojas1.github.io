@@ -1,0 +1,1904 @@
+
+'use strict';
+/* Escape single quotes in student names for safe use inside data-* handler attributes */
+function q(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+/* Escape HTML special chars for attribute values */
+function ha(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+/* Main tab switcher — works without Bootstrap JS */
+function switchTab(id,btn){
+  document.querySelectorAll('#mainTabs .nav-link').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('tab-visible');});
+  if(btn)btn.classList.add('active');
+  var pane=document.getElementById(id);
+  if(pane)pane.classList.add('tab-visible');
+}
+/* ── Theme & Settings ── */
+function toggleTheme(){var t=document.documentElement.getAttribute('data-bs-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-bs-theme',t);localStorage.setItem('bsTheme',t);}
+function getSettings(){return JSON.parse(localStorage.getItem('teacher_settings')||'{}');}
+function getStudents(){return (getSettings().students||[]).filter(Boolean);}
+function loadSettings(){
+  var s=getSettings();
+  ['settingTeacherName','settingSchoolName','settingGrade'].forEach(function(id){if(document.getElementById(id)&&s[id.replace('setting','').toLowerCase()])document.getElementById(id).value=s[id.replace('setting','').toLowerCase()]||'';});
+  document.getElementById('settingTeacherName').value=s.name||'';
+  document.getElementById('settingSchoolName').value=s.school||'';
+  document.getElementById('settingGrade').value=s.grade||'5th Grade';
+  document.getElementById('settingPbisGoal').value=s.pbisGoal||100;
+  document.getElementById('settingStudents').value=(s.students||[]).join('\n');
+  var sub=document.getElementById('teacherSubtitle');
+  if(s.name||s.school)sub.textContent=(s.name?s.name+' — ':'')+( s.school||'')+( s.grade?' — '+s.grade:'');
+  var d=new Date(),days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('todayDate').textContent=days[d.getDay()]+', '+d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  var h=d.getHours();
+  document.getElementById('greetingMsg').textContent=h<12?'Good morning!':(h<17?'Good afternoon!':'Good evening!');
+}
+function saveSettings(){
+  var students=document.getElementById('settingStudents').value.split('\n').map(function(x){return x.trim();}).filter(Boolean);
+  var s={name:document.getElementById('settingTeacherName').value.trim(),school:document.getElementById('settingSchoolName').value.trim(),grade:document.getElementById('settingGrade').value.trim(),pbisGoal:parseInt(document.getElementById('settingPbisGoal').value)||100,students:students};
+  localStorage.setItem('teacher_settings',JSON.stringify(s));
+  bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
+  loadSettings();_pickerPool=null;renderGradebook();
+  if(_curMgmt==='seating')renderSeatChart();if(_curMgmt==='behavior')renderBehavior();if(_curMgmt==='iep')renderIEP();if(_curMgmt==='pbis')renderPBIS();
+}
+
+/* ── Lesson Planner ── */
+var LP_FIELDS=['lpTitle','lpSubject','lpDate','lpDuration','lpStandards','lpObjectives','lpVocab','lpMaterials','lpHook','lpIDo','lpWeDo','lpYouDo','lpClosure','lpAssess','lpDiff','lpNotes'];
+var _currentPlanId=null;
+function getPlanData(){var d={};LP_FIELDS.forEach(function(id){d[id]=(document.getElementById(id)||{}).value||'';});return d;}
+function setPlanData(d){LP_FIELDS.forEach(function(id){if(document.getElementById(id))document.getElementById(id).value=d[id]||'';});}
+function getPlans(){return JSON.parse(localStorage.getItem('teacher_plans')||'[]');}
+function savePlansLS(p){localStorage.setItem('teacher_plans',JSON.stringify(p));}
+function renderSavedPlans(){
+  var plans=getPlans(),el=document.getElementById('savedPlansList');
+  if(!plans.length){el.innerHTML='<div class="text-secondary" style="font-size:.75rem;">No saved plans yet.</div>';return;}
+  el.innerHTML=plans.map(function(p){return '<div class="saved-plan" data-onclick="loadPlan(\''+p.id+'\')"><span>'+(p.data.lpTitle||'Untitled')+' <span class="text-secondary" style="font-size:.69rem;">'+(p.data.lpSubject||'')+'</span></span><button class="btn btn-sm btn-link text-danger p-0" data-onclick="deletePlan(\''+p.id+'\',event)"><i class="bi bi-x-lg"></i></button></div>';}).join('');
+}
+function savePlan(){var plans=getPlans(),data=getPlanData();if(!data.lpTitle){alert('Enter a title.');return;}if(_currentPlanId){plans=plans.map(function(p){return p.id===_currentPlanId?{id:p.id,data:data}:p;});}else{if(plans.length>=10){alert('Max 10 saved plans.');return;}_currentPlanId=Date.now().toString();plans.push({id:_currentPlanId,data:data});}savePlansLS(plans);renderSavedPlans();}
+function loadPlan(id){var p=getPlans().find(function(x){return x.id===id;});if(!p)return;_currentPlanId=id;setPlanData(p.data);}
+function deletePlan(id,evt){evt.stopPropagation();if(!confirm('Delete?'))return;var plans=getPlans().filter(function(p){return p.id!==id;});savePlansLS(plans);if(_currentPlanId===id){_currentPlanId=null;clearPlanForm();}renderSavedPlans();}
+function newPlan(){_currentPlanId=null;clearPlanForm();}
+function clearPlanForm(){LP_FIELDS.forEach(function(id){if(document.getElementById(id))document.getElementById(id).value='';});}
+function printLessonPlan(){
+  var d=getPlanData(),s=getSettings(),t=s.name||'',sch=s.school||'',g=s.grade||'5th Grade';
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>Lesson Plan</title><style>body{font-family:Georgia,serif;font-size:11pt;color:#000;margin:1.5cm;}h1{font-size:15pt;}h2{font-size:11pt;border-bottom:1pt solid #000;margin-top:14pt;margin-bottom:5pt;}.meta{display:flex;flex-wrap:wrap;gap:14px;font-size:9pt;color:#555;margin-bottom:12pt;}.sec{margin-bottom:10pt;}p{margin:2pt 0;font-size:10pt;line-height:1.6;}@media print{@page{margin:1.5cm;}}</style></head><body>');
+  w.document.write('<h1>'+(d.lpTitle||'Lesson Plan')+'</h1><div class="meta"><span>Teacher: '+(t||'___')+'</span><span>School: '+(sch||'___')+'</span><span>Grade: '+g+'</span>'+(d.lpDate?'<span>Date: '+d.lpDate+'</span>':'')+(d.lpSubject?'<span>Subject: '+d.lpSubject+'</span>':'')+(d.lpDuration?'<span>Duration: '+d.lpDuration+'</span>':'')+'</div>');
+  [['Utah Core Standard(s)',d.lpStandards],['Learning Objectives',d.lpObjectives],['Key Vocabulary',d.lpVocab],['Materials',d.lpMaterials],['Hook / Engagement',d.lpHook],['I Do',d.lpIDo],['We Do',d.lpWeDo],['You Do',d.lpYouDo],['Closure',d.lpClosure],['Assessment',d.lpAssess],['Differentiation',d.lpDiff],['Teacher Notes',d.lpNotes]].forEach(function(f){if(f[1])w.document.write('<div class="sec"><h2>'+f[0]+'</h2><p>'+f[1].replace(/\n/g,'<br>')+'</p></div>');});
+  w.document.write('</body></html>');w.document.close();w.print();
+}
+function generateSubPlanFromLesson(){
+  var d=getPlanData(),s=getSettings(),t=s.name||'',sch=s.school||'';
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>Sub Plans</title><style>body{font-family:Arial,sans-serif;font-size:11pt;color:#000;margin:1.5cm;}h1{font-size:15pt;}h2{font-size:11pt;border-bottom:1pt solid #333;margin-top:14pt;margin-bottom:6pt;}.field{border-bottom:1pt solid #aaa;min-height:22pt;margin-bottom:8pt;padding:2pt;}.label{font-size:8pt;font-weight:bold;text-transform:uppercase;color:#555;margin-bottom:2pt;}table{width:100%;border-collapse:collapse;}td,th{border:1pt solid #aaa;padding:4pt;font-size:9pt;}th{background:#f0f0f0;}@media print{@page{margin:1.5cm;}}</style></head><body>');
+  w.document.write('<h1>Substitute Teacher Plans</h1><div style="font-size:9pt;color:#555;margin-bottom:10pt;display:flex;gap:16px;"><span>Teacher: '+(t||'___')+'</span><span>School: '+(sch||'___')+'</span><span>Grade: '+(s.grade||'5th Grade')+'</span>'+(d.lpDate?'<span>Date: '+d.lpDate+'</span>':'')+'</div>');
+  w.document.write('<h2>Today\'s Lesson: '+(d.lpTitle||'')+'</h2><p><strong>Subject:</strong> '+(d.lpSubject||'')+'&nbsp;&nbsp;<strong>Duration:</strong> '+(d.lpDuration||'')+'</p>');
+  if(d.lpObjectives)w.document.write('<p><strong>Objective:</strong> '+d.lpObjectives+'</p>');
+  if(d.lpMaterials)w.document.write('<p><strong>Materials:</strong> '+d.lpMaterials+'</p>');
+  w.document.write('<h2>Schedule / Activities</h2>');
+  if(d.lpHook)w.document.write('<p><strong>Opening (5 min):</strong> '+d.lpHook+'</p>');
+  if(d.lpIDo)w.document.write('<p><strong>Direct Instruction:</strong> '+d.lpIDo+'</p>');
+  if(d.lpWeDo)w.document.write('<p><strong>Guided Practice:</strong> '+d.lpWeDo+'</p>');
+  if(d.lpYouDo)w.document.write('<p><strong>Independent Practice:</strong> '+d.lpYouDo+'</p>');
+  if(d.lpClosure)w.document.write('<p><strong>Closure:</strong> '+d.lpClosure+'</p>');
+  w.document.write('<h2>Classroom Management</h2><div class="label">Rules to know:</div><div class="field" contenteditable></div><div class="label">Helpful students:</div><div class="field" contenteditable></div><div class="label">Emergency contact / office:</div><div class="field" contenteditable></div>');
+  if(d.lpNotes)w.document.write('<h2>Teacher Notes</h2><p>'+d.lpNotes+'</p>');
+  w.document.write('</body></html>');w.document.close();w.print();
+}
+
+/* ── Unit Planner ── */
+function getUnits(){return JSON.parse(localStorage.getItem('teacher_units')||'[]');}
+function saveUnits(u){localStorage.setItem('teacher_units',JSON.stringify(u));}
+function renderUnitPlans(){
+  var units=getUnits(),el=document.getElementById('unitPlansList');
+  if(!units.length){el.innerHTML='<div class="text-secondary" style="font-size:.74rem;">No units yet.</div>';return;}
+  el.innerHTML=units.map(function(u){return '<div class="saved-plan" data-onclick="viewUnit(\''+u.id+'\')"><span style="font-size:.79rem;">'+u.title+' <span class="text-secondary">'+u.subject+'</span></span><button class="btn btn-link btn-sm text-danger p-0" data-onclick="deleteUnit(\''+u.id+'\',event)"><i class="bi bi-x-lg"></i></button></div>';}).join('');
+}
+function showUnitModal(){
+  var title=prompt('Unit Title (e.g. "Fractions Unit"):');if(!title)return;
+  var subject=prompt('Subject:');if(!subject)return;
+  var weeks=prompt('Number of weeks:','3');
+  var essQ=prompt('Essential Question:','');
+  var standards=prompt('Key Standards (comma-separated):','');
+  var units=getUnits();
+  units.push({id:Date.now().toString(),title:title,subject:subject,weeks:parseInt(weeks)||3,essQ:essQ,standards:standards,created:new Date().toLocaleDateString()});
+  saveUnits(units);renderUnitPlans();
+}
+function viewUnit(id){
+  var u=getUnits().find(function(x){return x.id===id;});if(!u)return;
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>Unit Plan</title><style>body{font-family:Arial,sans-serif;font-size:11pt;margin:1.5cm;color:#000;}h1{font-size:15pt;}h2{font-size:11pt;border-bottom:1pt solid #333;margin-top:14pt;}table{width:100%;border-collapse:collapse;}td,th{border:1pt solid #aaa;padding:6pt;font-size:9pt;}th{background:#f0f0f0;font-weight:bold;}@media print{@page{margin:1.5cm;}}</style></head><body>');
+  w.document.write('<h1>'+u.title+'</h1><p><strong>Subject:</strong> '+u.subject+' &nbsp; <strong>Duration:</strong> '+u.weeks+' weeks &nbsp; <strong>Created:</strong> '+u.created+'</p>');
+  if(u.essQ)w.document.write('<p><strong>Essential Question:</strong> '+u.essQ+'</p>');
+  if(u.standards)w.document.write('<p><strong>Key Standards:</strong> '+u.standards+'</p>');
+  w.document.write('<h2>Week-by-Week Plan</h2><table><tr><th>Week</th><th>Topics / Skills</th><th>Assessments</th><th>Notes</th></tr>');
+  for(var i=1;i<=u.weeks;i++)w.document.write('<tr><td>Week '+i+'</td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>');
+  w.document.write('</table><h2>Summative Assessment Plan</h2><div style="border:1pt solid #aaa;min-height:60pt;padding:6pt;" contenteditable></div>');
+  w.document.write('</body></html>');w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+function deleteUnit(id,evt){evt.stopPropagation();if(!confirm('Delete unit?'))return;saveUnits(getUnits().filter(function(u){return u.id!==id;}));renderUnitPlans();}
+
+/* ── Activities ── */
+var ACTIVITIES=[
+{id:1,name:'Socratic Seminar',subject:'ELA',type:'Discussion',duration:45,desc:'Student-led discussion on a shared text. Assign roles: facilitator, questioner, recorder.'},
+{id:2,name:"Reader's Theater",subject:'ELA',type:'Collaborative',duration:30,desc:'Students perform a scripted passage aloud — great for fluency and engagement.'},
+{id:3,name:'Text Evidence Scavenger Hunt',subject:'ELA',type:'Individual',duration:20,desc:'Students find and cite specific text evidence to support given claims.'},
+{id:4,name:'Figurative Language Bingo',subject:'ELA',type:'Game',duration:30,desc:'Bingo cards with terms. Teacher reads example sentences; students identify and mark.'},
+{id:5,name:'Story Mapping',subject:'ELA',type:'Individual',duration:30,desc:'Graphic organizer: characters, setting, problem, events, solution.'},
+{id:6,name:'Six-Word Memoir',subject:'ELA',type:'Writing',duration:20,desc:'Distill a character\'s story (or their own) into exactly six powerful words.'},
+{id:7,name:'Debate: Pro vs. Con',subject:'ELA',type:'Discussion',duration:45,desc:'Teams research and debate a real-world topic using evidence-based arguments.'},
+{id:8,name:'Poetry Cafe',subject:'ELA',type:'Collaborative',duration:30,desc:'Students share original poems in a cafe-style setting. Finger snaps for applause.'},
+{id:9,name:'Vocabulary Frayer Model',subject:'ELA',type:'Individual',duration:20,desc:'Four-square: definition, characteristics, examples, non-examples for key words.'},
+{id:10,name:'Compare & Contrast',subject:'ELA',type:'Individual',duration:15,desc:'Venn diagram or T-chart comparing two texts, characters, or story elements.'},
+{id:11,name:'Interactive Read-Aloud',subject:'ELA',type:'Discussion',duration:20,desc:'Teacher reads with planned stop points for turn-and-talk or quick writes.'},
+{id:12,name:'Prefix & Suffix Sort',subject:'ELA',type:'Collaborative',duration:15,desc:'Card sort: groups sort words by affix and discuss how meaning changes.'},
+{id:13,name:'Writing Workshop',subject:'ELA',type:'Writing',duration:45,desc:'Mini-lesson + independent writing time + share. Focus on one craft move per session.'},
+{id:14,name:"Author's Purpose Sort",subject:'ELA',type:'Collaborative',duration:20,desc:'Sort passages into PIE categories (Persuade, Inform, Entertain) with evidence.'},
+{id:15,name:'Book Club Discussion',subject:'ELA',type:'Discussion',duration:30,desc:'Small groups discuss their independent reading book using structured discussion stems.'},
+{id:16,name:'Close Reading Protocol',subject:'ELA',type:'Individual',duration:30,desc:'Three reads of a complex text: structure, meaning, and craft. Annotate each pass.'},
+{id:17,name:'Gallery Walk',subject:'ELA',type:'Collaborative',duration:30,desc:'Student work or quotes posted on walls; students circulate with sticky notes to respond.'},
+{id:18,name:'Grammar Auction',subject:'ELA',type:'Game',duration:30,desc:'Students bid play money on sentences they believe are correct, then discuss results.'},
+{id:19,name:'Number Talk',subject:'Math',type:'Discussion',duration:15,desc:'Present a mental math problem; students share strategies. Builds number sense.'},
+{id:20,name:'Math Stations',subject:'Math',type:'Collaborative',duration:45,desc:'Four rotating stations: game, practice, technology tool, and teacher small group.'},
+{id:21,name:'Fraction Pizza Art',subject:'Math',type:'Hands-On',duration:30,desc:'Students create paper pizzas divided into fractions, then compare and add pieces.'},
+{id:22,name:'Measurement Scavenger Hunt',subject:'Math',type:'Hands-On',duration:30,desc:'Students measure classroom objects in both customary and metric units.'},
+{id:23,name:'Multiplication War',subject:'Math',type:'Game',duration:20,desc:'Flip two cards, multiply — higher product wins. Great for building fact fluency.'},
+{id:24,name:'Geoboard Geometry',subject:'Math',type:'Hands-On',duration:30,desc:'Create polygons on geoboards; identify properties: angles, symmetry, perimeter, area.'},
+{id:25,name:'Data Survey Project',subject:'Math',type:'Project',duration:45,desc:'Students write survey questions, collect data, create graphs, and interpret results.'},
+{id:26,name:'Math Journaling',subject:'Math',type:'Writing',duration:20,desc:'Write to explain mathematical thinking for a problem. Builds metacognition.'},
+{id:27,name:'Relay Race Mental Math',subject:'Math',type:'Game',duration:20,desc:'Teams pass a multi-step problem down the line, each student solving one part.'},
+{id:28,name:'Volume with Cubes',subject:'Math',type:'Hands-On',duration:30,desc:'Build 3D rectangular prisms with unit cubes and derive the V = l x w x h formula.'},
+{id:29,name:'Coordinate Grid Art',subject:'Math',type:'Individual',duration:45,desc:'Students follow ordered pairs to plot and connect points, creating a picture.'},
+{id:30,name:'Error Analysis',subject:'Math',type:'Individual',duration:20,desc:'Show a worked problem with a deliberate mistake; students find and fix the error.'},
+{id:31,name:'Estimation Jars',subject:'Math',type:'Individual',duration:15,desc:'Estimate the quantity in jars, reveal the count, and discuss reasonable ranges.'},
+{id:32,name:'PEMDAS Puzzle',subject:'Math',type:'Game',duration:30,desc:'Students order operations and race to reach a target number. Order of operations focus.'},
+{id:33,name:'Decimal Menu Math',subject:'Math',type:'Individual',duration:30,desc:'Fake restaurant menu — students add, subtract, and compare decimal prices.'},
+{id:34,name:'Fraction & Decimal Relay',subject:'Math',type:'Game',duration:20,desc:'Teams race to convert between fractions and decimals on whiteboards.'},
+{id:35,name:'Place Value Throwdown',subject:'Math',type:'Game',duration:20,desc:'Card game to build the largest or smallest number. Deepens place value understanding.'},
+{id:36,name:'Water Cycle Terrarium',subject:'Science',type:'Hands-On',duration:45,desc:'Build terrariums in sealed bags; observe evaporation, condensation, and precipitation.'},
+{id:37,name:'Ecosystem Diorama',subject:'Science',type:'Project',duration:60,desc:'Groups create biome dioramas with producers, consumers, and decomposers labeled.'},
+{id:38,name:'Food Web Yarn Activity',subject:'Science',type:'Collaborative',duration:30,desc:'Class stands in a circle; yarn connects predator/prey relationships, then "remove" a species.'},
+{id:39,name:'States of Matter Lab',subject:'Science',type:'Hands-On',duration:30,desc:'Observe chocolate melting and water boiling — identify and record phase changes.'},
+{id:40,name:'Rock Classification',subject:'Science',type:'Hands-On',duration:20,desc:'Hand lenses and streak tests to sort samples into igneous, sedimentary, metamorphic.'},
+{id:41,name:'Solar System Scale Model',subject:'Science',type:'Project',duration:60,desc:'Scale model on a long roll of paper; students calculate and mark planet distances.'},
+{id:42,name:'Erosion Experiment',subject:'Science',type:'Hands-On',duration:45,desc:'Compare erosion in trays with bare soil, grass, and rocks under simulated rain.'},
+{id:43,name:'Edible Plant Cell',subject:'Science',type:'Hands-On',duration:45,desc:'Build plant cells with Jell-O and candy organelles, label all parts, then eat!'},
+{id:44,name:'Conductors & Insulators',subject:'Science',type:'Collaborative',duration:20,desc:'Test materials with a simple circuit; sort into conductor vs. insulator T-chart.'},
+{id:45,name:'Weather Journal',subject:'Science',type:'Individual',duration:15,desc:'Daily 5-minute observation log: temperature, cloud cover, precipitation, and patterns.'},
+{id:46,name:'Seed Dispersal Simulation',subject:'Science',type:'Hands-On',duration:30,desc:'Model wind, animal, and water dispersal with different seed types and fans.'},
+{id:47,name:'Adaptations Museum Walk',subject:'Science',type:'Project',duration:45,desc:'Each student becomes an animal expert; class tours their "museum" of adaptation posters.'},
+{id:48,name:'Penny Surface Tension Lab',subject:'Science',type:'Hands-On',duration:20,desc:'How many drops fit on a penny? Predict, test, and explain surface tension.'},
+{id:49,name:'Constitution Simulation',subject:'Social Studies',type:'Collaborative',duration:45,desc:'Class creates rules for a fictional island nation, mirroring the Constitutional Convention.'},
+{id:50,name:'Map Skills Challenge',subject:'Social Studies',type:'Individual',duration:30,desc:'Use latitude/longitude, map keys, and scale to answer scavenger hunt clues.'},
+{id:51,name:'Primary Source Analysis',subject:'Social Studies',type:'Individual',duration:30,desc:'Analyze a historical document or photo using the SEE-THINK-WONDER protocol.'},
+{id:52,name:'Civil War Letters',subject:'Social Studies',type:'Writing',duration:45,desc:'Write diary entries or letters from the perspective of a Civil War soldier or civilian.'},
+{id:53,name:'Westward Expansion Timeline',subject:'Social Studies',type:'Project',duration:45,desc:'Collaborative timeline with key events, images, and causes/effects displayed.'},
+{id:54,name:'State Research Project',subject:'Social Studies',type:'Project',duration:60,desc:'Research a U.S. state: geography, economy, landmarks, famous figures, and state symbols.'},
+{id:55,name:'Current Events Discussion',subject:'Social Studies',type:'Discussion',duration:20,desc:'Weekly news articles paired with discussion questions and student opinions.'},
+{id:56,name:'Historical Figure Hot Seat',subject:'Social Studies',type:'Discussion',duration:30,desc:'One student "becomes" a figure; classmates ask questions they researched.'},
+{id:57,name:'Economic Choices Game',subject:'Social Studies',type:'Game',duration:30,desc:'Budget simulation: students make production/consumption decisions with limited resources.'},
+{id:58,name:'Utah Pioneers Research',subject:'Social Studies',type:'Project',duration:60,desc:'Research Utah pioneer routes, hardships, culture, and contribution to Utah statehood.'},
+{id:59,name:'Branch of Government Sort',subject:'Social Studies',type:'Collaborative',duration:20,desc:'Sort cards describing government actions into Legislative, Executive, or Judicial.'},
+{id:60,name:'Civil Rights Timeline',subject:'Social Studies',type:'Project',duration:45,desc:'Chronological display of key Civil Rights events with quotes from leaders.'},
+{id:61,name:'Native American Culture Study',subject:'Social Studies',type:'Project',duration:45,desc:'Research a Native American group: location, traditions, food, homes, modern presence.'},
+{id:62,name:'Yoga Brain Break',subject:'Health',type:'Brain Break',duration:10,desc:'5-10 minutes of kid-friendly yoga poses. Great for refocusing after a long work block.'},
+{id:63,name:'Mindfulness Box Breathing',subject:'Health',type:'Brain Break',duration:5,desc:'4 counts in, hold 4, out 4, hold 4. Reduces anxiety before tests or transitions.'},
+{id:64,name:'GoNoodle Dance Break',subject:'Health',type:'Brain Break',duration:5,desc:'GoNoodle video on the projector. Students dance and move freely for 5 minutes.'},
+{id:65,name:'Nutrition Label Lab',subject:'Health',type:'Hands-On',duration:20,desc:'Compare nutrition labels on snack packages; discuss serving sizes and daily values.'},
+{id:66,name:'Goal Setting Vision Board',subject:'Health',type:'Individual',duration:30,desc:'Students cut out images and words representing academic, personal, and health goals.'},
+{id:67,name:'Emotion Check-In Circle',subject:'Health',type:'Discussion',duration:10,desc:'Morning circle: students place a sticky note on an emotion chart and share one word.'},
+{id:68,name:'Conflict Resolution Role Play',subject:'Health',type:'Collaborative',duration:20,desc:'Pairs act out a conflict, rewind, and model respectful resolution strategies.'},
+{id:69,name:'Class Stretch Break',subject:'Health',type:'Brain Break',duration:5,desc:'Quick standing stretch: reach up, side bend, shoulder rolls, neck rolls.'},
+{id:70,name:'Growth Mindset Journal',subject:'Health',type:'Writing',duration:20,desc:'Respond to a prompt about a challenge, what you learned, and how you will grow.'},
+{id:71,name:'Jump Rope Challenge',subject:'Health',type:'Brain Break',duration:10,desc:'Count jumps, try tricks, beat your personal best. Great energy release.'},
+{id:72,name:'Bucket Filler Activity',subject:'Health',type:'Collaborative',duration:20,desc:'Students write kind notes to classmates, reinforcing a positive classroom community.'},
+{id:73,name:'Just Dance Break',subject:'Health',type:'Brain Break',duration:10,desc:'Play a Just Dance video; everyone dances along. No judgment zone!'},
+{id:74,name:'Walk & Talk',subject:'Health',type:'Collaborative',duration:15,desc:'Partner students with a discussion question; take a short mindful hallway walk.'},
+{id:75,name:'Freeze Dance',subject:'Health',type:'Brain Break',duration:5,desc:'Music plays; students dance and freeze when it stops. Fast and energizing.'},
+{id:76,name:'Feelings Charades',subject:'Health',type:'Game',duration:15,desc:'Students act out an emotion without speaking; class guesses. Builds emotional vocabulary.'},
+{id:77,name:'4-7-8 Breathing',subject:'Health',type:'Brain Break',duration:5,desc:'Inhale 4, hold 7, exhale 8. Calms the nervous system quickly before a test.'},
+{id:78,name:'Kindness Challenge',subject:'Health',type:'Collaborative',duration:20,desc:'30-day classroom kindness tracker. Celebrate acts of kindness as a community.'},
+{id:79,name:'Silly Walk Simon Says',subject:'Health',type:'Brain Break',duration:5,desc:'Simon Says with silly physical actions — marching, hopping, spinning. Gets wiggles out.'},
+{id:80,name:'Ecosystem Web Simulation',subject:'Science',type:'Collaborative',duration:30,desc:'Extended yarn food web where removing a species shows ripple effects throughout.'}
+];
+
+function filterActivities(){
+  var subj=document.getElementById('actSubjectFilter').value;
+  var type=document.getElementById('actTypeFilter').value;
+  var dur=parseInt(document.getElementById('actDurFilter').value)||9999;
+  var q=(document.getElementById('actSearch').value||'').toLowerCase();
+  var f=ACTIVITIES.filter(function(a){
+    return(!subj||a.subject===subj)&&(!type||a.type===type)&&(a.duration<=dur)&&(!q||a.name.toLowerCase().includes(q)||a.desc.toLowerCase().includes(q));
+  });
+  document.getElementById('actCount').textContent=f.length+' activities';
+  var el=document.getElementById('activitiesList');
+  if(!f.length){el.innerHTML='<div class="col-12 text-secondary text-center py-5">No activities match your filters.</div>';return;}
+  var badge={ELA:'primary',Math:'success',Science:'info','Social Studies':'warning',Health:'danger'};
+  el.innerHTML=f.map(function(a){
+    var b=badge[a.subject]||'secondary';
+    return '<div class="col-sm-6 col-lg-4"><div class="mm-card h-100"><div class="d-flex justify-content-between align-items-start mb-1"><span class="fw-semibold" style="font-size:.85rem;">'+a.name+'</span><span class="badge bg-'+b+' ms-1" style="font-size:.68rem;white-space:nowrap;">'+a.subject+'</span></div><div class="d-flex gap-2 mb-2" style="font-size:.72rem;color:var(--bs-secondary-color);"><span><i class="bi bi-clock me-1"></i>'+a.duration+' min</span><span><i class="bi bi-tag me-1"></i>'+a.type+'</span></div><div style="font-size:.78rem;line-height:1.5;">'+a.desc+'</div></div></div>';
+  }).join('');
+}
+
+/* ── Templates ── */
+var TEMPLATES=[
+  {id:'subplan',name:'Sub Plan',cat:'Planning',icon:'bi-person-badge',desc:'Complete substitute teacher information packet'},
+  {id:'newsletter',name:'Weekly Newsletter',cat:'Communication',icon:'bi-envelope',desc:'Parent-friendly weekly class update'},
+  {id:'ptconf',name:'Parent-Teacher Conf.',cat:'Communication',icon:'bi-telephone',desc:'Conference notes and action items'},
+  {id:'readconf',name:'Reading Conference',cat:'ELA',icon:'bi-book',desc:'One-on-one reading conference record'},
+  {id:'bookreport',name:'Book Report',cat:'ELA',icon:'bi-journal-text',desc:'Structured 5-paragraph book report'},
+  {id:'research',name:'Research Outline',cat:'ELA',icon:'bi-search',desc:'Nonfiction research report organizer'},
+  {id:'persuasive',name:'Persuasive Essay',cat:'ELA',icon:'bi-chat-square-text',desc:'Claim-reasons-evidence essay planner'},
+  {id:'narrative',name:'Narrative Planner',cat:'ELA',icon:'bi-pencil',desc:'Personal narrative story arc planner'},
+  {id:'compare',name:'Compare & Contrast',cat:'ELA',icon:'bi-intersect',desc:'Two-topic Venn diagram organizer'},
+  {id:'readresp',name:'Reading Response',cat:'ELA',icon:'bi-chat-quote',desc:'Structured reading response journal page'},
+  {id:'writerubric',name:'Writing Rubric',cat:'ELA',icon:'bi-check2-square',desc:'4-point rubric: Ideas, Organization, Voice, Conventions'},
+  {id:'mathsolve',name:'Math Problem Solving',cat:'Math',icon:'bi-calculator',desc:'UPSC problem-solving mat (Understand, Plan, Solve, Check)'},
+  {id:'scilab',name:'Science Lab Report',cat:'Science',icon:'bi-flask',desc:'Full scientific method lab report'},
+  {id:'kwl',name:'KWL Chart',cat:'Tools',icon:'bi-table',desc:'Know / Want to Know / Learned organizer'},
+  {id:'storymap',name:'Story Map',cat:'ELA',icon:'bi-map',desc:'Narrative elements graphic organizer'},
+  {id:'causeeffect',name:'Cause & Effect',cat:'Tools',icon:'bi-arrow-right-circle',desc:'Cause and effect chain organizer'},
+  {id:'mainidea',name:'Main Idea & Details',cat:'Tools',icon:'bi-diagram-2',desc:'Main idea with three supporting details'},
+  {id:'sequence',name:'Sequence of Events',cat:'Tools',icon:'bi-sort-numeric-down',desc:'Six-box sequence / timeline organizer'},
+  {id:'goalsheet',name:'Student Goal Sheet',cat:'SEL',icon:'bi-bullseye',desc:'Academic and personal goal-setting form'},
+  {id:'selfassess',name:'Self-Assessment',cat:'SEL',icon:'bi-person-check',desc:'Student self-assessment checklist'},
+  {id:'iepatglance',name:'IEP at a Glance',cat:'Support',icon:'bi-shield-check',desc:'Quick-reference accommodation summary'},
+  {id:'exitblank',name:'Exit Ticket (Blank)',cat:'Tools',icon:'bi-ticket-perforated',desc:'4-per-page blank exit ticket'},
+  {id:'ssresearch',name:'SS Research Notes',cat:'Social Studies',icon:'bi-globe',desc:'Social studies structured note-taking guide'},
+  {id:'spelling',name:'Spelling Test Record',cat:'Tools',icon:'bi-alphabet-uppercase',desc:'Weekly spelling pre/post test score sheet'},
+  {id:'weeklyplan',name:'Weekly Lesson Grid',cat:'Planning',icon:'bi-calendar3-week',desc:'5-day by 5-subject planning grid'}
+];
+
+function renderTemplates(){
+  var el=document.getElementById('templatesGrid');
+  var cats=[...new Set(TEMPLATES.map(function(t){return t.cat;}))];
+  el.innerHTML=cats.map(function(c){
+    var group=TEMPLATES.filter(function(t){return t.cat===c;});
+    return '<div class="col-12"><h6 class="fw-bold mb-2 text-uppercase" style="font-size:.72rem;letter-spacing:.05em;color:var(--bs-secondary-color);">'+c+'</h6><div class="row g-2">'+
+      group.map(function(t){
+        return '<div class="col-sm-6 col-md-4 col-lg-3"><button class="btn w-100 text-start p-3 rounded h-100" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);" data-onclick="printTemplate(\''+t.id+'\')"><i class="bi '+t.icon+' me-2" style="color:var(--bs-primary);font-size:1.1rem;"></i><span class="fw-semibold d-block" style="font-size:.82rem;">'+t.name+'</span><span style="font-size:.73rem;color:var(--bs-secondary-color);">'+t.desc+'</span></button></div>';
+      }).join('')+'</div></div>';
+  }).join('');
+}
+
+function printTemplate(id){
+  var CSS='body{font-family:Arial,sans-serif;font-size:10.5pt;margin:1.2cm;color:#000;}h1{font-size:14pt;margin-bottom:4pt;}h2{font-size:11pt;border-bottom:1pt solid #aaa;margin-top:12pt;padding-bottom:2pt;}label{font-weight:bold;font-size:9.5pt;display:block;margin-top:8pt;margin-bottom:2pt;}input[type=text],textarea,.field{border:none;border-bottom:1pt solid #000;width:100%;font-size:10pt;background:transparent;resize:none;outline:none;}.box{border:1pt solid #aaa;min-height:40pt;padding:4pt;}.grid{display:grid;gap:4pt;}table{width:100%;border-collapse:collapse;}td,th{border:1pt solid #aaa;padding:4pt 6pt;font-size:9pt;}th{background:#f0f0f0;font-weight:bold;}.col2{display:grid;grid-template-columns:1fr 1fr;gap:8pt;}.col3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8pt;}@media print{@page{margin:1.2cm;}button{display:none!important;}}';
+  var html='';var title='';
+  if(id==='subplan'){
+    title='Substitute Teacher Plan';
+    html='<h1>Substitute Teacher Plan</h1>';
+    html+='<div class="col2"><div><label>Teacher Name</label><input type="text" class="field"></div><div><label>Date</label><input type="text" class="field"></div></div>';
+    html+='<div class="col3"><div><label>Grade/Subject</label><input type="text" class="field"></div><div><label>Room #</label><input type="text" class="field"></div><div><label># Students</label><input type="text" class="field"></div></div>';
+    html+='<h2>Emergency Contacts</h2><table><tr><th>Name</th><th>Role</th><th>Room/Phone</th></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>';
+    html+='<h2>Daily Schedule</h2><table><tr><th>Time</th><th>Subject / Activity</th><th>Location</th><th>Notes</th></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>';
+    html+='<h2>Classroom Rules & Procedures</h2><div class="box" style="min-height:60pt;" contenteditable></div>';
+    html+='<h2>Special Needs / Accommodations</h2><div class="box" style="min-height:40pt;" contenteditable></div>';
+    html+='<h2>Sub Notes (End of Day)</h2><div class="box" style="min-height:60pt;" contenteditable></div>';
+  } else if(id==='newsletter'){
+    title='Weekly Newsletter';
+    html='<h1 style="text-align:center;font-size:18pt;" contenteditable>Class Newsletter</h1>';
+    html+='<p style="text-align:center;font-size:9pt;" contenteditable>Week of _______________ | Mrs. Rojas | 5th Grade</p><hr>';
+    html+='<div class="col2"><div><h2>What We Learned This Week</h2><div class="box" style="min-height:80pt;" contenteditable></div></div><div><h2>Coming Up Next Week</h2><div class="box" style="min-height:80pt;" contenteditable></div></div></div>';
+    html+='<div class="col2 mt-8"><div><h2>Reminders & Important Dates</h2><div class="box" style="min-height:60pt;" contenteditable></div></div><div><h2>Homework / Practice</h2><div class="box" style="min-height:60pt;" contenteditable></div></div></div>';
+    html+='<h2>Shout-Outs</h2><div class="box" style="min-height:40pt;" contenteditable></div>';
+    html+='<p style="font-size:8.5pt;text-align:center;margin-top:12pt;color:#555;">Questions? Contact me at: _________________________ | Office Hours: _________________________</p>';
+  } else if(id==='ptconf'){
+    title='Parent-Teacher Conference Notes';
+    html='<h1>Parent-Teacher Conference Notes</h1>';
+    html+='<div class="col3"><div><label>Student</label><input type="text" class="field"></div><div><label>Date</label><input type="text" class="field"></div><div><label>Parent/Guardian</label><input type="text" class="field"></div></div>';
+    html+='<h2>Academic Update</h2><table><tr><th>Subject</th><th>Current Grade</th><th>Strengths</th><th>Areas to Grow</th></tr><tr><td>ELA</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>Math</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>Science</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>Social Studies</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>';
+    html+='<h2>Social / Behavioral Notes</h2><div class="box" contenteditable></div>';
+    html+='<h2>Parent Input / Questions</h2><div class="box" contenteditable></div>';
+    html+='<h2>Action Steps / Goals</h2><table><tr><th>Action Step</th><th>Who Is Responsible</th><th>By When</th></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>';
+  } else if(id==='readconf'){
+    title='Reading Conference Record';
+    html='<h1>Reading Conference Record</h1>';
+    html+='<div class="col3"><div><label>Student</label><input type="text" class="field"></div><div><label>Date</label><input type="text" class="field"></div><div><label>Book / Level</label><input type="text" class="field"></div></div>';
+    html+='<h2>Observations</h2><label>Fluency (rate, accuracy, expression)</label><div class="box" contenteditable></div>';
+    html+='<label>Comprehension (retell, inference, text evidence)</label><div class="box" contenteditable></div>';
+    html+='<label>Word Work (decoding strategies used)</label><div class="box" contenteditable></div>';
+    html+='<h2>Teaching Point</h2><div class="box" contenteditable></div>';
+    html+='<h2>Student Goal</h2><div class="box" contenteditable></div>';
+    html+='<label>Next Conference Date</label><input type="text" class="field">';
+  } else if(id==='bookreport'){
+    title='Book Report';
+    html='<h1>Book Report</h1>';
+    html+='<div class="col2"><div><label>Title</label><input type="text" class="field"></div><div><label>Author</label><input type="text" class="field"></div></div>';
+    html+='<div class="col3"><div><label>Genre</label><input type="text" class="field"></div><div><label>Pages</label><input type="text" class="field"></div><div><label>Rating (1-5)</label><input type="text" class="field"></div></div>';
+    html+='<h2>1. Introduction — Tell About the Book</h2><div class="box" style="min-height:50pt;" contenteditable></div>';
+    html+='<h2>2. Main Characters</h2><div class="box" style="min-height:40pt;" contenteditable></div>';
+    html+='<h2>3. Setting</h2><div class="box" style="min-height:30pt;" contenteditable></div>';
+    html+='<h2>4. Plot Summary (Beginning · Middle · End)</h2><div class="box" style="min-height:70pt;" contenteditable></div>';
+    html+='<h2>5. Opinion — Would You Recommend It?</h2><div class="box" style="min-height:50pt;" contenteditable></div>';
+  } else if(id==='research'){
+    title='Research Report Outline';
+    html='<h1>Research Report Outline</h1>';
+    html+='<label>Topic</label><input type="text" class="field">';
+    html+='<label>Thesis Statement</label><div class="box" contenteditable></div>';
+    html+='<h2>Main Idea 1</h2><label>Topic Sentence</label><div class="box" contenteditable></div><label>Supporting Details / Evidence</label><div class="box" style="min-height:50pt;" contenteditable></div>';
+    html+='<h2>Main Idea 2</h2><label>Topic Sentence</label><div class="box" contenteditable></div><label>Supporting Details / Evidence</label><div class="box" style="min-height:50pt;" contenteditable></div>';
+    html+='<h2>Main Idea 3</h2><label>Topic Sentence</label><div class="box" contenteditable></div><label>Supporting Details / Evidence</label><div class="box" style="min-height:50pt;" contenteditable></div>';
+    html+='<h2>Conclusion</h2><div class="box" style="min-height:40pt;" contenteditable></div>';
+    html+='<h2>Sources</h2><div class="box" style="min-height:40pt;" contenteditable></div>';
+  } else if(id==='persuasive'){
+    title='Persuasive Essay Planner';
+    html='<h1>Persuasive Essay Planner</h1>';
+    html+='<label>My Claim / Opinion</label><div class="box" contenteditable></div>';
+    html+='<h2>Reason 1</h2><label>Reason</label><div class="box" contenteditable></div><label>Evidence / Example</label><div class="box" contenteditable></div>';
+    html+='<h2>Reason 2</h2><label>Reason</label><div class="box" contenteditable></div><label>Evidence / Example</label><div class="box" contenteditable></div>';
+    html+='<h2>Reason 3</h2><label>Reason</label><div class="box" contenteditable></div><label>Evidence / Example</label><div class="box" contenteditable></div>';
+    html+='<h2>Counterargument & Rebuttal</h2><label>Someone might say…</label><div class="box" contenteditable></div><label>But I say…</label><div class="box" contenteditable></div>';
+    html+='<h2>Conclusion</h2><div class="box" contenteditable></div>';
+  } else if(id==='narrative'){
+    title='Narrative Story Planner';
+    html='<h1>Narrative Story Planner</h1>';
+    html+='<div class="col2"><div><label>Who is the main character?</label><div class="box" contenteditable></div></div><div><label>Where and when does it take place?</label><div class="box" contenteditable></div></div></div>';
+    html+='<label>What is the problem or challenge?</label><div class="box" contenteditable></div>';
+    html+='<h2>Plot Arc</h2><table><tr><th>Part</th><th>What Happens?</th></tr><tr><td>Beginning (Hook)</td><td contenteditable>&nbsp;</td></tr><tr><td>Rising Action 1</td><td contenteditable>&nbsp;</td></tr><tr><td>Rising Action 2</td><td contenteditable>&nbsp;</td></tr><tr><td>Climax</td><td contenteditable>&nbsp;</td></tr><tr><td>Falling Action</td><td contenteditable>&nbsp;</td></tr><tr><td>Resolution / Ending</td><td contenteditable>&nbsp;</td></tr></table>';
+    html+='<label>What is the theme or lesson?</label><div class="box" contenteditable></div>';
+  } else if(id==='compare'){
+    title='Compare & Contrast Organizer';
+    html='<h1>Compare &amp; Contrast</h1>';
+    html+='<div class="col2" style="margin-bottom:6pt;"><div><label>Topic A</label><input type="text" class="field"></div><div><label>Topic B</label><input type="text" class="field"></div></div>';
+    html+='<div class="col3"><div><div style="border:1pt solid #aaa;padding:6pt;min-height:180pt;" contenteditable><b>ONLY Topic A</b></div></div><div><div style="border:1pt solid #aaa;padding:6pt;min-height:180pt;background:#f9f9f9;" contenteditable><b>BOTH (Alike)</b></div></div><div><div style="border:1pt solid #aaa;padding:6pt;min-height:180pt;" contenteditable><b>ONLY Topic B</b></div></div></div>';
+    html+='<label>Conclusion — How are they most importantly similar or different?</label><div class="box" style="min-height:40pt;" contenteditable></div>';
+  } else if(id==='readresp'){
+    title='Reading Response Journal';
+    html='<h1>Reading Response Journal</h1>';
+    html+='<div class="col3"><div><label>Name</label><input type="text" class="field"></div><div><label>Date</label><input type="text" class="field"></div><div><label>Book/Pages</label><input type="text" class="field"></div></div>';
+    html+='<label>Quick Summary (What happened?)</label><div class="box" style="min-height:50pt;" contenteditable></div>';
+    html+='<label>Connections (text-to-self, text-to-text, text-to-world)</label><div class="box" style="min-height:50pt;" contenteditable></div>';
+    html+='<label>Inference or Prediction (use text evidence)</label><div class="box" style="min-height:50pt;" contenteditable></div>';
+    html+='<label>Vocabulary (interesting words + meanings)</label><div class="box" style="min-height:40pt;" contenteditable></div>';
+    html+='<label>Question I Still Have</label><div class="box" contenteditable></div>';
+  } else if(id==='writerubric'){
+    title='Writing Rubric';
+    html='<h1>Writing Rubric</h1>';
+    html+='<div class="col2" style="margin-bottom:6pt;"><div><label>Student Name</label><input type="text" class="field"></div><div><label>Assignment</label><input type="text" class="field"></div></div>';
+    html+='<table><tr><th>Trait</th><th>4 — Exceeds</th><th>3 — Meets</th><th>2 — Approaching</th><th>1 — Beginning</th><th>Score</th></tr>';
+    html+='<tr><td><b>Ideas</b></td><td>Clear, focused, compelling details</td><td>Clear focus, relevant details</td><td>Somewhat focused, general details</td><td>Unclear focus, few details</td><td contenteditable>&nbsp;</td></tr>';
+    html+='<tr><td><b>Organization</b></td><td>Logical, engaging structure; strong transitions</td><td>Clear structure; transitions present</td><td>Some structure; transitions weak</td><td>Little structure</td><td contenteditable>&nbsp;</td></tr>';
+    html+='<tr><td><b>Voice</b></td><td>Distinctive, engaging, audience-aware</td><td>Consistent voice</td><td>Voice inconsistent</td><td>Little voice</td><td contenteditable>&nbsp;</td></tr>';
+    html+='<tr><td><b>Word Choice</b></td><td>Precise, vivid, varied vocabulary</td><td>Clear, appropriate word choice</td><td>Simple, repetitive words</td><td>Limited vocabulary</td><td contenteditable>&nbsp;</td></tr>';
+    html+='<tr><td><b>Conventions</b></td><td>No errors; varied sentence structure</td><td>Few errors; good sentences</td><td>Some errors; basic sentences</td><td>Many errors</td><td contenteditable>&nbsp;</td></tr>';
+    html+='<tr><td colspan="5" style="text-align:right;font-weight:bold;">TOTAL</td><td contenteditable>&nbsp;</td></tr></table>';
+    html+='<label>Teacher Comments</label><div class="box" style="min-height:40pt;" contenteditable></div>';
+  } else if(id==='mathsolve'){
+    title='Math Problem Solving Mat';
+    html='<h1>Math Problem Solving Mat (UPSC)</h1>';
+    html+='<div class="col2" style="margin-bottom:6pt;"><div><label>Name</label><input type="text" class="field"></div><div><label>Date</label><input type="text" class="field"></div></div>';
+    html+='<div style="border:2pt solid #333;padding:6pt;margin-bottom:8pt;min-height:50pt;" contenteditable><b>Problem:</b></div>';
+    html+='<div class="col2"><div><div style="border:1pt solid #aaa;padding:6pt;min-height:100pt;" contenteditable><b>U — Understand</b><br>What do I know? What am I looking for?</div></div><div><div style="border:1pt solid #aaa;padding:6pt;min-height:100pt;" contenteditable><b>P — Plan</b><br>What strategy will I use?</div></div></div>';
+    html+='<div class="col2" style="margin-top:8pt;"><div><div style="border:1pt solid #aaa;padding:6pt;min-height:100pt;" contenteditable><b>S — Solve</b><br>Show all work here.</div></div><div><div style="border:1pt solid #aaa;padding:6pt;min-height:100pt;" contenteditable><b>C — Check</b><br>Does my answer make sense? How do I know?</div></div></div>';
+  } else if(id==='scilab'){
+    title='Science Lab Report';
+    html='<h1>Science Lab Report</h1>';
+    html+='<div class="col3"><div><label>Name</label><input type="text" class="field"></div><div><label>Date</label><input type="text" class="field"></div><div><label>Lab Title</label><input type="text" class="field"></div></div>';
+    html+='<label>Question — What do we want to find out?</label><div class="box" contenteditable></div>';
+    html+='<label>Hypothesis — I think… because…</label><div class="box" contenteditable></div>';
+    html+='<label>Materials</label><div class="box" contenteditable></div>';
+    html+='<label>Procedure (numbered steps)</label><div class="box" style="min-height:70pt;" contenteditable></div>';
+    html+='<label>Data / Observations (use drawings or tables as needed)</label><div class="box" style="min-height:80pt;" contenteditable></div>';
+    html+='<label>Conclusion — What did we learn? Was the hypothesis correct?</label><div class="box" style="min-height:60pt;" contenteditable></div>';
+  } else if(id==='kwl'){
+    title='KWL Chart';
+    html='<h1>KWL Chart</h1>';
+    html+='<div class="col2" style="margin-bottom:6pt;"><div><label>Name</label><input type="text" class="field"></div><div><label>Topic</label><input type="text" class="field"></div></div>';
+    html+='<div class="col3"><div><div style="border:1pt solid #aaa;padding:6pt;min-height:200pt;" contenteditable><b>K — What I KNOW</b></div></div><div><div style="border:1pt solid #aaa;padding:6pt;min-height:200pt;" contenteditable><b>W — What I WANT to Know</b></div></div><div><div style="border:1pt solid #aaa;padding:6pt;min-height:200pt;" contenteditable><b>L — What I LEARNED</b></div></div></div>';
+  } else if(id==='storymap'){
+    title='Story Map';
+    html='<h1>Story Map</h1>';
+    html+='<div class="col2" style="margin-bottom:6pt;"><div><label>Title</label><input type="text" class="field"></div><div><label>Author</label><input type="text" class="field"></div></div>';
+    html+='<div class="col2"><div><div style="border:1pt solid #aaa;padding:6pt;min-height:60pt;" contenteditable><b>Characters</b></div></div><div><div style="border:1pt solid #aaa;padding:6pt;min-height:60pt;" contenteditable><b>Setting</b></div></div></div>';
+    html+='<div style="border:1pt solid #aaa;padding:6pt;min-height:50pt;margin-top:8pt;" contenteditable><b>Problem / Conflict</b></div>';
+    html+='<table style="margin-top:8pt;"><tr><th>Event 1</th><th>Event 2</th><th>Event 3</th></tr><tr><td contenteditable style="height:70pt;vertical-align:top;">&nbsp;</td><td contenteditable style="height:70pt;vertical-align:top;">&nbsp;</td><td contenteditable style="height:70pt;vertical-align:top;">&nbsp;</td></tr></table>';
+    html+='<div style="border:1pt solid #aaa;padding:6pt;min-height:50pt;margin-top:8pt;" contenteditable><b>Solution / Resolution</b></div>';
+    html+='<div style="border:1pt solid #aaa;padding:6pt;min-height:40pt;margin-top:8pt;" contenteditable><b>Theme / Lesson</b></div>';
+  } else if(id==='causeeffect'){
+    title='Cause & Effect';
+    html='<h1>Cause &amp; Effect Organizer</h1>';
+    html+='<label>Name</label><input type="text" class="field" style="margin-bottom:12pt;">';
+    for(var i=1;i<=4;i++){html+='<div class="col2" style="align-items:center;margin-bottom:8pt;"><div style="border:1pt solid #aaa;padding:6pt;min-height:50pt;" contenteditable><b>Cause '+i+'</b></div><div style="text-align:center;font-size:16pt;">&#8594;</div><div style="border:1pt solid #888;background:#f9f9f9;padding:6pt;min-height:50pt;" contenteditable><b>Effect '+i+'</b></div></div>';}
+  } else if(id==='mainidea'){
+    title='Main Idea & Details';
+    html='<h1>Main Idea &amp; Supporting Details</h1>';
+    html+='<label>Name</label><input type="text" class="field" style="margin-bottom:6pt;">';
+    html+='<div style="border:2pt solid #333;padding:8pt;margin-bottom:10pt;min-height:60pt;text-align:center;background:#f5f5f5;" contenteditable><b>MAIN IDEA</b></div>';
+    html+='<div class="col3"><div style="border:1pt solid #aaa;padding:6pt;min-height:90pt;" contenteditable><b>Detail 1</b></div><div style="border:1pt solid #aaa;padding:6pt;min-height:90pt;" contenteditable><b>Detail 2</b></div><div style="border:1pt solid #aaa;padding:6pt;min-height:90pt;" contenteditable><b>Detail 3</b></div></div>';
+    html+='<div style="border:1pt solid #aaa;padding:6pt;min-height:50pt;margin-top:8pt;" contenteditable><b>Summary Sentence</b></div>';
+  } else if(id==='sequence'){
+    title='Sequence of Events';
+    html='<h1>Sequence of Events</h1>';
+    html+='<label>Name</label><input type="text" class="field" style="margin-bottom:8pt;">';
+    var steps=['First','Second','Third','Fourth','Fifth','Finally'];
+    html+=steps.map(function(s,i){return '<div style="display:flex;align-items:center;margin-bottom:6pt;"><div style="min-width:70pt;font-weight:bold;font-size:9pt;">'+s+'</div><div style="border:1pt solid #aaa;flex:1;padding:6pt;min-height:45pt;" contenteditable></div></div>';}).join('');
+  } else if(id==='goalsheet'){
+    title='Student Goal Sheet';
+    html='<h1>My Goals for This Year</h1>';
+    html+='<div class="col2"><div><label>Name</label><input type="text" class="field"></div><div><label>Date</label><input type="text" class="field"></div></div>';
+    html+='<h2>Academic Goal</h2><label>My goal is to…</label><div class="box" contenteditable></div><label>I will reach this goal by…</label><div class="box" contenteditable></div><label>Someone who can help me…</label><div class="box" contenteditable></div>';
+    html+='<h2>Personal Goal</h2><label>My goal is to…</label><div class="box" contenteditable></div><label>I will reach this goal by…</label><div class="box" contenteditable></div>';
+    html+='<h2>My Strengths</h2><div class="box" contenteditable></div>';
+    html+='<h2>Check-In</h2><table><tr><th>Date</th><th>Progress</th><th>Next Steps</th></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>';
+  } else if(id==='selfassess'){
+    title='Student Self-Assessment';
+    html='<h1>How Am I Doing?</h1>';
+    html+='<div class="col2"><div><label>Name</label><input type="text" class="field"></div><div><label>Date / Assignment</label><input type="text" class="field"></div></div>';
+    var items=['I understood the directions','I worked hard and stayed focused','I asked for help when I needed it','I completed my work on time','I checked my work before turning it in','I participated in discussions','I was respectful to my teacher and classmates','I am proud of my work'];
+    html+='<table style="margin-top:8pt;"><tr><th>Statement</th><th>Always</th><th>Sometimes</th><th>Not Yet</th></tr>';
+    html+=items.map(function(s){return '<tr><td>'+s+'</td><td contenteditable style="text-align:center;">&nbsp;</td><td contenteditable style="text-align:center;">&nbsp;</td><td contenteditable style="text-align:center;">&nbsp;</td></tr>';}).join('');
+    html+='</table><label style="margin-top:10pt;">One thing I\'m proud of:</label><div class="box" contenteditable></div><label>One thing I want to improve:</label><div class="box" contenteditable></div>';
+  } else if(id==='iepatglance'){
+    title='IEP at a Glance';
+    html='<h1>IEP / 504 at a Glance</h1>';
+    html+='<div class="col3"><div><label>Student</label><input type="text" class="field"></div><div><label>Plan Type (IEP/504)</label><input type="text" class="field"></div><div><label>Case Manager</label><input type="text" class="field"></div></div>';
+    html+='<div class="col2"><div><label>Review Date</label><input type="text" class="field"></div><div><label>Disability Category</label><input type="text" class="field"></div></div>';
+    html+='<h2>Goals Summary</h2><div class="box" style="min-height:50pt;" contenteditable></div>';
+    html+='<h2>Classroom Accommodations</h2><table><tr><th>Accommodation</th><th>All Classes?</th><th>Notes</th></tr><tr><td>Extended time on tests (___x)</td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td></tr><tr><td>Preferential seating</td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td></tr><tr><td>Reduced assignments</td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td></tr><tr><td>Read aloud / text-to-speech</td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td></tr><tr><td>Graphic organizers provided</td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td></tr><tr><td>Breaks allowed</td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td></tr><tr><td>Calculator allowed</td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td></tr><tr><td contenteditable>Other: </td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td></tr></table>';
+    html+='<h2>Pull-Out / Push-In Services</h2><div class="box" contenteditable></div>';
+  } else if(id==='exitblank'){
+    title='Exit Ticket';
+    var ticket='<div style="border:1pt solid #000;padding:10pt;break-inside:avoid;"><div style="border-bottom:1pt solid #aaa;padding-bottom:3pt;margin-bottom:4pt;font-size:8pt;font-weight:bold;">EXIT TICKET &nbsp;&nbsp; Name: _____________________ Date: ___________</div><div style="min-height:55pt;" contenteditable>Question / Prompt:</div></div>';
+    html='<h1 style="font-size:11pt;margin-bottom:8pt;">Exit Tickets</h1><div style="display:grid;grid-template-columns:1fr 1fr;gap:8pt;">'+ticket+ticket+ticket+ticket+'</div>';
+  } else if(id==='ssresearch'){
+    title='Social Studies Research Notes';
+    html='<h1>Social Studies Research Notes</h1>';
+    html+='<div class="col2"><div><label>Name</label><input type="text" class="field"></div><div><label>Topic</label><input type="text" class="field"></div></div>';
+    html+='<h2>Geography / Location</h2><div class="box" contenteditable></div>';
+    html+='<h2>People / Key Figures</h2><div class="box" contenteditable></div>';
+    html+='<h2>Important Events / Timeline</h2><div class="box" contenteditable></div>';
+    html+='<h2>Culture, Economy & Government</h2><div class="box" contenteditable></div>';
+    html+='<h2>Cause & Effect / Impact</h2><div class="box" contenteditable></div>';
+    html+='<h2>Questions & Wonderings</h2><div class="box" contenteditable></div>';
+    html+='<h2>Sources Used</h2><div class="box" contenteditable></div>';
+  } else if(id==='spelling'){
+    title='Spelling Test Record';
+    var students=getStudents();
+    html='<h1>Spelling Test Record</h1>';
+    html+='<div class="col2" style="margin-bottom:6pt;"><div><label>Week</label><input type="text" class="field"></div><div><label>List Theme</label><input type="text" class="field"></div></div>';
+    html+='<table><tr><th>Student</th><th>Pre-Test</th><th>Post-Test</th><th>Growth</th><th>Notes</th></tr>';
+    html+=(students.length?students:['Student 1','Student 2','Student 3']).map(function(s){return '<tr><td>'+s+'</td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td><td contenteditable>&nbsp;</td></tr>';}).join('');
+    html+='</table>';
+  } else if(id==='weeklyplan'){
+    title='Weekly Lesson Planning Grid';
+    html='<h1>Weekly Lesson Planning Grid</h1>';
+    html+='<table style="font-size:8.5pt;"><tr><th style="width:13%;">Subject</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr>';
+    var subjs=['ELA','Math','Science','Social Studies','Other/Specials'];
+    html+=subjs.map(function(s){return '<tr><td style="font-weight:bold;vertical-align:top;">'+s+'</td><td contenteditable style="min-height:60pt;vertical-align:top;">&nbsp;</td><td contenteditable style="min-height:60pt;vertical-align:top;">&nbsp;</td><td contenteditable style="min-height:60pt;vertical-align:top;">&nbsp;</td><td contenteditable style="min-height:60pt;vertical-align:top;">&nbsp;</td><td contenteditable style="min-height:60pt;vertical-align:top;">&nbsp;</td></tr>';}).join('');
+    html+='</table>';
+    html+='<label style="margin-top:8pt;">Week of</label><input type="text" class="field"><label>Notes / Reminders</label><div class="box" style="min-height:40pt;" contenteditable></div>';
+  }
+  var w=window.open('','_blank','width=900,height=750');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+'</title><style>'+CSS+'</style></head><body>'+html+'</body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* ── Standards ── */
+var STD_DATA={
+ela:[
+  {code:'RL.5.1',desc:'Quote accurately from a text and explain what the text says explicitly and what is inferred.'},
+  {code:'RL.5.2',desc:'Determine theme from details in the text; summarize the text.'},
+  {code:'RL.5.3',desc:'Compare and contrast two or more characters, settings, or events in a story using details.'},
+  {code:'RL.5.4',desc:'Determine the meaning of words and phrases including figurative language (metaphors, similes).'},
+  {code:'RL.5.5',desc:'Explain how chapters, scenes, or stanzas fit together to provide the overall structure.'},
+  {code:'RL.5.6',desc:'Describe how a narrator\'s or speaker\'s point of view influences how events are described.'},
+  {code:'RL.5.9',desc:'Compare and contrast stories in the same genre on their approaches to themes and topics.'},
+  {code:'RI.5.1',desc:'Quote accurately from a text and explain what the text says explicitly and inferences drawn.'},
+  {code:'RI.5.2',desc:'Determine two or more main ideas and explain how they are supported by key details; summarize.'},
+  {code:'RI.5.3',desc:'Explain relationships between two or more events, concepts, or steps in a process.'},
+  {code:'RI.5.4',desc:'Determine the meaning of domain-specific words and phrases in a text.'},
+  {code:'RI.5.6',desc:'Analyze multiple accounts of the same event, noting similarities and differences in perspective.'},
+  {code:'RI.5.7',desc:'Draw on information from multiple print and digital sources to answer a question.'},
+  {code:'RI.5.8',desc:'Explain how an author uses reasons and evidence to support particular points in a text.'},
+  {code:'W.5.1',desc:'Write opinion pieces supporting a point of view with reasons and information.'},
+  {code:'W.5.2',desc:'Write informative/explanatory texts to examine a topic and convey ideas and information clearly.'},
+  {code:'W.5.3',desc:'Write narratives to develop real or imagined experiences using narrative techniques.'},
+  {code:'W.5.4',desc:'Produce clear and coherent writing appropriate to task, purpose, and audience.'},
+  {code:'W.5.5',desc:'Develop and strengthen writing by planning, revising, editing, and rewriting with guidance.'},
+  {code:'W.5.7',desc:'Conduct short research projects that use several sources to investigate a topic.'},
+  {code:'SL.5.1',desc:'Engage in collaborative discussions with diverse partners; build on others\' ideas, express own clearly.'},
+  {code:'SL.5.4',desc:'Report on a topic using appropriate facts, relevant details, and clear language.'},
+  {code:'L.5.1',desc:'Demonstrate command of standard English grammar and usage when writing and speaking.'},
+  {code:'L.5.2',desc:'Demonstrate command of standard English capitalization, punctuation, and spelling.'},
+  {code:'L.5.4',desc:'Use context clues, Greek/Latin affixes, and reference materials to determine word meanings.'},
+  {code:'L.5.5',desc:'Demonstrate understanding of figurative language, word relationships, and nuances.'}
+],
+math:[
+  {code:'5.OA.A.1',desc:'Use parentheses, brackets, or braces in numerical expressions; evaluate expressions with these symbols.'},
+  {code:'5.OA.A.2',desc:'Write simple expressions that record calculations with numbers; interpret numerical expressions.'},
+  {code:'5.OA.B.3',desc:'Generate two numerical patterns using two given rules; form ordered pairs and graph on a coordinate plane.'},
+  {code:'5.NBT.A.1',desc:'Recognize that in a multi-digit number, a digit represents 10× as much as the digit to its right.'},
+  {code:'5.NBT.A.2',desc:'Explain patterns in the number of zeros when multiplying/dividing by powers of 10.'},
+  {code:'5.NBT.A.3',desc:'Read, write, and compare decimals to thousandths using place value and inequality symbols.'},
+  {code:'5.NBT.A.4',desc:'Use place value understanding to round decimals to any place.'},
+  {code:'5.NBT.B.5',desc:'Fluently multiply multi-digit whole numbers using the standard algorithm.'},
+  {code:'5.NBT.B.6',desc:'Find whole-number quotients and remainders with up to four-digit dividends and two-digit divisors.'},
+  {code:'5.NBT.B.7',desc:'Add, subtract, multiply, and divide decimals to hundredths; relate strategy to written methods.'},
+  {code:'5.NF.A.1',desc:'Add and subtract fractions with unlike denominators (including mixed numbers).'},
+  {code:'5.NF.A.2',desc:'Solve word problems involving addition and subtraction of fractions using visual fraction models.'},
+  {code:'5.NF.B.3',desc:'Interpret a fraction as division of the numerator by the denominator.'},
+  {code:'5.NF.B.4',desc:'Apply and extend previous understandings of multiplication to multiply a fraction or whole number.'},
+  {code:'5.NF.B.6',desc:'Solve real-world problems involving multiplication of fractions and mixed numbers.'},
+  {code:'5.NF.B.7',desc:'Apply and extend understanding of division to divide unit fractions by whole numbers and vice versa.'},
+  {code:'5.MD.A.1',desc:'Convert among different-sized standard measurement units within a given system.'},
+  {code:'5.MD.B.2',desc:'Make a line plot to display data; solve problems using information presented in a line plot.'},
+  {code:'5.MD.C.3',desc:'Recognize volume as an attribute of solid figures; understand volume measurement concepts.'},
+  {code:'5.MD.C.4',desc:'Measure volumes by counting unit cubes using cubic centimeters, inches, feet, and improvised units.'},
+  {code:'5.MD.C.5',desc:'Relate volume to the operations of multiplication and addition; solve real-world volume problems.'},
+  {code:'5.G.A.1',desc:'Use a pair of perpendicular number lines to define a coordinate system; graph points in the first quadrant.'},
+  {code:'5.G.A.2',desc:'Represent real-world and mathematical problems by graphing points in the first quadrant.'},
+  {code:'5.G.B.3',desc:'Understand that attributes belonging to a category also belong to all subcategories.'},
+  {code:'5.G.B.4',desc:'Classify two-dimensional figures in a hierarchy based on properties.'}
+],
+science:[
+  {code:'5-LS1-1',desc:'Support an argument that plants get the materials they need for growth chiefly from air and water.'},
+  {code:'5-LS2-1',desc:'Develop a model to describe the movement of matter among producers, consumers, and decomposers.'},
+  {code:'5-PS1-1',desc:'Develop a model to describe that matter is made of particles too small to be seen.'},
+  {code:'5-PS1-2',desc:'Measure and graph quantities to provide evidence that regardless of type, matter is conserved.'},
+  {code:'5-PS1-3',desc:'Make observations and measurements to identify materials based on their properties.'},
+  {code:'5-PS1-4',desc:'Conduct an investigation to determine whether the mixing of substances results in a new substance.'},
+  {code:'5-PS2-1',desc:'Support an argument that the gravitational force exerted by Earth on objects is directed down.'},
+  {code:'5-PS3-1',desc:'Use models to describe that energy in animals\' food was once energy from the sun.'},
+  {code:'5-ESS1-1',desc:'Support an argument that differences in the apparent brightness of stars is due to distance from Earth.'},
+  {code:'5-ESS1-2',desc:'Represent data in graphical displays to reveal patterns of daily changes in length/direction of shadows.'},
+  {code:'5-ESS2-1',desc:'Develop a model using an example to describe ways the geosphere, biosphere, hydrosphere, and atmosphere interact.'},
+  {code:'5-ESS2-2',desc:'Describe and graph the amounts and percentages of water and fresh water in various reservoirs.'},
+  {code:'5-ESS3-1',desc:'Obtain and combine information about ways individual communities use science ideas to protect Earth\'s resources.'},
+  {code:'3-5-ETS1-1',desc:'Define a simple design problem reflecting a need or want that includes criteria for success and constraints.'},
+  {code:'3-5-ETS1-2',desc:'Generate and compare multiple possible solutions to a problem based on how well each meets criteria.'},
+  {code:'3-5-ETS1-3',desc:'Plan and carry out fair tests to identify failure points and suggest improvements for a solution.'}
+],
+ss:[
+  {code:'SS.5.1',desc:'Describe the impact of key events and people in the early colonial period and the road to independence.'},
+  {code:'SS.5.2',desc:'Analyze the Declaration of Independence and Constitutional Convention and their influence on U.S. government.'},
+  {code:'SS.5.3',desc:'Explain the structure and function of the three branches of the U.S. federal government.'},
+  {code:'SS.5.4',desc:'Describe events and perspectives of the Civil War era, including causes and effects.'},
+  {code:'SS.5.5',desc:'Describe the settlement and conflicts of the western United States in the 19th century.'},
+  {code:'SS.5.6',desc:'Analyze the U.S. economy, including goods, services, trade, supply, demand, and specialization.'},
+  {code:'SS.5.7',desc:'Use geographic tools (maps, globes, latitude/longitude, regions) to understand the United States.'},
+  {code:'SS.5.8',desc:'Analyze primary and secondary sources to understand historical events and multiple perspectives.'},
+  {code:'SS.5.9',desc:'Compare the rights and responsibilities of U.S. citizens including civic participation.'},
+  {code:'SS.5.10',desc:'Describe the role of Native American groups in U.S. history and their contributions to American culture.'}
+],
+utah:[
+  {code:'UH.5.1',desc:'Describe the geography of Utah, including landforms, regions, rivers, and how geography shaped settlement.'},
+  {code:'UH.5.2',desc:'Describe the history and contributions of Utah\'s Native American cultures (Ute, Navajo, Paiute, Shoshone, Goshute).'},
+  {code:'UH.5.3',desc:'Explain the role of the fur trade and early explorers in opening Utah to non-Native settlement.'},
+  {code:'UH.5.4',desc:'Describe the Pioneer Trek of 1847: causes, route, hardships, and lasting impact on Utah.'},
+  {code:'UH.5.5',desc:'Analyze the impact of the Transcontinental Railroad on Utah\'s economy and population growth.'},
+  {code:'UH.5.6',desc:'Explain Utah\'s path to statehood in 1896, including the polygamy controversy.'},
+  {code:'UH.5.7',desc:'Describe the economic development of Utah: mining, agriculture, and the growth of Salt Lake City.'},
+  {code:'UH.5.8',desc:'Identify Utah\'s state symbols, government structure, and the responsibilities of Utah citizens.'},
+  {code:'UH.5.9',desc:'Describe Utah\'s contributions during World War II, including Japanese-American internment at Topaz.'},
+  {code:'UH.5.10',desc:'Analyze how Utah\'s economy and demographics have changed from the 20th century to today.'}
+],
+health:[
+  {code:'HE.5.1',desc:'Explain the relationship between healthy behaviors and personal health.'},
+  {code:'HE.5.2',desc:'Describe the benefits of and barriers to practicing healthy behaviors.'},
+  {code:'HE.5.3',desc:'Demonstrate decision-making skills for health-related situations.'},
+  {code:'HE.5.4',desc:'Demonstrate effective listening and refusal skills in a variety of situations.'},
+  {code:'HE.5.5',desc:'Identify ways to ask for help when dealing with stress, social situations, or health concerns.'},
+  {code:'HE.5.6',desc:'Describe the physical, mental, emotional, and social changes that occur during puberty.'},
+  {code:'HE.5.7',desc:'Identify the influence of media and technology on personal health behaviors.'},
+  {code:'PE.5.1',desc:'Demonstrate competency in motor skills and movement patterns needed to perform a variety of physical activities.'},
+  {code:'PE.5.2',desc:'Apply movement concepts and principles to the learning and development of motor skills.'},
+  {code:'PE.5.3',desc:'Achieve and maintain a health-enhancing level of physical fitness.'},
+  {code:'PE.5.4',desc:'Exhibit responsible personal and social behavior that respects self and others.'},
+  {code:'PE.5.5',desc:'Value physical activity for health, enjoyment, challenge, self-expression, and social interaction.'}
+]
+};
+
+function showStd(key,btn){
+  document.querySelectorAll('#stdTabs .nav-link').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  var data=STD_DATA[key]||[];
+  var el=document.getElementById('stdContent');
+  el.innerHTML='<div class="table-responsive"><table class="table table-sm table-hover"><thead><tr><th style="width:130px;">Standard</th><th>Description</th><th style="width:80px;text-align:center;">Taught?</th></tr></thead><tbody>'+
+    data.map(function(s){
+      var taught=JSON.parse(localStorage.getItem('std_taught')||'{}')[s.code]||false;
+      return '<tr><td><span class="badge bg-secondary" style="font-size:.72rem;">'+s.code+'</span></td><td style="font-size:.82rem;">'+s.desc+'</td><td style="text-align:center;"><input type="checkbox" class="form-check-input" '+(taught?'checked ':'')+' data-onchange="toggleStd(\''+s.code+'\',this.checked)"></td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+
+function toggleStd(code,val){
+  var d=JSON.parse(localStorage.getItem('std_taught')||'{}');
+  d[code]=val;
+  localStorage.setItem('std_taught',JSON.stringify(d));
+}
+
+/* ── Gradebook ── */
+function getAssignments(){return JSON.parse(localStorage.getItem('gb_assignments')||'[]');}
+function saveAssignments(a){localStorage.setItem('gb_assignments',JSON.stringify(a));}
+function getGrades(){return JSON.parse(localStorage.getItem('gb_grades')||'{}');}
+function saveGrades(g){localStorage.setItem('gb_grades',JSON.stringify(g));}
+
+function showAddAssignmentModal(){
+  var modal=new bootstrap.Modal(document.getElementById('addAssignModal'));
+  modal.show();
+}
+function addAssignment(){
+  var name=(document.getElementById('newAssignName').value||'').trim();
+  var pts=parseInt(document.getElementById('newAssignMax').value)||100;
+  var type=document.getElementById('newAssignCat').value;
+  var date=document.getElementById('newAssignDate').value;
+  if(!name)return;
+  var asgs=getAssignments();
+  asgs.push({id:Date.now().toString(),name:name,pts:pts,type:type,date:date});
+  saveAssignments(asgs);
+  bootstrap.Modal.getInstance(document.getElementById('addAssignModal')).hide();
+  document.getElementById('newAssignName').value='';
+  document.getElementById('newAssignMax').value=100;
+  renderGradebook();
+}
+function deleteAssignment(id){
+  if(!confirm('Delete this assignment?'))return;
+  saveAssignments(getAssignments().filter(function(a){return a.id!==id;}));
+  var g=getGrades();delete g[id];saveGrades(g);
+  renderGradebook();
+}
+function letterGrade(pct){
+  if(pct>=90)return '<span style="color:#198754;font-weight:bold;">A</span>';
+  if(pct>=80)return '<span style="color:#0dcaf0;font-weight:bold;">B</span>';
+  if(pct>=70)return '<span style="color:#ffc107;font-weight:bold;">C</span>';
+  if(pct>=60)return '<span style="color:#fd7e14;font-weight:bold;">D</span>';
+  return '<span style="color:#dc3545;font-weight:bold;">F</span>';
+}
+function renderGradebook(){
+  var students=getStudents();
+  var asgs=getAssignments();
+  var grades=getGrades();
+  document.getElementById('gbStudentCount').textContent=students.length+' students | '+asgs.length+' assignments';
+  // Assignment chips
+  document.getElementById('gbAssignChips').innerHTML=asgs.map(function(a){
+    return '<span class="badge bg-secondary me-1 mb-1" style="font-size:.73rem;">'+a.name+' ('+a.pts+'pts) <button class="btn-close btn-close-white ms-1" style="font-size:.5rem;" data-onclick="deleteAssignment(\''+a.id+'\')"></button></span>';
+  }).join('');
+  if(!students.length){
+    document.getElementById('gbThead').innerHTML='';
+    document.getElementById('gbTbody').innerHTML='<tr><td class="text-secondary" style="font-size:.8rem;">Add students in Settings to get started.</td></tr>';
+    return;
+  }
+  // Header
+  var th='<tr><th>Student</th>';
+  asgs.forEach(function(a){th+='<th style="font-size:.72rem;min-width:80px;"><div>'+a.name+'</div><div class="text-secondary" style="font-size:.67rem;">'+a.type+' / '+a.pts+'pts</div></th>';});
+  th+='<th>Avg</th></tr>';
+  document.getElementById('gbThead').innerHTML=th;
+  // Rows
+  var tbody='';
+  students.forEach(function(s){
+    tbody+='<tr><td style="font-size:.8rem;font-weight:500;">'+s+'</td>';
+    var earned=0,total=0,count=0;
+    asgs.forEach(function(a){
+      var key=a.id+'_'+s;
+      var val=grades[key];
+      var score=(val!==undefined&&val!=='')?parseFloat(val):null;
+      if(score!==null){earned+=score;total+=a.pts;count++;}
+      tbody+='<td><input type="number" class="form-control form-control-sm p-0 px-1" style="width:64px;font-size:.78rem;" min="0" max="'+a.pts+'" value="'+(val!==undefined?val:'')+'" data-onchange="saveScore(\''+a.id+'\',\''+q(s)+'\',this.value)" placeholder="—"></td>';
+    });
+    var avg=(total>0)?Math.round(earned/total*100):null;
+    tbody+='<td style="font-size:.78rem;">'+((avg!==null)?avg+'% '+letterGrade(avg):'—')+'</td></tr>';
+  });
+  document.getElementById('gbTbody').innerHTML=tbody;
+}
+function saveScore(asgId,student,val){
+  var g=getGrades();
+  g[asgId+'_'+student]=val;
+  saveGrades(g);
+  renderGradebook();
+}
+function exportGradesCSV(){
+  var students=getStudents();var asgs=getAssignments();var grades=getGrades();
+  var rows=[['Student'].concat(asgs.map(function(a){return a.name+' ('+a.pts+'pts)';})).concat(['Average'])];
+  students.forEach(function(s){
+    var row=[s];var earned=0,total=0;
+    asgs.forEach(function(a){
+      var val=grades[a.id+'_'+s];
+      row.push(val!==undefined?val:'');
+      if(val!==undefined&&val!==''){earned+=parseFloat(val);total+=a.pts;}
+    });
+    row.push(total>0?Math.round(earned/total*100)+'%':'');
+    rows.push(row);
+  });
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='gradebook.csv';a.click();
+}
+function printGradebook(){
+  var students=getStudents();var asgs=getAssignments();var grades=getGrades();
+  var w=window.open('','_blank','width=1000,height=700');
+  var hdr='<tr><th>Student</th>'+asgs.map(function(a){return '<th>'+a.name+'<br><small>'+a.pts+'pts</small></th>';}).join('')+'<th>Avg</th></tr>';
+  var body=students.map(function(s){
+    var row='<tr><td>'+s+'</td>';var earned=0,total=0;
+    asgs.forEach(function(a){var v=grades[a.id+'_'+s]||'';row+='<td>'+(v||'—')+'</td>';if(v!==''){earned+=parseFloat(v);total+=a.pts;}});
+    row+='<td>'+(total>0?Math.round(earned/total*100)+'%':'—')+'</td></tr>';
+    return row;
+  }).join('');
+  w.document.write('<!DOCTYPE html><html><head><title>Gradebook</title><style>body{font-family:Arial,sans-serif;font-size:9pt;margin:1cm;}table{width:100%;border-collapse:collapse;}td,th{border:0.5pt solid #aaa;padding:3pt 5pt;text-align:center;}th{background:#eee;font-weight:bold;font-size:8pt;}td:first-child{text-align:left;}@media print{@page{size:landscape;margin:1cm;}}</style></head><body><h2 style="font-size:12pt;">Gradebook — '+new Date().toLocaleDateString()+'</h2><table><thead>'+hdr+'</thead><tbody>'+body+'</tbody></table></body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* ── Class Management ── */
+function showMgmt(sec,btn){
+  document.querySelectorAll('#mgmtPills .nav-link').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  var el=document.getElementById('mgmtContent');
+  if(sec==='comm') el.innerHTML=renderCommLog();
+  else if(sec==='behavior') el.innerHTML=renderBehavior();
+  else if(sec==='pbis') el.innerHTML=renderPBIS();
+  else if(sec==='seating') el.innerHTML=renderSeating();
+  else if(sec==='iep') el.innerHTML=renderIEP();
+  else if(sec==='supply') el.innerHTML=renderSupply();
+}
+
+/* Communication Log */
+function getCommLog(){return JSON.parse(localStorage.getItem('comm_log')||'[]');}
+function saveCommLog(l){localStorage.setItem('comm_log',JSON.stringify(l));}
+function renderCommLog(){
+  var log=getCommLog();
+  var html='<div class="d-flex gap-2 mb-3 flex-wrap align-items-end">';
+  html+='<div><label class="lp-label">Date</label><input type="date" class="form-control form-control-sm" id="cl_date"></div>';
+  html+='<div><label class="lp-label">Student</label><select class="form-select form-select-sm" id="cl_student"><option value="">— Select —</option>'+getStudents().map(function(s){return '<option>'+s+'</option>';}).join('')+'</select></div>';
+  html+='<div><label class="lp-label">Type</label><select class="form-select form-select-sm" id="cl_type"><option>Phone Call</option><option>Email</option><option>Note Sent Home</option><option>In-Person</option><option>Dojo Message</option></select></div>';
+  html+='<div style="flex:1;"><label class="lp-label">Notes</label><input type="text" class="form-control form-control-sm" id="cl_notes" placeholder="Brief summary…"></div>';
+  html+='<button class="btn btn-primary btn-sm" data-onclick="addCommEntry()"><i class="bi bi-plus-lg"></i></button>';
+  html+='</div>';
+  if(log.length){
+    html+='<div class="table-responsive"><table class="table table-sm table-hover"><thead><tr><th>Date</th><th>Student</th><th>Type</th><th>Notes</th><th></th></tr></thead><tbody>';
+    html+=log.slice().reverse().map(function(e,i){
+      var ri=log.length-1-i;
+      return '<tr><td style="font-size:.78rem;white-space:nowrap;">'+e.date+'</td><td style="font-size:.78rem;">'+e.student+'</td><td style="font-size:.78rem;">'+e.type+'</td><td style="font-size:.78rem;">'+e.notes+'</td><td><button class="btn btn-link btn-sm text-danger p-0" data-onclick="deleteCommEntry('+ri+')"><i class="bi bi-x-lg"></i></button></td></tr>';
+    }).join('');
+    html+='</tbody></table></div>';
+  } else {
+    html+='<div class="text-secondary" style="font-size:.82rem;">No communication logged yet.</div>';
+  }
+  return html;
+}
+function addCommEntry(){
+  var e={date:document.getElementById('cl_date').value||new Date().toLocaleDateString(),student:document.getElementById('cl_student').value,type:document.getElementById('cl_type').value,notes:document.getElementById('cl_notes').value};
+  if(!e.student||!e.notes)return;
+  var log=getCommLog();log.push(e);saveCommLog(log);
+  showMgmt('comm',document.querySelector('#mgmtPills .nav-link.active'));
+}
+function deleteCommEntry(i){
+  var log=getCommLog();log.splice(i,1);saveCommLog(log);
+  showMgmt('comm',document.querySelector('#mgmtPills .nav-link.active'));
+}
+
+/* Behavior Tracker */
+function getBehavior(){return JSON.parse(localStorage.getItem('behavior_data')||'{}');}
+function saveBehavior(d){localStorage.setItem('behavior_data',JSON.stringify(d));}
+function renderBehavior(){
+  var students=getStudents();
+  var data=getBehavior();
+  var today=new Date().toISOString().split('T')[0];
+  var html='<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">';
+  html+='<div><label class="lp-label me-2">Date</label><input type="date" class="form-control form-control-sm d-inline-block" style="width:160px;" id="bhvDate" value="'+today+'" data-onchange="rerenderBehavior()"></div>';
+  html+='<button class="btn btn-sm btn-outline-secondary" data-onclick="printBehavior()"><i class="bi bi-printer me-1"></i>Print</button>';
+  html+='</div>';
+  if(!students.length){return html+'<div class="text-secondary" style="font-size:.82rem;">Add students in Settings.</div>';}
+  var date=document.getElementById?document.getElementById('bhvDate')?.value||today:today;
+  html+='<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>Student</th><th style="text-align:center;">Points</th><th style="text-align:center;">Actions</th><th>Notes</th></tr></thead><tbody>';
+  students.forEach(function(s){
+    var key=date+'_'+s;
+    var pts=(data[key]&&data[key].pts!==undefined)?data[key].pts:0;
+    var notes=(data[key]&&data[key].notes)||'';
+    html+='<tr><td style="font-size:.8rem;font-weight:500;">'+s+'</td>';
+    html+='<td style="text-align:center;font-weight:bold;font-size:.95rem;">'+pts+'</td>';
+    html+='<td style="text-align:center;white-space:nowrap;">';
+    html+='<button class="btn btn-success btn-sm py-0 px-2" data-onclick="bhvAdjust(\''+q(s)+'\',1)">+</button> ';
+    html+='<button class="btn btn-danger btn-sm py-0 px-2" data-onclick="bhvAdjust(\''+q(s)+'\',-1)">−</button>';
+    html+='</td>';
+    html+='<td><input type="text" class="form-control form-control-sm" value="'+ha(notes)+'" placeholder="Optional notes…" data-onchange="bhvNote(\''+q(s)+'\',this.value)"></td>';
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  return html;
+}
+function bhvAdjust(student,delta){
+  var data=getBehavior();
+  var date=document.getElementById('bhvDate')?.value||new Date().toISOString().split('T')[0];
+  var key=date+'_'+student;
+  if(!data[key])data[key]={pts:0,notes:''};
+  data[key].pts=(data[key].pts||0)+delta;
+  saveBehavior(data);
+  showMgmt('behavior',document.querySelector('#mgmtPills .nav-link.active'));
+}
+function bhvNote(student,notes){
+  var data=getBehavior();
+  var date=document.getElementById('bhvDate')?.value||new Date().toISOString().split('T')[0];
+  var key=date+'_'+student;
+  if(!data[key])data[key]={pts:0,notes:''};
+  data[key].notes=notes;
+  saveBehavior(data);
+}
+function printBehavior(){
+  var date=document.getElementById('bhvDate')?.value||new Date().toLocaleDateString();
+  var students=getStudents();var data=getBehavior();
+  var rows=students.map(function(s){
+    var key=date+'_'+s;var d=data[key]||{pts:0,notes:''};
+    return '<tr><td>'+s+'</td><td style="text-align:center;">'+d.pts+'</td><td>'+d.notes+'</td></tr>';
+  }).join('');
+  var w=window.open('','_blank','width=700,height=600');
+  w.document.write('<!DOCTYPE html><html><head><title>Behavior</title><style>body{font-family:Arial;font-size:10pt;margin:1.2cm;}table{width:100%;border-collapse:collapse;}td,th{border:0.5pt solid #aaa;padding:4pt 6pt;}th{background:#eee;}</style></head><body><h2>Behavior Log — '+date+'</h2><table><tr><th>Student</th><th>Points</th><th>Notes</th></tr>'+rows+'</table></body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* PBIS Class Points */
+function getPBIS(){return JSON.parse(localStorage.getItem('pbis_data')||'{"pts":0,"log":[]}');}
+function savePBIS(d){localStorage.setItem('pbis_data',JSON.stringify(d));}
+function renderPBIS(){
+  var data=getPBIS();
+  var goal=parseInt(localStorage.getItem('pbis_goal')||'100');
+  var pct=Math.min(100,Math.round(data.pts/goal*100));
+  var html='<div class="row g-4">';
+  html+='<div class="col-md-5">';
+  html+='<div class="p-4 rounded text-center" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);">';
+  html+='<div style="font-size:.78rem;color:var(--bs-secondary-color);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Class Points</div>';
+  html+='<div style="font-size:3.5rem;font-weight:900;line-height:1;" id="pbisScore">'+data.pts+'</div>';
+  html+='<div style="font-size:.8rem;color:var(--bs-secondary-color);">Goal: <input type="number" class="form-control form-control-sm d-inline-block" style="width:72px;font-size:.8rem;" value="'+goal+'" data-onchange="updatePBISGoal(this.value)"> pts</div>';
+  html+='<div class="pbis-bar-wrap mt-3"><div class="pbis-bar" style="width:'+pct+'%"></div></div>';
+  html+='<div style="font-size:.75rem;color:var(--bs-secondary-color);" class="mt-1">'+pct+'% to goal</div>';
+  html+='<div class="d-flex justify-content-center gap-3 mt-4">';
+  html+='<button class="btn btn-success" data-onclick="pbisAdd(1)"><i class="bi bi-plus-lg"></i> +1</button>';
+  html+='<button class="btn btn-primary" data-onclick="pbisAdd(5)"><i class="bi bi-star-fill me-1"></i>+5</button>';
+  html+='<button class="btn btn-warning" data-onclick="pbisAdd(10)"><i class="bi bi-lightning-fill me-1"></i>+10</button>';
+  html+='<button class="btn btn-outline-danger btn-sm" data-onclick="pbisReset()">Reset</button>';
+  html+='</div></div>';
+  html+='<div class="mt-3 d-flex gap-2 flex-wrap">';
+  html+='<input type="number" class="form-control form-control-sm" id="pbisCustom" placeholder="Custom amount" style="width:140px;">';
+  html+='<input type="text" class="form-control form-control-sm" id="pbisReason" placeholder="Reason (optional)" style="flex:1;">';
+  html+='<button class="btn btn-sm btn-outline-primary" data-onclick="pbisAddCustom()">Add</button>';
+  html+='</div></div>';
+  html+='<div class="col-md-7"><div class="lp-label mb-2">Points History</div>';
+  if(data.log.length){
+    html+='<div style="max-height:340px;overflow-y:auto;">';
+    html+=data.log.slice().reverse().map(function(e){
+      return '<div class="d-flex justify-content-between align-items-center py-1 border-bottom" style="font-size:.79rem;"><span>'+e.date+' — '+(e.reason||'Class earned points')+'</span><span class="fw-bold '+(e.pts>0?'text-success':'text-danger')+'">+'+(e.pts)+'</span></div>';
+    }).join('');
+    html+='</div>';
+  } else {
+    html+='<div class="text-secondary" style="font-size:.82rem;">No history yet.</div>';
+  }
+  html+='</div></div>';
+  return html;
+}
+function pbisAdd(n,reason){
+  var data=getPBIS();
+  data.pts+=n;
+  data.log.push({pts:n,reason:reason||'',date:new Date().toLocaleDateString()});
+  savePBIS(data);
+  showMgmt('pbis',document.querySelector('#mgmtPills .nav-link.active'));
+}
+function pbisAddCustom(){
+  var n=parseInt(document.getElementById('pbisCustom').value)||0;
+  var r=(document.getElementById('pbisReason').value||'').trim();
+  if(!n)return;
+  pbisAdd(n,r);
+}
+function pbisReset(){if(!confirm('Reset class points to 0?'))return;var d=getPBIS();d.pts=0;d.log.push({pts:0,reason:'Points reset',date:new Date().toLocaleDateString()});savePBIS(d);showMgmt('pbis',document.querySelector('#mgmtPills .nav-link.active'));}
+function updatePBISGoal(v){localStorage.setItem('pbis_goal',parseInt(v)||100);showMgmt('pbis',document.querySelector('#mgmtPills .nav-link.active'));}
+
+/* Seating Chart */
+function getSeating(){return JSON.parse(localStorage.getItem('seating_data')||'{}');}
+function saveSeating(d){localStorage.setItem('seating_data',JSON.stringify(d));}
+function renderSeating(){
+  var seats=getSeating();
+  var students=getStudents();
+  var rows=5,cols=6;
+  var html='<div class="mb-3 d-flex gap-2 align-items-center flex-wrap">';
+  html+='<span class="text-secondary" style="font-size:.8rem;">Click a desk to assign/change a student. Drag-and-drop: reassign by clicking seat then choosing name.</span>';
+  html+='<button class="btn btn-sm btn-outline-danger" data-onclick="clearSeating()"><i class="bi bi-trash me-1"></i>Clear All</button>';
+  html+='<button class="btn btn-sm btn-outline-secondary" data-onclick="printSeating()"><i class="bi bi-printer me-1"></i>Print</button>';
+  html+='</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat('+cols+',1fr);gap:8px;max-width:640px;">';
+  for(var i=0;i<rows*cols;i++){
+    var seatId='seat_'+i;
+    var assigned=seats[seatId]||'';
+    html+='<div class="seating-desk" data-onclick="assignSeat(\''+seatId+'\')" title="Click to assign">';
+    html+='<i class="bi bi-person-fill" style="font-size:1.1rem;color:var(--bs-secondary-color);display:block;text-align:center;"></i>';
+    html+='<div style="font-size:.65rem;text-align:center;margin-top:2px;min-height:14px;word-break:break-word;">'+assigned+'</div>';
+    html+='</div>';
+  }
+  html+='</div>';
+  html+='<div class="mt-3 text-secondary" style="font-size:.73rem;">'+Object.values(seats).filter(Boolean).length+' of '+(rows*cols)+' desks assigned</div>';
+  return html;
+}
+function assignSeat(seatId){
+  var seats=getSeating();
+  var students=getStudents();
+  var current=seats[seatId]||'';
+  var opts=['(Empty)'].concat(students);
+  var choice=prompt('Assign seat '+seatId.replace('seat_','#'+(parseInt(seatId.split('_')[1])+1))+' to:\n'+opts.map(function(o,i){return i+': '+o;}).join('\n'),current?students.indexOf(current)+1:0);
+  if(choice===null)return;
+  var idx=parseInt(choice);
+  if(isNaN(idx)||idx<0||idx>students.length)return;
+  seats[seatId]=idx===0?'':students[idx-1];
+  saveSeating(seats);
+  showMgmt('seating',document.querySelector('#mgmtPills .nav-link.active'));
+}
+function clearSeating(){if(!confirm('Clear all seat assignments?'))return;saveSeating({});showMgmt('seating',document.querySelector('#mgmtPills .nav-link.active'));}
+function printSeating(){
+  var seats=getSeating();
+  var rows=5,cols=6;
+  var cells='';
+  for(var i=0;i<rows*cols;i++){cells+='<div style="border:1pt solid #aaa;padding:4pt;text-align:center;min-height:40pt;font-size:9pt;">'+( seats['seat_'+i]||'')+'</div>';}
+  var w=window.open('','_blank','width=800,height=600');
+  w.document.write('<!DOCTYPE html><html><head><title>Seating Chart</title><style>body{font-family:Arial;font-size:10pt;margin:1cm;}h2{font-size:12pt;}.grid{display:grid;grid-template-columns:repeat('+cols+',1fr);gap:6pt;}@media print{@page{size:landscape;margin:1cm;}}</style></head><body><h2>Seating Chart — '+new Date().toLocaleDateString()+'</h2><div class="grid">'+cells+'</div></body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* IEP / Accommodations */
+function getIEPNotes(){return JSON.parse(localStorage.getItem('iep_notes')||'{}');}
+function saveIEPNotes(d){localStorage.setItem('iep_notes',JSON.stringify(d));}
+function renderIEP(){
+  var students=getStudents();
+  var notes=getIEPNotes();
+  if(!students.length)return '<div class="text-secondary" style="font-size:.82rem;">Add students in Settings.</div>';
+  var html='<div class="mb-2 text-secondary" style="font-size:.8rem;">Record IEP, 504, ELL, or gifted accommodations for each student. Auto-saved as you type.</div>';
+  html+='<div class="row g-3">';
+  html+=students.map(function(s){
+    return '<div class="col-sm-6 col-lg-4"><div class="p-3 rounded" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);"><div class="fw-semibold mb-1" style="font-size:.82rem;">'+s+'</div><textarea class="form-control form-control-sm" rows="4" placeholder="Accommodations, goals, notes…" data-onchange="saveIEPEntry(\''+q(s)+'\',this.value)" data-oninput="saveIEPEntry(\''+q(s)+'\',this.value)">'+( notes[s]||'')+'</textarea></div></div>';
+  }).join('');
+  html+='</div>';
+  html+='<button class="btn btn-sm btn-outline-secondary mt-3" data-onclick="printIEP()"><i class="bi bi-printer me-1"></i>Print All</button>';
+  return html;
+}
+function saveIEPEntry(student,val){var d=getIEPNotes();d[student]=val;saveIEPNotes(d);}
+function printIEP(){
+  var students=getStudents();var notes=getIEPNotes();
+  var body=students.map(function(s){return '<h3 style="font-size:11pt;border-bottom:1pt solid #aaa;margin-top:12pt;">'+s+'</h3><p style="white-space:pre-wrap;font-size:9.5pt;">'+(notes[s]||'No notes recorded.')+'</p>';}).join('');
+  var w=window.open('','_blank','width=800,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>Accommodations</title><style>body{font-family:Arial;font-size:10pt;margin:1.5cm;}</style></head><body><h1 style="font-size:14pt;">Accommodations & IEP Notes</h1><p style="font-size:8.5pt;color:#555;">Printed '+new Date().toLocaleDateString()+'</p>'+body+'</body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* Supply Tracker */
+function getSupplies(){return JSON.parse(localStorage.getItem('supply_list')||'[]');}
+function saveSupplies(s){localStorage.setItem('supply_list',JSON.stringify(s));}
+function renderSupply(){
+  var supplies=getSupplies();
+  var html='<div class="d-flex gap-2 mb-3 flex-wrap align-items-end">';
+  html+='<div style="flex:1;"><label class="lp-label">Item Name</label><input type="text" class="form-control form-control-sm" id="supItem" placeholder="e.g. Copy paper, pencils…"></div>';
+  html+='<div><label class="lp-label">Quantity</label><input type="text" class="form-control form-control-sm" id="supQty" placeholder="e.g. 2 reams" style="width:110px;"></div>';
+  html+='<button class="btn btn-primary btn-sm" data-onclick="addSupply()"><i class="bi bi-plus-lg"></i> Add</button>';
+  html+='</div>';
+  if(!supplies.length){html+='<div class="text-secondary" style="font-size:.82rem;">No supplies tracked yet.</div>';return html;}
+  html+='<div class="table-responsive"><table class="table table-sm table-hover"><thead><tr><th>Item</th><th>Qty / Notes</th><th style="text-align:center;">Have It?</th><th></th></tr></thead><tbody>';
+  html+=supplies.map(function(s,i){
+    return '<tr style="'+(s.have?'opacity:.5':'')+'"><td style="font-size:.8rem;text-decoration:'+(s.have?'line-through':'')+';font-weight:500;">'+s.item+'</td><td style="font-size:.78rem;">'+s.qty+'</td><td style="text-align:center;"><input type="checkbox" class="form-check-input" '+(s.have?'checked':'')+' data-onchange="toggleSupply('+i+',this.checked)"></td><td><button class="btn btn-link btn-sm text-danger p-0" data-onclick="deleteSupply('+i+')"><i class="bi bi-x-lg"></i></button></td></tr>';
+  }).join('');
+  html+='</tbody></table></div>';
+  var have=supplies.filter(function(s){return s.have;}).length;
+  html+='<div class="text-secondary" style="font-size:.73rem;">'+have+' of '+supplies.length+' items acquired</div>';
+  html+='<button class="btn btn-sm btn-outline-secondary mt-2" data-onclick="printSupply()"><i class="bi bi-printer me-1"></i>Print List</button>';
+  return html;
+}
+function addSupply(){
+  var item=(document.getElementById('supItem').value||'').trim();
+  var qty=(document.getElementById('supQty').value||'').trim();
+  if(!item)return;
+  var s=getSupplies();s.push({item:item,qty:qty,have:false});saveSupplies(s);
+  showMgmt('supply',document.querySelector('#mgmtPills .nav-link.active'));
+}
+function toggleSupply(i,val){var s=getSupplies();s[i].have=val;saveSupplies(s);showMgmt('supply',document.querySelector('#mgmtPills .nav-link.active'));}
+function deleteSupply(i){var s=getSupplies();s.splice(i,1);saveSupplies(s);showMgmt('supply',document.querySelector('#mgmtPills .nav-link.active'));}
+function printSupply(){
+  var s=getSupplies();
+  var rows=s.map(function(x){return '<tr><td>'+x.item+'</td><td>'+x.qty+'</td><td>'+(x.have?'✓':'')+'</td></tr>';}).join('');
+  var w=window.open('','_blank','width=600,height=500');
+  w.document.write('<!DOCTYPE html><html><head><title>Supply List</title><style>body{font-family:Arial;font-size:10pt;margin:1.2cm;}table{width:100%;border-collapse:collapse;}td,th{border:0.5pt solid #aaa;padding:3pt 5pt;}</style></head><body><h2>Supply Tracker — '+new Date().toLocaleDateString()+'</h2><table><tr><th>Item</th><th>Qty</th><th>Have?</th></tr>'+rows+'</table></body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* ── Calendar ── */
+var calState={year:new Date().getFullYear(),month:new Date().getMonth()};
+function getCalEvents(){return JSON.parse(localStorage.getItem('cal_events')||'[]');}
+function saveCalEvents(e){localStorage.setItem('cal_events',JSON.stringify(e));}
+
+function renderCalendar(){
+  var yr=calState.year,mo=calState.month;
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calTitle').textContent=months[mo]+' '+yr;
+  var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('calDayHeaders').innerHTML=days.map(function(d){return '<div style="text-align:center;font-weight:600;font-size:.75rem;padding:4px 0;color:var(--bs-secondary-color);">'+d+'</div>';}).join('');
+  var first=new Date(yr,mo,1).getDay();
+  var daysInMonth=new Date(yr,mo+1,0).getDate();
+  var events=getCalEvents();
+  var today=new Date();
+  var cells='';
+  for(var i=0;i<first;i++)cells+='<div class="cal-cell" style="opacity:.3;"></div>';
+  for(var d=1;d<=daysInMonth;d++){
+    var dateStr=yr+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var isToday=(today.getFullYear()===yr&&today.getMonth()===mo&&today.getDate()===d);
+    var dayEvts=events.filter(function(e){return e.date===dateStr;});
+    var evHtml=dayEvts.map(function(e){
+      return '<div class="cal-event ev-'+e.type+'" data-onclick="deleteCalEvent(\''+e.id+'\')" title="'+ha(e.title)+(e.notes?' — '+ha(e.notes):'')+' (click to delete)">'+ha(e.title)+'</div>';
+    }).join('');
+    cells+='<div class="cal-cell'+(isToday?' today':'')+'"><div style="font-size:.72rem;font-weight:600;margin-bottom:3px;color:'+(isToday?'var(--bs-primary)':'inherit')+';">'+d+'</div>'+evHtml+'</div>';
+  }
+  document.getElementById('calGrid').innerHTML=cells;
+  renderUpcoming();
+}
+function calNav(dir){
+  calState.month+=dir;
+  if(calState.month<0){calState.month=11;calState.year--;}
+  if(calState.month>11){calState.month=0;calState.year++;}
+  renderCalendar();
+}
+function calGoToday(){calState.year=new Date().getFullYear();calState.month=new Date().getMonth();renderCalendar();}
+function showAddEvent(){
+  var f=document.getElementById('calEventForm');
+  f.style.display=f.style.display==='none'?'block':'none';
+  if(f.style.display==='block'){
+    var today=new Date();
+    document.getElementById('evDate').value=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  }
+}
+function addCalEvent(){
+  var date=document.getElementById('evDate').value;
+  var title=(document.getElementById('evTitle').value||'').trim();
+  var type=document.getElementById('evType').value;
+  var notes=(document.getElementById('evNotes').value||'').trim();
+  if(!date||!title)return;
+  var events=getCalEvents();
+  events.push({id:Date.now().toString(),date:date,title:title,type:type,notes:notes});
+  saveCalEvents(events);
+  document.getElementById('evTitle').value='';
+  document.getElementById('evNotes').value='';
+  document.getElementById('calEventForm').style.display='none';
+  var d=new Date(date+'T12:00:00');
+  calState.year=d.getFullYear();calState.month=d.getMonth();
+  renderCalendar();
+}
+function deleteCalEvent(id){
+  if(!confirm('Delete this event?'))return;
+  saveCalEvents(getCalEvents().filter(function(e){return e.id!==id;}));
+  renderCalendar();
+}
+function renderUpcoming(){
+  var today=new Date().toISOString().split('T')[0];
+  var events=getCalEvents().filter(function(e){return e.date>=today;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,10);
+  var el=document.getElementById('upcomingEvents');
+  if(!events.length){el.innerHTML='<div class="text-secondary" style="font-size:.8rem;">No upcoming events.</div>';return;}
+  el.innerHTML=events.map(function(e){
+    var d=new Date(e.date+'T12:00:00');
+    var label=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    return '<div class="d-flex align-items-center gap-2 py-1 border-bottom" style="font-size:.79rem;"><span class="cal-event ev-'+e.type+' px-2">'+e.type+'</span><span style="min-width:120px;color:var(--bs-secondary-color);">'+label+'</span><span class="fw-semibold">'+e.title+'</span>'+(e.notes?'<span class="text-secondary"> — '+e.notes+'</span>':'')+'</div>';
+  }).join('');
+}
+function printCalendar(){
+  var yr=calState.year,mo=calState.month;
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var events=getCalEvents();
+  var first=new Date(yr,mo,1).getDay();
+  var daysInMonth=new Date(yr,mo+1,0).getDate();
+  var cells='';
+  for(var i=0;i<first;i++)cells+='<div class="cell"></div>';
+  for(var d=1;d<=daysInMonth;d++){
+    var dateStr=yr+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var dayEvts=events.filter(function(e){return e.date===dateStr;});
+    cells+='<div class="cell"><div class="day">'+d+'</div>'+dayEvts.map(function(e){return '<div class="ev">'+e.title+'</div>';}).join('')+'</div>';
+  }
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>Calendar</title><style>body{font-family:Arial;font-size:9pt;margin:1cm;}.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3pt;}.cell{border:0.5pt solid #aaa;padding:4pt;min-height:70pt;}.day{font-weight:bold;font-size:8pt;margin-bottom:2pt;}.ev{background:#555;color:#fff;border-radius:2pt;padding:1pt 3pt;font-size:7pt;margin-bottom:1pt;overflow:hidden;white-space:nowrap;}.hdr{font-weight:bold;text-align:center;padding:3pt;font-size:8pt;}@media print{@page{size:landscape;margin:1cm;}}</style></head><body>');
+  w.document.write('<h2 style="font-size:14pt;margin-bottom:8pt;">'+months[mo]+' '+yr+'</h2>');
+  w.document.write('<div class="grid">');
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d){w.document.write('<div class="hdr">'+d+'</div>');});
+  w.document.write(cells+'</div></body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* ── Resources ── */
+function showRes(sec,btn){
+  document.querySelectorAll('#resPills .nav-link').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  var el=document.getElementById('resContent');
+  if(sec==='mm') el.innerHTML=renderMM();
+  else if(sec==='wordwall') el.innerHTML=renderWordWall();
+  else if(sec==='comments') el.innerHTML=renderComments();
+  else if(sec==='awards') el.innerHTML=renderAwards();
+}
+
+/* Morning Meeting */
+var MM_GREETINGS=['Handshake Hello','High-Five Greeting','Partner Poem','Name Song','Mirror Greeting','Secret Handshake','Compliment Circle','Ball-Toss Names','Zip-Zap-Zop','Silent Greeting','Elbow Bump','Pass the Clap','Eye-Contact Greeting'];
+var MM_SHARING=['Two Truths & a Lie','Weekend Highlight','Favorite: food, sport, or book?','Something I am looking forward to','A skill I want to learn','My favorite place','Something that made me smile','A challenge I overcame','My favorite season & why','Something I am grateful for','If I could visit anywhere…','A person I admire and why','What superpower would I choose?'];
+var MM_ACTIVITIES=['Beach Ball Questions','Vocabulary Charades','4 Corners','Silent Ball','Would You Rather?','Snowball Fight (paper)','Stand Up – Sit Down','Quiz-Quiz-Trade','Musical Chairs Review','Hot Seat (content review)','Mix-Pair-Share','Number Talk Warm-Up','Think-Pair-Share','Telephone Fact Review','Team Trivia'];
+var MM_MESSAGES=['Today we are practicing ___. Remember: mistakes help us grow!','Our focus today: kindness. Look for one way to help a classmate.','Big test today — you are prepared. Take a deep breath and do your best!','This week\'s theme: perseverance. Keep going even when it is hard.','Good morning, champions! Today\'s challenge: participate at least twice.','Reminder: our class goal is ___. How will YOU help us reach it?','Special visitor today! Remember our audience manners.','Thank you for your hard work this week. The weekend is almost here!','New week, new goals! What is one thing you want to accomplish?'];
+var mmState={g:0,s:0,a:0,m:0};
+
+function renderMM(){
+  var html='<div class="row g-4">';
+  // Greeting
+  html+='<div class="col-md-6"><div class="mm-card"><div class="d-flex justify-content-between align-items-center mb-2"><span class="lp-label mb-0"><i class="bi bi-hand-wave me-2 text-primary"></i>Greeting</span><button class="btn btn-sm btn-outline-secondary" data-onclick="nextMM(\'g\')"><i class="bi bi-shuffle"></i></button></div>';
+  html+='<div style="font-size:1.05rem;font-weight:600;padding:8px 0;" id="mm_g">'+MM_GREETINGS[mmState.g]+'</div>';
+  html+='<div class="text-secondary" style="font-size:.75rem;">'+(mmState.g+1)+' of '+MM_GREETINGS.length+'</div></div></div>';
+  // Sharing
+  html+='<div class="col-md-6"><div class="mm-card"><div class="d-flex justify-content-between align-items-center mb-2"><span class="lp-label mb-0"><i class="bi bi-chat-dots me-2 text-primary"></i>Sharing Prompt</span><button class="btn btn-sm btn-outline-secondary" data-onclick="nextMM(\'s\')"><i class="bi bi-shuffle"></i></button></div>';
+  html+='<div style="font-size:1.05rem;font-weight:600;padding:8px 0;" id="mm_s">'+MM_SHARING[mmState.s]+'</div>';
+  html+='<div class="text-secondary" style="font-size:.75rem;">'+(mmState.s+1)+' of '+MM_SHARING.length+'</div></div></div>';
+  // Activity
+  html+='<div class="col-md-6"><div class="mm-card"><div class="d-flex justify-content-between align-items-center mb-2"><span class="lp-label mb-0"><i class="bi bi-controller me-2 text-primary"></i>Activity</span><button class="btn btn-sm btn-outline-secondary" data-onclick="nextMM(\'a\')"><i class="bi bi-shuffle"></i></button></div>';
+  html+='<div style="font-size:1.05rem;font-weight:600;padding:8px 0;" id="mm_a">'+MM_ACTIVITIES[mmState.a]+'</div>';
+  html+='<div class="text-secondary" style="font-size:.75rem;">'+(mmState.a+1)+' of '+MM_ACTIVITIES.length+'</div></div></div>';
+  // Morning Message
+  html+='<div class="col-md-6"><div class="mm-card"><div class="d-flex justify-content-between align-items-center mb-2"><span class="lp-label mb-0"><i class="bi bi-pencil-square me-2 text-primary"></i>Morning Message</span><button class="btn btn-sm btn-outline-secondary" data-onclick="nextMM(\'m\')"><i class="bi bi-shuffle"></i></button></div>';
+  html+='<div style="font-size:.9rem;font-style:italic;padding:8px 0;line-height:1.6;" id="mm_m">'+MM_MESSAGES[mmState.m]+'</div>';
+  html+='<div class="text-secondary" style="font-size:.75rem;">'+(mmState.m+1)+' of '+MM_MESSAGES.length+'</div></div></div>';
+  html+='</div>';
+  html+='<div class="mt-3"><button class="btn btn-outline-secondary btn-sm" data-onclick="printMM()"><i class="bi bi-printer me-1"></i>Print Today\'s Morning Meeting Plan</button></div>';
+  return html;
+}
+function nextMM(key){
+  var arr={g:MM_GREETINGS,s:MM_SHARING,a:MM_ACTIVITIES,m:MM_MESSAGES}[key];
+  mmState[key]=(mmState[key]+1)%arr.length;
+  showRes('mm',document.querySelector('#resPills .nav-link.active'));
+}
+function printMM(){
+  var w=window.open('','_blank','width=700,height=600');
+  w.document.write('<!DOCTYPE html><html><head><title>Morning Meeting</title><style>body{font-family:Arial;font-size:11pt;margin:1.5cm;}h1{font-size:15pt;}h3{font-size:11pt;border-bottom:1pt solid #aaa;margin-top:14pt;}p{margin:4pt 0;}@media print{@page{margin:1.5cm;}}</style></head><body>');
+  w.document.write('<h1>Morning Meeting Plan</h1><p style="color:#555;font-size:9pt;">Date: '+new Date().toLocaleDateString()+'</p>');
+  w.document.write('<h3>Greeting</h3><p>'+MM_GREETINGS[mmState.g]+'</p>');
+  w.document.write('<h3>Sharing Prompt</h3><p>'+MM_SHARING[mmState.s]+'</p>');
+  w.document.write('<h3>Activity</h3><p>'+MM_ACTIVITIES[mmState.a]+'</p>');
+  w.document.write('<h3>Morning Message</h3><p style="font-style:italic;">'+MM_MESSAGES[mmState.m]+'</p>');
+  w.document.write('</body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* Word Wall */
+function getWords(){return JSON.parse(localStorage.getItem('word_wall')||'[]');}
+function saveWords(w){localStorage.setItem('word_wall',JSON.stringify(w));}
+function renderWordWall(){
+  var words=getWords();
+  var html='<div class="d-flex gap-2 mb-3 flex-wrap align-items-end">';
+  html+='<div><label class="lp-label">Word</label><input type="text" class="form-control form-control-sm" id="ww_word" placeholder="e.g. denominator"></div>';
+  html+='<div style="flex:1;"><label class="lp-label">Definition / Context</label><input type="text" class="form-control form-control-sm" id="ww_def" placeholder="The bottom number in a fraction"></div>';
+  html+='<div><label class="lp-label">Subject</label><select class="form-select form-select-sm" id="ww_subj"><option>ELA</option><option>Math</option><option>Science</option><option>Social Studies</option><option>Health</option><option>General</option></select></div>';
+  html+='<button class="btn btn-primary btn-sm" data-onclick="addWord()"><i class="bi bi-plus-lg"></i> Add</button>';
+  html+='</div>';
+  if(words.length){
+    var by={};
+    words.forEach(function(w){if(!by[w.subj])by[w.subj]=[];by[w.subj].push(w);});
+    html+=Object.keys(by).map(function(s){
+      var badge={ELA:'primary',Math:'success',Science:'info','Social Studies':'warning',Health:'danger',General:'secondary'}[s]||'secondary';
+      return '<div class="mb-3"><span class="badge bg-'+badge+' mb-2">'+s+'</span><div class="d-flex flex-wrap gap-2">'+
+        by[s].map(function(w,i){
+          var globalIdx=words.indexOf(w);
+          return '<span class="word-chip" title="'+w.def+'">'+w.word+'<button class="btn-close ms-1" style="font-size:.45rem;" data-onclick="deleteWord('+globalIdx+')"></button></span>';
+        }).join('')+'</div></div>';
+    }).join('');
+    html+='<div class="mt-2 d-flex gap-2">';
+    html+='<button class="btn btn-sm btn-outline-secondary" data-onclick="printWordCards()"><i class="bi bi-printer me-1"></i>Print Word Cards</button>';
+    html+='<button class="btn btn-sm btn-outline-danger" data-onclick="clearWords()"><i class="bi bi-trash me-1"></i>Clear All</button>';
+    html+='</div>';
+  } else {
+    html+='<div class="text-secondary" style="font-size:.82rem;">No words added yet.</div>';
+  }
+  return html;
+}
+function addWord(){
+  var word=(document.getElementById('ww_word').value||'').trim();
+  var def=(document.getElementById('ww_def').value||'').trim();
+  var subj=document.getElementById('ww_subj').value;
+  if(!word)return;
+  var words=getWords();words.push({word:word,def:def,subj:subj});saveWords(words);
+  showRes('wordwall',document.querySelector('#resPills .nav-link.active'));
+}
+function deleteWord(i){var w=getWords();w.splice(i,1);saveWords(w);showRes('wordwall',document.querySelector('#resPills .nav-link.active'));}
+function clearWords(){if(!confirm('Clear all word wall words?'))return;saveWords([]);showRes('wordwall',document.querySelector('#resPills .nav-link.active'));}
+function printWordCards(){
+  var words=getWords();
+  if(!words.length)return;
+  var cards=words.map(function(w){
+    return '<div style="border:1pt solid #333;padding:8pt;break-inside:avoid;display:flex;flex-direction:column;justify-content:center;"><div style="font-size:14pt;font-weight:bold;text-align:center;margin-bottom:4pt;">'+w.word+'</div><div style="font-size:8.5pt;text-align:center;color:#555;">'+w.def+'</div><div style="font-size:7.5pt;text-align:right;color:#888;margin-top:4pt;">'+w.subj+'</div></div>';
+  }).join('');
+  var wr=window.open('','_blank','width=900,height=700');
+  wr.document.write('<!DOCTYPE html><html><head><title>Word Cards</title><style>body{font-family:Arial;margin:.8cm;}h2{font-size:12pt;}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8pt;}@media print{@page{margin:.8cm;}}</style></head><body><h2>Word Wall Cards — '+new Date().toLocaleDateString()+'</h2><div class="grid">'+cards+'</div></body></html>');
+  wr.document.close();try{wr.focus();wr.print();}catch(_e){}
+}
+
+/* Report Card Comments */
+var RC_COMMENTS={
+  Strengths:['___ demonstrates exceptional effort and a positive attitude every day.','___ is a natural leader who sets a great example for peers.','___ shows strong critical thinking and problem-solving skills.','___ consistently produces high-quality, thoughtful work.','___ is an enthusiastic learner who actively participates in all activities.','___ has made remarkable growth this term and should be very proud.','___ is a kind and empathetic class member who helps build our community.','___ takes initiative and goes above and beyond expectations regularly.'],
+  'Work Habits':['___ uses class time effectively and submits work on time.','___ follows directions carefully and pays close attention to detail.','___ asks thoughtful questions to deepen understanding.','___ works well independently as well as in collaborative settings.','___ is organized and prepared for learning each day.','___ is developing stronger work habits and time management skills.','___ is encouraged to seek help sooner when feeling confused.','___ would benefit from checking work carefully before submitting.'],
+  ELA:['___ reads with strong fluency and comprehension.','___ uses text evidence skillfully to support ideas in writing and discussion.','___ is building a rich vocabulary and uses new words in context.','___ writes with a clear voice and well-organized ideas.','___ is developing the habit of revising and editing work for clarity.','___ would benefit from additional reading practice at home each night.','___ shows growth in reading level and we celebrate that progress!','___ excels at inferencing and understanding complex text.'],
+  Math:['___ demonstrates a solid understanding of grade-level math concepts.','___ shows flexibility in solving problems using multiple strategies.','___ is working to build fluency with multiplication and division facts.','___ applies mathematical reasoning well to word problems.','___ would benefit from practicing math facts daily at home.','___ has shown tremendous growth in math this marking period.','___ asks great clarifying questions during math instruction.','___ is encouraged to show all work steps to support accuracy.'],
+  Science:['___ approaches science with curiosity and genuine inquiry.','___ conducts investigations carefully and records data accurately.','___ makes strong connections between science concepts and the real world.','___ writes detailed and thoughtful lab reports and observations.'],
+  'Social-Emotional':['___ is a caring friend who treats all classmates with respect.','___ handles challenges and setbacks with a growth mindset.','___ is developing stronger self-regulation skills during frustrating moments.','___ contributes positively to our classroom culture every day.','___ is working on assertive communication and advocating for needs.','___ shows empathy and consideration for the feelings of others.']
+};
+
+function renderComments(){
+  var html='<div class="mb-2 text-secondary" style="font-size:.8rem;">Click any comment to copy it. Use ___ for the student\'s name.</div>';
+  html+='<div class="mb-3 d-flex gap-2 align-items-center flex-wrap"><label class="lp-label mb-0">Filter:</label>';
+  Object.keys(RC_COMMENTS).forEach(function(cat){
+    html+='<button class="btn btn-sm btn-outline-secondary" data-onclick="filterRC(\''+cat+'\',this)">'+cat+'</button>';
+  });
+  html+='<button class="btn btn-sm btn-secondary" data-onclick="filterRC(\'\',this)">All</button>';
+  html+='</div>';
+  html+='<div id="rcList">';
+  html+=renderRCList('');
+  html+='</div>';
+  return html;
+}
+function renderRCList(filter){
+  var html='';
+  Object.keys(RC_COMMENTS).forEach(function(cat){
+    if(filter&&cat!==filter)return;
+    html+='<div class="mb-3"><div class="lp-label mb-1">'+cat+'</div>';
+    html+=RC_COMMENTS[cat].map(function(c){
+      return '<div class="comment-item" data-onclick="copyComment(this)" title="Click to copy">'+c+'<i class="bi bi-clipboard ms-2" style="opacity:.5;font-size:.8rem;"></i></div>';
+    }).join('');
+    html+='</div>';
+  });
+  return html;
+}
+function filterRC(cat,btn){
+  document.getElementById('rcList').innerHTML=renderRCList(cat);
+}
+function copyComment(el){
+  var text=el.firstChild.nodeValue||el.textContent.replace('','').trim();
+  navigator.clipboard.writeText(text).then(function(){
+    el.style.background='rgba(var(--bs-success-rgb),.15)';
+    setTimeout(function(){el.style.background='';},600);
+  }).catch(function(){
+    var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+  });
+}
+
+/* Award Certificates */
+var AWARDS=[
+  {id:'star',title:'Star Student',desc:'For outstanding effort, attitude, and achievement',icon:'⭐'},
+  {id:'reader',title:'Super Reader',desc:'For a love of reading and remarkable reading growth',icon:'📚'},
+  {id:'math',title:'Math Superstar',desc:'For exceptional mathematical thinking and problem solving',icon:'🔢'},
+  {id:'kind',title:'Kindness Award',desc:'For consistently showing kindness, empathy, and compassion',icon:'💛'},
+  {id:'growth',title:'Growth Mindset Award',desc:'For never giving up and embracing every challenge',icon:'🌱'},
+  {id:'helper',title:'Classroom Helper',desc:'For always going above and beyond to help our community',icon:'🤝'},
+  {id:'creative',title:'Creative Thinker',desc:'For bringing imagination and creativity to everything',icon:'🎨'},
+  {id:'scientist',title:'Young Scientist',desc:'For curiosity, careful observation, and scientific thinking',icon:'🔬'},
+  {id:'citizen',title:'Outstanding Citizen',desc:'For demonstrating excellent character and citizenship',icon:'🏅'},
+  {id:'improved',title:'Most Improved',desc:'For remarkable growth and perseverance this term',icon:'📈'}
+];
+function renderAwards(){
+  var students=getStudents();
+  var html='<div class="mb-3"><label class="lp-label">Student Name</label>';
+  html+='<select class="form-select form-select-sm d-inline-block me-2" id="awardStudent" style="width:200px;">';
+  html+='<option value="">Type below or select</option>';
+  html+=students.map(function(s){return '<option>'+s+'</option>';}).join('');
+  html+='</select><input type="text" class="form-control form-control-sm d-inline-block" id="awardCustomName" placeholder="Or type a name…" style="width:180px;"></div>';
+  html+='<div class="row g-3">';
+  html+=AWARDS.map(function(a){
+    return '<div class="col-sm-6 col-md-4 col-lg-3"><div class="award-card" data-onclick="printAward(\''+a.id+'\')"><div style="font-size:2rem;">'+a.icon+'</div><div class="fw-bold" style="font-size:.85rem;margin:.4rem 0;">'+a.title+'</div><div style="font-size:.72rem;color:var(--bs-secondary-color);">'+a.desc+'</div><div class="mt-2" style="font-size:.72rem;opacity:.7;"><i class="bi bi-printer me-1"></i>Click to print</div></div></div>';
+  }).join('');
+  html+='</div>';
+  return html;
+}
+function printAward(id){
+  var a=AWARDS.find(function(x){return x.id===id;});if(!a)return;
+  var sel=document.getElementById('awardStudent');
+  var custom=document.getElementById('awardCustomName').value.trim();
+  var name=custom||(sel?sel.value:'')||'_______________________';
+  var w=window.open('','_blank','width=800,height=600');
+  w.document.write('<!DOCTYPE html><html><head><title>Certificate</title><style>body{font-family:Georgia,serif;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fff;}.cert{border:12pt solid #c8a227;padding:40pt;text-align:center;max-width:560pt;margin:auto;}.icon{font-size:54pt;}.title{font-size:24pt;font-weight:bold;color:#3a2a00;margin:12pt 0 4pt;}.sub{font-size:10pt;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:16pt;}.presented{font-size:10pt;color:#555;margin-bottom:4pt;}.student{font-size:20pt;font-weight:bold;border-bottom:1.5pt solid #aaa;padding-bottom:4pt;margin-bottom:16pt;display:inline-block;min-width:260pt;}.desc{font-size:11pt;color:#444;font-style:italic;margin-bottom:24pt;}.sig{margin-top:20pt;display:grid;grid-template-columns:1fr 1fr;gap:20pt;font-size:9pt;color:#888;}.sig-line{border-top:0.5pt solid #aaa;padding-top:4pt;}@media print{@page{size:landscape;margin:0;}body{height:100vh;}}</style></head><body>');
+  w.document.write('<div class="cert"><div class="icon">'+a.icon+'</div><div class="title">'+a.title+'</div><div class="sub">Certificate of Achievement</div><div class="presented">This certificate is proudly presented to</div><div class="student">'+name+'</div><div class="desc">'+a.desc+'</div><div style="font-size:9pt;color:#aaa;">'+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})+'</div><div class="sig"><div class="sig-line">Teacher Signature</div><div class="sig-line">Date</div></div></div>');
+  w.document.write('</body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* ── Progress ── */
+function showProg(sec,btn){
+  document.querySelectorAll('#progPills .nav-link').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  var el=document.getElementById('progContent');
+  if(sec==='levels') el.innerHTML=renderLevels();
+  else if(sec==='anecdotal') el.innerHTML=renderAnecdotal();
+  else if(sec==='fluency') el.innerHTML=renderFluency();
+}
+
+/* Reading & Math Levels */
+function getLevels(){return JSON.parse(localStorage.getItem('student_levels')||'{}');}
+function saveLevels(d){localStorage.setItem('student_levels',JSON.stringify(d));}
+function renderLevels(){
+  var students=getStudents();
+  var data=getLevels();
+  if(!students.length)return '<div class="text-secondary" style="font-size:.82rem;">Add students in Settings to track levels.</div>';
+  var html='<div class="mb-2 d-flex gap-2 flex-wrap align-items-center"><span class="text-secondary" style="font-size:.79rem;">Track reading levels (A–Z or 1–30 DRA) and math levels per student. Auto-saved.</span>';
+  html+='<button class="btn btn-sm btn-outline-secondary ms-auto" data-onclick="printLevels()"><i class="bi bi-printer me-1"></i>Print</button></div>';
+  html+='<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>Student</th><th>Reading Level<br><span style="font-size:.68rem;font-weight:normal;">A–Z or DRA</span></th><th>Reading Goal</th><th>Math Level<br><span style="font-size:.68rem;font-weight:normal;">Grade level / support</span></th><th>Notes</th></tr></thead><tbody>';
+  html+=students.map(function(s){
+    var d=data[s]||{};
+    return '<tr><td style="font-weight:500;font-size:.8rem;">'+s+'</td>'+
+      '<td><input type="text" class="form-control form-control-sm" style="width:80px;" value="'+ha(d.rdgLevel||'')+'" placeholder="e.g. M" data-onchange="saveLevel(\''+q(s)+'\',\'rdgLevel\',this.value)"></td>'+
+      '<td><input type="text" class="form-control form-control-sm" style="width:80px;" value="'+ha(d.rdgGoal||'')+'" placeholder="e.g. P" data-onchange="saveLevel(\''+q(s)+'\',\'rdgGoal\',this.value)"></td>'+
+      '<td><select class="form-select form-select-sm" style="width:130px;" data-onchange="saveLevel(\''+q(s)+'\',\'mathLevel\',this.value)"><option value="">—</option><option '+(d.mathLevel==='Above Grade'?'selected':'')+'>Above Grade</option><option '+(d.mathLevel==='On Grade'?'selected':'')+'>On Grade</option><option '+(d.mathLevel==='Approaching'?'selected':'')+'>Approaching</option><option '+(d.mathLevel==='Intervention'?'selected':'')+'>Intervention</option></select></td>'+
+      '<td><input type="text" class="form-control form-control-sm" value="'+ha(d.notes||'')+'" placeholder="Notes…" data-onchange="saveLevel(\''+q(s)+'\',\'notes\',this.value)"></td>'+
+      '</tr>';
+  }).join('');
+  html+='</tbody></table></div>';
+  return html;
+}
+function saveLevel(student,field,val){
+  var d=getLevels();
+  if(!d[student])d[student]={};
+  d[student][field]=val;
+  saveLevels(d);
+}
+function printLevels(){
+  var students=getStudents();var data=getLevels();
+  var rows=students.map(function(s){var d=data[s]||{};return '<tr><td>'+s+'</td><td>'+(d.rdgLevel||'')+'</td><td>'+(d.rdgGoal||'')+'</td><td>'+(d.mathLevel||'')+'</td><td>'+(d.notes||'')+'</td></tr>';}).join('');
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>Student Levels</title><style>body{font-family:Arial;font-size:10pt;margin:1.2cm;}table{width:100%;border-collapse:collapse;}td,th{border:0.5pt solid #aaa;padding:3pt 5pt;}th{background:#eee;font-weight:bold;font-size:9pt;}</style></head><body><h2 style="font-size:12pt;">Student Reading & Math Levels — '+new Date().toLocaleDateString()+'</h2><table><tr><th>Student</th><th>Reading Level</th><th>Reading Goal</th><th>Math Level</th><th>Notes</th></tr>'+rows+'</table></body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* Anecdotal Notes */
+function getAnecdotal(){return JSON.parse(localStorage.getItem('anecdotal_notes')||'[]');}
+function saveAnecdotal(d){localStorage.setItem('anecdotal_notes',JSON.stringify(d));}
+function renderAnecdotal(){
+  var students=getStudents();
+  var notes=getAnecdotal();
+  var html='<div class="row g-2 mb-3 align-items-end">';
+  html+='<div><label class="lp-label">Student</label><select class="form-select form-select-sm" id="an_student"><option value="">— Select —</option>'+students.map(function(s){return '<option>'+s+'</option>';}).join('')+'</select></div>';
+  html+='<div><label class="lp-label">Date</label><input type="date" class="form-control form-control-sm" id="an_date" value="'+new Date().toISOString().split('T')[0]+'"></div>';
+  html+='<div><label class="lp-label">Subject</label><select class="form-select form-select-sm" id="an_subj"><option>General</option><option>ELA</option><option>Math</option><option>Science</option><option>Social Studies</option><option>Social-Emotional</option><option>Behavior</option></select></div>';
+  html+='<div style="flex:1;"><label class="lp-label">Note</label><input type="text" class="form-control form-control-sm" id="an_note" placeholder="Observation, conference note, incident…"></div>';
+  html+='<button class="btn btn-primary btn-sm" data-onclick="addAnecdotal()"><i class="bi bi-plus-lg"></i></button>';
+  html+='</div>';
+  // Filter by student
+  html+='<div class="mb-2"><label class="lp-label d-inline me-2">Show:</label>';
+  html+='<select class="form-select form-select-sm d-inline-block" style="width:180px;" id="an_filter" data-onchange="rerenderAnecdotal()"><option value="">All Students</option>'+students.map(function(s){return '<option>'+s+'</option>';}).join('')+'</select>';
+  html+='<button class="btn btn-sm btn-outline-secondary ms-2" data-onclick="printAnecdotal()"><i class="bi bi-printer me-1"></i>Print</button></div>';
+  var filter=document.getElementById('an_filter')?document.getElementById('an_filter').value:'';
+  var filtered=notes.filter(function(n){return !filter||n.student===filter;});
+  if(filtered.length){
+    html+='<div style="max-height:400px;overflow-y:auto;">';
+    html+=filtered.slice().reverse().map(function(n,i){
+      var ri=notes.indexOf(n);
+      return '<div class="anec-item"><div class="d-flex justify-content-between"><div><span class="fw-semibold" style="font-size:.82rem;">'+n.student+'</span> <span class="badge bg-secondary" style="font-size:.68rem;">'+n.subj+'</span> <span class="text-secondary" style="font-size:.75rem;">'+n.date+'</span></div><button class="btn btn-link btn-sm text-danger p-0" data-onclick="deleteAnecdotal('+ri+')"><i class="bi bi-x-lg"></i></button></div><div style="font-size:.8rem;margin-top:2px;">'+n.note+'</div></div>';
+    }).join('');
+    html+='</div>';
+  } else {
+    html+='<div class="text-secondary" style="font-size:.82rem;">No notes yet.</div>';
+  }
+  return html;
+}
+function addAnecdotal(){
+  var student=document.getElementById('an_student').value;
+  var date=document.getElementById('an_date').value||new Date().toLocaleDateString();
+  var subj=document.getElementById('an_subj').value;
+  var note=(document.getElementById('an_note').value||'').trim();
+  if(!student||!note)return;
+  var notes=getAnecdotal();
+  notes.push({student:student,date:date,subj:subj,note:note});
+  saveAnecdotal(notes);
+  document.getElementById('an_note').value='';
+  showProg('anecdotal',document.querySelector('#progPills .nav-link.active'));
+}
+function deleteAnecdotal(i){var n=getAnecdotal();n.splice(i,1);saveAnecdotal(n);showProg('anecdotal',document.querySelector('#progPills .nav-link.active'));}
+function printAnecdotal(){
+  var notes=getAnecdotal();
+  var rows=notes.map(function(n){return '<tr><td>'+n.student+'</td><td>'+n.date+'</td><td>'+n.subj+'</td><td>'+n.note+'</td></tr>';}).join('');
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>Anecdotal Notes</title><style>body{font-family:Arial;font-size:9.5pt;margin:1.2cm;}table{width:100%;border-collapse:collapse;}td,th{border:0.5pt solid #aaa;padding:3pt 5pt;vertical-align:top;}th{background:#eee;}</style></head><body><h2>Anecdotal Notes — '+new Date().toLocaleDateString()+'</h2><table><tr><th>Student</th><th>Date</th><th>Subject</th><th>Note</th></tr>'+rows+'</table></body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* Math Fluency */
+function getFluency(){return JSON.parse(localStorage.getItem('fluency_data')||'{}');}
+function saveFluency(d){localStorage.setItem('fluency_data',JSON.stringify(d));}
+function renderFluency(){
+  var students=getStudents();
+  var data=getFluency();
+  if(!students.length)return '<div class="text-secondary" style="font-size:.82rem;">Add students in Settings.</div>';
+  var ops=['Addition','Subtraction','Multiplication','Division'];
+  var html='<div class="mb-2 text-secondary" style="font-size:.79rem;">Track timed math fact test scores (correct/total in 1–3 minutes). Auto-saved.</div>';
+  html+='<div class="mb-3 d-flex gap-2 align-items-center"><label class="lp-label mb-0 me-1">Operation:</label>';
+  ops.forEach(function(op,i){
+    html+='<button class="btn btn-sm '+(i===0?'btn-primary':'btn-outline-secondary')+'" data-onclick="setFluencyOp(\''+op+'\',this)">'+op+'</button>';
+  });
+  html+='</div>';
+  html+='<div id="fluencyTable">'+renderFluencyTable(localStorage.getItem('fluency_op')||'Addition')+'</div>';
+  html+='<button class="btn btn-sm btn-outline-secondary mt-3" data-onclick="printFluency()"><i class="bi bi-printer me-1"></i>Print Results</button>';
+  return html;
+}
+function setFluencyOp(op,btn){
+  document.querySelectorAll('#progContent .btn').forEach(function(b){if(['Addition','Subtraction','Multiplication','Division'].some(function(o){return b.textContent.trim()===o;}))b.className='btn btn-sm btn-outline-secondary';});
+  btn.className='btn btn-sm btn-primary';
+  localStorage.setItem('fluency_op',op);
+  document.getElementById('fluencyTable').innerHTML=renderFluencyTable(op);
+}
+function renderFluencyTable(op){
+  var students=getStudents();
+  var data=getFluency();
+  var tests=['Test 1','Test 2','Test 3','Test 4','Test 5','Test 6'];
+  var html='<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr><th>Student</th>';
+  tests.forEach(function(t){html+='<th style="font-size:.72rem;text-align:center;">'+t+'</th>';});
+  html+='<th>Best</th></tr></thead><tbody>';
+  html+=students.map(function(s){
+    var row='<tr><td style="font-weight:500;font-size:.8rem;">'+s+'</td>';
+    var best=0;
+    tests.forEach(function(t){
+      var key=op+'_'+s+'_'+t;
+      var val=data[key]||'';
+      var num=parseInt(val)||0;
+      if(num>best)best=num;
+      row+='<td><input type="number" class="form-control form-control-sm p-0 px-1 text-center" style="width:58px;font-size:.78rem;" min="0" max="100" value="'+val+'" placeholder="—" data-onchange="saveFluencyScore(\''+q(op)+'\',\''+q(s)+'\',\''+q(t)+'\',this.value)"></td>';
+    });
+    row+='<td style="font-size:.8rem;font-weight:bold;text-align:center;">'+(best||'—')+'</td></tr>';
+    return row;
+  }).join('');
+  html+='</tbody></table></div>';
+  return html;
+}
+function saveFluencyScore(op,student,test,val){
+  var d=getFluency();
+  d[op+'_'+student+'_'+test]=val;
+  saveFluency(d);
+}
+function printFluency(){
+  var op=localStorage.getItem('fluency_op')||'Addition';
+  var students=getStudents();var data=getFluency();
+  var tests=['Test 1','Test 2','Test 3','Test 4','Test 5','Test 6'];
+  var hdr='<tr><th>Student</th>'+tests.map(function(t){return '<th>'+t+'</th>';}).join('')+'<th>Best</th></tr>';
+  var body=students.map(function(s){
+    var cells=tests.map(function(t){return '<td>'+(data[op+'_'+s+'_'+t]||'')+'</td>';}).join('');
+    var best=Math.max.apply(null,tests.map(function(t){return parseInt(data[op+'_'+s+'_'+t])||0;}));
+    return '<tr><td>'+s+'</td>'+cells+'<td><b>'+(best||'—')+'</b></td></tr>';
+  }).join('');
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>Fluency</title><style>body{font-family:Arial;font-size:10pt;margin:1.2cm;}table{width:100%;border-collapse:collapse;}td,th{border:0.5pt solid #aaa;padding:3pt 5pt;text-align:center;}td:first-child{text-align:left;}th{background:#eee;}</style></head><body><h2>Math Fluency — '+op+' — '+new Date().toLocaleDateString()+'</h2><table><thead>'+hdr+'</thead><tbody>'+body+'</tbody></table></body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* ── Tools ── */
+/* Timer */
+var timerInterval=null,timerRemaining=300,timerRunning=false;
+function startTimer(){
+  if(timerRunning)return;
+  if(timerRemaining<=0){resetTimer();return;}
+  timerRunning=true;
+  timerInterval=setInterval(function(){
+    timerRemaining--;
+    updateTimerDisplay();
+    if(timerRemaining<=0){clearInterval(timerInterval);timerRunning=false;document.getElementById('timerDisplay').style.color='#dc3545';document.getElementById('timerDisplay').textContent='Time!';}
+  },1000);
+}
+function pauseTimer(){clearInterval(timerInterval);timerRunning=false;}
+function resetTimer(){
+  clearInterval(timerInterval);timerRunning=false;
+  var m=parseInt(document.getElementById('timerMinutes').value)||0;
+  var s=parseInt(document.getElementById('timerSeconds').value)||0;
+  timerRemaining=m*60+s;
+  document.getElementById('timerDisplay').style.color='';
+  updateTimerDisplay();
+}
+function updateTimerDisplay(){
+  var m=Math.floor(timerRemaining/60);
+  var s=timerRemaining%60;
+  document.getElementById('timerDisplay').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+/* Student Picker */
+var pickerPool=[];
+function pickStudent(){
+  var students=getStudents();
+  if(!students.length){document.getElementById('pickerResult').textContent='Add students in Settings!';return;}
+  if(!pickerPool.length){pickerPool=students.slice();}
+  var idx=Math.floor(Math.random()*pickerPool.length);
+  var picked=pickerPool.splice(idx,1)[0];
+  document.getElementById('pickerResult').textContent=picked;
+  document.getElementById('pickerRemaining').textContent=pickerPool.length+' remaining';
+}
+function resetPicker(){
+  pickerPool=[];
+  document.getElementById('pickerResult').textContent='—';
+  document.getElementById('pickerRemaining').textContent='';
+}
+
+/* Group Maker */
+function makeGroups(){
+  var students=getStudents();
+  if(!students.length){document.getElementById('groupsOutput').innerHTML='<div class="text-secondary">Add students in Settings.</div>';return;}
+  var n=parseInt(document.getElementById('groupCount').value)||4;
+  var shuffled=students.slice().sort(function(){return Math.random()-.5;});
+  var groups=[];
+  for(var i=0;i<n;i++)groups.push([]);
+  shuffled.forEach(function(s,i){groups[i%n].push(s);});
+  document.getElementById('groupsOutput').innerHTML=groups.map(function(g,i){
+    return '<div class="mb-2"><span class="fw-bold" style="font-size:.82rem;">Group '+(i+1)+':</span> <span style="font-size:.8rem;">'+g.join(', ')+'</span></div>';
+  }).join('');
+}
+
+/* Class Tally */
+function getTallies(){return JSON.parse(localStorage.getItem('tallies')||'[]');}
+function saveTallies(t){localStorage.setItem('tallies',JSON.stringify(t));}
+function renderTallies(){
+  var t=getTallies();
+  document.getElementById('tallyList').innerHTML=t.map(function(item,i){
+    return '<div class="d-flex align-items-center justify-content-between mb-1"><span style="font-size:.8rem;flex:1;">'+item.label+'</span><div class="d-flex align-items-center gap-1"><button class="btn btn-sm btn-danger py-0 px-1" data-onclick="adjustTally('+i+',-1)">−</button><span class="fw-bold" style="min-width:28px;text-align:center;">'+item.count+'</span><button class="btn btn-sm btn-success py-0 px-1" data-onclick="adjustTally('+i+',1)">+</button><button class="btn btn-link btn-sm text-danger p-0" data-onclick="deleteTally('+i+')"><i class="bi bi-x-lg"></i></button></div></div>';
+  }).join('');
+}
+function addTallyItem(){
+  var label=(document.getElementById('tallyLabel').value||'').trim();
+  if(!label)return;
+  var t=getTallies();t.push({label:label,count:0});saveTallies(t);
+  document.getElementById('tallyLabel').value='';
+  renderTallies();
+}
+function adjustTally(i,delta){var t=getTallies();t[i].count=Math.max(0,(t[i].count||0)+delta);saveTallies(t);renderTallies();}
+function deleteTally(i){var t=getTallies();t.splice(i,1);saveTallies(t);renderTallies();}
+function clearTallies(){if(!confirm('Reset all tallies?'))return;saveTallies([]);renderTallies();}
+
+/* Dice Roller */
+function rollDice(){
+  var sides=parseInt(document.getElementById('diceType').value);
+  var count=parseInt(document.getElementById('diceCount').value);
+  var rolls=[];
+  for(var i=0;i<count;i++)rolls.push(Math.floor(Math.random()*sides)+1);
+  document.getElementById('diceResult').textContent=rolls.join(' + ');
+  document.getElementById('diceTotal').textContent=count>1?'Total: '+rolls.reduce(function(a,b){return a+b;},0):'';
+}
+
+/* Noise Meter */
+var NOISE_LEVELS=['🤫 Silence — No talking','🔇 Level 1 — Whisper only','🔉 Level 2 — Quiet Voices','🗣️ Level 3 — Partner Voices','📢 Level 4 — Presentation Voice','🔊 Level 5 — Outside Voice'];
+var NOISE_COLORS=['#6c757d','#0d6efd','#198754','#ffc107','#fd7e14','#dc3545'];
+function updateNoise(val){
+  var v=parseInt(val);
+  document.getElementById('noiseLabel').textContent=NOISE_LEVELS[v];
+  document.getElementById('noiseLabel').style.color=NOISE_COLORS[v];
+  var ind=document.getElementById('noiseIndicator');
+  if(ind){ind.style.width=(v/5*100)+'%';ind.style.background=NOISE_COLORS[v];}
+}
+
+/* Exit Ticket Generator */
+var ET_TEMPLATES={
+  '3-2-1':['3 things you learned today','2 questions you still have','1 thing you found most interesting'],
+  'muddiest':['What is still muddy or confusing for you?','What strategy could help you understand better?'],
+  'summary':['Write one sentence that summarizes what you learned today.'],
+  'rating':['On a scale of 1–5, how well do you understand today\'s lesson? Circle: 1  2  3  4  5','Explain your rating:','What would help you understand better?'],
+  'question':['Write one question you have about today\'s lesson or topic.','Why is this question important?'],
+  'connection':['How does today\'s learning connect to something you already knew?','Text-to-self, text-to-text, or text-to-world connection:']
+};
+var lastET='';
+function generateExitTicket(){
+  var subject=document.getElementById('etSubject').value;
+  var style=document.getElementById('etStyle').value;
+  var prompts=ET_TEMPLATES[style]||ET_TEMPLATES['3-2-1'];
+  var html='<div style="font-weight:600;margin-bottom:6px;">'+subject+' Exit Ticket — '+new Date().toLocaleDateString()+'</div>';
+  html+=prompts.map(function(p,i){return '<div style="margin:4px 0;"><b>'+(prompts.length>1?'#'+(i+1)+': ':'')+p+'</b></div>';}).join('');
+  document.getElementById('etOutput').innerHTML=html;
+  lastET=html;
+}
+function printExitTicket(){
+  if(!lastET)generateExitTicket();
+  var ticket='<div style="border:1pt solid #333;padding:10pt;break-inside:avoid;"><div style="font-size:7pt;border-bottom:0.5pt solid #aaa;margin-bottom:6pt;">Name: _______________________  Date: ___________</div>'+lastET+'<div style="border-top:0.5pt solid #aaa;margin-top:8pt;min-height:40pt;" contenteditable></div></div>';
+  var w=window.open('','_blank','width=800,height=600');
+  w.document.write('<!DOCTYPE html><html><head><title>Exit Ticket</title><style>body{font-family:Arial;font-size:9.5pt;margin:.8cm;}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8pt;}@media print{@page{margin:.8cm;}}</style></head><body><div class="grid">'+ticket+ticket+ticket+ticket+'</div></body></html>');
+  w.document.close();try{w.focus();w.print();}catch(_e){}
+}
+
+/* Spin the Wheel */
+var spinAngle=0,spinning=false,spinItems=[];
+function drawWheel(){
+  var canvas=document.getElementById('spinCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var raw=(document.getElementById('spinItems').value||'').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  spinItems=raw.length?raw:['ELA','Math','Science','Social Studies'];
+  var n=spinItems.length;
+  var cx=canvas.width/2,cy=canvas.height/2,r=cx-4;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  var colors=['#4a90d9','#e85d5d','#f5a623','#7ed321','#9b59b6','#1abc9c','#e67e22','#3498db'];
+  spinItems.forEach(function(item,i){
+    var start=spinAngle+i*(2*Math.PI/n);
+    var end=start+2*Math.PI/n;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();
+    ctx.fillStyle=colors[i%colors.length];ctx.fill();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(start+(end-start)/2);
+    ctx.textAlign='right';ctx.fillStyle='#fff';ctx.font='bold '+(n>6?'9':'11')+'px Arial';
+    ctx.fillText(item.length>12?item.substring(0,12)+'…':item,r-6,4);
+    ctx.restore();
+  });
+  ctx.beginPath();ctx.moveTo(cx+r+4,cy);ctx.lineTo(cx+r-6,cy-6);ctx.lineTo(cx+r-6,cy+6);ctx.closePath();ctx.fillStyle='#333';ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,8,0,2*Math.PI);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#333';ctx.lineWidth=1.5;ctx.stroke();
+}
+function spinWheel(){
+  if(spinning)return;
+  spinning=true;
+  document.getElementById('spinResult').textContent='';
+  var totalRot=Math.PI*2*(8+Math.random()*5)+Math.random()*Math.PI*2;
+  var duration=3000,start=null,startAngle=spinAngle;
+  function step(ts){
+    if(!start)start=ts;
+    var elapsed=ts-start;
+    var progress=elapsed/duration;
+    if(progress>=1){
+      spinAngle=startAngle+totalRot;
+      drawWheel();
+      var n=spinItems.length;
+      var normalised=(2*Math.PI-(spinAngle%(2*Math.PI)))%(2*Math.PI);
+      var idx=Math.floor(normalised/(2*Math.PI/n))%n;
+      document.getElementById('spinResult').textContent=spinItems[idx];
+      spinning=false;
+      return;
+    }
+    var ease=1-Math.pow(1-progress,3);
+    spinAngle=startAngle+totalRot*ease;
+    drawWheel();
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* Teacher Quotes */
+var QUOTES=[
+  {q:'Teaching is the one profession that creates all other professions.',a:'Unknown'},
+  {q:'The art of teaching is the art of assisting discovery.',a:'Mark Van Doren'},
+  {q:'Education is not the filling of a pail, but the lighting of a fire.',a:'W.B. Yeats'},
+  {q:'The best teachers are those who show you where to look but don\'t tell you what to see.',a:'Alexandra K. Trenfor'},
+  {q:'You can teach a student a lesson for a day; but if you can teach him to learn by creating curiosity, he will continue the learning process as long as he lives.',a:'Clay P. Bedford'},
+  {q:'A good teacher can inspire hope, ignite the imagination, and instill a love of learning.',a:'Brad Henry'},
+  {q:'It is the supreme art of the teacher to awaken joy in creative expression and knowledge.',a:'Albert Einstein'},
+  {q:'One child, one teacher, one book, one pen can change the world.',a:'Malala Yousafzai'},
+  {q:'The mediocre teacher tells. The good teacher explains. The superior teacher demonstrates. The great teacher inspires.',a:'William Arthur Ward'},
+  {q:'Teaching kids to count is fine, but teaching them what counts is best.',a:'Bob Talbert'},
+  {q:'What we learn with pleasure we never forget.',a:'Alfred Mercier'},
+  {q:'The influence of a good teacher can never be erased.',a:'Unknown'},
+  {q:'Children must be taught how to think, not what to think.',a:'Margaret Mead'},
+  {q:'Every child deserves a champion — an adult who will never give up on them.',a:'Rita Pierson'},
+  {q:'Don\'t try to fix the students, fix ourselves first. The good teacher makes the poor student good and the good student superior.',a:'Marva Collins'}
+];
+var quoteIdx=0;
+function showQuote(){
+  var q=QUOTES[quoteIdx];
+  document.getElementById('quoteDisplay').textContent='“'+q.q+'”';
+  document.getElementById('quoteAuthor').textContent='— '+q.a;
+}
+function nextQuote(){quoteIdx=(quoteIdx+1)%QUOTES.length;showQuote();}
+
+/* ── Demo Seed Data (runs once on first visit) ── */
+function seedDemoData(){
+  if(localStorage.getItem('teacher_settings'))return;
+  var students=['Alex','Brianna','Carlos','Destiny','Ethan','Faith','Gavin','Hannah','Isaac','Jade','Kevin','Lily','Marcus','Natalia','Oliver','Priya','Quinn','Riley','Sophia','Tyler'];
+  var today=new Date();
+  var addDays=function(d,n){var r=new Date(d);r.setDate(r.getDate()+n);return r;};
+  var fmtISO=function(d){return d.toISOString().split('T')[0];};
+  var fmtShort=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+  var ago=function(n){return fmtShort(addDays(today,-n));};
+
+  localStorage.setItem('teacher_settings',JSON.stringify({name:'Mrs. Rojas',school:'Sunrise Elementary',grade:'5th Grade',pbisGoal:100,students:students}));
+
+  var asgs=[
+    {id:'a1',name:'Ch. 1 Vocab Quiz',pts:20,type:'quiz',date:fmtISO(addDays(today,-28))},
+    {id:'a2',name:'Fractions Test',pts:100,type:'test',date:fmtISO(addDays(today,-21))},
+    {id:'a3',name:'Weekly Reading Log',pts:25,type:'assignment',date:fmtISO(addDays(today,-14))},
+    {id:'a4',name:'Science Lab Report',pts:50,type:'project',date:fmtISO(addDays(today,-7))},
+    {id:'a5',name:'ELA Mid-Term',pts:100,type:'test',date:fmtISO(addDays(today,-2))}
+  ];
+  localStorage.setItem('gb_assignments',JSON.stringify(asgs));
+
+  var rawScores={Alex:[19,88,24,46,90],Brianna:[20,95,25,50,96],Carlos:[15,72,20,38,74],Destiny:[18,82,22,44,85],Ethan:[16,68,18,35,71],Faith:[20,97,25,49,98],Gavin:[14,65,19,32,66],Hannah:[19,91,24,47,92],Isaac:[17,78,21,42,80],Jade:[20,94,25,48,95],Kevin:[13,60,17,30,62],Lily:[18,85,23,45,87],Marcus:[15,74,20,40,76],Natalia:[20,92,25,48,93],Oliver:[16,70,19,36,72],Priya:[20,96,25,50,97],Quinn:[17,79,22,41,81],Riley:[19,89,24,46,90],Sophia:[20,93,25,49,94],Tyler:[14,63,18,33,64]};
+  var grades={};
+  students.forEach(function(s){(rawScores[s]||[15,75,20,38,77]).forEach(function(v,i){grades['a'+(i+1)+'_'+s]=v;});});
+  localStorage.setItem('gb_grades',JSON.stringify(grades));
+
+  var rawBeh={Alex:[8,0,'Strong participation in discussions'],Brianna:[12,0,''],Carlos:[5,2,'Occasional off-task'],Destiny:[9,1,''],Ethan:[4,3,'Working on listening skills'],Faith:[15,0,'Exceptional role model'],Gavin:[3,4,'Needs frequent redirection'],Hannah:[11,0,''],Isaac:[7,1,''],Jade:[13,0,''],Kevin:[2,5,'Struggling with impulse control — parent contact made'],Lily:[10,0,''],Marcus:[6,2,''],Natalia:[14,0,'Natural leadership qualities'],Oliver:[5,1,''],Priya:[15,0,'Outstanding classroom citizen'],Quinn:[8,0,''],Riley:[11,0,''],Sophia:[13,0,''],Tyler:[4,3,'Benefits from movement breaks']};
+  var beh={};students.forEach(function(s){var d=rawBeh[s]||[5,0,''];beh[s]={pos:d[0],neg:d[1],notes:d[2]};});
+  localStorage.setItem('behavior_data',JSON.stringify(beh));
+
+  localStorage.setItem('comm_log',JSON.stringify([
+    {student:'Kevin',date:ago(14),type:'call',note:'Called home regarding classroom behavior. Parent receptive and will reinforce expectations at home.',resolved:true},
+    {student:'Ethan',date:ago(7),type:'email',note:'Emailed parent about missing assignments — 3 reading logs not submitted this month.',resolved:false},
+    {student:'Gavin',date:ago(3),type:'note',note:'Sent home positive note recognizing improved effort in math this week.',resolved:true},
+    {student:'Faith',date:ago(1),type:'email',note:'Parent asked about enrichment opportunities. Shared GT screening info.',resolved:true}
+  ]));
+
+  localStorage.setItem('iep_notes',JSON.stringify({
+    'Ethan':'504 Plan: Extended time (1.5×) on all assessments. Preferential seating near front. Assignments may be chunked. Check for understanding before independent work.',
+    'Kevin':'IEP — SLD Reading: Small group pull-out Mon/Wed/Fri with Ms. Patterson. Read-aloud accommodation. Modified spelling list. Sentence starters for written responses.',
+    'Gavin':'ELL Student (Level 3 — Developing): Visual vocabulary supports and word banks. Allow native language dictionary. Pair with bilingual buddy during new concept instruction.'
+  }));
+
+  localStorage.setItem('pbis_data',JSON.stringify({pts:78,log:[
+    {pts:5,reason:'Whole class on task during independent math work',date:ago(14)},
+    {pts:10,reason:'Excellent behavior during school assembly',date:ago(7)},
+    {pts:3,reason:'Quiet hallway transition x3',date:ago(3)}
+  ]}));
+
+  var rawLevels={Alex:{rdgLevel:'S',rdgGoal:'U',mathLevel:'On Grade',notes:''},Brianna:{rdgLevel:'W',rdgGoal:'Y',mathLevel:'Above Grade',notes:''},Carlos:{rdgLevel:'N',rdgGoal:'Q',mathLevel:'Approaching',notes:'ELL support'},Destiny:{rdgLevel:'T',rdgGoal:'V',mathLevel:'On Grade',notes:''},Ethan:{rdgLevel:'P',rdgGoal:'S',mathLevel:'Approaching',notes:'504 — extended time'},Faith:{rdgLevel:'Z',rdgGoal:'Z+',mathLevel:'Above Grade',notes:'Enrichment math'},Gavin:{rdgLevel:'L',rdgGoal:'P',mathLevel:'Intervention',notes:'ELL Level 3'},Hannah:{rdgLevel:'U',rdgGoal:'W',mathLevel:'On Grade',notes:''},Isaac:{rdgLevel:'R',rdgGoal:'T',mathLevel:'On Grade',notes:''},Jade:{rdgLevel:'X',rdgGoal:'Z',mathLevel:'Above Grade',notes:''},Kevin:{rdgLevel:'M',rdgGoal:'P',mathLevel:'Intervention',notes:'IEP reading'},Lily:{rdgLevel:'V',rdgGoal:'X',mathLevel:'On Grade',notes:''},Marcus:{rdgLevel:'Q',rdgGoal:'S',mathLevel:'Approaching',notes:''},Natalia:{rdgLevel:'W',rdgGoal:'Y',mathLevel:'Above Grade',notes:''},Oliver:{rdgLevel:'O',rdgGoal:'R',mathLevel:'Approaching',notes:''},Priya:{rdgLevel:'Z',rdgGoal:'Z+',mathLevel:'Above Grade',notes:'Math competition team'},Quinn:{rdgLevel:'S',rdgGoal:'U',mathLevel:'On Grade',notes:''},Riley:{rdgLevel:'T',rdgGoal:'V',mathLevel:'On Grade',notes:''},Sophia:{rdgLevel:'X',rdgGoal:'Z',mathLevel:'Above Grade',notes:''},Tyler:{rdgLevel:'N',rdgGoal:'Q',mathLevel:'Intervention',notes:'Benefits from movement breaks'}};
+  var levels={};students.forEach(function(s){levels[s]=rawLevels[s]||{rdgLevel:'',rdgGoal:'',mathLevel:'On Grade',notes:''};});
+  localStorage.setItem('student_levels',JSON.stringify(levels));
+
+  localStorage.setItem('anecdotal_notes',JSON.stringify([
+    {student:'Faith',date:ago(10),note:'Demonstrated exceptional leadership during small group — helped peers explain fractions using visual models. Consider for peer tutor role.'},
+    {student:'Kevin',date:ago(7),note:'Struggled with multi-step word problems. Graphic organizer helped. Will revisit in small group with Ms. Patterson Friday.'},
+    {student:'Priya',date:ago(5),note:'Extended the fraction lesson independently — asked about decimal equivalents. Recommended Khan Academy advanced track.'},
+    {student:'Gavin',date:ago(3),note:'Made excellent progress with vocabulary support cards during science lab. Most engaged I have seen him this year.'},
+    {student:'Ethan',date:ago(1),note:'Completed full exit ticket independently for first time this unit. Chunked assignment format is working well.'}
+  ]));
+
+  var rawFluency={Alex:[95,98,0,0,0,0],Brianna:[100,100,0,0,0,0],Carlos:[72,80,0,0,0,0],Destiny:[88,92,0,0,0,0],Ethan:[60,68,0,0,0,0],Faith:[100,100,0,0,0,0],Gavin:[52,60,0,0,0,0],Hannah:[90,95,0,0,0,0],Isaac:[84,87,0,0,0,0],Jade:[98,100,0,0,0,0],Kevin:[48,55,0,0,0,0],Lily:[88,90,0,0,0,0],Marcus:[75,79,0,0,0,0],Natalia:[95,97,0,0,0,0],Oliver:[70,74,0,0,0,0],Priya:[100,100,0,0,0,0],Quinn:[82,85,0,0,0,0],Riley:[91,93,0,0,0,0],Sophia:[96,98,0,0,0,0],Tyler:[55,61,0,0,0,0]};
+  var fluency={};students.forEach(function(s){fluency[s]={'Multiplication':rawFluency[s]||[0,0,0,0,0,0]};});
+  localStorage.setItem('fluency_data',JSON.stringify(fluency));
+  localStorage.setItem('fluency_op','Multiplication');
+
+  localStorage.setItem('cal_events',JSON.stringify([
+    {id:'e1',date:fmtISO(addDays(today,3)),title:'Fractions Unit Test',type:'test',notes:'Chapters 4–6'},
+    {id:'e2',date:fmtISO(addDays(today,7)),title:'Fall Parent-Teacher Conferences',type:'meeting',notes:'4:00–7:00 PM'},
+    {id:'e3',date:fmtISO(addDays(today,10)),title:'Field Trip — Natural History Museum',type:'trip',notes:'Permission slips due Friday'},
+    {id:'e4',date:fmtISO(addDays(today,14)),title:'Reading Log Due',type:'due',notes:''},
+    {id:'e5',date:fmtISO(addDays(today,21)),title:'Q1 Report Cards',type:'due',notes:'Quarter 1 ends'},
+    {id:'e6',date:fmtISO(addDays(today,28)),title:'Halloween',type:'holiday',notes:'Costume parade at 2 PM'}
+  ]));
+
+  localStorage.setItem('supply_list',JSON.stringify([
+    {item:'#2 Pencils (box of 30)',qty:'2 boxes',have:false},
+    {item:'Dry-erase markers',qty:'4 sets',have:false},
+    {item:'Construction paper',qty:'1 pack',have:true},
+    {item:'Whiteboard cleaner',qty:'2 bottles',have:false},
+    {item:'Sticky notes (3×3)',qty:'5 packs',have:true},
+    {item:'Index cards',qty:'200',have:false},
+    {item:'Glue sticks',qty:'30',have:true},
+    {item:'Student scissors',qty:'5',have:false}
+  ]));
+
+  localStorage.setItem('tallies',JSON.stringify([
+    {label:'Line Points',count:7},
+    {label:'Star of the Day',count:3},
+    {label:'Helping Hand',count:5}
+  ]));
+
+  localStorage.setItem('teacher_plans',JSON.stringify([{
+    id:'demo1',
+    data:{
+      lpTitle:'Adding & Subtracting Fractions with Unlike Denominators',
+      lpSubject:'Math',lpDate:fmtISO(addDays(today,1)),lpDuration:'60 minutes',
+      lpStandards:'5.NF.A.1 — Add and subtract fractions with unlike denominators',
+      lpObjectives:'Students will be able to find a common denominator and add/subtract fractions with unlike denominators. Students will explain their reasoning using visual models.',
+      lpVocab:'numerator, denominator, common denominator, equivalent fraction, least common multiple (LCM)',
+      lpMaterials:'Fraction tiles, number lines, mini whiteboards, exit ticket slips',
+      lpHook:'Pizza problem: "If I ate 1/3 of a pizza and you ate 1/4, who ate more? How much did we eat together?" Students turn-and-talk for 2 minutes.',
+      lpIDo:'Model finding LCM of 3 and 4. Show how to rename fractions with a common denominator. Complete first example on board with think-aloud.',
+      lpWeDo:'Class solves 3 problems together using mini whiteboards. Students hold up boards — check for understanding and discuss misconceptions.',
+      lpYouDo:'Independent practice worksheet — 8 problems. Early finishers: word problems on back.',
+      lpClosure:'Exit ticket: solve 1/2 + 2/5. Write the answer and one sentence explaining your strategy.',
+      lpAssess:'Exit ticket reviewed tonight, observation during whiteboard practice, worksheet collected',
+      lpDiff:'Ethan & Kevin: fraction tile scaffold, reduced set (problems 1–5 only). Faith & Priya: mixed numbers extension on back of worksheet.',
+      lpNotes:'Check fraction tile supply before class. Pull Ethan and Kevin to small group during You Do if they appear lost.'
+    }
+  }]));
+}
+
+/* ── Init ── */
+function init(){
+  seedDemoData();
+  // Theme
+  var saved=localStorage.getItem('bsTheme')||'light';
+  document.documentElement.setAttribute('data-bs-theme',saved);
+  // Load settings & greeting
+  loadSettings();
+  // Lesson planner
+  renderSavedPlans();renderUnitPlans();
+  // Activities
+  filterActivities();
+  // Templates
+  renderTemplates();
+  // Standards (default: ELA)
+  showStd('ela',document.querySelector('#stdTabs .nav-link'));
+  // Gradebook
+  renderGradebook();
+  // Class mgmt (default: comm)
+  showMgmt('comm',document.querySelector('#mgmtPills .nav-link'));
+  // Calendar
+  renderCalendar();
+  // Resources (default: mm)
+  showRes('mm',document.querySelector('#resPills .nav-link'));
+  // Progress (default: levels)
+  showProg('levels',document.querySelector('#progPills .nav-link'));
+  // Noise meter
+  updateNoise(2);
+  // Timer display
+  resetTimer();
+  // Picker
+  pickerPool=[];
+  // Tallies
+  renderTallies();
+  // Quote
+  quoteIdx=Math.floor(Math.random()*QUOTES.length);
+  showQuote();
+  // Wheel
+  setTimeout(drawWheel,100);
+}
+
+document.addEventListener('DOMContentLoaded',init);
+
+
+/* ===== Externalized handler delegation (CSP-safe; replaces inline on* handlers) ===== */
+function _thArgs(str, el, ev){
+  var args=[], i=0, n=str.length;
+  while(i<n){
+    while(i<n && (str[i]===' '||str[i]===','||str[i]==='\t')) i++;
+    if(i>=n) break;
+    var c=str[i];
+    if(c==="'"||c==='"'){
+      var qc=c; i++; var s='';
+      while(i<n){
+        if(str[i]==='\\' && i+1<n){ s+=str[i+1]; i+=2; continue; }
+        if(str[i]===qc){ i++; break; }
+        s+=str[i]; i++;
+      }
+      args.push(s);
+    } else {
+      var t='';
+      while(i<n && str[i]!==',') { t+=str[i]; i++; }
+      t=t.trim();
+      if(t==='this') args.push(el);
+      else if(t==='event') args.push(ev);
+      else if(t==='this.value') args.push(el?el.value:undefined);
+      else if(t==='this.checked') args.push(el?el.checked:false);
+      else if(t==='true') args.push(true);
+      else if(t==='false') args.push(false);
+      else if(t==='null') args.push(null);
+      else if(t!=='' && /^-?\d+(?:\.\d+)?$/.test(t)) args.push(parseFloat(t));
+      else args.push(t);
+    }
+  }
+  return args;
+}
+function _thDispatch(expr, el, ev){
+  if(!expr) return;
+  var m=/^\s*([A-Za-z_$][\w$]*)\s*\(([\s\S]*)\)\s*$/.exec(expr);
+  if(!m) return;
+  var fn=window[m[1]];
+  if(typeof fn!=='function') return;
+  fn.apply(el, _thArgs(m[2], el, ev));
+}
+function _thHandler(attr){
+  return function(ev){
+    var t=ev.target;
+    var el=(t && t.closest) ? t.closest('['+attr+']') : null;
+    if(!el) return;
+    _thDispatch(el.getAttribute(attr), el, ev);
+  };
+}
+document.addEventListener('click',  _thHandler('data-onclick'));
+document.addEventListener('change', _thHandler('data-onchange'));
+document.addEventListener('input',  _thHandler('data-oninput'));
+
+/* Helpers replacing complex inline expressions */
+function hideCalEventForm(){ var f=document.getElementById('calEventForm'); if(f) f.style.display='none'; }
+function rerenderBehavior(){ showMgmt('behavior', document.querySelector('#mgmtPills .nav-link.active')); }
+function rerenderAnecdotal(){ showProg('anecdotal', document.querySelector('#progPills .nav-link.active')); }
+
+/* ===== Data backup: export / import ALL Teacher Hub data (FERPA-safe local backup) ===== */
+var BACKUP_KEYS=['teacher_settings','pbis_goal','teacher_plans','teacher_units','gb_assignments','gb_grades','comm_log','behavior_data','pbis_data','seating_data','iep_notes','supply_list','cal_events','word_wall','student_levels','anecdotal_notes','fluency_data','fluency_op','std_taught','tallies','bsTheme','teacher.branding.v1'];
+function exportAllData(){
+  var out={_app:'teacher-hub',_version:1,_exported:new Date().toISOString(),data:{}};
+  BACKUP_KEYS.forEach(function(k){ var v=localStorage.getItem(k); if(v!==null) out.data[k]=v; });
+  var blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='teacher-hub-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); },0);
+}
+function triggerImport(){ var f=document.getElementById('importFile'); if(f) f.click(); }
+function importAllData(input){
+  var f=input && input.files && input.files[0];
+  if(!f) return;
+  var reader=new FileReader();
+  reader.addEventListener('load',function(){
+    var parsed;
+    try{ parsed=JSON.parse(String(reader.result||'')); }
+    catch(e){ alert('Import failed: file is not valid JSON.'); input.value=''; return; }
+    var data=(parsed && parsed.data && typeof parsed.data==='object') ? parsed.data : parsed;
+    if(!data || typeof data!=='object'){ alert('Import failed: unrecognized backup format.'); input.value=''; return; }
+    var keys=Object.keys(data).filter(function(k){ return BACKUP_KEYS.indexOf(k)!==-1; });
+    if(!keys.length){ alert('Import failed: no Teacher Hub data found in file.'); input.value=''; return; }
+    if(!confirm('Import '+keys.length+' data key(s)? This REPLACES current Teacher Hub data in this browser.')){ input.value=''; return; }
+    keys.forEach(function(k){ try{ localStorage.setItem(k, String(data[k])); }catch(e){} });
+    input.value='';
+    alert('Import complete. The page will now reload.');
+    location.reload();
+  });
+  reader.readAsText(f);
+}

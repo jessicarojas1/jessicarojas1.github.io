@@ -1,0 +1,42 @@
+# Render Blueprint — CMMI v2.0 Practice Reference (static site)
+# Docs: https://render.com/docs/blueprint-spec
+#
+# NOTE ON PARENT-ASSET COUPLING:
+# cmmi/index.html references parent-relative assets that live at the REPOSITORY
+# ROOT (one level above cmmi/): ../cmmidev3.js (~227 KB, REQUIRED), ../theme.css,
+# ../favicon.ico, ../users.js, ../roles.js, ../script.js, ../analytics.js,
+# ../siteSearch.js. For those `../` references to resolve, the published root
+# must be the REPOSITORY ROOT (not cmmi/). This blueprint publishes the whole
+# repo and the app is reached at /cmmi/. Do NOT set staticPublishPath to cmmi/,
+# or the parent assets (and the practice dataset) will 404 and the page will be
+# blank.
+#
+# There is no build step: static HTML/CSS/JS, no bundler. Runtime CDN assets
+# (Bootstrap 5.3.3, Bootstrap Icons 1.11.3, SheetJS) load from cdn.jsdelivr.net.
+
+services:
+  - type: web
+    name: cmmi-practice-reference
+    runtime: static
+    # Repo root is the publish path so ../ parent assets resolve. Entry: /cmmi/
+    staticPublishPath: .
+    buildCommand: ""            # nothing to build
+    pullRequestPreviewsEnabled: true
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: "geolocation=(), microphone=(), camera=()"
+    routes:
+      # Convenience: send the site root to the CMMI reference entry page.
+      - type: redirect
+        source: /
+        destination: /cmmi/

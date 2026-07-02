@@ -343,6 +343,9 @@ function runMigrations(PDO $pdo): void {
         '032_remove_modules.sql',
         '033_finding_risk_links.sql',
         '034_evidence_lifecycle.sql',
+        '035_policy_vendor_capa.sql',
+        '036_notification_log_user_cols.sql',
+        '037_widen_kri_columns.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;

@@ -42,14 +42,29 @@ ob_start();
               <span class="badge" style="background:<?= $rpoColor ?>20;color:<?= $rpoColor ?>">RPO ≤<?= (int)$plan['rpo_hours'] ?>h</span>
             <?php endif; ?>
           </div>
+          <?php
+            $overdueEx = (int)($plan['overdue_exercise_count'] ?? 0);
+            $planTest  = BCPController::planTestStatus($plan['next_test_date'] ?? null);
+          ?>
+          <?php if ($overdueEx > 0 || $planTest === 'overdue'): ?>
+          <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+            <?php if ($overdueEx > 0): ?>
+              <span class="badge" style="background:var(--danger-subtle);color:var(--danger)"><i class="bi bi-calendar-x"></i> <?= $overdueEx ?> overdue exercise<?= $overdueEx !== 1 ? 's' : '' ?></span>
+            <?php endif; ?>
+            <?php if ($planTest === 'overdue'): ?>
+              <span class="badge" style="background:var(--danger-subtle);color:var(--danger)"><i class="bi bi-calendar-x"></i> Testing overdue</span>
+            <?php endif; ?>
+          </div>
+          <?php endif; ?>
           <div class="text-sm text-muted">
             <div>Owner: <?= Security::h($plan['owner_name'] ?? '—') ?></div>
             <div>Sections: <?= (int)$plan['section_count'] ?> &nbsp;|&nbsp; Exercises: <?= (int)$plan['exercise_count'] ?></div>
             <?php if ($plan['last_tested']): ?>
               <div>Last Tested: <?= date('M j, Y', strtotime($plan['last_tested'])) ?></div>
             <?php endif; ?>
-            <?php if ($plan['next_test_date']): ?>
-              <div>Next Test: <?= date('M j, Y', strtotime($plan['next_test_date'])) ?></div>
+            <?php if ($plan['next_test_date']):
+              $ntColor = $planTest === 'overdue' ? 'color:var(--danger);font-weight:600' : ($planTest === 'due' ? 'color:var(--warning);font-weight:600' : ''); ?>
+              <div style="<?= $ntColor ?>">Next Test: <?= date('M j, Y', strtotime($plan['next_test_date'])) ?><?= $planTest === 'overdue' ? ' (overdue)' : ($planTest === 'due' ? ' (due soon)' : '') ?></div>
             <?php endif; ?>
           </div>
         </div>

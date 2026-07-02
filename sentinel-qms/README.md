@@ -100,6 +100,16 @@ See **[`docs/architecture/`](docs/architecture/)** for C4 diagrams and the data 
 
 ---
 
+## ✅ Prerequisites
+
+| Tool | Version | For |
+|------|---------|-----|
+| Docker + Docker Compose | 24+ / v2 | Local stack (fast path) |
+| PostgreSQL | **16+** | Data store (JSONB, native enums) |
+| Python | 3.12 | Backend (native/dev runs) |
+| Node | 20 | Frontend build |
+| Terraform / kubectl / Helm | 1.6+ / 1.28+ / 3.14+ | Gov-cloud IaC & Kubernetes |
+
 ## 🚀 Quick start (local)
 
 ```bash
@@ -108,11 +118,27 @@ cp .env.example .env          # fill placeholders (dev only)
 docker compose up --build     # postgres + backend + frontend + minio (local S3)
 ```
 
+Or from the project root with the Makefile: `make up`.
+
 | Service | URL |
 |---------|-----|
 | Frontend | http://localhost:8080 |
 | API docs (OpenAPI) | http://localhost:8000/docs |
 | Health | http://localhost:8000/health |
+
+### 🛠️ Common commands (Makefile)
+
+```bash
+make up            # start the full local stack
+make down          # stop it
+make migrate       # alembic upgrade head (in the backend container)
+make seed          # python -m app.seed (reference data + demo records)
+make test          # backend pytest + frontend vitest
+make lint          # ruff check + eslint
+make fmt           # ruff format + prettier
+make tf-aws-plan   # terraform plan — AWS GovCloud
+make tf-azure-plan # terraform plan — Azure Government
+```
 
 The backend applies Alembic migrations and seeds reference data (roles + demo
 records) on first boot. Sign in with the seeded administrator:
@@ -173,6 +199,43 @@ See also **[`SECURITY.md`](SECURITY.md)**.
 
 ---
 
+## 📚 Documentation
+
+Core operator docs (canonical, in `docs/`):
+
+- **[Architecture](docs/ARCHITECTURE.md)** — platform, components, request/error contract, security model, topology
+- **[Deployment guide](docs/DEPLOYMENT.md)** — models, config & secrets, migrations, worker/scheduler, Ollama/GPU, production checklist
+- **[Security guide](docs/SECURITY.md)** — identity, RBAC, data protection, auditability, CUI/DLP, FIPS, rotation
+- **[Disaster recovery](docs/DISASTER_RECOVERY.md)** — RPO/RTO, backups, restore runbook, HA
+- **[Known limitations](docs/KNOWN_LIMITATIONS.md)** · **[Open items](OPEN_ITEMS.md)** · **[Changelog](docs/CHANGELOG.md)** · **[Contributing](docs/CONTRIBUTING.md)**
+
+**Per-target deployment guides** (`deployments/`):
+[Local](deployments/LOCAL_DEVELOPMENT.md) ·
+[Single Linux server](deployments/SINGLE_LINUX_SERVER.md) ·
+[Kubernetes](deployments/KUBERNETES.md) ·
+[AWS (Commercial + GovCloud)](deployments/AWS.md) ·
+[Azure (Commercial + Gov)](deployments/AZURE.md) ·
+[Air-gapped](deployments/AIRGAPPED.md)
+
+## 🧰 Technology & dependencies
+
+**Supported deployment models:** local (docker-compose) · single Linux server ·
+Kubernetes (Helm/Kustomize) · AWS Commercial/GovCloud · Azure Commercial/Government ·
+air-gapped · Render (demo).
+
+- **Backend (Python 3.12)** — FastAPI, Uvicorn, gunicorn, SQLAlchemy 2.0, Alembic,
+  psycopg 3, Pydantic v2 + pydantic-settings, python-jose, passlib + bcrypt,
+  python-multipart, email-validator, boto3, azure-storage-blob, signxml, redis,
+  fpdf2 + Pillow (branded PDFs), python-json-logger. Dev: pytest, httpx, ruff.
+  Full list: [`backend/pyproject.toml`](backend/pyproject.toml).
+- **Frontend (Node 20)** — React 18, TypeScript, Vite, TanStack Query, axios,
+  react-router-dom, react-hook-form + zod, Recharts, lucide-react. Tooling:
+  ESLint, Vitest, Testing Library. Full list: [`frontend/package.json`](frontend/package.json).
+- **External services** — PostgreSQL 16+; object storage (AWS S3 / Azure Blob /
+  MinIO for local); optional Redis (shared rate limiter); optional SMTP / Teams /
+  Slack webhooks; optional OIDC/SAML IdP or CAC/PIV reverse proxy; optional
+  self-hosted **Ollama** for in-boundary AI (see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md#6-ollama-optional-self-hosted-llm)).
+
 ## 📁 Repository layout
 
 ```
@@ -181,7 +244,10 @@ sentinel-qms/
 ├── frontend/     React + TypeScript single‑page application
 ├── infra/        Terraform (AWS GovCloud + Azure Gov), Kubernetes/Helm, docker-compose
 ├── docs/         Architecture, compliance mappings, deployment & user guides
+├── deployments/  Per‑target operator deployment guides
 ├── scripts/      Helper scripts
+├── Dockerfile    Single‑service image (FastAPI serves API + SPA, non‑root)
+├── render.yaml   Render Blueprint (demo: one web service + Postgres)
 └── .github/      CI/CD and security‑scanning workflows
 ```
 
