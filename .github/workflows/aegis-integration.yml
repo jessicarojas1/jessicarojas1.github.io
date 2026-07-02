@@ -164,6 +164,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/ssp_review_db.php
 
+      - name: Asset review overdue — annual-cadence predicate / owner join / exclusions
+        working-directory: aegis
+        run: php tests/integration/asset_review_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

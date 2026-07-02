@@ -3,6 +3,29 @@ declare(strict_types=1);
 
 class AssetController {
 
+    // Standard asset-review cadence: assets should be re-reviewed annually.
+    public const REVIEW_INTERVAL_DAYS = 365;
+
+    /**
+     * Review-cadence state for an asset. A decommissioned asset never needs
+     * review ('none'). Otherwise the baseline is the last review date, falling
+     * back to the asset's creation date when never reviewed: 'overdue' (past the
+     * interval), 'due' (within 30 days of the interval) or 'ok'. Pure function —
+     * public + static so the notifier and the asset list share one definition
+     * and it is unit-testable.
+     */
+    public static function reviewStatus(?string $lastReviewed, string $status, ?string $createdAt, int $intervalDays = self::REVIEW_INTERVAL_DAYS): string {
+        if ($status === 'decommissioned') return 'none';
+        $baseline = $lastReviewed ?: $createdAt;
+        if (empty($baseline)) return 'ok';
+        $ts = strtotime($baseline);
+        if ($ts === false) return 'ok';
+        $elapsed = (int) floor((strtotime('today') - $ts) / 86400);
+        if ($elapsed > $intervalDays) return 'overdue';
+        if ($elapsed >= $intervalDays - 30) return 'due';
+        return 'ok';
+    }
+
     public function index(): void {
         Auth::requirePermission('asset.view');
 
