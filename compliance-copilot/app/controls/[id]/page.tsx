@@ -50,7 +50,7 @@ export default function ControlDetailPage() {
             <h1 className="text-xl font-bold text-slate-100">{control.title}</h1>
           </div>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">{control.domain}</span>
+            <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-sm font-mono">{control.domain}</span>
             <span className="text-xs text-slate-500">CMMC L{control.cmmc_level}</span>
             <StatusBadge status={status} />
             <PriorityBadge priority={control.priority} />
@@ -122,7 +122,7 @@ export default function ControlDetailPage() {
                 <div className="label flex items-center gap-2 mb-3"><Tag className="w-3 h-3" /> NIST SP 800-53 Mappings</div>
                 <div className="flex flex-wrap gap-2">
                   {control.nist_mapping.map(m => (
-                    <span key={m} className="text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2 py-1 rounded">{m}</span>
+                    <span key={m} className="text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700 px-2 py-1 rounded-sm">{m}</span>
                   ))}
                 </div>
               </div>
@@ -131,7 +131,7 @@ export default function ControlDetailPage() {
                 <div className="space-y-1">
                   {control.policy_references.map(p => (
                     <div key={p} className="flex items-center gap-2 text-sm text-slate-300">
-                      <Paperclip className="w-3 h-3 text-slate-500 flex-shrink-0" /> {p}
+                      <Paperclip className="w-3 h-3 text-slate-500 shrink-0" /> {p}
                     </div>
                   ))}
                 </div>
@@ -186,18 +186,18 @@ export default function ControlDetailPage() {
                   <div key={ev.id} className="card p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center text-sm flex-shrink-0">
+                        <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center text-sm shrink-0">
                           {ev.type === 'policy' ? '📄' : ev.type === 'screenshot' ? '🖼️' : ev.type === 'configuration' ? '⚙️' : ev.type === 'test_result' ? '🔬' : ev.type === 'procedure' ? '📋' : '📁'}
                         </div>
                         <div>
                           <div className="text-sm font-medium text-slate-200">{ev.title}</div>
                           <div className="text-xs text-slate-400 mt-0.5">{ev.description}</div>
                           <div className="flex flex-wrap gap-1.5 mt-2">
-                            {ev.tags.map(t => <span key={t} className="text-xs bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">#{t}</span>)}
+                            {ev.tags.map(t => <span key={t} className="text-xs bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-sm">#{t}</span>)}
                           </div>
                         </div>
                       </div>
-                      <div className="text-right flex-shrink-0">
+                      <div className="text-right shrink-0">
                         {ev.reviewed
                           ? <span className="text-xs text-emerald-400">✓ Reviewed</span>
                           : <span className="text-xs text-amber-400">Pending review</span>}
@@ -229,7 +229,7 @@ export default function ControlDetailPage() {
 
         {/* AI Panel */}
         {aiOpen && (
-          <div className="xl:w-96 flex-shrink-0">
+          <div className="xl:w-96 shrink-0">
             <AIAssistantPanel control={control} onClose={() => setAiOpen(false)} />
           </div>
         )}

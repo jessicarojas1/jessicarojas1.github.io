@@ -114,7 +114,7 @@ export default function ControlsPage() {
                     <div className="text-xs text-slate-500 mt-0.5 line-clamp-1">{c.requirement}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">{c.domain}</span>
+                    <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-sm font-mono">{c.domain}</span>
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-xs text-slate-400">L{c.cmmc_level}</span>

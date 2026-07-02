@@ -77,7 +77,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     ? ''
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
                 )}>
-                <Icon className={cn('w-4 h-4 flex-shrink-0', active ? '' : 'text-slate-500 group-hover:text-slate-300')}
+                <Icon className={cn('w-4 h-4 shrink-0', active ? '' : 'text-slate-500 group-hover:text-slate-300')}
                   style={active ? { color: 'var(--brand-accent)' } : undefined} />
                 {label}
                 {active && <ChevronRight className="w-3 h-3 ml-auto" style={{ color: 'var(--brand-accent)' }} />}
@@ -110,7 +110,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main */}
       <div className="flex-1 md:ml-64 flex flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="h-14 border-b border-slate-800 bg-slate-900/80 backdrop-blur flex items-center px-4 gap-3 flex-shrink-0">
+        <header className="h-14 border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm flex items-center px-4 gap-3 shrink-0">
           <button className="md:hidden text-slate-400 hover:text-slate-200 p-1" onClick={() => setOpen(true)}>
             <Menu className="w-5 h-5" />
           </button>
