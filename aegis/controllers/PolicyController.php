@@ -1,5 +1,23 @@
 <?php
 class PolicyController {
+
+    /**
+     * Deadline state for a policy attestation campaign: 'none' (inactive or no
+     * due date), 'overdue' (active and past its due date), 'due' (due within 14
+     * days) or 'ok'. Pure function — public + static so the notifier and the
+     * attestations view share one definition and it is unit-testable.
+     */
+    public static function attestationCampaignStatus(?string $dueDate, bool $isActive): string {
+        if (!$isActive) return 'none';
+        if (empty($dueDate)) return 'none';
+        $ts = strtotime($dueDate);
+        if ($ts === false) return 'none';
+        $today = strtotime('today');
+        if ($ts < $today) return 'overdue';
+        if ($ts < $today + 14 * 86400) return 'due';
+        return 'ok';
+    }
+
     public function index(): void {
         Auth::requirePermission('policy.view');
 

@@ -56,12 +56,16 @@ $breadcrumbs  = [['Policies', '/policy'], ['Attestations', null]];
               </td>
               <td><?= Security::h($c['policy_title']) ?></td>
               <td>
+                <?php $campaignStatus = PolicyController::attestationCampaignStatus($c['due_date'] ?? null, (bool)$c['is_active']); ?>
                 <?php if ($c['due_date']): ?>
-                  <?php $overdue = strtotime($c['due_date']) < time() && $c['is_active']; ?>
-                  <span <?= $overdue ? 'style="color:var(--danger);font-weight:600"' : '' ?>>
+                  <span <?= $campaignStatus === 'overdue' ? 'style="color:var(--danger);font-weight:600"' : '' ?>>
                     <?= date('M j, Y', strtotime($c['due_date'])) ?>
-                    <?= $overdue ? '<i class="bi bi-exclamation-circle-fill"></i>' : '' ?>
                   </span>
+                  <?php if ($campaignStatus === 'overdue'): ?>
+                    <span class="badge badge-danger" style="font-size:0.68rem"><i class="bi bi-exclamation-circle-fill"></i> Overdue</span>
+                  <?php elseif ($campaignStatus === 'due'): ?>
+                    <span class="badge badge-warning" style="font-size:0.68rem"><i class="bi bi-clock"></i> Due soon</span>
+                  <?php endif; ?>
                 <?php else: ?>
                   <span class="text-muted">—</span>
                 <?php endif; ?>

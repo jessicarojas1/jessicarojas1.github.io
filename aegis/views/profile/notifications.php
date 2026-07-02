@@ -136,6 +136,11 @@ $NOTIF_TYPES = [
         'description' => 'When an audit assigned to you is past its scheduled date and not yet completed',
         'icon'        => 'calendar-check-fill',
     ],
+    'policy_attestation_overdue' => [
+        'label'       => 'Policy attestation overdue',
+        'description' => 'When a policy attestation you owe is past its campaign due date and not yet signed',
+        'icon'        => 'file-earmark-check-fill',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────
