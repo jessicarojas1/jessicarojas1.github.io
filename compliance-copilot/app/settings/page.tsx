@@ -27,8 +27,12 @@ export default function SettingsPage() {
   const [adminToken, setAdminToken] = useState('');
 
   // Load any saved admin token (only needed when the server sets BRANDING_ADMIN_TOKEN).
+  // Must stay an effect (not a lazy useState initializer): this reads a browser-only
+  // API, and running it during the initial render would mismatch the server-rendered
+  // markup during hydration.
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- see comment above
     try { setAdminToken(window.localStorage.getItem(ADMIN_TOKEN_KEY) || ''); } catch { /* ignore */ }
   }, []);
 
@@ -41,10 +45,14 @@ export default function SettingsPage() {
     } catch { /* ignore */ }
   }
 
-  // Keep the form in sync with loaded branding until the user edits it.
-  useEffect(() => {
-    if (!dirty) setForm(branding);
-  }, [branding, dirty]);
+  // Keep the form in sync with loaded branding until the user edits it. Adjusted
+  // during render (React's documented pattern) instead of an effect, to avoid an
+  // extra render pass.
+  const [prevBranding, setPrevBranding] = useState(branding);
+  if (branding !== prevBranding && !dirty) {
+    setPrevBranding(branding);
+    setForm(branding);
+  }
 
   function update<K extends keyof Branding>(key: K, value: Branding[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -332,7 +340,13 @@ function BrandMarkPreview({ branding }: { branding: Branding }) {
   const url = sanitizeLogoUrl(branding.logoUrl);
   const accent = sanitizeAccentColor(branding.accentColor);
 
-  useEffect(() => { setBroken(false); }, [url]);
+  // Reset the broken flag when the URL changes, adjusted during render (React's
+  // documented pattern) rather than in an effect, to avoid an extra render pass.
+  const [prevUrl, setPrevUrl] = useState(url);
+  if (url !== prevUrl) {
+    setPrevUrl(url);
+    setBroken(false);
+  }
 
   if (url !== '' && !broken) {
     return (

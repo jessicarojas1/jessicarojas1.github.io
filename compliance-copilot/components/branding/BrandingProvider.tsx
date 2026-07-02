@@ -41,11 +41,14 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     // Apply the per-browser value immediately to avoid a flash, then reconcile
-    // with the shared server value (which takes precedence when present).
+    // with the shared server value (which takes precedence when present). This
+    // must stay an effect: it reads browser-only localStorage (SSR/hydration-safe
+    // only inside an effect) and kicks off the async server fetch below.
     const local = readLocalBranding();
     if (local) {
       applyAccent(local.accentColor);
       applyTitle(local.displayName);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- see comment above
       setBranding(local);
     }
 

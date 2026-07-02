@@ -142,7 +142,7 @@ jobs:
         working-directory: compliance-copilot
         run: npx tsc --noEmit
 
-      - name: Lint (next lint)
+      - name: Lint (eslint)
         working-directory: compliance-copilot
         run: npm run lint
 

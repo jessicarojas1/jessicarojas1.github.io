@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ArrowLeft, FileText, CheckCircle, Edit3, Bot, ExternalLink,
+  ArrowLeft, FileText, CheckCircle, Edit3, Bot,
   Calendar, User, Tag, BookOpen, Paperclip, Save, X
 } from 'lucide-react';
 import { SEED_CONTROLS, SEED_EVIDENCE } from '@/lib/data';
@@ -12,7 +12,9 @@ import { StatusBadge } from '@/components/controls/StatusBadge';
 import { PriorityBadge } from '@/components/controls/PriorityBadge';
 import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
 import { ControlStatus } from '@/lib/types';
-import { formatDate, statusColor } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
+
+const TABS = ['Overview', 'Implementation', 'Evidence', 'Notes'] as const;
 
 export default function ControlDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +28,7 @@ export default function ControlDetailPage() {
   const [implStmt, setImplStmt] = useState(control?.implementation_statement ?? '');
   const [notes,    setNotes]    = useState(control?.notes ?? '');
   const [status,   setStatus]   = useState<ControlStatus>(control?.status ?? 'not_implemented');
+  const [tab,      setTab]      = useState<typeof TABS[number]>('Overview');
 
   if (!control) return (
     <div className="text-center py-20">
@@ -33,9 +36,6 @@ export default function ControlDetailPage() {
       <Link href="/controls" className="btn-primary inline-block mt-4">Back to Controls</Link>
     </div>
   );
-
-  const TABS = ['Overview', 'Implementation', 'Evidence', 'Notes'] as const;
-  const [tab, setTab] = useState<typeof TABS[number]>('Overview');
 
   return (
     <div className="max-w-6xl mx-auto">

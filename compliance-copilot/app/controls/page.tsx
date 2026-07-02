@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search, Filter, ChevronRight, ShieldCheck } from 'lucide-react';
+import { Search, ChevronRight } from 'lucide-react';
 import { SEED_CONTROLS } from '@/lib/data';
 import { StatusBadge } from '@/components/controls/StatusBadge';
 import { PriorityBadge } from '@/components/controls/PriorityBadge';

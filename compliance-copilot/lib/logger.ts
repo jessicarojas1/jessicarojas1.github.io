@@ -31,9 +31,7 @@ function emit(level: LogLevel, message: string, fields?: LogFields): void {
     msg: message,
     ...fields,
   });
-  // eslint-disable-next-line no-console
   if (level === 'error' || level === 'warn') console.error(line);
-  // eslint-disable-next-line no-console
   else console.log(line);
 }
 

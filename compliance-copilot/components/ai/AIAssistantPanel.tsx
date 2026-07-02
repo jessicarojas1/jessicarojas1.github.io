@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bot, Send, X, Loader2, Copy, ChevronDown } from 'lucide-react';
+import { Bot, Send, X, Loader2, Copy } from 'lucide-react';
 import { Control } from '@/lib/types';
 
 type Mode = 'narrative' | 'gaps' | 'improve' | 'poam';

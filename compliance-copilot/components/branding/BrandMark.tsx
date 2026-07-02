@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Shield } from 'lucide-react';
 import { useBranding } from './BrandingProvider';
 import { cn } from '@/lib/utils';
@@ -20,8 +20,13 @@ export function BrandMark({ size = 32, className }: BrandMarkProps) {
   const { branding } = useBranding();
   const [broken, setBroken] = useState(false);
 
-  // Reset the broken flag whenever the logo URL changes.
-  useEffect(() => { setBroken(false); }, [branding.logoUrl]);
+  // Reset the broken flag when the logo URL changes, adjusted during render
+  // (React's documented pattern) rather than in an effect.
+  const [prevLogoUrl, setPrevLogoUrl] = useState(branding.logoUrl);
+  if (branding.logoUrl !== prevLogoUrl) {
+    setPrevLogoUrl(branding.logoUrl);
+    setBroken(false);
+  }
 
   const showLogo = branding.logoUrl !== '' && !broken;
 
