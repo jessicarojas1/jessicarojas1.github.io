@@ -21,6 +21,12 @@ be strong. Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [RBAC.md](RBAC.md) ·
 - **Passwords:** hashed with **scrypt** by default (or **PBKDF2-HMAC-SHA256**
   under `CITADEL_FIPS=1`), compared timing-safe. A forced-change gate blocks use
   of the app until an admin-set temporary password is rotated.
+- **Password-complexity / breach policy:** every password set, changed, or
+  admin-created is validated by `users.checkPasswordPolicy()`. Defaults enforce a
+  minimum length of 8 (floor) and reject the most-breached/common passwords
+  (denylist); regulated tenants tighten it via `CITADEL_PW_MIN_LENGTH` and
+  `CITADEL_PW_REQUIRE_UPPER|_LOWER|_DIGIT|_SYMBOL` (see `docs/ENV.md`). SSO/JIT
+  accounts get a random secret and authenticate via the IdP, so they are exempt.
 - **MFA:** optional **TOTP** with one-time backup codes; a short MFA step-up
   window (`CITADEL_MFA_TTL`).
 - **SSO:** optional **OIDC Authorization-Code + PKCE**, with JIT provisioning,

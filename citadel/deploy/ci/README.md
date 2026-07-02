@@ -1,10 +1,18 @@
-# CITADEL — IaC Validation CI
+# CITADEL — CI reference workflows
 
-`iac-validate.yml` is a **reference** GitHub Actions workflow that lints and
-validates all of CITADEL's Infrastructure-as-Code. Like
-`citadel/.github-workflow-example.yml`, it lives under `deploy/ci/` and is **not**
-installed into `.github/workflows` automatically — you copy it in when you're
-ready (see "Wiring it up" below).
+This folder holds **reference** GitHub Actions workflows. Like
+`citadel/.github-workflow-example.yml`, they live under `deploy/ci/` and are
+**not** installed into `.github/workflows` automatically — you copy them in when
+you're ready (see "Wiring it up" below).
+
+| Workflow | Purpose |
+|---|---|
+| `iac-validate.yml` | Lints/validates all Infrastructure-as-Code (see below). |
+| `backend-ci.yml` | Backend test suite + ESLint + **line-coverage threshold gate** (`npm run test:coverage:gate`, lines≥80 / funcs≥70 / branches≥60), the curated accuracy benchmark gate, and a **scheduled, non-blocking OWASP Benchmark** run (artifact-uploaded). Copy to `.github/workflows/citadel-backend-ci.yml`. |
+
+## `iac-validate.yml`
+
+`iac-validate.yml` lints and validates all of CITADEL's Infrastructure-as-Code.
 
 ## What it checks
 

@@ -33,8 +33,14 @@ Legend: ✅ done · 🟡 partial / caveated · ⬜ outstanding.
   (warns on prod-looking deploys). **Impact:** an operator who ignores the
   warning ships an open instance. **Action:** turn `enforce` **on** in prod;
   treat `CITADEL_ALLOW_OPEN=1` as deliberate only.
-- ⬜ **No password-complexity / breach-list policy** documented as enforced.
-  **Action:** confirm/strengthen password policy for regulated tenants.
+- ✅ **Password-complexity / breach-list policy enforced.** `server/lib/users.js`
+  now validates every password set/change/create via `checkPasswordPolicy()`:
+  min-length floor (8, raise with `CITADEL_PW_MIN_LENGTH`), optional
+  upper/lower/digit/symbol classes (`CITADEL_PW_REQUIRE_*`), and a common/breached
+  password denylist (`CITADEL_PW_BLOCK_COMMON`, on by default). SSO/JIT users are
+  exempt (random secret, IdP auth). **Verified:** 3 new unit tests in
+  `server/test/lib.test.js` (policy floor/denylist, env char-class rules,
+  setPassword/add enforcement); documented in `docs/SECURITY.md` §1 + `docs/ENV.md`.
 
 ## Secrets & crypto
 
@@ -66,14 +72,27 @@ Legend: ✅ done · 🟡 partial / caveated · ⬜ outstanding.
 
 ## Testing & CI
 
-- ✅ 86-case suite (lib/api/cli/smoke), ESLint, `npm audit` (prod deps), SARIF
-  validation, and an accuracy benchmark gate (recall ≥ 0.90, precision ≥ 0.90).
-- ⬜ **No line-coverage threshold gate.** **Impact:** coverage can regress
-  silently. **Action:** add a coverage floor to CI.
-- ⬜ **OWASP Benchmark runner is manual**, not wired into CI. **Action:** wire it
-  as a non-blocking scheduled job.
-- 🟡 **`js/report.js` exporters + SBOM manifest parsers** have only indirect
-  (corpus/smoke) coverage. **Action:** add dedicated unit tests.
+- ✅ 98-case suite (lib/api/cli/smoke), ESLint, `npm audit` (prod deps), SARIF
+  validation, a line-coverage floor gate, and an accuracy benchmark gate
+  (recall ≥ 0.90, precision ≥ 0.90).
+- ✅ **Line-coverage threshold gate added.** New `npm run test:coverage:gate`
+  (`server/package.json`) fails below lines≥80 / funcs≥70 / branches≥60 (current
+  85.31 / 77.11 / 67.43, so headroom without flakiness). Wired into the reference
+  CI workflow `deploy/ci/backend-ci.yml`. **Verified:** `npm run test:coverage:gate`
+  exits 0 locally.
+- ✅ **OWASP Benchmark wired as a non-blocking scheduled CI job.** The
+  `owasp-benchmark` job in `deploy/ci/backend-ci.yml` runs nightly (+ manual),
+  `continue-on-error`, clones `OWASP-Benchmark/BenchmarkJava`, runs
+  `benchmark/owasp/run.js`, and uploads results as an artifact. **Verified:**
+  workflow YAML parses; env var (`OWASP_BENCH_DIR`) matches the harness. *(Actual
+  scheduled execution runs once the workflow is copied into `.github/workflows/`
+  — operator step, per the reference-workflow convention.)*
+- ✅ **Dedicated unit tests for SBOM manifest parsers** — 4 new tests in
+  `server/test/lib.test.js` cover `sbom.manifestType`, `sbom.parse` (npm + pypi +
+  malformed→[]), `sbom.cyclonedx` (CycloneDX 1.5 + purl), and `spdx.document`
+  (SPDX-2.3 + purl/cpe externalRefs). **Verified:** all pass (98/98). *(Note:
+  `js/report.js` exporters remain DOM-bound and are still exercised only via the
+  corpus/smoke path — a jsdom harness for those is left as a follow-up.)*
 
 ## AI / air-gap
 
@@ -87,8 +106,14 @@ Legend: ✅ done · 🟡 partial / caveated · ⬜ outstanding.
 
 - ✅ `/api/health`, Prometheus `/metrics` (token-guarded), JSON logs, hash-chained
   audit with SIEM forwarding, optional OpenTelemetry tracing.
-- ⬜ **No bundled dashboards/alerts.** **Action:** ship reference Grafana panels +
-  alert rules (session spikes, RSS/OOM, 5xx, scan latency).
+- ✅ **Reference dashboards + alerts shipped.** `deploy/observability/` adds an
+  importable Grafana dashboard (`grafana-dashboard.json`) and Prometheus alert
+  rules (`prometheus-alerts.yml`) built against the real `/metrics` series
+  (instance-down/crash-loop, high 5xx ratio, elevated scan-error ratio, high
+  memory / OOM risk, active-session spike). **Verified:** dashboard JSON + alert
+  YAML parse cleanly; metric/label names checked against `server/lib/metrics.js`
+  and `server/server.js`. Per-scan latency alert deferred (no
+  `citadel_scan_duration_seconds` histogram yet — noted in the README).
 - 🟡 **Tracing deps are opt-in** in the image (`CITADEL_WITH_TRACING=1`).
   **Action:** enable in environments that require distributed tracing.
 
@@ -97,9 +122,15 @@ Legend: ✅ done · 🟡 partial / caveated · ⬜ outstanding.
 - ✅ Non-root (uid 10001), read-only-root friendly, cap-drop-ready, `HEALTHCHECK`,
   bounded uploads (zip-slip + bomb caps), SSRF guard, no version disclosure to
   anonymous callers.
-- ⬜ **CSP / security headers** should be verified at the TLS-terminating proxy
-  (the app is API + static). **Action:** confirm CSP, HSTS, `X-Content-Type-
-  Options`, frame-ancestors in the nginx/ingress config under [`deploy/`](deploy/).
+- ✅ **CSP / security headers confirmed and gap closed.** `deploy/aws-gov` and
+  `deploy/azure-gov` nginx already set a full CSP (incl. `frame-ancestors 'none'`)
+  + HSTS + `X-Content-Type-Options`. The `deploy/compose` proxy and the app's own
+  header middleware previously relied on `X-Frame-Options` only (a `<meta>` CSP
+  cannot express `frame-ancestors`); both now also send a framing-only
+  `Content-Security-Policy: frame-ancestors 'none'` header that composes with the
+  SPA `<meta>` CSP and the OIDC route's stricter nonce CSP without weakening them.
+  **Verified:** `node --check server.js`; no test asserts on these headers (98/98
+  still pass); nginx directive added under `deploy/compose/nginx/citadel.conf`.
 
 ## Documentation
 

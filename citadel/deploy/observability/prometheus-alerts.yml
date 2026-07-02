@@ -1,0 +1,116 @@
+# =============================================================================
+# CITADEL — reference Prometheus alerting rules
+# -----------------------------------------------------------------------------
+# Drop-in alert rules for the metrics CITADEL exposes at GET /metrics (see
+# server/lib/metrics.js). Load them from your prometheus.yml:
+#
+#   rule_files:
+#     - /etc/prometheus/rules/citadel-alerts.yml
+#
+# and scrape CITADEL with a job labelled `citadel` (Bearer CITADEL_METRICS_TOKEN
+# when set — see docs/DEPLOYMENT.md and docs/ENV.md):
+#
+#   scrape_configs:
+#     - job_name: citadel
+#       metrics_path: /metrics
+#       authorization: { credentials: "<CITADEL_METRICS_TOKEN>" }
+#       static_configs: [{ targets: ["citadel:8080"] }]
+#
+# Thresholds are conservative defaults — tune them to your SLOs and the RAM you
+# provisioned (CITADEL needs >= 2 GB for the ClamAV DB). Metrics referenced:
+#   citadel_http_requests_total{method,status}   counter
+#   citadel_logins_total{...}                     counter
+#   citadel_scans_total                           counter
+#   citadel_scan_errors_total                     counter
+#   citadel_active_sessions                       gauge
+#   citadel_uptime_seconds                        gauge
+#   citadel_resident_memory_bytes                 gauge
+# =============================================================================
+groups:
+  - name: citadel.availability
+    rules:
+      - alert: CitadelInstanceDown
+        expr: up{job=~"citadel.*"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CITADEL instance {{ $labels.instance }} is down"
+          description: "Prometheus has failed to scrape {{ $labels.instance }} for 5m."
+
+      - alert: CitadelRecentRestart
+        # uptime gauge just reset — flag flapping / crash loops.
+        expr: citadel_uptime_seconds < 120
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CITADEL {{ $labels.instance }} restarted recently"
+          description: "citadel_uptime_seconds < 120s — investigate if this repeats (crash loop / OOMKill)."
+
+  - name: citadel.errors
+    rules:
+      - alert: CitadelHigh5xxRate
+        # Fraction of responses that are 5xx over 5m (guard against div-by-zero).
+        expr: |
+          sum(rate(citadel_http_requests_total{status=~"5.."}[5m]))
+            /
+          clamp_min(sum(rate(citadel_http_requests_total[5m])), 0.001)
+            > 0.05
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CITADEL 5xx error rate > 5%"
+          description: "More than 5% of HTTP responses were 5xx over the last 5m ({{ $value | humanizePercentage }})."
+
+      - alert: CitadelScanErrorsElevated
+        expr: |
+          sum(rate(citadel_scan_errors_total[15m]))
+            /
+          clamp_min(sum(rate(citadel_scans_total[15m])), 0.001)
+            > 0.10
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CITADEL scan error ratio > 10%"
+          description: "Deep-scan failures are elevated over 15m — check scanner tool availability / signature DBs (freshclam, trivy db, grype db)."
+
+  - name: citadel.resources
+    rules:
+      - alert: CitadelHighMemory
+        # Warn approaching the 2 GB working set (tune to your container limit).
+        expr: citadel_resident_memory_bytes > 1.5e9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CITADEL RSS above 1.5 GB on {{ $labels.instance }}"
+          description: "Resident memory {{ $value | humanize1024 }}B — approaching the 2 GB floor; risk of OOMKill. Consider scaling or raising the memory limit."
+
+      - alert: CitadelMemoryOOMRisk
+        expr: citadel_resident_memory_bytes > 1.9e9
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CITADEL near OOM on {{ $labels.instance }}"
+          description: "Resident memory {{ $value | humanize1024 }}B — an OOMKill is likely. Scale up or increase the memory limit immediately."
+
+  - name: citadel.sessions
+    rules:
+      - alert: CitadelActiveSessionSpike
+        # Sudden climb in concurrent sessions vs. 1h ago (possible abuse / attack).
+        expr: citadel_active_sessions - (citadel_active_sessions offset 1h) > 100
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CITADEL active-session spike on {{ $labels.instance }}"
+          description: "Active sessions rose by more than 100 vs. 1h ago (now {{ $value }}). Check for credential-stuffing / abuse and review rate limits + lockout."
+
+      # NOTE: per-scan latency is not yet exported as a histogram
+      # (server/lib/metrics.js emits counters + gauges only). A
+      # `CitadelScanLatencyHigh` alert requires adding a
+      # citadel_scan_duration_seconds histogram first — tracked in OPEN_ITEMS.md.

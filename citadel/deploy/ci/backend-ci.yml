@@ -1,0 +1,136 @@
+# =============================================================================
+# CITADEL — backend CI (REFERENCE / EXAMPLE)
+# -----------------------------------------------------------------------------
+# Like deploy/ci/iac-validate.yml, this REFERENCE workflow lives under
+# deploy/ci/ and is NOT installed into .github/workflows automatically. Activate
+# it by copying it to the repository root's workflows folder:
+#
+#     mkdir -p .github/workflows
+#     cp citadel/deploy/ci/backend-ci.yml .github/workflows/citadel-backend-ci.yml
+#
+# WHAT IT DOES
+#   * test      — installs the backend deps and runs the smoke + node:test suite
+#                 (lib/api/cli), ESLint, and a LINE-COVERAGE THRESHOLD GATE
+#                 (npm run test:coverage:gate — lines>=80 funcs>=70 branches>=60).
+#   * benchmark — runs the curated accuracy micro-benchmark as a CI gate
+#                 (recall >= 0.90, precision >= 0.90).
+#   * owasp     — SCHEDULED, NON-BLOCKING external accuracy run against the OWASP
+#                 Benchmark (2,740 Java cases). continue-on-error so a drift in a
+#                 third-party corpus never blocks merges; results are uploaded as
+#                 an artifact for trend review.
+#
+# Paths below assume the repository root contains the `citadel/` directory.
+# =============================================================================
+name: CITADEL Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "citadel/server/**"
+      - "citadel/js/**"
+      - "citadel/cli/**"
+      - "citadel/benchmark/**"
+      - ".github/workflows/citadel-backend-ci.yml"
+  pull_request:
+    paths:
+      - "citadel/server/**"
+      - "citadel/js/**"
+      - "citadel/cli/**"
+      - "citadel/benchmark/**"
+  # Nightly external accuracy run + manual trigger.
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: citadel-backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Unit / API / CLI tests + lint + coverage-floor gate.
+  # ---------------------------------------------------------------------------
+  test:
+    name: Test, lint & coverage gate
+    # Skip on the pure schedule event (the owasp job carries the nightly run).
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: citadel/server
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: citadel/server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test suite (smoke + lib/api/cli)
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Coverage threshold gate
+        run: npm run test:coverage:gate
+
+  # ---------------------------------------------------------------------------
+  # Curated accuracy micro-benchmark — fast regression gate on the engine.
+  # ---------------------------------------------------------------------------
+  benchmark:
+    name: Accuracy benchmark gate
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run accuracy benchmark (recall >= 0.90, precision >= 0.90)
+        run: FAIL_UNDER_RECALL=0.90 FAIL_UNDER_PRECISION=0.90 node citadel/benchmark/run.js
+
+  # ---------------------------------------------------------------------------
+  # OWASP Benchmark — external, NON-BLOCKING, scheduled accuracy trend.
+  # ---------------------------------------------------------------------------
+  owasp-benchmark:
+    name: OWASP Benchmark (non-blocking)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Clone OWASP BenchmarkJava corpus
+        run: git clone --depth 1 https://github.com/OWASP-Benchmark/BenchmarkJava.git /tmp/BenchmarkJava
+
+      - name: Run OWASP Benchmark harness
+        run: OWASP_BENCH_DIR=/tmp/BenchmarkJava node citadel/benchmark/owasp/run.js | tee owasp-benchmark-results.txt
+
+      - name: Upload OWASP Benchmark results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-benchmark-results
+          path: owasp-benchmark-results.txt
+          if-no-files-found: ignore

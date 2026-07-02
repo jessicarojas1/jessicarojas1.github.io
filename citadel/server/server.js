@@ -154,6 +154,11 @@ function rateLimited(bucket, max, windowMs, opts) {
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
+  // A single-directive CSP that only constrains framing. It composes with the
+  // SPA's <meta> CSP (which cannot express frame-ancestors) without weakening
+  // any source allow-list, and covers direct (non-proxied) exposure such as
+  // Render. Routes that emit their own full CSP header (e.g. OIDC) override it.
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'");
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');

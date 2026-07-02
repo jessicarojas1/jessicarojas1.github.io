@@ -50,8 +50,18 @@ requires PostgreSQL, so every server-side target provisions or wires a managed P
 [`ci/iac-validate.yml`](ci/) is a reference GitHub Actions workflow that validates every
 package above on any PR touching `citadel/deploy/**`: Terraform `fmt`/`validate` + `tflint` +
 `checkov`/`trivy config` (matrix over the three Terraform stacks), `bicep build`, `helm lint`
-+ `kubeconform`, `hadolint` over all Dockerfiles, and `docker compose config`. Copy it into
-`.github/workflows/` to enable it (see [`ci/README.md`](ci/README.md)).
++ `kubeconform`, `hadolint` over all Dockerfiles, and `docker compose config`. A second
+reference workflow, [`ci/backend-ci.yml`](ci/), runs the backend test suite + ESLint, a
+line-coverage threshold gate, the accuracy benchmark gate, and a scheduled non-blocking OWASP
+Benchmark run. Copy either into `.github/workflows/` to enable it (see
+[`ci/README.md`](ci/README.md)).
+
+## Observability
+
+[`observability/`](observability/) ships reference monitoring assets built against the metrics
+CITADEL exposes at `/metrics`: an importable Grafana dashboard (`grafana-dashboard.json`) and
+Prometheus alert rules (`prometheus-alerts.yml`) for instance-down, high 5xx, scan-error,
+memory/OOM, and session-spike conditions. See [`observability/README.md`](observability/README.md).
 
 ## Shared hardening posture
 

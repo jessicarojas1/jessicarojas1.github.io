@@ -86,6 +86,53 @@ function verifyHash(password, salt, stored) {
 function newSalt() { return crypto.randomBytes(16).toString('hex'); }
 function uid() { return 'u' + Date.now().toString(36) + crypto.randomBytes(3).toString('hex'); }
 
+// ---- Password-complexity / breach policy (env-driven, evaluated per call) ----
+// Defaults preserve the historical minimum (>= 8 chars) plus a small common-
+// password denylist so a fresh instance is dev-friendly yet never accepts a
+// top-breached secret. Regulated tenants tighten it with the CITADEL_PW_* env:
+//   CITADEL_PW_MIN_LENGTH   (int, floor 8)   default 8
+//   CITADEL_PW_REQUIRE_UPPER / _LOWER / _DIGIT / _SYMBOL  (bool)  default off
+//   CITADEL_PW_BLOCK_COMMON (bool)           default on
+// See docs/SECURITY.md and docs/ENV.md.
+const COMMON_PASSWORDS = new Set([
+  'password', 'password1', 'password123', 'passw0rd', '123456', '1234567',
+  '12345678', '123456789', '1234567890', 'qwerty', 'qwerty123', 'qwertyuiop',
+  'abc123', 'iloveyou', 'admin', 'admin123', 'administrator', 'root', 'toor',
+  'letmein', 'welcome', 'welcome1', 'monkey', 'dragon', 'sunshine', 'princess',
+  'football', 'baseball', 'superman', 'trustno1', 'changeme', 'default',
+  'secret', 'access', 'master', 'login', 'guest', 'test', 'test123',
+  'p@ssw0rd', 'p@ssword', ' pa$$word', 'hello123', 'ashley', 'michael',
+  '000000', '111111', '654321', 'zxcvbnm', '1q2w3e4r', 'qazwsx'
+]);
+function envFlag(v, dflt) {
+  if (v == null || v === '') return dflt;
+  return /^(1|true|yes|on)$/i.test(String(v).trim());
+}
+function passwordPolicy() {
+  let min = parseInt(process.env.CITADEL_PW_MIN_LENGTH, 10);
+  if (!Number.isFinite(min) || min < 8) min = 8;
+  return {
+    minLength: min,
+    requireUpper: envFlag(process.env.CITADEL_PW_REQUIRE_UPPER, false),
+    requireLower: envFlag(process.env.CITADEL_PW_REQUIRE_LOWER, false),
+    requireDigit: envFlag(process.env.CITADEL_PW_REQUIRE_DIGIT, false),
+    requireSymbol: envFlag(process.env.CITADEL_PW_REQUIRE_SYMBOL, false),
+    blockCommon: envFlag(process.env.CITADEL_PW_BLOCK_COMMON, true)
+  };
+}
+// Returns an error message string if the candidate violates policy, else null.
+function checkPasswordPolicy(password) {
+  const p = String(password == null ? '' : password);
+  const pol = passwordPolicy();
+  if (p.length < pol.minLength) return 'Password must be at least ' + pol.minLength + ' characters.';
+  if (pol.requireUpper && !/[A-Z]/.test(p)) return 'Password must contain an uppercase letter.';
+  if (pol.requireLower && !/[a-z]/.test(p)) return 'Password must contain a lowercase letter.';
+  if (pol.requireDigit && !/[0-9]/.test(p)) return 'Password must contain a digit.';
+  if (pol.requireSymbol && !/[^A-Za-z0-9]/.test(p)) return 'Password must contain a symbol.';
+  if (pol.blockCommon && COMMON_PASSWORDS.has(p.toLowerCase().trim())) return 'Password is too common — choose a less predictable password.';
+  return null;
+}
+
 // Tenant-keyed stores. Single-tenant (the default) uses the DEFAULT_KEY store and
 // is loaded once at init(). With schema-per-tenant multi-tenancy (H5) each tenant
 // gets its own store, selected by the ambient DB schema (set by db.runInTenant);
@@ -289,6 +336,12 @@ function add({ name, email, role, password, permissions }) {
   if (!email) throw new Error('Email is required.');
   if (db.users.some(u => u.email === email)) throw new Error('A user with that email already exists.');
   role = ROLES[role] ? role : 'viewer';
+  // An admin-supplied initial password must satisfy the complexity policy; an
+  // omitted password gets a random secret (SSO/JIT users) and is exempt.
+  if (password != null && password !== '') {
+    const perr = checkPasswordPolicy(password);
+    if (perr) throw new Error(perr);
+  }
   const salt = newSalt();
   const u = {
     id: uid(), name: name || email, email, role, active: true,
@@ -354,7 +407,8 @@ function remove(id) {
 }
 function setPassword(id, password, forceChange) {
   const store = load(); const u = store.users.find(x => x.id === id); if (!u) throw new Error('User not found.');
-  if (!password || String(password).length < 8) throw new Error('Password must be at least 8 characters.');
+  const err = checkPasswordPolicy(password);
+  if (err) throw new Error(err);
   // forceChange (admin resetting someone else) flags must-change so the user
   // sets their own password on next login and the admin never knows it. Self
   // service (changeOwnPassword) leaves it cleared.
@@ -417,7 +471,7 @@ function mfaStatus(id) { const u = getRaw(id); return { enabled: !!(u && u.mfaEn
 module.exports = {
   PAGES, ROLES, init, ensureLoaded, secret, settings, setSetting,
   list, get, getByEmail: e => strip(getByEmail(e)), add, upsertSsoUser, update, setPermission, remove, setPassword,
-  changeOwnPassword, verifyPassword, can,
+  changeOwnPassword, verifyPassword, can, passwordPolicy, checkPasswordPolicy,
   mfaEnabled, mfaBeginSetup, mfaEnable, mfaDisable, mfaVerify, mfaStatus,
   backend: () => (db.enabled() ? 'postgres' : 'file'), _file: FILE
 };

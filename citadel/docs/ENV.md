@@ -25,6 +25,9 @@ Never commit real secrets — use `.env.example` with placeholders.
 | `CITADEL_ACCESS_TTL` / `CITADEL_REFRESH_TTL` / `CITADEL_MFA_TTL` | sensible defaults | Token lifetimes (access is short-lived) |
 | `CITADEL_ALLOW_OPEN` | — | `1` acknowledges running with `enforce` off in production (silences the warning) |
 | `CITADEL_PBKDF` / `CITADEL_FIPS` | scrypt / off | Password-hash KDF selection; FIPS mode forces PBKDF2-HMAC-SHA256 |
+| `CITADEL_PW_MIN_LENGTH` | `8` (floor 8) | Minimum password length enforced on set/change/create |
+| `CITADEL_PW_REQUIRE_UPPER` / `_LOWER` / `_DIGIT` / `_SYMBOL` | off | Require the named character class in new passwords (regulated tenants) |
+| `CITADEL_PW_BLOCK_COMMON` | `on` | Reject the most-breached/common passwords (denylist) |
 | `CITADEL_DATA_KEY` | — | 32-byte key (hex) to AES-256-GCM-seal secrets at rest (JWT secret, TOTP seeds) |
 | `TRUST_PROXY_HOPS` | `0` | Number of trusted proxy hops for client-IP extraction (no XFF spoofing) |
 

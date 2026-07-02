@@ -755,3 +755,82 @@ test('readiness: ensure() attaches a decision to a clean report and is idempoten
   rs.ensure(report);
   assert.equal(report.readiness, first); // not recomputed when already present
 });
+
+/* ---------------- Password-complexity / breach policy ---------------- */
+test('users: password policy — length floor and common-password denylist', () => {
+  // default floor is 8 even with a bogus/low env value
+  const saved = process.env.CITADEL_PW_MIN_LENGTH;
+  process.env.CITADEL_PW_MIN_LENGTH = '4';
+  assert.equal(users.passwordPolicy().minLength, 8);
+  process.env.CITADEL_PW_MIN_LENGTH = '12';
+  assert.equal(users.passwordPolicy().minLength, 12);
+  if (saved == null) delete process.env.CITADEL_PW_MIN_LENGTH; else process.env.CITADEL_PW_MIN_LENGTH = saved;
+
+  assert.match(users.checkPasswordPolicy('short'), /at least 8/);
+  // common (breached) passwords are rejected regardless of length
+  assert.match(users.checkPasswordPolicy('password123'), /too common/i);
+  assert.match(users.checkPasswordPolicy('Password'), /too common/i); // case-insensitive
+  // a decent password passes the default policy
+  assert.equal(users.checkPasswordPolicy('Tr0ub4dour-x'), null);
+});
+test('users: password policy — env-driven character-class requirements', () => {
+  const env = ['CITADEL_PW_REQUIRE_UPPER', 'CITADEL_PW_REQUIRE_DIGIT', 'CITADEL_PW_REQUIRE_SYMBOL'];
+  const saved = env.map(k => process.env[k]);
+  env.forEach(k => { process.env[k] = '1'; });
+  assert.match(users.checkPasswordPolicy('alllowercase'), /uppercase/);
+  assert.match(users.checkPasswordPolicy('NoDigitsHere!'), /digit/);
+  assert.match(users.checkPasswordPolicy('NoSymbol123'), /symbol/);
+  assert.equal(users.checkPasswordPolicy('Str0ng-Pass!'), null);
+  env.forEach((k, i) => { if (saved[i] == null) delete process.env[k]; else process.env[k] = saved[i]; });
+});
+test('users: setPassword and add() enforce the policy', () => {
+  const id = users.getByEmail('admin@citadel.local').id;
+  assert.throws(() => users.setPassword(id, 'admin123', false), /too common/i);
+  assert.throws(() => users.setPassword(id, 'tiny', false), /at least 8/);
+  assert.throws(() => users.add({ email: 'weak@corp.test', role: 'viewer', password: 'password' }), /too common/i);
+  // an omitted password (SSO/JIT) is exempt from the policy
+  assert.ok(users.add({ email: 'sso-jit@corp.test', role: 'viewer' }));
+});
+
+/* ---------------- SBOM / SPDX manifest parsers (dedicated) ---------------- */
+test('sbom: manifestType maps manifests (incl. *.csproj) and rejects others', () => {
+  const C = loadEngine();
+  assert.equal(C.sbom.manifestType('a/b/package.json'), 'npm');
+  assert.equal(C.sbom.manifestType('requirements.txt'), 'pypi');
+  assert.equal(C.sbom.manifestType('go.mod'), 'golang');
+  assert.equal(C.sbom.manifestType('src/App.csproj'), 'nuget');
+  assert.equal(C.sbom.manifestType('README.md'), null);
+});
+test('sbom: parse() enumerates components from npm + python manifests', () => {
+  const C = loadEngine();
+  const npm = C.sbom.parse('package.json', JSON.stringify({
+    dependencies: { express: '^4.19.2' }, devDependencies: { eslint: '^9.0.0' }
+  }));
+  const express = npm.find(c => c.name === 'express');
+  assert.ok(express && express.ecosystem === 'npm' && express.scope === 'runtime');
+  assert.ok(npm.find(c => c.name === 'eslint' && c.scope === 'dev'));
+  const py = C.sbom.parse('requirements.txt', 'flask==2.3.0\n# comment\nrequests>=2.0\n');
+  assert.ok(py.find(c => c.name === 'flask' && c.version === '2.3.0'));
+  // malformed content never throws — returns []
+  assert.deepEqual(C.sbom.parse('package.json', '{not json'), []);
+});
+test('sbom: cyclonedx() emits a valid CycloneDX 1.5 doc with purls', () => {
+  const C = loadEngine();
+  const doc = C.sbom.cyclonedx([{ name: 'express', version: '4.19.2', ecosystem: 'npm', scope: 'runtime' }], 'demo');
+  assert.equal(doc.bomFormat, 'CycloneDX');
+  assert.equal(doc.specVersion, '1.5');
+  assert.equal(doc.components[0].purl, 'pkg:npm/express@4.19.2');
+  assert.equal(doc.components[0].scope, 'required');
+});
+test('spdx: document() builds a valid SPDX-2.3 doc with purl + cpe externalRefs', () => {
+  global.window = global;
+  require('../../js/spdx.js');
+  const spdx = global.CITADEL.spdx;
+  const doc = spdx.document([{ name: 'express', version: '4.19.2', ecosystem: 'npm' }], null, { timestamp: '2026-01-01T00:00:00Z' });
+  assert.equal(doc.spdxVersion, 'SPDX-2.3');
+  assert.equal(doc.packages.length, 1);
+  assert.equal(doc.packages[0].versionInfo, '4.19.2');
+  const refTypes = doc.packages[0].externalRefs.map(r => r.referenceType);
+  assert.ok(refTypes.includes('purl') && refTypes.includes('cpe23Type'));
+  assert.equal(doc.relationships[0].relationshipType, 'DESCRIBES');
+});
