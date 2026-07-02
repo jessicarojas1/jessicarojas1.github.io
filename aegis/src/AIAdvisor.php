@@ -4,8 +4,20 @@ declare(strict_types=1);
 /**
  * AIAdvisor — AI-assisted control gap analysis.
  *
- * Supports Claude (claude-haiku-4-5-20251001) and OpenAI (gpt-4o-mini).
- * Provider and API key are loaded from the `settings` table.
+ * Providers (selected by the `provider` field of the `ai_settings` blob or the
+ * individual `ai_provider` setting):
+ *   - `claude`            → Anthropic Messages API (hosted HTTPS).
+ *   - `openai`            → OpenAI Chat Completions API (hosted HTTPS).
+ *   - `ollama`            → self-hosted, OpenAI-compatible endpoint (air-gapped).
+ *   - `openai_compatible` → any OpenAI-compatible base URL (proxy / gateway).
+ *
+ * The last two are config-driven by a `base_url` (e.g. an internal Ollama host
+ * `http://ollama.internal:11434`) so air-gapped sites can run the AI Advisor
+ * with no public egress. The base URL is vetted with the same SSRF *infra*
+ * guard used for SMTP/S3 (`Ssrf::isDangerousInfraHost`): RFC-1918 internal
+ * hosts are allowed, but loopback / link-local / cloud-metadata are refused.
+ *
+ * Provider, key, base URL, and model are loaded from the `settings` table.
  * No Composer — raw cURL calls only.
  */
 class AIAdvisor {
@@ -35,10 +47,47 @@ class AIAdvisor {
         return !in_array($v, ['0', 'false', 'off', 'no'], true);
     }
 
-    /** True only when a provider+key are configured AND the global switch is on. */
+    /** True only when a provider is fully configured AND the global switch is on. */
     public static function isEnabled(): bool {
-        $cfg = self::getConfig();
-        return !empty($cfg['api_key']) && !empty($cfg['provider']) && self::globallyEnabled();
+        return self::providerConfigured(self::getConfig()) && self::globallyEnabled();
+    }
+
+    /**
+     * Pure check that a provider config is usable. Hosted providers (claude,
+     * openai) require an API key; self-hosted OpenAI-compatible providers
+     * (ollama, openai_compatible) require a base URL instead — Ollama accepts
+     * an empty key. No DB / network access — safe to unit-test.
+     *
+     * @param array{provider?:string,api_key?:string,base_url?:string} $cfg
+     */
+    public static function providerConfigured(array $cfg): bool {
+        $provider = trim((string)($cfg['provider'] ?? ''));
+        if ($provider === '') {
+            return false;
+        }
+        if (in_array($provider, ['ollama', 'openai_compatible'], true)) {
+            return trim((string)($cfg['base_url'] ?? '')) !== '';
+        }
+        return trim((string)($cfg['api_key'] ?? '')) !== '';
+    }
+
+    /**
+     * Build the chat-completions endpoint for an OpenAI-compatible base URL.
+     * Idempotent: respects a base URL that already includes `/v1` or the full
+     * `/chat/completions` path. Pure function — safe to unit-test.
+     */
+    public static function openAiCompatEndpoint(string $baseUrl): string {
+        $baseUrl = rtrim(trim($baseUrl), '/');
+        if ($baseUrl === '') {
+            return '';
+        }
+        if (preg_match('#/chat/completions$#', $baseUrl)) {
+            return $baseUrl;
+        }
+        if (preg_match('#/v1$#', $baseUrl)) {
+            return $baseUrl . '/chat/completions';
+        }
+        return $baseUrl . '/v1/chat/completions';
     }
 
     /**
@@ -67,7 +116,7 @@ class AIAdvisor {
      */
     public static function suggestControlGaps(int $packageId): array {
         $config = self::getConfig();
-        if (empty($config['api_key']) || empty($config['provider']) || !self::globallyEnabled()) {
+        if (!self::providerConfigured($config) || !self::globallyEnabled()) {
             return [];
         }
         // Tamper-evident audit event for AI use (NIST AI RMF / ISO 42001 traceability).
@@ -106,11 +155,7 @@ class AIAdvisor {
 
         $raw = '';
         try {
-            if ($config['provider'] === 'openai') {
-                $raw = self::callOpenAI($prompt);
-            } else {
-                $raw = self::callClaude($prompt);
-            }
+            $raw = self::complete($prompt, $config);
         } catch (\Throwable $e) {
             // Log silently — return empty on error
             error_log('AIAdvisor::suggestControlGaps error: ' . $e->getMessage());
@@ -150,7 +195,7 @@ class AIAdvisor {
      */
     public static function generateNarrative(int $packageId): string {
         $config = self::getConfig();
-        if (empty($config['api_key']) || empty($config['provider']) || !self::globallyEnabled()) {
+        if (!self::providerConfigured($config) || !self::globallyEnabled()) {
             return '';
         }
 
@@ -192,14 +237,24 @@ class AIAdvisor {
         $prompt .= "Return only the narrative paragraph — no headings, bullet points, or JSON.";
 
         try {
-            if ($config['provider'] === 'openai') {
-                return self::callOpenAI($prompt);
-            }
-            return self::callClaude($prompt);
+            return self::complete($prompt, $config);
         } catch (\Throwable $e) {
             error_log('AIAdvisor::generateNarrative error: ' . $e->getMessage());
             return '';
         }
+    }
+
+    /**
+     * Dispatch a single completion to the configured provider.
+     * @param array|null $config pre-loaded config to avoid a second settings read.
+     */
+    private static function complete(string $prompt, ?array $config = null): string {
+        $config ??= self::getConfig();
+        return match ($config['provider']) {
+            'openai'                        => self::callOpenAI($prompt, $config),
+            'ollama', 'openai_compatible'   => self::callOpenAICompatible($prompt, $config),
+            default                         => self::callClaude($prompt, $config),
+        };
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
@@ -207,9 +262,9 @@ class AIAdvisor {
     /**
      * Load AI configuration from settings table.
      * Tries a single JSON blob key `ai_settings` first, then falls back to
-     * individual `ai_provider` / `ai_api_key` rows.
+     * individual `ai_provider` / `ai_api_key` / `ai_base_url` / `ai_model` rows.
      *
-     * @return array{provider: string, api_key: string}
+     * @return array{provider: string, api_key: string, base_url: string, model: string}
      */
     private static function getConfig(): array {
         // Try JSON blob first
@@ -218,22 +273,32 @@ class AIAdvisor {
         );
         if ($blob && !empty($blob['value'])) {
             $parsed = json_decode($blob['value'], true);
-            if (is_array($parsed) && !empty($parsed['api_key'])) {
+            // A blob is "usable" when it carries a key (hosted providers) OR a
+            // base URL (self-hosted OpenAI-compatible providers like Ollama).
+            if (is_array($parsed) && (!empty($parsed['api_key']) || !empty($parsed['base_url']))) {
                 return [
-                    'provider' => $parsed['provider'] ?? 'claude',
-                    'api_key'  => Security::decryptSetting((string)$parsed['api_key']),
+                    'provider' => (string)($parsed['provider'] ?? 'claude') ?: 'claude',
+                    'api_key'  => !empty($parsed['api_key'])
+                        ? Security::decryptSetting((string)$parsed['api_key'])
+                        : '',
+                    'base_url' => trim((string)($parsed['base_url'] ?? '')),
+                    'model'    => trim((string)($parsed['model'] ?? '')),
                 ];
             }
         }
 
         // Fall back to individual rows
         $rows = Database::fetchAll(
-            "SELECT key, value FROM settings WHERE key IN ('ai_provider','ai_api_key')"
+            "SELECT key, value FROM settings WHERE key IN ('ai_provider','ai_api_key','ai_base_url','ai_model')"
         );
-        $config = ['provider' => 'claude', 'api_key' => ''];
+        $config = ['provider' => 'claude', 'api_key' => '', 'base_url' => '', 'model' => ''];
         foreach ($rows as $row) {
-            if ($row['key'] === 'ai_provider') $config['provider'] = (string)$row['value'];
-            if ($row['key'] === 'ai_api_key')  $config['api_key']  = Security::decryptSetting((string)$row['value']);
+            switch ($row['key']) {
+                case 'ai_provider': $config['provider'] = (string)$row['value'] ?: 'claude';        break;
+                case 'ai_api_key':  $config['api_key']  = Security::decryptSetting((string)$row['value']); break;
+                case 'ai_base_url': $config['base_url'] = trim((string)$row['value']);               break;
+                case 'ai_model':    $config['model']    = trim((string)$row['value']);               break;
+            }
         }
 
         return $config;
@@ -244,12 +309,13 @@ class AIAdvisor {
      *
      * @throws \RuntimeException on curl/HTTP error
      */
-    private static function callClaude(string $prompt): string {
-        $config  = self::getConfig();
+    private static function callClaude(string $prompt, ?array $config = null): string {
+        $config  = $config ?? self::getConfig();
         $apiKey  = $config['api_key'];
+        $model   = ($config['model'] ?? '') !== '' ? (string)$config['model'] : 'claude-haiku-4-5-20251001';
 
         $payload = json_encode([
-            'model'      => 'claude-haiku-4-5-20251001',
+            'model'      => $model,
             'max_tokens' => 1024,
             'messages'   => [
                 ['role' => 'user', 'content' => $prompt],
@@ -277,17 +343,17 @@ class AIAdvisor {
         $ms = (int)round((microtime(true) - $t0) * 1000);
 
         if ($curlErr) {
-            self::logInference('claude', 'claude-haiku-4-5-20251001', $prompt, 0, $ms, false, $curlErr);
+            self::logInference('claude', $model, $prompt, 0, $ms, false, $curlErr);
             throw new \RuntimeException('Claude cURL error: ' . $curlErr);
         }
         if ($httpCode !== 200) {
-            self::logInference('claude', 'claude-haiku-4-5-20251001', $prompt, 0, $ms, false, 'HTTP ' . $httpCode);
+            self::logInference('claude', $model, $prompt, 0, $ms, false, 'HTTP ' . $httpCode);
             throw new \RuntimeException('Claude HTTP ' . $httpCode . ': ' . substr((string)$response, 0, 200));
         }
 
         $data   = json_decode((string)$response, true);
         $tokens = (int)(($data['usage']['input_tokens'] ?? 0) + ($data['usage']['output_tokens'] ?? 0));
-        self::logInference('claude', 'claude-haiku-4-5-20251001', $prompt, $tokens, $ms, true, null);
+        self::logInference('claude', $model, $prompt, $tokens, $ms, true, null);
         return (string)($data['content'][0]['text'] ?? '');
     }
 
@@ -308,12 +374,13 @@ class AIAdvisor {
      *
      * @throws \RuntimeException on curl/HTTP error
      */
-    private static function callOpenAI(string $prompt): string {
-        $config = self::getConfig();
+    private static function callOpenAI(string $prompt, ?array $config = null): string {
+        $config = $config ?? self::getConfig();
         $apiKey = $config['api_key'];
+        $model  = ($config['model'] ?? '') !== '' ? (string)$config['model'] : 'gpt-4o-mini';
 
         $payload = json_encode([
-            'model'    => 'gpt-4o-mini',
+            'model'    => $model,
             'messages' => [
                 ['role' => 'user', 'content' => $prompt],
             ],
@@ -340,17 +407,103 @@ class AIAdvisor {
         $ms = (int)round((microtime(true) - $t0) * 1000);
 
         if ($curlErr) {
-            self::logInference('openai', 'gpt-4o-mini', $prompt, 0, $ms, false, $curlErr);
+            self::logInference('openai', $model, $prompt, 0, $ms, false, $curlErr);
             throw new \RuntimeException('OpenAI cURL error: ' . $curlErr);
         }
         if ($httpCode !== 200) {
-            self::logInference('openai', 'gpt-4o-mini', $prompt, 0, $ms, false, 'HTTP ' . $httpCode);
+            self::logInference('openai', $model, $prompt, 0, $ms, false, 'HTTP ' . $httpCode);
             throw new \RuntimeException('OpenAI HTTP ' . $httpCode . ': ' . substr((string)$response, 0, 200));
         }
 
         $data   = json_decode((string)$response, true);
         $tokens = (int)(($data['usage']['total_tokens'] ?? 0));
-        self::logInference('openai', 'gpt-4o-mini', $prompt, $tokens, $ms, true, null);
+        self::logInference('openai', $model, $prompt, $tokens, $ms, true, null);
+        return (string)($data['choices'][0]['message']['content'] ?? '');
+    }
+
+    /**
+     * Call a self-hosted, OpenAI-compatible endpoint (Ollama or any gateway
+     * that speaks the `/v1/chat/completions` contract). The base URL comes from
+     * config so air-gapped sites route AI to an internal inference host instead
+     * of a public API. Ollama needs no API key; when one is set it is sent as a
+     * bearer token (proxies/gateways that require auth).
+     *
+     * Security: the operator-configured host is vetted with the SSRF *infra*
+     * guard (loopback / link-local / cloud-metadata refused, RFC-1918 allowed),
+     * and the resolved IP is pinned into the connection (CURLOPT_RESOLVE) to
+     * defeat DNS-rebinding between validation and fetch.
+     *
+     * @throws \RuntimeException on misconfiguration or curl/HTTP error
+     */
+    private static function callOpenAICompatible(string $prompt, ?array $config = null): string {
+        $config   = $config ?? self::getConfig();
+        $provider = (string)($config['provider'] ?? 'ollama');
+        $baseUrl  = trim((string)($config['base_url'] ?? ''));
+        if ($baseUrl === '') {
+            throw new \RuntimeException(ucfirst($provider) . ' base URL is not configured');
+        }
+
+        $endpoint = self::openAiCompatEndpoint($baseUrl);
+
+        // SSRF: block only the ranges that are never a valid inference host
+        // (loopback, link-local/metadata, unspecified). RFC-1918 stays allowed
+        // because the internal Ollama host legitimately lives there.
+        $host = parse_url($endpoint, PHP_URL_HOST) ?? '';
+        if ($host === '' || Ssrf::isDangerousInfraHost($host)) {
+            throw new \RuntimeException('Blocked AI endpoint host: ' . ($host ?: '(none)'));
+        }
+
+        $model  = ($config['model'] ?? '') !== '' ? (string)$config['model'] : 'llama3.1';
+        $apiKey = (string)($config['api_key'] ?? '');
+
+        $payload = json_encode([
+            'model'      => $model,
+            'messages'   => [
+                ['role' => 'user', 'content' => $prompt],
+            ],
+            'max_tokens' => 1024,
+            'stream'     => false,
+        ], JSON_UNESCAPED_UNICODE);
+
+        $headers = ['Content-Type: application/json'];
+        if ($apiKey !== '') {
+            $headers[] = 'Authorization: Bearer ' . $apiKey;
+        }
+
+        $t0 = microtime(true);
+        $ch = curl_init($endpoint);
+        $opts = [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_TIMEOUT        => 60,
+            CURLOPT_HTTPHEADER     => $headers,
+        ];
+        // Pin the validated IP to prevent DNS rebinding (best-effort).
+        $resolve = Ssrf::curlResolve($endpoint);
+        if ($resolve !== null) {
+            $opts[CURLOPT_RESOLVE] = $resolve;
+        }
+        curl_setopt_array($ch, $opts);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr  = curl_error($ch);
+        curl_close($ch);
+        $ms = (int)round((microtime(true) - $t0) * 1000);
+
+        if ($curlErr) {
+            self::logInference($provider, $model, $prompt, 0, $ms, false, $curlErr);
+            throw new \RuntimeException(ucfirst($provider) . ' cURL error: ' . $curlErr);
+        }
+        if ($httpCode !== 200) {
+            self::logInference($provider, $model, $prompt, 0, $ms, false, 'HTTP ' . $httpCode);
+            throw new \RuntimeException(ucfirst($provider) . ' HTTP ' . $httpCode . ': ' . substr((string)$response, 0, 200));
+        }
+
+        $data   = json_decode((string)$response, true);
+        $tokens = (int)(($data['usage']['total_tokens'] ?? 0));
+        self::logInference($provider, $model, $prompt, $tokens, $ms, true, null);
         return (string)($data['choices'][0]['message']['content'] ?? '');
     }
 
