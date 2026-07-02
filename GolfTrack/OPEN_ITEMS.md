@@ -51,9 +51,9 @@ Cross-links: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) ·
 ## Privacy & compliance
 | Item | Status | Impact | Suggested action |
 |------|--------|--------|------------------|
-| Privacy manifest (`PrivacyInfo.xcprivacy`) | ⛔ | Apple now requires a privacy manifest; submission may be flagged. | Author `PrivacyInfo.xcprivacy` (location, no tracking, no data collection). |
-| App Privacy details (App Store) | ⛔ | Required on the App Store listing. | Complete App Privacy questionnaire — declare on-device-only, no data collected. |
-| Permission strings | ✅ | Location + Apple Music usage strings defined. | Keep least-privilege (when-in-use). |
+| Privacy manifest (`PrivacyInfo.xcprivacy`) | ✅ | Apple-required privacy manifest authored at repo root: `NSPrivacyTracking=false`, no tracking domains, no collected data types, and `UserDefaults` required-reason (`CA92.1`) declared for the app's own club-profile settings. Verified well-formed with `xmllint --noout`. Operator drags it into the app target (Target Membership). | — |
+| App Privacy details (App Store) | ⛔ (operator-side) | Required on the App Store listing. Cannot be set in-repo — it lives in App Store Connect. | Complete App Privacy questionnaire — declare on-device-only, no data collected. |
+| Permission strings | ✅ | Location + Apple Music usage strings defined **and** now committed as a ready-to-use `Info.plist` template at repo root (purpose strings + least-privilege `LSApplicationQueriesSchemes` for the 4 music apps). Verified well-formed with `xmllint --noout`. | Keep least-privilege (when-in-use). |
 
 ## Hardening & operations
 | Item | Status | Impact | Suggested action |

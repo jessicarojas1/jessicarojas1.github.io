@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  GolfTrack — Apple Privacy Manifest (PrivacyInfo.xcprivacy)
+
+  On-device app: no accounts, no backend, no analytics/tracking, and no data
+  leaves the device. Location is used ephemerally (when-in-use only) to find
+  nearby courses and is never collected, stored off-device, or linked to identity.
+
+  Add this file to the iOS/macOS/watchOS app target in Xcode (Target Membership
+  checked) so it is copied into the app bundle root. See README.md and
+  docs/SECURITY.md.
+
+  Required-reason API: UserDefaults is used by the app to persist its own club
+  profile settings (Sources/GolfTrack/Models/ClubProfile.swift), declared with
+  reason CA92.1 (access info from the app itself).
+-->
+<plist version="1.0">
+<dict>
+    <key>NSPrivacyTracking</key>
+    <false/>
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>

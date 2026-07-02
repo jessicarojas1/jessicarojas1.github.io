@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  GolfTrack — Info.plist template (purpose strings + least-privilege app queries).
+
+  This is a committed reference for the Xcode app target. Point the iOS/macOS
+  target's INFOPLIST_FILE at this file (or merge these keys into the target's
+  Info settings). Replace the CFBundleIdentifier placeholder with your reserved
+  bundle id and let Xcode manage build/version numbers as desired.
+
+  Least-privilege: location is when-in-use only; LSApplicationQueriesSchemes is
+  limited to the four supported music apps (see Sources/GolfTrack/Music/MusicManager.swift).
+-->
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>GolfTrack</string>
+    <key>CFBundleDisplayName</key>
+    <string>GolfTrack</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$(MARKETING_VERSION)</string>
+    <key>CFBundleVersion</key>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
+
+    <!-- Purpose strings (least-privilege, when-in-use only) -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>GolfTrack uses your location to find nearby golf courses.</string>
+    <key>NSAppleMusicUsageDescription</key>
+    <string>GolfTrack shows now-playing info while you score your round.</string>
+
+    <!-- Only the music apps GolfTrack can hand off to; Apple Music uses music:// -->
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>spotify</string>
+        <string>youtubemusic</string>
+        <string>amznmusic</string>
+        <string>tidal</string>
+    </array>
+</dict>
+</plist>

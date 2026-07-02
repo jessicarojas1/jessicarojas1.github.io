@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  PickleTrack — Apple Privacy Manifest (PrivacyInfo.xcprivacy)
+
+  On-device app: no accounts, no backend, no analytics/tracking, and no data
+  leaves the device except an anonymous Apple Maps court search. Location is used
+  ephemerally (when-in-use only) for the court finder and is never collected,
+  stored off-device, or linked to identity.
+
+  Add this file to the app target in Xcode (Target Membership checked) so it is
+  copied into the app bundle root. See README.md and docs/SECURITY.md.
+
+  No required-reason APIs (NSPrivacyAccessedAPITypes) are used directly by the
+  app code, and there are zero third-party SDKs. If a future change adds
+  UserDefaults / file-timestamp / disk-space / system-boot-time usage, add the
+  corresponding NSPrivacyAccessedAPIType entry and reason code here.
+-->
+<plist version="1.0">
+<dict>
+    <key>NSPrivacyTracking</key>
+    <false/>
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array/>
+</dict>
+</plist>

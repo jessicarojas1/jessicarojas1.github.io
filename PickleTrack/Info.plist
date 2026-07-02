@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  PickleTrack — Info.plist template (purpose string).
+
+  This is a committed reference for the Xcode app target. Point the app target's
+  INFOPLIST_FILE at this file (or merge this key into the target's Info settings).
+  Replace the CFBundleIdentifier placeholder with your reserved bundle id and let
+  Xcode manage build/version numbers as desired.
+
+  Least-privilege: location is when-in-use only, used solely by the court finder
+  (see Sources/PickleTrack/Managers/LocationManager.swift). No background location.
+-->
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>PickleTrack</string>
+    <key>CFBundleDisplayName</key>
+    <string>PickleTrack</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$(MARKETING_VERSION)</string>
+    <key>CFBundleVersion</key>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
+
+    <!-- Purpose string (least-privilege, when-in-use only) -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>PickleTrack uses your location to find nearby pickleball courts.</string>
+</dict>
+</plist>
