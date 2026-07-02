@@ -72,8 +72,8 @@ $_filterCount = count(array_filter([
       </thead>
       <tbody>
         <?php if ($audits): foreach ($audits as $audit): ?>
-          <?php $overdue = $audit['status'] === 'planned' && $audit['scheduled_date'] && strtotime($audit['scheduled_date']) < time(); ?>
-          <tr <?= $overdue ? 'class="row-danger"' : '' ?>>
+          <?php $schedule = AuditController::scheduleStatus($audit['scheduled_date'] ?? null, $audit['status'], $audit['completed_date'] ?? null); ?>
+          <tr <?= $schedule === 'overdue' ? 'class="row-danger"' : '' ?>>
             <td>
               <a href="/audit/<?= $audit['id'] ?>" class="table-link fw-600"><?= Security::h($audit['name']) ?></a>
               <?php if ($audit['description']): ?>
@@ -85,7 +85,8 @@ $_filterCount = count(array_filter([
             <td><?= Security::h($audit['auditor_name'] ?? 'Unassigned') ?></td>
             <td>
               <?= $audit['scheduled_date'] ? date('M j, Y', strtotime($audit['scheduled_date'])) : '—' ?>
-              <?php if ($overdue): ?><span class="badge badge-danger" style="margin-left:4px">Overdue</span><?php endif; ?>
+              <?php if ($schedule === 'overdue'): ?><span class="badge badge-danger" style="margin-left:4px"><i class="bi bi-calendar-x"></i> Overdue</span>
+              <?php elseif ($schedule === 'due'): ?><span class="badge badge-warning" style="margin-left:4px"><i class="bi bi-clock"></i> Due soon</span><?php endif; ?>
             </td>
             <td><span class="badge badge-<?= $audit['status'] ?>"><?= ucfirst(str_replace('_',' ',$audit['status'])) ?></span></td>
             <td><?= $audit['score'] !== null ? '<strong>'.round($audit['score']).'%</strong>' : '—' ?></td>

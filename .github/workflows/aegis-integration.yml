@@ -152,6 +152,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/kri_measurement_db.php
 
+      - name: Audit schedule overdue — predicate / owner fallback / cascade
+        working-directory: aegis
+        run: php tests/integration/audit_schedule_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

@@ -1,5 +1,29 @@
 <?php
 class AuditController {
+
+    // An audit is "settled" once completed or cancelled — its schedule no longer
+    // matters. Shared so the view, the summary and the notifier agree.
+    public const TERMINAL_STATUSES = ['completed', 'cancelled'];
+
+    /**
+     * Schedule state for an audit relative to its planned date: 'none' (settled
+     * status, already completed, or no scheduled date), 'overdue' (scheduled
+     * date passed and not yet done), 'due' (scheduled within 14 days) or 'ok'.
+     * Pure function (status guard + date math) — public + static so the notifier
+     * and the audit list share one definition and it is unit-testable.
+     */
+    public static function scheduleStatus(?string $scheduledDate, string $status, ?string $completedDate): string {
+        if (in_array($status, self::TERMINAL_STATUSES, true)) return 'none';
+        if (!empty($completedDate)) return 'none';
+        if (empty($scheduledDate)) return 'none';
+        $ts = strtotime($scheduledDate);
+        if ($ts === false) return 'none';
+        $today = strtotime('today');
+        if ($ts < $today) return 'overdue';
+        if ($ts < $today + 14 * 86400) return 'due';
+        return 'ok';
+    }
+
     public function index(): void {
         Auth::requirePermission('audit.view');
 
