@@ -10,7 +10,7 @@ keys, foreign keys, indexes, constraints, notable status/enum fields, the immuta
 > - `database/schema.sql` — a complete, **idempotent, manual-setup reference**
 >   (`CREATE TABLE IF NOT EXISTS`, `INSERT ... ON CONFLICT DO NOTHING`). It can be
 >   run against a fresh database to produce a working schema.
-> - `database/migrations/001…032_*.sql` — the **authoritative, chronological**
+> - `database/migrations/001…038_*.sql` — the **authoritative, chronological**
 >   record of how the schema evolved. `install.php` is the authoritative installer
 >   that seeds defaults and runs the migrations.
 >
@@ -18,7 +18,17 @@ keys, foreign keys, indexes, constraints, notable status/enum fields, the immuta
 > `documents`, `audit_findings`, `poam_items`, `ssp_plans`) exist **only in the
 > migrations**, not in `schema.sql`. Where this document and `schema.sql` disagree,
 > the migrations win. Everything below is grounded in the SQL actually present in
-> the repository as of migration `032`.
+> the repository as of migration `038`.
+>
+> **Schema-drift remediation (migrations 037–038).** Some schema historically
+> existed **only as runtime guards** in `index.php` (idempotent `ALTER/CREATE`
+> blocks applied on each web request). Migrations **037** (`kris` column widths)
+> and **038** (`totp_used_codes`, `ai_inference_log`, `password_history`, and
+> assorted columns/CHECK-constraint widenings) **promote that runtime-only schema
+> into proper migrations**, so a database built purely from `install.php` /
+> migrations (fresh install, CI, cron-only, air-gapped) is now **complete** without
+> ever hitting the front controller. Verified by
+> `tests/integration/schema_completeness_db.php`.
 
 ---
 
@@ -43,7 +53,7 @@ keys, foreign keys, indexes, constraints, notable status/enum fields, the immuta
 17. [Evidence, Documents, Tags & Custom Fields](#17-evidence-documents-tags--custom-fields)
 18. [System & Settings Tables](#18-system--settings-tables)
 19. [Mermaid ERD (Core Entities)](#19-mermaid-erd-core-entities)
-20. [Migration History (001–032)](#20-migration-history-001032)
+20. [Migration History (001–038)](#20-migration-history-001038)
 21. [Removed Tables (Migration 032)](#21-removed-tables-migration-032)
 
 ---
@@ -607,7 +617,7 @@ erDiagram
 
 ---
 
-## 20. Migration History (001–032)
+## 20. Migration History (001–038)
 
 Run in order by `install.php` after `schema.sql`. All are idempotent
 (`IF NOT EXISTS` / `IF EXISTS` / `ON CONFLICT DO NOTHING`).
@@ -646,6 +656,12 @@ Run in order by `install.php` after `schema.sql`. All are idempotent
 | 030 | `php_sessions.sql` | Shared `php_sessions` store for horizontal scaling (`SESSION_DRIVER=pg`). System table — no tenancy. |
 | 031 | `platform_admin.sql` | Adds `users.is_platform_admin` (cross-tenant SaaS-operator flag, default FALSE). |
 | 032 | `remove_modules.sql` | Drops Change Requests (`change_requests`, `change_request_updates`) and Account Reviews (`account_reviews`, `account_review_items`) tables `CASCADE`. Incidents UI removed but tables kept (SLA feature depends on them). |
+| 033 | `finding_risk_links.sql` | Finding ↔ Risk traceability: `finding_risk_links` (m:n `audit_findings`↔`risks`, `relationship_type`). Tenant-isolated (permissive `tenant_isolation` RLS). |
+| 034 | `evidence_lifecycle.sql` | Evidence approval/rejection workflow on `evidence_files` (`review_status`/`reviewed_by`/`reviewed_at`/`review_notes`, `updated_at`) + review-status/expiry indexes and download log. |
+| 035 | `policy_vendor_capa.sql` | `policies.expires_at`; `vendor_certifications` child table (RLS); CAPA depth (`root_cause` + `preventive_action`) on `issues` and `audit_findings`. |
+| 036 | `notification_log_user_cols.sql` | Reconciles `notification_log` with `scripts/send_notifications.php`: adds `user_id`, `entity_type` (older installs lacked them). |
+| 037 | `widen_kri_columns.sql` | Widens `kris.unit`→`varchar(50)` and `kris.direction`→`varchar(20)` (values exceeded the original `varchar(10)`). **Promotes runtime-only schema** that previously lived only in `index.php`. |
+| 038 | `promote_runtime_schema.sql` | **Schema-drift remediation** — promotes schema that previously existed only as runtime guards in `index.php` into a migration. Adds tables `totp_used_codes`, `ai_inference_log`, `password_history` (backs `ProfileController::changePassword`); columns `assets.created_by`, `compliance_objectives.additional_information`, `users.sessions_revoked_at`/`force_password_change`/`password_changed_at`, `incidents.phi_involved`/`breach_notification_required`/`breach_notification_sent_at`/`root_cause`, `issues.resolution`, `audit_findings.audit_id`; widens `incidents_status_check` (`contained`) and `issues_status_check` (`pending_review`/`wont_fix`/`reopened`). Deliberately excludes `change_requests.implemented_at` (table dropped by 032). Idempotent; verified by `tests/integration/schema_completeness_db.php`. |
 
 ---
 
