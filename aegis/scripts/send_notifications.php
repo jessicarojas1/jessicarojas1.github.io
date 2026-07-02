@@ -218,6 +218,7 @@ $sentKriMeasureOverdue  = 0;
 $sentAuditOverdue       = 0;
 $sentAttestationOverdue = 0;
 $sentSspReviewOverdue   = 0;
+$sentAssetReviewOverdue = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -1520,6 +1521,86 @@ HTML;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// 2c-v. ASSET REVIEW OVERDUE  (asset_review_overdue)
+// ═══════════════════════════════════════════════════════════════════════════════
+// A non-decommissioned asset that has not been reviewed within the annual review
+// cadence (365 days), measured from last_reviewed or the asset's creation date
+// if never reviewed. Alerts the asset OWNER (assets.owner_id).
+try {
+    $assetRows = Database::fetchAll(
+        "SELECT a.id, a.name, a.asset_code, a.asset_type, a.last_reviewed,
+                (CURRENT_DATE - COALESCE(a.last_reviewed, a.created_at::date)) AS days_since,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM assets a
+         JOIN users u ON u.id = a.owner_id
+         WHERE a.status <> 'decommissioned'
+           AND (CURRENT_DATE - COALESCE(a.last_reviewed, a.created_at::date)) > 365
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $assetByUser = [];
+    foreach ($assetRows as $row) {
+        $assetByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($assetByUser as $userId => $assets) {
+        $userId = (int) $userId;
+        if (!notifEnabled($userId, 'asset_review_overdue')) {
+            continue;
+        }
+        $email    = $assets[0]['email'];
+        $userName = $assets[0]['user_name'];
+
+        foreach ($assets as $asset) {
+            // Throttle: one reminder per asset per 7 days.
+            if (alreadyNotified($userId, 'asset_review_overdue', 'asset', (int) $asset['id'], 604800)) {
+                continue;
+            }
+
+            $daysSince = (int) $asset['days_since'];
+            $lastText  = $asset['last_reviewed']
+                ? 'last reviewed ' . date('M j, Y', strtotime($asset['last_reviewed'])) . " ({$daysSince} days ago)"
+                : 'never reviewed';
+            $assetName = htmlspecialchars($asset['name'], ENT_QUOTES, 'UTF-8');
+            $assetType = htmlspecialchars(ucfirst($asset['asset_type']), ENT_QUOTES, 'UTF-8');
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>An asset you own is <span style="color:#ef4444;font-weight:600">overdue for its annual review</span> ({$lastText}):</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Asset</th>
+    <th style="padding:8px;text-align:left">Type</th>
+    <th style="padding:8px;text-align:left">Status</th>
+  </tr>
+  <tr>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-weight:600">{$assetName}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb">{$assetType}</td>
+    <td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#ef4444;font-weight:600">{$lastText}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to review this asset and record the review.</p>
+HTML;
+
+            $subject = "Asset review overdue: {$asset['name']}";
+            $body    = emailShell('Asset Review Overdue', $inner);
+
+            $sent = maybeSendOrQueue(
+                $userId, 'asset_review_overdue', $email, $userName, $subject, $body,
+                ['asset' => $asset, 'daysSince' => $daysSince]
+            );
+            if ($sent) {
+                logNotification($userId, 'asset_review_overdue', 'asset', (int) $asset['id']);
+                $sentAssetReviewOverdue++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[asset_review_overdue] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // 3. PENDING APPROVAL REMINDERS
 // ═══════════════════════════════════════════════════════════════════════════════
 try {
@@ -2611,6 +2692,7 @@ if (!empty($digestQueue)) {
         'audit_schedule_overdue'      => 'Audits Overdue to Start',
         'policy_attestation_overdue'  => 'Policy Attestations Overdue',
         'ssp_review_overdue'          => 'SSP Reviews Overdue',
+        'asset_review_overdue'        => 'Asset Reviews Overdue',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -2750,4 +2832,4 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentVendorCertExpiring} vendor certs expiring, {$sentVendorContractExp} vendor contracts expiring, "
    . "{$sentKriMeasureOverdue} KRI measurements overdue, {$sentAuditOverdue} audits overdue, "
    . "{$sentAttestationOverdue} attestations overdue, {$sentSspReviewOverdue} SSP reviews overdue, "
-   . "{$sentDigests} digest(s) sent\n";
+   . "{$sentAssetReviewOverdue} asset reviews overdue, {$sentDigests} digest(s) sent\n";

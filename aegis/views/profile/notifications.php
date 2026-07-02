@@ -146,6 +146,11 @@ $NOTIF_TYPES = [
         'description' => 'When a System Security Plan you own is past its next review date',
         'icon'        => 'shield-lock-fill',
     ],
+    'asset_review_overdue' => [
+        'label'       => 'Asset review overdue',
+        'description' => 'When an asset you own has not had its annual review within the last year',
+        'icon'        => 'hdd-stack-fill',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────

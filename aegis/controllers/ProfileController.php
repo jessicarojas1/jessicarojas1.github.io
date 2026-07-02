@@ -37,7 +37,7 @@ class ProfileController {
             'finding_remediation_overdue','vendor_cert_expiring',
             'vendor_contract_expiring','kri_measurement_overdue',
             'audit_schedule_overdue','policy_attestation_overdue',
-            'ssp_review_overdue',
+            'ssp_review_overdue','asset_review_overdue',
         ];
         foreach ($types as $type) {
             $enabled = isset($_POST['types'][$type]);

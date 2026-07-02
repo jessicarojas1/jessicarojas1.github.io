@@ -186,6 +186,12 @@ function criticalityBadge(string $crit): string {
               <a href="/assets/<?= (int)$a['id'] ?>" class="table-link fw-500">
                 <?= Security::h($a['name']) ?>
               </a>
+              <?php $assetReview = AssetController::reviewStatus($a['last_reviewed'] ?? null, $a['status'] ?? '', $a['created_at'] ?? null); ?>
+              <?php if ($assetReview === 'overdue'): ?>
+                <span class="badge badge-danger" style="font-size:0.68rem" title="Annual review overdue"><i class="bi bi-clock-history"></i> Review overdue</span>
+              <?php elseif ($assetReview === 'due'): ?>
+                <span class="badge badge-warning" style="font-size:0.68rem" title="Annual review due soon"><i class="bi bi-clock"></i> Review due</span>
+              <?php endif; ?>
               <?php if (!empty($a['hostname'])): ?>
                 <div style="font-size:11px;color:var(--text-muted);"><?= Security::h($a['hostname']) ?></div>
               <?php endif; ?>
