@@ -43,6 +43,40 @@ node benchmark/owasp/run.js      # OWASP Benchmark Java runner (manual; not in C
 - Assemble any token-shaped test fixtures from fragments so the file contains no
   literal that trips secret-scanning push protection.
 
+## Real-browser UI smoke tests (local/manual)
+
+```bash
+cd citadel/server
+npm run test:ui
+```
+
+`server/test/ui.playwright.test.js` launches a real Chromium (via
+`playwright-core`) against the real server + real SPA — the same `before`/
+`after` server-spawn pattern as `api.test.js` — and drives the page with real
+keyboard/mouse input. It covers UI surfaces that the rest of the suite only
+ever exercises through Node DOM stubs:
+
+- the app loads at `/` with no unexpected console/page errors
+- `window.CITADEL.ui` (`js/ui.js`) exposes `toast` / `confirm` / `prompt`
+- `CITADEL.ui.toast()` renders a real `.citadel-toast` element in the DOM
+- `CITADEL.ui.confirm()` opens a real `role="dialog" aria-modal="true"` modal;
+  a real Cancel-button click resolves it to `false`, and a real `Escape`
+  keypress also resolves it to `false`
+- a real `?` keypress opens the `.kbd-overlay` keyboard-shortcuts overlay;
+  repeated real `Tab`/`Shift+Tab` presses never move focus outside
+  `.kbd-card` (the focus trap added in `js/app.js`); `Escape` closes it
+
+It requires the Chromium binary pre-installed at
+`/opt/pw-browsers/chromium-1194/chrome-linux/chrome` (launched with
+`--no-sandbox`, needed in container environments). If that binary is missing,
+every test in the file `test.skip`s instead of failing, so it can never become
+a flaky/breaking gate on a runner that lacks it.
+
+This is **not** part of `npm test` and **not** wired into CI (`ci.yml`) yet —
+CI runners aren't currently provisioned with Chromium for this. Run it
+manually/locally when touching `js/ui.js` or the keyboard-overlay/focus-trap
+code in `js/app.js`.
+
 ## Known gaps
 
 - No line-coverage threshold gate (the benchmark gates detection accuracy, not

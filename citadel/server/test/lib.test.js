@@ -600,6 +600,42 @@ test('advisories: flags vulnerable versions, clears fixed ones, resolves ranges'
   assert.equal(hit([{ name: 'totally-made-up-pkg', version: '1.0.0', ecosystem: 'npm' }]).length, 0);
 });
 
+test('advisories: newly added entries flag vulnerable versions and clear fixed ones', () => {
+  const A = loadEngine().advisories;
+  const hit = (comps) => A.scan(comps).map(f => f.ruleId);
+  // handlebars: two distinct CVEs, each with its own fixed boundary
+  assert.ok(hit([{ name: 'handlebars', version: '4.5.2', ecosystem: 'npm' }]).includes('CVE-2019-19919'));
+  assert.equal(hit([{ name: 'handlebars', version: '4.5.3', ecosystem: 'npm' }]).includes('CVE-2019-19919'), false);
+  assert.ok(hit([{ name: 'handlebars', version: '4.7.6', ecosystem: 'npm' }]).includes('CVE-2021-23369'));
+  assert.equal(hit([{ name: 'handlebars', version: '4.7.7', ecosystem: 'npm' }]).includes('CVE-2021-23369'), false);
+  // ejs SSTI/RCE
+  assert.ok(hit([{ name: 'ejs', version: '3.1.6', ecosystem: 'npm' }]).includes('CVE-2022-29078'));
+  assert.equal(hit([{ name: 'ejs', version: '3.1.7', ecosystem: 'npm' }]).length, 0);
+  // vm2 sandbox escape (two CVEs, same fixed version)
+  assert.ok(hit([{ name: 'vm2', version: '3.9.17', ecosystem: 'npm' }]).includes('CVE-2023-37466'));
+  assert.ok(hit([{ name: 'vm2', version: '3.9.17', ecosystem: 'npm' }]).includes('CVE-2023-37903'));
+  assert.equal(hit([{ name: 'vm2', version: '3.9.18', ecosystem: 'npm' }]).length, 0);
+  // ansi-regex: disjoint vulnerable ranges on the 5.x and 6.x lines
+  assert.ok(hit([{ name: 'ansi-regex', version: '5.0.0', ecosystem: 'npm' }]).includes('CVE-2021-3807'));
+  assert.equal(hit([{ name: 'ansi-regex', version: '5.0.1', ecosystem: 'npm' }]).length, 0);
+  assert.ok(hit([{ name: 'ansi-regex', version: '6.0.0', ecosystem: 'npm' }]).includes('CVE-2021-3807'));
+  assert.equal(hit([{ name: 'ansi-regex', version: '6.0.1', ecosystem: 'npm' }]).length, 0);
+  // Pillow ImageMath.eval RCE (PyPI), Django ReDoS on the 4.2 LTS line
+  assert.ok(hit([{ name: 'pillow', version: '10.1.0', ecosystem: 'pypi' }]).includes('CVE-2023-50447'));
+  assert.equal(hit([{ name: 'pillow', version: '10.2.0', ecosystem: 'pypi' }]).includes('CVE-2023-50447'), false);
+  assert.ok(hit([{ name: 'django', version: '4.2.9', ecosystem: 'pypi' }]).includes('CVE-2024-27351'));
+  assert.equal(hit([{ name: 'django', version: '4.2.10', ecosystem: 'pypi' }]).includes('CVE-2024-27351'), false);
+  // Spring4Shell (Maven, full coordinate) — fixed on both the 5.3.x and 5.2.x lines
+  assert.ok(hit([{ name: 'org.springframework:spring-webmvc', version: '5.3.17', ecosystem: 'maven' }]).includes('CVE-2022-22965'));
+  assert.equal(hit([{ name: 'org.springframework:spring-webmvc', version: '5.3.18', ecosystem: 'maven' }]).length, 0);
+  // h2database JNDI RCE (Maven)
+  assert.ok(hit([{ name: 'com.h2database:h2', version: '2.0.205', ecosystem: 'maven' }]).includes('CVE-2021-42392'));
+  assert.equal(hit([{ name: 'com.h2database:h2', version: '2.0.206', ecosystem: 'maven' }]).length, 0);
+  // golang.org/x/text DoS (Go ecosystem, "v"-prefixed go.mod versions)
+  assert.ok(hit([{ name: 'golang.org/x/text', version: 'v0.3.7', ecosystem: 'golang' }]).includes('CVE-2022-32149'));
+  assert.equal(hit([{ name: 'golang.org/x/text', version: 'v0.3.8', ecosystem: 'golang' }]).length, 0);
+});
+
 test('advisories: a vulnerable manifest surfaces a CVE through a full scan (offline)', async () => {
   const C = loadEngine();
   const rep = await C.scanner.scan([{ path: 'package.json', lang: 'JSON', size: 60,

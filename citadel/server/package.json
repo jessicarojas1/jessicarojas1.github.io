@@ -8,6 +8,7 @@
     "start": "node server.js",
     "test": "node test/smoke.js && node --test test/lib.test.js test/api.test.js test/cli.test.js",
     "test:coverage": "node --test --experimental-test-coverage test/lib.test.js test/cli.test.js",
+    "test:ui": "node test/ui.playwright.test.js",
     "lint": "cd .. && server/node_modules/.bin/eslint js server scripts cli"
   },
   "engines": {
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "eslint": "^9.39.4",
-    "globals": "^17.6.0"
+    "globals": "^17.6.0",
+    "playwright-core": "^1.61.1"
   }
 }
