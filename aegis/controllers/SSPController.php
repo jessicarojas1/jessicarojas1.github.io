@@ -3,6 +3,22 @@ declare(strict_types=1);
 
 class SSPController {
 
+    /**
+     * Review-cadence state for a System Security Plan from its next_review_date:
+     * 'none' (no date), 'overdue' (past), 'due' (within 30 days) or 'ok'. Pure
+     * function (date math) — public + static so the notifier and the SSP list
+     * share one definition and it is unit-testable.
+     */
+    public static function reviewStatus(?string $nextReviewDate): string {
+        if (empty($nextReviewDate)) return 'none';
+        $ts = strtotime($nextReviewDate);
+        if ($ts === false) return 'none';
+        $today = strtotime('today');
+        if ($ts < $today) return 'overdue';
+        if ($ts < $today + 30 * 86400) return 'due';
+        return 'ok';
+    }
+
     public function index(): void {
         Auth::requirePermission('ssp.view');
         $plans = Database::fetchAll(

@@ -160,6 +160,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/policy_attestation_db.php
 
+      - name: SSP review overdue — predicate / active-owner join / cascade
+        working-directory: aegis
+        run: php tests/integration/ssp_review_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

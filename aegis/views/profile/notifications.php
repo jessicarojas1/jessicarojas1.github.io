@@ -141,6 +141,11 @@ $NOTIF_TYPES = [
         'description' => 'When a policy attestation you owe is past its campaign due date and not yet signed',
         'icon'        => 'file-earmark-check-fill',
     ],
+    'ssp_review_overdue' => [
+        'label'       => 'SSP review overdue',
+        'description' => 'When a System Security Plan you own is past its next review date',
+        'icon'        => 'shield-lock-fill',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────

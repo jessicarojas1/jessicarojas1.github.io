@@ -40,8 +40,16 @@ $statusLabels = [
     <?php foreach ($plans as $plan):
       [$statusLabel, $statusClass] = $statusLabels[$plan['operational_status']] ?? ['Unknown','badge-secondary'];
     ?>
+      <?php $sspReview = SSPController::reviewStatus($plan['next_review_date'] ?? null); ?>
       <tr>
-        <td><a href="/ssp/<?= (int)$plan['id'] ?>" style="font-weight:600;"><?= Security::h($plan['title']) ?></a></td>
+        <td>
+          <a href="/ssp/<?= (int)$plan['id'] ?>" style="font-weight:600;"><?= Security::h($plan['title']) ?></a>
+          <?php if ($sspReview === 'overdue'): ?>
+            <span class="badge badge-danger" style="font-size:0.68rem" title="Review overdue (was due <?= Security::h(date('M j, Y', strtotime($plan['next_review_date']))) ?>)"><i class="bi bi-clock-history"></i> Review overdue</span>
+          <?php elseif ($sspReview === 'due'): ?>
+            <span class="badge badge-warning" style="font-size:0.68rem" title="Review due <?= Security::h(date('M j, Y', strtotime($plan['next_review_date']))) ?>"><i class="bi bi-clock"></i> Review due</span>
+          <?php endif; ?>
+        </td>
         <td><?= Security::h($plan['system_name'] ?: '—') ?></td>
         <td><span class="badge <?= $statusClass ?>"><?= $statusLabel ?></span></td>
         <td><?= (int)$plan['package_count'] ?></td>
