@@ -29,7 +29,10 @@ CREATE TABLE IF NOT EXISTS users (
     last_login TIMESTAMP,
     email_verified_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    sessions_revoked_at TIMESTAMP,
+    force_password_change BOOLEAN NOT NULL DEFAULT FALSE,
+    password_changed_at TIMESTAMP
 );
 
 -- Tenant registry (multi-tenancy foundation; see MULTI_TENANCY.md). Inert until
@@ -100,7 +103,8 @@ CREATE TABLE IF NOT EXISTS compliance_objectives (
     level INTEGER NOT NULL DEFAULT 1,
     weight DECIMAL(5,2) DEFAULT 1.0,
     sort_order INTEGER DEFAULT 0,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    additional_information TEXT
 );
 
 CREATE TABLE IF NOT EXISTS control_implementations (
@@ -493,7 +497,7 @@ CREATE TABLE IF NOT EXISTS incidents (
                        CHECK (severity IN ('critical','high','medium','low')),
     category           VARCHAR(100),
     status             VARCHAR(20) NOT NULL DEFAULT 'open'
-                       CHECK (status IN ('open','investigating','resolved','closed')),
+                       CHECK (status IN ('open','investigating','contained','resolved','closed')),
     reported_by        INTEGER REFERENCES users(id),
     assigned_to        INTEGER REFERENCES users(id),
     affected_systems   TEXT,
@@ -501,7 +505,11 @@ CREATE TABLE IF NOT EXISTS incidents (
     detected_at        TIMESTAMP,
     resolved_at        TIMESTAMP,
     created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    phi_involved                 BOOLEAN NOT NULL DEFAULT FALSE,
+    breach_notification_required BOOLEAN NOT NULL DEFAULT FALSE,
+    breach_notification_sent_at  TIMESTAMP,
+    root_cause                   TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_incidents_status   ON incidents(status);
 CREATE INDEX IF NOT EXISTS idx_incidents_severity ON incidents(severity);
@@ -511,7 +519,8 @@ CREATE TABLE IF NOT EXISTS incident_updates (
     incident_id INTEGER NOT NULL REFERENCES incidents(id) ON DELETE CASCADE,
     user_id     INTEGER REFERENCES users(id),
     content     TEXT NOT NULL,
-    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_type VARCHAR(50) NOT NULL DEFAULT 'comment'
 );
 CREATE INDEX IF NOT EXISTS idx_iu_incident ON incident_updates(incident_id);
 
@@ -544,7 +553,8 @@ CREATE TABLE IF NOT EXISTS issue_updates (
     issue_id   INTEGER NOT NULL REFERENCES issues(id) ON DELETE CASCADE,
     user_id    INTEGER REFERENCES users(id),
     content    TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_type VARCHAR(50) NOT NULL DEFAULT 'comment'
 );
 
 CREATE TABLE IF NOT EXISTS vendors (
