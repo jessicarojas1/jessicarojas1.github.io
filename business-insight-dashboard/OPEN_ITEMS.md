@@ -22,9 +22,9 @@ Legend: ✅ done · 🟡 partial · ⛔ outstanding · ➖ not applicable (by de
 | Status | Item | Impact | Suggested action |
 |--------|------|--------|------------------|
 | ✅ | Uploaded data is ephemeral (in-memory only) | Strong privacy property — CSVs are never written to disk or transmitted | Keep it this way; document it (done in README/SECURITY). |
-| 🟡 | `branding.json` is the only persisted state, written next to `app.py` | On multi-replica or read-only-FS deployments it does not persist / diverges per replica | Mount a shared writable volume (EFS / Azure Files / PVC) or treat branding as config-as-code. Optionally make the storage path configurable via env. |
-| 🟡 | Upload size / DoS bounding | Large or malicious CSVs can exhaust memory | Set `STREAMLIT_SERVER_MAX_UPLOAD_SIZE`; add container memory limits; consider row/column caps in `loader.py`. |
-| ⛔ | No malformed-CSV / content scanning beyond pandas parse | Pathological files could stress the parser | Validate/limit dimensions on load; run behind resource limits. |
+| ✅ | `branding.json` storage path configurable via env | On multi-replica or read-only-FS deployments it can now point at a shared writable volume | **Done.** `modules/branding.py` reads `BRANDING_FILE` (`_branding_file()`), used by both `load_branding()`/`save_branding()`; `save_branding` also `mkdir -p`s the parent. Defaults to `branding.json` next to `app.py`. Verified: with `BRANDING_FILE=<tmp>/sub/branding.json`, save creates the dir + file and load round-trips. Still mount a shared volume (EFS / Azure Files / PVC) for multi-replica. |
+| ✅ | Upload size / DoS bounding | Bounds memory from large uploads | **Done.** `STREAMLIT_SERVER_MAX_UPLOAD_SIZE=50` (MB) set in `Dockerfile` + `render.yaml`; `modules/loader.py` reads at most `MAX_UPLOAD_ROWS`+1 rows (`pd.read_csv(nrows=...)`) and truncates to the cap, and rejects files wider than `MAX_UPLOAD_COLS`. Add container memory limits at deploy time. Verified functionally (see below). |
+| ✅ | Malformed / oversized-CSV dimension limits on load | Pathological files can't blow up the parser/memory unbounded | **Done.** `load_and_detect()` enforces the row cap (truncate + `df.attrs["row_cap_applied"]`, surfaced as a `st.warning` in `app.py`) and hard-rejects the column cap with a `ValueError` (already caught → `st.error` + `st.stop`). Verified: 25-row file capped to 10 with the flag set; 9-col file with `MAX_UPLOAD_COLS=5` raised `ValueError`. |
 
 ## 3. Transport & exposure
 
@@ -40,7 +40,7 @@ Legend: ✅ done · 🟡 partial · ⛔ outstanding · ➖ not applicable (by de
 |--------|------|--------|------------------|
 | ✅ | Branding input sanitization | Prevents XSS via logo/name/accent | Enforced in `modules/branding.py` (URL allowlist, hex validation, HTML-escape). Keep for any new user-supplied markup. |
 | ✅ | Non-root container | Reduces blast radius | Dockerfile runs as uid 10001. |
-| 🟡 | Read-only root filesystem | Not yet enforced | Run read-only with a writable mount only for the branding path. |
+| 🟡 | Read-only root filesystem | Not yet enforced | Run read-only with a writable mount only for the branding path — now practical: point `BRANDING_FILE` at the single writable mount so the rest of the FS can be read-only. |
 | 🟡 | External asset fetches | `styles.py` imports Google Fonts; Plotly may fetch CDN assets | For airgapped/high-assurance, self-host fonts and Plotly assets (see `deployments/AIRGAPPED.md`). |
 | ✅ | Usage telemetry disabled | No data to Streamlit | `STREAMLIT_BROWSER_GATHER_USAGE_STATS=false` set. |
 
@@ -78,7 +78,16 @@ Legend: ✅ done · 🟡 partial · ⛔ outstanding · ➖ not applicable (by de
 - [ ] TLS terminated at the proxy/LB — **required**
 - [ ] Session affinity + WebSocket upgrade headers on the LB/ingress
 - [ ] Container run non-root, memory-limited, read-only FS + writable branding mount
-- [ ] `STREAMLIT_SERVER_MAX_UPLOAD_SIZE` bounded; usage stats disabled
-- [ ] Shared/backed-up storage for `branding.json` (if branding matters)
+- [x] `STREAMLIT_SERVER_MAX_UPLOAD_SIZE` bounded (=50 MB in image + Render); usage stats disabled — plus `MAX_UPLOAD_ROWS`/`MAX_UPLOAD_COLS` caps in `loader.py`
+- [ ] Shared/backed-up storage for `branding.json` (if branding matters) — mount it and set `BRANDING_FILE` to the mount path
 - [ ] Health probes wired to `/_stcore/health`
 - [ ] Access logging via the proxy/platform retained per policy
+
+---
+
+_Last reviewed: 2026-07-02. Remediation pass: added env-configurable ingestion
+caps (`MAX_UPLOAD_ROWS`/`MAX_UPLOAD_COLS`, enforced in `modules/loader.py`
+`load_and_detect` and surfaced in `app.py`), set `STREAMLIT_SERVER_MAX_UPLOAD_SIZE=50`
+in the Dockerfile + `render.yaml`, and made the branding storage path configurable
+via `BRANDING_FILE` (`modules/branding.py`). All wired into the running app and
+verified (`py_compile`; functional loader/branding tests)._

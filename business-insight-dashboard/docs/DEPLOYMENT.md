@@ -66,7 +66,10 @@ The application itself requires **no secrets**. All configuration is optional tu
 | Variable | Example | Purpose |
 |----------|---------|---------|
 | `PORT` | `8501` | Injected by Render/PaaS; bound via `--server.port` |
-| `STREAMLIT_SERVER_MAX_UPLOAD_SIZE` | `50` | Cap CSV upload size (MB); bounds DoS surface |
+| `STREAMLIT_SERVER_MAX_UPLOAD_SIZE` | `50` | Cap CSV upload size (MB); bounds DoS surface (set in image + `render.yaml`) |
+| `MAX_UPLOAD_ROWS` | `1000000` | Row cap in `modules/loader.py`; larger files are truncated (UI warns) |
+| `MAX_UPLOAD_COLS` | `1000` | Column cap; wider files are rejected with a clear error |
+| `BRANDING_FILE` | `branding.json` | Path for persisted branding — point at a writable/shared mount for read-only-root / multi-replica |
 | `STREAMLIT_BROWSER_GATHER_USAGE_STATS` | `false` | Disable Streamlit usage telemetry |
 | `STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION` | `true` | XSRF token on forms/uploads (default on) |
 | `STREAMLIT_SERVER_HEADLESS` | `true` | No browser auto-open, no email prompt |
@@ -133,7 +136,7 @@ Shape it would take: the rule engine continues to produce the structured `{icon,
 
 ### 9.3 Hardening
 - [ ] Container runs as **non-root** user `app` (per `Dockerfile`).
-- [ ] Filesystem **read-only** except the `branding.json` path (mount a small writable volume for it).
+- [ ] Filesystem **read-only** except the branding path — mount a small writable volume and set **`BRANDING_FILE`** to a path on it (`save_branding` creates parent dirs).
 - [ ] **Max upload size** capped (`STREAMLIT_SERVER_MAX_UPLOAD_SIZE`) to bound DoS.
 - [ ] **Usage stats disabled** (`gatherUsageStats=false`).
 

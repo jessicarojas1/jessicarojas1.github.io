@@ -89,6 +89,18 @@ curl -fsS http://localhost:8501/_stcore/health   # -> ok
 > Note: there is **no database migration** step and **no background/worker
 > process** — all computation runs synchronously inside the Streamlit rerun.
 
+### Configuration (environment variables)
+
+All optional — sensible defaults ship in the Dockerfile / `render.yaml`.
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `STREAMLIT_SERVER_MAX_UPLOAD_SIZE` | `50` | Max upload size in **MB** (primary memory/DoS bound). |
+| `MAX_UPLOAD_ROWS` | `1000000` | Row cap enforced in `loader.py`; larger files are truncated and the UI warns. |
+| `MAX_UPLOAD_COLS` | `1000` | Column cap; wider files are rejected with a clear error. |
+| `BRANDING_FILE` | `branding.json` (next to `app.py`) | Path for persisted branding — point at a writable/shared mount (EFS / Azure Files / PVC) for multi-replica or read-only-root deployments. |
+| `PORT` | `8501` | Server port (Render uses `10000`). |
+
 ---
 
 ## Quick Start

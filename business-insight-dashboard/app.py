@@ -216,6 +216,16 @@ except ValueError as e:
     st.error(f"Could not load file: {e}")
     st.stop()
 
+# Ingestion safety: loader.py caps rows/columns (DoS bounding). If the upload
+# exceeded the row cap it was truncated — tell the user their view is partial.
+_row_cap = df.attrs.get("row_cap_applied")
+if _row_cap:
+    st.warning(
+        f"Large file: only the first {_row_cap:,} rows were loaded "
+        "(row cap). Results reflect the truncated data. "
+        "Adjust `MAX_UPLOAD_ROWS` to change this limit."
+    )
+
 # Visible page header carrying the (branded) display name.
 st.markdown(
     f"""

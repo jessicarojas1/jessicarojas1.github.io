@@ -36,7 +36,7 @@ This is the app's strongest security property.
 
 - **Uploaded data stays in memory.** The CSV is parsed and analyzed with pandas entirely in server memory. It is **never written to disk and never transmitted** anywhere. The footer states: *"Data processed locally — nothing is stored or transmitted."* When the session ends, the data is gone.
 - **In transit:** TLS terminates at the reverse proxy/LB. Always require HTTPS to clients; never expose the raw `:8501` port publicly.
-- **At rest:** the only file at rest is `branding.json` (`{logo, name, accent}`) — no business data, no secrets. Protect it with normal filesystem/volume controls.
+- **At rest:** the only file at rest is `branding.json` (`{logo, name, accent}`) — no business data, no secrets. Its path is configurable via `BRANDING_FILE` (point it at a writable/shared mount for read-only-root / multi-replica). Protect it with normal filesystem/volume controls.
 
 | Data | State | Protection |
 |------|-------|-----------|
@@ -54,7 +54,7 @@ This is the app's strongest security property.
 | Accent color (`branding.py`) | **Hex validation**: must match `#RGB` or `#RRGGBB` before use as a CSS custom property |
 | Display name (`branding.py`) | **HTML-escaped** wherever injected into markup |
 | Uploaded logo file | Stored inline as a base64 `data:` URL (still allowlist-checked) |
-| CSV upload | **Max upload size** cap (`STREAMLIT_SERVER_MAX_UPLOAD_SIZE`) bounds memory/DoS; malformed CSV fails soft via `st.error` |
+| CSV upload | **Max upload size** cap (`STREAMLIT_SERVER_MAX_UPLOAD_SIZE=50` MB) plus **row/column caps** in `loader.py` (`MAX_UPLOAD_ROWS` truncates, `MAX_UPLOAD_COLS` rejects) bound memory/DoS; malformed CSV fails soft via `st.error` |
 | Forms / uploads | **Streamlit XSRF protection** enabled (`server.enableXsrfProtection`) |
 
 A broken/malicious logo URL degrades to the default mark rather than executing or erroring.

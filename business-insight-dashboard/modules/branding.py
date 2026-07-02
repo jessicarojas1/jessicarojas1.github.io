@@ -20,6 +20,7 @@ from __future__ import annotations
 import base64
 import html
 import json
+import os
 import re
 from pathlib import Path
 
@@ -31,8 +32,15 @@ DEFAULT_ACCENT = "#4F8EF7"
 DEFAULT_ICON = "📊"
 DEFAULT_TAGLINE = "Instant analytics · No code required"
 
-# branding.json lives next to app.py (parent of this modules/ dir)
-_BRANDING_FILE = Path(__file__).resolve().parent.parent / "branding.json"
+# Where branding is persisted. Defaults to branding.json next to app.py, but can
+# be pointed at a writable/shared volume (EFS / Azure Files / PVC) for multi-
+# replica or read-only-root-filesystem deployments via BRANDING_FILE.
+_DEFAULT_BRANDING_FILE = Path(__file__).resolve().parent.parent / "branding.json"
+
+
+def _branding_file() -> Path:
+    override = (os.environ.get("BRANDING_FILE") or "").strip()
+    return Path(override).expanduser() if override else _DEFAULT_BRANDING_FILE
 
 # Allowed mime types for uploaded logos
 _ALLOWED_IMAGE_MIME = {
@@ -107,8 +115,9 @@ def load_branding() -> dict:
     """Load branding from disk, sanitizing every field. Always returns a valid dict."""
     data = _default_branding()
     try:
-        if _BRANDING_FILE.exists():
-            raw = json.loads(_BRANDING_FILE.read_text(encoding="utf-8"))
+        path = _branding_file()
+        if path.exists():
+            raw = json.loads(path.read_text(encoding="utf-8"))
             if isinstance(raw, dict):
                 data["logo"] = sanitize_logo(raw.get("logo"))
                 data["name"] = sanitize_name(raw.get("name"))
@@ -127,7 +136,9 @@ def save_branding(logo: str, name: str, accent: str) -> dict:
         "accent": validate_accent(accent),
     }
     try:
-        _BRANDING_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        path = _branding_file()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data, indent=2), encoding="utf-8")
     except Exception:
         # If disk write fails we still keep the in-session copy.
         pass

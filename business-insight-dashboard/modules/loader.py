@@ -6,9 +6,36 @@ product, service, source, customer) from any reasonably named CSV.
 Returns (DataFrame, col_map) where col_map maps canonical → actual column.
 """
 
+import os
 import pandas as pd
 import io
 from typing import Optional
+
+# ---------------------------------------------------------------------------
+# Ingestion safety limits (DoS bounding)
+# ---------------------------------------------------------------------------
+# Cap the rows/columns pulled from an uploaded CSV so a pathological file cannot
+# exhaust memory. Both are env-configurable; pair with
+# STREAMLIT_SERVER_MAX_UPLOAD_SIZE (byte cap) and container memory limits.
+DEFAULT_MAX_ROWS = 1_000_000
+DEFAULT_MAX_COLS = 1_000
+
+
+def _int_env(name: str, default: int) -> int:
+    """Positive int from env, else default. Never raises."""
+    try:
+        value = int(str(os.environ.get(name, "")).strip())
+        return value if value > 0 else default
+    except (TypeError, ValueError):
+        return default
+
+
+def max_rows() -> int:
+    return _int_env("MAX_UPLOAD_ROWS", DEFAULT_MAX_ROWS)
+
+
+def max_cols() -> int:
+    return _int_env("MAX_UPLOAD_COLS", DEFAULT_MAX_COLS)
 
 # ---------------------------------------------------------------------------
 # Column alias registry — add more aliases as needed
@@ -88,16 +115,36 @@ def load_and_detect(file_obj) -> tuple[pd.DataFrame, dict[str, Optional[str]]]:
     Load a CSV from a file-like object, detect canonical columns,
     coerce types, and return (df, col_map).
     """
+    row_cap = max_rows()
+    col_cap = max_cols()
+
+    # Read at most row_cap + 1 rows so we can both bound memory AND detect that
+    # the file was larger than the cap (then truncate to row_cap).
     try:
-        df = pd.read_csv(file_obj)
+        df = pd.read_csv(file_obj, nrows=row_cap + 1)
     except Exception as e:
         raise ValueError(f"Could not parse CSV: {e}")
 
     if df.empty or len(df.columns) < 1:
         raise ValueError("CSV is empty or has no columns.")
 
+    # Column cap — reject absurdly wide files outright (parser/DoS guard).
+    if len(df.columns) > col_cap:
+        raise ValueError(
+            f"Too many columns: {len(df.columns)} (limit {col_cap}). "
+            "Trim the file or raise MAX_UPLOAD_COLS."
+        )
+
+    # Row cap — truncate oversized files and flag it so the UI can warn.
+    row_cap_applied = None
+    if len(df) > row_cap:
+        df = df.iloc[:row_cap].copy()
+        row_cap_applied = row_cap
+
     df.columns = [str(c).strip() for c in df.columns]
     col_map = detect_columns(df)
+    if row_cap_applied is not None:
+        df.attrs["row_cap_applied"] = row_cap_applied
 
     # Coerce date
     if col_map.get("date"):
