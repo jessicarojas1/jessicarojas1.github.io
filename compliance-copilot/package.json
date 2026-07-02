@@ -21,7 +21,7 @@
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.4",
     "date-fns": "^4.1.0",
-    "react-dropzone": "^14.3.4",
+    "react-dropzone": "^15.0.0",
     "react-hot-toast": "^2.4.1",
     "uuid": "^11.0.3"
   },
