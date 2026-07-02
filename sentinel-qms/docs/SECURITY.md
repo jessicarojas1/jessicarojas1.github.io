@@ -26,8 +26,9 @@ Related: [`ARCHITECTURE.md`](ARCHITECTURE.md) · [`DEPLOYMENT.md`](DEPLOYMENT.md
 
 ## 2. Identity & authentication
 
-- **Local password** — hashed with **bcrypt** via passlib (bcrypt pinned
-  `4.0.x` for passlib compatibility). Issues a short-lived **access JWT**
+- **Local password** — hashed with **bcrypt** (the `bcrypt` library is called
+  directly in `app/core/security.py`; the unmaintained passlib wrapper is not
+  used, so any modern bcrypt release is safe). Issues a short-lived **access JWT**
   (`ACCESS_TOKEN_EXPIRE_MINUTES`, default 30) + a **refresh token** that is
   server-tracked, rotated on every use, and revocable (logout revokes the whole
   set; reuse of a rotated token burns the chain — `app/services/refresh_tokens.py`).

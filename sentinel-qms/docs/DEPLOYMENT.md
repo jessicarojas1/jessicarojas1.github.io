@@ -180,6 +180,22 @@ queue or cron is required.
 > replicas, or keep it in-process (safe by default). For multi-replica **rate
 > limiting**, set `REDIS_URL` so counters are shared.
 
+### Metrics (Prometheus)
+
+Set `METRICS_ENABLED=true` to expose a Prometheus text exposition at
+`METRICS_PATH` (default `/metrics`). It is served by the API process itself (no
+extra dependency) and reports per-process series:
+
+- `sentinel_build_info{version}` — build metadata gauge.
+- `sentinel_http_requests_total{method,status}` — request counter.
+- `sentinel_http_requests_in_progress` — in-flight request gauge.
+- `sentinel_http_request_duration_seconds{method}` — latency histogram.
+
+The path is **outside** `/api`, so it is exempt from the rate limiter. Expose it
+only on a trusted scrape network; set `METRICS_TOKEN` to require
+`Authorization: Bearer <token>` on scrapes. Series are process-local — each
+replica exposes its own counters and the scraper aggregates them.
+
 ---
 
 ## 6. Ollama (optional self-hosted LLM)

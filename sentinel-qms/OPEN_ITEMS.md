@@ -59,10 +59,16 @@ Legend: ✅ done · 🟡 partial / config-dependent · ⬜ outstanding
 
 - ✅ Structured JSON logs; `/health` with DB probe; `X-Request-ID` correlation;
   queryable immutable audit log.
-- ⬜ **No built-in metrics/traces endpoint.**
-  - *Impact:* no Prometheus `/metrics` or OTel traces out of the box.
-  - *Action:* scrape platform metrics (CloudWatch / Azure Monitor) or add a metrics
-    exporter + OTel instrumentation if SLOs require it.
+- ✅ **Built-in Prometheus `/metrics` endpoint.** Dependency-free text exposition
+  (`app/core/metrics.py`), gated by `METRICS_ENABLED` (off by default), optionally
+  protected by `METRICS_TOKEN`, and served outside `/api` (exempt from the rate
+  limiter). Series: `sentinel_build_info`, `sentinel_http_requests_total{method,status}`,
+  `sentinel_http_requests_in_progress`, and a `sentinel_http_request_duration_seconds`
+  histogram. *Verified:* new `tests/test_metrics.py` (5 tests — gating, exposition
+  format/content-type, counter increment, scrape not self-counted, token auth) pass;
+  full backend suite green (see note below).
+  - *Remaining (deferred):* OpenTelemetry **traces** are still out of the box — add an
+    OTel exporter if distributed tracing SLOs require it.
 
 ## 6. AI features (optional)
 
@@ -85,6 +91,24 @@ Legend: ✅ done · 🟡 partial / config-dependent · ⬜ outstanding
 - ⬜ **Restore drills are a standing operational task, not a one-time setup.**
   - *Action:* run the quarterly restore drill and validate RPO/RTO per
     [`docs/DISASTER_RECOVERY.md`](docs/DISASTER_RECOVERY.md).
+
+---
+
+## 9. Recent hardening (dependency robustness)
+
+- ✅ **Password hashing no longer depends on the unmaintained passlib wrapper.**
+  `app/core/security.py` now calls `bcrypt` directly (72-byte truncation matching
+  passlib's historical behavior; `$2b$` hashes remain format-compatible, so
+  verification of existing hashes is unchanged). This removes a hard break with
+  modern `bcrypt` (≥ 4.1 / 5.x), whose version probe passlib 1.7.4 could not read.
+  The `bcrypt` pin in `pyproject.toml` was corrected accordingly.
+- ✅ **Portable `TypedDict` import.** `app/core/pages.py` and `app/core/iam.py` now
+  import `TypedDict` from `typing_extensions`, which pydantic requires on Python
+  < 3.12 (the runtime falls back gracefully across 3.11/3.12).
+- *Verification:* on the CI Python 3.11 image the clean tree could not even collect
+  the suite (pydantic `TypedDict` error). After these two robustness fixes plus the
+  `/metrics` feature, the **full backend suite is green: `325 passed, 1 skipped`**
+  (0 failed, 0 errors) via `python -m pytest`.
 
 ---
 

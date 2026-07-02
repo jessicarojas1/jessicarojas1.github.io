@@ -6,15 +6,20 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+import bcrypt
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 from app.core.exceptions import AuthenticationError
 
-# bcrypt has a 72-byte limit; passlib truncates with the bcrypt backend.
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# bcrypt only inspects the first 72 bytes of a password; longer inputs are
+# truncated (matching passlib's historical behavior) so hashing never raises on
+# bcrypt >= 4.1 / 5.x. We call ``bcrypt`` directly rather than through the
+# unmaintained passlib wrapper, whose backend-version probe is broken against
+# modern bcrypt releases. The produced ``$2b$`` hashes are format-compatible with
+# any prior passlib-generated hashes, so verification is backward compatible.
+_BCRYPT_MAX_BYTES = 72
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_PREFIX}/auth/login", auto_error=False
@@ -24,14 +29,18 @@ ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
 
 
+def _bcrypt_secret(password: str) -> bytes:
+    return password.encode("utf-8")[:_BCRYPT_MAX_BYTES]
+
+
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(_bcrypt_secret(password), bcrypt.gensalt()).decode("ascii")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     try:
-        return pwd_context.verify(plain, hashed)
-    except ValueError:
+        return bcrypt.checkpw(_bcrypt_secret(plain), hashed.encode("ascii"))
+    except (ValueError, TypeError):
         return False
 
 

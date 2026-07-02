@@ -13,10 +13,9 @@ the role grants it OR the user is explicitly granted it.
 
 from __future__ import annotations
 
-from typing import TypedDict
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from typing_extensions import TypedDict
 
 from app.core.rbac import Role
 

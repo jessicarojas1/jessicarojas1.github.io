@@ -54,6 +54,14 @@ Secrets Manager** / **Azure Key Vault** — never from committed files.
 | `WEBHOOKS_ENABLED` | `true` | Config | Emit HMAC-signed lifecycle events to registered webhook endpoints. Enqueue is atomic with the change; delivery is backgrounded with retries. |
 | `PASSWORD_RESET_TTL_MINUTES` | `60` | Config | Lifetime of a self-service password-reset link. |
 
+### Observability (metrics)
+
+| Variable | Default | Sensitivity | Meaning |
+|----------|---------|-------------|---------|
+| `METRICS_ENABLED` | `false` | Config | Serve a Prometheus text exposition at `METRICS_PATH`. Off by default; enable only on a trusted scrape network. |
+| `METRICS_PATH` | `/metrics` | Config | Path for the metrics exposition. Lives outside `/api`, so it is exempt from the rate limiter. |
+| `METRICS_TOKEN` | `""` | **Secret** | If set, scrapes must present `Authorization: Bearer <token>`. Leave empty when the endpoint is already network-restricted. |
+
 ### Federated SSO (OIDC / SAML / CAC-PIV)
 
 | Variable | Default | Sensitivity | Meaning |

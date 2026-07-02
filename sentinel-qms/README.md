@@ -125,6 +125,7 @@ Or from the project root with the Makefile: `make up`.
 | Frontend | http://localhost:8080 |
 | API docs (OpenAPI) | http://localhost:8000/docs |
 | Health | http://localhost:8000/health |
+| Metrics (Prometheus, opt-in) | http://localhost:8000/metrics (set `METRICS_ENABLED=true`) |
 
 ### 🛠️ Common commands (Makefile)
 
@@ -224,7 +225,7 @@ Kubernetes (Helm/Kustomize) · AWS Commercial/GovCloud · Azure Commercial/Gover
 air-gapped · Render (demo).
 
 - **Backend (Python 3.12)** — FastAPI, Uvicorn, gunicorn, SQLAlchemy 2.0, Alembic,
-  psycopg 3, Pydantic v2 + pydantic-settings, python-jose, passlib + bcrypt,
+  psycopg 3, Pydantic v2 + pydantic-settings, python-jose, bcrypt (direct),
   python-multipart, email-validator, boto3, azure-storage-blob, signxml, redis,
   fpdf2 + Pillow (branded PDFs), python-json-logger. Dev: pytest, httpx, ruff.
   Full list: [`backend/pyproject.toml`](backend/pyproject.toml).

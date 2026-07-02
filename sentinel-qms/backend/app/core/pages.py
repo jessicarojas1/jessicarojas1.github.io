@@ -12,7 +12,7 @@ Permission LEVELS are the ordered strings ``"none" < "view" < "edit"``.
 
 from __future__ import annotations
 
-from typing import TypedDict
+from typing_extensions import TypedDict
 
 from app.core.rbac import Permission
 

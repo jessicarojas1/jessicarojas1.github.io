@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import os
+import secrets
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
-from starlette.responses import FileResponse
+from starlette.requests import Request
+from starlette.responses import FileResponse, Response
 
 from app import __version__
 from app.api import api_router
@@ -90,6 +92,12 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
         expose_headers=["X-Request-ID"],
     )
+    if settings.METRICS_ENABLED:
+        # Outermost timing wrapper: captures total latency and final status for
+        # every request (including 4xx/5xx from inner middleware).
+        from app.core.metrics import MetricsMiddleware
+
+        app.add_middleware(MetricsMiddleware, metrics_path=settings.METRICS_PATH)
 
     register_exception_handlers(app)
 
@@ -117,6 +125,9 @@ def create_app() -> FastAPI:
             payload["database"]["error"] = db_error
         return payload
 
+    if settings.METRICS_ENABLED:
+        _register_metrics(app)
+
     static_dir = os.path.abspath(settings.STATIC_DIR)
     if settings.SERVE_FRONTEND and os.path.isdir(static_dir):
         _mount_spa(app, static_dir)
@@ -132,6 +143,26 @@ def create_app() -> FastAPI:
             }
 
     return app
+
+
+def _register_metrics(app: FastAPI) -> None:
+    """Expose a Prometheus text exposition at ``settings.METRICS_PATH``.
+
+    Optionally gated by a bearer token (``METRICS_TOKEN``) so the endpoint can be
+    reached only by the scraper. The path lives outside the API prefix, so it is
+    exempt from the rate limiter.
+    """
+    from app.core.metrics import CONTENT_TYPE, REGISTRY
+
+    @app.get(settings.METRICS_PATH, include_in_schema=False)
+    def metrics(request: Request) -> Response:
+        token = settings.METRICS_TOKEN
+        if token:
+            header = request.headers.get("Authorization", "")
+            presented = header[7:] if header.startswith("Bearer ") else ""
+            if not presented or not secrets.compare_digest(presented, token):
+                return Response(status_code=401, content="unauthorized")
+        return Response(content=REGISTRY.render(), media_type=CONTENT_TYPE)
 
 
 def _mount_spa(app: FastAPI, static_dir: str) -> None:

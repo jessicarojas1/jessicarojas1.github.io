@@ -30,6 +30,14 @@ class Settings(BaseSettings):
     SERVE_FRONTEND: bool = False
     STATIC_DIR: str = "static"
 
+    # Prometheus metrics. When enabled, a text exposition is served at
+    # METRICS_PATH (outside the API prefix, so it is exempt from rate limiting).
+    # Off by default: only expose it on a trusted network / scrape interface.
+    # Set METRICS_TOKEN to require ``Authorization: Bearer <token>`` on scrapes.
+    METRICS_ENABLED: bool = False
+    METRICS_PATH: str = "/metrics"
+    METRICS_TOKEN: str = ""
+
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]
 

@@ -16,10 +16,10 @@ dependencies = [
     "pydantic>=2.7",
     "pydantic-settings>=2.3",
     "python-jose[cryptography]>=3.3",
-    "passlib[bcrypt]>=1.7.4",
-    # Pin bcrypt to 4.0.x — passlib 1.7.4's bcrypt backend is incompatible with
-    # bcrypt>=4.1, which can break password hashing/verification.
-    "bcrypt>=4.0.1,<5.1",
+    # Password hashing calls ``bcrypt`` directly (see app/core/security.py); the
+    # unmaintained passlib wrapper is intentionally not used, so any modern
+    # bcrypt release is safe.
+    "bcrypt>=4.0.1",
     "python-multipart>=0.0.9",
     "email-validator>=2.1",
     "boto3>=1.34",
