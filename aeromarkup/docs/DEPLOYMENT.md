@@ -80,6 +80,9 @@ config file to mount.
 | `LOGIN_WINDOW_SECONDS` | `300` | Rolling window for the login throttle. |
 | `LOGIN_MAX_TRACKED` | `8192` | Max distinct throttle buckets held in memory. |
 | `TRUSTED_PROXY_HOPS` | `1` | Reverse-proxy hop count. Set to your real hop count (e.g. `1` behind a single ALB/App Gateway/Container Apps ingress) so the throttle keys on the real client IP. `0` = trust nothing. |
+| `AEROMARKUP_MAX_UPLOAD_MB` | `25` | Max size for any single uploaded payload (drawing background image / 3D model) accepted into the DB. Oversized or non-image backgrounds are rejected with HTTP 413. |
+| `LOG_JSON` | `1` | Structured JSON request logs with an `X-Request-ID` correlation id per request. Default on in production. |
+| `AEROMARKUP_SECURITY_CONTACT` | `security@program.mil` | Vulnerability-disclosure contact published at `/.well-known/security.txt`. Blank = no security.txt served. |
 
 ### Secrets & identity
 

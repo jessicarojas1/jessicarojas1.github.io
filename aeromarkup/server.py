@@ -21,12 +21,16 @@ Env:
 """
 
 import os
+import re
+import sys
 import json
 import time
 import uuid as _uuid
+import logging
 import secrets
 import pathlib
 import threading
+from datetime import datetime, timezone, timedelta
 from functools import wraps
 from contextlib import contextmanager
 
@@ -71,12 +75,129 @@ LOGIN_MAX_TRACKED = int(os.environ.get("LOGIN_MAX_TRACKED", "8192"))
 # of the shared proxy IP. Never set it higher than your actual hop count.
 TRUSTED_PROXY_HOPS = int(os.environ.get("TRUSTED_PROXY_HOPS", "0"))
 
+# Server-side upload validation. Uploads (drawing backgrounds, 3D models) arrive
+# as data: URLs / text embedded in JSON and are stored in Postgres. Enforce a
+# hard size cap for every payload and a MIME allowlist for image backgrounds so
+# untrusted or oversized blobs cannot be pushed into DB columns / backups.
+MAX_UPLOAD_BYTES = int(os.environ.get("AEROMARKUP_MAX_UPLOAD_MB", "25")) * 1024 * 1024
+ALLOWED_IMAGE_MIME = {"image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif"}
+# 3D models: STL arrives as a base64 data URL (often octet-stream / model/stl);
+# OBJ arrives as raw text. Allow those model MIME types when a data URL is used;
+# raw (non-data-URL) model text is accepted subject only to the size cap.
+ALLOWED_MODEL_MIME = {"application/octet-stream", "model/stl", "application/sla",
+                      "application/vnd.ms-pki.stl", "text/plain", "model/obj"}
+_DATAURL_RE = re.compile(r"^data:([\w.+-]+/[\w.+-]+)?(;[\w.+-]+=[^;,]+)*(;base64)?,", re.I)
+
+# Structured (JSON) request logging with correlation IDs. Defaults on in
+# production, off (human-readable) in dev. Toggle with LOG_JSON=0/1.
+LOG_JSON = os.environ.get("LOG_JSON", "1" if IS_PROD else "0") == "1"
+
 app = Flask(__name__, static_folder=None)
 
 if TRUSTED_PROXY_HOPS > 0:
     from werkzeug.middleware.proxy_fix import ProxyFix
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=TRUSTED_PROXY_HOPS,
                             x_proto=TRUSTED_PROXY_HOPS)
+
+
+# ── Structured logging + request correlation IDs ─────────────────────
+class _RequestIdFilter(logging.Filter):
+    """Inject the current request's correlation id (or '-') onto every record."""
+    def filter(self, record):
+        try:
+            record.request_id = getattr(g, "request_id", "-")
+        except Exception:  # outside an app context
+            record.request_id = "-"
+        return True
+
+
+class _JsonFormatter(logging.Formatter):
+    _EXTRA = ("method", "path", "status", "duration_ms", "remote_ip")
+
+    def format(self, record):
+        base = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "request_id": getattr(record, "request_id", "-"),
+        }
+        for k in self._EXTRA:
+            if hasattr(record, k):
+                base[k] = getattr(record, k)
+        if record.exc_info:
+            base["exc"] = self.formatException(record.exc_info)
+        return json.dumps(base, default=str)
+
+
+def _configure_logging():
+    handler = logging.StreamHandler(sys.stdout)
+    handler.addFilter(_RequestIdFilter())
+    if LOG_JSON:
+        handler.setFormatter(_JsonFormatter())
+    else:
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s %(levelname)s [%(request_id)s] %(name)s: %(message)s"))
+    root = logging.getLogger()
+    root.handlers = [handler]
+    root.setLevel(logging.INFO)
+    # Route Flask's app logger through the same handler (no duplicate lines).
+    app.logger.handlers = []
+    app.logger.propagate = True
+    app.logger.setLevel(logging.INFO)
+
+
+_configure_logging()
+
+
+# ── Lightweight in-process metrics (Prometheus text exposition) ──────
+# Per-process counters (like the login throttle). Prometheus scrapes each
+# replica/worker independently; for a fleet-wide view aggregate at the gateway.
+_metrics_lock = threading.Lock()
+_metrics = {"by": {}, "dur_sum": 0.0, "count": 0}  # by: (method, status_class) -> n
+
+
+def _record_metric(method: str, status: int, duration_s: float) -> None:
+    cls = f"{status // 100}xx"
+    with _metrics_lock:
+        key = (method, cls)
+        _metrics["by"][key] = _metrics["by"].get(key, 0) + 1
+        _metrics["dur_sum"] += duration_s
+        _metrics["count"] += 1
+
+
+@app.before_request
+def _request_context():
+    """Assign a correlation id + start time before any other hook (including the
+    auth gate) so every request — even rejected ones — is traceable."""
+    rid = request.headers.get("X-Request-ID", "")
+    if not re.fullmatch(r"[A-Za-z0-9_.\-]{1,64}", rid or ""):
+        rid = _uuid.uuid4().hex
+    g.request_id = rid
+    g._start_time = time.perf_counter()
+
+
+@app.after_request
+def _log_and_measure(resp):
+    start = getattr(g, "_start_time", None)
+    duration_s = (time.perf_counter() - start) if start is not None else 0.0
+    resp.headers["X-Request-ID"] = getattr(g, "request_id", "-")
+    try:
+        _record_metric(request.method, resp.status_code, duration_s)
+    except Exception:  # never let metrics break a response
+        pass
+    # One structured access line per request.
+    app.logger.info(
+        "request",
+        extra={
+            "method": request.method,
+            "path": request.path,
+            "status": resp.status_code,
+            "duration_ms": round(duration_s * 1000, 2),
+            "remote_ip": (request.remote_addr or "-"),
+        },
+    )
+    return resp
 
 
 # ── Database helpers ─────────────────────────────────────────────────
@@ -229,6 +350,7 @@ def _clear_login_failures(key) -> None:
 # a valid session; static PWA assets (the app shell, login screen) are public.
 PUBLIC_API = {
     "/api/health",
+    "/api/metrics",
     "/api/auth/status",
     "/api/auth/login",
     "/api/auth/bootstrap",
@@ -345,6 +467,41 @@ def uuid_or_none(v):
         return None
 
 
+def _validate_upload(value, *, kind, allowed_mime=None):
+    """Server-side upload validation. Returns None when OK, else an error string.
+
+    Enforces MAX_UPLOAD_BYTES on every payload and, for data: URLs, a MIME
+    allowlist. Backgrounds must be image data URLs; model payloads may be a
+    data URL (allowlisted model MIME) OR raw text (e.g. OBJ), size-capped only.
+    """
+    if value is None or value == "":
+        return None
+    if not isinstance(value, str):
+        return f"{kind} must be a string"
+    if len(value.encode("utf-8")) > MAX_UPLOAD_BYTES:
+        return (f"{kind} exceeds the maximum upload size of "
+                f"{MAX_UPLOAD_BYTES // (1024 * 1024)} MB")
+    if value.startswith("data:"):
+        m = _DATAURL_RE.match(value)
+        if not m:
+            return f"{kind} is not a valid data URL"
+        mime = (m.group(1) or "").lower()
+        if allowed_mime is not None and mime not in allowed_mime:
+            return f"{kind} media type '{mime or 'unknown'}' is not allowed"
+    elif kind == "background_data":
+        # An image background must be delivered as an image data URL.
+        return f"{kind} must be an image data URL"
+    return None
+
+
+def _validate_drawing_uploads(src) -> str | None:
+    """Validate the upload-bearing fields of a drawing payload dict."""
+    return (_validate_upload(src.get("background_data"),
+                             kind="background_data", allowed_mime=ALLOWED_IMAGE_MIME)
+            or _validate_upload(src.get("model_data"),
+                                kind="model_data", allowed_mime=ALLOWED_MODEL_MIME))
+
+
 @app.get("/api/auth/status")
 def auth_status():
     """Public: lets the client decide whether to show login vs. first-run setup."""
@@ -426,6 +583,25 @@ def auth_logout():
     return resp
 
 
+# ── Vulnerability disclosure (RFC 9116 security.txt) ─────────────────
+@app.get("/.well-known/security.txt")
+def security_txt():
+    """Serve a security.txt when the program's security contact is configured
+    via AEROMARKUP_SECURITY_CONTACT (email or URL). Returns 404 when unset so
+    scanners never see a placeholder. Public (not under /api/)."""
+    contact = os.environ.get("AEROMARKUP_SECURITY_CONTACT", "").strip()
+    if not contact:
+        return jsonify({"error": "not_configured"}), 404
+    if not contact.lower().startswith(("mailto:", "https://", "http://", "tel:")):
+        contact = "mailto:" + contact
+    expires = (datetime.now(timezone.utc) + timedelta(days=365)).replace(
+        microsecond=0).isoformat()
+    body = (f"Contact: {contact}\n"
+            f"Expires: {expires}\n"
+            "Preferred-Languages: en\n")
+    return Response(body, mimetype="text/plain")
+
+
 # ── Static PWA ───────────────────────────────────────────────────────
 @app.get("/")
 def index():
@@ -457,6 +633,34 @@ def health():
         "database": "connected" if ok_db else ("configured" if db_enabled() else "offline"),
         "mode": "online" if db_enabled() else "offline-only",
     })
+
+
+@app.get("/api/metrics")
+def metrics():
+    """Prometheus text-format metrics (per process). Public so a scraper can
+    reach it — restrict access at the gateway/network layer. For a fleet-wide
+    view, aggregate across replicas/workers at the Prometheus server."""
+    with _metrics_lock:
+        by = dict(_metrics["by"])
+        dur_sum = _metrics["dur_sum"]
+        count = _metrics["count"]
+    lines = [
+        "# HELP aeromarkup_http_requests_total Total HTTP requests handled.",
+        "# TYPE aeromarkup_http_requests_total counter",
+    ]
+    for (method, cls), n in sorted(by.items()):
+        lines.append(
+            f'aeromarkup_http_requests_total{{method="{method}",status="{cls}"}} {n}')
+    lines += [
+        "# HELP aeromarkup_http_request_duration_seconds Cumulative request duration.",
+        "# TYPE aeromarkup_http_request_duration_seconds summary",
+        f"aeromarkup_http_request_duration_seconds_sum {dur_sum:.6f}",
+        f"aeromarkup_http_request_duration_seconds_count {count}",
+        "# HELP aeromarkup_up Whether the process is serving (always 1).",
+        "# TYPE aeromarkup_up gauge",
+        "aeromarkup_up 1",
+    ]
+    return Response("\n".join(lines) + "\n", mimetype="text/plain; version=0.0.4")
 
 
 # ── Projects ─────────────────────────────────────────────────────────
@@ -524,6 +728,8 @@ def create_drawing(project_id):
     if (r := require_db()):
         return r
     d = request.get_json(force=True) or {}
+    if (err := _validate_drawing_uploads(d)):
+        return jsonify({"error": "invalid_upload", "detail": err}), 413
     with get_conn() as conn:
         row = conn.execute(
             """INSERT INTO drawings
@@ -1107,6 +1313,10 @@ def sync():
     since = int(d.get("since") or 0)
     drawing = d.get("drawing") or {}
     drawing_id = drawing.get("id")
+
+    # Server-side upload validation on the synced drawing's background/model.
+    if (err := _validate_drawing_uploads(drawing)):
+        return jsonify({"error": "invalid_upload", "detail": err}), 413
 
     with get_conn() as conn:
         # 1) Upsert drawing (by client_uid for offline-created records)

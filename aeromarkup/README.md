@@ -340,8 +340,11 @@ Provisions a Container App (+ Log Analytics) from
 | `DATABASE_URL` | _(empty)_ | Postgres DSN. Empty → **offline-only** mode (PWA still works). |
 | `PORT` | `8080` | Listen port (host usually sets this). |
 | `AUTO_MIGRATE` | `1` | Apply `db/schema.sql` on startup. |
+| `AEROMARKUP_MAX_UPLOAD_MB` | `25` | Max size for any uploaded background/model payload (HTTP 413 over cap). |
+| `LOG_JSON` | `1` (prod) | Structured JSON request logs with an `X-Request-ID` per request. |
+| `AEROMARKUP_SECURITY_CONTACT` | _(empty)_ | Contact served at `/.well-known/security.txt` (blank = none). |
 
-See [`.env.example`](.env.example).
+See [`.env.example`](.env.example) for the full list (auth, throttle, proxy).
 
 ---
 
@@ -350,6 +353,7 @@ See [`.env.example`](.env.example).
 | Method | Path | Purpose |
 |--------|------|---------|
 | GET  | `/api/health` | Liveness/readiness + DB status |
+| GET  | `/api/metrics` | Prometheus text-format metrics (per process) |
 | GET  | `/api/projects` | List projects |
 | POST | `/api/projects` | Create project |
 | GET  | `/api/projects/{id}/drawings` | List drawings |

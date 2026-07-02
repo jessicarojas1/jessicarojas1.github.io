@@ -196,11 +196,16 @@ double-submit work without exposing the session token to scripts.
 
 ## 10. Reporting / Vulnerability Disclosure
 
-- **Contact:** `<security-contact@your-org.example>` *(replace with the program's
-  security POC / disclosure inbox).*
-- **Acknowledgement SLA:** `<e.g. 2 business days>`; **triage/initial
-  assessment:** `<e.g. 5 business days>`; remediation timeline by severity per
-  program policy.
+- **Contact:** the deploying program's security POC / disclosure inbox. This is
+  an **operator fill-in** (each ATO boundary has its own POC) — set it in one
+  place at deploy time: the `AEROMARKUP_SECURITY_CONTACT` env var (surfaced in
+  ops runbooks) and your published `/.well-known/security.txt`. Do not commit a
+  real inbox to the repo.
+- **Response SLA (committed default policy):**
+  - **Acknowledgement:** within **2 business days** of receipt.
+  - **Triage / initial assessment:** within **5 business days**.
+  - **Remediation targets by severity:** Critical **7 days**, High **30 days**,
+    Moderate **90 days**, Low **next scheduled release**.
 - Please include affected version/commit, environment, reproduction steps, and
   impact. Handle any CUI in reports per its marking.
 

@@ -46,7 +46,7 @@ Legend: ✅ done · ⚠️ partial / caveated · ❌ not yet.
 | TLS to DB via `sslmode=require` (documented) | ✅ | — | — |
 | Encryption at rest via provider KMS/CMK (documented) | ✅ | — | — |
 | **Uploads stored as data URLs in Postgres, not object storage** | ⚠️ | Reference images + STL/OBJ models inflate rows/backups and have no size/MIME enforcement server-side. | Optionally move large blobs to S3/Blob with server-side MIME allowlist + size caps + randomized keys; keep data-URL path for air-gap. |
-| **Server-side upload validation (MIME/size)** | ❌ | Large or unexpected payloads accepted into DB columns. | Add size limits + MIME/extension allowlist at the API. |
+| **Server-side upload validation (MIME/size)** | ✅ | — | Done: `_validate_upload()` enforces a per-payload size cap (`AEROMARKUP_MAX_UPLOAD_MB`, default 25) on every drawing background/model and a MIME allowlist for image backgrounds (png/jpeg/webp/gif; SVG blocked). Wired into `POST /api/projects/<id>/drawings` and `POST /api/sync`; rejects with HTTP 413. Verified via Flask test client + `py_compile`. |
 | **Field-level encryption for CUI blobs** | ❌ | Relies on storage-level encryption only. | Consider app-layer encryption for sensitive attachments. |
 
 ---
@@ -67,9 +67,9 @@ Legend: ✅ done · ⚠️ partial / caveated · ❌ not yet.
 | Item | State | Impact | Suggested action |
 |------|-------|--------|------------------|
 | Health/readiness endpoint (`/api/health` reports DB status) | ✅ | — | — |
-| Structured stdout logs (gunicorn/Flask) to platform log sink | ⚠️ | Logs are plain, not structured JSON; no request IDs. | Emit structured JSON logs with correlation IDs. |
-| **Metrics (Prometheus/OTel) & tracing** | ❌ | No `/metrics` endpoint or traces; limited SLO visibility. | Add Prometheus metrics + OpenTelemetry traces. |
-| **Alerting** | ❌ | No built-in alert rules. | Wire platform alerts on health, error rate, DB saturation. |
+| Structured stdout logs (gunicorn/Flask) to platform log sink | ✅ | — | Done: `LOG_JSON` (default on in prod) emits structured JSON logs; every request gets an `X-Request-ID` correlation id (honored inbound, returned in the response header) and one access line with method/path/status/duration_ms/remote_ip. See `_configure_logging` + `_request_context`/`_log_and_measure` in `server.py`. Verified via test client. |
+| **Metrics (Prometheus/OTel) & tracing** | ⚠️ | Prometheus metrics shipped; OTel distributed tracing not yet. | Done (metrics): `GET /api/metrics` exposes Prometheus text (`aeromarkup_http_requests_total`, `..._request_duration_seconds_{sum,count}`, `aeromarkup_up`), per-process. Remaining: OpenTelemetry span export (deferred — needs OTLP collector wiring). |
+| **Alerting** | ❌ | No built-in alert rules. | Wire platform alerts on `/api/health`, error rate (now visible via `/api/metrics` status classes), DB saturation. |
 
 ---
 
@@ -105,7 +105,7 @@ Legend: ✅ done · ⚠️ partial / caveated · ❌ not yet.
 | Standard doc set (`docs/` ×4, `deployments/` ×6, README, this file, CLAUDE.md) | ✅ | — | Keep current with every change. |
 | **FIPS 140-2/3 validated crypto end-to-end** | ⚠️ | TLS/at-rest can use FIPS endpoints; Python/OpenSSL FIPS mode is an operator responsibility, not enforced by the app. | Run on a FIPS-validated OpenSSL/host; document module boundary in an SSP. |
 | **Formal ATO artifacts (SSP, POA&M, STIG checklist)** | ❌ | Needed for DoD ATO. | Produce SSP/POA&M; run container/OS STIG hardening and record results. |
-| **Vulnerability disclosure SLA / security contact** | ⚠️ | Placeholder in [SECURITY.md](docs/SECURITY.md). | Fill in a real security contact + response SLA. |
+| **Vulnerability disclosure SLA / security contact** | ✅ | — | Done: committed response SLA in [SECURITY.md](docs/SECURITY.md) (ack 2 bd, triage 5 bd, remediation by severity) and a wired `/.well-known/security.txt` served from `AEROMARKUP_SECURITY_CONTACT` (404 when unset, so no placeholder is published). The contact value itself is an operator env fill-in per ATO boundary (must not commit a real inbox). Verified via test client. |
 
 ---
 
@@ -114,7 +114,7 @@ Legend: ✅ done · ⚠️ partial / caveated · ❌ not yet.
 1. **SSO / CAC-PIV or Entra ID auth** (§1) — likely a policy blocker for local-only passwords.
 2. **Row/program-level authorization + classification enforcement** (§2) — need-to-know compartmentalization.
 3. **Gateway/WAF rate limiting + durable login throttle** (§4) — the in-process limiter is insufficient at scale.
-4. **Server-side upload MIME/size validation** (§3) — untrusted payloads into the DB.
-5. **Metrics + structured logs + alerting** (§5) — operational visibility.
+4. ~~**Server-side upload MIME/size validation** (§3)~~ ✅ done — size cap + image MIME allowlist enforced server-side (HTTP 413).
+5. **Metrics + structured logs + alerting** (§5) — ✅ Prometheus `/api/metrics` + structured JSON logs with request IDs shipped; **alerting** and **OTel tracing** remain operator/future work.
 6. **Automated backups + scheduled restore drills + HA defaults** (§6).
 7. **FIPS mode + ATO artifacts (SSP/POA&M/STIG)** (§8).

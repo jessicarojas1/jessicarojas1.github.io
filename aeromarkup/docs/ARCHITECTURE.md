@@ -156,6 +156,9 @@ Configuration is **pure environment variables** — no config files at runtime.
 | `LOGIN_WINDOW_SECONDS` | `300` | Sliding window for login throttle. |
 | `LOGIN_MAX_TRACKED` | `8192` | Max distinct (IP, user) keys tracked in memory. |
 | `TRUSTED_PROXY_HOPS` | `0` | Number of trusted proxy hops for real client IP (ProxyFix). `0` = do not trust `X-Forwarded-For`. |
+| `AEROMARKUP_MAX_UPLOAD_MB` | `25` | Max size for any single uploaded payload (drawing background / 3D model) accepted into the DB. |
+| `LOG_JSON` | `1` (prod) / `0` (dev) | Emit structured JSON request logs with an `X-Request-ID` correlation id per request. |
+| `AEROMARKUP_SECURITY_CONTACT` | `security@program.mil` | Contact published at `/.well-known/security.txt` (blank = no security.txt). |
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) and [`../deployments/`](../deployments/) for
 per-target values and AWS Commercial/GovCloud + Azure Commercial/Government
@@ -185,10 +188,12 @@ splits.
 | `already_initialized` | 403 | `/api/auth/bootstrap` after an admin exists. |
 | `invalid_role` | 400 | Unknown role in user management. |
 | `invalid_action` | 400 | Unknown capability/action requested. |
+| `invalid_upload` (+ `detail`) | 413 | Upload exceeds `AEROMARKUP_MAX_UPLOAD_MB` or a background is not an allowlisted image data URL. |
 | `not_found` | 404 | Entity does not exist. |
 
-Public endpoints (no auth): `/api/health`, `/api/auth/status`,
-`/api/auth/login`, `/api/auth/bootstrap`. Everything else requires a session.
+Public endpoints (no auth): `/api/health`, `/api/metrics`, `/api/auth/status`,
+`/api/auth/login`, `/api/auth/bootstrap` (plus `/.well-known/security.txt`).
+Everything else requires a session.
 
 ---
 
@@ -246,13 +251,22 @@ operator responsibilities — is in [SECURITY.md](SECURITY.md).
 
 ## 9. Observability
 
-- **Logs:** gunicorn/Flask log to **stdout**, collected by the platform
-  (CloudWatch `awslogs` / Azure Log Analytics / Render logs).
+- **Logs:** Flask logs to **stdout**, collected by the platform (CloudWatch
+  `awslogs` / Azure Log Analytics / Render logs). With `LOG_JSON=1` (default in
+  production) each line is **structured JSON** and every request emits one access
+  record with `request_id`, `method`, `path`, `status`, `duration_ms`, and
+  `remote_ip`. The correlation id is returned to the client in the `X-Request-ID`
+  response header (and honored from an inbound `X-Request-ID`).
+- **Metrics:** `GET /api/metrics` exposes **Prometheus text-format** metrics
+  (`aeromarkup_http_requests_total{method,status}`,
+  `aeromarkup_http_request_duration_seconds_{sum,count}`, `aeromarkup_up`).
+  Counters are **per process** (like the login throttle) — Prometheus scrapes
+  each replica/worker and aggregates server-side. Restrict scrape access at the
+  gateway/network layer.
 - **Health:** `GET /api/health` reports DB connectivity — use it for
   load-balancer / container health checks and post-restore verification.
-- **Gap:** there is **no metrics or tracing endpoint today** (no
-  Prometheus/OTel export). Operators should rely on log-based alerting and the
-  health probe; a metrics/traces surface is a known future enhancement.
+- **Tracing gap:** no OpenTelemetry span export yet (metrics + structured logs
+  cover request-level SLOs today); distributed tracing remains a future add.
 
 ---
 
