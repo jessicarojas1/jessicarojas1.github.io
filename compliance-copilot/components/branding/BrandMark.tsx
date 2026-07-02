@@ -39,7 +39,7 @@ export function BrandMark({ size = 32, className }: BrandMarkProps) {
         width={size}
         height={size}
         onError={() => setBroken(true)}
-        className={cn('rounded-lg object-contain flex-shrink-0 bg-white/5', className)}
+        className={cn('rounded-lg object-contain shrink-0 bg-white/5', className)}
         style={{ width: size, height: size }}
       />
     );
@@ -47,7 +47,7 @@ export function BrandMark({ size = 32, className }: BrandMarkProps) {
 
   return (
     <div
-      className={cn('rounded-lg flex items-center justify-center flex-shrink-0', className)}
+      className={cn('rounded-lg flex items-center justify-center shrink-0', className)}
       style={{ width: size, height: size, background: 'var(--brand-accent)' }}
     >
       <Shield className="text-white" style={{ width: size * 0.5, height: size * 0.5 }} />

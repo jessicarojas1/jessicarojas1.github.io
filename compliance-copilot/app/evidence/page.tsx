@@ -105,7 +105,7 @@ export default function EvidencePage() {
         {filtered.map(ev => (
           <div key={ev.id} className="card p-4 flex flex-col gap-3 hover:border-slate-700 transition-colors">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-lg flex-shrink-0">
+              <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-lg shrink-0">
                 {TYPE_ICONS[ev.type]}
               </div>
               <div className="flex-1 min-w-0">
@@ -113,8 +113,8 @@ export default function EvidencePage() {
                 <div className="text-xs text-slate-500 mt-0.5 capitalize">{ev.type.replace(/_/g,' ')}</div>
               </div>
               {ev.reviewed
-                ? <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                : <Clock className="w-4 h-4 text-amber-400 flex-shrink-0" />}
+                ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                : <Clock className="w-4 h-4 text-amber-400 shrink-0" />}
             </div>
 
             {ev.description && <p className="text-xs text-slate-400 line-clamp-2">{ev.description}</p>}
@@ -122,7 +122,7 @@ export default function EvidencePage() {
             {ev.control_ids.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {ev.control_ids.map(id => (
-                  <span key={id} className="text-xs bg-blue-600/15 text-blue-400 border border-blue-600/30 px-1.5 py-0.5 rounded font-mono">
+                  <span key={id} className="text-xs bg-blue-600/15 text-blue-400 border border-blue-600/30 px-1.5 py-0.5 rounded-sm font-mono">
                     {controlName(id)}
                   </span>
                 ))}
@@ -131,7 +131,7 @@ export default function EvidencePage() {
 
             {ev.tags.length > 0 && (
               <div className="flex flex-wrap gap-1">
-                {ev.tags.map(t => <span key={t} className="text-xs bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">#{t}</span>)}
+                {ev.tags.map(t => <span key={t} className="text-xs bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-sm">#{t}</span>)}
               </div>
             )}
 

@@ -125,7 +125,7 @@ export function AIAssistantPanel({ control, onClose }: { control: Control; onClo
         <div className="flex items-center gap-2">
           <Bot className="w-4 h-4 text-blue-400" />
           <span className="text-sm font-semibold text-slate-200">AI Copilot</span>
-          <span className="text-xs bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded">Claude</span>
+          <span className="text-xs bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded-sm">Claude</span>
         </div>
         <button onClick={onClose} className="text-slate-500 hover:text-slate-300 p-1"><X className="w-4 h-4" /></button>
       </div>

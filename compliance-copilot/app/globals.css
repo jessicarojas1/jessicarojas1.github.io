@@ -1,7 +1,95 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap')
+layer(base);
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-mono: JetBrains Mono, Fira Code, monospace;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility card {
+  @apply bg-slate-900 border border-slate-800 rounded-xl;
+}
+
+@utility btn-primary {
+  @apply text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  background: var(--brand-accent);
+  &:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+}
+
+@utility accent-bg {
+  /* Accent helpers driven by the live brand accent variable. */
+  background: var(--brand-accent);
+}
+
+@utility accent-text {
+  color: var(--brand-accent);
+}
+
+@utility accent-border {
+  border-color: var(--brand-accent);
+}
+
+@utility btn-secondary {
+  @apply bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium px-4 py-2 rounded-lg transition-colors border border-slate-700;
+}
+
+@utility btn-ghost {
+  @apply hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-sm font-medium px-3 py-2 rounded-lg transition-colors;
+}
+
+@utility input {
+  @apply bg-slate-800 border border-slate-700 text-slate-100 placeholder-slate-500 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full;
+}
+
+@utility select {
+  @apply bg-slate-800 border border-slate-700 text-slate-100 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 w-full;
+}
+
+@utility label {
+  @apply block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wide;
+}
+
+@utility section-title {
+  @apply text-lg font-semibold text-slate-100;
+}
+
+@utility table-row {
+  @apply border-b border-slate-800 hover:bg-slate-800/50 transition-colors;
+}
 
 @layer base {
   :root {
@@ -14,44 +102,6 @@
     @apply bg-slate-950 text-slate-100 font-sans antialiased;
   }
   * { @apply border-slate-700; }
-}
-
-@layer components {
-  .card {
-    @apply bg-slate-900 border border-slate-800 rounded-xl;
-  }
-  .btn-primary {
-    @apply text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-    background: var(--brand-accent);
-  }
-  .btn-primary:hover:not(:disabled) {
-    filter: brightness(1.1);
-  }
-  /* Accent helpers driven by the live brand accent variable. */
-  .accent-bg { background: var(--brand-accent); }
-  .accent-text { color: var(--brand-accent); }
-  .accent-border { border-color: var(--brand-accent); }
-  .btn-secondary {
-    @apply bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium px-4 py-2 rounded-lg transition-colors border border-slate-700;
-  }
-  .btn-ghost {
-    @apply hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-sm font-medium px-3 py-2 rounded-lg transition-colors;
-  }
-  .input {
-    @apply bg-slate-800 border border-slate-700 text-slate-100 placeholder-slate-500 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full;
-  }
-  .select {
-    @apply bg-slate-800 border border-slate-700 text-slate-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full;
-  }
-  .label {
-    @apply block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wide;
-  }
-  .section-title {
-    @apply text-lg font-semibold text-slate-100;
-  }
-  .table-row {
-    @apply border-b border-slate-800 hover:bg-slate-800/50 transition-colors;
-  }
 }
 
 /* Print / PDF: hide chrome and toolbar, keep the branded report header. */

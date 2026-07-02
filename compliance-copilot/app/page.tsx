@@ -67,7 +67,7 @@ export default function DashboardPage() {
           { label: 'Not Implemented', value: summary.not_implemented, icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/10' },
         ].map(s => (
           <div key={s.label} className="card p-6 flex items-start gap-4">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${s.bg}`}>
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${s.bg}`}>
               <s.icon className={`w-5 h-5 ${s.color}`} />
             </div>
             <div>
