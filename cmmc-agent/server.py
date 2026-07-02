@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """CMMC 2.0 Level 2 Compliance Agent — Web GUI (Flask)"""
 
-import os, json, datetime, sys
+import os, json, datetime, sys, time
 from pathlib import Path
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, g
 from dotenv import load_dotenv
-import anthropic
 
 load_dotenv()
 
@@ -15,9 +14,55 @@ from agent import (CONTROLS, DOMAIN_NAMES, TOOLS, SYSTEM_PROMPT, STATUS_FILE,
                    load_status, save_status,
                    tool_check_control, tool_list_gaps, tool_score_program,
                    tool_generate_poam, tool_mark_control,
-                   tool_search_controls, tool_list_domains)
+                   tool_search_controls, tool_list_domains,
+                   create_client, get_model, ai_provider,
+                   log_event, configure_logging)
 
 app = Flask(__name__)
+
+# Reuse agent.py's structured (JSON) logger for the web tier.
+configure_logging()
+log_event("server_start", provider=ai_provider(), model=get_model())
+
+
+# ── Same-origin guard (CSRF mitigation for state-changing requests) ──────────
+# Off by default (local-first). When ALLOWED_ORIGINS is set (comma-separated),
+# cross-origin POST/PUT/PATCH/DELETE without a matching Origin/Referer are
+# rejected — pair this with the authenticating reverse proxy (see docs/SECURITY).
+def _allowed_origins():
+    raw = os.environ.get("ALLOWED_ORIGINS", "").strip()
+    return [o.strip() for o in raw.split(",") if o.strip()]
+
+
+@app.before_request
+def _request_pre():
+    g._start = time.monotonic()
+    allowed = _allowed_origins()
+    if allowed and request.method in ("POST", "PUT", "PATCH", "DELETE"):
+        origin = request.headers.get("Origin") or request.headers.get("Referer") or ""
+        if not any(origin.startswith(a) for a in allowed):
+            log_event("origin_rejected", level="warning", path=request.path, origin=origin)
+            return jsonify({"error": "cross-origin request rejected"}), 403
+    return None
+
+
+@app.after_request
+def _request_log(resp):
+    if request.path != "/healthz":  # avoid noise from liveness probes
+        try:
+            dur_ms = round((time.monotonic() - getattr(g, "_start", time.monotonic())) * 1000, 1)
+        except Exception:
+            dur_ms = None
+        log_event("http_request", method=request.method, path=request.path,
+                  status=resp.status_code, duration_ms=dur_ms,
+                  remote_addr=request.remote_addr)
+    return resp
+
+
+@app.get("/healthz")
+def healthz():
+    """Lightweight liveness probe (no scoring computation, no API key)."""
+    return jsonify({"status": "ok", "service": "cmmc-agent"})
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 @app.get("/")
@@ -29,17 +74,18 @@ def chat():
     data     = request.get_json(force=True)
     history  = data.get("history", [])   # [{role, content}]
     status   = load_status()
-    api_key  = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        return jsonify({"error": "ANTHROPIC_API_KEY not set"}), 500
+    try:
+        client = create_client()
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
 
-    client   = anthropic.Anthropic(api_key=api_key)
+    model    = get_model()
     messages = list(history)
     tool_log = []
 
     while True:
         response = client.messages.create(
-            model="claude-opus-4-5",
+            model=model,
             max_tokens=4096,
             system=SYSTEM_PROMPT,
             tools=TOOLS,
@@ -68,7 +114,8 @@ def chat():
                 elif name == "generate_poam":
                     result = tool_generate_poam(inputs["control_id"], inputs["weakness"], status)
                 elif name == "mark_control":
-                    result = tool_mark_control(inputs["control_id"], inputs["impl_status"], inputs["notes"], status)
+                    result = tool_mark_control(inputs["control_id"], inputs["impl_status"], inputs["notes"], status,
+                                               actor=f"web-chat:{request.remote_addr}")
                 elif name == "search_controls":
                     result = tool_search_controls(inputs["query"])
                 elif name == "list_domains":
@@ -101,6 +148,7 @@ def mark():
         data.get("impl_status","not_assessed"),
         data.get("notes",""),
         status,
+        actor=f"web:{request.remote_addr}",
     )
     return jsonify({"message": result})
 

@@ -7,12 +7,119 @@ Powered by Claude (Anthropic) — all 110 NIST 800-171 practices
 import os
 import json
 import sys
+import logging
 import datetime
 from pathlib import Path
 import anthropic
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# ── Structured (JSON) logging ────────────────────────────────────────────────
+# Emits one JSON object per line to stdout so the platform log sink can index
+# events (see docs/SECURITY.md, deployments/*). Level via LOG_LEVEL (default INFO).
+class _JsonLogFormatter(logging.Formatter):
+    def format(self, record):
+        payload = {
+            "ts": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds"),
+            "level": record.levelname,
+            "logger": record.name,
+            "msg": record.getMessage(),
+        }
+        payload.update(getattr(record, "extra_fields", {}) or {})
+        if record.exc_info:
+            payload["exc"] = self.formatException(record.exc_info)
+        return json.dumps(payload, default=str)
+
+
+def configure_logging(name="cmmc-agent"):
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(_JsonLogFormatter())
+        logger.addHandler(handler)
+    level = os.environ.get("LOG_LEVEL", "INFO").upper()
+    logger.setLevel(getattr(logging, level, logging.INFO))
+    logger.propagate = False
+    return logger
+
+
+log = configure_logging()
+
+
+def log_event(event, level="info", **fields):
+    """Emit a structured log line with arbitrary key/value context."""
+    getattr(log, level, log.info)(event, extra={"extra_fields": {"event": event, **fields}})
+
+
+# ── Append-only audit trail ──────────────────────────────────────────────────
+# Compliance evidence for control-status mutations (who/what/when). Written as
+# JSON Lines to AUDIT_LOG_FILE and mirrored to the structured stdout logger.
+AUDIT_LOG_FILE = Path(os.environ.get("AUDIT_LOG_FILE", str(Path(__file__).parent / "audit.log")))
+
+
+def audit_log(action, actor="system", **fields):
+    entry = {
+        "ts": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+        "action": action,
+        "actor": actor,
+        **fields,
+    }
+    try:
+        with AUDIT_LOG_FILE.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(entry, default=str) + "\n")
+    except OSError:
+        pass  # never let audit-write failures break the request
+    log_event("audit", **entry)
+    return entry
+
+
+# ── AI provider / model configuration ────────────────────────────────────────
+# The app talks the Anthropic Messages API (agentic tool-use loop). For
+# air-gapped / CUI use, set AI_PROVIDER=ollama and point OLLAMA_BASE_URL at an
+# Anthropic-Messages-compatible gateway in front of a self-hosted Ollama model
+# (e.g. LiteLLM). See deployments/AIRGAPPED.md.
+DEFAULT_ANTHROPIC_MODEL = "claude-opus-4-5"
+DEFAULT_OLLAMA_MODEL = "llama3.1:8b"
+
+
+def ai_provider():
+    return (os.environ.get("AI_PROVIDER") or "anthropic").strip().lower()
+
+
+def get_model():
+    """Resolve the model name for the active provider (env-configurable)."""
+    if ai_provider() == "ollama":
+        return os.environ.get("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL
+    return (os.environ.get("CMMC_MODEL") or os.environ.get("ANTHROPIC_MODEL")
+            or DEFAULT_ANTHROPIC_MODEL)
+
+
+def create_client():
+    """Construct an Anthropic-SDK client for the active provider.
+
+    Raises RuntimeError (with a human-readable reason) when required config or
+    the secret is missing, so callers can surface a clean error.
+    """
+    provider = ai_provider()
+    if provider == "ollama":
+        base_url = os.environ.get("OLLAMA_BASE_URL")
+        if not base_url:
+            raise RuntimeError("OLLAMA_BASE_URL not set")
+        # An on-prem Ollama gateway usually needs no key; the SDK still requires
+        # a value to build a client, so fall back to a local placeholder.
+        api_key = os.environ.get("ANTHROPIC_API_KEY") or "ollama-local"
+        return anthropic.Anthropic(api_key=api_key, base_url=base_url)
+
+    # Hosted Anthropic (default), optionally via an Anthropic-compatible gateway.
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise RuntimeError("ANTHROPIC_API_KEY not set")
+    kwargs = {"api_key": api_key}
+    base_url = os.environ.get("ANTHROPIC_BASE_URL")
+    if base_url:
+        kwargs["base_url"] = base_url
+    return anthropic.Anthropic(**kwargs)
 
 # ── ANSI colours (no external dep beyond rich fallback) ──────────────────────
 try:
@@ -387,18 +494,23 @@ def tool_generate_poam(control_id: str, weakness: str, status: dict) -> str:
     }
     return json.dumps(poam, indent=2)
 
-def tool_mark_control(control_id: str, impl_status: str, notes: str, status: dict) -> str:
+def tool_mark_control(control_id: str, impl_status: str, notes: str, status: dict,
+                      actor: str = "system") -> str:
     valid = ("implemented", "partial", "not_implemented", "not_assessed")
     if impl_status not in valid:
         return f"Invalid status '{impl_status}'. Use: {', '.join(valid)}"
     if control_id not in CONTROLS:
         return f"Control {control_id} not found."
+    prev = (status.get(control_id) or {}).get("status", "not_assessed")
     status[control_id] = {
         "status": impl_status,
         "notes": notes,
         "updated": datetime.date.today().isoformat(),
     }
     save_status(status)
+    # Append-only compliance evidence: who changed which control to what.
+    audit_log("mark_control", actor=actor, control_id=control_id,
+              previous_status=prev, new_status=impl_status, notes=notes)
     return f"Control {control_id} marked as '{impl_status}'. Status saved."
 
 def tool_search_controls(query: str) -> str:
@@ -516,12 +628,14 @@ Tone: Direct, technically precise, practitioner-level. No fluff."""
 
 # ── Main agent loop ───────────────────────────────────────────────────────────
 def run_agent():
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY not set. Copy .env.example to .env and add your key.")
+    try:
+        client = create_client()
+    except RuntimeError as e:
+        print(f"ERROR: {e}. Copy .env.example to .env and configure your AI provider.")
         sys.exit(1)
 
-    client = anthropic.Anthropic(api_key=api_key)
+    model = get_model()
+    log_event("agent_start", provider=ai_provider(), model=model)
     status = load_status()
     messages = []
 
@@ -567,7 +681,7 @@ def run_agent():
         # Agentic tool-use loop
         while True:
             response = client.messages.create(
-                model="claude-opus-4-5",
+                model=model,
                 max_tokens=4096,
                 system=SYSTEM_PROMPT,
                 tools=TOOLS,
@@ -610,7 +724,7 @@ def run_agent():
                     elif name == "generate_poam":
                         result = tool_generate_poam(inputs["control_id"], inputs["weakness"], status)
                     elif name == "mark_control":
-                        result = tool_mark_control(inputs["control_id"], inputs["impl_status"], inputs["notes"], status)
+                        result = tool_mark_control(inputs["control_id"], inputs["impl_status"], inputs["notes"], status, actor="cli")
                     elif name == "search_controls":
                         result = tool_search_controls(inputs["query"])
                     elif name == "list_domains":

@@ -56,12 +56,21 @@ client; `accent` is length/charset validated.
 
 ## 4. Auditability
 
-**No audit log today.** The app does not record who marked a control, changed a status,
-or edited settings. Flask stdout request logs are the only trail.
+**Structured logging + append-only audit trail.** Every request is logged as one
+JSON line to stdout (`{"event":"http_request", method, path, status, duration_ms,
+remote_addr}`), and **every control-status change** is recorded to an append-only
+audit trail — `audit_log()` in `agent.py`, wired into `tool_mark_control`, so the
+CLI, `POST /api/mark`, and the chat `mark_control` tool are all covered. Each entry
+carries `actor`, `control_id`, `previous_status`, `new_status`, `notes`, and a UTC
+timestamp, written to `AUDIT_LOG_FILE` (default `audit.log`, gitignored) and
+mirrored to the log sink as `{"event":"audit",...}`.
 
-- **Recommendation (gap):** capture access logs at the reverse proxy, and/or add an
-  application audit log if the tool becomes shared. For CMMC assessment integrity you
-  will typically want an immutable record of status changes — plan to add this.
+- **Operator actions:** ship stdout logs and the audit file to a **retained,
+  tamper-evident** store (WORM bucket / SIEM) — the local file is evidence, not the
+  system of record. Capture reverse-proxy access logs too. Set `LOG_LEVEL` as needed.
+- **Remaining gap:** settings edits (`/api/settings`) are not yet in the audit trail,
+  and there is no per-user identity until an auth proxy is fronted (actor is the
+  client IP). Add authenticated actor identity when SSO is introduced.
 
 ---
 

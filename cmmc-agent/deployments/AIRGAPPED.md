@@ -20,10 +20,13 @@ you run a self-hosted LLM on-prem and repoint the app at it.
 [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)
 **Canonical guide:** [../docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md)
 
-> **Honesty note:** the app is written against the **Anthropic SDK** with the
-> model string **hardcoded to `claude-opus-4-5`**. Switching the AI backend to
-> Ollama is a **small but real code change**, not a pure env-var swap. See §1
-> and the Ollama section for the two supported approaches.
+> **Honesty note:** the app is written against the **Anthropic SDK**. Provider
+> and model are now **env-driven** (`create_client()` / `get_model()` in
+> `agent.py`): set `AI_PROVIDER=ollama` + `OLLAMA_BASE_URL` (and optional
+> `OLLAMA_MODEL`) to repoint the SDK at an **Anthropic-Messages-compatible
+> gateway** in front of Ollama (e.g. **LiteLLM**) — **no code change**. Because
+> the app speaks the Anthropic Messages API, a **native** Ollama OpenAI-`/v1`
+> path (approach b) is still a source change. See §5 and the Ollama section.
 
 ---
 
@@ -124,25 +127,33 @@ storage** — do not provision or expect them.
 
 ## 5. Environment variables
 
-### With Ollama (approach a — proxy via `ANTHROPIC_BASE_URL`)
+### With Ollama (approach a — Anthropic-compatible gateway, **read by shipped code**)
 
 | Variable | Example | Purpose |
 |---|---|---|
-| `ANTHROPIC_BASE_URL` | `http://anthropic-proxy:8080` | Points the Anthropic SDK at the on-prem proxy in front of Ollama |
-| `ANTHROPIC_API_KEY` | `local-not-used` / from internal Vault | SDK still constructs a client; the proxy may ignore/validate it. Without *some* value, `POST /api/chat` returns HTTP 500 `{"error":"ANTHROPIC_API_KEY not set"}` |
+| `AI_PROVIDER` | `ollama` | Selects the Ollama-gateway path in `create_client()` |
+| `OLLAMA_BASE_URL` | `http://ollama-gateway:8080` | **Read by shipped code** — base URL of an Anthropic-Messages-compatible gateway (e.g. LiteLLM) in front of Ollama |
+| `OLLAMA_MODEL` | `llama3.1:8b` | **Read by shipped code** — model name passed to the gateway (default `llama3.1:8b`) |
+| `ANTHROPIC_API_KEY` | *(usually unset)* | Optional — a placeholder is used when the gateway needs no key |
 | `PORT` | `5050` | Container listen port |
 
-### With Ollama (approach b — direct OpenAI-compatible code change)
+> These are **read by the shipped code** now: `AI_PROVIDER=ollama` +
+> `OLLAMA_BASE_URL` repoints the Anthropic SDK at the gateway, and `OLLAMA_MODEL`
+> sets the model — no source edit. The gateway must speak the **Anthropic
+> Messages API** (LiteLLM and similar do). You may also keep `AI_PROVIDER=anthropic`
+> and instead set `ANTHROPIC_BASE_URL` to such a gateway.
+
+### With Ollama (approach b — native OpenAI-compatible code change)
 
 | Variable | Example | Purpose |
 |---|---|---|
 | `PORT` | `5050` | Container listen port |
-| `OLLAMA_BASE_URL` | `http://ollama:11434/v1` | Consumed by your modified `server.py`/`agent.py` calling the Ollama OpenAI-compatible endpoint |
-| `OLLAMA_MODEL` | `llama3.1:8b` | Local model name your modified code passes instead of `claude-opus-4-5` |
+| `OLLAMA_BASE_URL` | `http://ollama:11434/v1` | For a native `/v1` integration you add to `server.py`/`agent.py` |
+| `OLLAMA_MODEL` | `llama3.1:8b` | Local model name |
 
-> Note: `OLLAMA_BASE_URL` / `OLLAMA_MODEL` are **not** read by the shipped code —
-> they only take effect once you make the approach-(b) source change described
-> below.
+> Approach (b) targets Ollama's **native** OpenAI-compatible `/v1` endpoint
+> (different wire format from the Anthropic Messages API used by the app). That
+> remains a **source change**; approach (a) above needs none.
 
 ---
 
@@ -224,14 +235,14 @@ ollama pull mixtral              # larger effective context / MoE
 ollama list                      # confirm the model is present
 ```
 
-**Repointing the app (required — not zero-code):** the shipped code uses the
-Anthropic SDK with model `claude-opus-4-5`. Choose one:
+**Repointing the app:** the shipped code uses the Anthropic SDK; provider, model,
+and base URL are **env-driven** (`create_client()` / `get_model()`). Choose one:
 
-- **(a) Anthropic-compatible proxy:** deploy a proxy that accepts Anthropic
-  Messages API calls and forwards to Ollama, then set `ANTHROPIC_BASE_URL` to
-  the proxy. The SDK stays as-is, but you must map `claude-opus-4-5` → your
-  Ollama model in the proxy. Minimal app change, but you must run/operate the
-  proxy.
+- **(a) Anthropic-compatible gateway — zero code change:** deploy a gateway that
+  accepts Anthropic Messages API calls and forwards to Ollama (e.g. **LiteLLM**),
+  then set `AI_PROVIDER=ollama` + `OLLAMA_BASE_URL=<gateway>` + `OLLAMA_MODEL=<model>`
+  (or keep `AI_PROVIDER=anthropic` and set `ANTHROPIC_BASE_URL`). The app reads
+  these directly — **no source edit**; you only run/operate the gateway.
 - **(b) Direct edit of `server.py` / `agent.py`:** replace the
   `anthropic.Anthropic(...)` client calls with calls to Ollama's
   OpenAI-compatible endpoint `http://ollama:11434/v1`, and swap the model string

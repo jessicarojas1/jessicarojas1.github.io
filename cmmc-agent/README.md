@@ -139,10 +139,16 @@ The web GUI is backed by a small JSON API:
 | Method + path | Purpose |
 |---------------|---------|
 | `GET /` | Embedded HTML UI |
-| `POST /api/chat` | Agentic chat — body `{"history":[{role,content}...]}` → `{"reply","tool_log"}` (HTTP 500 if `ANTHROPIC_API_KEY` unset) |
-| `GET /api/dashboard` | Program score JSON `{"overall_score_pct","domains":{...}}` — **no API key required; health probe** |
-| `POST /api/mark` | Record status `{control_id,impl_status,notes}` → `{"message":...}` |
+| `GET /healthz` | Liveness probe → `{"status":"ok","service":"cmmc-agent"}` — **no API key, no scoring compute** (Dockerfile/Render probe) |
+| `POST /api/chat` | Agentic chat — body `{"history":[{role,content}...]}` → `{"reply","tool_log"}` (HTTP 500 if the AI backend is not configured) |
+| `GET /api/dashboard` | Program score JSON `{"overall_score_pct","domains":{...}}` — **no API key required; also a valid probe** |
+| `POST /api/mark` | Record status `{control_id,impl_status,notes}` → `{"message":...}` (append-only audit entry written) |
 | `GET`/`POST /api/settings` | Branding (`appName`/`logoUrl`/`accent`), persisted to `settings.json` |
+
+State-changing `POST` routes are covered by an optional same-origin guard
+(`ALLOWED_ORIGINS`) and every control-status change is recorded to an append-only
+audit trail (`AUDIT_LOG_FILE`, default `audit.log`). Requests are logged as
+structured JSON lines to stdout.
 
 ## Repository layout
 
@@ -165,22 +171,46 @@ cmmc-agent/
 ## Common commands
 
 ```bash
-# Run the web GUI (default http://localhost:5050)
+# Run the web GUI — local/dev, Flask dev server (default http://localhost:5050)
 python server.py
+
+# Run the web GUI — production WSGI server (gunicorn)
+gunicorn --bind 0.0.0.0:5050 --workers 1 --timeout 120 server:app
 
 # Run the CLI agent
 python agent.py
 
-# Build & run the container
+# Build & run the container (image starts gunicorn)
 docker build -t cmmc-agent .
 docker run -p 5050:5050 -e ANTHROPIC_API_KEY=sk-ant-... cmmc-agent
 
 # Smoke test (no API key needed)
+curl -fsS http://localhost:5050/healthz
 curl -fsS http://localhost:5050/api/dashboard
 
 # Change the port
 PORT=8080 python server.py
+
+# Air-gapped: repoint at a self-hosted (Anthropic-compatible) Ollama gateway
+AI_PROVIDER=ollama OLLAMA_BASE_URL=http://ollama-gateway:8080 \
+  OLLAMA_MODEL=llama3.1:8b python server.py
 ```
+
+### Configuration (environment variables)
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `ANTHROPIC_API_KEY` | — | AI backend key (required for the `anthropic` provider). |
+| `PORT` | `5050` | Web server port (Render uses `10000`). |
+| `WEB_CONCURRENCY` | `1` | Gunicorn worker count (single JSON-state writer). |
+| `AI_PROVIDER` | `anthropic` | `anthropic` or `ollama` (air-gap). |
+| `CMMC_MODEL` / `ANTHROPIC_MODEL` | `claude-opus-4-5` | Model for the `anthropic` provider. |
+| `ANTHROPIC_BASE_URL` | — | Optional Anthropic-compatible gateway/proxy base URL. |
+| `OLLAMA_BASE_URL` | — | Anthropic-Messages-compatible gateway in front of Ollama. |
+| `OLLAMA_MODEL` | `llama3.1:8b` | Model for the `ollama` provider. |
+| `LOG_LEVEL` | `INFO` | Structured-log level (`DEBUG`…`ERROR`). |
+| `AUDIT_LOG_FILE` | `audit.log` | Append-only audit-trail path. |
+| `ALLOWED_ORIGINS` | — | Comma-separated origins for the same-origin POST guard (empty = off). |
 
 ## Dependencies
 
@@ -192,14 +222,16 @@ Python packages (`requirements.txt`):
 | `python-dotenv` | `>=1.0.0` | Load `ANTHROPIC_API_KEY` / `PORT` from `.env` |
 | `rich` | `>=13.0.0` | CLI rendering for `agent.py` |
 | `flask` | `>=3.0.0` | Web server + JSON API (`server.py`) |
+| `gunicorn` | `>=21.2.0` | Production WSGI server (`server:app`) |
 
 Front-end assets (Bootstrap 5.3.3 + bootstrap-icons 1.11.3) load from the jsDelivr
 CDN with SRI integrity hashes — no build step. No external scanner binaries or
 database extensions are required.
 
-> For production, add a WSGI server (e.g. `gunicorn`) and a reverse proxy — the
-> app currently runs the Flask development server. See [`OPEN_ITEMS.md`](OPEN_ITEMS.md)
-> and [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+> For production the container and `render.yaml` serve `server:app` with
+> **gunicorn**; front it with a TLS-terminating, authenticating reverse proxy and
+> set `ALLOWED_ORIGINS`. See [`OPEN_ITEMS.md`](OPEN_ITEMS.md) and
+> [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ## Supported deployment models
 

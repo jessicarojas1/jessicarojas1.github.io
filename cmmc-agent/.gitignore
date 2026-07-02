@@ -1,6 +1,7 @@
 .env
 status.json
 settings.json
+audit.log
 __pycache__/
 *.pyc
 .venv/

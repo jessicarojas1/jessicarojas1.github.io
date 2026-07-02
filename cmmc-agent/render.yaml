@@ -4,14 +4,18 @@ services:
     runtime: python            # Python runtime; see docker alternative below
     rootDir: cmmc-agent
     buildCommand: pip install -r requirements.txt
-    startCommand: python server.py
+    # Production WSGI server (gunicorn). Single worker → single writer for the
+    # JSON state files. For local dev use `python server.py`.
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers ${WEB_CONCURRENCY:-1} --timeout 120 server:app
     plan: free
-    healthCheckPath: /api/dashboard   # returns JSON, no ANTHROPIC_API_KEY required
+    healthCheckPath: /healthz         # lightweight liveness, no ANTHROPIC_API_KEY
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false            # set manually in the Render dashboard / secret store
       - key: PORT
         value: 10000           # Render routes traffic to this port
+      - key: WEB_CONCURRENCY
+        value: 1               # single gunicorn worker (single JSON-state writer)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Docker runtime alternative (uncomment to build from the repo Dockerfile):
@@ -22,7 +26,7 @@ services:
 #     rootDir: cmmc-agent
 #     dockerfilePath: cmmc-agent/Dockerfile
 #     plan: free
-#     healthCheckPath: /api/dashboard
+#     healthCheckPath: /healthz
 #     envVars:
 #       - key: ANTHROPIC_API_KEY
 #         sync: false

@@ -52,9 +52,12 @@ USER appuser
 
 EXPOSE 5050
 
-# /api/dashboard returns JSON scoring data and does NOT require ANTHROPIC_API_KEY,
-# so it is a reliable liveness/readiness probe.
+# /healthz is a lightweight liveness probe (no scoring compute, no API key).
+# /api/dashboard also works as a probe and additionally exercises scoring.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -fsS "http://127.0.0.1:${PORT}/api/dashboard" || exit 1
+    CMD curl -fsS "http://127.0.0.1:${PORT}/healthz" || exit 1
 
-CMD ["python", "server.py"]
+# Production WSGI server (gunicorn) serving the Flask app object `server:app`.
+# WEB_CONCURRENCY defaults to 1 — the JSON state files have a single writer.
+# For local/dev use `python server.py` (Flask dev server) instead.
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5050} --workers ${WEB_CONCURRENCY:-1} --timeout 120 server:app"]

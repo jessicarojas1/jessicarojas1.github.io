@@ -93,9 +93,17 @@ creates them the first time a control is marked or settings are saved.
 ## 5. The Worker / Background Process (there is none)
 
 **There is no worker, cron, or queue.** The app is a **single synchronous Flask
-process** (`app.run(debug=False, host, port)`). All work — including the agentic
-tool-use loop against the Anthropic API — happens inline within the request that
-triggered it. There is nothing separate to schedule, scale, or supervise.
+process** served in production by **gunicorn** (`server:app`, `WEB_CONCURRENCY`
+workers, default 1 so the JSON state files have a single writer); `python
+server.py` (Flask dev server) is kept for local development. All work — including
+the agentic tool-use loop against the AI backend — happens inline within the
+request that triggered it. There is nothing separate to schedule, scale, or
+supervise.
+
+**Structured logging & audit:** each request is logged as one JSON line to stdout
+(`{"event":"http_request",...}`), and every control-status change is appended to
+an audit trail (`AUDIT_LOG_FILE`, default `audit.log`) and mirrored to the log
+sink (`{"event":"audit",...}`). Set `LOG_LEVEL` to tune verbosity.
 
 ---
 
@@ -104,19 +112,25 @@ triggered it. There is nothing separate to schedule, scale, or supervise.
 For airgapped or on-prem environments where chat content must not leave the boundary,
 you can replace the hosted Anthropic API with a self-hosted LLM served by **Ollama**.
 
-> **Be honest — this is a small code change, not a pure env swap.** The app is built
-> around the Anthropic SDK and the model string `claude-opus-4-5`. Two supported
-> approaches:
+> **Provider and model are env-driven** (`create_client()` / `get_model()` in
+> `agent.py`). Option A below needs **no code change**; Option B (native Ollama
+> `/v1`) is a source change because that endpoint uses the OpenAI wire format.
 
-**Option A — Anthropic-compatible proxy.** Point the Anthropic SDK at a proxy that
-speaks the Anthropic Messages API and forwards to your local model:
+**Option A — Anthropic-compatible gateway (no code change).** Point the app at a
+gateway (e.g. **LiteLLM**) that speaks the Anthropic Messages API in front of Ollama:
 
 ```bash
-export ANTHROPIC_BASE_URL="http://your-anthropic-compatible-proxy:PORT"
-export ANTHROPIC_API_KEY="dummy-value-if-proxy-requires-one"
+# Ollama-provider path (reads OLLAMA_BASE_URL / OLLAMA_MODEL):
+export AI_PROVIDER="ollama"
+export OLLAMA_BASE_URL="http://ollama-gateway:8080"
+export OLLAMA_MODEL="llama3.1:8b"
+# …or keep the anthropic provider and just override the base URL/model:
+#   export ANTHROPIC_BASE_URL="http://your-anthropic-compatible-proxy:PORT"
+#   export CMMC_MODEL="claude-opus-4-5"
 ```
 
-The SDK honors `ANTHROPIC_BASE_URL`; no code change is needed if such a proxy exists.
+The app reads these directly (`AI_PROVIDER`, `OLLAMA_BASE_URL`, `OLLAMA_MODEL`,
+`ANTHROPIC_BASE_URL`, `CMMC_MODEL`) — no code change if such a gateway exists.
 
 **Option B — Repoint to Ollama's OpenAI-compatible endpoint.** Modify `server.py` /
 `agent.py` to call Ollama directly and change the model string:
@@ -182,13 +196,14 @@ exposing this app beyond a single local user, work through the following.
 ### Transport & exposure
 
 - [ ] Terminate **TLS** at a reverse proxy (nginx / Caddy / cloud LB).
-- [ ] **Do not expose the Flask dev server directly.** `server.py` uses `app.run(...)`
-      (Flask's dev server). For production, put it behind a real WSGI server —
-      **recommend adding Gunicorn** (it is *not* currently a dependency) plus a reverse
-      proxy.
-- [ ] Because there is **no auth or CSRF** on any endpoint, the reverse proxy must
-      enforce authentication/authorization if the app is reachable by more than one
-      trusted user.
+- [ ] **Serve with gunicorn, not the dev server.** The container and `render.yaml`
+      already run `gunicorn ... server:app` (`gunicorn>=21.2.0` is a dependency);
+      `python server.py` (Flask dev server) is for local development only. Front it
+      with a reverse proxy.
+- [ ] Because there is **no built-in auth**, the reverse proxy must enforce
+      authentication/authorization if the app is reachable by more than one trusted
+      user. Additionally set **`ALLOWED_ORIGINS`** to enable the built-in same-origin
+      guard on state-changing POSTs (CSRF mitigation).
 
 ### Hardening
 
@@ -202,10 +217,12 @@ exposing this app beyond a single local user, work through the following.
 
 ### Resilience & operations
 
-- [ ] Wire the health check to **`GET /api/dashboard`** (no key required) — matches the
-      Dockerfile `HEALTHCHECK` and `render.yaml` `healthCheckPath`.
+- [ ] Wire the health check to **`GET /healthz`** (no key, no scoring compute) — matches
+      the Dockerfile `HEALTHCHECK` and `render.yaml` `healthCheckPath`. `GET /api/dashboard`
+      also works as a scoring probe.
 - [ ] **Back up** `status.json` and `settings.json` (see
-      [`DISASTER_RECOVERY.md`](DISASTER_RECOVERY.md)).
+      [`DISASTER_RECOVERY.md`](DISASTER_RECOVERY.md)). Ship `audit.log` /
+      `{"event":"audit"}` lines to your retained log store for compliance evidence.
 - [ ] **Scaling caveat:** the two JSON files are the only source of truth. Multiple
       replicas require a **shared RWX volume**, or each replica diverges. Prefer a
       single instance unless you provide shared storage.

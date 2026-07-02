@@ -14,7 +14,7 @@ Legend: ✅ done · 🔶 partial · ❌ outstanding
 |------|-------|--------|------------------|
 | Endpoint authentication | ❌ | All routes (`/`, `/api/chat`, `/api/dashboard`, `/api/mark`, `/api/settings`) are unauthenticated. Anyone who can reach the port can query the agent (spending Anthropic tokens) and mutate `status.json`/`settings.json`. | Front the app with an authenticating reverse proxy / SSO (OAuth2 Proxy, Entra ID, Cognito) before any network exposure. Local-first use only until then. |
 | Authorization / RBAC | ❌ | No roles or per-user scoping; single shared state file. | Add app-level auth + per-tenant state files, or keep single-tenant behind SSO. |
-| CSRF protection | ❌ | `POST /api/chat`, `/api/mark`, `/api/settings` accept JSON with no CSRF token or origin check. | Add an origin/referer check or token once auth is introduced; low risk while local-only. |
+| CSRF protection | 🔶 | Optional same-origin guard now shipped. When `ALLOWED_ORIGINS` is set (comma-separated), state-changing `POST/PUT/PATCH/DELETE` requests whose `Origin`/`Referer` do not match are rejected `403`. Off by default (local-first). | **Done (in-repo, env-gated).** Verified: `server.py` `_request_pre()` before_request checks `_allowed_origins()`; test — cross-origin `POST /api/mark` → `403 {"error":"cross-origin request rejected"}`, same-origin → `200`. Enable in production alongside the auth proxy. |
 
 ## 2. Secrets & Identity
 
@@ -27,7 +27,7 @@ Legend: ✅ done · 🔶 partial · ❌ outstanding
 
 | Item | State | Impact | Suggested action |
 |------|-------|--------|------------------|
-| WSGI server | ❌ | Runs the Flask **development server** (`app.run`). Not intended for production load. | Add `gunicorn` to `requirements.txt` and serve `server:app` behind a reverse proxy; keep `python server.py` for local/dev. |
+| WSGI server | ✅ | `gunicorn>=21.2.0` added to `requirements.txt`; the container and `render.yaml` now start `gunicorn ... server:app` (single worker via `WEB_CONCURRENCY`, one JSON-state writer). `python server.py` kept for local/dev. | **Done.** Verified: `gunicorn --bind 127.0.0.1:5099 server:app` boots and `GET /healthz` → `{"status":"ok","service":"cmmc-agent"}`. Terminate TLS at a reverse proxy (below). |
 | TLS | ❌ | App serves plain HTTP; TLS must be terminated externally. | Terminate TLS at nginx / ALB / Container Apps ingress (see deployment guides). |
 
 ## 4. State & Data
@@ -42,17 +42,17 @@ Legend: ✅ done · 🔶 partial · ❌ outstanding
 
 | Item | State | Impact | Suggested action |
 |------|-------|--------|------------------|
-| Health endpoint | ✅ | `GET /api/dashboard` returns JSON without needing the API key; used by Dockerfile HEALTHCHECK and `render.yaml`. | — |
-| Structured logging | ❌ | Only default Flask stdout logs. | Add structured (JSON) request logging; ship to the platform log sink. |
+| Health endpoint | ✅ | Dedicated `GET /healthz` → `{"status":"ok","service":"cmmc-agent"}` (no scoring compute, no API key) now the Dockerfile/`render.yaml` probe; `GET /api/dashboard` still works as a scoring probe too. | **Done.** Verified: route registered on the real app; `curl /healthz` → `ok` under gunicorn. |
+| Structured logging | ✅ | JSON-per-line logging (`_JsonLogFormatter`/`configure_logging` in `agent.py`) emitted to stdout; Flask `after_request` logs `http_request` (method, path, status, duration_ms, remote_addr); startup logs provider/model; `LOG_LEVEL` env. | **Done.** Verified: requests emit `{"event":"http_request",...}` lines; used by both `server.py` (web) and `agent.py` (CLI). |
 | Metrics / tracing | ❌ | No metrics or traces. | Add Prometheus metrics / OpenTelemetry if operated at scale. |
-| Audit log | ❌ | Control status changes (`/api/mark`) are not audit-logged beyond the `updated` date in `status.json`. | Add an append-only audit trail of who/what/when for compliance evidence. |
+| Audit log | ✅ | Append-only JSONL audit trail (`audit_log()` in `agent.py`) records every control-status mutation (`actor`, `control_id`, `previous_status`, `new_status`, `notes`, UTC `ts`) to `AUDIT_LOG_FILE` (default `audit.log`, gitignored) and mirrors to the structured logger. Wired into `tool_mark_control` so CLI, `/api/mark`, and chat `mark_control` are all covered. | **Done.** Verified: `POST /api/mark` writes a JSONL line and a `{"event":"audit",...}` log line with `actor="web:<ip>"`. |
 
 ## 6. AI Backend
 
 | Item | State | Impact | Suggested action |
 |------|-------|--------|------------------|
-| Hosted Anthropic egress | 🔶 | Chat content is sent to `api.anthropic.com`. Fine for non-CUI; not suitable for air-gapped/CUI networks. | For CUI/offline, use self-hosted Ollama (see `deployments/AIRGAPPED.md`) — requires a small code change to repoint the client. |
-| Hardcoded model | 🔶 | Model `claude-opus-4-5` is hardcoded in `server.py` and `agent.py`. | Make the model configurable via env var for portability / Ollama. |
+| Hosted Anthropic egress | 🔶 | Client construction is now env-driven (`create_client()` in `agent.py`): `AI_PROVIDER=anthropic\|ollama`, optional `ANTHROPIC_BASE_URL`, and `OLLAMA_BASE_URL`/`OLLAMA_MODEL` (air-gap). Setting `AI_PROVIDER=ollama` + `OLLAMA_BASE_URL` repoints the SDK at an Anthropic-Messages-compatible gateway in front of a self-hosted Ollama model — **no further code change**. | **Improved (in-repo).** The app still speaks the Anthropic Messages API, so the Ollama gateway must be Anthropic-compatible (e.g. LiteLLM); a native OpenAI-`/v1` Ollama path remains approach (b) in `deployments/AIRGAPPED.md`. Verified: `AI_PROVIDER=ollama OLLAMA_BASE_URL=… ` builds a client with that base_url. |
+| Hardcoded model | ✅ | Model resolved by `get_model()` from `CMMC_MODEL`/`ANTHROPIC_MODEL` (anthropic, default `claude-opus-4-5`) or `OLLAMA_MODEL` (ollama, default `llama3.1:8b`). No hardcoded model string remains in `server.py`/`agent.py`. | **Done.** Verified: `grep` shows both `client.messages.create(model=model/…)`; `CMMC_MODEL=claude-sonnet-4-5` → `get_model()` returns it. |
 | Token/cost controls | ❌ | No rate limiting or per-user token budgeting. | Add rate limiting and (with auth) per-user quotas. |
 
 ## 7. Documentation & Deployment Set
@@ -67,4 +67,9 @@ Legend: ✅ done · 🔶 partial · ❌ outstanding
 
 ---
 
-_Last reviewed: 2026-07-01._
+_Last reviewed: 2026-07-02. Remediation pass: added gunicorn (production WSGI),
+`/healthz` liveness endpoint, structured JSON logging, append-only audit trail
+for control-status changes, env-driven AI provider/model selection
+(`AI_PROVIDER`/`CMMC_MODEL`/`ANTHROPIC_BASE_URL`/`OLLAMA_BASE_URL`/`OLLAMA_MODEL`),
+and an optional `ALLOWED_ORIGINS` same-origin guard — all wired into the running
+app and verified (`py_compile`, `import server`, Flask test client, gunicorn boot)._
