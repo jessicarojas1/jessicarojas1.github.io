@@ -16,7 +16,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.109.1",
+    "@anthropic-ai/sdk": "^0.110.0",
     "adm-zip": "^0.5.18",
     "express": "^4.19.2",
     "ioredis": "^5.11.1",
@@ -25,9 +25,9 @@
     "pg": "^8.22.0"
   },
   "optionalDependencies": {
-    "@opentelemetry/auto-instrumentations-node": "^0.77.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.219.0",
-    "@opentelemetry/sdk-node": "^0.219.0"
+    "@opentelemetry/auto-instrumentations-node": "^0.78.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.220.0",
+    "@opentelemetry/sdk-node": "^0.220.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
