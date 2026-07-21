@@ -196,7 +196,7 @@ ob_start();
                  FROM evidence_files WHERE entity_type='audit_item' AND entity_id=? ORDER BY created_at DESC",
               [(int)$item['id']]
           );
-          $canReviewEvidence = Auth::can('audit.write');
+          $canReviewEvidence = Auth::can('audit.edit');
           $reviewBadge = ['pending'=>'badge-warning','approved'=>'badge-success','rejected'=>'badge-danger'];
           $freshMeta   = ['expired'=>['Expired','var(--danger)'],'expiring'=>['Expiring soon','var(--warning)']];
           ?>

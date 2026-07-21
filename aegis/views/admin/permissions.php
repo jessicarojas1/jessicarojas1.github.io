@@ -446,12 +446,13 @@ function buildAccordion(pd) {
     var container = document.getElementById('eAccordionBody');
     container.innerHTML = '';
 
-    Object.keys(MODULES).forEach(function(mod) {
+    Object.keys(MODULES).forEach(function(mod, modIndex) {
         var actions = MODULES[mod];
         var icon = MODULE_ICONS[mod] || 'grid';
 
         var accordion = document.createElement('div');
-        accordion.className = 'perm-module-accordion open';
+        // First 3 modules open by default; the rest collapsed (standard).
+        accordion.className = 'perm-module-accordion' + (modIndex < 3 ? ' open' : '');
         accordion.dataset.mod = mod;
 
         // Count checked
@@ -464,7 +465,7 @@ function buildAccordion(pd) {
         var headerRow = document.createElement('div');
         headerRow.className = 'perm-module-header-row';
         headerRow.innerHTML =
-            '<i class="bi bi-' + escHtml(icon) + '"></i>' +
+            '<i class="bi bi-' + escHtml(icon) + '" style="color:var(--primary)"></i>' +
             '<span class="perm-module-label">' + escHtml(mod.charAt(0).toUpperCase() + mod.slice(1)) + '</span>' +
             '<span class="perm-module-count-badge" data-mod-count="' + escHtml(mod) + '">' + checkedCount + '/' + actions.length + '</span>' +
             '<div class="perm-module-actions">' +
@@ -591,6 +592,12 @@ function doSave() {
     body.append('csrf_token', csrfToken);
     perms.forEach(function(p) { body.append('permissions[]', p); });
 
+    // Disable both save buttons for the duration of the request to prevent
+    // double-submit; re-enabled in the finally-equivalent below.
+    var saveBtns = [document.getElementById('eSaveTop'), document.getElementById('eSaveBottom')];
+    saveBtns.forEach(function(b) { if (b) b.disabled = true; });
+    var reenable = function() { saveBtns.forEach(function(b) { if (b) b.disabled = false; }); };
+
     fetch('/admin/permissions/' + currentUid + '/update', {
         method: 'POST',
         headers: {
@@ -614,7 +621,8 @@ function doSave() {
     })
     .catch(function() {
         showToast('Network error. Please try again.', 'error');
-    });
+    })
+    .then(reenable);
 }
 
 // ── Dirty state ───────────────────────────────────────────────────────────────
