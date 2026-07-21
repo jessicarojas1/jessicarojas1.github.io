@@ -121,6 +121,22 @@
     .clarity-meter { height:12px; border-radius:8px; background: var(--bs-border-color); overflow:hidden; }
     .clarity-meter > span { display:block; height:100%; background: var(--bs-primary); transition: width .25s ease; }
     .adv-tag { font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:800; color: var(--bs-primary); }
+
+    /* ===== Presets + Verdict capstone ===== */
+    .preset-row { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .preset-btn { font-size:.78rem; }
+    .verdict-wrap { background: linear-gradient(180deg, rgba(var(--bs-primary-rgb),.08), transparent 60%); border:1px solid var(--bs-border-color); border-radius:18px; }
+    .gauge { width:172px; height:172px; border-radius:50%; display:grid; place-items:center; margin:0 auto;
+      background: conic-gradient(var(--bs-primary) 0deg, var(--bs-border-color) 0deg); transition: background .4s ease; }
+    .gauge-inner { width:130px; height:130px; border-radius:50%; background: var(--bs-body-bg); display:grid; place-items:center; text-align:center; }
+    .gauge-inner .g-num { font-size:2.6rem; font-weight:800; line-height:1; color: var(--bs-primary); }
+    .gauge-inner .g-lbl { font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color: var(--bs-secondary-color); }
+    .signal-row { display:flex; align-items:center; gap:.7rem; margin-bottom:.7rem; }
+    .signal-row .s-name { flex:0 0 118px; font-size:.82rem; font-weight:600; }
+    .signal-row .s-bar { flex:1 1 auto; height:10px; border-radius:6px; background: var(--bs-border-color); overflow:hidden; }
+    .signal-row .s-bar > span { display:block; height:100%; background: var(--bs-primary); width:0%; transition: width .35s ease; }
+    .signal-row .s-val { flex:0 0 42px; text-align:right; font-size:.82rem; font-weight:700; font-variant-numeric:tabular-nums; }
+    .verdict-call { font-size:1.15rem; font-weight:800; padding:.6rem 1.15rem; border-radius:12px; display:inline-block; }
   </style>
 </head>
 <body>
@@ -257,6 +273,16 @@
         <div class="section-eyebrow">Pillars 01 + 02 · Interactive</div>
         <h2 class="section-title">The Asymmetry Engine</h2>
         <p class="text-secondary mx-auto" style="max-width:660px">Describe any bet in three numbers. The engine prices the asymmetry, the expected value, and the mathematically rational bet size — the same arithmetic behind every great allocation.</p>
+      </div>
+
+      <div class="mb-3 text-center">
+        <div class="small text-secondary mb-2" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em">Load an archetype</div>
+        <div class="preset-row justify-content-center" id="presetRow">
+          <button type="button" class="btn btn-sm btn-outline-primary preset-btn" data-down="35" data-up="900" data-prob="18" data-tier="0.25">🚀 Asymmetric Moonshot</button>
+          <button type="button" class="btn btn-sm btn-outline-primary preset-btn" data-down="20" data-up="120" data-prob="62" data-tier="0.5">🛡️ Margin-of-Safety Value</button>
+          <button type="button" class="btn btn-sm btn-outline-primary preset-btn" data-down="55" data-up="60" data-prob="52" data-tier="0.25">🐑 Crowded Momentum Trap</button>
+          <button type="button" class="btn btn-sm btn-outline-primary preset-btn" data-down="50" data-up="50" data-prob="50" data-tier="0.1">🪙 Coin-Flip · No Edge</button>
+        </div>
       </div>
 
       <div class="engine-card p-3 p-md-4">
@@ -587,6 +613,53 @@
       </section>
     </div>
 
+    <!-- ===== THE ALLOCATOR'S VERDICT (capstone synthesis) ===== -->
+    <section class="container py-5 reveal" id="verdict">
+      <div class="text-center mb-4">
+        <div class="section-eyebrow">The Synthesis</div>
+        <h2 class="section-title">The Allocator's Verdict</h2>
+        <p class="text-secondary mx-auto" style="max-width:680px">A billion-dollar decision is never one number — it's the whole machine agreeing. This capstone reads every module live and collapses them into a single conviction: <strong>the edge</strong> (Asymmetry Engine), <strong>survival</strong> (Monte Carlo), <strong>robustness</strong> (Red Team), and <strong>clarity</strong> (Bias Firewall). Move any input anywhere on this page and watch the verdict update.</p>
+      </div>
+
+      <div class="verdict-wrap p-4 p-md-5">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-4 text-center">
+            <div class="gauge" id="verdictGauge">
+              <div class="gauge-inner">
+                <div><span class="g-num" id="verdictScore">—</span><div class="g-lbl">conviction</div></div>
+              </div>
+            </div>
+            <div class="mt-3"><span class="verdict-call v-mid" id="verdictCall">CALCULATING…</span></div>
+          </div>
+          <div class="col-lg-8">
+            <div class="signal-row">
+              <span class="s-name">Edge / Asymmetry</span>
+              <span class="s-bar"><span id="sigEdgeBar"></span></span>
+              <span class="s-val" id="sigEdgeVal">—</span>
+            </div>
+            <div class="signal-row">
+              <span class="s-name">Survival</span>
+              <span class="s-bar"><span id="sigSurviveBar"></span></span>
+              <span class="s-val" id="sigSurviveVal">—</span>
+            </div>
+            <div class="signal-row">
+              <span class="s-name">Robustness</span>
+              <span class="s-bar"><span id="sigRobustBar"></span></span>
+              <span class="s-val" id="sigRobustVal">—</span>
+            </div>
+            <div class="signal-row">
+              <span class="s-name">Clarity</span>
+              <span class="s-bar"><span id="sigClarityBar"></span></span>
+              <span class="s-val" id="sigClarityVal">—</span>
+            </div>
+            <hr class="my-3">
+            <p class="mb-0" id="verdictRationale">Set the bet above and the machine will tell you not just whether it's a good idea — but whether it's a good idea you can <em>size up and survive</em>.</p>
+          </div>
+        </div>
+      </div>
+      <p class="small text-secondary text-center mt-3 mb-0">The verdict weights edge 40%, survival 30%, robustness 20%, clarity 10% — and hard-vetoes to <strong>PASS</strong> on negative expected value or a likely-fatal failure mode, no matter how attractive the rest looks. Survival is a gate, not a bonus.</p>
+    </section>
+
     <!-- ===== OPERATING PRINCIPLES ===== -->
     <section class="container py-5 reveal" id="principles">
       <div class="text-center mb-4">
@@ -729,6 +802,7 @@
       // core math
       var payoff = u / d;                       // payoff ratio (win size / loss size)
       var ev = p * u - (1 - p) * d;             // expected value per $1 staked
+      state.ev = ev; state.payoff = payoff;     // share with the Verdict synthesis
       // Kelly: f* = (p*b - q) / b, with b = net odds = u/d, q = 1-p
       var b = u / d;
       var kelly = (p * b - (1 - p)) / b;        // fraction of capital
@@ -806,6 +880,9 @@
       } else {
         narr.textContent = "Fractional Kelly is the humility discount: you bet less than the math says precisely because the probability was your guess, not a fact.";
       }
+
+      if (typeof scheduleMc === "function") { scheduleMc(); }
+      if (typeof updateVerdict === "function") { updateVerdict(); }
     }
 
     // =========================================================
@@ -1032,6 +1109,7 @@
         narr.textContent = "Ruin is rare here (" + Math.round(mcState.ruin * 100) + "%) and the median still compounds to " + fmtMult(mcState.median) + ". This is the sweet spot fractional Kelly is built to find — grow without dying.";
       }
       drawMonteCarlo();
+      if (typeof updateVerdict === "function") { updateVerdict(); }
     }
 
     function drawMonteCarlo() {
@@ -1266,6 +1344,9 @@
       } else {
         lbl.textContent = score; badge.classList.add("v-good"); badge.textContent = "ROBUST";
       }
+
+      sig.rtScore = score; sig.rtFatal = fatalFlag; sig.rtCount = rtItems.length;
+      if (typeof updateVerdict === "function") { updateVerdict(); }
     }
 
     // =========================================================
@@ -1308,6 +1389,130 @@
       else if (pct >= 75) { narr.textContent = "Mostly clear. Return to the unchecked boxes — that's the precise spot where a hidden bias is steering you."; }
       else if (pct >= 40) { narr.textContent = "Real holes remain. More than half-checked is not the same as clear-headed. Keep walking the list."; }
       else { narr.textContent = "Danger. You haven't yet interrogated your own thinking — the most expensive mistakes live right here."; }
+      sig.biasPct = pct;
+      if (typeof updateVerdict === "function") { updateVerdict(); }
+    }
+
+    // =========================================================
+    //  SCENARIO ARCHETYPE PRESETS
+    // =========================================================
+    Array.prototype.slice.call(document.querySelectorAll(".preset-btn")).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        inDown.value = btn.dataset.down;
+        inUp.value = btn.dataset.up;
+        inProb.value = btn.dataset.prob;
+        // set conviction tier
+        var frac = btn.dataset.tier;
+        Array.prototype.slice.call(tierBtns).forEach(function (b) {
+          var on = b.dataset.frac === frac;
+          b.classList.toggle("btn-primary", on);
+          b.classList.toggle("active", on);
+          b.classList.toggle("btn-outline-secondary", !on);
+          if (on) { state.tierFrac = parseFloat(frac); }
+        });
+        computeEngine();   // recomputes engine -> sizing -> schedules MC -> verdict
+        runMonteCarlo();   // refresh survival immediately for this archetype
+      });
+    });
+
+    // =========================================================
+    //  THE ALLOCATOR'S VERDICT — live composite synthesis
+    // =========================================================
+    var sig = { rtScore: 0, rtFatal: false, rtCount: 0, biasPct: 0 };
+
+    function clamp01(x) { return x < 0 ? 0 : (x > 1 ? 1 : x); }
+    function paintSignal(barId, valId, v) {
+      $(barId).style.width = v + "%";
+      $(valId).textContent = v;
+    }
+
+    function updateVerdict() {
+      var ev = (typeof state.ev === "number") ? state.ev : 0;
+      var payoff = (typeof state.payoff === "number") ? state.payoff : 1;
+      var noEdge = ev <= 0;
+
+      // 1) Edge / asymmetry
+      var evScore = noEdge ? 0 : clamp01(ev / 0.75);
+      var payoffScore = clamp01((payoff - 1) / 7);
+      var edge = Math.round((0.65 * evScore + 0.35 * payoffScore) * 100);
+
+      // 2) Survival (from most recent Monte Carlo run)
+      var survive;
+      if (mcState.ready) {
+        survive = Math.round(100 * (1 - mcState.ruin - 0.35 * mcState.loss));
+        if (survive < 0) { survive = 0; }
+      } else { survive = 60; }
+
+      // 3) Robustness (inverse fragility from the red team)
+      var robust;
+      if (sig.rtCount === 0) { robust = 45; }
+      else if (sig.rtFatal) { robust = 0; }
+      else { robust = Math.max(0, 100 - sig.rtScore); }
+
+      // 4) Clarity (bias firewall)
+      var clarity = sig.biasPct;
+
+      // composite, with hard vetoes
+      var composite = Math.round(0.40 * edge + 0.30 * survive + 0.20 * robust + 0.10 * clarity);
+      var veto = noEdge || sig.rtFatal;
+      if (veto) { composite = Math.min(composite, 18); }
+
+      paintSignal("sigEdgeBar", "sigEdgeVal", edge);
+      paintSignal("sigSurviveBar", "sigSurviveVal", survive);
+      paintSignal("sigRobustBar", "sigRobustVal", robust);
+      paintSignal("sigClarityBar", "sigClarityVal", clarity);
+
+      // gauge
+      $("verdictScore").textContent = composite;
+      var deg = (composite / 100) * 360;
+      $("verdictGauge").style.background =
+        "conic-gradient(var(--bs-primary) " + deg + "deg, var(--bs-border-color) " + deg + "deg)";
+
+      // call + rationale
+      var call = $("verdictCall"), rat = $("verdictRationale");
+      call.className = "verdict-call";
+      var headline, body;
+
+      if (noEdge) {
+        call.classList.add("v-bad"); headline = "PASS";
+        body = "Negative expected value — the machine vetoes. No amount of conviction, sizing, or narrative fixes a losing bet; the correct position is zero. Default to no.";
+      } else if (sig.rtFatal) {
+        call.classList.add("v-bad"); headline = "PASS";
+        body = "A likely, unrecoverable failure mode is on the board. Even with a genuine edge, one fatal risk caps this at a token position or a pass — survival is a gate, not a trade-off.";
+      } else {
+        // weakest-link diagnosis
+        var parts = [
+          { k: "edge", v: edge, msg: "The edge is the binding constraint — wait for a better price (more asymmetry) before you size up. Great allocators are professional passers." },
+          { k: "survive", v: survive, msg: "The edge is real but this sizing flirts with ruin — drop to a smaller Kelly fraction and re-run the simulator. You only get one path." },
+          { k: "robust", v: robust, msg: "The thesis is fragile under inversion — shore up the failure modes in the Red Team before committing capital." },
+          { k: "clarity", v: clarity, msg: "You haven't cleared your own biases yet — walk the Firewall before you trust this verdict. The operator is the risk." }
+        ];
+        parts.sort(function (a, b) { return a.v - b.v; });
+        var weak = parts[0];
+        if (sig.rtCount === 0) {
+          weak = { msg: "Solid on paper — but you haven't run the pre-mortem. Attack the thesis in the Red Team to firm up the robustness score before you commit." };
+        }
+
+        if (composite >= 70) {
+          call.classList.add("v-good"); headline = "GO — SIZE THE CONVICTION";
+          body = "Every organ of the machine agrees: real asymmetry, survivable sizing, a thesis that holds under attack, and a clear head. This is the rare configuration allocators wait years for — act with conviction, then be patient.";
+        } else if (composite >= 45) {
+          call.classList.add("v-mid"); headline = "GO SMALL — STARTER POSITION";
+          body = "A worthwhile bet with a soft spot. " + weak.msg;
+        } else {
+          call.classList.add("v-bad"); headline = "PASS / WATCHLIST";
+          body = "Not there yet. " + weak.msg;
+        }
+      }
+      call.textContent = headline;
+      rat.textContent = body;
+    }
+
+    // Debounced Monte Carlo re-run so survival stays honest as inputs change
+    var mcTimer;
+    function scheduleMc() {
+      clearTimeout(mcTimer);
+      mcTimer = setTimeout(function () { runMonteCarlo(); }, 220);
     }
 
     // =========================================================
