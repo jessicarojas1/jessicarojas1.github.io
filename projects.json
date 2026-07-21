@@ -1,5 +1,12 @@
 [
   {
+    "title": "MIDAS — The Billionaire Investor Brain",
+    "description": "An interactive decision operating system modeling how a billion-dollar allocator thinks — across four pillars: asymmetric bet identification, risk-adjusted thinking, conviction sizing, and patience architecture. Features a live Asymmetry Engine (expected value, payoff ratio, Kelly sizing), a fractional-Kelly conviction sizer, a browser-persisted conviction journal with invalidation triggers, a mental-models reference library, and a $0/72-hour build protocol.",
+    "image": "assets/images/portfolio_site.png",
+    "tags": ["Finance", "AI", "Decision Science", "JavaScript", "Kelly Criterion", "Mental Models"],
+    "link": "investorbrain.html"
+  },
+  {
     "title": "Sentinel QMS",
     "description": "Enterprise Quality Management System for aerospace, manufacturing & defense — AS9100D / ISO 9001, CMMC 2.0 L2, DFARS / NIST 800-171 — fully deployable to AWS GovCloud and Azure Government. 13 modules (documents, NCR/MRB, CAPA 8D, audits, supplier quality, calibration, training, change control, risk, FAI/AS9102, management review, complaints, KPIs). FastAPI + PostgreSQL API with immutable audit trail & 21 CFR Part 11 e-signatures, React/TypeScript SPA, and Terraform + Kubernetes IaC for both government clouds.",
     "image": "assets/images/sentinel_qms.png",
