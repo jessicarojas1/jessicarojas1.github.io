@@ -46,7 +46,7 @@ unmanaged debt.
 
 | # | Item | Location | Impact | Suggested remediation | Priority |
 |---|------|----------|--------|----------------------|----------|
-| TD-1 | **Runtime schema migrations run on every HTTP request.** A ~540-line `try { … }` block executes DDL-guard queries against `information_schema` and conditional `ALTER TABLE` / `CREATE TABLE` on *every* request before routing. | `index.php` lines **164–~700** (begins at the "Runtime schema migrations" comment, ends just before the health block ~694). 20+ `information_schema` probes (lines 168, 186, 210, 221, 249, 268, 289, 308, 319, 338, 349, 360, 371, 396, 414, 441, 452, 467, 523, 541, …). | Per-request latency (dozens of catalog lookups before any useful work); the front controller is bloated and hard to reason about; schema state is defined in *two* places (here **and** `database/schema.sql` / `database/migrations/`), so they can drift. | Move these guards into the authoritative installer (`install.php`) and the numbered migrations under `database/migrations/`. Gate the runtime block behind a one-time "schema version" check (a `schema_migrations` table) so it becomes a true no-op after first boot, or remove it entirely once `install.php` is the single source of truth. | **P1** |
+| TD-1 | **Reassessed + slimmed (Phase 26) — the `index.php` runtime schema block is version-gated, NOT per-request.** The block is gated by a `schema_runtime_state` table: it runs the full reconciliation once per `RUNTIME_SCHEMA_VERSION` and records the version at the **end** (fail-safe), so in steady state every request does just **one indexed SELECT** and skips the block entirely. It is a deliberate **self-heal safety net**, not per-request bloat — the earlier "runs on every request" framing was inaccurate. Phase 26 removed the block's **dead-module resurrections**: it was re-`CREATE`ing `account_reviews`/`account_review_items` and `ALTER`ing `change_requests`, all **dropped by migration 032** (removed modules, no controller/route/view). `schema.full.sql` also had `account_reviews` wrongly re-added in Phase 22; that was removed too. A fresh migrations-only install correctly does **not** contain these tables. | The runtime block in `index.php` (`if ($__runMigrations) { … }`), gated by the `schema_runtime_state` table. | No per-request cost of note (one indexed SELECT in steady state). Residual: redundant-but-harmless self-heal DDL for **live** tables (all also created by `database/schema.sql` + `database/migrations/`) plus data seeds/backfills — a drift surface, now **CI-guarded by `scripts/verify_fresh_schema.php`** (Phase 25). | Optional future cleanup: drop the live-table `CREATE`/`ALTER` self-heal once confident every deploy runs `install.php` (migrations). Low priority — the block is a safety net, not a defect. | **P3** |
 | TD-2 | **RESOLVED — per-request `active_sessions` UPSERT now throttled.** The write is gated on a session-stored timestamp (`ACTIVE_SESSION_WRITE_INTERVAL = 60s`), so an authenticated session writes `last_seen_at` at most once per minute instead of on every request. Session validity/revocation are governed by `users.sessions_revoked_at` in `Auth::requireAuth`, not this row, so throttling can't affect auth. Verified against live Postgres (last_seen_at frozen across 4 requests over 5s; one row). | `index.php` (active-session tracking block). | n/a — closed. | n/a | **DONE** |
 | TD-3 | **Linear dynamic-route matching.** Dynamic routes are matched by iterating every pattern and running `preg_match` until one hits. | `index.php` lines **1211–1218** (`foreach ($dynamicRoutes[$method] ?? [] as $pattern => …) { if (preg_match(...)) … }`). | O(n) regex evaluations per unmatched/late-matched request across a 407-route app. Currently fine at this scale; degrades as routes grow and inflates 404 cost (every miss runs the full loop). | Acceptable for now. If route count keeps growing, bucket dynamic routes by first path segment, or compile a single combined regex with named groups. Document as a deliberate simplicity tradeoff until then. | **P3** |
 | TD-4 | **Schema defined in three places** that must be hand-kept in sync. | `database/schema.sql`, `database/migrations/` (38 files, latest `038_promote_runtime_schema.sql`), **and** the runtime block in `index.php` (TD-1). | CLAUDE.md rule #3 mandates `schema.sql` always reflect the combined migrations; with a third runtime source the invariant is harder to hold and drift is silent until a fresh deploy diverges from a long-running one. | Collapse to two sources (migrations as the record of change; `schema.sql` as the generated/maintained snapshot). Eliminating TD-1 also resolves the third source here. | **P1** (tracks with TD-1) |
@@ -162,10 +162,12 @@ limitation items it resolves.
   draining.* This is the single highest-leverage operational fix — without it,
   time-based GRC features silently don't run.
 
-- **FE-2 · Retire the per-request runtime migration block.** Make `install.php` +
-  numbered migrations the single schema source; gate or delete the `index.php`
-  runtime DDL behind a `schema_migrations` version check. *Resolves TD-1 and
-  TD-4; removes the largest per-request overhead and a class of schema drift.*
+- **FE-2 · Retire the runtime schema self-heal block.** The block is already
+  version-gated (`schema_runtime_state`) and Phase 26 removed its dead-module
+  resurrections, so the remaining work is to make `install.php` + numbered
+  migrations the single schema source and drop the live-table self-heal DDL.
+  *Advances TD-1 (now P3) and TD-4; removes a class of schema drift.* Low
+  priority — the block is a self-heal safety net, not per-request overhead.
 
 - **FE-3 · Make the app horizontally scalable.** Switch sessions to the existing
   `PgSessionHandler` (migration 030) as the default and move evidence storage to
@@ -230,14 +232,14 @@ limitation items it resolves.
 
 | Category | Count | Highest priority |
 |---|---|---|
-| Technical Debt Register items (§2) | 12 (TD-1…TD-12) | 4 × P1 (TD-1, TD-4, TD-8, TD-10) |
+| Technical Debt Register items (§2) | 12 (TD-1…TD-12) | 3 × P1 (TD-4, TD-8, TD-10) |
 | Known Limitations (§3) | 10 (KL-1…KL-10) | n/a — intentional boundaries |
 | Future Enhancements (§4) | 12 (FE-1…FE-12) | 4 × P1 (FE-1…FE-4) |
 
 **Headline.** AEGIS is a well-built, security-clean application (MODERNIZATION.md
 baseline 6.5–7.4; zero loose `TODO`s in-tree). Its debt is **architectural and
-operational**, not sloppiness: the per-request runtime migration block (TD-1), the
-un-provisioned background scheduler (TD-10), the absent caching/pagination layers
-(TD-5/TD-6), and a handful of documentation-drift fixes (TD-8). The four P1 items
+operational**, not sloppiness: the un-provisioned background scheduler (TD-10),
+the absent caching/pagination layers (TD-5/TD-6), and a handful of
+documentation-drift fixes (TD-8). The four P1 items
 in FE-1…FE-4 are the right first sprint — they are correctness/operational
 foundations, each cheap-to-moderate, and they unblock most of the P2 work.
