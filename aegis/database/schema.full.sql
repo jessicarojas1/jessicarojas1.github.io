@@ -5098,10 +5098,19 @@ CREATE TABLE IF NOT EXISTS aegis.vendors (
     notes text,
     owner_id integer,
     created_by integer,
+    vendor_code character varying(20),
+    risk_tier character varying(20) DEFAULT 'medium'::character varying,
+    primary_contact character varying(255),
+    country character varying(100),
+    data_access boolean DEFAULT false NOT NULL,
+    critical_service boolean DEFAULT false NOT NULL,
+    contract_start date,
+    contract_end date,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     tenant_id bigint DEFAULT 1 NOT NULL,
     CONSTRAINT vendors_risk_rating_check CHECK (((risk_rating)::text = ANY ((ARRAY['critical'::character varying, 'high'::character varying, 'medium'::character varying, 'low'::character varying])::text[]))),
+    CONSTRAINT vendors_risk_tier_check CHECK (((risk_tier)::text = ANY ((ARRAY['critical'::character varying, 'high'::character varying, 'medium'::character varying, 'low'::character varying])::text[]))),
     CONSTRAINT vendors_status_check CHECK (((status)::text = ANY ((ARRAY['active'::character varying, 'inactive'::character varying, 'under_review'::character varying])::text[])))
 );
 
