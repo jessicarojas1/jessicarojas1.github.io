@@ -2790,6 +2790,26 @@ HTML;
                     'document_expiring'          => 'document',
                     'assessment_pending_stale'   => 'risk',
                     'evidence_expiring'          => 'evidence_files',
+                    // Newer types (must match each section's own logNotification
+                    // entity_type so digest sends throttle identically to
+                    // immediate sends — otherwise digest users are re-spammed).
+                    'policy_expiring'            => 'policy',
+                    'risk_acceptance_expiring'   => 'risk_acceptance',
+                    'kri_breached'               => 'kri',
+                    'kri_measurement_overdue'    => 'kri',
+                    'incident_sla_breach'        => 'incident',
+                    'bcp_exercise_overdue'       => 'bcp_exercise',
+                    'bcp_plan_review_due'        => 'bcp_plan',
+                    'poam_item_overdue'          => 'poam_item',
+                    'awareness_training_overdue' => 'awareness_assignment',
+                    'control_retest_due'         => 'compliance_objective',
+                    'finding_remediation_overdue'=> 'audit_finding',
+                    'audit_schedule_overdue'     => 'audit',
+                    'policy_attestation_overdue' => 'policy_attestation_campaign',
+                    'ssp_review_overdue'         => 'ssp_plan',
+                    'asset_review_overdue'       => 'asset',
+                    'vendor_cert_expiring'       => 'vendor_certification',
+                    'vendor_contract_expiring'   => 'vendor_contract',
                     default                      => 'entity',
                 };
                 // Determine entity_id from data — best-effort
@@ -2806,6 +2826,25 @@ HTML;
                     'document_expiring'          => (int) ($data['document']['id'] ?? 0),
                     'assessment_pending_stale'   => (int) ($data['risk']['id'] ?? 0),
                     'evidence_expiring'          => (int) ($data['evidence']['id'] ?? 0),
+                    // Newer types — id path matches each section's queued data + its
+                    // logNotification id field (verified per-section).
+                    'policy_expiring'            => (int) ($data['policy']['id'] ?? 0),
+                    'risk_acceptance_expiring'   => (int) ($data['acceptance']['id'] ?? 0),
+                    'kri_breached'               => (int) ($data['kri']['id'] ?? 0),
+                    'kri_measurement_overdue'    => (int) ($data['kri']['id'] ?? 0),
+                    'incident_sla_breach'        => (int) ($data['incident']['id'] ?? 0),
+                    'bcp_exercise_overdue'       => (int) ($data['exercise']['id'] ?? 0),
+                    'bcp_plan_review_due'        => (int) ($data['plan']['id'] ?? 0),
+                    'poam_item_overdue'          => (int) ($data['item']['id'] ?? 0),
+                    'awareness_training_overdue' => (int) ($data['assignment']['assignment_id'] ?? 0),
+                    'control_retest_due'         => (int) ($data['control']['id'] ?? 0),
+                    'finding_remediation_overdue'=> (int) ($data['finding']['id'] ?? 0),
+                    'audit_schedule_overdue'     => (int) ($data['audit']['id'] ?? 0),
+                    'policy_attestation_overdue' => (int) ($data['campaign']['campaign_id'] ?? 0),
+                    'ssp_review_overdue'         => (int) ($data['ssp']['id'] ?? 0),
+                    'asset_review_overdue'       => (int) ($data['asset']['id'] ?? 0),
+                    'vendor_cert_expiring'       => (int) ($data['certification']['id'] ?? 0),
+                    'vendor_contract_expiring'   => (int) ($data['contract']['id'] ?? 0),
                     default                      => 0,
                 };
 
