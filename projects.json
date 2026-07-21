@@ -1,5 +1,12 @@
 [
   {
+    "title": "MIDAS — The Billionaire Investor Brain",
+    "description": "An interactive decision operating system modeling how a billion-dollar allocator thinks — four pillars (asymmetric bet identification, risk-adjusted thinking, conviction sizing, patience architecture) plus five advanced faculties: a Bayesian base-rate updater, a Monte Carlo survival simulator (canvas fan-chart of fractional-Kelly lifetimes with ruin/drawdown stats), a time-arbitrage compounding engine, a pre-mortem inversion red team with a live fragility score, and a cognitive-bias firewall. It all converges in The Allocator's Verdict — a live composite scorecard fusing edge, survival, robustness and clarity into one GO / SIZE-DOWN / PASS conviction gauge (with hard vetoes on negative EV or a fatal risk), driven by one-click scenario archetypes. Also a live Asymmetry Engine (EV, payoff ratio, Kelly sizing), a conviction sizer, and a browser-persisted conviction journal with invalidation triggers. Hand-rolled HiDPI canvas charts, theme-aware, CSP-compliant, zero backend.",
+    "image": "assets/images/portfolio_site.png",
+    "tags": ["Finance", "AI", "Decision Science", "JavaScript", "Kelly Criterion", "Monte Carlo", "Bayesian", "Mental Models"],
+    "link": "investorbrain.html"
+  },
+  {
     "title": "Sentinel QMS",
     "description": "Enterprise Quality Management System for aerospace, manufacturing & defense — AS9100D / ISO 9001, CMMC 2.0 L2, DFARS / NIST 800-171 — fully deployable to AWS GovCloud and Azure Government. 13 modules (documents, NCR/MRB, CAPA 8D, audits, supplier quality, calibration, training, change control, risk, FAI/AS9102, management review, complaints, KPIs). FastAPI + PostgreSQL API with immutable audit trail & 21 CFR Part 11 e-signatures, React/TypeScript SPA, and Terraform + Kubernetes IaC for both government clouds.",
     "image": "assets/images/sentinel_qms.png",

@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; worker-src blob:; object-src 'none'; base-uri 'self';">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>MIDAS — The Billionaire Investor Brain | Jessica Rojas</title>
+  <meta name="description" content="MIDAS — a decision operating system that models how a billion-dollar allocator thinks: asymmetric bet identification, risk-adjusted expected value, conviction sizing, and patience architecture." />
+  <meta property="og:title" content="MIDAS — The Billionaire Investor Brain" />
+  <meta property="og:description" content="Don't study venture capital — think like a billionaire allocator. An interactive cognitive system for asymmetric bets, conviction sizing, and patience." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jessicarojas1.github.io/investorbrain.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="MIDAS — The Billionaire Investor Brain" />
+  <meta name="twitter:description" content="An interactive cognitive system: asymmetric bets, risk-adjusted thinking, conviction sizing, patience architecture." />
+  <style>
+    /* ===== MIDAS — app-specific styling (built on theme.css custom properties) ===== */
+    .midas-hero { position: relative; overflow: hidden; }
+    .midas-kicker {
+      display:inline-block; font-size:.72rem; letter-spacing:.28em; text-transform:uppercase;
+      color: var(--bs-primary); font-weight:700; margin-bottom:.75rem;
+      border:1px solid rgba(var(--bs-primary-rgb), .35); border-radius:999px; padding:.3rem .9rem;
+      background: rgba(var(--bs-primary-rgb), .08);
+    }
+    .midas-quote {
+      border-left:3px solid var(--bs-primary); padding:.4rem 0 .4rem 1rem;
+      color: var(--bs-secondary-color); font-style:italic; max-width:620px; margin:1rem auto 0;
+    }
+    .section-eyebrow {
+      font-size:.72rem; letter-spacing:.24em; text-transform:uppercase; font-weight:700;
+      color: var(--bs-primary); margin-bottom:.35rem;
+    }
+    .section-title { font-weight:800; letter-spacing:-.02em; }
+
+    /* Cognitive map */
+    .cog-map { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1rem; }
+    .cog-node {
+      position:relative; border:1px solid var(--bs-border-color); border-radius:14px;
+      padding:1.15rem 1.1rem; background: var(--bs-tertiary-bg);
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .cog-node:hover { transform: translateY(-4px); border-color: var(--bs-primary); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .cog-node .num {
+      font-size:.72rem; font-weight:800; letter-spacing:.14em; color: var(--bs-primary);
+      opacity:.85; text-transform:uppercase;
+    }
+    .cog-node h3 { font-size:1.05rem; font-weight:800; margin:.35rem 0 .5rem; }
+    .cog-node p { font-size:.9rem; color: var(--bs-secondary-color); margin:0; }
+    .cog-node .icon { font-size:1.5rem; line-height:1; }
+
+    .faculty-strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.6rem; }
+    .faculty {
+      border:1px dashed var(--bs-border-color); border-radius:10px; padding:.7rem .8rem;
+      background: rgba(var(--bs-primary-rgb), .03);
+    }
+    .faculty strong { display:block; font-size:.82rem; }
+    .faculty span { font-size:.76rem; color: var(--bs-secondary-color); }
+
+    /* Engine */
+    .engine-card { border:1px solid var(--bs-border-color); border-radius:16px; background: var(--bs-body-bg); }
+    .engine-readout {
+      border:1px solid var(--bs-border-color); border-radius:12px; padding:1rem;
+      background: var(--bs-tertiary-bg); height:100%;
+    }
+    .metric { text-align:center; padding:.5rem; }
+    .metric .val { font-size:1.6rem; font-weight:800; line-height:1.1; }
+    .metric .lbl { font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; color: var(--bs-secondary-color); }
+    .verdict-badge { font-size:.95rem; font-weight:800; padding:.55rem 1rem; border-radius:10px; display:inline-block; }
+    .v-good  { background: rgba(25,135,84,.18);  color:#2ec77a; border:1px solid rgba(25,135,84,.4); }
+    .v-mid   { background: rgba(255,193,7,.16);   color:#ffca2c; border:1px solid rgba(255,193,7,.4); }
+    .v-bad   { background: rgba(220,53,69,.16);   color:#ff6b7a; border:1px solid rgba(220,53,69,.4); }
+    .payoff-bar { height:14px; border-radius:8px; overflow:hidden; display:flex; background: var(--bs-border-color); }
+    .payoff-bar .down { background: rgba(220,53,69,.75); }
+    .payoff-bar .up   { background: rgba(25,135,84,.75); }
+
+    .principle {
+      border:1px solid var(--bs-border-color); border-radius:12px; padding:1rem 1.1rem; height:100%;
+      background: var(--bs-tertiary-bg); transition: border-color .18s ease, transform .18s ease;
+    }
+    .principle:hover { border-color: var(--bs-primary); transform: translateY(-3px); }
+    .principle .who { font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color: var(--bs-primary); font-weight:700; }
+    .principle h4 { font-size:1rem; font-weight:800; margin:.25rem 0 .45rem; }
+    .principle p { font-size:.86rem; color: var(--bs-secondary-color); margin:0; }
+
+    .protocol-step { display:flex; gap:1rem; padding:1rem 0; border-bottom:1px solid var(--bs-border-color); }
+    .protocol-step:last-child { border-bottom:0; }
+    .protocol-step .hh {
+      flex:0 0 auto; width:66px; font-weight:800; color: var(--bs-primary); font-size:.9rem;
+      border-right:2px solid rgba(var(--bs-primary-rgb),.35); padding-right:.75rem;
+    }
+    .protocol-step .body h4 { font-size:1rem; font-weight:800; margin:0 0 .25rem; }
+    .protocol-step .body p { font-size:.88rem; color: var(--bs-secondary-color); margin:0; }
+
+    .journal-item { border:1px solid var(--bs-border-color); border-radius:12px; padding:.9rem 1rem; margin-bottom:.75rem; background: var(--bs-tertiary-bg); }
+    .journal-item .thesis { font-weight:700; }
+    .journal-item .meta { font-size:.76rem; color: var(--bs-secondary-color); }
+    .kill-trigger { font-size:.82rem; border-left:3px solid rgba(220,53,69,.6); padding-left:.6rem; margin-top:.5rem; color: var(--bs-body-color); }
+    .tier-pill { cursor:pointer; }
+    .stat-band { border-top:1px solid var(--bs-border-color); border-bottom:1px solid var(--bs-border-color); }
+    .big-num { font-size:2.2rem; font-weight:800; color: var(--bs-primary); line-height:1; }
+    code.inline { background: rgba(var(--bs-primary-rgb),.1); color: var(--bs-primary); padding:.1rem .35rem; border-radius:5px; font-size:.85em; }
+
+    /* ===== Advanced modules ===== */
+    .adv-band { background: linear-gradient(180deg, rgba(var(--bs-primary-rgb),.05), transparent 55%); }
+    .canvas-wrap { position:relative; width:100%; border:1px solid var(--bs-border-color); border-radius:12px; background: var(--bs-tertiary-bg); padding:.5rem; }
+    .canvas-wrap canvas { display:block; width:100%; height:auto; }
+    .mini-legend { display:flex; flex-wrap:wrap; gap:.9rem; font-size:.74rem; color: var(--bs-secondary-color); }
+    .mini-legend .dot { display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:.3rem; vertical-align:middle; }
+    .redteam-item { border:1px solid var(--bs-border-color); border-radius:10px; padding:.6rem .8rem; margin-bottom:.55rem; background: var(--bs-tertiary-bg); }
+    .redteam-item .rt-mode { font-weight:600; font-size:.9rem; }
+    .sev-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:.35rem; }
+    .bias-firewall .form-check { padding:.35rem .5rem .35rem 2rem; border:1px solid var(--bs-border-color); border-radius:9px; margin-bottom:.5rem; background: var(--bs-tertiary-bg); }
+    .bias-firewall .form-check-label { font-size:.86rem; }
+    .bias-firewall .form-check-label small { display:block; color: var(--bs-secondary-color); font-size:.76rem; }
+    .clarity-meter { height:12px; border-radius:8px; background: var(--bs-border-color); overflow:hidden; }
+    .clarity-meter > span { display:block; height:100%; background: var(--bs-primary); transition: width .25s ease; }
+    .adv-tag { font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:800; color: var(--bs-primary); }
+
+    /* ===== Presets + Verdict capstone ===== */
+    .preset-row { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .preset-btn { font-size:.78rem; }
+    .verdict-wrap { background: linear-gradient(180deg, rgba(var(--bs-primary-rgb),.08), transparent 60%); border:1px solid var(--bs-border-color); border-radius:18px; }
+    .gauge { width:172px; height:172px; border-radius:50%; display:grid; place-items:center; margin:0 auto;
+      background: conic-gradient(var(--bs-primary) 0deg, var(--bs-border-color) 0deg); transition: background .4s ease; }
+    .gauge-inner { width:130px; height:130px; border-radius:50%; background: var(--bs-body-bg); display:grid; place-items:center; text-align:center; }
+    .gauge-inner .g-num { font-size:2.6rem; font-weight:800; line-height:1; color: var(--bs-primary); }
+    .gauge-inner .g-lbl { font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color: var(--bs-secondary-color); }
+    .signal-row { display:flex; align-items:center; gap:.7rem; margin-bottom:.7rem; }
+    .signal-row .s-name { flex:0 0 118px; font-size:.82rem; font-weight:600; }
+    .signal-row .s-bar { flex:1 1 auto; height:10px; border-radius:6px; background: var(--bs-border-color); overflow:hidden; }
+    .signal-row .s-bar > span { display:block; height:100%; background: var(--bs-primary); width:0%; transition: width .35s ease; }
+    .signal-row .s-val { flex:0 0 42px; text-align:right; font-size:.82rem; font-weight:700; font-variant-numeric:tabular-nums; }
+    .verdict-call { font-size:1.15rem; font-weight:800; padding:.6rem 1.15rem; border-radius:12px; display:inline-block; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link active" href="projects.html" aria-current="page">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="irad.html">IRAD</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- ===== HERO ===== -->
+    <section class="hero-section midas-hero reveal">
+      <div class="container text-center">
+        <span class="midas-kicker">MIDAS · Mental Investment Decision &amp; Allocation System</span>
+        <h1>The Billionaire Investor Brain</h1>
+        <p class="lead">You have <strong>$0</strong> and <strong>72 hours</strong>. No fund. No portfolio. No track record.
+          You don't need any of that yet — because the scarce asset was never capital. It's the way an allocator <em>thinks</em>.</p>
+        <p class="midas-quote">"Don't study venture capital. Build the cognitive machine that a billion-dollar allocator runs — asymmetric bet identification, risk-adjusted thinking, conviction sizing, and patience architecture — then point it at the world."</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap mt-4">
+          <a href="#engine" class="btn btn-primary">Run the Asymmetry Engine</a>
+          <a href="#map" class="btn btn-outline-secondary">See the Cognitive Map</a>
+          <a href="projects.html" class="btn btn-outline-secondary">← All Projects</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== THE PREMISE ===== -->
+    <section class="container py-5 reveal">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-5">
+          <div class="section-eyebrow">The Premise</div>
+          <h2 class="section-title mb-3">Capital is not the constraint. Judgment is.</h2>
+          <p class="text-secondary">A billion-dollar allocator and a broke beginner face the exact same decision every day: <em>where does the next unit of scarce resource go, and why?</em> For the allocator that unit is a dollar. For you, right now, it's an hour of attention. The <strong>operating system is identical</strong> — the allocator just runs it with more zeros.</p>
+          <p class="text-secondary mb-0">MIDAS is that operating system, made explicit and interactive. Four pillars, a set of faculties that feed them, and tools you can actually run against a real decision.</p>
+        </div>
+        <div class="col-lg-7">
+          <div class="row g-3 text-center stat-band py-4">
+            <div class="col-6 col-md-3">
+              <div class="big-num">$0</div>
+              <div class="small text-secondary">Starting capital<br>required</div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="big-num">72h</div>
+              <div class="small text-secondary">To wire the<br>machine</div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="big-num">4</div>
+              <div class="small text-secondary">Cognitive<br>pillars</div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="big-num">1</div>
+              <div class="small text-secondary">Decision rule<br>that governs all</div>
+            </div>
+          </div>
+          <p class="text-center small text-secondary mt-3 mb-0">The single governing rule: <code class="inline">Only act when the payoff is asymmetric and you can survive being wrong.</code></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== COGNITIVE MAP ===== -->
+    <section class="container py-5 reveal" id="map">
+      <div class="text-center mb-4">
+        <div class="section-eyebrow">The Cognitive System</div>
+        <h2 class="section-title">Map of the entire machine</h2>
+        <p class="text-secondary mx-auto" style="max-width:640px">Four pillars run in sequence — <strong>find the asymmetry → price the risk → size the conviction → wait</strong> — and each is fed by a set of underlying mental faculties. Hover any node.</p>
+      </div>
+
+      <div class="cog-map mb-4">
+        <div class="cog-node">
+          <div class="icon">🎯</div>
+          <div class="num">Pillar 01</div>
+          <h3>Asymmetric Bet Identification</h3>
+          <p>Hunt for situations where the upside dwarfs the downside — heads I win big, tails I lose little. Ignore everything symmetric. Convexity over consensus.</p>
+        </div>
+        <div class="cog-node">
+          <div class="icon">⚖️</div>
+          <div class="num">Pillar 02</div>
+          <h3>Risk-Adjusted Thinking</h3>
+          <p>Translate every opportunity into probability × payoff. Expected value, base rates, margin of safety, and a pre-mortem before you ever count the win.</p>
+        </div>
+        <div class="cog-node">
+          <div class="icon">📐</div>
+          <div class="num">Pillar 03</div>
+          <h3>Conviction Sizing</h3>
+          <p>The idea and the bet size are two different decisions. Size to edge and survivability — Kelly-anchored, fractionally applied, never bet-the-farm.</p>
+        </div>
+        <div class="cog-node">
+          <div class="icon">🕰️</div>
+          <div class="num">Pillar 04</div>
+          <h3>Patience Architecture</h3>
+          <p>Engineer your environment so the default action is <em>nothing</em>. Long horizons, few swings, and pre-committed triggers that act for you.</p>
+        </div>
+      </div>
+
+      <div class="section-eyebrow text-center mb-2">Underlying Faculties</div>
+      <div class="faculty-strip">
+        <div class="faculty"><strong>Inversion</strong><span>Study how it fails first.</span></div>
+        <div class="faculty"><strong>Second-level thinking</strong><span>What does the crowd miss?</span></div>
+        <div class="faculty"><strong>Base rates</strong><span>Anchor to the reference class.</span></div>
+        <div class="faculty"><strong>Reflexivity</strong><span>Perception moves the fundamentals.</span></div>
+        <div class="faculty"><strong>Circle of competence</strong><span>Know the edge of your edge.</span></div>
+        <div class="faculty"><strong>Optionality</strong><span>Cheap exposure to big upside.</span></div>
+        <div class="faculty"><strong>Opportunity cost</strong><span>Every yes is a thousand no's.</span></div>
+        <div class="faculty"><strong>Emotional neutrality</strong><span>Volatility ≠ risk.</span></div>
+      </div>
+    </section>
+
+    <!-- ===== ENGINE: PILLARS 1 + 2 ===== -->
+    <section class="container py-5 reveal" id="engine">
+      <div class="text-center mb-4">
+        <div class="section-eyebrow">Pillars 01 + 02 · Interactive</div>
+        <h2 class="section-title">The Asymmetry Engine</h2>
+        <p class="text-secondary mx-auto" style="max-width:660px">Describe any bet in three numbers. The engine prices the asymmetry, the expected value, and the mathematically rational bet size — the same arithmetic behind every great allocation.</p>
+      </div>
+
+      <div class="mb-3 text-center">
+        <div class="small text-secondary mb-2" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em">Load an archetype</div>
+        <div class="preset-row justify-content-center" id="presetRow">
+          <button type="button" class="btn btn-sm btn-outline-primary preset-btn" data-down="35" data-up="900" data-prob="18" data-tier="0.25">🚀 Asymmetric Moonshot</button>
+          <button type="button" class="btn btn-sm btn-outline-primary preset-btn" data-down="20" data-up="120" data-prob="62" data-tier="0.5">🛡️ Margin-of-Safety Value</button>
+          <button type="button" class="btn btn-sm btn-outline-primary preset-btn" data-down="55" data-up="60" data-prob="52" data-tier="0.25">🐑 Crowded Momentum Trap</button>
+          <button type="button" class="btn btn-sm btn-outline-primary preset-btn" data-down="50" data-up="50" data-prob="50" data-tier="0.1">🪙 Coin-Flip · No Edge</button>
+        </div>
+      </div>
+
+      <div class="engine-card p-3 p-md-4">
+        <div class="row g-4">
+          <!-- Inputs -->
+          <div class="col-lg-5">
+            <h5 class="fw-bold mb-3">Describe the bet</h5>
+
+            <label for="inDownside" class="form-label small fw-semibold mb-1">Downside — % of stake you lose if wrong <span class="text-secondary">(<span id="outDownside">40</span>%)</span></label>
+            <input type="range" class="form-range" id="inDownside" min="1" max="100" step="1" value="40">
+
+            <label for="inUpside" class="form-label small fw-semibold mb-1 mt-3">Upside — % gain on stake if right <span class="text-secondary">(<span id="outUpside">300</span>%)</span></label>
+            <input type="range" class="form-range" id="inUpside" min="5" max="2000" step="5" value="300">
+
+            <label for="inProb" class="form-label small fw-semibold mb-1 mt-3">Probability you're right <span class="text-secondary">(<span id="outProb">35</span>%)</span></label>
+            <input type="range" class="form-range" id="inProb" min="1" max="99" step="1" value="35">
+
+            <div class="mt-4">
+              <div class="d-flex justify-content-between small text-secondary mb-1">
+                <span>Lose <span id="barDownLbl">40</span>%</span>
+                <span>Win <span id="barUpLbl">300</span>%</span>
+              </div>
+              <div class="payoff-bar" aria-hidden="true">
+                <div class="down" id="barDown" style="width:12%"></div>
+                <div class="up" id="barUp" style="width:88%"></div>
+              </div>
+              <p class="small text-secondary mt-2 mb-0">The bar shows raw payoff geometry — how much bigger the win is than the loss, before probability.</p>
+            </div>
+          </div>
+
+          <!-- Readout -->
+          <div class="col-lg-7">
+            <div class="engine-readout">
+              <div class="row g-2 mb-3">
+                <div class="col-4"><div class="metric"><div class="val" id="mPayoff">7.5×</div><div class="lbl">Payoff Ratio</div></div></div>
+                <div class="col-4"><div class="metric"><div class="val" id="mEV">+$1.19</div><div class="lbl">EV per $1</div></div></div>
+                <div class="col-4"><div class="metric"><div class="val" id="mKelly">27%</div><div class="lbl">Kelly Size</div></div></div>
+              </div>
+              <div class="text-center mb-3">
+                <span class="verdict-badge v-good" id="verdict">ASYMMETRIC — this is the kind of bet allocators hunt for</span>
+              </div>
+              <hr class="my-3">
+              <p class="small mb-2" id="engineNarr">At these numbers, a rational allocator would take this bet repeatedly — the expected value is strongly positive and the upside is many times the downside.</p>
+              <ul class="small text-secondary mb-0" id="engineNotes">
+                <li><strong>Expected value</strong> = p × upside − (1−p) × downside. Positive means the bet pays over many repetitions.</li>
+                <li><strong>Payoff ratio</strong> = upside ÷ downside. Allocators want this large so they can be wrong often and still win.</li>
+                <li><strong>Kelly size</strong> = the fraction of capital that maximizes long-run growth. Most pros bet a <em>fraction</em> of it (see below).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="small text-secondary mt-2 mb-0 text-center">Educational model, not investment advice. Real bets have fat tails, correlation, and unknown probabilities — which is exactly why the next two pillars exist.</p>
+    </section>
+
+    <!-- ===== PILLAR 3: CONVICTION SIZING ===== -->
+    <section class="container py-5 reveal" id="sizing">
+      <div class="text-center mb-4">
+        <div class="section-eyebrow">Pillar 03 · Interactive</div>
+        <h2 class="section-title">Conviction Sizing</h2>
+        <p class="text-secondary mx-auto" style="max-width:660px">The great insight amateurs miss: <em>being right</em> and <em>how much to bet</em> are two separate decisions. Full Kelly is theoretically optimal and practically reckless — the pros scale it by conviction and how much error they can absorb.</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="engine-readout">
+            <h5 class="fw-bold mb-3">Your conviction tier</h5>
+            <div class="d-flex flex-wrap gap-2 mb-3" id="tierGroup">
+              <button type="button" class="btn btn-sm btn-outline-secondary tier-pill" data-frac="0.1">Watchlist · 1/10 Kelly</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary tier-pill" data-frac="0.25">Starter · 1/4 Kelly</button>
+              <button type="button" class="btn btn-sm btn-primary tier-pill active" data-frac="0.5">Conviction · 1/2 Kelly</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary tier-pill" data-frac="1">All-in · Full Kelly</button>
+            </div>
+            <label for="inBankroll" class="form-label small fw-semibold mb-1">Investable capital ($)</label>
+            <input type="number" class="form-control mb-3" id="inBankroll" value="10000" min="0" step="100">
+            <p class="small text-secondary mb-0">Kelly fraction is pulled live from the Asymmetry Engine above. Change the sliders and this recomputes.</p>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="engine-readout text-center d-flex flex-column justify-content-center">
+            <div class="lbl small text-secondary text-uppercase mb-1" style="letter-spacing:.08em">Recommended position</div>
+            <div class="big-num mb-1" id="sizeDollar" style="font-size:2.8rem">$1,350</div>
+            <div class="small text-secondary mb-3"><span id="sizePct">13.5</span>% of capital · <span id="sizeTier">1/2 Kelly</span></div>
+            <div class="payoff-bar mb-2" aria-hidden="true">
+              <div class="up" id="sizeBar" style="width:13.5%; background:var(--bs-primary)"></div>
+            </div>
+            <p class="small text-secondary mb-0" id="sizeNarr">Half-Kelly captures ~75% of the growth rate with a fraction of the drawdown. When probabilities are uncertain — always — bet less than the math says.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PILLAR 4: PATIENCE ARCHITECTURE + JOURNAL ===== -->
+    <section class="container py-5 reveal" id="patience">
+      <div class="text-center mb-4">
+        <div class="section-eyebrow">Pillar 04 · Interactive</div>
+        <h2 class="section-title">Patience Architecture</h2>
+        <p class="text-secondary mx-auto" style="max-width:680px">You cannot <em>will</em> yourself to be patient under greed and fear. You <strong>engineer</strong> it: make inaction the default, pre-commit the exit before you enter, and write the thesis down so a future, calmer version of you can hold the line. This is the decision journal a disciplined allocator keeps.</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-5">
+          <div class="engine-readout">
+            <h5 class="fw-bold mb-3">Log a conviction</h5>
+            <form id="journalForm">
+              <label for="jThesis" class="form-label small fw-semibold mb-1">Thesis — one sentence</label>
+              <input type="text" class="form-control mb-2" id="jThesis" maxlength="160" placeholder="Why is this asymmetric and non-consensus?" required>
+
+              <label for="jKill" class="form-label small fw-semibold mb-1">Invalidation trigger — what proves you wrong</label>
+              <input type="text" class="form-control mb-2" id="jKill" maxlength="160" placeholder="I exit if… (a fact, not a price wobble)" required>
+
+              <div class="row g-2">
+                <div class="col-6">
+                  <label for="jHorizon" class="form-label small fw-semibold mb-1">Horizon</label>
+                  <select class="form-select" id="jHorizon">
+                    <option>1–2 yrs</option>
+                    <option selected>3–5 yrs</option>
+                    <option>5–10 yrs</option>
+                    <option>10 yr+ / forever</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label for="jConv" class="form-label small fw-semibold mb-1">Conviction</label>
+                  <select class="form-select" id="jConv">
+                    <option>Watchlist</option>
+                    <option>Starter</option>
+                    <option selected>Conviction</option>
+                    <option>Table-pounder</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 mt-3">Commit to the journal</button>
+              <p class="small text-secondary mt-2 mb-0">Stored privately in your browser (localStorage). Nothing leaves this device.</p>
+            </form>
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="fw-bold mb-0">Conviction journal</h5>
+            <button type="button" class="btn btn-sm btn-outline-danger" id="clearJournal" style="display:none">Clear all</button>
+          </div>
+          <div id="journalList">
+            <div class="text-secondary small fst-italic" id="journalEmpty">No entries yet. The point isn't to fill it — a billion-dollar allocator might log a handful of real convictions a year. Patience is the strategy.</div>
+          </div>
+          <div class="mt-3 p-3" style="border:1px dashed var(--bs-border-color); border-radius:12px; background:rgba(var(--bs-primary-rgb),.03)">
+            <div class="small fw-bold mb-1">The patience rules the environment enforces for you</div>
+            <ul class="small text-secondary mb-0">
+              <li><strong>Default to no.</strong> The at-bats you skip cost nothing; the ones you swing at can cost everything.</li>
+              <li><strong>Pre-commit the exit.</strong> Decide what kills the thesis <em>before</em> emotion is in the room.</li>
+              <li><strong>Judge the decision, not the outcome.</strong> A good bet can lose; a bad bet can win. Grade the process.</li>
+              <li><strong>Do nothing, profitably.</strong> Time in a compounding asset beats timing. Patience is a position.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ADVANCED FACULTIES BAND ===== -->
+    <div class="adv-band">
+      <section class="container py-5 reveal" id="advanced">
+        <div class="text-center mb-2">
+          <div class="section-eyebrow">Advanced Faculties</div>
+          <h2 class="section-title">The deeper machinery</h2>
+          <p class="text-secondary mx-auto" style="max-width:680px">The four pillars are the spine. These are the advanced organs an allocator runs on top of them — Bayesian belief-updating, survival simulation, time-arbitrage, inversion red-teaming, and a bias firewall. This is where amateurs and allocators visibly diverge.</p>
+        </div>
+      </section>
+
+      <!-- ADV 1: BAYESIAN BASE-RATE UPDATER -->
+      <section class="container pb-5 reveal" id="bayes">
+        <div class="text-center mb-4">
+          <div class="adv-tag">Advanced 01 · feeds Pillar 02</div>
+          <h3 class="section-title h2 mt-1">Bayesian Base-Rate Updater</h3>
+          <p class="text-secondary mx-auto" style="max-width:640px">The single most common amateur error is <em>base-rate neglect</em> — falling in love with a story and ignoring how often bets like this actually work. Start from the reference class, then let your edge move the number a disciplined amount. Push the result straight into the engine.</p>
+        </div>
+        <div class="engine-card p-3 p-md-4">
+          <div class="row g-4">
+            <div class="col-lg-6">
+              <label for="bBase" class="form-label small fw-semibold mb-1">Base rate — how often bets like this succeed <span class="text-secondary">(<span id="bBaseOut">20</span>%)</span></label>
+              <input type="range" class="form-range" id="bBase" min="1" max="99" step="1" value="20">
+
+              <label for="bTPR" class="form-label small fw-semibold mb-1 mt-3">Your signal fires on the <em>winners</em> — true-positive rate <span class="text-secondary">(<span id="bTPROut">70</span>%)</span></label>
+              <input type="range" class="form-range" id="bTPR" min="1" max="99" step="1" value="70">
+
+              <label for="bFPR" class="form-label small fw-semibold mb-1 mt-3">Your signal also fires on <em>losers</em> — false-positive rate <span class="text-secondary">(<span id="bFPROut">30</span>%)</span></label>
+              <input type="range" class="form-range" id="bFPR" min="1" max="99" step="1" value="30">
+              <p class="small text-secondary mt-3 mb-0">If your signal is no better at spotting winners than losers (TPR ≈ FPR), it carries zero information — the posterior collapses back to the base rate. That gap <em>is</em> your edge.</p>
+            </div>
+            <div class="col-lg-6">
+              <div class="engine-readout text-center d-flex flex-column justify-content-center h-100">
+                <div class="lbl small text-secondary text-uppercase mb-1" style="letter-spacing:.08em">Posterior probability of success</div>
+                <div class="big-num mb-1" id="bPost" style="font-size:2.8rem">37%</div>
+                <div class="small text-secondary mb-3">Base rate <span id="bPostBase">20</span>% → updated by your signal</div>
+                <div class="payoff-bar mb-3" aria-hidden="true"><div class="up" id="bPostBar" style="width:37%; background:var(--bs-primary)"></div></div>
+                <p class="small text-secondary mb-3" id="bNarr">Your signal roughly doubles the odds versus the base rate — a real but not overwhelming edge. Anchor your conviction here, not on the story.</p>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="bSend">Send this probability to the Asymmetry Engine ↑</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADV 2: MONTE CARLO SURVIVAL SIMULATOR -->
+      <section class="container pb-5 reveal" id="montecarlo">
+        <div class="text-center mb-4">
+          <div class="adv-tag">Advanced 02 · stress-tests Pillars 03 + 04</div>
+          <h3 class="section-title h2 mt-1">Monte Carlo Survival Simulator</h3>
+          <p class="text-secondary mx-auto" style="max-width:680px">Expected value is an average over infinite trials. You only get <em>one</em> life, lived in sequence — and sequence is where fortunes die. This runs your bet hundreds of times, sized by your chosen Kelly fraction, and shows the fan of possible paths. The lesson lands hard: a positive-EV edge, over-sized, still ruins you.</p>
+        </div>
+        <div class="engine-card p-3 p-md-4">
+          <div class="row g-4">
+            <div class="col-lg-4">
+              <h5 class="fw-bold mb-3">Simulation</h5>
+              <label for="mcBets" class="form-label small fw-semibold mb-1">Bets over your lifetime <span class="text-secondary">(<span id="mcBetsOut">50</span>)</span></label>
+              <input type="range" class="form-range" id="mcBets" min="10" max="200" step="5" value="50">
+              <label for="mcPaths" class="form-label small fw-semibold mb-1 mt-2">Simulated lives <span class="text-secondary">(<span id="mcPathsOut">600</span>)</span></label>
+              <input type="range" class="form-range" id="mcPaths" min="100" max="1500" step="100" value="600">
+              <div class="small text-secondary mt-2 mb-3">
+                Edge, payoff and probability come live from the Asymmetry Engine; bet size comes from your Conviction tier
+                (<span id="mcFrac">13.2</span>% of capital per bet).
+              </div>
+              <button type="button" class="btn btn-primary w-100" id="mcRun">Run simulation ↻</button>
+              <div class="mini-legend mt-3">
+                <span><span class="dot" style="background:var(--bs-primary)"></span>Median life</span>
+                <span><span class="dot" style="background:rgba(var(--bs-primary-rgb),.22)"></span>5th–95th %ile band</span>
+                <span><span class="dot" style="background:rgba(220,53,69,.7)"></span>Ruin line (−70%)</span>
+              </div>
+            </div>
+            <div class="col-lg-8">
+              <div class="canvas-wrap mb-3"><canvas id="mcCanvas" height="300" role="img" aria-label="Fan chart of simulated wealth paths on a log scale"></canvas></div>
+              <div class="row g-2">
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="mcMedian">—</div><div class="lbl">Median outcome</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="mcRuin">—</div><div class="lbl">Ruin probability</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="mcLoss">—</div><div class="lbl">Chance of loss</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="mcP5">—</div><div class="lbl">5th %ile (bad life)</div></div></div>
+              </div>
+              <p class="small mb-0 mt-2" id="mcNarr">Adjust the Conviction tier above and re-run: full Kelly maximizes the median but fattens the ruin tail; fractional Kelly trades a little upside for survival — and survival is what lets you keep compounding.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADV 3: TIME ARBITRAGE / COMPOUNDING -->
+      <section class="container pb-5 reveal" id="compounding">
+        <div class="text-center mb-4">
+          <div class="adv-tag">Advanced 03 · powers Pillar 04</div>
+          <h3 class="section-title h2 mt-1">Time-Arbitrage Engine</h3>
+          <p class="text-secondary mx-auto" style="max-width:640px">The last durable edge is a willingness to wait longer than everyone else. Compounding is violently nonlinear — and small, seemingly harmless drags (fees, taxes, impatient trading) quietly amputate the back half of the curve, where all the money is.</p>
+        </div>
+        <div class="engine-card p-3 p-md-4">
+          <div class="row g-4">
+            <div class="col-lg-4">
+              <label for="cReturn" class="form-label small fw-semibold mb-1">Annual return <span class="text-secondary">(<span id="cReturnOut">15</span>%)</span></label>
+              <input type="range" class="form-range" id="cReturn" min="1" max="40" step="1" value="15">
+              <label for="cYears" class="form-label small fw-semibold mb-1 mt-2">Years of patience <span class="text-secondary">(<span id="cYearsOut">30</span>)</span></label>
+              <input type="range" class="form-range" id="cYears" min="1" max="50" step="1" value="30">
+              <label for="cDrag" class="form-label small fw-semibold mb-1 mt-2">Impatience drag — fees / churn / taxes <span class="text-secondary">(<span id="cDragOut">2</span>%/yr)</span></label>
+              <input type="range" class="form-range" id="cDrag" min="0" max="8" step="0.5" value="2">
+              <label for="cPrincipal" class="form-label small fw-semibold mb-1 mt-2">Starting amount ($)</label>
+              <input type="number" class="form-control" id="cPrincipal" value="10000" min="0" step="500">
+              <div class="mini-legend mt-3">
+                <span><span class="dot" style="background:var(--bs-primary)"></span>Patient compounding</span>
+                <span><span class="dot" style="background:rgba(220,53,69,.7)"></span>With impatience drag</span>
+              </div>
+            </div>
+            <div class="col-lg-8">
+              <div class="canvas-wrap mb-3"><canvas id="cCanvas" height="300" role="img" aria-label="Compounding growth curve versus a lower curve reduced by annual drag"></canvas></div>
+              <div class="row g-2">
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="cPatient">—</div><div class="lbl">Patient terminal</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="cDragged">—</div><div class="lbl">After drag</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="cCost">—</div><div class="lbl">Cost of impatience</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="cDouble">—</div><div class="lbl">Doubling time</div></div></div>
+              </div>
+              <p class="small text-secondary mb-0 mt-2" id="cNarr">A 2%/yr drag doesn't cost you 2% — over decades it can quietly consume a third or more of your final wealth. That is the true price of impatience.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADV 4 + 5: RED TEAM + BIAS FIREWALL -->
+      <section class="container pb-5 reveal" id="redteam">
+        <div class="row g-4">
+          <!-- Pre-mortem red team -->
+          <div class="col-lg-6">
+            <div class="adv-tag">Advanced 04 · Inversion</div>
+            <h3 class="section-title h4 mt-1 mb-2">Pre-Mortem Red Team</h3>
+            <p class="text-secondary small">Assume the bet already failed. List <em>why</em> — before capital is committed and ego is in the room. Rate each failure mode; a live fragility score tells you whether the thesis is robust or a house of cards. A single likely-and-fatal mode overrides everything.</p>
+            <div class="engine-readout">
+              <div class="row g-2 align-items-end">
+                <div class="col-12">
+                  <label for="rtMode" class="form-label small fw-semibold mb-1">Failure mode</label>
+                  <input type="text" class="form-control" id="rtMode" maxlength="120" placeholder="e.g. The moat is narrower than the market believes">
+                </div>
+                <div class="col-6">
+                  <label for="rtProb" class="form-label small fw-semibold mb-1">Likelihood</label>
+                  <select class="form-select" id="rtProb"><option value="1">Low</option><option value="2" selected>Medium</option><option value="3">High</option></select>
+                </div>
+                <div class="col-6">
+                  <label for="rtImpact" class="form-label small fw-semibold mb-1">Impact</label>
+                  <select class="form-select" id="rtImpact"><option value="1">Minor</option><option value="2" selected>Serious</option><option value="3">Severe</option><option value="5">Fatal</option></select>
+                </div>
+                <div class="col-12"><button type="button" class="btn btn-primary btn-sm w-100 mt-1" id="rtAdd">Add failure mode</button></div>
+              </div>
+              <hr class="my-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div><span class="small text-secondary text-uppercase" style="letter-spacing:.08em">Fragility</span> <span class="fw-bold ms-1" id="rtScoreLbl">—</span></div>
+                <span class="verdict-badge v-good" id="rtVerdict" style="font-size:.8rem">ROBUST</span>
+              </div>
+              <div id="rtList"><div class="text-secondary small fst-italic" id="rtEmpty">No failure modes yet. A thesis you can't attack is a thesis you don't understand.</div></div>
+            </div>
+          </div>
+
+          <!-- Bias firewall -->
+          <div class="col-lg-6">
+            <div class="adv-tag">Advanced 05 · Debiasing</div>
+            <h3 class="section-title h4 mt-1 mb-2">Cognitive Bias Firewall</h3>
+            <p class="text-secondary small">The enemy isn't the market — it's the operator. Before you commit, walk the firewall. Each box you can honestly check raises your <strong>clarity score</strong>; the ones you can't are exactly where the mistake is hiding.</p>
+            <div class="engine-readout bias-firewall">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-secondary text-uppercase" style="letter-spacing:.08em">Clarity score</span>
+                <span class="fw-bold" id="biasScore">0%</span>
+              </div>
+              <div class="clarity-meter mb-3"><span id="biasMeter" style="width:0%"></span></div>
+              <div id="biasList"></div>
+              <p class="small text-secondary mb-0 mt-1" id="biasNarr">Check every box you've genuinely addressed. Anything left unchecked is an open door.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== THE ALLOCATOR'S VERDICT (capstone synthesis) ===== -->
+    <section class="container py-5 reveal" id="verdict">
+      <div class="text-center mb-4">
+        <div class="section-eyebrow">The Synthesis</div>
+        <h2 class="section-title">The Allocator's Verdict</h2>
+        <p class="text-secondary mx-auto" style="max-width:680px">A billion-dollar decision is never one number — it's the whole machine agreeing. This capstone reads every module live and collapses them into a single conviction: <strong>the edge</strong> (Asymmetry Engine), <strong>survival</strong> (Monte Carlo), <strong>robustness</strong> (Red Team), and <strong>clarity</strong> (Bias Firewall). Move any input anywhere on this page and watch the verdict update.</p>
+      </div>
+
+      <div class="verdict-wrap p-4 p-md-5">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-4 text-center">
+            <div class="gauge" id="verdictGauge">
+              <div class="gauge-inner">
+                <div><span class="g-num" id="verdictScore">—</span><div class="g-lbl">conviction</div></div>
+              </div>
+            </div>
+            <div class="mt-3"><span class="verdict-call v-mid" id="verdictCall">CALCULATING…</span></div>
+          </div>
+          <div class="col-lg-8">
+            <div class="signal-row">
+              <span class="s-name">Edge / Asymmetry</span>
+              <span class="s-bar"><span id="sigEdgeBar"></span></span>
+              <span class="s-val" id="sigEdgeVal">—</span>
+            </div>
+            <div class="signal-row">
+              <span class="s-name">Survival</span>
+              <span class="s-bar"><span id="sigSurviveBar"></span></span>
+              <span class="s-val" id="sigSurviveVal">—</span>
+            </div>
+            <div class="signal-row">
+              <span class="s-name">Robustness</span>
+              <span class="s-bar"><span id="sigRobustBar"></span></span>
+              <span class="s-val" id="sigRobustVal">—</span>
+            </div>
+            <div class="signal-row">
+              <span class="s-name">Clarity</span>
+              <span class="s-bar"><span id="sigClarityBar"></span></span>
+              <span class="s-val" id="sigClarityVal">—</span>
+            </div>
+            <hr class="my-3">
+            <p class="mb-0" id="verdictRationale">Set the bet above and the machine will tell you not just whether it's a good idea — but whether it's a good idea you can <em>size up and survive</em>.</p>
+          </div>
+        </div>
+      </div>
+      <p class="small text-secondary text-center mt-3 mb-0">The verdict weights edge 40%, survival 30%, robustness 20%, clarity 10% — and hard-vetoes to <strong>PASS</strong> on negative expected value or a likely-fatal failure mode, no matter how attractive the rest looks. Survival is a gate, not a bonus.</p>
+    </section>
+
+    <!-- ===== OPERATING PRINCIPLES ===== -->
+    <section class="container py-5 reveal" id="principles">
+      <div class="text-center mb-4">
+        <div class="section-eyebrow">The Reference Library</div>
+        <h2 class="section-title">Operating principles the machine runs on</h2>
+        <p class="text-secondary mx-auto" style="max-width:640px">The mental models the greatest allocators return to again and again — the source code behind the four pillars.</p>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-4"><div class="principle"><div class="who">Margin of Safety</div><h4>Buy a dollar for fifty cents</h4><p>Only act when the gap between price and value is so wide that even a wrong estimate still leaves you whole. The margin <em>is</em> the risk management.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="principle"><div class="who">Inversion</div><h4>Solve it backwards</h4><p>Don't ask how to win — ask what guarantees you lose, then relentlessly avoid that. "All I want to know is where I'm going to die, so I'll never go there."</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="principle"><div class="who">Second-Level Thinking</div><h4>Not "good company" — "better than priced"</h4><p>First-level thinking sees a great business. Second-level asks what everyone else already believes and whether the price reflects it. Edge lives in the gap.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="principle"><div class="who">Convexity / Barbell</div><h4>Bounded loss, unbounded gain</h4><p>Structure exposure so the worst case is capped and the best case is open-ended. Take many small convex bets; let optionality do the heavy lifting.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="principle"><div class="who">Contrarian Truth</div><h4>What important truth do few agree with?</h4><p>The best asymmetric bets look wrong to the consensus right up until they're obviously right. Being early and alone is the price of the outsized payoff.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="principle"><div class="who">Reflexivity</div><h4>Perception bends the fundamentals</h4><p>Prices don't just reflect reality — they change it. Watch the feedback loop between belief and fact; the trend and the turn both live there.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="principle"><div class="who">Circle of Competence</div><h4>Know the edge of what you know</h4><p>The size of the circle matters far less than knowing exactly where its boundary is. Outside it, you don't have a bet — you have a guess.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="principle"><div class="who">Radical Open-Mindedness</div><h4>Stress-test to find truth</h4><p>Hunt for the smartest people who disagree and try to see what they see. Believability-weight the input. Ego is a tax on returns.</p></div></div>
+        <div class="col-md-6 col-lg-4"><div class="principle"><div class="who">Time Arbitrage</div><h4>Patience is the last free edge</h4><p>As information and speed get arbitraged away, willingness to wait longer than everyone else is the one advantage that keeps compounding.</p></div></div>
+      </div>
+    </section>
+
+    <!-- ===== 72-HOUR PROTOCOL ===== -->
+    <section class="container py-5 reveal" id="protocol">
+      <div class="text-center mb-4">
+        <div class="section-eyebrow">$0 · 72 Hours</div>
+        <h2 class="section-title">The build protocol</h2>
+        <p class="text-secondary mx-auto" style="max-width:640px">You can't manufacture a track record in three days. You <em>can</em> wire the cognitive machine so that when opportunity and capital arrive, you already think like the allocator who deserves them.</p>
+      </div>
+      <div class="engine-readout">
+        <div class="protocol-step">
+          <div class="hh">Hour<br>0–8</div>
+          <div class="body"><h4>Define the circle &amp; the reference class</h4><p>Write down the 2–3 domains you can genuinely judge better than average. For each, collect the base rates — how these bets usually pay off. No edge without a reference class.</p></div>
+        </div>
+        <div class="protocol-step">
+          <div class="hh">Hour<br>8–24</div>
+          <div class="body"><h4>Build the asymmetry filter</h4><p>Codify the single rule: capped downside, open-ended upside, and a payoff ratio you'd take repeatedly. Run ten live situations through the Asymmetry Engine above. Reject nine.</p></div>
+        </div>
+        <div class="protocol-step">
+          <div class="hh">Hour<br>24–48</div>
+          <div class="body"><h4>Install the sizing &amp; survival math</h4><p>Adopt fractional-Kelly sizing as a permanent rule. Set a hard "never risk more than X% on one thesis" line so no single wrong call can end the game. Survival first, growth second.</p></div>
+        </div>
+        <div class="protocol-step">
+          <div class="hh">Hour<br>48–66</div>
+          <div class="body"><h4>Engineer patience</h4><p>Open the conviction journal. Write your first real thesis with its invalidation trigger. Set the default to "do nothing" and pre-commit the exits. Automate the discipline you can't be trusted to feel.</p></div>
+        </div>
+        <div class="protocol-step">
+          <div class="hh">Hour<br>66–72</div>
+          <div class="body"><h4>Run the pre-mortem &amp; ship</h4><p>Assume every bet failed — write why. Fix what you can, accept what you can't, and start compounding decisions. The track record is just this loop, run honestly, for years.</p></div>
+        </div>
+      </div>
+      <p class="text-center text-secondary small mt-4 mb-0">MIDAS is an educational thinking tool — a model of how great allocators reason. It is not financial advice, and no output is a recommendation to buy or sell anything.</p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
+  <script src="script.js" defer></script>
+  <script>
+  (function () {
+    "use strict";
+
+    // ---- tiny helpers ----
+    var $ = function (id) { return document.getElementById(id); };
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+      });
+    }
+    function fmtMoney(n) {
+      var neg = n < 0; n = Math.abs(n);
+      var s = "$" + n.toLocaleString("en-US", { maximumFractionDigits: n < 100 ? 2 : 0 });
+      return neg ? "-" + s : s;
+    }
+
+    // ---- reveal on scroll ----
+    var reveals = document.querySelectorAll(".reveal");
+    if ("IntersectionObserver" in window) {
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add("visible"); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.08 });
+      reveals.forEach(function (el) { obs.observe(el); });
+    } else {
+      reveals.forEach(function (el) { el.classList.add("visible"); });
+    }
+
+    // ---- theme toggle (mirror site behavior; script.js may also handle it) ----
+    var themeBtn = $("themeToggleBtn");
+    if (themeBtn) {
+      themeBtn.addEventListener("click", function () {
+        var cur = document.documentElement.getAttribute("data-bs-theme") === "dark" ? "dark" : "light";
+        var next = cur === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-bs-theme", next);
+        try { localStorage.setItem("bsTheme", next); } catch (e) {}
+      });
+    }
+
+    // ---- year in footer ----
+    var yr = document.querySelector("[data-year]");
+    if (yr) { yr.textContent = new Date().getFullYear(); }
+
+    // =========================================================
+    //  ASYMMETRY ENGINE (Pillars 1 + 2) — shared state
+    // =========================================================
+    var state = { kelly: 0.27, tierFrac: 0.5 };
+
+    var inDown = $("inDownside"), inUp = $("inUpside"), inProb = $("inProb");
+
+    function computeEngine() {
+      var d = +inDown.value / 100;        // fraction of stake lost
+      var u = +inUp.value / 100;          // fraction of stake gained
+      var p = +inProb.value / 100;        // probability of being right
+
+      // labels
+      $("outDownside").textContent = inDown.value;
+      $("outUpside").textContent = inUp.value;
+      $("outProb").textContent = inProb.value;
+      $("barDownLbl").textContent = inDown.value;
+      $("barUpLbl").textContent = inUp.value;
+
+      // payoff geometry bar
+      var total = d + u;
+      var downPct = total > 0 ? (d / total) * 100 : 50;
+      $("barDown").style.width = downPct.toFixed(1) + "%";
+      $("barUp").style.width = (100 - downPct).toFixed(1) + "%";
+
+      // core math
+      var payoff = u / d;                       // payoff ratio (win size / loss size)
+      var ev = p * u - (1 - p) * d;             // expected value per $1 staked
+      state.ev = ev; state.payoff = payoff;     // share with the Verdict synthesis
+      // Kelly: f* = (p*b - q) / b, with b = net odds = u/d, q = 1-p
+      var b = u / d;
+      var kelly = (p * b - (1 - p)) / b;        // fraction of capital
+      kelly = Math.max(0, Math.min(kelly, 1));  // clamp to [0,1]
+      state.kelly = kelly;
+
+      $("mPayoff").textContent = payoff.toFixed(1) + "×";
+      $("mEV").textContent = (ev >= 0 ? "+" : "") + fmtMoney(ev);
+      $("mKelly").textContent = Math.round(kelly * 100) + "%";
+
+      // verdict
+      var badge = $("verdict"), narr = $("engineNarr");
+      badge.className = "verdict-badge";
+      if (ev > 0.15 && payoff >= 3) {
+        badge.classList.add("v-good");
+        badge.textContent = "ASYMMETRIC — the kind of bet allocators hunt for";
+        narr.textContent = "Strong positive expected value and a payoff many times the downside. A rational allocator sizes this up and takes it repeatedly — being wrong often is survivable when the wins are this large.";
+      } else if (ev > 0) {
+        badge.classList.add("v-mid");
+        badge.textContent = "POSITIVE — but thin. Demand more margin";
+        narr.textContent = "The expected value is positive, but the edge is slim or the payoff ratio is modest. An allocator either waits for a better price (more margin of safety) or sizes this very small.";
+      } else {
+        badge.classList.add("v-bad");
+        badge.textContent = "NEGATIVE EV — pass. This is a symmetric or losing bet";
+        narr.textContent = "Over many repetitions this bet loses money. No amount of conviction fixes negative expected value — the correct size is zero. Default to no.";
+      }
+
+      updateSizing();
+    }
+
+    [inDown, inUp, inProb].forEach(function (el) {
+      el.addEventListener("input", computeEngine);
+    });
+
+    // =========================================================
+    //  CONVICTION SIZING (Pillar 3)
+    // =========================================================
+    var tierBtns = document.querySelectorAll(".tier-pill");
+    var tierLabel = { "0.1": "1/10 Kelly", "0.25": "1/4 Kelly", "0.5": "1/2 Kelly", "1": "Full Kelly" };
+
+    tierBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        tierBtns.forEach(function (b) {
+          b.classList.remove("btn-primary", "active");
+          b.classList.add("btn-outline-secondary");
+        });
+        btn.classList.add("btn-primary", "active");
+        btn.classList.remove("btn-outline-secondary");
+        state.tierFrac = parseFloat(btn.dataset.frac);
+        updateSizing();
+      });
+    });
+
+    var inBank = $("inBankroll");
+    if (inBank) { inBank.addEventListener("input", updateSizing); }
+
+    function updateSizing() {
+      var bank = Math.max(0, +inBank.value || 0);
+      var frac = state.kelly * state.tierFrac;       // conviction-adjusted fraction
+      var dollars = bank * frac;
+
+      $("sizeDollar").textContent = fmtMoney(Math.round(dollars));
+      $("sizePct").textContent = (frac * 100).toFixed(1);
+      $("sizeTier").textContent = tierLabel[String(state.tierFrac)] || "";
+      $("sizeBar").style.width = Math.min(100, frac * 100).toFixed(1) + "%";
+      var mcf = $("mcFrac"); if (mcf) { mcf.textContent = (frac * 100).toFixed(1); }
+
+      var narr = $("sizeNarr");
+      if (state.kelly <= 0) {
+        narr.textContent = "The engine shows no edge — Kelly is zero, so the correct position is zero. Sizing conviction on a negative-EV idea is how allocators blow up.";
+      } else if (state.tierFrac === 1) {
+        narr.textContent = "Full Kelly maximizes theoretical growth but with brutal drawdowns and zero room for a mis-estimated probability. Almost no professional actually bets it.";
+      } else if (state.tierFrac >= 0.5) {
+        narr.textContent = "Half-Kelly captures roughly three-quarters of the growth rate with far less volatility — the pragmatic home for a genuine conviction bet.";
+      } else {
+        narr.textContent = "Fractional Kelly is the humility discount: you bet less than the math says precisely because the probability was your guess, not a fact.";
+      }
+
+      if (typeof scheduleMc === "function") { scheduleMc(); }
+      if (typeof updateVerdict === "function") { updateVerdict(); }
+    }
+
+    // =========================================================
+    //  CONVICTION JOURNAL (Pillar 4) — localStorage
+    // =========================================================
+    var LS_KEY = "midas.journal.v1";
+    var form = $("journalForm"),
+        listEl = $("journalList"),
+        emptyEl = $("journalEmpty"),
+        clearBtn = $("clearJournal");
+
+    function loadJournal() {
+      try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
+      catch (e) { return []; }
+    }
+    function saveJournal(items) {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(items)); } catch (e) {}
+    }
+    function renderJournal() {
+      var items = loadJournal();
+      // clear rendered entries (keep the empty-state node)
+      Array.prototype.slice.call(listEl.querySelectorAll(".journal-item")).forEach(function (n) { n.remove(); });
+
+      if (!items.length) {
+        emptyEl.style.display = "";
+        clearBtn.style.display = "none";
+        return;
+      }
+      emptyEl.style.display = "none";
+      clearBtn.style.display = "";
+
+      items.forEach(function (it) {
+        var div = document.createElement("div");
+        div.className = "journal-item";
+        div.innerHTML =
+          '<div class="d-flex justify-content-between align-items-start gap-2">' +
+            '<div class="thesis">' + esc(it.thesis) + "</div>" +
+            '<button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 j-del" data-id="' + esc(it.id) + '" aria-label="Delete entry">&times;</button>' +
+          "</div>" +
+          '<div class="meta mt-1">' + esc(it.conv) + " · " + esc(it.horizon) + " · logged " + esc(it.date) + "</div>" +
+          '<div class="kill-trigger"><strong>Exit if:</strong> ' + esc(it.kill) + "</div>";
+        listEl.appendChild(div);
+      });
+
+      Array.prototype.slice.call(listEl.querySelectorAll(".j-del")).forEach(function (b) {
+        b.addEventListener("click", function () {
+          var id = b.dataset.id;
+          saveJournal(loadJournal().filter(function (x) { return String(x.id) !== String(id); }));
+          renderJournal();
+        });
+      });
+    }
+
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var thesis = $("jThesis").value.trim();
+        var kill = $("jKill").value.trim();
+        if (!thesis || !kill) { return; }
+        var items = loadJournal();
+        items.unshift({
+          id: (Date.now().toString(36) + Math.round(Math.random() * 1e6).toString(36)),
+          thesis: thesis,
+          kill: kill,
+          horizon: $("jHorizon").value,
+          conv: $("jConv").value,
+          date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+        });
+        saveJournal(items);
+        form.reset();
+        renderJournal();
+      });
+    }
+    if (clearBtn) {
+      clearBtn.addEventListener("click", function () {
+        if (window.confirm("Clear all journal entries? This cannot be undone.")) {
+          saveJournal([]);
+          renderJournal();
+        }
+      });
+    }
+
+    // =========================================================
+    //  SHARED CANVAS HELPERS (theme-aware, HiDPI)
+    // =========================================================
+    function themeColors() {
+      var cs = getComputedStyle(document.body);
+      function v(name, fb) { var x = cs.getPropertyValue(name).trim(); return x || fb; }
+      return {
+        prim: v("--bs-primary", "#ff5811"),
+        primRGB: v("--bs-primary-rgb", "255,88,17"),
+        grid: v("--bs-border-color", "#333"),
+        text: v("--bs-secondary-color", "#8a8a8a"),
+        body: v("--bs-body-color", "#e8e8e8")
+      };
+    }
+    function fitCanvas(cv, cssH) {
+      var dpr = window.devicePixelRatio || 1;
+      var w = (cv.parentElement.clientWidth || cv.clientWidth || 300) - 16; // wrapper padding
+      if (w < 40) { w = 300; }
+      cv.style.height = cssH + "px";
+      cv.width = Math.round(w * dpr);
+      cv.height = Math.round(cssH * dpr);
+      var ctx = cv.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, cssH);
+      return { ctx: ctx, w: w, h: cssH };
+    }
+    function fmtMult(x) {
+      if (!isFinite(x)) { return "∞"; }
+      if (x >= 100) { return Math.round(x).toLocaleString("en-US") + "×"; }
+      if (x >= 10) { return x.toFixed(0) + "×"; }
+      return x.toFixed(2) + "×";
+    }
+
+    // =========================================================
+    //  ADV 1 — BAYESIAN BASE-RATE UPDATER
+    // =========================================================
+    var bBase = $("bBase"), bTPR = $("bTPR"), bFPR = $("bFPR");
+    var lastPosterior = 0.37;
+
+    function computeBayes() {
+      var prior = +bBase.value / 100;
+      var tpr = +bTPR.value / 100;
+      var fpr = +bFPR.value / 100;
+      $("bBaseOut").textContent = bBase.value;
+      $("bTPROut").textContent = bTPR.value;
+      $("bFPROut").textContent = bFPR.value;
+
+      var denom = tpr * prior + fpr * (1 - prior);
+      var post = denom > 0 ? (tpr * prior) / denom : prior;
+      lastPosterior = post;
+
+      $("bPost").textContent = Math.round(post * 100) + "%";
+      $("bPostBase").textContent = bBase.value;
+      $("bPostBar").style.width = (post * 100).toFixed(1) + "%";
+
+      var lift = prior > 0 ? post / prior : 1;
+      var narr = $("bNarr");
+      if (Math.abs(tpr - fpr) < 0.05) {
+        narr.textContent = "Your signal fires about as often on losers as winners — it carries almost no information, so the posterior barely moves off the base rate. This is not an edge.";
+      } else if (lift >= 2) {
+        narr.textContent = "Your signal roughly " + lift.toFixed(1) + "×'s the odds versus the base rate — a genuine, tradable edge. Anchor conviction here, not on the narrative.";
+      } else if (post > prior) {
+        narr.textContent = "A real but modest update: the signal nudges the odds up " + Math.round((lift - 1) * 100) + "%. Worth acting on only if the payoff is asymmetric enough.";
+      } else {
+        narr.textContent = "Your 'edge' actually points the wrong way — the signal is more common among losers. The disciplined move is to fade it, or pass.";
+      }
+    }
+    [bBase, bTPR, bFPR].forEach(function (el) { el.addEventListener("input", computeBayes); });
+    $("bSend").addEventListener("click", function () {
+      var post = Math.max(1, Math.min(99, Math.round(lastPosterior * 100)));
+      inProb.value = post;
+      computeEngine();
+      var eng = $("engine");
+      if (eng) { eng.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    });
+
+    // =========================================================
+    //  ADV 2 — MONTE CARLO SURVIVAL SIMULATOR
+    // =========================================================
+    var mcState = { ready: false };
+    var mcBets = $("mcBets"), mcPaths = $("mcPaths"), mcCanvas = $("mcCanvas");
+    mcBets.addEventListener("input", function () { $("mcBetsOut").textContent = mcBets.value; });
+    mcPaths.addEventListener("input", function () { $("mcPathsOut").textContent = mcPaths.value; });
+    $("mcRun").addEventListener("click", runMonteCarlo);
+
+    function pctOf(sortedArr, q) {
+      var idx = Math.floor(q * (sortedArr.length - 1));
+      return sortedArr[idx];
+    }
+
+    function runMonteCarlo() {
+      var d = +inDown.value / 100, u = +inUp.value / 100, p = +inProb.value / 100;
+      var f = Math.max(0, state.kelly * state.tierFrac);
+      var N = +mcBets.value, M = +mcPaths.value;
+      var ruinLine = 0.30; // touching -70% drawdown = effectively out of the game
+
+      var mat = new Array(M), terminals = new Float64Array(M);
+      var ruinCount = 0, lossCount = 0;
+      for (var i = 0; i < M; i++) {
+        var w = 1, row = new Float64Array(N + 1), ruined = false;
+        row[0] = 1;
+        for (var t = 1; t <= N; t++) {
+          var win = Math.random() < p;
+          w = w * (1 + f * (win ? u : -d));
+          if (w < 0) { w = 0; }
+          row[t] = w;
+          if (w <= ruinLine) { ruined = true; }
+        }
+        mat[i] = row;
+        terminals[i] = w;
+        if (ruined) { ruinCount++; }
+        if (w < 1) { lossCount++; }
+      }
+      var sortedT = Float64Array.from(terminals).sort();
+      var band5 = new Float64Array(N + 1), band50 = new Float64Array(N + 1), band95 = new Float64Array(N + 1);
+      var col = new Float64Array(M);
+      for (var tt = 0; tt <= N; tt++) {
+        for (var j = 0; j < M; j++) { col[j] = mat[j][tt]; }
+        var s = Float64Array.from(col).sort();
+        band5[tt] = pctOf(s, 0.05); band50[tt] = pctOf(s, 0.5); band95[tt] = pctOf(s, 0.95);
+      }
+      mcState = {
+        ready: true, mat: mat, band5: band5, band50: band50, band95: band95,
+        N: N, M: M, ruinLine: ruinLine, f: f,
+        median: pctOf(sortedT, 0.5), p5: pctOf(sortedT, 0.05), p95: pctOf(sortedT, 0.95),
+        ruin: ruinCount / M, loss: lossCount / M
+      };
+
+      $("mcMedian").textContent = fmtMult(mcState.median);
+      $("mcRuin").textContent = Math.round(mcState.ruin * 100) + "%";
+      $("mcLoss").textContent = Math.round(mcState.loss * 100) + "%";
+      $("mcP5").textContent = fmtMult(mcState.p5);
+
+      var narr = $("mcNarr");
+      if (f <= 0) {
+        narr.textContent = "The Asymmetry Engine shows no edge, so the bet size is zero — every life is a flat line. No edge, no bet, no ruin. Fix the inputs above first.";
+      } else if (mcState.ruin >= 0.25) {
+        narr.textContent = "Even with a positive edge, this sizing ruins roughly " + Math.round(mcState.ruin * 100) + "% of lives. The median looks fine, but you don't get the median — you get one path. Drop to a smaller Kelly fraction and re-run.";
+      } else if (mcState.ruin >= 0.05) {
+        narr.textContent = "A survivable but real ruin tail (" + Math.round(mcState.ruin * 100) + "%). This is the trade-off allocators price consciously: a hair less growth for a lot less chance of being wiped out.";
+      } else {
+        narr.textContent = "Ruin is rare here (" + Math.round(mcState.ruin * 100) + "%) and the median still compounds to " + fmtMult(mcState.median) + ". This is the sweet spot fractional Kelly is built to find — grow without dying.";
+      }
+      drawMonteCarlo();
+      if (typeof updateVerdict === "function") { updateVerdict(); }
+    }
+
+    function drawMonteCarlo() {
+      if (!mcState.ready) { return; }
+      var c = themeColors();
+      var dim = fitCanvas(mcCanvas, 300);
+      var ctx = dim.ctx, W = dim.w, H = dim.h;
+      var padL = 44, padR = 10, padT = 12, padB = 22;
+      var plotW = W - padL - padR, plotH = H - padT - padB;
+      var N = mcState.N;
+
+      // y-range on log scale
+      var lo = mcState.ruinLine * 0.6, hi = mcState.band95[N];
+      for (var t = 0; t <= N; t++) { if (mcState.band95[t] > hi) { hi = mcState.band95[t]; } }
+      if (lo < 0.03) { lo = 0.03; }
+      if (hi < 2) { hi = 2; }
+      var logLo = Math.log10(lo), logHi = Math.log10(hi);
+      function xAt(t) { return padL + (t / N) * plotW; }
+      function yAt(v) {
+        var vv = v < lo ? lo : v;
+        var lg = Math.log10(vv);
+        return padT + plotH - ((lg - logLo) / (logHi - logLo)) * plotH;
+      }
+
+      // gridlines at powers of 10
+      ctx.font = "10px system-ui, sans-serif";
+      ctx.textBaseline = "middle";
+      var startP = Math.floor(logLo), endP = Math.ceil(logHi);
+      for (var pw = startP; pw <= endP; pw++) {
+        var val = Math.pow(10, pw);
+        if (val < lo || val > hi) { continue; }
+        var y = yAt(val);
+        ctx.strokeStyle = c.grid; ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+        ctx.globalAlpha = 1; ctx.fillStyle = c.text;
+        ctx.textAlign = "right";
+        ctx.fillText(fmtMult(val), padL - 6, y);
+      }
+      // baseline 1x (break-even)
+      ctx.strokeStyle = c.text; ctx.globalAlpha = 0.7; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(padL, yAt(1)); ctx.lineTo(W - padR, yAt(1)); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+
+      // 5-95 band
+      ctx.beginPath();
+      ctx.moveTo(xAt(0), yAt(mcState.band95[0]));
+      for (var a = 1; a <= N; a++) { ctx.lineTo(xAt(a), yAt(mcState.band95[a])); }
+      for (var b = N; b >= 0; b--) { ctx.lineTo(xAt(b), yAt(mcState.band5[b])); }
+      ctx.closePath();
+      ctx.fillStyle = "rgba(" + c.primRGB + ",0.16)";
+      ctx.fill();
+
+      // sample faint paths
+      var step = Math.max(1, Math.floor(mcState.M / 32));
+      ctx.strokeStyle = "rgba(" + c.primRGB + ",0.16)"; ctx.lineWidth = 1;
+      for (var i = 0; i < mcState.M; i += step) {
+        var row = mcState.mat[i];
+        ctx.beginPath(); ctx.moveTo(xAt(0), yAt(row[0]));
+        for (var k = 1; k <= N; k++) { ctx.lineTo(xAt(k), yAt(row[k])); }
+        ctx.stroke();
+      }
+
+      // ruin line
+      ctx.strokeStyle = "rgba(220,53,69,0.85)"; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(padL, yAt(mcState.ruinLine)); ctx.lineTo(W - padR, yAt(mcState.ruinLine)); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // median path
+      ctx.strokeStyle = c.prim; ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(xAt(0), yAt(mcState.band50[0]));
+      for (var m = 1; m <= N; m++) { ctx.lineTo(xAt(m), yAt(mcState.band50[m])); }
+      ctx.stroke();
+
+      // x label
+      ctx.fillStyle = c.text; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.fillText(N + " sequential bets →", padL + plotW / 2, H - 5);
+    }
+
+    // =========================================================
+    //  ADV 3 — TIME-ARBITRAGE / COMPOUNDING
+    // =========================================================
+    var cReturn = $("cReturn"), cYears = $("cYears"), cDrag = $("cDrag"), cPrincipal = $("cPrincipal");
+    var cCanvas = $("cCanvas");
+    var cState = { ready: false };
+
+    function computeCompounding() {
+      var r = +cReturn.value / 100;
+      var yrs = +cYears.value;
+      var drag = +cDrag.value / 100;
+      var P = Math.max(0, +cPrincipal.value || 0);
+      $("cReturnOut").textContent = cReturn.value;
+      $("cYearsOut").textContent = cYears.value;
+      $("cDragOut").textContent = cDrag.value;
+
+      var netR = r - drag;
+      var patient = new Float64Array(yrs + 1), dragged = new Float64Array(yrs + 1);
+      for (var t = 0; t <= yrs; t++) {
+        patient[t] = P * Math.pow(1 + r, t);
+        dragged[t] = P * Math.pow(1 + Math.max(-0.99, netR), t);
+      }
+      var pt = patient[yrs], dt = dragged[yrs], cost = pt - dt;
+      var costPct = pt > 0 ? (cost / pt) * 100 : 0;
+
+      $("cPatient").textContent = fmtMoney(Math.round(pt));
+      $("cDragged").textContent = fmtMoney(Math.round(dt));
+      $("cCost").textContent = fmtMoney(Math.round(cost));
+      $("cDouble").textContent = r > 0 ? (72 / (r * 100)).toFixed(1) + " yrs" : "—";
+
+      $("cNarr").textContent = "A " + cDrag.value + "%/yr drag doesn't cost you " + cDrag.value +
+        "% — compounded over " + yrs + " years it quietly consumes " + costPct.toFixed(0) +
+        "% of your final wealth (" + fmtMoney(Math.round(cost)) + "). That is the true price of impatience.";
+
+      cState = { ready: true, patient: patient, dragged: dragged, yrs: yrs };
+      drawCompounding();
+    }
+
+    function drawCompounding() {
+      if (!cState.ready) { return; }
+      var c = themeColors();
+      var dim = fitCanvas(cCanvas, 300);
+      var ctx = dim.ctx, W = dim.w, H = dim.h;
+      var padL = 58, padR = 12, padT = 12, padB = 22;
+      var plotW = W - padL - padR, plotH = H - padT - padB;
+      var yrs = cState.yrs, maxV = cState.patient[yrs] || 1;
+      if (maxV <= 0) { maxV = 1; }
+
+      function xAt(t) { return padL + (yrs ? (t / yrs) : 0) * plotW; }
+      function yAt(v) { return padT + plotH - (v / maxV) * plotH; }
+
+      // horizontal gridlines (4)
+      ctx.font = "10px system-ui, sans-serif"; ctx.textBaseline = "middle";
+      for (var g = 0; g <= 4; g++) {
+        var val = (maxV / 4) * g, y = yAt(val);
+        ctx.strokeStyle = c.grid; ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+        ctx.globalAlpha = 1; ctx.fillStyle = c.text; ctx.textAlign = "right";
+        var lbl = val >= 1000 ? "$" + Math.round(val / 1000) + "k" : "$" + Math.round(val);
+        ctx.fillText(lbl, padL - 6, y);
+      }
+
+      // gap fill (cost of impatience)
+      ctx.beginPath();
+      ctx.moveTo(xAt(0), yAt(cState.patient[0]));
+      for (var a = 1; a <= yrs; a++) { ctx.lineTo(xAt(a), yAt(cState.patient[a])); }
+      for (var b = yrs; b >= 0; b--) { ctx.lineTo(xAt(b), yAt(cState.dragged[b])); }
+      ctx.closePath();
+      ctx.fillStyle = "rgba(220,53,69,0.12)"; ctx.fill();
+
+      // dragged curve
+      ctx.strokeStyle = "rgba(220,53,69,0.85)"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(xAt(0), yAt(cState.dragged[0]));
+      for (var d1 = 1; d1 <= yrs; d1++) { ctx.lineTo(xAt(d1), yAt(cState.dragged[d1])); }
+      ctx.stroke();
+
+      // patient curve
+      ctx.strokeStyle = c.prim; ctx.lineWidth = 2.6;
+      ctx.beginPath(); ctx.moveTo(xAt(0), yAt(cState.patient[0]));
+      for (var p1 = 1; p1 <= yrs; p1++) { ctx.lineTo(xAt(p1), yAt(cState.patient[p1])); }
+      ctx.stroke();
+
+      ctx.fillStyle = c.text; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.fillText(yrs + " years of patience →", padL + plotW / 2, H - 5);
+    }
+    [cReturn, cYears, cDrag].forEach(function (el) { el.addEventListener("input", computeCompounding); });
+    cPrincipal.addEventListener("input", computeCompounding);
+
+    // =========================================================
+    //  ADV 4 — PRE-MORTEM RED TEAM (inversion)
+    // =========================================================
+    var rtItems = [];
+    var IMPACT_LABEL = { "1": "Minor", "2": "Serious", "3": "Severe", "5": "Fatal" };
+    var IMPACT_COLOR = { "1": "#2ec77a", "2": "#ffca2c", "3": "#ff8a3d", "5": "#ff5b6a" };
+    var PROB_LABEL = { "1": "Low", "2": "Medium", "3": "High" };
+
+    $("rtAdd").addEventListener("click", function () {
+      var mode = $("rtMode").value.trim();
+      if (!mode) { return; }
+      rtItems.push({ id: Date.now().toString(36) + Math.round(Math.random() * 1e6).toString(36),
+        mode: mode, prob: $("rtProb").value, impact: $("rtImpact").value });
+      $("rtMode").value = "";
+      renderRedTeam();
+    });
+
+    function renderRedTeam() {
+      var list = $("rtList"), empty = $("rtEmpty");
+      Array.prototype.slice.call(list.querySelectorAll(".redteam-item")).forEach(function (n) { n.remove(); });
+
+      if (!rtItems.length) {
+        empty.style.display = "";
+      } else {
+        empty.style.display = "none";
+        rtItems.forEach(function (it) {
+          var div = document.createElement("div");
+          div.className = "redteam-item";
+          div.innerHTML =
+            '<div class="d-flex justify-content-between align-items-start gap-2">' +
+              '<div><span class="sev-dot" style="background:' + IMPACT_COLOR[it.impact] + '"></span>' +
+                '<span class="rt-mode">' + esc(it.mode) + "</span></div>" +
+              '<button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 rt-del" data-id="' + esc(it.id) + '" aria-label="Remove">&times;</button>' +
+            "</div>" +
+            '<div class="meta small text-secondary mt-1" style="padding-left:1rem">' +
+              PROB_LABEL[it.prob] + " likelihood · " + IMPACT_LABEL[it.impact] + " impact</div>";
+          list.appendChild(div);
+        });
+        Array.prototype.slice.call(list.querySelectorAll(".rt-del")).forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            rtItems = rtItems.filter(function (x) { return x.id !== btn.dataset.id; });
+            renderRedTeam();
+          });
+        });
+      }
+
+      // fragility scoring
+      var raw = 0, fatalFlag = false;
+      rtItems.forEach(function (it) {
+        var pr = +it.prob, im = +it.impact;
+        raw += pr * im;
+        if (im === 5 && pr >= 2) { fatalFlag = true; }
+      });
+      var score = Math.min(100, Math.round(raw * 6));
+      var badge = $("rtVerdict"), lbl = $("rtScoreLbl");
+      badge.className = "verdict-badge";
+      badge.style.fontSize = ".8rem";
+      if (!rtItems.length) {
+        lbl.textContent = "—"; badge.classList.add("v-good"); badge.textContent = "UNTESTED";
+      } else if (fatalFlag) {
+        lbl.textContent = score; badge.classList.add("v-bad"); badge.textContent = "FATAL RISK — a likely, unrecoverable failure mode is present. Cap size or pass.";
+      } else if (score >= 55) {
+        lbl.textContent = score; badge.classList.add("v-bad"); badge.textContent = "FRAGILE";
+      } else if (score >= 25) {
+        lbl.textContent = score; badge.classList.add("v-mid"); badge.textContent = "GUARDED";
+      } else {
+        lbl.textContent = score; badge.classList.add("v-good"); badge.textContent = "ROBUST";
+      }
+
+      sig.rtScore = score; sig.rtFatal = fatalFlag; sig.rtCount = rtItems.length;
+      if (typeof updateVerdict === "function") { updateVerdict(); }
+    }
+
+    // =========================================================
+    //  ADV 5 — COGNITIVE BIAS FIREWALL
+    // =========================================================
+    var BIASES = [
+      { t: "Confirmation bias", d: "I actively hunted the strongest case against this — not just support for it." },
+      { t: "Anchoring", d: "My valuation isn't just tethered to the first number I happened to see." },
+      { t: "Loss aversion", d: "I sized this on the odds, not on fear of feeling a loss." },
+      { t: "Recency bias", d: "I'm weighting long-run base rates, not just what happened lately." },
+      { t: "Overconfidence", d: "I widened my probability range to respect what I genuinely don't know." },
+      { t: "Herding", d: "This conviction survives even if the crowd loudly disagrees with me." },
+      { t: "Sunk cost", d: "I would make this exact decision today starting from a blank slate." },
+      { t: "Narrative fallacy", d: "I can justify this in numbers without leaning on a good story." }
+    ];
+    function renderBiasFirewall() {
+      var wrap = $("biasList");
+      BIASES.forEach(function (b, idx) {
+        var div = document.createElement("div");
+        div.className = "form-check";
+        div.innerHTML =
+          '<input class="form-check-input bias-chk" type="checkbox" id="bias' + idx + '">' +
+          '<label class="form-check-label" for="bias' + idx + '"><strong>' + esc(b.t) + "</strong>" +
+          "<small>" + esc(b.d) + "</small></label>";
+        wrap.appendChild(div);
+      });
+      Array.prototype.slice.call(wrap.querySelectorAll(".bias-chk")).forEach(function (chk) {
+        chk.addEventListener("change", updateBiasScore);
+      });
+    }
+    function updateBiasScore() {
+      var boxes = document.querySelectorAll(".bias-chk");
+      var done = 0;
+      Array.prototype.slice.call(boxes).forEach(function (b) { if (b.checked) { done++; } });
+      var pct = boxes.length ? Math.round((done / boxes.length) * 100) : 0;
+      $("biasScore").textContent = pct + "%";
+      $("biasMeter").style.width = pct + "%";
+      var narr = $("biasNarr");
+      if (pct === 100) { narr.textContent = "Firewall clear. You've consciously checked every common failure of judgment — now the decision is about the bet, not about you."; }
+      else if (pct >= 75) { narr.textContent = "Mostly clear. Return to the unchecked boxes — that's the precise spot where a hidden bias is steering you."; }
+      else if (pct >= 40) { narr.textContent = "Real holes remain. More than half-checked is not the same as clear-headed. Keep walking the list."; }
+      else { narr.textContent = "Danger. You haven't yet interrogated your own thinking — the most expensive mistakes live right here."; }
+      sig.biasPct = pct;
+      if (typeof updateVerdict === "function") { updateVerdict(); }
+    }
+
+    // =========================================================
+    //  SCENARIO ARCHETYPE PRESETS
+    // =========================================================
+    Array.prototype.slice.call(document.querySelectorAll(".preset-btn")).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        inDown.value = btn.dataset.down;
+        inUp.value = btn.dataset.up;
+        inProb.value = btn.dataset.prob;
+        // set conviction tier
+        var frac = btn.dataset.tier;
+        Array.prototype.slice.call(tierBtns).forEach(function (b) {
+          var on = b.dataset.frac === frac;
+          b.classList.toggle("btn-primary", on);
+          b.classList.toggle("active", on);
+          b.classList.toggle("btn-outline-secondary", !on);
+          if (on) { state.tierFrac = parseFloat(frac); }
+        });
+        computeEngine();   // recomputes engine -> sizing -> schedules MC -> verdict
+        runMonteCarlo();   // refresh survival immediately for this archetype
+      });
+    });
+
+    // =========================================================
+    //  THE ALLOCATOR'S VERDICT — live composite synthesis
+    // =========================================================
+    var sig = { rtScore: 0, rtFatal: false, rtCount: 0, biasPct: 0 };
+
+    function clamp01(x) { return x < 0 ? 0 : (x > 1 ? 1 : x); }
+    function paintSignal(barId, valId, v) {
+      $(barId).style.width = v + "%";
+      $(valId).textContent = v;
+    }
+
+    function updateVerdict() {
+      var ev = (typeof state.ev === "number") ? state.ev : 0;
+      var payoff = (typeof state.payoff === "number") ? state.payoff : 1;
+      var noEdge = ev <= 0;
+
+      // 1) Edge / asymmetry
+      var evScore = noEdge ? 0 : clamp01(ev / 0.75);
+      var payoffScore = clamp01((payoff - 1) / 7);
+      var edge = Math.round((0.65 * evScore + 0.35 * payoffScore) * 100);
+
+      // 2) Survival (from most recent Monte Carlo run)
+      var survive;
+      if (mcState.ready) {
+        survive = Math.round(100 * (1 - mcState.ruin - 0.35 * mcState.loss));
+        if (survive < 0) { survive = 0; }
+      } else { survive = 60; }
+
+      // 3) Robustness (inverse fragility from the red team)
+      var robust;
+      if (sig.rtCount === 0) { robust = 45; }
+      else if (sig.rtFatal) { robust = 0; }
+      else { robust = Math.max(0, 100 - sig.rtScore); }
+
+      // 4) Clarity (bias firewall)
+      var clarity = sig.biasPct;
+
+      // composite, with hard vetoes
+      var composite = Math.round(0.40 * edge + 0.30 * survive + 0.20 * robust + 0.10 * clarity);
+      var veto = noEdge || sig.rtFatal;
+      if (veto) { composite = Math.min(composite, 18); }
+
+      paintSignal("sigEdgeBar", "sigEdgeVal", edge);
+      paintSignal("sigSurviveBar", "sigSurviveVal", survive);
+      paintSignal("sigRobustBar", "sigRobustVal", robust);
+      paintSignal("sigClarityBar", "sigClarityVal", clarity);
+
+      // gauge
+      $("verdictScore").textContent = composite;
+      var deg = (composite / 100) * 360;
+      $("verdictGauge").style.background =
+        "conic-gradient(var(--bs-primary) " + deg + "deg, var(--bs-border-color) " + deg + "deg)";
+
+      // call + rationale
+      var call = $("verdictCall"), rat = $("verdictRationale");
+      call.className = "verdict-call";
+      var headline, body;
+
+      if (noEdge) {
+        call.classList.add("v-bad"); headline = "PASS";
+        body = "Negative expected value — the machine vetoes. No amount of conviction, sizing, or narrative fixes a losing bet; the correct position is zero. Default to no.";
+      } else if (sig.rtFatal) {
+        call.classList.add("v-bad"); headline = "PASS";
+        body = "A likely, unrecoverable failure mode is on the board. Even with a genuine edge, one fatal risk caps this at a token position or a pass — survival is a gate, not a trade-off.";
+      } else {
+        // weakest-link diagnosis
+        var parts = [
+          { k: "edge", v: edge, msg: "The edge is the binding constraint — wait for a better price (more asymmetry) before you size up. Great allocators are professional passers." },
+          { k: "survive", v: survive, msg: "The edge is real but this sizing flirts with ruin — drop to a smaller Kelly fraction and re-run the simulator. You only get one path." },
+          { k: "robust", v: robust, msg: "The thesis is fragile under inversion — shore up the failure modes in the Red Team before committing capital." },
+          { k: "clarity", v: clarity, msg: "You haven't cleared your own biases yet — walk the Firewall before you trust this verdict. The operator is the risk." }
+        ];
+        parts.sort(function (a, b) { return a.v - b.v; });
+        var weak = parts[0];
+        if (sig.rtCount === 0) {
+          weak = { msg: "Solid on paper — but you haven't run the pre-mortem. Attack the thesis in the Red Team to firm up the robustness score before you commit." };
+        }
+
+        if (composite >= 70) {
+          call.classList.add("v-good"); headline = "GO — SIZE THE CONVICTION";
+          body = "Every organ of the machine agrees: real asymmetry, survivable sizing, a thesis that holds under attack, and a clear head. This is the rare configuration allocators wait years for — act with conviction, then be patient.";
+        } else if (composite >= 45) {
+          call.classList.add("v-mid"); headline = "GO SMALL — STARTER POSITION";
+          body = "A worthwhile bet with a soft spot. " + weak.msg;
+        } else {
+          call.classList.add("v-bad"); headline = "PASS / WATCHLIST";
+          body = "Not there yet. " + weak.msg;
+        }
+      }
+      call.textContent = headline;
+      rat.textContent = body;
+    }
+
+    // Debounced Monte Carlo re-run so survival stays honest as inputs change
+    var mcTimer;
+    function scheduleMc() {
+      clearTimeout(mcTimer);
+      mcTimer = setTimeout(function () { runMonteCarlo(); }, 220);
+    }
+
+    // =========================================================
+    //  THEME / RESIZE REDRAW
+    // =========================================================
+    function redrawAll() { drawMonteCarlo(); drawCompounding(); }
+    var rzTimer;
+    window.addEventListener("resize", function () { clearTimeout(rzTimer); rzTimer = setTimeout(redrawAll, 150); });
+    if (window.MutationObserver) {
+      new MutationObserver(redrawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-bs-theme"] });
+    }
+
+    // ---- init ----
+    computeEngine();
+    renderJournal();
+    computeBayes();
+    computeCompounding();
+    renderRedTeam();
+    renderBiasFirewall();
+    updateBiasScore();
+    runMonteCarlo();
+  })();
+  </script>
+</body>
+</html>
