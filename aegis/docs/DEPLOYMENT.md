@@ -158,14 +158,14 @@ app boots but will error on first DB use — see [§11](#11-troubleshooting).)
    (`mfa_secret`, `mfa_enabled`), plus an additional `settings` upsert block,
    plus a tolerant `CREATE INDEX IF NOT EXISTS` loop (index failures are logged,
    not fatal).
-2. **Applies the 32 numbered SQL migration files** from `database/migrations/`,
-   in order, `001_enterprise_phase1.sql` … `032_remove_modules.sql`. Each file
+2. **Applies the 38 numbered SQL migration files** from `database/migrations/`,
+   in order, `001_enterprise_phase1.sql` … `038_promote_runtime_schema.sql`. Each file
    is executed inside a `try/catch`: a `PDOException` is logged as a **warning**
    and the loop continues, so a migration that is already partially applied
    cannot wedge the boot.
 3. Logs `Migrations applied.`
 
-> The list of 32 migration files is **hard-coded** in `install.php`. The
+> The list of 38 migration files is **hard-coded** in `install.php`. The
 > migration-integrity CI job (`scripts/verify_migrations.php`) statically checks
 > that every file on disk is registered (see [§6](#6-the-cicd-pipeline)). When
 > you add a migration file, you **must** also add it to that list.
@@ -562,7 +562,7 @@ What `roles.sql` does:
      from the DB.)
 3. **Push to `main`.** Render builds the image and deploys.
 4. **First boot.** `scripts/startup.sh` runs `install.php` → creates the `aegis`
-   schema, applies `schema.sql` + all 32 migrations, seeds defaults, and creates
+   schema, applies `schema.sql` + all 38 migrations, seeds defaults, and creates
    the admin user from `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
 5. **Health.** Render polls `/healthz`; traffic routes once healthy.
 6. **Harden the DB (recommended).** Connect as the DB owner, run
@@ -745,17 +745,23 @@ setting), redacts secrets/PII before egress, and logs every call to
 `ai_inference_log` and the audit trail. See [`SECURITY.md`](SECURITY.md) and the
 root `AIADVISOR.md` for the governance model.
 
-### 14.1 Hosted providers (current code)
+### 14.1 Providers (current code)
 
-The shipped clients call **fixed, hard-coded HTTPS endpoints** (no user-supplied
-URL → no SSRF surface), configured via the encrypted `settings` table
-(`ai_settings` JSON, or `ai_provider` + `ai_api_key`), **not** environment
-variables:
+AEGIS ships four providers, all selected and configured via the encrypted
+`settings` table (`ai_settings` JSON, or the individual `ai_provider` /
+`ai_api_key` / `ai_base_url` / `ai_model` rows), **not** environment variables.
+The two **hosted** providers call fixed HTTPS endpoints (no user-supplied URL →
+no SSRF surface); the two **self-hosted, OpenAI-compatible** providers dispatch to
+`callOpenAICompatible()` against an operator-configured `ai_base_url`, vetted by
+the `Ssrf` infra guard (RFC-1918 allowed; loopback / link-local / metadata
+refused):
 
-| Provider (`ai_provider`) | Endpoint | Model |
-|---|---|---|
-| `claude` (default) | `https://api.anthropic.com/v1/messages` | `claude-haiku-4-5-20251001` |
-| `openai` | `https://api.openai.com/v1/chat/completions` | `gpt-4o-mini` |
+| Provider (`ai_provider`) | Endpoint | Model | Auth |
+|---|---|---|---|
+| `claude` (default) | `https://api.anthropic.com/v1/messages` | `claude-haiku-4-5-20251001` | `ai_api_key` |
+| `openai` | `https://api.openai.com/v1/chat/completions` | `gpt-4o-mini` | `ai_api_key` |
+| `ollama` | `<ai_base_url>` + `/v1/chat/completions` | `ai_model` (e.g. `llama3.1:8b`) | none (empty key) |
+| `openai_compatible` | `<ai_base_url>` + `/v1/chat/completions` | `ai_model` | optional bearer (`ai_api_key`) |
 
 For a hosted deployment, enable AI in the in-app **Settings** UI (provider + API
 key, encrypted at rest); no env var is involved.
@@ -768,15 +774,15 @@ Air-gapped and data-sovereign deployments cannot reach `api.anthropic.com` or
 **OpenAI-compatible Chat Completions API** at
 `http://<ollama-host>:11434/v1/chat/completions`.
 
-> **Implementation status (honest):** the current `src/AIAdvisor.php` OpenAI path
-> is pinned to `https://api.openai.com/...`. To route AEGIS to Ollama you must add
-> a small provider branch (or config-driven base URL) — the request/response
-> shape is already OpenAI-compatible, so the change is a **base-URL + model-name
-> swap**, plus (recommended) allowing the Ollama host through the `Ssrf` infra
-> guard since it is operator-configured internal infrastructure. Until that branch
-> exists, treat Ollama support as an **integration point**, not a shipped feature.
-> When AEGIS is deployed fully offline **without** that branch, simply leave AI
-> **disabled** (`ai_enabled=0`); every AI surface degrades gracefully to nothing.
+> **Implementation status:** Ollama support is **shipped**, not an integration
+> point. `src/AIAdvisor.php` includes an `ollama` provider whose
+> `callOpenAICompatible()` client targets the operator-configured `ai_base_url`,
+> and the `Ssrf` infra guard already allows the RFC-1918 Ollama host while
+> refusing loopback / link-local / metadata. To route AEGIS to Ollama, set
+> `ai_provider=ollama`, `ai_base_url=http://<ollama-host>:11434`, and
+> `ai_model=<pulled-tag>` (no API key) — no code change or image rebuild. If you
+> prefer to run fully offline **without** AI, simply leave it **disabled**
+> (`ai_enabled=0`); every AI surface degrades gracefully to nothing.
 
 **Reference Ollama setup (Docker):**
 
@@ -792,8 +798,9 @@ curl -s http://localhost:11434/v1/chat/completions \
   -d '{"model":"llama3.1:8b","messages":[{"role":"user","content":"ping"}]}'
 ```
 
-Then point AEGIS's AI base URL at `http://ollama:11434/v1` (via the provider
-branch above) and set the model to the pulled tag. Full offline procedure — model
+Then set `ai_provider=ollama` and point `ai_base_url` at `http://ollama:11434`
+(AEGIS appends `/v1/chat/completions`), with `ai_model` set to the pulled tag.
+Full offline procedure — model
 bundling, private registry mirror, no-internet secrets — is in
 [`../deployments/AIRGAPPED.md`](../deployments/AIRGAPPED.md).
 

@@ -7,7 +7,7 @@ original developers.
 
 > **Stack at a glance:** PHP 8.3 · server-rendered MVC (no framework, zero
 > Composer/npm runtime deps) · PostgreSQL · vanilla JS/CSS front-end · Docker on
-> Render. ~51 controllers, ~407 routes, 122 tables, 32 migrations.
+> Render. ~51 controllers, ~407 routes, 122 tables, 38 migrations.
 
 ## Start here
 - **New to the app?** → [`EXECUTIVE_OVERVIEW.md`](EXECUTIVE_OVERVIEW.md)
