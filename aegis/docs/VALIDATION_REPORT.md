@@ -15,7 +15,7 @@ sweep. Every confirmed defect was **fixed**, not just reported.
 | `check_route_auth` | every public action enforces authz or is allowlisted |
 | `check_csrf` | every state-changing POST validates CSRF |
 | `check_ui` | no inline event handlers; all `<script>` carry a nonce |
-| `verify_migrations` | 32 migrations registered & ordered |
+| `verify_migrations` | 38 migrations registered & ordered |
 
 ## 2. Live runtime validation
 

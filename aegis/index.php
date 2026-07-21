@@ -228,16 +228,10 @@ try {
     unset($__vcols, $__existing, $__vendorMigrations, $__col, $__sql);
 } catch (Throwable) {}
 
-try {
-    // Change requests: add implemented_at column missing from base schema
-    $__crCols = Database::fetchAll(
-        "SELECT column_name FROM information_schema.columns WHERE table_name='change_requests' AND table_schema='public'"
-    );
-    if (!in_array('implemented_at', array_column($__crCols, 'column_name'), true)) {
-        Database::query("ALTER TABLE change_requests ADD COLUMN implemented_at TIMESTAMP");
-    }
-    unset($__crCols);
-} catch (Throwable) {}
+// NOTE: `change_requests` and `account_reviews`/`account_review_items` were
+// REMOVED modules (dropped by migration 032). Their runtime guards here were dead
+// code — the ALTER hit a non-existent table (a caught no-op) and the CREATE
+// zombie-resurrected dropped tables on every version bump. Removed in Phase 26.
 
 try {
     // Assets: add created_by column missing from base schema
@@ -610,38 +604,8 @@ try {
     );
 } catch (Throwable) {}
 
-try {
-    // Account Reviews tables (migration 012)
-    Database::query(
-        "CREATE TABLE IF NOT EXISTS account_reviews (
-            id           SERIAL PRIMARY KEY,
-            title        VARCHAR(255) NOT NULL,
-            description  TEXT,
-            scope        TEXT,
-            reviewer_id  INTEGER REFERENCES users(id),
-            status       VARCHAR(20)  DEFAULT 'pending',
-            due_date     DATE,
-            completed_at TIMESTAMP,
-            created_by   INTEGER REFERENCES users(id),
-            created_at   TIMESTAMP    DEFAULT NOW(),
-            updated_at   TIMESTAMP    DEFAULT NOW()
-         )"
-    );
-    Database::query(
-        "CREATE TABLE IF NOT EXISTS account_review_items (
-            id             SERIAL PRIMARY KEY,
-            review_id      INTEGER NOT NULL REFERENCES account_reviews(id) ON DELETE CASCADE,
-            account_name   VARCHAR(255) NOT NULL,
-            user_full_name VARCHAR(255),
-            system_name    VARCHAR(255),
-            access_level   VARCHAR(100),
-            decision       VARCHAR(20)  DEFAULT 'pending',
-            decision_notes TEXT,
-            reviewed_at    TIMESTAMP,
-            reviewed_by    INTEGER REFERENCES users(id)
-         )"
-    );
-} catch (Throwable) {}
+// (account_reviews / account_review_items removed — see the dead-module note
+//  above; migration 032 dropped them and there is no controller/route/view.)
 
 try {
     // Ensure company logo settings rows exist

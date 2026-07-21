@@ -194,7 +194,7 @@ aegis/
 │                                  # Blocks install.php and sensitive directories post-deploy
 ├── Dockerfile                     # php:8.3-apache image; installs pdo_pgsql, gd, opcache + poppler-utils
 ├── docker-compose.yml             # Local dev stack: app container + postgres container
-├── render.yaml                    # Render.com deployment manifest (web service + DB reference)
+├── render.yaml                    # Render.com deployment manifest (web + Postgres + 6 cron services + env group)
 ├── index.php                      # Front controller: loads .env, starts session, routes requests
 ├── install.php                    # One-shot DB schema installer + seed runner (idempotent;
 │                                  # blocked by .htaccess after first run in production)
@@ -280,12 +280,15 @@ aegis/
 │                                    # Datadog, Splunk HEC, Generic HTTP); delivery log
 │
 ├── database/
-│   ├── schema.sql                 # 18 CREATE TABLE statements in aegis schema + 13 indexes
+│   ├── schema.sql                 # 55 CREATE TABLE statements in aegis schema + 56 indexes
 │   └── seeds/
 │       └── seed_frameworks.php    # CLI tool for importing framework JSON files
 │
-├── scripts/
-│   └── startup.sh                 # Docker CMD: runs install.php (idempotent) then starts Apache
+├── scripts/                       # startup.sh (Docker CMD: runs install.php then Apache)
+│                                   # + cron workers (capture_metrics_snapshot,
+│                                   # dispatch_webhooks, drain_email_queue, run_workflows,
+│                                   # send_notifications, send_scheduled_reports)
+│                                   # + quality-gate scripts (check_*.php, verify_*.php)
 │
 ├── public/
 │   ├── css/
@@ -557,6 +560,25 @@ All tables live in the `aegis` PostgreSQL schema (isolated from `public`). The b
 | `017_dashboards_raci.sql` | `custom_dashboards`, `dashboard_widgets`, `raci_assignments` | Custom dashboard widgets; RACI responsibility matrix |
 | `018_ssp_versioning.sql` | — (columns only) | SSP version, revision, and authorization signature fields |
 | `019_ssp_extended.sql` | — (columns only) | SSP company info, approval, certification, boundary, and environment detail fields |
+| `020_module_identifiers.sql` | — (columns only) | System-generated human-readable identifiers (e.g. `AUD-0001`) across all modules |
+| `021_granular_permissions.sql` | — | Migrates coarse read/write/edit grants to granular `module.action` permissions |
+| `022_branding.sql` | — | Settings → Branding: accent color, org display name, logo source/name rows |
+| `023_risk_scoring.sql` | — (columns only) | Risk scoring consolidation: stored `target_score` column + score indexes |
+| `024_ai_governance.sql` | — | AI governance: global `ai_enabled` AIAdvisor kill-switch setting |
+| `025_audit_changes_text.sql` | — | Audit-log integrity fix: `activity_log.changes` JSONB → TEXT to preserve hashed bytes |
+| `026_tenancy_foundation.sql` | `tenants` | Multi-tenancy foundation: tenant registry + default tenant (inert) |
+| `027_tenancy_columns.sql` | — (columns only) | Multi-tenancy Phase 2: `tenant_id` on primary entity tables (backfilled) |
+| `028_tenancy_rls.sql` | — | Multi-tenancy Phase 3: permissive-fallback row-level security on tenant-owned tables |
+| `029_tenancy_child_tables.sql` | — (columns only) | Multi-tenancy Phase 4: `tenant_id` + RLS on child/detail and link tables |
+| `030_php_sessions.sql` | `sessions` | Shared Postgres session store for horizontal scaling (system table, no RLS) |
+| `031_platform_admin.sql` | — (columns only) | Multi-tenancy Phase 5: cross-tenant platform-admin flag |
+| `032_remove_modules.sql` | — (drops tables) | Removes Change Requests and Account Reviews modules (Incidents UI removed, tables kept) |
+| `033_finding_risk_links.sql` | `finding_risk_links` | Finding ↔ Risk traceability links (tenant-isolated) |
+| `034_evidence_lifecycle.sql` | — (columns + log) | Evidence approval/rejection workflow + tamper-aware download log |
+| `035_policy_vendor_capa.sql` | `vendor_certifications` | Policy expiry, vendor certifications, and CAPA root-cause/preventive-action depth |
+| `036_notification_log_user_cols.sql` | — (columns only) | Reconciles `notification_log` with the notifier (adds `user_id`, `entity_type`) |
+| `037_widen_kri_columns.sql` | — (columns only) | Widens `kris.direction`/`unit` columns so valid values fit |
+| `038_promote_runtime_schema.sql` | — (columns only) | Promotes index.php runtime schema guards into a proper idempotent migration |
 
 ---
 
@@ -660,13 +682,14 @@ A `Content-Security-Policy` header is set on every response by `Security::setSec
 ```
 default-src 'self';
 script-src 'self' 'nonce-{per-request-nonce}';
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
-font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
-img-src 'self' data: blob:;
+style-src 'self' 'unsafe-inline';
+font-src 'self';
+img-src 'self' data: blob: https:;
 connect-src 'self';
 frame-ancestors 'none';
 base-uri 'self';
 form-action 'self';
+object-src 'none';
 ```
 
 Key points:
@@ -747,7 +770,7 @@ API requests are rate-limited to 60 per minute per IP address using the same dat
 
 Every controller method calls one of `Auth::requireAuth()`, `Auth::requireAdmin()`, or `Auth::requirePermission($module)` as its first statement. The permission model has two layers:
 
-1. **Role defaults** — five built-in roles (`admin`, `manager`, `auditor`, `analyst`, `viewer`) each carry a predefined set of module read/write/edit grants
+1. **Role defaults** — eight built-in roles (`admin`, `manager`, `auditor`, `control_owner`, `risk_owner`, `analyst`, `executive`, `viewer`) each carry a predefined set of module read/write/edit grants
 2. **Per-user overrides** — the `user_permissions` table allows individual grants to extend or restrict the role default for a specific user and module combination
 
 Permission checks are performed server-side on every request. There is no client-side permission state that could be tampered with.
@@ -1006,7 +1029,7 @@ The initial build established the foundational architecture, data model, and all
 | **Front controller + routing** | `index.php` with a static route table and a regex dynamic route table; spl_autoload for controllers and src classes |
 | **Authentication** | Session-based login with Argon2ID password hashing, session fixation prevention, 60-minute inactivity timeout, and secure logout |
 | **Multi-Factor Authentication** | TOTP (RFC 6238) setup flow, verification form, single-use backup codes (bcrypt-hashed), and `mfa_pending` session state |
-| **RBAC** | Five built-in roles with per-user per-module override grants; `user_permissions` table; `Auth::requirePermission()` enforced in every controller |
+| **RBAC** | Eight built-in roles (`admin`, `manager`, `auditor`, `control_owner`, `risk_owner`, `analyst`, `executive`, `viewer`) with per-user per-module override grants; `user_permissions` table; `Auth::requirePermission()` enforced in every controller |
 | **Compliance Management** | Compliance packages linked to standards; two-level domain/control tree (`compliance_objectives`); `control_implementations` with status, evidence, notes, assignee, due date, and reviewer |
 | **Risk Register** | Risk CRUD with likelihood × impact scoring; configurable 5×5 risk matrix with editable labels, thresholds, and cell colors; risk treatments; BowTie diagram view |
 | **Audit Workflows** | Audit create/view/complete; checklist items mapped to compliance objectives; audit schedules; per-item scoring |
@@ -1018,7 +1041,7 @@ The initial build established the foundational architecture, data model, and all
 | **Export Engine** | CSV/XLSX per-module exports; full-platform ZIP bundle; formula-injection-safe cell encoding |
 | **Admin Panel** | User management; risk matrix configurator; workflow builder; alert configurations; API key management; per-user permission matrix; module visibility settings |
 | **Security layer** | CSP with per-request nonce; HSTS; CSRF tokens (CSPRNG, 2-hour expiry, constant-time comparison); SQL injection prevention (PDO parameterized statements throughout); XSS encoding via `Security::h()`; DOMDocument HTML sanitizer for rich content; open-redirect prevention; audit log with SHA-256 hash chain |
-| **Infrastructure** | Docker (`php:8.2-apache`); `render.yaml` Render.com manifest; `scripts/startup.sh` idempotent startup hook; PostgreSQL `aegis` schema isolation |
+| **Infrastructure** | Docker (`php:8.3-apache`); `render.yaml` Render.com manifest; `scripts/startup.sh` idempotent startup hook; PostgreSQL `aegis` schema isolation |
 | **Additional Modules** | Issue tracker; Document management with version uploads; Change management with CAB approvals; Business Continuity Plans; Asset register with risk linking; Threat register; Key Risk Indicators (KRIs); Risk treatment plans; Risk exceptions; Risk reviews; Risk acceptance; Approval workflows; Questionnaires; Calendar; Playbooks; Tags system; Evidence file upload (randomised filenames, SHA-256 integrity, PHP-gated download); SSO (SAML/OIDC) settings; Scheduled reports; Email templates; Webhook configurations (11 providers); Search; Awareness training; Account reviews (access certification); Privacy assessments; System Security Plans (7-tab, JSONB inventories); POA&M; CUI inventory; SPRS; ODP; RACI matrix; Automation rules engine; Audit findings; Custom dashboards; GRC projects; Cross-framework control mapping |
 
 ---

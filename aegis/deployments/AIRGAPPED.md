@@ -30,10 +30,12 @@ are carried in on approved media and served from an in-enclave registry/mirror.
 - No Composer / package manager at runtime — all PHP is vendored in the repo.
 - Front-end assets are served locally from `public/` (no CDN).
 - The DB installer (`docker/initdb.sh` / `install.php`) applies bundled SQL only.
-- The **only** outbound calls are: (a) the AI Advisor to `api.anthropic.com` /
-  `api.openai.com` (hardcoded in `src/AIAdvisor.php`), and (b) outbound SMTP and
-  webhooks you explicitly configure. All are optional and must be pointed at
-  in-enclave endpoints or disabled.
+- The **only** outbound calls are: (a) the AI Advisor — the `claude`/`openai`
+  providers reach `api.anthropic.com` / `api.openai.com`, but the `ollama` /
+  `openai_compatible` providers target an operator-configured in-enclave
+  `ai_base_url` instead — and (b) outbound SMTP and webhooks you explicitly
+  configure. All are optional and must be pointed at in-enclave endpoints or
+  disabled.
 
 ## 2. Topology
 
@@ -138,9 +140,12 @@ object storage (MinIO) — in which case set the S3 settings in **Admin → Stor
 
 ## 7. AI Advisor: self-hosted Ollama (or disable)
 
-`src/AIAdvisor.php` calls **hardcoded** hosted endpoints (`https://api.anthropic.com/v1/messages`
-and `https://api.openai.com/v1/chat/completions`). In an air-gapped enclave these are
-unreachable, so choose one of:
+`src/AIAdvisor.php` ships **native Ollama support** alongside its hosted providers.
+The hosted `claude` and `openai` providers call `https://api.anthropic.com/...` and
+`https://api.openai.com/...`, which are unreachable in an air-gapped enclave — but the
+`ollama` and `openai_compatible` providers dispatch to `callOpenAICompatible()`, which
+targets an operator-configured `ai_base_url` (e.g. an in-enclave Ollama host). No code
+change or DNS trick is required. Choose one of:
 
 **Option A — Disable the AI Advisor (simplest, fully supported).**
 Set the `ai_enabled` setting off (Admin → AI, or a settings row `ai_enabled=off`).
@@ -148,19 +153,23 @@ Set the `ai_enabled` setting off (Admin → AI, or a settings row `ai_enabled=of
 rest of AEGIS is unaffected. The human-review disclaimer already states AI output is
 advisory only, so nothing depends on it.
 
-**Option B — Redirect OpenAI-compatible calls to in-enclave Ollama.**
-Ollama exposes an **OpenAI-compatible** API at `http://<ollama-host>:11434/v1/chat/completions`.
-Because the endpoint URL is not yet a setting, use one of:
+**Option B — Point the AI Advisor at in-enclave Ollama (no code change).**
+Ollama exposes an **OpenAI-compatible** API at `http://<ollama-host>:11434`. AIAdvisor
+supports it natively — just configure the AI settings (Admin → AI, or rows in the
+`settings` table):
 
-1. **Egress-proxy / DNS override (no code change):** on the app hosts, resolve
-   `api.openai.com` to the Ollama host and terminate TLS with an internal CA the app
-   trusts, mapping `/v1/chat/completions` to Ollama. Set the AI provider to `openai`
-   and the model name to a pulled Ollama model in the `settings` table; put any
-   placeholder value in the api key (Ollama ignores it). This keeps the code untouched.
-2. **Minimal code change (cleaner):** change the `curl_init(...)` URL in
-   `AIAdvisor::callOpenAI()` to your Ollama endpoint and the model in the payload to a
-   local model (e.g. `llama3.1:8b`). Rebuild the offline image. Track this as a local
-   patch in your OPEN_ITEMS.
+| Setting | Value |
+|---------|-------|
+| `ai_provider` | `ollama` (or `openai_compatible` for any OpenAI-compatible gateway) |
+| `ai_base_url` | `http://<ollama-host>:11434` (AIAdvisor appends `/v1/chat/completions`) |
+| `ai_model` | a pulled Ollama model, e.g. `llama3.1:8b` |
+| `ai_api_key` | leave empty — Ollama needs no key (set it only if a fronting proxy requires a bearer token) |
+
+`AIAdvisor::providerConfigured()` treats `ollama`/`openai_compatible` as configured on
+the base URL alone (no API key), and `getConfig()` reads these keys directly. The base
+URL is validated by the SSRF *infra* guard (RFC-1918 private hosts allowed; loopback /
+link-local / cloud-metadata refused), so the internal Ollama host is reachable while
+rebinding is blocked. No image rebuild, DNS override, or local patch is needed.
 
 Bring up Ollama and load the model:
 ```bash
@@ -194,8 +203,9 @@ blocks the UI.
 | `SMTP_*` | in-enclave relay | offline mail (or leave blank to disable) |
 | `KMS_PROVIDER` | `vault` (optional) | envelope-encrypt `APP_ENCRYPTION_KEY` via in-enclave Vault |
 
-Settings-table keys (Admin UI): `ai_enabled` (off, or on with Ollama), `ai_provider` +
-`ai_api_key`, and — if using MinIO — `storage_driver=s3` + `s3_endpoint` pointing at the
+Settings-table keys (Admin UI): `ai_enabled` (off, or on with Ollama), `ai_provider`
+(`ollama`), `ai_base_url` (`http://<ollama-host>:11434`), `ai_model`, `ai_api_key`
+(empty for Ollama), and — if using MinIO — `storage_driver=s3` + `s3_endpoint` pointing at the
 internal object store (the SSRF guard permits private hosts but blocks loopback/metadata).
 
 ## 9. Verification

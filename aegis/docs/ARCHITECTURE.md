@@ -125,7 +125,7 @@ aegis/
 ├── api/                   # API surface (api/index.php, api/docs.php — Swagger UI)
 ├── database/
 │   ├── schema.sql         # Complete idempotent schema (manual-setup reference)
-│   ├── migrations/        # 32 migration files
+│   ├── migrations/        # 38 migration files
 │   └── tenancy/           # RLS templates (rls_template.sql)
 ├── scripts/               # analyzers + cron + startup.sh
 ├── tests/                 # 15 suites + integration tests

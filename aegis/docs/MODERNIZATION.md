@@ -9,7 +9,7 @@ implemented and shipped in PR #345. This document is the durable record.
 
 ## 1. Module inventory
 
-**51 controllers · 41 view directories · 407 routes · 32 migrations**, organized
+**51 controllers · 41 view directories · 407 routes · 38 migrations**, organized
 into 12 audited clusters:
 
 | Cluster | Scope |

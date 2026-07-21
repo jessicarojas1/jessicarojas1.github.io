@@ -67,7 +67,7 @@ cadence and topology you choose.
 **Fixed recovery-time components** (independent of tier):
 
 - Container cold start + `scripts/startup.sh` running `install.php` (idempotent —
-  applies schema + all 36 migrations; a no-op against an already-migrated DB):
+  applies schema + all 38 migrations; a no-op against an already-migrated DB):
   seconds to low minutes.
 - Health gate: traffic only routes once `/healthz` is green (Render
   `healthCheckPath`, Docker `HEALTHCHECK`, K8s liveness probe).

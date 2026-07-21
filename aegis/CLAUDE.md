@@ -86,6 +86,7 @@ php scripts/check_route_auth.php   # every public action enforces authz
 php scripts/check_csrf.php         # every POST route validates CSRF
 php scripts/check_csv_export.php   # formula-injection-safe CSV
 php scripts/verify_audit_log.php   # audit hash-chain intact (needs DB + AUDIT_HMAC_KEY)
+php scripts/verify_fresh_schema.php # fresh install is complete + warning-free (needs DB)
 
 # Local run: docker-compose up  (needs DB_PASS + JWT_SECRET in .env), then
 php install.php                    # with ADMIN_EMAIL + ADMIN_PASSWORD set

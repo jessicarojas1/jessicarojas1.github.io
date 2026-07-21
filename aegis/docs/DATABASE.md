@@ -29,6 +29,29 @@ keys, foreign keys, indexes, constraints, notable status/enum fields, the immuta
 > migrations (fresh install, CI, cron-only, air-gapped) is now **complete** without
 > ever hitting the front controller. Verified by
 > `tests/integration/schema_completeness_db.php`.
+>
+> **Fresh-install schema completeness (Phase 24).** `schema.sql` now also folds in
+> the enterprise **`vendors`** columns (`vendor_code`, `risk_tier`,
+> `primary_contact`, `country`, `data_access`, `critical_service`,
+> `contract_start`, `contract_end`) and the **`user_notification_prefs`** table,
+> which previously existed only in the `index.php` runtime block — so a
+> migrations-only / fresh `install.php` builds a **complete, warning-free** schema.
+> `install.php` now prints a **schema warning summary** at the end
+> ("Schema is complete — 0 warnings" or "⚠ Completed with N warning(s)"),
+> non-fatal by design.
+>
+> **Runtime self-heal, corrected + slimmed (Phase 26).** The `index.php` runtime
+> schema block is **version-gated** by a `schema_runtime_state` table — it runs
+> the full reconciliation once per `RUNTIME_SCHEMA_VERSION` (recording the version
+> last, fail-safe) and thereafter each request does just **one indexed SELECT**
+> and skips the block; it is a deliberate self-heal safety net, **not** a
+> per-request cost. Phase 26 removed the block's **dead-module resurrections** —
+> it had been re-creating `account_reviews`/`account_review_items` and altering
+> `change_requests`, all **dropped by migration 032** ([§21](#21-removed-tables-migration-032));
+> `schema.full.sql` had `account_reviews` wrongly re-added in Phase 22, now
+> removed too. What remains is redundant-but-harmless self-heal DDL for **live**
+> tables (all also created by `schema.sql` + migrations) plus data seeds/backfills,
+> with drift now **CI-guarded by `scripts/verify_fresh_schema.php`** (Phase 25).
 
 ---
 

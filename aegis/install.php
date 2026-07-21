@@ -28,8 +28,15 @@ require_once AEGIS_ROOT . '/src/Database.php';
 require_once AEGIS_ROOT . '/src/Security.php';
 
 $isCli = php_sapi_name() === 'cli';
+$GLOBALS['__aegis_install_warnings'] = 0;
 function log_msg(string $msg): void {
     global $isCli;
+    // Surface schema/migration warnings: a fresh install.php should be clean, so
+    // any warning is a fresh-install-completeness gap (cf. OPEN_ITEMS TD-1b) — count
+    // them and report a summary at the end instead of letting them scroll past.
+    if (stripos($msg, 'warning:') !== false) {
+        $GLOBALS['__aegis_install_warnings']++;
+    }
     if ($isCli) echo $msg . PHP_EOL;
     else error_log($msg);
 }
@@ -360,4 +367,13 @@ function runMigrations(PDO $pdo): void {
     }
 
     log_msg('[AEGIS] Migrations applied.');
+
+    $warned = $GLOBALS['__aegis_install_warnings'] ?? 0;
+    if ($warned > 0) {
+        // Not fatal (kept non-blocking so a benign warning never aborts a deploy),
+        // but loud: a clean fresh install should emit zero warnings.
+        log_msg("[AEGIS] ⚠ Completed with {$warned} schema/migration warning(s) — review the lines above; a fresh install should be warning-free (see OPEN_ITEMS TD-1b).");
+    } else {
+        log_msg('[AEGIS] Schema is complete — 0 warnings.');
+    }
 }

@@ -57,6 +57,13 @@ jobs:
           ADMIN_PASSWORD: CIpassw0rd-long-enough-123
         run: php install.php
 
+      - name: Fresh-install schema is complete & warning-free (TD-4 drift guard)
+        working-directory: aegis
+        env:
+          ADMIN_EMAIL: admin@aegis.test
+          ADMIN_PASSWORD: CIpassw0rd-long-enough-123
+        run: php scripts/verify_fresh_schema.php
+
       - name: Audit chain — seed a real keyed chain
         working-directory: aegis
         run: php tests/integration/audit_db.php

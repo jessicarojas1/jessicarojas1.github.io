@@ -51,89 +51,6 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: account_review_items; Type: TABLE; Schema: aegis; Owner: -
---
-
-CREATE TABLE IF NOT EXISTS aegis.account_review_items (
-    id integer NOT NULL,
-    review_id integer NOT NULL,
-    account_name character varying(255) NOT NULL,
-    user_full_name character varying(255),
-    system_name character varying(255),
-    access_level character varying(100),
-    decision character varying(20) DEFAULT 'pending'::character varying,
-    decision_notes text,
-    reviewed_at timestamp without time zone,
-    reviewed_by integer,
-    tenant_id bigint DEFAULT 1 NOT NULL
-);
-
-ALTER TABLE ONLY aegis.account_review_items FORCE ROW LEVEL SECURITY;
-
-
---
--- Name: account_review_items_id_seq; Type: SEQUENCE; Schema: aegis; Owner: -
---
-
-CREATE SEQUENCE aegis.account_review_items_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: account_review_items_id_seq; Type: SEQUENCE OWNED BY; Schema: aegis; Owner: -
---
-
-ALTER SEQUENCE aegis.account_review_items_id_seq OWNED BY aegis.account_review_items.id;
-
-
---
--- Name: account_reviews; Type: TABLE; Schema: aegis; Owner: -
---
-
-CREATE TABLE IF NOT EXISTS aegis.account_reviews (
-    id integer NOT NULL,
-    title character varying(255) NOT NULL,
-    description text,
-    scope text,
-    reviewer_id integer,
-    status character varying(20) DEFAULT 'pending'::character varying,
-    due_date date,
-    completed_at timestamp without time zone,
-    created_by integer,
-    created_at timestamp without time zone DEFAULT now(),
-    updated_at timestamp without time zone DEFAULT now(),
-    tenant_id bigint DEFAULT 1 NOT NULL
-);
-
-ALTER TABLE ONLY aegis.account_reviews FORCE ROW LEVEL SECURITY;
-
-
---
--- Name: account_reviews_id_seq; Type: SEQUENCE; Schema: aegis; Owner: -
---
-
-CREATE SEQUENCE aegis.account_reviews_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: account_reviews_id_seq; Type: SEQUENCE OWNED BY; Schema: aegis; Owner: -
---
-
-ALTER SEQUENCE aegis.account_reviews_id_seq OWNED BY aegis.account_reviews.id;
-
-
---
 -- Name: active_sessions; Type: TABLE; Schema: aegis; Owner: -
 --
 
@@ -5098,10 +5015,19 @@ CREATE TABLE IF NOT EXISTS aegis.vendors (
     notes text,
     owner_id integer,
     created_by integer,
+    vendor_code character varying(20),
+    risk_tier character varying(20) DEFAULT 'medium'::character varying,
+    primary_contact character varying(255),
+    country character varying(100),
+    data_access boolean DEFAULT false NOT NULL,
+    critical_service boolean DEFAULT false NOT NULL,
+    contract_start date,
+    contract_end date,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     tenant_id bigint DEFAULT 1 NOT NULL,
     CONSTRAINT vendors_risk_rating_check CHECK (((risk_rating)::text = ANY ((ARRAY['critical'::character varying, 'high'::character varying, 'medium'::character varying, 'low'::character varying])::text[]))),
+    CONSTRAINT vendors_risk_tier_check CHECK (((risk_tier)::text = ANY ((ARRAY['critical'::character varying, 'high'::character varying, 'medium'::character varying, 'low'::character varying])::text[]))),
     CONSTRAINT vendors_status_check CHECK (((status)::text = ANY ((ARRAY['active'::character varying, 'inactive'::character varying, 'under_review'::character varying])::text[])))
 );
 

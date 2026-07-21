@@ -53,17 +53,23 @@ $columns = [
     ['incidents', 'root_cause'],
     ['issues', 'resolution'],
     ['audit_findings', 'audit_id'],
+    // Phase 24 (TD-1b): enterprise vendor fields folded into schema.sql so a fresh
+    // install has them before the idx_vendors_risk_tier index / VendorController.
+    ['vendors', 'risk_tier'],
+    ['vendors', 'vendor_code'],
 ];
 foreach ($columns as [$t, $c]) {
     if (!columnExists($t, $c)) fail("column {$t}.{$c} missing from a migrations-only install");
 }
 ok('all promoted columns exist in a migrations-only install');
 
-// Tables promoted by migration 038.
-foreach (['totp_used_codes', 'ai_inference_log', 'password_history'] as $t) {
+// Tables that must exist in a fresh install: migration 038's three, plus
+// user_notification_prefs (Phase 24 / TD-1b — folded into schema.sql so it exists
+// before migration 006's ALTERs).
+foreach (['totp_used_codes', 'ai_inference_log', 'password_history', 'user_notification_prefs'] as $t) {
     if (!tableExists($t)) fail("table {$t} missing from a migrations-only install");
 }
-ok('all 3 promoted tables (incl. password_history) exist in a migrations-only install');
+ok('promoted tables + user_notification_prefs exist in a migrations-only install');
 
 // Widened status constraints: the new enum values must be accepted.
 Database::query("DELETE FROM incidents WHERE incident_number = 'SC-CONTAINED'");
