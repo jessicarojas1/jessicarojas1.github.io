@@ -62,7 +62,7 @@ ob_start();
       </div>
       <div class="card-body">
         <?php if ($assessments): foreach ($assessments as $a):
-          $aColors=['planned'=>'#71717a','in_progress'=>'#d97706','completed'=>'#059669','overdue'=>'#dc2626'];
+          $aColors=['planned'=>'#71717a','in_progress'=>'#d97706','completed'=>'#059669','cancelled'=>'#dc2626'];
           $rColors=['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669','acceptable'=>'#059669'];
           $ac = $aColors[$a['status']] ?? '#71717a';
           $rc = $rColors[$a['risk_rating'] ?? ''] ?? '#71717a';
@@ -488,7 +488,7 @@ $contracts = Database::fetchAll(
         <div class="form-row">
           <div class="form-group" style="flex:1"><label class="form-label">Status</label>
             <select name="status" class="form-control">
-              <?php foreach (['planned'=>'Planned','in_progress'=>'In Progress','completed'=>'Completed','overdue'=>'Overdue'] as $v=>$l): ?>
+              <?php foreach (['planned'=>'Planned','in_progress'=>'In Progress','completed'=>'Completed','cancelled'=>'Cancelled'] as $v=>$l): ?>
                 <option value="<?= $v ?>"><?= $l ?></option>
               <?php endforeach; ?>
             </select>

@@ -1080,7 +1080,7 @@ class ComplianceController {
             "SELECT cp.id, cp.name, s.name as standard_name, s.code as standard_code,
                     COUNT(co.id) FILTER (WHERE co.level=2) as total_controls,
                     COUNT(ci.id) FILTER (WHERE ci.status='compliant' AND co.level=2) as implemented,
-                    COUNT(ci.id) FILTER (WHERE ci.status='in_progress' AND co.level=2) as in_progress,
+                    COUNT(ci.id) FILTER (WHERE ci.status='partial' AND co.level=2) as in_progress,
                     COUNT(co.id) FILTER (WHERE (ci.status IS NULL OR ci.status='not_started') AND co.level=2) as not_started,
                     COUNT(co.id) FILTER (WHERE ci.due_date < CURRENT_DATE AND ci.status != 'compliant' AND co.level=2) as overdue
              FROM compliance_packages cp

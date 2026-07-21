@@ -253,15 +253,20 @@ class QuestionnaireController {
             $sections[$q['section']][] = $q;
         }
 
-        // Load existing answers if in_progress
+        // Pre-fill answers from a prior response for this assignment, if any
+        // (responses link via assignment_id; assignments have no response_id column).
         $existingAnswers = [];
-        if ($assignment['status'] === 'in_progress' && !empty($assignment['response_id'])) {
+        $priorResponse = Database::fetchOne(
+            "SELECT id FROM questionnaire_responses WHERE assignment_id = ? ORDER BY id DESC LIMIT 1",
+            [(int)$assignment['id']]
+        );
+        if ($priorResponse) {
             $rows = Database::fetchAll(
-                "SELECT * FROM questionnaire_answers WHERE response_id = ?",
-                [$assignment['response_id']]
+                "SELECT question_id, answer_text FROM questionnaire_answers WHERE response_id = ?",
+                [(int)$priorResponse['id']]
             );
             foreach ($rows as $row) {
-                $existingAnswers[$row['question_id']] = $row['answer_value'];
+                $existingAnswers[$row['question_id']] = $row['answer_text'];
             }
         }
 
@@ -303,8 +308,7 @@ class QuestionnaireController {
         // Create or reuse the response record
         $responseId = Database::insert('questionnaire_responses', [
             'assignment_id'   => $assignmentId,
-            'questionnaire_id'=> $assignment['questionnaire_id'],
-            'respondent_id'   => Auth::id(),
+            'submitted_by'    => Auth::id(),
             'submitted_at'    => date('Y-m-d H:i:s'),
             'total_score'     => 0,
             'max_score'       => 0,
@@ -359,7 +363,7 @@ class QuestionnaireController {
             Database::insert('questionnaire_answers', [
                 'response_id'  => $responseId,
                 'question_id'  => $qId,
-                'answer_value' => $answerValue,
+                'answer_text'  => $answerValue,
                 'score'        => round($score, 4),
             ]);
         }
@@ -372,12 +376,11 @@ class QuestionnaireController {
             [round($totalScore, 4), round($maxScore, 4), $responseId]
         );
 
-        // Mark assignment submitted
+        // Mark assignment submitted (questionnaire_assignments has no response_id/
+        // submitted_at columns — the response links back via assignment_id).
         Database::query(
-            "UPDATE questionnaire_assignments
-             SET status = 'submitted', response_id = ?, submitted_at = ?
-             WHERE id = ?",
-            [$responseId, date('Y-m-d H:i:s'), $assignmentId]
+            "UPDATE questionnaire_assignments SET status = 'submitted' WHERE id = ?",
+            [$assignmentId]
         );
 
         Auth::log('submit', 'questionnaire_responses', $responseId, [

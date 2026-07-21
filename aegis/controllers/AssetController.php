@@ -130,7 +130,10 @@ class AssetController {
         // Parse tags from comma-separated string into JSON array
         $tagsRaw = Security::sanitizeInput($_POST['tags'] ?? '');
         $tagsArr = array_values(array_filter(array_map('trim', explode(',', $tagsRaw))));
-        $tagsJson = !empty($tagsArr) ? json_encode($tagsArr, JSON_UNESCAPED_UNICODE) : null;
+        // tags is NOT NULL DEFAULT '[]' — an explicit null would violate the
+        // constraint (the DEFAULT only applies when the column is omitted), so
+        // fall back to an empty JSON array, not null.
+        $tagsJson = !empty($tagsArr) ? json_encode($tagsArr, JSON_UNESCAPED_UNICODE) : '[]';
 
         if (!$name) {
             $_SESSION['asset_error'] = 'Asset name is required.';
@@ -155,7 +158,7 @@ class AssetController {
             'name'           => $name,
             'asset_type'     => $assetType,
             'criticality'    => $criticality,
-            'classification' => $classification ?: null,
+            'classification' => $classification ?: 'internal',
             'status'         => $status,
             'owner_id'       => $ownerId,
             'location'       => $location       ?: null,
@@ -255,7 +258,10 @@ class AssetController {
 
         $tagsRaw  = Security::sanitizeInput($_POST['tags'] ?? '');
         $tagsArr  = array_values(array_filter(array_map('trim', explode(',', $tagsRaw))));
-        $tagsJson = !empty($tagsArr) ? json_encode($tagsArr, JSON_UNESCAPED_UNICODE) : null;
+        // tags is NOT NULL DEFAULT '[]' — an explicit null would violate the
+        // constraint (the DEFAULT only applies when the column is omitted), so
+        // fall back to an empty JSON array, not null.
+        $tagsJson = !empty($tagsArr) ? json_encode($tagsArr, JSON_UNESCAPED_UNICODE) : '[]';
 
         $validTypes        = ['server','workstation','application','database','network','cloud','mobile','iot','saas'];
         $validCriticalities = ['critical','high','medium','low'];
@@ -272,7 +278,7 @@ class AssetController {
                last_scanned = ?, tags = ?, updated_at = NOW()
              WHERE id = ?",
             [
-                $name, $assetType, $criticality, $classification ?: null,
+                $name, $assetType, $criticality, $classification ?: 'internal',
                 $status, $ownerId, $location ?: null, $ipAddress,
                 $hostname ?: null, $vendor ?: null, $version ?: null, $description ?: null,
                 $lastScanned ?: null, $tagsJson, $id,
