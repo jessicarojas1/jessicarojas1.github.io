@@ -1,9 +1,9 @@
 [
   {
     "title": "MIDAS — The Billionaire Investor Brain",
-    "description": "An interactive decision operating system modeling how a billion-dollar allocator thinks — across four pillars: asymmetric bet identification, risk-adjusted thinking, conviction sizing, and patience architecture. Features a live Asymmetry Engine (expected value, payoff ratio, Kelly sizing), a fractional-Kelly conviction sizer, a browser-persisted conviction journal with invalidation triggers, a mental-models reference library, and a $0/72-hour build protocol.",
+    "description": "An interactive decision operating system modeling how a billion-dollar allocator thinks — four pillars (asymmetric bet identification, risk-adjusted thinking, conviction sizing, patience architecture) plus five advanced faculties: a Bayesian base-rate updater, a Monte Carlo survival simulator (canvas fan-chart of fractional-Kelly lifetimes with ruin/drawdown stats), a time-arbitrage compounding engine, a pre-mortem inversion red team with a live fragility score, and a cognitive-bias firewall. Also a live Asymmetry Engine (EV, payoff ratio, Kelly sizing), a conviction sizer, and a browser-persisted conviction journal with invalidation triggers. Hand-rolled HiDPI canvas charts, theme-aware, CSP-compliant, zero backend.",
     "image": "assets/images/portfolio_site.png",
-    "tags": ["Finance", "AI", "Decision Science", "JavaScript", "Kelly Criterion", "Mental Models"],
+    "tags": ["Finance", "AI", "Decision Science", "JavaScript", "Kelly Criterion", "Monte Carlo", "Bayesian", "Mental Models"],
     "link": "investorbrain.html"
   },
   {

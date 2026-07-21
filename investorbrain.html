@@ -105,6 +105,22 @@
     .stat-band { border-top:1px solid var(--bs-border-color); border-bottom:1px solid var(--bs-border-color); }
     .big-num { font-size:2.2rem; font-weight:800; color: var(--bs-primary); line-height:1; }
     code.inline { background: rgba(var(--bs-primary-rgb),.1); color: var(--bs-primary); padding:.1rem .35rem; border-radius:5px; font-size:.85em; }
+
+    /* ===== Advanced modules ===== */
+    .adv-band { background: linear-gradient(180deg, rgba(var(--bs-primary-rgb),.05), transparent 55%); }
+    .canvas-wrap { position:relative; width:100%; border:1px solid var(--bs-border-color); border-radius:12px; background: var(--bs-tertiary-bg); padding:.5rem; }
+    .canvas-wrap canvas { display:block; width:100%; height:auto; }
+    .mini-legend { display:flex; flex-wrap:wrap; gap:.9rem; font-size:.74rem; color: var(--bs-secondary-color); }
+    .mini-legend .dot { display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:.3rem; vertical-align:middle; }
+    .redteam-item { border:1px solid var(--bs-border-color); border-radius:10px; padding:.6rem .8rem; margin-bottom:.55rem; background: var(--bs-tertiary-bg); }
+    .redteam-item .rt-mode { font-weight:600; font-size:.9rem; }
+    .sev-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:.35rem; }
+    .bias-firewall .form-check { padding:.35rem .5rem .35rem 2rem; border:1px solid var(--bs-border-color); border-radius:9px; margin-bottom:.5rem; background: var(--bs-tertiary-bg); }
+    .bias-firewall .form-check-label { font-size:.86rem; }
+    .bias-firewall .form-check-label small { display:block; color: var(--bs-secondary-color); font-size:.76rem; }
+    .clarity-meter { height:12px; border-radius:8px; background: var(--bs-border-color); overflow:hidden; }
+    .clarity-meter > span { display:block; height:100%; background: var(--bs-primary); transition: width .25s ease; }
+    .adv-tag { font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:800; color: var(--bs-primary); }
   </style>
 </head>
 <body>
@@ -398,6 +414,179 @@
       </div>
     </section>
 
+    <!-- ===== ADVANCED FACULTIES BAND ===== -->
+    <div class="adv-band">
+      <section class="container py-5 reveal" id="advanced">
+        <div class="text-center mb-2">
+          <div class="section-eyebrow">Advanced Faculties</div>
+          <h2 class="section-title">The deeper machinery</h2>
+          <p class="text-secondary mx-auto" style="max-width:680px">The four pillars are the spine. These are the advanced organs an allocator runs on top of them — Bayesian belief-updating, survival simulation, time-arbitrage, inversion red-teaming, and a bias firewall. This is where amateurs and allocators visibly diverge.</p>
+        </div>
+      </section>
+
+      <!-- ADV 1: BAYESIAN BASE-RATE UPDATER -->
+      <section class="container pb-5 reveal" id="bayes">
+        <div class="text-center mb-4">
+          <div class="adv-tag">Advanced 01 · feeds Pillar 02</div>
+          <h3 class="section-title h2 mt-1">Bayesian Base-Rate Updater</h3>
+          <p class="text-secondary mx-auto" style="max-width:640px">The single most common amateur error is <em>base-rate neglect</em> — falling in love with a story and ignoring how often bets like this actually work. Start from the reference class, then let your edge move the number a disciplined amount. Push the result straight into the engine.</p>
+        </div>
+        <div class="engine-card p-3 p-md-4">
+          <div class="row g-4">
+            <div class="col-lg-6">
+              <label for="bBase" class="form-label small fw-semibold mb-1">Base rate — how often bets like this succeed <span class="text-secondary">(<span id="bBaseOut">20</span>%)</span></label>
+              <input type="range" class="form-range" id="bBase" min="1" max="99" step="1" value="20">
+
+              <label for="bTPR" class="form-label small fw-semibold mb-1 mt-3">Your signal fires on the <em>winners</em> — true-positive rate <span class="text-secondary">(<span id="bTPROut">70</span>%)</span></label>
+              <input type="range" class="form-range" id="bTPR" min="1" max="99" step="1" value="70">
+
+              <label for="bFPR" class="form-label small fw-semibold mb-1 mt-3">Your signal also fires on <em>losers</em> — false-positive rate <span class="text-secondary">(<span id="bFPROut">30</span>%)</span></label>
+              <input type="range" class="form-range" id="bFPR" min="1" max="99" step="1" value="30">
+              <p class="small text-secondary mt-3 mb-0">If your signal is no better at spotting winners than losers (TPR ≈ FPR), it carries zero information — the posterior collapses back to the base rate. That gap <em>is</em> your edge.</p>
+            </div>
+            <div class="col-lg-6">
+              <div class="engine-readout text-center d-flex flex-column justify-content-center h-100">
+                <div class="lbl small text-secondary text-uppercase mb-1" style="letter-spacing:.08em">Posterior probability of success</div>
+                <div class="big-num mb-1" id="bPost" style="font-size:2.8rem">37%</div>
+                <div class="small text-secondary mb-3">Base rate <span id="bPostBase">20</span>% → updated by your signal</div>
+                <div class="payoff-bar mb-3" aria-hidden="true"><div class="up" id="bPostBar" style="width:37%; background:var(--bs-primary)"></div></div>
+                <p class="small text-secondary mb-3" id="bNarr">Your signal roughly doubles the odds versus the base rate — a real but not overwhelming edge. Anchor your conviction here, not on the story.</p>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="bSend">Send this probability to the Asymmetry Engine ↑</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADV 2: MONTE CARLO SURVIVAL SIMULATOR -->
+      <section class="container pb-5 reveal" id="montecarlo">
+        <div class="text-center mb-4">
+          <div class="adv-tag">Advanced 02 · stress-tests Pillars 03 + 04</div>
+          <h3 class="section-title h2 mt-1">Monte Carlo Survival Simulator</h3>
+          <p class="text-secondary mx-auto" style="max-width:680px">Expected value is an average over infinite trials. You only get <em>one</em> life, lived in sequence — and sequence is where fortunes die. This runs your bet hundreds of times, sized by your chosen Kelly fraction, and shows the fan of possible paths. The lesson lands hard: a positive-EV edge, over-sized, still ruins you.</p>
+        </div>
+        <div class="engine-card p-3 p-md-4">
+          <div class="row g-4">
+            <div class="col-lg-4">
+              <h5 class="fw-bold mb-3">Simulation</h5>
+              <label for="mcBets" class="form-label small fw-semibold mb-1">Bets over your lifetime <span class="text-secondary">(<span id="mcBetsOut">50</span>)</span></label>
+              <input type="range" class="form-range" id="mcBets" min="10" max="200" step="5" value="50">
+              <label for="mcPaths" class="form-label small fw-semibold mb-1 mt-2">Simulated lives <span class="text-secondary">(<span id="mcPathsOut">600</span>)</span></label>
+              <input type="range" class="form-range" id="mcPaths" min="100" max="1500" step="100" value="600">
+              <div class="small text-secondary mt-2 mb-3">
+                Edge, payoff and probability come live from the Asymmetry Engine; bet size comes from your Conviction tier
+                (<span id="mcFrac">13.2</span>% of capital per bet).
+              </div>
+              <button type="button" class="btn btn-primary w-100" id="mcRun">Run simulation ↻</button>
+              <div class="mini-legend mt-3">
+                <span><span class="dot" style="background:var(--bs-primary)"></span>Median life</span>
+                <span><span class="dot" style="background:rgba(var(--bs-primary-rgb),.22)"></span>5th–95th %ile band</span>
+                <span><span class="dot" style="background:rgba(220,53,69,.7)"></span>Ruin line (−70%)</span>
+              </div>
+            </div>
+            <div class="col-lg-8">
+              <div class="canvas-wrap mb-3"><canvas id="mcCanvas" height="300" role="img" aria-label="Fan chart of simulated wealth paths on a log scale"></canvas></div>
+              <div class="row g-2">
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="mcMedian">—</div><div class="lbl">Median outcome</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="mcRuin">—</div><div class="lbl">Ruin probability</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="mcLoss">—</div><div class="lbl">Chance of loss</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="mcP5">—</div><div class="lbl">5th %ile (bad life)</div></div></div>
+              </div>
+              <p class="small mb-0 mt-2" id="mcNarr">Adjust the Conviction tier above and re-run: full Kelly maximizes the median but fattens the ruin tail; fractional Kelly trades a little upside for survival — and survival is what lets you keep compounding.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADV 3: TIME ARBITRAGE / COMPOUNDING -->
+      <section class="container pb-5 reveal" id="compounding">
+        <div class="text-center mb-4">
+          <div class="adv-tag">Advanced 03 · powers Pillar 04</div>
+          <h3 class="section-title h2 mt-1">Time-Arbitrage Engine</h3>
+          <p class="text-secondary mx-auto" style="max-width:640px">The last durable edge is a willingness to wait longer than everyone else. Compounding is violently nonlinear — and small, seemingly harmless drags (fees, taxes, impatient trading) quietly amputate the back half of the curve, where all the money is.</p>
+        </div>
+        <div class="engine-card p-3 p-md-4">
+          <div class="row g-4">
+            <div class="col-lg-4">
+              <label for="cReturn" class="form-label small fw-semibold mb-1">Annual return <span class="text-secondary">(<span id="cReturnOut">15</span>%)</span></label>
+              <input type="range" class="form-range" id="cReturn" min="1" max="40" step="1" value="15">
+              <label for="cYears" class="form-label small fw-semibold mb-1 mt-2">Years of patience <span class="text-secondary">(<span id="cYearsOut">30</span>)</span></label>
+              <input type="range" class="form-range" id="cYears" min="1" max="50" step="1" value="30">
+              <label for="cDrag" class="form-label small fw-semibold mb-1 mt-2">Impatience drag — fees / churn / taxes <span class="text-secondary">(<span id="cDragOut">2</span>%/yr)</span></label>
+              <input type="range" class="form-range" id="cDrag" min="0" max="8" step="0.5" value="2">
+              <label for="cPrincipal" class="form-label small fw-semibold mb-1 mt-2">Starting amount ($)</label>
+              <input type="number" class="form-control" id="cPrincipal" value="10000" min="0" step="500">
+              <div class="mini-legend mt-3">
+                <span><span class="dot" style="background:var(--bs-primary)"></span>Patient compounding</span>
+                <span><span class="dot" style="background:rgba(220,53,69,.7)"></span>With impatience drag</span>
+              </div>
+            </div>
+            <div class="col-lg-8">
+              <div class="canvas-wrap mb-3"><canvas id="cCanvas" height="300" role="img" aria-label="Compounding growth curve versus a lower curve reduced by annual drag"></canvas></div>
+              <div class="row g-2">
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="cPatient">—</div><div class="lbl">Patient terminal</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="cDragged">—</div><div class="lbl">After drag</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="cCost">—</div><div class="lbl">Cost of impatience</div></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><div class="val" id="cDouble">—</div><div class="lbl">Doubling time</div></div></div>
+              </div>
+              <p class="small text-secondary mb-0 mt-2" id="cNarr">A 2%/yr drag doesn't cost you 2% — over decades it can quietly consume a third or more of your final wealth. That is the true price of impatience.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADV 4 + 5: RED TEAM + BIAS FIREWALL -->
+      <section class="container pb-5 reveal" id="redteam">
+        <div class="row g-4">
+          <!-- Pre-mortem red team -->
+          <div class="col-lg-6">
+            <div class="adv-tag">Advanced 04 · Inversion</div>
+            <h3 class="section-title h4 mt-1 mb-2">Pre-Mortem Red Team</h3>
+            <p class="text-secondary small">Assume the bet already failed. List <em>why</em> — before capital is committed and ego is in the room. Rate each failure mode; a live fragility score tells you whether the thesis is robust or a house of cards. A single likely-and-fatal mode overrides everything.</p>
+            <div class="engine-readout">
+              <div class="row g-2 align-items-end">
+                <div class="col-12">
+                  <label for="rtMode" class="form-label small fw-semibold mb-1">Failure mode</label>
+                  <input type="text" class="form-control" id="rtMode" maxlength="120" placeholder="e.g. The moat is narrower than the market believes">
+                </div>
+                <div class="col-6">
+                  <label for="rtProb" class="form-label small fw-semibold mb-1">Likelihood</label>
+                  <select class="form-select" id="rtProb"><option value="1">Low</option><option value="2" selected>Medium</option><option value="3">High</option></select>
+                </div>
+                <div class="col-6">
+                  <label for="rtImpact" class="form-label small fw-semibold mb-1">Impact</label>
+                  <select class="form-select" id="rtImpact"><option value="1">Minor</option><option value="2" selected>Serious</option><option value="3">Severe</option><option value="5">Fatal</option></select>
+                </div>
+                <div class="col-12"><button type="button" class="btn btn-primary btn-sm w-100 mt-1" id="rtAdd">Add failure mode</button></div>
+              </div>
+              <hr class="my-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div><span class="small text-secondary text-uppercase" style="letter-spacing:.08em">Fragility</span> <span class="fw-bold ms-1" id="rtScoreLbl">—</span></div>
+                <span class="verdict-badge v-good" id="rtVerdict" style="font-size:.8rem">ROBUST</span>
+              </div>
+              <div id="rtList"><div class="text-secondary small fst-italic" id="rtEmpty">No failure modes yet. A thesis you can't attack is a thesis you don't understand.</div></div>
+            </div>
+          </div>
+
+          <!-- Bias firewall -->
+          <div class="col-lg-6">
+            <div class="adv-tag">Advanced 05 · Debiasing</div>
+            <h3 class="section-title h4 mt-1 mb-2">Cognitive Bias Firewall</h3>
+            <p class="text-secondary small">The enemy isn't the market — it's the operator. Before you commit, walk the firewall. Each box you can honestly check raises your <strong>clarity score</strong>; the ones you can't are exactly where the mistake is hiding.</p>
+            <div class="engine-readout bias-firewall">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-secondary text-uppercase" style="letter-spacing:.08em">Clarity score</span>
+                <span class="fw-bold" id="biasScore">0%</span>
+              </div>
+              <div class="clarity-meter mb-3"><span id="biasMeter" style="width:0%"></span></div>
+              <div id="biasList"></div>
+              <p class="small text-secondary mb-0 mt-1" id="biasNarr">Check every box you've genuinely addressed. Anything left unchecked is an open door.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <!-- ===== OPERATING PRINCIPLES ===== -->
     <section class="container py-5 reveal" id="principles">
       <div class="text-center mb-4">
@@ -605,6 +794,7 @@
       $("sizePct").textContent = (frac * 100).toFixed(1);
       $("sizeTier").textContent = tierLabel[String(state.tierFrac)] || "";
       $("sizeBar").style.width = Math.min(100, frac * 100).toFixed(1) + "%";
+      var mcf = $("mcFrac"); if (mcf) { mcf.textContent = (frac * 100).toFixed(1); }
 
       var narr = $("sizeNarr");
       if (state.kelly <= 0) {
@@ -698,9 +888,447 @@
       });
     }
 
+    // =========================================================
+    //  SHARED CANVAS HELPERS (theme-aware, HiDPI)
+    // =========================================================
+    function themeColors() {
+      var cs = getComputedStyle(document.body);
+      function v(name, fb) { var x = cs.getPropertyValue(name).trim(); return x || fb; }
+      return {
+        prim: v("--bs-primary", "#ff5811"),
+        primRGB: v("--bs-primary-rgb", "255,88,17"),
+        grid: v("--bs-border-color", "#333"),
+        text: v("--bs-secondary-color", "#8a8a8a"),
+        body: v("--bs-body-color", "#e8e8e8")
+      };
+    }
+    function fitCanvas(cv, cssH) {
+      var dpr = window.devicePixelRatio || 1;
+      var w = (cv.parentElement.clientWidth || cv.clientWidth || 300) - 16; // wrapper padding
+      if (w < 40) { w = 300; }
+      cv.style.height = cssH + "px";
+      cv.width = Math.round(w * dpr);
+      cv.height = Math.round(cssH * dpr);
+      var ctx = cv.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, cssH);
+      return { ctx: ctx, w: w, h: cssH };
+    }
+    function fmtMult(x) {
+      if (!isFinite(x)) { return "∞"; }
+      if (x >= 100) { return Math.round(x).toLocaleString("en-US") + "×"; }
+      if (x >= 10) { return x.toFixed(0) + "×"; }
+      return x.toFixed(2) + "×";
+    }
+
+    // =========================================================
+    //  ADV 1 — BAYESIAN BASE-RATE UPDATER
+    // =========================================================
+    var bBase = $("bBase"), bTPR = $("bTPR"), bFPR = $("bFPR");
+    var lastPosterior = 0.37;
+
+    function computeBayes() {
+      var prior = +bBase.value / 100;
+      var tpr = +bTPR.value / 100;
+      var fpr = +bFPR.value / 100;
+      $("bBaseOut").textContent = bBase.value;
+      $("bTPROut").textContent = bTPR.value;
+      $("bFPROut").textContent = bFPR.value;
+
+      var denom = tpr * prior + fpr * (1 - prior);
+      var post = denom > 0 ? (tpr * prior) / denom : prior;
+      lastPosterior = post;
+
+      $("bPost").textContent = Math.round(post * 100) + "%";
+      $("bPostBase").textContent = bBase.value;
+      $("bPostBar").style.width = (post * 100).toFixed(1) + "%";
+
+      var lift = prior > 0 ? post / prior : 1;
+      var narr = $("bNarr");
+      if (Math.abs(tpr - fpr) < 0.05) {
+        narr.textContent = "Your signal fires about as often on losers as winners — it carries almost no information, so the posterior barely moves off the base rate. This is not an edge.";
+      } else if (lift >= 2) {
+        narr.textContent = "Your signal roughly " + lift.toFixed(1) + "×'s the odds versus the base rate — a genuine, tradable edge. Anchor conviction here, not on the narrative.";
+      } else if (post > prior) {
+        narr.textContent = "A real but modest update: the signal nudges the odds up " + Math.round((lift - 1) * 100) + "%. Worth acting on only if the payoff is asymmetric enough.";
+      } else {
+        narr.textContent = "Your 'edge' actually points the wrong way — the signal is more common among losers. The disciplined move is to fade it, or pass.";
+      }
+    }
+    [bBase, bTPR, bFPR].forEach(function (el) { el.addEventListener("input", computeBayes); });
+    $("bSend").addEventListener("click", function () {
+      var post = Math.max(1, Math.min(99, Math.round(lastPosterior * 100)));
+      inProb.value = post;
+      computeEngine();
+      var eng = $("engine");
+      if (eng) { eng.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    });
+
+    // =========================================================
+    //  ADV 2 — MONTE CARLO SURVIVAL SIMULATOR
+    // =========================================================
+    var mcState = { ready: false };
+    var mcBets = $("mcBets"), mcPaths = $("mcPaths"), mcCanvas = $("mcCanvas");
+    mcBets.addEventListener("input", function () { $("mcBetsOut").textContent = mcBets.value; });
+    mcPaths.addEventListener("input", function () { $("mcPathsOut").textContent = mcPaths.value; });
+    $("mcRun").addEventListener("click", runMonteCarlo);
+
+    function pctOf(sortedArr, q) {
+      var idx = Math.floor(q * (sortedArr.length - 1));
+      return sortedArr[idx];
+    }
+
+    function runMonteCarlo() {
+      var d = +inDown.value / 100, u = +inUp.value / 100, p = +inProb.value / 100;
+      var f = Math.max(0, state.kelly * state.tierFrac);
+      var N = +mcBets.value, M = +mcPaths.value;
+      var ruinLine = 0.30; // touching -70% drawdown = effectively out of the game
+
+      var mat = new Array(M), terminals = new Float64Array(M);
+      var ruinCount = 0, lossCount = 0;
+      for (var i = 0; i < M; i++) {
+        var w = 1, row = new Float64Array(N + 1), ruined = false;
+        row[0] = 1;
+        for (var t = 1; t <= N; t++) {
+          var win = Math.random() < p;
+          w = w * (1 + f * (win ? u : -d));
+          if (w < 0) { w = 0; }
+          row[t] = w;
+          if (w <= ruinLine) { ruined = true; }
+        }
+        mat[i] = row;
+        terminals[i] = w;
+        if (ruined) { ruinCount++; }
+        if (w < 1) { lossCount++; }
+      }
+      var sortedT = Float64Array.from(terminals).sort();
+      var band5 = new Float64Array(N + 1), band50 = new Float64Array(N + 1), band95 = new Float64Array(N + 1);
+      var col = new Float64Array(M);
+      for (var tt = 0; tt <= N; tt++) {
+        for (var j = 0; j < M; j++) { col[j] = mat[j][tt]; }
+        var s = Float64Array.from(col).sort();
+        band5[tt] = pctOf(s, 0.05); band50[tt] = pctOf(s, 0.5); band95[tt] = pctOf(s, 0.95);
+      }
+      mcState = {
+        ready: true, mat: mat, band5: band5, band50: band50, band95: band95,
+        N: N, M: M, ruinLine: ruinLine, f: f,
+        median: pctOf(sortedT, 0.5), p5: pctOf(sortedT, 0.05), p95: pctOf(sortedT, 0.95),
+        ruin: ruinCount / M, loss: lossCount / M
+      };
+
+      $("mcMedian").textContent = fmtMult(mcState.median);
+      $("mcRuin").textContent = Math.round(mcState.ruin * 100) + "%";
+      $("mcLoss").textContent = Math.round(mcState.loss * 100) + "%";
+      $("mcP5").textContent = fmtMult(mcState.p5);
+
+      var narr = $("mcNarr");
+      if (f <= 0) {
+        narr.textContent = "The Asymmetry Engine shows no edge, so the bet size is zero — every life is a flat line. No edge, no bet, no ruin. Fix the inputs above first.";
+      } else if (mcState.ruin >= 0.25) {
+        narr.textContent = "Even with a positive edge, this sizing ruins roughly " + Math.round(mcState.ruin * 100) + "% of lives. The median looks fine, but you don't get the median — you get one path. Drop to a smaller Kelly fraction and re-run.";
+      } else if (mcState.ruin >= 0.05) {
+        narr.textContent = "A survivable but real ruin tail (" + Math.round(mcState.ruin * 100) + "%). This is the trade-off allocators price consciously: a hair less growth for a lot less chance of being wiped out.";
+      } else {
+        narr.textContent = "Ruin is rare here (" + Math.round(mcState.ruin * 100) + "%) and the median still compounds to " + fmtMult(mcState.median) + ". This is the sweet spot fractional Kelly is built to find — grow without dying.";
+      }
+      drawMonteCarlo();
+    }
+
+    function drawMonteCarlo() {
+      if (!mcState.ready) { return; }
+      var c = themeColors();
+      var dim = fitCanvas(mcCanvas, 300);
+      var ctx = dim.ctx, W = dim.w, H = dim.h;
+      var padL = 44, padR = 10, padT = 12, padB = 22;
+      var plotW = W - padL - padR, plotH = H - padT - padB;
+      var N = mcState.N;
+
+      // y-range on log scale
+      var lo = mcState.ruinLine * 0.6, hi = mcState.band95[N];
+      for (var t = 0; t <= N; t++) { if (mcState.band95[t] > hi) { hi = mcState.band95[t]; } }
+      if (lo < 0.03) { lo = 0.03; }
+      if (hi < 2) { hi = 2; }
+      var logLo = Math.log10(lo), logHi = Math.log10(hi);
+      function xAt(t) { return padL + (t / N) * plotW; }
+      function yAt(v) {
+        var vv = v < lo ? lo : v;
+        var lg = Math.log10(vv);
+        return padT + plotH - ((lg - logLo) / (logHi - logLo)) * plotH;
+      }
+
+      // gridlines at powers of 10
+      ctx.font = "10px system-ui, sans-serif";
+      ctx.textBaseline = "middle";
+      var startP = Math.floor(logLo), endP = Math.ceil(logHi);
+      for (var pw = startP; pw <= endP; pw++) {
+        var val = Math.pow(10, pw);
+        if (val < lo || val > hi) { continue; }
+        var y = yAt(val);
+        ctx.strokeStyle = c.grid; ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+        ctx.globalAlpha = 1; ctx.fillStyle = c.text;
+        ctx.textAlign = "right";
+        ctx.fillText(fmtMult(val), padL - 6, y);
+      }
+      // baseline 1x (break-even)
+      ctx.strokeStyle = c.text; ctx.globalAlpha = 0.7; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(padL, yAt(1)); ctx.lineTo(W - padR, yAt(1)); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+
+      // 5-95 band
+      ctx.beginPath();
+      ctx.moveTo(xAt(0), yAt(mcState.band95[0]));
+      for (var a = 1; a <= N; a++) { ctx.lineTo(xAt(a), yAt(mcState.band95[a])); }
+      for (var b = N; b >= 0; b--) { ctx.lineTo(xAt(b), yAt(mcState.band5[b])); }
+      ctx.closePath();
+      ctx.fillStyle = "rgba(" + c.primRGB + ",0.16)";
+      ctx.fill();
+
+      // sample faint paths
+      var step = Math.max(1, Math.floor(mcState.M / 32));
+      ctx.strokeStyle = "rgba(" + c.primRGB + ",0.16)"; ctx.lineWidth = 1;
+      for (var i = 0; i < mcState.M; i += step) {
+        var row = mcState.mat[i];
+        ctx.beginPath(); ctx.moveTo(xAt(0), yAt(row[0]));
+        for (var k = 1; k <= N; k++) { ctx.lineTo(xAt(k), yAt(row[k])); }
+        ctx.stroke();
+      }
+
+      // ruin line
+      ctx.strokeStyle = "rgba(220,53,69,0.85)"; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(padL, yAt(mcState.ruinLine)); ctx.lineTo(W - padR, yAt(mcState.ruinLine)); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // median path
+      ctx.strokeStyle = c.prim; ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(xAt(0), yAt(mcState.band50[0]));
+      for (var m = 1; m <= N; m++) { ctx.lineTo(xAt(m), yAt(mcState.band50[m])); }
+      ctx.stroke();
+
+      // x label
+      ctx.fillStyle = c.text; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.fillText(N + " sequential bets →", padL + plotW / 2, H - 5);
+    }
+
+    // =========================================================
+    //  ADV 3 — TIME-ARBITRAGE / COMPOUNDING
+    // =========================================================
+    var cReturn = $("cReturn"), cYears = $("cYears"), cDrag = $("cDrag"), cPrincipal = $("cPrincipal");
+    var cCanvas = $("cCanvas");
+    var cState = { ready: false };
+
+    function computeCompounding() {
+      var r = +cReturn.value / 100;
+      var yrs = +cYears.value;
+      var drag = +cDrag.value / 100;
+      var P = Math.max(0, +cPrincipal.value || 0);
+      $("cReturnOut").textContent = cReturn.value;
+      $("cYearsOut").textContent = cYears.value;
+      $("cDragOut").textContent = cDrag.value;
+
+      var netR = r - drag;
+      var patient = new Float64Array(yrs + 1), dragged = new Float64Array(yrs + 1);
+      for (var t = 0; t <= yrs; t++) {
+        patient[t] = P * Math.pow(1 + r, t);
+        dragged[t] = P * Math.pow(1 + Math.max(-0.99, netR), t);
+      }
+      var pt = patient[yrs], dt = dragged[yrs], cost = pt - dt;
+      var costPct = pt > 0 ? (cost / pt) * 100 : 0;
+
+      $("cPatient").textContent = fmtMoney(Math.round(pt));
+      $("cDragged").textContent = fmtMoney(Math.round(dt));
+      $("cCost").textContent = fmtMoney(Math.round(cost));
+      $("cDouble").textContent = r > 0 ? (72 / (r * 100)).toFixed(1) + " yrs" : "—";
+
+      $("cNarr").textContent = "A " + cDrag.value + "%/yr drag doesn't cost you " + cDrag.value +
+        "% — compounded over " + yrs + " years it quietly consumes " + costPct.toFixed(0) +
+        "% of your final wealth (" + fmtMoney(Math.round(cost)) + "). That is the true price of impatience.";
+
+      cState = { ready: true, patient: patient, dragged: dragged, yrs: yrs };
+      drawCompounding();
+    }
+
+    function drawCompounding() {
+      if (!cState.ready) { return; }
+      var c = themeColors();
+      var dim = fitCanvas(cCanvas, 300);
+      var ctx = dim.ctx, W = dim.w, H = dim.h;
+      var padL = 58, padR = 12, padT = 12, padB = 22;
+      var plotW = W - padL - padR, plotH = H - padT - padB;
+      var yrs = cState.yrs, maxV = cState.patient[yrs] || 1;
+      if (maxV <= 0) { maxV = 1; }
+
+      function xAt(t) { return padL + (yrs ? (t / yrs) : 0) * plotW; }
+      function yAt(v) { return padT + plotH - (v / maxV) * plotH; }
+
+      // horizontal gridlines (4)
+      ctx.font = "10px system-ui, sans-serif"; ctx.textBaseline = "middle";
+      for (var g = 0; g <= 4; g++) {
+        var val = (maxV / 4) * g, y = yAt(val);
+        ctx.strokeStyle = c.grid; ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+        ctx.globalAlpha = 1; ctx.fillStyle = c.text; ctx.textAlign = "right";
+        var lbl = val >= 1000 ? "$" + Math.round(val / 1000) + "k" : "$" + Math.round(val);
+        ctx.fillText(lbl, padL - 6, y);
+      }
+
+      // gap fill (cost of impatience)
+      ctx.beginPath();
+      ctx.moveTo(xAt(0), yAt(cState.patient[0]));
+      for (var a = 1; a <= yrs; a++) { ctx.lineTo(xAt(a), yAt(cState.patient[a])); }
+      for (var b = yrs; b >= 0; b--) { ctx.lineTo(xAt(b), yAt(cState.dragged[b])); }
+      ctx.closePath();
+      ctx.fillStyle = "rgba(220,53,69,0.12)"; ctx.fill();
+
+      // dragged curve
+      ctx.strokeStyle = "rgba(220,53,69,0.85)"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(xAt(0), yAt(cState.dragged[0]));
+      for (var d1 = 1; d1 <= yrs; d1++) { ctx.lineTo(xAt(d1), yAt(cState.dragged[d1])); }
+      ctx.stroke();
+
+      // patient curve
+      ctx.strokeStyle = c.prim; ctx.lineWidth = 2.6;
+      ctx.beginPath(); ctx.moveTo(xAt(0), yAt(cState.patient[0]));
+      for (var p1 = 1; p1 <= yrs; p1++) { ctx.lineTo(xAt(p1), yAt(cState.patient[p1])); }
+      ctx.stroke();
+
+      ctx.fillStyle = c.text; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.fillText(yrs + " years of patience →", padL + plotW / 2, H - 5);
+    }
+    [cReturn, cYears, cDrag].forEach(function (el) { el.addEventListener("input", computeCompounding); });
+    cPrincipal.addEventListener("input", computeCompounding);
+
+    // =========================================================
+    //  ADV 4 — PRE-MORTEM RED TEAM (inversion)
+    // =========================================================
+    var rtItems = [];
+    var IMPACT_LABEL = { "1": "Minor", "2": "Serious", "3": "Severe", "5": "Fatal" };
+    var IMPACT_COLOR = { "1": "#2ec77a", "2": "#ffca2c", "3": "#ff8a3d", "5": "#ff5b6a" };
+    var PROB_LABEL = { "1": "Low", "2": "Medium", "3": "High" };
+
+    $("rtAdd").addEventListener("click", function () {
+      var mode = $("rtMode").value.trim();
+      if (!mode) { return; }
+      rtItems.push({ id: Date.now().toString(36) + Math.round(Math.random() * 1e6).toString(36),
+        mode: mode, prob: $("rtProb").value, impact: $("rtImpact").value });
+      $("rtMode").value = "";
+      renderRedTeam();
+    });
+
+    function renderRedTeam() {
+      var list = $("rtList"), empty = $("rtEmpty");
+      Array.prototype.slice.call(list.querySelectorAll(".redteam-item")).forEach(function (n) { n.remove(); });
+
+      if (!rtItems.length) {
+        empty.style.display = "";
+      } else {
+        empty.style.display = "none";
+        rtItems.forEach(function (it) {
+          var div = document.createElement("div");
+          div.className = "redteam-item";
+          div.innerHTML =
+            '<div class="d-flex justify-content-between align-items-start gap-2">' +
+              '<div><span class="sev-dot" style="background:' + IMPACT_COLOR[it.impact] + '"></span>' +
+                '<span class="rt-mode">' + esc(it.mode) + "</span></div>" +
+              '<button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 rt-del" data-id="' + esc(it.id) + '" aria-label="Remove">&times;</button>' +
+            "</div>" +
+            '<div class="meta small text-secondary mt-1" style="padding-left:1rem">' +
+              PROB_LABEL[it.prob] + " likelihood · " + IMPACT_LABEL[it.impact] + " impact</div>";
+          list.appendChild(div);
+        });
+        Array.prototype.slice.call(list.querySelectorAll(".rt-del")).forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            rtItems = rtItems.filter(function (x) { return x.id !== btn.dataset.id; });
+            renderRedTeam();
+          });
+        });
+      }
+
+      // fragility scoring
+      var raw = 0, fatalFlag = false;
+      rtItems.forEach(function (it) {
+        var pr = +it.prob, im = +it.impact;
+        raw += pr * im;
+        if (im === 5 && pr >= 2) { fatalFlag = true; }
+      });
+      var score = Math.min(100, Math.round(raw * 6));
+      var badge = $("rtVerdict"), lbl = $("rtScoreLbl");
+      badge.className = "verdict-badge";
+      badge.style.fontSize = ".8rem";
+      if (!rtItems.length) {
+        lbl.textContent = "—"; badge.classList.add("v-good"); badge.textContent = "UNTESTED";
+      } else if (fatalFlag) {
+        lbl.textContent = score; badge.classList.add("v-bad"); badge.textContent = "FATAL RISK — a likely, unrecoverable failure mode is present. Cap size or pass.";
+      } else if (score >= 55) {
+        lbl.textContent = score; badge.classList.add("v-bad"); badge.textContent = "FRAGILE";
+      } else if (score >= 25) {
+        lbl.textContent = score; badge.classList.add("v-mid"); badge.textContent = "GUARDED";
+      } else {
+        lbl.textContent = score; badge.classList.add("v-good"); badge.textContent = "ROBUST";
+      }
+    }
+
+    // =========================================================
+    //  ADV 5 — COGNITIVE BIAS FIREWALL
+    // =========================================================
+    var BIASES = [
+      { t: "Confirmation bias", d: "I actively hunted the strongest case against this — not just support for it." },
+      { t: "Anchoring", d: "My valuation isn't just tethered to the first number I happened to see." },
+      { t: "Loss aversion", d: "I sized this on the odds, not on fear of feeling a loss." },
+      { t: "Recency bias", d: "I'm weighting long-run base rates, not just what happened lately." },
+      { t: "Overconfidence", d: "I widened my probability range to respect what I genuinely don't know." },
+      { t: "Herding", d: "This conviction survives even if the crowd loudly disagrees with me." },
+      { t: "Sunk cost", d: "I would make this exact decision today starting from a blank slate." },
+      { t: "Narrative fallacy", d: "I can justify this in numbers without leaning on a good story." }
+    ];
+    function renderBiasFirewall() {
+      var wrap = $("biasList");
+      BIASES.forEach(function (b, idx) {
+        var div = document.createElement("div");
+        div.className = "form-check";
+        div.innerHTML =
+          '<input class="form-check-input bias-chk" type="checkbox" id="bias' + idx + '">' +
+          '<label class="form-check-label" for="bias' + idx + '"><strong>' + esc(b.t) + "</strong>" +
+          "<small>" + esc(b.d) + "</small></label>";
+        wrap.appendChild(div);
+      });
+      Array.prototype.slice.call(wrap.querySelectorAll(".bias-chk")).forEach(function (chk) {
+        chk.addEventListener("change", updateBiasScore);
+      });
+    }
+    function updateBiasScore() {
+      var boxes = document.querySelectorAll(".bias-chk");
+      var done = 0;
+      Array.prototype.slice.call(boxes).forEach(function (b) { if (b.checked) { done++; } });
+      var pct = boxes.length ? Math.round((done / boxes.length) * 100) : 0;
+      $("biasScore").textContent = pct + "%";
+      $("biasMeter").style.width = pct + "%";
+      var narr = $("biasNarr");
+      if (pct === 100) { narr.textContent = "Firewall clear. You've consciously checked every common failure of judgment — now the decision is about the bet, not about you."; }
+      else if (pct >= 75) { narr.textContent = "Mostly clear. Return to the unchecked boxes — that's the precise spot where a hidden bias is steering you."; }
+      else if (pct >= 40) { narr.textContent = "Real holes remain. More than half-checked is not the same as clear-headed. Keep walking the list."; }
+      else { narr.textContent = "Danger. You haven't yet interrogated your own thinking — the most expensive mistakes live right here."; }
+    }
+
+    // =========================================================
+    //  THEME / RESIZE REDRAW
+    // =========================================================
+    function redrawAll() { drawMonteCarlo(); drawCompounding(); }
+    var rzTimer;
+    window.addEventListener("resize", function () { clearTimeout(rzTimer); rzTimer = setTimeout(redrawAll, 150); });
+    if (window.MutationObserver) {
+      new MutationObserver(redrawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-bs-theme"] });
+    }
+
     // ---- init ----
     computeEngine();
     renderJournal();
+    computeBayes();
+    computeCompounding();
+    renderRedTeam();
+    renderBiasFirewall();
+    updateBiasScore();
+    runMonteCarlo();
   })();
   </script>
 </body>
