@@ -29,6 +29,16 @@ keys, foreign keys, indexes, constraints, notable status/enum fields, the immuta
 > migrations (fresh install, CI, cron-only, air-gapped) is now **complete** without
 > ever hitting the front controller. Verified by
 > `tests/integration/schema_completeness_db.php`.
+>
+> **Fresh-install schema completeness (Phase 24).** `schema.sql` now also folds in
+> the enterprise **`vendors`** columns (`vendor_code`, `risk_tier`,
+> `primary_contact`, `country`, `data_access`, `critical_service`,
+> `contract_start`, `contract_end`) and the **`user_notification_prefs`** table,
+> which previously existed only in the `index.php` runtime block — so a
+> migrations-only / fresh `install.php` builds a **complete, warning-free** schema.
+> `install.php` now prints a **schema warning summary** at the end
+> ("Schema is complete — 0 warnings" or "⚠ Completed with N warning(s)"),
+> non-fatal by design.
 
 ---
 
