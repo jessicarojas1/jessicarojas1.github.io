@@ -183,6 +183,10 @@ jobs:
         working-directory: aegis
         run: php tests/integration/schema_completeness_db.php
 
+      - name: Bug-hunt regressions — questionnaire/asset/vendor/risk column & CHECK shapes
+        working-directory: aegis
+        run: php tests/integration/bugfix_regression_db.php
+
   # ---------------------------------------------------------------------------
   # Advisory until proven green on a CI run, then promote to a hard gate (the
   # repo's "advisory then promote" convention). Validates the hardened image

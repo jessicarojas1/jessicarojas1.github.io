@@ -566,8 +566,8 @@ class RiskController {
         Database::query(
             "UPDATE risks SET
                likelihood=?, impact=?, inherent_score=?,
-               residual_likelihood=?, residual_impact=?,
-               target_likelihood=?, target_impact=?,
+               residual_likelihood=?, residual_impact=?, residual_score=?,
+               target_likelihood=?, target_impact=?, target_score=?,
                velocity=?, proximity=?, risk_source=?, confidence=?,
                status=?,
                treatment_strategies=?::jsonb, treatment_type=?,
@@ -580,8 +580,8 @@ class RiskController {
              WHERE id=?",
             [
                 $likelihood, $impact, $likelihood * $impact,
-                $resLikelihood, $resImpact,
-                $tgtLikelihood, $tgtImpact,
+                $resLikelihood, $resImpact, ($resLikelihood && $resImpact) ? $resLikelihood * $resImpact : 0,
+                $tgtLikelihood, $tgtImpact, ($tgtLikelihood && $tgtImpact) ? $tgtLikelihood * $tgtImpact : 0,
                 $velocity, $proximity, $source, $confidence,
                 $status,
                 json_encode($strategies), $strategies[0] ?? null,
@@ -882,10 +882,11 @@ class RiskController {
         if ($statusFilter && in_array($statusFilter, self::STATUSES, true)) {
             $where[] = "r.status=?"; $params[] = $statusFilter;
         }
-        if ($levelFilter === 'critical')   { $where[] = "r.inherent_score >= 20"; }
-        elseif ($levelFilter === 'high')   { $where[] = "r.inherent_score BETWEEN 15 AND 19"; }
-        elseif ($levelFilter === 'medium') { $where[] = "r.inherent_score BETWEEN 8 AND 14"; }
-        elseif ($levelFilter === 'low')    { $where[] = "r.inherent_score < 8"; }
+        // Use the canonical RiskScore bands (low 1-4, medium 5-9, high 10-14,
+        // critical 15-25) so the roadmap filter matches the dashboard/register.
+        if (in_array($levelFilter, ['critical','high','medium','low'], true)) {
+            $where[] = RiskScore::sqlCondition($levelFilter, 'r.inherent_score');
+        }
 
         $risks = Database::fetchAll(
             "SELECT r.*, u.name AS owner_name

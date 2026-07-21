@@ -717,7 +717,9 @@ class VendorController {
         $vendorId = (int)$vendorId;
         $assessId = (int)$assessId;
 
-        $validStatuses  = ['planned', 'in_progress', 'completed', 'overdue'];
+        // Must match vendor_assessments_status_check (planned/in_progress/
+        // completed/cancelled) — 'overdue' is not a stored status and violates it.
+        $validStatuses  = ['planned', 'in_progress', 'completed', 'cancelled'];
         $validRatings   = ['critical', 'high', 'medium', 'low', 'acceptable'];
 
         $status          = Security::sanitizeInput($_POST['status'] ?? 'planned');
