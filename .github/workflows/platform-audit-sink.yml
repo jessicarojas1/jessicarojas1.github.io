@@ -38,7 +38,7 @@ jobs:
 
       # NOTE: tag-pinned; dependabot/renovate should SHA-pin to match repo convention.
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.9.8
           terraform_wrapper: false
