@@ -1,0 +1,142 @@
+/* MERIDIAN — Daily Executive Intelligence Brief
+ * Dark-first, theme-aware. Leans on Bootstrap 5.3 tokens (--bs-*) so light/dark
+ * follow data-bs-theme automatically; only MERIDIAN-specific tokens are defined
+ * here. Priority/confidence colors use semantic tokens, never hardcoded hex in
+ * markup (per project dark-mode rule).
+ */
+:root {
+  --mer-accent: #3d6fe0;
+  --mer-crit: #ef4444;
+  --mer-high: #f59e0b;
+  --mer-med: #3b82f6;
+  --mer-low: #64748b;
+  --mer-good: #22c55e;
+  --mer-radius: 12px;
+}
+
+/* Accent-driven primary buttons/links without overriding the global theme. */
+.meridian-bar { background: var(--bs-tertiary-bg); border-bottom: 1px solid var(--bs-border-color); }
+.btn-primary { --bs-btn-bg: var(--mer-accent); --bs-btn-border-color: var(--mer-accent);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--mer-accent) 85%, #000);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--mer-accent) 85%, #000);
+  --bs-btn-active-bg: color-mix(in srgb, var(--mer-accent) 80%, #000); }
+a { color: color-mix(in srgb, var(--mer-accent) 88%, var(--bs-body-color)); }
+
+.skip-link { position:absolute; left:-999px; top:0; background:var(--mer-accent); color:#fff; padding:.5rem .9rem; z-index:2000; border-radius:0 0 8px 0; }
+.skip-link:focus { left:0; }
+
+.page-header { border-bottom:1px solid var(--bs-border-color); padding-bottom:.6rem; margin-bottom:1rem; }
+.page-title { font-size:1.35rem; font-weight:700; margin:0; }
+
+/* Section visibility */
+section[data-view] { max-width: 1180px; margin: 0 auto; }
+
+/* Brief meta strip */
+.brief-meta { display:flex; flex-wrap:wrap; gap:.5rem 1.2rem; align-items:center;
+  padding:.6rem .9rem; border:1px solid var(--bs-border-color); border-radius:var(--mer-radius);
+  background:var(--bs-tertiary-bg); font-size:.86rem; }
+.brief-meta .cls-badge { font-weight:700; letter-spacing:.03em; }
+
+/* Brief sections */
+.brief-section { border:1px solid var(--bs-border-color); border-radius:var(--mer-radius);
+  background:var(--bs-card-bg); margin-bottom:1.1rem; overflow:hidden; }
+.brief-section > h2 { font-size:.82rem; letter-spacing:.08em; text-transform:uppercase;
+  font-weight:700; margin:0; padding:.7rem .95rem; background:var(--bs-tertiary-bg);
+  border-bottom:1px solid var(--bs-border-color); display:flex; align-items:center; gap:.5rem; }
+.brief-section > h2 .sec-accent { width:4px; height:16px; border-radius:2px; background:var(--mer-accent); display:inline-block; }
+.brief-section .sec-inner { padding:.9rem .95rem; }
+
+/* BLUF */
+.bluf-list { margin:0; padding:0; list-style:none; }
+.bluf-list li { padding:.55rem 0; border-bottom:1px dashed var(--bs-border-color); }
+.bluf-list li:last-child { border-bottom:0; }
+.bluf-list .bluf-what { font-weight:600; }
+.bluf-list .bluf-tag { font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--bs-secondary-color); }
+
+/* Item card */
+.intel-item { padding:.7rem 0; border-bottom:1px solid var(--bs-border-color); }
+.intel-item:last-child { border-bottom:0; }
+.intel-item h3 { font-size:1rem; font-weight:700; margin:0 0 .35rem; }
+.intel-item .field { margin:.2rem 0; font-size:.9rem; }
+.intel-item .field .lbl { font-weight:700; font-size:.72rem; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--bs-secondary-color); margin-right:.4rem; }
+.intel-item .takeaway { border-left:3px solid var(--mer-accent); padding:.4rem .7rem; margin-top:.5rem;
+  background:var(--bs-tertiary-bg); border-radius:0 6px 6px 0; font-size:.9rem; }
+
+/* Chips */
+.chip { display:inline-flex; align-items:center; gap:.3rem; font-size:.7rem; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; padding:.12rem .5rem; border-radius:999px;
+  border:1px solid transparent; }
+.chip-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+.chip.pri-critical { background:color-mix(in srgb, var(--mer-crit) 16%, transparent); color:var(--mer-crit); border-color:color-mix(in srgb, var(--mer-crit) 40%, transparent); }
+.chip.pri-high { background:color-mix(in srgb, var(--mer-high) 16%, transparent); color:var(--mer-high); border-color:color-mix(in srgb, var(--mer-high) 40%, transparent); }
+.chip.pri-medium { background:color-mix(in srgb, var(--mer-med) 16%, transparent); color:var(--mer-med); border-color:color-mix(in srgb, var(--mer-med) 40%, transparent); }
+.chip.dir-escalating { color:var(--mer-crit); }
+.chip.dir-improving { color:var(--mer-good); }
+.chip.dir-stable { color:var(--mer-low); }
+.chip.dir-uncertain { color:var(--mer-high); }
+.chip.conf-high { background:color-mix(in srgb, var(--mer-good) 15%, transparent); color:var(--mer-good); }
+.chip.conf-moderate { background:color-mix(in srgb, var(--mer-high) 15%, transparent); color:var(--mer-high); }
+.chip.conf-low { background:color-mix(in srgb, var(--mer-low) 18%, transparent); color:var(--mer-low); }
+
+/* Watchlist table */
+.watchlist-card { border:1px solid var(--bs-border-color); border-radius:8px; padding:.7rem .8rem; margin-bottom:.6rem; background:var(--bs-card-bg); }
+.watchlist-card .wl-head { display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; margin-bottom:.35rem; }
+.watchlist-card .wl-dev { font-weight:700; margin-right:auto; }
+
+/* Sources / citations */
+.src-list { margin:.3rem 0 0; padding-left:1.1rem; font-size:.82rem; }
+.src-list a { word-break:break-word; }
+
+/* Action items */
+.action-row { display:flex; gap:.6rem; align-items:flex-start; padding:.4rem 0; border-bottom:1px dashed var(--bs-border-color); }
+.action-row:last-child { border-bottom:0; }
+.action-badge { font-size:.68rem; font-weight:700; letter-spacing:.05em; padding:.15rem .5rem; border-radius:6px; min-width:82px; text-align:center; }
+.act-WATCH { background:color-mix(in srgb, var(--mer-med) 16%, transparent); color:var(--mer-med); }
+.act-REVIEW { background:color-mix(in srgb, var(--mer-med) 16%, transparent); color:var(--mer-med); }
+.act-CONSIDER { background:color-mix(in srgb, var(--mer-high) 16%, transparent); color:var(--mer-high); }
+.act-DISCUSS { background:color-mix(in srgb, var(--mer-accent) 16%, transparent); color:var(--mer-accent); }
+.act-ACT { background:color-mix(in srgb, var(--mer-crit) 16%, transparent); color:var(--mer-crit); }
+
+/* Q&A */
+.qa-item { padding:.5rem 0; border-bottom:1px solid var(--bs-border-color); }
+.qa-item:last-child { border-bottom:0; }
+.qa-item .qa-q { font-weight:700; }
+.qa-item .qa-a { color:var(--bs-secondary-color); font-size:.9rem; margin-top:.2rem; }
+
+/* Source portal cards */
+.portal-group h3 { font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--bs-secondary-color); margin-bottom:.4rem; }
+.portal-link { display:block; padding:.35rem .5rem; border-radius:6px; text-decoration:none; font-size:.88rem; border:1px solid transparent; }
+.portal-link:hover { background:var(--bs-tertiary-bg); border-color:var(--bs-border-color); }
+
+/* Toasts */
+.toast-host { position:fixed; right:1rem; bottom:1rem; z-index:3000; display:flex; flex-direction:column; gap:.5rem; max-width:360px; }
+.mer-toast { padding:.6rem .8rem; border-radius:8px; border:1px solid var(--bs-border-color); background:var(--bs-card-bg);
+  box-shadow:0 6px 20px rgba(0,0,0,.25); font-size:.88rem; display:flex; gap:.5rem; align-items:flex-start; }
+.mer-toast.ok { border-left:4px solid var(--mer-good); }
+.mer-toast.err { border-left:4px solid var(--mer-crit); }
+.mer-toast.info { border-left:4px solid var(--mer-accent); }
+
+/* Modal */
+.mer-modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:2500; display:flex; align-items:center; justify-content:center; padding:1rem; }
+.mer-modal { width:100%; max-width:460px; }
+
+/* Empty states */
+.empty-state-sm { color:var(--bs-secondary-color); font-size:.9rem; }
+
+/* Print / PDF */
+#print-brand { display:none; }
+@media print {
+  .meridian-bar, .toast-host, footer, .btn, .btn-group, #brief-picker, .navbar { display:none !important; }
+  #print-brand { display:flex; align-items:center; padding:0 0 .5rem; margin-bottom:.5rem; border-bottom:2px solid #000; }
+  body { background:#fff; color:#000; }
+  .brief-section { border:1px solid #999; break-inside:avoid; }
+  .brief-section > h2 { background:#eee; color:#000; }
+  a { color:#000; text-decoration:underline; }
+  .takeaway { background:#f4f4f4 !important; }
+}
+
+@media (max-width: 575px) {
+  .page-title { font-size:1.15rem; }
+  .brief-meta { font-size:.8rem; }
+}

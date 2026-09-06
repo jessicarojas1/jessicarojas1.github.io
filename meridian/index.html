@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://api.emailjs.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="css/meridian.css" />
+  <title>MERIDIAN — Daily Executive Intelligence Brief</title>
+  <meta name="description" content="MERIDIAN — an open-source daily executive intelligence brief for Global Security, Aerospace, Defense, Space, Cyber, and Emerging Technology. Client-side, bring-your-own LLM key, non-classified." />
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <!-- Print-only branding header (the on-screen navbar is hidden in print/PDF) -->
+  <div id="print-brand" aria-hidden="true"></div>
+
+  <!-- Top bar -->
+  <nav class="navbar navbar-expand-lg sticky-top meridian-bar" aria-label="MERIDIAN navigation">
+    <div class="container-fluid px-3 px-lg-4">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.html" aria-label="MERIDIAN home">
+        <img id="brand-logo" alt="" class="d-none" style="height:28px;width:auto;border-radius:6px;object-fit:contain">
+        <span id="brand-mark" class="d-flex" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 40 40">
+            <rect width="40" height="40" rx="9" fill="#3d6fe0"/>
+            <circle cx="20" cy="20" r="12.5" fill="none" stroke="#fff" stroke-width="2.2"/>
+            <path d="M20 7.5 V32.5 M7.5 20 H32.5" stroke="#fff" stroke-width="1.5" opacity="0.65"/>
+            <path d="M20 7.5 C13 13 13 27 20 32.5 C27 27 27 13 20 7.5 Z" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.65"/>
+            <circle cx="20" cy="20" r="2.6" fill="#fff"/>
+          </svg>
+        </span>
+        <span id="brand-name">MERIDIAN</span>
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#meridianNav" aria-controls="meridianNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="meridianNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="#brief" data-nav="brief"><i class="bi bi-newspaper"></i> Brief</a></li>
+          <li class="nav-item"><a class="nav-link" href="#archive" data-nav="archive"><i class="bi bi-clock-history"></i> Archive</a></li>
+          <li class="nav-item"><a class="nav-link" href="#sources" data-nav="sources"><i class="bi bi-broadcast-pin"></i> Sources</a></li>
+          <li class="nav-item"><a class="nav-link" href="#settings" data-nav="settings"><i class="bi bi-gear"></i> Settings</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-sm btn-primary" data-action="generate" title="Generate a new brief with your configured LLM">
+            <i class="bi bi-stars"></i> Generate
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" data-action="toggle-theme" title="Toggle light / dark" aria-label="Toggle theme">
+            <i class="bi bi-circle-half"></i>
+          </button>
+          <a class="btn btn-sm btn-outline-secondary" href="../index.html" title="Back to main site"><i class="bi bi-box-arrow-up-left"></i></a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="container-fluid px-3 px-lg-4 py-3">
+
+    <!-- ===================== BRIEF VIEW ===================== -->
+    <section data-view="brief">
+      <div class="page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+        <div>
+          <h1 class="page-title mb-1"><i class="bi bi-newspaper"></i> Daily Executive Intelligence Brief</h1>
+          <div class="text-secondary small" id="brief-subtitle">Global Security · Aerospace · Defense · Space · Cyber · Emerging Technology</div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <select class="form-select form-select-sm w-auto" id="brief-picker" aria-label="Select brief date"></select>
+          <div class="btn-group" role="group" aria-label="Brief actions">
+            <button class="btn btn-sm btn-outline-secondary" data-action="copy-email" title="Copy HTML + plain-text email body"><i class="bi bi-envelope"></i> Copy Email</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="print" title="Print / Save as PDF"><i class="bi bi-printer"></i> PDF</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="send-email" title="Send via configured email service"><i class="bi bi-send"></i> Send</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="export-json" title="Export this brief as JSON"><i class="bi bi-filetype-json"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div id="brief-meta" class="brief-meta mb-3"></div>
+      <div id="brief-body" aria-live="polite"></div>
+
+      <!-- Empty state (no brief loaded) -->
+      <div id="brief-empty" class="empty-state text-center py-5 d-none">
+        <i class="bi bi-newspaper display-5 text-secondary"></i>
+        <h2 class="h5 mt-3">No brief loaded</h2>
+        <p class="text-secondary">Generate a fresh brief with your LLM key, or import a saved brief JSON.</p>
+        <button class="btn btn-primary btn-sm" data-action="generate"><i class="bi bi-stars"></i> Generate today's brief</button>
+      </div>
+    </section>
+
+    <!-- ===================== ARCHIVE VIEW ===================== -->
+    <section data-view="archive" hidden>
+      <div class="page-header">
+        <h1 class="page-title"><i class="bi bi-clock-history"></i> Archive</h1>
+      </div>
+      <p class="text-secondary small">Saved briefs are stored in this browser (localStorage). Export important briefs to keep them.</p>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Date</th><th>Headline BLUF</th><th>Source</th><th class="text-end">Actions</th></tr></thead>
+          <tbody id="archive-rows"></tbody>
+        </table>
+      </div>
+      <div class="d-flex gap-2">
+        <label class="btn btn-sm btn-outline-secondary mb-0">
+          <i class="bi bi-upload"></i> Import brief JSON
+          <input type="file" id="import-file" accept="application/json,.json" hidden>
+        </label>
+      </div>
+    </section>
+
+    <!-- ===================== SOURCES VIEW ===================== -->
+    <section data-view="sources" hidden>
+      <div class="page-header">
+        <h1 class="page-title"><i class="bi bi-broadcast-pin"></i> Open-Source Portals</h1>
+      </div>
+      <p class="text-secondary small mb-3">
+        Curated, lawful, publicly available intelligence portals grouped by domain. MERIDIAN links to these for
+        passive situational awareness — it does not scan, probe, or access any non-public system. Use the
+        <strong>Source material</strong> box to paste public reporting you want the model to weigh during generation.
+      </p>
+      <div id="sources-grid" class="row g-3"></div>
+
+      <div class="card mt-4">
+        <div class="card-body">
+          <label for="source-material" class="form-label fw-semibold mb-1"><i class="bi bi-clipboard-data"></i> Source material (optional)</label>
+          <div class="form-text mb-2">Paste public headlines, advisory text, or links here. This is passed to the model as raw material and is stored only in this browser.</div>
+          <textarea id="source-material" class="form-control" rows="7" placeholder="e.g. CISA advisory AA26-… / Defense News: 'Army awards…' / company press release URL"></textarea>
+          <div class="mt-2 d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" data-action="save-material"><i class="bi bi-save"></i> Save</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="clear-material"><i class="bi bi-x-circle"></i> Clear</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SETTINGS VIEW ===================== -->
+    <section data-view="settings" hidden>
+      <div class="page-header">
+        <h1 class="page-title"><i class="bi bi-gear"></i> Settings</h1>
+      </div>
+
+      <div class="row g-4">
+        <!-- LLM engine -->
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h6 fw-bold"><i class="bi bi-cpu"></i> Intelligence Engine (LLM)</h2>
+              <p class="form-text">Your key is stored only in this browser (localStorage) and sent directly to the provider you choose. It is never committed to the repository or sent anywhere else.</p>
+
+              <div class="mb-2">
+                <label class="form-label mb-1" for="set-provider">Provider</label>
+                <select id="set-provider" class="form-select form-select-sm">
+                  <option value="anthropic">Anthropic (Claude)</option>
+                  <option value="openai">OpenAI</option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label class="form-label mb-1" for="set-model">Model</label>
+                <input id="set-model" class="form-control form-control-sm" placeholder="claude-opus-4-8" autocomplete="off">
+                <div class="form-text" id="model-hint"></div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label mb-1" for="set-apikey">API key</label>
+                <div class="input-group input-group-sm">
+                  <input id="set-apikey" class="form-control form-control-sm" type="password" placeholder="sk-…" autocomplete="off" spellcheck="false">
+                  <button class="btn btn-outline-secondary" data-action="toggle-key" type="button" aria-label="Show or hide key"><i class="bi bi-eye"></i></button>
+                </div>
+              </div>
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="set-websearch" checked>
+                <label class="form-check-label" for="set-websearch">Enable live web-search tool (recommended)</label>
+              </div>
+              <div class="form-text mb-2">When enabled, the model performs live open-source research so the brief reflects current reporting rather than only training data.</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-primary" data-action="save-engine"><i class="bi bi-save"></i> Save engine settings</button>
+                <button class="btn btn-sm btn-outline-secondary" data-action="test-engine"><i class="bi bi-plug"></i> Test connection</button>
+              </div>
+              <div id="engine-status" class="small mt-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recipient / profile -->
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h6 fw-bold"><i class="bi bi-person-badge"></i> Recipient Profile</h2>
+              <p class="form-text">Shapes the <em>Impact to My Work</em> and <em>What I Should Know Today</em> sections. Strategic/role level only — do not enter sensitive internal, program, or network details.</p>
+              <div class="mb-2">
+                <label class="form-label mb-1" for="set-role">Role / responsibilities</label>
+                <input id="set-role" class="form-control form-control-sm" placeholder="e.g. Enterprise Systems Manager, aerospace/defense">
+              </div>
+              <div class="mb-2">
+                <label class="form-label mb-1" for="set-focus">Focus areas (comma separated)</label>
+                <input id="set-focus" class="form-control form-control-sm" placeholder="CMMC, ISO 27001, DevSecOps, cloud, AI governance">
+              </div>
+              <div class="mb-2">
+                <label class="form-label mb-1" for="set-orgcontext">Organization context (industry-level, non-sensitive)</label>
+                <textarea id="set-orgcontext" class="form-control form-control-sm" rows="3" placeholder="e.g. Mid-size DoD contractor; enterprise IT + compliance focus. No proprietary or program-specific detail."></textarea>
+              </div>
+              <button class="btn btn-sm btn-primary" data-action="save-profile"><i class="bi bi-save"></i> Save profile</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email delivery -->
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h6 fw-bold"><i class="bi bi-envelope-paper"></i> Email Delivery (EmailJS)</h2>
+              <p class="form-text">
+                Static sites cannot send mail directly. MERIDIAN uses <a href="https://www.emailjs.com" target="_blank" rel="noopener noreferrer">EmailJS</a>,
+                a client-side service. Create an EmailJS account + template, then paste the IDs below. Your template should
+                expose <code>{{subject}}</code>, <code>{{to_email}}</code> and <code>{{html}}</code> (or <code>{{message}}</code>) variables.
+              </p>
+              <div class="row g-2">
+                <div class="col-12"><label class="form-label mb-1" for="set-ej-public">Public key</label><input id="set-ej-public" class="form-control form-control-sm" autocomplete="off"></div>
+                <div class="col-md-6"><label class="form-label mb-1" for="set-ej-service">Service ID</label><input id="set-ej-service" class="form-control form-control-sm" autocomplete="off"></div>
+                <div class="col-md-6"><label class="form-label mb-1" for="set-ej-template">Template ID</label><input id="set-ej-template" class="form-control form-control-sm" autocomplete="off"></div>
+                <div class="col-12"><label class="form-label mb-1" for="set-ej-to">Recipient email</label><input id="set-ej-to" class="form-control form-control-sm" type="email" autocomplete="off" placeholder="you@example.com"></div>
+              </div>
+              <button class="btn btn-sm btn-primary mt-2" data-action="save-email"><i class="bi bi-save"></i> Save email settings</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branding -->
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h6 fw-bold"><i class="bi bi-palette"></i> Branding</h2>
+              <p class="form-text">Applied live across the header, document title, print/PDF header, and email export.</p>
+              <div class="mb-2">
+                <label class="form-label mb-1" for="set-org">Organization / product name</label>
+                <input id="set-org" class="form-control form-control-sm" placeholder="MERIDIAN">
+              </div>
+              <div class="mb-2">
+                <label class="form-label mb-1" for="set-logo">Logo URL</label>
+                <input id="set-logo" class="form-control form-control-sm" placeholder="https://… or data:image/…" autocomplete="off">
+                <div class="form-text">Or upload an image (stored as a data URL, works offline):</div>
+                <label class="btn btn-sm btn-outline-secondary mt-1 mb-0">
+                  <i class="bi bi-image"></i> Upload logo
+                  <input type="file" id="set-logo-file" accept="image/*" hidden>
+                </label>
+              </div>
+              <div class="mb-2">
+                <label class="form-label mb-1" for="set-accent">Accent color</label>
+                <input id="set-accent" class="form-control form-control-color" type="color" value="#3d6fe0" title="Accent color">
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-primary" data-action="save-branding"><i class="bi bi-save"></i> Save branding</button>
+                <button class="btn btn-sm btn-outline-secondary" data-action="reset-branding"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+              </div>
+              <div class="form-text mt-2"><i class="bi bi-info-circle"></i> Field reference: <code>Logo URL</code> accepts only <code>http(s)://</code> or <code>data:image/…</code> values; anything else is ignored and the built-in mark is used.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data management -->
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <h2 class="h6 fw-bold"><i class="bi bi-database"></i> Data</h2>
+              <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-sm btn-outline-secondary" data-action="export-all"><i class="bi bi-download"></i> Export all briefs</button>
+                <label class="btn btn-sm btn-outline-secondary mb-0">
+                  <i class="bi bi-upload"></i> Import briefs
+                  <input type="file" id="import-all-file" accept="application/json,.json" hidden>
+                </label>
+                <button class="btn btn-sm btn-outline-danger" data-action="clear-archive" data-confirm="Delete all saved briefs from this browser? Exported files are unaffected."><i class="bi bi-trash"></i> Clear archive</button>
+              </div>
+              <div class="form-text mt-2">Everything MERIDIAN stores (settings, keys, briefs) lives only in this browser. Clearing site data removes it.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast host -->
+  <div class="toast-host" id="toast-host" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Generation modal -->
+  <div class="mer-modal-backdrop d-none" id="gen-modal" role="dialog" aria-modal="true" aria-labelledby="gen-modal-title">
+    <div class="mer-modal card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h2 class="h6 mb-0" id="gen-modal-title"><i class="bi bi-stars"></i> Generate Brief</h2>
+          <button class="btn btn-sm btn-outline-secondary border-0" data-action="close-gen" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div id="gen-body">
+          <label class="form-label mb-1" for="gen-date">Brief date</label>
+          <input id="gen-date" class="form-control form-control-sm mb-2" type="date">
+          <div class="form-text mb-2">The model performs a live open-source sweep (if web search is enabled) and returns a full brief in the MERIDIAN format. This can take 30–90 seconds.</div>
+          <div id="gen-warn" class="small"></div>
+        </div>
+        <div id="gen-progress" class="d-none">
+          <div class="d-flex align-items-center gap-2">
+            <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
+            <span id="gen-progress-text">Researching open sources…</span>
+          </div>
+          <div class="progress mt-2" style="height:6px"><div class="progress-bar progress-bar-striped progress-bar-animated" id="gen-bar" style="width:15%"></div></div>
+        </div>
+        <div class="mt-3 d-flex justify-content-end gap-2" id="gen-actions">
+          <button class="btn btn-sm btn-outline-secondary" data-action="close-gen">Cancel</button>
+          <button class="btn btn-sm btn-primary" data-action="run-generate"><i class="bi bi-play-fill"></i> Run</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center text-secondary small py-4">
+    MERIDIAN · Open-source, non-classified executive intelligence · Built by
+    <a href="../index.html">Jessica Rojas</a>. Analysis is generated from lawful, publicly available information only.
+  </footer>
+
+  <!-- Scripts (order matters) -->
+  <script src="js/prompt.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/branding.js"></script>
+  <script src="js/feeds.js"></script>
+  <script src="js/llm.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
