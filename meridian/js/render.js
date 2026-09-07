@@ -52,8 +52,12 @@
     b.date = str(b.date); b.reportingWindow = str(b.reportingWindow);
     b.classification = str(b.classification) || 'PUBLIC / OPEN-SOURCE / NON-CLASSIFIED';
     ['bluf','top3','watchboard','sections','crossDomain','resurfaced','weakSignals','appliesToMe','recommendations','decisionMemos','questionsToAsk','questionsAsked','watch2472h','watch730d','watch312mo','strategicSurprise','wrongAbout','redTeam','sources','forecastReview',
+     // v2.1 presentation
+     'barometer','techRadar','contractRadar','opportunities','competitive','underRadar','patterns','strategicWarning',
      // v1 fallbacks
      'watchlist','myWork','whatToKnow','execQuestions','watch24h','actions'].forEach(k => { b[k] = arr(b[k]); });
+    b.bigPicture = str(b.bigPicture); b.oneThing = str(b.oneThing); b.subject = str(b.subject); b.preheader = str(b.preheader);
+    b.deepDive = (b.deepDive && typeof b.deepDive === 'object') ? b.deepDive : null;
     b.sections = b.sections.filter(s => s && (s.title || s.id));
     b.adImpact = str(b.adImpact);
     b.orgImpact = (b.orgImpact && typeof b.orgImpact === 'object' && !Array.isArray(b.orgImpact)) ? b.orgImpact : {};
@@ -86,8 +90,16 @@
     ['assessment','Assessment'], ['outlook','Outlook'],
     ['implications','Implications'], ['secondOrder','Second-order effect'], ['thirdOrder','Third-order effect'],
     ['orgImpact','Organizational impact'], ['orgRelevance','Organizational relevance'], ['myImpact','Personal / leadership impact'],
-    ['recommendation','Recommendation']
+    ['recommendation','Recommendation'], ['owner','Suggested owner'], ['actionThreshold','Action threshold'], ['timeHorizon','Time horizon']
   ];
+  function statusChip(v) { const V = up(v); if (!V) return null; return h('span', { class:'chip status-chip' }, V); }
+  function ipChip(ip) { if (!ip || (!has(ip.impact) && !has(ip.probability))) return null; return h('span', { class:'chip ip-chip' }, up(ip.impact) + ' impact / ' + up(ip.probability) + ' prob'); }
+  function impactChainBlock(chain) {
+    const steps = arr(chain).filter(has); if (!steps.length) return null;
+    const wrap = h('div', { class:'impact-chain' }, h('div', { class:'lbl' }, 'Impact chain'));
+    steps.forEach((s, i) => { wrap.appendChild(h('div', { class:'ic-step' + (i === steps.length - 1 ? ' ic-last' : '') }, str(s))); });
+    return wrap;
+  }
   function subBlock(title, obj, pairs) {
     const rows = pairs.filter(p => has(obj[p[0]]));
     if (!rows.length) return null;
@@ -100,10 +112,13 @@
     const wrap = h('div', { class:'intel-item' });
     const head = h('div', { class:'d-flex flex-wrap align-items-center gap-2 mb-1' });
     head.appendChild(h('h3', { class:'mb-0 me-auto' }, str(it.headline) || 'Untitled'));
-    [priChip(it.priority), confChip(it.confidence)].forEach(c => c && head.appendChild(c));
+    [priChip(it.priority), statusChip(it.status), confChip(it.confidence), ipChip(it.impactProbability)].forEach(c => c && head.appendChild(c));
     if (it.indicators && has(it.indicators.level)) head.appendChild(iwBadge(it.indicators.level));
     wrap.appendChild(head);
+    if (has(it.region) || has(it.category)) wrap.appendChild(h('div', { class:'item-tags' }, [it.region ? h('span', { class:'meta-tag' }, [h('i', { class:'bi bi-geo-alt' }), ' ' + str(it.region)]) : null, it.category ? h('span', { class:'meta-tag' }, [h('i', { class:'bi bi-tag' }), ' ' + str(it.category)]) : null]));
     ITEM_FIELDS.forEach(f => { const n = field(f[1], it[f[0]]); if (n) wrap.appendChild(n); });
+    const chain = impactChainBlock(it.impactChain); if (chain) wrap.appendChild(chain);
+    if (has(it.thirtySeconds)) wrap.appendChild(h('div', { class:'thirty-sec' }, [h('span', { class:'lbl' }, [h('i', { class:'bi bi-stopwatch' }), ' 30 seconds with leadership']), str(it.thirtySeconds)]));
     // Indicators & Warnings list
     if (it.indicators && arr(it.indicators.list).length) {
       const iw = h('div', { class:'subblock' }, h('div', { class:'lbl' }, 'Indicators & Warnings'));
@@ -149,6 +164,23 @@
     const frag = doc.createDocumentFragment();
     const add = n => n && frag.appendChild(n);
 
+    // Barometer (first screen)
+    if (b.barometer.length) {
+      const { sec, inner } = sectionShell('Executive Threat / Opportunity Barometer', 'bi-speedometer2');
+      const grid = h('div', { class:'barometer-grid' });
+      b.barometer.forEach(x => {
+        const st = up(x.status) || 'STABLE';
+        const cell = h('div', { class:'baro-cell baro-' + st.toLowerCase() });
+        const dir = { UP:'↑', FLAT:'→', DOWN:'↓' }[up(x.direction)] || '';
+        cell.appendChild(h('div', { class:'baro-cat' }, str(x.category)));
+        cell.appendChild(h('div', { class:'baro-status' }, [h('span', { class:'baro-dot' }), st + (dir ? ' ' + dir : '')]));
+        if (has(x.reason)) cell.appendChild(h('div', { class:'baro-reason' }, str(x.reason)));
+        if (has(x.confidence)) cell.appendChild(h('div', { class:'baro-conf' }, up(x.confidence) + ' conf'));
+        grid.appendChild(cell);
+      });
+      inner.appendChild(grid); add(sec);
+    }
+
     // BLUF
     if (b.bluf.length) {
       const { sec, inner } = sectionShell('BLUF — Bottom Line Up Front', 'bi-lightning-charge');
@@ -175,6 +207,19 @@
         const c = confChip(t.confidence); if (c) head.appendChild(c);
         card.appendChild(head);
         [field('Assessment', t.assessment), field('Why this matters', t.whyMatters), field('Organizational impact', t.orgImpact), field('My impact', t.myImpact), field('Recommendation', t.recommendation)].forEach(f => f && card.appendChild(f));
+        inner.appendChild(card);
+      });
+      add(sec);
+    }
+
+    // Strategic warning (prominent)
+    if (b.strategicWarning.length) {
+      const { sec, inner } = sectionShell('⚠ Strategic Warning', 'bi-exclamation-triangle-fill');
+      sec.classList.add('warn-section');
+      b.strategicWarning.forEach(w => {
+        const card = h('div', { class:'intel-item' });
+        [field('Observed indicators', w.indicators), field('Assessment', w.assessment), field('Potential impact', w.impact), field('What would increase concern', w.increaseConcern), field('What would reduce concern', w.reduceConcern)].forEach(f => f && card.appendChild(f));
+        const c = confChip(w.confidence); if (c) card.appendChild(c);
         inner.appendChild(card);
       });
       add(sec);
@@ -215,6 +260,39 @@
         inner.appendChild(card);
       });
       add(sec);
+    }
+
+    // Intelligence patterns
+    if (b.patterns.length) {
+      const { sec, inner } = sectionShell('Intelligence Patterns Detected', 'bi-diagram-2-fill');
+      b.patterns.forEach(p => { const c = h('div', { class:'intel-item' }, h('h3', { class:'h6 mb-1' }, str(p.pattern))); [field('Supporting signals', p.signals), field('Possible meaning', p.meaning), field('Would confirm', p.confirm), field('Would disprove', p.disconfirm)].forEach(f => f && c.appendChild(f)); const cc = confChip(p.confidence); if (cc) c.appendChild(cc); inner.appendChild(c); }); add(sec);
+    }
+    // Technology radar
+    if (b.techRadar.length) {
+      const { sec, inner } = sectionShell('Technology Radar', 'bi-broadcast-pin');
+      const grid = h('div', { class:'radar-grid' });
+      b.techRadar.forEach(t => { const cell = h('div', { class:'radar-cell' }); cell.appendChild(h('span', { class:'radar-stage stage-' + (up(t.stage)||'').toLowerCase() }, up(t.stage))); cell.appendChild(h('span', { class:'radar-tech' }, str(t.tech))); if (has(t.note)) cell.appendChild(h('div', { class:'radar-note' }, str(t.note))); grid.appendChild(cell); });
+      inner.appendChild(grid); add(sec);
+    }
+    // Contracting & acquisition radar
+    if (b.contractRadar.length) {
+      const { sec, inner } = sectionShell('Contracting & Acquisition Radar', 'bi-file-earmark-ruled');
+      b.contractRadar.forEach(c => { const card = h('div', { class:'intel-item' }); card.appendChild(h('h3', { class:'h6 mb-1' }, [str(c.program) || str(c.agency), c.value ? h('span', { class:'contract-val' }, ' ' + str(c.value)) : null])); [field('Agency / customer', c.agency), field('Recipient / competitors', c.recipient), field('What is being acquired', c.what), field('Why it matters', c.whyMatters), field('Opportunity signal', c.opportunitySignal)].forEach(f => f && card.appendChild(f)); inner.appendChild(card); }); add(sec);
+    }
+    // Strategic opportunities
+    if (b.opportunities.length) {
+      const { sec, inner } = sectionShell('Strategic Opportunities', 'bi-lightbulb'); sec.classList.add('opp-section');
+      b.opportunities.forEach(o => { const card = h('div', { class:'intel-item' }, h('h3', { class:'h6 mb-1' }, str(o.opportunity))); [field('Evidence', o.evidence), field('Why it could matter', o.whyMatters), field('Time horizon', o.horizon), field('Who may benefit', o.whoBenefits), field('What to watch', o.watch)].forEach(f => f && card.appendChild(f)); inner.appendChild(card); }); add(sec);
+    }
+    // Competitive intelligence
+    if (b.competitive.length) {
+      const { sec, inner } = sectionShell('Industry Competitive Intelligence', 'bi-buildings');
+      b.competitive.forEach(c => { const card = h('div', { class:'intel-item' }, h('h3', { class:'h6 mb-1' }, str(c.org))); [field('Action', c.action), field('So what', c.soWhat)].forEach(f => f && card.appendChild(f)); inner.appendChild(card); }); add(sec);
+    }
+    // Under the radar
+    if (b.underRadar.length) {
+      const { sec, inner } = sectionShell('Under the Radar — What Others Are Missing', 'bi-eye-slash');
+      b.underRadar.forEach(u => { const card = h('div', { class:'intel-item' }); card.appendChild(h('div', { class:'fw-semibold' }, str(u.development))); const w = field('Why it deserves attention', u.why); if (w) card.appendChild(w); inner.appendChild(card); }); add(sec);
     }
 
     // Resurfaced
@@ -360,6 +438,17 @@
       });
       add(sec);
     }
+
+    // 2-minute deep dive
+    if (b.deepDive && (has(b.deepDive.topic) || has(b.deepDive.explanation))) {
+      const { sec, inner } = sectionShell('2-Minute Deep Dive' + (has(b.deepDive.topic) ? ' — ' + str(b.deepDive.topic) : ''), 'bi-mortarboard');
+      inner.appendChild(h('p', { class:'mb-0' }, str(b.deepDive.explanation)));
+      add(sec);
+    }
+    // The Big Picture
+    if (has(b.bigPicture)) { const { sec, inner } = sectionShell('The Big Picture', 'bi-globe'); sec.classList.add('bigpic-section'); inner.appendChild(h('p', { class:'mb-0' }, str(b.bigPicture))); add(sec); }
+    // The One Thing
+    if (has(b.oneThing)) { const box = h('section', { class:'one-thing' }, [h('div', { class:'one-thing-label' }, [h('i', { class:'bi bi-star-fill' }), ' If You Remember Only One Thing Today']), h('div', { class:'one-thing-body' }, str(b.oneThing))]); add(box); }
 
     // Sources & confidence
     if (b.sources.length) {

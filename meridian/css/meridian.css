@@ -177,7 +177,81 @@ section[data-view] { max-width: 1180px; margin: 0 auto; }
   .takeaway { background:#f4f4f4 !important; }
 }
 
+/* ================= v2.1 PREMIUM PRESENTATION ================= */
+/* Refined section header + card polish for an executive-briefing feel */
+.brief-section { box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.brief-section > h2 { letter-spacing:.09em; }
+.intel-item h3 { letter-spacing:-.01em; }
+
+/* Threat / Opportunity Barometer */
+.barometer-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:.6rem; }
+.baro-cell { border:1px solid var(--bs-border-color); border-left-width:4px; border-radius:8px; padding:.55rem .65rem; background:var(--bs-tertiary-bg); }
+.baro-cat { font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--bs-secondary-color); font-weight:700; }
+.baro-status { font-weight:800; font-size:.9rem; display:flex; align-items:center; gap:.35rem; margin-top:.15rem; }
+.baro-dot { width:9px; height:9px; border-radius:50%; display:inline-block; background:currentColor; }
+.baro-reason { font-size:.8rem; color:var(--bs-body-color); margin-top:.25rem; }
+.baro-conf { font-size:.68rem; text-transform:uppercase; letter-spacing:.04em; color:var(--bs-secondary-color); margin-top:.2rem; }
+.baro-critical { border-left-color:var(--mer-crit); color:var(--mer-crit); }
+.baro-elevated { border-left-color:var(--mer-high); color:var(--mer-high); }
+.baro-watch { border-left-color:#eab308; color:#a16207; }
+.baro-stable { border-left-color:var(--mer-good); color:var(--mer-good); }
+.baro-opportunity { border-left-color:var(--mer-med); color:var(--mer-med); }
+:root:not([data-theme="light"]) .baro-watch { color:#eab308; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .baro-watch { color:#eab308; } }
+
+/* Story-card meta tags + chips */
+.item-tags { display:flex; flex-wrap:wrap; gap:.4rem; margin:-.1rem 0 .3rem; }
+.meta-tag { font-size:.72rem; color:var(--bs-secondary-color); }
+.status-chip { background:var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); color:var(--bs-secondary-color); }
+.ip-chip { background:color-mix(in srgb, var(--mer-high) 12%, transparent); color:var(--mer-high); }
+
+/* Impact chain */
+.impact-chain { margin:.55rem 0; padding:.4rem .6rem; border:1px dashed var(--bs-border-color); border-radius:8px; background:var(--bs-tertiary-bg); }
+.ic-step { position:relative; padding:.15rem 0 .15rem 1.1rem; font-size:.88rem; }
+.ic-step::before { content:"↓"; position:absolute; left:0; top:-.55rem; color:var(--mer-accent); font-weight:700; }
+.ic-step:first-of-type::before { content:"●"; top:.15rem; font-size:.6rem; }
+.ic-step.ic-last { font-weight:700; }
+
+/* 30-seconds callout */
+.thirty-sec { margin-top:.5rem; padding:.45rem .7rem; border-left:3px solid var(--mer-med); background:color-mix(in srgb, var(--mer-med) 8%, transparent); border-radius:0 6px 6px 0; font-size:.9rem; }
+.thirty-sec .lbl { display:block; color:var(--mer-med); }
+
+/* Technology radar */
+.radar-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:.55rem; }
+.radar-cell { border:1px solid var(--bs-border-color); border-radius:8px; padding:.5rem .6rem; background:var(--bs-card-bg); }
+.radar-stage { font-size:.62rem; font-weight:800; letter-spacing:.05em; padding:.1rem .4rem; border-radius:4px; margin-right:.4rem; }
+.stage-emerging { background:color-mix(in srgb, var(--mer-low) 20%, transparent); color:var(--mer-low); }
+.stage-accelerating { background:color-mix(in srgb, var(--mer-med) 16%, transparent); color:var(--mer-med); }
+.stage-mainstreaming { background:color-mix(in srgb, var(--mer-good) 16%, transparent); color:var(--mer-good); }
+.stage-strategic { background:color-mix(in srgb, var(--mer-high) 16%, transparent); color:var(--mer-high); }
+.stage-disruptive { background:color-mix(in srgb, var(--mer-crit) 16%, transparent); color:var(--mer-crit); }
+.radar-tech { font-weight:700; }
+.radar-note { font-size:.82rem; color:var(--bs-secondary-color); margin-top:.25rem; }
+.contract-val { font-weight:700; color:var(--mer-good); font-size:.85rem; }
+
+/* Accented sections */
+.warn-section { border-color:color-mix(in srgb, var(--mer-crit) 45%, var(--bs-border-color)); }
+.warn-section > h2 { color:var(--mer-crit); }
+.opp-section > h2 { color:var(--mer-med); }
+.bigpic-section { background:var(--bs-tertiary-bg); }
+
+/* The One Thing */
+.one-thing { border:1px solid var(--mer-accent); border-radius:var(--mer-radius); padding:.9rem 1rem; margin-bottom:1.1rem;
+  background:color-mix(in srgb, var(--mer-accent) 10%, var(--bs-card-bg)); }
+.one-thing-label { font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; font-weight:800; color:var(--mer-accent); margin-bottom:.35rem; }
+.one-thing-body { font-size:1.02rem; font-weight:600; line-height:1.5; }
+
+@media print {
+  .barometer-grid, .radar-grid { break-inside:avoid; }
+  .one-thing { border:2px solid #000; background:#f4f4f4 !important; }
+  .baro-cell, .radar-cell { border:1px solid #999; }
+}
+
 @media (max-width: 575px) {
   .page-title { font-size:1.15rem; }
   .brief-meta { font-size:.8rem; }
+  .barometer-grid, .radar-grid { grid-template-columns:1fr 1fr; }
+}
+@media (max-width: 400px) {
+  .barometer-grid, .radar-grid { grid-template-columns:1fr; }
 }

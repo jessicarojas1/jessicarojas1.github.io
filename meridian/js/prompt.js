@@ -123,20 +123,43 @@ COMPETITOR_ITEM extends ITEM with: "observedAction": "", "likelyObjective": "", 
 
 Rules: 5-10 BLUF; exactly 3 top3; 3-7 watchboard threads; <=5 weakSignals; <=5 recommendations (unless extraordinary); 1-3 strategicSurprise; only create decisionMemos when a decision is genuinely required (else []); redTeam at least the single most consequential CRITICAL issue. If a domain was quiet, use one item with headline "No material change". If web search is unavailable, populate gaps.intelGaps + confidenceLimits and keep confidence LOW rather than inventing specifics.`;
 
-  function buildSystemPrompt(profile) {
-    let p = MISSION + '\n\n' + OUTPUT_CONTRACT;
+  const PRESENTATION_ADDENDUM = `PRESENTATION ADDENDUM (v2.1) — PREMIUM EXECUTIVE PRODUCTION
+The product is consumed as a premium executive briefing: the recipient must grasp the state of the world in ~5 minutes, then drill deeper. Optimize for SIGNAL + CONTEXT + IMPLICATION + ANTICIPATION, not story count. Add these fields to the daily JSON (all optional; include only with genuine content):
+
+"subject": "email subject — 'Executive Intelligence Brief | <date> | <primary> + <secondary>' (no clickbait)",
+"preheader": "one sentence naming the 2-3 most important developments",
+"barometer": [ { "category": "Global Security|Cyber|Aerospace & Defense|Defense Industrial Base|Supply Chain|AI / Emerging Tech|Government Contracting|Regulatory / Compliance", "status": "CRITICAL|ELEVATED|WATCH|STABLE|OPPORTUNITY", "direction": "UP|FLAT|DOWN", "confidence": "HIGH|MODERATE|LOW", "reason": "one line; reflect change vs the prior cycle" } ],
+"bigPicture": "genuine synthesis of what the day's developments collectively indicate (not a list) — is global risk rising/falling, where is investment moving, what deserves leadership attention",
+"oneThing": "IF YOU REMEMBER ONLY ONE THING TODAY — the single most important takeaway, 2-3 sentences",
+"techRadar": [ { "tech": "", "stage": "EMERGING|ACCELERATING|MAINSTREAMING|STRATEGIC|DISRUPTIVE", "note": "" } ],
+"contractRadar": [ { "agency": "", "program": "", "value": "", "recipient": "", "what": "", "whyMatters": "", "opportunitySignal": "" } ],
+"opportunities": [ { "opportunity": "", "evidence": "", "whyMatters": "", "horizon": "IMMEDIATE|NEAR|MID|STRATEGIC", "whoBenefits": "", "watch": "" } ],
+"competitive": [ { "org": "", "action": "", "soWhat": "" } ],
+"underRadar": [ { "development": "", "why": "what others are missing" } ],
+"patterns": [ { "pattern": "", "signals": "supporting signals", "meaning": "", "confidence": "HIGH|MODERATE|LOW", "confirm": "", "disconfirm": "" } ],
+"strategicWarning": [ { "indicators": "", "assessment": "", "impact": "", "confidence": "HIGH|MODERATE|LOW", "increaseConcern": "", "reduceConcern": "" } ],
+"deepDive": { "topic": "2-MINUTE DEEP DIVE — one concept needed to understand today's events", "explanation": "plain-English, tied to current intelligence" }
+
+Per domain-section ITEM, optionally add: "status" (NEW|DEVELOPING|ESCALATING|DE-ESCALATING|STABLE|RESURFACED|CONFIRMED|DISPUTED|WATCH), "region", "category", "timeHorizon" (IMMEDIATE|NEAR|MID|STRATEGIC), "impactProbability": {"impact":"CRITICAL|HIGH|MODERATE|LOW","probability":"HIGH|MODERATE|LOW"}, "owner" (functional owner: Executive Leadership|Enterprise Systems|Cybersecurity|Engineering|Business Development|Contracts|Compliance|Supply Chain|Finance|Workforce|Program Management), "actionThreshold" (INFORMATION|WATCH|REVIEW|DISCUSS|PREPARE|ACT — ACT is rare), "thirtySeconds" (2-4 sentence 'if I had 30 seconds with the executive team' explanation), and for HIGH/CRITICAL items "impactChain": ["Event","Immediate effect","Second-order","Aerospace/defense effect","Organizational effect","Decision/watch item"].
+
+Rules: barometer statuses must reflect evidence and material change; use RED/CRITICAL sparingly; strategicWarning only when multiple credible indicators converge; never fabricate a pattern from weak coincidence; every item must answer WHY IT MATTERS / WHAT CHANGED / SO WHAT; remove filler ("only time will tell", "situation continues to evolve") unless followed by specific content; keep it scannable and mobile-first.`;
+
+  function profileBlock(profile) {
     const role = (profile && profile.role || '').trim();
     const focus = (profile && profile.focus || '').trim();
     const org = (profile && profile.orgContext || '').trim();
     if (role || focus || org) {
-      p += '\n\nRECIPIENT PROFILE (shape top3.myImpact, appliesToMe, orgImpact, recommendations; keep organizational impact strategic/industry-level, invent no internal facts):';
+      let p = '\n\nRECIPIENT PROFILE (shape myImpact/appliesToMe/orgImpact/recommendations; keep organizational impact strategic/industry-level, invent no internal facts):';
       if (role) p += '\n- Role/responsibilities: ' + role;
       if (focus) p += '\n- Focus areas: ' + focus;
       if (org) p += '\n- Organization context (non-sensitive): ' + org;
-    } else {
-      p += '\n\nRECIPIENT PROFILE: none supplied. Assume a senior technology/enterprise leader in an aerospace/defense environment (enterprise tech strategy, cybersecurity, CMMC, ISO 27001, AI governance, cloud, DevSecOps, digital engineering/MBSE, business continuity). Keep organizational impact industry-level and flag what would need internal validation.';
+      return p;
     }
-    return p;
+    return '\n\nRECIPIENT PROFILE: none supplied. Assume a senior technology/enterprise leader in an aerospace/defense environment (enterprise tech strategy, cybersecurity, CMMC, ISO 27001, AI governance, cloud, DevSecOps, digital engineering/MBSE, business continuity). Keep organizational impact industry-level and flag what would need internal validation.';
+  }
+
+  function buildSystemPrompt(profile) {
+    return MISSION + '\n\n' + OUTPUT_CONTRACT + '\n\n' + PRESENTATION_ADDENDUM + profileBlock(profile);
   }
 
   function buildUserPrompt(dateStr, material, threads) {
@@ -198,8 +221,8 @@ Return ONE JSON object, nothing else:
 }
 Rules: cover the 11 domains (a domain with nothing material gets current='No material change'); avoid false precision and numeric probabilities unless evidence supports; cite real URLs.`;
 
-  function buildWeeklySystem(profile) { return buildSystemPrompt(profile) + '\n\n' + WEEKLY_CONTRACT; }
-  function buildMonthlySystem(profile) { return buildSystemPrompt(profile) + '\n\n' + MONTHLY_CONTRACT; }
+  function buildWeeklySystem(profile) { return MISSION + '\n\n' + WEEKLY_CONTRACT + profileBlock(profile); }
+  function buildMonthlySystem(profile) { return MISSION + '\n\n' + MONTHLY_CONTRACT + profileBlock(profile); }
   function buildWeeklyUser(weekOf, context) {
     let u = 'Produce the WEEKLY STRATEGIC INTELLIGENCE ASSESSMENT for the week of ' + weekOf + '. Synthesize the week; do not concatenate dailies. Return only the strict JSON object.';
     if (context) u += '\n\nContext from this period (daily threads, scorecard, and prior briefs):\n"""\n' + String(context).slice(0, 8000) + '\n"""';

@@ -20,7 +20,7 @@
   function arr(x) { return Array.isArray(x) ? x : (x == null ? [] : [x]); }
   function has(x) { return String(x == null ? '' : x).trim() !== ''; }
 
-  function subjectFor(b, orgName) { return (orgName || 'MERIDIAN') + ' Executive Strategic Intelligence Brief — ' + (b.date || ''); }
+  function subjectFor(b, orgName) { return (b && has(b.subject)) ? b.subject : ((orgName || 'MERIDIAN') + ' Executive Strategic Intelligence Brief — ' + (b.date || '')); }
 
   const ITEM_FIELDS = [
     ['observation','Observation'], ['fact','Fact'], ['context','Context'], ['change','Change'],
@@ -30,7 +30,7 @@
     ['causation','Causation'], ['actorIntent','Actor intent'],
     ['assessment','Assessment'], ['outlook','Outlook'],
     ['implications','Implications'], ['secondOrder','Second-order effect'], ['thirdOrder','Third-order effect'],
-    ['orgImpact','Organizational impact'], ['orgRelevance','Organizational relevance'], ['myImpact','Personal / leadership impact'], ['recommendation','Recommendation']
+    ['orgImpact','Organizational impact'], ['orgRelevance','Organizational relevance'], ['myImpact','Personal / leadership impact'], ['recommendation','Recommendation'], ['owner','Suggested owner'], ['actionThreshold','Action threshold'], ['timeHorizon','Time horizon']
   ];
 
   // ---------- HTML email ----------
@@ -49,7 +49,19 @@
     p('<span style="font-size:18px;font-weight:800;vertical-align:middle">' + esc(org) + '</span>');
     p('<div style="font-size:12px;color:#6b7280;margin-top:4px">Executive Strategic Intelligence Brief · ' + esc(b.classification) + '</div>');
     p('<div style="font-size:12px;color:#6b7280">' + esc(b.date) + (b.reportingWindow ? ' · ' + esc(b.reportingWindow) : '') + '</div>');
+    if (has(b.preheader)) p('<div style="font-size:12px;color:#374151;margin-top:4px;font-style:italic">' + esc(b.preheader) + '</div>');
     p('</div>');
+
+    if (b.barometer.length) {
+      sec('Executive Threat / Opportunity Barometer');
+      p('<table role="presentation" width="100%" style="border-collapse:collapse"><tr>');
+      const colors = { CRITICAL:'#ef4444', ELEVATED:'#f59e0b', WATCH:'#a16207', STABLE:'#22c55e', OPPORTUNITY:'#3b82f6' };
+      b.barometer.forEach((x, i) => { const st = (x.status||'STABLE').toUpperCase(); const c = colors[st] || '#64748b'; const dir = ({UP:'↑',FLAT:'→',DOWN:'↓'})[(x.direction||'').toUpperCase()] || '';
+        p('<td style="width:25%;vertical-align:top;padding:4px"><div style="border:1px solid #e5e7eb;border-left:4px solid ' + c + ';border-radius:6px;padding:6px 8px"><div style="font-size:10px;text-transform:uppercase;color:#6b7280;font-weight:700">' + esc(x.category) + '</div><div style="font-weight:800;color:' + c + '">' + esc(st) + ' ' + dir + '</div>' + (has(x.reason) ? '<div style="font-size:11px;color:#374151">' + esc(x.reason) + '</div>' : '') + '</div></td>');
+        if ((i + 1) % 4 === 0) p('</tr><tr>');
+      });
+      p('</tr></table>');
+    }
 
     if (b.bluf.length) {
       sec('BLUF — Bottom Line Up Front'); p('<ul style="margin:0;padding-left:18px">');
@@ -92,6 +104,8 @@
         if (it.indicators && arr(it.indicators.list).length) p(fld('Indicators', arr(it.indicators.list).join('; ')));
         if (it.alt) p(fld('Leading', it.alt.leading) + fld('Alternative', it.alt.alternative) + fld('Wildcard', it.alt.wildcard));
         if (it.scenarios) p(fld('Most likely', it.scenarios.mostLikely) + fld('Best case', it.scenarios.bestCase) + fld('Worst case', it.scenarios.worstCase) + fld('High-impact/low-prob', it.scenarios.highImpactLowProb));
+        if (arr(it.impactChain).filter(has).length) p('<div style="margin:4px 0;font-size:12px"><strong>Impact chain:</strong> ' + arr(it.impactChain).filter(has).map(esc).join(' &rarr; ') + '</div>');
+        if (has(it.thirtySeconds)) p('<div style="border-left:3px solid #3b82f6;background:#eff6ff;padding:5px 8px;margin-top:5px"><strong>30 seconds with leadership:</strong> ' + esc(it.thirtySeconds) + '</div>');
         if (has(it.takeaway)) p('<div style="border-left:3px solid #3d6fe0;background:#f8fafc;padding:5px 8px;margin-top:5px"><strong>Takeaway:</strong> ' + esc(it.takeaway) + '</div>');
         const srcs = arr(it.sources).filter(x => x && (x.url || x.title));
         if (srcs.length) p('<div style="font-size:12px;margin-top:4px">Sources: ' + srcs.map(x => A(x.url, x.title || x.url)).join(' · ') + '</div>');
@@ -100,6 +114,14 @@
     });
 
     if (b.crossDomain.length) { sec('Cross-Domain Connections'); b.crossDomain.forEach(c => p('<div style="margin:5px 0"><strong>A:</strong> ' + esc(c.a) + '<br><strong>B:</strong> ' + esc(c.b) + '<br>&rarr; ' + esc(c.implication) + '</div>')); }
+
+    if (b.strategicWarning.length) { sec('⚠ Strategic Warning'); b.strategicWarning.forEach(w => p('<div style="margin:6px 0;border:1px solid #fecaca;border-radius:6px;padding:8px">' + fld('Observed indicators', w.indicators) + fld('Assessment', w.assessment) + fld('Potential impact', w.impact) + fld('Increase concern', w.increaseConcern) + fld('Reduce concern', w.reduceConcern) + (has(w.confidence) ? '<div style="color:#6b7280;font-size:12px">Confidence: ' + esc(w.confidence) + '</div>' : '') + '</div>')); }
+    if (b.patterns.length) { sec('Intelligence Patterns Detected'); b.patterns.forEach(x => p('<div style="margin:5px 0"><strong>' + esc(x.pattern) + '</strong>' + fld('Signals', x.signals) + fld('Possible meaning', x.meaning) + fld('Confirm', x.confirm) + fld('Disprove', x.disconfirm) + '</div>')); }
+    if (b.techRadar.length) { sec('Technology Radar'); p('<ul style="margin:0;padding-left:18px">'); b.techRadar.forEach(t => p('<li><strong>[' + esc((t.stage||'')) + ']</strong> ' + esc(t.tech) + (has(t.note) ? ' — ' + esc(t.note) : '') + '</li>')); p('</ul>'); }
+    if (b.contractRadar.length) { sec('Contracting & Acquisition Radar'); b.contractRadar.forEach(c => p('<div style="margin:5px 0"><strong>' + esc(c.program || c.agency) + (has(c.value) ? ' — ' + esc(c.value) : '') + '</strong>' + fld('Agency/customer', c.agency) + fld('Recipient/competitors', c.recipient) + fld('What', c.what) + fld('Why it matters', c.whyMatters) + fld('Opportunity signal', c.opportunitySignal) + '</div>')); }
+    if (b.opportunities.length) { sec('Strategic Opportunities'); b.opportunities.forEach(o => p('<div style="margin:5px 0"><strong>' + esc(o.opportunity) + '</strong>' + fld('Evidence', o.evidence) + fld('Why it could matter', o.whyMatters) + fld('Time horizon', o.horizon) + fld('Who may benefit', o.whoBenefits) + fld('What to watch', o.watch) + '</div>')); }
+    if (b.competitive.length) { sec('Industry Competitive Intelligence'); b.competitive.forEach(c => p('<div style="margin:5px 0"><strong>' + esc(c.org) + '</strong>' + fld('Action', c.action) + fld('So what', c.soWhat) + '</div>')); }
+    if (b.underRadar.length) { sec('Under the Radar — What Others Are Missing'); b.underRadar.forEach(u => p('<div style="margin:5px 0"><strong>' + esc(u.development) + '</strong>' + fld('Why', u.why) + '</div>')); }
 
     if (b.resurfaced.length) { sec('Resurfaced Intelligence'); b.resurfaced.forEach(r => p('<div style="margin:6px 0"><strong>' + esc(r.issue) + '</strong>' + fld('Original event', r.originalEvent || r.originalTimeframe) + fld('New information', r.newInfo || r.newDevelopment) + fld('Why now', r.whyNow || r.whyResurfaced) + fld('What changed', r.whatChanged) + fld('Updated assessment', r.updatedAssessment || r.whyMattersNow) + '</div>')); }
 
@@ -138,6 +160,10 @@
     if (b.redTeam.length) { sec('Red-Team Review'); b.redTeam.forEach(r => p('<div style="margin:5px 0">' + (has(r.issue) ? '<strong>' + esc(r.issue) + '</strong>' : '') + fld('Objection', r.objection) + fld('Analytic response', r.response) + '</div>')); }
     if (b.forecastReview.length) { sec('Intelligence Performance Review'); p('<ul style="margin:0;padding-left:18px">'); b.forecastReview.forEach(f => p('<li><strong>' + esc((f.outcome||'PENDING')) + ':</strong> ' + esc(f.priorForecast) + (has(f.date)?' ('+esc(f.date)+')':'') + (has(f.note)?' — '+esc(f.note):'') + '</li>')); p('</ul>'); }
 
+    if (b.deepDive && (has(b.deepDive.topic) || has(b.deepDive.explanation))) { sec('2-Minute Deep Dive' + (has(b.deepDive.topic) ? ' — ' + esc(b.deepDive.topic) : '')); p('<p>' + esc(b.deepDive.explanation) + '</p>'); }
+    if (has(b.bigPicture)) { sec('The Big Picture'); p('<p>' + esc(b.bigPicture) + '</p>'); }
+    if (has(b.oneThing)) { p('<div style="border:2px solid #3d6fe0;border-radius:8px;padding:12px;margin:16px 0;background:#eef2ff"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:#3d6fe0;margin-bottom:4px">If You Remember Only One Thing Today</div><div style="font-weight:600;font-size:15px">' + esc(b.oneThing) + '</div></div>'); }
+
     if (b.sources.length) { sec('Source Notes'); b.sources.forEach(s => { p('<div style="margin:5px 0;font-size:13px">'); if (has(s.claim)) p('<div style="font-weight:600">' + esc(s.claim) + (has(s.confidence) ? ' <span style="color:#6b7280">(' + esc(s.confidence) + ')</span>' : '') + '</div>'); p(fld('Source', s.source) + fld('Published', s.pubDate) + fld('Event date', s.eventDate)); const prim = arr(s.primary).filter(Boolean), corr = arr(s.corroborating).filter(Boolean); if (prim.length) p('<div>Primary: ' + prim.map(u => A(u,u)).join(' · ') + '</div>'); if (corr.length) p('<div>Corroborating: ' + corr.map(u => A(u,u)).join(' · ') + '</div>'); p('</div>'); }); }
 
     const g = b.gaps;
@@ -158,6 +184,8 @@
     const H = t => { line(''); line('== ' + t.toUpperCase() + ' =='); };
     const f = (l, v) => { if (has(v)) line('    ' + l + ': ' + v); };
     line((brief.date || '') + '  |  ' + b.classification); if (b.reportingWindow) line('Reporting window: ' + b.reportingWindow);
+    if (has(b.preheader)) line(b.preheader);
+    if (b.barometer.length) { H('Threat / Opportunity Barometer'); b.barometer.forEach(x => line('- ' + (x.category||'') + ': ' + (x.status||'') + ' ' + ({UP:'↑',FLAT:'→',DOWN:'↓'})[(x.direction||'').toUpperCase()] + (has(x.confidence)?' ['+x.confidence+']':'') + (has(x.reason)?' — '+x.reason:''))); }
     if (b.bluf.length) { H('BLUF'); b.bluf.forEach(x => { if (typeof x === 'string') { line('- ' + x); return; } line('- ' + x.what); f('Why', x.matters); f('Could change', x.changes || x.changed); f('Need to know', x.needToKnow); }); }
     if (b.top3.length) { H('The 3 Things I Cannot Afford to Miss'); b.top3.forEach((t,i) => { line((i+1) + '. ' + t.development + (has(t.confidence)?'  ('+t.confidence+')':'')); f('Assessment', t.assessment); f('Why matters', t.whyMatters); f('Org impact', t.orgImpact); f('My impact', t.myImpact); f('Recommendation', t.recommendation); }); }
     const wb = b.watchboard.length ? b.watchboard : b.watchlist;
@@ -168,11 +196,20 @@
       if (it.indicators && arr(it.indicators.list).length) f('Indicators', arr(it.indicators.list).join('; '));
       if (it.alt) { f('Leading', it.alt.leading); f('Alternative', it.alt.alternative); f('Wildcard', it.alt.wildcard); }
       if (it.scenarios) { f('Most likely', it.scenarios.mostLikely); f('Best case', it.scenarios.bestCase); f('Worst case', it.scenarios.worstCase); f('High-impact/low-prob', it.scenarios.highImpactLowProb); }
+      if (arr(it.impactChain).filter(has).length) f('Impact chain', arr(it.impactChain).filter(has).join(' -> '));
+      f('30 seconds', it.thirtySeconds);
       f('Takeaway', it.takeaway);
       const srcs = arr(it.sources).filter(x => x && x.url); if (srcs.length) f('Sources', srcs.map(x => x.url).join('  '));
     }); });
     const ul = (t, list, mapFn) => { if (!list.length) return; H(t); list.forEach(x => line('- ' + mapFn(x))); };
     if (b.crossDomain.length) { H('Cross-Domain Connections'); b.crossDomain.forEach(c => { line('A: ' + c.a); line('B: ' + c.b); line('=> ' + c.implication); line(''); }); }
+    if (b.strategicWarning.length) { H('!! Strategic Warning'); b.strategicWarning.forEach(w => { f('Indicators', w.indicators); f('Assessment', w.assessment); f('Impact', w.impact); f('Increase concern', w.increaseConcern); f('Reduce concern', w.reduceConcern); f('Confidence', w.confidence); }); }
+    if (b.patterns.length) { H('Intelligence Patterns'); b.patterns.forEach(x => { line('• ' + x.pattern); f('Signals', x.signals); f('Meaning', x.meaning); f('Confirm', x.confirm); f('Disprove', x.disconfirm); }); }
+    if (b.techRadar.length) { H('Technology Radar'); b.techRadar.forEach(t => line('- [' + (t.stage||'') + '] ' + t.tech + (has(t.note)?' — '+t.note:''))); }
+    if (b.contractRadar.length) { H('Contracting & Acquisition Radar'); b.contractRadar.forEach(c => { line('• ' + (c.program||c.agency) + (has(c.value)?' — '+c.value:'')); f('Agency', c.agency); f('Recipient', c.recipient); f('What', c.what); f('Why', c.whyMatters); f('Opportunity', c.opportunitySignal); }); }
+    if (b.opportunities.length) { H('Strategic Opportunities'); b.opportunities.forEach(o => { line('• ' + o.opportunity); f('Evidence', o.evidence); f('Why', o.whyMatters); f('Horizon', o.horizon); f('Who benefits', o.whoBenefits); f('Watch', o.watch); }); }
+    if (b.competitive.length) { H('Competitive Intelligence'); b.competitive.forEach(c => { line('• ' + c.org); f('Action', c.action); f('So what', c.soWhat); }); }
+    if (b.underRadar.length) { H('Under the Radar'); b.underRadar.forEach(u => { line('• ' + u.development); f('Why', u.why); }); }
     if (b.resurfaced.length) { H('Resurfaced Intelligence'); b.resurfaced.forEach(r => { line('• ' + r.issue); f('Original', r.originalEvent||r.originalTimeframe); f('New info', r.newInfo||r.newDevelopment); f('Why now', r.whyNow||r.whyResurfaced); f('What changed', r.whatChanged); f('Updated assessment', r.updatedAssessment||r.whyMattersNow); }); }
     if (b.weakSignals.length) { H('Weak Signals & Early Warning'); b.weakSignals.forEach(w => { if (typeof w === 'string') { line('- ' + w); return; } line('• ' + w.signal); f('Why unusual', w.whyUnusual); f('Potential trend', w.potentialTrend||w.why); f('Confirm', w.confirm); f('Disconfirm', w.disconfirm); }); }
     if (has(b.adImpact)) { H('Impact to the A&D Industry'); line(b.adImpact); }
@@ -200,6 +237,9 @@
       const gb = (l, list) => list.forEach(x => line('[' + l + '] ' + (x && typeof x === 'object' ? (x.assumption + (has(x.impactIfWrong)?' (if wrong: '+x.impactIfWrong+')':'')) : x)));
       gb('Fact', g.confirmedFacts); gb('Assumption', g.assumptions); gb('Gap', g.intelGaps); gb('Competing', g.competing); gb('Conf-limit', g.confidenceLimits); gb('Conflict', g.conflicting); gb('Low-conf', g.lowConfidence); gb('Would-change', g.whatWouldChange); gb('Collect', g.collectionPriorities);
     }
+    if (b.deepDive && (has(b.deepDive.topic) || has(b.deepDive.explanation))) { H('2-Minute Deep Dive' + (has(b.deepDive.topic) ? ' — ' + b.deepDive.topic : '')); line(b.deepDive.explanation); }
+    if (has(b.bigPicture)) { H('The Big Picture'); line(b.bigPicture); }
+    if (has(b.oneThing)) { H('If You Remember Only One Thing Today'); line(b.oneThing); }
     line(''); line('— Open-source, non-classified. Analytic judgments, not confirmed fact.');
     return L.join('\n');
   }
