@@ -27,7 +27,7 @@
   }
 
   // ---------- routing ----------
-  const VIEWS = ['brief', 'threads', 'track', 'archive', 'sources', 'settings'];
+  const VIEWS = ['brief', 'weekly', 'monthly', 'threads', 'track', 'archive', 'sources', 'settings'];
   function showView(name) {
     if (VIEWS.indexOf(name) === -1) name = 'brief';
     $$('section[data-view]').forEach(s => { s.hidden = (s.getAttribute('data-view') !== name); });
@@ -36,8 +36,39 @@
     if (name === 'settings') loadSettingsForm();
     if (name === 'threads') renderThreads();
     if (name === 'track') renderTrack();
+    if (name === 'weekly') loadPeriodic('weekly');
+    if (name === 'monthly') loadPeriodic('monthly');
     if (name === 'sources') { renderSources(); $('#source-material').value = store.getMaterial(); }
     doc.querySelector('main').scrollIntoView({ block: 'start' });
+  }
+
+  // ---------- weekly / monthly periodic products ----------
+  const periodicCache = { weekly: null, monthly: null };
+  async function loadPeriodic(kind) {
+    const manifest = await loadJSON('data/' + kind + '.json');
+    const picker = $('#' + kind + '-picker');
+    const files = Array.isArray(manifest) ? manifest.slice() : [];
+    picker.textContent = '';
+    if (!files.length) { $('#' + kind + '-empty').classList.remove('d-none'); $('#' + kind + '-body').textContent = ''; $('#' + kind + '-meta').textContent = ''; return; }
+    $('#' + kind + '-empty').classList.add('d-none');
+    files.forEach(f => { const o = doc.createElement('option'); o.value = f; o.textContent = f.replace(/^(weekly-|monthly-)/, '').replace(/\.json$/, ''); picker.appendChild(o); });
+    const chosen = (picker.value = picker.value || files[0]);
+    await renderPeriodic(kind, chosen);
+  }
+  async function renderPeriodic(kind, file) {
+    const data = await loadJSON('data/' + file);
+    periodicCache[kind] = data;
+    const metaEl = $('#' + kind + '-meta'), bodyEl = $('#' + kind + '-body');
+    if (!data) { bodyEl.textContent = ''; $('#' + kind + '-empty').classList.remove('d-none'); return; }
+    (kind === 'weekly' ? M.render.renderWeekly : M.render.renderMonthly)(data, metaEl, bodyEl);
+  }
+  function copyPeriodic(kind) {
+    const metaEl = $('#' + kind + '-meta'), bodyEl = $('#' + kind + '-body');
+    const text = (metaEl.textContent + '\n\n' + bodyEl.innerText).trim();
+    if (!text) { toast('Nothing to copy.', 'err'); return; }
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => toast('Copied ' + kind + ' assessment.', 'ok')).catch(() => {
+      const ta = doc.createElement('textarea'); ta.value = text; doc.body.appendChild(ta); ta.select(); try { doc.execCommand('copy'); toast('Copied.', 'ok'); } finally { doc.body.removeChild(ta); }
+    });
   }
   function routeFromHash() { showView((location.hash || '#brief').replace('#', '')); }
 
@@ -240,7 +271,9 @@
     'close-gen': closeGen,
     'run-generate': runGenerate,
     'copy-email': async () => { if (!state.brief) return toast('No brief loaded.', 'err'); const mode = await exporter.copyEmail(state.brief, branding.get()); toast(mode === 'rich' ? 'Email copied (HTML + text) — paste into your mail client.' : 'Email copied as plain text.', 'ok'); },
-    'print': () => { if (!state.brief) return toast('No brief loaded.', 'err'); exporter.printBrief(); },
+    'print': () => { exporter.printBrief(); },
+    'copy-weekly': () => copyPeriodic('weekly'),
+    'copy-monthly': () => copyPeriodic('monthly'),
     'send-email': async () => {
       if (!state.brief) return toast('No brief loaded.', 'err');
       const cfg = store.getEmail();
@@ -321,6 +354,8 @@
     root.addEventListener('hashchange', routeFromHash);
     $('#set-provider').addEventListener('change', () => { $('#set-model').value = store.DEFAULT_MODELS[$('#set-provider').value] || ''; updateModelHint(); });
     $('#brief-picker').addEventListener('change', function () { const b = store.getBrief(this.value); if (b) renderBrief(b); });
+    $('#weekly-picker').addEventListener('change', function () { renderPeriodic('weekly', this.value); });
+    $('#monthly-picker').addEventListener('change', function () { renderPeriodic('monthly', this.value); });
     wireFileInputs();
 
     await seedFromFiles();

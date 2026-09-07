@@ -1,0 +1,89 @@
+{
+  "kind": "weekly",
+  "weekOf": "2026-09-01 to 2026-09-07",
+  "classification": "PUBLIC / OPEN-SOURCE / NON-CLASSIFIED",
+  "meta": { "generatedBy": "manual", "model": "curated open-source synthesis (v2)", "generatedAt": "2026-09-07T17:00:00Z", "webSearch": true },
+  "executiveSummary": "The week's net movement was toward escalation on two fronts and hardening of a structural constraint. A U.S.–Iran maritime confrontation in the Strait of Hormuz escalated to direct fires (ballistic missiles at U.S. Navy units; tanker strikes), opening a new high-consequence thread. In Ukraine, a narrow 3-day capital-strike pause gave way mid-week to a reported 30-day halt on strikes against energy infrastructure — a category-bounded, still-fragile de-escalation rather than a ceasefire. On the industrial side, China's rare-earth leverage sharpened from broad controls to entity-list targeting of the very U.S. firms building domestic magnet substitution. Cyber risk concentrated on trust-boundary and AI-infrastructure components (CISA KEV adds) plus a reported mass identity-vendor breach. CMMC remained paused-but-binding. For an enterprise-tech/security leader the week's throughline is assurance under pressure: identity, edge, and AI-infrastructure exposure rising while compliance timing stays uncertain and materials risk deepens.",
+  "whatChanged": [
+    "New thread opened: U.S.–Iran direct fires in the Strait of Hormuz (5–6 Sep), a step-change from gray-zone tanker pressure.",
+    "Ukraine diplomacy shifted from a 3-day capital-strike pause to a reported 30-day energy-infrastructure strike halt after a Trump–Putin call (7 Sep).",
+    "China's rare-earth posture moved from broad export controls to entity-list targeting of MP Materials and USA Rare Earth (June 2026 measure surfacing in analysis).",
+    "CISA KEV additions concentrated on edge/identity (SonicWall SMA1000), CI/CD (JFrog Artifactory), and AI-gateway (LiteLLM) components.",
+    "A reported 153M+ driver's-license/ID breach at an identity-verification vendor entered criminal markets (FBI investigating; vendor unconfirmed).",
+    "DoD leadership churn: Army Secretary Driscoll resigned amid modernization clashes."
+  ],
+  "trendsEmerging": [
+    { "trend": "AI infrastructure is becoming a routine, targeted attack surface.", "evidence": "LiteLLM auth-bypass KEV entry alongside DoD opening commercial AI tools to employees and AI-governance bills advancing.", "soWhat": "Model gateways/MLOps must be governed and secured like privileged production identity systems; AI model-security is drifting toward contract requirements.", "confidence": "MODERATE" },
+    { "trend": "Identity supply chain as systemic single point of failure.", "evidence": "Reported mass ID-vendor breach feeding high-fidelity fraud/social engineering.", "soWhat": "Third-party identity-proofing exposure and phishing-resistant MFA rise on the enterprise risk agenda.", "confidence": "MODERATE" },
+    { "trend": "Critical-minerals leverage is being aimed at substitution efforts, not just end-users.", "evidence": "Entity-list targeting of U.S. rare-earth developers.", "soWhat": "The timeline to relieve the magnet chokepoint may lengthen; supplier-risk and second-sourcing gain urgency.", "confidence": "MODERATE" },
+    { "trend": "Homeland missile defense is a durable procurement wave.", "evidence": "Golden Dome SDA/interceptor awards and prime commentary on accelerating tempo.", "soWhat": "Multi-year demand in space sensing, interceptors, integration/MBSE for firms on SDA/MDA vehicles.", "confidence": "HIGH" }
+  ],
+  "gotWorse": [
+    "Middle East maritime risk (direct U.S.–Iran fires; oil-transit and insurance/freight exposure).",
+    "Rare-earth/magnet supply outlook (entity-list targeting of domestic substitution firms).",
+    "Enterprise cyber exposure (actively exploited edge/CI-CD/AI-infra CVEs; identity-data breach)."
+  ],
+  "gotBetter": [
+    "Ukraine strike tempo, narrowly and temporarily (reported 30-day energy-infrastructure halt vs. continuous strikes).",
+    "Golden Dome contracting clarity (funding visibly converting to awards)."
+  ],
+  "newsCycleMissed": [
+    "The convergence of AI adoption and AI-infrastructure vulnerability (LiteLLM KEV) as a coming compliance vector.",
+    "DoD's mobile-SCIF pursuit and device ad-ID/location-OPSEC action as quiet demand signals for secure mobility.",
+    "That the CMMC pause leaves DFARS 7012/7021 and SPRS fully binding — widely misread as relief."
+  ],
+  "assumptionsChanged": [
+    { "was": "China's rare-earth leverage is broad economic pressure.", "now": "It is being aimed specifically at U.S. domestic-substitution firms.", "implication": "Substitution timelines may lengthen; policy/industrial response becomes more urgent." },
+    { "was": "The Ukraine pause would simply lapse at term.", "now": "It converted into a different, category-bounded 30-day energy commitment.", "implication": "Diplomacy is more active than a clean-lapse model assumed; still not a ceasefire." }
+  ],
+  "threatsAccelerating": [
+    "Direct U.S.–Iran military exchange with escalation risk and global oil-transit exposure.",
+    "Active exploitation of remote-access, CI/CD, and AI-gateway components in DIB-relevant environments.",
+    "Identity fraud/social engineering fueled by a reported mass ID-vendor breach."
+  ],
+  "opportunitiesEmerging": [
+    "Secure mobility / mobile-SCIF and device-OPSEC demand.",
+    "Governed-AI / model-security tooling as requirements firm.",
+    "Domestic rare-earth processing, recycling, and magnet substitution.",
+    "Golden Dome space-sensing, interceptor, and integration work via SDA/MDA vehicles."
+  ],
+  "threadMovement": [
+    { "thread": "U.S.–Iran Conflict / Strait of Hormuz", "from": "(new)", "to": "ESCALATING", "note": "Opened this week on direct fires." },
+    { "thread": "Ukraine Ceasefire Diplomacy", "from": "UNCERTAIN (3-day pause)", "to": "UNCERTAIN (30-day energy halt)", "note": "Category-bounded de-escalation; not a ceasefire." },
+    { "thread": "Critical Minerals / Rare-Earth Magnets", "from": "ESCALATING", "to": "ESCALATING", "note": "Entity-list targeting of MP Materials / USA Rare Earth confirmed." },
+    { "thread": "Actively Exploited Edge / AI-Infra CVEs", "from": "(new)", "to": "ESCALATING", "note": "KEV concentration on edge/CI-CD/AI-gateway." }
+  ],
+  "decisionsApproaching": [
+    { "decision": "CMMC Level 2 readiness investment posture during the pause.", "by": "~within 30 days / at review conclusion", "why": "DFARS/SPRS obligations continue; a reset timeline is plausible." },
+    { "decision": "Energy/freight/insurance contingency posture given Hormuz volatility.", "by": "Near-term", "why": "Oil-transit disruption risk affects cost and continuity assumptions." }
+  ],
+  "leadershipDiscussion": [
+    "Our identity-proofing dependencies and phishing-resistant MFA posture in light of the ID-vendor breach.",
+    "Whether to hold CMMC readiness at full investment or a maintenance posture pending the review.",
+    "Rare-earth exposure in any hardware BOMs and second-sourcing options.",
+    "How we govern and secure AI gateways/agents as adoption expands."
+  ],
+  "forecastLedger": [
+    { "forecast": "China will not materially relax rare-earth controls on military-affiliated firms near-term.", "outcome": "CORRECT", "note": "Entity-list targeting of U.S. developers confirms continued tightening." },
+    { "forecast": "The Kyiv–Moscow strike pause will lapse at term absent a broader framework.", "outcome": "PARTIAL", "note": "Converted to a 30-day energy-infrastructure halt rather than a clean lapse." },
+    { "forecast": "CMMC review concludes with a reformed-but-intact program and reset timeline.", "outcome": "PENDING", "note": "Awaiting conclusion (~mid-Sep)." },
+    { "forecast": "Golden Dome award tempo accelerates into early 2027.", "outcome": "PENDING", "note": "Consistent so far." }
+  ],
+  "outlookNextWeek": [
+    "Iran's promised response and any U.S. counter-action; oil-price and shipping-insurance signals.",
+    "Whether the 30-day energy-strike halt holds and covers reciprocity; ZNPP diesel/power status.",
+    "CMMC review determination and any revised phased timeline.",
+    "Further CISA KEV adds and vendor patches for the flagged components."
+  ],
+  "gaps": {
+    "assumptions": [ "Recipient is a senior enterprise-tech/security/compliance leader in A&D (industry-level org impact).", "Open-source synthesis; consequential claims flagged by confidence." ],
+    "intelGaps": [ "Exact scope/outcome of U.S.–Iran exchanges and whether it broadens.", "ID-breach vendor and true record count.", "CMMC review conclusion date and substance." ],
+    "whatWouldChange": [ "A broadened Iran conflict or Hormuz closure would reorder priorities.", "A CMMC scope reduction would change the readiness-investment calculus.", "PRC licensing relief would soften the materials outlook." ]
+  },
+  "sources": [
+    { "claim": "U.S.–Iran tanker/Hormuz confrontation.", "url": "https://www.aljazeera.com/news/2026/9/6/us-iran-engaged-in-tanker-war-where-is-the-months-long-conflict-headed", "confidence": "MODERATE" },
+    { "claim": "Trump–Putin call and reported energy-strike halt.", "url": "https://kyivindependent.com/trumps-first-call-after-peace-talks-briefing-will-be-putin-source-says/", "confidence": "MODERATE" },
+    { "claim": "Golden Dome procurement momentum.", "url": "https://www.airandspaceforces.com/sda-awards-contracts-for-36-golden-dome-missile-tracking-satellites/", "confidence": "HIGH" },
+    { "claim": "China rare-earth restrictions threaten U.S. defense supply chains.", "url": "https://www.csis.org/analysis/chinas-new-rare-earth-and-magnet-restrictions-threaten-us-defense-supply-chains", "confidence": "HIGH" }
+  ]
+}

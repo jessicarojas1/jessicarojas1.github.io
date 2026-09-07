@@ -407,5 +407,88 @@
     return '(no BLUF)';
   }
 
-  M.render = { render, normalize, headlineOf };
+  // ---------------- WEEKLY ----------------
+  function renderWeekly(w, metaEl, bodyEl) {
+    w = w && typeof w === 'object' ? w : {};
+    metaEl.textContent = '';
+    const meta = h('div', { class:'brief-meta' });
+    meta.appendChild(h('span', { class:'cls-badge text-primary' }, [h('i', { class:'bi bi-shield-check' }), ' ' + (w.classification || 'PUBLIC / OPEN-SOURCE / NON-CLASSIFIED')]));
+    if (w.weekOf) meta.appendChild(h('span', {}, [h('i', { class:'bi bi-calendar-week' }), ' Week of ' + w.weekOf]));
+    if (w.meta && w.meta.generatedBy) meta.appendChild(h('span', { class:'text-secondary' }, [h('i', { class:'bi bi-stars' }), ' ' + w.meta.generatedBy + (w.meta.model ? ' · ' + w.meta.model : '')]));
+    metaEl.appendChild(meta);
+    bodyEl.textContent = '';
+    const frag = doc.createDocumentFragment(); const add = n => n && frag.appendChild(n);
+    if (has(w.executiveSummary)) { const { sec, inner } = sectionShell('Executive Summary', 'bi-file-text'); inner.appendChild(h('p', { class:'mb-0' }, str(w.executiveSummary))); add(sec); }
+    add(bulletSection('What Changed This Week', 'bi-arrow-left-right', arr(w.whatChanged), x => h('li', {}, str(x))));
+    if (arr(w.trendsEmerging).length) { const { sec, inner } = sectionShell('Trends Emerging', 'bi-graph-up-arrow'); arr(w.trendsEmerging).forEach(t => { const c = h('div', { class:'intel-item' }, h('h3', { class:'h6 mb-1' }, str(t.trend))); [field('Evidence', t.evidence), field('So what', t.soWhat)].forEach(f => f && c.appendChild(f)); const cc = confChip(t.confidence); if (cc) c.appendChild(cc); inner.appendChild(c); }); add(sec); }
+    add(bulletSection('What Got Worse', 'bi-arrow-down-right-circle', arr(w.gotWorse), x => h('li', {}, str(x))));
+    add(bulletSection('What Got Better', 'bi-arrow-up-right-circle', arr(w.gotBetter), x => h('li', {}, str(x))));
+    add(bulletSection('What the News Cycle Missed', 'bi-eye-slash', arr(w.newsCycleMissed), x => h('li', {}, str(x))));
+    if (arr(w.assumptionsChanged).length) { const { sec, inner } = sectionShell('Assumptions That Changed', 'bi-shuffle'); arr(w.assumptionsChanged).forEach(a => { const c = h('div', { class:'intel-item' }); [field('Was', a.was), field('Now', a.now), field('Implication', a.implication)].forEach(f => f && c.appendChild(f)); inner.appendChild(c); }); add(sec); }
+    add(bulletSection('Threats Accelerating', 'bi-exclamation-triangle', arr(w.threatsAccelerating), x => h('li', {}, str(x))));
+    add(bulletSection('Opportunities Emerging', 'bi-lightbulb', arr(w.opportunitiesEmerging), x => h('li', {}, str(x))));
+    if (arr(w.threadMovement).length) { const { sec, inner } = sectionShell('Thread Movement', 'bi-diagram-3'); arr(w.threadMovement).forEach(t => { const c = h('div', { class:'intel-item' }, h('h3', { class:'h6 mb-1' }, str(t.thread))); const row = h('div', { class:'field' }, [h('span', { class:'lbl' }, 'Direction'), str(t.from) + ' → ' + str(t.to)]); c.appendChild(row); const n = field('Note', t.note); if (n) c.appendChild(n); inner.appendChild(c); }); add(sec); }
+    if (arr(w.decisionsApproaching).length) { const { sec, inner } = sectionShell('Decisions Approaching', 'bi-signpost-split'); arr(w.decisionsApproaching).forEach(d => { const c = h('div', { class:'intel-item' }, h('h3', { class:'h6 mb-1' }, str(d.decision))); [field('By', d.by), field('Why', d.why)].forEach(f => f && c.appendChild(f)); inner.appendChild(c); }); add(sec); }
+    add(bulletSection('What Leadership Should Be Discussing', 'bi-people', arr(w.leadershipDiscussion), x => h('li', {}, str(x))));
+    if (arr(w.forecastLedger).length) { const { sec, inner } = sectionShell('Forecast Ledger', 'bi-graph-up'); arr(w.forecastLedger).forEach(f => { const o = up(f.outcome) || 'PENDING'; const row = h('div', { class:'action-row' }); row.appendChild(h('span', { class:'action-badge fc-'+(['CORRECT','INCORRECT','PARTIAL','PENDING'].indexOf(o)>=0?o:'PENDING') }, o)); row.appendChild(h('span', {}, str(f.forecast) + (has(f.note) ? ' — ' + str(f.note) : ''))); inner.appendChild(row); }); add(sec); }
+    add(bulletSection('Outlook — Next Week', 'bi-hourglass-split', arr(w.outlookNextWeek), x => h('li', {}, str(x))));
+    renderGapsBlock(w.gaps, add);
+    renderFlatSources(w.sources, add);
+    bodyEl.appendChild(frag);
+  }
+
+  // ---------------- MONTHLY ----------------
+  function renderMonthly(m, metaEl, bodyEl) {
+    m = m && typeof m === 'object' ? m : {};
+    metaEl.textContent = '';
+    const meta = h('div', { class:'brief-meta' });
+    meta.appendChild(h('span', { class:'cls-badge text-primary' }, [h('i', { class:'bi bi-shield-check' }), ' ' + (m.classification || 'PUBLIC / OPEN-SOURCE / NON-CLASSIFIED')]));
+    if (m.month) meta.appendChild(h('span', {}, [h('i', { class:'bi bi-calendar3' }), ' ' + m.month]));
+    if (m.meta && m.meta.generatedBy) meta.appendChild(h('span', { class:'text-secondary' }, [h('i', { class:'bi bi-stars' }), ' ' + m.meta.generatedBy + (m.meta.model ? ' · ' + m.meta.model : '')]));
+    metaEl.appendChild(meta);
+    bodyEl.textContent = '';
+    const frag = doc.createDocumentFragment(); const add = n => n && frag.appendChild(n);
+    if (has(m.executiveSummary)) { const { sec, inner } = sectionShell('Executive Summary', 'bi-file-text'); inner.appendChild(h('p', { class:'mb-0' }, str(m.executiveSummary))); add(sec); }
+    if (arr(m.strategicJudgments).length) add(bulletSection('Strategic Judgments', 'bi-compass', arr(m.strategicJudgments), x => h('li', {}, str(x))));
+    if (arr(m.estimate).length) {
+      const { sec, inner } = sectionShell('Strategic Estimate by Domain', 'bi-grid-3x3-gap');
+      arr(m.estimate).forEach(e => {
+        const card = h('div', { class:'intel-item' });
+        const head = h('div', { class:'d-flex flex-wrap align-items-center gap-2 mb-1' }, h('h3', { class:'h6 mb-0 me-auto' }, str(e.domain)));
+        const d = dirChip(e.trajectory); if (d) head.appendChild(d); const c = confChip(e.confidence); if (c) head.appendChild(c);
+        card.appendChild(head);
+        [field('Current', e.current), field('Trajectory', e.trajectory), field('Most likely', e.mostLikely), field('Risk', e.risk), field('Opportunity', e.opportunity), field('Organizational impact', e.orgImpact), field('Recommended posture', e.posture)].forEach(f => f && card.appendChild(f));
+        if (arr(e.keyIndicators).length) { const iw = h('div', { class:'subblock' }, h('div', { class:'lbl' }, 'Key indicators')); const ul = h('ul', { class:'mb-0' }); arr(e.keyIndicators).forEach(x => ul.appendChild(h('li', {}, str(x)))); iw.appendChild(ul); card.appendChild(iw); }
+        inner.appendChild(card);
+      });
+      add(sec);
+    }
+    const hz = m.horizon || {};
+    add(bulletSection('30-Day Horizon', 'bi-hourglass-split', arr(hz.d30), x => h('li', {}, str(x))));
+    add(bulletSection('90-Day Horizon', 'bi-calendar-range', arr(hz.d90), x => h('li', {}, str(x))));
+    add(bulletSection('365-Day Horizon', 'bi-calendar3', arr(hz.d365), x => h('li', {}, str(x))));
+    if (arr(m.decisionsApproaching).length) { const { sec, inner } = sectionShell('Decisions Approaching', 'bi-signpost-split'); arr(m.decisionsApproaching).forEach(d => { const c = h('div', { class:'intel-item' }, h('h3', { class:'h6 mb-1' }, str(d.decision))); [field('By', d.by), field('Why', d.why)].forEach(f => f && c.appendChild(f)); inner.appendChild(c); }); add(sec); }
+    if (arr(m.forecastReview).length) { const { sec, inner } = sectionShell('Forecast Review', 'bi-graph-up'); arr(m.forecastReview).forEach(f => { const o = up(f.outcome) || 'PENDING'; const row = h('div', { class:'action-row' }); row.appendChild(h('span', { class:'action-badge fc-'+(['CORRECT','INCORRECT','PARTIAL','PENDING'].indexOf(o)>=0?o:'PENDING') }, o)); row.appendChild(h('span', {}, str(f.priorForecast) + (has(f.note) ? ' — ' + str(f.note) : ''))); inner.appendChild(row); }); add(sec); }
+    renderGapsBlock(m.gaps, add);
+    renderFlatSources(m.sources, add);
+    bodyEl.appendChild(frag);
+  }
+
+  function renderGapsBlock(g, add) {
+    g = (g && typeof g === 'object') ? g : {};
+    const A = k => arr(g[k]);
+    if (!(A('assumptions').length || A('intelGaps').length || A('whatWouldChange').length)) return;
+    const { sec, inner } = sectionShell('Assumptions, Gaps & What Would Change Our View', 'bi-clipboard-data');
+    const block = (label, list) => { if (!list.length) return; inner.appendChild(h('div', { class:'lbl mt-2' }, label)); const ul = h('ul', { class:'mb-0' }); list.forEach(x => ul.appendChild(h('li', {}, str(x)))); inner.appendChild(ul); };
+    block('Assumptions', A('assumptions')); block('Intelligence gaps', A('intelGaps')); block('What would change our assessment', A('whatWouldChange'));
+    add(sec);
+  }
+  function renderFlatSources(sources, add) {
+    const list = arr(sources).filter(s => s && (s.url || s.claim)); if (!list.length) return;
+    const { sec, inner } = sectionShell('Source Notes', 'bi-journal-check');
+    list.forEach(s => { const card = h('div', { class:'intel-item' }); if (has(s.claim)) card.appendChild(h('div', { class:'fw-semibold mb-1' }, str(s.claim))); const row = h('div', {}); const cc = confChip(s.confidence); if (cc) row.appendChild(cc); if (safeUrl(s.url)) { row.appendChild(doc.createTextNode(' ')); row.appendChild(link(s.url, s.url)); } card.appendChild(row); inner.appendChild(card); });
+    add(sec);
+  }
+
+  M.render = { render, renderWeekly, renderMonthly, normalize, headlineOf };
 })(window);

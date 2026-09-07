@@ -41,6 +41,8 @@
       <div class="collapse navbar-collapse" id="meridianNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="#brief" data-nav="brief"><i class="bi bi-newspaper"></i> Brief</a></li>
+          <li class="nav-item"><a class="nav-link" href="#weekly" data-nav="weekly"><i class="bi bi-calendar-week"></i> Weekly</a></li>
+          <li class="nav-item"><a class="nav-link" href="#monthly" data-nav="monthly"><i class="bi bi-calendar3"></i> Monthly</a></li>
           <li class="nav-item"><a class="nav-link" href="#threads" data-nav="threads"><i class="bi bi-diagram-3"></i> Threads</a></li>
           <li class="nav-item"><a class="nav-link" href="#track" data-nav="track"><i class="bi bi-graph-up"></i> Track Record</a></li>
           <li class="nav-item"><a class="nav-link" href="#archive" data-nav="archive"><i class="bi bi-clock-history"></i> Archive</a></li>
@@ -110,6 +112,46 @@
           <input type="file" id="import-file" accept="application/json,.json" hidden>
         </label>
       </div>
+    </section>
+
+    <!-- ===================== WEEKLY VIEW ===================== -->
+    <section data-view="weekly" hidden>
+      <div class="page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+        <div>
+          <h1 class="page-title mb-1"><i class="bi bi-calendar-week"></i> Weekly Strategic Assessment</h1>
+          <div class="text-secondary small">Synthesis of the week — trends, deltas, accelerating threats, emerging opportunities, decisions approaching.</div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <select class="form-select form-select-sm w-auto" id="weekly-picker" aria-label="Select weekly assessment"></select>
+          <div class="btn-group" role="group">
+            <button class="btn btn-sm btn-outline-secondary" data-action="copy-weekly" title="Copy plain-text"><i class="bi bi-clipboard"></i></button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="print" title="Print / PDF"><i class="bi bi-printer"></i></button>
+          </div>
+        </div>
+      </div>
+      <div id="weekly-meta" class="brief-meta mb-3"></div>
+      <div id="weekly-body"></div>
+      <div id="weekly-empty" class="empty-state-sm d-none">No weekly assessment yet. The engine produces one each Friday.</div>
+    </section>
+
+    <!-- ===================== MONTHLY VIEW ===================== -->
+    <section data-view="monthly" hidden>
+      <div class="page-header d-flex flex-wrap justify-content-between align-items-start gap-2">
+        <div>
+          <h1 class="page-title mb-1"><i class="bi bi-calendar3"></i> Monthly Strategic Estimate</h1>
+          <div class="text-secondary small">30 / 90 / 365-day outlook across eleven domains, with trajectory, risk, opportunity, and recommended posture.</div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <select class="form-select form-select-sm w-auto" id="monthly-picker" aria-label="Select monthly estimate"></select>
+          <div class="btn-group" role="group">
+            <button class="btn btn-sm btn-outline-secondary" data-action="copy-monthly" title="Copy plain-text"><i class="bi bi-clipboard"></i></button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="print" title="Print / PDF"><i class="bi bi-printer"></i></button>
+          </div>
+        </div>
+      </div>
+      <div id="monthly-meta" class="brief-meta mb-3"></div>
+      <div id="monthly-body"></div>
+      <div id="monthly-empty" class="empty-state-sm d-none">No monthly estimate yet. The engine produces one at month-end.</div>
     </section>
 
     <!-- ===================== THREADS VIEW ===================== -->

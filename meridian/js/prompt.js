@@ -148,5 +148,69 @@ Rules: 5-10 BLUF; exactly 3 top3; 3-7 watchboard threads; <=5 weakSignals; <=5 r
     return u;
   }
 
-  M.prompt = { MISSION, OUTPUT_CONTRACT, buildSystemPrompt, buildUserPrompt, VERSION: 2 };
+  // ---------------- WEEKLY STRATEGIC ASSESSMENT ----------------
+  const WEEKLY_CONTRACT = `WEEKLY STRATEGIC INTELLIGENCE ASSESSMENT — STRICT JSON
+This is a SEPARATE weekly product. Do NOT merely combine the daily reports — synthesize across the week: what changed, what trends are emerging, what got worse/better, what the news cycle missed, what assumptions changed, what threats are accelerating, what opportunities are emerging, what decisions may be approaching, and what leadership should be discussing. Same lawful-open-source, anti-fabrication, OPSEC, and confidence rules as the daily.
+Return ONE JSON object, nothing else:
+{
+  "kind": "weekly",
+  "weekOf": "YYYY-MM-DD to YYYY-MM-DD",
+  "classification": "PUBLIC / OPEN-SOURCE / NON-CLASSIFIED",
+  "executiveSummary": "one dense paragraph on the week's net strategic movement",
+  "whatChanged": [ "the material deltas of the week" ],
+  "trendsEmerging": [ { "trend": "", "evidence": "", "soWhat": "", "confidence": "HIGH|MODERATE|LOW" } ],
+  "gotWorse": [ "" ],
+  "gotBetter": [ "" ],
+  "newsCycleMissed": [ "strategically important but under-covered" ],
+  "assumptionsChanged": [ { "was": "", "now": "", "implication": "" } ],
+  "threatsAccelerating": [ "" ],
+  "opportunitiesEmerging": [ "" ],
+  "threadMovement": [ { "thread": "", "from": "", "to": "", "note": "direction-of-travel change this week" } ],
+  "decisionsApproaching": [ { "decision": "", "by": "when", "why": "" } ],
+  "leadershipDiscussion": [ "what leadership should be discussing now" ],
+  "forecastLedger": [ { "forecast": "", "outcome": "CORRECT|INCORRECT|PARTIAL|PENDING", "note": "" } ],
+  "outlookNextWeek": [ "" ],
+  "gaps": { "assumptions": [ "" ], "intelGaps": [ "" ], "whatWouldChange": [ "" ] },
+  "sources": [ { "claim": "", "url": "", "confidence": "HIGH|MODERATE|LOW" } ]
+}
+Rules: 3-8 items per list max; keep it executive-dense; cite real URLs; keep org/personal impact strategic.`;
+
+  // ---------------- MONTHLY STRATEGIC ESTIMATE ----------------
+  const MONTHLY_CONTRACT = `MONTHLY STRATEGIC ESTIMATE — 30/90/365-DAY OUTLOOK — STRICT JSON
+This is a SEPARATE monthly product: a forward estimate, not a summary. Assess each domain's current situation, trajectory, most-likely outlook, key indicators, risk, opportunity, organizational impact, and recommended posture. Same lawful-open-source, anti-fabrication, OPSEC, and confidence rules.
+Return ONE JSON object, nothing else:
+{
+  "kind": "monthly",
+  "month": "YYYY-MM",
+  "classification": "PUBLIC / OPEN-SOURCE / NON-CLASSIFIED",
+  "executiveSummary": "one dense paragraph on the strategic environment and its trajectory",
+  "estimate": [
+    { "domain": "Geopolitics|Defense spending|Aerospace|Cyber|AI|Space|Industrial base|Government contracting|Regulation|Technology|Supply chain",
+      "current": "", "trajectory": "IMPROVING|STABLE|DETERIORATING|UNCERTAIN", "mostLikely": "",
+      "keyIndicators": [ "" ], "risk": "", "opportunity": "", "orgImpact": "", "posture": "recommended posture", "confidence": "HIGH|MODERATE|LOW" }
+  ],
+  "strategicJudgments": [ "the month's most consequential cross-cutting judgments" ],
+  "horizon": { "d30": [ "" ], "d90": [ "" ], "d365": [ "" ] },
+  "decisionsApproaching": [ { "decision": "", "by": "when", "why": "" } ],
+  "forecastReview": [ { "priorForecast": "", "outcome": "CORRECT|INCORRECT|PARTIAL|PENDING", "note": "" } ],
+  "gaps": { "assumptions": [ "" ], "intelGaps": [ "" ], "whatWouldChange": [ "" ] },
+  "sources": [ { "claim": "", "url": "", "confidence": "HIGH|MODERATE|LOW" } ]
+}
+Rules: cover the 11 domains (a domain with nothing material gets current='No material change'); avoid false precision and numeric probabilities unless evidence supports; cite real URLs.`;
+
+  function buildWeeklySystem(profile) { return buildSystemPrompt(profile) + '\n\n' + WEEKLY_CONTRACT; }
+  function buildMonthlySystem(profile) { return buildSystemPrompt(profile) + '\n\n' + MONTHLY_CONTRACT; }
+  function buildWeeklyUser(weekOf, context) {
+    let u = 'Produce the WEEKLY STRATEGIC INTELLIGENCE ASSESSMENT for the week of ' + weekOf + '. Synthesize the week; do not concatenate dailies. Return only the strict JSON object.';
+    if (context) u += '\n\nContext from this period (daily threads, scorecard, and prior briefs):\n"""\n' + String(context).slice(0, 8000) + '\n"""';
+    return u;
+  }
+  function buildMonthlyUser(month, context) {
+    let u = 'Produce the MONTHLY STRATEGIC ESTIMATE (30/90/365-day outlook) for ' + month + '. Forward estimate across all 11 domains. Return only the strict JSON object.';
+    if (context) u += '\n\nContext (intelligence threads, forecast scorecard, and recent assessments):\n"""\n' + String(context).slice(0, 8000) + '\n"""';
+    return u;
+  }
+
+  M.prompt = { MISSION, OUTPUT_CONTRACT, WEEKLY_CONTRACT, MONTHLY_CONTRACT,
+    buildSystemPrompt, buildUserPrompt, buildWeeklySystem, buildWeeklyUser, buildMonthlySystem, buildMonthlyUser, VERSION: 2 };
 })(window);
