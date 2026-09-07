@@ -1,9 +1,17 @@
-# MERIDIAN — Daily Executive Intelligence Brief
+# MERIDIAN — Executive Strategic Intelligence & Decision-Support System (v2)
 
-MERIDIAN is a client-side, **open-source / non-classified** executive intelligence engine.
-It produces a daily briefing across global security, U.S. national security, aerospace,
-defense, space, the defense industrial base, government contracting, cybersecurity,
-AI, and emerging technology — using **only lawful, publicly available information**.
+MERIDIAN is a client-side, **open-source / non-classified** executive strategic-intelligence
+engine. Its purpose is not to summarize news but to create **decision advantage**: it
+identifies, fuses, challenges, and prioritizes lawful public information across global
+security, U.S. national security, aerospace, defense, space, the defense industrial base,
+government contracting, cybersecurity, AI, and emerging technology — using **only lawful,
+publicly available information**.
+
+**v2 doctrine** adds full analytic tradecraft (KNOWN/REPORTED/CLAIMED/ASSESSED/UNKNOWN/FORECAST),
+confidence levels, indicators & warnings (GREEN→RED), actor-intent (capability vs intent),
+alternative analysis, scenarios, orders of effect, decision memos, red-team review, and — the
+core of decision advantage — **persistent intelligence threads** and a **forecast scorecard**
+carried across reporting cycles.
 
 It is a static app (HTML/CSS/vanilla JS), part of the `jessicarojas1.github.io` site,
 in the same style as `citadel`. There is **no backend and no server-side storage**.
@@ -15,19 +23,31 @@ in the same style as `citadel`. There is **no backend and no server-side storage
 
 ## What it does
 
-Given your own LLM key, MERIDIAN runs the analyst doctrine in [`js/prompt.js`](js/prompt.js)
+Given your own LLM key, MERIDIAN runs the v2 doctrine in [`js/prompt.js`](js/prompt.js)
 against the provider you choose, with an optional **live web-search tool**, and renders a
 full intelligence product:
 
-- **BLUF** (what happened / why it matters / what changed)
-- **Executive Watchlist** (priority · direction · confidence · what to watch)
-- **10 domain sections** — each item carries `FACT`, `ASSESSMENT`, `OUTLOOK`, why-it-matters,
-  aerospace/defense impact, organizational relevance, an executive takeaway, confidence, and cited sources
-- **Cyber items** additionally carry threat / affected tech / exploitation status / defensive priority
-- **Resurfaced / continuing developments**, **weak signals**, **A&D impact synthesis**
-- **Impact to My Work** and **What I Should Know Today** (shaped by your saved recipient profile)
-- **Questions executives may ask** (with recommended answers), **watch-next (24h / 7–30d)**, **action items**
-- **Source & confidence notes** and a mandatory **Assumptions, Intelligence Gaps & Confidence** section
+- **BLUF** (what changed / why it matters / what it could change / what you need to know)
+- **The 3 Things I Cannot Afford to Miss Today**
+- **Executive Watchboard** — intelligence threads with status · direction · risk · opportunity · next indicator
+- **10 fused domain sections** — items move through OBSERVATION → CONTEXT → CHANGE → SIGNIFICANCE →
+  CAUSATION → ACTOR INTENT → IMPLICATIONS → 2nd/3rd-order → INDICATORS (GREEN→RED) → alternatives →
+  scenarios → org & personal impact → recommendation, with confidence and cited sources
+- **Cross-domain connections**, **resurfaced intelligence**, **weak signals & early warning**
+- **Impact to the A&D industry**, **Impact to My Organization** (immediate/near/strategic/none),
+  **How This Applies to Me**
+- **Executive recommendations** (INFORM/WATCH/VALIDATE/REVIEW/PREPARE/ENGAGE/INVESTIGATE/ACT with
+  rationale, evidence, timing, owner, trigger, risk-of-action/inaction), **decision memos**
+- **Questions I should be asking / may be asked**, **watch horizons (24–72h / 7–30d / 3–12mo)**,
+  **strategic surprise watch**, **What Could We Be Wrong About?**, **red-team review**
+- **Source notes**, **Intelligence Performance Review** (forecast scorecard), and a mandatory
+  **Assumptions, Intelligence Gaps & Analytic Confidence** section
+
+### Continuity: threads & track record
+Two views make continuity visible: **Threads** (`data/threads.json`) carries each major issue
+forward with direction of travel, indicators, and a timeline; **Track Record** (`data/scorecard.json`)
+logs prior forecasts and grades them as they resolve — incorrect calls are kept, not erased.
+The daily engine reads and updates both each run.
 
 ### Delivery
 - On-screen executive view
@@ -107,17 +127,19 @@ meridian/
 ├── index.html            App shell (all views)
 ├── css/meridian.css      Theme-aware styling (dark-first, Bootstrap tokens)
 ├── js/
-│   ├── prompt.js         Analyst doctrine + strict JSON output contract
+│   ├── prompt.js         v2 doctrine + strict JSON output contract
 │   ├── store.js          localStorage persistence (settings, keys, archive)
 │   ├── branding.js       Logo / name / accent (sanitized)
 │   ├── feeds.js          Curated open-source portals (passive launch links)
-│   ├── llm.js            Anthropic + OpenAI providers, web-search tool, JSON extraction
-│   ├── render.js         Brief object → DOM (XSS-safe)
+│   ├── llm.js            Anthropic + OpenAI providers, web-search tool, thread continuity, JSON extraction
+│   ├── render.js         Brief object → DOM (XSS-safe, v2-aware)
 │   ├── export.js         Email HTML/text, clipboard, print, EmailJS send, JSON I/O
-│   └── app.js            Controller: routing, settings, generate flow, archive
+│   └── app.js            Controller: routing, settings, generate flow, archive, threads, track record
 ├── data/
-│   ├── briefs.json       Seed manifest
-│   └── brief-2026-09-06.json   Seed brief (real, cited)
+│   ├── briefs.json       Seed manifest (newest 14)
+│   ├── brief-2026-09-06.json   Seed brief (real, cited, v2)
+│   ├── threads.json      Persistent intelligence threads
+│   └── scorecard.json    Forecast track record
 └── README.md
 ```
 

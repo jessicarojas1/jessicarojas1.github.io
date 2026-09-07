@@ -132,6 +132,22 @@
     return (b && b.length < 400 ? b : (e && e.message)) || 'Unknown error.';
   }
 
+  // Build a compact intelligence-thread context from the most recent prior brief
+  // (its watchboard + top-3), so client-side generation carries continuity.
+  function buildThreadContext(dateStr) {
+    try {
+      const prior = store.listBriefs().filter(b => b && b.date && b.date !== dateStr)[0];
+      if (!prior) return '';
+      const lines = [];
+      (prior.watchboard || prior.watchlist || []).forEach(w => {
+        lines.push('- THREAD: ' + (w.issue || w.development || '') + ' | status: ' + (w.status || '') + ' | direction: ' + (w.direction || '') + ' | next indicator: ' + (w.nextIndicator || w.watchNext || ''));
+      });
+      (prior.forecastReview || []).forEach(f => { if (f && f.priorForecast) lines.push('- PRIOR FORECAST (' + (f.date || prior.date) + '): ' + f.priorForecast + ' [outcome so far: ' + (f.outcome || 'PENDING') + ']'); });
+      if (!lines.length) return '';
+      return 'From the ' + prior.date + ' brief:\n' + lines.join('\n');
+    } catch (e) { return ''; }
+  }
+
   // Generate a full brief object for dateStr. Returns { brief, meta }.
   async function generate(dateStr, onProgress) {
     const engine = store.getEngine();
@@ -139,7 +155,7 @@
     const profile = store.getProfile();
     const material = store.getMaterial();
     const sys = prompt.buildSystemPrompt(profile);
-    const user = prompt.buildUserPrompt(dateStr, material);
+    const user = prompt.buildUserPrompt(dateStr, material, buildThreadContext(dateStr));
 
     if (onProgress) onProgress(engine.webSearch ? 'Researching open sources…' : 'Composing brief…', 25);
     let result;

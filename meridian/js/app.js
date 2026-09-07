@@ -27,13 +27,15 @@
   }
 
   // ---------- routing ----------
-  const VIEWS = ['brief', 'archive', 'sources', 'settings'];
+  const VIEWS = ['brief', 'threads', 'track', 'archive', 'sources', 'settings'];
   function showView(name) {
     if (VIEWS.indexOf(name) === -1) name = 'brief';
     $$('section[data-view]').forEach(s => { s.hidden = (s.getAttribute('data-view') !== name); });
     $$('[data-nav]').forEach(a => a.classList.toggle('active', a.getAttribute('data-nav') === name));
     if (name === 'archive') renderArchive();
     if (name === 'settings') loadSettingsForm();
+    if (name === 'threads') renderThreads();
+    if (name === 'track') renderTrack();
     if (name === 'sources') { renderSources(); $('#source-material').value = store.getMaterial(); }
     doc.querySelector('main').scrollIntoView({ block: 'start' });
   }
@@ -112,6 +114,70 @@
       card.appendChild(body); col.appendChild(card); grid.appendChild(col);
     });
   }
+
+  // ---------- threads & track record ----------
+  function badge(text, cls) { const s = doc.createElement('span'); s.className = 'chip ' + (cls || ''); s.textContent = text; return s; }
+  function dirClass(d) { return { ESCALATING:'dir-escalating', DEESCALATING:'dir-improving', IMPROVING:'dir-improving', STABLE:'dir-stable', UNCERTAIN:'dir-uncertain' }[(d||'').toUpperCase()] || 'dir-stable'; }
+  function iwSpan(level) { const L = (level||'').toUpperCase(); if (!L) return null; const s = doc.createElement('span'); s.className = 'iw-badge iw-' + L.toLowerCase(); s.textContent = L; return s; }
+  function fieldRow(label, val) { if (!val) return null; const d = doc.createElement('div'); d.className = 'field'; const l = doc.createElement('span'); l.className = 'lbl'; l.textContent = label; d.appendChild(l); d.appendChild(doc.createTextNode(String(val))); return d; }
+
+  async function loadJSON(path) { try { const r = await fetch(path, { cache: 'no-cache' }); if (!r.ok) return null; return await r.json(); } catch (e) { return null; } }
+
+  async function renderThreads() {
+    const host = $('#threads-body'); host.textContent = '';
+    let threads = await loadJSON('data/threads.json');
+    if (!Array.isArray(threads) || !threads.length) {
+      // fallback: derive from the current brief's watchboard
+      const wb = (state.brief && (state.brief.watchboard || state.brief.watchlist)) || [];
+      threads = wb.map(w => ({ name: w.issue || w.development, status: w.status, direction: w.direction, assessment: w.risk || w.why, confidence: w.confidence, nextIndicator: w.nextIndicator || w.watchNext }));
+    }
+    if (!threads.length) { host.appendChild(mkEmpty('No intelligence threads yet. They accumulate as briefs are generated.')); return; }
+    threads.forEach(t => {
+      const card = doc.createElement('div'); card.className = 'thread-card';
+      const h3 = doc.createElement('h3'); h3.textContent = t.name || t.issue || 'Thread'; card.appendChild(h3);
+      const meta = doc.createElement('div'); meta.className = 'thread-meta';
+      if (t.direction) meta.appendChild(badge(({ESCALATING:'↑ ',DEESCALATING:'↓ ',IMPROVING:'↓ ',STABLE:'→ ',UNCERTAIN:'? '}[(t.direction||'').toUpperCase()]||'') + String(t.direction).toUpperCase(), dirClass(t.direction)));
+      if (t.confidence) meta.appendChild(badge(String(t.confidence).toUpperCase() + ' CONF', 'conf-' + String(t.confidence).toLowerCase()));
+      const iw = iwSpan(t.indicatorLevel); if (iw) meta.appendChild(iw);
+      if (meta.children.length) card.appendChild(meta);
+      [fieldRow('Status', t.status), fieldRow('Strategic importance', t.importance), fieldRow('First detected', t.firstDetected), fieldRow('Assessment', t.assessment), fieldRow('Last material change', t.lastChange), fieldRow('Organizational relevance', t.orgRelevance), fieldRow('Next indicator', t.nextIndicator)].forEach(f => f && card.appendChild(f));
+      if (Array.isArray(t.history) && t.history.length) {
+        const lbl = doc.createElement('div'); lbl.className = 'lbl mt-2'; lbl.textContent = 'Timeline'; card.appendChild(lbl);
+        const ul = doc.createElement('ul'); ul.className = 'mb-0';
+        t.history.slice(-8).forEach(hst => { const li = doc.createElement('li'); li.textContent = (hst.date ? hst.date + ' — ' : '') + (hst.note || ''); ul.appendChild(li); });
+        card.appendChild(ul);
+      }
+      host.appendChild(card);
+    });
+  }
+
+  async function renderTrack() {
+    const host = $('#track-body'); host.textContent = '';
+    const data = await loadJSON('data/scorecard.json');
+    const forecasts = (data && Array.isArray(data.forecasts)) ? data.forecasts : [];
+    // summary tiles
+    const counts = { CORRECT:0, INCORRECT:0, PARTIAL:0, PENDING:0 };
+    forecasts.forEach(f => { const o = (f.outcome||'PENDING').toUpperCase(); if (counts[o] != null) counts[o]++; });
+    const tiles = doc.createElement('div'); tiles.className = 'd-flex flex-wrap gap-2 mb-3';
+    [['CORRECT','fc-CORRECT'],['PARTIAL','fc-PARTIAL'],['INCORRECT','fc-INCORRECT'],['PENDING','fc-PENDING']].forEach(([k,cls]) => {
+      const t = doc.createElement('div'); t.className = 'watchlist-card'; t.style.minWidth = '110px'; t.style.textAlign = 'center';
+      const n = doc.createElement('div'); n.style.fontSize = '1.5rem'; n.style.fontWeight = '800'; n.textContent = String(counts[k]);
+      const b = doc.createElement('span'); b.className = 'action-badge ' + cls; b.textContent = k;
+      t.appendChild(n); t.appendChild(b); tiles.appendChild(t);
+    });
+    host.appendChild(tiles);
+    if (!forecasts.length) { host.appendChild(mkEmpty('No forecasts recorded yet. The engine logs and grades forecasts as briefs accumulate.')); return; }
+    forecasts.slice().reverse().forEach(f => {
+      const row = doc.createElement('div'); row.className = 'action-row';
+      const o = (f.outcome||'PENDING').toUpperCase();
+      const b = doc.createElement('span'); b.className = 'action-badge fc-' + (['CORRECT','INCORRECT','PARTIAL','PENDING'].indexOf(o)>=0?o:'PENDING'); b.textContent = o;
+      const txt = doc.createElement('span');
+      txt.textContent = (f.date ? '['+f.date+'] ' : '') + (f.forecast || '') + (f.horizon ? '  ('+f.horizon+')' : '') + (f.resolvedDate ? '  → resolved '+f.resolvedDate : '') + (f.note ? '  — '+f.note : '');
+      row.appendChild(b); row.appendChild(txt); host.appendChild(row);
+    });
+  }
+
+  function mkEmpty(msg) { const d = doc.createElement('div'); d.className = 'empty-state-sm'; d.textContent = msg; return d; }
 
   // ---------- settings form ----------
   function loadSettingsForm() {

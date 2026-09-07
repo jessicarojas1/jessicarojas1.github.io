@@ -1,8 +1,8 @@
-/* MERIDIAN — Export & delivery.
+/* MERIDIAN v2 — Export & delivery.
  * Builds an inline-styled HTML email body and a plain-text version, copies both
- * to the clipboard, prints/saves as PDF, sends via the EmailJS REST API (no SDK
- * load required), and downloads briefs as JSON. All model/user content is HTML-
- * escaped before it enters the email string.
+ * to the clipboard, prints/saves as PDF, sends via the EmailJS REST API, and
+ * downloads briefs as JSON. All model/user content is HTML-escaped before it
+ * enters the email string. Covers the v2 schema; tolerant of v1 fields.
  * window.MERIDIAN.exporter
  */
 (function (root) {
@@ -18,101 +18,133 @@
   function safeUrl(u) { const s = String(u || '').trim(); return /^https?:\/\//i.test(s) ? s : ''; }
   function A(url, text) { const s = safeUrl(url); return s ? '<a href="' + esc(s) + '" style="color:#3d6fe0">' + esc(text || s) + '</a>' : esc(text || ''); }
   function arr(x) { return Array.isArray(x) ? x : (x == null ? [] : [x]); }
+  function has(x) { return String(x == null ? '' : x).trim() !== ''; }
 
-  function subjectFor(b, orgName) {
-    return (orgName || 'MERIDIAN') + ' Daily Intelligence Brief — ' + (b.date || '');
-  }
+  function subjectFor(b, orgName) { return (orgName || 'MERIDIAN') + ' Executive Strategic Intelligence Brief — ' + (b.date || ''); }
+
+  const ITEM_FIELDS = [
+    ['observation','Observation'], ['fact','Fact'], ['context','Context'], ['change','Change'],
+    ['significance','Significance'], ['whyMatters','Why it matters'],
+    ['threat','Threat'], ['observedActivity','Observed activity'], ['affected','Affected'], ['exploitation','Exploitation'], ['defenseRelevance','Defense relevance'], ['posture','Recommended posture'],
+    ['observedAction','Observed action'], ['likelyObjective','Likely objective'], ['capability','Capability'], ['intentAssessment','Intent assessment'],
+    ['causation','Causation'], ['actorIntent','Actor intent'],
+    ['assessment','Assessment'], ['outlook','Outlook'],
+    ['implications','Implications'], ['secondOrder','Second-order effect'], ['thirdOrder','Third-order effect'],
+    ['orgImpact','Organizational impact'], ['orgRelevance','Organizational relevance'], ['myImpact','Personal / leadership impact'], ['recommendation','Recommendation']
+  ];
 
   // ---------- HTML email ----------
   function toEmailHtml(brief, branding) {
     const b = M.render.normalize(brief);
     const org = (branding && (branding.orgName || '').trim()) || 'MERIDIAN';
     const logo = branding && M.branding.sanitizeLogo(branding.logoUrl);
-    const S = []; // string parts
-    const p = s => S.push(s);
+    const S = []; const p = s => S.push(s);
     const sec = t => p('<h2 style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #3d6fe0;padding-bottom:4px;margin:22px 0 8px;color:#1f2937">' + esc(t) + '</h2>');
-    const fld = (l, v) => v ? '<div style="margin:3px 0"><span style="font-weight:700;font-size:11px;text-transform:uppercase;color:#6b7280">' + esc(l) + ':</span> ' + esc(v) + '</div>' : '';
+    const fld = (l, v) => has(v) ? '<div style="margin:3px 0"><span style="font-weight:700;font-size:11px;text-transform:uppercase;color:#6b7280">' + esc(l) + ':</span> ' + esc(v) + '</div>' : '';
+    const ulist = (title, list, mapFn) => { if (!list.length) return; sec(title); p('<ul style="margin:0;padding-left:18px">'); list.forEach(x => p('<li>' + mapFn(x) + '</li>')); p('</ul>'); };
 
     p('<div style="font-family:Arial,Helvetica,sans-serif;max-width:720px;margin:0 auto;color:#111;font-size:14px;line-height:1.5">');
     p('<div style="border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:12px">');
     if (logo) p('<img src="' + esc(logo) + '" alt="" style="height:34px;vertical-align:middle;margin-right:8px">');
     p('<span style="font-size:18px;font-weight:800;vertical-align:middle">' + esc(org) + '</span>');
-    p('<div style="font-size:12px;color:#6b7280;margin-top:4px">Daily Executive Intelligence Brief · ' + esc(b.classification) + '</div>');
+    p('<div style="font-size:12px;color:#6b7280;margin-top:4px">Executive Strategic Intelligence Brief · ' + esc(b.classification) + '</div>');
     p('<div style="font-size:12px;color:#6b7280">' + esc(b.date) + (b.reportingWindow ? ' · ' + esc(b.reportingWindow) : '') + '</div>');
     p('</div>');
 
     if (b.bluf.length) {
-      sec('BLUF — Bottom Line Up Front');
-      p('<ul style="margin:0;padding-left:18px">');
+      sec('BLUF — Bottom Line Up Front'); p('<ul style="margin:0;padding-left:18px">');
       b.bluf.forEach(x => {
         if (typeof x === 'string') { p('<li>' + esc(x) + '</li>'); return; }
-        p('<li><strong>' + esc(x.what) + '</strong>' + (x.matters ? ' <span style="color:#6b7280">— Why: ' + esc(x.matters) + '</span>' : '') + (x.changed ? ' <span style="color:#6b7280">· Changed: ' + esc(x.changed) + '</span>' : '') + '</li>');
+        let s = '<strong>' + esc(x.what) + '</strong>';
+        if (has(x.matters)) s += '<br><span style="color:#6b7280">Why: ' + esc(x.matters) + '</span>';
+        if (has(x.changes) || has(x.changed)) s += '<br><span style="color:#6b7280">Could change: ' + esc(x.changes || x.changed) + '</span>';
+        if (has(x.needToKnow)) s += '<br><span style="color:#6b7280">Need to know: ' + esc(x.needToKnow) + '</span>';
+        p('<li style="margin-bottom:6px">' + s + '</li>');
       });
       p('</ul>');
     }
 
-    if (b.watchlist.length) {
-      sec('Executive Watchlist');
-      b.watchlist.forEach(w => {
-        p('<div style="border:1px solid #e5e7eb;border-radius:6px;padding:8px;margin:6px 0">');
-        p('<div style="font-weight:700">' + esc(w.development) + '</div>');
-        p('<div style="font-size:12px;color:#6b7280">' + [w.priority, w.direction, w.confidence].filter(Boolean).map(esc).join(' · ') + '</div>');
-        p(fld('Why', w.why) + fld('Watch next', w.watchNext));
+    if (b.top3.length) {
+      sec('The 3 Things I Cannot Afford to Miss Today');
+      b.top3.forEach((t, i) => {
+        p('<div style="border:1px solid #e5e7eb;border-left:3px solid #ef4444;border-radius:6px;padding:8px;margin:6px 0">');
+        p('<div style="font-weight:700">' + (i+1) + '. ' + esc(t.development) + (has(t.confidence) ? ' <span style="font-size:11px;color:#6b7280">(' + esc(t.confidence) + ')</span>' : '') + '</div>');
+        p(fld('Assessment', t.assessment) + fld('Why this matters', t.whyMatters) + fld('Organizational impact', t.orgImpact) + fld('My impact', t.myImpact) + fld('Recommendation', t.recommendation));
         p('</div>');
       });
     }
 
+    const wb = b.watchboard.length ? b.watchboard : b.watchlist;
+    if (wb.length) {
+      sec('Executive Watchboard');
+      wb.forEach(w => { p('<div style="border:1px solid #e5e7eb;border-radius:6px;padding:8px;margin:6px 0">');
+        p('<div style="font-weight:700">' + esc(w.issue || w.development) + ' <span style="font-size:11px;color:#6b7280">' + [w.direction, w.confidence].filter(has).map(esc).join(' · ') + '</span></div>');
+        p(fld('Status', w.status) + fld('Risk', w.risk) + fld('Opportunity', w.opportunity) + fld('Next indicator', w.nextIndicator || w.watchNext)); p('</div>'); });
+    }
+
     b.sections.forEach(s => {
-      sec(s.title || s.id);
-      const items = arr(s.items);
+      sec(s.title || s.id); const items = arr(s.items);
       if (!items.length) { p('<div style="color:#6b7280">No material change.</div>'); return; }
       items.forEach(it => {
         p('<div style="margin:8px 0;padding-bottom:8px;border-bottom:1px solid #eee">');
-        p('<div style="font-weight:700;font-size:15px">' + esc(it.headline) + (it.priority ? ' <span style="font-size:11px;color:#b45309">[' + esc(it.priority) + ']</span>' : '') + (it.confidence ? ' <span style="font-size:11px;color:#6b7280">(' + esc(it.confidence) + ')</span>' : '') + '</div>');
-        p(fld('Threat', it.threat) + fld('Affected', it.affected) + fld('Exploitation', it.exploitation) + fld('Defensive priority', it.defensivePriority));
-        p(fld('Fact', it.fact) + fld('Assessment', it.assessment) + fld('Outlook', it.outlook) + fld('Why it matters', it.whyMatters) + fld('A&D impact', it.adImpact) + fld('Org relevance', it.orgRelevance));
-        if (it.takeaway) p('<div style="border-left:3px solid #3d6fe0;background:#f8fafc;padding:5px 8px;margin-top:5px"><strong>Takeaway:</strong> ' + esc(it.takeaway) + '</div>');
+        p('<div style="font-weight:700;font-size:15px">' + esc(it.headline) + (has(it.priority) ? ' <span style="font-size:11px;color:#b45309">[' + esc(it.priority) + ']</span>' : '') + (has(it.confidence) ? ' <span style="font-size:11px;color:#6b7280">(' + esc(it.confidence) + ')</span>' : '') + (it.indicators && has(it.indicators.level) ? ' <span style="font-size:11px;color:#111">I&amp;W: ' + esc(it.indicators.level) + '</span>' : '') + '</div>');
+        ITEM_FIELDS.forEach(f => { p(fld(f[1], it[f[0]])); });
+        if (it.indicators && arr(it.indicators.list).length) p(fld('Indicators', arr(it.indicators.list).join('; ')));
+        if (it.alt) p(fld('Leading', it.alt.leading) + fld('Alternative', it.alt.alternative) + fld('Wildcard', it.alt.wildcard));
+        if (it.scenarios) p(fld('Most likely', it.scenarios.mostLikely) + fld('Best case', it.scenarios.bestCase) + fld('Worst case', it.scenarios.worstCase) + fld('High-impact/low-prob', it.scenarios.highImpactLowProb));
+        if (has(it.takeaway)) p('<div style="border-left:3px solid #3d6fe0;background:#f8fafc;padding:5px 8px;margin-top:5px"><strong>Takeaway:</strong> ' + esc(it.takeaway) + '</div>');
         const srcs = arr(it.sources).filter(x => x && (x.url || x.title));
         if (srcs.length) p('<div style="font-size:12px;margin-top:4px">Sources: ' + srcs.map(x => A(x.url, x.title || x.url)).join(' · ') + '</div>');
         p('</div>');
       });
     });
 
-    const bl = (title, list, mapFn) => {
-      if (!list.length) return; sec(title); p('<ul style="margin:0;padding-left:18px">');
-      list.forEach(x => p('<li>' + mapFn(x) + '</li>')); p('</ul>');
-    };
-    if (b.resurfaced.length) {
-      sec('Resurfaced / Continuing Developments');
-      b.resurfaced.forEach(r => { p('<div style="margin:6px 0"><strong>' + esc(r.issue) + '</strong>' + fld('Original timeframe', r.originalTimeframe) + fld('New development', r.newDevelopment) + fld('Why it resurfaced', r.whyResurfaced) + fld('What changed', r.whatChanged) + fld('Why it matters now', r.whyMattersNow) + '</div>'); });
-    }
-    bl('Weak Signals', b.weakSignals, x => typeof x === 'string' ? esc(x) : ('<strong>' + esc(x.signal) + '</strong>' + (x.why ? ' — ' + esc(x.why) : '')));
-    if (b.adImpact) { sec('Aerospace & Defense Impact'); p('<p>' + esc(b.adImpact) + '</p>'); }
-    bl('Impact to My Work', b.myWork, x => esc(x));
-    bl('What I Should Know Today', b.whatToKnow, x => esc(x));
-    if (b.execQuestions.length) { sec('Questions Executives May Ask'); b.execQuestions.forEach(q => p('<div style="margin:5px 0"><strong>Q:</strong> ' + esc(q.q) + '<br><span style="color:#374151"><strong>A:</strong> ' + esc(q.a) + '</span></div>')); }
-    bl('What to Watch — Next 24 Hours', b.watch24h, x => esc(x));
-    bl('What to Watch — 7 to 30 Days', b.watch730d, x => esc(x));
-    if (b.actions.length) { sec('Executive Action Items'); p('<ul style="margin:0;padding-left:18px">'); b.actions.forEach(a => p('<li><strong>' + esc((a.type || 'WATCH')) + ':</strong> ' + esc(a.text) + '</li>')); p('</ul>'); }
+    if (b.crossDomain.length) { sec('Cross-Domain Connections'); b.crossDomain.forEach(c => p('<div style="margin:5px 0"><strong>A:</strong> ' + esc(c.a) + '<br><strong>B:</strong> ' + esc(c.b) + '<br>&rarr; ' + esc(c.implication) + '</div>')); }
 
-    if (b.sources.length) {
-      sec('Source & Confidence Notes');
-      b.sources.forEach(s => {
-        p('<div style="margin:5px 0;font-size:13px">');
-        if (s.claim) p('<div style="font-weight:600">' + esc(s.claim) + (s.confidence ? ' <span style="color:#6b7280">(' + esc(s.confidence) + ')</span>' : '') + '</div>');
-        const prim = arr(s.primary).filter(Boolean), corr = arr(s.corroborating).filter(Boolean);
-        if (prim.length) p('<div>Primary: ' + prim.map(u => A(u, u)).join(' · ') + '</div>');
-        if (corr.length) p('<div>Corroborating: ' + corr.map(u => A(u, u)).join(' · ') + '</div>');
-        p(fld('Conflicting', s.conflicts) + fld('Unverified', s.unverified));
-        p('</div>');
-      });
-    }
+    if (b.resurfaced.length) { sec('Resurfaced Intelligence'); b.resurfaced.forEach(r => p('<div style="margin:6px 0"><strong>' + esc(r.issue) + '</strong>' + fld('Original event', r.originalEvent || r.originalTimeframe) + fld('New information', r.newInfo || r.newDevelopment) + fld('Why now', r.whyNow || r.whyResurfaced) + fld('What changed', r.whatChanged) + fld('Updated assessment', r.updatedAssessment || r.whyMattersNow) + '</div>')); }
+
+    if (b.weakSignals.length) { sec('Weak Signals & Early Warning'); b.weakSignals.forEach(w => { if (typeof w === 'string') { p('<div>' + esc(w) + '</div>'); return; } p('<div style="margin:5px 0"><strong>' + esc(w.signal) + '</strong>' + fld('Why unusual', w.whyUnusual) + fld('Potential trend', w.potentialTrend || w.why) + fld('Would confirm', w.confirm) + fld('Would disconfirm', w.disconfirm) + '</div>'); }); }
+
+    if (has(b.adImpact)) { sec('Impact to the Aerospace & Defense Industry'); p('<p>' + esc(b.adImpact) + '</p>'); }
+
+    const oi = b.orgImpact;
+    if (oi.immediate.length || oi.nearTerm.length || oi.strategic.length || oi.none.length) {
+      sec('Impact to My Organization');
+      const ob = (label, list) => { if (!list.length) return; p('<div style="font-weight:700;font-size:12px;text-transform:uppercase;color:#6b7280;margin-top:6px">' + esc(label) + '</div><ul style="margin:0;padding-left:18px">'); list.forEach(x => p('<li>' + esc(x) + '</li>')); p('</ul>'); };
+      ob('Immediate', oi.immediate); ob('Near-term', oi.nearTerm); ob('Strategic', oi.strategic); ob('No material impact', oi.none);
+    } else if (b.myWork && b.myWork.length) { ulist('Impact to My Work', b.myWork, x => esc(x)); }
+
+    if (b.appliesToMe.length) { sec('How This Applies to Me'); b.appliesToMe.forEach(a => { if (typeof a === 'string') { p('<div>' + esc(a) + '</div>'); return; } p('<div style="margin:6px 0">' + (has(a.topic) ? '<strong>' + esc(a.topic) + '</strong>' : '') + fld('Understand', a.understand) + fld('Why care', a.care) + fld('Could be asked', a.couldBeAsked) + fld('Investigate', a.investigate) + fld('Discuss', a.discuss) + fld('Monitor', a.monitor) + fld('Consider changing', a.consider) + '</div>'); }); }
+    else if (b.whatToKnow && b.whatToKnow.length) ulist('What I Should Know Today', b.whatToKnow, x => esc(x));
+
+    if (b.recommendations.length) {
+      sec('Executive Recommendations');
+      b.recommendations.forEach(r => p('<div style="margin:6px 0"><strong>[' + esc((r.category||'WATCH')) + ']</strong> ' + esc(r.recommendation) + (has(r.confidence)?' <span style="color:#6b7280">('+esc(r.confidence)+')</span>':'') + fld('Rationale', r.rationale) + fld('Evidence', r.evidence) + fld('Timing', r.timing) + fld('Owner', r.owner) + fld('Trigger', r.trigger) + fld('Risk of action', r.riskOfAction) + fld('Risk of inaction', r.riskOfInaction) + '</div>'));
+    } else if (b.actions && b.actions.length) { ulist('Executive Action Items', b.actions, a => '<strong>' + esc(a.type || 'WATCH') + ':</strong> ' + esc(a.text)); }
+
+    if (b.decisionMemos.length) { sec('Decision Memos'); b.decisionMemos.forEach(m => { p('<div style="border:1px solid #e5e7eb;border-radius:6px;padding:8px;margin:6px 0"><strong>Decision: ' + esc(m.decision) + '</strong>' + fld('Why now', m.whyNow) + fld('Background', m.background)); arr(m.options).forEach((o,i) => p('<div style="margin-left:8px"><strong>Option ' + (i+1) + (has(o.label)?': '+esc(o.label):'') + '</strong>' + fld('Benefits', o.benefits) + fld('Risks', o.risks) + '</div>')); p(fld('Recommended', m.recommended) + fld('Reason', m.reason) + fld('What would change it', m.whatWouldChange) + fld('Decision date', m.decisionDate) + '</div>'); }); }
+
+    if (b.questionsToAsk.length) { sec('Questions I Should Be Asking'); p('<ul style="margin:0;padding-left:18px">'); b.questionsToAsk.forEach(q => p('<li>' + (has(q.audience) ? '<em>' + esc(q.audience) + ':</em> ' : '') + esc(q.question || q) + '</li>')); p('</ul>'); }
+
+    const qa = b.questionsAsked.length ? b.questionsAsked : b.execQuestions;
+    if (qa.length) { sec('Questions I May Be Asked'); qa.forEach(q => p('<div style="margin:5px 0"><strong>Q:</strong> ' + esc(q.question || q.q) + '<br><span style="color:#374151"><strong>A:</strong> ' + esc(q.answer || q.a) + '</span>' + (has(q.evidence) ? '<br><span style="color:#6b7280;font-size:12px">Evidence: ' + esc(q.evidence) + '</span>' : '') + (has(q.caveat) ? '<br><span style="color:#6b7280;font-size:12px">Caveat: ' + esc(q.caveat) + '</span>' : '') + '</div>')); }
+
+    ulist('What to Watch Next — 24 to 72 Hours', b.watch2472h.length ? b.watch2472h : b.watch24h, x => esc(x));
+    ulist('7–30 Day Outlook', b.watch730d, x => esc(x));
+    ulist('3–12 Month Strategic Outlook', b.watch312mo, x => esc(x));
+
+    if (b.strategicSurprise.length) { sec('Strategic Surprise Watch'); b.strategicSurprise.forEach(s => p('<div style="margin:5px 0"><strong>' + esc(s.development) + '</strong>' + fld('Why', s.why) + fld('Potential impact', s.impact) + '</div>')); }
+    ulist('What Could We Be Wrong About?', b.wrongAbout, x => esc(x));
+    if (b.redTeam.length) { sec('Red-Team Review'); b.redTeam.forEach(r => p('<div style="margin:5px 0">' + (has(r.issue) ? '<strong>' + esc(r.issue) + '</strong>' : '') + fld('Objection', r.objection) + fld('Analytic response', r.response) + '</div>')); }
+    if (b.forecastReview.length) { sec('Intelligence Performance Review'); p('<ul style="margin:0;padding-left:18px">'); b.forecastReview.forEach(f => p('<li><strong>' + esc((f.outcome||'PENDING')) + ':</strong> ' + esc(f.priorForecast) + (has(f.date)?' ('+esc(f.date)+')':'') + (has(f.note)?' — '+esc(f.note):'') + '</li>')); p('</ul>'); }
+
+    if (b.sources.length) { sec('Source Notes'); b.sources.forEach(s => { p('<div style="margin:5px 0;font-size:13px">'); if (has(s.claim)) p('<div style="font-weight:600">' + esc(s.claim) + (has(s.confidence) ? ' <span style="color:#6b7280">(' + esc(s.confidence) + ')</span>' : '') + '</div>'); p(fld('Source', s.source) + fld('Published', s.pubDate) + fld('Event date', s.eventDate)); const prim = arr(s.primary).filter(Boolean), corr = arr(s.corroborating).filter(Boolean); if (prim.length) p('<div>Primary: ' + prim.map(u => A(u,u)).join(' · ') + '</div>'); if (corr.length) p('<div>Corroborating: ' + corr.map(u => A(u,u)).join(' · ') + '</div>'); p('</div>'); }); }
+
     const g = b.gaps;
-    if (g.assumptions.length || g.intelGaps.length || g.conflicting.length || g.lowConfidence.length || g.collectionPriorities.length) {
-      sec('Assumptions, Intelligence Gaps & Confidence');
-      const gb = (l, list) => { if (list.length) { p('<div style="font-weight:700;font-size:12px;text-transform:uppercase;color:#6b7280;margin-top:6px">' + esc(l) + '</div><ul style="margin:0;padding-left:18px">'); list.forEach(x => p('<li>' + esc(x) + '</li>')); p('</ul>'); } };
-      gb('Assumptions', g.assumptions); gb('Intelligence gaps', g.intelGaps); gb('Conflicting information', g.conflicting);
-      gb('Low-confidence reporting', g.lowConfidence); gb('Collection priorities', g.collectionPriorities);
+    if (['confirmedFacts','assumptions','intelGaps','competing','confidenceLimits','whatWouldChange','collectionPriorities','lowConfidence','conflicting'].some(k => g[k].length)) {
+      sec('Assumptions, Intelligence Gaps & Analytic Confidence');
+      const gb = (l, list) => { if (!list.length) return; p('<div style="font-weight:700;font-size:12px;text-transform:uppercase;color:#6b7280;margin-top:6px">' + esc(l) + '</div><ul style="margin:0;padding-left:18px">'); list.forEach(x => { if (x && typeof x === 'object') p('<li><strong>' + esc(x.assumption) + '</strong>' + (has(x.whyRequired)?' — why: '+esc(x.whyRequired):'') + (has(x.impactIfWrong)?' · if wrong: '+esc(x.impactIfWrong):'') + '</li>'); else p('<li>' + esc(x) + '</li>'); }); p('</ul>'); };
+      gb('Confirmed facts', g.confirmedFacts); gb('Assumptions', g.assumptions); gb('Intelligence gaps', g.intelGaps); gb('Competing assessments', g.competing); gb('Confidence limitations', g.confidenceLimits); gb('Conflicting information', g.conflicting); gb('Low-confidence reporting', g.lowConfidence); gb('What would change our assessment', g.whatWouldChange); gb('Collection priorities', g.collectionPriorities);
     }
 
     p('<div style="margin-top:20px;padding-top:8px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af">Generated from lawful, publicly available, non-classified open-source information. Not a classified product. Assessments are analytic judgments, not confirmed fact.</div>');
@@ -122,92 +154,83 @@
 
   // ---------- Plain text ----------
   function toPlainText(brief) {
-    const b = M.render.normalize(brief);
-    const L = [];
-    const line = s => L.push(s == null ? '' : String(s));
+    const b = M.render.normalize(brief); const L = []; const line = s => L.push(s == null ? '' : String(s));
     const H = t => { line(''); line('== ' + t.toUpperCase() + ' =='); };
-    line((brief.date || '') + '  |  ' + b.classification);
-    if (b.reportingWindow) line('Reporting window: ' + b.reportingWindow);
-    if (b.bluf.length) { H('BLUF'); b.bluf.forEach(x => line('- ' + (typeof x === 'string' ? x : (x.what + (x.matters ? '  (Why: ' + x.matters + ')' : '') + (x.changed ? '  (Changed: ' + x.changed + ')' : ''))))); }
-    if (b.watchlist.length) { H('Executive Watchlist'); b.watchlist.forEach(w => { line('- ' + w.development + '  [' + [w.priority, w.direction, w.confidence].filter(Boolean).join('/') + ']'); if (w.why) line('    Why: ' + w.why); if (w.watchNext) line('    Watch next: ' + w.watchNext); }); }
+    const f = (l, v) => { if (has(v)) line('    ' + l + ': ' + v); };
+    line((brief.date || '') + '  |  ' + b.classification); if (b.reportingWindow) line('Reporting window: ' + b.reportingWindow);
+    if (b.bluf.length) { H('BLUF'); b.bluf.forEach(x => { if (typeof x === 'string') { line('- ' + x); return; } line('- ' + x.what); f('Why', x.matters); f('Could change', x.changes || x.changed); f('Need to know', x.needToKnow); }); }
+    if (b.top3.length) { H('The 3 Things I Cannot Afford to Miss'); b.top3.forEach((t,i) => { line((i+1) + '. ' + t.development + (has(t.confidence)?'  ('+t.confidence+')':'')); f('Assessment', t.assessment); f('Why matters', t.whyMatters); f('Org impact', t.orgImpact); f('My impact', t.myImpact); f('Recommendation', t.recommendation); }); }
+    const wb = b.watchboard.length ? b.watchboard : b.watchlist;
+    if (wb.length) { H('Executive Watchboard'); wb.forEach(w => { line('- ' + (w.issue||w.development) + '  [' + [w.direction, w.confidence].filter(has).join('/') + ']'); f('Status', w.status); f('Risk', w.risk); f('Opportunity', w.opportunity); f('Next indicator', w.nextIndicator || w.watchNext); }); }
     b.sections.forEach(s => { H(s.title || s.id); const items = arr(s.items); if (!items.length) { line('No material change.'); return; } items.forEach(it => {
-      line('• ' + it.headline + (it.priority ? ' [' + it.priority + ']' : '') + (it.confidence ? ' (' + it.confidence + ')' : ''));
-      ['threat','affected','exploitation','defensivePriority','fact','assessment','outlook','whyMatters','adImpact','orgRelevance','takeaway'].forEach(k => { if (it[k]) line('    ' + k + ': ' + it[k]); });
-      const srcs = arr(it.sources).filter(x => x && x.url); if (srcs.length) line('    Sources: ' + srcs.map(x => x.url).join('  '));
+      line('• ' + it.headline + (has(it.priority)?' ['+it.priority+']':'') + (has(it.confidence)?' ('+it.confidence+')':'') + (it.indicators&&has(it.indicators.level)?' I&W:'+it.indicators.level:''));
+      ITEM_FIELDS.forEach(ff => f(ff[1], it[ff[0]]));
+      if (it.indicators && arr(it.indicators.list).length) f('Indicators', arr(it.indicators.list).join('; '));
+      if (it.alt) { f('Leading', it.alt.leading); f('Alternative', it.alt.alternative); f('Wildcard', it.alt.wildcard); }
+      if (it.scenarios) { f('Most likely', it.scenarios.mostLikely); f('Best case', it.scenarios.bestCase); f('Worst case', it.scenarios.worstCase); f('High-impact/low-prob', it.scenarios.highImpactLowProb); }
+      f('Takeaway', it.takeaway);
+      const srcs = arr(it.sources).filter(x => x && x.url); if (srcs.length) f('Sources', srcs.map(x => x.url).join('  '));
     }); });
-    const bl = (t, list, f) => { if (list.length) { H(t); list.forEach(x => line('- ' + f(x))); } };
-    if (b.resurfaced.length) { H('Resurfaced / Continuing'); b.resurfaced.forEach(r => { line('• ' + r.issue); ['originalTimeframe','newDevelopment','whyResurfaced','whatChanged','whyMattersNow'].forEach(k => r[k] && line('    ' + k + ': ' + r[k])); }); }
-    bl('Weak Signals', b.weakSignals, x => typeof x === 'string' ? x : (x.signal + (x.why ? ' — ' + x.why : '')));
-    if (b.adImpact) { H('Aerospace & Defense Impact'); line(b.adImpact); }
-    bl('Impact to My Work', b.myWork, x => x);
-    bl('What I Should Know Today', b.whatToKnow, x => x);
-    if (b.execQuestions.length) { H('Questions Executives May Ask'); b.execQuestions.forEach(q => { line('Q: ' + q.q); line('A: ' + q.a); }); }
-    bl('Watch — Next 24h', b.watch24h, x => x);
-    bl('Watch — 7 to 30 Days', b.watch730d, x => x);
-    bl('Executive Action Items', b.actions, a => (a.type || 'WATCH') + ': ' + a.text);
+    const ul = (t, list, mapFn) => { if (!list.length) return; H(t); list.forEach(x => line('- ' + mapFn(x))); };
+    if (b.crossDomain.length) { H('Cross-Domain Connections'); b.crossDomain.forEach(c => { line('A: ' + c.a); line('B: ' + c.b); line('=> ' + c.implication); line(''); }); }
+    if (b.resurfaced.length) { H('Resurfaced Intelligence'); b.resurfaced.forEach(r => { line('• ' + r.issue); f('Original', r.originalEvent||r.originalTimeframe); f('New info', r.newInfo||r.newDevelopment); f('Why now', r.whyNow||r.whyResurfaced); f('What changed', r.whatChanged); f('Updated assessment', r.updatedAssessment||r.whyMattersNow); }); }
+    if (b.weakSignals.length) { H('Weak Signals & Early Warning'); b.weakSignals.forEach(w => { if (typeof w === 'string') { line('- ' + w); return; } line('• ' + w.signal); f('Why unusual', w.whyUnusual); f('Potential trend', w.potentialTrend||w.why); f('Confirm', w.confirm); f('Disconfirm', w.disconfirm); }); }
+    if (has(b.adImpact)) { H('Impact to the A&D Industry'); line(b.adImpact); }
+    const oi = b.orgImpact;
+    if (oi.immediate.length || oi.nearTerm.length || oi.strategic.length || oi.none.length) { H('Impact to My Organization'); const ob=(l,list)=>list.forEach(x=>line('['+l+'] '+x)); ob('Immediate',oi.immediate); ob('Near-term',oi.nearTerm); ob('Strategic',oi.strategic); ob('None',oi.none); }
+    else if (b.myWork && b.myWork.length) ul('Impact to My Work', b.myWork, x => x);
+    if (b.appliesToMe.length) { H('How This Applies to Me'); b.appliesToMe.forEach(a => { if (typeof a === 'string') { line('- ' + a); return; } if (has(a.topic)) line('• ' + a.topic); f('Understand', a.understand); f('Why care', a.care); f('Could be asked', a.couldBeAsked); f('Investigate', a.investigate); f('Discuss', a.discuss); f('Monitor', a.monitor); f('Consider', a.consider); }); }
+    else if (b.whatToKnow && b.whatToKnow.length) ul('What I Should Know Today', b.whatToKnow, x => x);
+    if (b.recommendations.length) { H('Executive Recommendations'); b.recommendations.forEach(r => { line('[' + (r.category||'WATCH') + '] ' + r.recommendation + (has(r.confidence)?'  ('+r.confidence+')':'')); f('Rationale', r.rationale); f('Evidence', r.evidence); f('Timing', r.timing); f('Owner', r.owner); f('Trigger', r.trigger); f('Risk of action', r.riskOfAction); f('Risk of inaction', r.riskOfInaction); }); }
+    else if (b.actions && b.actions.length) ul('Executive Action Items', b.actions, a => (a.type||'WATCH') + ': ' + a.text);
+    if (b.decisionMemos.length) { H('Decision Memos'); b.decisionMemos.forEach(m => { line('Decision: ' + m.decision); f('Why now', m.whyNow); f('Background', m.background); arr(m.options).forEach((o,i)=>{ line('    Option ' + (i+1) + (has(o.label)?': '+o.label:'')); f('  Benefits', o.benefits); f('  Risks', o.risks); }); f('Recommended', m.recommended); f('Reason', m.reason); f('What would change', m.whatWouldChange); f('Decision date', m.decisionDate); }); }
+    if (b.questionsToAsk.length) { H('Questions I Should Be Asking'); b.questionsToAsk.forEach(q => line('- ' + (has(q.audience)?'['+q.audience+'] ':'') + (q.question||q))); }
+    const qa = b.questionsAsked.length ? b.questionsAsked : b.execQuestions;
+    if (qa.length) { H('Questions I May Be Asked'); qa.forEach(q => { line('Q: ' + (q.question||q.q)); line('A: ' + (q.answer||q.a)); f('Evidence', q.evidence); f('Caveat', q.caveat); }); }
+    ul('Watch Next — 24 to 72h', b.watch2472h.length ? b.watch2472h : b.watch24h, x => x);
+    ul('7-30 Day Outlook', b.watch730d, x => x);
+    ul('3-12 Month Strategic Outlook', b.watch312mo, x => x);
+    if (b.strategicSurprise.length) { H('Strategic Surprise Watch'); b.strategicSurprise.forEach(s => { line('• ' + s.development); f('Why', s.why); f('Impact', s.impact); }); }
+    ul('What Could We Be Wrong About?', b.wrongAbout, x => x);
+    if (b.redTeam.length) { H('Red-Team Review'); b.redTeam.forEach(r => { if (has(r.issue)) line('• ' + r.issue); f('Objection', r.objection); f('Response', r.response); }); }
+    if (b.forecastReview.length) { H('Intelligence Performance Review'); b.forecastReview.forEach(x => line('[' + (x.outcome||'PENDING') + '] ' + x.priorForecast + (has(x.note)?' — '+x.note:''))); }
     const g = b.gaps;
-    if (g.assumptions.length || g.intelGaps.length || g.lowConfidence.length || g.collectionPriorities.length || g.conflicting.length) {
-      H('Assumptions, Intelligence Gaps & Confidence');
-      const gb = (l, list) => list.forEach(x => line('[' + l + '] ' + x));
-      gb('Assumption', g.assumptions); gb('Gap', g.intelGaps); gb('Conflict', g.conflicting); gb('Low-conf', g.lowConfidence); gb('Collect', g.collectionPriorities);
+    if (['confirmedFacts','assumptions','intelGaps','competing','confidenceLimits','whatWouldChange','collectionPriorities','lowConfidence','conflicting'].some(k => g[k].length)) {
+      H('Assumptions, Intelligence Gaps & Analytic Confidence');
+      const gb = (l, list) => list.forEach(x => line('[' + l + '] ' + (x && typeof x === 'object' ? (x.assumption + (has(x.impactIfWrong)?' (if wrong: '+x.impactIfWrong+')':'')) : x)));
+      gb('Fact', g.confirmedFacts); gb('Assumption', g.assumptions); gb('Gap', g.intelGaps); gb('Competing', g.competing); gb('Conf-limit', g.confidenceLimits); gb('Conflict', g.conflicting); gb('Low-conf', g.lowConfidence); gb('Would-change', g.whatWouldChange); gb('Collect', g.collectionPriorities);
     }
     line(''); line('— Open-source, non-classified. Analytic judgments, not confirmed fact.');
     return L.join('\n');
   }
 
-  // ---------- Clipboard ----------
   async function copyEmail(brief, branding) {
-    const html = toEmailHtml(brief, branding);
-    const text = toPlainText(brief);
+    const html = toEmailHtml(brief, branding); const text = toPlainText(brief);
     try {
       if (root.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
-        await navigator.clipboard.write([new ClipboardItem({
-          'text/html': new Blob([html], { type: 'text/html' }),
-          'text/plain': new Blob([text], { type: 'text/plain' })
-        })]);
+        await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([text], { type: 'text/plain' }) })]);
         return 'rich';
       }
-      await navigator.clipboard.writeText(text);
-      return 'text';
+      await navigator.clipboard.writeText(text); return 'text';
     } catch (e) {
-      // last-resort textarea fallback
       const ta = doc.createElement('textarea'); ta.value = text; doc.body.appendChild(ta); ta.select();
       try { doc.execCommand('copy'); } finally { doc.body.removeChild(ta); }
       return 'text';
     }
   }
 
-  // ---------- Print / PDF ----------
   function printBrief() { root.print(); }
 
-  // ---------- EmailJS REST send ----------
   async function sendEmail(brief, branding) {
     const cfg = M.store.getEmail();
     if (!cfg.publicKey || !cfg.serviceId || !cfg.templateId) throw new Error('EmailJS not configured (public key, service ID, template ID required).');
     if (!cfg.to) throw new Error('No recipient email set.');
-    const html = toEmailHtml(brief, branding);
-    const text = toPlainText(brief);
-    const body = {
-      service_id: cfg.serviceId,
-      template_id: cfg.templateId,
-      user_id: cfg.publicKey,
-      template_params: {
-        subject: subjectFor(brief, branding && branding.orgName),
-        to_email: cfg.to,
-        html: html,
-        message: text,
-        date: brief.date || ''
-      }
-    };
-    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
-    });
-    const t = await res.text();
-    if (!res.ok) throw new Error('EmailJS: ' + (t || res.status));
-    return true;
+    const body = { service_id: cfg.serviceId, template_id: cfg.templateId, user_id: cfg.publicKey,
+      template_params: { subject: subjectFor(brief, branding && branding.orgName), to_email: cfg.to, html: toEmailHtml(brief, branding), message: toPlainText(brief), date: brief.date || '' } };
+    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const t = await res.text(); if (!res.ok) throw new Error('EmailJS: ' + (t || res.status)); return true;
   }
 
-  // ---------- JSON download ----------
   function downloadJSON(obj, filename) {
     const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

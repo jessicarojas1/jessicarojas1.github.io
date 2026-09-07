@@ -41,6 +41,8 @@
       <div class="collapse navbar-collapse" id="meridianNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="#brief" data-nav="brief"><i class="bi bi-newspaper"></i> Brief</a></li>
+          <li class="nav-item"><a class="nav-link" href="#threads" data-nav="threads"><i class="bi bi-diagram-3"></i> Threads</a></li>
+          <li class="nav-item"><a class="nav-link" href="#track" data-nav="track"><i class="bi bi-graph-up"></i> Track Record</a></li>
           <li class="nav-item"><a class="nav-link" href="#archive" data-nav="archive"><i class="bi bi-clock-history"></i> Archive</a></li>
           <li class="nav-item"><a class="nav-link" href="#sources" data-nav="sources"><i class="bi bi-broadcast-pin"></i> Sources</a></li>
           <li class="nav-item"><a class="nav-link" href="#settings" data-nav="settings"><i class="bi bi-gear"></i> Settings</a></li>
@@ -108,6 +110,24 @@
           <input type="file" id="import-file" accept="application/json,.json" hidden>
         </label>
       </div>
+    </section>
+
+    <!-- ===================== THREADS VIEW ===================== -->
+    <section data-view="threads" hidden>
+      <div class="page-header">
+        <h1 class="page-title"><i class="bi bi-diagram-3"></i> Intelligence Threads</h1>
+      </div>
+      <p class="text-secondary small">Persistent issues carried across reporting cycles with direction of travel, indicators, and last material change. Maintained by the daily engine.</p>
+      <div id="threads-body"></div>
+    </section>
+
+    <!-- ===================== TRACK RECORD VIEW ===================== -->
+    <section data-view="track" hidden>
+      <div class="page-header">
+        <h1 class="page-title"><i class="bi bi-graph-up"></i> Forecast Track Record</h1>
+      </div>
+      <p class="text-secondary small">Prior forecasts and how they resolved. Analytic honesty: incorrect calls are kept, not erased.</p>
+      <div id="track-body"></div>
     </section>
 
     <!-- ===================== SOURCES VIEW ===================== -->

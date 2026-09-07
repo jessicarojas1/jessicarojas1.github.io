@@ -121,6 +121,47 @@ section[data-view] { max-width: 1180px; margin: 0 auto; }
 .mer-modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:2500; display:flex; align-items:center; justify-content:center; padding:1rem; }
 .mer-modal { width:100%; max-width:460px; }
 
+/* ---- v2 elements ---- */
+/* Indicators & Warnings level badge */
+.iw-badge { font-size:.65rem; font-weight:800; letter-spacing:.04em; padding:.12rem .45rem; border-radius:4px; color:#fff; }
+.iw-green { background:var(--mer-good); } .iw-yellow { background:#eab308; color:#000; }
+.iw-orange { background:var(--mer-high); color:#000; } .iw-red { background:var(--mer-crit); }
+
+/* Top 3 */
+.top3-card { border:1px solid var(--bs-border-color); border-left:3px solid var(--mer-crit); border-radius:8px; padding:.7rem .8rem; margin-bottom:.6rem; background:var(--bs-card-bg); }
+.top3-num { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--mer-crit); color:#fff; font-weight:800; font-size:.8rem; }
+
+/* Sub-blocks (alt analysis, scenarios, I&W) */
+.subblock { border-left:2px solid var(--bs-border-color); padding:.15rem 0 .15rem .7rem; margin:.5rem 0; }
+.sublbl { font-weight:700; font-size:.78rem; color:var(--bs-secondary-color); }
+
+/* Cross-domain */
+.xdomain { border:1px solid var(--bs-border-color); border-radius:8px; padding:.6rem .75rem; margin-bottom:.55rem; background:var(--bs-card-bg); }
+.xd-line { font-size:.9rem; }
+.xd-tag { display:inline-block; width:18px; height:18px; text-align:center; line-height:18px; border-radius:4px; background:var(--mer-accent); color:#fff; font-size:.7rem; font-weight:800; margin-right:.35rem; }
+.xd-imp { margin-top:.35rem; padding-top:.35rem; border-top:1px dashed var(--bs-border-color); font-weight:600; }
+
+/* Recommendation & decision-memo cards */
+.rec-card, .decision-memo { border:1px solid var(--bs-border-color); border-radius:8px; padding:.7rem .8rem; margin-bottom:.6rem; background:var(--bs-card-bg); }
+.memo-option { border:1px dashed var(--bs-border-color); border-radius:6px; padding:.45rem .6rem; margin:.4rem 0; }
+.aud-tag { display:inline-block; font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:.1rem .45rem; border-radius:4px; background:var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); }
+
+/* Extra action categories */
+.act-INFORM { background:color-mix(in srgb, var(--mer-low) 18%, transparent); color:var(--mer-low); }
+.act-VALIDATE, .act-INVESTIGATE { background:color-mix(in srgb, var(--mer-med) 16%, transparent); color:var(--mer-med); }
+.act-PREPARE, .act-ENGAGE { background:color-mix(in srgb, var(--mer-high) 16%, transparent); color:var(--mer-high); }
+
+/* Forecast outcome badges */
+.fc-CORRECT { background:color-mix(in srgb, var(--mer-good) 16%, transparent); color:var(--mer-good); }
+.fc-INCORRECT { background:color-mix(in srgb, var(--mer-crit) 16%, transparent); color:var(--mer-crit); }
+.fc-PARTIAL { background:color-mix(in srgb, var(--mer-high) 16%, transparent); color:var(--mer-high); }
+.fc-PENDING { background:color-mix(in srgb, var(--mer-low) 18%, transparent); color:var(--mer-low); }
+
+/* Threads & Track Record views */
+.thread-card { border:1px solid var(--bs-border-color); border-radius:10px; padding:.8rem .9rem; margin-bottom:.7rem; background:var(--bs-card-bg); }
+.thread-card h3 { font-size:1rem; font-weight:700; margin:0 0 .3rem; }
+.thread-meta { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.4rem; }
+
 /* Empty states */
 .empty-state-sm { color:var(--bs-secondary-color); font-size:.9rem; }
 

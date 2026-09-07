@@ -1,0 +1,10 @@
+{
+  "updated": "2026-09-06",
+  "summary": { "correct": 0, "incorrect": 0, "partial": 0, "pending": 3, "note": "Baseline established with the first v2 brief; forecasts are graded as they resolve." },
+  "forecasts": [
+    { "id": "fc-2026-09-06-cmmc", "date": "2026-09-06", "forecast": "The CMMC 60-day review will conclude with a reformed-but-intact program and a reset phased timeline (not a repeal).", "horizon": "1-12 months", "outcome": "PENDING", "resolvedDate": "", "note": "Tracked on the CMMC Implementation thread; resolves at the review's conclusion." },
+    { "id": "fc-2026-09-06-goldendome", "date": "2026-09-06", "forecast": "Golden Dome award tempo will accelerate through late 2026 into early 2027.", "horizon": "3-6 months", "outcome": "PENDING", "resolvedDate": "", "note": "Consistent so far with SDA/interceptor awards and prime commentary." },
+    { "id": "fc-2026-09-06-ukraine", "date": "2026-09-06", "forecast": "The Kyiv–Moscow long-range-strike pause will lapse at term absent a broader framework.", "horizon": "0-72 hours", "outcome": "PENDING", "resolvedDate": "", "note": "Near-term; watch for extension vs. collapse." },
+    { "id": "fc-2026-09-06-rareearth", "date": "2026-09-06", "forecast": "China will not materially relax rare-earth/magnet controls on military-affiliated firms in the near term.", "horizon": "3-12 months", "outcome": "PENDING", "resolvedDate": "", "note": "Structural chokepoint expected to persist." }
+  ]
+}

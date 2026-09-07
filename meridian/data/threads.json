@@ -1,0 +1,120 @@
+[
+  {
+    "name": "CMMC Implementation",
+    "firstDetected": "2026-09-06",
+    "status": "Phases 2–4 suspended (13 Jul 2026) pending a 60-day review; DFARS 252.204-7012/7021, SPRS scores, and annual affirmations remain in force.",
+    "importance": "High — governs DIB compliance spend and contract-award eligibility.",
+    "direction": "UNCERTAIN",
+    "indicatorLevel": "YELLOW",
+    "assessment": "Policy pause, not repeal; a reformed program and reset timeline are the leading outcome.",
+    "confidence": "HIGH",
+    "lastChange": "2026-09-06 — reaffirmed pause; DFARS clauses still active.",
+    "orgRelevance": "Maintain 800-171 controls, SPRS currency, and C3PAO readiness; re-plan assessment timing only.",
+    "nextIndicator": "Federal Register notice or DoD determination concluding the review.",
+    "history": [
+      { "date": "2025-11-10", "note": "DFARS acquisition rule effective; 252.204-7021/7025 added." },
+      { "date": "2026-07-13", "note": "DoD suspends CMMC Phases 2–4 pending 60-day review." },
+      { "date": "2026-09-06", "note": "Pause continues; safeguarding + SPRS obligations unchanged." }
+    ]
+  },
+  {
+    "name": "Critical Minerals / Rare-Earth Magnets",
+    "firstDetected": "2026-09-06",
+    "status": "China's magnet-license denial to military-affiliated firms (since 1 Dec 2025) continues to pressure U.S. production; DoD funding domestic mine-to-magnet.",
+    "importance": "Critical — binding constraint on munitions/platform output.",
+    "direction": "ESCALATING",
+    "indicatorLevel": "ORANGE",
+    "assessment": "Durable, weaponizable chokepoint; structural risk HIGH, near-term program impact MODERATE.",
+    "confidence": "HIGH",
+    "lastChange": "2026-09-06 — cumulative strain during stockpile rebuild.",
+    "orgRelevance": "Map magnet exposure in hardware BOMs; pursue second sources.",
+    "nextIndicator": "DoD mine-to-magnet award cadence; any PRC licensing change.",
+    "history": [
+      { "date": "2025-04", "note": "China imposes rare-earth export controls on 7 of 17 elements." },
+      { "date": "2025-12-01", "note": "License denial extended to military-affiliated foreign firms." },
+      { "date": "2026-09-06", "note": "Continued strain; DoD invests in domestic capacity." }
+    ]
+  },
+  {
+    "name": "Actively Exploited Edge / AI-Infra CVEs",
+    "firstDetected": "2026-09-06",
+    "status": "CISA added 7 KEV CVEs (2 Sep) + Chromium V8 (4 Sep) incl. SonicWall SMA1000, JFrog Artifactory, LiteLLM.",
+    "importance": "High — trust-boundary components common in DIB networks.",
+    "direction": "ESCALATING",
+    "indicatorLevel": "RED",
+    "assessment": "Attacker focus on identity, software supply chain, and AI infrastructure; exploitation reported.",
+    "confidence": "HIGH",
+    "lastChange": "2026-09-06 — new KEV adds with reported in-the-wild exploitation.",
+    "orgRelevance": "Patch and threat-hunt now; verify DFARS 7012 safeguarding evidence.",
+    "nextIndicator": "Vendor patches; further KEV adds; defense-sector intrusion reporting.",
+    "history": [
+      { "date": "2026-09-02", "note": "Seven KEV additions (SonicWall, JFrog, LiteLLM, others)." },
+      { "date": "2026-09-04", "note": "Chromium V8 type-confusion added to KEV." }
+    ]
+  },
+  {
+    "name": "Golden Dome Procurement",
+    "firstDetected": "2026-09-06",
+    "status": "~$1.75B for 36 SDA tracking satellites + up to $3.2B in space-based-interceptor awards; SHIELD IDIQ active.",
+    "importance": "High — multi-year homeland-missile-defense demand base.",
+    "direction": "ESCALATING",
+    "indicatorLevel": "GREEN",
+    "assessment": "Transitioned from funding to procurement; incumbents on SDA/MDA vehicles advantaged; 2028 integration target.",
+    "confidence": "HIGH",
+    "lastChange": "2026-09-06 — award tempo rising; prime commentary supports acceleration.",
+    "orgRelevance": "Assess positioning on SDA/MDA vehicles; heavy integration/MBSE content.",
+    "nextIndicator": "MDA SHIELD task orders; SDA launches; interceptor prototype milestones.",
+    "history": [
+      { "date": "2026-08", "note": "SDA awards ~$1.75B for 36 tracking satellites." },
+      { "date": "2026-09-06", "note": "Up to $3.2B in space-based-interceptor awards across 12 firms." }
+    ]
+  },
+  {
+    "name": "Ukraine Ceasefire Diplomacy",
+    "firstDetected": "2026-09-06",
+    "status": "3-day Kyiv–Moscow long-range-strike pause during U.S. envoy visit; frontline ceasefire rejected; ZNPP on emergency power.",
+    "importance": "High — shapes European security and munitions demand.",
+    "direction": "UNCERTAIN",
+    "indicatorLevel": "ORANGE",
+    "assessment": "Narrow, time-boxed signaling; frontline tempo unchanged; ZNPP is the more acute risk.",
+    "confidence": "MODERATE",
+    "lastChange": "2026-09-06 — pause in effect during Witkoff/Kushner visit.",
+    "orgRelevance": "Macro A&D demand context; no direct organizational action.",
+    "nextIndicator": "Whether the pause extends; ZNPP power-restoration status.",
+    "history": [
+      { "date": "2026-09-05", "note": "Temporary 3-day capital-strike halt; Putin rejects frontline ceasefire; ZNPP local ceasefire for repairs." }
+    ]
+  },
+  {
+    "name": "China–Taiwan Pressure",
+    "firstDetected": "2026-09-06",
+    "status": "MND 2026 report flags PLA landing-capability buildup; CCG ~1,247 vessels near Taiwan since May.",
+    "importance": "High — Indo-Pacific deterrence, FMS, interoperability.",
+    "direction": "ESCALATING",
+    "indicatorLevel": "ORANGE",
+    "assessment": "Capability investment + gray-zone normalization; separate demonstrated capability from 2027-window projections.",
+    "confidence": "MODERATE",
+    "lastChange": "2026-09-06 — MND report emphasis on landing operations.",
+    "orgRelevance": "Reinforces maritime ISR, undersea, counter-amphibious, resilient PNT demand.",
+    "nextIndicator": "Any large named PLA exercise; landing-craft/barge activity.",
+    "history": [
+      { "date": "2026-09-02", "note": "Taiwan MND 2026 report to Legislative Yuan emphasizes PLA landing capability." }
+    ]
+  },
+  {
+    "name": "DoD Leadership Continuity",
+    "firstDetected": "2026-09-06",
+    "status": "Army Secretary Dan Driscoll resigned (~1 Sep) after modernization clashes.",
+    "importance": "Medium — policy-continuity risk during CMMC review and reprogramming.",
+    "direction": "UNCERTAIN",
+    "indicatorLevel": "YELLOW",
+    "assessment": "Leadership churn is a continuity indicator, not yet a program change.",
+    "confidence": "MODERATE",
+    "lastChange": "2026-09-06 — resignation reported.",
+    "orgRelevance": "Monitor for Army acquisition-priority shifts.",
+    "nextIndicator": "Successor nomination; any Army modernization re-scoping.",
+    "history": [
+      { "date": "2026-09-01", "note": "NPR reports Driscoll resignation amid clashes with the Defense Secretary." }
+    ]
+  }
+]
