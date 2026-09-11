@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-10",
+  "updated": "2026-09-11",
   "summary": {
-    "correct": 2,
+    "correct": 4,
     "incorrect": 0,
-    "partial": 2,
+    "partial": 3,
     "pending": 12,
-    "note": "2026-09-10: no forecasts resolved this cycle. Two new PENDING forecasts added tracking reconciliation of the conflicting Hormuz transit-volume data and confirmed exploitation of the newly KEV-listed Citrix NetScaler/Cisco FMC CVEs. All existing PENDING forecasts carried forward with updated context (Army Secretary field widened; Hormuz claims bundled under 'Ya Haidar Karrar'; MikroTik still unlisted after two more KEV batches)."
+    "note": "2026-09-11: three forecasts resolved this cycle — the MikroTik-KEV forecast (CORRECT, listed 10 Sep) and the Hormuz-kinetic-attempt forecast (CORRECT, 11 Sep Saildrone/two-vessel claims) both resolved CORRECT; the Hormuz-transit-reconciliation forecast resolved PARTIAL as Kpler and Lloyd's List Intelligence converged on a ~12-13/day range without fully reconciling the more extreme single-day and insurance-based readings. Three new PENDING forecasts added tracking Bahrain-basing posture, the 14 Sep Salalah meeting outcome, and confirmation of the reported East-West pipeline incident."
   },
   "forecasts": [
     {
@@ -15,7 +15,7 @@
       "horizon": "1-12 months",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked on the CMMC Implementation thread; DoW CIO internal determination now roughly three days away (~13 Sep)."
+      "note": "Tracked on the CMMC Implementation thread; the internal DoW CIO determination window (~11-13 Sep) lands this cycle with no public output — the internal step is advisory-only and will not itself be public, so the practical resolution point remains the ~28 Sep public report."
     },
     {
       "id": "fc-2026-09-06-goldendome",
@@ -24,7 +24,7 @@
       "horizon": "3-6 months",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No new award data this cycle; classified USSF-153 (10 Sep) and the now-scheduled 30 Sep SDA Tranche 1 Transport Layer A launch confirm continued cadence."
+      "note": "No new award data this cycle; steady-state cadence continues with the 30 Sep SDA Tranche 1 Transport Layer A launch as the next milestone."
     },
     {
       "id": "fc-2026-09-06-ukraine",
@@ -60,7 +60,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "9 Sep Russian strikes on Kyiv (residential tower) were not specifically grid infrastructure, so this narrower forecast remains unresolved. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "note": "10 Sep ISW reporting (deep Ukrainian strike on a Russian gas complex; Russian strikes on 13 Ukrainian oblasts) again did not specifically target grid infrastructure on either side, so this narrower forecast remains unresolved. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-09-07-znpp",
@@ -78,7 +78,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Determination window now roughly three days out; no new substance to update the assessment."
+      "note": "Determination window (~11-13 Sep) lands this cycle, but the step is internal/advisory-only and will not be publicly visible; resolution realistically awaits the ~28 Sep public report."
     },
     {
       "id": "fc-2026-09-08-hormuz-exclusion",
@@ -87,16 +87,16 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "New conflicting transit-volume data surfaced this cycle: a war-risk-insurance-based tracker describes Hormuz as effectively closed, versus the ~10 ships/day figure from shipping-data aggregators cited previously. Whether this constitutes 'material reduction' of US-escorted transit specifically remains genuinely unresolved pending reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No formal exclusion-zone publication identified yet. Kpler/Lloyd's List now put transit at ~12-13/day (see fc-2026-09-10-hormuz-transit, resolved PARTIAL) — a real reduction from baseline, but whether it constitutes 'material reduction' of US-escorted transit specifically remains unresolved. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-08-mikrotik-kev",
       "date": "2026-09-08",
       "forecast": "CISA will add the MikroTik RouterOS 'MikroTrick' CVEs (2026-67276 / 2026-86060) to the KEV catalog within 30 days given confirmed active exploitation.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Still not KEV-listed as of 10 Sep, despite CISA adding eight other CVEs across two batches (8 and 9 Sep) in the same window. Tracked on the Actively Exploited Edge / AI-Infra / Windows CVEs thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-10",
+      "note": "CISA added CVE-2026-67277 (the correct identifier for the missing-authentication CVE, superseding the earlier-cited 2026-67276) and CVE-2026-86060 to KEV on 10 Sep 2026, well within the 30-day window and closing an 8-day disclosure-to-listing gap. Tracked on the Actively Exploited Edge / AI-Infra / Windows CVEs thread."
     },
     {
       "id": "fc-2026-09-08-anthropic-removal",
@@ -112,9 +112,9 @@
       "date": "2026-09-09",
       "forecast": "Iran will conduct at least one further attempted kinetic strike (successful or not) against a U.S. or U.S.-linked vessel within 14 days, continuing the claim/denial pattern established 8 Sep.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No distinctly new attempt beyond the already-tracked 8-9 Sep claim/denial event (now bundled by Iran under operation 'Ya Haidar Karrar') was identified this cycle; the 14-day window remains open. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-11",
+      "note": "The 11 Sep IRGC claim of a strike on a US Saildrone-type UUV, plus UKMTO's report of projectiles hitting two vessels off Oman, constitute a further attempted strike well within the 14-day window (resolved in 2 days). CENTCOM had not confirmed or denied the UUV claim as of this brief. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-09-energyhalt-narrow",
@@ -139,9 +139,9 @@
       "date": "2026-09-10",
       "forecast": "A methodologically transparent third-party report (e.g., Lloyd's List Intelligence, Kpler, or S&P Global Commodity Insights) will publish a verified Hormuz transit-volume figure within 14 days that reconciles the conflicting 'effectively closed' (war-risk-insurance-based) and '~10 ships/day' (shipping-data-based) characterizations currently in circulation.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread; the two data sets have not yet been reconciled."
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-09-11",
+      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range — but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-10-kev-networkedge",
@@ -150,7 +150,34 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked on the Actively Exploited Edge / AI-Infra / Windows CVEs thread."
+      "note": "Tracked on the Actively Exploited Edge / AI-Infra / Windows CVEs thread; a federal 12 Sep patch deadline now applies to both CVEs."
+    },
+    {
+      "id": "fc-2026-09-11-bahrain-basing",
+      "date": "2026-09-11",
+      "forecast": "The Navy will not resume regular fleet operations at Naval Support Activity Bahrain within 90 days, instead continuing reliance on Diego Garcia-centric and afloat/dispersed Gulf basing.",
+      "horizon": "0-90 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tracked following Acting Navy Secretary Cao's on-record confirmation of major base damage and Adm. Caudle's 'not anytime soon' statement. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-11-salalah-talks",
+      "date": "2026-09-11",
+      "forecast": "The 14 Sep Salalah, Oman ministerial meeting between GCC states and Iran will produce a temporary, informal Hormuz shipping arrangement but not a comprehensive US-Iran ceasefire.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread; the meeting is 3 days out at time of writing."
+    },
+    {
+      "id": "fc-2026-09-11-pipeline",
+      "date": "2026-09-11",
+      "forecast": "The reported fire/thermal activity along Saudi Arabia's East-West 'Petroline' pipeline (10 Sep) will NOT be confirmed by Saudi Aramco/government or independent reporting as an attack, consistent with the thermal signature's correspondence to known flare sites.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread; Payne Institute analysis flagged the flare-site correspondence as grounds for skepticism."
     }
   ]
 }
