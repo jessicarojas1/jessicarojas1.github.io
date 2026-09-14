@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-11",
+  "updated": "2026-09-14",
   "summary": {
-    "correct": 4,
-    "incorrect": 0,
+    "correct": 5,
+    "incorrect": 2,
     "partial": 3,
-    "pending": 12,
-    "note": "2026-09-11: three forecasts resolved this cycle — the MikroTik-KEV forecast (CORRECT, listed 10 Sep) and the Hormuz-kinetic-attempt forecast (CORRECT, 11 Sep Saildrone/two-vessel claims) both resolved CORRECT; the Hormuz-transit-reconciliation forecast resolved PARTIAL as Kpler and Lloyd's List Intelligence converged on a ~12-13/day range without fully reconciling the more extreme single-day and insurance-based readings. Three new PENDING forecasts added tracking Bahrain-basing posture, the 14 Sep Salalah meeting outcome, and confirmation of the reported East-West pipeline incident."
+    "pending": 13,
+    "note": "2026-09-14 (no daily brief was produced 2026-09-12/13; this cycle covers the full 2026-09-11-to-09-14 gap): two forecasts resolved INCORRECT — the 14 Sep Salalah GCC-Iran ministerial meeting was postponed rather than held/producing any arrangement, and the Petroline pipeline thermal signature was confirmed as a real multi-drone attack rather than a flare-site false positive. One forecast resolved CORRECT — Cisco FMC/Citrix NetScaler KEV CVEs were publicly attributed by Cisco Talos to a Sandworm-linked cluster and a Qilin ransomware affiliate, well within the 30-day window. Four new PENDING forecasts added tracking Petroline pipeline restoration/attribution, a rescheduled Salalah/Iran-Oman shipping arrangement, a DIB-sector Cisco FMC victim disclosure, and the 24 Sep Trump-Xi summit's rare-earth/trade outcome."
   },
   "forecasts": [
     {
@@ -148,9 +148,9 @@
       "date": "2026-09-10",
       "forecast": "Given the 9 Sep KEV additions of Citrix NetScaler ADC/Gateway (CVE-2026-19490) and Cisco Firewall Management Center (CVE-2026-20079) authentication-bypass flaws, at least one confirmed enterprise or DIB-sector intrusion attribution involving one of these two CVEs will be publicly reported within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tracked on the Actively Exploited Edge / AI-Infra / Windows CVEs thread; a federal 12 Sep patch deadline now applies to both CVEs."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-14",
+      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate — well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-11-bahrain-basing",
@@ -159,25 +159,61 @@
       "horizon": "0-90 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked following Acting Navy Secretary Cao's on-record confirmation of major base damage and Adm. Caudle's 'not anytime soon' statement. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No new reconstruction-timeline or basing announcement identified this cycle; 90-day window has ~11 weeks remaining. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-11-salalah-talks",
       "date": "2026-09-11",
       "forecast": "The 14 Sep Salalah, Oman ministerial meeting between GCC states and Iran will produce a temporary, informal Hormuz shipping arrangement but not a comprehensive US-Iran ceasefire.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread; the meeting is 3 days out at time of writing."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-09-14",
+      "note": "The meeting was postponed entirely rather than held — it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-11-pipeline",
       "date": "2026-09-11",
       "forecast": "The reported fire/thermal activity along Saudi Arabia's East-West 'Petroline' pipeline (10 Sep) will NOT be confirmed by Saudi Aramco/government or independent reporting as an attack, consistent with the thermal signature's correspondence to known flare sites.",
       "horizon": "0-14 days",
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-09-14",
+      "note": "Multiple outlets (Al Jazeera, CNN) confirmed a real multi-drone attack from Iraqi territory on 10-11 Sep, and CNBC published satellite imagery on 14 Sep confirming the damage; Saudi Arabia shut the pipeline. Attribution remains unclaimed/UNKNOWN. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-14-petroline-restoration",
+      "date": "2026-09-14",
+      "forecast": "Saudi Arabia will restore East-West Petroline pipeline flow within 30 days, but attribution for the 10-11 Sep strike will remain unclaimed/unresolved within that window.",
+      "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread; Payne Institute analysis flagged the flare-site correspondence as grounds for skepticism."
+      "note": "Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread; pipeline shut down as of this brief with no repair timeline or attribution yet announced."
+    },
+    {
+      "id": "fc-2026-09-14-salalah-reschedule",
+      "date": "2026-09-14",
+      "forecast": "A rescheduled GCC-Iran ministerial meeting, or a publicly confirmed Iran-Oman bilateral shipping arrangement, will be announced within 30 days despite this week's postponement.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread; Oman has framed the postponement as temporary and the bilateral Iran-Oman track continues."
+    },
+    {
+      "id": "fc-2026-09-14-ciscofmc-dib-victim",
+      "date": "2026-09-14",
+      "forecast": "At least one U.S. defense-industrial-base or federal-contractor victim of the Cisco FMC exploitation (the Sandworm-linked or Qilin clusters) will be publicly confirmed within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread; no specific victim organization named as of this brief."
+    },
+    {
+      "id": "fc-2026-09-14-xisummit-outcome",
+      "date": "2026-09-14",
+      "forecast": "The 24 Sep Trump-Xi summit will produce at least a limited, publicly announced trade/rare-earth gesture (e.g., a licensing carve-out or tariff pause) rather than no agreement or a full rupture.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads; summit confirmed for 24 Sep with no pre-summit rare-earth signal yet."
     }
   ]
 }
