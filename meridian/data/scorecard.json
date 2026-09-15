@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-14",
+  "updated": "2026-09-15",
   "summary": {
     "correct": 5,
     "incorrect": 2,
     "partial": 3,
-    "pending": 13,
-    "note": "2026-09-14 (no daily brief was produced 2026-09-12/13; this cycle covers the full 2026-09-11-to-09-14 gap): two forecasts resolved INCORRECT — the 14 Sep Salalah GCC-Iran ministerial meeting was postponed rather than held/producing any arrangement, and the Petroline pipeline thermal signature was confirmed as a real multi-drone attack rather than a flare-site false positive. One forecast resolved CORRECT — Cisco FMC/Citrix NetScaler KEV CVEs were publicly attributed by Cisco Talos to a Sandworm-linked cluster and a Qilin ransomware affiliate, well within the 30-day window. Four new PENDING forecasts added tracking Petroline pipeline restoration/attribution, a rescheduled Salalah/Iran-Oman shipping arrangement, a DIB-sector Cisco FMC victim disclosure, and the 24 Sep Trump-Xi summit's rare-earth/trade outcome."
+    "pending": 17,
+    "note": "2026-09-15: no forecasts resolved this cycle. Four new PENDING forecasts added tracking Petroline attribution timing, a GitLab-exfiltration downstream compromise, the DoD cyber strategy's release, and Pentagon software solicitations referencing the new Accelerated Mission Software / Project Gatekeeper acquisition policy. Existing PENDING forecasts on Petroline restoration, the Salalah reschedule, a Cisco FMC DIB victim, and the Trump-Xi summit outcome carry forward with refreshed notes reflecting this cycle's new detail."
   },
   "forecasts": [
     {
@@ -186,7 +186,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread; pipeline shut down as of this brief with no repair timeline or attribution yet announced."
+      "note": "AP reports (via regional officials) a 3-5 week repair estimate, consistent with restoration inside the 30-day window; attribution has hardened circumstantially (Iraq dismissed the Maysan military commander and police chief; the Iran-backed 'Islamic Resistance in Iraq' issued a non-denial) but remains formally unclaimed. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-14-salalah-reschedule",
@@ -195,7 +195,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread; Oman has framed the postponement as temporary and the bilateral Iran-Oman track continues."
+      "note": "No reschedule date or bilateral arrangement announced yet. New detail: the postponement stemmed from a substantive Saudi objection to the Iran-Oman proposal's wording (fear of locking in a new status quo), not merely scheduling -- suggesting a higher bar for a quick reschedule than initially assessed. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-14-ciscofmc-dib-victim",
@@ -204,7 +204,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread; no specific victim organization named as of this brief."
+      "note": "No specific DIB victim organization named as of this brief; ~700 FMC instances remain internet-exposed industry-wide. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-14-xisummit-outcome",
@@ -213,7 +213,43 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads; summit confirmed for 24 Sep with no pre-summit rare-earth signal yet."
+      "note": "Analyst consensus this cycle (CSIS, Foreign Policy, S&P Global) explicitly converges on a one-year Busan-truce rollover as the likely outcome, reinforcing this forecast's premise ahead of the 24 Sep date. Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads."
+    },
+    {
+      "id": "fc-2026-09-15-petroline-attribution",
+      "date": "2026-09-15",
+      "forecast": "Formal attribution (a named actor or state sponsor) for the 10-11 Sep Petroline pipeline strike will remain unestablished for at least 14 days from the attack (through ~24-25 Sep), even as circumstantial attribution continues to firm.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Iraq's dismissal of the Maysan commander/police chief and the Islamic Resistance in Iraq's non-denial statement strengthen circumstantial attribution without constituting a formal claim. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-15-gitlab-downstream",
+      "date": "2026-09-15",
+      "forecast": "A confirmed downstream compromise or intrusion attributable to secrets/credentials exfiltrated via the GitLab CVE-2026-85706 exploitation will be publicly reported within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "watchTowr/Rapid7 have confirmed secrets and SSH-configuration exfiltration from vulnerable instances; no downstream compromise has been publicly attributed to this exfiltration yet. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-09-15-cyberstrategy-release",
+      "date": "2026-09-15",
+      "forecast": "DoD will publicly release its first overarching cyber strategy since 2023 within 30 days, despite having already missed its informal early-September expectation.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Reporting continues to describe the strategy as imminent (~9 strategic initiatives, 34 lines of effort) without a firm release date. Tracked on the DoD Leadership Continuity thread."
+    },
+    {
+      "id": "fc-2026-09-15-gatekeeper-solicitation",
+      "date": "2026-09-15",
+      "forecast": "At least one public DoD software-related solicitation or RFP will explicitly reference Project Gatekeeper or the Accelerated Mission Software instruction within 90 days.",
+      "horizon": "0-90 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "The instruction took effect 8 Sep 2026; no solicitation referencing it has been identified yet. Tracked on the new Pentagon AI-Assisted Software Acquisition thread."
     }
   ]
 }
