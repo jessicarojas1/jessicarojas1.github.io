@@ -2,406 +2,233 @@
   {
     "name": "U.S.-Iran Conflict / Strait of Hormuz",
     "firstDetected": "2026-09-07",
-    "status": "Iraq's PM al-Zaidi dismissed the Maysan provincial military commander and police chief after an internal investigation confirmed the 10-11 Sep Petroline drone strikes launched from Maysan, Iraq; the Iran-backed umbrella group 'Islamic Resistance in Iraq' issued an ambiguous non-denial ('an honour we do not claim'); AP reports repair will take an estimated 3-5 weeks. The 14 Sep Salalah ministerial collapsed not merely on scheduling but because Saudi Arabia submitted amendments to the Iran-Oman shipping-lane proposal over concern its wording would lock in a new, unacceptable status quo -- Iran and Oman agreed to reschedule but no new date has been set. No further major Hormuz vessel incident this cycle.",
-    "importance": "Critical — the Hormuz-bypass route and the leading multilateral diplomatic mechanism both failed within the same 72 hours, raising the sustained-risk floor for Gulf energy flows and shipping even without a single dramatic escalation.",
+    "status": "Petroline repair continues on its 3-5 week estimate; the Salalah GCC-Iran ministerial remains unrescheduled with no new date. Iraq's PM al-Zaidi now faces his own September deadline to disarm Iran-aligned militias (PMF/Islamic Resistance in Iraq umbrella), a process reportedly facing growing factional resistance, running in parallel with Baghdad's investigation implicating Maysan-based elements of those same networks in the Petroline strike. No further major Hormuz vessel incident this cycle.",
+    "importance": "Critical — the Hormuz-bypass route, the leading multilateral diplomatic mechanism, and now Iraq's own militia-disarmament credibility are all entangled in the same unresolved attribution question.",
     "direction": "ESCALATING",
     "indicatorLevel": "RED",
-    "assessment": "Attribution has moved from wholly unresolved to ASSESSED Iran-aligned Iraqi-militia origin, though still formally unclaimed. The Salalah collapse is now understood as a substantive Saudi red line rather than a scheduling conflict, lowering the odds of a quick multilateral fix and elevating the relative importance of the narrower Iran-Oman bilateral track and the new Iran-UAE channel.",
+    "assessment": "Attribution remains ASSESSED Iran-aligned Iraqi-militia origin, still formally unclaimed. Iraq's parallel disarmament deadline narrows Baghdad's room to maneuver and adds a domestic-sovereignty dimension to a thread previously tracked mainly through Saudi/Omani diplomacy.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-15 -- Petroline attribution hardens (Maysan commander/police-chief dismissals, IRI non-denial); repair estimated 3-5 weeks; Salalah collapse attributed to a substantive Saudi objection, not scheduling.",
-    "orgRelevance": "Treat the current disruption level as a multi-week, sustained planning assumption rather than an episodic crisis; reassess Gulf-transiting shipping, energy, and insurance exposure accordingly. Watch for Petroline repair-progress updates and any rescheduled Salalah date or Iran-Oman bilateral shipping arrangement as the nearest inflections.",
-    "nextIndicator": "A formal attribution statement from Saudi Arabia, Iraq, or Iran; Petroline repair-progress reporting; a rescheduled Salalah date or an unveiled Iran-Oman bilateral shipping arrangement; further attacks during the diplomatic gap.",
+    "lastChange": "2026-09-16 -- Iraq's September militia-disarmament deadline identified as intersecting with the Petroline-attribution investigation; no new reschedule or repair-status data this cycle.",
+    "orgRelevance": "Continue treating the current disruption level as a multi-week, sustained planning assumption; reassess Gulf-transiting shipping, energy, and insurance exposure accordingly. Watch Iraq's disarmament-deadline outcome as a new near-term indicator alongside Petroline repair progress and any Salalah reschedule.",
+    "nextIndicator": "A formal attribution statement from Saudi Arabia, Iraq, or Iran; Petroline repair-progress reporting; a rescheduled Salalah date or an unveiled Iran-Oman bilateral shipping arrangement; Iraq's disarmament-deadline outcome; further attacks during the diplomatic gap.",
     "history": [
-      {
-        "date": "2026-02-28",
-        "note": "Operation Epic Fury begins the current conflict cycle."
-      },
-      {
-        "date": "2026-07-08",
-        "note": "Ceasefire collapses; Iran begins targeting Hormuz shipping."
-      },
-      {
-        "date": "2026-08-31",
-        "note": "IRGC ballistic-missile strike on Muwaffaq Salti/Al-Azraq air base, Jordan, intercepted by US/Jordanian Patriot PAC-3 batteries."
-      },
-      {
-        "date": "2026-09-05",
-        "note": "IRGC fires ballistic missiles at a U.S. carrier and destroyer (both evade); CENTCOM disables/destroys three Iranian tankers."
-      },
-      {
-        "date": "2026-09-09",
-        "note": "IRGC claims 8 Sep strikes on two U.S. Navy destroyers; CENTCOM calls the claim false; PGSA blacklist grows; transit at post-May lows."
-      },
-      {
-        "date": "2026-09-11",
-        "note": "IRGC claims an 11 Sep Saildrone-UUV strike; UKMTO reports two vessels hit off Oman; Acting Navy Secretary Cao confirms Bahrain base damage on the record; a 14 Sep GCC-Iran ministerial in Salalah is announced; Kpler/Lloyd's List transit data converges around ~12-13/day; unconfirmed East-West pipeline thermal activity surfaces near known flare sites."
-      },
-      {
-        "date": "2026-09-12",
-        "note": "Multiple drones from Iraqi territory strike the Petroline pipeline (10-11 Sep window); Saudi Arabia shuts the line as a precaution; investigation into the Iraq launch point opens; no claim of responsibility."
-      },
-      {
-        "date": "2026-09-13",
-        "note": "A new attack near Qeshm Island strikes an Iranian commercial vessel (IRIB: 1 killed, 4 injured) and UKMTO reports a separate vessel hit by an unidentified projectile; Abu Dhabi's Crown Prince meets Iranian President Pezeshkian at the BRICS summit in New Delhi — first top-level Iran-UAE contact of the war; Iran's nuclear chief is barred from traveling to the IAEA Vienna conference."
-      },
-      {
-        "date": "2026-09-14",
-        "note": "The 14 Sep GCC-Iran Salalah ministerial is postponed 'in the interest of consensus'; CNBC publishes satellite imagery confirming the extent of Petroline pipeline damage; a bilateral Iran-Oman shipping-lane arrangement continues to be advanced separately."
-      },
-      {
-        "date": "2026-09-15",
-        "note": "Iraq dismisses the Maysan military commander and provincial police chief after an investigation into the Petroline strikes' Iraqi origin; IRI issues a non-denial; AP reports a 3-5 week repair estimate; the Salalah ministerial collapse is confirmed to stem from a substantive Saudi objection to the Iran-Oman proposal's wording, with no reschedule date set."
-      }
+      { "date": "2026-02-28", "note": "Operation Epic Fury begins the current conflict cycle." },
+      { "date": "2026-07-08", "note": "Ceasefire collapses; Iran begins targeting Hormuz shipping." },
+      { "date": "2026-08-31", "note": "IRGC ballistic-missile strike on Muwaffaq Salti/Al-Azraq air base, Jordan, intercepted by US/Jordanian Patriot PAC-3 batteries." },
+      { "date": "2026-09-05", "note": "IRGC fires ballistic missiles at a U.S. carrier and destroyer (both evade); CENTCOM disables/destroys three Iranian tankers." },
+      { "date": "2026-09-09", "note": "IRGC claims 8 Sep strikes on two U.S. Navy destroyers; CENTCOM calls the claim false; PGSA blacklist grows; transit at post-May lows." },
+      { "date": "2026-09-11", "note": "IRGC claims an 11 Sep Saildrone-UUV strike; UKMTO reports two vessels hit off Oman; Acting Navy Secretary Cao confirms Bahrain base damage on the record; a 14 Sep GCC-Iran ministerial in Salalah is announced; Kpler/Lloyd's List transit data converges around ~12-13/day; unconfirmed East-West pipeline thermal activity surfaces near known flare sites." },
+      { "date": "2026-09-12", "note": "Multiple drones from Iraqi territory strike the Petroline pipeline (10-11 Sep window); Saudi Arabia shuts the line as a precaution; investigation into the Iraq launch point opens; no claim of responsibility." },
+      { "date": "2026-09-13", "note": "A new attack near Qeshm Island strikes an Iranian commercial vessel (IRIB: 1 killed, 4 injured) and UKMTO reports a separate vessel hit by an unidentified projectile; Abu Dhabi's Crown Prince meets Iranian President Pezeshkian at the BRICS summit in New Delhi — first top-level Iran-UAE contact of the war; Iran's nuclear chief is barred from traveling to the IAEA Vienna conference." },
+      { "date": "2026-09-14", "note": "The 14 Sep Salalah ministerial is postponed 'in the interest of consensus'; CNBC publishes satellite imagery confirming the extent of Petroline pipeline damage; a bilateral Iran-Oman shipping-lane arrangement continues to be advanced separately." },
+      { "date": "2026-09-15", "note": "Iraq dismisses the Maysan military commander and provincial police chief after an investigation into the Petroline strikes' Iraqi origin; IRI issues a non-denial; AP reports a 3-5 week repair estimate; the Salalah ministerial collapse is confirmed to stem from a substantive Saudi objection to the Iran-Oman proposal's wording, with no reschedule date set." },
+      { "date": "2026-09-16", "note": "Iraq's own September deadline to disarm Iran-aligned militias is identified as running in parallel with, and complicated by, the Petroline-attribution investigation into those same networks; no new repair or reschedule data this cycle." }
     ]
   },
   {
     "name": "CMMC Implementation",
     "firstDetected": "2026-09-06",
-    "status": "The DoW CIO's internal Reform Task Force determination reportedly reached CIO Kirsten Davies within the ~11-13 Sep window as previously expected, but the finding itself is non-public; she reportedly has roughly 15 more days to synthesize it before any public release, pushing the realistic public-report date from 'around 28 Sep' to late September/early October. DFARS 252.204-7012/7021, SPRS scores, and annual affirmations remain in force throughout.",
+    "status": "No new development this cycle. The DoW CIO's internal Reform Task Force determination remains non-public; the realistic public-report window stays late Sept/early Oct. DFARS 252.204-7012/7021, SPRS scores, and annual affirmations remain in force throughout.",
     "importance": "High — governs DIB compliance spend and contract-award eligibility.",
     "direction": "UNCERTAIN",
     "indicatorLevel": "YELLOW",
-    "assessment": "Policy pause, not repeal; a reformed program and reset timeline remain the leading outcome. The public-report timeline has slipped modestly further out, extending contractors' information gap without changing the underlying obligations.",
+    "assessment": "Policy pause, not repeal; a reformed program and reset timeline remain the leading outcome. The information gap for contractors continues without narrowing.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-14 — internal determination reportedly delivered to the DoW CIO but remains non-public; realistic public-report date resets to late September/early October.",
-    "orgRelevance": "Maintain 800-171 controls, SPRS currency, and C3PAO readiness through the now-slightly-extended information gap.",
+    "lastChange": "2026-09-16 — no new development this cycle; realistic public-report date remains late September/early October.",
+    "orgRelevance": "Maintain 800-171 controls, SPRS currency, and C3PAO readiness through the extended information gap.",
     "nextIndicator": "Any Federal Register notice, solicitation-language change, or industry-day signal ahead of the public report.",
     "history": [
-      {
-        "date": "2025-11-10",
-        "note": "DFARS acquisition rule effective; 252.204-7021/7025 added."
-      },
-      {
-        "date": "2026-07-13",
-        "note": "DoD suspends CMMC Phases 2-4 pending 60-day review."
-      },
-      {
-        "date": "2026-09-11",
-        "note": "Internal determination window (~11-13 Sep) arrives with no public output identified; reset planning to the ~28 Sep public report."
-      },
-      {
-        "date": "2026-09-14",
-        "note": "Trackers indicate the internal deliverable reached the DoW CIO on schedule but requires ~15 more days of synthesis; realistic public-report date resets to late September/early October."
-      }
+      { "date": "2025-11-10", "note": "DFARS acquisition rule effective; 252.204-7021/7025 added." },
+      { "date": "2026-07-13", "note": "DoD suspends CMMC Phases 2-4 pending 60-day review." },
+      { "date": "2026-09-11", "note": "Internal determination window (~11-13 Sep) arrives with no public output identified; reset planning to the ~28 Sep public report." },
+      { "date": "2026-09-14", "note": "Trackers indicate the internal deliverable reached the DoW CIO on schedule but requires ~15 more days of synthesis; realistic public-report date resets to late September/early October." },
+      { "date": "2026-09-16", "note": "No new development; public-report window remains late Sept/early Oct with no Federal Register or DoD statement this cycle." }
     ]
   },
   {
     "name": "Critical Minerals / Rare-Earth Magnets",
     "firstDetected": "2026-09-06",
-    "status": "China's military-affiliated license-denial rule (since 1 Dec 2025) and the June 2026 entity-list targeting of MP Materials/USA Rare Earth remain the binding constraints; no new PRC action this cycle. Beijing's confirmed 23-25 Sep Xi Jinping Washington visit (24 Sep Trump meeting) is now paired with an emerging analyst consensus (CSIS, Foreign Policy, S&P Global) that the most likely deliverable is a one-year extension of the Oct 2025 Busan trade truce -- easing broader trade friction without resolving the military-affiliated rare-earth licensing denial.",
-    "importance": "Critical — binding, targeted constraint on munitions/platform output and the domestic-substitution response itself, now with a confirmed summit date as the nearest potential inflection point ahead of the 10 Nov suspension-expiry decision.",
+    "status": "China's State Council exit-control regulation took effect 15 Sep 2026, authorizing exit bans on citizens whose departure 'may endanger' industrial/technological security in export-controlled sectors (rare earths, batteries, semiconductors) — a lower evidentiary bar than prior rules, with no fixed time limit. This adds a human-capital lever alongside the unchanged military-affiliated license denial (since 1 Dec 2025) and the June 2026 entity-list targeting of MP Materials/USA Rare Earth. The confirmed 23-25 Sep Xi Jinping Washington visit remains expected to yield a one-year Busan-truce rollover, not rare-earth relief.",
+    "importance": "Critical — binding, targeted constraint on munitions/platform output, now deepened by a talent-mobility control instrument that is independent of the summit's likely outcome.",
     "direction": "ESCALATING",
     "indicatorLevel": "RED",
-    "assessment": "Durable, weaponizable chokepoint persists unchanged through the summit's realistic 'good' outcome. A truce rollover would stabilize the broader relationship but leave defense-sector magnet exposure intact; a talks-falter scenario would harden the constraint further. Supply-chain mitigation should proceed independent of the summit outcome.",
+    "assessment": "The chokepoint is deepening structurally (via talent immobilization) even as the diplomatic temperature is set to cool at the 24 Sep summit; even the realistic 'good' summit outcome would not touch either the licensing denial or the new exit-control rule. Supply-chain and technical-talent mitigation should proceed independent of the summit.",
     "confidence": "HIGH",
-    "lastChange": "2026-09-15 -- no new PRC action; analyst consensus firms around a Busan-truce rollover (not rare-earth relief) as the summit's likely outcome.",
-    "orgRelevance": "Continue mapping magnet exposure in hardware BOMs against named entities and pursuing second sources without waiting on summit outcomes; treat the pre/post-summit window (through ~24-26 Sep) as a dedicated watch period for any licensing signal.",
-    "nextIndicator": "Any explicit rare-earth licensing signal at or around the 24 Sep summit; the 10 Nov 2026 suspension-expiry decision; any further PRC entity-list action.",
+    "lastChange": "2026-09-16 -- China's exit-control regulation on rare-earth/tech engineers took effect 15 Sep, adding a human-capital dimension to the existing licensing chokepoint; no new PRC licensing action this cycle.",
+    "orgRelevance": "Continue mapping magnet exposure in hardware BOMs against named entities and pursuing second sources without waiting on summit outcomes; separately assess any PRC-based personnel, supplier, or technical-exchange exposure to the new exit-control rule.",
+    "nextIndicator": "First reported exit-ban enforcement case; any explicit rare-earth licensing signal at or around the 24 Sep summit; the 10 Nov 2026 suspension-expiry decision; any further PRC entity-list action.",
     "history": [
-      {
-        "date": "2025-04",
-        "note": "China imposes rare-earth export controls on 7 of 17 elements."
-      },
-      {
-        "date": "2025-12-01",
-        "note": "License denial extended to military-affiliated foreign firms."
-      },
-      {
-        "date": "2026-06",
-        "note": "China adds ten U.S. entities to its dual-use export control list, including MP Materials and USA Rare Earth."
-      },
-      {
-        "date": "2026-09-09",
-        "note": "CVN-81 steam-catapult/elevator redesign identified as a third magnet-demand vector; 10 Nov 2026 suspension-expiry ~2 months out."
-      },
-      {
-        "date": "2026-09-11",
-        "note": "No new PRC action; Iran's capture of a defective Anduril Dive-LD UUV near Hormuz surfaces a separate, narrow hardware-exposure risk vector."
-      },
-      {
-        "date": "2026-09-14",
-        "note": "No new PRC action; China's Foreign Minister Wang Yi confirms Xi's 24 Sep Washington visit, giving the thread a concrete near-term inflection date ahead of the 10 Nov suspension-expiry decision."
-      },
-      {
-        "date": "2026-09-15",
-        "note": "No new PRC action; analyst consensus (CSIS, Foreign Policy, S&P Global) converges on a one-year Busan-truce rollover as the summit's realistic outcome, not a rare-earth-specific resolution."
-      }
+      { "date": "2025-04", "note": "China imposes rare-earth export controls on 7 of 17 elements." },
+      { "date": "2025-12-01", "note": "License denial extended to military-affiliated foreign firms." },
+      { "date": "2026-06", "note": "China adds ten U.S. entities to its dual-use export control list, including MP Materials and USA Rare Earth." },
+      { "date": "2026-09-09", "note": "CVN-81 steam-catapult/elevator redesign identified as a third magnet-demand vector; 10 Nov 2026 suspension-expiry ~2 months out." },
+      { "date": "2026-09-11", "note": "No new PRC action; Iran's capture of a defective Anduril Dive-LD UUV near Hormuz surfaces a separate, narrow hardware-exposure risk vector." },
+      { "date": "2026-09-14", "note": "No new PRC action; China's Foreign Minister Wang Yi confirms Xi's 24 Sep Washington visit, giving the thread a concrete near-term inflection date ahead of the 10 Nov suspension-expiry decision." },
+      { "date": "2026-09-15", "note": "No new PRC action; analyst consensus (CSIS, Foreign Policy, S&P Global) converges on a one-year Busan-truce rollover as the summit's realistic outcome, not a rare-earth-specific resolution." },
+      { "date": "2026-09-16", "note": "China's State Council exit-control regulation (effective 15 Sep) confirmed to bar rare-earth/battery/semiconductor engineers from leaving the country on a low evidentiary bar with no fixed time limit -- a new human-capital lever added to the licensing chokepoint." }
     ]
   },
   {
     "name": "Actively Exploited Edge / DevOps / AI-Infra CVEs",
     "firstDetected": "2026-09-06",
-    "status": "Cisco FMC exploitation attribution (Sandworm-linked and Qilin-ransomware clusters, Talos) is unchanged this cycle with ~700 instances still internet-exposed and no named DIB victim yet. The maximum-severity GitLab CE/EE path-traversal flaw (CVE-2026-85706, CVSS 10.0, added to KEV 11 Sep) has progressed from same-day proof-of-concept exploitation to confirmed exfiltration of configuration files, embedded secrets, and SSH configuration data from unpatched, internet-facing instances with at least one public project (watchTowr, Rapid7). Citrix NetScaler exploitation continues past its 12 Sep deadline without new attribution.",
-    "importance": "Critical — confirmed simultaneous state-actor and top-tier-ransomware exploitation of DIB-relevant perimeter infrastructure, now joined by a maximum-severity DevOps/software-supply-chain flaw exploited within a day of disclosure.",
-    "direction": "ESCALATING",
+    "status": "No new KEV additions or named DIB-sector victim this cycle. GitLab CVE-2026-85706 secrets/SSH exfiltration and Cisco FMC (Sandworm-linked and Qilin-ransomware) exploitation remain unresolved at a steady, still-serious level; ~700 Cisco FMC instances remain internet-exposed industry-wide. Citrix NetScaler exploitation continues past its 12 Sep deadline without new attribution.",
+    "importance": "Critical — confirmed simultaneous state-actor and top-tier-ransomware exploitation of DIB-relevant perimeter infrastructure, plus an unresolved maximum-severity DevOps/software-supply-chain flaw, with no new victim confirmation to narrow the exposure question.",
+    "direction": "STABLE",
     "indicatorLevel": "RED",
-    "assessment": "The DevOps/software-supply-chain attack-surface trend is deepening, not plateauing: a second maximum-severity flaw in this category is now yielding directly usable credentials, distinct from and potentially more severe than a single-host compromise. DIB-relevant perimeter and DevOps infrastructure should remain presumed-targeted.",
+    "assessment": "The absence of new escalation this cycle does not indicate resolution; both exploitation campaigns remain live and unmitigated for organizations that have not completed remediation. DIB-relevant perimeter and DevOps infrastructure should remain presumed-targeted.",
     "confidence": "HIGH",
-    "lastChange": "2026-09-15 -- GitLab CVE-2026-85706 exploitation confirmed to include secrets/SSH-configuration exfiltration, not merely file reads.",
-    "orgRelevance": "Patch self-hosted GitLab CE/EE to 19.1.8/19.2.6/19.3.2+ immediately; inventory for public projects; rotate any secrets/SSH keys that could have lived in exposed config paths if unpatched since 11 Sep; continue Cisco FMC IOC hunting per Talos guidance.",
+    "lastChange": "2026-09-16 -- no new KEV additions or named victim; both campaigns remain at a steady, unresolved risk level.",
+    "orgRelevance": "Confirm GitLab and Cisco FMC remediation (patch plus any needed secrets/credential rotation) is fully closed out, not merely initiated; continue Cisco FMC IOC hunting per Talos guidance.",
     "nextIndicator": "A confirmed DIB-sector or federal-contractor victim tied to any FMC cluster or the GitLab exploitation; further KEV adds in the DevOps/software-supply-chain category; any new Citrix NetScaler attribution.",
     "history": [
-      {
-        "date": "2026-09-02",
-        "note": "Seven KEV additions (SonicWall, JFrog, LiteLLM, others)."
-      },
-      {
-        "date": "2026-09-09",
-        "note": "CISA adds Citrix NetScaler (CVE-2026-19490) and Cisco FMC (CVE-2026-20079) to KEV amid a record Patch Tuesday."
-      },
-      {
-        "date": "2026-09-10",
-        "note": "CISA adds MikroTik CVE-2026-67277/CVE-2026-86060 to KEV, closing an 8-day gap; Cisco FMC and Citrix NetScaler carry a 12 Sep federal patch deadline — sixth vendor family in three weeks."
-      },
-      {
-        "date": "2026-09-11",
-        "note": "CISA adds CVE-2026-85706 (GitLab CE/EE path traversal, CVSS 10.0) to KEV."
-      },
-      {
-        "date": "2026-09-12",
-        "note": "watchTowr observes in-the-wild exploitation of the GitLab CVE within a day of disclosure; press coverage of Cisco Talos's FMC cluster attribution (published 9 Sep) continues."
-      },
-      {
-        "date": "2026-09-14",
-        "note": "Cisco Talos attribution — Sandworm-linked and Qilin-ransomware clusters exploiting Cisco FMC — confirmed as the most consequential development of this cycle; ~700 FMC instances remain internet-exposed industry-wide."
-      },
-      {
-        "date": "2026-09-15",
-        "note": "watchTowr/Rapid7 confirm GitLab CVE-2026-85706 exploitation has progressed to successful exfiltration of secrets and SSH configuration data from unpatched, internet-facing instances."
-      }
+      { "date": "2026-09-02", "note": "Seven KEV additions (SonicWall, JFrog, LiteLLM, others)." },
+      { "date": "2026-09-09", "note": "CISA adds Citrix NetScaler (CVE-2026-19490) and Cisco FMC (CVE-2026-20079) to KEV amid a record Patch Tuesday." },
+      { "date": "2026-09-10", "note": "CISA adds MikroTik CVE-2026-67277/CVE-2026-86060 to KEV, closing an 8-day gap; Cisco FMC and Citrix NetScaler carry a 12 Sep federal patch deadline — sixth vendor family in three weeks." },
+      { "date": "2026-09-11", "note": "CISA adds CVE-2026-85706 (GitLab CE/EE path traversal, CVSS 10.0) to KEV." },
+      { "date": "2026-09-12", "note": "watchTowr observes in-the-wild exploitation of the GitLab CVE within a day of disclosure; press coverage of Cisco Talos's FMC cluster attribution (published 9 Sep) continues." },
+      { "date": "2026-09-14", "note": "Cisco Talos attribution — Sandworm-linked and Qilin-ransomware clusters exploiting Cisco FMC — confirmed as the most consequential development of this cycle; ~700 FMC instances remain internet-exposed industry-wide." },
+      { "date": "2026-09-15", "note": "watchTowr/Rapid7 confirm GitLab CVE-2026-85706 exploitation has progressed to successful exfiltration of secrets and SSH configuration data from unpatched, internet-facing instances." },
+      { "date": "2026-09-16", "note": "No new KEV additions or named DIB victim; both GitLab and Cisco FMC exploitation remain at a steady, unresolved risk level industry-wide." }
     ]
   },
   {
     "name": "Golden Dome Procurement",
     "firstDetected": "2026-09-06",
-    "status": "~$1.75B for 36 SDA tracking satellites + up to $3.2B in space-based-interceptor awards; SHIELD IDIQ active; SDA's Tranche 1 Transport Layer A launch (21 Northrop-built satellites) remains scheduled 30 Sep from Vandenberg. The Army has moved to divest its IFPC-High Energy Laser ('Valkyrie,' ~300kW) fielding candidate, redirecting toward the Navy-led E-HEL program feeding Golden Dome's Joint Laser Warfighting System, with prototype delivery reported in the Sep-Oct 2026 timeframe.",
-    "importance": "High — multi-year homeland-missile-defense demand base, now also consolidating adjacent directed-energy programs.",
+    "status": "No new award this cycle. SDA's Tranche 1 Transport Layer A launch (21 Northrop-built satellites) remains scheduled 30 Sep from Vandenberg. The AFA 2026 Air, Space & Cyber Conference (14-16 Sep) featured Golden Dome leadership and was the venue for USAF Secretary Meink's disclosure that the Space Force has deployed on-orbit space-control weapons (tracked as its own thread given its independent significance).",
+    "importance": "High — multi-year homeland-missile-defense demand base, now unfolding alongside a broader declaratory shift in acknowledged U.S. space capability.",
     "direction": "ESCALATING",
     "indicatorLevel": "GREEN",
-    "assessment": "Transitioned from funding to procurement; incumbents on SDA/MDA vehicles advantaged. The Army-to-Navy laser-program redirection suggests DoD is converging separate service directed-energy efforts into the Golden Dome architecture rather than sustaining parallel tracks — a structural-consolidation trend worth watching for further mergers.",
+    "assessment": "Transitioned from funding to procurement; incumbents on SDA/MDA vehicles advantaged. The AFA conference reinforced Golden Dome's institutional priority without adding new award data this cycle.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-14 — no new award this cycle; Army's Valkyrie high-energy-laser program redirected into the Navy-led E-HEL effort feeding Golden Dome's Joint Laser Warfighting System.",
-    "orgRelevance": "Assess positioning on SDA/MDA vehicles; firms with legacy Army high-energy-laser involvement should assess transition risk; firms on the Navy-led E-HEL effort may see expanded scope.",
+    "lastChange": "2026-09-16 -- no new award; AFA 2026 conference featured Golden Dome leadership alongside the separate Space Force space-control-weapons disclosure.",
+    "orgRelevance": "Assess positioning on SDA/MDA vehicles; track the 30 Sep launch as the next concrete schedule test.",
     "nextIndicator": "The 30 Sep SDA Tranche 1 Transport Layer A launch; Gate 2/3/4 SBI outcomes; any further program-consolidation announcements; new SHIELD task orders.",
     "history": [
-      {
-        "date": "2026-08",
-        "note": "SDA awards ~$1.75B for 36 tracking satellites."
-      },
-      {
-        "date": "2026-09-06",
-        "note": "Up to $3.2B in space-based-interceptor awards across 12 firms."
-      },
-      {
-        "date": "2026-09-10",
-        "note": "Classified USSF-153 launch (10 Sep) and SDA Tranche 1 Transport Layer A (30 Sep) confirm continued launch cadence."
-      },
-      {
-        "date": "2026-09-14",
-        "note": "No new award; Army's Valkyrie laser program redirected into the Navy-led E-HEL effort feeding Golden Dome's Joint Laser Warfighting System."
-      }
+      { "date": "2026-08", "note": "SDA awards ~$1.75B for 36 tracking satellites." },
+      { "date": "2026-09-06", "note": "Up to $3.2B in space-based-interceptor awards across 12 firms." },
+      { "date": "2026-09-10", "note": "Classified USSF-153 launch (10 Sep) and SDA Tranche 1 Transport Layer A (30 Sep) confirm continued launch cadence." },
+      { "date": "2026-09-14", "note": "No new award; Army's Valkyrie laser program redirected into the Navy-led E-HEL effort feeding Golden Dome's Joint Laser Warfighting System." },
+      { "date": "2026-09-16", "note": "No new award; AFA 2026 conference (14-16 Sep) featured Golden Dome leadership and the venue for the separate Space Force space-control-weapons disclosure." }
     ]
   },
   {
     "name": "Ukraine Ceasefire Diplomacy / Zaporizhzhia",
     "firstDetected": "2026-09-06",
-    "status": "ZNPP remains on stable, restored external power. Ukrainian forces struck two major Russian oil facilities overnight 13-14 Sep, including the TANECO refinery in Tatarstan, extending the deep-strike campaign against Russian energy infrastructure further from the front; Russia launched 102 drones against Ukraine overnight 14 Sep, a lighter barrage than the 453/323-drone waves earlier in the week. Zelensky reiterated Ukraine's willingness to accept a mutual energy-strikes moratorium consistent with Trump's prior statement; the narrower 30-day energy-halt commitment remains unconfirmed as violated by a grid-specific strike.",
-    "importance": "High — shapes European security and munitions/air-defense demand; the ZNPP dimension carries independent nuclear-safety significance.",
+    "status": "ZNPP remains on stable, restored external power. Trump publicly claimed on 14 Sep that Russia and Ukraine agreed to a mutual energy-infrastructure strike halt; Zelensky disputed the characterization as merely 'a proposal for a mutual halt,' and Ukraine continued striking Russian refining infrastructure (the TANECO refinery, 13-14 Sep) while U.S. diesel prices hit a record ~$6/gallon. Trump separately told Zelensky to stop targeting Russian diesel refineries specifically.",
+    "importance": "High — shapes European security and munitions/air-defense demand; the energy-strike dispute now also carries direct U.S. domestic fuel-price politics.",
     "direction": "UNCERTAIN",
     "indicatorLevel": "ORANGE",
-    "assessment": "The deep-strike campaign against Russian energy infrastructure continues to expand in geographic reach (Tatarstan) even as nightly drone-barrage intensity eased somewhat versus the prior cycle's peaks. Zelensky's renewed public openness to an energy moratorium keeps that diplomatic option alive without a confirmed breakthrough.",
+    "assessment": "The claimed halt is contested at the head-of-state level rather than confirmed; the prior forecast that it would not hold cleanly is now resolved CORRECT. Domestic U.S. fuel-cost pressure is a new, visible input into the diplomacy.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-15 -- Ukrainian strikes reach the TANECO refinery in Tatarstan; lighter (102-drone) Russian overnight barrage; Zelensky reiterates energy-moratorium willingness.",
-    "orgRelevance": "Macro A&D demand context; no direct organizational action. The expanding deep-strike geography and any energy-moratorium movement remain relevant to European energy-security and airspace monitoring.",
-    "nextIndicator": "A confirmed strike specifically on Ukrainian power/grid infrastructure; any formal mutual energy-moratorium announcement; further deep-strike geographic expansion.",
+    "lastChange": "2026-09-16 -- Trump's claimed mutual energy-strike halt publicly disputed by Zelensky; Ukraine continued refinery strikes; record U.S. diesel price reported.",
+    "orgRelevance": "Macro A&D demand context; treat any reported ceasefire as unconfirmed until both sides jointly affirm it. The expanding deep-strike campaign and fuel-market volatility remain relevant to European energy-security and logistics-cost monitoring.",
+    "nextIndicator": "A specific, mutually acknowledged grid-infrastructure strike; any formal joint halt announcement with a verification mechanism; further Trump-Zelensky public friction.",
     "history": [
-      {
-        "date": "2026-09-07",
-        "note": "Trump-Putin call produces a reported 30-day energy-infrastructure strike-halt commitment contingent on Kyiv reciprocity."
-      },
-      {
-        "date": "2026-09-08",
-        "note": "ZNPP external power restored 7 Sep after 18 days on diesel."
-      },
-      {
-        "date": "2026-09-09",
-        "note": "3-day capital-strike pause lapses on schedule; Russia launches a mass attack on Kyiv."
-      },
-      {
-        "date": "2026-09-11",
-        "note": "Ukraine's deepest-yet drone strike (~3,000km) hits a major Russian gas complex; a Russian drone enters Moldovan airspace during Zelensky's departure from Chisinau; Poland says a border-crossing threat was prevented."
-      },
-      {
-        "date": "2026-09-13",
-        "note": "Russia strikes the Yahodyn Ukraine-Poland border crossing; ISW assesses the strike may have been intended to target departing European officials; massed drone/Banderol barrages continue on both sides."
-      },
-      {
-        "date": "2026-09-15",
-        "note": "Ukrainian strikes hit the TANECO refinery in Tatarstan and a second major Russian oil facility overnight; Russia's overnight drone barrage eases to 102; Zelensky reiterates openness to a mutual energy-strikes moratorium."
-      }
+      { "date": "2026-09-07", "note": "Trump-Putin call produces a reported 30-day energy-infrastructure strike-halt commitment contingent on Kyiv reciprocity." },
+      { "date": "2026-09-08", "note": "ZNPP external power restored 7 Sep after 18 days on diesel." },
+      { "date": "2026-09-09", "note": "3-day capital-strike pause lapses on schedule; Russia launches a mass attack on Kyiv." },
+      { "date": "2026-09-11", "note": "Ukraine's deepest-yet drone strike (~3,000km) hits a major Russian gas complex; a Russian drone enters Moldovan airspace during Zelensky's departure from Chisinau; Poland says a border-crossing threat was prevented." },
+      { "date": "2026-09-13", "note": "Russia strikes the Yahodyn Ukraine-Poland border crossing; ISW assesses the strike may have been intended to target departing European officials; massed drone/Banderol barrages continue on both sides." },
+      { "date": "2026-09-15", "note": "Ukrainian strikes hit the TANECO refinery in Tatarstan and a second major Russian oil facility overnight; Russia's overnight drone barrage eases to 102; Zelensky reiterates openness to a mutual energy-strikes moratorium." },
+      { "date": "2026-09-16", "note": "Trump publicly claims a mutual energy-strike halt is in effect; Zelensky disputes it as a proposal, not an agreement; Ukraine continues striking Russian refining infrastructure; U.S. diesel hits a record ~$6/gallon; Trump separately asks Zelensky to stop targeting Russian diesel refineries." }
     ]
   },
   {
     "name": "China-Taiwan Pressure / Trump-Xi Summit",
     "firstDetected": "2026-09-06",
-    "status": "No new Taiwan-specific PLA incident this cycle. Analyst consensus (CSIS, Foreign Policy, S&P Global) now converges on the confirmed 23-25 Sep Xi Jinping Washington visit (24 Sep Trump meeting) most likely producing a one-year Busan trade-truce rollover rather than a comprehensive trade or Taiwan-specific outcome; the summit falls 47 days before the truce's first suspension expires and 64 days before separate U.S.-specific restrictions could return.",
-    "importance": "High — Indo-Pacific deterrence, FMS, interoperability, and the broader U.S.-China relationship; the confirmed summit now links this thread to the rare-earth and Iran-conflict threads with a hard date.",
+    "status": "No new Taiwan-specific PLA incident this cycle. The confirmed 23-25 Sep Xi Jinping Washington visit (24 Sep Trump meeting) remains expected by analyst consensus (CSIS, Foreign Policy, S&P Global) to produce a one-year Busan trade-truce rollover rather than a comprehensive trade or Taiwan-specific outcome.",
+    "importance": "High — Indo-Pacific deterrence, FMS, interoperability, and the broader U.S.-China relationship; the confirmed summit links this thread to the rare-earth and Iran-conflict threads with a hard date.",
     "direction": "UNCERTAIN",
     "indicatorLevel": "YELLOW",
-    "assessment": "The summit's realistic 'good' outcome is stabilization, not resolution, on both the trade/rare-earth and Taiwan dimensions. Taiwan-specific gray-zone activity continues at baseline without a new incident this cycle.",
+    "assessment": "The summit's realistic 'good' outcome remains stabilization, not resolution, on both the trade/rare-earth and Taiwan dimensions. Taiwan-specific gray-zone activity continues at baseline without a new incident this cycle.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-15 -- analyst consensus firms around a Busan-truce rollover as the summit's likely (limited) outcome; no new Taiwan-specific incident.",
+    "lastChange": "2026-09-16 -- no new Taiwan-specific incident; summit remains nine days out with expectations unchanged.",
     "orgRelevance": "Reinforces maritime ISR, undersea, counter-blockade, resilient PNT demand; calibrate any internal summit-related briefing to 'stabilization, not resolution' as the base case.",
     "nextIndicator": "Pre-summit signaling on trade/rare-earth or Taiwan; the summit itself on 24 Sep; any large named PLA exercise before then.",
     "history": [
-      {
-        "date": "2026-09-02",
-        "note": "Taiwan MND 2026 report to Legislative Yuan emphasizes PLA landing capability."
-      },
-      {
-        "date": "2026-09-08",
-        "note": "Reporting elaborates the MND report's framing as specifically blockade-focused ('joint blockade and control')."
-      },
-      {
-        "date": "2026-09-11",
-        "note": "24 Sep summit remains the US-side plan; no fresh Chinese confirmation as of this cycle; summit now under two weeks out."
-      },
-      {
-        "date": "2026-09-14",
-        "note": "China's FM Wang Yi formally confirms Xi's 24 Sep Washington visit, resolving the prior confirmation gap; no new Taiwan-specific incident."
-      },
-      {
-        "date": "2026-09-15",
-        "note": "Analyst consensus (CSIS, Foreign Policy, S&P Global) converges on a one-year Busan-truce rollover as the summit's realistic outcome; no new Taiwan-specific incident."
-      }
+      { "date": "2026-09-02", "note": "Taiwan MND 2026 report to Legislative Yuan emphasizes PLA landing capability." },
+      { "date": "2026-09-08", "note": "Reporting elaborates the MND report's framing as specifically blockade-focused ('joint blockade and control')." },
+      { "date": "2026-09-11", "note": "24 Sep summit remains the US-side plan; no fresh Chinese confirmation as of this cycle; summit now under two weeks out." },
+      { "date": "2026-09-14", "note": "China's FM Wang Yi formally confirms Xi's 24 Sep Washington visit, resolving the prior confirmation gap; no new Taiwan-specific incident." },
+      { "date": "2026-09-15", "note": "Analyst consensus (CSIS, Foreign Policy, S&P Global) converges on a one-year Busan-truce rollover as the summit's realistic outcome; no new Taiwan-specific incident." },
+      { "date": "2026-09-16", "note": "No new Taiwan-specific incident; summit expectations unchanged at nine days out." }
     ]
   },
   {
     "name": "DoD Leadership Continuity",
     "firstDetected": "2026-09-06",
-    "status": "No formal Army Secretary nomination; Adam Telle continues as acting Secretary. Sean Parnell remains the reported frontrunner but reporting continues to flag confirmation-risk factors (partisan profile, disputed past domestic-allegation reporting he denies); Mike Obadal and Marc Andersen remain in the field. DoD's first overarching cyber strategy since 2023 -- reported to include roughly nine strategic initiatives and 34 lines of effort emphasizing offensive cyber integrated into routine military planning -- remains unreleased past its earlier 'as soon as next week' informal timeline.",
+    "status": "No formal Army Secretary nomination; Adam Telle continues as acting Secretary; Sean Parnell remains the reported frontrunner but faces confirmation-risk factors. DoD's first overarching cyber strategy since 2023 remained unreleased through the AFA 2026 conference (14-16 Sep), despite earlier sourcing suggesting release 'as soon as next week.'",
     "importance": "Medium — policy-continuity risk during the CMMC review, reprogramming cycle, and active CENTCOM operations; the unreleased cyber strategy has separate contracting-relevant implications.",
     "direction": "UNCERTAIN",
     "indicatorLevel": "YELLOW",
-    "assessment": "Both continuity items have now slipped past their informally reported timelines without resolution, compounding policy-continuity risk during the ongoing CMMC review.",
+    "assessment": "Both continuity items have now slipped past their informally reported timelines without resolution, including through the AFA conference — a venue where such an announcement might plausibly have been made.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-15 -- no new nomination; DoD cyber strategy remains unreleased past its informal early-September expectation, now reported with more specificity (~9 initiatives, 34 lines of effort).",
+    "lastChange": "2026-09-16 -- no new nomination or cyber-strategy release, including through the AFA 2026 conference window.",
     "orgRelevance": "Monitor for Army acquisition-priority shifts; enterprises supporting DoD cyber missions should watch for the strategy's release and its offensive-cyber emphasis.",
     "nextIndicator": "Formal nomination of a permanent Army Secretary; SASC confirmation-hearing scheduling; formal public release of the DoD cyber strategy and action plan.",
     "history": [
-      {
-        "date": "2026-09-01",
-        "note": "NPR reports Driscoll resignation amid clashes with the Defense Secretary."
-      },
-      {
-        "date": "2026-09-07",
-        "note": "Adam Telle named acting Army Secretary; Sean Parnell emerges as leading contender for the permanent post."
-      },
-      {
-        "date": "2026-09-10",
-        "note": "Candidate field widens to include Obadal/Andersen/Anderson and Mast; reporting surfaces a prior family-court finding relevant to Parnell's confirmation prospects."
-      },
-      {
-        "date": "2026-09-14",
-        "note": "No new nomination or candidate development; DoD's cyber strategy remains unreleased despite earlier expectations of release 'as soon as next week'; the AFA Air, Space & Cyber Conference (14-16 Sep) opens as a potential venue for further signal."
-      },
-      {
-        "date": "2026-09-15",
-        "note": "No new nomination or cyber-strategy release; strategy reporting adds specificity (~9 initiatives, 34 lines of effort) without a confirmed release date."
-      }
+      { "date": "2026-09-01", "note": "NPR reports Driscoll resignation amid clashes with the Defense Secretary." },
+      { "date": "2026-09-07", "note": "Adam Telle named acting Army Secretary; Sean Parnell emerges as leading contender for the permanent post." },
+      { "date": "2026-09-10", "note": "Candidate field widens to include Obadal/Andersen/Anderson and Mast; reporting surfaces a prior family-court finding relevant to Parnell's confirmation prospects." },
+      { "date": "2026-09-14", "note": "No new nomination or candidate development; DoD's cyber strategy remains unreleased despite earlier expectations of release 'as soon as next week'; the AFA Air, Space & Cyber Conference (14-16 Sep) opens as a potential venue for further signal." },
+      { "date": "2026-09-15", "note": "No new nomination or cyber-strategy release; strategy reporting adds specificity (~9 initiatives, 34 lines of effort) without a confirmed release date." },
+      { "date": "2026-09-16", "note": "No new nomination or cyber-strategy release; the AFA conference concluded (16 Sep) without either item surfacing." }
     ]
   },
   {
     "name": "DoD AI Vendor Governance / Anthropic Dispute",
     "firstDetected": "2026-09-08",
-    "status": "DoD's GenAI.mil rollout of ChatGPT/Grok to roughly 3 million personnel continues, with Claude still excluded, consistent with the stated end-of-September removal timeline. No new D.C. Circuit ruling or filing was identified this cycle on Anthropic's pending appeal of the 'supply chain risk' designation (oral argument was 19 May 2026; a separate district-court ruling against the designation came 27-28 Aug 2026).",
+    "status": "DoD's GenAI.mil rollout of ChatGPT/Grok to roughly 3 million personnel continues, with Claude still excluded, consistent with the stated end-of-September removal timeline. No new D.C. Circuit ruling or filing was identified this cycle on Anthropic's pending appeal (oral argument was 19 May 2026, with judges reported divided; a separate district-court ruling against the designation came 27-28 Aug 2026).",
     "importance": "Medium — a precedent-relevant test of whether AI-vendor safety guardrails on autonomous-weapons/surveillance use cases can trigger adverse government procurement action, and whether a court ruling against such action restores market access while further litigation proceeds.",
     "direction": "UNCERTAIN",
     "indicatorLevel": "YELLOW",
     "assessment": "DoD continues proceeding with its stated removal timeline independent of the district-court ruling, reinforcing that the department intends to keep litigating rather than concede the underlying dispute. No change this cycle.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-14 — no new legal filing or ruling identified; GenAI.mil rollout and end-of-September removal timeline continue unchanged.",
+    "lastChange": "2026-09-16 -- no new legal filing or ruling identified; GenAI.mil rollout and end-of-September removal timeline continue unchanged.",
     "orgRelevance": "Relevant to organizations assessing DoD AI-vendor stability or considering similar safety-guardrail positions in government contracting; not a direct action item absent a specific GenAI.mil dependency.",
     "nextIndicator": "D.C. Circuit ruling on Anthropic's pending appeal; confirmation that removal completed by month-end.",
     "history": [
-      {
-        "date": "2026-08-28",
-        "note": "Federal judge rules the Pentagon's 'supply chain risk' designation of Anthropic unlawful."
-      },
-      {
-        "date": "2026-09-08",
-        "note": "Pentagon CTO confirms DoD will proceed with removing Anthropic from GenAI.mil by late September despite the ruling; second suit pending in D.C. Circuit."
-      },
-      {
-        "date": "2026-09-11",
-        "note": "No new legal development; standalone AI-governance bills show no confirmed floor action, with provisions continuing to move primarily via the FY26 NDAA."
-      },
-      {
-        "date": "2026-09-14",
-        "note": "No new legal development; GenAI.mil rollout and removal timeline continue unchanged."
-      }
-    ]
-  },
-  {
-    "name": "Identity-Verification Supply Chain Breach (IDScan.net)",
-    "firstDetected": "2026-09-14",
-    "status": "IDScan.net's confirmed breach is now reported to have exposed identity-verification customers of Hertz, Target, FedEx, Motorola Solutions, Jack Henry, Caesars Entertainment, and over 1,000 cannabis dispensaries nationwide. Nine putative class actions were docketed in the U.S. District Court for the Eastern District of Louisiana between 2-4 Sep, growing toward the 'over a dozen' figure reported by 10 Sep; no MDL consolidation has been reported yet; the FBI investigation continues.",
-    "importance": "High — resolves a prior gap (vendor unconfirmed) and confirms a systemic identity-verification supply-chain compromise with active, growing litigation and unresolved downstream-fraud exposure.",
-    "direction": "ESCALATING",
-    "indicatorLevel": "ORANGE",
-    "assessment": "Confirms the breach's cross-sector reach extends well beyond a single industry, making document-based identity proofing a systemic fraud-enablement concern across retail, hospitality, financial services, and logistics simultaneously.",
-    "confidence": "HIGH",
-    "lastChange": "2026-09-15 -- named affected downstream customer categories (Hertz, Target, FedEx, Motorola Solutions, Jack Henry, Caesars, cannabis retail) confirmed; litigation count continues climbing.",
-    "orgRelevance": "Directly confirm whether the organization or its KYC/onboarding vendors use IDScan.net; review contractual indemnification and breach-notification obligations.",
-    "nextIndicator": "Consolidation of the class actions (e.g., an MDL); any FTC or state-AG enforcement action; confirmed downstream fraud incidents traceable to the exposed data.",
-    "history": [
-      {
-        "date": "2026-09-01",
-        "note": "Brian Krebs first reports the 'Nexus' dark-web platform advertising 153M+ driver's-license scans; FBI investigating."
-      },
-      {
-        "date": "2026-09-04",
-        "note": "IDScan.net issues a security notice confirming unauthorized access to its cloud-platform customer data."
-      },
-      {
-        "date": "2026-09-10",
-        "note": "Over a dozen class-action lawsuits filed against IDScan.net, up from four the prior week."
-      },
-      {
-        "date": "2026-09-14",
-        "note": "Thread formalized in continuity tracking given the vendor confirmation and mounting litigation."
-      },
-      {
-        "date": "2026-09-15",
-        "note": "Reporting confirms breach exposure spans identity-verification customers of Hertz, Target, FedEx, Motorola Solutions, Jack Henry, Caesars Entertainment, and 1,000+ cannabis dispensaries; nine class actions docketed 2-4 Sep."
-      }
+      { "date": "2026-08-28", "note": "Federal judge rules the Pentagon's 'supply chain risk' designation of Anthropic unlawful." },
+      { "date": "2026-09-08", "note": "Pentagon CTO confirms DoD will proceed with removing Anthropic from GenAI.mil by late September despite the ruling; second suit pending in D.C. Circuit." },
+      { "date": "2026-09-11", "note": "No new legal development; standalone AI-governance bills show no confirmed floor action, with provisions continuing to move primarily via the FY26 NDAA." },
+      { "date": "2026-09-14", "note": "No new legal development; GenAI.mil rollout and removal timeline continue unchanged." },
+      { "date": "2026-09-16", "note": "No new legal development; D.C. Circuit judges remain reported as divided from May oral argument with no ruling yet." }
     ]
   },
   {
     "name": "Pentagon AI-Assisted Software Acquisition (Accelerated Mission Software / Project Gatekeeper)",
     "firstDetected": "2026-09-15",
-    "status": "DoD CIO Kirsten Davies signed the 'Accelerated Mission Software' instruction on 31 Aug 2026, effective 8 Sep, mandating agile DevSecOps acquisition models and directing DoD components to use AI to modernize software systems and accelerate capability delivery. A companion effort, 'Project Gatekeeper,' uses AI-assisted code evaluation to speed authorizations to operate. This lands in the same CIO organization currently synthesizing the non-public CMMC Reform Task Force determination.",
+    "status": "DoD CIO Kirsten Davies's 'Accelerated Mission Software' instruction (signed 31 Aug, effective 8 Sep) and the companion 'Project Gatekeeper' AI-assisted code-evaluation effort remain in effect with no new guidance this cycle. DIU's parallel AI sensor-fusion solicitation for space/missile threat detection continues toward its 24 Sep proposal deadline.",
     "importance": "High -- converts AI-assisted software development from a voluntary adoption trend into formal Pentagon acquisition policy, with direct implications for contractor DevSecOps maturity and competitive positioning.",
-    "direction": "ESCALATING",
+    "direction": "STABLE",
     "indicatorLevel": "YELLOW",
-    "assessment": "A newly formalized institutional requirement rather than an incremental adoption story. Because the same DoD CIO office is simultaneously handling CMMC reform, watch for the two acquisition-modernization tracks (software velocity and cyber-assessment scaling) to begin cross-referencing each other in future guidance.",
+    "assessment": "No material change this cycle; the instruction remains a newly formalized institutional requirement. The approaching 24 Sep DIU deadline is the nearer-term concrete date to watch.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-15 -- thread opened on confirmation that the Accelerated Mission Software instruction is signed and in effect, paired with the DIU's 24 Sep AI-fusion-tool solicitation deadline for space/missile threat detection.",
-    "orgRelevance": "Review DevSecOps and AI-assisted code-review maturity against the new baseline for any Pentagon software-delivery capture strategy; expect solicitation language to begin referencing Project Gatekeeper-style criteria.",
+    "lastChange": "2026-09-16 -- no new guidance or solicitation language referencing the instruction; DIU AI sensor-fusion deadline (24 Sep) unchanged.",
+    "orgRelevance": "Review DevSecOps and AI-assisted code-review maturity against the new baseline for any Pentagon software-delivery capture strategy; track the DIU solicitation if sensor-fusion/space-domain-awareness AI is relevant.",
     "nextIndicator": "Solicitation language referencing Project Gatekeeper or Accelerated Mission Software; follow-on CIO guidance or ATO-cycle-time metrics; outcome of DIU's 24 Sep AI-fusion-tool solicitation.",
     "history": [
-      {
-        "date": "2026-08-31",
-        "note": "DoD CIO Kirsten Davies signs the 'Accelerated Mission Software' instruction."
-      },
-      {
-        "date": "2026-09-08",
-        "note": "Instruction takes effect, mandating agile DevSecOps acquisition and AI-assisted software modernization DoD-wide."
-      },
-      {
-        "date": "2026-09-15",
-        "note": "Thread formalized in continuity tracking following DefenseScoop/GovCIO reporting on the instruction and Project Gatekeeper's AI-assisted code-evaluation component."
-      }
+      { "date": "2026-08-31", "note": "DoD CIO Kirsten Davies signs the 'Accelerated Mission Software' instruction." },
+      { "date": "2026-09-08", "note": "Instruction takes effect, mandating agile DevSecOps acquisition and AI-assisted software modernization DoD-wide." },
+      { "date": "2026-09-15", "note": "Thread formalized in continuity tracking following DefenseScoop/GovCIO reporting on the instruction and Project Gatekeeper's AI-assisted code-evaluation component." },
+      { "date": "2026-09-16", "note": "No new guidance or solicitation language this cycle; DIU's 24 Sep AI-fusion-tool deadline remains the nearest concrete milestone." }
+    ]
+  },
+  {
+    "name": "Space Control / Orbital Weapons Disclosure",
+    "firstDetected": "2026-09-16",
+    "status": "Air Force Secretary Troy Meink stated in a keynote at the AFA 2026 Air, Space & Cyber Conference (14 Sep) that the Space Force has deployed on-orbit space-control weapons capable of defending the joint force against 'hostile adversary action' -- the first direct U.S. acknowledgment of offensive/defensive weapons in orbit. He declined to specify type (kinetic vs. non-kinetic), scale, or deployment date, and noted the U.S. has tracked Chinese and Russian counter-space development for over a decade.",
+    "importance": "High — ends a long-standing U.S. policy of deliberate ambiguity on space weapons, reframing space as a domain of open declaratory posture with downstream implications for doctrine, acquisition, and adversary signaling.",
+    "direction": "ESCALATING",
+    "indicatorLevel": "YELLOW",
+    "assessment": "ASSESSED as a deliberate declaratory-posture shift rather than evidence of a new program; the disclosure itself, not the underlying capability, is what changed. Confidence in the broader significance is MODERATE pending further elaboration or adversary response.",
+    "confidence": "MODERATE",
+    "lastChange": "2026-09-16 -- thread opened following Meink's on-the-record AFA 2026 disclosure; no further U.S. elaboration or adversary response identified yet.",
+    "orgRelevance": "Relevant to any space-domain-awareness, counter-space, or resilient-satellite-architecture capability roadmap; no immediate action implied absent further detail.",
+    "nextIndicator": "Further U.S. official elaboration on capability type, scale, or timeline; Chinese or Russian official response or counter-disclosure; any Golden Dome or Space Force budget language explicitly referencing space-control weapons.",
+    "history": [
+      { "date": "2026-09-14", "note": "USAF Secretary Meink discloses at AFA 2026 that the Space Force has deployed on-orbit space-control weapons; no operational specifics given." },
+      { "date": "2026-09-16", "note": "Thread formalized in continuity tracking; no further elaboration or adversary response identified this cycle." }
     ]
   }
 ]

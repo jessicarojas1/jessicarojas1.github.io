@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-15",
+  "updated": "2026-09-16",
   "summary": {
-    "correct": 5,
+    "correct": 6,
     "incorrect": 2,
     "partial": 3,
-    "pending": 17,
-    "note": "2026-09-15: no forecasts resolved this cycle. Four new PENDING forecasts added tracking Petroline attribution timing, a GitLab-exfiltration downstream compromise, the DoD cyber strategy's release, and Pentagon software solicitations referencing the new Accelerated Mission Software / Project Gatekeeper acquisition policy. Existing PENDING forecasts on Petroline restoration, the Salalah reschedule, a Cisco FMC DIB victim, and the Trump-Xi summit outcome carry forward with refreshed notes reflecting this cycle's new detail."
+    "pending": 19,
+    "note": "2026-09-16: fc-2026-09-07-energyhalt resolved CORRECT -- Trump's claimed mutual Russia-Ukraine energy-strike halt was publicly disputed by Zelensky as a proposal, and Ukraine continued striking Russian refining infrastructure, meeting the forecast's contested-violation-claim criterion. Three new PENDING forecasts added tracking further detail on the Space Force's on-orbit space-control-weapons disclosure, a first enforcement case under China's new exit-control regulation, and whether a durable, mutually verified Russia-Ukraine energy-strike halt materializes."
   },
   "forecasts": [
     {
@@ -58,9 +58,9 @@
       "date": "2026-09-07",
       "forecast": "The reported 30-day Ukraine energy-infrastructure strike-halt commitment will not hold cleanly for its full term without at least one contested violation claim from either side.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "10 Sep ISW reporting (deep Ukrainian strike on a Russian gas complex; Russian strikes on 13 Ukrainian oblasts) again did not specifically target grid infrastructure on either side, so this narrower forecast remains unresolved. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-16",
+      "note": "Trump publicly claimed on 14 Sep that a mutual halt was in effect; Zelensky disputed the characterization as merely 'a proposal for a mutual halt'; Ukraine continued striking Russian refining infrastructure (the TANECO refinery, 13-14 Sep) amid a record U.S. diesel price -- a clear contested-violation-claim scenario, resolved well within the 30-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-09-07-znpp",
@@ -250,6 +250,33 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "The instruction took effect 8 Sep 2026; no solicitation referencing it has been identified yet. Tracked on the new Pentagon AI-Assisted Software Acquisition thread."
+    },
+    {
+      "id": "fc-2026-09-16-spaceforce-disclosure",
+      "date": "2026-09-16",
+      "forecast": "U.S. officials will provide additional public detail on the type (kinetic vs. non-kinetic) or scale of the Space Force's disclosed on-orbit space-control weapons within 90 days.",
+      "horizon": "0-90 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "USAF Secretary Meink's 14 Sep AFA disclosure gave no operational specifics. Tracked on the new Space Control / Orbital Weapons Disclosure thread."
+    },
+    {
+      "id": "fc-2026-09-16-exitcontrol-enforcement",
+      "date": "2026-09-16",
+      "forecast": "A specific, publicly reported exit-ban enforcement case under China's new exit-control regulation (rare earths/batteries/semiconductors) will surface within 60 days.",
+      "horizon": "0-60 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "The regulation took effect 15 Sep 2026 with no enforcement case yet publicly reported. Tracked on the Critical Minerals / Rare-Earth Magnets thread."
+    },
+    {
+      "id": "fc-2026-09-16-energy-dispute",
+      "date": "2026-09-16",
+      "forecast": "Ukraine and Russia will not achieve a durable, mutually verified halt on energy-infrastructure strikes within 30 days, despite Trump's push for one.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Trump's 14 Sep claimed halt was immediately disputed by Zelensky and strikes continued; this forecast tracks whether a durable, jointly verified halt emerges within the window regardless. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     }
   ]
 }
