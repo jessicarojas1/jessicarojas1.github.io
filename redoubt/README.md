@@ -27,19 +27,18 @@ over the existing systems of record.
 - **Document system of record:** **Microsoft 365 / SharePoint Online** via Microsoft Graph (no duplication).
 - **Identity:** **Microsoft Entra ID** (OIDC SSO, MFA, B2B guests, Conditional Access).
 - **Portal data:** **PostgreSQL** (config, portal-owned content, metadata, audit).
-- **Compliance boundary:** built to hold controlled data up to **CUI** and **ITAR/export-controlled** — baseline **GCC High + a Gov-cloud (or air-gapped) enclave**, US-person access gating, FIPS-validated crypto.
-- **Delivery:** **Docker**; commercial **Render** for the non-CUI discovery/pilot only; controlled-data instances run in the authorized Gov-cloud enclave / Kubernetes.
+- **Compliance boundary (selected):** **hybrid** — the app is **self-hosted on-prem** in GMRE's CUI boundary; identity + documents are in **Microsoft 365 / Azure GCC High** (endpoints `login.microsoftonline.us`, `graph.microsoft.us`, `*.sharepoint.us`). Supports **CUI** and **ITAR/export-controlled** data with US-person access gating and FIPS-validated crypto.
+- **Delivery:** **Docker**; production runs **on-prem** (Kubernetes or hardened Linux) inside the CUI enclave. Commercial **Render** hosts only the non-CUI discovery microsite.
 
 ## Supported deployment models
 
 | Model | Guide | Notes |
 |------|-------|-------|
 | Local development | [`deployments/LOCAL_DEVELOPMENT.md`](deployments/LOCAL_DEVELOPMENT.md) | PHP built-in server or Docker |
-| Render (Docker) | [`render.yaml`](render.yaml) | Non-CUI pilot boundary only |
-| Single Linux server | _tracked_ (OPEN_ITEMS) | — |
-| Kubernetes | _tracked_ (OPEN_ITEMS) | Enclave path |
-| Azure (Commercial + Gov) | _tracked_ (OPEN_ITEMS) | GCC High for CUI |
-| AWS (Commercial + GovCloud) | _tracked_ (OPEN_ITEMS) | — |
+| Render (Docker) | [`render.yaml`](render.yaml) | Non-CUI discovery microsite only |
+| **On-prem single Linux server** | [`deployments/SINGLE_LINUX_SERVER.md`](deployments/SINGLE_LINUX_SERVER.md) | **Production (CUI enclave)** |
+| **On-prem Kubernetes** | [`deployments/KUBERNETES.md`](deployments/KUBERNETES.md) | **Production, HA (CUI enclave)** |
+| M365 / Azure GCC High config | [`deployments/AZURE.md`](deployments/AZURE.md) | Cloud SoR + identity (endpoints, app reg) |
 | Air-gapped | _tracked_ (OPEN_ITEMS) | Offline + self-hosted LLM |
 
 ## Repository layout

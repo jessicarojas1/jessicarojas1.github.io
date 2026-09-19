@@ -10,9 +10,19 @@ NIST SP 800-171 / DFARS** expectations. The portal is a **gate, not a vault**:
 authoritative data stays in approved repositories; the portal holds only config,
 portal-owned content, metadata/references, and audit.
 
+## Deployment boundary (selected)
+
+The application is **self-hosted on-prem** inside GMRE's own CUI boundary
+(Docker/Kubernetes or a hardened Linux host); identity and documents are in
+**Microsoft 365 / Azure GCC High**. GMRE owns and must accredit the on-prem
+app-tier boundary (physical, network, FIPS, boundary protection) under NIST
+800-171 / CMMC; Microsoft's authorization is inherited only for the M365 tier.
+All Microsoft calls use GCC High endpoints (`login.microsoftonline.us`,
+`graph.microsoft.us`, `*.sharepoint.us`).
+
 ## Identity & authentication
 
-- Microsoft Entra ID, OIDC SSO, **MFA enforced**.
+- Microsoft **Entra ID GCC High**, OIDC SSO, **MFA enforced**.
 - External subcontractors/customers via **Entra B2B guests** with **Conditional
   Access** (device/geo/risk) and **contract-bound expiry**.
 
@@ -49,9 +59,10 @@ M365 tenant. Portal never renders content the caller is not authorized to see.
 
 ## FIPS readiness
 
-Runs in **FIPS 140-validated** boundaries (Gov cloud / GCC High) — required
-because CUI/ITAR are in scope. TLS and cryptography are provided by the platform;
-the application adds no non-approved crypto.
+Required because CUI/ITAR are in scope. The M365 GCC High tier is FIPS-validated
+by Microsoft. On the **on-prem app tier**, GMRE enables **FIPS 140-validated
+crypto modules** (OS-level / OpenSSL FIPS provider) for TLS and hashing; the
+application adds no non-approved cryptography.
 
 ## Transport & session
 

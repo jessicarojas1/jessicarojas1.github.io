@@ -16,14 +16,18 @@
 
 ## 1. Deployment models
 
+**Selected production model: hybrid** — the app is **self-hosted on-prem** in
+GMRE's CUI boundary; **identity + documents are in Microsoft 365 / Azure GCC
+High**. Commercial Render hosts only the non-CUI discovery microsite.
+
 | Model | Boundary | Status |
 |-------|----------|--------|
 | Local dev | workstation | Ready — see `../deployments/LOCAL_DEVELOPMENT.md` |
-| Render (Docker) | Commercial (non-CUI) | Ready — `../render.yaml` |
-| Single Linux server | as authorized | Tracked |
-| Kubernetes | enclave/prod | Tracked |
-| Azure / AWS (Commercial + Gov) | GCC High for CUI | Tracked |
-| Air-gapped | enclave | Tracked |
+| Render (Docker) | Commercial (non-CUI discovery only) | Ready — `../render.yaml` |
+| **On-prem single Linux server** | **GMRE CUI enclave (production)** | Ready — `../deployments/SINGLE_LINUX_SERVER.md` |
+| **On-prem Kubernetes** | **GMRE CUI enclave (production, HA)** | Ready — `../deployments/KUBERNETES.md` |
+| M365 / Azure GCC High config | Cloud SoR + identity | Ready — `../deployments/AZURE.md` |
+| Air-gapped | fully disconnected enclave | Tracked (OPEN_ITEMS) |
 
 ## 2. Prerequisites
 
@@ -40,10 +44,17 @@ Render secret files, Key Vault, or Secrets Manager.
 | `APP_ENV` | `discovery` / `production` | Runtime mode |
 | `PORT` | `8080` | Listen port (set by host) |
 | `DATABASE_URL` (P1) | `postgres://…` | Portal database |
-| `ENTRA_TENANT_ID` (P1) | GUID | Entra tenant |
+| `MS_CLOUD` (P1) | `USGovernment` | Selects the GCC High national cloud |
+| `ENTRA_AUTHORITY_HOST` (P1) | `https://login.microsoftonline.us` | GCC High auth authority (NOT .com) |
+| `GRAPH_BASE_URL` (P1) | `https://graph.microsoft.us` | GCC High Graph endpoint (NOT .com) |
+| `ENTRA_TENANT_ID` (P1) | GUID | Entra GCC High tenant |
 | `ENTRA_CLIENT_ID` (P1) | GUID | App registration |
-| `ENTRA_CLIENT_SECRET` (P1) | secret | OIDC client secret |
-| `GRAPH_SCOPES` (P1) | `Sites.Read.All Files.Read.All` | Graph permissions |
+| `ENTRA_CLIENT_SECRET` (P1) | secret | OIDC client secret (secret manager) |
+| `GRAPH_SCOPES` (P1) | `https://graph.microsoft.us/.default` | Graph permissions (GCC High resource) |
+
+> **GCC High gotcha:** commercial endpoints (`graph.microsoft.com`,
+> `login.microsoftonline.com`) do **not** work against GCC High. Always use the
+> `.us` endpoints above; a wrong endpoint fails auth/Graph silently.
 
 ## 4. Database migrations
 

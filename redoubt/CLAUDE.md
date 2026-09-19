@@ -14,10 +14,13 @@ deployable scaffold exist. Do **not** claim MVP features exist; see `OPEN_ITEMS.
 
 ## Standing rules for this project
 
-- **CUI/ITAR are in scope.** REDOUBT must hold controlled data up to CUI and
-  ITAR/export-controlled information. Baseline boundary is GCC High + a Gov-cloud
-  (or air-gapped) enclave; enforce US-person access gating on export-controlled
-  zones and FIPS-validated crypto. Commercial Render is for non-CUI pilots only.
+- **CUI/ITAR are in scope; hosting is hybrid on-prem.** The app is self-hosted
+  on-prem in GMRE's CUI boundary; identity + documents are in Microsoft 365 /
+  Azure **GCC High**. Use GCC High endpoints only (`login.microsoftonline.us`,
+  `graph.microsoft.us`, `*.sharepoint.us`) — never the commercial `.com`
+  equivalents. Enforce US-person access gating on export-controlled zones and
+  FIPS-validated crypto on the on-prem host. Commercial Render is for the
+  non-CUI discovery microsite only.
 - **Discovery before features.** Do not build portal modules until the blocking
   decisions in `OPEN_ITEMS.md` (which authorized enclave/ATO, export-control gate,
   GCC High tenant, customer access) are resolved.
@@ -35,8 +38,9 @@ deployable scaffold exist. Do **not** claim MVP features exist; see `OPEN_ITEMS.
 - **Keep the doc set current.** Update `docs/`, `deployments/`, `README.md`,
   `OPEN_ITEMS.md`, and `database/schema.sql` in the same change as any feature,
   migration, or config change. `schema.sql` must always reflect the full combined schema.
-- **Deploy targets:** must stay Docker- and Render-deployable; production/CUI runs in
-  an authorized Gov/enclave boundary, not commercial Render.
+- **Deploy targets:** must stay Docker-deployable; production runs **on-prem**
+  (Kubernetes or hardened Linux) in the CUI enclave. Render is kept working for the
+  non-CUI discovery microsite only — never point it at controlled data.
 
 ## Roadmap gates (see the package §22 and `OPEN_ITEMS.md`)
 

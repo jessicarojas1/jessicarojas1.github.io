@@ -160,7 +160,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
     <div class="mast-meta">
       <span class="chip"><b>Prepared for:</b> Leadership · Program Mgmt · Enterprise Systems · ACT</span>
       <span class="chip"><b>Stack:</b> PHP 8.2 · PostgreSQL · Docker</span>
-      <span class="chip"><b>Boundary:</b> GCC High / Gov-cloud enclave (CUI//ITAR-capable)</span>
+      <span class="chip"><b>Hosting:</b> On-prem CUI enclave · M365 GCC High back end (CUI//ITAR)</span>
       <span class="chip"><b>SoR:</b> Microsoft 365 / SharePoint via Graph</span>
       <span class="chip"><b>Status:</b> Discovery / Pre-decisional</span>
       <span class="chip"><b>Date:</b> <?= $today ?></span>
@@ -215,10 +215,10 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
     <h2><span class="n">01</span> Executive Summary</h2>
     <h3 class="title">Build one secure portal framework, stand up many program instances</h3>
     <p class="lead">GMRE should build <b>REDOUBT</b>: a role-aware, secure program portal that becomes the single authoritative entry point for a program's prime staff, subcontractors, and (where contractually permitted) the Government customer. It replaces ad-hoc email, calls, and file-sharing with a governed "one-stop shop."</p>
-    <p>The decisive architectural choice is <b>platform, not project</b>. REDOUBT is delivered as a reusable framework — a custom <b>PHP web application</b> (Dockerized, Render/Kubernetes-deployable) acting as the <b>presentation and orchestration layer</b>, while <b>Microsoft 365 / SharePoint Online remains the authoritative system of record</b> for documents, surfaced through Microsoft Graph. New programs are created by <b>configuration</b>, not by forking code.</p>
+    <p>The decisive architectural choice is <b>platform, not project</b>. REDOUBT is delivered as a reusable framework — a custom <b>PHP web application</b> (Dockerized, <b>self-hosted on-prem</b> on Kubernetes or a hardened Linux host) acting as the <b>presentation and orchestration layer</b>, while <b>Microsoft 365 / SharePoint Online (GCC High) remains the authoritative system of record</b> for documents, surfaced through Microsoft Graph. New programs are created by <b>configuration</b>, not by forking code.</p>
     <div class="callout">
       <span class="k">Design commitment — CUI / ITAR are in scope</span>
-      <p style="margin:6px 0 0">REDOUBT is <b>designed to hold controlled information up to CUI and ITAR/export-controlled data</b>. The baseline boundary is therefore a <b>Microsoft 365 GCC High</b> tenant plus a <b>FedRAMP-Moderate-or-higher / DoD-aligned Gov-cloud (or air-gapped) enclave</b> — not commercial hosting. Commercial Render is used only for the non-CUI discovery microsite and early UX pilots. The remaining decisions are <em>which</em> authorized enclave/ATO and the offboarding SLA — not <em>whether</em> the system may carry CUI. See §11, §12, §23, §26.</p>
+      <p style="margin:6px 0 0">REDOUBT is <b>designed to hold controlled information up to CUI and ITAR/export-controlled data</b>. The selected deployment is <b>hybrid</b>: the application is <b>self-hosted on-prem</b> inside GMRE's own CUI boundary, with <b>Microsoft 365 / Azure GCC High</b> providing identity (Entra ID GCC High) and the document system of record (SharePoint Online GCC High). GMRE therefore owns the app-tier boundary (physical, network, FIPS, 800-171/CMMC) and inherits Microsoft's authorization only for the M365 tier. Commercial Render is used only for the non-CUI discovery microsite. The remaining decisions are the on-prem host/runtime specifics and the offboarding SLA — not <em>whether</em> the system may carry CUI. See §11, §12, §23, §26.</p>
     </div>
     <h4 class="sub">What we recommend building first (MVP)</h4>
     <p>A single program instance delivering: Program Home, Announcements, a permission-aware Document Library (Customer/COR + Project + Subcontractor-shared zones fronting SharePoint), Task Orders (metadata + linked docs), Job Requisitions, Program Directory, Quick Links, permission-aware Search, and a <b>self-service Content Administration</b> console — all behind SSO with MFA and full audit logging.</p>
@@ -453,7 +453,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
       <li><b>AuthZ:</b> centralized policy engine; every request authorized server-side against (program × company × role × zone).</li>
       <li><b>Isolation:</b> program instance boundary + company boundary enforced in every query.</li>
       <li><b>Export control (ITAR/EAR):</b> US-person attribute verified at provisioning and enforced as an access gate on export-controlled zones; license/agreement scoping where applicable; nationality never inferred client-side.</li>
-      <li><b>Compliance boundary:</b> runs in an <b>authorized GCC High / Gov-cloud (or air-gapped) enclave</b> with <b>FIPS 140-validated</b> crypto provided by the platform; the app adds no non-approved cryptography.</li>
+      <li><b>Compliance boundary:</b> the app runs in GMRE's <b>on-prem CUI enclave</b> (customer-owned 800-171/CMMC boundary) using <b>FIPS 140-validated</b> crypto modules (OpenSSL FIPS provider / OS-level); identity &amp; documents in M365 GCC High. The app adds no non-approved cryptography.</li>
       <li><b>Audit:</b> immutable, append-only audit log of access, admin, publish, provision, revoke; heightened retention for external and export-controlled access.</li>
       <li><b>Secrets:</b> from environment / cloud secrets manager (Key Vault / Secrets Manager) — never in source. Mirrors repo rule "never commit .env".</li>
       <li><b>Transport/session:</b> TLS only, HSTS, strict CSP + nonce, CSRF tokens on all writes, short sessions, revoke-on-offboard.</li>
@@ -481,30 +481,28 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
   <!-- 14 -->
   <section class="block" id="s14">
     <h2><span class="n">14</span> Application Architecture</h2>
-    <h3 class="title">PHP orchestration layer, M365 as system of record</h3>
+    <h3 class="title">On-prem PHP app in a CUI boundary, M365 GCC High as system of record</h3>
     <div class="mermaid">
 flowchart TB
   subgraph Client["Browser (Prime · Sub · Customer)"]
     UI["REDOUBT UI<br/>role-aware, responsive"]
   end
-  subgraph Edge["Edge / Hosting (Docker · Render/K8s)"]
-    LB["TLS / Reverse proxy<br/>HSTS · CSP · WAF"]
-  end
-  subgraph App["PHP Application (PHP 8.2, PSR-4)"]
-    FC["Front controller + Router"]
-    AUTHZ["AuthZ policy engine<br/>program × company × role × zone"]
-    MOD["Modules: announcements, docs,<br/>task orders, jobs, directory, admin"]
-    SVC["Graph client · Search · Notifications"]
-    AUD["Audit logger (append-only)"]
-  end
-  subgraph Data["Portal data plane"]
+  subgraph OnPrem["On-prem enclave — customer CUI boundary (NIST 800-171 / CMMC)"]
+    LB["TLS reverse proxy<br/>HSTS · CSP · WAF"]
+    subgraph App["PHP Application (PHP 8.2, PSR-4, Docker/K8s)"]
+      FC["Front controller + Router"]
+      AUTHZ["AuthZ policy engine<br/>program × company × role × zone · US-person gate"]
+      MOD["Modules: announcements, docs,<br/>task orders, jobs, directory, admin"]
+      SVC["Graph client · Search · Notifications"]
+      AUD["Audit logger (append-only)"]
+    end
     PG[("PostgreSQL<br/>config · content · metadata · audit")]
     CACHE[("Cache<br/>sessions · Graph tokens")]
   end
-  subgraph M365["Microsoft 365 (SoR)"]
-    ENTRA["Entra ID<br/>OIDC · MFA · B2B · Conditional Access"]
-    SP["SharePoint Online<br/>documents (per-program site)"]
-    GRAPH["Microsoft Graph API"]
+  subgraph M365["Microsoft 365 GCC High (cloud SoR)"]
+    ENTRA["Entra ID GCC High<br/>login.microsoftonline.us · MFA · B2B · CA"]
+    SP["SharePoint Online GCC High<br/>*.sharepoint.us (per-program site)"]
+    GRAPH["Microsoft Graph<br/>graph.microsoft.us"]
   end
   subgraph Ext["Enterprise systems"]
     ATS["ATS / Jobs"]
@@ -513,8 +511,8 @@ flowchart TB
   end
   UI --> LB --> FC --> AUTHZ --> MOD --> SVC
   MOD --> PG
-  AUTHZ --> ENTRA
-  SVC --> GRAPH --> SP
+  AUTHZ -->|OIDC| ENTRA
+  SVC -->|HTTPS: ExpressRoute/Gov internet| GRAPH --> SP
   SVC -. link/embed .-> ATS
   SVC -. link/embed .-> FIN
   SVC -. link/metadata .-> CON
@@ -527,12 +525,12 @@ flowchart TB
       <tbody>
         <tr><td>PHP 8.2 app (mandated)</td><td>Team standard (AEGIS/CITADEL family); fast to build; strong web ecosystem</td><td>Must self-manage AuthZ discipline &amp; typing</td><td>.NET, Node — rejected: not the mandated stack</td></tr>
         <tr><td>PostgreSQL</td><td>Reliable relational store for config/metadata/audit; JSONB for flexible module config</td><td>Ops/backup</td><td>MySQL (fine); SQLite (dev only)</td></tr>
-        <tr><td>Docker + Render/K8s</td><td>Portable, reproducible, meets deploy requirement; K8s path for enclave</td><td>Container ops</td><td>Bare VM (single-server guide provided)</td></tr>
+        <tr><td>Docker, self-hosted on-prem (K8s or hardened Linux)</td><td>Runs inside GMRE's CUI enclave; portable, reproducible; identical image across dev→prod</td><td>Customer owns runtime/patching &amp; boundary</td><td>Azure Gov App Service (rejected: not on-prem); Render (non-CUI only)</td></tr>
         <tr><td>M365/SharePoint via Graph</td><td>Keeps authoritative docs in a compliant, audited SoR; avoids shadow copies</td><td>Graph auth, throttling, perms mapping</td><td>Store docs in portal — rejected: reinvents DMS + compliance</td></tr>
         <tr><td>Entra ID (OIDC/B2B)</td><td>Enterprise SSO, MFA, external identity, Conditional Access built-in</td><td>Guest lifecycle governance</td><td>Local accounts — rejected: weak, non-compliant</td></tr>
       </tbody>
     </table></div>
-    <div class="callout"><span class="k">Deployment boundary</span><p style="margin:6px 0 0">Because CUI/ITAR are in scope, the <b>production boundary is GCC High + a FedRAMP-Moderate+/DoD-aligned Gov cloud</b> (Azure Government or AWS GovCloud) — or an air-gapped enclave. The identical Docker image runs in all of them; <b>commercial Render is used only for the non-CUI discovery microsite and early UX pilots</b>, never for controlled data.</p></div>
+    <div class="callout"><span class="k">Deployment boundary (selected)</span><p style="margin:6px 0 0"><b>Hybrid: the REDOUBT app is self-hosted on-prem</b> inside GMRE's own CUI boundary (Docker/Kubernetes on customer infrastructure), while <b>identity and documents live in Microsoft 365 / Azure GCC High</b> (Entra ID GCC High + SharePoint Online GCC High), reached over GCC High Graph endpoints. Consequence: GMRE <b>owns the app-tier authorization boundary</b> (physical, network, FIPS, 800-171/CMMC) and inherits Microsoft's authorization only for the M365 tier. Commercial Render is used only for the non-CUI discovery microsite, never for controlled data.</p></div>
   </section>
 
   <!-- 15 -->
@@ -674,7 +672,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
       <li>Every access, publish, and admin action produces an immutable audit record.</li>
       <li>A COR sees only the customer-shared library.</li>
       <li>Search returns only items the caller is authorized to see (verified with a negative test).</li>
-      <li>Deploys via Docker (non-CUI pilots on Render; controlled-data instances in the GCC High / Gov-cloud enclave); passes health check; secrets sourced from environment/secret manager, none in source.</li>
+      <li>Deploys via Docker to the <b>on-prem CUI enclave</b> (K8s or hardened Linux); connects to M365 GCC High over Graph (<code>graph.microsoft.us</code>); passes health check; secrets sourced from a secret manager/environment, none in source. (Commercial Render is used only for the non-CUI discovery microsite.)</li>
       <li>Offboarding a user revokes access and kills active sessions promptly.</li>
     </ul>
   </section>
@@ -702,7 +700,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     <h2><span class="n">23</span> Security / Compliance Considerations</h2>
     <ul>
       <li><b>CMMC / NIST SP 800-171 / DFARS 252.204-7012</b> shape the whole design: access control, MFA, audit, config mgmt, incident response, media protection, personnel offboarding.</li>
-      <li><b>CUI/ITAR are supported in-portal</b> within the GCC High + Gov-cloud enclave: Purview CUI labeling, US-person access gating for export-controlled zones, FIPS-validated crypto, and DFARS 252.204-7012 incident-reporting hooks. Export-controlled data is held under access control, not excluded.</li>
+      <li><b>CUI/ITAR are supported in-portal</b> across the on-prem app enclave + M365 GCC High back end: Purview CUI labeling, US-person access gating for export-controlled zones, FIPS-validated crypto, and DFARS 252.204-7012 incident-reporting hooks. Export-controlled data is held under access control, not excluded.</li>
       <li><b>Least privilege + need-to-know</b> is the default posture; access is additive and approved, never assumed.</li>
       <li><b>Records/retention</b> follows contract + corporate schedules; audit logs retained longer for external access.</li>
       <li><b>External identity</b> is the largest ongoing risk surface — governed by sponsored lifecycle + access reviews.</li>
@@ -716,7 +714,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     <div class="tablewrap"><table>
       <thead><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th><th>Owner</th><th>Residual</th></tr></thead>
       <tbody>
-        <tr><td>CUI/ITAR handled outside an authorized boundary</td><td>Low</td><td>Critical</td><td>GCC High + Gov-cloud enclave is the baseline; CI/CD blocks controlled data on non-authorized targets; Render limited to non-CUI</td><td>Cyber/Contracts</td><td>Low</td></tr>
+        <tr><td>On-prem enclave under-hardened (app tier not 800-171 compliant)</td><td>Med</td><td>Critical</td><td>Customer-owned boundary must meet 800-171/CMMC (physical, network, FIPS, boundary protection); assess before go-live; CI/CD blocks controlled data on non-authorized targets</td><td>Cyber/Ent. Systems</td><td>Med</td></tr>
         <tr><td>US-person / export-control gate bypass</td><td>Low</td><td>Critical</td><td>US-person attribute verified at provisioning + enforced server-side on export zones; access reviews; audit</td><td>Cyber/Export</td><td>Low</td></tr>
         <tr><td>Cross-subcontractor disclosure</td><td>Med</td><td>High</td><td>Per-company libraries + groups; server-side trim; negative tests</td><td>Cyber</td><td>Low</td></tr>
         <tr><td>SharePoint item-permission sprawl</td><td>High</td><td>High</td><td>Zone/library-level perms only; no per-item ACLs</td><td>Ent. Systems</td><td>Med</td></tr>
@@ -757,7 +755,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     <div class="tablewrap"><table>
       <thead><tr><th>Priority</th><th>Domain</th><th>Question</th></tr></thead>
       <tbody>
-        <tr><td><span class="badge b-block">Blocking</span></td><td>Compliance</td><td>Confirm the authorized GCC High tenant and the Gov-cloud ATO path (Azure Gov vs AWS GovCloud vs air-gapped) for the CUI/ITAR baseline.</td></tr>
+        <tr><td><span class="badge b-block">Blocking</span></td><td>Compliance</td><td>On-prem app-tier hardening &amp; ATO: how does the customer-owned CUI boundary (physical, network, FIPS modules, boundary protection) meet 800-171/CMMC? (Hosting decided: on-prem + M365 GCC High.)</td></tr>
         <tr><td><span class="badge b-block">Blocking</span></td><td>Export</td><td>Which zones are ITAR/EAR, and what is the authoritative source for a user's US-person status + any license/agreement scoping?</td></tr>
         <tr><td><span class="badge b-block">Blocking</span></td><td>Customer</td><td>Is Government/COR access contractually permitted, and under what terms?</td></tr>
         <tr><td><span class="badge b-block">Blocking</span></td><td>Identity</td><td>Do we have Entra + B2B external collaboration approved and licensed?</td></tr>
@@ -777,7 +775,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
   <section class="block" id="s27">
     <h2><span class="n">27</span> Recommended Next Actions</h2>
     <ol>
-      <li><b>Confirm the authorized enclave</b> (GCC High tenant + Gov-cloud ATO path) for the CUI/ITAR baseline (Cyber + Contracts).</li>
+      <li><b>Harden the on-prem enclave &amp; assemble ATO evidence</b> for the app tier (physical, network, FIPS, boundary), and provision the M365 GCC High tenant + Entra app registration (Cyber + Enterprise Systems).</li>
       <li><b>Define the export-control gate</b>: authoritative US-person source, ITAR/EAR zones, and license scoping (Cyber + Export/Empowered Official).</li>
       <li><b>Select the pilot program</b> and name its PM + Content Manager.</li>
       <li><b>Confirm M365/SharePoint tenant</b> and external collaboration (B2B) licensing/policy.</li>
@@ -926,7 +924,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     <h4 class="sub">Decisions Enterprise Systems can make</h4>
     <ul>
       <li>SharePoint site topology (hub + per-program sites), provisioning template approach.</li>
-      <li>Hosting/runtime within the approved boundary (Render pilot vs Gov cloud/K8s).</li>
+      <li>On-prem enclave runtime (Kubernetes vs hardened Linux), sizing/HA, and boundary hardening; GCC High tenant configuration + Graph/auth endpoints.</li>
       <li>Entra app registration, group naming, and B2B configuration.</li>
       <li>CI/CD, secrets management, environment topology (dev/test/prod).</li>
     </ul>
@@ -940,7 +938,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
 
     <h4 class="sub">Questions for Cybersecurity</h4>
     <ul>
-      <li>Confirm the GCC High tenant + Gov-cloud enclave (ATO path) for the CUI/ITAR baseline.</li>
+      <li>On-prem app-tier ATO evidence (800-171/CMMC for the CUI enclave) + confirm the GCC High tenant/app registration.</li>
       <li>Authoritative source for US-person status and the export-control (ITAR/EAR) access gate.</li>
       <li>Conditional Access baseline for external identities.</li>
       <li>Audit retention requirements, especially for external access.</li>
@@ -961,7 +959,8 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     <h4 class="sub">Confirmed facts</h4>
     <ul>
       <li>Stack is mandated <b>PHP</b>; must be <b>Docker/web-service deployable</b>.</li>
-      <li><b>CUI and ITAR/export-controlled data are in scope</b> and must be supported in-portal — baseline boundary is GCC High + a Gov-cloud/air-gapped enclave.</li>
+      <li><b>CUI and ITAR/export-controlled data are in scope</b> and must be supported in-portal.</li>
+      <li><b>Selected hosting is hybrid:</b> the app is <b>self-hosted on-prem</b> in GMRE's CUI boundary; identity &amp; documents are in <b>Microsoft 365 / Azure GCC High</b>.</li>
       <li>Project lives in the <code>jessicarojas1.github.io</code> repo as folder <code>redoubt/</code>.</li>
       <li>Business need, personas, and desired modules are per the Automation Core Team request.</li>
     </ul>
@@ -974,7 +973,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     </ul>
     <h4 class="sub">Unknowns / missing information</h4>
     <ul>
-      <li><em>Which</em> authorized enclave/ATO for the CUI/ITAR baseline (GCC High tenant confirmed as required; Azure Gov vs AWS GovCloud vs air-gapped) — <b>blocking</b>.</li>
+      <li>On-prem enclave <b>hardening &amp; ATO evidence</b> for the app tier (physical, network, FIPS modules, boundary protection) — decided <em>where</em> (on-prem + M365 GCC High); <em>how</em> it meets 800-171/CMMC is <b>blocking</b> before go-live.</li>
       <li>Authoritative source for US-person status and which zones are ITAR/EAR (drives the export-control gate) — <b>blocking</b>.</li>
       <li>Whether COR/customer access is contractually permitted.</li>
       <li>Authoritative locations/APIs for task orders, jobs (ATS), and finance.</li>

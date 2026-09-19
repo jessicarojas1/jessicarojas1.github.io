@@ -30,7 +30,7 @@ RUN printf '<Directory ${APACHE_DOCUMENT_ROOT}>\n\tAllowOverride All\n\tRequire 
       > /etc/apache2/conf-available/redoubt.conf \
  && a2enconf redoubt
 
-# Render/K8s provide PORT; Apache listens on 8080 (non-privileged).
+# Host/orchestrator (K8s, Docker, Render) provides PORT; Apache listens on 8080 (non-privileged).
 ENV PORT=8080
 RUN sed -ri 's/Listen 80$/Listen 8080/' /etc/apache2/ports.conf \
  && sed -ri 's/:80>/:8080>/' /etc/apache2/sites-available/*.conf

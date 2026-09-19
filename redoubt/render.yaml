@@ -3,9 +3,16 @@
 # already defines a blueprint, deploy REDOUBT as its own service by pointing a
 # new Render service at this directory (rootDir: redoubt) with env=docker.
 #
-# NOTE ON BOUNDARY: commercial Render is appropriate for the discovery microsite
-# and NON-CUI pilots only. A CUI-bearing production instance must run in a
-# FedRAMP-Moderate+/DoD-aligned boundary (see docs/SECURITY.md, OPEN_ITEMS.md).
+# NOTE ON BOUNDARY: commercial Render hosts the NON-CUI discovery microsite only.
+# The production app is SELF-HOSTED ON-PREM in GMRE's CUI boundary (Docker/K8s or
+# hardened Linux), talking to Microsoft 365 / Azure GCC High. See
+# deployments/SINGLE_LINUX_SERVER.md, deployments/KUBERNETES.md, deployments/AZURE.md.
+#
+# GCC High endpoints differ from commercial (used by the on-prem Phase 1 env):
+#   MS_CLOUD=USGovernment
+#   ENTRA_AUTHORITY_HOST=https://login.microsoftonline.us
+#   GRAPH_BASE_URL=https://graph.microsoft.us
+#   GRAPH_SCOPES=https://graph.microsoft.us/.default
 
 services:
   - type: web
