@@ -1,12 +1,25 @@
-# REDOUBT — On-Prem Kubernetes (Production, HA)
+# REDOUBT — Kubernetes (Primary Production Runtime)
 
-Operator guide for running REDOUBT on an **on-prem Kubernetes cluster inside
-GMRE's CUI boundary**, connecting to **Microsoft 365 / Azure GCC High**. Use this
-for high availability; for a single host see `SINGLE_LINUX_SERVER.md`; for the
-M365 side see `AZURE.md`.
+**Kubernetes is the standard REDOUBT runtime.** The same container image deploys
+to any authorized CUI boundary a program requires. Identity + documents always
+live in **Microsoft 365 / Azure GCC High**. For a non-K8s fallback see
+`SINGLE_LINUX_SERVER.md`; for the M365 back-end config see `AZURE.md`; for the
+AWS GovCloud specifics see `AWS.md`.
 
-> Boundary note: the cluster and its nodes are part of GMRE's customer-owned CUI
-> enclave and must meet NIST SP 800-171 / CMMC. See `../docs/SECURITY.md`.
+> Boundary note: whichever target you choose, the cluster and its nodes are part
+> of an authorized CUI boundary and must meet NIST SP 800-171 / CMMC. See
+> `../docs/SECURITY.md`.
+
+## 0. Target boundaries (pick per program)
+
+| Target | Cluster | Identity for Graph (preferred) | Secrets | Notes |
+|--------|---------|-------------------------------|---------|-------|
+| **On-prem** | vanilla K8s / OpenShift | Entra federated credential trusting the cluster OIDC issuer (secretless), else client cert | Vault / external-secrets | GMRE owns nodes + boundary |
+| **Azure Government (AKS)** | AKS in Azure Gov | **Entra Workload Identity** (federated, secretless) | Azure Key Vault (Gov) via CSI | Tightest Entra integration |
+| **AWS GovCloud (EKS)** | EKS in AWS GovCloud | Entra **federated credential** trusting the EKS OIDC issuer (secretless), else secret | AWS Secrets Manager via IRSA | Cross-cloud egress to GCC High — see `AWS.md` |
+
+All three use the **same image, same env-var contract, same GCC High endpoints**.
+Only Ingress, storage class, and the secret/identity source differ.
 
 ## 1. Deployment architecture
 
@@ -31,7 +44,8 @@ Pods egress to GCC High endpoints for identity and documents.
 
 ## 3. Prerequisites
 
-- On-prem Kubernetes (FIPS-enabled nodes) inside the CUI enclave.
+- A Kubernetes cluster in an authorized boundary (on-prem, AKS on Azure Gov, or
+  EKS on AWS GovCloud), FIPS-enabled nodes.
 - Ingress controller + trusted TLS certificate; a secret store (native Secrets,
   Sealed Secrets, or an external secrets operator).
 - PostgreSQL (in-cluster StatefulSet or external).

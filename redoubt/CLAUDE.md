@@ -14,13 +14,17 @@ deployable scaffold exist. Do **not** claim MVP features exist; see `OPEN_ITEMS.
 
 ## Standing rules for this project
 
-- **CUI/ITAR are in scope; hosting is hybrid on-prem.** The app is self-hosted
-  on-prem in GMRE's CUI boundary; identity + documents are in Microsoft 365 /
-  Azure **GCC High**. Use GCC High endpoints only (`login.microsoftonline.us`,
-  `graph.microsoft.us`, `*.sharepoint.us`) — never the commercial `.com`
-  equivalents. Enforce US-person access gating on export-controlled zones and
-  FIPS-validated crypto on the on-prem host. Commercial Render is for the
-  non-CUI discovery microsite only.
+- **CUI/ITAR are in scope; runtime is portable Kubernetes.** The same image
+  deploys to any authorized CUI boundary — **on-prem**, **Azure Government
+  (AKS)**, or **AWS GovCloud (EKS)**; identity + documents are always in Microsoft
+  365 / Azure **GCC High**. Use GCC High endpoints only
+  (`login.microsoftonline.us`, `graph.microsoft.us`, `*.sharepoint.us`) — never
+  the commercial `.com` equivalents. Enforce US-person access gating on
+  export-controlled zones and FIPS-validated crypto. Prefer secretless workload
+  identity (Entra Workload Identity on AKS; Entra federated credentials on EKS/
+  on-prem OIDC). Commercial Render is for the non-CUI discovery microsite only.
+- **Customer/COR access is contractually authorized** — the Customer/COR library
+  is in MVP; nothing reaches that zone without an explicit customer-approved gate.
 - **Discovery before features.** Do not build portal modules until the blocking
   decisions in `OPEN_ITEMS.md` (which authorized enclave/ATO, export-control gate,
   GCC High tenant, customer access) are resolved.
@@ -38,8 +42,9 @@ deployable scaffold exist. Do **not** claim MVP features exist; see `OPEN_ITEMS.
 - **Keep the doc set current.** Update `docs/`, `deployments/`, `README.md`,
   `OPEN_ITEMS.md`, and `database/schema.sql` in the same change as any feature,
   migration, or config change. `schema.sql` must always reflect the full combined schema.
-- **Deploy targets:** must stay Docker-deployable; production runs **on-prem**
-  (Kubernetes or hardened Linux) in the CUI enclave. Render is kept working for the
+- **Deploy targets:** must stay Docker-deployable; production runs on **Kubernetes**
+  (on-prem / Azure Gov AKS / AWS GovCloud EKS) — one image, no per-target forks;
+  single hardened Linux host is the fallback. Render is kept working for the
   non-CUI discovery microsite only — never point it at controlled data.
 
 ## Roadmap gates (see the package §22 and `OPEN_ITEMS.md`)

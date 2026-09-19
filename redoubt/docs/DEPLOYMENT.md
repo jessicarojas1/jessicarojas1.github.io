@@ -16,17 +16,19 @@
 
 ## 1. Deployment models
 
-**Selected production model: hybrid** — the app is **self-hosted on-prem** in
-GMRE's CUI boundary; **identity + documents are in Microsoft 365 / Azure GCC
+**Production model: portable Kubernetes.** The same container image runs in any
+authorized CUI boundary — **on-prem**, **Azure Government (AKS)**, or **AWS
+GovCloud (EKS)** — with **identity + documents always in Microsoft 365 / Azure GCC
 High**. Commercial Render hosts only the non-CUI discovery microsite.
 
 | Model | Boundary | Status |
 |-------|----------|--------|
 | Local dev | workstation | Ready — see `../deployments/LOCAL_DEVELOPMENT.md` |
 | Render (Docker) | Commercial (non-CUI discovery only) | Ready — `../render.yaml` |
-| **On-prem single Linux server** | **GMRE CUI enclave (production)** | Ready — `../deployments/SINGLE_LINUX_SERVER.md` |
-| **On-prem Kubernetes** | **GMRE CUI enclave (production, HA)** | Ready — `../deployments/KUBERNETES.md` |
-| M365 / Azure GCC High config | Cloud SoR + identity | Ready — `../deployments/AZURE.md` |
+| **Kubernetes (primary)** | **on-prem / Azure Gov / AWS GovCloud (production, HA)** | Ready — `../deployments/KUBERNETES.md` |
+| M365 GCC High + Azure Gov (AKS) | Cloud SoR + identity; AKS hosting | Ready — `../deployments/AZURE.md` |
+| AWS GovCloud (EKS) | Cross-cloud hosting → M365 GCC High | Ready — `../deployments/AWS.md` |
+| Single Linux server (fallback) | small footprint / no cluster | Ready — `../deployments/SINGLE_LINUX_SERVER.md` |
 | Air-gapped | fully disconnected enclave | Tracked (OPEN_ITEMS) |
 
 ## 2. Prerequisites

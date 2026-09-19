@@ -1,9 +1,12 @@
-# REDOUBT — On-Prem Single Linux Server (Production)
+# REDOUBT — Single Linux Server (Fallback / Small Footprint)
 
-Operator guide for running REDOUBT on a **single hardened Linux host inside
-GMRE's on-prem CUI boundary**, connecting to **Microsoft 365 / Azure GCC High**
-for identity and documents. For HA, see `KUBERNETES.md`; for the M365 side, see
-`AZURE.md`.
+> **Kubernetes is the primary runtime** (`KUBERNETES.md`) — use it for production
+> and HA across on-prem / Azure Gov / AWS GovCloud. This single-host guide is the
+> **fallback** for a small footprint, a lab, or an enclave without a cluster.
+
+Operator guide for running REDOUBT on a **single hardened Linux host inside an
+authorized CUI boundary**, connecting to **Microsoft 365 / Azure GCC High** for
+identity and documents. For the M365 back-end config, see `AZURE.md`.
 
 > Boundary note: this host is part of GMRE's **customer-owned CUI enclave** and
 > must meet NIST SP 800-171 / CMMC (physical, network, boundary protection, FIPS)

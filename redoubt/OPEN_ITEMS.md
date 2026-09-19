@@ -14,29 +14,31 @@ theme, each with impact + suggested action.
 
 ## Blocking decisions (must resolve before build)
 
-**Decided:** CUI and ITAR/export-controlled data are **in scope**. **Hosting is
-hybrid** — the app is **self-hosted on-prem** in GMRE's CUI boundary; identity +
-documents are in **Microsoft 365 / Azure GCC High**. The blockers below flow from
-that.
+**Decided:** CUI and ITAR/export-controlled data are **in scope**. **Runtime is
+Kubernetes**, portable across three authorized boundaries — **on-prem**, **Azure
+Government (AKS)**, and **AWS GovCloud (EKS)** — with identity + documents always
+in **Microsoft 365 / Azure GCC High**. **Customer/COR access is contractually
+authorized** (Customer/COR library is in MVP). **Export-control gates are a build
+requirement.** The blockers below flow from these.
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
-| On-prem app-tier hardening & ATO | Customer-owned CUI boundary must meet 800-171/CMMC (physical, network, FIPS, boundary) | Cyber + Enterprise Systems assess before go-live |
+| Which boundary(s) first + app-tier ATO | Each of on-prem/Azure Gov/AWS GovCloud must meet 800-171/CMMC (network, FIPS, boundary) | Cyber + Enterprise Systems select + assess before go-live |
 | Export-control gate definition | Authoritative US-person source + which zones are ITAR/EAR + license scoping | Cyber + Export/Empowered Official |
 | GCC High tenant + Entra app registration | Document SoR + identity for controlled data | Enterprise Systems provision tenant + app reg |
-| Network path on-prem → GCC High | Graph/auth connectivity (ExpressRoute vs Gov internet egress) | Network/Cyber decide + allowlist `.us` endpoints |
-| Customer/COR access allowed? | Whether customer zone ships | Contracts ruling |
+| Egress path app → GCC High | Graph/auth connectivity per target (ExpressRoute / Gov egress / cross-cloud) | Network/Cyber decide + allowlist `.us` endpoints |
+| COR onboarding terms | Flow-downs + customer-approved document set | Contracts confirm terms |
 | Entra + B2B licensed/approved (GCC High) | External identity design | Enterprise Systems confirm |
 
 ## Outstanding — Documentation & deployment set (per repo standard)
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
-| `deployments/SINGLE_LINUX_SERVER.md` | On-prem production path | **Done** (this drop) |
-| `deployments/KUBERNETES.md` | On-prem production, HA | **Done** (this drop) |
-| `deployments/AZURE.md` (M365 GCC High config) | Cloud SoR + identity | **Done** (this drop) |
+| `deployments/KUBERNETES.md` | Primary runtime (on-prem / AKS / EKS) | **Done** |
+| `deployments/AZURE.md` | M365 GCC High back end (all targets) + AKS hosting | **Done** |
+| `deployments/AWS.md` | AWS GovCloud (EKS) hosting → M365 GCC High | **Done** |
+| `deployments/SINGLE_LINUX_SERVER.md` | Fallback / small footprint | **Done** |
 | `deployments/AIRGAPPED.md` | Fully offline enclave + self-hosted LLM (Ollama) | Tracked — author if a disconnected variant is needed |
-| `deployments/AWS.md` | Not applicable — hosting is on-prem + Azure GCC High | Dropped unless requirements change |
 
 ## Outstanding — Application (Phase 1 / MVP)
 

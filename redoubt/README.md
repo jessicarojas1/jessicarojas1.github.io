@@ -27,8 +27,8 @@ over the existing systems of record.
 - **Document system of record:** **Microsoft 365 / SharePoint Online** via Microsoft Graph (no duplication).
 - **Identity:** **Microsoft Entra ID** (OIDC SSO, MFA, B2B guests, Conditional Access).
 - **Portal data:** **PostgreSQL** (config, portal-owned content, metadata, audit).
-- **Compliance boundary (selected):** **hybrid** — the app is **self-hosted on-prem** in GMRE's CUI boundary; identity + documents are in **Microsoft 365 / Azure GCC High** (endpoints `login.microsoftonline.us`, `graph.microsoft.us`, `*.sharepoint.us`). Supports **CUI** and **ITAR/export-controlled** data with US-person access gating and FIPS-validated crypto.
-- **Delivery:** **Docker**; production runs **on-prem** (Kubernetes or hardened Linux) inside the CUI enclave. Commercial **Render** hosts only the non-CUI discovery microsite.
+- **Compliance boundary:** portable across three authorized boundaries — **on-prem**, **Azure Government**, **AWS GovCloud** — with identity + documents always in **Microsoft 365 / Azure GCC High** (endpoints `login.microsoftonline.us`, `graph.microsoft.us`, `*.sharepoint.us`). Supports **CUI** and **ITAR/export-controlled** data with US-person access gating and FIPS-validated crypto.
+- **Delivery:** **Docker**; **Kubernetes is the primary runtime** (one image → on-prem / AKS Azure Gov / EKS AWS GovCloud); single hardened Linux host is the fallback. Commercial **Render** hosts only the non-CUI discovery microsite.
 
 ## Supported deployment models
 
@@ -36,9 +36,10 @@ over the existing systems of record.
 |------|-------|-------|
 | Local development | [`deployments/LOCAL_DEVELOPMENT.md`](deployments/LOCAL_DEVELOPMENT.md) | PHP built-in server or Docker |
 | Render (Docker) | [`render.yaml`](render.yaml) | Non-CUI discovery microsite only |
-| **On-prem single Linux server** | [`deployments/SINGLE_LINUX_SERVER.md`](deployments/SINGLE_LINUX_SERVER.md) | **Production (CUI enclave)** |
-| **On-prem Kubernetes** | [`deployments/KUBERNETES.md`](deployments/KUBERNETES.md) | **Production, HA (CUI enclave)** |
-| M365 / Azure GCC High config | [`deployments/AZURE.md`](deployments/AZURE.md) | Cloud SoR + identity (endpoints, app reg) |
+| **Kubernetes (primary)** | [`deployments/KUBERNETES.md`](deployments/KUBERNETES.md) | **Production, HA — on-prem / AKS / EKS** |
+| M365 GCC High + Azure Gov (AKS) | [`deployments/AZURE.md`](deployments/AZURE.md) | Back-end config (all targets) + AKS hosting |
+| AWS GovCloud (EKS) | [`deployments/AWS.md`](deployments/AWS.md) | Cross-cloud hosting → M365 GCC High |
+| Single Linux server (fallback) | [`deployments/SINGLE_LINUX_SERVER.md`](deployments/SINGLE_LINUX_SERVER.md) | Small footprint / no cluster |
 | Air-gapped | _tracked_ (OPEN_ITEMS) | Offline + self-hosted LLM |
 
 ## Repository layout

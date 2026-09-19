@@ -4,11 +4,12 @@
 # new Render service at this directory (rootDir: redoubt) with env=docker.
 #
 # NOTE ON BOUNDARY: commercial Render hosts the NON-CUI discovery microsite only.
-# The production app is SELF-HOSTED ON-PREM in GMRE's CUI boundary (Docker/K8s or
-# hardened Linux), talking to Microsoft 365 / Azure GCC High. See
-# deployments/SINGLE_LINUX_SERVER.md, deployments/KUBERNETES.md, deployments/AZURE.md.
+# Production runs on Kubernetes in an authorized CUI boundary — on-prem, Azure
+# Government (AKS), or AWS GovCloud (EKS) — talking to Microsoft 365 / Azure GCC
+# High. See deployments/KUBERNETES.md (primary), deployments/AZURE.md,
+# deployments/AWS.md, deployments/SINGLE_LINUX_SERVER.md.
 #
-# GCC High endpoints differ from commercial (used by the on-prem Phase 1 env):
+# GCC High endpoints differ from commercial (used by the Phase 1 production env):
 #   MS_CLOUD=USGovernment
 #   ENTRA_AUTHORITY_HOST=https://login.microsoftonline.us
 #   GRAPH_BASE_URL=https://graph.microsoft.us
