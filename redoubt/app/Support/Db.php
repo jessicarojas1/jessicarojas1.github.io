@@ -168,10 +168,16 @@ final class Db
     {
         $out = [];
         foreach ($data as $k => $v) {
-            // Encode arrays/objects as JSON for JSONB columns.
-            $out[$k] = (is_array($v) || is_object($v))
-                ? json_encode($v, JSON_THROW_ON_ERROR)
-                : $v;
+            if (is_array($v) || is_object($v)) {
+                // Encode arrays/objects as JSON for JSONB columns.
+                $out[$k] = json_encode($v, JSON_THROW_ON_ERROR);
+            } elseif (is_bool($v)) {
+                // Native prepared statements bind PHP false as '' which Postgres
+                // rejects for boolean columns — emit explicit literals instead.
+                $out[$k] = $v ? 'true' : 'false';
+            } else {
+                $out[$k] = $v;
+            }
         }
         return $out;
     }

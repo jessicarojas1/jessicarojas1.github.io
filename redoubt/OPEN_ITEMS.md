@@ -82,18 +82,24 @@ requirement.** The blockers below flow from these.
 
 **All 7 MVP modules are now built** (IAM, Announcements, Documents, Task Orders,
 Jobs, Directory, Search).
+- **Content Administration console** (§15): `/app/admin/content` — one hub that
+  aggregates only the content types the user may author, with visible counts and
+  quick links; grants no authority of its own (`ContentAdminController`).
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 44 checks
+  (15 authorization-engine logic + 29 live-DB module assertions) via `tests/lib/T`
+  + `tests/lib/Seed`; DB tests self-skip unless `REDOUBT_TEST_DB=1`.
+- **CI**: `.github/workflows/redoubt-ci.yml` lints every PHP file and runs the full
+  suite against a PostgreSQL 16 service on changes under `redoubt/`.
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
 | **Security review of `Oidc`** | Hand-rolled token verification | Review before enabling prod sign-in; consider a vetted JOSE lib |
-| Content Administration console | Aggregate authoring surface over the modules | Build on the module pattern |
 | Milestones / Calendar, FAQ, Quick Links (Phase 2/3 modules) | Remaining nice-to-haves | Per module standard (Annex H) |
 | Live Graph document resolve (Sites.Selected) | Metadata + gating done; live SharePoint open needs creds | Test `Documents::resolveOpenUrl` against a real drive/site |
 | Remaining API module endpoints (jobs/contacts/milestones/search) | Replace 501 stubs | Implement per Annex I, permission-trimmed |
 | Webhook admin UI + durable retry queue/worker | Reliable delivery | Move `Webhooks::dispatch` behind a queue |
 | Live Entra GCC High sign-in test | Only auth path still unexercised | Run against a real app registration |
-| Automated test suite in CI | Lock in the verified behavior | Port the manual authz + DB checks into CI |
-| CI/CD, dev/test/prod, secrets management, image signing | Ops | DevSecOps |
+| CD (deploy), dev/test/prod envs, secrets management, image signing | Ops (CI test/lint now in place) | DevSecOps |
 
 ## Notes / known limitations
 
@@ -111,7 +117,9 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  in the process: webhook `@>` needed `::jsonb`;
+  These checks are now a **repeatable suite** (`php tests/run.php`, 44 checks)
+  enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
+  prepares became `''` (Db now emits `true`/`false`); webhook `@>` needed `::jsonb`;
   reused `:pid` broke native prepares; `Db::update` now appends `updated_at` only
   when the column exists (+ `updated_at` on `announcement`/`app_user`/`task_order`).
   **Only path still unexercised:** live Entra GCC High sign-in + live Graph

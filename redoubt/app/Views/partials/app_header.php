@@ -29,6 +29,8 @@ $showTo = $canAny($user, 'taskorder.view');
 $showJobs = $canAny($user, 'job.view');
 $showDir = $canAny($user, 'directory.view');
 $hasProgram = ($user['memberships'] ?? []) !== [];
+$showContent = $canAny($user, 'announcement.create') || $canAny($user, 'document.create')
+    || $canAny($user, 'taskorder.create') || $canAny($user, 'job.create') || $canAny($user, 'contact.manage');
 ?><!doctype html>
 <html lang="en">
 <head>
@@ -48,6 +50,7 @@ $hasProgram = ($user['memberships'] ?? []) !== [];
     <?php if ($showJobs): ?><a href="/app/jobs"<?= $navActive === 'jobs' ? ' class="active"' : '' ?>>Jobs</a><?php endif; ?>
     <?php if ($showDir): ?><a href="/app/directory"<?= $navActive === 'directory' ? ' class="active"' : '' ?>>Directory</a><?php endif; ?>
     <?php if ($hasProgram): ?><a href="/app/search"<?= $navActive === 'search' ? ' class="active"' : '' ?>>Search</a><?php endif; ?>
+    <?php if ($showContent): ?><a href="/app/admin/content"<?= $navActive === 'content' ? ' class="active"' : '' ?>>Content</a><?php endif; ?>
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>
   </nav>
   <div class="who"><?= Security::h($user['name'] ?? 'User') ?><a href="/auth/logout">Sign out</a></div>

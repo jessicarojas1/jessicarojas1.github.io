@@ -1,0 +1,54 @@
+name: REDOUBT CI
+
+# Lints and tests the REDOUBT program-portal app on changes under redoubt/.
+on:
+  push:
+    paths: ['redoubt/**', '.github/workflows/redoubt-ci.yml']
+  pull_request:
+    paths: ['redoubt/**', '.github/workflows/redoubt-ci.yml']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: redoubt
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: redoubt
+          POSTGRES_DB: redoubt
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U redoubt"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_pgsql, curl, openssl, json
+          coverage: none
+
+      - name: Lint all PHP files
+        run: |
+          fail=0
+          for f in $(find . -name '*.php'); do
+            php -l "$f" >/dev/null || { echo "LINT FAIL: $f"; fail=1; }
+          done
+          [ "$fail" = "0" ] && echo "All PHP files lint clean"
+          exit $fail
+
+      - name: Run test suite (logic + live DB)
+        env:
+          DATABASE_URL: postgres://redoubt@127.0.0.1:5432/redoubt
+          REDOUBT_TEST_DB: '1'
+        run: php tests/run.php

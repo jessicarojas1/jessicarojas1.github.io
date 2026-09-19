@@ -30,6 +30,7 @@ use Redoubt\Http\TaskOrdersController;
 use Redoubt\Http\JobsController;
 use Redoubt\Http\DirectoryController;
 use Redoubt\Http\SearchController;
+use Redoubt\Http\ContentAdminController;
 
 $nonce = Security::nonce();
 
@@ -139,6 +140,10 @@ switch ($path) {
 
     case '/app/search':
         SearchController::index($nonce);
+        return;
+
+    case '/app/admin/content':
+        ContentAdminController::index($nonce);
         return;
 
     case '/app/admin/iam':

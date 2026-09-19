@@ -20,7 +20,9 @@
   },
   "scripts": {
     "start": "php -S 0.0.0.0:8080 -t public",
-    "health": "curl -fsS http://localhost:8080/health || exit 1"
+    "health": "curl -fsS http://localhost:8080/health || exit 1",
+    "test": "php tests/run.php",
+    "lint": "for f in $(find app public tests -name '*.php'); do php -l \"$f\" >/dev/null || exit 1; done && echo OK"
   },
   "config": {
     "sort-packages": true,

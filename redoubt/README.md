@@ -9,7 +9,8 @@
 > **Documents** (zone-gated with the US-person export gate), **Task Orders**
 > (company-scoped, award webhook), **Jobs** (draft→post webhook), **Directory**
 > (visibility-trimmed), and **Search** (global, permission-trimmed) — each with a
-> permission-aware `/api/v1` endpoint. **Verified on PHP 8.5 + PostgreSQL 16:** lint
+> permission-aware `/api/v1` endpoint — plus a **Content Administration** hub and a
+> **44-check test suite run in CI**. **Verified on PHP 8.5 + PostgreSQL 16:** lint
 > passes; the authorization engine passed 15/15 logic checks and the data path
 > 12/12 + 17/17 + 13/13 against a live DB (incl. CUI/ITAR export gating, company
 > isolation, and search non-leakage); only live Entra GCC High sign-in and live
@@ -106,5 +107,21 @@ docker run --rm -p 8080:8080 redoubt:discovery
 | `php -S 0.0.0.0:8080 -t public` | Run the discovery site locally |
 | `docker build -t redoubt:discovery .` | Build the container |
 | `curl -fsS localhost:8080/health` | Health check (JSON) |
+| `php tests/run.php` | Run the test suite (logic always; DB tests need `REDOUBT_TEST_DB=1` + `DATABASE_URL`) |
+
+## Testing & CI
+
+Zero-dependency suite: `php tests/run.php` runs 44 checks — 15 authorization-engine
+logic tests plus 29 live-database module assertions (announcements, IAM grants,
+documents with the CUI/ITAR export gate, task orders, jobs, directory, and
+permission-trimmed search). DB tests self-skip unless `REDOUBT_TEST_DB=1` and a
+throwaway `DATABASE_URL` are set. `.github/workflows/redoubt-ci.yml` lints every
+PHP file and runs the full suite against a PostgreSQL 16 service on every change
+under `redoubt/`.
+
+```bash
+cd redoubt
+DATABASE_URL=postgres://redoubt@127.0.0.1:5432/redoubt REDOUBT_TEST_DB=1 php tests/run.php
+```
 
 See also: [`docs/`](docs) and [`deployments/`](deployments).
