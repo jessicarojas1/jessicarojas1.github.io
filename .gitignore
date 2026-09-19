@@ -53,3 +53,6 @@ cpp/aes-vault/aes-vault
 cpp/zt-policy-engine/zt-policy
 cpp/log-correlator/log-correlator
 cpp/memory-scanner/memory-scanner
+
+# Accidental nested self-clone of the repo (kept on disk, never tracked)
+/jessicarojas1.github.io/
