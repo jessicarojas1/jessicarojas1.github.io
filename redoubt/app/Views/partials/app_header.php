@@ -24,6 +24,8 @@ $canAny = static function (array $user, string $perm): bool {
 };
 $showIam = $canAny($user, 'access.view');
 $showAnn = $canAny($user, 'announcement.view');
+$showDocs = $canAny($user, 'document.view');
+$showTo = $canAny($user, 'taskorder.view');
 ?><!doctype html>
 <html lang="en">
 <head>
@@ -38,6 +40,8 @@ $showAnn = $canAny($user, 'announcement.view');
   <nav class="nav">
     <a href="/app"<?= $navActive === 'home' ? ' class="active"' : '' ?>>Home</a>
     <?php if ($showAnn): ?><a href="/app/announcements"<?= $navActive === 'announcements' ? ' class="active"' : '' ?>>Announcements</a><?php endif; ?>
+    <?php if ($showDocs): ?><a href="/app/documents"<?= $navActive === 'documents' ? ' class="active"' : '' ?>>Documents</a><?php endif; ?>
+    <?php if ($showTo): ?><a href="/app/task-orders"<?= $navActive === 'taskorders' ? ' class="active"' : '' ?>>Task Orders</a><?php endif; ?>
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>
   </nav>
   <div class="who"><?= Security::h($user['name'] ?? 'User') ?><a href="/auth/logout">Sign out</a></div>

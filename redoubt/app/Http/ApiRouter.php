@@ -11,6 +11,8 @@ use Redoubt\Support\Auth;
 use Redoubt\Support\Authorize;
 use Redoubt\Support\Config;
 use Redoubt\Support\Db;
+use Redoubt\Support\Documents;
+use Redoubt\Support\TaskOrders;
 use Throwable;
 
 /**
@@ -48,9 +50,21 @@ final class ApiRouter
                     self::json(200, self::identity($user, $client));
                     return;
 
-                // --- Announcements (implemented, permission-trimmed) ---
+                // --- Implemented, permission-trimmed module endpoints ---
                 case $route === 'GET /api/v1/announcements':
                     self::announcements($user, $client);
+                    return;
+
+                case $route === 'GET /api/v1/documents':
+                    self::moduleList($user, $client, 'document.view',
+                        static fn (array $u, int $p) => Documents::listForUser($u, $p),
+                        static fn (int $p) => Documents::listForApiClient($p), 'documents');
+                    return;
+
+                case $route === 'GET /api/v1/task-orders':
+                    self::moduleList($user, $client, 'taskorder.view',
+                        static fn (array $u, int $p) => TaskOrders::listForUser($u, $p),
+                        static fn (int $p) => TaskOrders::listForProgram($p), 'task-orders');
                     return;
 
                 // --- Other module endpoints (contract defined; implementation pending) ---
@@ -129,6 +143,42 @@ final class ApiRouter
         }
         Audit::log('api.read', 'announcements', $programId);
         self::json(200, ['program_id' => $programId, 'count' => count($items), 'announcements' => $items]);
+    }
+
+    /**
+     * Generic permission-trimmed list endpoint for a module.
+     * $userFn(user, programId) trims by the full Authorize engine (incl. export
+     * gate); $clientFn(programId) is the API-client view (export-controlled excluded).
+     */
+    private static function moduleList(?array $user, ?array $client, string $perm, callable $userFn, callable $clientFn, string $label): void
+    {
+        if (!Db::isConfigured()) {
+            self::json(503, ['error' => 'database_not_configured']);
+            return;
+        }
+        $programId = isset($_GET['program_id']) ? (int) $_GET['program_id'] : 0;
+        if ($programId <= 0) {
+            self::json(400, ['error' => 'program_id_required']);
+            return;
+        }
+        if ($user !== null) {
+            if (!Authorize::can($user, $perm, ['program_id' => $programId])) {
+                self::json(403, ['error' => 'forbidden']);
+                return;
+            }
+            $items = $userFn($user, $programId);
+        } else {
+            $clientProgram = $client['program_id'] !== null ? (int) $client['program_id'] : null;
+            $scopes = is_string($client['scopes'] ?? null) ? (json_decode($client['scopes'], true) ?: []) : ($client['scopes'] ?? []);
+            $scoped = in_array('*', $scopes, true) || in_array($perm, $scopes, true);
+            if (($clientProgram !== null && $clientProgram !== $programId) || !$scoped) {
+                self::json(403, ['error' => 'forbidden']);
+                return;
+            }
+            $items = $clientFn($programId);
+        }
+        Audit::log('api.read', $label, $programId);
+        self::json(200, ['program_id' => $programId, 'count' => count($items), 'items' => $items]);
     }
 
     /** @return array<string,mixed> */

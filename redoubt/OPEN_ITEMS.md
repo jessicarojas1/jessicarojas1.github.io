@@ -62,14 +62,22 @@ requirement.** The blockers below flow from these.
   publish/delete, permission-checked per action, audience-trimmed) + real
   `GET /api/v1/announcements` (permission-trimmed for user or API client) + signed webhook
   on publish + audit (`Announcements`, `AnnouncementsController`, `app_announcements.php`).
+- **Documents module** (Annex H): `/app/documents` (register/edit/delete + zone filters),
+  gated per zone through Authorize incl. the **US-person export gate** and **company
+  scoping**; `open()` re-authorizes before redirecting (defense-in-depth for CUI/ITAR);
+  `GET /api/v1/documents` (export-controlled excluded for API clients); Graph client
+  ready for live SharePoint resolve (`Documents`, `DocumentsController`, `app_documents.php`).
+- **Task Orders module** (Annex H): `/app/task-orders` (create/edit/award/delete),
+  program- and company-scoped; award emits `taskorder.awarded` webhook + audit;
+  `GET /api/v1/task-orders` (`TaskOrders`, `TaskOrdersController`, `app_taskorders.php`).
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
 | **Security review of `Oidc`** | Hand-rolled token verification | Review before enabling prod sign-in; consider a vetted JOSE lib |
-| Documents / Task Orders / Jobs / Directory / Search modules | Remaining MVP modules | Per §20 + module standard (Annex H) |
+| Jobs / Directory / Search modules | Remaining MVP modules | Per §20 + module standard (Annex H) |
 | Content Administration console | Aggregate authoring surface | Build on the module pattern |
-| Document module via Graph (Sites.Selected) | Customer/Project/Sub-shared zones | Wire `Graph` to per-program sites |
-| Remaining API module endpoints (replace 501 stubs) | documents/task-orders/jobs/… | Implement per Annex I, permission-trimmed |
+| Live Graph document resolve (Sites.Selected) | Metadata + gating done; live SharePoint open needs creds | Test `Documents::resolveOpenUrl` against a real drive/site |
+| Remaining API module endpoints (jobs/contacts/milestones/search) | Replace 501 stubs | Implement per Annex I, permission-trimmed |
 | Webhook admin UI + durable retry queue/worker | Reliable delivery | Move `Webhooks::dispatch` behind a queue |
 | Live Entra GCC High sign-in test | Only auth path still unexercised | Run against a real app registration |
 | Automated test suite in CI | Lock in the verified behavior | Port the manual authz + DB checks into CI |
@@ -85,10 +93,14 @@ requirement.** The blockers below flow from these.
   12/12** against a live PostgreSQL 16 (schema.sql loads clean; announcement
   create/update/publish; JSONB round-trip; `string_agg` user/roles query; IAM
   grant `ON CONFLICT` upsert→deny→delete; webhook_delivery + audit rows written).
-  Bugs caught & fixed in the process: webhook `@>` needed `::jsonb`; reused `:pid`
-  broke native prepares; `Db::update` now appends `updated_at` only when the column
-  exists (+ added `updated_at` to `announcement`/`app_user`). **Only path still
-  unexercised:** live Entra GCC High sign-in (needs a real app registration).
+  **Documents + Task Orders: 17/17** against a live PostgreSQL 16 — zone gating,
+  company scoping, the US-person export gate (non-US-person blocked from an ITAR
+  doc via list/canSee/API), `open()` re-authorization, and the `taskorder.awarded`
+  webhook. Bugs caught & fixed in the process: webhook `@>` needed `::jsonb`;
+  reused `:pid` broke native prepares; `Db::update` now appends `updated_at` only
+  when the column exists (+ `updated_at` on `announcement`/`app_user`/`task_order`).
+  **Only path still unexercised:** live Entra GCC High sign-in + live Graph
+  document resolve (both need real credentials).
 - `Oidc` token verification is hand-rolled and MUST be security-reviewed before
   production sign-in (see `app/Support/README.md`).
 - `Webhooks` dispatch is synchronous; a durable retry queue is Phase 2.

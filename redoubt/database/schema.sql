@@ -120,7 +120,8 @@ CREATE TABLE IF NOT EXISTS document_ref (
     -- Export control: true = access additionally gated to US-persons + license scope.
     export_controlled BOOLEAN NOT NULL DEFAULT false,
     cui_marked        BOOLEAN NOT NULL DEFAULT false,
-    sp_item_id    TEXT,                          -- SharePoint/Graph item id
+    sp_item_id    TEXT,                          -- SharePoint/Graph item id (for Graph resolve)
+    web_url       TEXT,                          -- SharePoint web URL (direct-open fallback)
     title         TEXT,
     updated_at    TIMESTAMPTZ
 );
@@ -133,7 +134,8 @@ CREATE TABLE IF NOT EXISTS task_order (
     status        TEXT,
     company_scope JSONB NOT NULL DEFAULT '[]'::jsonb,
     sp_link       TEXT,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS job_requisition (

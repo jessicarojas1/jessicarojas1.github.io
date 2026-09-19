@@ -25,6 +25,8 @@ use Redoubt\Http\AppController;
 use Redoubt\Http\ApiRouter;
 use Redoubt\Http\IamController;
 use Redoubt\Http\AnnouncementsController;
+use Redoubt\Http\DocumentsController;
+use Redoubt\Http\TaskOrdersController;
 
 $nonce = Security::nonce();
 
@@ -93,6 +95,26 @@ switch ($path) {
             AnnouncementsController::post();
         } else {
             AnnouncementsController::index($nonce);
+        }
+        return;
+
+    case '/app/documents':
+        if ($method === 'POST') {
+            DocumentsController::post();
+        } else {
+            DocumentsController::index($nonce);
+        }
+        return;
+
+    case '/app/documents/open':
+        DocumentsController::open();
+        return;
+
+    case '/app/task-orders':
+        if ($method === 'POST') {
+            TaskOrdersController::post();
+        } else {
+            TaskOrdersController::index($nonce);
         }
         return;
 

@@ -24,7 +24,7 @@ final class Roles
         'program_admin'    => ['program.config', 'module.toggle', 'branding.manage', 'integration.config', 'audit.view'],
         'program_manager'  => [
             'announcement.view', 'announcement.create', 'announcement.edit', 'announcement.publish',
-            'document.view', 'document.create', 'document.edit',
+            'document.view', 'document.create', 'document.edit', 'document.view.customer', 'document.view.contracts',
             'taskorder.view', 'job.view', 'directory.view', 'audit.view',
         ],
         'content_manager'  => [
@@ -33,7 +33,7 @@ final class Roles
             'quicklink.manage', 'faq.manage', 'milestone.manage', 'contact.manage',
             'job.view', 'job.create', 'job.edit', 'job.publish',
         ],
-        'contracts'        => ['announcement.view', 'document.view', 'document.create', 'document.edit', 'taskorder.view', 'taskorder.create', 'taskorder.edit', 'taskorder.publish', 'taskorder.approve'],
+        'contracts'        => ['announcement.view', 'document.view', 'document.create', 'document.edit', 'document.view.contracts', 'taskorder.view', 'taskorder.create', 'taskorder.edit', 'taskorder.publish', 'taskorder.approve'],
         'finance'          => ['announcement.view', 'document.view', 'finance.view', 'taskorder.view'],
         'recruiting'       => ['announcement.view', 'job.view', 'job.create', 'job.edit', 'job.publish'],
         'internal_member'  => ['announcement.view', 'document.view', 'taskorder.view', 'job.view', 'directory.view'],

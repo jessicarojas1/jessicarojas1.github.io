@@ -25,6 +25,7 @@ final class PermissionCatalog
             'document' => ['label' => 'Documents', 'icon' => '📁', 'actions' => [
                 'document.view' => 'View', 'document.create' => 'Upload',
                 'document.edit' => 'Edit', 'document.view.customer' => 'View (customer zone)',
+                'document.view.contracts' => 'View (contracts zone)',
             ]],
             'taskorder' => ['label' => 'Task Orders', 'icon' => '📄', 'actions' => [
                 'taskorder.view' => 'View', 'taskorder.create' => 'Create',
