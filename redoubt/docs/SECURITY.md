@@ -12,13 +12,15 @@ portal-owned content, metadata/references, and audit.
 
 ## Deployment boundary (selected)
 
-The application is **self-hosted on-prem** inside GMRE's own CUI boundary
-(Docker/Kubernetes or a hardened Linux host); identity and documents are in
-**Microsoft 365 / Azure GCC High**. GMRE owns and must accredit the on-prem
-app-tier boundary (physical, network, FIPS, boundary protection) under NIST
-800-171 / CMMC; Microsoft's authorization is inherited only for the M365 tier.
-All Microsoft calls use GCC High endpoints (`login.microsoftonline.us`,
-`graph.microsoft.us`, `*.sharepoint.us`).
+The application runs on **Kubernetes** and is portable across three authorized
+CUI boundaries — **on-prem**, **Azure Government (AKS)**, and **AWS GovCloud
+(EKS)** — from one image; identity and documents always live in **Microsoft 365 /
+Azure GCC High**. GMRE owns and must accredit the app-tier boundary (network,
+FIPS, boundary protection) under NIST 800-171 / CMMC for the chosen target;
+authorization is inherited from Microsoft for the M365 tier and from the cloud
+provider (Azure Gov / AWS GovCloud) for the hosting tier. All Microsoft calls use
+GCC High endpoints (`login.microsoftonline.us`, `graph.microsoft.us`,
+`*.sharepoint.us`).
 
 ## Identity & authentication
 
