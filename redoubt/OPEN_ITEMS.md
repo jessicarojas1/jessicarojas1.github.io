@@ -91,10 +91,21 @@ Jobs, Directory, Search).
 - **CI**: `.github/workflows/redoubt-ci.yml` lints every PHP file and runs the full
   suite against a PostgreSQL 16 service on changes under `redoubt/`.
 
+**Phase 2 (next):**
+
+| Item | Impact | Suggested action |
+|------|--------|------------------|
+| **Job targeting UI + filters** (program-wide / by company / by contract-task-order) | Contractors see openings for their company/contract; recruiters set targeting | **Schema groundwork done** (`job_requisition.company_scope`, `task_order_scope`); wire `Jobs` visibility + a filter bar + form controls; make defaults settable in Settings |
+| **Settings area + Branding** (mandatory standard) | Per-program logo URL / display name / accent color; job-targeting defaults | `/app/admin/settings` persisting to `program_config`; apply branding live in the header |
+| Notifications (in-portal + email/Teams digests) | Reduce "did you see it?" churn | Build on the webhook/event base |
+| Onboarding / offboarding workflows | Sponsored access lifecycle | Entra B2B + approvals |
+| Milestones / Calendar, FAQ, Quick Links modules | Remaining content modules | Per module standard (Annex H) |
+
+**Ongoing / ops:**
+
 | Item | Impact | Suggested action |
 |------|--------|------------------|
 | **Security review of `Oidc`** | Hand-rolled token verification | Review before enabling prod sign-in; consider a vetted JOSE lib |
-| Milestones / Calendar, FAQ, Quick Links (Phase 2/3 modules) | Remaining nice-to-haves | Per module standard (Annex H) |
 | Live Graph document resolve (Sites.Selected) | Metadata + gating done; live SharePoint open needs creds | Test `Documents::resolveOpenUrl` against a real drive/site |
 | Remaining API module endpoints (jobs/contacts/milestones/search) | Replace 501 stubs | Implement per Annex I, permission-trimmed |
 | Webhook admin UI + durable retry queue/worker | Reliable delivery | Move `Webhooks::dispatch` behind a queue |

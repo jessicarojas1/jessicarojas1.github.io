@@ -145,6 +145,10 @@ CREATE TABLE IF NOT EXISTS job_requisition (
     audience    JSONB NOT NULL DEFAULT '[]'::jsonb,
     ats_url     TEXT,
     status      TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','open','filled','closed')),
+    -- Targeting: audience tokens (all/internal/customer/role:) + company ids +
+    -- task-order ids. Empty across all three = program-wide.
+    company_scope    JSONB NOT NULL DEFAULT '[]'::jsonb,  -- company ids
+    task_order_scope JSONB NOT NULL DEFAULT '[]'::jsonb,  -- task_order ids (contract attachment)
     expire_at   TIMESTAMPTZ,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()

@@ -14,6 +14,13 @@
     "link": "https://sentinel-qms.onrender.com"
   },
   {
+    "title": "REDOUBT — GMRE Program Portal Framework",
+    "description": "Reusable, secure program / subcontractor portal for proposal & program execution — one framework, many isolated program instances. Seven permission-aware modules (two-pane IAM console, announcements, documents, task orders, jobs, directory, global search) plus a Content Administration hub. Defense-grade access control (program × company × role × zone) with a hard US-person export gate for CUI/ITAR content and per-company / per-contract isolation. Permission-aware REST API (/api/v1) + HMAC-signed webhooks, append-only audit, strict CSP + CSRF. PHP 8.2 + PostgreSQL, containerized for on-prem Kubernetes / Azure Government / AWS GovCloud with Microsoft 365 GCC High as the document system of record. Backed by a 44-check test suite run in CI.",
+    "image": "assets/images/portfolio_site.png",
+    "tags": ["Program Portal", "PHP", "PostgreSQL", "Kubernetes", "GCC High", "CUI", "ITAR", "CMMC", "NIST 800-171", "REST API", "Webhooks"],
+    "link": "https://redoubt-program-portal.onrender.com"
+  },
+  {
     "title": "Compliance Tracker",
     "description": "A full-featured CMMC / NIST 800-171 compliance tracker with live SSP preview, POAM tracking, pie chart dashboard, and evidence linking.",
     "image": "assets/images/compliance_tracker.png",
