@@ -115,7 +115,9 @@ final class Db
             return 0;
         }
         $set = array_map(static fn ($c) => self::ident($c) . ' = :set_' . $c, array_keys($data));
-        $set[] = 'updated_at = NOW()';
+        if (self::hasColumn($table, 'updated_at')) {   // repo convention; skipped if the table lacks it
+            $set[] = 'updated_at = NOW()';
+        }
         $cond = array_map(static fn ($c) => self::ident($c) . ' = :where_' . $c, array_keys($where));
 
         $params = [];
@@ -133,6 +135,23 @@ final class Db
             implode(' AND ', $cond)
         );
         return self::query($sql, $params)->rowCount();
+    }
+
+    /** @var array<string,array<string,bool>> table => set of column names */
+    private static array $columnCache = [];
+
+    /** Whether $table has $column (cached; current schema only). */
+    private static function hasColumn(string $table, string $column): bool
+    {
+        if (!isset(self::$columnCache[$table])) {
+            $stmt = self::connection()->prepare(
+                'SELECT column_name FROM information_schema.columns
+                  WHERE table_schema = current_schema() AND table_name = :t'
+            );
+            $stmt->execute(['t' => $table]);
+            self::$columnCache[$table] = array_fill_keys($stmt->fetchAll(\PDO::FETCH_COLUMN), true);
+        }
+        return isset(self::$columnCache[$table][$column]);
     }
 
     /** Quote an identifier (table/column) — allowlist-validated, not user-derived. */

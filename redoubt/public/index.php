@@ -23,6 +23,8 @@ use Redoubt\Support\Security;
 use Redoubt\Http\AuthController;
 use Redoubt\Http\AppController;
 use Redoubt\Http\ApiRouter;
+use Redoubt\Http\IamController;
+use Redoubt\Http\AnnouncementsController;
 
 $nonce = Security::nonce();
 
@@ -84,6 +86,35 @@ switch ($path) {
 
     case '/app':
         AppController::home($nonce);
+        return;
+
+    case '/app/announcements':
+        if ($method === 'POST') {
+            AnnouncementsController::post();
+        } else {
+            AnnouncementsController::index($nonce);
+        }
+        return;
+
+    case '/app/admin/iam':
+        IamController::index($nonce);
+        return;
+
+    case '/app/admin/iam/users':
+        IamController::users();
+        return;
+
+    case '/app/admin/iam/user':
+        IamController::userPerms();
+        return;
+
+    case '/app/admin/iam/save':
+        if ($method !== 'POST') {
+            http_response_code(405);
+            echo '405 Method Not Allowed';
+            return;
+        }
+        IamController::save();
         return;
 
     case '/':

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Redoubt\Http;
 
+use Redoubt\Support\Announcements;
 use Redoubt\Support\ApiKey;
 use Redoubt\Support\Audit;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Authorize;
 use Redoubt\Support\Config;
+use Redoubt\Support\Db;
 use Throwable;
 
 /**
@@ -46,7 +48,12 @@ final class ApiRouter
                     self::json(200, self::identity($user, $client));
                     return;
 
-                // --- Module endpoints (contract defined; implementation pending) ---
+                // --- Announcements (implemented, permission-trimmed) ---
+                case $route === 'GET /api/v1/announcements':
+                    self::announcements($user, $client);
+                    return;
+
+                // --- Other module endpoints (contract defined; implementation pending) ---
                 case (bool) preg_match('#^GET /api/v1/(announcements|documents|task-orders|jobs|contacts|milestones|search)$#', $path, $m):
                     $module = $m[1];
                     // Demonstrate permission-aware gating with the real engine.
@@ -88,6 +95,40 @@ final class ApiRouter
             'search'        => 'document.view',
             default         => 'document.view',
         };
+    }
+
+    /** GET /api/v1/announcements?program_id= — permission-trimmed for the caller. */
+    private static function announcements(?array $user, ?array $client): void
+    {
+        if (!Db::isConfigured()) {
+            self::json(503, ['error' => 'database_not_configured']);
+            return;
+        }
+        $programId = isset($_GET['program_id']) ? (int) $_GET['program_id'] : 0;
+        if ($programId <= 0) {
+            self::json(400, ['error' => 'program_id_required']);
+            return;
+        }
+
+        if ($user !== null) {
+            if (!Authorize::can($user, 'announcement.view', ['program_id' => $programId])) {
+                self::json(403, ['error' => 'forbidden']);
+                return;
+            }
+            $items = Announcements::listForUser($user, $programId);
+        } else {
+            // API client: must be scoped to this program and hold the scope.
+            $clientProgram = $client['program_id'] !== null ? (int) $client['program_id'] : null;
+            $scopes = is_string($client['scopes'] ?? null) ? (json_decode($client['scopes'], true) ?: []) : ($client['scopes'] ?? []);
+            $scoped = in_array('*', $scopes, true) || in_array('announcement.view', $scopes, true);
+            if (($clientProgram !== null && $clientProgram !== $programId) || !$scoped) {
+                self::json(403, ['error' => 'forbidden']);
+                return;
+            }
+            $items = Announcements::listPublished($programId);
+        }
+        Audit::log('api.read', 'announcements', $programId);
+        self::json(200, ['program_id' => $programId, 'count' => count($items), 'announcements' => $items]);
     }
 
     /** @return array<string,mixed> */

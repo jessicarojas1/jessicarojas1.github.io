@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS app_user (
     -- Export control (ITAR/EAR): verified at provisioning, enforced server-side.
     is_us_person           BOOLEAN,               -- NULL until verified
     us_person_verified_at  TIMESTAMPTZ,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS role (
@@ -105,7 +106,8 @@ CREATE TABLE IF NOT EXISTS announcement (
     publish_at  TIMESTAMPTZ,
     expire_at   TIMESTAMPTZ,
     created_by  BIGINT REFERENCES app_user(id),
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Document METADATA mirror only; bytes/versions live in SharePoint.

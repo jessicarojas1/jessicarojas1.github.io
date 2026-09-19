@@ -52,10 +52,8 @@ final class Graph
         $body = curl_exec($ch);
         if ($body === false) {
             $err = curl_error($ch);
-            curl_close($ch);
             throw new RuntimeException('Graph token error: ' . $err);
         }
-        curl_close($ch);
         $data = json_decode((string) $body, true, 512, JSON_THROW_ON_ERROR);
         if (!isset($data['access_token'])) {
             throw new RuntimeException('Graph token denied: ' . ($data['error_description'] ?? 'unknown'));
@@ -79,10 +77,8 @@ final class Graph
         $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         if ($body === false) {
             $err = curl_error($ch);
-            curl_close($ch);
             throw new RuntimeException('Graph request error: ' . $err);
         }
-        curl_close($ch);
         if ($code === 429) {
             throw new RuntimeException('Graph throttled (429) — apply backoff.');
         }

@@ -5,12 +5,14 @@
 > framework skeleton**: Entra GCC High OIDC sign-in, the authorization policy
 > engine (program × company × role × zone + US-person export gate), audit logging,
 > a Microsoft Graph client, a permission-aware REST API (`/api/v1`), and signed
-> webhooks. **Portal module UIs (announcements, documents, IAM console, etc.) are
-> not built yet.** Verified on PHP 8.5: `php -l` passes on all files and the
-> config-free routes behave correctly (`/`, `/health`, `/app`→login, `/api` 401,
-> 404, CSP+nonce); the Entra sign-in, Graph, and PostgreSQL paths await real
-> credentials. See [`OPEN_ITEMS.md`](OPEN_ITEMS.md). The `Oidc` token verification
-> must be security-reviewed before production sign-in.
+> webhooks. **Built modules:** the two-pane **IAM console** (`/app/admin/iam`) and
+> **Announcements** (`/app/announcements`, incl. `GET /api/v1/announcements` +
+> publish webhook). Remaining module UIs (documents, task orders, jobs, directory,
+> search) are not built yet. **Verified on PHP 8.5 + PostgreSQL 16:** lint passes;
+> the authorization engine passed 15/15 logic checks and the data path 12/12
+> against a live DB; only live Entra GCC High sign-in remains unexercised (needs a
+> real app registration). See [`OPEN_ITEMS.md`](OPEN_ITEMS.md). The `Oidc` token
+> verification must be security-reviewed before production sign-in.
 
 ## What it is
 

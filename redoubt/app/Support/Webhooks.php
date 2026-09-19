@@ -26,13 +26,14 @@ final class Webhooks
             error_log("[WEBHOOK] (no db) event={$event} program=" . ($programId ?? '-'));
             return;
         }
-        $subs = Db::fetchAll(
-            "SELECT id, url, secret FROM webhook_subscription
-              WHERE active = TRUE
-                AND (program_id = :pid OR :pid IS NULL)
-                AND events @> :evt",
-            ['pid' => $programId, 'evt' => json_encode([$event])]
-        );
+        $sql = "SELECT id, url, secret FROM webhook_subscription
+                 WHERE active = TRUE AND events @> :evt::jsonb";
+        $params = ['evt' => json_encode([$event])];
+        if ($programId !== null) {
+            $sql .= ' AND program_id = :pid';
+            $params['pid'] = $programId;
+        }
+        $subs = Db::fetchAll($sql, $params);
         foreach ($subs as $sub) {
             self::deliver((int) $sub['id'], (string) $sub['url'], (string) $sub['secret'], $event, $payload);
         }
@@ -64,7 +65,6 @@ final class Webhooks
             ]);
             curl_exec($ch);
             $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-            curl_close($ch);
             $status = ($code >= 200 && $code < 300) ? 'delivered' : 'failed';
         } catch (Throwable $e) {
             error_log('[WEBHOOK] delivery error: ' . $e->getMessage());

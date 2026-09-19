@@ -1,0 +1,52 @@
+<?php
+/**
+ * Shared authenticated-app header/layout open.
+ * Expects: $NONCE (string), $user (array), $title (string), $navActive (string),
+ *          optionally $breadcrumbs (array<string,?string> label => href|null).
+ */
+use Redoubt\Support\Security;
+use Redoubt\Support\Authorize;
+
+$NONCE = $NONCE ?? '';
+$title = $title ?? 'REDOUBT';
+$navActive = $navActive ?? '';
+$user = $user ?? [];
+$breadcrumbs = $breadcrumbs ?? [];
+
+// Permission-aware nav: show a link if the user holds the permission in ANY program.
+$canAny = static function (array $user, string $perm): bool {
+    foreach (array_keys($user['memberships'] ?? []) as $pid) {
+        if (Authorize::can($user, $perm, ['program_id' => (int) $pid])) {
+            return true;
+        }
+    }
+    return false;
+};
+$showIam = $canAny($user, 'access.view');
+$showAnn = $canAny($user, 'announcement.view');
+?><!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= Security::h($title) ?> — REDOUBT</title>
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/app"><span class="logo"></span> REDOUBT</a>
+  <nav class="nav">
+    <a href="/app"<?= $navActive === 'home' ? ' class="active"' : '' ?>>Home</a>
+    <?php if ($showAnn): ?><a href="/app/announcements"<?= $navActive === 'announcements' ? ' class="active"' : '' ?>>Announcements</a><?php endif; ?>
+    <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>
+  </nav>
+  <div class="who"><?= Security::h($user['name'] ?? 'User') ?><a href="/auth/logout">Sign out</a></div>
+</header>
+<main class="wrap">
+  <?php if ($breadcrumbs): ?>
+  <nav class="breadcrumbs">
+    <?php $i = 0; $n = count($breadcrumbs); foreach ($breadcrumbs as $label => $href): $i++; ?>
+      <?php if ($href && $i < $n): ?><a href="<?= Security::h($href) ?>"><?= Security::h($label) ?></a> › <?php else: ?><?= Security::h($label) ?><?php endif; ?>
+    <?php endforeach; ?>
+  </nav>
+  <?php endif; ?>

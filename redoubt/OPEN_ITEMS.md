@@ -54,26 +54,41 @@ requirement.** The blockers below flow from these.
 
 ## Outstanding — Application (Phase 1 / MVP)
 
+**Done (built + verified):**
+- **Two-pane IAM console** (Annex G): `/app/admin/iam` — user list w/ search, per-module
+  accordions, role-default/grant/deny 3-way controls, Grant-all/Clear, Expand/Collapse,
+  AJAX save with CSRF rotation + audit (`IamController`, `app_iam.php`, `iam.js`, `PermissionCatalog`).
+- **Announcements module** (Annex H) end-to-end: `/app/announcements` (list/create/edit/
+  publish/delete, permission-checked per action, audience-trimmed) + real
+  `GET /api/v1/announcements` (permission-trimmed for user or API client) + signed webhook
+  on publish + audit (`Announcements`, `AnnouncementsController`, `app_announcements.php`).
+
 | Item | Impact | Suggested action |
 |------|--------|------------------|
 | **Security review of `Oidc`** | Hand-rolled token verification | Review before enabling prod sign-in; consider a vetted JOSE lib |
-| **Live auth/DB/Graph test** | Verified: `php -l` passes on all files (PHP 8.5) + config-free routes (`/`, `/health`, `/app`→login, `/api` 401, 404, CSP/nonce). Pending: real Entra GCC High + PostgreSQL paths | Run against an app reg + DB |
-| Two-pane IAM admin UI | The "extreme IAM" console (Annex G) | Build on `Roles`/`Authorize`/`user_permission_grant` |
-| Module UIs: Announcements / Documents / Task Orders / Jobs / Directory / Search | MVP modules | Per §20 + module standard (Annex H) |
-| Content Administration console | The critical business requirement | Build after IAM |
+| Documents / Task Orders / Jobs / Directory / Search modules | Remaining MVP modules | Per §20 + module standard (Annex H) |
+| Content Administration console | Aggregate authoring surface | Build on the module pattern |
 | Document module via Graph (Sites.Selected) | Customer/Project/Sub-shared zones | Wire `Graph` to per-program sites |
-| API module endpoints (replace 501 stubs) | Real `/api/v1` reads/writes | Implement per Annex I, permission-trimmed |
-| Webhook admin + durable retry queue/worker | Reliable delivery | Move `Webhooks::dispatch` behind a queue |
-| Automated tests (authz negative tests, isolation) | Prove no cross-tenant/US-person leakage | Add before go-live |
+| Remaining API module endpoints (replace 501 stubs) | documents/task-orders/jobs/… | Implement per Annex I, permission-trimmed |
+| Webhook admin UI + durable retry queue/worker | Reliable delivery | Move `Webhooks::dispatch` behind a queue |
+| Live Entra GCC High sign-in test | Only auth path still unexercised | Run against a real app registration |
+| Automated test suite in CI | Lock in the verified behavior | Port the manual authz + DB checks into CI |
 | CI/CD, dev/test/prod, secrets management, image signing | Ops | DevSecOps |
 
 ## Notes / known limitations
 
-- **Verified (2026-09-19):** `php -l` passes on all 19 files (PHP 8.5.10) and the
-  config-free routes behave correctly (`/` 200, `/health` ok, `/app`→login,
-  `/auth/login` 503 unconfigured, `/api/v1/health` 401, 404 handling, CSP+nonce +
-  security headers). **Not yet exercised:** Entra GCC High sign-in, Graph, and the
-  PostgreSQL paths (require real credentials).
+- **Verified (2026-09-19):** `php -l` passes on all files (PHP 8.5.10); config-free
+  routes behave correctly (`/`, `/health`, `/app`→login 302, `/auth/login` 503
+  unconfigured, `/api` 401, 404, CSP+nonce, IAM save POST-only 405); the
+  **authorization engine passed 15/15** logic assertions (export gate, grant/deny
+  denials-win, company scoping, membership, aliases); and the **data path passed
+  12/12** against a live PostgreSQL 16 (schema.sql loads clean; announcement
+  create/update/publish; JSONB round-trip; `string_agg` user/roles query; IAM
+  grant `ON CONFLICT` upsert→deny→delete; webhook_delivery + audit rows written).
+  Bugs caught & fixed in the process: webhook `@>` needed `::jsonb`; reused `:pid`
+  broke native prepares; `Db::update` now appends `updated_at` only when the column
+  exists (+ added `updated_at` to `announcement`/`app_user`). **Only path still
+  unexercised:** live Entra GCC High sign-in (needs a real app registration).
 - `Oidc` token verification is hand-rolled and MUST be security-reviewed before
   production sign-in (see `app/Support/README.md`).
 - `Webhooks` dispatch is synchronous; a durable retry queue is Phase 2.

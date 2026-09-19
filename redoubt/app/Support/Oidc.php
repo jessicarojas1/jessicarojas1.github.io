@@ -176,10 +176,8 @@ final class Oidc
         $body = curl_exec($ch);
         if ($body === false) {
             $err = curl_error($ch);
-            curl_close($ch);
             throw new RuntimeException('OIDC HTTP error: ' . $err);
         }
-        curl_close($ch);
         return json_decode((string) $body, true, 512, JSON_THROW_ON_ERROR);
     }
 
@@ -193,10 +191,8 @@ final class Oidc
         $body = curl_exec($ch);
         if ($body === false) {
             $err = curl_error($ch);
-            curl_close($ch);
             throw new RuntimeException('OIDC JWKS error: ' . $err);
         }
-        curl_close($ch);
         return json_decode((string) $body, true, 512, JSON_THROW_ON_ERROR);
     }
 
