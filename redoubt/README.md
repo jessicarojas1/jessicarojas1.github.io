@@ -6,9 +6,11 @@
 > engine (program × company × role × zone + US-person export gate), audit logging,
 > a Microsoft Graph client, a permission-aware REST API (`/api/v1`), and signed
 > webhooks. **Portal module UIs (announcements, documents, IAM console, etc.) are
-> not built yet**, and **the skeleton is unverified at runtime** (no PHP/Docker on
-> the build host). See [`OPEN_ITEMS.md`](OPEN_ITEMS.md). The `Oidc` token
-> verification must be security-reviewed before production sign-in.
+> not built yet.** Verified on PHP 8.5: `php -l` passes on all files and the
+> config-free routes behave correctly (`/`, `/health`, `/app`→login, `/api` 401,
+> 404, CSP+nonce); the Entra sign-in, Graph, and PostgreSQL paths await real
+> credentials. See [`OPEN_ITEMS.md`](OPEN_ITEMS.md). The `Oidc` token verification
+> must be security-reviewed before production sign-in.
 
 ## What it is
 

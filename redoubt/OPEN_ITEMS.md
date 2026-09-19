@@ -57,7 +57,7 @@ requirement.** The blockers below flow from these.
 | Item | Impact | Suggested action |
 |------|--------|------------------|
 | **Security review of `Oidc`** | Hand-rolled token verification | Review before enabling prod sign-in; consider a vetted JOSE lib |
-| **Live end-to-end test** | Skeleton is untested (no PHP/Docker on build host) | Run against a real Entra GCC High app reg + PostgreSQL |
+| **Live auth/DB/Graph test** | Verified: `php -l` passes on all files (PHP 8.5) + config-free routes (`/`, `/health`, `/app`→login, `/api` 401, 404, CSP/nonce). Pending: real Entra GCC High + PostgreSQL paths | Run against an app reg + DB |
 | Two-pane IAM admin UI | The "extreme IAM" console (Annex G) | Build on `Roles`/`Authorize`/`user_permission_grant` |
 | Module UIs: Announcements / Documents / Task Orders / Jobs / Directory / Search | MVP modules | Per §20 + module standard (Annex H) |
 | Content Administration console | The critical business requirement | Build after IAM |
@@ -69,8 +69,11 @@ requirement.** The blockers below flow from these.
 
 ## Notes / known limitations
 
-- **The Phase 1 skeleton is unverified at runtime** — the build host has no PHP or
-  Docker. Lint/run before relying on it: `php -l` each file; `php -S 0.0.0.0:8080 -t public`.
+- **Verified (2026-09-19):** `php -l` passes on all 19 files (PHP 8.5.10) and the
+  config-free routes behave correctly (`/` 200, `/health` ok, `/app`→login,
+  `/auth/login` 503 unconfigured, `/api/v1/health` 401, 404 handling, CSP+nonce +
+  security headers). **Not yet exercised:** Entra GCC High sign-in, Graph, and the
+  PostgreSQL paths (require real credentials).
 - `Oidc` token verification is hand-rolled and MUST be security-reviewed before
   production sign-in (see `app/Support/README.md`).
 - `Webhooks` dispatch is synchronous; a durable retry queue is Phase 2.
