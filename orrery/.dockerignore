@@ -1,0 +1,10 @@
+.git
+.gitignore
+**/.DS_Store
+node_modules
+vendor
+*.log
+.env
+.env.*
+!.env.example
+scratchpad

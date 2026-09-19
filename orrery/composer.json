@@ -1,0 +1,22 @@
+{
+  "name": "gmre/orrery",
+  "description": "ORRERY — GMRE Program Portal Framework. Discovery-phase scaffold (PHP, Docker/Render deployable).",
+  "type": "project",
+  "license": "proprietary",
+  "require": {
+    "php": ">=8.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Orrery\\": "app/"
+    }
+  },
+  "scripts": {
+    "start": "php -S 0.0.0.0:8080 -t public",
+    "health": "curl -fsS http://localhost:8080/health || exit 1"
+  },
+  "config": {
+    "sort-packages": true,
+    "optimize-autoloader": true
+  }
+}

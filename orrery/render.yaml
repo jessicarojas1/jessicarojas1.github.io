@@ -1,0 +1,32 @@
+# ORRERY — Render Blueprint (discovery-phase microsite).
+# Usage: this file can be used as a Render Blueprint. If the repository root
+# already defines a blueprint, deploy ORRERY as its own service by pointing a
+# new Render service at this directory (rootDir: orrery) with env=docker.
+#
+# NOTE ON BOUNDARY: commercial Render is appropriate for the discovery microsite
+# and NON-CUI pilots only. A CUI-bearing production instance must run in a
+# FedRAMP-Moderate+/DoD-aligned boundary (see docs/SECURITY.md, OPEN_ITEMS.md).
+
+services:
+  - type: web
+    name: orrery-program-portal
+    runtime: docker
+    rootDir: orrery
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: APP_ENV
+        value: discovery
+      # Phase 1+ (do NOT set real secrets here; use Render secret files / dashboard):
+      # - key: DATABASE_URL          # PostgreSQL (portal metadata/config/audit)
+      #   sync: false
+      # - key: ENTRA_TENANT_ID       # Microsoft Entra ID (OIDC)
+      #   sync: false
+      # - key: ENTRA_CLIENT_ID
+      #   sync: false
+      # - key: ENTRA_CLIENT_SECRET   # store as secret, never in source
+      #   sync: false
+      # - key: GRAPH_SCOPES
+      #   value: "Sites.Read.All Files.Read.All"
