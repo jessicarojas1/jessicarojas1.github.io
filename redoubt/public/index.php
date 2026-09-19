@@ -1,6 +1,6 @@
 <?php
 /**
- * ORRERY — GMRE Program Portal Framework
+ * REDOUBT — GMRE Program Portal Framework
  * Front controller for the Discovery Package microsite.
  *
  * This is the DISCOVERY-PHASE entry point. It intentionally serves a static,
@@ -58,7 +58,7 @@ switch ($path) {
         header('Content-Type: application/json');
         echo json_encode([
             'status'  => 'ok',
-            'service' => 'orrery-program-portal',
+            'service' => 'redoubt-program-portal',
             'phase'   => 'discovery',
             'time'    => gmdate('c'),
         ], JSON_THROW_ON_ERROR);
@@ -72,6 +72,6 @@ switch ($path) {
     default:
         http_response_code(404);
         header('Content-Type: text/plain; charset=utf-8');
-        echo "404 Not Found\n\nORRERY discovery site serves only '/' and '/health' during the discovery phase.";
+        echo "404 Not Found\n\nREDOUBT discovery site serves only '/' and '/health' during the discovery phase.";
         return;
 }

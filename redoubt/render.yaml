@@ -1,7 +1,7 @@
-# ORRERY — Render Blueprint (discovery-phase microsite).
+# REDOUBT — Render Blueprint (discovery-phase microsite).
 # Usage: this file can be used as a Render Blueprint. If the repository root
-# already defines a blueprint, deploy ORRERY as its own service by pointing a
-# new Render service at this directory (rootDir: orrery) with env=docker.
+# already defines a blueprint, deploy REDOUBT as its own service by pointing a
+# new Render service at this directory (rootDir: redoubt) with env=docker.
 #
 # NOTE ON BOUNDARY: commercial Render is appropriate for the discovery microsite
 # and NON-CUI pilots only. A CUI-bearing production instance must run in a
@@ -9,9 +9,9 @@
 
 services:
   - type: web
-    name: orrery-program-portal
+    name: redoubt-program-portal
     runtime: docker
-    rootDir: orrery
+    rootDir: redoubt
     dockerfilePath: ./Dockerfile
     plan: starter
     healthCheckPath: /health

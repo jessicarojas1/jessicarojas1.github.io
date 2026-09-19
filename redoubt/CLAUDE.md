@@ -1,8 +1,8 @@
-# CLAUDE.md — ORRERY (GMRE Program Portal Framework)
+# CLAUDE.md — REDOUBT (GMRE Program Portal Framework)
 
-Project guidance for ORRERY. Follows the repo-wide rules in the parent
+Project guidance for REDOUBT. Follows the repo-wide rules in the parent
 `../CLAUDE.md` (security/UI audits, standard doc set, schema currency, push to
-main). This file adds ORRERY-specific context.
+main). This file adds REDOUBT-specific context.
 
 ## What this is
 
@@ -14,9 +14,13 @@ deployable scaffold exist. Do **not** claim MVP features exist; see `OPEN_ITEMS.
 
 ## Standing rules for this project
 
+- **CUI/ITAR are in scope.** REDOUBT must hold controlled data up to CUI and
+  ITAR/export-controlled information. Baseline boundary is GCC High + a Gov-cloud
+  (or air-gapped) enclave; enforce US-person access gating on export-controlled
+  zones and FIPS-validated crypto. Commercial Render is for non-CUI pilots only.
 - **Discovery before features.** Do not build portal modules until the blocking
-  decisions in `OPEN_ITEMS.md` (CUI scope, hosting boundary, customer access,
-  Entra/B2B) are resolved.
+  decisions in `OPEN_ITEMS.md` (which authorized enclave/ATO, export-control gate,
+  GCC High tenant, customer access) are resolved.
 - **Authoritative systems of record.** The portal aggregates/links; it must not
   become a shadow copy of documents, financials, jobs, or contracts data. Store
   only portal-owned content, metadata/references, config, and audit.

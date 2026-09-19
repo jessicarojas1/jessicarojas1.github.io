@@ -1,11 +1,11 @@
-# ORRERY — Security Guide
+# REDOUBT — Security Guide
 
 > Discovery-phase. The scaffold sets strict security headers and a CSP nonce
 > today; authentication, authorization, and audit are Phase 1 (see `../OPEN_ITEMS.md`).
 
 ## Security posture
 
-ORRERY operates in an aerospace/defense context and is designed around **CMMC /
+REDOUBT operates in an aerospace/defense context and is designed around **CMMC /
 NIST SP 800-171 / DFARS** expectations. The portal is a **gate, not a vault**:
 authoritative data stays in approved repositories; the portal holds only config,
 portal-owned content, metadata/references, and audit.
@@ -27,8 +27,13 @@ portal-owned content, metadata/references, and audit.
 ## Data protection
 
 - Classification zones (public → CUI/ITAR) per Discovery Package §11.
-- CUI/ITAR, if in scope, requires GCC High + an authorized hosting boundary; some
-  export-controlled data may stay **out of the portal** (link-only to an enclave).
+- **CUI and ITAR/export-controlled data are in scope and supported in-portal.** The
+  baseline boundary is a **GCC High** tenant + a **Gov-cloud (or air-gapped)
+  enclave**; export-controlled data is held **under access control, not excluded**.
+- **Export control (ITAR/EAR):** a user's **US-person** status is verified at
+  provisioning and enforced server-side as an access gate on export-controlled
+  zones; license/agreement scoping applied where applicable. Nationality is never
+  inferred client-side.
 - Data taxonomy: portal-owned · authoritative SoR (never copied) · linked ·
   embedded (live perms) · replicated (avoided).
 
@@ -44,8 +49,9 @@ M365 tenant. Portal never renders content the caller is not authorized to see.
 
 ## FIPS readiness
 
-Deploy in FIPS-validated boundaries for CUI (Gov cloud / GCC High). TLS and
-crypto provided by the platform; the app adds no non-approved crypto.
+Runs in **FIPS 140-validated** boundaries (Gov cloud / GCC High) — required
+because CUI/ITAR are in scope. TLS and cryptography are provided by the platform;
+the application adds no non-approved crypto.
 
 ## Transport & session
 

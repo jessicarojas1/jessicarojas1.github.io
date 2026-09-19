@@ -1,6 +1,6 @@
 {
-  "name": "gmre/orrery",
-  "description": "ORRERY — GMRE Program Portal Framework. Discovery-phase scaffold (PHP, Docker/Render deployable).",
+  "name": "gmre/redoubt",
+  "description": "REDOUBT — GMRE Program Portal Framework. Discovery-phase scaffold (PHP, Docker/Render deployable).",
   "type": "project",
   "license": "proprietary",
   "require": {
@@ -8,7 +8,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Orrery\\": "app/"
+      "Redoubt\\": "app/"
     }
   },
   "scripts": {

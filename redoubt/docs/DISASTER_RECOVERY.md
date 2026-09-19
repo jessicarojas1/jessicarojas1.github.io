@@ -1,4 +1,4 @@
-# ORRERY — Disaster Recovery
+# REDOUBT — Disaster Recovery
 
 > Discovery-phase. Targets and runbook below apply from Phase 1, when the
 > database and integrations exist. The discovery microsite itself is stateless

@@ -1,4 +1,4 @@
-# ORRERY — GMRE Program Portal Framework
+# REDOUBT — GMRE Program Portal Framework
 
 > **Status: Discovery / Pre-decisional.** This directory currently ships a
 > **Product & Architecture Discovery Package** served as a small PHP web
@@ -8,7 +8,7 @@
 
 ## What it is
 
-ORRERY is a **reusable, secure program portal framework** for proposal/program
+REDOUBT is a **reusable, secure program portal framework** for proposal/program
 execution — a single "one-stop shop" entry point for prime staff,
 subcontractors, and (where contractually permitted) the Government customer.
 Like its namesake (a mechanical model in which many bodies orbit a shared core),
@@ -18,7 +18,7 @@ Like its namesake (a mechanical model in which many bodies orbit a shared core),
 
 Coordination cost grows with every added subcontractor. Today it runs through
 email, calls, Teams, and ad-hoc file shares, overloading the PM and risking
-cross-company disclosure. ORRERY replaces that with a governed, role-aware hub
+cross-company disclosure. REDOUBT replaces that with a governed, role-aware hub
 over the existing systems of record.
 
 ## Architecture at a glance
@@ -27,7 +27,8 @@ over the existing systems of record.
 - **Document system of record:** **Microsoft 365 / SharePoint Online** via Microsoft Graph (no duplication).
 - **Identity:** **Microsoft Entra ID** (OIDC SSO, MFA, B2B guests, Conditional Access).
 - **Portal data:** **PostgreSQL** (config, portal-owned content, metadata, audit).
-- **Delivery:** **Docker**; deployable to **Render** (non-CUI pilots) or Kubernetes / Gov cloud (production/CUI).
+- **Compliance boundary:** built to hold controlled data up to **CUI** and **ITAR/export-controlled** — baseline **GCC High + a Gov-cloud (or air-gapped) enclave**, US-person access gating, FIPS-validated crypto.
+- **Delivery:** **Docker**; commercial **Render** for the non-CUI discovery/pilot only; controlled-data instances run in the authorized Gov-cloud enclave / Kubernetes.
 
 ## Supported deployment models
 
@@ -44,7 +45,7 @@ over the existing systems of record.
 ## Repository layout
 
 ```
-orrery/
+redoubt/
 ├─ public/
 │  └─ index.php          Front controller (routes '/', '/health'; sets CSP/headers)
 ├─ app/
@@ -57,7 +58,7 @@ orrery/
 ├─ deployments/          Operator guides (LOCAL_DEVELOPMENT present; others tracked)
 ├─ Dockerfile            Multi-stage, non-root, healthcheck
 ├─ render.yaml           Render Blueprint (discovery/non-CUI)
-├─ composer.json         PSR-4 autoload (Orrery\)
+├─ composer.json         PSR-4 autoload (Redoubt\)
 └─ README.md
 ```
 
@@ -71,7 +72,7 @@ orrery/
 ## Quick start (local)
 
 ```bash
-cd orrery
+cd redoubt
 php -S 0.0.0.0:8080 -t public
 # open http://localhost:8080  ·  health: http://localhost:8080/health
 ```
@@ -79,9 +80,9 @@ php -S 0.0.0.0:8080 -t public
 Or with Docker:
 
 ```bash
-cd orrery
-docker build -t orrery:discovery .
-docker run --rm -p 8080:8080 orrery:discovery
+cd redoubt
+docker build -t redoubt:discovery .
+docker run --rm -p 8080:8080 redoubt:discovery
 ```
 
 ## Common commands
@@ -89,7 +90,7 @@ docker run --rm -p 8080:8080 orrery:discovery
 | Command | Purpose |
 |---------|---------|
 | `php -S 0.0.0.0:8080 -t public` | Run the discovery site locally |
-| `docker build -t orrery:discovery .` | Build the container |
+| `docker build -t redoubt:discovery .` | Build the container |
 | `curl -fsS localhost:8080/health` | Health check (JSON) |
 
 See also: [`docs/`](docs) and [`deployments/`](deployments).

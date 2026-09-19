@@ -1,4 +1,4 @@
-# ORRERY — Open Items / Production-Readiness Register
+# REDOUBT — Open Items / Production-Readiness Register
 
 Honest status as of 2026-09-18. This is a **discovery-phase** deliverable; the
 list below separates what is **done** from what is **outstanding**, grouped by
@@ -14,12 +14,17 @@ theme, each with impact + suggested action.
 
 ## Blocking decisions (must resolve before build)
 
+**Note:** CUI and ITAR/export-controlled data are **in scope** — this is a design
+requirement, not an open question. Baseline boundary is **GCC High + a Gov-cloud
+(or air-gapped) enclave**. The blockers below are the specifics that flow from that.
+
 | Item | Impact | Suggested action |
 |------|--------|------------------|
-| CUI/ITAR/export scope | Drives tenant boundary (GCC High?) & hosting; everything downstream | Cyber + Contracts ruling before Phase 1 |
-| Authorized hosting boundary | Render vs Gov cloud/enclave | Confirm ATO/boundary for the data class |
+| Which authorized enclave / ATO path | Azure Gov vs AWS GovCloud vs air-gapped; drives cost & ops | Cyber + Enterprise Systems ruling before Phase 1 |
+| Export-control gate definition | Authoritative US-person source + which zones are ITAR/EAR + license scoping | Cyber + Export/Empowered Official |
+| GCC High tenant availability | Document SoR + identity for controlled data | Enterprise Systems confirm tenant + licensing |
 | Customer/COR access allowed? | Whether customer zone ships | Contracts ruling |
-| Entra + B2B licensed/approved | Identity design | Enterprise Systems confirm |
+| Entra + B2B licensed/approved (GCC High) | Identity design | Enterprise Systems confirm |
 
 ## Outstanding — Documentation & deployment set (per repo standard)
 

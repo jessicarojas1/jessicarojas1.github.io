@@ -1,14 +1,14 @@
-# ORRERY — Architecture
+# REDOUBT — Architecture
 
 > Discovery-phase. Describes the intended architecture; only the discovery
 > microsite + scaffold are implemented today (see `../OPEN_ITEMS.md`).
 
 ## Platform
 
-ORRERY is a **PHP presentation/orchestration layer** over enterprise systems of
+REDOUBT is a **PHP presentation/orchestration layer** over enterprise systems of
 record. It aggregates and links; it does not duplicate authoritative data.
 
-- **Runtime:** PHP 8.2 (PSR-4, `Orrery\` namespace), Apache in the container.
+- **Runtime:** PHP 8.2 (PSR-4, `Redoubt\` namespace), Apache in the container.
 - **Portal data:** PostgreSQL (config, portal-owned content, metadata/refs, audit).
 - **Document SoR:** Microsoft 365 / SharePoint Online via Microsoft Graph.
 - **Identity:** Microsoft Entra ID (OIDC SSO, MFA, B2B guests, Conditional Access).
@@ -33,7 +33,7 @@ auditability · maintainability.
 
 ## Monorepo placement & internal layout
 
-Lives in the `jessicarojas1.github.io` repo under `orrery/`. Internal layout:
+Lives in the `jessicarojas1.github.io` repo under `redoubt/`. Internal layout:
 `public/` (web root), `app/` (`Views/`, `Support/`), `database/`, `docs/`,
 `deployments/`, plus `Dockerfile`, `render.yaml`, `composer.json`.
 

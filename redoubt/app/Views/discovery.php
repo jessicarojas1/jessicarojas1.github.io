@@ -1,6 +1,6 @@
 <?php
 /**
- * ORRERY — Product + Architecture Discovery Package (view).
+ * REDOUBT — Product + Architecture Discovery Package (view).
  * Rendered by public/index.php. Read-only. $NONCE is supplied by the controller.
  */
 $NONCE = $NONCE ?? '';
@@ -10,8 +10,8 @@ $today = '18 September 2026';
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ORRERY — GMRE Program Portal Framework | Discovery Package</title>
-<meta name="description" content="Product &amp; Architecture Discovery Package for the GMRE Program / Subcontractor Team Portal (ORRERY).">
+<title>REDOUBT — GMRE Program Portal Framework | Discovery Package</title>
+<meta name="description" content="Product &amp; Architecture Discovery Package for the GMRE Program / Subcontractor Team Portal (REDOUBT).">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -155,11 +155,12 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
 <header class="masthead">
   <div class="mast-inner">
     <p class="eyebrow">Automation Core Team · Product &amp; Architecture Discovery Package</p>
-    <h1><span>ORRERY</span> — GMRE Program Portal Framework</h1>
-    <p class="mast-sub">A secure, reusable enterprise platform that becomes the authoritative entry point for proposal and program execution. Like its namesake — a precision model in which many bodies orbit a shared core — <b>one framework</b> powers <b>many isolated program instances</b>.</p>
+    <h1><span>REDOUBT</span> — GMRE Program Portal Framework</h1>
+    <p class="mast-sub">A secure, reusable enterprise platform that becomes the authoritative entry point for proposal and program execution. Like its namesake — a self-contained, defensible stronghold — it is built to hold controlled information (up to <b>CUI</b> and <b>ITAR/export-controlled</b> data) in an authorized enclave, with <b>one framework</b> powering <b>many isolated program instances</b>.</p>
     <div class="mast-meta">
       <span class="chip"><b>Prepared for:</b> Leadership · Program Mgmt · Enterprise Systems · ACT</span>
-      <span class="chip"><b>Stack:</b> PHP 8.2 · PostgreSQL · Docker/Render</span>
+      <span class="chip"><b>Stack:</b> PHP 8.2 · PostgreSQL · Docker</span>
+      <span class="chip"><b>Boundary:</b> GCC High / Gov-cloud enclave (CUI//ITAR-capable)</span>
       <span class="chip"><b>SoR:</b> Microsoft 365 / SharePoint via Graph</span>
       <span class="chip"><b>Status:</b> Discovery / Pre-decisional</span>
       <span class="chip"><b>Date:</b> <?= $today ?></span>
@@ -213,11 +214,11 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
   <section class="block" id="s1">
     <h2><span class="n">01</span> Executive Summary</h2>
     <h3 class="title">Build one secure portal framework, stand up many program instances</h3>
-    <p class="lead">GMRE should build <b>ORRERY</b>: a role-aware, secure program portal that becomes the single authoritative entry point for a program's prime staff, subcontractors, and (where contractually permitted) the Government customer. It replaces ad-hoc email, calls, and file-sharing with a governed "one-stop shop."</p>
-    <p>The decisive architectural choice is <b>platform, not project</b>. ORRERY is delivered as a reusable framework — a custom <b>PHP web application</b> (Dockerized, Render/Kubernetes-deployable) acting as the <b>presentation and orchestration layer</b>, while <b>Microsoft 365 / SharePoint Online remains the authoritative system of record</b> for documents, surfaced through Microsoft Graph. New programs are created by <b>configuration</b>, not by forking code.</p>
-    <div class="callout warn">
-      <span class="k">The single most important open decision</span>
-      <p style="margin:6px 0 0"><b>Is CUI / ITAR / export-controlled data in scope?</b> If yes, the entire M365 tenant boundary must be <b>GCC High</b> (or an equivalent authorized enclave) and the portal must be deployed in a FedRAMP-Moderate-or-higher / DoD-aligned hosting boundary — <em>not</em> commercial Render. This one answer drives tenancy, hosting, identity, and cost. It is <span class="badge b-block">Blocking</span>. See §11, §12, §26.</p>
+    <p class="lead">GMRE should build <b>REDOUBT</b>: a role-aware, secure program portal that becomes the single authoritative entry point for a program's prime staff, subcontractors, and (where contractually permitted) the Government customer. It replaces ad-hoc email, calls, and file-sharing with a governed "one-stop shop."</p>
+    <p>The decisive architectural choice is <b>platform, not project</b>. REDOUBT is delivered as a reusable framework — a custom <b>PHP web application</b> (Dockerized, Render/Kubernetes-deployable) acting as the <b>presentation and orchestration layer</b>, while <b>Microsoft 365 / SharePoint Online remains the authoritative system of record</b> for documents, surfaced through Microsoft Graph. New programs are created by <b>configuration</b>, not by forking code.</p>
+    <div class="callout">
+      <span class="k">Design commitment — CUI / ITAR are in scope</span>
+      <p style="margin:6px 0 0">REDOUBT is <b>designed to hold controlled information up to CUI and ITAR/export-controlled data</b>. The baseline boundary is therefore a <b>Microsoft 365 GCC High</b> tenant plus a <b>FedRAMP-Moderate-or-higher / DoD-aligned Gov-cloud (or air-gapped) enclave</b> — not commercial hosting. Commercial Render is used only for the non-CUI discovery microsite and early UX pilots. The remaining decisions are <em>which</em> authorized enclave/ATO and the offboarding SLA — not <em>whether</em> the system may carry CUI. See §11, §12, §23, §26.</p>
     </div>
     <h4 class="sub">What we recommend building first (MVP)</h4>
     <p>A single program instance delivering: Program Home, Announcements, a permission-aware Document Library (Customer/COR + Project + Subcontractor-shared zones fronting SharePoint), Task Orders (metadata + linked docs), Job Requisitions, Program Directory, Quick Links, permission-aware Search, and a <b>self-service Content Administration</b> console — all behind SSO with MFA and full audit logging.</p>
@@ -242,7 +243,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
   <section class="block" id="s3">
     <h2><span class="n">03</span> Product Vision</h2>
     <h3 class="title">The authoritative, role-aware home base for program execution</h3>
-    <p class="lead">Any authorized member — prime, subcontractor, or customer — opens ORRERY and immediately sees <b>what matters to them</b>: their announcements, their documents, their task orders, their actions, their milestones. Content owners maintain it themselves. Security and isolation are enforced by design. Enterprise Systems can stand up a new program in days, not months.</p>
+    <p class="lead">Any authorized member — prime, subcontractor, or customer — opens REDOUBT and immediately sees <b>what matters to them</b>: their announcements, their documents, their task orders, their actions, their milestones. Content owners maintain it themselves. Security and isolation are enforced by design. Enterprise Systems can stand up a new program in days, not months.</p>
     <ul>
       <li><b>Secure by design</b> — least privilege, MFA, program &amp; company isolation, full auditability.</li>
       <li><b>Configuration over custom code</b> — new programs and modules toggle on; developers are not in the content path.</li>
@@ -280,7 +281,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
     <h2><span class="n">05</span> Current-State vs Future-State</h2>
     <h3 class="title">From n² communication to hub-and-spoke</h3>
     <div class="tablewrap"><table>
-      <thead><tr><th>Dimension</th><th>Current state</th><th>Future state (ORRERY)</th></tr></thead>
+      <thead><tr><th>Dimension</th><th>Current state</th><th>Future state (REDOUBT)</th></tr></thead>
       <tbody>
         <tr><td>Announcements</td><td>Individually emailed / repeated</td><td>Published once, role-targeted, scheduled/expiring, read-tracked</td></tr>
         <tr><td>Documents</td><td>Ad-hoc shares; version ambiguity</td><td>Permission-aware library over SharePoint; single authoritative version</td></tr>
@@ -328,7 +329,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
   <section class="block" id="s7">
     <h2><span class="n">07</span> Information Architecture</h2>
     <h3 class="title">Shallow, role-aware navigation</h3>
-    <pre class="diagram-src" style="display:block">ORRERY (Program Instance)
+    <pre class="diagram-src" style="display:block">REDOUBT (Program Instance)
 ├─ Home ...................... role-aware dashboard (default landing)
 ├─ Program
 │   ├─ Overview
@@ -430,8 +431,8 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
         <tr><td>Financial</td><td>Burn, invoices</td><td>Finance + PM (curated)</td><td>Finance SoR (link/embed)</td></tr>
         <tr><td>Customer-shared / Gov</td><td>COR deliverables</td><td>Customer + approvers</td><td>SharePoint (customer zone)</td></tr>
         <tr><td>Proprietary / FCI</td><td>Non-public contract info</td><td>Need-to-know</td><td>Controlled zones + labels</td></tr>
-        <tr><td>CUI</td><td>Controlled technical data</td><td>Need-to-know, marked</td><td><b>GCC High only</b> + Purview labels</td></tr>
-        <tr><td>Export / ITAR / EAR</td><td>Technical data</td><td>US-person, license-gated</td><td><b>Enclave</b>; possibly out-of-portal</td></tr>
+        <tr><td>CUI</td><td>Controlled technical data</td><td>Need-to-know, marked</td><td><b>GCC High</b> enclave + Purview CUI labels</td></tr>
+        <tr><td>Export / ITAR / EAR</td><td>Technical data</td><td>US-person, license-gated</td><td><b>GCC High</b> enclave + <b>US-person access gate</b> + labels</td></tr>
         <tr><td>PII</td><td>Recruiting data</td><td>HR need-to-know</td><td>Minimized; HR SoR</td></tr>
       </tbody>
     </table></div>
@@ -442,7 +443,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
   <section class="block" id="s12">
     <h2><span class="n">12</span> Security Architecture</h2>
     <h3 class="title">Portal is a gate, not a vault</h3>
-    <p>ORRERY is a <b>presentation/access layer</b>. Authoritative data stays in approved repositories (SharePoint, Finance, ATS, Contracts). The portal stores only: config, content it owns (announcements, links, FAQ), metadata, references, and audit logs.</p>
+    <p>REDOUBT is a <b>presentation/access layer</b>. Authoritative data stays in approved repositories (SharePoint, Finance, ATS, Contracts). The portal stores only: config, content it owns (announcements, links, FAQ), metadata, references, and audit logs.</p>
     <div class="grid2">
       <div class="tile"><h5>Data handling taxonomy</h5><p><b>Portal content</b> (owned) · <b>Authoritative SoR</b> (never duplicated) · <b>Linked</b> (deep link, auth at source) · <b>Embedded</b> (Graph render, live perms) · <b>Replicated</b> (avoid; if unavoidable, cache metadata only, never CUI bytes).</p></div>
       <div class="tile"><h5>Control themes (800-171 / CMMC)</h5><p>Access control, identification &amp; auth (MFA), audit &amp; accountability, config mgmt, media/data protection, system &amp; comms protection, incident response hooks, personnel/offboarding.</p></div>
@@ -451,7 +452,9 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
       <li><b>AuthN:</b> Entra ID OIDC SSO; MFA enforced; Conditional Access (device/geo/risk) for external identities.</li>
       <li><b>AuthZ:</b> centralized policy engine; every request authorized server-side against (program × company × role × zone).</li>
       <li><b>Isolation:</b> program instance boundary + company boundary enforced in every query.</li>
-      <li><b>Audit:</b> immutable, append-only audit log of access, admin, publish, provision, revoke; heightened retention for external access.</li>
+      <li><b>Export control (ITAR/EAR):</b> US-person attribute verified at provisioning and enforced as an access gate on export-controlled zones; license/agreement scoping where applicable; nationality never inferred client-side.</li>
+      <li><b>Compliance boundary:</b> runs in an <b>authorized GCC High / Gov-cloud (or air-gapped) enclave</b> with <b>FIPS 140-validated</b> crypto provided by the platform; the app adds no non-approved cryptography.</li>
+      <li><b>Audit:</b> immutable, append-only audit log of access, admin, publish, provision, revoke; heightened retention for external and export-controlled access.</li>
       <li><b>Secrets:</b> from environment / cloud secrets manager (Key Vault / Secrets Manager) — never in source. Mirrors repo rule "never commit .env".</li>
       <li><b>Transport/session:</b> TLS only, HSTS, strict CSP + nonce, CSRF tokens on all writes, short sessions, revoke-on-offboard.</li>
     </ul>
@@ -482,7 +485,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
     <div class="mermaid">
 flowchart TB
   subgraph Client["Browser (Prime · Sub · Customer)"]
-    UI["ORRERY UI<br/>role-aware, responsive"]
+    UI["REDOUBT UI<br/>role-aware, responsive"]
   end
   subgraph Edge["Edge / Hosting (Docker · Render/K8s)"]
     LB["TLS / Reverse proxy<br/>HSTS · CSP · WAF"]
@@ -529,7 +532,7 @@ flowchart TB
         <tr><td>Entra ID (OIDC/B2B)</td><td>Enterprise SSO, MFA, external identity, Conditional Access built-in</td><td>Guest lifecycle governance</td><td>Local accounts — rejected: weak, non-compliant</td></tr>
       </tbody>
     </table></div>
-    <div class="callout"><span class="k">Deployment boundary caveat</span><p style="margin:6px 0 0">Commercial Render is appropriate for the <b>discovery microsite and non-CUI pilots only</b>. A CUI-bearing production instance requires a FedRAMP-Moderate+/DoD-aligned boundary (e.g., Azure Gov / AWS GovCloud + GCC High). The Docker packaging keeps that migration path open.</p></div>
+    <div class="callout"><span class="k">Deployment boundary</span><p style="margin:6px 0 0">Because CUI/ITAR are in scope, the <b>production boundary is GCC High + a FedRAMP-Moderate+/DoD-aligned Gov cloud</b> (Azure Government or AWS GovCloud) — or an air-gapped enclave. The identical Docker image runs in all of them; <b>commercial Render is used only for the non-CUI discovery microsite and early UX pilots</b>, never for controlled data.</p></div>
   </section>
 
   <!-- 15 -->
@@ -553,7 +556,7 @@ flowchart TB
     <h3 class="title">Aggregate and orchestrate — don't duplicate the truth</h3>
     <div class="mermaid">
 flowchart LR
-  P["ORRERY<br/>(orchestration layer)"]
+  P["REDOUBT<br/>(orchestration layer)"]
   SP["SharePoint / M365<br/>SoR: documents"]
   EN["Entra ID<br/>SoR: identity"]
   AT["ATS<br/>SoR: jobs/candidates"]
@@ -671,7 +674,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
       <li>Every access, publish, and admin action produces an immutable audit record.</li>
       <li>A COR sees only the customer-shared library.</li>
       <li>Search returns only items the caller is authorized to see (verified with a negative test).</li>
-      <li>Deploys via Docker/Render; passes health check; secrets sourced from environment, none in source.</li>
+      <li>Deploys via Docker (non-CUI pilots on Render; controlled-data instances in the GCC High / Gov-cloud enclave); passes health check; secrets sourced from environment/secret manager, none in source.</li>
       <li>Offboarding a user revokes access and kills active sessions promptly.</li>
     </ul>
   </section>
@@ -699,7 +702,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     <h2><span class="n">23</span> Security / Compliance Considerations</h2>
     <ul>
       <li><b>CMMC / NIST SP 800-171 / DFARS 252.204-7012</b> shape the whole design: access control, MFA, audit, config mgmt, incident response, media protection, personnel offboarding.</li>
-      <li><b>CUI/ITAR</b> may force GCC High + enclave hosting and may keep export-controlled data <b>out of the portal entirely</b> (link-only to an authorized enclave).</li>
+      <li><b>CUI/ITAR are supported in-portal</b> within the GCC High + Gov-cloud enclave: Purview CUI labeling, US-person access gating for export-controlled zones, FIPS-validated crypto, and DFARS 252.204-7012 incident-reporting hooks. Export-controlled data is held under access control, not excluded.</li>
       <li><b>Least privilege + need-to-know</b> is the default posture; access is additive and approved, never assumed.</li>
       <li><b>Records/retention</b> follows contract + corporate schedules; audit logs retained longer for external access.</li>
       <li><b>External identity</b> is the largest ongoing risk surface — governed by sponsored lifecycle + access reviews.</li>
@@ -713,7 +716,8 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     <div class="tablewrap"><table>
       <thead><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th><th>Owner</th><th>Residual</th></tr></thead>
       <tbody>
-        <tr><td>CUI/export scope undecided → wrong tenant boundary</td><td>Med</td><td>Critical</td><td>Resolve blocking question before build; assume enclave until cleared</td><td>Cyber/Contracts</td><td>Low</td></tr>
+        <tr><td>CUI/ITAR handled outside an authorized boundary</td><td>Low</td><td>Critical</td><td>GCC High + Gov-cloud enclave is the baseline; CI/CD blocks controlled data on non-authorized targets; Render limited to non-CUI</td><td>Cyber/Contracts</td><td>Low</td></tr>
+        <tr><td>US-person / export-control gate bypass</td><td>Low</td><td>Critical</td><td>US-person attribute verified at provisioning + enforced server-side on export zones; access reviews; audit</td><td>Cyber/Export</td><td>Low</td></tr>
         <tr><td>Cross-subcontractor disclosure</td><td>Med</td><td>High</td><td>Per-company libraries + groups; server-side trim; negative tests</td><td>Cyber</td><td>Low</td></tr>
         <tr><td>SharePoint item-permission sprawl</td><td>High</td><td>High</td><td>Zone/library-level perms only; no per-item ACLs</td><td>Ent. Systems</td><td>Med</td></tr>
         <tr><td>Orphaned external accounts</td><td>High</td><td>High</td><td>Contract-bound expiry + quarterly access reviews</td><td>IAM</td><td>Low</td></tr>
@@ -753,8 +757,8 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     <div class="tablewrap"><table>
       <thead><tr><th>Priority</th><th>Domain</th><th>Question</th></tr></thead>
       <tbody>
-        <tr><td><span class="badge b-block">Blocking</span></td><td>Compliance</td><td>Is CUI / ITAR / export-controlled data in scope? GCC High required?</td></tr>
-        <tr><td><span class="badge b-block">Blocking</span></td><td>Security</td><td>What hosting boundary is authorized for the data class (Render vs Gov cloud/enclave)?</td></tr>
+        <tr><td><span class="badge b-block">Blocking</span></td><td>Compliance</td><td>Confirm the authorized GCC High tenant and the Gov-cloud ATO path (Azure Gov vs AWS GovCloud vs air-gapped) for the CUI/ITAR baseline.</td></tr>
+        <tr><td><span class="badge b-block">Blocking</span></td><td>Export</td><td>Which zones are ITAR/EAR, and what is the authoritative source for a user's US-person status + any license/agreement scoping?</td></tr>
         <tr><td><span class="badge b-block">Blocking</span></td><td>Customer</td><td>Is Government/COR access contractually permitted, and under what terms?</td></tr>
         <tr><td><span class="badge b-block">Blocking</span></td><td>Identity</td><td>Do we have Entra + B2B external collaboration approved and licensed?</td></tr>
         <tr><td><span class="badge b-high">High value</span></td><td>Program Mgmt</td><td>Which single pilot program launches first?</td></tr>
@@ -773,8 +777,8 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
   <section class="block" id="s27">
     <h2><span class="n">27</span> Recommended Next Actions</h2>
     <ol>
-      <li><b>Resolve the CUI/export scope decision</b> (Cyber + Contracts) — unblocks everything.</li>
-      <li><b>Confirm hosting boundary</b> for the resolved data class (commercial vs Gov enclave).</li>
+      <li><b>Confirm the authorized enclave</b> (GCC High tenant + Gov-cloud ATO path) for the CUI/ITAR baseline (Cyber + Contracts).</li>
+      <li><b>Define the export-control gate</b>: authoritative US-person source, ITAR/EAR zones, and license scoping (Cyber + Export/Empowered Official).</li>
       <li><b>Select the pilot program</b> and name its PM + Content Manager.</li>
       <li><b>Confirm M365/SharePoint tenant</b> and external collaboration (B2B) licensing/policy.</li>
       <li><b>Inventory systems of record</b> for docs, task orders, jobs, finance.</li>
@@ -790,7 +794,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
   <section class="block" id="wf">
     <h2><span class="n">A</span> Annex · Homepage Wireframe</h2>
     <h3 class="title">Role-aware home — materially beyond a link page</h3>
-    <div class="wf" role="img" aria-label="ORRERY home page wireframe">
+    <div class="wf" role="img" aria-label="REDOUBT home page wireframe">
       <div class="wf-top">
         <div class="wf-brand"><span class="wf-logo"></span> PROGRAM NAME</div>
         <div style="font-size:12.5px;opacity:.9">Customer · Contract # · PM &nbsp;|&nbsp; 🔍 Search &nbsp; 🔔 &nbsp; ▢ User ▾</div>
@@ -913,7 +917,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
 
     <h4 class="sub">Decisions leadership needs to make</h4>
     <ul>
-      <li>Fund ORRERY as a <b>reusable platform</b> (vs a one-off program site)?</li>
+      <li>Fund REDOUBT as a <b>reusable platform</b> (vs a one-off program site)?</li>
       <li>Is this intended to become a <b>proposal differentiator</b> (raises the bar for polish/compliance)?</li>
       <li>Risk appetite for <b>customer/COR access</b> in the portal.</li>
       <li>Which <b>pilot program</b> and what success looks like at 90 days.</li>
@@ -936,7 +940,8 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
 
     <h4 class="sub">Questions for Cybersecurity</h4>
     <ul>
-      <li>CUI/ITAR scope and required boundary (GCC High? enclave?).</li>
+      <li>Confirm the GCC High tenant + Gov-cloud enclave (ATO path) for the CUI/ITAR baseline.</li>
+      <li>Authoritative source for US-person status and the export-control (ITAR/EAR) access gate.</li>
       <li>Conditional Access baseline for external identities.</li>
       <li>Audit retention requirements, especially for external access.</li>
       <li>Approved offboarding SLA (how fast must access die?).</li>
@@ -955,8 +960,9 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     <h2><span class="n">§</span> Assumptions, Unknowns &amp; Required Decisions</h2>
     <h4 class="sub">Confirmed facts</h4>
     <ul>
-      <li>Stack is mandated <b>PHP</b>; must be <b>Docker/Render web-service deployable</b>.</li>
-      <li>Project lives in the <code>jessicarojas1.github.io</code> repo as folder <code>orrery/</code>.</li>
+      <li>Stack is mandated <b>PHP</b>; must be <b>Docker/web-service deployable</b>.</li>
+      <li><b>CUI and ITAR/export-controlled data are in scope</b> and must be supported in-portal — baseline boundary is GCC High + a Gov-cloud/air-gapped enclave.</li>
+      <li>Project lives in the <code>jessicarojas1.github.io</code> repo as folder <code>redoubt/</code>.</li>
       <li>Business need, personas, and desired modules are per the Automation Core Team request.</li>
     </ul>
     <h4 class="sub">Assumptions made</h4>
@@ -968,7 +974,8 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
     </ul>
     <h4 class="sub">Unknowns / missing information</h4>
     <ul>
-      <li>CUI/ITAR/export scope and authorized hosting boundary (drives tenancy &amp; cost) — <b>blocking</b>.</li>
+      <li><em>Which</em> authorized enclave/ATO for the CUI/ITAR baseline (GCC High tenant confirmed as required; Azure Gov vs AWS GovCloud vs air-gapped) — <b>blocking</b>.</li>
+      <li>Authoritative source for US-person status and which zones are ITAR/EAR (drives the export-control gate) — <b>blocking</b>.</li>
       <li>Whether COR/customer access is contractually permitted.</li>
       <li>Authoritative locations/APIs for task orders, jobs (ATS), and finance.</li>
     </ul>
@@ -986,7 +993,7 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
 </div>
 
 <footer>
-  ORRERY — GMRE Program Portal Framework · Product &amp; Architecture Discovery Package · <?= $today ?> · Pre-decisional / notional.
+  REDOUBT — GMRE Program Portal Framework · Product &amp; Architecture Discovery Package · <?= $today ?> · Pre-decisional / notional.
   Health: <a href="/health">/health</a>.
 </footer>
 

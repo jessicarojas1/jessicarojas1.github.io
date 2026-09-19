@@ -1,6 +1,6 @@
-# ORRERY — Local Development
+# REDOUBT — Local Development
 
-Operator guide for running ORRERY on a workstation during the discovery phase.
+Operator guide for running REDOUBT on a workstation during the discovery phase.
 
 ## 1. Deployment architecture
 
@@ -42,15 +42,15 @@ Routing and headers are in `public/index.php`. Content is `app/Views/discovery.p
 
 **PHP built-in server:**
 ```bash
-cd orrery
+cd redoubt
 php -S 0.0.0.0:8080 -t public
 ```
 
 **Docker:**
 ```bash
-cd orrery
-docker build -t orrery:discovery .
-docker run --rm -p 8080:8080 orrery:discovery
+cd redoubt
+docker build -t redoubt:discovery .
+docker run --rm -p 8080:8080 redoubt:discovery
 ```
 
 ## 8. Verification

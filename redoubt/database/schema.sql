@@ -1,4 +1,4 @@
--- ORRERY — GMRE Program Portal Framework
+-- REDOUBT — GMRE Program Portal Framework
 -- database/schema.sql — INITIAL, IDEMPOTENT design schema (PostgreSQL).
 --
 -- STATUS: Discovery-phase DESIGN schema derived from the conceptual data model
@@ -36,6 +36,9 @@ CREATE TABLE IF NOT EXISTS app_user (
                               CHECK (kind IN ('internal','external','customer')),
     status        TEXT        NOT NULL DEFAULT 'active'
                               CHECK (status IN ('invited','active','suspended','removed')),
+    -- Export control (ITAR/EAR): verified at provisioning, enforced server-side.
+    is_us_person           BOOLEAN,               -- NULL until verified
+    us_person_verified_at  TIMESTAMPTZ,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -112,6 +115,9 @@ CREATE TABLE IF NOT EXISTS document_ref (
     zone          TEXT   NOT NULL CHECK (zone IN
                     ('project','subcontractor_shared','company','customer','contracts','financial')),
     company_scope JSONB  NOT NULL DEFAULT '[]'::jsonb,
+    -- Export control: true = access additionally gated to US-persons + license scope.
+    export_controlled BOOLEAN NOT NULL DEFAULT false,
+    cui_marked        BOOLEAN NOT NULL DEFAULT false,
     sp_item_id    TEXT,                          -- SharePoint/Graph item id
     title         TEXT,
     updated_at    TIMESTAMPTZ

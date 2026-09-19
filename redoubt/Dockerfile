@@ -1,4 +1,4 @@
-# ORRERY — GMRE Program Portal Framework
+# REDOUBT — GMRE Program Portal Framework
 # Discovery-phase container: serves the Product & Architecture Discovery Package.
 # Multi-stage: composer (autoloader) -> php:8.2-apache runtime, non-root, healthcheck.
 
@@ -27,8 +27,8 @@ COPY --from=vendor /app/vendor /var/www/html/vendor
 
 # Route all non-file requests through the front controller.
 RUN printf '<Directory ${APACHE_DOCUMENT_ROOT}>\n\tAllowOverride All\n\tRequire all granted\n\tFallbackResource /index.php\n</Directory>\n' \
-      > /etc/apache2/conf-available/orrery.conf \
- && a2enconf orrery
+      > /etc/apache2/conf-available/redoubt.conf \
+ && a2enconf redoubt
 
 # Render/K8s provide PORT; Apache listens on 8080 (non-privileged).
 ENV PORT=8080
