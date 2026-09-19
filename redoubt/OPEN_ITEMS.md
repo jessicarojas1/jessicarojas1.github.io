@@ -70,9 +70,12 @@ requirement.** The blockers below flow from these.
 - **Task Orders module** (Annex H): `/app/task-orders` (create/edit/award/delete),
   program- and company-scoped; award emits `taskorder.awarded` webhook + audit;
   `GET /api/v1/task-orders` (`TaskOrders`, `TaskOrdersController`, `app_taskorders.php`).
-- **Jobs module** (Annex H): `/app/jobs` (create/edit/post/close/delete), audience-
-  trimmed, draft→open workflow; posting emits `job.posted` webhook + audit;
-  `GET /api/v1/jobs` (`Jobs`, `JobsController`, `app_jobs.php`).
+- **Jobs module** (Annex H): `/app/jobs` (create/edit/post/close/delete), draft→open
+  workflow; posting emits `job.posted` webhook + audit; `GET /api/v1/jobs`.
+  **Full targeting**: program-wide / by-company / by-contract (task order),
+  settable per req and **filterable** in the list (All / Program-wide / Targeted /
+  My company / per-contract); server-side visibility so contractors see only the
+  openings for their company/contract (`Jobs`, `JobsController`, `app_jobs.php`).
 - **Directory module** (Annex H): `/app/directory` — visibility-trimmed contacts,
   manage via `contact.manage`; `GET /api/v1/directory` (`Directory`, `DirectoryController`).
 - **Search** (§13): `/app/search` + `GET /api/v1/search` — global and
@@ -95,8 +98,7 @@ Jobs, Directory, Search).
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
-| **Job targeting UI + filters** (program-wide / by company / by contract-task-order) | Contractors see openings for their company/contract; recruiters set targeting | **Schema groundwork done** (`job_requisition.company_scope`, `task_order_scope`); wire `Jobs` visibility + a filter bar + form controls; make defaults settable in Settings |
-| **Settings area + Branding** (mandatory standard) | Per-program logo URL / display name / accent color; job-targeting defaults | `/app/admin/settings` persisting to `program_config`; apply branding live in the header |
+| **Settings area + Branding** (mandatory standard) | Per-program logo URL / display name / accent color; program-level job-targeting defaults | `/app/admin/settings` persisting to `program_config`; apply branding live in the header |
 | Notifications (in-portal + email/Teams digests) | Reduce "did you see it?" churn | Build on the webhook/event base |
 | Onboarding / offboarding workflows | Sponsored access lifecycle | Entra B2B + approvals |
 | Milestones / Calendar, FAQ, Quick Links modules | Remaining content modules | Per module standard (Annex H) |
@@ -128,8 +130,8 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 44 checks)
-  enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
+  These checks are now a **repeatable suite** (`php tests/run.php`, 51 checks —
+  incl. job targeting by company/contract/program-wide + filters) enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
   prepares became `''` (Db now emits `true`/`false`); webhook `@>` needed `::jsonb`;
   reused `:pid` broke native prepares; `Db::update` now appends `updated_at` only
   when the column exists (+ `updated_at` on `announcement`/`app_user`/`task_order`).

@@ -76,6 +76,30 @@ Jobs::publish($jid, $pid, $ids['pm']);
 T::eq('sub sees the posted job', 1, count(Jobs::listForUser($sam, $pid)));
 T::eq('job.posted webhook delivered', 'job.posted', $lastEvent());
 
+// Job targeting: program-wide / by company / by contract (task order)
+$toA = (int) Db::fetchOne("SELECT id FROM task_order WHERE number='TO-A' AND program_id=:p", ['p' => $pid])['id'];
+$mkJob = static function (string $t, array $target) use ($pid, $ids): int {
+    $id = Jobs::create($pid, ['title' => $t] + $target, $ids['pm']);
+    Jobs::publish($id, $pid, $ids['pm']);
+    return $id;
+};
+$mkJob('J_all',  ['audience' => ['all']]);
+$mkJob('J_acme', ['audience' => [], 'company_scope' => [$ids['acme']], 'task_order_scope' => []]);
+$mkJob('J_beta', ['audience' => [], 'company_scope' => [$ids['beta']], 'task_order_scope' => []]);
+$mkJob('J_toA',  ['audience' => [], 'company_scope' => [], 'task_order_scope' => [$toA]]);   // TO-A is scoped to Acme
+$samJobTitles = static fn (array $f = []) => array_map(static fn ($j) => $j['title'], Jobs::listForUser($sam, $pid, $f));
+$sees = $samJobTitles();
+T::ok('Acme sub sees program-wide job', in_array('J_all', $sees, true));
+T::ok('Acme sub sees company-targeted (Acme) job', in_array('J_acme', $sees, true));
+T::ok('Acme sub does NOT see company-targeted (Beta) job', !in_array('J_beta', $sees, true));
+T::ok('Acme sub sees contract-targeted job (via TO-A→Acme)', in_array('J_toA', $sees, true));
+$prog = $samJobTitles(['scope' => 'program']);
+T::ok('filter scope=program shows program-wide only', in_array('J_all', $prog, true) && !in_array('J_acme', $prog, true) && !in_array('J_toA', $prog, true));
+$byTo = $samJobTitles(['task_order_id' => $toA]);
+T::ok('filter by task order returns that contract\'s job', in_array('J_toA', $byTo, true) && !in_array('J_all', $byTo, true));
+$byCo = $samJobTitles(['company_id' => $ids['acme']]);
+T::ok('filter by company returns company + contract-scoped jobs', in_array('J_acme', $byCo, true) && in_array('J_toA', $byCo, true) && !in_array('J_all', $byCo, true));
+
 // Directory visibility
 $samContacts = array_map(static fn ($c) => $c['name'], Directory::listForUser($sam, $pid));
 T::ok('sub sees all-visibility contact', in_array('Falcon lead', $samContacts, true));

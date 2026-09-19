@@ -36,15 +36,55 @@ final class JobsController
         }
         Authorize::requirePermission($user, 'job.view', ['program_id' => $programId]);
 
-        $items = Jobs::listForUser($user, $programId);
+        // Targeting reference data + current filter.
+        $companies = self::companies($programId);
+        $taskOrders = self::taskOrders($programId);
+        $filter = [];
+        if (in_array($_GET['scope'] ?? '', ['program', 'targeted'], true)) {
+            $filter['scope'] = $_GET['scope'];
+        }
+        if (!empty($_GET['co']) && ctype_digit((string) $_GET['co'])) {
+            $filter['company_id'] = (int) $_GET['co'];
+        }
+        if (!empty($_GET['to']) && ctype_digit((string) $_GET['to'])) {
+            $filter['task_order_id'] = (int) $_GET['to'];
+        }
+
+        $items = Jobs::listForUser($user, $programId, $filter);
         $can = [
             'create'  => Authorize::can($user, 'job.create', ['program_id' => $programId]),
             'edit'    => Authorize::can($user, 'job.edit', ['program_id' => $programId]),
             'publish' => Authorize::can($user, 'job.publish', ['program_id' => $programId]),
         ];
+        $myCompany = $user['memberships'][$programId]['company_id'] ?? null;
         $csrf = Security::csrfToken();
         $NONCE = $nonce;
         require dirname(__DIR__) . '/Views/app_jobs.php';
+    }
+
+    /** Companies attached to the program (for targeting + filters). @return array<int,string> */
+    private static function companies(int $programId): array
+    {
+        $out = [];
+        foreach (Db::fetchAll(
+            'SELECT DISTINCT c.id, c.name FROM company c
+               JOIN program_membership pm ON pm.company_id = c.id
+              WHERE pm.program_id = :p ORDER BY c.name',
+            ['p' => $programId]
+        ) as $r) {
+            $out[(int) $r['id']] = (string) $r['name'];
+        }
+        return $out;
+    }
+
+    /** Task orders in the program (for targeting + filters). @return array<int,string> */
+    private static function taskOrders(int $programId): array
+    {
+        $out = [];
+        foreach (Db::fetchAll('SELECT id, number, title FROM task_order WHERE program_id = :p ORDER BY number', ['p' => $programId]) as $r) {
+            $out[(int) $r['id']] = trim((string) $r['number'] . ' — ' . (string) ($r['title'] ?? ''));
+        }
+        return $out;
     }
 
     /** POST /app/jobs */
@@ -92,18 +132,32 @@ final class JobsController
     /** @return array<string,mixed> */
     private static function formData(): array
     {
+        $expire = trim((string) ($_POST['expire_at'] ?? ''));
+        $base = [
+            'title'     => trim((string) ($_POST['title'] ?? '')),
+            'ats_url'   => trim((string) ($_POST['ats_url'] ?? '')) ?: null,
+            'expire_at' => $expire !== '' ? $expire : null,
+        ];
+
+        // Program-wide short-circuits all other targeting.
+        if (!empty($_POST['program_wide'])) {
+            return $base + ['audience' => ['all'], 'company_scope' => [], 'task_order_scope' => []];
+        }
+
         $audience = [];
-        foreach (['all', 'internal', 'customer'] as $tok) {
+        foreach (['internal', 'customer'] as $tok) {
             if (!empty($_POST['aud_' . $tok])) {
                 $audience[] = $tok;
             }
         }
-        $expire = trim((string) ($_POST['expire_at'] ?? ''));
-        return [
-            'title'     => trim((string) ($_POST['title'] ?? '')),
-            'audience'  => $audience,
-            'ats_url'   => trim((string) ($_POST['ats_url'] ?? '')) ?: null,
-            'expire_at' => $expire !== '' ? $expire : null,
+        $ids = static function (mixed $v): array {
+            $v = is_array($v) ? $v : [];
+            return array_values(array_map('intval', array_filter($v, static fn ($x) => ctype_digit((string) $x))));
+        };
+        return $base + [
+            'audience'         => $audience,
+            'company_scope'    => $ids($_POST['company_scope'] ?? []),
+            'task_order_scope' => $ids($_POST['task_order_scope'] ?? []),
         ];
     }
 
