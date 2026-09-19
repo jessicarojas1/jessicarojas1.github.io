@@ -12,8 +12,9 @@ RUN composer install --no-dev --no-interaction --no-progress --optimize-autoload
 FROM php:8.2-apache AS runtime
 
 # Serve from /public and enable rewrite so the front controller handles routing.
-# curl is required by the container HEALTHCHECK.
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+# curl for the HEALTHCHECK; libpq for the PostgreSQL PDO driver (Phase 1+).
+RUN apt-get update && apt-get install -y --no-install-recommends curl libpq-dev \
+ && docker-php-ext-install pdo_pgsql \
  && rm -rf /var/lib/apt/lists/*
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public

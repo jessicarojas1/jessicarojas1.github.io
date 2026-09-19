@@ -206,6 +206,10 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
     <a href="#nfr">D · Non-Functional Reqs</a>
     <a href="#gov">E · Governance / RACI</a>
     <a href="#decisions">F · Decisions Needed</a>
+    <a href="#iam">G · Extreme IAM</a>
+    <a href="#modstd">H · Module Architecture Std</a>
+    <a href="#api">I · API &amp; Webhooks</a>
+    <a href="#diff">J · 1% Differentiators</a>
   </nav>
 
   <main class="content">
@@ -313,6 +317,9 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:20px 0}
         <tr><td>Quick Links</td><td><span class="badge b-mvp">MVP</span></td><td>Curated links to enterprise systems</td><td>Portal</td></tr>
         <tr><td>Global Search</td><td><span class="badge b-mvp">MVP</span></td><td>Permission-trimmed across portal + Graph</td><td>Portal index + Graph Search</td></tr>
         <tr><td>Content Administration</td><td><span class="badge b-mvp">MVP</span></td><td>Self-service authoring w/o developer/JIRA</td><td>Portal</td></tr>
+        <tr><td>IAM / User Management</td><td><span class="badge b-mvp">MVP</span></td><td>Two-pane IAM: granular module×action, role defaults vs explicit grants, export gate (Annex G)</td><td>Portal + Entra</td></tr>
+        <tr><td>REST API (/api/v1)</td><td><span class="badge b-p2">Phase 2</span></td><td>Permission-aware, versioned, API-key/OAuth clients (Annex I)</td><td>Portal</td></tr>
+        <tr><td>Webhooks &amp; Integrations</td><td><span class="badge b-p2">Phase 2</span></td><td>Signed outbound events + inbound connectors (Annex I)</td><td>Portal</td></tr>
         <tr><td>Calendar / Milestones</td><td><span class="badge b-p2">Phase 2</span></td><td>Key dates, CDRL/deliverable milestones</td><td>Portal / M365 Calendar</td></tr>
         <tr><td>Forms / Requests</td><td><span class="badge b-p2">Phase 2</span></td><td>Access requests, general intake</td><td>Portal / Power Automate</td></tr>
         <tr><td>Onboarding</td><td><span class="badge b-p2">Phase 2</span></td><td>Guided sub/customer onboarding + provisioning</td><td>Portal + Entra</td></tr>
@@ -952,6 +959,83 @@ ProgramConfig (program_id, key, json_value)  -- module + integration config
       <li>Where do task orders/mods authoritatively live, and who may see them?</li>
       <li>Any DFARS/flow-down clauses affecting where data may be stored/hosted?</li>
     </ul>
+  </section>
+
+  <!-- Annex G: Extreme IAM -->
+  <section class="block" id="iam">
+    <h2><span class="n">G</span> Annex · Extreme User &amp; Permission Management</h2>
+    <h3 class="title">Beyond a checkbox grid — a defense-grade IAM console</h3>
+    <p>User management is a first-class module, not an afterthought. It delivers a two-pane IAM experience and a permission model deep enough for aerospace/defense governance.</p>
+    <div class="grid2">
+      <div class="tile"><h5>Two-pane IAM console</h5><p>Scrollable user list (search, avatars, department, role badges) + a permission editor with per-module accordions, each showing a colored icon, an <em>N/total granted</em> count, and Grant-All / Clear-All batch actions.</p></div>
+      <div class="tile"><h5>Granular module × action</h5><p>Not just read/write — specific actions per module (e.g. <code>taskorder.approve</code>, <code>announcement.publish</code>, <code>access.review</code>, <code>export.gate.manage</code>). Coarse strings alias to arrays of granular keys for backward-compat.</p></div>
+      <div class="tile"><h5>Role default vs explicit grant</h5><p>Visual distinction: <b>green</b> = role default, <b>orange</b> = explicit grant, <b>gray</b> = denied. Explicit grants/denials are stored per user per program and override role defaults; denials always win.</p></div>
+      <div class="tile"><h5>Export-control gate</h5><p>US-person status is a hard gate on ITAR/EAR zones — enforced server-side above all permissions. A non-US-person can never reach export-controlled resources regardless of role.</p></div>
+      <div class="tile"><h5>Delegated administration</h5><p>Subcontractor admins manage only their own company's roster (company-scoped). Program vs application vs security administration are separated planes (§18).</p></div>
+      <div class="tile"><h5>AJAX save + auditability</h5><p>Permission changes save via <code>fetch()</code> with in-memory CSRF rotation, dirty-tracking ("unsaved changes"), toast feedback, live permission counts — and every change is audited (who granted what, when).</p></div>
+    </div>
+    <p class="muted">Implemented in the skeleton: <code>Roles</code> (defaults + aliases), <code>Authorize</code> (program×company×role×zone + export gate), and the <code>user_permission_grant</code> table. The two-pane admin UI is the next Phase 1 build.</p>
+  </section>
+
+  <!-- Annex H: Module Architecture Standard -->
+  <section class="block" id="modstd">
+    <h2><span class="n">H</span> Annex · Module Architecture Standard</h2>
+    <h3 class="title">Every module is built the same way — structure is enforced</h3>
+    <p>To keep the platform coherent at scale, <b>every</b> module (announcements, documents, task orders, jobs, directory, …) conforms to the same contract:</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Layer</th><th>Requirement</th></tr></thead>
+      <tbody>
+        <tr><td>Controller</td><td>Calls <code>Authorize::requirePermission()</code> with a granular key on every action; validates CSRF on writes.</td></tr>
+        <tr><td>Service</td><td>All data access via parameterized queries; program- and company-scoped in every query; no cross-tenant leakage.</td></tr>
+        <tr><td>Views</td><td>Output escaped via <code>Security::h()</code>; role-aware rendering; consistent design system (page header, breadcrumbs, empty states); no inline event handlers (CSP + nonce).</td></tr>
+        <tr><td>Permissions</td><td>Registers its granular <code>module.action</code> keys with <code>Roles</code>; appears in the IAM console automatically.</td></tr>
+        <tr><td>Audit</td><td>Emits audit events for view/create/edit/publish/delete via <code>Audit::log()</code>.</td></tr>
+        <tr><td>API</td><td>Exposes permission-aware, versioned endpoints under <code>/api/v1/&lt;module&gt;</code> reusing the same Authorize engine.</td></tr>
+        <tr><td>Webhooks</td><td>Emits domain events (e.g. <code>announcement.published</code>) through the webhook dispatcher.</td></tr>
+        <tr><td>Config</td><td>Toggle-able per program via <code>program.enabled_modules</code>; no code fork to enable/disable.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">This is enforced by convention + the security/UI audit gates in <code>CLAUDE.md</code>. A module that skips any layer fails the milestone checklist.</p>
+  </section>
+
+  <!-- Annex I: API & Webhooks -->
+  <section class="block" id="api">
+    <h2><span class="n">I</span> Annex · API Connections &amp; Webhooks</h2>
+    <h3 class="title">A permission-aware integration surface</h3>
+    <h4 class="sub">REST API (<code>/api/v1</code>)</h4>
+    <ul>
+      <li><b>Versioned</b> and stable; JSON; every request authenticated by a <b>bearer API key</b> (hashed at rest, program-scoped, scoped permissions) or an interactive session.</li>
+      <li><b>Permission-aware &amp; permission-trimmed:</b> the API reuses the same <code>Authorize</code> engine as the UI — it can never return data the caller could not see in the portal, and search results are trimmed identically.</li>
+      <li>Endpoints mirror modules: <code>/announcements</code>, <code>/documents</code>, <code>/task-orders</code>, <code>/jobs</code>, <code>/contacts</code>, <code>/search</code>, plus <code>/me</code> and <code>/health</code>.</li>
+      <li>All access audited; export-controlled resources honor the US-person gate at the API too.</li>
+    </ul>
+    <h4 class="sub">Webhooks</h4>
+    <ul>
+      <li><b>Outbound events</b> (e.g. <code>announcement.published</code>, <code>document.updated</code>, <code>taskorder.awarded</code>, <code>user.offboarded</code>) delivered to program-scoped subscriptions.</li>
+      <li>Payloads are <b>HMAC-SHA256 signed</b> (<code>X-Redoubt-Signature</code>); every attempt is logged in <code>webhook_delivery</code>; a durable retry queue is Phase 2.</li>
+      <li><b>Inbound webhooks / connectors</b> (ATS, Finance, Contracts, Teams) via signed, verified endpoints and the <code>integration_connector</code> config (secrets by reference to the secret manager).</li>
+    </ul>
+    <p class="muted">Implemented in the skeleton: <code>ApiRouter</code> (auth + permission-aware routing, meta endpoints live, module endpoints return a stable <code>501</code> contract), <code>ApiKey</code>, <code>Webhooks</code> (signed dispatch + delivery log), and the <code>api_client</code> / <code>webhook_subscription</code> / <code>webhook_delivery</code> / <code>integration_connector</code> tables.</p>
+  </section>
+
+  <!-- Annex J: Differentiators -->
+  <section class="block" id="diff">
+    <h2><span class="n">J</span> Annex · 1% Differentiators</h2>
+    <h3 class="title">Capabilities most program portals do not have — each tied to a real feature</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Differentiator</th><th>Backed by</th></tr></thead>
+      <tbody>
+        <tr><td>CUI/ITAR-in-portal with a real US-person export gate</td><td>Server-side export gate + Purview labels + GCC High (Annex G, §12)</td></tr>
+        <tr><td>Program isolation as a product, not a promise</td><td>Per-program SharePoint site + per-company library/group + <code>program_id</code> query scoping (§11)</td></tr>
+        <tr><td>Stand up a new program by configuration in days</td><td>Create-Program flow + site templating + module toggles (§19)</td></tr>
+        <tr><td>Portable across on-prem / Azure Gov / AWS GovCloud from one image</td><td>Container on Kubernetes, GCC High back end (§14)</td></tr>
+        <tr><td>Defense-grade IAM (role default vs explicit grant, delegated sub-admin)</td><td>Two-pane IAM + <code>user_permission_grant</code> (Annex G)</td></tr>
+        <tr><td>Permission-aware API + signed webhooks for ecosystem integration</td><td><code>/api/v1</code> + HMAC webhooks (Annex I)</td></tr>
+        <tr><td>Every action audited; permission-trimmed search that never leaks</td><td>Append-only audit + Authorize-trimmed queries (§12, §13)</td></tr>
+        <tr><td>Runs even fully air-gapped, with an in-enclave AI assistant</td><td>Air-gapped deployment + self-hosted Ollama (deployments/AIRGAPPED.md)</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">Each row is a capability with an implementation path in this package or the Phase 1 skeleton — not marketing.</p>
   </section>
 
   <!-- Assumptions block required by root prompt -->

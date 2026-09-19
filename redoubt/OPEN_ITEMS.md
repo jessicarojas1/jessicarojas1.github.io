@@ -1,16 +1,28 @@
 # REDOUBT — Open Items / Production-Readiness Register
 
-Honest status as of 2026-09-18. This is a **discovery-phase** deliverable; the
-list below separates what is **done** from what is **outstanding**, grouped by
-theme, each with impact + suggested action.
+Honest status as of 2026-09-19. This is transitioning from **discovery** to a
+**Phase 1 skeleton**; the list below separates what is **done** from what is
+**outstanding**, grouped by theme, each with impact + suggested action.
 
-## Done (this drop)
+## Done (to date)
 
-- Product & Architecture Discovery Package (served at `/`).
-- Deployable PHP scaffold: front controller, strict security headers + CSP nonce, `/health`.
-- Docker (multi-stage, non-root, healthcheck) + Render blueprint (non-CUI).
-- Initial idempotent `database/schema.sql` (design; pending decisions).
-- Core docs: Architecture, Deployment, Disaster Recovery, Security; `deployments/LOCAL_DEVELOPMENT.md`.
+- Product & Architecture Discovery Package (served at `/`), incl. annexes for
+  extreme IAM, module-architecture standard, API & webhooks, and differentiators.
+- Deployable PHP scaffold: front controller/router, strict security headers + CSP
+  nonce, `/health`, PSR-4 bootstrap (runs with or without Composer).
+- **Phase 1 framework services (skeleton):** `Config`, `Session`, `Security`
+  (nonce/escape/CSRF), `Db` (PDO/PostgreSQL, parameterized, auto `updated_at`),
+  `Roles` (granular perms + aliases), `Authorize` (program×company×role×zone +
+  US-person export gate), `Oidc` (Entra GCC High, PKCE, JWKS RS256), `Auth`,
+  `Graph` (GCC High client-credentials), `Audit`, `ApiKey`, `Webhooks`.
+- **HTTP:** `AuthController` (login/callback/logout), `AppController`
+  (authenticated role-aware home), `ApiRouter` (`/api/v1`, permission-aware).
+- Docker (multi-stage, non-root, healthcheck, `pdo_pgsql`) + Render blueprint (non-CUI).
+- `database/schema.sql` extended: `user_permission_grant`, `api_client`,
+  `webhook_subscription`, `webhook_delivery`, `integration_connector`, plus
+  export-control columns.
+- `.env.example` (GCC High endpoints); core docs + all deployment guides
+  (KUBERNETES primary, AZURE, AWS, SINGLE_LINUX_SERVER, AIRGAPPED, LOCAL_DEVELOPMENT).
 
 ## Blocking decisions (must resolve before build)
 
@@ -38,23 +50,30 @@ requirement.** The blockers below flow from these.
 | `deployments/AZURE.md` | M365 GCC High back end (all targets) + AKS hosting | **Done** |
 | `deployments/AWS.md` | AWS GovCloud (EKS) hosting → M365 GCC High | **Done** |
 | `deployments/SINGLE_LINUX_SERVER.md` | Fallback / small footprint | **Done** |
-| `deployments/AIRGAPPED.md` | Fully offline enclave + self-hosted LLM (Ollama) | Tracked — author if a disconnected variant is needed |
+| `deployments/AIRGAPPED.md` | Fully offline enclave + self-hosted LLM (Ollama) | **Done** |
 
 ## Outstanding — Application (Phase 1 / MVP)
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
-| Entra OIDC SSO + MFA | No auth yet | Implement `app/Support/Auth` + app registration |
-| AuthZ policy engine (program×company×role×zone) | Core security control | Implement + negative tests |
-| Microsoft Graph client (SharePoint docs) | Document module | Implement with app-only + delegated flows |
-| Content Administration console | The critical business requirement | Build after RBAC |
-| Announcements / Task Orders / Jobs / Directory / Search | MVP modules | Per §20 of the package |
-| Audit logging (append-only) | Compliance | Implement early, log everything |
-| CSRF + input validation across writes | Security baseline | Mirror AEGIS `Security::` conventions |
-| CI/CD, dev/test/prod, secrets management | Ops | DevSecOps |
+| **Security review of `Oidc`** | Hand-rolled token verification | Review before enabling prod sign-in; consider a vetted JOSE lib |
+| **Live end-to-end test** | Skeleton is untested (no PHP/Docker on build host) | Run against a real Entra GCC High app reg + PostgreSQL |
+| Two-pane IAM admin UI | The "extreme IAM" console (Annex G) | Build on `Roles`/`Authorize`/`user_permission_grant` |
+| Module UIs: Announcements / Documents / Task Orders / Jobs / Directory / Search | MVP modules | Per §20 + module standard (Annex H) |
+| Content Administration console | The critical business requirement | Build after IAM |
+| Document module via Graph (Sites.Selected) | Customer/Project/Sub-shared zones | Wire `Graph` to per-program sites |
+| API module endpoints (replace 501 stubs) | Real `/api/v1` reads/writes | Implement per Annex I, permission-trimmed |
+| Webhook admin + durable retry queue/worker | Reliable delivery | Move `Webhooks::dispatch` behind a queue |
+| Automated tests (authz negative tests, isolation) | Prove no cross-tenant/US-person leakage | Add before go-live |
+| CI/CD, dev/test/prod, secrets management, image signing | Ops | DevSecOps |
 
 ## Notes / known limitations
 
+- **The Phase 1 skeleton is unverified at runtime** — the build host has no PHP or
+  Docker. Lint/run before relying on it: `php -l` each file; `php -S 0.0.0.0:8080 -t public`.
+- `Oidc` token verification is hand-rolled and MUST be security-reviewed before
+  production sign-in (see `app/Support/README.md`).
+- `Webhooks` dispatch is synchronous; a durable retry queue is Phase 2.
 - Discovery microsite loads Mermaid from a CDN for two diagrams; it degrades to
   showing diagram source if blocked (air-gap friendly). Phase 1 should vendor or
   pre-render diagrams for a fully self-contained enclave build.

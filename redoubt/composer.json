@@ -4,7 +4,14 @@
   "type": "project",
   "license": "proprietary",
   "require": {
-    "php": ">=8.2"
+    "php": ">=8.2",
+    "ext-curl": "*",
+    "ext-openssl": "*",
+    "ext-json": "*",
+    "ext-pdo": "*"
+  },
+  "suggest": {
+    "ext-pdo_pgsql": "Required for the PostgreSQL portal database (Phase 1+)"
   },
   "autoload": {
     "psr-4": {

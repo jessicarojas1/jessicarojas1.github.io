@@ -1,10 +1,14 @@
 # REDOUBT — GMRE Program Portal Framework
 
-> **Status: Discovery / Pre-decisional.** This directory currently ships a
-> **Product & Architecture Discovery Package** served as a small PHP web
-> application. **No program data, authentication, or content-management
-> features are implemented yet** — those are Phase 1 (MVP). See
-> [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`OPEN_ITEMS.md`](OPEN_ITEMS.md).
+> **Status: Discovery Package + Phase 1 skeleton.** This directory ships the
+> **Product & Architecture Discovery Package** (served at `/`) plus a **Phase 1
+> framework skeleton**: Entra GCC High OIDC sign-in, the authorization policy
+> engine (program × company × role × zone + US-person export gate), audit logging,
+> a Microsoft Graph client, a permission-aware REST API (`/api/v1`), and signed
+> webhooks. **Portal module UIs (announcements, documents, IAM console, etc.) are
+> not built yet**, and **the skeleton is unverified at runtime** (no PHP/Docker on
+> the build host). See [`OPEN_ITEMS.md`](OPEN_ITEMS.md). The `Oidc` token
+> verification must be security-reviewed before production sign-in.
 
 ## What it is
 
@@ -47,17 +51,21 @@ over the existing systems of record.
 ```
 redoubt/
 ├─ public/
-│  └─ index.php          Front controller (routes '/', '/health'; sets CSP/headers)
+│  └─ index.php          Front controller: /, /health, /auth/*, /app, /api/*
 ├─ app/
-│  ├─ Views/
-│  │  └─ discovery.php   The Discovery Package microsite (this deliverable)
-│  └─ Support/           (Phase 1: Security, Auth, Graph client, AuthZ engine)
+│  ├─ bootstrap.php      PSR-4 autoload (Composer or built-in) + env loading
+│  ├─ Support/           Framework services (Redoubt\Support\*):
+│  │                     Config, Session, Security, Db, Roles, Authorize,
+│  │                     Oidc, Auth, Graph, Audit, ApiKey, Webhooks
+│  ├─ Http/              AuthController, AppController, ApiRouter
+│  └─ Views/             discovery.php (microsite), app_home.php (authed shell)
 ├─ database/
-│  └─ schema.sql         Initial idempotent portal schema (design; pending decisions)
+│  └─ schema.sql         Idempotent schema (IAM grants, API clients, webhooks…)
 ├─ docs/                 Architecture, Deployment, Disaster Recovery, Security
-├─ deployments/          Operator guides (LOCAL_DEVELOPMENT present; others tracked)
-├─ Dockerfile            Multi-stage, non-root, healthcheck
-├─ render.yaml           Render Blueprint (discovery/non-CUI)
+├─ deployments/          KUBERNETES (primary), AZURE, AWS, SINGLE_LINUX_SERVER, AIRGAPPED, LOCAL_DEVELOPMENT
+├─ Dockerfile            Multi-stage, non-root, healthcheck, pdo_pgsql
+├─ render.yaml           Render Blueprint (non-CUI discovery only)
+├─ .env.example          Config template (GCC High endpoints)
 ├─ composer.json         PSR-4 autoload (Redoubt\)
 └─ README.md
 ```

@@ -39,6 +39,24 @@ deployable scaffold exist. Do **not** claim MVP features exist; see `OPEN_ITEMS.
   parameterized queries only, secrets from env/secrets manager (never commit `.env`).
 - **CSP compliance:** no inline event handlers; inline `<script>`/`<style>` carry the
   per-request nonce (see `public/index.php`).
+- **Module architecture standard (Annex H).** Every module ships all layers:
+  controller (`Authorize::requirePermission` + CSRF), program/company-scoped
+  service (parameterized queries), escaped role-aware views (no inline handlers),
+  registered granular `module.action` permissions, audit events, a permission-aware
+  `/api/v1/<module>` endpoint, and domain webhook events. Toggle per program via
+  `program.enabled_modules` — never fork code to enable a module.
+- **Extreme IAM (Annex G).** Follow the parent `../CLAUDE.md` IAM UI standard:
+  two-pane console, granular module×action, role default vs explicit grant vs
+  denied, delegated sub-admin, AJAX save with CSRF rotation, full audit. Explicit
+  grants/denials live in `user_permission_grant`; denials win; the US-person
+  export gate sits above all permissions.
+- **API & webhooks.** The REST API reuses the same `Authorize` engine (never a
+  parallel check) and is permission-trimmed. Webhook payloads are HMAC-signed;
+  API-client secrets are stored hashed. Secrets for connectors are referenced from
+  the secret manager, never stored inline.
+- **Security review gate.** The hand-rolled `Oidc` token verification must be
+  security-reviewed (or replaced with a vetted JOSE library) before production
+  sign-in is enabled.
 - **Keep the doc set current.** Update `docs/`, `deployments/`, `README.md`,
   `OPEN_ITEMS.md`, and `database/schema.sql` in the same change as any feature,
   migration, or config change. `schema.sql` must always reflect the full combined schema.

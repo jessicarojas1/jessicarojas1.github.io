@@ -200,6 +200,71 @@ CREATE TABLE IF NOT EXISTS audit_event (
 );
 
 -- ---------------------------------------------------------------------------
+-- Extreme IAM: explicit per-user permission grants/denials (layered on top of
+-- role defaults; denials win). Enables the two-pane IAM editor's orange "explicit
+-- grant" dots vs green "role default" vs gray "denied".
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS user_permission_grant (
+    program_id     BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+    user_id        BIGINT NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    permission_key TEXT   NOT NULL,               -- granular, e.g. 'risk.accept'
+    effect         TEXT   NOT NULL DEFAULT 'grant' CHECK (effect IN ('grant','deny')),
+    granted_by     BIGINT REFERENCES app_user(id),
+    granted_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (program_id, user_id, permission_key)
+);
+
+-- ---------------------------------------------------------------------------
+-- API clients (machine access). Only a hash of the secret is stored.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS api_client (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    client_ref  TEXT UNIQUE NOT NULL,             -- public id portion of the token
+    name        TEXT NOT NULL,
+    program_id  BIGINT REFERENCES program(id) ON DELETE CASCADE,
+    key_hash    TEXT NOT NULL,                    -- sha256 of the secret portion
+    scopes      JSONB NOT NULL DEFAULT '[]'::jsonb,
+    active      BOOLEAN NOT NULL DEFAULT true,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    last_used_at TIMESTAMPTZ
+);
+
+-- ---------------------------------------------------------------------------
+-- Webhooks: program-scoped subscriptions + delivery log (HMAC-signed payloads).
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS webhook_subscription (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    program_id  BIGINT REFERENCES program(id) ON DELETE CASCADE,
+    url         TEXT NOT NULL,
+    secret      TEXT NOT NULL,                    -- HMAC signing secret
+    events      JSONB NOT NULL DEFAULT '[]'::jsonb, -- e.g. ["announcement.published"]
+    active      BOOLEAN NOT NULL DEFAULT true,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS webhook_delivery (
+    id              BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    subscription_id BIGINT NOT NULL REFERENCES webhook_subscription(id) ON DELETE CASCADE,
+    event           TEXT NOT NULL,
+    status          TEXT NOT NULL CHECK (status IN ('delivered','failed','pending')),
+    response_code   INTEGER,
+    attempts        INTEGER NOT NULL DEFAULT 1,
+    at              TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ---------------------------------------------------------------------------
+-- Integration connectors (config for enterprise system links; secrets by ref).
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS integration_connector (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    program_id  BIGINT REFERENCES program(id) ON DELETE CASCADE,
+    kind        TEXT NOT NULL,                    -- 'ats' | 'finance' | 'contracts' | 'teams' | ...
+    config      JSONB NOT NULL DEFAULT '{}'::jsonb,
+    secret_ref  TEXT,                             -- name/path in the secret manager
+    active      BOOLEAN NOT NULL DEFAULT true
+);
+
+-- ---------------------------------------------------------------------------
 -- Indexes (idempotent)
 -- ---------------------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_prog_member_user   ON program_membership(user_id);
@@ -208,6 +273,10 @@ CREATE INDEX IF NOT EXISTS idx_docref_prog_zone   ON document_ref(program_id, zo
 CREATE INDEX IF NOT EXISTS idx_taskorder_prog     ON task_order(program_id);
 CREATE INDEX IF NOT EXISTS idx_job_prog           ON job_requisition(program_id);
 CREATE INDEX IF NOT EXISTS idx_audit_prog_at      ON audit_event(program_id, at);
+CREATE INDEX IF NOT EXISTS idx_grant_user         ON user_permission_grant(user_id);
+CREATE INDEX IF NOT EXISTS idx_apiclient_ref      ON api_client(client_ref);
+CREATE INDEX IF NOT EXISTS idx_websub_prog        ON webhook_subscription(program_id);
+CREATE INDEX IF NOT EXISTS idx_webdel_sub_at      ON webhook_delivery(subscription_id, at);
 
 -- ---------------------------------------------------------------------------
 -- Seed: baseline roles (idempotent)
