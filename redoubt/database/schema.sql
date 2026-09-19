@@ -144,9 +144,10 @@ CREATE TABLE IF NOT EXISTS job_requisition (
     title       TEXT NOT NULL,
     audience    JSONB NOT NULL DEFAULT '[]'::jsonb,
     ats_url     TEXT,
-    status      TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','filled','closed')),
+    status      TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','open','filled','closed')),
     expire_at   TIMESTAMPTZ,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS program_contact (
@@ -156,7 +157,8 @@ CREATE TABLE IF NOT EXISTS program_contact (
     freeform    TEXT,
     role_label  TEXT,
     company_id  BIGINT REFERENCES company(id),
-    visibility  JSONB NOT NULL DEFAULT '[]'::jsonb
+    visibility  JSONB NOT NULL DEFAULT '[]'::jsonb,
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS milestone (

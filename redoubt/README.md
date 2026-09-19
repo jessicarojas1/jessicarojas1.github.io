@@ -5,14 +5,15 @@
 > framework skeleton**: Entra GCC High OIDC sign-in, the authorization policy
 > engine (program × company × role × zone + US-person export gate), audit logging,
 > a Microsoft Graph client, a permission-aware REST API (`/api/v1`), and signed
-> webhooks. **Built modules:** two-pane **IAM console** (`/app/admin/iam`),
-> **Announcements**, **Documents** (zone-gated with the US-person export gate),
-> and **Task Orders** (company-scoped, award webhook) — each with a permission-aware
-> `/api/v1` endpoint. Remaining module UIs (jobs, directory, search) are not built
-> yet. **Verified on PHP 8.5 + PostgreSQL 16:** lint passes; the authorization
-> engine passed 15/15 logic checks and the data path 12/12 + 17/17 against a live
-> DB (incl. CUI/ITAR export gating and company isolation); only live Entra GCC High
-> sign-in and live Graph document resolve remain unexercised (need real credentials). See [`OPEN_ITEMS.md`](OPEN_ITEMS.md). The `Oidc` token
+> webhooks. **All 7 MVP modules built:** two-pane **IAM console**, **Announcements**,
+> **Documents** (zone-gated with the US-person export gate), **Task Orders**
+> (company-scoped, award webhook), **Jobs** (draft→post webhook), **Directory**
+> (visibility-trimmed), and **Search** (global, permission-trimmed) — each with a
+> permission-aware `/api/v1` endpoint. **Verified on PHP 8.5 + PostgreSQL 16:** lint
+> passes; the authorization engine passed 15/15 logic checks and the data path
+> 12/12 + 17/17 + 13/13 against a live DB (incl. CUI/ITAR export gating, company
+> isolation, and search non-leakage); only live Entra GCC High sign-in and live
+> Graph document resolve remain unexercised (need real credentials). See [`OPEN_ITEMS.md`](OPEN_ITEMS.md). The `Oidc` token
 > verification must be security-reviewed before production sign-in.
 
 ## What it is

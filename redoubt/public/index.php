@@ -27,6 +27,9 @@ use Redoubt\Http\IamController;
 use Redoubt\Http\AnnouncementsController;
 use Redoubt\Http\DocumentsController;
 use Redoubt\Http\TaskOrdersController;
+use Redoubt\Http\JobsController;
+use Redoubt\Http\DirectoryController;
+use Redoubt\Http\SearchController;
 
 $nonce = Security::nonce();
 
@@ -116,6 +119,26 @@ switch ($path) {
         } else {
             TaskOrdersController::index($nonce);
         }
+        return;
+
+    case '/app/jobs':
+        if ($method === 'POST') {
+            JobsController::post();
+        } else {
+            JobsController::index($nonce);
+        }
+        return;
+
+    case '/app/directory':
+        if ($method === 'POST') {
+            DirectoryController::post();
+        } else {
+            DirectoryController::index($nonce);
+        }
+        return;
+
+    case '/app/search':
+        SearchController::index($nonce);
         return;
 
     case '/app/admin/iam':

@@ -70,12 +70,24 @@ requirement.** The blockers below flow from these.
 - **Task Orders module** (Annex H): `/app/task-orders` (create/edit/award/delete),
   program- and company-scoped; award emits `taskorder.awarded` webhook + audit;
   `GET /api/v1/task-orders` (`TaskOrders`, `TaskOrdersController`, `app_taskorders.php`).
+- **Jobs module** (Annex H): `/app/jobs` (create/edit/post/close/delete), audience-
+  trimmed, draft→open workflow; posting emits `job.posted` webhook + audit;
+  `GET /api/v1/jobs` (`Jobs`, `JobsController`, `app_jobs.php`).
+- **Directory module** (Annex H): `/app/directory` — visibility-trimmed contacts,
+  manage via `contact.manage`; `GET /api/v1/directory` (`Directory`, `DirectoryController`).
+- **Search** (§13): `/app/search` + `GET /api/v1/search` — global and
+  **permission-trimmed** by reusing each module's own authorized listing, so it
+  can never surface anything the caller cannot access (`Search`, `SearchController`).
+- Shared `Audience` helper for audience/visibility token evaluation.
+
+**All 7 MVP modules are now built** (IAM, Announcements, Documents, Task Orders,
+Jobs, Directory, Search).
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
 | **Security review of `Oidc`** | Hand-rolled token verification | Review before enabling prod sign-in; consider a vetted JOSE lib |
-| Jobs / Directory / Search modules | Remaining MVP modules | Per §20 + module standard (Annex H) |
-| Content Administration console | Aggregate authoring surface | Build on the module pattern |
+| Content Administration console | Aggregate authoring surface over the modules | Build on the module pattern |
+| Milestones / Calendar, FAQ, Quick Links (Phase 2/3 modules) | Remaining nice-to-haves | Per module standard (Annex H) |
 | Live Graph document resolve (Sites.Selected) | Metadata + gating done; live SharePoint open needs creds | Test `Documents::resolveOpenUrl` against a real drive/site |
 | Remaining API module endpoints (jobs/contacts/milestones/search) | Replace 501 stubs | Implement per Annex I, permission-trimmed |
 | Webhook admin UI + durable retry queue/worker | Reliable delivery | Move `Webhooks::dispatch` behind a queue |
@@ -96,7 +108,10 @@ requirement.** The blockers below flow from these.
   **Documents + Task Orders: 17/17** against a live PostgreSQL 16 — zone gating,
   company scoping, the US-person export gate (non-US-person blocked from an ITAR
   doc via list/canSee/API), `open()` re-authorization, and the `taskorder.awarded`
-  webhook. Bugs caught & fixed in the process: webhook `@>` needed `::jsonb`;
+  webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
+  `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
+  search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
+  in the process: webhook `@>` needed `::jsonb`;
   reused `:pid` broke native prepares; `Db::update` now appends `updated_at` only
   when the column exists (+ `updated_at` on `announcement`/`app_user`/`task_order`).
   **Only path still unexercised:** live Entra GCC High sign-in + live Graph

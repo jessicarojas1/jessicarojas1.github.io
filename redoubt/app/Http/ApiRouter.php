@@ -11,7 +11,10 @@ use Redoubt\Support\Auth;
 use Redoubt\Support\Authorize;
 use Redoubt\Support\Config;
 use Redoubt\Support\Db;
+use Redoubt\Support\Directory;
 use Redoubt\Support\Documents;
+use Redoubt\Support\Jobs;
+use Redoubt\Support\Search;
 use Redoubt\Support\TaskOrders;
 use Throwable;
 
@@ -65,6 +68,22 @@ final class ApiRouter
                     self::moduleList($user, $client, 'taskorder.view',
                         static fn (array $u, int $p) => TaskOrders::listForUser($u, $p),
                         static fn (int $p) => TaskOrders::listForProgram($p), 'task-orders');
+                    return;
+
+                case $route === 'GET /api/v1/jobs':
+                    self::moduleList($user, $client, 'job.view',
+                        static fn (array $u, int $p) => Jobs::listForUser($u, $p),
+                        static fn (int $p) => Jobs::listOpen($p), 'jobs');
+                    return;
+
+                case $route === 'GET /api/v1/directory':
+                    self::moduleList($user, $client, 'directory.view',
+                        static fn (array $u, int $p) => Directory::listForUser($u, $p),
+                        static fn (int $p) => Directory::listForProgram($p), 'directory');
+                    return;
+
+                case $route === 'GET /api/v1/search':
+                    self::searchApi($user);
                     return;
 
                 // --- Other module endpoints (contract defined; implementation pending) ---
@@ -179,6 +198,28 @@ final class ApiRouter
         }
         Audit::log('api.read', $label, $programId);
         self::json(200, ['program_id' => $programId, 'count' => count($items), 'items' => $items]);
+    }
+
+    /** GET /api/v1/search?q=&program_id= — permission-trimmed; requires a user session. */
+    private static function searchApi(?array $user): void
+    {
+        if (!Db::isConfigured()) {
+            self::json(503, ['error' => 'database_not_configured']);
+            return;
+        }
+        if ($user === null) {
+            self::json(400, ['error' => 'search_requires_user_session']);
+            return;
+        }
+        $programId = isset($_GET['program_id']) ? (int) $_GET['program_id'] : 0;
+        if ($programId <= 0 || !isset($user['memberships'][$programId])) {
+            self::json(403, ['error' => 'forbidden']);
+            return;
+        }
+        $q = (string) ($_GET['q'] ?? '');
+        $items = $q !== '' ? Search::run($user, $programId, $q) : [];
+        Audit::log('api.search', 'q', $programId);
+        self::json(200, ['program_id' => $programId, 'count' => count($items), 'results' => $items]);
     }
 
     /** @return array<string,mixed> */
