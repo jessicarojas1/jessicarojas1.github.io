@@ -1,6 +1,6 @@
 # REDOUBT — GMRE Program Portal Framework
 # Discovery-phase container: serves the Product & Architecture Discovery Package.
-# Multi-stage: composer (autoloader) -> php:8.2-apache runtime, non-root, healthcheck.
+# Multi-stage: composer (autoloader) -> php:8.2-apache runtime, $PORT-aware, healthcheck.
 
 # ---- Stage 1: dependencies (autoloader only; no runtime deps yet) ----
 FROM composer:2 AS vendor
@@ -31,14 +31,16 @@ RUN printf '<Directory ${APACHE_DOCUMENT_ROOT}>\n\tAllowOverride All\n\tRequire 
       > /etc/apache2/conf-available/redoubt.conf \
  && a2enconf redoubt
 
-# Host/orchestrator (K8s, Docker, Render) provides PORT; Apache listens on 8080 (non-privileged).
+# The platform (Render / K8s / Docker) provides $PORT at runtime; the entrypoint
+# rewrites Apache's listen port to it before start (default 8080). Apache's master
+# runs as root and drops worker processes to www-data (the php:apache default).
 ENV PORT=8080
-RUN sed -ri 's/Listen 80$/Listen 8080/' /etc/apache2/ports.conf \
- && sed -ri 's/:80>/:8080>/' /etc/apache2/sites-available/*.conf
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-USER www-data
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=4s --start-period=10s --retries=3 \
-  CMD curl -fsS "http://127.0.0.1:8080/health" || exit 1
+  CMD curl -fsS "http://127.0.0.1:${PORT:-8080}/health" || exit 1
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
