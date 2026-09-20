@@ -36,6 +36,11 @@ use Redoubt\Http\NotificationsController;
 use Redoubt\Http\AccessController;
 use Redoubt\Http\SetupController;
 use Redoubt\Support\Auth;
+use Redoubt\Support\Session;
+
+// Buffer output so headers/cookies can be set even after view output begins
+// (robust against php.ini output_buffering being off, e.g. on Render).
+ob_start();
 
 $nonce = Security::nonce();
 
@@ -65,11 +70,15 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $path = rtrim($path, '/') ?: '/';
 
-// API namespace handles its own auth + JSON responses.
+// API namespace handles its own auth + JSON responses (no session cookie needed).
 if (str_starts_with($path, '/api/')) {
     ApiRouter::dispatch($method, $path);
     return;
 }
+
+// Start the session before any view output so the cookie + CSRF token are set
+// reliably (fixes "session expired" when output buffering is off).
+Session::start();
 
 switch ($path) {
     case '/health':
