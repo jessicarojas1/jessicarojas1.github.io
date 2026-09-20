@@ -1,8 +1,8 @@
 # REDOUBT — Open Items / Production-Readiness Register
 
-Honest status as of 2026-09-19. This is transitioning from **discovery** to a
-**Phase 1 skeleton**; the list below separates what is **done** from what is
-**outstanding**, grouped by theme, each with impact + suggested action.
+Honest status as of 2026-09-20. REDOUBT is a **working application** (standalone
+with local auth + a database; Entra/Graph optional). The list below separates what
+is **done** from what is **outstanding**, grouped by theme, with impact + action.
 
 ## Done (to date)
 
@@ -98,10 +98,12 @@ Jobs, Directory, Search).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
-- **Automated test suite** (zero-dependency): `php tests/run.php` — 63 checks
-  (15 authorization-engine logic + 48 live-DB module assertions, incl. job
-  targeting, Settings/Branding sanitization, and notification fan-out) via
-  `tests/lib/T` + `tests/lib/Seed`; DB tests self-skip unless `REDOUBT_TEST_DB=1`.
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 82 checks
+  (15 authorization-engine logic + 67 live-DB assertions: modules, job targeting,
+  Settings/Branding sanitization, notification fan-out, onboarding lifecycle, local
+  auth, sample loader) via `tests/lib/T` + `tests/lib/Seed`; DB tests self-skip
+  unless `REDOUBT_TEST_DB=1`. An end-to-end HTTP flow (setup → local login → app)
+  is also verified.
 - **CI**: `.github/workflows/redoubt-ci.yml` lints every PHP file and runs the full
   suite against a PostgreSQL 16 service on changes under `redoubt/`.
 
@@ -112,11 +114,19 @@ Jobs, Directory, Search).
   All audited (`AccessRequests`, `AccessController`, `app_access.php`). Entra B2B
   invite + session-kill on offboard remain a follow-on Graph/Entra step.
 
+- **Standalone operation (no external API):** built-in **local email/password**
+  auth (`Auth::attemptLocal`/`checkLocalCredentials`) + **first-run `/setup`**
+  (creates program + enterprise admin, optional sample data) + **login page**;
+  Entra SSO is now optional (a "Sign in with Microsoft" button when configured).
+  `/` → app/sign-in; discovery docs moved to `/about` (linked as "Docs" in-app).
+  Verified end to end (setup → local login → app → sample content → live branding).
+- **Sample data loader** (`Sample::load`) populates one program across every module.
+
 **Phase 2 (next):**
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
-| **Working demo deployment** | Live Render URL shows docs, not the app | Demo mode (no Entra) + Render Postgres + seed; docs → in-app page |
+| Local document upload/storage | Documents open without SharePoint/Graph | Store uploaded files (DB/object store); `open()` serves with authz |
 | Milestones / Calendar, FAQ, Quick Links modules | Remaining content modules | Per module standard (Annex H) |
 
 **Ongoing / ops:**
@@ -146,7 +156,7 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 63 checks —
+  These checks are now a **repeatable suite** (`php tests/run.php`, 82 checks —
   incl. job targeting by company/contract/program-wide + filters, and
   Settings/Branding persistence + sanitization) enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
   prepares became `''` (Db now emits `true`/`false`); webhook `@>` needed `::jsonb`;

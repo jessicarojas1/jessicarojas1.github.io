@@ -33,7 +33,7 @@ final class Settings
         Db::query(
             'INSERT INTO program_config (program_id, key, json_value) VALUES (:p, :k, :v::jsonb)
              ON CONFLICT (program_id, key) DO UPDATE SET json_value = EXCLUDED.json_value',
-            ['p' => $programId, 'k' => $key, 'v' => json_encode($value, JSON_THROW_ON_ERROR)]
+            ['p' => $programId, 'k' => $key, 'v' => json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)]
         );
         Audit::log('settings.save', $key, $programId, $actorId);
     }

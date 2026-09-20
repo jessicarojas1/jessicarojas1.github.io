@@ -99,7 +99,7 @@ require __DIR__ . '/partials/app_header.php';
     <div class="empty-state-sm">No members.</div>
   <?php else: ?>
     <div class="tablewrap"><table>
-      <thead><tr><th>Member</th><th>Roles</th><th>Company</th><th>Status</th><?php if ($can['revoke']): ?><th style="width:1%">Action</th><?php endif; ?></tr></thead>
+      <thead><tr><th>Member</th><th>Roles</th><th>Company</th><th>Status</th><?php if ($can['revoke'] || $can['grant']): ?><th style="width:1%">Actions</th><?php endif; ?></tr></thead>
       <tbody>
       <?php foreach ($roster as $m): ?>
         <tr>
@@ -107,9 +107,23 @@ require __DIR__ . '/partials/app_header.php';
           <td class="perm-key"><?= Security::h($m['roles'] ?? '') ?></td>
           <td><?= Security::h($m['company_name'] ?: '—') ?></td>
           <td><span class="badge <?= ($m['status'] === 'active') ? 'b-ok' : 'b-muted' ?>"><?= Security::h(ucfirst((string) $m['status'])) ?></span></td>
-          <?php if ($can['revoke']): ?>
+          <?php if ($can['revoke'] || $can['grant']): ?>
           <td>
-            <form method="post" action="/app/admin/access"><?= Security::csrfField() ?><input type="hidden" name="action" value="offboard"><input type="hidden" name="program_id" value="<?= (int) $programId ?>"><input type="hidden" name="user_id" value="<?= (int) $m['id'] ?>"><button class="btn btn-sm" type="submit">Offboard</button></form>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+              <?php if ($can['grant']): ?>
+              <form method="post" action="/app/admin/access" style="display:flex;gap:4px;align-items:center">
+                <?= Security::csrfField() ?>
+                <input type="hidden" name="action" value="set_password">
+                <input type="hidden" name="program_id" value="<?= (int) $programId ?>">
+                <input type="hidden" name="user_id" value="<?= (int) $m['id'] ?>">
+                <input type="password" name="password" placeholder="Set password" minlength="8" required style="width:130px">
+                <button class="btn btn-sm" type="submit">Set</button>
+              </form>
+              <?php endif; ?>
+              <?php if ($can['revoke']): ?>
+              <form method="post" action="/app/admin/access"><?= Security::csrfField() ?><input type="hidden" name="action" value="offboard"><input type="hidden" name="program_id" value="<?= (int) $programId ?>"><input type="hidden" name="user_id" value="<?= (int) $m['id'] ?>"><button class="btn btn-sm" type="submit">Offboard</button></form>
+              <?php endif; ?>
+            </div>
           </td>
           <?php endif; ?>
         </tr>

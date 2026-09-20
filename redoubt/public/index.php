@@ -34,6 +34,8 @@ use Redoubt\Http\ContentAdminController;
 use Redoubt\Http\SettingsController;
 use Redoubt\Http\NotificationsController;
 use Redoubt\Http\AccessController;
+use Redoubt\Http\SetupController;
+use Redoubt\Support\Auth;
 
 $nonce = Security::nonce();
 
@@ -76,13 +78,21 @@ switch ($path) {
         echo json_encode([
             'status'  => 'ok',
             'service' => 'redoubt-program-portal',
-            'phase'   => 'phase1-skeleton',
+            'phase'   => 'operational',
             'time'    => gmdate('c'),
         ], JSON_THROW_ON_ERROR);
         return;
 
     case '/auth/login':
-        AuthController::login();
+        AuthController::login($nonce);
+        return;
+
+    case '/auth/local':
+        AuthController::local();
+        return;
+
+    case '/auth/entra':
+        AuthController::entra();
         return;
 
     case '/auth/callback':
@@ -91,6 +101,19 @@ switch ($path) {
 
     case '/auth/logout':
         AuthController::logout();
+        return;
+
+    case '/setup':
+        if ($method === 'POST') {
+            SetupController::post();
+        } else {
+            SetupController::index($nonce);
+        }
+        return;
+
+    case '/about':
+        $NONCE = $nonce; // public program documentation (the discovery package)
+        require dirname(__DIR__) . '/app/Views/discovery.php';
         return;
 
     case '/app':
@@ -195,8 +218,9 @@ switch ($path) {
         return;
 
     case '/':
-        $NONCE = $nonce; // exposed to the discovery view
-        require dirname(__DIR__) . '/app/Views/discovery.php';
+        // Front door: into the app if signed in, otherwise to sign-in
+        // (which itself sends first-run operators to /setup).
+        header('Location: ' . (Auth::check() ? '/app' : '/auth/login'));
         return;
 
     default:

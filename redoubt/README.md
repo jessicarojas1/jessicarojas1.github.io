@@ -1,21 +1,20 @@
 # REDOUBT — GMRE Program Portal Framework
 
-> **Status: Discovery Package + Phase 1 skeleton.** This directory ships the
-> **Product & Architecture Discovery Package** (served at `/`) plus a **Phase 1
-> framework skeleton**: Entra GCC High OIDC sign-in, the authorization policy
-> engine (program × company × role × zone + US-person export gate), audit logging,
-> a Microsoft Graph client, a permission-aware REST API (`/api/v1`), and signed
-> webhooks. **All 7 MVP modules built:** two-pane **IAM console**, **Announcements**,
-> **Documents** (zone-gated with the US-person export gate), **Task Orders**
-> (company-scoped, award webhook), **Jobs** (draft→post webhook), **Directory**
-> (visibility-trimmed), and **Search** (global, permission-trimmed) — each with a
-> permission-aware `/api/v1` endpoint — plus a **Content Administration** hub and a
-> **44-check test suite run in CI**. **Verified on PHP 8.5 + PostgreSQL 16:** lint
-> passes; the authorization engine passed 15/15 logic checks and the data path
-> 12/12 + 17/17 + 13/13 against a live DB (incl. CUI/ITAR export gating, company
-> isolation, and search non-leakage); only live Entra GCC High sign-in and live
-> Graph document resolve remain unexercised (need real credentials). See [`OPEN_ITEMS.md`](OPEN_ITEMS.md). The `Oidc` token
-> verification must be security-reviewed before production sign-in.
+> **Status: working application (standalone).** REDOUBT runs with **only a
+> PostgreSQL database** — **built-in local email/password accounts** and a
+> **first-run setup** (`/setup`) mean no Entra or external API is required; Entra
+> SSO and Microsoft Graph/SharePoint are **optional enhancements**. Working modules:
+> **IAM console, Announcements, Documents** (CUI/ITAR zone gating), **Task Orders,
+> Jobs** (program/company/contract targeting), **Directory, Search, Notifications,
+> Content Administration, Settings/Branding, and Onboarding/offboarding** — each
+> with a permission-aware `/api/v1` endpoint and an append-only audit trail.
+> **Verified on PHP 8.5 + PostgreSQL 16:** an **82-check suite** plus an end-to-end
+> HTTP flow (setup → local login → app → sample data) pass. The optional `Oidc`
+> (Entra) token verification should be security-reviewed before enabling SSO.
+> See [`OPEN_ITEMS.md`](OPEN_ITEMS.md).
+>
+> **Run it:** set `DATABASE_URL`, open `/setup`, create your admin (optionally load
+> sample data), sign in. On Render, the blueprint provisions the database for you.
 
 ## What it is
 

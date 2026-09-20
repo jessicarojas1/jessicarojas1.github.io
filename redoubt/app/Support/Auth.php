@@ -33,6 +33,70 @@ final class Auth
         }
     }
 
+    // --- Local authentication (works with no external IdP) ------------------
+
+    /**
+     * Verify local email + password and, on success, establish the session.
+     * Returns false on any failure (bad credentials, no password set, inactive).
+     */
+    public static function attemptLocal(string $email, string $password): bool
+    {
+        $userId = self::checkLocalCredentials($email, $password);
+        if ($userId === null) {
+            return false;
+        }
+        self::establishForUser($userId);
+        return true;
+    }
+
+    /**
+     * Validate local credentials WITHOUT establishing a session (pure check).
+     * Returns the app_user id on success, or null. (Session-free so it's testable.)
+     */
+    public static function checkLocalCredentials(string $email, string $password): ?int
+    {
+        if (!Db::isConfigured() || $email === '' || $password === '') {
+            return null;
+        }
+        $row = Db::fetchOne(
+            'SELECT id, password_hash, status FROM app_user WHERE lower(email) = :e',
+            ['e' => strtolower(trim($email))]
+        );
+        if ($row === null || empty($row['password_hash']) || !in_array($row['status'], ['active', 'invited'], true)) {
+            return null;
+        }
+        return password_verify($password, (string) $row['password_hash']) ? (int) $row['id'] : null;
+    }
+
+    /** Set/replace a local password (argon2id/bcrypt via PHP default). */
+    public static function setPassword(int $userId, string $password, ?int $actorId = null): void
+    {
+        Db::update('app_user', ['password_hash' => password_hash($password, PASSWORD_DEFAULT)], ['id' => $userId]);
+        Audit::log('auth.password_set', 'user#' . $userId, null, $actorId);
+    }
+
+    /** Build the session for a known app_user id (used by local login + setup). */
+    public static function establishForUser(int $userId): void
+    {
+        $u = Db::fetchOne('SELECT id, entra_oid, display_name, email, kind, is_us_person FROM app_user WHERE id = :id', ['id' => $userId]);
+        if ($u === null) {
+            self::fail('Account not found.');
+        }
+        Session::regenerate();
+        $_SESSION['user'] = [
+            'id'           => (int) $u['id'],
+            'entra_oid'    => $u['entra_oid'],
+            'name'         => $u['display_name'],
+            'email'        => $u['email'],
+            'kind'         => (string) $u['kind'],
+            'is_us_person' => $u['is_us_person'] === null ? null : (bool) $u['is_us_person'],
+            'memberships'  => self::loadMemberships($userId),
+            'grants'       => self::loadGrants($userId),
+            'companies'    => self::loadCompanies($userId),
+        ];
+        Audit::log('auth.login', (string) ($u['email'] ?? $u['entra_oid'] ?? ''), null, (int) $u['id']);
+    }
+
     /** Step 1: redirect the browser to Entra to authenticate. */
     public static function beginLogin(): void
     {

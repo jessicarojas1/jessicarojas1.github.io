@@ -13,6 +13,8 @@ use Redoubt\Support\Search;
 use Redoubt\Support\Settings;
 use Redoubt\Support\Notifications;
 use Redoubt\Support\AccessRequests;
+use Redoubt\Support\Auth;
+use Redoubt\Support\Sample;
 
 /** Database-backed module tests (skipped unless a throwaway test DB is provided). */
 
@@ -165,3 +167,24 @@ T::eq('offboarded account removed (no memberships left)', 'removed', (string) Db
 $subAdmin = Seed::user(999999, 'external', true, $pid, ['sub_admin'], $ids['acme'], [$ids['acme']]);
 T::ok('sub_admin CAN request access', Authorize::can($subAdmin, 'access.request', ['program_id' => $pid]));
 T::ok('sub_admin CANNOT approve (grant)', !Authorize::can($subAdmin, 'access.grant', ['program_id' => $pid]));
+
+// Local authentication (no external IdP required)
+T::group('Local authentication (live DB)');
+$luid = Db::insert('app_user', ['display_name' => 'Local User', 'email' => 'local@gmre.us', 'kind' => 'internal', 'is_us_person' => true, 'status' => 'active', 'password_hash' => password_hash('Secret123!', PASSWORD_DEFAULT)]);
+T::eq('correct credentials resolve to the user id', $luid, Auth::checkLocalCredentials('local@gmre.us', 'Secret123!'));
+T::eq('wrong password rejected', null, Auth::checkLocalCredentials('local@gmre.us', 'nope'));
+T::eq('unknown email rejected', null, Auth::checkLocalCredentials('nobody@example.us', 'Secret123!'));
+Auth::setPassword($luid, 'BrandNew99');
+T::eq('old password no longer works after reset', null, Auth::checkLocalCredentials('local@gmre.us', 'Secret123!'));
+T::eq('new password works', $luid, Auth::checkLocalCredentials('local@gmre.us', 'BrandNew99'));
+Db::update('app_user', ['status' => 'removed'], ['id' => $luid]);
+T::eq('removed account cannot authenticate', null, Auth::checkLocalCredentials('local@gmre.us', 'BrandNew99'));
+
+// Sample data loader (first-run "load sample" option)
+T::group('Sample data loader (live DB)');
+$sp = Db::insert('program', ['name' => 'Sample Program', 'status' => 'active']);
+Sample::load($sp, $ids['pm']);
+T::ok('sample announcements loaded', (int) Db::fetchOne('SELECT count(*) c FROM announcement WHERE program_id=:p', ['p' => $sp])['c'] >= 3);
+T::ok('sample jobs loaded', (int) Db::fetchOne('SELECT count(*) c FROM job_requisition WHERE program_id=:p', ['p' => $sp])['c'] >= 4);
+T::ok('sample task orders loaded', (int) Db::fetchOne('SELECT count(*) c FROM task_order WHERE program_id=:p', ['p' => $sp])['c'] >= 3);
+T::ok('sample pending access request loaded', (int) Db::fetchOne("SELECT count(*) c FROM access_request WHERE program_id=:p AND status='pending'", ['p' => $sp])['c'] >= 1);

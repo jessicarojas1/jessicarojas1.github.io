@@ -169,8 +169,9 @@ final class Db
         $out = [];
         foreach ($data as $k => $v) {
             if (is_array($v) || is_object($v)) {
-                // Encode arrays/objects as JSON for JSONB columns.
-                $out[$k] = json_encode($v, JSON_THROW_ON_ERROR);
+                // Encode arrays/objects as JSON for JSONB columns (store real UTF-8,
+                // not \uXXXX escapes, so it round-trips on any server encoding).
+                $out[$k] = json_encode($v, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             } elseif (is_bool($v)) {
                 // Native prepared statements bind PHP false as '' which Postgres
                 // rejects for boolean columns — emit explicit literals instead.

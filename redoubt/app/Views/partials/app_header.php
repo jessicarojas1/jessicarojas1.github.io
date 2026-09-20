@@ -69,6 +69,7 @@ $showOnboard = $canAny($user, 'access.request') || $canAny($user, 'access.view')
     <?php if ($showOnboard): ?><a href="/app/admin/access"<?= $navActive === 'onboarding' ? ' class="active"' : '' ?>>Onboarding</a><?php endif; ?>
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>
     <?php if ($showSettings): ?><a href="/app/admin/settings"<?= $navActive === 'settings' ? ' class="active"' : '' ?>>Settings</a><?php endif; ?>
+    <a href="/about" title="Program documentation">Docs</a>
   </nav>
   <div class="who">
     <a href="/app/notifications" title="Notifications" style="margin-right:12px">🔔<?php if ($unread > 0): ?> <span class="badge b-warn" style="font-size:10px"><?= (int) $unread ?></span><?php endif; ?></a>

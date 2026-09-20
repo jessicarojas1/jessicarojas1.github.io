@@ -83,4 +83,11 @@ final class Config
     {
         return self::get('DATABASE_URL');
     }
+
+    /**
+     * Entra SSO is OPTIONAL. When configured it's offered as an additional sign-in
+     * method; the portal always supports built-in local email/password accounts so
+     * it works standalone with no external API. (authConfigured() above reports
+     * whether the Entra option is available.)
+     */
 }

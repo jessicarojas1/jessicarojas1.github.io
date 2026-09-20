@@ -92,6 +92,15 @@ final class AccessController
                     Authorize::requirePermission($user, 'access.revoke', ['program_id' => $programId]);
                     AccessRequests::offboard($programId, (int) ($_POST['user_id'] ?? 0), $actorId);
                     break;
+                case 'set_password':
+                    Authorize::requirePermission($user, 'access.grant', ['program_id' => $programId]);
+                    $pw = (string) ($_POST['password'] ?? '');
+                    if (strlen($pw) < 8) {
+                        self::plain(400, 'Password must be at least 8 characters.');
+                        return;
+                    }
+                    \Redoubt\Support\Auth::setPassword((int) ($_POST['user_id'] ?? 0), $pw, $actorId);
+                    break;
                 default:
                     self::plain(400, 'Unknown action.');
                     return;

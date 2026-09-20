@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS app_user (
                               CHECK (kind IN ('internal','external','customer')),
     status        TEXT        NOT NULL DEFAULT 'active'
                               CHECK (status IN ('invited','active','suspended','removed')),
+    -- Local authentication (works with no external IdP). NULL for Entra-only users.
+    password_hash TEXT,
     -- Export control (ITAR/EAR): verified at provisioning, enforced server-side.
     is_us_person           BOOLEAN,               -- NULL until verified
     us_person_verified_at  TIMESTAMPTZ,

@@ -1,19 +1,21 @@
-# REDOUBT — Render Blueprint (discovery-phase microsite).
-# Usage: this file can be used as a Render Blueprint. If the repository root
-# already defines a blueprint, deploy REDOUBT as its own service by pointing a
-# new Render service at this directory (rootDir: redoubt) with env=docker.
+# REDOUBT — Render Blueprint (working NON-CUI deployment).
+# Provisions the app + a PostgreSQL database so the portal works end to end with
+# local email/password accounts (no Entra/Graph needed). On first load, visit
+# /setup to create your program + administrator (optionally load sample data).
 #
-# NOTE ON BOUNDARY: commercial Render hosts the NON-CUI discovery microsite only.
-# Production runs on Kubernetes in an authorized CUI boundary — on-prem, Azure
-# Government (AKS), or AWS GovCloud (EKS) — talking to Microsoft 365 / Azure GCC
-# High. See deployments/KUBERNETES.md (primary), deployments/AZURE.md,
-# deployments/AWS.md, deployments/SINGLE_LINUX_SERVER.md.
+# BOUNDARY: commercial Render is for NON-CUI use only. A CUI/ITAR production
+# instance runs on Kubernetes in an authorized boundary (on-prem / Azure Gov /
+# AWS GovCloud) with Microsoft 365 GCC High — see deployments/KUBERNETES.md,
+# AZURE.md, AWS.md, SINGLE_LINUX_SERVER.md.
 #
-# GCC High endpoints differ from commercial (used by the Phase 1 production env):
-#   MS_CLOUD=USGovernment
-#   ENTRA_AUTHORITY_HOST=https://login.microsoftonline.us
-#   GRAPH_BASE_URL=https://graph.microsoft.us
-#   GRAPH_SCOPES=https://graph.microsoft.us/.default
+# OPTIONAL Entra SSO (adds a "Sign in with Microsoft" button; GCC High endpoints):
+#   MS_CLOUD=USGovernment · ENTRA_AUTHORITY_HOST=https://login.microsoftonline.us
+#   GRAPH_BASE_URL=https://graph.microsoft.us · GRAPH_SCOPES=https://graph.microsoft.us/.default
+#   ENTRA_TENANT_ID / ENTRA_CLIENT_ID / ENTRA_CLIENT_SECRET / ENTRA_REDIRECT_URI
+
+databases:
+  - name: redoubt-db
+    plan: free
 
 services:
   - type: web
@@ -26,15 +28,8 @@ services:
     autoDeploy: false
     envVars:
       - key: APP_ENV
-        value: discovery
-      # Phase 1+ (do NOT set real secrets here; use Render secret files / dashboard):
-      # - key: DATABASE_URL          # PostgreSQL (portal metadata/config/audit)
-      #   sync: false
-      # - key: ENTRA_TENANT_ID       # Microsoft Entra ID (OIDC)
-      #   sync: false
-      # - key: ENTRA_CLIENT_ID
-      #   sync: false
-      # - key: ENTRA_CLIENT_SECRET   # store as secret, never in source
-      #   sync: false
-      # - key: GRAPH_SCOPES
-      #   value: "Sites.Read.All Files.Read.All"
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: redoubt-db
+          property: connectionString

@@ -16,6 +16,10 @@ final class Session
 
     public static function start(): void
     {
+        if (\PHP_SAPI === 'cli') {
+            self::$started = true;   // no sessions under CLI (tests) — avoid header warnings
+            return;
+        }
         if (self::$started || session_status() === PHP_SESSION_ACTIVE) {
             self::$started = true;
             return;
