@@ -38,8 +38,8 @@ final class PermissionCatalog
                 'directory.view' => 'View', 'contact.manage' => 'Manage contacts',
             ]],
             'resources' => ['label' => 'Resources', 'icon' => '🔗', 'actions' => [
+                'milestone.view' => 'View milestones', 'milestone.manage' => 'Manage milestones',
                 'quicklink.manage' => 'Manage quick links', 'faq.manage' => 'Manage FAQ',
-                'milestone.manage' => 'Manage milestones',
             ]],
             'finance' => ['label' => 'Financial', 'icon' => '💲', 'actions' => [
                 'finance.view' => 'View financials',

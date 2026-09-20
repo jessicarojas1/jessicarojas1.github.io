@@ -6,13 +6,13 @@ namespace Redoubt\Http;
 
 use Redoubt\Support\Audit;
 use Redoubt\Support\Auth;
-use Redoubt\Support\Authorize;
-use Redoubt\Support\Security;
+use Redoubt\Support\Dashboard;
+use Redoubt\Support\Db;
 
 /**
- * Authenticated application shell. Phase 1 skeleton renders a role-aware home
- * that proves the pipeline (OIDC sign-in → session → membership/grant load →
- * server-side authorization). Portal modules mount here as they are built.
+ * Authenticated home — an executive, role-aware program dashboard that ties every
+ * module together: KPI tiles, "My Actions", recent announcements, and upcoming
+ * milestones, all permission-trimmed to what the signed-in user may see.
  */
 final class AppController
 {
@@ -22,10 +22,23 @@ final class AppController
         $user = Auth::user();
         Audit::log('app.view', 'home');
 
-        // Compute what this user may do in each program (server-side truth).
-        $capabilities = [];
-        foreach (array_keys($user['memberships'] ?? []) as $programId) {
-            $capabilities[$programId] = Authorize::effectivePermissions($user, (int) $programId);
+        $programs = [];
+        if (Db::isConfigured()) {
+            foreach (array_keys($user['memberships'] ?? []) as $pid) {
+                $pid = (int) $pid;
+                $row = Db::fetchOne('SELECT name FROM program WHERE id = :id', ['id' => $pid]);
+                $programs[$pid] = $row['name'] ?? ('Program #' . $pid);
+            }
+        }
+
+        $programId = 0;
+        $data = null;
+        if ($programs !== []) {
+            $programId = isset($_GET['program_id']) ? (int) $_GET['program_id'] : (int) array_key_first($programs);
+            if (!isset($programs[$programId])) {
+                $programId = (int) array_key_first($programs);
+            }
+            $data = Dashboard::forUser($user, $programId);
         }
 
         $NONCE = $nonce;

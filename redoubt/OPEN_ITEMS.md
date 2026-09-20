@@ -85,6 +85,14 @@ requirement.** The blockers below flow from these.
 
 **All 7 MVP modules are now built** (IAM, Announcements, Documents, Task Orders,
 Jobs, Directory, Search).
+- **Executive Home dashboard**: role-aware KPI tiles (permission-trimmed counts),
+  "My Actions" (pending approvals, unpublished drafts, milestones due ≤7 days),
+  recent announcements, upcoming milestones, and quick-access cards — a program
+  switcher up top (`Dashboard`, `AppController::home`, `app_home.php`).
+- **Milestones / Key Dates module** (Annex H): `/app/milestones` — CDRL /
+  deliverable / event dates with countdowns; view for members, manage for
+  `milestone.manage`; `GET /api/v1/milestones`; feeds the dashboard
+  (`Milestones`, `MilestonesController`, `app_milestones.php`).
 - **Notifications** (in-portal): publish events (announcement / task-order award /
   job posting) fan out to exactly the members authorized to see the item (reusing
   each module's visibility predicate — never leaks); notification center
@@ -98,8 +106,8 @@ Jobs, Directory, Search).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
-- **Automated test suite** (zero-dependency): `php tests/run.php` — 82 checks
-  (15 authorization-engine logic + 67 live-DB assertions: modules, job targeting,
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 89 checks
+  (15 authorization-engine logic + 74 live-DB assertions: modules, job targeting,
   Settings/Branding sanitization, notification fan-out, onboarding lifecycle, local
   auth, sample loader) via `tests/lib/T` + `tests/lib/Seed`; DB tests self-skip
   unless `REDOUBT_TEST_DB=1`. An end-to-end HTTP flow (setup → local login → app)
@@ -127,7 +135,7 @@ Jobs, Directory, Search).
 | Item | Impact | Suggested action |
 |------|--------|------------------|
 | Local document upload/storage | Documents open without SharePoint/Graph | Store uploaded files (DB/object store); `open()` serves with authz |
-| Milestones / Calendar, FAQ, Quick Links modules | Remaining content modules | Per module standard (Annex H) |
+| FAQ / Knowledge Base, Quick Links modules | Remaining content modules | Per module standard (Annex H) |
 
 **Ongoing / ops:**
 
@@ -156,7 +164,7 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 82 checks —
+  These checks are now a **repeatable suite** (`php tests/run.php`, 89 checks —
   incl. job targeting by company/contract/program-wide + filters, and
   Settings/Branding persistence + sanitization) enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
   prepares became `''` (Db now emits `true`/`false`); webhook `@>` needed `::jsonb`;

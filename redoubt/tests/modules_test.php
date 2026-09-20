@@ -12,6 +12,8 @@ use Redoubt\Support\Directory;
 use Redoubt\Support\Search;
 use Redoubt\Support\Settings;
 use Redoubt\Support\Notifications;
+use Redoubt\Support\Milestones;
+use Redoubt\Support\Dashboard;
 use Redoubt\Support\AccessRequests;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Sample;
@@ -148,6 +150,20 @@ T::ok('actor (PM) is not self-notified', !in_array('All-hands sync', $pmNotif, t
 T::ok('unread count > 0 for notified sub', Notifications::unreadCount($ids['sam']) > 0);
 Notifications::markAllRead($ids['sam']);
 T::eq('mark-all-read clears unread', 0, Notifications::unreadCount($ids['sam']));
+
+// Milestones + executive dashboard
+T::group('Milestones + Dashboard (live DB)');
+Milestones::create($pid, ['title' => 'CDRL A001', 'due_date' => date('Y-m-d', strtotime('+10 days')), 'type' => 'CDRL'], $ids['pm']);
+Milestones::create($pid, ['title' => 'Past review', 'due_date' => date('Y-m-d', strtotime('-5 days')), 'type' => 'event'], $ids['pm']);
+T::eq('milestones list has both', 2, count(Milestones::listForProgram($pid)));
+T::eq('upcoming excludes past dates', 1, count(Milestones::upcoming($pid, 10)));
+$dash = Dashboard::forUser($pm, $pid);
+T::eq('dashboard resolves program name', 'Falcon', $dash['program']['name'] ?? null);
+T::ok('dashboard has KPI tiles for PM', $dash['stats'] !== []);
+T::ok('dashboard shows upcoming milestone', count($dash['milestones']) >= 1);
+T::ok('PM dashboard includes onboarding tile (access.grant)', isset($dash['stats']['onboarding']));
+$subDash = Dashboard::forUser($sam, $pid);
+T::ok('sub dashboard excludes onboarding tile', !isset($subDash['stats']['onboarding']));
 
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');

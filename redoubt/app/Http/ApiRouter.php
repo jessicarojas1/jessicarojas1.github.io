@@ -14,6 +14,7 @@ use Redoubt\Support\Db;
 use Redoubt\Support\Directory;
 use Redoubt\Support\Documents;
 use Redoubt\Support\Jobs;
+use Redoubt\Support\Milestones;
 use Redoubt\Support\Search;
 use Redoubt\Support\TaskOrders;
 use Throwable;
@@ -82,6 +83,12 @@ final class ApiRouter
                         static fn (int $p) => Directory::listForProgram($p), 'directory');
                     return;
 
+                case $route === 'GET /api/v1/milestones':
+                    self::moduleList($user, $client, 'milestone.view',
+                        static fn (array $u, int $p) => Milestones::listForProgram($p),
+                        static fn (int $p) => Milestones::listForProgram($p), 'milestones');
+                    return;
+
                 case $route === 'GET /api/v1/search':
                     self::searchApi($user);
                     return;
@@ -124,7 +131,7 @@ final class ApiRouter
             'task-orders'   => 'taskorder.view',
             'jobs'          => 'job.view',
             'contacts'      => 'directory.view',
-            'milestones'    => 'milestone.manage',
+            'milestones'    => 'milestone.view',
             'search'        => 'document.view',
             default         => 'document.view',
         };

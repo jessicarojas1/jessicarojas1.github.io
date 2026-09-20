@@ -35,6 +35,7 @@ use Redoubt\Http\SettingsController;
 use Redoubt\Http\NotificationsController;
 use Redoubt\Http\AccessController;
 use Redoubt\Http\SetupController;
+use Redoubt\Http\MilestonesController;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Session;
 
@@ -170,6 +171,14 @@ switch ($path) {
             DirectoryController::post();
         } else {
             DirectoryController::index($nonce);
+        }
+        return;
+
+    case '/app/milestones':
+        if ($method === 'POST') {
+            MilestonesController::post();
+        } else {
+            MilestonesController::index($nonce);
         }
         return;
 
