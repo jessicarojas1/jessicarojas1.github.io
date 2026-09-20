@@ -19,6 +19,8 @@ $brand = (isset($programId) && \Redoubt\Support\Db::isConfigured())
     ? Settings::branding((int) $programId)
     : ['logoUrl' => null, 'displayName' => null, 'accent' => null];
 $brandName = $brand['displayName'] ?: 'REDOUBT';
+$unread = (!empty($user['id']) && \Redoubt\Support\Db::isConfigured())
+    ? \Redoubt\Support\Notifications::unreadCount((int) $user['id']) : 0;
 
 // Permission-aware nav: show a link if the user holds the permission in ANY program.
 $canAny = static function (array $user, string $perm): bool {
@@ -66,7 +68,10 @@ $showSettings = $canAny($user, 'branding.manage') || $canAny($user, 'program.con
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>
     <?php if ($showSettings): ?><a href="/app/admin/settings"<?= $navActive === 'settings' ? ' class="active"' : '' ?>>Settings</a><?php endif; ?>
   </nav>
-  <div class="who"><?= Security::h($user['name'] ?? 'User') ?><a href="/auth/logout">Sign out</a></div>
+  <div class="who">
+    <a href="/app/notifications" title="Notifications" style="margin-right:12px">🔔<?php if ($unread > 0): ?> <span class="badge b-warn" style="font-size:10px"><?= (int) $unread ?></span><?php endif; ?></a>
+    <?= Security::h($user['name'] ?? 'User') ?><a href="/auth/logout">Sign out</a>
+  </div>
 </header>
 <main class="wrap">
   <?php if ($breadcrumbs): ?>

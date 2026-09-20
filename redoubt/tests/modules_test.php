@@ -11,6 +11,7 @@ use Redoubt\Support\Jobs;
 use Redoubt\Support\Directory;
 use Redoubt\Support\Search;
 use Redoubt\Support\Settings;
+use Redoubt\Support\Notifications;
 
 /** Database-backed module tests (skipped unless a throwaway test DB is provided). */
 
@@ -129,3 +130,18 @@ T::eq('non-hex accent rejected -> null', null, $bad['accent']);
 T::ok('data: image logo URL accepted', Settings::safeLogoUrl('data:image/png;base64,iVBORw0KGgo=') !== null);
 Settings::saveJobs($pid, false, $ids['pm']);
 T::eq('jobs default program-wide persists (false)', false, Settings::jobsDefaultProgramWide($pid));
+
+// Notifications fan-out (permission-trimmed)
+T::group('Notifications fan-out (live DB)');
+$aAll = Announcements::create($pid, ['title' => 'All-hands sync', 'body' => 'x', 'audience' => ['all'], 'priority' => 'normal'], $ids['pm']);
+Announcements::publish($aAll, $pid, $ids['pm']);
+$aInt = Announcements::create($pid, ['title' => 'Internal memo', 'body' => 'x', 'audience' => ['internal'], 'priority' => 'normal'], $ids['pm']);
+Announcements::publish($aInt, $pid, $ids['pm']);
+$samNotif = array_map(static fn ($n) => $n['title'], Notifications::listFor($ids['sam']));
+T::ok('sub notified of program-wide announcement', in_array('All-hands sync', $samNotif, true));
+T::ok('sub NOT notified of internal-only announcement', !in_array('Internal memo', $samNotif, true));
+$pmNotif = array_map(static fn ($n) => $n['title'], Notifications::listFor($ids['pm']));
+T::ok('actor (PM) is not self-notified', !in_array('All-hands sync', $pmNotif, true));
+T::ok('unread count > 0 for notified sub', Notifications::unreadCount($ids['sam']) > 0);
+Notifications::markAllRead($ids['sam']);
+T::eq('mark-all-read clears unread', 0, Notifications::unreadCount($ids['sam']));

@@ -85,6 +85,11 @@ requirement.** The blockers below flow from these.
 
 **All 7 MVP modules are now built** (IAM, Announcements, Documents, Task Orders,
 Jobs, Directory, Search).
+- **Notifications** (in-portal): publish events (announcement / task-order award /
+  job posting) fan out to exactly the members authorized to see the item (reusing
+  each module's visibility predicate — never leaks); notification center
+  `/app/notifications` (open / mark-read / mark-all) + header bell with unread
+  count (`Notifications`, `NotificationsController`, `app_notifications.php`).
 - **Settings + Branding** (mandatory standard): `/app/admin/settings` — per-program
   logo (URL or uploaded data: URL), display name, accent color, applied **live** in
   the header (accent var, brand mark, name); plus a program-level job-targeting
@@ -93,9 +98,10 @@ Jobs, Directory, Search).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
-- **Automated test suite** (zero-dependency): `php tests/run.php` — 44 checks
-  (15 authorization-engine logic + 29 live-DB module assertions) via `tests/lib/T`
-  + `tests/lib/Seed`; DB tests self-skip unless `REDOUBT_TEST_DB=1`.
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 63 checks
+  (15 authorization-engine logic + 48 live-DB module assertions, incl. job
+  targeting, Settings/Branding sanitization, and notification fan-out) via
+  `tests/lib/T` + `tests/lib/Seed`; DB tests self-skip unless `REDOUBT_TEST_DB=1`.
 - **CI**: `.github/workflows/redoubt-ci.yml` lints every PHP file and runs the full
   suite against a PostgreSQL 16 service on changes under `redoubt/`.
 
@@ -103,7 +109,6 @@ Jobs, Directory, Search).
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
-| Notifications (in-portal + email/Teams digests) | Reduce "did you see it?" churn | Build on the webhook/event base |
 | Onboarding / offboarding workflows | Sponsored access lifecycle | Entra B2B + approvals |
 | Milestones / Calendar, FAQ, Quick Links modules | Remaining content modules | Per module standard (Annex H) |
 
@@ -134,7 +139,7 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 58 checks —
+  These checks are now a **repeatable suite** (`php tests/run.php`, 63 checks —
   incl. job targeting by company/contract/program-wide + filters, and
   Settings/Branding persistence + sanitization) enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
   prepares became `''` (Db now emits `true`/`false`); webhook `@>` needed `::jsonb`;

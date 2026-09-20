@@ -32,6 +32,7 @@ use Redoubt\Http\DirectoryController;
 use Redoubt\Http\SearchController;
 use Redoubt\Http\ContentAdminController;
 use Redoubt\Http\SettingsController;
+use Redoubt\Http\NotificationsController;
 
 $nonce = Security::nonce();
 
@@ -141,6 +142,14 @@ switch ($path) {
 
     case '/app/search':
         SearchController::index($nonce);
+        return;
+
+    case '/app/notifications':
+        if ($method === 'POST') {
+            NotificationsController::post();
+        } else {
+            NotificationsController::index($nonce);
+        }
         return;
 
     case '/app/admin/content':

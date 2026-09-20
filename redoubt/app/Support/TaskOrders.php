@@ -84,6 +84,12 @@ final class TaskOrders
             'id' => $id, 'program_id' => $programId,
             'number' => $to['number'] ?? null, 'title' => $to['title'] ?? null,
         ], $programId);
+        $row = Db::fetchOne('SELECT * FROM task_order WHERE id = :id AND program_id = :p', ['id' => $id, 'p' => $programId]) ?? [];
+        Notifications::fanOut(
+            $programId, $actorId, 'taskorder.awarded',
+            'Task order ' . (string) ($to['number'] ?? '') . ' awarded', '/app/task-orders?program_id=' . $programId,
+            static fn (array $u): bool => self::canSee($u, $row, $programId)
+        );
     }
 
     public static function delete(int $id, int $programId, ?int $actorId): void

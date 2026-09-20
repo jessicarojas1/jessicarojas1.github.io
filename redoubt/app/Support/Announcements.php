@@ -123,6 +123,11 @@ final class Announcements
             'id' => $id, 'program_id' => $programId,
             'title' => $a['title'] ?? null, 'priority' => $a['priority'] ?? 'normal',
         ], $programId);
+        Notifications::fanOut(
+            $programId, $actorId, 'announcement.published',
+            (string) ($a['title'] ?? 'Announcement'), '/app/announcements?program_id=' . $programId,
+            static fn (array $u): bool => self::visibleTo($u, $a ?? [], $programId)
+        );
     }
 
     public static function delete(int $id, int $programId, ?int $actorId): void

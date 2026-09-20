@@ -166,8 +166,17 @@ final class Jobs
     {
         Db::update('job_requisition', ['status' => 'open'], ['id' => $id, 'program_id' => $programId]);
         Audit::log('job.posted', 'job#' . $id, $programId, $actorId);
-        $j = self::get($id, $programId);
+        $j = self::get($id, $programId) ?? [];
         Webhooks::dispatch('job.posted', ['id' => $id, 'program_id' => $programId, 'title' => $j['title'] ?? null], $programId);
+        $toMap = self::taskOrderCompanyMap($programId);
+        Notifications::fanOut(
+            $programId, $actorId, 'job.posted',
+            (string) ($j['title'] ?? 'Job posting'), '/app/jobs?program_id=' . $programId,
+            static fn (array $u): bool => self::visibleTo(
+                $u, $programId, (bool) ($j['program_wide'] ?? true),
+                $j['audience'] ?? [], $j['company_scope'] ?? [], $j['task_order_scope'] ?? [], $toMap
+            )
+        );
     }
 
     public static function close(int $id, int $programId, ?int $actorId): void
