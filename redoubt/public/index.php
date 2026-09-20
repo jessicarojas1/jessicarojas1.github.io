@@ -33,6 +33,7 @@ use Redoubt\Http\SearchController;
 use Redoubt\Http\ContentAdminController;
 use Redoubt\Http\SettingsController;
 use Redoubt\Http\NotificationsController;
+use Redoubt\Http\AccessController;
 
 $nonce = Security::nonce();
 
@@ -161,6 +162,14 @@ switch ($path) {
             SettingsController::post();
         } else {
             SettingsController::index($nonce);
+        }
+        return;
+
+    case '/app/admin/access':
+        if ($method === 'POST') {
+            AccessController::post();
+        } else {
+            AccessController::index($nonce);
         }
         return;
 

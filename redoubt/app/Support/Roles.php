@@ -26,6 +26,7 @@ final class Roles
             'announcement.view', 'announcement.create', 'announcement.edit', 'announcement.publish',
             'document.view', 'document.create', 'document.edit', 'document.view.customer', 'document.view.contracts',
             'taskorder.view', 'job.view', 'directory.view', 'audit.view',
+            'access.view', 'access.request', 'access.grant', 'access.revoke', 'access.review',
         ],
         'content_manager'  => [
             'announcement.view', 'announcement.create', 'announcement.edit', 'announcement.publish',
@@ -37,7 +38,7 @@ final class Roles
         'finance'          => ['announcement.view', 'document.view', 'finance.view', 'taskorder.view'],
         'recruiting'       => ['announcement.view', 'job.view', 'job.create', 'job.edit', 'job.publish'],
         'internal_member'  => ['announcement.view', 'document.view', 'taskorder.view', 'job.view', 'directory.view'],
-        'sub_admin'        => ['announcement.view', 'document.view', 'taskorder.view', 'job.view', 'directory.view', 'company.roster.manage'],
+        'sub_admin'        => ['announcement.view', 'document.view', 'taskorder.view', 'job.view', 'directory.view', 'company.roster.manage', 'access.request'],
         'sub_member'       => ['announcement.view', 'document.view', 'taskorder.view', 'job.view', 'directory.view'],
         'customer_cor'     => ['announcement.view.customer', 'document.view.customer'],
     ];

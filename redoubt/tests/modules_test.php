@@ -12,6 +12,7 @@ use Redoubt\Support\Directory;
 use Redoubt\Support\Search;
 use Redoubt\Support\Settings;
 use Redoubt\Support\Notifications;
+use Redoubt\Support\AccessRequests;
 
 /** Database-backed module tests (skipped unless a throwaway test DB is provided). */
 
@@ -145,3 +146,22 @@ T::ok('actor (PM) is not self-notified', !in_array('All-hands sync', $pmNotif, t
 T::ok('unread count > 0 for notified sub', Notifications::unreadCount($ids['sam']) > 0);
 Notifications::markAllRead($ids['sam']);
 T::eq('mark-all-read clears unread', 0, Notifications::unreadCount($ids['sam']));
+
+// Onboarding / offboarding lifecycle
+T::group('Onboarding / offboarding (live DB)');
+$reqId = AccessRequests::create($pid, [
+    'email' => 'newhire@acme.us', 'display_name' => 'New Hire', 'company_id' => $ids['acme'],
+    'requested_role' => 'sub_member', 'kind' => 'external', 'is_us_person' => true,
+], $ids['pm']);
+T::ok('access request created (pending)', $reqId > 0 && count(AccessRequests::listForProgram($pid, 'pending')) >= 1);
+$newUid = AccessRequests::approve($reqId, $pid, $ids['pm']);
+T::ok('approve provisions an app_user', $newUid > 0);
+T::eq('provisioned user has program membership', 1, (int) Db::fetchOne('SELECT count(*) c FROM program_membership WHERE program_id=:p AND user_id=:u', ['p' => $pid, 'u' => $newUid])['c']);
+T::ok('provisioned user is_us_person attested', Db::fetchOne('SELECT is_us_person FROM app_user WHERE id=:u', ['u' => $newUid])['is_us_person'] == true);
+T::eq('request marked provisioned', 'provisioned', (string) Db::fetchOne('SELECT status FROM access_request WHERE id=:id', ['id' => $reqId])['status']);
+AccessRequests::offboard($pid, $newUid, $ids['pm']);
+T::eq('offboard removes program membership', 0, (int) Db::fetchOne('SELECT count(*) c FROM program_membership WHERE program_id=:p AND user_id=:u', ['p' => $pid, 'u' => $newUid])['c']);
+T::eq('offboarded account removed (no memberships left)', 'removed', (string) Db::fetchOne('SELECT status FROM app_user WHERE id=:u', ['u' => $newUid])['status']);
+$subAdmin = Seed::user(999999, 'external', true, $pid, ['sub_admin'], $ids['acme'], [$ids['acme']]);
+T::ok('sub_admin CAN request access', Authorize::can($subAdmin, 'access.request', ['program_id' => $pid]));
+T::ok('sub_admin CANNOT approve (grant)', !Authorize::can($subAdmin, 'access.grant', ['program_id' => $pid]));

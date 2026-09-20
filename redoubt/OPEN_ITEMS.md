@@ -105,11 +105,18 @@ Jobs, Directory, Search).
 - **CI**: `.github/workflows/redoubt-ci.yml` lints every PHP file and runs the full
   suite against a PostgreSQL 16 service on changes under `redoubt/`.
 
+- **Onboarding / offboarding** (`/app/admin/access`): sponsored access lifecycle —
+  request (`access.request`) → approve/deny (`access.grant`, provisions app_user +
+  program/company membership with US-person attestation) → offboard
+  (`access.revoke`, removes membership; marks account removed when none remain).
+  All audited (`AccessRequests`, `AccessController`, `app_access.php`). Entra B2B
+  invite + session-kill on offboard remain a follow-on Graph/Entra step.
+
 **Phase 2 (next):**
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
-| Onboarding / offboarding workflows | Sponsored access lifecycle | Entra B2B + approvals |
+| **Working demo deployment** | Live Render URL shows docs, not the app | Demo mode (no Entra) + Render Postgres + seed; docs → in-app page |
 | Milestones / Calendar, FAQ, Quick Links modules | Remaining content modules | Per module standard (Annex H) |
 
 **Ongoing / ops:**

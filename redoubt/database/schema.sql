@@ -275,8 +275,36 @@ CREATE TABLE IF NOT EXISTS integration_connector (
 );
 
 -- ---------------------------------------------------------------------------
+-- Access requests: sponsored onboarding lifecycle
+-- (request -> approve/deny -> provision -> offboard). US-person attestation is
+-- captured for the export gate.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS access_request (
+    id                  BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    program_id          BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+    email               TEXT NOT NULL,
+    display_name        TEXT,
+    company_id          BIGINT REFERENCES company(id),
+    requested_role      TEXT NOT NULL,                 -- role key
+    kind                TEXT NOT NULL DEFAULT 'external'
+                        CHECK (kind IN ('internal','external','customer')),
+    is_us_person        BOOLEAN,                       -- sponsor attestation (export gate)
+    justification       TEXT,
+    status              TEXT NOT NULL DEFAULT 'pending'
+                        CHECK (status IN ('pending','approved','denied','provisioned')),
+    sponsor_id          BIGINT REFERENCES app_user(id),
+    decided_by          BIGINT REFERENCES app_user(id),
+    decided_at          TIMESTAMPTZ,
+    provisioned_user_id BIGINT REFERENCES app_user(id),
+    expires_at          TIMESTAMPTZ,                   -- contract-bound access expiry
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ---------------------------------------------------------------------------
 -- Indexes (idempotent)
 -- ---------------------------------------------------------------------------
+CREATE INDEX IF NOT EXISTS idx_access_req_prog     ON access_request(program_id, status);
 CREATE INDEX IF NOT EXISTS idx_prog_member_user   ON program_membership(user_id);
 CREATE INDEX IF NOT EXISTS idx_announcement_prog  ON announcement(program_id);
 CREATE INDEX IF NOT EXISTS idx_docref_prog_zone   ON document_ref(program_id, zone);

@@ -41,6 +41,7 @@ $hasProgram = ($user['memberships'] ?? []) !== [];
 $showContent = $canAny($user, 'announcement.create') || $canAny($user, 'document.create')
     || $canAny($user, 'taskorder.create') || $canAny($user, 'job.create') || $canAny($user, 'contact.manage');
 $showSettings = $canAny($user, 'branding.manage') || $canAny($user, 'program.config');
+$showOnboard = $canAny($user, 'access.request') || $canAny($user, 'access.view');
 ?><!doctype html>
 <html lang="en">
 <head>
@@ -65,6 +66,7 @@ $showSettings = $canAny($user, 'branding.manage') || $canAny($user, 'program.con
     <?php if ($showDir): ?><a href="/app/directory"<?= $navActive === 'directory' ? ' class="active"' : '' ?>>Directory</a><?php endif; ?>
     <?php if ($hasProgram): ?><a href="/app/search"<?= $navActive === 'search' ? ' class="active"' : '' ?>>Search</a><?php endif; ?>
     <?php if ($showContent): ?><a href="/app/admin/content"<?= $navActive === 'content' ? ' class="active"' : '' ?>>Content</a><?php endif; ?>
+    <?php if ($showOnboard): ?><a href="/app/admin/access"<?= $navActive === 'onboarding' ? ' class="active"' : '' ?>>Onboarding</a><?php endif; ?>
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>
     <?php if ($showSettings): ?><a href="/app/admin/settings"<?= $navActive === 'settings' ? ' class="active"' : '' ?>>Settings</a><?php endif; ?>
   </nav>

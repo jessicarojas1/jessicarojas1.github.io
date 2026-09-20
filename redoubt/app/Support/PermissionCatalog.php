@@ -45,8 +45,9 @@ final class PermissionCatalog
                 'finance.view' => 'View financials',
             ]],
             'iam' => ['label' => 'Access & Security', 'icon' => '🔐', 'actions' => [
-                'access.view' => 'View access', 'access.grant' => 'Grant/modify access',
-                'access.revoke' => 'Revoke access', 'access.review' => 'Run access reviews',
+                'access.view' => 'View access', 'access.request' => 'Request access (sponsor)',
+                'access.grant' => 'Grant/modify access', 'access.revoke' => 'Revoke / offboard',
+                'access.review' => 'Run access reviews',
                 'export.gate.manage' => 'Manage export (US-person) gate', 'audit.view' => 'View audit log',
             ]],
             'program' => ['label' => 'Program Administration', 'icon' => '⚙️', 'actions' => [
