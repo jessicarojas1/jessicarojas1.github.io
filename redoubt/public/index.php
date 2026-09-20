@@ -31,6 +31,7 @@ use Redoubt\Http\JobsController;
 use Redoubt\Http\DirectoryController;
 use Redoubt\Http\SearchController;
 use Redoubt\Http\ContentAdminController;
+use Redoubt\Http\SettingsController;
 
 $nonce = Security::nonce();
 
@@ -40,7 +41,7 @@ $csp = implode('; ', [
     "base-uri 'self'",
     "frame-ancestors 'none'",
     "object-src 'none'",
-    "img-src 'self' data:",
+    "img-src 'self' data: https:",
     "font-src 'self' https://fonts.gstatic.com",
     "style-src 'self' 'nonce-{$nonce}' https://fonts.googleapis.com",
     "script-src 'self' 'nonce-{$nonce}' https://cdn.jsdelivr.net",
@@ -144,6 +145,14 @@ switch ($path) {
 
     case '/app/admin/content':
         ContentAdminController::index($nonce);
+        return;
+
+    case '/app/admin/settings':
+        if ($method === 'POST') {
+            SettingsController::post();
+        } else {
+            SettingsController::index($nonce);
+        }
         return;
 
     case '/app/admin/iam':

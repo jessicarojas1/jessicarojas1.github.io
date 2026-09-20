@@ -57,6 +57,7 @@ final class JobsController
             'publish' => Authorize::can($user, 'job.publish', ['program_id' => $programId]),
         ];
         $myCompany = $user['memberships'][$programId]['company_id'] ?? null;
+        $jobsDefaultProgramWide = \Redoubt\Support\Settings::jobsDefaultProgramWide($programId);
         $csrf = Security::csrfToken();
         $NONCE = $nonce;
         require dirname(__DIR__) . '/Views/app_jobs.php';

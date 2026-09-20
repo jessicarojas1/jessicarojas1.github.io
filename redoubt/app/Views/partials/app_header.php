@@ -6,12 +6,19 @@
  */
 use Redoubt\Support\Security;
 use Redoubt\Support\Authorize;
+use Redoubt\Support\Settings;
 
 $NONCE = $NONCE ?? '';
 $title = $title ?? 'REDOUBT';
 $navActive = $navActive ?? '';
 $user = $user ?? [];
 $breadcrumbs = $breadcrumbs ?? [];
+
+// Per-program branding is applied live when a program context is present.
+$brand = (isset($programId) && \Redoubt\Support\Db::isConfigured())
+    ? Settings::branding((int) $programId)
+    : ['logoUrl' => null, 'displayName' => null, 'accent' => null];
+$brandName = $brand['displayName'] ?: 'REDOUBT';
 
 // Permission-aware nav: show a link if the user holds the permission in ANY program.
 $canAny = static function (array $user, string $perm): bool {
@@ -31,17 +38,22 @@ $showDir = $canAny($user, 'directory.view');
 $hasProgram = ($user['memberships'] ?? []) !== [];
 $showContent = $canAny($user, 'announcement.create') || $canAny($user, 'document.create')
     || $canAny($user, 'taskorder.create') || $canAny($user, 'job.create') || $canAny($user, 'contact.manage');
+$showSettings = $canAny($user, 'branding.manage') || $canAny($user, 'program.config');
 ?><!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= Security::h($title) ?> — REDOUBT</title>
+<title><?= Security::h($title) ?> — <?= Security::h($brandName) ?></title>
 <link rel="stylesheet" href="/assets/app.css">
+<?php if ($brand['accent']): ?><style nonce="<?= Security::h($NONCE) ?>">:root{--accent:<?= Security::h($brand['accent']) ?>}</style><?php endif; ?>
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/app"><span class="logo"></span> REDOUBT</a>
+  <a class="brand" href="/app">
+    <?php if ($brand['logoUrl']): ?><img src="<?= Security::h($brand['logoUrl']) ?>" alt="" style="height:26px;width:auto;border-radius:6px"><?php else: ?><span class="logo"></span><?php endif; ?>
+    <?= Security::h($brandName) ?>
+  </a>
   <nav class="nav">
     <a href="/app"<?= $navActive === 'home' ? ' class="active"' : '' ?>>Home</a>
     <?php if ($showAnn): ?><a href="/app/announcements"<?= $navActive === 'announcements' ? ' class="active"' : '' ?>>Announcements</a><?php endif; ?>
@@ -52,6 +64,7 @@ $showContent = $canAny($user, 'announcement.create') || $canAny($user, 'document
     <?php if ($hasProgram): ?><a href="/app/search"<?= $navActive === 'search' ? ' class="active"' : '' ?>>Search</a><?php endif; ?>
     <?php if ($showContent): ?><a href="/app/admin/content"<?= $navActive === 'content' ? ' class="active"' : '' ?>>Content</a><?php endif; ?>
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>
+    <?php if ($showSettings): ?><a href="/app/admin/settings"<?= $navActive === 'settings' ? ' class="active"' : '' ?>>Settings</a><?php endif; ?>
   </nav>
   <div class="who"><?= Security::h($user['name'] ?? 'User') ?><a href="/auth/logout">Sign out</a></div>
 </header>

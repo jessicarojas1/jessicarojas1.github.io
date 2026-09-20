@@ -41,11 +41,11 @@ $targeting = static function (array $j) use ($companies, $taskOrders): string {
     return $parts ? implode(' ', $parts) : '<span class="perm-key">—</span>';
 };
 
-$fields = function (array $j = []) use ($companies, $taskOrders) {
+$fields = function (array $j = [], bool $defaultPw = true) use ($companies, $taskOrders) {
     $aud = $j['audience'] ?? [];
     $jco = $j['company_scope'] ?? [];
     $jto = $j['task_order_scope'] ?? [];
-    $pw = $j['program_wide'] ?? (($j ? false : true)); // default new job = program-wide
+    $pw = array_key_exists('program_wide', $j) ? (bool) $j['program_wide'] : $defaultPw; // new-job default from Settings
     ob_start(); ?>
     <label>Title</label>
     <input type="text" name="title" required maxlength="200" value="<?= Security::h($j['title'] ?? '') ?>">
@@ -125,7 +125,7 @@ $isActive = static fn (bool $c): string => $c ? ' btn-primary' : '';
       <?= Security::csrfField() ?>
       <input type="hidden" name="action" value="create">
       <input type="hidden" name="program_id" value="<?= (int) $programId ?>">
-      <?= $fields() ?>
+      <?= $fields([], (bool) ($jobsDefaultProgramWide ?? true)) ?>
       <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Create draft</button></div>
     </form>
   </details>

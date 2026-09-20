@@ -85,6 +85,11 @@ requirement.** The blockers below flow from these.
 
 **All 7 MVP modules are now built** (IAM, Announcements, Documents, Task Orders,
 Jobs, Directory, Search).
+- **Settings + Branding** (mandatory standard): `/app/admin/settings` — per-program
+  logo (URL or uploaded data: URL), display name, accent color, applied **live** in
+  the header (accent var, brand mark, name); plus a program-level job-targeting
+  default. Sanitized (logo http(s)/data:image only; accent hex only); persisted to
+  `program_config` (`Settings`, `SettingsController`, `app_settings.php`, `settings.js`).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
@@ -98,7 +103,6 @@ Jobs, Directory, Search).
 
 | Item | Impact | Suggested action |
 |------|--------|------------------|
-| **Settings area + Branding** (mandatory standard) | Per-program logo URL / display name / accent color; program-level job-targeting defaults | `/app/admin/settings` persisting to `program_config`; apply branding live in the header |
 | Notifications (in-portal + email/Teams digests) | Reduce "did you see it?" churn | Build on the webhook/event base |
 | Onboarding / offboarding workflows | Sponsored access lifecycle | Entra B2B + approvals |
 | Milestones / Calendar, FAQ, Quick Links modules | Remaining content modules | Per module standard (Annex H) |
@@ -130,8 +134,9 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 51 checks —
-  incl. job targeting by company/contract/program-wide + filters) enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
+  These checks are now a **repeatable suite** (`php tests/run.php`, 58 checks —
+  incl. job targeting by company/contract/program-wide + filters, and
+  Settings/Branding persistence + sanitization) enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
   prepares became `''` (Db now emits `true`/`false`); webhook `@>` needed `::jsonb`;
   reused `:pid` broke native prepares; `Db::update` now appends `updated_at` only
   when the column exists (+ `updated_at` on `announcement`/`app_user`/`task_order`).

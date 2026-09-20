@@ -10,6 +10,7 @@ use Redoubt\Support\TaskOrders;
 use Redoubt\Support\Jobs;
 use Redoubt\Support\Directory;
 use Redoubt\Support\Search;
+use Redoubt\Support\Settings;
 
 /** Database-backed module tests (skipped unless a throwaway test DB is provided). */
 
@@ -113,3 +114,18 @@ T::ok('search: non-US does NOT leak ITAR doc', !in_array('Falcon classified', $n
 $pmHits = array_map(static fn ($r) => $r['title'], Search::run($pm, $pid, 'falcon'));
 T::ok('search: US+internal DOES include ITAR doc', in_array('Falcon classified', $pmHits, true));
 T::eq('search: empty query returns nothing', [], Search::run($nina, $pid, ''));
+
+// Settings + Branding
+T::group('Settings & Branding (live DB)');
+Settings::saveBranding($pid, ['logoUrl' => 'https://cdn.example.us/logo.png', 'displayName' => 'Falcon Program', 'accent' => '#0a1a30'], $ids['pm']);
+$brand = Settings::branding($pid);
+T::eq('branding display name persists', 'Falcon Program', $brand['displayName']);
+T::eq('branding accent persists', '#0a1a30', $brand['accent']);
+T::eq('branding https logo URL persists', 'https://cdn.example.us/logo.png', $brand['logoUrl']);
+Settings::saveBranding($pid, ['logoUrl' => 'javascript:alert(1)', 'displayName' => 'X', 'accent' => 'red'], $ids['pm']);
+$bad = Settings::branding($pid);
+T::eq('unsafe logo URL rejected -> null', null, $bad['logoUrl']);
+T::eq('non-hex accent rejected -> null', null, $bad['accent']);
+T::ok('data: image logo URL accepted', Settings::safeLogoUrl('data:image/png;base64,iVBORw0KGgo=') !== null);
+Settings::saveJobs($pid, false, $ids['pm']);
+T::eq('jobs default program-wide persists (false)', false, Settings::jobsDefaultProgramWide($pid));
