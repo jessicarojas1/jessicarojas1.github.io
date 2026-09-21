@@ -97,4 +97,77 @@ final class Webhooks
     {
         return bin2hex(random_bytes(32));
     }
+
+    // --- Admin: subscription management -------------------------------------
+
+    /** Domain events subscribers can select. */
+    public const EVENTS = [
+        'announcement.published' => 'Announcement published',
+        'taskorder.awarded'      => 'Task order awarded',
+        'job.posted'             => 'Job posted',
+    ];
+
+    /** Create a subscription; returns the signing secret (shown once). */
+    public static function createSubscription(int $programId, string $url, array $events, ?int $actorId): string
+    {
+        $secret = self::newSecret();
+        $events = array_values(array_intersect(array_keys(self::EVENTS), $events));
+        Db::insert('webhook_subscription', [
+            'program_id' => $programId,
+            'url'        => $url,
+            'secret'     => $secret,
+            'events'     => $events,
+            'active'     => true,
+        ]);
+        Audit::log('webhook.create', $url . ' [' . implode(',', $events) . ']', $programId, $actorId);
+        return $secret;
+    }
+
+    /** @return array<int,array<string,mixed>> */
+    public static function listSubscriptions(int $programId): array
+    {
+        return array_map(static function (array $r): array {
+            return [
+                'id'      => (int) $r['id'],
+                'url'     => $r['url'],
+                'events'  => is_string($r['events']) ? (json_decode($r['events'], true) ?: []) : ($r['events'] ?? []),
+                'active'  => (bool) $r['active'],
+                'created' => $r['created'],
+            ];
+        }, Db::fetchAll(
+            "SELECT id, url, events, active, to_char(created_at,'YYYY-MM-DD') created
+               FROM webhook_subscription WHERE program_id = :p ORDER BY created_at DESC",
+            ['p' => $programId]
+        ));
+    }
+
+    public static function deleteSubscription(int $id, int $programId, ?int $actorId): void
+    {
+        Db::query('DELETE FROM webhook_subscription WHERE id = :id AND program_id = :p', ['id' => $id, 'p' => $programId]);
+        Audit::log('webhook.delete', 'subscription#' . $id, $programId, $actorId);
+    }
+
+    /** @return array<int,array<string,mixed>> recent delivery attempts */
+    public static function listDeliveries(int $subscriptionId, int $limit = 10): array
+    {
+        return Db::fetchAll(
+            "SELECT event, status, response_code, to_char(at,'YYYY-MM-DD HH24:MI:SS') at
+               FROM webhook_delivery WHERE subscription_id = :s ORDER BY id DESC LIMIT :l",
+            ['s' => $subscriptionId, 'l' => $limit]
+        );
+    }
+
+    /** Send a test event to one subscription (program-scoped). */
+    public static function sendTest(int $subscriptionId, int $programId, ?int $actorId): void
+    {
+        $sub = Db::fetchOne(
+            'SELECT id, url, secret FROM webhook_subscription WHERE id = :id AND program_id = :p',
+            ['id' => $subscriptionId, 'p' => $programId]
+        );
+        if ($sub === null) {
+            return;
+        }
+        Audit::log('webhook.test', 'subscription#' . $subscriptionId, $programId, $actorId);
+        self::deliver((int) $sub['id'], (string) $sub['url'], (string) $sub['secret'], 'test.ping', ['message' => 'REDOUBT test event', 'program_id' => $programId]);
+    }
 }

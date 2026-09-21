@@ -28,6 +28,7 @@ if (!empty($showContent)) { $nav[] = ['label' => 'Content Administration', 'url'
 if (!empty($showOnboard)) { $nav[] = ['label' => 'Onboarding & Access', 'url' => '/app/admin/access']; }
 if (!empty($showIam)) { $nav[] = ['label' => 'Access & Security (IAM)', 'url' => '/app/admin/iam']; }
 if (!empty($showAnalytics)) { $nav[] = ['label' => 'Analytics & Health', 'url' => '/app/analytics']; $nav[] = ['label' => 'Audit Log', 'url' => '/app/admin/audit']; }
+if (!empty($showIntegrations)) { $nav[] = ['label' => 'Integrations (API & Webhooks)', 'url' => '/app/admin/integrations']; }
 if (!empty($showSettings)) { $nav[] = ['label' => 'Settings & Branding', 'url' => '/app/admin/settings']; }
 ?>
 <div id="palette" class="palette" hidden aria-hidden="true">

@@ -42,6 +42,7 @@ use Redoubt\Http\OverviewController;
 use Redoubt\Http\AnalyticsController;
 use Redoubt\Http\AuditController;
 use Redoubt\Http\AssistantController;
+use Redoubt\Http\IntegrationsController;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Session;
 
@@ -202,6 +203,14 @@ switch ($path) {
 
     case '/app/admin/audit':
         AuditController::index($nonce);
+        return;
+
+    case '/app/admin/integrations':
+        if ($method === 'POST') {
+            IntegrationsController::post();
+        } else {
+            IntegrationsController::index($nonce);
+        }
         return;
 
     case '/app/report':

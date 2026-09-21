@@ -43,6 +43,7 @@ $hasProgram = ($user['memberships'] ?? []) !== [];
 $showContent = $canAny($user, 'announcement.create') || $canAny($user, 'document.create')
     || $canAny($user, 'taskorder.create') || $canAny($user, 'job.create') || $canAny($user, 'contact.manage');
 $showSettings = $canAny($user, 'branding.manage') || $canAny($user, 'program.config');
+$showIntegrations = $canAny($user, 'integration.config');
 $showOnboard = $canAny($user, 'access.request') || $canAny($user, 'access.view');
 ?><!doctype html>
 <html lang="en">
@@ -75,6 +76,7 @@ $showOnboard = $canAny($user, 'access.request') || $canAny($user, 'access.view')
     <?php if ($showContent): ?><a href="/app/admin/content"<?= $navActive === 'content' ? ' class="active"' : '' ?>>Content</a><?php endif; ?>
     <?php if ($showOnboard): ?><a href="/app/admin/access"<?= $navActive === 'onboarding' ? ' class="active"' : '' ?>>Onboarding</a><?php endif; ?>
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>
+    <?php if ($showIntegrations): ?><a href="/app/admin/integrations"<?= $navActive === 'integrations' ? ' class="active"' : '' ?>>Integrations</a><?php endif; ?>
     <?php if ($showSettings): ?><a href="/app/admin/settings"<?= $navActive === 'settings' ? ' class="active"' : '' ?>>Settings</a><?php endif; ?>
     <a href="/about" title="Program documentation">Docs</a>
   </nav>

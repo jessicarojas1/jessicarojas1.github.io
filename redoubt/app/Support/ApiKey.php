@@ -47,6 +47,12 @@ final class ApiKey
         if (!hash_equals((string) $row['key_hash'], hash('sha256', $secret))) {
             return null;
         }
+        // Best-effort last-used stamp (never blocks the request).
+        try {
+            Db::query('UPDATE api_client SET last_used_at = NOW() WHERE id = :id', ['id' => $row['id']]);
+        } catch (\Throwable $e) {
+            // ignore
+        }
         return $row;
     }
 

@@ -19,6 +19,9 @@ use Redoubt\Support\Faq;
 use Redoubt\Support\Analytics;
 use Redoubt\Support\AuditLog;
 use Redoubt\Support\Assistant;
+use Redoubt\Support\ApiClients;
+use Redoubt\Support\ApiKey;
+use Redoubt\Support\Webhooks;
 use Redoubt\Support\AccessRequests;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Sample;
@@ -211,6 +214,26 @@ T::ok('assistant finds accessible items for PM', $pmFalcon['count'] >= 1);
 $ninaAns = Assistant::ask($nina, $pid, 'Falcon classified');
 $ninaTitles = array_map(static fn ($r) => $r['title'], $ninaAns['results']);
 T::ok('assistant does NOT leak ITAR doc to non-US person', !in_array('Falcon classified', $ninaTitles, true));
+
+// Integrations: API clients + webhooks
+T::group('Integrations: API clients + webhooks (live DB)');
+$token = ApiClients::create($pid, 'Recruiting sync', ['job.view', 'announcement.view'], $ids['pm']);
+T::ok('API token has rk_ format', str_starts_with($token, 'rk_'));
+$resolved = ApiKey::resolve($token);
+T::ok('token resolves to the active client in-program', $resolved !== null && (int) $resolved['program_id'] === $pid);
+$clients = ApiClients::listForProgram($pid);
+T::ok('client appears in list', count($clients) >= 1);
+ApiClients::revoke((int) $clients[0]['id'], $pid, $ids['pm']);
+T::ok('revoked token no longer resolves', ApiKey::resolve($token) === null);
+$secret = Webhooks::createSubscription($pid, 'http://127.0.0.1:59999/hook', ['job.posted'], $ids['pm']);
+T::ok('webhook signing secret returned', strlen($secret) >= 32);
+$subs = Webhooks::listSubscriptions($pid);
+$newSub = $subs[0]['id'];
+T::ok('subscription appears in list', count($subs) >= 1);
+Webhooks::sendTest($newSub, $pid, $ids['pm']);
+T::ok('test delivery is logged', count(Webhooks::listDeliveries($newSub, 5)) >= 1);
+Webhooks::deleteSubscription($newSub, $pid, $ids['pm']);
+T::ok('subscription deleted', array_filter(Webhooks::listSubscriptions($pid), static fn ($s) => $s['id'] === $newSub) === []);
 
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');
