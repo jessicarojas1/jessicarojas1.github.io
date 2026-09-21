@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-18",
+  "updated": "2026-09-21",
   "summary": {
-    "correct": 6,
+    "correct": 7,
     "incorrect": 2,
-    "partial": 4,
-    "pending": 24,
-    "note": "2026-09-18: fc-2026-09-17-hormuz-escalation moved from PENDING to PARTIAL -- two further claimed Iranian/Houthi actions (the Yanbu claim and the 'Trend' tanker seizure claim) surfaced within the window but neither is independently confirmed nor clearly 'U.S.-linked.' All other continuity-thread PENDING forecasts updated with fresh evidence (Rosatom-IAEA Vienna meeting confirmed, China's exit-control decree identified precisely as Decree No. 841, DoD's reported ~90% Anthropic-workload migration and 29 Sep deadline, etc.). Three new PENDING forecasts added tracking whether Trump's 'annihilate Iran' framing translates into a major new military action, whether the FAR Overhaul proposed rule proceeds to a final rule without material reversal, and whether Space Force's Vulcan review concludes without blocking national-security launches."
+    "partial": 5,
+    "pending": 27,
+    "note": "2026-09-21 (gap-recovery cycle covering ~72h with no briefs on 19-20 Sep): three forecasts graded. fc-2026-09-17-hormuz-escalation upgraded PARTIAL -> CORRECT on the 19 Sep Houthi ballistic-missile attack on Riyadh, which Saudi Arabia confirmed -- an independently established attempted strike on a U.S. partner, unlike the interested-party claims the earlier PARTIAL rested on. fc-2026-09-09-energyhalt-narrow graded PARTIAL: Ukraine's 19-20 Sep strike damaged a Moscow oil-refinery facility but refining is not the power grid, and no mutually agreed halt ever existed to violate. fc-2026-09-08-hormuz-exclusion graded PARTIAL and trending INCORRECT: no formal exclusion zone was published, but transit is now materially reduced with U.S. diesel at a record above $6.50/gal. fc-2026-09-07-cmmc-window is deliberately left PENDING although its 14-day horizon lapsed, because the determination's content is non-public and grading it either way would be fabrication. Five new PENDING forecasts added: the 24 Sep summit producing a truce rollover without a rare-earth carve-out; no U.S.-Iran framework within 14 days of the 22 Sep Gulf-leaders meeting; a further Houthi strike on Saudi territory within 21 days; the remaining four FAR Overhaul rules publishing within 120 days; and no DIB victim attributed to the three new Linux kernel KEV entries within 60 days, which is a direct test of this cycle's cyber de-escalation call."
   },
   "forecasts": [
     {
@@ -15,7 +15,7 @@
       "horizon": "1-12 months",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked on the CMMC Implementation thread; secondary/trade-press sources now cite a more specific ~28 Sep public-report date, narrowing the prior 'late Sept/early Oct' estimate, though the internal determination's content remains non-public."
+      "note": "No Federal Register notice or departmental statement across the 18-21 Sep gap; the cited ~28 Sep public-report date is now a week out. The ~100 authorized C3PAOs against >100,000 companies needing assessment is an arithmetic constraint on any recommendation the report can realistically make, and supports the reformed-but-intact base case."
     },
     {
       "id": "fc-2026-09-06-goldendome",
@@ -24,7 +24,7 @@
       "horizon": "3-6 months",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No new award data this cycle; program manager Guetlein set a summer-2028 early-operational-capability target (15 Sep), with the 30 Sep SDA Tranche 1 Transport Layer A launch as the next concrete milestone."
+      "note": "No new Golden Dome award in the gap window, but adjacent space procurement accelerated with the 18 Sep DIU/SSC GHOST-R prototype awards to Northrop Grumman and True Anomaly. The 29 Sep SASC hearing and 30 Sep SDA Tranche 1 launch are the next data points; the unresolved ~$185B-versus-~$1.2T cost divergence, concentrated in space-based interceptors, is the main risk to the acceleration thesis."
     },
     {
       "id": "fc-2026-09-06-ukraine",
@@ -78,16 +78,16 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Determination reportedly landed internally around 13 Sep as expected; secondary sources now cite ~28 Sep as the specific public-report date, but the recommendation's content remains non-public -- resolution still awaits that report."
+      "note": "The 14-day horizon has now lapsed without any public output against which to grade. Deliberately not forced to a resolution: the determination's content remains non-public and grading it either way would be fabrication. Re-anchored to the cited ~28 Sep public-report date. Tracked on the CMMC Implementation thread."
     },
     {
       "id": "fc-2026-09-08-hormuz-exclusion",
       "date": "2026-09-08",
       "forecast": "Iran will formally publish and attempt to enforce the Hormuz-adjacent 'exclusion zone,' but will not succeed in materially reducing U.S.-escorted commercial transit volumes within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No formal exclusion-zone publication identified yet. CENTCOM reports redirecting 103 commercial vessels (up from 100 on 12 Sep) as of 15 Sep; Iranian state media (unverified) claims transit fell to just 3 ships on 16 Sep. Whether this constitutes 'material reduction' of US-escorted transit specifically remains unresolved. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-09-21",
+      "note": "Graded early on substance. The first clause is unmet: no formal exclusion-zone publication has been identified, though enforcement activity is evident. The second clause is now contradicted -- reporting this cycle describes Iran's blockade as having cut off most Gulf oil exports from global markets, with U.S. diesel at a record above $6.50/gal, which is material reduction in commercial transit even if the specific U.S.-escorted subset remains unquantified. Trending toward INCORRECT. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-08-mikrotik-kev",
@@ -105,7 +105,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "REPORTED (DefenseScoop, sourced 11 Sep): DoD ~90% migrated off classified Anthropic workloads against a specific 29 Sep department-wide removal deadline (180 days from an April 2 memo). No D.C. Circuit ruling yet. Tracked on the DoD AI Vendor Governance / Anthropic Dispute thread."
+      "note": "No D.C. Circuit ruling and no new migration reporting across the gap. The 29 Sep department-wide removal deadline is now eight days out and resolves this forecast either way. Tracked on the DoD AI Vendor Governance / Anthropic Dispute thread."
     },
     {
       "id": "fc-2026-09-09-hormuz-kinetic",
@@ -121,9 +121,9 @@
       "date": "2026-09-09",
       "forecast": "The narrower Ukraine energy-infrastructure-specific strike halt (separate from the already-lapsed capital-strike pause) will be explicitly confirmed violated by a specific power-grid-targeted strike within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Continued strikes (petrol stations/warehouses near Kyiv, a Russian oil refinery, reported further Kyiv explosions 17 Sep) trend toward violation, but no strike yet confirmed specifically grid-targeted; window closes ~23 Sep. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-09-21",
+      "note": "Ukraine's 19-20 Sep strike package -- its largest of the war -- damaged a facility at the Moscow oil refinery, an unambiguous energy-infrastructure strike inside the 14-day window. But refining is not the power grid and no grid-targeted strike was confirmed, so the forecast's specific test was not met. The deeper flaw is in the framing: no mutually agreed halt ever existed to be violated -- Zelensky described a proposal and Russia never accepted it. Directionally right, imprecisely specified. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-09-09-parnell-nomination",
@@ -132,7 +132,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No formal nomination yet; Adam Telle continues acting, Parnell remains reported frontrunner amid confirmation-risk factors. No new development this cycle. Tracked on the DoD Leadership Continuity thread."
+      "note": "No formal nomination; Adam Telle continues as acting Secretary. Fourth consecutive cycle without movement; window closes ~9 Oct. Tracked on the DoD Leadership Continuity thread."
     },
     {
       "id": "fc-2026-09-10-hormuz-transit",
@@ -159,7 +159,7 @@
       "horizon": "0-90 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No new reconstruction-timeline or basing announcement identified this cycle; 90-day window has ~10 weeks remaining. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No new reconstruction-timeline or basing announcement identified across the gap. The 19 Sep Houthi strike on Riyadh argues against near-term normalization of fixed Gulf basing. Window has roughly nine weeks remaining."
     },
     {
       "id": "fc-2026-09-11-salalah-talks",
@@ -186,7 +186,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No Aramco confirmation of resumed flows as of 18 Sep; industry estimates still cite 4-6 weeks for full restoration. Yanbu status is separately disputed (Industrial Info reports YASREF refinery operating normally; other reporting describes suspended port loadings) -- not yet reconciled. Attribution remains formally unclaimed. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Still no Aramco confirmation of resumed Petroline flows as of 21 Sep. The 19 Sep Houthi claims against Aramco facilities at Yanbu -- where the pipeline terminates -- add a fresh complication to the restoration timeline. Attribution for the 10-11 Sep strike remains formally unclaimed."
     },
     {
       "id": "fc-2026-09-14-salalah-reschedule",
@@ -195,7 +195,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No reschedule date or bilateral arrangement announced yet; no new development this cycle. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No reschedule date or publicly confirmed Iran-Oman bilateral arrangement identified. The diplomatic centre of gravity has shifted to UNGA, where the 22 Sep Trump-Gulf-leaders meeting and a possible Trump-Pezeshkian contact now overshadow the Salalah track. Window closes ~14 Oct."
     },
     {
       "id": "fc-2026-09-14-ciscofmc-dib-victim",
@@ -204,7 +204,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No specific DIB victim organization named as of this brief; ~700 FMC instances remain internet-exposed industry-wide. Two new related Cisco CVEs (ISE, Secure Email Gateway) now also in KEV, widening the same-vendor exposure question. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "No DIB victim named across the gap. Related evidence surfaced on an adjacent CVE: Cisco confirmed it discovered the ISE flaw while resolving a customer TAC support case, so at least one enterprise was compromised pre-disclosure, but the organization is unnamed. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-14-xisummit-outcome",
@@ -213,7 +213,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Pre-summit commentary now broadens the risk framing further, stacking rare earths, tariffs, and Iran policy alongside the Taiwan arms-sale threat as simultaneous flashpoints. The sale's approval/withholding status remains unconfirmed. Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads."
+      "note": "Xi's 23-25 Sep Washington visit is proceeding and the 24 Sep summit is on, so the summit-occurrence question has resolved favourably. Reported agenda centres on extending the 2025 trade truce plus critical minerals, technology and Taiwan. Resolves on the 24 Sep readouts; the test is whether any trade/rare-earth gesture is actually announced."
     },
     {
       "id": "fc-2026-09-15-petroline-attribution",
@@ -222,7 +222,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No new formal attribution this cycle; circumstantial attribution unchanged. Iraq's security advisor separately walked back the 30 Sep militia-disarmament deadline, a related but distinct development. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No formal attribution identified; circumstantial attribution unchanged. Window closes ~24-25 Sep. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-15-gitlab-downstream",
@@ -231,7 +231,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No new downstream-compromise reporting this cycle; no change from prior assessment. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "No downstream-compromise reporting tied to the GitLab exfiltration across the gap. A structurally similar incident did surface separately -- CrowdSec disclosed roughly 170 private GitHub repositories copied after a former employee's account was compromised via the May TanStack npm supply-chain attack -- but it is a different origin and does not resolve this forecast."
     },
     {
       "id": "fc-2026-09-15-cyberstrategy-release",
@@ -240,7 +240,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Still unreleased; DoD CIO Davies's 17 Sep public remarks on cyber-technology needs may be a proximate signal but do not confirm release. Tracked on the DoD Leadership Continuity thread."
+      "note": "Still unreleased into a fourth cycle. Previews sharpened this cycle to include contractor support for offensive cyber operations, a reported break from past policy. Window closes ~15 Oct. Tracked on the DoD Leadership Continuity thread."
     },
     {
       "id": "fc-2026-09-15-gatekeeper-solicitation",
@@ -249,7 +249,7 @@
       "horizon": "0-90 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No solicitation referencing it identified yet; DIU's separate AI sensor-fusion solicitation was confirmed by name (Space Threat Intelligence Synthesis Engine, PROJ00716), 24 Sep deadline unchanged. Tracked on the Pentagon AI-Assisted Software Acquisition thread."
+      "note": "No solicitation referencing Project Gatekeeper or the Accelerated Mission Software instruction identified. DIU's separate PROJ00716 AI sensor-fusion solicitation reaches its 24 Sep deadline this week. Tracked on the Pentagon AI-Assisted Software Acquisition thread."
     },
     {
       "id": "fc-2026-09-16-spaceforce-disclosure",
@@ -258,7 +258,7 @@
       "horizon": "0-90 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No new U.S. technical detail this cycle; China and Russia issued formal rhetorical objections (16 Sep) but this is an adversary reaction, not additional U.S. elaboration on type/scale. Tracked on the Space Control / Orbital Weapons Disclosure thread."
+      "note": "No new U.S. technical detail on capability type or scale across the gap, and no adversary counter-space test. The substantive movement was in supporting architecture instead -- the 18 Sep GHOST-R GEO reconnaissance prototype awards. Tracked on the Space Control / Orbital Weapons Disclosure thread."
     },
     {
       "id": "fc-2026-09-16-exitcontrol-enforcement",
@@ -267,7 +267,7 @@
       "horizon": "0-60 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Regulation now identified precisely as Decree No. 841, signed by Premier Li Qiang on 22 Jul 2026 and effective 15 Sep, targeting rare-earth-separation, N-type solar, and EV-battery-electrolyte specialists; still no enforcement case publicly reported. Tracked on the Critical Minerals / Rare-Earth Magnets thread."
+      "note": "Still no publicly reported exit-ban enforcement case under Decree No. 841. A different restrictive mechanism became visible instead: Chinese suppliers reportedly refusing U.S.-bound shipments despite valid licences, which achieves a comparable effect with no enforcement action and therefore may reduce the need for a visible exit-ban case at all."
     },
     {
       "id": "fc-2026-09-16-energy-dispute",
@@ -276,16 +276,16 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Strikes continued through 17 Sep with no Russian agreement confirmed; a Rosatom-IAEA Vienna meeting (17 Sep) on ZNPP safety was confirmed, and a previously untracked ~30-day ZNPP power outage (from ~20 Aug) and its restoration were detailed. Trending toward CORRECT but the 30-day window remains open. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "note": "Trending strongly toward CORRECT. Ukraine's largest strike package of the war damaged a Moscow refinery facility on 19-20 Sep with no halt agreed, and United Russia's two-thirds constitutional majority removes the last internal route to a policy change. The 30-day window remains open to 16 Oct, so not graded yet."
     },
     {
       "id": "fc-2026-09-17-hormuz-escalation",
       "date": "2026-09-17",
       "forecast": "Following CENTCOM's reported destruction of two IRGC boats (15 Sep) -- the first acknowledged U.S. kinetic action since 8 Sep -- Iran or an aligned group (e.g., the Houthis) will conduct at least one further attempted retaliatory strike against a U.S.-linked vessel, asset, or partner (e.g., Saudi/Gulf energy infrastructure) within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PARTIAL",
-      "resolvedDate": "2026-09-18",
-      "note": "Two further claimed actions surfaced within the window -- the Houthi Yanbu-refinery claim (16 Sep) and the IRGC's claimed seizure of the Togo-flagged tanker 'Trend' (18 Sep) -- but neither is independently confirmed, and the tanker's 'U.S.-linked' status rests on Iran's own framing rather than established fact. Trending toward CORRECT but not cleanly resolved. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-21",
+      "note": "Upgraded from PARTIAL to CORRECT. The 19 Sep Houthi ballistic-missile and drone attack on Riyadh and on Aramco facilities at Yanbu resolves this cleanly: Saudi Arabia itself confirmed the attempted ballistic-missile attack on its capital -- an independently established attempted retaliatory strike against a named U.S. partner, well inside the 14-day window. Unlike the earlier Iranian claims this forecast previously rested on, this one does not depend on interested-party assertion. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-17-taiwan-armssale",
@@ -294,7 +294,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "China has reportedly threatened cancellation if the sale is approved beforehand; the sale's status could not be confirmed as of 17 Sep. Tracked on the China-Taiwan Pressure / Trump-Xi Summit thread."
+      "note": "Substantially de-risked: Xi's 23-25 Sep Washington visit is proceeding and the $14B package remains unapproved, having reportedly been paused to conserve munitions for the Iran war rather than as a summit concession. Resolves on 24 Sep."
     },
     {
       "id": "fc-2026-09-17-cisco-ise-kev-exploit",
@@ -303,7 +303,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Both CVEs were confirmed under active exploitation at KEV listing (14-16 Sep) and remain unpatched/unresolved industry-wide; no new KEV additions or named victim this cycle. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "Partial supporting evidence surfaced: Cisco confirmed it found CVE-2026-76460 while resolving a customer TAC support case, meaning at least one enterprise was compromised before disclosure -- but no victim has been named, which is what this forecast requires. The 19 Sep federal remediation deadline has now passed and patches span 3.1 Patch 12 to 3.5 Patch 4."
     },
     {
       "id": "fc-2026-09-18-trump-iran-decision",
@@ -312,7 +312,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread; Tuesday's Gulf-leaders meeting at UNGA is the near-term data point most likely to shape the outcome."
+      "note": "Rhetoric hardened further on 20 Sep ('wipe Iran out' / let the economy 'rot' / make a deal) while an Iranian delegation arrived at UNGA on U.S. visas with a leader-level meeting floated and markets eased on 21 Sep. No new major overt U.S. military action in the window so far; both branches remain live. The 22 Sep Gulf-leaders meeting is the next data point."
     },
     {
       "id": "fc-2026-09-18-far-overhaul-finalize",
@@ -321,7 +321,7 @@
       "horizon": "3-12 months",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked on the FAR Overhaul / Acquisition Reform thread; comment period closes 19 Oct 2026."
+      "note": "Context materially corrected this cycle: the 18 Sep publication comprised four proposed rules (2026-19158, -19159, -19160, -19162), and four earlier rules published 23 Jun 2026, bringing eight of twelve public. Countervailing signal to note -- final rules from the June batch reportedly stalled earlier in 2026 while OMB weighed changes, so proposed-stage publication does not guarantee timely finalization."
     },
     {
       "id": "fc-2026-09-18-vulcan-review",
@@ -330,7 +330,52 @@
       "horizon": "0-60 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracked informally via the Aerospace & Defense Industry section; ULA carries a 25-mission DoD Vulcan backlog, several already past target dates."
+      "note": "No public update identified during 18-21 Sep. This is an absence of reporting, not evidence that the review has concluded. Window closes ~17 Nov."
+    },
+    {
+      "id": "fc-2026-09-21-xi-summit-outcome",
+      "date": "2026-09-21",
+      "forecast": "The 24 Sep Trump-Xi summit will be held as scheduled and produce a publicly announced extension or rollover of the tariff/trade truce, but no rare-earth licensing carve-out covering military-affiliated U.S. firms.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Xi arrived in Washington ahead of the 23-25 Sep visit, substantially resolving the cancellation risk that dominated the prior cycle. The test is whether the readouts touch the defense-relevant constraint (military-affiliated magnet licensing) or only the commercial one (tariffs). Tracked on the China-Taiwan Pressure / Trump-Xi Summit and Critical Minerals / Rare-Earth Magnets threads."
+    },
+    {
+      "id": "fc-2026-09-21-unga-iran-framework",
+      "date": "2026-09-21",
+      "forecast": "No publicly announced U.S.-Iran ceasefire or framework agreement will be reached within 14 days of the 22 Sep Trump-Gulf-leaders meeting, despite Pezeshkian's UNGA attendance and Trump's stated openness to meeting him.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Iran's reported seven conditions via Qatari mediators -- including reparations for damage since 28 February -- are far from any stated U.S. position, and the 19 Sep Houthi strike on Riyadh indicates escalation is continuing in parallel with the diplomacy. A leader-level contact alone would not resolve this forecast; a framework announcement would. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-21-houthi-saudi-followon",
+      "date": "2026-09-21",
+      "forecast": "Following the 19 Sep Houthi ballistic-missile and drone attack on Riyadh and Aramco facilities at Yanbu, at least one further Houthi strike or attempted strike on Saudi territory will be publicly reported within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the 19 Sep operation was a one-off signalling event tied to the 22 Sep Gulf-leaders meeting or the opening of a sustained campaign against Saudi territory. A confirmed Saudi acknowledgement or credible independent report satisfies this; a Houthi claim alone does not. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-21-far-third-batch",
+      "date": "2026-09-21",
+      "forecast": "The remaining four proposed rules needed to complete the twelve-rule Revolutionary FAR Overhaul package will be published in the Federal Register within 120 days.",
+      "horizon": "0-120 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Eight of twelve are now public: four on 23 Jun 2026 and four on 18 Sep 2026. The roughly three-month interval between batches supports a third batch by year-end, but reporting that June-batch final rules stalled while OMB weighed changes is a countervailing signal. Tracked on the FAR Overhaul / Acquisition Reform thread."
+    },
+    {
+      "id": "fc-2026-09-21-linux-kev-no-dib-victim",
+      "date": "2026-09-21",
+      "forecast": "No confirmed U.S. defense-industrial-base or federal-contractor intrusion will be publicly attributed to the three Linux kernel KEV entries (CVE-2025-39682, CVE-2025-39964, CVE-2026-53266) within 60 days, because all three are local-privilege-escalation rather than initial-access vectors.",
+      "horizon": "0-60 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "A deliberate test of this cycle's central cyber judgment -- that the exploited class has moved to the escalation half of the intrusion chain. If a named DIB victim is attributed to one of these kernel flaws it would more likely appear as part of a chained campaign from an edge CVE, which would also falsify this cycle's de-escalation call. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     }
   ]
 }
