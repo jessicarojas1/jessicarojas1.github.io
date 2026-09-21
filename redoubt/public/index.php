@@ -36,6 +36,9 @@ use Redoubt\Http\NotificationsController;
 use Redoubt\Http\AccessController;
 use Redoubt\Http\SetupController;
 use Redoubt\Http\MilestonesController;
+use Redoubt\Http\QuickLinksController;
+use Redoubt\Http\FaqController;
+use Redoubt\Http\OverviewController;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Session;
 
@@ -179,6 +182,30 @@ switch ($path) {
             MilestonesController::post();
         } else {
             MilestonesController::index($nonce);
+        }
+        return;
+
+    case '/app/overview':
+        OverviewController::index($nonce);
+        return;
+
+    case '/app/report':
+        OverviewController::report($nonce);
+        return;
+
+    case '/app/quick-links':
+        if ($method === 'POST') {
+            QuickLinksController::post();
+        } else {
+            QuickLinksController::index($nonce);
+        }
+        return;
+
+    case '/app/faq':
+        if ($method === 'POST') {
+            FaqController::post();
+        } else {
+            FaqController::index($nonce);
         }
         return;
 

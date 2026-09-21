@@ -60,6 +60,15 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:1
 .quick-card{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--bg);color:inherit;font-size:13px;font-weight:600}
 .quick-card:hover{text-decoration:none;border-color:var(--accent)}
 @media(max-width:820px){.dash-cols{grid-template-columns:1fr}}
+.report-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:2px solid var(--gold);padding-bottom:12px;flex-wrap:wrap}
+@media print{
+  .top,.breadcrumbs,.no-print,.toast{display:none!important}
+  body{background:#fff}
+  .wrap{max-width:none;padding:0}
+  .card{box-shadow:none;border:none;margin:0}
+  .report .tablewrap{border:1px solid #ccc}
+  a{color:#000;text-decoration:none}
+}
 .tablewrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:13.5px}
 th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}

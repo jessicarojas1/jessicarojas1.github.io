@@ -60,7 +60,29 @@ final class Search
                 }
             }
         }
-        return array_slice($results, 0, self::PER_TYPE * 5);
+        if (Authorize::can($user, 'milestone.view', ['program_id' => $programId])) {
+            foreach (Milestones::listForProgram($programId) as $m) {
+                if ($hits((string) $m['title'])) {
+                    $results[] = self::hit('Milestone', (string) $m['title'], (string) $m['type'], '/app/milestones?program_id=' . $programId);
+                }
+            }
+        }
+        $isMember = isset($user['memberships'][$programId]);
+        if ($isMember) {
+            $faqMgr = Authorize::can($user, 'faq.manage', ['program_id' => $programId]);
+            foreach (Faq::listForUser($user, $programId, $faqMgr) as $f) {
+                if ($hits((string) $f['question']) || $hits((string) $f['answer'])) {
+                    $results[] = self::hit('FAQ', (string) $f['question'], 'Knowledge base', '/app/faq?program_id=' . $programId);
+                }
+            }
+            $linkMgr = Authorize::can($user, 'quicklink.manage', ['program_id' => $programId]);
+            foreach (QuickLinks::listForUser($user, $programId, $linkMgr) as $l) {
+                if ($hits((string) $l['label'])) {
+                    $results[] = self::hit('Quick Link', (string) $l['label'], (string) $l['url'], '/app/quick-links?program_id=' . $programId);
+                }
+            }
+        }
+        return array_slice($results, 0, self::PER_TYPE * 8);
     }
 
     private static function hit(string $type, string $title, string $subtitle, string $url): array

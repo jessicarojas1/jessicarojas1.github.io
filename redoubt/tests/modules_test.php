@@ -14,6 +14,8 @@ use Redoubt\Support\Settings;
 use Redoubt\Support\Notifications;
 use Redoubt\Support\Milestones;
 use Redoubt\Support\Dashboard;
+use Redoubt\Support\QuickLinks;
+use Redoubt\Support\Faq;
 use Redoubt\Support\AccessRequests;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Sample;
@@ -164,6 +166,28 @@ T::ok('dashboard shows upcoming milestone', count($dash['milestones']) >= 1);
 T::ok('PM dashboard includes onboarding tile (access.grant)', isset($dash['stats']['onboarding']));
 $subDash = Dashboard::forUser($sam, $pid);
 T::ok('sub dashboard excludes onboarding tile', !isset($subDash['stats']['onboarding']));
+
+// Quick Links + FAQ (audience-trimmed) + search integration
+T::group('Quick Links + FAQ + Search extras (live DB)');
+QuickLinks::create($pid, ['label' => 'Timekeeping', 'url' => 'https://time.example.us', 'audience' => ['all']], $ids['pm']);
+QuickLinks::create($pid, ['label' => 'Internal wiki', 'url' => 'https://wiki.example.us', 'audience' => ['internal']], $ids['pm']);
+T::eq('non-http quick-link URL sanitized to #', '#', QuickLinks::safeUrl('javascript:alert(1)'));
+$samLinks = array_map(static fn ($l) => $l['label'], QuickLinks::listForUser($sam, $pid));
+T::ok('sub sees all-audience quick link', in_array('Timekeeping', $samLinks, true));
+T::ok('sub does NOT see internal-only quick link', !in_array('Internal wiki', $samLinks, true));
+Faq::create($pid, ['question' => 'How do I badge in?', 'answer' => 'Visit security.', 'audience' => ['all']], $ids['pm']);
+Faq::create($pid, ['question' => 'Internal secret?', 'answer' => 'x', 'audience' => ['internal']], $ids['pm']);
+$samFaq = array_map(static fn ($f) => $f['question'], Faq::listForUser($sam, $pid));
+T::ok('sub sees all-audience FAQ', in_array('How do I badge in?', $samFaq, true));
+T::ok('sub does NOT see internal-only FAQ', !in_array('Internal secret?', $samFaq, true));
+$faqHits = array_map(static fn ($r) => $r['title'], Search::run($sam, $pid, 'badge'));
+T::ok('search finds FAQ (permission-trimmed)', in_array('How do I badge in?', $faqHits, true));
+$linkHits = array_map(static fn ($r) => $r['title'], Search::run($sam, $pid, 'timekeeping'));
+T::ok('search finds quick link', in_array('Timekeeping', $linkHits, true));
+$msHits = array_map(static fn ($r) => $r['title'], Search::run($pm, $pid, 'CDRL'));
+T::ok('search finds milestone', in_array('CDRL A001', $msHits, true));
+$subSecretHits = array_map(static fn ($r) => $r['title'], Search::run($sam, $pid, 'secret'));
+T::ok('search does NOT leak internal-only FAQ to sub', !in_array('Internal secret?', $subSecretHits, true));
 
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');

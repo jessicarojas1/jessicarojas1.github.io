@@ -60,6 +60,7 @@ $showOnboard = $canAny($user, 'access.request') || $canAny($user, 'access.view')
   </a>
   <nav class="nav">
     <a href="/app"<?= $navActive === 'home' ? ' class="active"' : '' ?>>Home</a>
+    <?php if ($hasProgram): ?><a href="/app/overview"<?= $navActive === 'overview' ? ' class="active"' : '' ?>>Program</a><?php endif; ?>
     <?php if ($showAnn): ?><a href="/app/announcements"<?= $navActive === 'announcements' ? ' class="active"' : '' ?>>Announcements</a><?php endif; ?>
     <?php if ($showDocs): ?><a href="/app/documents"<?= $navActive === 'documents' ? ' class="active"' : '' ?>>Documents</a><?php endif; ?>
     <?php if ($showTo): ?><a href="/app/task-orders"<?= $navActive === 'taskorders' ? ' class="active"' : '' ?>>Task Orders</a><?php endif; ?>
