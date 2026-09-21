@@ -39,6 +39,9 @@ use Redoubt\Http\MilestonesController;
 use Redoubt\Http\QuickLinksController;
 use Redoubt\Http\FaqController;
 use Redoubt\Http\OverviewController;
+use Redoubt\Http\AnalyticsController;
+use Redoubt\Http\AuditController;
+use Redoubt\Http\AssistantController;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Session;
 
@@ -187,6 +190,18 @@ switch ($path) {
 
     case '/app/overview':
         OverviewController::index($nonce);
+        return;
+
+    case '/app/assistant':
+        AssistantController::index($nonce);
+        return;
+
+    case '/app/analytics':
+        AnalyticsController::index($nonce);
+        return;
+
+    case '/app/admin/audit':
+        AuditController::index($nonce);
         return;
 
     case '/app/report':

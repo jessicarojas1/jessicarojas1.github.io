@@ -38,6 +38,7 @@ $showTo = $canAny($user, 'taskorder.view');
 $showJobs = $canAny($user, 'job.view');
 $showDir = $canAny($user, 'directory.view');
 $showMilestones = $canAny($user, 'milestone.view');
+$showAnalytics = $canAny($user, 'audit.view');
 $hasProgram = ($user['memberships'] ?? []) !== [];
 $showContent = $canAny($user, 'announcement.create') || $canAny($user, 'document.create')
     || $canAny($user, 'taskorder.create') || $canAny($user, 'job.create') || $canAny($user, 'contact.manage');
@@ -68,6 +69,9 @@ $showOnboard = $canAny($user, 'access.request') || $canAny($user, 'access.view')
     <?php if ($showDir): ?><a href="/app/directory"<?= $navActive === 'directory' ? ' class="active"' : '' ?>>Directory</a><?php endif; ?>
     <?php if ($showMilestones): ?><a href="/app/milestones"<?= $navActive === 'milestones' ? ' class="active"' : '' ?>>Milestones</a><?php endif; ?>
     <?php if ($hasProgram): ?><a href="/app/search"<?= $navActive === 'search' ? ' class="active"' : '' ?>>Search</a><?php endif; ?>
+    <?php if ($hasProgram): ?><a href="/app/assistant"<?= $navActive === 'assistant' ? ' class="active"' : '' ?>>Assistant</a><?php endif; ?>
+    <?php if ($showAnalytics): ?><a href="/app/analytics"<?= $navActive === 'analytics' ? ' class="active"' : '' ?>>Analytics</a><?php endif; ?>
+    <?php if ($showAnalytics): ?><a href="/app/admin/audit"<?= $navActive === 'audit' ? ' class="active"' : '' ?>>Audit</a><?php endif; ?>
     <?php if ($showContent): ?><a href="/app/admin/content"<?= $navActive === 'content' ? ' class="active"' : '' ?>>Content</a><?php endif; ?>
     <?php if ($showOnboard): ?><a href="/app/admin/access"<?= $navActive === 'onboarding' ? ' class="active"' : '' ?>>Onboarding</a><?php endif; ?>
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>

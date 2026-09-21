@@ -16,6 +16,9 @@ use Redoubt\Support\Milestones;
 use Redoubt\Support\Dashboard;
 use Redoubt\Support\QuickLinks;
 use Redoubt\Support\Faq;
+use Redoubt\Support\Analytics;
+use Redoubt\Support\AuditLog;
+use Redoubt\Support\Assistant;
 use Redoubt\Support\AccessRequests;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Sample;
@@ -188,6 +191,26 @@ $msHits = array_map(static fn ($r) => $r['title'], Search::run($pm, $pid, 'CDRL'
 T::ok('search finds milestone', in_array('CDRL A001', $msHits, true));
 $subSecretHits = array_map(static fn ($r) => $r['title'], Search::run($sam, $pid, 'secret'));
 T::ok('search does NOT leak internal-only FAQ to sub', !in_array('Internal secret?', $subSecretHits, true));
+
+// Analytics + Audit + Program Assistant
+T::group('Analytics + Audit + Assistant (live DB)');
+$an = Analytics::forProgram($pid);
+T::eq('analytics activity spans 14 days', 14, count($an['activity']));
+T::ok('analytics content counts present', isset($an['content']['announcements']));
+T::ok('analytics adoption percent computed', isset($an['adoption']['percent']));
+$auditRows = AuditLog::forProgram($pid, null, 0);
+T::ok('audit log returns rows', count($auditRows) > 0);
+T::ok('audit action list non-empty', AuditLog::actions($pid) !== []);
+$total = AuditLog::count($pid, null);
+T::ok('audit total > 0', $total > 0);
+T::ok('audit action filter never exceeds total', AuditLog::count($pid, 'announcement.published') <= $total);
+$ans = Assistant::ask($pm, $pid, 'kickoff announcement');
+T::ok('assistant returns a non-empty summary', is_string($ans['summary']) && $ans['summary'] !== '');
+$pmFalcon = Assistant::ask($pm, $pid, 'Falcon');
+T::ok('assistant finds accessible items for PM', $pmFalcon['count'] >= 1);
+$ninaAns = Assistant::ask($nina, $pid, 'Falcon classified');
+$ninaTitles = array_map(static fn ($r) => $r['title'], $ninaAns['results']);
+T::ok('assistant does NOT leak ITAR doc to non-US person', !in_array('Falcon classified', $ninaTitles, true));
 
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');

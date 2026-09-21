@@ -85,6 +85,22 @@ requirement.** The blockers below flow from these.
 
 **All 7 MVP modules are now built** (IAM, Announcements, Documents, Task Orders,
 Jobs, Directory, Search).
+- **Program Analytics & Health** (`/app/analytics`, audit.view): content KPIs, a
+  hand-rolled SVG 14-day activity chart, 7-day adoption gauge, top-actions bars,
+  and a compliance panel — all from the audit trail + content tables, offline
+  (no chart CDN) (`Analytics`, `AnalyticsController`, `app_analytics.php`).
+- **Compliance Audit Log viewer** (`/app/admin/audit`, audit.view): the
+  append-only trail (time · actor · action · target · IP) with action filter and
+  paging (`AuditLog`, `AuditController`, `app_audit.php`).
+- **Program Assistant** (`/app/assistant`): permission-aware retrieval Q&A across
+  announcements, documents, task orders, jobs, milestones, FAQ, quick links —
+  ranked, cited sources + synthesized answer; **cannot surface anything outside
+  the asker's access** (verified: won't leak an ITAR doc to a non-US person).
+  Retrieval only (works air-gapped); a self-hosted in-enclave LLM can later
+  compose from these same trimmed sources (`Assistant`, `AssistantController`).
+- **⌘K / Ctrl-K command palette**: global quick-nav across only the destinations
+  the user may access, plus "Search for…" and "Ask the assistant…" actions
+  (`palette.js`, footer overlay).
 - **Executive Home dashboard**: role-aware KPI tiles (permission-trimmed counts),
   "My Actions" (pending approvals, unpublished drafts, milestones due ≤7 days),
   recent announcements, upcoming milestones, and quick-access cards — a program
@@ -116,8 +132,8 @@ Jobs, Directory, Search).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
-- **Automated test suite** (zero-dependency): `php tests/run.php` — 98 checks
-  (15 authorization-engine logic + 74 live-DB assertions: modules, job targeting,
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 108 checks
+  (15 authorization-engine logic + 84 live-DB assertions: modules, job targeting,
   Settings/Branding sanitization, notification fan-out, onboarding lifecycle, local
   auth, sample loader) via `tests/lib/T` + `tests/lib/Seed`; DB tests self-skip
   unless `REDOUBT_TEST_DB=1`. An end-to-end HTTP flow (setup → local login → app)
@@ -173,7 +189,7 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 98 checks —
+  These checks are now a **repeatable suite** (`php tests/run.php`, 108 checks —
   incl. job targeting by company/contract/program-wide + filters, and
   Settings/Branding persistence + sanitization) enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
   prepares became `''` (Db now emits `true`/`false`); webhook `@>` needed `::jsonb`;
