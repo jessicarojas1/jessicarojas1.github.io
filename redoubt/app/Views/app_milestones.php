@@ -18,7 +18,7 @@ $fields = function (array $m = []) {
     ob_start(); ?>
     <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">
       <div style="flex:1;min-width:220px"><label>Title</label><input type="text" name="title" required maxlength="200" value="<?= Security::h($m['title'] ?? '') ?>"></div>
-      <div><label>Due date</label><input type="date" name="due_date" value="<?= Security::h($m['due_date'] ? date('Y-m-d', strtotime((string) $m['due_date'])) : '') ?>"></div>
+      <div><label>Due date</label><input type="date" name="due_date" value="<?= Security::h(!empty($m['due_date']) ? date('Y-m-d', strtotime((string) $m['due_date'])) : '') ?>"></div>
       <div><label>Type</label>
         <select name="type">
           <?php foreach (['CDRL', 'deliverable', 'event'] as $t): ?><option value="<?= $t ?>"<?= ($m['type'] ?? 'event') === $t ? ' selected' : '' ?>><?= $t ?></option><?php endforeach; ?>
