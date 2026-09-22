@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-21",
+  "updated": "2026-09-22",
   "summary": {
     "correct": 7,
     "incorrect": 2,
     "partial": 5,
-    "pending": 27,
-    "note": "2026-09-21 (gap-recovery cycle covering ~72h with no briefs on 19-20 Sep): three forecasts graded. fc-2026-09-17-hormuz-escalation upgraded PARTIAL -> CORRECT on the 19 Sep Houthi ballistic-missile attack on Riyadh, which Saudi Arabia confirmed -- an independently established attempted strike on a U.S. partner, unlike the interested-party claims the earlier PARTIAL rested on. fc-2026-09-09-energyhalt-narrow graded PARTIAL: Ukraine's 19-20 Sep strike damaged a Moscow oil-refinery facility but refining is not the power grid, and no mutually agreed halt ever existed to violate. fc-2026-09-08-hormuz-exclusion graded PARTIAL and trending INCORRECT: no formal exclusion zone was published, but transit is now materially reduced with U.S. diesel at a record above $6.50/gal. fc-2026-09-07-cmmc-window is deliberately left PENDING although its 14-day horizon lapsed, because the determination's content is non-public and grading it either way would be fabrication. Five new PENDING forecasts added: the 24 Sep summit producing a truce rollover without a rare-earth carve-out; no U.S.-Iran framework within 14 days of the 22 Sep Gulf-leaders meeting; a further Houthi strike on Saudi territory within 21 days; the remaining four FAR Overhaul rules publishing within 120 days; and no DIB victim attributed to the three new Linux kernel KEV entries within 60 days, which is a direct test of this cycle's cyber de-escalation call."
+    "pending": 30,
+    "note": "2026-09-22: no forecasts fully resolved this cycle (none of the open windows lapsed today), but several PENDING notes were updated in place. Most notably, fc-2026-09-21-linux-kev-no-dib-victim's underlying cyber judgment took a hit: the 21 Sep de-escalation call it was testing was itself reversed within 24 hours by two new network-facing KEV entries (Zyxel GS1900, Exchange zero-click RCE), though the specific Linux-kernel-victim test this forecast tracks is unaffected since the new CVEs are a different class. Three new PENDING forecasts added: a direct test of whether the cyber reversal itself continues (a further edge/perimeter KEV addition within 14 days); an Aramco Petroline partial-restart confirmation within 7 days; and whether a specific U.S. security-guarantee or resupply commitment to Gulf states follows the 22 Sep Trump-Gulf-leaders meeting within 14 days."
   },
   "forecasts": [
     {
@@ -186,7 +186,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Still no Aramco confirmation of resumed Petroline flows as of 21 Sep. The 19 Sep Houthi claims against Aramco facilities at Yanbu -- where the pipeline terminates -- add a fresh complication to the restoration timeline. Attribution for the 10-11 Sep strike remains formally unclaimed."
+      "note": "Still no Aramco confirmation of resumed Petroline flows as of 22 Sep. Bloomberg reporting (16 Sep) and prediction-market pricing (~84.5%) converge on a partial restart within days, but Aramco itself has not confirmed. Attribution for the 10-11 Sep strike remains formally unclaimed."
     },
     {
       "id": "fc-2026-09-14-salalah-reschedule",
@@ -213,7 +213,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Xi's 23-25 Sep Washington visit is proceeding and the 24 Sep summit is on, so the summit-occurrence question has resolved favourably. Reported agenda centres on extending the 2025 trade truce plus critical minerals, technology and Taiwan. Resolves on the 24 Sep readouts; the test is whether any trade/rare-earth gesture is actually announced."
+      "note": "Xi has now departed for Washington with arrival at Joint Base Andrews confirmed for 23 Sep; occurrence risk is fully retired. Analyst consensus frames the summit as 'the three Ts' (Taiwan, technology, trade). Resolves on the 24 Sep readouts; the test is whether any trade/rare-earth gesture is actually announced."
     },
     {
       "id": "fc-2026-09-15-petroline-attribution",
@@ -294,7 +294,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Substantially de-risked: Xi's 23-25 Sep Washington visit is proceeding and the $14B package remains unapproved, having reportedly been paused to conserve munitions for the Iran war rather than as a summit concession. Resolves on 24 Sep."
+      "note": "Substantially de-risked and now essentially confirmed on the occurrence half: Xi has departed for Washington, and the $14B package remains unapproved, having reportedly been paused to conserve munitions for the Iran war rather than as a summit concession. Resolves on 24 Sep."
     },
     {
       "id": "fc-2026-09-17-cisco-ise-kev-exploit",
@@ -348,7 +348,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Iran's reported seven conditions via Qatari mediators -- including reparations for damage since 28 February -- are far from any stated U.S. position, and the 19 Sep Houthi strike on Riyadh indicates escalation is continuing in parallel with the diplomacy. A leader-level contact alone would not resolve this forecast; a framework announcement would. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "The 22 Sep Trump-Gulf-leaders meeting occurred as scheduled with the postwar plan REPORTEDLY deferred until after the November midterms -- no framework was announced, consistent with this forecast's base case so far. Iran's reported seven conditions via Qatari mediators remain far from any stated U.S. position. A leader-level contact alone would not resolve this forecast; a framework announcement would. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-21-houthi-saudi-followon",
@@ -357,7 +357,7 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the 19 Sep operation was a one-off signalling event tied to the 22 Sep Gulf-leaders meeting or the opening of a sustained campaign against Saudi territory. A confirmed Saudi acknowledgement or credible independent report satisfies this; a Houthi claim alone does not. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No independently confirmed new Houthi strike on Saudi territory since 19 Sep was identified as of 22 Sep. The G7's 22 Sep statement condemning 'continued strikes' could not be tied to a specific new post-19-Sep event -- its apparent evidentiary basis (73 wounded at Abha/Khamis Mushait/Jizan/Najran) traces to earlier September reporting. Treated as an intelligence gap, not partial confirmation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-21-far-third-batch",
@@ -375,7 +375,34 @@
       "horizon": "0-60 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "A deliberate test of this cycle's central cyber judgment -- that the exploited class has moved to the escalation half of the intrusion chain. If a named DIB victim is attributed to one of these kernel flaws it would more likely appear as part of a chained campaign from an edge CVE, which would also falsify this cycle's de-escalation call. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "A deliberate test of this cycle's central cyber judgment -- that the exploited class has moved to the escalation half of the intrusion chain. That underlying judgment was itself reversed on 22 Sep by two new network-facing KEV entries (Zyxel GS1900, Exchange zero-click RCE), though this forecast's specific test (a Linux-kernel-attributed victim) is unaffected since the new CVEs are a different class. If a named DIB victim is attributed to one of these kernel flaws it would more likely appear as part of a chained campaign from an edge CVE. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-09-22-cyber-edge-reversal",
+      "date": "2026-09-22",
+      "forecast": "Following the 21-22 Sep KEV additions of CVE-2026-7273 (Zyxel GS1900) and CVE-2026-55007 (Exchange zero-click RCE), at least one further edge/perimeter/remote-access KEV addition (as opposed to a local-privilege-escalation CVE) will occur within 14 days, confirming that the 21 Sep de-escalation call was a temporary pause rather than a genuine trend.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "A direct test of whether this cycle's reversal of the 21 Sep cyber assessment continues or was itself a one-off. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-09-22-petroline-restart",
+      "date": "2026-09-22",
+      "forecast": "Saudi Aramco will publicly confirm at least a partial (roughly half-capacity) restart of the Petroline East-West pipeline within 7 days, consistent with 16 Sep guidance and prediction-market pricing (~84.5% by 30 Sep).",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether Aramco's own reporting cadence matches the market-implied confidence in a near-term partial restart. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-22-gulf-guarantee",
+      "date": "2026-09-22",
+      "forecast": "No specific, publicly announced U.S. security-guarantee or air-defense-resupply commitment to Gulf Cooperation Council states will be identified within 14 days of the 22 Sep Trump-Gulf-leaders meeting, consistent with the postwar plan's reported deferral until after the November midterms.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the meeting's reported deferral of substance holds, or whether a specific commitment emerges faster than the reported midterms timeline implies. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     }
   ]
 }
