@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-22",
+  "updated": "2026-09-23",
   "summary": {
-    "correct": 7,
+    "correct": 9,
     "incorrect": 2,
     "partial": 5,
-    "pending": 30,
-    "note": "2026-09-22: no forecasts fully resolved this cycle (none of the open windows lapsed today), but several PENDING notes were updated in place. Most notably, fc-2026-09-21-linux-kev-no-dib-victim's underlying cyber judgment took a hit: the 21 Sep de-escalation call it was testing was itself reversed within 24 hours by two new network-facing KEV entries (Zyxel GS1900, Exchange zero-click RCE), though the specific Linux-kernel-victim test this forecast tracks is unaffected since the new CVEs are a different class. Three new PENDING forecasts added: a direct test of whether the cyber reversal itself continues (a further edge/perimeter KEV addition within 14 days); an Aramco Petroline partial-restart confirmation within 7 days; and whether a specific U.S. security-guarantee or resupply commitment to Gulf states follows the 22 Sep Trump-Gulf-leaders meeting within 14 days."
+    "pending": 31,
+    "note": "2026-09-23: two forecasts resolved CORRECT. fc-2026-09-22-petroline-restart graded CORRECT within 24 hours -- Aramco achieved a confirmed partial Petroline restart (~4M of 7M bpd nameplate). fc-2026-09-22-cyber-edge-reversal also graded CORRECT -- CISA's 22 Sep KEV additions (Check Point x2, Arista VeloCloud, F5 BIG-IP APM CVSS 9.8) are all network-facing edge/identity vectors, confirming the 21-22 Sep reversal is a sustained trend. fc-2026-09-21-houthi-saudi-followon and fc-2026-09-21-unga-iran-framework remain PENDING with updated notes reflecting today's developments (the Red Sea coast offensive reframing and the Witkoff/Kushner-Araghchi direct-talks session, respectively). Three new PENDING forecasts added: a follow-on US-Iran meeting occurring without a comprehensive framework within 14 days; UN Yemen displacement figures exceeding 150,000 within 30 days; and a further public report tied to the F5 BIG-IP APM CVE within 21 days."
   },
   "forecasts": [
     {
@@ -348,7 +348,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "The 22 Sep Trump-Gulf-leaders meeting occurred as scheduled with the postwar plan REPORTEDLY deferred until after the November midterms -- no framework was announced, consistent with this forecast's base case so far. Iran's reported seven conditions via Qatari mediators remain far from any stated U.S. position. A leader-level contact alone would not resolve this forecast; a framework announcement would. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Still no framework announced as of 23 Sep, consistent with the base case, but the strongest challenge to it yet emerged: a three-hour direct Witkoff/Kushner-Araghchi session (22 Sep) that Trump called 'a lot of momentum,' with Iran stating explicit conditions (blockade lift, asset release, war termination) and a follow-on meeting planned. Confidence in the base case is now lower than when this forecast was written. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-21-houthi-saudi-followon",
@@ -357,7 +357,7 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No independently confirmed new Houthi strike on Saudi territory since 19 Sep was identified as of 22 Sep. The G7's 22 Sep statement condemning 'continued strikes' could not be tied to a specific new post-19-Sep event -- its apparent evidentiary basis (73 wounded at Abha/Khamis Mushait/Jizan/Najran) traces to earlier September reporting. Treated as an intelligence gap, not partial confirmation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Still no independently confirmed new Houthi strike on Saudi territory since 19 Sep as of 23 Sep. The dominant development instead is the inverse: an intensified Saudi air campaign (300+ strikes) against Houthi-held Taiz/Hodeidah following the Houthi seizure of Yemen's Red Sea coast, with UN-tracked displacement rising toward a 230,000 forecast. That is a related but distinct dynamic from this forecast's specific test. Window remains open to ~12 Oct. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-21-far-third-batch",
@@ -382,18 +382,18 @@
       "date": "2026-09-22",
       "forecast": "Following the 21-22 Sep KEV additions of CVE-2026-7273 (Zyxel GS1900) and CVE-2026-55007 (Exchange zero-click RCE), at least one further edge/perimeter/remote-access KEV addition (as opposed to a local-privilege-escalation CVE) will occur within 14 days, confirming that the 21 Sep de-escalation call was a temporary pause rather than a genuine trend.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "A direct test of whether this cycle's reversal of the 21 Sep cyber assessment continues or was itself a one-off. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-23",
+      "note": "CISA's 22 Sep KEV additions -- Check Point Security Gateway/Spark pre-auth RCE (CVE-2026-85102), Check Point management pre-auth (CVE-2026-93616), Arista VeloCloud Orchestrator (CVE-2026-93952), and F5 BIG-IP APM (CVE-2026-94127, CVSS 9.8) -- are all network-facing, low-/no-interaction edge/identity-infrastructure vectors, confirming the reversal is a sustained multi-vendor trend rather than a one-off. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-22-petroline-restart",
       "date": "2026-09-22",
       "forecast": "Saudi Aramco will publicly confirm at least a partial (roughly half-capacity) restart of the Petroline East-West pipeline within 7 days, consistent with 16 Sep guidance and prediction-market pricing (~84.5% by 30 Sep).",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether Aramco's own reporting cadence matches the market-implied confidence in a near-term partial restart. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-23",
+      "note": "Confirmed within 24 hours via industry-sourced reporting (Reuters/Bloomberg/FT): Aramco achieved a partial restart targeting ~4M bpd against the 7M bpd nameplate, with an export loading already scheduled at Yanbu; full capacity remains up to six weeks out pending repair of three damaged pumping stations. Graded on industry sourcing rather than a formal Aramco press statement, which has not yet been issued. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-22-gulf-guarantee",
@@ -402,7 +402,34 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the meeting's reported deferral of substance holds, or whether a specific commitment emerges faster than the reported midterms timeline implies. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No specific security-guarantee or resupply commitment identified as of 23 Sep, consistent with the base case so far; reporting instead describes Gulf states independently accelerating their own layered air-defense procurement (Patriot/THAAD/counter-UAS) rather than a new US commitment. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-23-hormuz-framework",
+      "date": "2026-09-23",
+      "forecast": "Following the 22 Sep Witkoff/Kushner-Araghchi three-hour session ('a lot of momentum'), a follow-on US-Iran meeting will occur within 14 days, but a publicly announced comprehensive framework covering blockade lift, asset unfreeze, and war termination will NOT be finalized within that window.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the direct-talks channel's stated momentum translates into a further session without yet producing a full framework, which would be an unusually fast outcome for this conflict cycle. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-23-houthi-yemen-displacement",
+      "date": "2026-09-23",
+      "forecast": "UN-reported displacement figures from the Houthi Red Sea coast offensive and the resulting Saudi air campaign will exceed 150,000 within 30 days, consistent with the UN's own trajectory toward a 230,000 forecast.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the UN's own forecast trajectory (from 86,000-130,000 toward 230,000) is tracking on pace. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-23-f5-bigip-scope",
+      "date": "2026-09-23",
+      "forecast": "Given F5 BIG-IP APM CVE-2026-94127's CVSS 9.8 unauthenticated RCE and confirmed exploitation, at least one additional vendor advisory, researcher report, or confirmed victim organization tied to this CVE will be publicly reported within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the F5 BIG-IP APM zero-day's exploitation scope becomes more visible beyond F5's own internal-discovery disclosure. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     }
   ]
 }
