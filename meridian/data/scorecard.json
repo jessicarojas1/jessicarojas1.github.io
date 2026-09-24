@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-23",
+  "updated": "2026-09-24",
   "summary": {
-    "correct": 9,
+    "correct": 12,
     "incorrect": 2,
     "partial": 5,
     "pending": 31,
-    "note": "2026-09-23: two forecasts resolved CORRECT. fc-2026-09-22-petroline-restart graded CORRECT within 24 hours -- Aramco achieved a confirmed partial Petroline restart (~4M of 7M bpd nameplate). fc-2026-09-22-cyber-edge-reversal also graded CORRECT -- CISA's 22 Sep KEV additions (Check Point x2, Arista VeloCloud, F5 BIG-IP APM CVSS 9.8) are all network-facing edge/identity vectors, confirming the 21-22 Sep reversal is a sustained trend. fc-2026-09-21-houthi-saudi-followon and fc-2026-09-21-unga-iran-framework remain PENDING with updated notes reflecting today's developments (the Red Sea coast offensive reframing and the Witkoff/Kushner-Araghchi direct-talks session, respectively). Three new PENDING forecasts added: a follow-on US-Iran meeting occurring without a comprehensive framework within 14 days; UN Yemen displacement figures exceeding 150,000 within 30 days; and a further public report tied to the F5 BIG-IP APM CVE within 21 days."
+    "note": "2026-09-24: three forecasts resolved CORRECT on the 24 Sep summit date. fc-2026-09-21-xi-summit-outcome graded CORRECT -- the summit was held and Bessent confirmed the tariff truce extended to 10 Jan 2027, with no rare-earth licensing carve-out for military-affiliated firms identified. fc-2026-09-17-taiwan-armssale graded CORRECT -- the summit proceeded as scheduled and the $14B Taiwan package remains unapproved. fc-2026-09-14-xisummit-outcome graded CORRECT -- the confirmed tariff-truce extension satisfies the forecast's 'tariff pause/gesture' clause. fc-2026-09-21-unga-iran-framework and fc-2026-09-21-houthi-saudi-followon remain PENDING with notes updated for today's Qatar-mediation correction and the UN displacement figure surpassing 130,000, respectively. Three new PENDING forecasts added: whether a follow-on US-Iran session occurs given Araghchi's domestic backlash; whether a formal Xi-Trump joint statement later surfaces rare-earth licensing language omitted from today's readout; and whether DoD confirms 100% Anthropic migration by the 29 Sep deadline."
   },
   "forecasts": [
     {
@@ -211,9 +211,9 @@
       "date": "2026-09-14",
       "forecast": "The 24 Sep Trump-Xi summit will produce at least a limited, publicly announced trade/rare-earth gesture (e.g., a licensing carve-out or tariff pause) rather than no agreement or a full rupture.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Xi has now departed for Washington with arrival at Joint Base Andrews confirmed for 23 Sep; occurrence risk is fully retired. Analyst consensus frames the summit as 'the three Ts' (Taiwan, technology, trade). Resolves on the 24 Sep readouts; the test is whether any trade/rare-earth gesture is actually announced."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-24",
+      "note": "The summit was held 24 Sep and Treasury Secretary Bessent confirmed the US-China tariff truce is extended to 10 Jan 2027, satisfying the forecast's 'tariff pause' clause. No rare-earth-specific gesture was identified, but the forecast required only one of the two. Tracked on the China-Taiwan Pressure / Trump-Xi Summit thread."
     },
     {
       "id": "fc-2026-09-15-petroline-attribution",
@@ -292,9 +292,9 @@
       "date": "2026-09-17",
       "forecast": "The pending $14B Taiwan arms-sale package will NOT be approved by the U.S. before the 24 Sep Xi-Trump summit, and the summit will proceed as scheduled rather than be cancelled or materially downgraded.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Substantially de-risked and now essentially confirmed on the occurrence half: Xi has departed for Washington, and the $14B package remains unapproved, having reportedly been paused to conserve munitions for the Iran war rather than as a summit concession. Resolves on 24 Sep."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-24",
+      "note": "The summit proceeded as scheduled at the White House on 24 Sep with no cancellation or downgrade, and no approval of the $14B Taiwan package before or during the summit has been identified. Tracked on the China-Taiwan Pressure / Trump-Xi Summit thread."
     },
     {
       "id": "fc-2026-09-17-cisco-ise-kev-exploit",
@@ -337,9 +337,9 @@
       "date": "2026-09-21",
       "forecast": "The 24 Sep Trump-Xi summit will be held as scheduled and produce a publicly announced extension or rollover of the tariff/trade truce, but no rare-earth licensing carve-out covering military-affiliated U.S. firms.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Xi arrived in Washington ahead of the 23-25 Sep visit, substantially resolving the cancellation risk that dominated the prior cycle. The test is whether the readouts touch the defense-relevant constraint (military-affiliated magnet licensing) or only the commercial one (tariffs). Tracked on the China-Taiwan Pressure / Trump-Xi Summit and Critical Minerals / Rare-Earth Magnets threads."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-24",
+      "note": "The summit was held as scheduled on 24 Sep; Treasury Secretary Bessent confirmed the tariff truce is extended to 10 Jan 2027, and no rare-earth licensing carve-out for military-affiliated firms has been identified in the readout, consistent with China's own suspension not expiring until ~10 Nov. Tracked on the China-Taiwan Pressure / Trump-Xi Summit and Critical Minerals / Rare-Earth Magnets threads."
     },
     {
       "id": "fc-2026-09-21-unga-iran-framework",
@@ -348,7 +348,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Still no framework announced as of 23 Sep, consistent with the base case, but the strongest challenge to it yet emerged: a three-hour direct Witkoff/Kushner-Araghchi session (22 Sep) that Trump called 'a lot of momentum,' with Iran stating explicit conditions (blockade lift, asset release, war termination) and a follow-on meeting planned. Confidence in the base case is now lower than when this forecast was written. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Still no framework announced as of 24 Sep, consistent with the base case. Reporting since has clarified that the 22 Sep session was conducted indirectly through Qatari intermediaries rather than face-to-face, and Araghchi faces domestic Iranian backlash -- both cut against a fast framework and restore confidence toward the original base case. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-21-houthi-saudi-followon",
@@ -357,7 +357,7 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Still no independently confirmed new Houthi strike on Saudi territory since 19 Sep as of 23 Sep. The dominant development instead is the inverse: an intensified Saudi air campaign (300+ strikes) against Houthi-held Taiz/Hodeidah following the Houthi seizure of Yemen's Red Sea coast, with UN-tracked displacement rising toward a 230,000 forecast. That is a related but distinct dynamic from this forecast's specific test. Window remains open to ~12 Oct. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Still no independently confirmed new Houthi strike on Saudi territory since 19 Sep as of 24 Sep. A UN Security Council press statement (week of 21-22 Sep) condemned continued Houthi attacks on Saudi Arabia and confirmed displacement has surged past 130,000, but this remains the intensified Saudi-on-Houthi air campaign and displacement dynamic, not a new confirmed Houthi strike on Saudi territory specifically. Window remains open to ~12 Oct. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-21-far-third-batch",
@@ -430,6 +430,33 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether the F5 BIG-IP APM zero-day's exploitation scope becomes more visible beyond F5's own internal-discovery disclosure. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-09-24-hormuz-indirect-followon",
+      "date": "2026-09-24",
+      "forecast": "Given Araghchi's domestic Iranian backlash and the correction that the 22 Sep session was indirect/Qatar-mediated, no further Iran-US session (direct or indirect) will be confirmed within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether domestic Iranian political constraints on Araghchi are sufficient to stall the channel despite a follow-on session having been reportedly planned. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-24-summit-rareearth-gap",
+      "date": "2026-09-24",
+      "forecast": "No formal Xi-Trump joint statement or fact sheet containing rare-earth licensing language for military-affiliated U.S. firms will be identified within 14 days of the 24 Sep summit.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether today's absence of rare-earth-specific language in the initial readout reflects the actual summit scope or merely an incomplete initial release. Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads."
+    },
+    {
+      "id": "fc-2026-09-24-anthropic-deadline",
+      "date": "2026-09-24",
+      "forecast": "DoD will complete (or credible reporting will confirm) 100% migration off classified Anthropic workloads by the 29 Sep department-wide deadline, absent a new D.C. Circuit ruling or injunction in the interim.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "DoD was reported ~90% migrated as of mid-September with five days remaining to the deadline. Tracked on the DoD AI Vendor Governance / Anthropic Dispute thread."
     }
   ]
 }
