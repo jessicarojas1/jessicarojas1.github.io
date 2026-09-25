@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-24",
+  "updated": "2026-09-25",
   "summary": {
     "correct": 12,
     "incorrect": 2,
     "partial": 5,
-    "pending": 31,
-    "note": "2026-09-24: three forecasts resolved CORRECT on the 24 Sep summit date. fc-2026-09-21-xi-summit-outcome graded CORRECT -- the summit was held and Bessent confirmed the tariff truce extended to 10 Jan 2027, with no rare-earth licensing carve-out for military-affiliated firms identified. fc-2026-09-17-taiwan-armssale graded CORRECT -- the summit proceeded as scheduled and the $14B Taiwan package remains unapproved. fc-2026-09-14-xisummit-outcome graded CORRECT -- the confirmed tariff-truce extension satisfies the forecast's 'tariff pause/gesture' clause. fc-2026-09-21-unga-iran-framework and fc-2026-09-21-houthi-saudi-followon remain PENDING with notes updated for today's Qatar-mediation correction and the UN displacement figure surpassing 130,000, respectively. Three new PENDING forecasts added: whether a follow-on US-Iran session occurs given Araghchi's domestic backlash; whether a formal Xi-Trump joint statement later surfaces rare-earth licensing language omitted from today's readout; and whether DoD confirms 100% Anthropic migration by the 29 Sep deadline."
+    "pending": 33,
+    "note": "2026-09-25: no forecasts resolved this cycle. Iran's written 60-day ceasefire roadmap (handed over 23 Sep, made public today) and Netanyahu's UNGA opposition sharpen but do not yet resolve fc-2026-09-23-hormuz-framework or fc-2026-09-24-hormuz-indirect-followon -- both remain PENDING within their windows. fc-2026-09-24-summit-rareearth-gap remains PENDING, one day in, consistent with the base case per post-summit analysis confirming no rare-earth language surfaced. fc-2026-09-23-houthi-yemen-displacement remains PENDING, still tracking below the 150,000 threshold. Two new PENDING forecasts added: whether the U.S. issues a formal public response to Iran's roadmap within 14 days, given Netanyahu's opposition and midterm-timing pressure; and whether a named victim organization (beyond F5's own internal discovery) tied to CVE-2026-94127 is publicly reported within 21 days of today's federal deadline."
   },
   "forecasts": [
     {
@@ -411,7 +411,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the direct-talks channel's stated momentum translates into a further session without yet producing a full framework, which would be an unusually fast outcome for this conflict cycle. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Iran's written 60-day ceasefire roadmap, made public today, is a substantive escalation from the 22-23 Sep session already covered by this forecast, but is not itself a distinct 'further meeting' nor a finalized comprehensive framework -- both clauses remain open within the 14-day window. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-23-houthi-yemen-displacement",
@@ -420,7 +420,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the UN's own forecast trajectory (from 86,000-130,000 toward 230,000) is tracking on pace. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Still tracking below the 150,000 threshold as of 25 Sep; the Houthi-Saudi air campaign and Yemen displacement continue widening independent of the Hormuz-focused diplomatic channel. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-23-f5-bigip-scope",
@@ -438,7 +438,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether domestic Iranian political constraints on Araghchi are sufficient to stall the channel despite a follow-on session having been reportedly planned. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Iran's written roadmap was made public today, but this is disclosure of the same 22-23 Sep engagement, not a new confirmed session. No distinct further Iran-US session has been confirmed yet within the window. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-24-summit-rareearth-gap",
@@ -447,7 +447,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether today's absence of rare-earth-specific language in the initial readout reflects the actual summit scope or merely an incomplete initial release. Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads."
+      "note": "One day into the window, post-summit analysis (The Diplomat, Washington Post) confirms no rare-earth licensing language has surfaced, consistent with the base case. Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads."
     },
     {
       "id": "fc-2026-09-24-anthropic-deadline",
@@ -457,6 +457,24 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "DoD was reported ~90% migrated as of mid-September with five days remaining to the deadline. Tracked on the DoD AI Vendor Governance / Anthropic Dispute thread."
+    },
+    {
+      "id": "fc-2026-09-25-iran-roadmap-response",
+      "date": "2026-09-25",
+      "forecast": "No formal U.S. public acceptance or rejection of Iran's written 60-day ceasefire roadmap will be issued within 14 days, given the need to weigh explicit Israeli objections and reported midterm-timing pressure.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the administration moves quickly on a documented Iranian offer despite active Israeli opposition voiced at UNGA. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-25-f5-named-victim",
+      "date": "2026-09-25",
+      "forecast": "At least one confirmed enterprise or DIB-sector victim organization (beyond F5's own internal discovery) tied to CVE-2026-94127 will be publicly reported within 21 days of today's federal remediation deadline.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the F5 BIG-IP APM zero-day's exploitation scope becomes visible beyond F5's own vendor-discovered case. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     }
   ]
 }
