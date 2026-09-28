@@ -2,15 +2,15 @@
   {
     "name": "U.S.-Iran Conflict / Strait of Hormuz",
     "firstDetected": "2026-09-07",
-    "status": "The Iran-US channel has produced its first written artifact. Iranian FM Araghchi handed U.S. envoys Witkoff and Kushner a written 60-day regionwide ceasefire roadmap on 23 Sep at the UN (Qatar/Pakistan/Egypt-mediated), proposing a phased Strait of Hormuz reopening tied to an end of the U.S. naval blockade and relief from secondary sanctions on Chinese buyers of Iranian energy. Israeli PM Netanyahu's 24-25 Sep UNGA address explicitly opposed any arrangement preserving the Iranian regime, framing it as a strategic failure -- a new, distinct veto point alongside Araghchi's own domestic Iranian backlash. Aramco holds at its confirmed partial Petroline restart (~4M bpd against 7M bpd nameplate; full recovery up to six weeks). The Houthi Red Sea coast offensive and resulting Saudi air campaign continue widening Yemen's displacement crisis, now confirmed past 130,000 and trending toward the UN's 230,000 forecast, independent of the Hormuz-focused channel.",
-    "importance": "Critical -- the first specific, written, sequenced ceasefire proposal of the war now faces two independent political veto points (Israeli objection, Iranian domestic backlash) that did not exist in this form before this week.",
+    "status": "The Iran-US diplomatic channel reversed. Iran's written roadmap (publicly detailed 25 Sep as a seven-day Hormuz-reopening plan: normal maritime passage within a week for an end to the U.S. naval blockade, oil-sanctions relief, and release of roughly $12B in frozen assets) was explicitly rejected by Trump on 26 Sep, who called the terms unacceptable and said Iran wants a deal 'because they are losing so badly.' REPORTED (WSJ, via secondary outlets): Trump is weighing a resumption of strikes on Iran after the November midterms rather than before. Separately, reporting resurfaced that Netanyahu had called off a substantially broader follow-on strike on Iran earlier in the conflict after Trump warned Israel would be 'on its own' -- a reminder that U.S.-Israel coordination on Iran has been fragile in both directions. The Houthi Red Sea coast offensive/Saudi air campaign continues; Yemen displacement still confirmed past 130,000 but not yet past the 150,000 threshold as of 25 Sep. No formal attribution was ever established for the 10-11 Sep Petroline strike within its 14-day window, closing that question as unresolved.",
+    "importance": "Critical -- the first written, sequenced ceasefire proposal of the war was rejected within about a day, and a post-midterm strike-resumption option is reported as genuinely under consideration.",
     "direction": "ESCALATING",
     "indicatorLevel": "RED",
-    "assessment": "ASSESSED: the written roadmap is a categorically different artifact than prior 'momentum' characterizations -- a specific, sequenced document rather than a meeting's tone. But its path to implementation now runs through explicit Israeli political opposition and Iran's own domestic constraints on Araghchi, neither of which is resolved. The Houthi coastal offensive remains a distinct escalatory track that a Hormuz-focused deal would not resolve.",
+    "assessment": "ASSESSED: the rejection reverses three cycles of cautious de-escalatory readings of the Witkoff/Kushner-Araghchi engagement -- a documented, sequenced offer was not left open to negotiate but explicitly closed. Capability for renewed strikes is undiminished; REPORTED intent (WSJ) to act post-midterm is short of a confirmed decision. The Houthi coastal offensive remains a distinct escalatory track independent of the Hormuz-focused channel.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-25 -- Iran's written 60-day ceasefire roadmap (handed over 23 Sep) is now public via multiple outlets (Gulf News, Semafor, The National): phased Hormuz reopening for a blockade end and Chinese-sanctions relief. Netanyahu used his UNGA address to argue any regime-preserving deal is a strategic failure, directly cutting against the roadmap's premise. No formal U.S. response identified. Yemen displacement continues climbing toward 150,000+; no new confirmed Houthi strike on Saudi territory since 19 Sep. Aramco Petroline status unchanged.",
-    "orgRelevance": "Track Hormuz and Bab el-Mandeb/Red Sea transit risk as two distinct lines. Do not adjust extreme-tail Gulf-energy-disruption contingency assumptions based on the roadmap's existence alone -- wait for a formal U.S. response or a first implementation step, given active Israeli opposition and Iranian domestic constraints on the same proposal.",
-    "nextIndicator": "A formal U.S. response (acceptance, rejection, or counter-proposal) to Iran's roadmap; any explicit U.S.-Israel friction over its terms; a first concrete implementation step; further UN displacement figures from the Red Sea coast offensive; Aramco's progress toward full 7M bpd Petroline capacity.",
+    "lastChange": "2026-09-28 -- Trump publicly rejected Iran's seven-day Hormuz roadmap on 26 Sep; WSJ reports he is weighing renewed strikes after the November midterms. No formal U.S. counter-proposal identified. Petroline strike attribution forecast closed CORRECT (remained unestablished through its window). Houthi/Yemen displacement still below the 150,000 threshold as of the last confirmed figure (25 Sep); no new confirmed Houthi strike on Saudi territory since 19 Sep.",
+    "orgRelevance": "Revisit any planning assumption of near-term Gulf/Hormuz de-escalation -- the leading indicator reversed this cycle. Track Hormuz and Bab el-Mandeb/Red Sea transit risk as two distinct lines. Watch specifically for a post-~4 Nov decision point on renewed strikes rather than treating the rejection itself as the end state.",
+    "nextIndicator": "Any formal U.S. counter-proposal to Iran; a specific post-midterm strike-decision report; any Israeli coordination or independent-action signal; further UN displacement figures; Aramco's progress toward full 7M bpd Petroline capacity.",
     "history": [
       {
         "date": "2026-02-28",
@@ -83,6 +83,10 @@
       {
         "date": "2026-09-25",
         "note": "Iran's written 60-day ceasefire roadmap (handed over 23 Sep) becomes public: a phased Hormuz reopening in exchange for ending the U.S. naval blockade and relief from secondary sanctions on Chinese energy buyers. Netanyahu tells UNGA that any deal preserving the Iranian regime would be a strategic failure -- a new, explicit veto point alongside Araghchi's domestic backlash. No formal U.S. response identified. Yemen displacement continues climbing toward the 230,000 forecast; Petroline status unchanged."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "Trump rejects Iran's roadmap (now detailed as a seven-day Hormuz-reopening plan) on 26 Sep, calling its terms unacceptable; WSJ reports he is weighing renewed strikes after the November midterms. Reporting resurfaces that Netanyahu earlier called off a broader Iran strike after a Trump warning that Israel would be 'on its own.' Petroline attribution forecast closes CORRECT (unresolved through its window). No new confirmed Houthi strike on Saudi territory since 19 Sep; displacement still below 150,000."
       }
     ]
   },
@@ -95,8 +99,8 @@
     "indicatorLevel": "YELLOW",
     "assessment": "Policy pause, not repeal; a reformed program and reset timeline remain the leading outcome. The capacity arithmetic, not policy preference, is the most likely determinant of what the report recommends. The prior cycle's 14-day internal-determination forecast window has now lapsed without public output.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-25 -- no material change: the report remains non-public, still expected late Sept/early Oct; DoD CIO Davies has reaffirmed commitment to publishing it without a firm date; no Federal Register notice or departmental statement identified.",
-    "orgRelevance": "Maintain 800-171 controls, SPRS currency and C3PAO readiness through the information gap; plan explicitly for the staffing collision between the ~28 Sep CMMC report and the 19 Oct FAR comment deadline, because the same compliance staff serve both. Use the funding certainty through 11 Dec to commit that staff time deliberately.",
+    "lastChange": "2026-09-28 -- no material change: the report remains non-public past its cited ~28 Sep target; secondary reporting confirms the Task Force convened in early September to review 1,100+ RFI comments spanning assessment scope, cloud/MSP treatment, supply-chain implementation and OT applicability. No Federal Register notice or departmental statement identified. The FAR Overhaul's 19 Oct comment deadline is now three weeks out, sharpening the staffing collision.",
+    "orgRelevance": "Maintain 800-171 controls, SPRS currency and C3PAO readiness through the information gap; plan explicitly for the staffing collision between the CMMC report response and the 19 Oct FAR comment deadline, because the same compliance staff serve both. Use the funding certainty through 11 Dec to commit that staff time deliberately.",
     "nextIndicator": "A Federal Register notice, class deviation or 32 CFR Part 170 amendment on or around 28 Sep; any solicitation-language change.",
     "history": [
       {
@@ -146,6 +150,10 @@
       {
         "date": "2026-09-25",
         "note": "No new development; report remains non-public. DoD CIO Davies publicly reaffirms commitment to publishing it without giving a firm date."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "No new development; report remains non-public past the cited ~28 Sep target. Confirmed the Task Force convened in early Sept to review 1,100+ RFI comments (assessment scope, cloud/MSP treatment, supply-chain implementation, OT applicability). FAR Overhaul's 19 Oct comment deadline is now three weeks out, ahead of the CMMC report's own timing."
       }
     ]
   },
@@ -158,9 +166,9 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: capability to restrict is demonstrated; specific coercive intent for the supplier refusals is UNKNOWN and an equally plausible explanation is commercial risk-aversion by firms caught between Beijing's RBA sanction and Western due-diligence requirements. The operational conclusion does not depend on which is right -- either way, licence status is no longer a valid risk gate and measurement must move to delivered material. A summit tariff-truce rollover would not touch the licensing denial or Decree No. 841.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-25 -- post-summit analysis (The Diplomat, Washington Post) confirms 'relief without resolution': the confirmed tariff-truce extension carries no rare-earth licensing language for military-affiliated firms, and China's structural leverage (60% mined, 91% refined, 94% magnet output per 2024 figures) remains fully intact. No new PRC licensing or enforcement action this cycle.",
-    "orgRelevance": "Re-baseline rare-earth and specialty-metals risk on delivered material rather than licence status. Map which bills of materials are exposed to the 1 Jan 2027 waiver cut-off and begin qualifying compliant alternates now, because qualification is measured in quarters. Do not treat a summit tariff rollover as supply-chain relief.",
-    "nextIndicator": "Any rare-earth licensing language in the 24 Sep Xi-Trump summit readouts; whether the 10 Nov 2026 suspension expiry is extended, lapses or is superseded; first reported Decree No. 841 enforcement case; reported changes in gallium, yttrium or magnet shipment volumes; new DoD mine-to-magnet awards.",
+    "lastChange": "2026-09-28 -- no new PRC action this cycle. Both Chinese suspension-expiry dates -- the rare-earth control-expansion suspension (10 Nov 2026) and the gallium/germanium/antimony export-ban suspension (27 Nov 2026) -- are now inside a six-week window, converging with the 1 Jan 2027 foreign-entity-of-concern waiver cutoff into a roughly seven-week cluster. Separately confirmed: U.S. Section 844 adds gallium and germanium to 'covered materials' barred from non-allied sourcing for defense applications, effective 18 Dec 2027.",
+    "orgRelevance": "Re-baseline rare-earth and specialty-metals risk on delivered material rather than licence status. Consolidate BOM exposure review around the converging 10 Nov / 27 Nov / 1 Jan 2027 deadline cluster rather than treating them as separate items; qualification is measured in quarters, so begin now.",
+    "nextIndicator": "Any PRC signal ahead of the 10 Nov or 27 Nov suspension expiries; first reported Decree No. 841 enforcement case; reported changes in gallium, yttrium or magnet shipment volumes; new DoD mine-to-magnet awards.",
     "history": [
       {
         "date": "2025-04",
@@ -221,6 +229,10 @@
       {
         "date": "2026-09-25",
         "note": "Post-summit analysis (The Diplomat, Washington Post) confirms no rare-earth licensing relief has surfaced; framed as 'relief without resolution' -- the trade-truce extension did not touch the constraint binding defense production. No new PRC action."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "No new PRC action. Both Chinese suspension-expiry dates (rare-earth, 10 Nov; gallium/germanium/antimony, 27 Nov) are now inside six weeks, converging with the 1 Jan 2027 waiver cutoff. Confirmed U.S. Section 844 adds gallium/germanium to defense 'covered materials' sourcing restrictions effective 18 Dec 2027."
       }
     ]
   },
@@ -233,9 +245,9 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the prior cycle's HIGH-confidence judgment that exploited activity had shifted decisively to local-privilege escalation was over-generalized from a single day's KEV composition and should be retracted as a directional claim, though the underlying Linux-kernel and SolarWinds facts it cited remain valid. The more defensible standing conclusion is that edge/perimeter risk is a persistent condition -- multiple independent campaigns (a suspected China-nexus actor on Zyxel, an unattributed actor on Exchange, a Russia-nexus actor maturing FMC access into a durable implant) are running concurrently rather than the threat class rotating on and off.",
     "confidence": "HIGH",
-    "lastChange": "2026-09-25 -- fourth consecutive day without new KEV additions since Monday's (22 Sep) four-CVE wave. F5 BIG-IP APM (CVE-2026-94127, CVSS 9.8) federal remediation deadline lands today with exploitation already confirmed by F5 via internal discovery. Still assessed as a likely reporting lull rather than genuine de-escalation; still no named DIB-sector victim on any tracked CVE.",
-    "orgRelevance": "Run perimeter/mail-server remediation (Exchange, Zyxel) in parallel with, not instead of, the prior cycle's Linux-kernel and SolarWinds ARM work; scan Cisco FMC devices for Cyclops Blink persistence indicators even where CVE-2026-20079/20316 are already patched, since the implant can survive a patch that only closes the initial-access vector.",
-    "nextIndicator": "Whether further KEV additions continue to skew edge/perimeter or return to local escalation; any named DIB-sector victim tied to any tracked CVE family; confirmation of Cyclops Blink indicators on any specific FMC deployment.",
+    "lastChange": "2026-09-28 -- the lull broke decisively. Citrix disclosed and patched CVE-2026-88771 (CVSS 9.5, unauthenticated command execution, default-config-exploitable) and CVE-2026-88772 (DTLS memory overflow, RCE/DoS) in NetScaler ADC/Gateway on 27 Sep, confirming weeks of pre-patch active exploitation including webshell deployment -- the third distinct NetScaler-family KEV entry in three weeks. Separately, ten KEV additions across nine vendors landed in the seven days ending 27-28 Sep, including Microsoft SharePoint (CVE-2026-65660, CVSS 8.8), WSO2 (CVE-2026-5430, JWT auth bypass), Adobe Commerce/Magento (CVE-2026-71362), and MikroTik RouterOS (CVE-2026-67279, SSH auth bypass). Still no named DIB-sector victim on any tracked CVE.",
+    "orgRelevance": "Treat the NetScaler zero-day as requiring retrospective compromise assessment, not just patching -- the multi-week pre-patch window means exploitation may already have occurred. Triage the concurrent SharePoint/WSO2/Adobe Commerce/MikroTik wave alongside it rather than sequentially; federal deadlines for most of the wave have already passed (27-28 Sep).",
+    "nextIndicator": "Confirmation of the NetScaler exploitation campaign's start date and scope; any named DIB-sector or federal-contractor victim tied to any tracked CVE family; further KEV additions from the remaining six CVEs in Citrix bulletin CTX697096.",
     "history": [
       {
         "date": "2026-09-02",
@@ -296,6 +308,10 @@
       {
         "date": "2026-09-25",
         "note": "F5 BIG-IP APM's federal remediation deadline lands today; fourth consecutive day with no new KEV additions. Still no named DIB-sector victim on any tracked CVE; pause remains assessed as a lull rather than resolution."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "Lull broken: Citrix NetScaler zero-days CVE-2026-88771 (CVSS 9.5) and CVE-2026-88772 disclosed/patched 27 Sep after weeks of confirmed pre-patch exploitation (webshells) -- the third NetScaler-family KEV entry in three weeks. Separately, ten KEV additions across nine vendors landed 21-28 Sep including SharePoint (CVE-2026-65660), WSO2 (CVE-2026-5430), Adobe Commerce (CVE-2026-71362), and MikroTik (CVE-2026-67279). Still no named DIB-sector victim."
       }
     ]
   },
@@ -308,9 +324,9 @@
     "indicatorLevel": "YELLOW",
     "assessment": "Procurement continues on schedule; the analytic centre of gravity has moved from technical milestones to the cost dispute ahead of a dated oversight hearing. The sensing, ground and C2 layers carry materially less cost-dispute exposure than the space-based-interceptor layer, making them the lower-risk positioning choice. Adjacent GEO space-domain-awareness work (GHOST-R/RG-XX) opened a second, commercially derived procurement line this cycle.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-25 -- no new SDA/MDA award. The 29 Sep SASC Strategic Forces hearing and 30 Sep SDA Tranche 1 Transport Layer A launch (confirmed 21 Northrop Grumman-built satellites) are both now inside the coming week.",
+    "lastChange": "2026-09-28 -- no new SDA/MDA award. The 29 Sep SASC Strategic Forces hearing is now tomorrow, with CSIS's Thomas Karako and CBO's David Mosher confirmed as witnesses -- directly seating the cost-divergence debate before Congress. The 30 Sep Transport Layer A launch (21 Northrop-built satellites) remains on schedule. Separately, a classified USSF-385 payload launched 26 Sep from the same Vandenberg pad used for prior Starshield-pattern missions -- the fourth Space Force launch there in roughly six weeks -- a parallel proliferated-architecture data point independent of Golden Dome's own tranches.",
     "orgRelevance": "Treat the 29 Sep hearing as a scope-risk event for interceptor-layer positioning rather than an opportunity event; sensing and C2 layers carry less exposure. Assess the separate GHOST-R/RG-XX line while prototype teams are forming.",
-    "nextIndicator": "The 29 Sep SASC Strategic Forces hearing and any engagement with the cost divergence; the 30 Sep SDA Tranche 1 Transport Layer A launch; SBI Gate 2/3/4 milestones; delivery of the NDAA-mandated annual report.",
+    "nextIndicator": "29 Sep SASC hearing testimony on program cost/scope; the 30 Sep SDA Tranche 1 Transport Layer A launch; SBI Gate 2/3/4 milestones; delivery of the NDAA-mandated annual report.",
     "history": [
       {
         "date": "2026-08",
@@ -359,6 +375,10 @@
       {
         "date": "2026-09-25",
         "note": "No new award. The 29 Sep SASC hearing and 30 Sep SDA Tranche 1 Transport Layer A launch (21 Northrop Grumman-built satellites) are both now inside the coming week."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "No new SDA/MDA award. SASC hearing (tomorrow) confirmed with CSIS's Karako and CBO's Mosher as witnesses. Classified USSF-385 launched 26 Sep from Vandenberg -- fourth Space Force launch from that pad in ~6 weeks, a parallel Starshield-pattern data point."
       }
     ]
   },
@@ -371,7 +391,7 @@
     "indicatorLevel": "ORANGE",
     "assessment": "ASSESSED: capability rose on one side while constraint fell on the other, which argues for a longer, deeper-strike war rather than a negotiated pause. Russian refining remains the Ukrainian target set of choice and the driver of refined-product volatility. Russian air-defence interception counts are CLAIMED by an interested party. A Ukrainian ballistic-missile combat debut is CLAIMED and DISPUTED, not established; if confirmed it would reset European strike-capability assumptions.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-25 -- Russia's Central Election Commission certified final Duma results today: United Russia 349 seats (revised down from a widely reported preliminary 355), CPRF 37, LDPR 23, New People 19, A Just Russia 17, on 59.80% turnout -- still a record two-thirds-plus supermajority in the first wartime parliamentary election. No halt agreed on either side.",
+    "lastChange": "2026-09-28 -- no halt agreed on either side. Reciprocal strikes continued 26-27 Sep: Russian drone/missile barrages killed at least 7 across Ukraine including two women in Zaporizhzhia and a fatal 27 Sep strike in Zaporizhzhia's Shevchenkivskyi District; Ukrainian forces struck a drone-launch site and four Russian fuel/ammunition depots overnight 26-27 Sep, and separate Ukrainian strikes killed 6 in Russia/occupied territory. No new ZNPP incident identified.",
     "orgRelevance": "Macro A&D demand and energy-cost context; sustained European air-defense, counter-UAS, electronic-warfare and munitions demand. Treat any reported ceasefire as unconfirmed until both governments affirm it, and track Russian refinery outages as the leading indicator for diesel cost.",
     "nextIndicator": "Final Duma results (~25 Sep) and any immediate constitutional initiative; independent confirmation or refutation of a Ukrainian ballistic-missile combat debut; further strikes on Russian refining capacity; any further ZNPP offsite-power loss.",
     "history": [
@@ -430,6 +450,10 @@
       {
         "date": "2026-09-25",
         "note": "CEC certifies final Duma results: United Russia 349 seats (down from preliminary 355), a record supermajority on 59.80% turnout, confirming the removal of the last internal institutional check on war policy. No strike halt; no new ZNPP incident identified."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "Reciprocal strikes continue 26-27 Sep: Russian barrages kill at least 7 in Ukraine (including Zaporizhzhia and Sumy); Ukrainian forces hit a drone-launch site and four Russian depots. No halt agreed; no new ZNPP incident."
       }
     ]
   },
@@ -442,7 +466,7 @@
     "indicatorLevel": "ORANGE",
     "assessment": "ASSESSED: the dominant risk factor of the prior cycle -- summit cancellation over the Taiwan arms package -- has substantially receded with Xi's arrival. The planning question changes from whether the summit happens to whether a tariff-truce rollover is mistaken for relief on the constraints that actually bind defense production. Even a good summit outcome is unlikely to touch the military-affiliated magnet licensing denial or Decree No. 841.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-25 -- no post-summit joint statement or fact sheet has surfaced with tariff/rare-earth/AI/Taiwan specifics beyond the confirmed truce extension; post-summit analysis (The Diplomat) frames the outcome as narrower than the pre-summit 'three Ts' framing suggested. The $14B Taiwan arms package remains unapproved; no new PLA Taiwan incident identified.",
+    "lastChange": "2026-09-28 -- no post-summit joint statement or fact sheet has surfaced. PLA activity around Taiwan remains at routine levels (2 aircraft sorties, 5 PLAN ships, 6 official ships in the 24 hours to 27 Sep per Taiwan MND) -- no exercise-scale or landing-capability indicator this cycle. The $14B Taiwan arms package remains unapproved.",
     "orgRelevance": "Do not treat a truce rollover as supply-chain relief -- judge the readouts on rare-earth licensing language, not tariff headlines. Continue export-control exposure review; verify DDTC/BIS posture independent of the summit outcome.",
     "nextIndicator": "Whether the 24 Sep readouts contain rare-earth licensing language; whether the tariff truce is extended and for how long; any post-summit movement on the $14B Taiwan package; any PLA activity timed to the summit.",
     "history": [
@@ -497,6 +521,10 @@
       {
         "date": "2026-09-25",
         "note": "No formal joint statement or fact sheet has surfaced; post-summit analysis confirms the outcome was narrower than pre-summit framing. Taiwan arms package still unapproved; no new PLA incident."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "No new joint statement. Taiwan MND reports routine PLA activity levels (2 sorties, 5 PLAN ships, 6 official ships, 24hrs to 27 Sep) -- no post-summit shift in either direction. Taiwan arms package still unapproved."
       }
     ]
   },
@@ -509,7 +537,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "Both continuity items have now slipped a fourth consecutive cycle. The strategy's previewed content has sharpened from a general offensive emphasis to a specific structural proposition -- commercial participation in offensive operations -- which is the element worth preparing a position on regardless of when the document publishes.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-25 -- no nomination and no cyber-strategy release for an eighth consecutive cycle; no new development identified on either item this cycle. Telle continues as acting Secretary; Parnell remains the reported top contender but continues to face confirmation headwinds.",
+    "lastChange": "2026-09-28 -- no nomination and no cyber-strategy release for a ninth consecutive cycle. Sen. McCormick is publicly lobbying for Parnell's nomination, but GOP senators continue to describe no clear confirmation path given his personal-conduct profile; Telle remains acting Secretary. No new cyber-strategy release date identified.",
     "orgRelevance": "Decide a leadership-level position on whether contractor support to offensive cyber operations is in or out of scope as a market, before a solicitation forces the question; participation would require cleared-personnel pipelines and a legal posture most commercial security businesses do not have, and would invite stricter supply-chain and insider-risk scrutiny of the contractor itself.",
     "nextIndicator": "Formal public release of the cyber strategy and action plan; any solicitation referencing contractor support to offensive cyber operations; formal Army Secretary nomination and SASC hearing scheduling.",
     "history": [
@@ -564,21 +592,25 @@
       {
         "date": "2026-09-25",
         "note": "No nomination and no cyber-strategy release for an eighth consecutive cycle; no new development identified on either item."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "No nomination and no cyber-strategy release for a ninth consecutive cycle. Sen. McCormick publicly lobbies for Parnell; GOP senators continue to see no confirmation path. Telle remains acting Secretary."
       }
     ]
   },
   {
     "name": "DoD AI Vendor Governance / Anthropic Dispute",
     "firstDetected": "2026-09-08",
-    "status": "No material change across the gap. The D.C. Circuit panel that heard argument in May has still issued no decision; the district-court ruling that the Pentagon's 'supply chain risk' designation was unlawful stands, with the government's appeal of that loss reportedly stayed pending the D.C. Circuit. REPORTED (sourced 11 Sep, not re-confirmed): DoD was described as roughly 90% migrated off classified Anthropic workloads against a department-wide removal deadline of 29 Sep 2026, now eight days out.",
-    "importance": "Medium -- a precedent-relevant test of whether AI-vendor safety guardrails can trigger adverse procurement action, and of whether a court ruling against such action restores market access while further litigation proceeds.",
-    "direction": "UNCERTAIN",
-    "indicatorLevel": "YELLOW",
-    "assessment": "No substantive change this cycle. The durable lesson is already visible regardless of the outcome: a favourable district-court ruling did not restore market access while appeals continued, which makes AI-vendor eligibility a continuity risk rather than a procurement preference for any organization dependent on a single approved vendor.",
-    "confidence": "MODERATE",
-    "lastChange": "2026-09-25 -- no material change: no D.C. Circuit ruling and no new migration reporting; the 29 Sep department-wide removal deadline is now four days out. DoD is reported ~90% migrated as of mid-September; GenAI.mil has added OpenAI's ChatGPT Mil and xAI's Grok for Government, reaching over 3 million users.",
-    "orgRelevance": "Review AI-vendor concentration risk; treat vendor eligibility as a continuity risk. Not a direct action item absent a specific GenAI.mil dependency.",
-    "nextIndicator": "A D.C. Circuit ruling; confirmation that migration reached 100% by the 29 Sep deadline.",
+    "status": "The D.C. Circuit ruled. On 25 Sep, a panel (Katsas and Rao in the majority, both Trump appointees; Henderson, Bush 41, dissenting) ruled 2-1 that the Pentagon had a sufficient basis to designate Anthropic a 'supply chain risk,' rejecting due-process and First Amendment claims and characterizing the action as stemming from Anthropic's refusal to revise a contract term rather than retaliation for speech. This directly conflicts with the 27 Aug California district-court ruling that a parallel designation was unlawful and arbitrary and capricious -- a genuine circuit-level conflict on executive authority to designate AI vendors as supply-chain risks. The panel stayed its own ruling, preserving Anthropic's path to panel rehearing, en banc review, or Supreme Court review; Anthropic says it is 'considering all options.' DoD's 29 Sep department-wide migration deadline (reported ~90% complete as of mid-September) is unaffected by the ruling and, if anything, reinforced by it.",
+    "importance": "High -- the first appellate-level ruling validating that AI-vendor safety-policy disputes can lawfully trigger adverse procurement designations, creating a live circuit split with government-wide implications for AI-vendor eligibility.",
+    "direction": "STABLE",
+    "indicatorLevel": "ORANGE",
+    "assessment": "ASSESSED: the ruling confirms rather than merely illustrates the durable lesson -- AI-vendor eligibility is now a litigated precedent, not just a policy dispute, and the government currently prevails at the appellate level. But the circuit split (DC Circuit vs. California district court) means the legal question of scope -- how broadly a 'contract-term refusal' rationale can justify a blacklist -- remains genuinely open pending further review.",
+    "confidence": "HIGH",
+    "lastChange": "2026-09-28 -- DC Circuit rules 2-1 for the Pentagon (25 Sep), conflicting with the Aug California ruling; ruling stayed, preserving Anthropic's en banc/Supreme Court options. 29 Sep migration deadline unaffected and resolves this cycle's window.",
+    "orgRelevance": "Review AI-vendor concentration risk and multi-vendor contingency posture for any government-adjacent AI tooling now that vendor-eligibility risk is demonstrated, litigated precedent rather than a hypothetical.",
+    "nextIndicator": "Anthropic's en banc petition or Supreme Court filing; confirmation of 100% GenAI.mil migration by the 29 Sep deadline; any similar designation action against another AI vendor.",
     "history": [
       {
         "date": "2026-08-28",
@@ -627,6 +659,10 @@
       {
         "date": "2026-09-25",
         "note": "No material change; the 29 Sep deadline is now four days out. GenAI.mil confirmed to have added ChatGPT Mil and Grok for Government, reaching 3M+ users, underscoring the vendor-concentration dynamic without Anthropic."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "DC Circuit rules 2-1 for the Pentagon (25 Sep), upholding the supply-chain-risk designation and rejecting due-process/First Amendment claims; conflicts directly with the Aug 27 California district-court ruling. Ruling stayed; Anthropic weighing en banc or Supreme Court review. 29 Sep migration deadline (reported ~90% complete) unaffected."
       }
     ]
   },
@@ -639,7 +675,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "No material change on the instruction itself. The newer development is legislative: if AI-chip provisions survive NDAA conference they would likely produce DFARS-style flowdowns on compute provenance for contractors running model training or inference on government-relevant work -- a compliance obligation that does not exist today.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-25 -- no new guidance on Accelerated Mission Software or Project Gatekeeper. Newly confirmed: both the House-passed (H.R. 3838) and Senate-passed (S. 2296) FY26 NDAA versions include DoD-wide AI/ML lifecycle-security and model-assessment governance provisions (led by the CDAO) due within 180 days of enactment; specific provisions differ and head to conference reconciliation, a broader and more formal AI-governance vector than the chip-provenance provisions previously tracked here.",
+    "lastChange": "2026-09-28 -- no new guidance on Accelerated Mission Software or Project Gatekeeper this cycle. The DC Circuit's 25 Sep Anthropic ruling (tracked on the DoD AI Vendor Governance thread) is a related but distinct legal-precedent development; House/Senate FY26 NDAA AI-governance provisions remain in conference reconciliation with no new status this cycle.",
     "orgRelevance": "Review DevSecOps and AI-assisted code-review maturity against the instruction's baseline for any Pentagon software-delivery capture strategy; begin documenting compute provenance for AI work touching government programmes ahead of any NDAA flowdown.",
     "nextIndicator": "Solicitation language referencing Accelerated Mission Software or Project Gatekeeper; follow-on CIO guidance or ATO-cycle-time metrics; the DIU PROJ00716 outcome; whether AI-chip provisions survive FY27 NDAA conference.",
     "history": [
@@ -682,6 +718,10 @@
       {
         "date": "2026-09-25",
         "note": "Confirmed: House (H.R. 3838) and Senate (S. 2296) FY26 NDAA versions both carry DoD-wide AI lifecycle-security/model-assessment governance provisions (CDAO-led, 180-day clock) heading to conference reconciliation -- a more formal, broader AI-governance vector than the chip-provenance bills previously tracked."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "No new guidance this cycle; NDAA AI-governance provisions remain in conference reconciliation. Related legal development (DC Circuit backs Pentagon on Anthropic, 25 Sep) tracked on the DoD AI Vendor Governance thread."
       }
     ]
   },
@@ -694,7 +734,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "ASSESSED: the rhetorical exchange has plateaued with no new substance from any side, but the supporting sensing architecture advanced materially this cycle. If commercial-derivative GEO custody proves out on the GHOST-R schedule, adversary reactions are more likely to become technical rather than rhetorical -- that is the transition to watch, not further statements.",
     "confidence": "MODERATE",
-    "lastChange": "2026-09-25 -- no new U.S. technical detail and no adversary counter-space test identified this cycle; the rhetorical exchange remains plateaued at YELLOW.",
+    "lastChange": "2026-09-28 -- no new U.S. technical detail and no adversary counter-space test. A classified USSF-385 payload launched 26 Sep from Vandenberg (fourth Space Force launch from that pad in ~6 weeks, Starshield-pattern signature) -- adjacent proliferated-architecture activity, tracked in detail on the Golden Dome Procurement thread.",
     "orgRelevance": "Relevant to space-domain-awareness, counter-space and resilient-satellite-architecture roadmaps; GHOST-R and the Mission Delta 2 fusion prototype are the concrete near-term participation routes.",
     "nextIndicator": "Further U.S. elaboration on capability type, scale or timeline; any adversary counter-disclosure or new counter-space test; GHOST-R schedule performance against the 24-month clock; any Golden Dome or Space Force budget language explicitly referencing space-control weapons.",
     "history": [
@@ -729,6 +769,10 @@
       {
         "date": "2026-09-25",
         "note": "No new development identified this cycle; no further U.S. elaboration and no adversary counter-space test."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "No new U.S. elaboration or adversary counter-space test. Classified USSF-385 launched 26 Sep from Vandenberg, a fourth Starshield-pattern launch from that pad in ~6 weeks -- adjacent activity tracked on the Golden Dome thread."
       }
     ]
   },
@@ -741,7 +785,7 @@
     "indicatorLevel": "ORANGE",
     "assessment": "ASSESSED: a deliberate staged rewrite that has reached the operative buying mechanics. The prior cycle's characterization of the 18 Sep publication as a single rule and as the first concrete text was wrong on both counts. Expect a third batch covering the remaining four rules. A countervailing signal exists: final rules from the June batch reportedly stalled earlier in 2026 while OMB weighed changes, so proposed-stage publication does not guarantee timely finalization.",
     "confidence": "HIGH",
-    "lastChange": "2026-09-25 -- no new proposed rules identified this cycle; all eight published rules' comment deadlines remain unchanged (19 Oct for the September batch), now under a month out.",
+    "lastChange": "2026-09-28 -- no new proposed rules identified this cycle; SBA's Office of Advocacy confirms the 18 Sep publication was the second of four planned rule-set batches under the twelve-rule package. The 19 Oct comment deadline is now three weeks out and colliding with the still-non-public CMMC Reform Task Force report on the same compliance-staff calendar.",
     "orgRelevance": "Assign a named owner to each of the four September rules this week and set a comment position by early October, not mid-October. Triage by revenue exposure: Parts 12 and 15 first for competitive positioning, Parts 9 and 27 for qualification and IP risk, Parts 16, 17 and 35 for holders of IDIQ, flexible-vehicle or R&D work. The binding constraint is contracts and legal review capacity, not awareness.",
     "nextIndicator": "Publication of the remaining four rules in the twelve-rule package; comments filed by major industry associations on Parts 12 and 15; any final-rule timeline announcement; whether any September rule is materially revised between proposed and final.",
     "history": [
@@ -768,6 +812,10 @@
       {
         "date": "2026-09-25",
         "note": "No new proposed rules identified; the 19 Oct comment deadline is now under a month out."
+      },
+      {
+        "date": "2026-09-28",
+        "note": "No new proposed rules. SBA Office of Advocacy confirms the September batch was the second of four planned sets. The 19 Oct deadline is now three weeks out and collides with the still-non-public CMMC report on the same compliance-staff calendar."
       }
     ]
   }

@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-25",
+  "updated": "2026-09-28",
   "summary": {
-    "correct": 12,
-    "incorrect": 2,
+    "correct": 13,
+    "incorrect": 3,
     "partial": 5,
-    "pending": 33,
-    "note": "2026-09-25: no forecasts resolved this cycle. Iran's written 60-day ceasefire roadmap (handed over 23 Sep, made public today) and Netanyahu's UNGA opposition sharpen but do not yet resolve fc-2026-09-23-hormuz-framework or fc-2026-09-24-hormuz-indirect-followon -- both remain PENDING within their windows. fc-2026-09-24-summit-rareearth-gap remains PENDING, one day in, consistent with the base case per post-summit analysis confirming no rare-earth language surfaced. fc-2026-09-23-houthi-yemen-displacement remains PENDING, still tracking below the 150,000 threshold. Two new PENDING forecasts added: whether the U.S. issues a formal public response to Iran's roadmap within 14 days, given Netanyahu's opposition and midterm-timing pressure; and whether a named victim organization (beyond F5's own internal discovery) tied to CVE-2026-94127 is publicly reported within 21 days of today's federal deadline."
+    "pending": 34,
+    "note": "2026-09-28: two forecasts resolved. fc-2026-09-25-iran-roadmap-response flips PENDING->INCORRECT: Trump publicly rejected Iran's roadmap on 26 Sep, a formal response within ~1 day rather than the 14-day silence the forecast bet on. fc-2026-09-15-petroline-attribution flips PENDING->CORRECT: no formal attribution for the 10-11 Sep Petroline strike was identified within its 14-day window (closed ~24-25 Sep). Three new PENDING forecasts added: whether at least one U.S. or Israeli kinetic action against Iran occurs within 90 days following WSJ reporting that Trump is weighing renewed strikes after the midterms; whether Anthropic formally petitions for en banc rehearing or Supreme Court review of the DC Circuit's 25 Sep ruling within 30 days; and whether a confirmed DIB-sector or enterprise victim tied to the Citrix NetScaler zero-days (CVE-2026-88771/88772) is publicly reported within 30 days."
   },
   "forecasts": [
     {
@@ -15,7 +15,7 @@
       "horizon": "1-12 months",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No Federal Register notice or departmental statement across the 18-21 Sep gap; the cited ~28 Sep public-report date is now a week out. The ~100 authorized C3PAOs against >100,000 companies needing assessment is an arithmetic constraint on any recommendation the report can realistically make, and supports the reformed-but-intact base case."
+      "note": "The Task Force report remains non-public past its cited ~28 Sep target. Confirmed the Task Force convened in early Sept to review 1,100+ RFI comments; the ~100 authorized C3PAOs against >100,000 companies needing assessment remains an arithmetic constraint supporting the reformed-but-intact base case."
     },
     {
       "id": "fc-2026-09-06-goldendome",
@@ -24,7 +24,7 @@
       "horizon": "3-6 months",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No new Golden Dome award in the gap window, but adjacent space procurement accelerated with the 18 Sep DIU/SSC GHOST-R prototype awards to Northrop Grumman and True Anomaly. The 29 Sep SASC hearing and 30 Sep SDA Tranche 1 launch are the next data points; the unresolved ~$185B-versus-~$1.2T cost divergence, concentrated in space-based interceptors, is the main risk to the acceleration thesis."
+      "note": "No new SDA/MDA award this cycle. The 29 Sep SASC hearing (CSIS's Karako, CBO's Mosher as witnesses) and 30 Sep SDA Transport Layer A launch are now imminent and will be the next direct tests of this forecast; the unresolved ~$185B-versus-~$1.2T cost divergence remains the main risk to the acceleration thesis."
     },
     {
       "id": "fc-2026-09-06-ukraine",
@@ -220,9 +220,9 @@
       "date": "2026-09-15",
       "forecast": "Formal attribution (a named actor or state sponsor) for the 10-11 Sep Petroline pipeline strike will remain unestablished for at least 14 days from the attack (through ~24-25 Sep), even as circumstantial attribution continues to firm.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No formal attribution identified; circumstantial attribution unchanged. Window closes ~24-25 Sep. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-28",
+      "note": "No formal attribution was identified within the 14-day window (through ~24-25 Sep); the strike remains formally unclaimed/unattributed. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-15-gitlab-downstream",
@@ -312,7 +312,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Rhetoric hardened further on 20 Sep ('wipe Iran out' / let the economy 'rot' / make a deal) while an Iranian delegation arrived at UNGA on U.S. visas with a leader-level meeting floated and markets eased on 21 Sep. No new major overt U.S. military action in the window so far; both branches remain live. The 22 Sep Gulf-leaders meeting is the next data point."
+      "note": "Trending toward CORRECT: Trump rejected Iran's roadmap on 26 Sep but WSJ reports he is weighing strikes specifically after the midterms (post-~4 Nov), consistent with no major action inside this forecast's ~18 Oct window. No new major overt action confirmed yet."
     },
     {
       "id": "fc-2026-09-18-far-overhaul-finalize",
@@ -357,7 +357,7 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Still no independently confirmed new Houthi strike on Saudi territory since 19 Sep as of 24 Sep. A UN Security Council press statement (week of 21-22 Sep) condemned continued Houthi attacks on Saudi Arabia and confirmed displacement has surged past 130,000, but this remains the intensified Saudi-on-Houthi air campaign and displacement dynamic, not a new confirmed Houthi strike on Saudi territory specifically. Window remains open to ~12 Oct. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Still no independently confirmed new Houthi strike on Saudi territory since 19 Sep as of this cycle. The Saudi-on-Houthi air campaign and Yemen displacement crisis continue widening independent of this specific test. Window remains open to ~12 Oct. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-21-far-third-batch",
@@ -420,7 +420,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Still tracking below the 150,000 threshold as of 25 Sep; the Houthi-Saudi air campaign and Yemen displacement continue widening independent of the Hormuz-focused diplomatic channel. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Still tracking below the 150,000 threshold as of this cycle (last confirmed figure past 130,000, 25 Sep); the Houthi-Saudi air campaign and Yemen displacement continue widening independent of the Hormuz-focused diplomatic channel. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-23-f5-bigip-scope",
@@ -447,7 +447,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "One day into the window, post-summit analysis (The Diplomat, Washington Post) confirms no rare-earth licensing language has surfaced, consistent with the base case. Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads."
+      "note": "Four days into the window, still no formal joint statement or fact sheet has surfaced with rare-earth licensing language, consistent with the base case. Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads."
     },
     {
       "id": "fc-2026-09-24-anthropic-deadline",
@@ -456,16 +456,16 @@
       "horizon": "0-7 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "DoD was reported ~90% migrated as of mid-September with five days remaining to the deadline. Tracked on the DoD AI Vendor Governance / Anthropic Dispute thread."
+      "note": "A new DC Circuit ruling did occur (25 Sep) but it upheld rather than blocked the designation, reinforcing rather than disrupting the migration timeline. Deadline is tomorrow; DoD reported ~90% migrated as of mid-September. Tracked on the DoD AI Vendor Governance / Anthropic Dispute thread."
     },
     {
       "id": "fc-2026-09-25-iran-roadmap-response",
       "date": "2026-09-25",
       "forecast": "No formal U.S. public acceptance or rejection of Iran's written 60-day ceasefire roadmap will be issued within 14 days, given the need to weigh explicit Israeli objections and reported midterm-timing pressure.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the administration moves quickly on a documented Iranian offer despite active Israeli opposition voiced at UNGA. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-09-28",
+      "note": "Trump publicly rejected the roadmap (now detailed as a seven-day Hormuz-reopening plan) on 26 Sep, calling its terms unacceptable -- a formal rejection within roughly 24 hours, well inside the 14-day window this forecast bet against. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-25-f5-named-victim",
@@ -475,6 +475,33 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether the F5 BIG-IP APM zero-day's exploitation scope becomes visible beyond F5's own vendor-discovered case. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-09-28-iran-post-midterm-strikes",
+      "date": "2026-09-28",
+      "forecast": "Following WSJ reporting that Trump is weighing renewed strikes on Iran after the November midterms, at least one U.S. or Israeli kinetic action against Iran (beyond the current blockade/skirmish posture) will occur within 90 days.",
+      "horizon": "0-90 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the reported post-midterm strike option becomes an actual decision. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-28-anthropic-enbanc",
+      "date": "2026-09-28",
+      "forecast": "Anthropic will formally petition for en banc rehearing or seek Supreme Court review of the DC Circuit's 25 Sep 2-1 ruling within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Anthropic's public statement ('considering all options, including further review') signals continued litigation is likely but not yet filed. Tracked on the DoD AI Vendor Governance / Anthropic Dispute thread."
+    },
+    {
+      "id": "fc-2026-09-28-netscaler-dib-victim",
+      "date": "2026-09-28",
+      "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to the Citrix NetScaler zero-days (CVE-2026-88771/CVE-2026-88772) will be publicly reported within 30 days, given confirmed multi-week pre-patch exploitation including webshell deployment.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the confirmed pre-patch zero-day exploitation window produced a discoverable named victim, given the unusually long undisclosed-exploitation period. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     }
   ]
 }
