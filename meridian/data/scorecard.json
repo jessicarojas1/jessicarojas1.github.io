@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-28",
+  "updated": "2026-09-29",
   "summary": {
-    "correct": 13,
+    "correct": 14,
     "incorrect": 3,
-    "partial": 5,
-    "pending": 34,
-    "note": "2026-09-28: two forecasts resolved. fc-2026-09-25-iran-roadmap-response flips PENDING->INCORRECT: Trump publicly rejected Iran's roadmap on 26 Sep, a formal response within ~1 day rather than the 14-day silence the forecast bet on. fc-2026-09-15-petroline-attribution flips PENDING->CORRECT: no formal attribution for the 10-11 Sep Petroline strike was identified within its 14-day window (closed ~24-25 Sep). Three new PENDING forecasts added: whether at least one U.S. or Israeli kinetic action against Iran occurs within 90 days following WSJ reporting that Trump is weighing renewed strikes after the midterms; whether Anthropic formally petitions for en banc rehearing or Supreme Court review of the DC Circuit's 25 Sep ruling within 30 days; and whether a confirmed DIB-sector or enterprise victim tied to the Citrix NetScaler zero-days (CVE-2026-88771/88772) is publicly reported within 30 days."
+    "partial": 6,
+    "pending": 36,
+    "note": "2026-09-29: two forecasts resolved. fc-2026-09-21-houthi-saudi-followon flips PENDING->CORRECT: Saudi coalition intercepted an attempted Houthi ballistic-missile/drone strike toward Riyadh/Khamis Mushait on 26 Sep, within the 21-day window. fc-2026-09-14-petroline-restoration flips PENDING->PARTIAL: partial Petroline flow was restored and attribution remains unclaimed, but capacity figures conflict across sources and full restoration is still outstanding. Four new PENDING forecasts added: whether the US formally responds to Iran's revised Qatar-mediated Hormuz roadmap within 7 days; whether DoD/an investigation attributes the DMDC breach (criminal vs. nation-state) within 30 days; whether the 29 Sep SASC hearing/DoD posture resolves the Golden Dome cost-methodology dispute within 30 days; and whether the vendor/campaign behind Apple's CVE-2026-86950 targeted-spyware exploitation is identified within 60 days."
   },
   "forecasts": [
     {
@@ -184,9 +184,9 @@
       "date": "2026-09-14",
       "forecast": "Saudi Arabia will restore East-West Petroline pipeline flow within 30 days, but attribution for the 10-11 Sep strike will remain unclaimed/unresolved within that window.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Still no Aramco confirmation of resumed Petroline flows as of 22 Sep. Bloomberg reporting (16 Sep) and prediction-market pricing (~84.5%) converge on a partial restart within days, but Aramco itself has not confirmed. Attribution for the 10-11 Sep strike remains formally unclaimed."
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-09-29",
+      "note": "Partial flow restoration was achieved well within 30 days (satisfying the 'restore flow' clause) and attribution for the 10-11 Sep strike remains unclaimed (satisfying the second clause), but reported capacity figures conflict across sources (recent reporting of ~2.2M bpd / ~40% of a ~5.5M bpd baseline vs. earlier reporting of ~4M bpd / ~57% of a 7M bpd nameplate) and full restoration remains outstanding, so this is graded PARTIAL rather than CORRECT pending reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-14-salalah-reschedule",
@@ -355,9 +355,9 @@
       "date": "2026-09-21",
       "forecast": "Following the 19 Sep Houthi ballistic-missile and drone attack on Riyadh and Aramco facilities at Yanbu, at least one further Houthi strike or attempted strike on Saudi territory will be publicly reported within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Still no independently confirmed new Houthi strike on Saudi territory since 19 Sep as of this cycle. The Saudi-on-Houthi air campaign and Yemen displacement crisis continue widening independent of this specific test. Window remains open to ~12 Oct. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-09-29",
+      "note": "Saudi coalition intercepted 2 Houthi ballistic missiles and 2 drones headed toward Riyadh/Khamis Mushait on 26 Sep -- an independently reported attempted strike well within the 21-day window (deadline ~12 Oct). Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-21-far-third-batch",
@@ -502,6 +502,42 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether the confirmed pre-patch zero-day exploitation window produced a discoverable named victim, given the unusually long undisclosed-exploitation period. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-09-29-iran-us-response",
+      "date": "2026-09-29",
+      "forecast": "The U.S. will issue some public response (accept, reject, or counter) to Iran's revised Qatar-mediated Hormuz-reopening proposal within 7 days (by ~6 Oct 2026).",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Araghchi says he expects a response 'by Tuesday' (~30 Sep) and will return to Tehran once it arrives. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-09-29-dmdc-attribution",
+      "date": "2026-09-29",
+      "forecast": "DoD or an independent investigation will publicly attribute the DMDC breach to either a criminal or a nation-state actor within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "As of disclosure (29 Sep), no attribution has been made public despite a nine-month undetected dwell time. Tracked on the Pentagon DMDC Personnel Data Breach thread."
+    },
+    {
+      "id": "fc-2026-09-29-goldendome-cost-dispute",
+      "date": "2026-09-29",
+      "forecast": "The 29 Sep SASC hearing testimony will not resolve the ~$185B-vs-~$1.2T Golden Dome cost dispute, and DoD will continue to decline a full CBO methodology briefing, within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether today's hearing produces a reconciled cost baseline or DoD-CBO cooperation, given DoD's reported prior refusals of CBO briefing requests. Tracked on the Golden Dome Procurement thread."
+    },
+    {
+      "id": "fc-2026-09-29-apple-spyware-attribution",
+      "date": "2026-09-29",
+      "forecast": "The spyware vendor or campaign behind the exploitation of Apple's CoreGraphics 0-day (CVE-2026-86950) will be publicly identified within 60 days.",
+      "horizon": "0-60 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Apple's advisory describes targeted exploitation against specific individuals but names no vendor or campaign. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     }
   ]
 }
