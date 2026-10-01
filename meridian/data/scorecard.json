@@ -1,11 +1,11 @@
 {
-  "updated": "2026-09-30",
+  "updated": "2026-10-01",
   "summary": {
     "correct": 15,
     "incorrect": 3,
     "partial": 6,
-    "pending": 37,
-    "note": "2026-09-30: one forecast resolved. fc-2026-09-29-iran-us-response flips PENDING->CORRECT: Iran confirmed receipt of the formal US response to its Hormuz roadmap on 30 Sep, one day after the forecast was made and well within the 7-day window; the response's content remains undisclosed, but the forecast's specific test (that some response would be issued) is met. Two new PENDING forecasts added: whether Iran's public decision on the US response (accept/reject/counter) will be announced within 5 days; and whether a specifically named DIB/federal-contractor victim of the NetScaler WHIPSHOT/SLAPSHOT campaign will be identified within 30 days, given Mandiant's confirmation of a government-sector victim class."
+    "pending": 42,
+    "note": "2026-10-01: no prior forecast formally resolved this cycle (Iran's decision on the US Hormuz-roadmap response and the Golden Dome cost-dispute forecast both remain within their open windows, though the latter saw partial movement -- CBO's first-ever program-office briefing on 25 Sep -- noted in this cycle's forecastReview). Five new PENDING forecasts added: independent confirmation of Russia's reported new grid-destruction warhead; a named victim of the newly KEV-listed Cisco SD-WAN Manager flaw; an FTC civil investigative demand under its new AI-labs 6(b) study; public naming of the third-party security-appliance vendor behind the Bitget hack; and whether Northrop Grumman protests the F/A-XX award."
   },
   "forecasts": [
     {
@@ -556,6 +556,51 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Mandiant/Google Threat Intelligence Group named the government sector broadly as a victim class on 29-30 Sep but did not name a specific organization. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-01-russia-warhead",
+      "date": "2026-10-01",
+      "forecast": "Independent forensic or technical reporting will confirm (or specifically debunk) Russia's reported first-ever use of a purpose-built pylon-severing 'steel-cutting' warhead against Ukraine's power grid within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Currently rests on a single Zelensky-adviser characterization. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+    },
+    {
+      "id": "fc-2026-10-01-cisco-sdwan-victim",
+      "date": "2026-10-01",
+      "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to CVE-2026-76504 (Cisco Catalyst SD-WAN Manager) will be publicly reported within 30 days, given confirmed active exploitation and no available workaround.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this newly KEV-listed, no-workaround flaw produces a named victim faster than prior tracked CVE families have. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-01-ftc-ai-cid",
+      "date": "2026-10-01",
+      "forecast": "The FTC will issue at least one civil investigative demand under its new 6(b) study to OpenAI, Anthropic, or METR within 60 days.",
+      "horizon": "0-60 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the reported 6(b) study proceeds to compulsory document production on the timeline multiple outlets described ('coming weeks'). Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-10-01-bitget-vendor-named",
+      "date": "2026-10-01",
+      "forecast": "The specific third-party security-appliance vendor behind the Bitget hack ('Appliance A'/'Appliance B') will be publicly named by Mandiant, SlowMist, or the vendor itself within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the undisclosed-vendor gap flagged this cycle closes, given other organizations using the same unnamed products may be similarly exposed."
+    },
+    {
+      "id": "fc-2026-10-01-fa-xx-protest",
+      "date": "2026-10-01",
+      "forecast": "Northrop Grumman will not file a formal bid protest against the F/A-XX award within 30 days of the 29-30 Sep decision.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether Northrop Grumman contests the award given it now has no active sixth-generation crewed-fighter program. Tracked on the new Sixth-Generation Fighter Competitive Landscape thread."
     }
   ]
 }
