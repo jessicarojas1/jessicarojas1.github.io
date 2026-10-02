@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-01",
+  "updated": "2026-10-02",
   "summary": {
     "correct": 15,
     "incorrect": 3,
     "partial": 6,
-    "pending": 42,
-    "note": "2026-10-01: no prior forecast formally resolved this cycle (Iran's decision on the US Hormuz-roadmap response and the Golden Dome cost-dispute forecast both remain within their open windows, though the latter saw partial movement -- CBO's first-ever program-office briefing on 25 Sep -- noted in this cycle's forecastReview). Five new PENDING forecasts added: independent confirmation of Russia's reported new grid-destruction warhead; a named victim of the newly KEV-listed Cisco SD-WAN Manager flaw; an FTC civil investigative demand under its new AI-labs 6(b) study; public naming of the third-party security-appliance vendor behind the Bitget hack; and whether Northrop Grumman protests the F/A-XX award."
+    "pending": 46,
+    "note": "2026-10-02: no prior forecast formally resolved this cycle -- the Iran-decision window (closes ~5 Oct) and the Golden Dome cost-dispute window (closes ~29 Oct) both remain open, though the latter saw further partial movement (CBO's 25 Sep briefing predates, rather than fully contradicts, the 'full decline' framing) noted in this cycle's forecastReview. Four new PENDING forecasts added: a named victim of the newly KEV-listed FortiMail flaw; independent confirmation of the FBIJobs.gov/ShinyHunters claimed data volume; formal attribution of the Dodd Group/UK MoD contractor breach; and whether the FTC's 6(b) CIDs are formally issued within 30 days (narrower test than the standing 60-day forecast)."
   },
   "forecasts": [
     {
@@ -600,7 +600,43 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether Northrop Grumman contests the award given it now has no active sixth-generation crewed-fighter program. Tracked on the new Sixth-Generation Fighter Competitive Landscape thread."
+      "note": "Trending toward CORRECT so far: trade press describes Northrop as 'almost certain' to explore options but no formal GAO or court filing identified as of 2 Oct. Tracked on the Sixth-Generation Fighter Competitive Landscape thread."
+    },
+    {
+      "id": "fc-2026-10-02-fortimail-victim",
+      "date": "2026-10-02",
+      "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to CVE-2026-104286 (FortiMail) will be publicly reported within 30 days, given confirmed active exploitation, a CVSS 9.8 severity, and no patch yet available.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this newly KEV-listed, patch-unavailable flaw produces a named victim faster than the six prior tracked edge-vendor CVE families. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-02-fbi-shinyhunters-scope",
+      "date": "2026-10-02",
+      "forecast": "An independent (non-claimant-sourced) confirmation of the scope of data taken from the FBIJobs.gov breach (volume and record types) will be publicly reported within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the FBI or an independent forensic source corroborates or disputes ShinyHunters' ~2TB claim. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
+    },
+    {
+      "id": "fc-2026-10-02-doddgroup-attribution",
+      "date": "2026-10-02",
+      "forecast": "Formal attribution (a named actor, e.g. Lynx/INC, or a state-sponsor assessment) for the Dodd Group/UK MoD contractor breach will be publicly confirmed by a government or recognized security-research source within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether UK authorities or independent researchers move beyond the claimant group's own self-attribution. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
+    },
+    {
+      "id": "fc-2026-10-02-ftc-cid-issued",
+      "date": "2026-10-02",
+      "forecast": "The FTC will formally issue at least one 6(b) civil investigative demand to OpenAI, Anthropic, or METR within 30 days, consistent with reporting that demands are expected 'in coming weeks.'",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "A narrower, nearer-term test than the standing 60-day fc-2026-10-01-ftc-ai-cid forecast. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     }
   ]
 }
