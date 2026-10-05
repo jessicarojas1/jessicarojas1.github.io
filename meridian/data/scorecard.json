@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-02",
+  "updated": "2026-10-05",
   "summary": {
-    "correct": 15,
+    "correct": 16,
     "incorrect": 3,
-    "partial": 6,
-    "pending": 46,
-    "note": "2026-10-02: no prior forecast formally resolved this cycle -- the Iran-decision window (closes ~5 Oct) and the Golden Dome cost-dispute window (closes ~29 Oct) both remain open, though the latter saw further partial movement (CBO's 25 Sep briefing predates, rather than fully contradicts, the 'full decline' framing) noted in this cycle's forecastReview. Four new PENDING forecasts added: a named victim of the newly KEV-listed FortiMail flaw; independent confirmation of the FBIJobs.gov/ShinyHunters claimed data volume; formal attribution of the Dodd Group/UK MoD contractor breach; and whether the FTC's 6(b) CIDs are formally issued within 30 days (narrower test than the standing 60-day forecast)."
+    "partial": 7,
+    "pending": 49,
+    "note": "2026-10-05: two prior forecasts resolved this cycle. fc-2026-09-30-iran-decision graded PARTIAL -- Iran's 5-day decision window closed with a conditional 'additional points' holding statement rather than a clean accept/reject/counter. fc-2026-10-02-doddgroup-attribution graded CORRECT -- multiple recognized security-research outlets attributed the Dodd Group/UK MoD breach to Lynx (Russian-linked) within days, satisfying the forecast's 'security-research source' clause ahead of formal government confirmation. Five new PENDING forecasts added: on-orbit checkout confirmation for the 5 Oct SDA Tranche 1 Transport Layer A launch; attribution of the 4 Oct Lipsi tanker strike; a named DIB/federal-contractor victim of the Zammad AI-agent-chained CVEs; a named victim of the new NetScaler SAML CVE-2026-88779; and primary-source reconciliation of the DoD cyber-strategy document ambiguity surfaced this cycle."
   },
   "forecasts": [
     {
@@ -132,7 +132,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No formal nomination; Adam Telle continues as acting Secretary. Fourth consecutive cycle without movement; window closes ~9 Oct. Tracked on the DoD Leadership Continuity thread."
+      "note": "No formal nomination; Adam Telle continues as acting Secretary. The Pentagon has now actively rebutted the custody-related objection to Parnell, suggesting continued effort to clear a path rather than abandonment, but no transmittal has occurred. Window closes ~9 Oct, four days from this update. Tracked on the DoD Leadership Continuity thread."
     },
     {
       "id": "fc-2026-09-10-hormuz-transit",
@@ -492,7 +492,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Anthropic's public statement ('considering all options, including further review') signals continued litigation is likely but not yet filed. Tracked on the DoD AI Vendor Governance / Anthropic Dispute thread."
+      "note": "The ruling's own 7-day stay (the practical window to preserve the status quo pending review) lapsed ~10/2 with no confirmed filing located; the broader 30-day forecast window remains open to ~10/28. The lapsed stay without a filing is a notable negative data point worth close tracking next cycle. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     },
     {
       "id": "fc-2026-09-28-netscaler-dib-victim",
@@ -544,9 +544,9 @@
       "date": "2026-09-30",
       "forecast": "Iran will publicly announce its decision (accept, reject, or counter-propose) on the U.S. response to its Hormuz roadmap within 5 days (by ~5 Oct 2026).",
       "horizon": "0-5 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Iran confirmed receipt of the US response on 30 Sep but has not yet stated its own decision; the response's content also remains undisclosed. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-10-04",
+      "note": "Iran's FM spokesperson Baqaei said on 10/4 that Tehran will deliver 'additional points' on the US counter-proposal after further internal review, while reiterating its seven conditions are unchanged -- a conditional holding statement rather than a clean accept/reject/counter with new, specific terms. The window closed without sharper resolution. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-30-netscaler-govt-victim",
@@ -625,9 +625,9 @@
       "date": "2026-10-02",
       "forecast": "Formal attribution (a named actor, e.g. Lynx/INC, or a state-sponsor assessment) for the Dodd Group/UK MoD contractor breach will be publicly confirmed by a government or recognized security-research source within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether UK authorities or independent researchers move beyond the claimant group's own self-attribution. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-05",
+      "note": "Multiple recognized security-research outlets (Security Affairs, Newsweek, SC Magazine UK, BankInfoSecurity) attributed the breach to Lynx, a Russian-linked ransomware group, within days of the forecast -- satisfying the 'government or recognized security-research source' clause, though a formal UK government statement is still pending. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
     },
     {
       "id": "fc-2026-10-02-ftc-cid-issued",
@@ -637,6 +637,51 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "A narrower, nearer-term test than the standing 60-day fc-2026-10-01-ftc-ai-cid forecast. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-10-05-sda-t1tla-checkout",
+      "date": "2026-10-05",
+      "forecast": "SDA/USSF will formally confirm successful on-orbit acquisition/checkout of all 21 Tranche 1 Transport Layer A satellites launched 5 Oct within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Liftoff and payload manifest are confirmed via SpaceX/SDA sourcing; full on-orbit checkout confirmation beyond liftoff itself was not independently located at brief time. Tracked on the Golden Dome Procurement thread."
+    },
+    {
+      "id": "fc-2026-10-05-lipsi-attribution",
+      "date": "2026-10-05",
+      "forecast": "The 4 Oct strike on the tanker 'Lipsi' in the Strait of Hormuz will be attributed to a specific actor (Iran/IRGC or otherwise) by a government or recognized maritime-security source within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "No CENTCOM or UKMTO attribution was located at brief time; the incident is confirmed but unattributed. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-05-zammad-dib-victim",
+      "date": "2026-10-05",
+      "forecast": "A named DIB or federal-contractor victim organization of the Zammad CVE-2026-102489/102490 exploitation chain will be publicly reported within 30 days, given the novel AI-agent-driven tradecraft and the CVEs' KEV listing.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Only DIVD (a Dutch nonprofit, not DIB) has been named as a victim so far. Tests whether this specific incident's novelty accelerates discovery of a named DIB victim faster than the eight prior tracked edge-vendor CVE families. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-05-netscaler-saml-victim",
+      "date": "2026-10-05",
+      "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to CVE-2026-88779 (NetScaler SAML overflow) will be publicly reported within 21 days, given confirmed exploitation even against already-patched systems.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this ninth vendor-family CVE in the ongoing wave produces a named victim faster than prior tracked CVEs, none of which has yet yielded one. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-05-cyberstrategy-reconciliation",
+      "date": "2026-10-05",
+      "forecast": "Primary-source DoD reporting will clarify, within 30 days, whether the cyber strategy this scorecard's threads have tracked as 'unreleased for N consecutive cycles' is the same document reported elsewhere as released in March 2026, or a distinct still-pending action plan.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "A reconciliation-tracking forecast rather than an events forecast: this cycle's research surfaced conflicting dated reporting that could mean several prior cycles mischaracterized this document's status. Tracked on the DoD Leadership Continuity thread."
     }
   ]
 }
