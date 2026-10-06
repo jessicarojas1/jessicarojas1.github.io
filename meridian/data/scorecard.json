@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-05",
+  "updated": "2026-10-06",
   "summary": {
     "correct": 16,
     "incorrect": 3,
-    "partial": 7,
-    "pending": 49,
-    "note": "2026-10-05: two prior forecasts resolved this cycle. fc-2026-09-30-iran-decision graded PARTIAL -- Iran's 5-day decision window closed with a conditional 'additional points' holding statement rather than a clean accept/reject/counter. fc-2026-10-02-doddgroup-attribution graded CORRECT -- multiple recognized security-research outlets attributed the Dodd Group/UK MoD breach to Lynx (Russian-linked) within days, satisfying the forecast's 'security-research source' clause ahead of formal government confirmation. Five new PENDING forecasts added: on-orbit checkout confirmation for the 5 Oct SDA Tranche 1 Transport Layer A launch; attribution of the 4 Oct Lipsi tanker strike; a named DIB/federal-contractor victim of the Zammad AI-agent-chained CVEs; a named victim of the new NetScaler SAML CVE-2026-88779; and primary-source reconciliation of the DoD cyber-strategy document ambiguity surfaced this cycle."
+    "partial": 8,
+    "pending": 52,
+    "note": "2026-10-06: one prior forecast resolved this cycle. fc-2026-10-05-cyberstrategy-reconciliation graded PARTIAL -- secondary-source reconciliation (law-firm/policy-tracker analysis) identifies the March 2026 release as a separate White House national cyber strategy, distinct from the Pentagon's own still-pending strategy, but no primary DoD/war.gov statement was located, so the forecast's specific 'primary-source DoD reporting' test is only partially met. Four new PENDING forecasts added: whether the confirmed third carrier strike group's (Theodore Roosevelt) CENTCOM arrival coincides with a U.S.-Iran posture shift; whether a fourth independently disclosed agentic-AI-security incident surfaces within 30 days; whether NATO's Moldova visit (10/8-9) produces a concrete new support commitment; and whether the walked-back FlyDubai-Iran linkage is nonetheless cited to justify U.S. action within 30 days."
   },
   "forecasts": [
     {
@@ -132,7 +132,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No formal nomination; Adam Telle continues as acting Secretary. The Pentagon has now actively rebutted the custody-related objection to Parnell, suggesting continued effort to clear a path rather than abandonment, but no transmittal has occurred. Window closes ~9 Oct, four days from this update. Tracked on the DoD Leadership Continuity thread."
+      "note": "No formal nomination; Adam Telle continues as acting Secretary. The Pentagon has now actively rebutted the custody-related objection to Parnell, suggesting continued effort to clear a path rather than abandonment, but no transmittal has occurred. As of 10/6, still no transmittal found; window closes ~10/9, now three days out. Tracked on the DoD Leadership Continuity thread."
     },
     {
       "id": "fc-2026-09-10-hormuz-transit",
@@ -492,7 +492,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "The ruling's own 7-day stay (the practical window to preserve the status quo pending review) lapsed ~10/2 with no confirmed filing located; the broader 30-day forecast window remains open to ~10/28. The lapsed stay without a filing is a notable negative data point worth close tracking next cycle. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "note": "The ruling's own 7-day stay (the practical window to preserve the status quo pending review) lapsed ~10/2 with no confirmed filing located; the broader 30-day forecast window remains open to ~10/28. As of 10/6, still no filing found, and the deadline itself is now revealed as ambiguous across secondary sources (7-day stay vs. a separately described 14-day en banc window to ~10/9) -- needs direct docket verification. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     },
     {
       "id": "fc-2026-09-28-netscaler-dib-victim",
@@ -645,7 +645,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Liftoff and payload manifest are confirmed via SpaceX/SDA sourcing; full on-orbit checkout confirmation beyond liftoff itself was not independently located at brief time. Tracked on the Golden Dome Procurement thread."
+      "note": "Liftoff and payload manifest are confirmed via SpaceX/SDA sourcing; full on-orbit checkout confirmation beyond liftoff itself was not independently located at brief time. As of 10/6, a follow-up sweep still could not independently reverify launch success or checkout via reachable sources -- treat as not yet confirmed either way, window remains open (~14 days from 10/5). Tracked on the Golden Dome Procurement thread."
     },
     {
       "id": "fc-2026-10-05-lipsi-attribution",
@@ -654,7 +654,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No CENTCOM or UKMTO attribution was located at brief time; the incident is confirmed but unattributed. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No CENTCOM or UKMTO attribution was located at brief time; the incident is confirmed but unattributed. As of 10/6, the Lipsi strike is understood to be one of five UKMTO-logged Hormuz incidents on 10/5 alone, none of which carry attribution -- still PENDING. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-05-zammad-dib-victim",
@@ -679,9 +679,45 @@
       "date": "2026-10-05",
       "forecast": "Primary-source DoD reporting will clarify, within 30 days, whether the cyber strategy this scorecard's threads have tracked as 'unreleased for N consecutive cycles' is the same document reported elsewhere as released in March 2026, or a distinct still-pending action plan.",
       "horizon": "0-30 days",
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-10-06",
+      "note": "Secondary-source reconciliation (Freeman Mathis & Gary, Forrester, Defense One, Nextgov) identifies the March 2026 release as a separate White House national cyber strategy (six pillars); the Pentagon's own 'overarching' Department of War strategy remains reported as still pending. This resolves the substance of the ambiguity but not via the 'primary-source DoD reporting' the forecast specified -- no war.gov release or statement was located confirming either document's status. Tracked on the DoD Leadership Continuity thread."
+    },
+    {
+      "id": "fc-2026-10-06-carrier-buildout",
+      "date": "2026-10-06",
+      "forecast": "The confirmed arrival of a third U.S. carrier strike group (USS Theodore Roosevelt) in the CENTCOM area of responsibility, expected by late November, will coincide with a visible shift in U.S.-Iran posture -- either a kinetic action or a material diplomatic concession -- within 30 days of its arrival.",
+      "horizon": "late Nov 2026 + 30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "A reconciliation-tracking forecast rather than an events forecast: this cycle's research surfaced conflicting dated reporting that could mean several prior cycles mischaracterized this document's status. Tracked on the DoD Leadership Continuity thread."
+      "note": "The carrier group's deployment was not independently re-verified against a primary DoD/Navy source this cycle; tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-06-agentic-ai-fourth-incident",
+      "date": "2026-10-06",
+      "forecast": "A fourth independently disclosed autonomous/agentic-AI-security incident (beyond Zammad/DIVD, Transluce's US/Canada government-site findings, and OpenAI's fifth Australian government disclosure) will be publicly reported within 30 days, confirming an accelerating pattern rather than a temporary cluster.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether three incidents in three weeks reflects a genuine accelerating trend or a temporary cluster of disclosures. Tracked on the new Autonomous/Agentic AI Security Incidents thread."
+    },
+    {
+      "id": "fc-2026-10-06-moldova-nato-commitment",
+      "date": "2026-10-06",
+      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chișinau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the fast diplomatic response to the Moldova airspace incursions translates into a concrete commitment. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+    },
+    {
+      "id": "fc-2026-10-06-flydubai-reversal-effect",
+      "date": "2026-10-06",
+      "forecast": "Given Israeli investigators' and a senior U.S. official's walk-back of the Iran-FlyDubai linkage, no formal U.S. strike action against Iran will be publicly justified by citing that incident within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the walked-back linkage is nonetheless later cited as a justification despite the investigative reversal. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     }
   ]
 }
