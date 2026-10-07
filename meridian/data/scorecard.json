@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-06",
+  "updated": "2026-10-07",
   "summary": {
     "correct": 16,
     "incorrect": 3,
     "partial": 8,
-    "pending": 52,
-    "note": "2026-10-06: one prior forecast resolved this cycle. fc-2026-10-05-cyberstrategy-reconciliation graded PARTIAL -- secondary-source reconciliation (law-firm/policy-tracker analysis) identifies the March 2026 release as a separate White House national cyber strategy, distinct from the Pentagon's own still-pending strategy, but no primary DoD/war.gov statement was located, so the forecast's specific 'primary-source DoD reporting' test is only partially met. Four new PENDING forecasts added: whether the confirmed third carrier strike group's (Theodore Roosevelt) CENTCOM arrival coincides with a U.S.-Iran posture shift; whether a fourth independently disclosed agentic-AI-security incident surfaces within 30 days; whether NATO's Moldova visit (10/8-9) produces a concrete new support commitment; and whether the walked-back FlyDubai-Iran linkage is nonetheless cited to justify U.S. action within 30 days."
+    "pending": 56,
+    "note": "2026-10-07: no prior forecast resolved this cycle (the fc-2026-09-09-parnell-nomination window closes ~10/9, two days out, and remains PENDING with a note added reflecting Sen. Cramer's public objection). Four new PENDING forecasts added: whether the shutdown materially delays a Golden Dome program milestone within 30 days; whether the Houthi-Yemeni-government front produces a further cross-front engagement within 14 days; whether the 10/6-10/7 Ukraine mass strike produces a concrete new Western response within 14 days; and whether the Parnell Army Secretary nomination is withdrawn or its window lapses without a transmittal within 14 days."
   },
   "forecasts": [
     {
@@ -132,7 +132,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No formal nomination; Adam Telle continues as acting Secretary. The Pentagon has now actively rebutted the custody-related objection to Parnell, suggesting continued effort to clear a path rather than abandonment, but no transmittal has occurred. As of 10/6, still no transmittal found; window closes ~10/9, now three days out. Tracked on the DoD Leadership Continuity thread."
+      "note": "No formal nomination; Adam Telle continues as acting Secretary. Sen. Kevin Cramer (R-ND) publicly called the Parnell pick 'a bridge too far' over 2021 domestic-violence allegations -- the most explicit GOP objection to date. As of 10/7, still no transmittal found; window closes ~10/9, now two days out. Tracked on the DoD Leadership Continuity thread."
     },
     {
       "id": "fc-2026-09-10-hormuz-transit",
@@ -645,7 +645,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Liftoff and payload manifest are confirmed via SpaceX/SDA sourcing; full on-orbit checkout confirmation beyond liftoff itself was not independently located at brief time. As of 10/6, a follow-up sweep still could not independently reverify launch success or checkout via reachable sources -- treat as not yet confirmed either way, window remains open (~14 days from 10/5). Tracked on the Golden Dome Procurement thread."
+      "note": "Liftoff and payload manifest are confirmed via SpaceX/SDA sourcing; full on-orbit checkout confirmation beyond liftoff itself was not independently located at brief time. As of 10/7, a second follow-up sweep still could not independently reverify launch success or checkout via reachable sources -- treat as not yet confirmed either way, window remains open (closes ~10/19). Tracked on the Golden Dome Procurement thread, now alongside a newly identified shutdown-funding-risk intersection."
     },
     {
       "id": "fc-2026-10-05-lipsi-attribution",
@@ -654,7 +654,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No CENTCOM or UKMTO attribution was located at brief time; the incident is confirmed but unattributed. As of 10/6, the Lipsi strike is understood to be one of five UKMTO-logged Hormuz incidents on 10/5 alone, none of which carry attribution -- still PENDING. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No CENTCOM or UKMTO attribution was located at brief time; the incident is confirmed but unattributed. As of 10/7, still no attribution found; a minor one-day dating discrepancy on the strike itself (10/4 vs. 10/5 across sources) also remains unresolved -- still PENDING. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-05-zammad-dib-victim",
@@ -690,7 +690,7 @@
       "horizon": "late Nov 2026 + 30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "The carrier group's deployment was not independently re-verified against a primary DoD/Navy source this cycle; tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Carrier order-of-battle clarified this cycle: USS George Washington (on station) is being relieved by Theodore Roosevelt/CSG-9 (underway since 9/27) plus a Makin Island ARG; USS Nimitz is confirmed NOT part of the CENTCOM posture (Norfolk, awaiting decommissioning). Still not independently re-verified against a primary DoD/Navy source. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-06-agentic-ai-fourth-incident",
@@ -699,7 +699,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether three incidents in three weeks reflects a genuine accelerating trend or a temporary cluster of disclosures. Tracked on the new Autonomous/Agentic AI Security Incidents thread."
+      "note": "A dedicated search this cycle (10/7) found no fourth incident within 30 days; the one additional item surfaced (OpenAI's 'DseWiki' wiki takeover) appears already counted within OpenAI's own running 2026 incident tally, not an independent new case. Window remains open to ~11/5; this cycle's negative finding tempers but does not resolve the forecast. Tracked on the new Autonomous/Agentic AI Security Incidents thread."
     },
     {
       "id": "fc-2026-10-06-moldova-nato-commitment",
@@ -708,7 +708,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the fast diplomatic response to the Moldova airspace incursions translates into a concrete commitment. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "note": "The 10/8-9 visit has not yet occurred as of 10/7 (window remains open). Separately, Russia's 10/6-10/7 mass strike on Kyiv/Pryluki/Poltava raises the profile of any Western response generally this cycle. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-06-flydubai-reversal-effect",
@@ -717,7 +717,43 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the walked-back linkage is nonetheless later cited as a justification despite the investigative reversal. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No new citation of the FlyDubai linkage found this cycle (10/7); window remains open. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-07-shutdown-goldendome",
+      "date": "2026-10-07",
+      "forecast": "The ongoing federal government shutdown (since 10/1) will produce a confirmed, concrete Golden Dome program delay (a missed milestone, a delayed SHIELD task order, or an explicit DoD/program statement tying a schedule impact to the shutdown) within 30 days, given Gen. Guetlein's August warning that the program could halt development as early as October absent added FY27 funding.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether a previously abstract funding-cliff risk becomes a confirmed, realized program impact. Tracked on the new Federal Government Shutdown / DIB & Golden Dome Funding Risk thread."
+    },
+    {
+      "id": "fc-2026-10-07-houthi-yemen-escalation",
+      "date": "2026-10-07",
+      "forecast": "The Houthi attack on Aden airport and the Saudi-backed Yemeni government counteroffensive will produce at least one further confirmed cross-front engagement (Houthi-vs-government or Houthi-vs-Saudi) within 14 days, confirming a genuinely widening two-front conflict rather than an isolated incident cluster.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the 10/4-10/7 bifurcation (Yemeni-government counteroffensive, Aden-airport attack, Riyadh-area intercept) continues or proves to be a short-lived cluster. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-07-ukraine-strike-response",
+      "date": "2026-10-07",
+      "forecast": "The 10/6-10/7 mass Russian strike on Kyiv/Pryluki/Poltava (19+ killed) will produce a concrete new Western response (a sanctions action, an air-defense commitment, or a formal G7/EU/NATO statement specifically referencing this strike) within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this materially larger strike event (vs. the preceding bridge campaign) produces a distinguishable Western policy response. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+    },
+    {
+      "id": "fc-2026-10-07-parnell-withdrawal",
+      "date": "2026-10-07",
+      "forecast": "Given Sen. Cramer's public 'a bridge too far' objection and the absence of any formal transmittal as the standing 30-day forecast window closes ~10/9, the White House will either formally withdraw Sean Parnell from consideration or let the window lapse without a transmittal, within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether explicit GOP pushback (Cramer, previously Blumenthal/Cramer doubt) translates into an actual withdrawal/lapse rather than a continued stalemate. Tracked on the DoD Leadership Continuity thread."
     }
   ]
 }
