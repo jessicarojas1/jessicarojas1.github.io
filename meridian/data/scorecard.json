@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-07",
+  "updated": "2026-10-08",
   "summary": {
     "correct": 16,
-    "incorrect": 3,
+    "incorrect": 4,
     "partial": 8,
-    "pending": 56,
-    "note": "2026-10-07: no prior forecast resolved this cycle (the fc-2026-09-09-parnell-nomination window closes ~10/9, two days out, and remains PENDING with a note added reflecting Sen. Cramer's public objection). Four new PENDING forecasts added: whether the shutdown materially delays a Golden Dome program milestone within 30 days; whether the Houthi-Yemeni-government front produces a further cross-front engagement within 14 days; whether the 10/6-10/7 Ukraine mass strike produces a concrete new Western response within 14 days; and whether the Parnell Army Secretary nomination is withdrawn or its window lapses without a transmittal within 14 days."
+    "pending": 58,
+    "note": "2026-10-08: one prior forecast graded this cycle -- fc-2026-10-07-shutdown-goldendome resolved INCORRECT on its premise, since a fresh independent sweep found no federal shutdown occurred (a CR signed 9/2 funds the government through 12/11/2026; the 10/7 brief's shutdown claim is corrected today). Three new PENDING forecasts added: whether the Hormuz attack-tempo escalation triggers a formal multinational escort/convoy response within 14 days; whether the CMMC Reform Task Force report is publicly released within 14 days; and whether Anthropic formally files for en banc/SCOTUS review within 14 days now that the DC Circuit stay's purpose is clarified."
   },
   "forecasts": [
     {
@@ -724,9 +724,9 @@
       "date": "2026-10-07",
       "forecast": "The ongoing federal government shutdown (since 10/1) will produce a confirmed, concrete Golden Dome program delay (a missed milestone, a delayed SHIELD task order, or an explicit DoD/program statement tying a schedule impact to the shutdown) within 30 days, given Gen. Guetlein's August warning that the program could halt development as early as October absent added FY27 funding.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether a previously abstract funding-cliff risk becomes a confirmed, realized program impact. Tracked on the new Federal Government Shutdown / DIB & Golden Dome Funding Risk thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-08",
+      "note": "Graded INCORRECT on its premise: no federal government shutdown occurred. A continuing resolution (H.R. 6500 / P.L. 119-103), signed 9/2/2026, funds the government through 12/11/2026 -- the 10/7 brief's 'shutdown since 10/1' finding was itself wrong, confirmed by a fresh independent sweep (Washington Post, Breaking Defense, GovExec, congressional vote records). Golden Dome's genuine funding exposure (reconciliation non-passage) is now tracked separately on the renamed Golden Dome FY27 Reconciliation Funding Risk thread."
     },
     {
       "id": "fc-2026-10-07-houthi-yemen-escalation",
@@ -735,7 +735,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the 10/4-10/7 bifurcation (Yemeni-government counteroffensive, Aden-airport attack, Riyadh-area intercept) continues or proves to be a short-lived cluster. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Trending toward CORRECT: AFP-sourced reporting (10/8 cycle) describes ~270 combined government/Houthi fighter deaths in a single 24-hour period, consistent with continued cross-front engagement; window remains open (closes ~10/21). Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-07-ukraine-strike-response",
@@ -754,6 +754,33 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether explicit GOP pushback (Cramer, previously Blumenthal/Cramer doubt) translates into an actual withdrawal/lapse rather than a continued stalemate. Tracked on the DoD Leadership Continuity thread."
+    },
+    {
+      "id": "fc-2026-10-08-hormuz-tempo",
+      "date": "2026-10-08",
+      "forecast": "Given the Strait of Hormuz attack tempo reaching a wartime high in early October (~9 attacks, the 'On Peace' tanker injuring 12 of 19 crew), at least one formal multinational escort/convoy response or renewed U.S./allied naval-protection announcement will be publicly reported within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the rising frequency and casualty severity of Hormuz attacks forces a concrete multinational response rather than continued unilateral/bilateral handling. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-08-cmmc-release",
+      "date": "2026-10-08",
+      "forecast": "The CMMC Reform Task Force report (delivered to DoD CIO Davies 9/11) will be publicly released within 14 days, given a trade-association figure's floated 'early October' expectation has itself now passed.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether a third informal release-timing expectation proves any more reliable than the two missed before it. Tracked on the CMMC Implementation thread."
+    },
+    {
+      "id": "fc-2026-10-08-anthropic-filing",
+      "date": "2026-10-08",
+      "forecast": "Anthropic will formally file for en banc rehearing or petition for Supreme Court review of the DC Circuit's 9/25 ruling within 14 days, now that the stay's purpose (to permit exactly this filing) has been clarified.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "A narrower, nearer-term test than the standing 30-day fc-2026-09-28-anthropic-enbanc forecast, now that the stay's intent is better understood. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     }
   ]
 }

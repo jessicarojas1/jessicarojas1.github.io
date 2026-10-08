@@ -2,13 +2,13 @@
   {
     "name": "U.S.-Iran Conflict / Strait of Hormuz",
     "firstDetected": "2026-09-07",
-    "status": "Hormuz tanker attacks continue unattributed and transit volumes have dropped sharply (Windward: ~13 vessels transited 10/4 vs. 24 the prior week; Vanguard: 14 attacks since 9/20; IMO: 93 vessels attacked and 24 sailor deaths cumulatively since 2/28). The Houthi-Saudi dimension bifurcated this cycle: a Saudi-backed Yemeni government counteroffensive against Houthi positions opened ~10/4, and by 10/7 Houthis had attacked Aden's airport (Yemeni-government, not Saudi, territory) while Saudi forces intercepted a missile near Riyadh -- a reactivated intra-Yemeni axis layered on the Saudi-Houthi axis. The carrier posture is now clarified: USS George Washington (on station) is being relieved by USS Theodore Roosevelt/CSG-9 (underway since 9/27) plus a Makin Island ARG/13th MEU (underway since 9/28); USS Nimitz is confirmed NOT part of the CENTCOM posture (Norfolk, awaiting decommissioning). Iran-US talks continue via Qatari mediators without breakthrough; Trump gave contradictory signals (war 'could end soon'/Iran 'ready to fold up' vs. a disputed, White House-denied claim he threatened Los Angeles and San Diego). REPORTED, single-sourced: a jailed hardline Iranian lawmaker, an oil minister's resignation, and a national-security adviser's warning of severe economic strain.",
-    "importance": "Critical -- multiple fault lines (Hormuz attribution, the new Yemen bifurcation, Iran's internal strain, the carrier handoff) are all simultaneously active and unresolved, widening rather than narrowing the range of plausible near-term outcomes.",
+    "status": "Hormuz tanker attacks reached the war's highest weekly tempo: UKMTO/trackers report ~9 attacks so far in October against roughly half of September's full-month total; the 6 Oct strike on the Panama-flagged 'On Peace' injured 12 of 19 crew (11 Indian nationals per India's MEA), evacuated to Khasab, Oman -- the most severe single casualty event tracked on this thread. Crude flow through the Strait fell 27% week-on-week; transit at a 2-month low, even as broader Gulf exports partially rebound via alternate routing. The Yemen dimension continues widening: Reuters independently confirms the 7 Oct Houthi missile/drone attack on Aden airport (no casualties, a Cairo flight diverted); AFP reports ~270 combined government/Houthi fighter deaths in a single 24-hour period (government ~115, Houthi ~160); IOM displacement now exceeds 200,000. Iran-US talks remain stalled via Qatari mediators with Iran continuing to tie Strait reopening to its unmet conditions.",
+    "importance": "Critical -- rising attack frequency, rising casualty severity, and falling transit volumes together argue for genuine maritime escalation, now layered on an intensifying Yemen three-way war.",
     "direction": "ESCALATING",
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the diplomatic and kinetic tracks remain decoupled; Iran's internal messaging split and reported domestic strain suggest contested decision-making rather than a unified position. The Houthi-Yemen bifurcation should be tracked as two analytically distinct fronts (Houthi-vs-Yemeni-government at Aden; Houthi-vs-Saudi at Riyadh/Jizan/Abha), neither independently confirmed by the opposing side.",
     "confidence": "LOW",
-    "lastChange": "2026-10-07 -- Houthi-Saudi front bifurcated (Yemeni-government counteroffensive + Aden-airport attack + Riyadh-area intercept); carrier order-of-battle clarified (Nimitz confirmed not involved); Hormuz transit volume down sharply; Iran-US talks continue without breakthrough amid contradictory Trump signals and single-sourced reports of Iranian internal political/economic strain.",
+    "lastChange": "2026-10-08 -- Hormuz tanker-attack tempo reached the highest single-week pace of the war: ~9 attacks so far in October (near half of September's full-month total); the 6 Oct strike on tanker 'On Peace' injured 12 of 19 crew (11 Indian nationals), the most severe single casualty count on this thread to date. Crude flow down 27% week-on-week; transit at a 2-month low. Reuters independently confirms the Houthi attack on Aden airport (7 Oct, no casualties). AFP reports ~270 combined Houthi/Yemeni-government fighter deaths in 24 hours; IOM displacement now exceeds 200,000.",
     "orgRelevance": "Stop anchoring to a single resolution date for this thread -- treat it as an ongoing, dispersed-risk process spanning both Hormuz and now a bifurcated Yemen conflict, with a widening range of plausible outcomes given the confirmed larger U.S. force posture. Correct any internal materials assuming Nimitz is part of the CENTCOM buildout.",
     "nextIndicator": "Formal attribution of any Hormuz incident; confirmation or denial of the Houthi Aden/Riyadh claims; whether U.S.-Iran indirect talks resume 'this week' as Trump suggested.",
     "history": [
@@ -115,6 +115,10 @@
       {
         "date": "2026-10-07",
         "note": "Houthi-Saudi front bifurcates: a Saudi-backed Yemeni government counteroffensive against Houthi positions opens (~10/4); Houthis attack Aden airport (Yemeni-government territory) by 10/7 while Saudi forces intercept a missile near Riyadh. Hormuz transit volume reportedly down to ~13 vessels (10/4) vs. 24 the prior week; 14 attacks reported since 9/20. Carrier order-of-battle clarified: Theodore Roosevelt/CSG-9 + Makin Island ARG relieving George Washington; Nimitz confirmed not in theater. Trump gives contradictory signals on war's end; a claim he threatened Los Angeles/San Diego is reported and denied by the White House. Single-sourced reports of Iranian internal political/economic strain (jailed lawmaker, oil minister resignation)."
+      },
+      {
+        "date": "2026-10-08",
+        "note": "Hormuz attack tempo hits a wartime high (~9 in October alone); 6 Oct 'On Peace' strike injures 12 of 19 crew, the most severe casualty event tracked. Crude flow down 27% week-on-week; transit at a 2-month low. Reuters independently confirms the Aden-airport attack (no casualties). AFP reports ~270 combined fighter deaths in 24 hours; IOM displacement tops 200,000."
       }
     ]
   },
@@ -127,7 +131,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "Policy pause, not repeal, remains the leading read. No evidence of a scope change behind the delay -- continued deliberation is the more likely explanation than an active decision to abandon the report.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-07 -- Refinement, not reversal: research clarifies the Reform Task Force's internal report was due to DoD CIO Kirsten Davies by 9/11/2026 (not the ~9/28 figure previously tracked as the public-disclosure target); Davies holds discretion over public release, which has not occurred. DFARS Class Deviation 2026-O0025 Rev 3 remains the confirmed operative instrument, unchanged. The FAR Overhaul's 19 Oct comment deadline is now under two weeks out. Separately, the federal government shutdown (new thread, see below) freezes new DoD solicitations government-wide for its duration, a distinct near-term contracting-calendar pressure.",
+    "lastChange": "2026-10-08 -- No public release found; a trade-association figure's (Cyber AB CEO Matthew Travis) floated 'early October' release expectation has itself now passed without output -- a third informal target missed. CORRECTION: there is no federal government shutdown (see the renamed Golden Dome FY27 Reconciliation Funding Risk thread); no shutdown-driven solicitation freeze exists. The FAR Overhaul's 19 Oct comment deadline is now 11 days out.",
     "orgRelevance": "Anchor compliance planning to DFARS Class Deviation 2026-O0025 Rev 3's confirmed terms (self-assessment through 2028) rather than the still-non-public CMMC report; finalize FAR Overhaul comment positions ahead of 19 Oct regardless of the shutdown's effect on other contracting activity.",
     "nextIndicator": "A Federal Register notice, class deviation, or 32 CFR Part 170 amendment with a firm CMMC release date; shutdown resolution.",
     "history": [
@@ -210,6 +214,10 @@
       {
         "date": "2026-10-07",
         "note": "Internal Task Force deadline clarified as 9/11/2026 (delivery to DoD CIO Davies), not the previously tracked ~9/28 public-disclosure target -- a refinement, not a reversal; public release still has not occurred. 19 Oct FAR deadline now under two weeks out. New federal government shutdown (since 10/1) freezes new DoD solicitations government-wide, a separate contracting-calendar pressure."
+      },
+      {
+        "date": "2026-10-08",
+        "note": "CORRECTION: no federal shutdown exists (CR signed 9/2 funds government through 12/11); no shutdown-driven solicitation freeze. Report still non-public past a floated 'early October' target per Cyber AB CEO Matthew Travis. 19 Oct FAR deadline now 11 days out."
       }
     ]
   },
@@ -329,7 +337,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the multi-vendor edge/perimeter campaign continues widening rather than plateauing; the Zammad/DIVD incident adds a qualitatively new dimension (autonomous exploitation) rather than merely another vendor name. The absence of a named DIB victim after nine vendor families is increasingly notable.",
     "confidence": "HIGH",
-    "lastChange": "2026-10-07 -- No further CISA KEV additions confirmed since CVE-2026-88779 across two independent sweeps (likely reporting gap given cisa.gov is blocked in this environment, not a confirmed lull). CVE-2026-88779's technical mechanism is now clarified: a memory-overflow/DoS flaw in NetScaler SAML SP/IdP configuration (CVSS 8.7), not an authentication-bypass flaw as a prior search summary had suggested. FortiMail confirmed still unpatched across all affected branches (7.2.0-7.2.9 EOL, 7.4.0-7.4.8, 7.6.0-7.6.6, 8.0.0-8.0.1). A researcher caution flags that patching NetScaler alone is insufficient -- verify no pre-patch compromise occurred. Still no named DIB/federal-contractor victim after 5+ weeks.",
+    "lastChange": "2026-10-08 -- A third independent sweep, this time via direct access to CISA's own alert pages (not secondary sourcing alone), again confirms no new KEV additions since the 10/4 NetScaler entry. Help Net Security reporting adds that CVE-2026-88779 exploitation is causing crash/reboot symptoms on NetScaler appliances even post-patch. FortiMail remains unpatched across all branches. Still no named DIB/federal-contractor victim after 5+ weeks.",
     "orgRelevance": "Verify NetScaler SAML configurations for pre-patch compromise, not just current patch status; maintain FortiMail interim mitigations (disable IBE or restrict management-interface access) pending a confirmed patch across all branches.",
     "nextIndicator": "A named DIB/federal-contractor victim on any tracked campaign; a confirmed FortiMail patched release; further KEV additions.",
     "history": [
@@ -424,6 +432,10 @@
       {
         "date": "2026-10-07",
         "note": "No new KEV additions confirmed since 10/4 across a second independent sweep. CVE-2026-88779 clarified as a memory-overflow/DoS flaw (not auth-bypass). FortiMail's unpatched version ranges confirmed precisely. Still no named DIB victim."
+      },
+      {
+        "date": "2026-10-08",
+        "note": "Third sweep, via direct CISA alert-page access, again finds nothing new since 10/4. NetScaler CVE-2026-88779 exploitation reported causing crashes/reboots even on patched appliances. FortiMail still unpatched. Still no named DIB victim."
       }
     ]
   },
@@ -431,14 +443,14 @@
     "name": "Golden Dome Procurement",
     "firstDetected": "2026-09-06",
     "status": "The SDA Tranche 1 Transport Layer A launch held to its NET ~5 Oct slip date and flew successfully from Vandenberg on 5 Oct, carrying 21 Northrop Grumman-built satellites (the 4th of 9 planned Tranche 1 Falcon 9 missions), bringing the Transport Layer constellation to roughly 84 satellites on orbit. Full on-orbit acquisition/checkout beyond liftoff was not independently confirmed. No new SDA/MDA award this cycle. Separately, RTX was awarded a $24.4B multiyear SM-6 interceptor production contract (1 Oct), extending the broader munitions-replenishment wave alongside Golden Dome. The CBO-DoD $185B-vs-$1.2T cost-methodology dispute remains unresolved beyond the 25 Sep briefing/29 Sep hearing already tracked.",
-    "importance": "Critical -- a newly identified federal government shutdown directly intersects with a funding-cliff risk the program's own executive flagged in August specifically for October, layered onto the still-unresolved cost-methodology dispute.",
+    "importance": "Critical -- the program's genuine funding exposure runs through an unpassed reconciliation package (tracked in detail on the renamed Golden Dome FY27 Reconciliation Funding Risk thread), layered onto the still-unresolved cost-methodology dispute.",
     "direction": "UNCERTAIN",
     "indicatorLevel": "ORANGE",
-    "assessment": "Procurement mechanics (SHIELD's second award tranche, the ordering-phase transition) continue advancing on schedule, but the newly identified shutdown-funding-risk intersection raises genuine near-term schedule uncertainty that was not present in the prior STABLE assessment. No confirmed program impact from the shutdown has been found yet -- this is a live risk, not a realized one.",
-    "confidence": "LOW",
-    "lastChange": "2026-10-07 -- NEW: a federal government shutdown since 10/1/2026 directly intersects with Gen. Guetlein's August warning that Golden Dome could halt development as early as October absent additional funding (~$17.1B of a requested $17.5B at risk). No confirmed program impact found yet. SHIELD issued a second award tranche (reportedly 1,086 more firms, ~2,100 combined) and reportedly entered the 'ordering phase,' but still no task order. Independent confirmation of the 5 Oct launch's on-orbit checkout remains unavailable for a second consecutive cycle. Northrop still has not filed a GAO protest on F/A-XX.",
-    "orgRelevance": "Treat the shutdown-funding-risk intersection as a live risk to validate via a primary source before making planning commitments; continue holding the 5 Oct launch's on-orbit-success claim with appropriate caution pending reverification. Watch for the first SHIELD task order and any Northrop GAO filing.",
-    "nextIndicator": "Any confirmed shutdown-linked Golden Dome program statement or delay; shutdown resolution; independent confirmation of on-orbit checkout of the 5 Oct launch; first SHIELD task order; any Northrop GAO protest filing.",
+    "assessment": "CORRECTED 2026-10-08: no federal shutdown occurred (a CR signed 9/2 funds the government through 12/11/2026). Procurement mechanics (SHIELD's second award tranche, the ordering-phase transition) continue advancing on schedule; the program's genuine schedule risk is reconciliation non-passage, not a shutdown, and no confirmed program impact from that gap has been found yet.",
+    "confidence": "MODERATE",
+    "lastChange": "2026-10-08 -- CORRECTION: no shutdown exists; see the renamed Golden Dome FY27 Reconciliation Funding Risk thread for the corrected funding-mechanism assessment. No new SHIELD task order or on-orbit launch-checkout confirmation found this cycle. No Northrop GAO protest filing identified.",
+    "orgRelevance": "Track the reconciliation package's legislative status directly as the real funding-risk variable; no shutdown-driven planning adjustment is warranted. Watch for the first SHIELD task order and any Northrop GAO filing.",
+    "nextIndicator": "Any reconciliation-package floor action; a confirmed program statement tying a delay to the funding gap; independent confirmation of on-orbit checkout of the 5 Oct launch; first SHIELD task order; any Northrop GAO protest filing.",
     "history": [
       {
         "date": "2026-08",
@@ -519,21 +531,25 @@
       {
         "date": "2026-10-07",
         "note": "NEW RISK: a federal government shutdown since 10/1 intersects with Gen. Guetlein's August warning the program could halt development as early as October without added funding. SHIELD's second award tranche (~1,086 more firms) and 'ordering phase' transition confirmed, still no task order. On-orbit checkout of the 5 Oct launch still not independently confirmed. No Northrop GAO filing."
+      },
+      {
+        "date": "2026-10-08",
+        "note": "CORRECTION: no shutdown occurred; a CR signed 9/2 funds the government through 12/11/2026. Golden Dome's real exposure is the unpassed reconciliation package (tracked on its own thread). No new SHIELD task order or checkout confirmation; no Northrop GAO filing."
       }
     ]
   },
   {
     "name": "Ukraine Ceasefire Diplomacy / Zaporizhzhia",
     "firstDetected": "2026-09-06",
-    "status": "Russia launched one of its largest combined strikes of the war overnight 10/6-10/7 -- roughly 130 drones, 48 cruise missiles, plus ballistic missiles -- against Kyiv and about a dozen regions, killing at least 19 civilians (4 children) and wounding roughly 60 (Kyiv, Pryluki, Poltava), a materially larger event than the preceding four-day Dnipro-bridge campaign. Casualty tolls are still settling (one outlet's headline undercounts its own body text). The ZNPP power-status data gap has reopened: conflicting outage timelines were found this cycle and could not be reconciled (one describing stable power since 9/7, another describing a 9/23-10/23 outage that could not be independently verified). Turkey/UN-brokered Black Sea grain-ceasefire talks reportedly held in early October with no confirmed outcome. No halt agreed by either side.",
-    "importance": "Critical -- the 10/6-10/7 strike resets the near-term baseline for Russian strike capacity and intent heading into winter, and the reopened ZNPP power-status ambiguity revives a standing nuclear-safety risk.",
+    "status": "Russia's 10/6-10/7 combined strike (roughly 130 drones, 48 cruise missiles, plus ballistic missiles) killed 22+ in Pryluky (Chernihiv region -- this thread had previously misattributed a 'Poltava' strike; no Poltava strike was identified) and 25+ nationwide with 100+ wounded across Kyiv, Pryluky, Kremenchuk, and Oleksandriia; the toll was still rising as of 10/8 with search-and-rescue ongoing. The ZNPP power-status data gap remains unresolved. NATO Deputy Secretary General Shekerinska's Chisinau visit is confirmed underway 8-9 Oct (Sandu, Popsoi, Nosatii meetings plus a Moldova Security Forum keynote 10/9); outcome pending. No Western response specifically citing the 10/6-10/7 strike identified yet.",
+    "importance": "Critical -- the toll continues rising and this thread's own geography required correction; the NATO Chisinau visit is now live and may produce the first concrete Western response signal.",
     "direction": "ESCALATING",
     "indicatorLevel": "RED",
-    "assessment": "ASSESSED: whether the 10/6-10/7 strike reflects a deliberate new escalation or variance within an already-severe bombardment pattern cannot be determined from current evidence, but its scale and multi-region spread exceed the most recent comparable barrages tracked on this thread, and confidence that 'no material change' in Russian strategy should be lowered pending further repetition or de-escalation.",
+    "assessment": "ASSESSED: whether the 10/6-10/7 strike reflects deliberate escalation or variance within an already-severe pattern remains undetermined; the toll's continued rise through 10/8 argues for maintaining the RED/ESCALATING read rather than downgrading.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-07 -- MAJOR: Russia's 10/6-10/7 combined strike (130 drones/48 cruise missiles/ballistic) killed 19+ across Kyiv, Pryluki, and Poltava, superseding the bridge-campaign framing as the lead indicator. ZNPP power status reverted to an unresolved data gap (conflicting outage timelines found, not reconciled). No new Moldova incident found; the planned 10/8-9 NATO Chisinau visit has not yet occurred. Black Sea grain-ceasefire talks reportedly held in early October with no confirmed outcome.",
-    "orgRelevance": "Macro European air-defense, counter-UAS, electronic-warfare, and grid-hardening/resilience demand context, now reinforced by a materially larger strike event; do not assert a specific ZNPP power status without further verification given the reopened data gap.",
-    "nextIndicator": "Any further mass-strike repetition at comparable or greater scale; resolution of the ZNPP power-status data gap; outcome of the NATO Chișinau visit (10/8-9, now imminent); any outcome from the Black Sea grain-ceasefire talks.",
+    "lastChange": "2026-10-08 -- Pryluky toll risen to 22+ (5 children) with ~54 injured; nationwide 25+ dead, 100+ wounded. CORRECTED: Pryluky is in Chernihiv region, not Poltava as this thread previously stated -- no separate Poltava strike was identified. NATO's Shekerinska Chisinau visit confirmed underway 8-9 Oct with a named agenda; outcome not yet reported.",
+    "orgRelevance": "Macro European air-defense, counter-UAS, electronic-warfare, and grid-hardening/resilience demand context; correct any internal materials citing a 'Poltava' strike -- the correct location is Pryluky, Chernihiv region.",
+    "nextIndicator": "Final confirmed toll; any G7/EU/NATO statement citing this strike; outcome of the NATO Chisinau visit and Moldova Security Forum; resolution of the ZNPP power-status data gap.",
     "history": [
       {
         "date": "2026-09-07",
@@ -622,6 +638,10 @@
       {
         "date": "2026-10-07",
         "note": "Russia launches one of its largest combined strikes of the war overnight 10/6-10/7 (~130 drones, 48 cruise missiles, ballistic missiles) on Kyiv, Pryluki, and Poltava; 19+ killed, ~60 wounded -- supersedes the bridge campaign as the lead indicator. ZNPP power status reopens as a data gap (conflicting outage timelines, unreconciled). No new Moldova incident; NATO Chisinau visit (10/8-9) still upcoming. Black Sea grain-ceasefire talks reportedly held early October, outcome unconfirmed."
+      },
+      {
+        "date": "2026-10-08",
+        "note": "Toll risen to 22+ dead in Pryluky (Chernihiv region, corrected from 'Poltava'), 25+ nationwide, 100+ wounded; still rising. NATO's Shekerinska Chisinau visit confirmed underway 8-9 Oct with Sandu/Popsoi/Nosatii meetings and a Moldova Security Forum keynote; outcome pending. No Western response yet citing the strike specifically."
       }
     ]
   },
@@ -729,7 +749,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "Parnell's nomination path remains unresolved with the window closing in days. The cyber-strategy item should now be characterized as 'still pending per trade press, ambiguity resolved via secondary reconciliation' rather than 'unknown' or 'unreleased for N cycles.'",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-07 -- Sen. Kevin Cramer (R-ND) publicly called the Parnell nomination 'a bridge too far,' citing 2021-surfaced domestic-violence allegations Parnell denies -- the most explicit GOP objection to date. No formal nomination transmitted; window closes ~10/9, now two days out, increasing doubt it will be met. No change on the cyber-strategy item.",
+    "lastChange": "2026-10-08 -- No new development found; no formal nomination transmittal identified. The standing ~30-day forecast window closes tomorrow (~10/9). No change on the cyber-strategy item.",
     "orgRelevance": "Decide a leadership-level position on whether contractor support to offensive cyber operations is in or out of scope as a market before a solicitation forces the question; monitor whether the nomination window lapses without a transmittal.",
     "nextIndicator": "Formal Army Secretary nomination transmittal, or confirmation the ~10/9 window lapsed; a primary war.gov release of the Pentagon's own cyber strategy.",
     "history": [
@@ -816,6 +836,10 @@
       {
         "date": "2026-10-07",
         "note": "Sen. Cramer publicly calls the Parnell pick 'a bridge too far' over 2021 domestic-violence allegations -- the most explicit GOP objection yet. No transmittal; window closes ~10/9, now 2 days out."
+      },
+      {
+        "date": "2026-10-08",
+        "note": "No new development; window closes tomorrow (~10/9)."
       }
     ]
   },
@@ -828,7 +852,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: this is a genuine split-track US response to real (if not fully verified) agentic-AI security incidents -- voluntary accord and compelled regulatory fact-finding proceeding in parallel rather than either substituting for the other; the FTC's 6(b) study is information-gathering, not enforcement, but its civil-investigative-demand authority is compulsory and could surface materially new facts.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-07 -- No material change: FTC CIDs still not confirmed issued (still 'being drafted'/'expected within weeks'). No Anthropic en banc/SCOTUS filing found; docket-verification gap remains unresolved. Warner/Schatz/Kim bill remains blocked since Cruz's 9/29 objection with no further floor action found. A dedicated search for a fourth agentic-AI-security incident (beyond Zammad, Transluce, OpenAI/Australia) found none within 30 days -- see the dedicated Autonomous/Agentic AI Security Incidents thread for detail.",
+    "lastChange": "2026-10-08 -- FTC CIDs still not confirmed issued. The DC Circuit's 9/25 stay is now clarified (CNBC/ABC News) as explicitly intended to allow Anthropic time for en banc/SCOTUS review, narrowing but not closing the prior stay-duration ambiguity; no filing confirmed yet. No fresh search performed this cycle on the agentic-AI-incident count; the 10/7 negative finding (three incidents, no fourth) is carried forward unverified.",
     "orgRelevance": "Track the FTC study and the Anthropic litigation clock as distinct tracks; do not assume GenAI.mil availability implies Anthropic-model availability for DoD-adjacent work; treat AI-agent execution and data-access permissions as a privileged-access surface given three independent incidents (Zammad, Transluce, OpenAI/Australia) in three weeks.",
     "nextIndicator": "Formal issuance of FTC civil investigative demands; direct docket confirmation of the Anthropic en banc/SCOTUS filing deadline and status; a fourth independently disclosed agentic-AI-security incident.",
     "history": [
@@ -911,6 +935,10 @@
       {
         "date": "2026-10-07",
         "note": "No material change on FTC CIDs, Anthropic litigation, or the Warner bill. A dedicated search found no fourth agentic-AI-security incident within 30 days."
+      },
+      {
+        "date": "2026-10-08",
+        "note": "FTC CIDs still not issued. DC Circuit stay clarified as intended to allow en banc/SCOTUS review; no filing confirmed. No fresh agentic-AI-incident search performed this cycle."
       }
     ]
   },
@@ -982,6 +1010,10 @@
       {
         "date": "2026-10-07",
         "note": "No new proposed rules; 19 Oct deadline now under two weeks out. The new federal shutdown freezes new DoD solicitations generally but does not affect this comment-period deadline."
+      },
+      {
+        "date": "2026-10-08",
+        "note": "CORRECTION: no federal shutdown exists (CR signed 9/2 funds government through 12/11); no solicitation freeze. No new proposed rules; 19 Oct deadline now 11 days out."
       }
     ]
   },
@@ -1056,21 +1088,25 @@
     ]
   },
   {
-    "name": "Federal Government Shutdown / DIB & Golden Dome Funding Risk",
+    "name": "Golden Dome FY27 Reconciliation Funding Risk (renamed from 'Federal Government Shutdown / DIB & Golden Dome Funding Risk')",
     "firstDetected": "2026-10-07",
-    "status": "A federal government shutdown began at 12:01 AM, October 1, 2026 (start of FY2027) after Congress failed to pass appropriations or a continuing resolution; multiple independent sources confirm the start date and ongoing status. This directly intersects with a funding-cliff risk Golden Dome's own program executive (Gen. Guetlein) publicly flagged in August: roughly $17.1B of a requested $17.5B FY27 program budget depends on a reconciliation package that may not pass, and he warned the program 'may be forced to halt development as early as October' absent additional funding. No source confirms either the reconciliation package's passage or a concrete Golden Dome program impact from the shutdown as of this cycle. Widely syndicated claims of a Senate NDAA passage ('$924.7B defense bill,' '67 amendments,' 'tenth day of the shutdown') and specific military-pay mechanics (a 'Pay Our Troops Act of 2026,' a ~$6.5B unspent-R&D-funds workaround) appeared across roughly ten mirrored outlets, but cross-referencing shutdown durations strongly suggests this is stale/misdated content describing the October 2025 shutdown and FY2026 NDAA, not a confirmed 2026 development -- NOT treated as established. Already-funded DoD contracts continue regardless of excepted-activity status, but no new solicitations issue during the lapse; DIB small-business suppliers are historically disproportionately affected (a roughly one-third drop in small-business federal contracts followed the 2013 shutdown, per CSIS analysis).",
-    "importance": "Critical -- the first identified intersection between a fiscal-process failure and a marquee procurement program's own previously stated vulnerability window, with a broader DIB new-solicitation freeze as an additional, separate effect.",
-    "direction": "ESCALATING",
+    "status": "CORRECTED 2026-10-08: no federal government shutdown occurred. A continuing resolution (H.R. 6500 / P.L. 119-103), signed into law 2 September 2026, funds the government at FY2026 levels through 11 December 2026; the House passed it 370-48 and the Senate 90-6 before the fiscal-year deadline. Multiple independent sources (Washington Post, Breaking Defense, GovExec, ExecutiveGov, ASA) confirm this, directly contradicting this thread's 10/7 finding. Golden Dome's genuine, separately-confirmed exposure persists: roughly $17.1B of its requested $17.5B FY27 budget depends on a ~$350B reconciliation package that has not passed, and a CR does not and structurally cannot cover reconciliation-dependent money (it only continues existing appropriations). Program executive Gen. Guetlein has stated a CR 'doesn't help' because the program lacks an appropriated topline to fall back on; ~90% of FY26 obligated funds are reportedly already spent. No confirmed program delay, milestone slip, or task-order impact has been tied to this funding gap as of this cycle.",
+    "importance": "Critical -- both as a genuine, confirmed fiscal-process risk to a marquee procurement program, and as a demonstrated case of this thread's own prior-cycle analytic error requiring correction.",
+    "direction": "UNCERTAIN",
     "indicatorLevel": "ORANGE",
-    "assessment": "ASSESSED: the shutdown's existence and start date are well-corroborated; its Golden Dome and broader DIB impact remain live risks to validate, not yet confirmed realized facts. The circulating NDAA-passage and military-pay specifics should be treated as likely stale pending independent verification and should not be relied upon or repeated without a primary-source check.",
-    "confidence": "LOW",
-    "lastChange": "2026-10-07 -- Thread created this cycle after research identified the shutdown (ongoing since 10/1) as a previously untracked, high-consequence development intersecting directly with Golden Dome's own August funding-cliff warning for October.",
-    "orgRelevance": "Firms positioned on SDA/MDA vehicles or SHIELD should factor shutdown-driven solicitation and task-order delays into near-term planning; DIB small-business suppliers should assume elevated near-term cash-flow risk if new-solicitation flow remains frozen; do not cite the circulating NDAA-passage or military-pay specifics internally without independent primary-source verification.",
-    "nextIndicator": "Any shutdown-resolution vote or continuing resolution; a confirmed Golden Dome program statement tying a delay to the shutdown; independent verification (or debunking) of the circulating NDAA-passage and military-pay claims.",
+    "assessment": "ASSESSED: the CR's existence and terms are well-corroborated via convergent independent reporting plus congressional vote-record references. Golden Dome's reconciliation-dependency risk is real and separately sourced from the (incorrect) shutdown claim; it should be tracked via the reconciliation package's legislative status directly, not shutdown-resolution news. The prior cycle's error likely arose from conflating syndicated content partly traceable to the 2025 shutdown with the 2026 fiscal calendar, and over-weighting Golden Dome's genuine funding warning as corroboration for a shutdown that did not independently check out.",
+    "confidence": "MODERATE",
+    "lastChange": "2026-10-08 -- MAJOR CORRECTION: no shutdown exists; thread renamed and reframed around the actual mechanism (reconciliation non-passage, not an appropriations lapse). No DIB-wide new-solicitation freeze exists under the current CR. A separate tracker (Sirotin Intelligence) notes the CR itself freezes ~150 new program starts department-wide -- a real but distinct effect from a shutdown-driven freeze.",
+    "orgRelevance": "Firms positioned on SDA/MDA vehicles or SHIELD should track the reconciliation package's legislative status directly; no DIB-wide new-solicitation freeze currently exists to plan around. Correct any internal guidance based on the prior cycle's shutdown framing.",
+    "nextIndicator": "Any reconciliation-package floor action in the House or Senate; a confirmed Golden Dome program statement tying a delay to the funding gap; the 11 Dec 2026 CR expiry and any subsequent full-year FY2027 appropriations action.",
     "history": [
       {
         "date": "2026-10-07",
-        "note": "Shutdown confirmed ongoing since 10/1/2026; intersection with Golden Dome's August funding-cliff warning identified as a new, high-consequence risk. No confirmed program impact yet. Widely syndicated NDAA/military-pay specifics flagged as likely stale 2025 content."
+        "note": "Thread created; shutdown incorrectly reported as ongoing since 10/1/2026; intersection with Golden Dome's August funding-cliff warning identified as a new, high-consequence risk."
+      },
+      {
+        "date": "2026-10-08",
+        "note": "CORRECTED: no shutdown occurred. A CR (H.R. 6500 / P.L. 119-103, signed 9/2/2026) funds the government through 12/11/2026. Golden Dome's funding risk is real but runs through an unpassed reconciliation package the CR does not cover, not a shutdown. Thread renamed accordingly."
       }
     ]
   }
