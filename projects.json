@@ -21,6 +21,13 @@
     "link": "https://redoubt-program-portal.onrender.com"
   },
   {
+    "title": "Verity — Enterprise Identity & Access Governance",
+    "description": "Identity Governance & Administration (IGA) platform — unified visibility into who has access to what, across every connected application. Canonical identity directory with a one-person-to-many-accounts rollup, a high-performance Enterprise Access Matrix (6 scoped views, server-side pagination, saved views, CSV export), manual/audited identity correlation, a structured Dynamic Fields engine, and a two-pane Admin IAM console with a true role-default / explicit-grant / explicit-deny permission model. Authorization is enforced server-side via a dual-scoping engine — recursive-CTE reporting-chain checks for supervisors and ownership checks for system owners. PHP 8.2 + PostgreSQL, strict CSP with per-request nonces and no inline styles.",
+    "image": "assets/images/portfolio_site.png",
+    "tags": ["IGA", "IAM", "PHP", "PostgreSQL", "RBAC", "Audit", "Access Matrix"],
+    "link": "https://github.com/jessicarojas1/jessicarojas1.github.io/tree/main/verity"
+  },
+  {
     "title": "Compliance Tracker",
     "description": "A full-featured CMMC / NIST 800-171 compliance tracker with live SSP preview, POAM tracking, pie chart dashboard, and evidence linking.",
     "image": "assets/images/compliance_tracker.png",

@@ -1,0 +1,17 @@
+{
+    "name": "jessicarojas/verity",
+    "description": "Verity — Enterprise Identity & Access Governance",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Verity\\": "app/"
+        }
+    },
+    "scripts": {
+        "test": "php tests/run.php"
+    }
+}

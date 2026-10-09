@@ -1,0 +1,72 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Pure unit tests — no database required. Exercises Security, Roles,
+ * Authorize's role/grant/deny layering (with in-memory $user arrays, so no
+ * DB-backed reporting-chain/ownership scoping here — see db_test.php), and
+ * the connector capability-manifest honesty rule.
+ */
+
+use Verity\Support\Authorize;
+use Verity\Support\Connectors;
+use Verity\Support\Roles;
+use Verity\Support\Security;
+
+T::group('Security::h — output escaping');
+T::eq('&lt;script&gt;alert(1)&lt;/script&gt;', Security::h('<script>alert(1)</script>'), 'escapes HTML special characters');
+T::eq('', Security::h(null), 'null input becomes empty string, not "null"');
+T::eq('Tom &amp; Jerry', Security::h('Tom & Jerry'), 'escapes ampersand');
+
+T::group('Security::jsonForScript — script-context JSON hardening');
+$encoded = Security::jsonForScript(['x' => '</script><script>alert(1)</script>']);
+T::ok(!str_contains($encoded, '</script>'), 'closing script tag is hex-escaped, not literal');
+T::ok(!str_contains($encoded, '<script>'), 'opening script tag is hex-escaped, not literal');
+
+T::group('Security — CSRF token round trip');
+$_SESSION = $_SESSION ?? [];
+$_SESSION['_csrf'] = null;
+$token = Security::csrfToken();
+T::ok(strlen($token) >= 32, 'a generated CSRF token is non-trivially long');
+T::ok(Security::validateCsrf($token), 'the token just issued validates successfully');
+T::ok(!Security::validateCsrf('not-the-right-token'), 'an unrelated token is rejected');
+T::ok(!Security::validateCsrf(null), 'a missing token is rejected, not silently accepted');
+
+T::group('Roles — role defaults and coarse-alias expansion');
+T::ok(in_array('*', Roles::permissionsFor(['enterprise_admin']), true), 'enterprise_admin holds the wildcard permission');
+T::ok(in_array('matrix.view.supervisor', Roles::permissionsFor(['supervisor']), true), 'supervisor role grants matrix.view.supervisor');
+T::ok(!in_array('matrix.view.enterprise', Roles::permissionsFor(['supervisor']), true), 'supervisor role does NOT grant enterprise-wide matrix view');
+T::eq(['identity.manage.correlate'], Roles::expand('identity.manage'), 'coarse alias expands to its granular permission set');
+T::eq(['some.unlisted.key'], Roles::expand('some.unlisted.key'), 'an unknown permission expands to itself unchanged');
+
+T::group('Authorize::can — role/grant/deny layering (no DB; pure $user arrays)');
+$security = ['id' => 1, 'person_id' => null, 'roles' => ['security_admin'], 'grants' => ['grant' => [], 'deny' => []]];
+T::ok(Authorize::can($security, 'identity.view'), 'security_admin has identity.view by role default');
+T::ok(Authorize::can($security, 'settings.manage'), 'security_admin has settings.manage by role default');
+$deniedExplicitly = ['id' => 2, 'person_id' => null, 'roles' => ['security_admin'], 'grants' => ['grant' => [], 'deny' => ['identity.view']]];
+T::ok(!Authorize::can($deniedExplicitly, 'identity.view'), 'an explicit deny overrides the role default — denials always win');
+$noRoleButGranted = ['id' => 3, 'person_id' => null, 'roles' => [], 'grants' => ['grant' => ['audit.view'], 'deny' => []]];
+T::ok(Authorize::can($noRoleButGranted, 'audit.view'), 'a permission with no role default can still be reached via an explicit grant');
+T::ok(!Authorize::can($noRoleButGranted, 'settings.manage'), 'a user with no matching role or grant is denied');
+
+// Regression test for a real bug found and fixed during this build: the
+// wildcard role ('*') must not bypass an explicit per-permission deny.
+// effectivePermissions() for a wildcard role only ever contains the literal
+// key '*' (never the expanded list of every permission), so unset()-ing a
+// specific denied permission against that map was previously a silent
+// no-op — the deny never took effect for enterprise_admin. can() now checks
+// the raw deny list before consulting the wildcard at all.
+$adminDeniedOnePermission = ['id' => 4, 'person_id' => null, 'roles' => ['enterprise_admin'], 'grants' => ['grant' => [], 'deny' => ['settings.manage']]];
+T::ok(!Authorize::can($adminDeniedOnePermission, 'settings.manage'), 'an explicit deny overrides even the wildcard (*) role — denials always win, with no exceptions');
+T::ok(Authorize::can($adminDeniedOnePermission, 'audit.view'), 'the wildcard role still grants every OTHER permission normally — only the denied one is blocked');
+
+T::group('Connectors::defaultManifest — never claims an unconfirmed capability');
+$manual = Connectors::defaultManifest('manual');
+T::ok(array_sum($manual) === 0, 'a manual connector claims ZERO automated capabilities by default');
+$mock = Connectors::defaultManifest('entra_gcc_high_mock');
+T::ok($mock['discover_accounts'] === true, 'the GCC High mock connector claims discover_accounts (it is a mock, documented as such)');
+T::ok($mock['provision_access'] === false, 'the GCC High mock connector does NOT claim provisioning — that is unimplemented (Phase 4)');
+foreach (Connectors::CAPABILITY_KEYS as $key) {
+    T::ok(array_key_exists($key, $manual), "manual manifest defines every capability key ($key), even when false");
+}

@@ -1,0 +1,243 @@
+/* VERITY design system — hand-rolled, no framework, CSP-safe (no inline styles
+   needed for any of this). Light theme is default; dark theme follows OS
+   preference via prefers-color-scheme, same tokens re-defined. */
+
+:root {
+  --ink: #0f172a;
+  --muted: #64748b;
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --line: #e2e7ef;
+  --accent: #2b5fd9;
+  --accent-ink: #ffffff;
+  --ok: #157a4a;
+  --ok-bg: #e5f6ec;
+  --warn: #9a6400;
+  --warn-bg: #fdf1dc;
+  --risk: #b42318;
+  --risk-bg: #fdeceb;
+  --neutral-bg: #eef1f6;
+  --radius: 8px;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 1px rgba(15, 23, 42, 0.04);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e7ebf3;
+    --muted: #9aa5b8;
+    --bg: #0c1018;
+    --card: #141a26;
+    --line: #232c3d;
+    --accent: #5b86ea;
+    --accent-ink: #0c1018;
+    --ok: #37c285;
+    --ok-bg: #0e2a1f;
+    --warn: #e0ab3f;
+    --warn-bg: #2c2410;
+    --risk: #f06a60;
+    --risk-bg: #2c1412;
+    --neutral-bg: #1a2230;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3 { margin: 0 0 8px; font-weight: 650; letter-spacing: -0.01em; }
+h1 { font-size: 20px; }
+h2 { font-size: 16px; }
+h3 { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+p { margin: 0 0 10px; }
+
+/* ---- Header / nav ------------------------------------------------------ */
+header.top {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 20px;
+  height: 52px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--ink); font-size: 15px; }
+.brand .logo {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 6px;
+  background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 800;
+}
+.brand-logo { height: 24px; width: auto; border-radius: 6px; }
+nav.nav { display: flex; gap: 2px; flex: 1; overflow-x: auto; }
+nav.nav a {
+  color: var(--muted); padding: 8px 10px; border-radius: 6px; font-size: 13px; font-weight: 550;
+  white-space: nowrap;
+}
+nav.nav a:hover { background: var(--neutral-bg); text-decoration: none; color: var(--ink); }
+nav.nav a.active { color: var(--accent); background: var(--neutral-bg); }
+.who { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.who-name { font-weight: 600; color: var(--ink); }
+
+main.wrap { max-width: 1400px; margin: 0 auto; padding: 20px; }
+nav.breadcrumbs { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+nav.breadcrumbs a { color: var(--muted); }
+
+/* ---- Cards / page header ------------------------------------------------ */
+.page-header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.page-header p { color: var(--muted); margin: 2px 0 0; }
+.page-title { font-size: 20px; margin: 0; font-weight: 800; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+.card + .card { margin-top: 14px; }
+
+/* KPI grid */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.kpi { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.kpi .n { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.kpi .label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.kpi.warn .n { color: var(--warn); }
+.kpi.risk .n { color: var(--risk); }
+
+/* ---- Tables (high information density) --------------------------------- */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+table.grid { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.grid th, table.grid td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+table.grid th { background: var(--neutral-bg); color: var(--muted); font-weight: 650; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; }
+table.grid th a { color: var(--muted); }
+table.grid tr:last-child td { border-bottom: none; }
+table.grid tbody tr:hover { background: var(--neutral-bg); }
+table.grid td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.empty-row td { padding: 28px 12px; }
+.empty-state-sm { text-align: center; color: var(--muted); font-size: 13px; }
+
+/* ---- Badges / status pills ---------------------------------------------- */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 650; line-height: 1.6; }
+.b-ok { background: var(--ok-bg); color: var(--ok); }
+.b-warn { background: var(--warn-bg); color: var(--warn); }
+.b-risk { background: var(--risk-bg); color: var(--risk); }
+.b-neutral { background: var(--neutral-bg); color: var(--muted); }
+
+/* ---- Buttons / forms ----------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line);
+  background: var(--card); color: var(--ink); border-radius: 6px; padding: 7px 12px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.btn:hover { background: var(--neutral-bg); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.danger { color: var(--risk); border-color: var(--risk); }
+.btn.sm { padding: 4px 9px; font-size: 12px; }
+.btn[disabled] { opacity: 0.55; cursor: not-allowed; }
+
+label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+input[type=text], input[type=email], input[type=password], input[type=date], input[type=number], input[type=color], select, textarea {
+  width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--card); color: var(--ink); font-size: 13px; font-family: inherit;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.field { margin-bottom: 12px; }
+.field-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.field-row > .field { flex: 1; min-width: 160px; }
+.filter-bar { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; margin-bottom: 14px; }
+.filter-bar .field { margin-bottom: 0; min-width: 160px; }
+.hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+fieldset { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin: 0 0 14px; }
+fieldset legend { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; padding: 0 4px; }
+
+/* ---- Pagination ----------------------------------------------------------- */
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 2px; font-size: 12px; color: var(--muted); }
+.pager .pages { display: flex; gap: 6px; }
+
+/* ---- Login screen --------------------------------------------------------- */
+body.login-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); }
+.login-box { width: 360px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 28px; }
+.login-box .brand { justify-content: center; font-size: 18px; margin-bottom: 4px; }
+.login-box .tagline { text-align: center; color: var(--muted); font-size: 12.5px; margin-bottom: 20px; }
+.login-box .error { background: var(--risk-bg); color: var(--risk); padding: 8px 10px; border-radius: 6px; font-size: 12.5px; margin-bottom: 14px; }
+
+/* ---- Two-pane IAM console -------------------------------------------------- */
+.iam { display: grid; grid-template-columns: 300px 1fr; gap: 16px; align-items: start; }
+.iam-users { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; max-height: calc(100vh - 180px); overflow-y: auto; }
+.iam-user-item { display: flex; gap: 8px; align-items: center; padding: 8px; border-radius: 6px; cursor: pointer; }
+.iam-user-item:hover { background: var(--neutral-bg); }
+.iam-user-item.active { background: var(--neutral-bg); outline: 1px solid var(--accent); }
+.iam-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.iam-editor { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+.iam-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; flex-wrap: wrap; }
+.iam-legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); }
+.iam-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+.dot-role { background: var(--ok); }
+.dot-grant { background: var(--warn); }
+.dot-none { background: var(--line); }
+.iam-module { border: 1px solid var(--line); border-radius: 6px; margin-bottom: 8px; }
+.iam-module summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 12px; font-weight: 650; }
+.iam-module summary::-webkit-details-marker { display: none; }
+.iam-module .count { font-size: 12px; color: var(--muted); font-weight: 500; margin-left: auto; }
+.iam-action-row { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-top: 1px solid var(--line); font-size: 13px; }
+.iam-action-row .state { margin-left: auto; display: flex; gap: 4px; }
+.state-btn { border: 1px solid var(--line); background: var(--card); border-radius: 5px; padding: 3px 8px; font-size: 11px; cursor: pointer; }
+.state-btn.active-role { background: var(--ok-bg); color: var(--ok); border-color: var(--ok); }
+.state-btn.active-grant { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+.state-btn.active-deny { background: var(--risk-bg); color: var(--risk); border-color: var(--risk); }
+
+/* ---- Toast ----------------------------------------------------------------- */
+.toast { position: fixed; bottom: 18px; right: 18px; z-index: 50; display: flex; flex-direction: column; gap: 8px; }
+.toast .msg { background: var(--ink); color: var(--bg); padding: 9px 14px; border-radius: 6px; font-size: 13px; box-shadow: var(--shadow); opacity: 0; transform: translateY(6px); transition: all .15s ease; }
+.toast .msg.show { opacity: 1; transform: translateY(0); }
+.toast .msg.err { background: var(--risk); }
+.toast .msg.ok { background: var(--ok); }
+
+/* ---- Matrix-specific ------------------------------------------------------- */
+.matrix-tabs { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
+.matrix-tabs a { padding: 7px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; color: var(--muted); border: 1px solid transparent; }
+.matrix-tabs a.active { background: var(--card); border-color: var(--line); color: var(--accent); box-shadow: var(--shadow); }
+td.dynamic-col { color: var(--muted); font-size: 12.5px; }
+
+@media (max-width: 860px) {
+  .iam { grid-template-columns: 1fr; }
+  header.top { flex-wrap: wrap; height: auto; padding: 10px; }
+  /* flex-basis (not width) forces the wrap — a flex item's `width` alone
+     doesn't make the wrapping algorithm give it its own line. */
+  nav.nav { order: 3; flex: 1 1 100%; overflow-x: auto; margin-top: 4px; }
+  .who { margin-left: auto; }
+}
+
+/* ---- Layout/spacing utilities --------------------------------------------
+   CSP's style-src intentionally omits 'unsafe-inline'/'unsafe-hashes', and a
+   nonce does NOT cover the style="" attribute (only <style> elements/<link>)
+   — so every one-off inline style in a view must be one of these classes
+   instead. Toggling visibility from JS must use .hidden, never el.style.x. */
+.hidden { display: none !important; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-14 { margin-top: 14px; }
+.mt-16 { margin-top: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-14 { margin-bottom: 14px; }
+.w-full { width: 100%; }
+.w-auto { width: auto; }
+.inline-block { display: inline-block; }
+.inline { display: inline; }
+.cursor-default { cursor: default; }
+.text-center { text-align: center; }
+.max-w-520 { max-width: 520px; }
+.flex-1-min260 { flex: 1; min-width: 260px; }
+.flex-1-min280 { flex: 1; min-width: 280px; }
+.check-inline { display: inline-flex; align-items: center; gap: 4px; font-weight: 400; width: auto; }
+.field-end { flex: 0 0 auto; align-self: end; }
+.color-swatch { width: 60px; padding: 2px; }
+.dropdown-panel { margin-top: 4px; max-height: 220px; overflow-y: auto; }
+.check-gap { width: auto; display: inline-block; margin-right: 6px; }
+.p-10 { padding: 10px; }

@@ -1,0 +1,107 @@
+<?php
+/** @var array $account @var array $history @var array $assignments @var string $csrf @var string $NONCE */
+use Verity\Support\Security;
+
+$appScript = '/assets/accounts.js';
+require __DIR__ . '/partials/app_header.php';
+?>
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><?= Security::h($account['username'] ?? $account['external_account_id']) ?></h1>
+    <p><?= Security::h($account['application_name']) ?> · <?= Security::h(ucwords($account['account_type'])) ?> account</p>
+  </div>
+</div>
+
+<div class="field-row">
+  <div class="card flex-1-min260">
+    <h2>Account</h2>
+    <table class="grid">
+      <tbody>
+        <tr><th>External ID</th><td><?= Security::h($account['external_account_id']) ?></td></tr>
+        <tr><th>Status</th><td><?= $account['status'] === 'enabled' ? '<span class="badge b-ok">Enabled</span>' : '<span class="badge b-neutral">Disabled</span>' ?></td></tr>
+        <tr><th>Source</th><td><?= Security::h($account['source']) ?></td></tr>
+        <tr><th>Last login</th><td><?= Security::h($account['last_login_at'] ?? '—') ?></td></tr>
+        <tr><th>Linked identity</th>
+          <td>
+            <?php if ($account['person_id']): ?>
+              <a href="/app/identities/view?id=<?= (int) $account['person_id'] ?>"><?= Security::h($account['person_name']) ?></a>
+            <?php else: ?>
+              <span class="badge b-warn">Unmatched</span>
+            <?php endif; ?>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <?php if ($account['person_id']): ?>
+      <form method="post" action="/app/accounts/unlink" id="unlinkForm" class="mt-12">
+        <?= $csrf ?>
+        <input type="hidden" name="account_id" value="<?= (int) $account['id'] ?>">
+        <div class="field"><label for="unlink_note">Reason for unlinking</label><input type="text" id="unlink_note" name="note" placeholder="Optional note"></div>
+        <button type="submit" class="btn danger" data-confirm="Unlink this account from its identity?">Unlink Identity</button>
+      </form>
+    <?php else: ?>
+      <form method="post" action="/app/accounts/link" id="linkForm" class="mt-12">
+        <?= $csrf ?>
+        <input type="hidden" name="account_id" value="<?= (int) $account['id'] ?>">
+        <input type="hidden" name="person_id" id="link_person_id" value="">
+        <div class="field">
+          <label for="link_search">Link to identity</label>
+          <input type="text" id="link_search" autocomplete="off" placeholder="Search by name, email, or employee ID">
+          <div id="link_results" class="card dropdown-panel hidden"></div>
+        </div>
+        <div class="field"><label for="link_note">Note</label><input type="text" id="link_note" name="note" placeholder="Optional correlation note"></div>
+        <button type="submit" class="btn primary" id="linkSubmit" disabled>Link Account</button>
+      </form>
+    <?php endif; ?>
+  </div>
+
+  <div class="card flex-1-min260">
+    <h2>Correlation History</h2>
+    <?php if ($history === []): ?>
+      <p class="empty-state-sm">No linking activity recorded yet.</p>
+    <?php else: ?>
+      <table class="grid">
+        <thead><tr><th>Person</th><th>Method</th><th>By</th><th>Linked</th><th>Unlinked</th></tr></thead>
+        <tbody>
+          <?php foreach ($history as $h): ?>
+          <tr>
+            <td><?= Security::h($h['person_name'] ?? '—') ?></td>
+            <td><?= Security::h($h['link_method']) ?></td>
+            <td><?= Security::h($h['linked_by_name'] ?? 'system') ?></td>
+            <td><?= Security::h(substr((string) $h['linked_at'], 0, 16)) ?></td>
+            <td><?= $h['unlinked_at'] ? Security::h(substr((string) $h['unlinked_at'], 0, 16)) : '—' ?></td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+  </div>
+</div>
+
+<div class="card mt-14">
+  <h2>Entitlement Assignments (<?= count($assignments) ?>)</h2>
+  <table class="grid">
+    <thead><tr><th>Entitlement</th><th>Type</th><th>Assignment</th><th>Risk</th><th>Granted</th><th>Expires</th></tr></thead>
+    <tbody>
+      <?php if ($assignments === []): ?>
+      <tr class="empty-row"><td colspan="6" class="empty-state-sm">No entitlements assigned to this account.</td></tr>
+      <?php endif; ?>
+      <?php foreach ($assignments as $a): ?>
+      <tr>
+        <td><?= Security::h($a['entitlement_name']) ?><?= $a['is_privileged'] ? ' <span class="badge b-risk">Privileged</span>' : '' ?></td>
+        <td><?= Security::h(ucwords($a['entitlement_type'])) ?></td>
+        <td><?= Security::h(ucwords($a['assignment_type'])) ?></td>
+        <td>
+          <?php $risk = $a['risk_level']; $cls = $risk === 'low' ? 'b-ok' : ($risk === 'medium' ? 'b-warn' : 'b-risk'); ?>
+          <span class="badge <?= $cls ?>"><?= Security::h(ucwords($risk)) ?></span>
+        </td>
+        <td><?= Security::h(substr((string) $a['granted_at'], 0, 10)) ?></td>
+        <td><?= $a['expires_at'] ? Security::h(substr((string) $a['expires_at'], 0, 10)) : '—' ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
+
+<?php require __DIR__ . '/partials/app_footer.php'; ?>

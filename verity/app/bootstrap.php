@@ -1,0 +1,59 @@
+<?php
+/**
+ * VERITY — application bootstrap.
+ *
+ * Loaded by public/index.php. Sets up autoloading (Composer if present, else a
+ * built-in PSR-4 autoloader so the app also runs under `php -S` without a vendor
+ * dir), loads environment configuration, and applies safe runtime defaults.
+ */
+
+declare(strict_types=1);
+
+define('VERITY_ROOT', dirname(__DIR__));
+define('VERITY_APP', __DIR__);
+
+// --- Autoloading -----------------------------------------------------------
+$composer = VERITY_ROOT . '/vendor/autoload.php';
+if (is_file($composer)) {
+    require $composer;
+} else {
+    // Minimal PSR-4 autoloader for the "Verity\" namespace -> app/.
+    spl_autoload_register(static function (string $class): void {
+        $prefix = 'Verity\\';
+        if (strncmp($class, $prefix, strlen($prefix)) !== 0) {
+            return;
+        }
+        $relative = substr($class, strlen($prefix));
+        $path = VERITY_APP . '/' . str_replace('\\', '/', $relative) . '.php';
+        if (is_file($path)) {
+            require $path;
+        }
+    });
+}
+
+// --- Environment (.env is optional and never committed) ---------------------
+// Real secrets come from the container/orchestrator environment or a secret
+// manager. A local .env is a developer convenience only.
+$envFile = VERITY_ROOT . '/.env';
+if (is_file($envFile) && is_readable($envFile)) {
+    foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#' || !str_contains($line, '=')) {
+            continue;
+        }
+        [$k, $v] = explode('=', $line, 2);
+        $k = trim($k);
+        $v = trim($v, " \t\"'");
+        if ($k !== '' && getenv($k) === false) {
+            putenv("$k=$v");
+            $_ENV[$k] = $v;
+        }
+    }
+}
+
+// --- Runtime defaults ------------------------------------------------------
+date_default_timezone_set('UTC');
+$isProd = \Verity\Support\Config::env() === 'production';
+error_reporting(E_ALL);
+ini_set('display_errors', $isProd ? '0' : '1');
+ini_set('log_errors', '1');
