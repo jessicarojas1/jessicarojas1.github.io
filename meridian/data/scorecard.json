@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-08",
+  "updated": "2026-10-09",
   "summary": {
-    "correct": 16,
-    "incorrect": 4,
+    "correct": 17,
+    "incorrect": 5,
     "partial": 8,
-    "pending": 58,
-    "note": "2026-10-08: one prior forecast graded this cycle -- fc-2026-10-07-shutdown-goldendome resolved INCORRECT on its premise, since a fresh independent sweep found no federal shutdown occurred (a CR signed 9/2 funds the government through 12/11/2026; the 10/7 brief's shutdown claim is corrected today). Three new PENDING forecasts added: whether the Hormuz attack-tempo escalation triggers a formal multinational escort/convoy response within 14 days; whether the CMMC Reform Task Force report is publicly released within 14 days; and whether Anthropic formally files for en banc/SCOTUS review within 14 days now that the DC Circuit stay's purpose is clarified."
+    "pending": 59,
+    "note": "2026-10-09: two prior forecasts graded this cycle, both tied to the Army Secretary nomination. fc-2026-09-09-parnell-nomination resolved INCORRECT: the standing 30-day window closed today with no formal transmittal of Parnell or any alternative. fc-2026-10-07-parnell-withdrawal resolved CORRECT: the window's lapse without a transmittal satisfies that forecast's 'let the window lapse' clause, well ahead of its own 14-day deadline. Three new PENDING forecasts added: whether independent tanker-tracker data corroborates Secretary Rubio's 7 Oct claim that Iran has 'lost complete control' of Hormuz; whether the Army Secretary question produces either a formal nomination or an explicit extended-acting-capacity statement within 21 days; and whether CISA's KEV catalog breaks its five-day quiet streak within 7 days of 13 Oct Patch Tuesday."
   },
   "forecasts": [
     {
@@ -130,9 +130,9 @@
       "date": "2026-09-09",
       "forecast": "Trump will formally nominate a permanent Army Secretary (Parnell or otherwise) within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No formal nomination; Adam Telle continues as acting Secretary. Sen. Kevin Cramer (R-ND) publicly called the Parnell pick 'a bridge too far' over 2021 domestic-violence allegations -- the most explicit GOP objection to date. As of 10/7, still no transmittal found; window closes ~10/9, now two days out. Tracked on the DoD Leadership Continuity thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-09",
+      "note": "The 30-day window closed today with no formal nomination transmittal of Parnell or any alternative candidate identified. Adam Telle continues as acting Secretary. Sen. Kevin Cramer's (R-ND) 'a bridge too far' objection and Sen. Tillis's stated opposition appear to be the proximate cause of the delay. Tracked on the DoD Leadership Continuity thread."
     },
     {
       "id": "fc-2026-09-10-hormuz-transit",
@@ -751,9 +751,9 @@
       "date": "2026-10-07",
       "forecast": "Given Sen. Cramer's public 'a bridge too far' objection and the absence of any formal transmittal as the standing 30-day forecast window closes ~10/9, the White House will either formally withdraw Sean Parnell from consideration or let the window lapse without a transmittal, within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether explicit GOP pushback (Cramer, previously Blumenthal/Cramer doubt) translates into an actual withdrawal/lapse rather than a continued stalemate. Tracked on the DoD Leadership Continuity thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-09",
+      "note": "The standing 30-day window lapsed today, 9 Oct, with no transmittal -- satisfying this forecast's 'let the window lapse without a transmittal' clause just two days into its 14-day horizon. No separate, explicit formal withdrawal of Parnell has been announced, but the forecast required only one of the two clauses. Tracked on the DoD Leadership Continuity thread."
     },
     {
       "id": "fc-2026-10-08-hormuz-tempo",
@@ -781,6 +781,33 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "A narrower, nearer-term test than the standing 30-day fc-2026-09-28-anthropic-enbanc forecast, now that the stay's intent is better understood. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-10-09-hormuz-rubio-claim",
+      "date": "2026-10-09",
+      "forecast": "Independent tanker-tracking data (Kpler, Lloyd's List Intelligence, or UKMTO) will show Hormuz transit volumes recovering toward pre-war levels within 14 days, corroborating Secretary Rubio's 7 Oct claim that Iran has 'lost complete control' of the Strait.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests a direct contradiction between senior U.S. official messaging and this program's own tracked data showing a 27% w/w crude-flow decline and a 2-month transit low as of 8 Oct. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-09-army-secretary-resolution",
+      "date": "2026-10-09",
+      "forecast": "Following the lapse of the original 30-day nomination window without a transmittal, the White House will either formally nominate a permanent Army Secretary (Parnell or an alternative) or explicitly confirm an extended acting-capacity arrangement for Adam Telle, within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the Army civilian-leadership question moves toward resolution (either direction) now that the original forecast window has lapsed. Tracked on the DoD Leadership Continuity thread."
+    },
+    {
+      "id": "fc-2026-10-09-kev-lull-ends",
+      "date": "2026-10-09",
+      "forecast": "CISA will add at least one new actively-exploited edge/perimeter/identity CVE to the KEV catalog within 7 days, given Microsoft's 13 Oct Patch Tuesday and the pattern of past short lulls in this five-week wave reversing quickly.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the current five-day pause (since the 4 Oct NetScaler SAML entry) -- the longest in the wave to date -- is temporary or reflects a genuine slowdown. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     }
   ]
 }
