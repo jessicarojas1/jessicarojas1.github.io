@@ -13,6 +13,16 @@ require __DIR__ . '/partials/app_header.php';
   <a class="btn primary" href="/app/matrix?view=application&application_id=<?= (int) $app['id'] ?>">View in Access Matrix</a>
 </div>
 
+<?php if (!empty($_GET['csv_result'])): ?>
+<?php $csvResult = (string) $_GET['csv_result']; $csvCls = $csvResult === 'succeeded' ? 'b-ok' : ($csvResult === 'partial' ? 'b-warn' : 'b-risk'); ?>
+<div class="card">
+  <span class="badge <?= $csvCls ?>">CSV import <?= Security::h($csvResult) ?></span>
+  <?= (int) ($_GET['csv_accounts'] ?? 0) ?> account(s) imported, <?= (int) ($_GET['csv_entitlements'] ?? 0) ?> entitlement assignment(s) applied<?= (int) ($_GET['csv_failures'] ?? 0) > 0 ? ', ' . (int) $_GET['csv_failures'] . ' row(s) failed — see Sync History below for details' : '' ?>.
+</div>
+<?php elseif (!empty($_GET['csv_error'])): ?>
+<div class="card"><span class="badge b-risk">CSV import error</span> <?= Security::h((string) $_GET['csv_error']) ?></div>
+<?php endif; ?>
+
 <div class="card">
   <h2>Ownership</h2>
   <table class="grid">
@@ -48,6 +58,47 @@ require __DIR__ . '/partials/app_header.php';
         <td><?= $c['last_sync_started_at'] ? Security::h(substr((string) $c['last_sync_started_at'], 0, 16)) . ' (' . Security::h((string) $c['last_sync_status']) . ')' : 'Never' ?></td>
         <td><?= Security::h(ucwords($c['remediation_mode'])) ?></td>
       </tr>
+      <?php if ($c['connector_type'] === 'csv_import'): ?>
+      <tr>
+        <td colspan="5">
+          <?php if ($canManage): ?>
+          <form method="post" action="/app/applications/connector/sync-csv" enctype="multipart/form-data" class="field-row mb-8">
+            <?= $csrf ?>
+            <input type="hidden" name="connector_id" value="<?= (int) $c['id'] ?>">
+            <div class="field">
+              <label for="csv_file_<?= (int) $c['id'] ?>">Import CSV</label>
+              <input type="file" id="csv_file_<?= (int) $c['id'] ?>" name="csv_file" accept=".csv" required>
+            </div>
+            <button type="submit" class="btn sm primary">Run Import</button>
+          </form>
+          <p class="empty-state-sm">Columns: <code>external_account_id</code> (required), <code>username</code>, <code>account_type</code> (standard/privileged/service/shared), <code>status</code> (enabled/disabled), <code>entitlements</code> (pipe-separated names). Add/update only — a later import never disables an account or removes an assignment just because a row is missing.</p>
+          <?php endif; ?>
+          <?php if ($c['sync_history'] !== []): ?>
+          <details>
+            <summary class="btn sm inline-block">Sync History (<?= count($c['sync_history']) ?> most recent)</summary>
+            <table class="grid mt-8">
+              <thead><tr><th>Started</th><th>Status</th><th>Accounts</th><th>Entitlements</th><th>Failures</th><th>Error Summary</th></tr></thead>
+              <tbody>
+                <?php foreach ($c['sync_history'] as $job): ?>
+                <tr>
+                  <td><?= Security::h(substr((string) $job['started_at'], 0, 16)) ?></td>
+                  <td>
+                    <?php $jcls = $job['status'] === 'succeeded' ? 'b-ok' : ($job['status'] === 'partial' ? 'b-warn' : ($job['status'] === 'running' ? 'b-neutral' : 'b-risk')); ?>
+                    <span class="badge <?= $jcls ?>"><?= Security::h(ucwords($job['status'])) ?></span>
+                  </td>
+                  <td><?= (int) $job['imported_accounts'] ?></td>
+                  <td><?= (int) $job['imported_entitlements'] ?></td>
+                  <td><?= (int) $job['failure_count'] ?></td>
+                  <td class="dynamic-col"><?= Security::h($job['error_summary'] ?? '—') ?></td>
+                </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </details>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <?php endif; ?>
       <?php endforeach; ?>
     </tbody>
   </table>

@@ -5,8 +5,9 @@
 > **Status: Phases 1–3 of an 8-phase build.** Working modules: Enterprise
 > Dashboard, Identity Directory, Access Inventory / Unmatched Accounts
 > (manual correlation plus deterministic match suggestions — never
-> auto-applied), Application Catalog + connector catalog
-> (configuration only — no live sync), Enterprise Access Matrix (6
+> auto-applied), Application Catalog + connector catalog with a real CSV
+> import sync engine (every other connector type remains
+> configuration-only), Enterprise Access Matrix (6
 > authorization-scoped views, CSV export, saved views), Dynamic Fields,
 > self-service account/password management, a full admin user-management
 > flow (create with password, edit details, reset password, activate/
@@ -52,7 +53,8 @@ verity/
 │  │                      ProfileController, SettingsController, SetupController, ApiRouter
 │  ├─ Support/            Db, Security, Session, Config, Auth, Authorize, Roles,
 │  │                      PermissionCatalog, Audit, People, Accounts, Applications,
-│  │                      Connectors, Matrix, DynamicFields, Users, Settings, SavedViews, Dashboard
+│  │                      Connectors, CsvImport, Matrix, DynamicFields, Users, Settings,
+│  │                      SavedViews, Dashboard
 │  └─ Views/              Plain PHP templates + partials/
 ├─ database/
 │  ├─ schema.sql                        Idempotent reference schema (17 tables)
@@ -61,7 +63,8 @@ verity/
 │  └─ restrict_audit_event_grants.sql   Ready-to-run audit_event INSERT/SELECT-only grant (see docs/SECURITY.md)
 ├─ tests/                 Zero-dependency harness: run.php, unit_test.php, db_test.php, lib/T.php
 ├─ docs/                  USER_GUIDE, ARCHITECTURE, DEPLOYMENT, DISASTER_RECOVERY,
-│                          SECURITY, GCC_HIGH_INTEGRATION, API_SPECIFICATION
+│                          SECURITY, GCC_HIGH_INTEGRATION, API_SPECIFICATION,
+│                          CONNECTOR_DEVELOPMENT_GUIDE
 ├─ deployments/           Per-target operator guides
 ├─ Dockerfile, render.yaml, composer.json, .env.example
 ├─ OPEN_ITEMS.md
@@ -120,17 +123,19 @@ Open `http://localhost:8090` and sign in with any of the 5 seeded accounts
 ## Testing
 
 Zero-dependency harness (`tests/lib/T.php`, not PHPUnit): `php tests/run.php`
-runs **88 assertions, all passing** (verified in this session) — 47
+runs **99 assertions, all passing** (verified in this session) — 47
 pure-logic checks (role/grant/deny layering including the wildcard-vs-deny
 regression test, coarse-alias expansion, password length policy, the
 breach-check response parser against synthetic HIBP-shaped bodies — no
 network call in this group, deliberately — and connector
-capability-manifest honesty) that always run, plus 41 live-database checks
+capability-manifest honesty) that always run, plus 52 live-database checks
 (reporting-chain scoping including cycle-safety against a deliberately
 reintroduced self-reference and a 2-node cycle, deterministic
 account-matching heuristics including the ambiguous-match and
-already-linked cases, application-ownership scoping, `Db::update`'s
-automatic `updated_at`, basic insert/fetch, SQL identifier allowlisting,
+already-linked cases, the CSV import sync engine — mixed valid/invalid
+rows, idempotent re-import, the missing-required-header failure path —
+application-ownership scoping, `Db::update`'s automatic `updated_at`,
+basic insert/fetch, SQL identifier allowlisting,
 dedicated-schema isolation, and the
 user-creation/password-reset flow) that self-skip unless both
 `DATABASE_URL` and `VERITY_TEST_DB=1` are set. The
@@ -171,5 +176,8 @@ autoloader when it isn't, so the app runs identically with or without
   backups, restore runbook, HA.
 - [`docs/SECURITY.md`](docs/SECURITY.md) — identity, authorization, data
   protection, auditability, FIPS readiness, reporting an issue.
+- [`docs/CONNECTOR_DEVELOPMENT_GUIDE.md`](docs/CONNECTOR_DEVELOPMENT_GUIDE.md) —
+  the sync-engine pattern (CSV import is the reference implementation) for
+  building the next real connector.
 - [`deployments/`](deployments/) — per-target operator guides.
 - [`OPEN_ITEMS.md`](OPEN_ITEMS.md) — production-readiness register.

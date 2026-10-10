@@ -123,6 +123,9 @@ switch ($path) {
     case '/app/applications/connector':
         if ($method === 'POST') { ApplicationsController::saveConnector(); return; }
         http_response_code(405); return;
+    case '/app/applications/connector/sync-csv':
+        if ($method === 'POST') { ApplicationsController::syncCsv(); return; }
+        http_response_code(405); return;
 
     case '/app/matrix':
         MatrixController::index($nonce);

@@ -21,6 +21,17 @@ RUN apk add --no-cache --virtual .build-deps postgresql-dev curl-dev \
     && apk add --no-cache libpq curl \
     && apk del .build-deps
 
+# PHP's own default upload_max_filesize (2M) is BELOW CsvImport::MAX_FILE_BYTES
+# (5MB) — a file between those two sizes would be rejected by PHP itself
+# before CsvImport.php's own size check ever runs, silently out of sync with
+# what the app documents/enforces. Raise it here, with headroom for
+# post_max_size (which also bounds the rest of the multipart form: CSRF
+# token, connector_id) above the file size itself.
+RUN { \
+    echo 'upload_max_filesize = 8M'; \
+    echo 'post_max_size = 10M'; \
+    } > /usr/local/etc/php/conf.d/verity-uploads.ini
+
 FROM base AS app
 WORKDIR /var/www/verity
 

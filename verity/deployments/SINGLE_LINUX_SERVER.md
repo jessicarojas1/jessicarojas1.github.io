@@ -67,6 +67,12 @@ setting them today has no effect on sign-in.
   files for routes that don't physically exist under `public/`.
 - `fastcgi_param HTTPS on;` (or forward `X-Forwarded-Proto: https`) so the
   app's HSTS header logic in `public/index.php` fires correctly.
+- **PHP-FPM's own `upload_max_filesize` / `post_max_size`** (pool config
+  or `php.ini`) must be raised above their 2M/8M distro defaults — the CSV
+  import connector accepts files up to 5MB
+  (`CsvImport::MAX_FILE_BYTES`), and PHP rejects an oversized upload
+  before this app's own code ever runs. Match the Dockerfile's values:
+  `upload_max_filesize = 8M`, `post_max_size = 10M`.
 - Example nginx `server` block:
 
 ```nginx

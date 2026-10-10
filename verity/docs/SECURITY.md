@@ -172,9 +172,17 @@ claim a stronger label for its own action than it actually earned.
   `connector.credential_reference` (which is a *reference string* into a
   secrets manager, never an actual secret, by design — see
   `app/Support/Connectors.php`).
-  No file uploads to disk anywhere — logos are `data:` URLs stored as text
-  in Postgres (`app_config`), stripped to only `http(s)://` or
-  `data:image/...` by `Settings::safeLogoUrl()`.
+  Logos are `data:` URLs stored as text in Postgres (`app_config`),
+  stripped to only `http(s)://` or `data:image/...` by
+  `Settings::safeLogoUrl()` — never a file on disk. The CSV import
+  connector (`ApplicationsController::syncCsv()`) is the one place a file
+  upload exists: PHP's own upload mechanism creates a transient,
+  randomly-named temp file for the duration of that one request only; the
+  app reads it once into a string and never copies it anywhere
+  permanent or web-reachable. The client's original filename and
+  self-reported MIME type are never trusted for anything beyond a coarse
+  `.csv` extension check — see `docs/CONNECTOR_DEVELOPMENT_GUIDE.md` §4
+  for the full file-upload-trust checklist this follows.
 - **Output encoding:** every piece of user/content data rendered into HTML
   is escaped through `Security::h()` (`htmlspecialchars` with
   `ENT_QUOTES | ENT_SUBSTITUTE`); every value embedded into a `<script>`

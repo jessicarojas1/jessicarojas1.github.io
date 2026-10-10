@@ -8,6 +8,7 @@ use Verity\Support\Applications;
 use Verity\Support\Auth;
 use Verity\Support\Authorize;
 use Verity\Support\Connectors;
+use Verity\Support\CsvImport;
 use Verity\Support\People;
 use Verity\Support\Security;
 
@@ -53,6 +54,10 @@ final class ApplicationsController
         );
 
         $connectors = Applications::connectorsFor($id);
+        foreach ($connectors as &$c) {
+            $c['sync_history'] = $c['connector_type'] === 'csv_import' ? Applications::syncHistoryFor((int) $c['id'], 5) : [];
+        }
+        unset($c);
         $entitlements = \Verity\Support\Db::fetchAll(
             'SELECT * FROM entitlement WHERE application_id = :id ORDER BY name', ['id' => $id]
         );
@@ -128,5 +133,79 @@ final class ApplicationsController
             Connectors::create($data, $user['id']);
         }
         header('Location: /app/applications/view?id=' . $applicationId);
+    }
+
+    /**
+     * CSV import sync — the first real connector sync execution in this
+     * app. The uploaded file is never persisted to disk or trusted by its
+     * client-supplied name/MIME type; it is read once from PHP's own
+     * randomized tmp_name into memory, size- and row-capped, and handed to
+     * CsvImport::run() as a plain string. The connector_id in the request
+     * determines the application (and therefore the redirect target) —
+     * never a client-supplied application_id — so this cannot be used to
+     * import into an application the caller didn't pick from this exact
+     * connector's own page.
+     */
+    public static function syncCsv(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        Authorize::requirePermission($user, 'connector.manage');
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            http_response_code(400);
+            echo 'Invalid request.';
+            return;
+        }
+
+        $connectorId = (int) ($_POST['connector_id'] ?? 0);
+        $connector = $connectorId > 0 ? Connectors::get($connectorId) : null;
+        if ($connector === null || $connector['connector_type'] !== 'csv_import') {
+            http_response_code(400);
+            echo 'Not a valid CSV import connector.';
+            return;
+        }
+        $applicationId = (int) $connector['application_id'];
+
+        $file = $_FILES['csv_file'] ?? null;
+        if ($file === null || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            header('Location: /app/applications/view?id=' . $applicationId . '&csv_error=' . rawurlencode('No file was uploaded.'));
+            return;
+        }
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            header('Location: /app/applications/view?id=' . $applicationId . '&csv_error=' . rawurlencode('Upload failed (error code ' . $file['error'] . ').'));
+            return;
+        }
+        $extension = strtolower((string) pathinfo((string) $file['name'], PATHINFO_EXTENSION));
+        if ($extension !== 'csv') {
+            header('Location: /app/applications/view?id=' . $applicationId . '&csv_error=' . rawurlencode('Only .csv files are accepted.'));
+            return;
+        }
+        $tmpName = (string) $file['tmp_name'];
+        if (!is_uploaded_file($tmpName)) {
+            http_response_code(400);
+            echo 'Invalid upload.';
+            return;
+        }
+        $actualSize = filesize($tmpName);
+        if ($actualSize === false || $actualSize > CsvImport::MAX_FILE_BYTES) {
+            header('Location: /app/applications/view?id=' . $applicationId . '&csv_error=' . rawurlencode('File exceeds the ' . (CsvImport::MAX_FILE_BYTES / 1024 / 1024) . 'MB limit.'));
+            return;
+        }
+        $contents = file_get_contents($tmpName);
+        if ($contents === false) {
+            http_response_code(500);
+            echo 'Could not read the uploaded file.';
+            return;
+        }
+
+        $result = CsvImport::run($connectorId, $contents, $user['id']);
+        $qs = http_build_query([
+            'id' => $applicationId,
+            'csv_result' => $result['status'],
+            'csv_accounts' => $result['imported_accounts'],
+            'csv_entitlements' => $result['imported_entitlements'],
+            'csv_failures' => $result['failure_count'],
+        ]);
+        header('Location: /app/applications/view?' . $qs);
     }
 }

@@ -10,14 +10,19 @@ An **Enterprise Identity & Access Governance (IGA)** platform —
 *"Unified Visibility. Verified Access. Complete Accountability."* Current
 phase: **Phases 1–3 of an 8-phase build** are implemented and tested —
 Enterprise Dashboard, Identity Directory, Access Inventory/Unmatched
-Accounts (manual correlation only), Application Catalog + connector catalog
-(configuration/metadata only — no live sync execution), Enterprise Access
+Accounts (manual correlation plus deterministic match suggestions — see
+`Accounts::suggestMatch()`), Application Catalog + connector catalog, a
+real CSV import sync engine (`app/Support/CsvImport.php` — see
+`docs/CONNECTOR_DEVELOPMENT_GUIDE.md`; pulled forward from Phase 4's
+"live connector sync" ahead of its original gate, deliberately, with
+`OPEN_ITEMS.md` updated in the same change this happened — the Entra GCC
+High half of that Phase 4 item is still not started), Enterprise Access
 Matrix (6 authorization-scoped views + CSV export + saved views), Dynamic
 Fields, Admin IAM console, Settings/Branding, and an append-only Audit
-trail. Do **not** claim Phase 4+ features (live connector sync, Entra GCC
-High SSO, MFA, certification campaigns, approval workflows, remediation
-task management, access requests, risk scoring, SoD rules, notifications)
-exist — see `OPEN_ITEMS.md` for the authoritative list of what's missing.
+trail. Do **not** claim the rest of Phase 4+ (Entra GCC High SSO, MFA,
+certification campaigns, approval workflows, remediation task management,
+access requests, risk scoring, SoD rules, notifications) exists — see
+`OPEN_ITEMS.md` for the authoritative list of what's missing.
 
 ## Standing rules for this project
 
@@ -93,6 +98,17 @@ exist — see `OPEN_ITEMS.md` for the authoritative list of what's missing.
   target table actually has that column (`Db::hasColumn()`, cached per
   table) — never include `updated_at` in a data array passed to
   `Db::insert()`/`Db::update()`.
+- **Any new connector sync engine follows `docs/CONNECTOR_DEVELOPMENT_GUIDE.md`'s
+  pattern — `app/Support/CsvImport.php` is the reference implementation.**
+  Open a `connector_sync_job` row before processing anything, upsert via
+  `INSERT ... ON CONFLICT` keyed on each target table's existing UNIQUE
+  constraint (never a separate check-then-insert — this is what makes a
+  re-run idempotent), collect row-level failures instead of aborting the
+  whole run on the first bad row, and close the job with real counts and a
+  terminal status. Never trust a client-supplied MIME type/filename for a
+  file-based connector; never persist the raw upload; cap size and row
+  count before doing real work. See the guide's §4 for the full checklist
+  and §5 for what additionally applies to a live API-based connector.
 - **Connectors never claim a capability without confirming it.**
   `Connectors::defaultManifest()` starts every capability key at `false`
   and only flips one to `true` for a connector type that has actually
@@ -241,12 +257,18 @@ exist — see `OPEN_ITEMS.md` for the authoritative list of what's missing.
 
 ## Roadmap gates (8-phase build)
 
-Phase 1–3 (now, built + tested) → Phase 4 integrations (live connector sync,
-Entra GCC High SSO) → Phase 5 certification/review campaigns → Phase 6
-workflow automation & remediation → Phase 7 risk scoring/SoD → Phase 8
-reporting/analytics & scale hardening. Do not build a later phase's feature
-ahead of its gate without updating `OPEN_ITEMS.md` to reflect the new status
-in the same change.
+Phase 1–3 (now, built + tested; now also includes a real CSV import sync
+engine, pulled forward from Phase 4 — see below) → Phase 4 integrations
+(Entra GCC High SSO remains the one item here not yet started) → Phase 5
+certification/review campaigns → Phase 6 workflow automation & remediation
+→ Phase 7 risk scoring/SoD → Phase 8 reporting/analytics & scale
+hardening. Do not build a later phase's feature ahead of its gate without
+updating `OPEN_ITEMS.md` to reflect the new status in the same change —
+CSV import is the precedent for how to do this honestly: it was pulled
+forward deliberately, `OPEN_ITEMS.md`'s "First real connector to build"
+decision was resolved in the same change the code landed, and the
+still-undone half of the original Phase 4 item (Entra GCC High) was kept
+clearly separate rather than implying it moved too.
 
 ## Per-milestone checklist (repo standard)
 

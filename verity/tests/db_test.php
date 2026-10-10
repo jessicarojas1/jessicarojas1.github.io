@@ -13,6 +13,8 @@ declare(strict_types=1);
 use Verity\Support\Accounts;
 use Verity\Support\Auth;
 use Verity\Support\Authorize;
+use Verity\Support\Connectors;
+use Verity\Support\CsvImport;
 use Verity\Support\Db;
 
 if (!Db::isConfigured() || getenv('VERITY_TEST_DB') !== '1') {
@@ -134,6 +136,43 @@ try {
     T::ok(Accounts::suggestMatch($acctNoMatch) === null, 'an account matching nobody returns null, not a weak guess');
     Accounts::link($acctByEmployeeId, $report, 'deterministic', null);
     T::ok(Accounts::suggestMatch($acctByEmployeeId) === null, 'an already-linked account is never suggested again');
+
+    // --- Fixture: a CSV import connector ------------------------------------
+    $csvConnector = Connectors::create(['application_id' => $app, 'connector_type' => 'csv_import'], null);
+
+    T::group('CsvImport::run — the first real connector sync engine');
+    $csv1 = "external_account_id,username,account_type,status,entitlements\n"
+        . "csv-acct-1,csvuser1,standard,enabled,Role A|Role B\n"
+        . "csv-acct-2,csvuser2,privileged,enabled,Role A\n"
+        . "csv-acct-3,csvuser3,not-a-real-type,enabled,\n"; // invalid account_type -> row-level failure
+    $r1 = CsvImport::run($csvConnector, $csv1, null);
+    T::eq(2, $r1['imported_accounts'], 'two valid rows are imported; the third (bad account_type) is not');
+    T::eq(1, $r1['failure_count'], 'exactly one row failed validation');
+    T::eq('partial', $r1['status'], 'some rows succeeded and some failed => status is "partial", not "failed" or "succeeded"');
+    T::ok($r1['error_summary'] !== null && str_contains($r1['error_summary'], 'account_type'), 'the error summary names the actual problem (account_type), not a generic failure message');
+    $csvAcct1 = Db::fetchOne('SELECT * FROM system_account WHERE application_id = :aid AND external_account_id = :ext', ['aid' => $app, 'ext' => 'csv-acct-1']);
+    T::ok($csvAcct1 !== null && $csvAcct1['source'] === 'csv_import' && (int) $csvAcct1['connector_id'] === $csvConnector, 'the imported account is tagged source=csv_import and linked to the connector that discovered it');
+    $assignmentCount = (int) Db::fetchValue(
+        'SELECT COUNT(*) FROM entitlement_assignment ea JOIN system_account sa ON sa.id = ea.system_account_id WHERE sa.id = :id',
+        ['id' => (int) $csvAcct1['id']]
+    );
+    T::eq(2, $assignmentCount, 'both pipe-separated entitlements were created and assigned to the first account');
+
+    $csv2 = "external_account_id,status\ncsv-acct-1,disabled\n"; // re-import: same account, entitlements column omitted entirely
+    $r2 = CsvImport::run($csvConnector, $csv2, null);
+    T::eq(1, $r2['imported_accounts'], 'idempotent re-import updates the same account rather than creating a duplicate');
+    $accountCountAfter = (int) Db::fetchValue('SELECT COUNT(*) FROM system_account WHERE application_id = :aid AND external_account_id = :ext', ['aid' => $app, 'ext' => 'csv-acct-1']);
+    T::eq(1, $accountCountAfter, 'exactly one system_account row exists for this external_account_id after two imports — no duplicate from the UNIQUE-constraint upsert');
+    $assignmentCountAfter = (int) Db::fetchValue(
+        'SELECT COUNT(*) FROM entitlement_assignment ea JOIN system_account sa ON sa.id = ea.system_account_id WHERE sa.id = :id',
+        ['id' => (int) $csvAcct1['id']]
+    );
+    T::eq(2, $assignmentCountAfter, 'ADD-ONLY design: omitting the entitlements column on a later import does NOT remove the assignments granted by an earlier one');
+
+    $csvBadHeader = "wrong_column_name\nsomething\n";
+    $r3 = CsvImport::run($csvConnector, $csvBadHeader, null);
+    T::eq('failed', $r3['status'], 'a file missing the required external_account_id header fails immediately');
+    T::eq(0, $r3['imported_accounts'], 'nothing is imported when the header itself is invalid');
 
     // --- Db::update() behavior ----------------------------------------------
     T::group('Db::update — auto-appends updated_at only when the column exists');

@@ -180,6 +180,19 @@ capability (this is deliberately honest, not a bug: see
 Entra ID (GCC High)" connector type is explicitly a mock today, with no live
 synchronization).
 
+**CSV Import connectors actually run.** Add one with connector type "CSV
+Import," then use the **Import CSV** form that appears under it to upload
+a file. Expected columns: `external_account_id` (required), `username`,
+`account_type` (`standard`/`privileged`/`service`/`shared`), `status`
+(`enabled`/`disabled`), and `entitlements` (pipe-separated names — created
+automatically if they don't already exist for this application). A result
+banner shows right away (accounts imported, entitlements assigned, rows
+that failed), and every run is kept in that connector's **Sync History**
+with the specific reason any row failed. This import only ever adds or
+updates — running it again with a smaller file never disables an account
+or removes an entitlement that an earlier file granted; to remove access,
+use the Access Matrix or Unmatched Accounts workspace directly.
+
 ## Dynamic Fields
 
 *(Requires `dynamicfield.manage`.)* Custom attributes you can attach to

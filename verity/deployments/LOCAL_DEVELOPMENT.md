@@ -72,6 +72,12 @@ development (see §4 and `docs/SECURITY.md`).
   Referrer-Policy, Permissions-Policy, HSTS when HTTPS): `public/index.php`.
 - Config accessor: `app/Support/Config.php`. DB access layer: `app/Support/Db.php`.
 - Schema (idempotent, safe to re-run): `database/schema.sql`.
+- To test the CSV import connector locally with a file over 2MB, raise
+  `upload_max_filesize`/`post_max_size` in your local `php.ini` (or pass
+  `-d upload_max_filesize=8M -d post_max_size=10M` to the `php -S` command
+  below) — PHP's own 2M default is below `CsvImport::MAX_FILE_BYTES`
+  (5MB), so a mid-sized test file can be rejected by PHP itself before
+  this app's own code runs.
 
 ## 7. Run
 
