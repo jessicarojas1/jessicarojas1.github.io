@@ -1,0 +1,61 @@
+name: VERITY CI
+
+# Lints and tests the Verity IGA app on changes under verity/.
+on:
+  push:
+    paths: ['verity/**', '.github/workflows/verity-ci.yml']
+  pull_request:
+    paths: ['verity/**', '.github/workflows/verity-ci.yml']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: verity
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: verity
+          POSTGRES_DB: verity
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U verity"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_pgsql, curl, openssl, json
+          coverage: none
+
+      - name: Lint all PHP files
+        run: |
+          fail=0
+          for f in $(find . -name '*.php'); do
+            php -l "$f" >/dev/null || { echo "LINT FAIL: $f"; fail=1; }
+          done
+          [ "$fail" = "0" ] && echo "All PHP files lint clean"
+          exit $fail
+
+      # The DB-backed test group needs real tables for its isolated,
+      # rolled-back fixtures — apply the idempotent reference schema first.
+      - name: Apply database/schema.sql
+        env:
+          PGPASSWORD: ''
+        run: psql -h 127.0.0.1 -U verity -d verity -v ON_ERROR_STOP=1 -f database/schema.sql
+
+      - name: Run test suite (logic + live DB)
+        env:
+          DATABASE_URL: postgres://verity@127.0.0.1:5432/verity
+          VERITY_TEST_DB: '1'
+        run: php tests/run.php
