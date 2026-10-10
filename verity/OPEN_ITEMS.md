@@ -1,9 +1,10 @@
 # VERITY — Open Items / Production-Readiness Register
 
 Honest status as of this review. Verity is a **working application**
-(Phases 1–3 of an 8-phase build, plus three items pulled forward from
+(Phases 1–3 of an 8-phase build, plus four items pulled forward from
 later phases — CSV import from Phase 4, certification campaigns from
-Phase 5, remediation task tracking from Phase 6) — the Enterprise
+Phase 5, remediation task tracking and access requests/approval workflow
+from Phase 6, which is now fully done ahead of its gate) — the Enterprise
 Dashboard, Identity Directory, Access Inventory/Unmatched Accounts (manual
 correlation plus deterministic match suggestions), Application Catalog +
 connector catalog (with a real CSV import sync engine), Enterprise Access
@@ -12,9 +13,12 @@ admin user-management flow (create with password, edit details, reset
 password, activate/disable) inside the Admin IAM console,
 Settings/Branding, Audit trail, certification campaigns (scope frozen at
 launch, manager- or fixed-reviewer assignment, audited approve/revoke
-decisions), and remediation task tracking (auto-opened from a campaign
-revoke, or flagged manually) are built and exercised by an automated test
-suite (120 assertions, all passing). Everything below is grouped by theme,
+decisions), remediation task tracking (auto-opened from a campaign
+revoke, or flagged manually), and access requests (request an entitlement
+for an existing account, approved by the application's system owner or
+an admin, which genuinely creates the resulting grant) are built and
+exercised by an automated test suite (135 assertions, all passing).
+Everything below is grouped by theme,
 each with **Impact** and **Suggested action**. Nothing in this list should
 be read as "broken" — it is "not yet built," stated plainly rather than
 implied to exist.
@@ -33,10 +37,8 @@ implied to exist.
 | Item | Impact | Suggested action |
 |---|---|---|
 | ~~No certification/access-review campaigns~~ — **resolved (pulled forward from Phase 5, same precedent as CSV import)** | `app/Support/Campaigns.php` + `CampaignsController`: launch a campaign scoped to one application, all privileged access, or the entire enterprise, which immediately snapshots every in-scope `entitlement_assignment` into `certification_campaign_item` — the review set is frozen, never a moving target. Reviewer assignment is either `manager` (each item's reviewer is the linked account's person's direct manager, falling back to a required default reviewer when unmatched/managerless) or `fixed` (one named reviewer for everything). Reviewers act from a "My Reviews" queue; `Campaigns::decide()` re-verifies server-side that the item is actually assigned to the caller before recording a decision (never trusts the controller to have checked). Approving sets `entitlement_assignment.last_certified_at` for real. Revoking records the judgment but deliberately does NOT delete the assignment — no connector here claims `revoke_access`, so there's no live system to push a revocation back to; see the next row. Verified live end-to-end in a browser: launched a 776-item enterprise-wide campaign, approved and revoked items as the resolved reviewer, confirmed the revoked assignment was untouched in the database, confirmed the permission boundary (a role without `campaign.manage`/`campaign.review` gets `403` both via hidden UI and a direct bypass fetch), and confirmed the new permission module renders correctly in the IAM console. Regression-tested (11 new DB-backed assertions: scope snapshot, manager-vs-fixed reviewer resolution, the unmatched-account fallback, reviewer-mismatch rejection, double-decision rejection, `last_certified_at` update, and the revoke-doesn't-delete behavior) | None for what's built. Not built: reminder/escalation emails (no notification system exists at all yet — separate item below), a bulk "approve all pending" action (every decision is intentionally one at a time, per the audit trail), and campaign *templates*/recurrence (every campaign today is a one-off manual launch) |
-| No approval workflows or visual workflow designer | No request/approve/deny lifecycle exists anywhere in the app | Scope a minimal request→approve model before attempting a general-purpose designer |
+| ~~No approval workflows~~ / ~~No access requests~~ — **resolved (pulled forward from Phase 6)** | `app/Support/AccessRequests.php` + `AccessRequestsController`: request an entitlement for an *existing* system account (this app provisions no accounts anywhere, so there's nothing to request against an application a person has no account in yet), with a justification. Approval is scoped to the target application's system owner via the same `Authorize::ownsApplication()` family the Matrix already uses (`accessrequest.approve.owned`, re-checked live at decision time — not the snapshotted `approver_person_id`, which is informational only), or an admin (`accessrequest.manage`). **Approving genuinely creates the `entitlement_assignment` row** (`source = 'manual'`) — unlike a campaign revoke or a remediation task, this is Verity recording its own grant decision in its own inventory, not claiming an external system changed; see `CLAUDE.md` for the full reasoning on why that distinction is real, not a double standard. Denying or cancelling (the requester withdrawing their own still-pending request, re-verified server-side) never creates an assignment. Cascading Application → Account → Entitlement selection in the request form is AJAX-backed (`access_requests.js`, following the existing candidate-search pattern), server-validated independently of what the client sent (same-application check, already-held-entitlement check). Verified live end-to-end in a browser: submitted a real request as one user, approved it as the actual application owner (confirmed the `entitlement_assignment` row was created with `source='manual'`), and confirmed the ownership boundary both ways — a different system owner couldn't even see a request for an application they don't own, and a direct bypass POST to approve it got `403`. Regression-tested (15 new assertions: cross-application mismatch rejection, missing-justification rejection, already-held-entitlement rejection, approve/deny/cancel lifecycle, double-decision rejection, non-requester cancel rejection — 135/135 overall). A "Pending Access Requests" dashboard KPI was added in the same change, alongside two more that were missing for campaigns/remediation (see below) | None — already shipped. Not built: a visual workflow designer (this is a fixed, single-step request→approve/deny flow, not a configurable multi-step approval chain) and reminder/escalation emails (no notification system exists yet) |
 | ~~No remediation task management~~ — **resolved for the campaign-revoke trigger; still open for Matrix exceptions** | `app/Support/RemediationTasks.php` + `RemediationController`: a campaign item's "revoked" decision now automatically opens a `remediation_task` row (`Campaigns::decide()` → `RemediationTasks::createFromCampaignRevoke()` — creating the tracking row is safe to automate since it's bookkeeping, not an access change); one can also be flagged manually from any account's detail page (task type, optional specific entitlement, description). The "Remediation Tasks" workspace lists open/resolved/dismissed tasks with filters; resolving or dismissing requires `remediation.manage` and only ever changes the task's own status — there is still no code path anywhere that touches `entitlement_assignment`/`system_account` on resolution, for the same reason campaign revocation doesn't: no connector claims `revoke_access`. Verified live end-to-end (manual flag → appears in the workspace → resolve with a note → confirmed in "All" filter; permission boundary confirmed both ways — auditor can view but a direct bypass POST to create/resolve correctly 403s). Regression-tested (10 new assertions: auto-creation from a revoke with the correct source/account, manual creation, invalid-task-type rejection, resolve/dismiss lifecycle, double-resolve rejection — 120/120 overall) | None for the campaign-revoke trigger — already shipped. **Still not wired up: Matrix "exception" view findings** (orphaned accounts, stale temporary access, disabled-but-assigned entitlements) have no "flag for remediation" action from that view yet — today you'd flag the same finding from the account's own detail page instead, which works but isn't as direct from where the finding is actually surfaced. Add a button to the exception-view rows once the shared Matrix template's structure is worked through carefully (it's reused by all 6 views; a scope decision was made to not risk that template in this pass) |
-| No access requests | There is no self-service "request access" flow; all entitlement assignment today is seeded or implied by direct DB/admin action | Design around the existing `entitlement_assignment` table once approval workflow above exists |
-
 ## Governance & Risk
 
 | Item | Impact | Suggested action |
@@ -115,18 +117,24 @@ implied to exist.
   being committed. `database/schema.sql` applies cleanly start-to-finish
   against a fresh database with no errors.
 - **Verified in this review (2026-10-10):** `php tests/run.php` now passes
-  **120/120** (47 logic-only, 73 live-database) against a throwaway local
+  **135/135** (47 logic-only, 88 live-database) against a throwaway local
   PostgreSQL 16 instance — up from the 78/78 recorded above, covering the
   at-scale benchmark's recursive-CTE cycle-safety fix, deterministic
   account-matching, the CSV import sync engine, certification campaigns,
-  and remediation task tracking, all added since the note above. Each of
-  those five was also verified live in a browser or via direct HTTP calls
-  against the running app, not just at the unit level — see their own
-  rows above and `docs/ARCHITECTURE.md`'s "Performance characteristics"
-  section for the benchmark specifically. `database/schema.sql` (now with
-  the `certification_campaign`/`certification_campaign_item`/
-  `remediation_task` tables and three new functional indexes on `person`)
-  continues to apply cleanly start-to-finish against a fresh database.
+  remediation task tracking, and access requests, all added since the
+  note above. Each of those six was also verified live in a browser or
+  via direct HTTP calls against the running app, not just at the unit
+  level — see their own rows above and `docs/ARCHITECTURE.md`'s
+  "Performance characteristics" section for the benchmark specifically.
+  The access-requests ownership boundary specifically was checked both
+  ways: the actual application owner could see and approve a real
+  request (confirmed the resulting `entitlement_assignment` row), and a
+  different system owner could neither see nor approve a request for an
+  application they don't own, including a direct bypass POST (`403`).
+  `database/schema.sql` (now with the `certification_campaign`/
+  `certification_campaign_item`/`remediation_task`/`access_request`
+  tables and three new functional indexes on `person`) continues to
+  apply cleanly start-to-finish against a fresh database.
 - **Not verified in this environment: the production Docker build.** The
   Dockerfile was changed to compile the PHP `curl` extension (needed by
   the new breach check) alongside `pdo_pgsql`, but no Docker daemon is

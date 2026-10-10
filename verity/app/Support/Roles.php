@@ -53,6 +53,7 @@ final class Roles
             'settings.manage',
             'campaign.view', 'campaign.manage', 'campaign.review',
             'remediation.view', 'remediation.manage',
+            'accessrequest.create', 'accessrequest.view', 'accessrequest.manage',
         ],
 
         // Line manager: scoped to their own reporting chain via Authorize's
@@ -71,10 +72,14 @@ final class Roles
             'matrix.view.supervisor',
             'savedview.manage.own',
             'campaign.review',
+            'accessrequest.create',
         ],
 
         // Application/system owner: scoped to applications where they are
         // recorded as system_owner_person_id — see Authorize::ownsApplication().
+        // accessrequest.approve.owned reuses that exact same scoped check
+        // (Authorize::ownsApplication()) rather than a parallel mechanism —
+        // see AccessRequestsController for where it's invoked.
         'system_owner' => [
             'dashboard.view',
             'application.view.owned',
@@ -82,6 +87,7 @@ final class Roles
             'entitlement.view.owned',
             'savedview.manage.own',
             'campaign.review',
+            'accessrequest.create', 'accessrequest.approve.owned',
         ],
 
         // Read-only enterprise visibility for internal/external auditors.
@@ -95,6 +101,7 @@ final class Roles
             'savedview.manage.own',
             'campaign.view',
             'remediation.view',
+            'accessrequest.view',
         ],
     ];
 

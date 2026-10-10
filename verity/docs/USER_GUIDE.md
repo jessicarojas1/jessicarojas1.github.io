@@ -2,10 +2,10 @@
 
 How to use Verity day to day. This describes exactly what exists in the
 running application today — nothing aspirational. For what's not built yet
-(approval workflows, access requests, risk scoring, SoD, MFA, Entra SSO),
-see [`../OPEN_ITEMS.md`](../OPEN_ITEMS.md). For the developer/operator
-docs, see [`ARCHITECTURE.md`](ARCHITECTURE.md),
-[`DEPLOYMENT.md`](DEPLOYMENT.md), and [`SECURITY.md`](SECURITY.md).
+(risk scoring, separation-of-duties, MFA, Entra SSO), see
+[`../OPEN_ITEMS.md`](../OPEN_ITEMS.md). For the developer/operator docs,
+see [`ARCHITECTURE.md`](ARCHITECTURE.md), [`DEPLOYMENT.md`](DEPLOYMENT.md),
+and [`SECURITY.md`](SECURITY.md).
 
 ## Contents
 
@@ -20,11 +20,12 @@ docs, see [`ARCHITECTURE.md`](ARCHITECTURE.md),
 9. [Certification Campaigns](#certification-campaigns)
 10. [My Reviews](#my-reviews)
 11. [Remediation Tasks](#remediation-tasks)
-12. [Dynamic Fields](#dynamic-fields)
-13. [Access & Security (Admin IAM)](#access--security-admin-iam)
-14. [Settings & Branding](#settings--branding)
-15. [Audit History](#audit-history)
-16. [Role quick reference](#role-quick-reference)
+12. [Access Requests](#access-requests)
+13. [Dynamic Fields](#dynamic-fields)
+14. [Access & Security (Admin IAM)](#access--security-admin-iam)
+15. [Settings & Branding](#settings--branding)
+16. [Audit History](#audit-history)
+17. [Role quick reference](#role-quick-reference)
 
 ## Signing in
 
@@ -61,6 +62,8 @@ database — not a mockup:
   items are still awaiting a reviewer's decision
 - **Open Remediation Tasks** — access findings flagged for action and not
   yet resolved or dismissed
+- **Pending Access Requests** — requests awaiting an owner's or admin's
+  decision
 - Three breakdown tables: accounts by application, identities by department,
   and connector health
 
@@ -275,6 +278,35 @@ matters, and both are final — a resolved or dismissed task stays that way.
 revoking a campaign item, this app only tracks that something needs doing
 (or was done); it never executes the removal for you.
 
+## Access Requests
+
+*(Requires "Access Requests" in your nav — `accessrequest.create`,
+`accessrequest.view`, `accessrequest.approve.owned`, or
+`accessrequest.manage`.)* Ask for a specific entitlement to be added to a
+specific account, and have the application's owner (or an admin) decide.
+
+What you see in the list depends on your role: an admin or anyone with
+`accessrequest.view` sees every request; a system owner without that
+broader permission sees their own requests plus any request for an
+application they own; everyone else sees just their own.
+
+**New Request**: pick an **Application**, then an **Account** (the
+dropdown fills in once you've picked the application), then an
+**Entitlement** (fills in once you've picked the account — only
+entitlements that account doesn't already hold are offered), then write a
+**Justification**. Note that you're always requesting access for an
+account that's *already on record* — Verity doesn't create new accounts,
+so if the person has no account in an application yet, there's nothing to
+select there.
+
+If you have decision authority over a pending request (you own the
+application, or you're an admin), you'll see **Approve** and **Deny**
+buttons with an optional note field. **Approving actually grants the
+access** — it creates the entitlement assignment in Verity's inventory
+right away, unlike a campaign revoke or a remediation task, which only
+ever record a decision. Denying does not. If it's your own still-pending
+request, you'll see **Cancel** instead, to withdraw it.
+
 ## Dynamic Fields
 
 *(Requires `dynamicfield.manage`.)* Custom attributes you can attach to
@@ -349,10 +381,10 @@ typing part of an action name (e.g. `account.link`).
 | Role | Can generally do |
 |---|---|
 | **Enterprise Administrator** | Everything, by default (the wildcard role) — individual permissions can still be explicitly denied to override this |
-| **Security / Compliance Admin** | Broad read access, governance configuration (applications, connectors, dynamic fields, settings), account correlation, user/permission management, launching/managing certification campaigns and remediation tasks, and acting as a reviewer — a strong admin role without the unconditional wildcard |
-| **Supervisor** | Their own reporting chain only — identities, accounts, entitlements, and the Supervisor Access Matrix view, scoped automatically — plus acting as a reviewer on campaign items assigned to them (typically their own direct reports' access) |
-| **System Owner** | Applications where they're recorded as the system owner — that application's access matrix view and entitlement visibility — plus acting as a reviewer on campaign items assigned to them |
-| **Auditor** | Enterprise-wide read access to identities, accounts, entitlements, the matrix, the audit log, campaign progress, and remediation tasks — no write access anywhere, including campaigns and remediation (view only) |
+| **Security / Compliance Admin** | Broad read access, governance configuration (applications, connectors, dynamic fields, settings), account correlation, user/permission management, launching/managing certification campaigns and remediation tasks, approving/denying any access request, and acting as a reviewer — a strong admin role without the unconditional wildcard |
+| **Supervisor** | Their own reporting chain only — identities, accounts, entitlements, and the Supervisor Access Matrix view, scoped automatically — plus acting as a reviewer on campaign items assigned to them (typically their own direct reports' access) and submitting access requests |
+| **System Owner** | Applications where they're recorded as the system owner — that application's access matrix view and entitlement visibility, plus approving or denying access requests for those applications specifically — plus acting as a reviewer on campaign items assigned to them and submitting access requests |
+| **Auditor** | Enterprise-wide read access to identities, accounts, entitlements, the matrix, the audit log, campaign progress, remediation tasks, and access requests — no write access anywhere, including campaigns, remediation, and access requests (view only) |
 
 An administrator can also layer explicit grants or denials on top of any
 role for an individual user — see [Access & Security](#access--security-admin-iam)

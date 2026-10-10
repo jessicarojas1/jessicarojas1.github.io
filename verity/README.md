@@ -2,22 +2,26 @@
 
 [![VERITY CI](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/verity-ci.yml/badge.svg)](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/verity-ci.yml)
 
-> **Status: Phases 1–3 of an 8-phase build, plus three items pulled
-> forward from later phases.** Working modules: Enterprise Dashboard,
-> Identity Directory, Access Inventory / Unmatched Accounts (manual
-> correlation plus deterministic match suggestions — never auto-applied),
-> Application Catalog + connector catalog with a real CSV import sync
-> engine (every other connector type remains configuration-only),
-> Enterprise Access Matrix (6 authorization-scoped views, CSV export,
-> saved views), Dynamic Fields, self-service account/password management,
-> a full admin user-management flow (create with password, edit details,
-> reset password, activate/disable), Settings/Branding, an append-only
-> Audit trail, certification campaigns (scope frozen at launch, manager-
-> or fixed-reviewer assignment, audited approve/revoke decisions), and
-> remediation task tracking (auto-opened from a campaign revoke, or
-> flagged manually — a tracked to-do, never an executed action). See
-> [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for an honest, itemized account of what
-> is and is not built.
+> **Status: Phases 1–3 of an 8-phase build, plus Phase 4's CSV import,
+> Phase 5's certification campaigns, and all of Phase 6 (remediation task
+> tracking + access requests) pulled forward.** Working modules:
+> Enterprise Dashboard, Identity Directory, Access Inventory / Unmatched
+> Accounts (manual correlation plus deterministic match suggestions —
+> never auto-applied), Application Catalog + connector catalog with a
+> real CSV import sync engine (every other connector type remains
+> configuration-only), Enterprise Access Matrix (6 authorization-scoped
+> views, CSV export, saved views), Dynamic Fields, self-service
+> account/password management, a full admin user-management flow (create
+> with password, edit details, reset password, activate/disable),
+> Settings/Branding, an append-only Audit trail, certification campaigns
+> (scope frozen at launch, manager- or fixed-reviewer assignment, audited
+> approve/revoke decisions), remediation task tracking (auto-opened from
+> a campaign revoke, or flagged manually — a tracked to-do, never an
+> executed action), and access requests (request an entitlement for an
+> existing account; the application's system owner or an admin approves
+> or denies it, re-checked live via the same ownership scoping the Matrix
+> uses). See [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for an honest, itemized
+> account of what is and is not built.
 
 *"Unified Visibility. Verified Access. Complete Accountability."*
 
@@ -48,18 +52,21 @@ Dockerized and Render-deploy compatible. Full instructions:
 verity/
 ├─ public/
 │  ├─ index.php          Front controller: routing, security headers, CSP nonce, /health, /api/*
-│  └─ assets/            app.css, confirm.js, matrix.js, iam.js, accounts.js, settings.js
+│  └─ assets/            app.css, confirm.js, matrix.js, iam.js, accounts.js, settings.js,
+│                         access_requests.js
 ├─ app/
 │  ├─ bootstrap.php      PSR-4 autoload (Composer if present, else built-in) + .env loading
-│  ├─ Http/               AccountsController, ApplicationsController, AuditController,
-│  │                      AuthController, CampaignsController, DashboardController,
+│  ├─ Http/               AccessRequestsController, AccountsController,
+│  │                      ApplicationsController, AuditController, AuthController,
+│  │                      CampaignsController, DashboardController,
 │  │                      DynamicFieldsController, IamController, IdentitiesController,
 │  │                      MatrixController, ProfileController, RemediationController,
 │  │                      SettingsController, SetupController, ApiRouter
 │  ├─ Support/            Db, Security, Session, Config, Auth, Authorize, Roles,
 │  │                      PermissionCatalog, Audit, People, Accounts, Applications,
-│  │                      Connectors, CsvImport, Campaigns, RemediationTasks, Matrix,
-│  │                      DynamicFields, Users, Settings, SavedViews, Dashboard
+│  │                      Connectors, CsvImport, Campaigns, RemediationTasks,
+│  │                      AccessRequests, Matrix, DynamicFields, Users, Settings,
+│  │                      SavedViews, Dashboard
 │  └─ Views/              Plain PHP templates + partials/
 ├─ database/
 │  ├─ schema.sql                        Idempotent reference schema (17 tables)
@@ -128,12 +135,12 @@ Open `http://localhost:8090` and sign in with any of the 5 seeded accounts
 ## Testing
 
 Zero-dependency harness (`tests/lib/T.php`, not PHPUnit): `php tests/run.php`
-runs **120 assertions, all passing** (verified in this session) — 47
+runs **135 assertions, all passing** (verified in this session) — 47
 pure-logic checks (role/grant/deny layering including the wildcard-vs-deny
 regression test, coarse-alias expansion, password length policy, the
 breach-check response parser against synthetic HIBP-shaped bodies — no
 network call in this group, deliberately — and connector
-capability-manifest honesty) that always run, plus 73 live-database checks
+capability-manifest honesty) that always run, plus 88 live-database checks
 (reporting-chain scoping including cycle-safety against a deliberately
 reintroduced self-reference and a 2-node cycle, deterministic
 account-matching heuristics including the ambiguous-match and
@@ -143,9 +150,11 @@ certification campaigns — scope snapshot, manager-vs-fixed reviewer
 resolution, reviewer-mismatch and double-decision rejection, the
 revoke-doesn't-delete behavior — remediation tasks — auto-creation from a
 campaign revoke, manual creation, resolve/dismiss lifecycle,
-double-resolve rejection — application-ownership scoping, `Db::update`'s
-automatic `updated_at`, basic insert/fetch, SQL identifier allowlisting,
-dedicated-schema isolation, and the
+double-resolve rejection — access requests — cross-application and
+already-held-entitlement rejection, approve/deny/cancel lifecycle,
+double-decision and non-requester-cancel rejection — application-ownership
+scoping, `Db::update`'s automatic `updated_at`, basic insert/fetch, SQL
+identifier allowlisting, dedicated-schema isolation, and the
 user-creation/password-reset flow) that self-skip unless both
 `DATABASE_URL` and `VERITY_TEST_DB=1` are set. The
 DB-backed group builds its own isolated fixture inside a transaction that is

@@ -359,6 +359,40 @@ CREATE INDEX IF NOT EXISTS idx_remediation_account ON remediation_task(system_ac
 CREATE INDEX IF NOT EXISTS idx_remediation_campaign_item ON remediation_task(campaign_item_id);
 
 -- -----------------------------------------------------------------------------
+-- Module: Access Requests / Approval Workflow (Phase 6)
+-- A request targets an EXISTING system_account (never a person/application
+-- pair in the abstract) — this app provisions no new accounts anywhere, so
+-- "request access" can only ever mean "add an entitlement to an account
+-- that's already on record." The approver of record is informational
+-- (snapshotted at request time from application.system_owner_person_id);
+-- actual authorization to decide a request is re-checked live via
+-- Authorize::ownsApplication() at decision time, the same scoped family
+-- the Matrix/application modules already use — never a second,
+-- independent "is this really still the owner" check.
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS access_request (
+    id                          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    requested_by_user_id        BIGINT REFERENCES app_user(id) ON DELETE SET NULL,
+    system_account_id           BIGINT NOT NULL REFERENCES system_account(id) ON DELETE CASCADE,
+    entitlement_id               BIGINT NOT NULL REFERENCES entitlement(id) ON DELETE CASCADE,
+    justification                TEXT NOT NULL,
+    status                       TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'denied', 'cancelled')),
+    approver_person_id           BIGINT REFERENCES person(id) ON DELETE SET NULL,
+    decided_by_user_id           BIGINT REFERENCES app_user(id) ON DELETE SET NULL,
+    decided_at                   TIMESTAMPTZ,
+    decision_note                TEXT,
+    -- Set on approval once the grant exists in this app's own inventory;
+    -- ON DELETE SET NULL so the request's history survives even if the
+    -- assignment is later removed through some other flow.
+    resulting_assignment_id      BIGINT REFERENCES entitlement_assignment(id) ON DELETE SET NULL,
+    created_at                   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_access_request_status ON access_request(status);
+CREATE INDEX IF NOT EXISTS idx_access_request_requested_by ON access_request(requested_by_user_id);
+CREATE INDEX IF NOT EXISTS idx_access_request_account ON access_request(system_account_id);
+
+-- -----------------------------------------------------------------------------
 -- Module: Saved Views
 -- -----------------------------------------------------------------------------
 

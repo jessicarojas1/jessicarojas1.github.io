@@ -6,6 +6,7 @@ require dirname(__DIR__) . '/app/bootstrap.php';
 
 use Verity\Support\Auth;
 use Verity\Support\Security;
+use Verity\Http\AccessRequestsController;
 use Verity\Http\AccountsController;
 use Verity\Http\ApiRouter;
 use Verity\Http\ApplicationsController;
@@ -147,6 +148,28 @@ switch ($path) {
         return;
     case '/app/campaigns/decide':
         if ($method === 'POST') { CampaignsController::decide(); return; }
+        http_response_code(405); return;
+
+    case '/app/access-requests':
+        AccessRequestsController::index($nonce);
+        return;
+    case '/app/access-requests/accounts':
+        AccessRequestsController::accountsForApplication();
+        return;
+    case '/app/access-requests/entitlements':
+        AccessRequestsController::entitlementsForAccount();
+        return;
+    case '/app/access-requests/create':
+        if ($method === 'POST') { AccessRequestsController::create(); return; }
+        http_response_code(405); return;
+    case '/app/access-requests/approve':
+        if ($method === 'POST') { AccessRequestsController::approve(); return; }
+        http_response_code(405); return;
+    case '/app/access-requests/deny':
+        if ($method === 'POST') { AccessRequestsController::deny(); return; }
+        http_response_code(405); return;
+    case '/app/access-requests/cancel':
+        if ($method === 'POST') { AccessRequestsController::cancel(); return; }
         http_response_code(405); return;
 
     case '/app/remediation':

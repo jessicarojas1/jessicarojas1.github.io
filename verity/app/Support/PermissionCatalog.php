@@ -96,6 +96,16 @@ final class PermissionCatalog
                     'remediation.manage' => 'Create, resolve, and dismiss remediation tasks',
                 ],
             ],
+            'accessrequest' => [
+                'label' => 'Access Requests',
+                'icon' => '📝',
+                'actions' => [
+                    'accessrequest.create' => 'Submit an access request',
+                    'accessrequest.view' => 'View all access requests',
+                    'accessrequest.approve.owned' => 'Approve/deny requests for owned applications',
+                    'accessrequest.manage' => 'Approve/deny/cancel any access request',
+                ],
+            ],
             'dynamicfield' => [
                 'label' => 'Dynamic Fields',
                 'icon' => '🧬',

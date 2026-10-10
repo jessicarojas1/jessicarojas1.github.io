@@ -29,8 +29,16 @@ campaign's "revoked" decision auto-opens a task, or one can be flagged
 manually from any account's detail page; resolving/dismissing a task
 records that a human handled it — this app still has no connector that
 can execute a revocation, so a task is a to-do, never an executed
-action). Do **not** claim the rest of Phase 4+ (Entra GCC High SSO, MFA,
-approval workflows, access requests, risk scoring, SoD rules,
+action), and **access requests / approval workflow**
+(`app/Support/AccessRequests.php`: request an entitlement for an
+*existing* account — this app provisions no new accounts, so there is
+nothing to request on an app a person has no account in yet; approval is
+scoped to the target application's system owner via the same
+`Authorize::ownsApplication()` family the Matrix already uses, or an
+admin; **approving genuinely creates the `entitlement_assignment` row**,
+unlike a campaign revoke or a remediation task — see that class's own doc
+comment for why that's not the same kind of claim). Do **not** claim the
+rest of Phase 4+ (Entra GCC High SSO, MFA, risk scoring, SoD rules,
 notifications) exists — see `OPEN_ITEMS.md` for the authoritative list of
 what's missing.
 
@@ -180,6 +188,39 @@ what's missing.
   type is ever added whose resolution really should trigger something
   automatically, that needs its own manifested capability and its own
   product decision — not a quiet addition to `resolve()`.
+- **An access request always targets an existing `system_account` — never
+  a bare person+application pair.** This app provisions no accounts
+  anywhere (no connector claims `provision_access`), so "request access to
+  application X" is only answerable when the requested person already has
+  *some* account in X; `AccessRequests::create()` deliberately has no path
+  that creates a `system_account`. Don't "simplify" the request form to
+  skip the account-selection step — that would silently imply this app can
+  provision accounts, which it can't.
+- **Approving an access request DOES create the `entitlement_assignment`
+  row (`source = 'manual'`) — this is the one place in the Phase 5/6
+  pulled-forward work where an automated write to that table is correct,
+  not a violation of the "never auto-apply" pattern.** The distinction
+  from a campaign's revoke-doesn't-delete rule: revoking claims an
+  external system's access should stop existing, which this app cannot
+  enforce or verify; approving a request is Verity recording its own
+  grant decision in its own inventory, exactly the same meaning
+  `source = 'manual'` already carries everywhere else (CSV import uses
+  `source = 'csv_import'`/`'connector'` for discovered data; a human
+  entering a grant directly has always meant `'manual'`). Do not change
+  `AccessRequests::approve()` to merely mark the request approved without
+  creating the assignment — that would make an approved request a dead
+  end with no way to become real inventory.
+- **Who can decide a request is a *live* `Authorize::ownsApplication()`
+  check at decision time, never the snapshotted `approver_person_id`.**
+  `approver_person_id` is informational only (who the system expected to
+  decide it, captured at request-creation time for display) — ownership
+  can change between request and decision, so
+  `AccessRequestsController`'s approve/deny/cancel actions re-derive
+  authorization through the same scoped `*.owned` permission family the
+  Matrix and Application Catalog already use
+  (`accessrequest.approve.owned` + `ctx['application_id']`), reusing the
+  dual DB-backed `Authorize` scoping rather than trusting a value written
+  days or weeks earlier.
 - **`Users::create()` must always receive a password and set the account
   `active` immediately.** An earlier version inserted `status = 'invited'`
   with no `password_hash` at all — since there is no invitation-email flow
@@ -318,20 +359,20 @@ what's missing.
 
 Phase 1–3 (now, built + tested; now also includes a real CSV import sync
 engine pulled forward from Phase 4, certification campaigns pulled
-forward from Phase 5, and remediation task tracking pulled forward from
-Phase 6 — see below) → Phase 4 integrations (Entra GCC High SSO remains
-the one item here not yet started) → Phase 5 (certification campaigns are
-done) → Phase 6 (remediation task tracking is done; approval workflows
-and access requests are not) → Phase 7 risk scoring/SoD → Phase 8
-reporting/analytics & scale hardening. Do not build a later phase's
-feature ahead of its gate without updating `OPEN_ITEMS.md` to reflect the
-new status in the same change — CSV import, certification campaigns, and
-remediation task tracking are the precedent for how to do this honestly:
-each was pulled forward deliberately, each resolved its own "decision
-required" or open row in `OPEN_ITEMS.md` in the same change the code
-landed, and each kept the still-undone part of its original phase (Entra
-GCC High; approval workflows/access requests) clearly separate rather
-than implying it moved too.
+forward from Phase 5, and remediation task tracking + access requests/
+approval workflow pulled forward from Phase 6 — see below) → Phase 4
+integrations (Entra GCC High SSO remains the one item here not yet
+started) → Phase 5 (certification campaigns are done) → Phase 6 (done —
+both remediation task tracking and access requests/approval workflow
+shipped) → Phase 7 risk scoring/SoD → Phase 8 reporting/analytics & scale
+hardening. Do not build a later phase's feature ahead of its gate without
+updating `OPEN_ITEMS.md` to reflect the new status in the same change —
+CSV import, certification campaigns, remediation task tracking, and
+access requests are the precedent for how to do this honestly: each was
+pulled forward deliberately, each resolved its own "decision required" or
+open row in `OPEN_ITEMS.md` in the same change the code landed, and each
+kept the still-undone part of its original phase (Entra GCC High) clearly
+separate rather than implying it moved too.
 
 ## Per-milestone checklist (repo standard)
 

@@ -10,6 +10,7 @@ declare(strict_types=1);
  * the end — never touches or depends on seed.php's data.
  */
 
+use Verity\Support\AccessRequests;
 use Verity\Support\Accounts;
 use Verity\Support\Auth;
 use Verity\Support\Authorize;
@@ -269,6 +270,72 @@ try {
     $dismissTaskId = RemediationTasks::create(['system_account_id' => $campAcctMatched, 'task_type' => 'remove_access'], 1);
     RemediationTasks::dismiss($dismissTaskId, 'Determined to be a false positive', 1);
     T::eq('dismissed', RemediationTasks::get($dismissTaskId)['status'], 'dismiss() marks the task dismissed, distinct from resolved');
+
+    // --- Fixture: access requests -------------------------------------------
+    $arEnt = Db::insert('entitlement', ['application_id' => $app, 'name' => 'Access Request Test Role ' . uniqid()]);
+    $arAcct = Db::insert('system_account', ['application_id' => $app, 'person_id' => $report, 'external_account_id' => uniqid('ar-acct-')]);
+    $otherApp = Db::insert('application', ['name' => 'Other Test App ' . uniqid()]);
+    $otherAppEnt = Db::insert('entitlement', ['application_id' => $otherApp, 'name' => 'Cross-App Role ' . uniqid()]);
+
+    T::group('AccessRequests::create — validation');
+    try {
+        AccessRequests::create(['system_account_id' => $arAcct, 'entitlement_id' => $otherAppEnt, 'justification' => 'test'], 1);
+        T::ok(false, 'an entitlement from a different application than the account must be rejected');
+    } catch (\InvalidArgumentException $e) {
+        T::ok(str_contains($e->getMessage(), 'same application'), 'the correct, specific error is thrown for a cross-application mismatch');
+    }
+    try {
+        AccessRequests::create(['system_account_id' => $arAcct, 'entitlement_id' => $arEnt, 'justification' => ''], 1);
+        T::ok(false, 'an empty justification must be rejected');
+    } catch (\InvalidArgumentException $e) {
+        T::ok(str_contains($e->getMessage(), 'justification'), 'the correct, specific error is thrown for a missing justification');
+    }
+    try {
+        AccessRequests::create(['system_account_id' => $campAcctMatched, 'entitlement_id' => $campEnt, 'justification' => 'already have it'], 1);
+        T::ok(false, 'requesting an entitlement the account already holds must be rejected');
+    } catch (\InvalidArgumentException $e) {
+        T::ok(str_contains($e->getMessage(), 'already has'), 'the correct, specific error is thrown for an already-held entitlement');
+    }
+
+    $reqId = AccessRequests::create(['system_account_id' => $arAcct, 'entitlement_id' => $arEnt, 'justification' => 'Needed for the Q4 close'], 1);
+    $req = AccessRequests::get($reqId);
+    T::eq('pending', $req['status'], 'a new request starts pending');
+    T::eq($manager, (int) ($req['approver_person_id'] ?? 0), 'approver_person_id is snapshotted from the application\'s system owner at creation time');
+
+    T::group('AccessRequests::approve/deny/cancel — decision lifecycle');
+    $preAssignmentCount = (int) Db::fetchValue('SELECT COUNT(*) FROM entitlement_assignment WHERE system_account_id = :sa AND entitlement_id = :e', ['sa' => $arAcct, 'e' => $arEnt]);
+    T::eq(0, $preAssignmentCount, 'no assignment exists yet for the requested account+entitlement');
+    AccessRequests::approve($reqId, 'Looks reasonable', 1);
+    $approved = AccessRequests::get($reqId);
+    T::eq('approved', $approved['status'], 'approve() marks the request approved');
+    T::ok($approved['resulting_assignment_id'] !== null, 'approve() records which entitlement_assignment it created');
+    $postAssignment = Db::fetchOne('SELECT * FROM entitlement_assignment WHERE system_account_id = :sa AND entitlement_id = :e', ['sa' => $arAcct, 'e' => $arEnt]);
+    T::ok($postAssignment !== null, 'approving a request actually creates the entitlement_assignment — unlike a campaign revoke, an approval is Verity recording its own grant, not claiming an external system changed');
+    T::eq('manual', $postAssignment['source'], 'the assignment created by an approved request is source=manual, the same meaning that value already carries everywhere else in this schema');
+    try {
+        AccessRequests::approve($reqId, null, 1);
+        T::ok(false, 'approving an already-decided request must throw');
+    } catch (\RuntimeException $e) {
+        T::ok(str_contains($e->getMessage(), 'already'), 'the correct, specific error is thrown for a double-decision attempt');
+    }
+
+    $denyEnt = Db::insert('entitlement', ['application_id' => $app, 'name' => 'Deny Test Role ' . uniqid()]);
+    $reqId2 = AccessRequests::create(['system_account_id' => $campAcctUnmatched, 'entitlement_id' => $denyEnt, 'justification' => 'test deny'], 1);
+    AccessRequests::deny($reqId2, 'Not appropriate for this role', 1);
+    T::eq('denied', AccessRequests::get($reqId2)['status'], 'deny() marks the request denied');
+    $denyAssignmentCount = (int) Db::fetchValue('SELECT COUNT(*) FROM entitlement_assignment WHERE system_account_id = :sa AND entitlement_id = :e', ['sa' => $campAcctUnmatched, 'e' => $denyEnt]);
+    T::eq(0, $denyAssignmentCount, 'denying a request never creates an assignment');
+
+    $cancelEnt = Db::insert('entitlement', ['application_id' => $app, 'name' => 'Cancel Test Role ' . uniqid()]);
+    $reqId3 = AccessRequests::create(['system_account_id' => $campAcctMatched, 'entitlement_id' => $cancelEnt, 'justification' => 'test cancel'], 1);
+    try {
+        AccessRequests::cancel($reqId3, 999999);
+        T::ok(false, 'cancelling a request as someone other than the requester must throw');
+    } catch (\RuntimeException $e) {
+        T::ok(true, 'cancel() rejects a non-requester, re-checking ownership itself rather than trusting the caller');
+    }
+    AccessRequests::cancel($reqId3, 1);
+    T::eq('cancelled', AccessRequests::get($reqId3)['status'], 'the actual requester can cancel their own pending request');
 
     // --- Db::update() behavior ----------------------------------------------
     T::group('Db::update — auto-appends updated_at only when the column exists');

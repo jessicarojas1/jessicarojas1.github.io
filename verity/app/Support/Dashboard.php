@@ -41,6 +41,7 @@ final class Dashboard
                  WHERE i.decision = 'pending' AND c.status = 'active'"
             ),
             'open_remediation_tasks' => (int) Db::fetchValue("SELECT COUNT(*) FROM remediation_task WHERE status = 'open'"),
+            'pending_access_requests' => (int) Db::fetchValue("SELECT COUNT(*) FROM access_request WHERE status = 'pending'"),
         ];
     }
 

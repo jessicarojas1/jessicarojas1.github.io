@@ -33,6 +33,7 @@ require __DIR__ . '/partials/app_header.php';
   <div class="kpi"><div class="n"><?= number_format($kpis['active_campaigns']) ?></div><div class="label">Active Campaigns</div></div>
   <div class="kpi <?= $kpis['pending_campaign_reviews'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['pending_campaign_reviews']) ?></div><div class="label">Pending Campaign Reviews</div></div>
   <div class="kpi <?= $kpis['open_remediation_tasks'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['open_remediation_tasks']) ?></div><div class="label">Open Remediation Tasks</div></div>
+  <div class="kpi <?= $kpis['pending_access_requests'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['pending_access_requests']) ?></div><div class="label">Pending Access Requests</div></div>
 </div>
 
 <div class="field-row">
