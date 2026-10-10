@@ -1,15 +1,24 @@
-# VERITY — Render Blueprint.
-# Provisions the app + a PostgreSQL database. Local email/password sign-in
-# works out of the box (no Entra/Graph configuration required). After first
-# deploy, run `php database/seed.php --force` via a Render shell for synthetic
-# demo data, or apply `database/schema.sql` directly for an empty install.
+# VERITY — reference Render configuration.
 #
-# BOUNDARY: this commercial Render blueprint is for development/demo use only.
-# Verity's GCC High connector is a MOCK in this build (not yet implemented —
-# see docs/GCC_HIGH_INTEGRATION.md) and no CUI/FCI/regulated data should be
-# loaded into this deployment. A production CUI-boundary deployment belongs on
-# an authorized on-prem/Azure Government/AWS GovCloud target — see
-# deployments/KUBERNETES.md, AZURE.md, AWS.md, SINGLE_LINUX_SERVER.md.
+# Deployed as a manually-created Web Service in the Render dashboard (same
+# pattern as this account's other apps), not via Blueprint auto-sync — this
+# file documents the exact settings to use, kept current as a reference.
+#
+# No dedicated database is provisioned for Verity: it shares an existing
+# Postgres instance with another app on this account, isolated into its own
+# Postgres SCHEMA (not the default "public") via the DB_SCHEMA env var below
+# — Db::connection() creates that schema (idempotent) and sets search_path
+# to it on every connection, so Verity's tables (person, application,
+# connector, etc. — generic names, real collision risk in a shared DB) never
+# touch whatever else already lives in that database. See
+# docs/DEPLOYMENT.md "Database setup" for the manual setup walkthrough.
+#
+# BOUNDARY: this is a development/demo deployment. Verity's GCC High
+# connector is a MOCK in this build (not yet implemented — see
+# docs/GCC_HIGH_INTEGRATION.md) and no CUI/FCI/regulated data should be
+# loaded here. A production CUI-boundary deployment belongs on an authorized
+# on-prem/Azure Government/AWS GovCloud target — see deployments/KUBERNETES.md,
+# AZURE.md, AWS.md, SINGLE_LINUX_SERVER.md.
 #
 # OPTIONAL future Entra ID GCC High SSO config (not yet wired to a sign-in
 # flow in this build — see docs/GCC_HIGH_INTEGRATION.md):
@@ -17,10 +26,6 @@
 #   GRAPH_BASE_URL=https://graph.microsoft.us
 #   AZURE_PORTAL_URL=https://portal.azure.us
 #   ENTRA_TENANT_ID / ENTRA_CLIENT_ID / ENTRA_CLIENT_SECRET / ENTRA_REDIRECT_URI
-
-databases:
-  - name: verity-db
-    plan: free
 
 services:
   - type: web
@@ -35,6 +40,6 @@ services:
       - key: APP_ENV
         value: production
       - key: DATABASE_URL
-        fromDatabase:
-          name: verity-db
-          property: connectionString
+        sync: false   # set manually in the dashboard to the existing shared Postgres instance's connection string
+      - key: DB_SCHEMA
+        value: verity   # isolates Verity's tables into their own schema within that shared database

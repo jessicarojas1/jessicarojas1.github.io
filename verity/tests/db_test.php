@@ -89,3 +89,45 @@ try {
 } finally {
     $pdo->rollBack();
 }
+
+// --- DB_SCHEMA isolation (Config::dbSchema() / Db::connection()) -----------
+// Db's PDO connection is a per-process singleton, so this can't be exercised
+// in-process alongside the fixture above (which already holds the real
+// connection) — it needs a genuinely fresh process, the same way a real
+// deployment would pick up DB_SCHEMA for the first time. Verifies the exact
+// scenario this feature exists for: Verity sharing a Postgres instance with
+// another application without any table-name collision risk.
+T::group('Db::connection() — dedicated-schema isolation (DB_SCHEMA)');
+$testSchema = 'verity_test_schema_' . bin2hex(random_bytes(4));
+$bootstrapPath = dirname(__DIR__) . '/app/bootstrap.php';
+$probeLines = [
+    'require ' . var_export($bootstrapPath, true) . ';',
+    'use Verity\Support\Db;',
+    '$pdo = Db::connection();',
+    "echo \$pdo->query('SELECT current_schema()')->fetchColumn();",
+    "echo ',';",
+    "\$pdo->exec('CREATE TABLE IF NOT EXISTS isolation_probe (id int)');",
+    "echo (int) \$pdo->query(\"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = current_schema() AND table_name = 'isolation_probe'\")->fetchColumn();",
+];
+$probe = implode("\n", $probeLines);
+$env = [
+    'DATABASE_URL' => (string) getenv('DATABASE_URL'),
+    'DB_SCHEMA' => $testSchema,
+];
+$process = proc_open([PHP_BINARY, '-r', $probe], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, $env);
+$output = $process !== false ? stream_get_contents($pipes[1]) . stream_get_contents($pipes[2]) : '';
+if ($process !== false) {
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    proc_close($process);
+}
+[$reportedSchema, $tableCreated] = array_pad(explode(',', trim((string) $output)), 2, null);
+T::eq($testSchema, $reportedSchema, 'a fresh connection with DB_SCHEMA set reports that schema as current_schema(), not public');
+T::eq('1', $tableCreated, 'Db::connection() auto-creates the schema (idempotent) so schema.sql-style DDL works with zero manual setup');
+
+// Confirm total isolation from the default/public schema and clean up.
+$inPublic = (int) Db::fetchValue(
+    "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'isolation_probe'"
+);
+T::eq(0, $inPublic, 'the probe table was created ONLY inside the dedicated schema — public is untouched, proving real isolation');
+Db::query('DROP SCHEMA IF EXISTS ' . Db::ident($testSchema) . ' CASCADE');

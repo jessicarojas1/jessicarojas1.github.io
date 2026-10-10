@@ -62,6 +62,19 @@ final class Db
             // Do not leak credentials/DSN in the message.
             throw new RuntimeException('Database connection failed.', 0, $e);
         }
+
+        // Dedicated-schema isolation (e.g. a database shared with another
+        // application) — see Config::dbSchema(). Creating the schema here
+        // (idempotent) means database/schema.sql still works unmodified: it
+        // only ever uses unqualified table names, which resolve against
+        // whatever search_path is active on the connection.
+        $schema = Config::dbSchema();
+        if ($schema !== null && $schema !== '') {
+            $quoted = self::ident($schema);
+            self::$pdo->exec("CREATE SCHEMA IF NOT EXISTS $quoted");
+            self::$pdo->exec("SET search_path TO $quoted");
+        }
+
         return self::$pdo;
     }
 

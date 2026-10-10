@@ -51,6 +51,7 @@ before the image ships.
 |---|---|---|
 | `APP_ENV` | `production` | Disables `display_errors`; `database/seed.php` refuses to run when this is `production` |
 | `DATABASE_URL` | `postgresql://user:pass@host:5432/verity` | PostgreSQL connection string. Required for everything beyond the login screen |
+| `DB_SCHEMA` | `verity` | Optional. Set this when `DATABASE_URL` points at a database **shared with another application** — isolates every Verity table into its own Postgres schema instead of the default `public`, with zero risk of colliding with that other app's tables. `Db::connection()` creates the schema automatically (idempotent) and switches to it on every connection; no manual `CREATE SCHEMA` step needed. Leave unset for a dedicated database |
 | `GRAPH_BASE_URL` | `https://graph.microsoft.us` | Reserved for the not-yet-built GCC High connector (Phase 4) |
 | `ENTRA_AUTHORITY_HOST` | `https://login.microsoftonline.us` | Reserved; no sign-in flow consumes it yet |
 | `AZURE_PORTAL_URL` | `https://portal.azure.us` | Reserved; informational only today |
@@ -64,16 +65,29 @@ configuration is required for any implemented feature.
 
 ## Database setup
 
-Apply the idempotent reference schema directly:
+**Dedicated database (`DB_SCHEMA` unset):** apply the idempotent reference
+schema directly:
 
 ```bash
 psql "$DATABASE_URL" -f database/schema.sql
 ```
 
-It is safe to re-run — every statement is `CREATE TABLE IF NOT EXISTS` /
-`CREATE INDEX IF NOT EXISTS`. There is no migration framework and no
-migration history table; `schema.sql` is the single source of truth and is
-kept current with every schema change (17 tables as of this writing).
+**Shared database (`DB_SCHEMA` set)** — do **not** use the raw `psql`
+command above for first-time setup: it would apply the schema into
+whatever schema the connection defaults to (normally `public`), not into
+`DB_SCHEMA`'s value, because the schema-creation/`search_path` logic lives
+in `Db::connection()`, which plain `psql` never calls. Run it through the
+app's own bootstrap instead, so the schema is created and `search_path` is
+set exactly the way the running app expects:
+
+```bash
+php -r 'require "app/bootstrap.php"; use Verity\Support\Db; Db::connection()->exec(file_get_contents("database/schema.sql"));'
+```
+
+Either way it's safe to re-run — every statement is `CREATE TABLE IF NOT
+EXISTS` / `CREATE INDEX IF NOT EXISTS`. There is no migration framework and
+no migration history table; `schema.sql` is the single source of truth and
+is kept current with every schema change (17 tables as of this writing).
 
 Load synthetic development data (optional, never in production):
 

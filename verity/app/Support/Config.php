@@ -42,6 +42,22 @@ final class Config
         return self::get('DATABASE_URL');
     }
 
+    /**
+     * Optional dedicated Postgres schema (e.g. when DATABASE_URL points at a
+     * database shared with another application — Verity's table names are
+     * generic enough, e.g. `person`, `application`, that collision risk is
+     * real). When set, Db::connection() issues `SET search_path` to this
+     * schema immediately after connecting, so every unqualified table
+     * reference throughout the app (and database/schema.sql / seed.php)
+     * resolves inside it rather than `public`. Unset means "use whatever the
+     * connection's default search_path already is" (normally `public`) —
+     * the ordinary case for a dedicated database.
+     */
+    public static function dbSchema(): ?string
+    {
+        return self::get('DB_SCHEMA');
+    }
+
     // --- Microsoft GCC High endpoints (NEVER commercial) --------------------
     // Section 5 of the Verity build directive: GCC High is mandatory and the
     // commercial graph.microsoft.com / login.microsoftonline.com endpoints must

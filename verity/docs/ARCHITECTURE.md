@@ -70,6 +70,7 @@ others exist):
 |---|---|---|
 | `APP_ENV` | `development` | `production` disables `display_errors` and causes `database/seed.php` to refuse to run |
 | `DATABASE_URL` | *(none)* | PostgreSQL connection string; the app degrades honestly (not fake data) when unset |
+| `DB_SCHEMA` | *(none — defaults to the connection's own default, normally `public`)* | Optional dedicated Postgres schema, for sharing a database with another application without any table-name collision risk. When set, `Db::connection()` runs `CREATE SCHEMA IF NOT EXISTS` (idempotent) and `SET search_path` to it immediately after connecting — every unqualified table reference in the app, `schema.sql`, and `seed.php` then resolves inside it automatically |
 | `GRAPH_BASE_URL` | `https://graph.microsoft.us` | Microsoft Graph endpoint reserved for the not-yet-built GCC High connector |
 | `ENTRA_AUTHORITY_HOST` | `https://login.microsoftonline.us` | Entra authority endpoint, read but not yet consumed by a sign-in flow |
 | `AZURE_PORTAL_URL` | `https://portal.azure.us` | Azure Government portal link, read but not yet consumed |
