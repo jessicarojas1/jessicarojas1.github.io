@@ -8,6 +8,7 @@ use Verity\Support\Accounts;
 use Verity\Support\Applications;
 use Verity\Support\Auth;
 use Verity\Support\Authorize;
+use Verity\Support\RemediationTasks;
 use Verity\Support\Security;
 
 final class AccountsController
@@ -64,6 +65,8 @@ final class AccountsController
              WHERE ea.system_account_id = :id ORDER BY e.name',
             ['id' => $id]
         );
+        $canFlagRemediation = Authorize::can($user, 'remediation.manage');
+        $remediationTasks = RemediationTasks::forAccount($id);
 
         $title = $account['username'] ?? $account['external_account_id'];
         $navActive = 'unmatched';

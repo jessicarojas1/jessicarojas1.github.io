@@ -52,6 +52,7 @@ final class Roles
             'audit.view',
             'settings.manage',
             'campaign.view', 'campaign.manage', 'campaign.review',
+            'remediation.view', 'remediation.manage',
         ],
 
         // Line manager: scoped to their own reporting chain via Authorize's
@@ -93,6 +94,7 @@ final class Roles
             'audit.view',
             'savedview.manage.own',
             'campaign.view',
+            'remediation.view',
         ],
     ];
 

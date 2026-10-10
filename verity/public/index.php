@@ -18,6 +18,7 @@ use Verity\Http\IamController;
 use Verity\Http\IdentitiesController;
 use Verity\Http\MatrixController;
 use Verity\Http\ProfileController;
+use Verity\Http\RemediationController;
 use Verity\Http\SettingsController;
 use Verity\Http\SetupController;
 
@@ -146,6 +147,19 @@ switch ($path) {
         return;
     case '/app/campaigns/decide':
         if ($method === 'POST') { CampaignsController::decide(); return; }
+        http_response_code(405); return;
+
+    case '/app/remediation':
+        RemediationController::index($nonce);
+        return;
+    case '/app/remediation/create':
+        if ($method === 'POST') { RemediationController::create(); return; }
+        http_response_code(405); return;
+    case '/app/remediation/resolve':
+        if ($method === 'POST') { RemediationController::resolve(); return; }
+        http_response_code(405); return;
+    case '/app/remediation/dismiss':
+        if ($method === 'POST') { RemediationController::dismiss(); return; }
         http_response_code(405); return;
 
     case '/app/matrix':

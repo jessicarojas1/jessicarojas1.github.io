@@ -14,14 +14,16 @@ namespace Verity\Support;
  * the campaign's default reviewer when unmatched/no manager) or 'fixed'
  * (every item goes to the same named reviewer).
  *
- * A 'revoked' decision records the reviewer's judgment and is surfaced as
- * needing action — it does NOT itself delete the entitlement_assignment
- * row. No connector in this build claims `revoke_access`/`modify_access`
- * (see Connectors::defaultManifest()), so there is no live system this app
- * could push a revocation back to; silently deleting Verity's own inventory
- * record of the access would claim a removal that didn't actually happen
- * anywhere. Acting on a revoke decision is intentionally a separate step —
- * see OPEN_ITEMS.md's "No remediation task management" entry.
+ * A 'revoked' decision records the reviewer's judgment and automatically
+ * opens a RemediationTasks row — it does NOT itself delete the
+ * entitlement_assignment row. No connector in this build claims
+ * `revoke_access`/`modify_access` (see Connectors::defaultManifest()), so
+ * there is no live system this app could push a revocation back to;
+ * silently deleting Verity's own inventory record of the access would
+ * claim a removal that didn't actually happen anywhere. Creating the
+ * TASK is safe to automate (it's tracking, not an access change);
+ * resolving it is still a deliberate human step — see
+ * RemediationTasks.php.
  */
 final class Campaigns
 {
@@ -271,6 +273,14 @@ final class Campaigns
         );
         if ($decision === 'approved' && $item['entitlement_assignment_id'] !== null) {
             Db::query('UPDATE entitlement_assignment SET last_certified_at = NOW() WHERE id = :id', ['id' => (int) $item['entitlement_assignment_id']]);
+        }
+        if ($decision === 'revoked') {
+            // Creating the TRACKING row is safe to automate — it's
+            // bookkeeping, not an access change. See RemediationTasks's
+            // own doc comment for why resolving it is still a manual step.
+            RemediationTasks::createFromCampaignRevoke(
+                $itemId, (int) $item['system_account_id'], (int) $item['entitlement_id'], $note, $decidedByUserId
+            );
         }
         Audit::log(
             'campaign.item.decide',

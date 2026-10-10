@@ -328,6 +328,37 @@ CREATE INDEX IF NOT EXISTS idx_campaign_item_reviewer ON certification_campaign_
 CREATE INDEX IF NOT EXISTS idx_campaign_item_decision ON certification_campaign_item(decision);
 
 -- -----------------------------------------------------------------------------
+-- Module: Remediation Task Management (Phase 6)
+-- Tracks that an access-related finding (a certification campaign's
+-- "revoked" decision, or a manually flagged Matrix exception) needs
+-- action. This app has no connector that claims revoke_access/
+-- modify_access/disable_accounts — a task here is a TRACKED TO-DO, never
+-- an executed action. Resolving a task is a human recording that they
+-- handled it (through the Access Matrix, the account's own detail page,
+-- or outside this system entirely), not this app doing it for them.
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS remediation_task (
+    id                          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    source                      TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('campaign', 'manual')),
+    campaign_item_id            BIGINT REFERENCES certification_campaign_item(id) ON DELETE SET NULL,
+    system_account_id           BIGINT NOT NULL REFERENCES system_account(id) ON DELETE CASCADE,
+    entitlement_id               BIGINT REFERENCES entitlement(id) ON DELETE SET NULL,
+    task_type                    TEXT NOT NULL DEFAULT 'remove_access' CHECK (task_type IN ('remove_access', 'disable_account', 'investigate')),
+    status                       TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'resolved', 'dismissed')),
+    assigned_to_person_id        BIGINT REFERENCES person(id) ON DELETE SET NULL,
+    description                  TEXT,
+    created_by_user_id           BIGINT REFERENCES app_user(id) ON DELETE SET NULL,
+    created_at                   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    resolved_by_user_id          BIGINT REFERENCES app_user(id) ON DELETE SET NULL,
+    resolved_at                  TIMESTAMPTZ,
+    resolution_note              TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_remediation_status ON remediation_task(status);
+CREATE INDEX IF NOT EXISTS idx_remediation_account ON remediation_task(system_account_id);
+CREATE INDEX IF NOT EXISTS idx_remediation_campaign_item ON remediation_task(campaign_item_id);
+
+-- -----------------------------------------------------------------------------
 -- Module: Saved Views
 -- -----------------------------------------------------------------------------
 

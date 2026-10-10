@@ -26,6 +26,7 @@ $showMatrix = $can('matrix.view.enterprise') || $can('matrix.view.supervisor') |
 $showApplications = $can('application.view') || $can('application.view.owned');
 $showCampaigns = $can('campaign.view') || $can('campaign.manage');
 $showMyReviews = $can('campaign.review');
+$showRemediation = $can('remediation.view') || $can('remediation.manage');
 $showDynamicFields = $can('dynamicfield.manage');
 $showIam = $can('iam.view');
 $showAudit = $can('audit.view');
@@ -53,6 +54,7 @@ $showSettings = $can('settings.manage');
     <?php if ($showApplications): ?><a href="/app/applications"<?= $navActive === 'applications' ? ' class="active"' : '' ?>>Applications</a><?php endif; ?>
     <?php if ($showCampaigns): ?><a href="/app/campaigns"<?= $navActive === 'campaigns' ? ' class="active"' : '' ?>>Campaigns</a><?php endif; ?>
     <?php if ($showMyReviews): ?><a href="/app/campaigns/my-reviews"<?= $navActive === 'myreviews' ? ' class="active"' : '' ?>>My Reviews</a><?php endif; ?>
+    <?php if ($showRemediation): ?><a href="/app/remediation"<?= $navActive === 'remediation' ? ' class="active"' : '' ?>>Remediation</a><?php endif; ?>
     <?php if ($showDynamicFields): ?><a href="/app/admin/dynamic-fields"<?= $navActive === 'dynamicfields' ? ' class="active"' : '' ?>>Dynamic Fields</a><?php endif; ?>
     <?php if ($showAudit): ?><a href="/app/admin/audit"<?= $navActive === 'audit' ? ' class="active"' : '' ?>>Audit</a><?php endif; ?>
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>

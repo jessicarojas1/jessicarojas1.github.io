@@ -23,10 +23,16 @@ and — pulled forward from Phase 5, same precedent as CSV import —
 **certification campaigns** (`app/Support/Campaigns.php`: scope frozen at
 launch, manager- or fixed-reviewer assignment, approve/revoke decision
 capture, `entitlement_assignment.last_certified_at` driven by real
-approvals). Do **not** claim the rest of Phase 4+ (Entra GCC High SSO,
-MFA, approval workflows, remediation task management, access requests,
-risk scoring, SoD rules, notifications) exists — see `OPEN_ITEMS.md` for
-the authoritative list of what's missing.
+approvals), plus — pulled forward from Phase 6, same precedent again —
+**remediation task tracking** (`app/Support/RemediationTasks.php`: a
+campaign's "revoked" decision auto-opens a task, or one can be flagged
+manually from any account's detail page; resolving/dismissing a task
+records that a human handled it — this app still has no connector that
+can execute a revocation, so a task is a to-do, never an executed
+action). Do **not** claim the rest of Phase 4+ (Entra GCC High SSO, MFA,
+approval workflows, access requests, risk scoring, SoD rules,
+notifications) exists — see `OPEN_ITEMS.md` for the authoritative list of
+what's missing.
 
 ## Standing rules for this project
 
@@ -140,11 +146,12 @@ the authoritative list of what's missing.
   could push a revocation back to; silently deleting Verity's own
   inventory record would claim a removal that didn't actually happen
   anywhere, which is exactly the capability-manifest dishonesty that rule
-  forbids. Acting on a revoke decision (actually removing the access) is
-  intentionally a separate, not-yet-built step — see `OPEN_ITEMS.md`'s "No
-  remediation task management" entry. Do not wire campaign revocation
-  straight into deleting the assignment without a product decision to
-  change this.
+  forbids. It instead auto-opens a `RemediationTasks` row to track it —
+  see that class's own standing rule below. Actually removing the access
+  is still a deliberate, separate human step (through the Access Matrix or
+  the account's own detail page) — do not wire campaign revocation, or
+  resolving the resulting remediation task, straight into deleting the
+  assignment without a product decision to change this.
 - **Reviewer authorization is a direct ownership check
   (`reviewer_person_id = the caller's own person_id`), re-verified inside
   `Campaigns::decide()` itself — not delegated to the controller, and not
@@ -157,6 +164,22 @@ the authoritative list of what's missing.
   this itself (`WHERE id = :id AND reviewer_person_id = :pid`) specifically
   so there is no path to deciding someone else's review item even if a
   future caller forgets to check first.
+- **A remediation task is a tracked to-do, never an executed action —
+  `RemediationTasks` has no code path that touches
+  `entitlement_assignment`/`system_account` at all.** This mirrors
+  `Campaigns`' revoke-doesn't-delete rule for the same underlying reason:
+  no connector in this build claims `revoke_access`/`modify_access`/
+  `disable_accounts`, so there is no live system this app could execute a
+  removal against. `resolve()`/`dismiss()` only ever change the task's own
+  `status` — never the account or assignment it references. The one place
+  automation is allowed is *creating* the tracking row itself
+  (`RemediationTasks::createFromCampaignRevoke()`, called from
+  `Campaigns::decide()` on every 'revoked' decision): that's bookkeeping,
+  not an access change, so it doesn't violate the no-silent-automation
+  principle the way auto-resolving or auto-executing one would. If a task
+  type is ever added whose resolution really should trigger something
+  automatically, that needs its own manifested capability and its own
+  product decision — not a quiet addition to `resolve()`.
 - **`Users::create()` must always receive a password and set the account
   `active` immediately.** An earlier version inserted `status = 'invited'`
   with no `password_hash` at all — since there is no invitation-email flow
@@ -294,20 +317,21 @@ the authoritative list of what's missing.
 ## Roadmap gates (8-phase build)
 
 Phase 1–3 (now, built + tested; now also includes a real CSV import sync
-engine pulled forward from Phase 4, and certification campaigns pulled
-forward from Phase 5 — see below) → Phase 4 integrations (Entra GCC High
-SSO remains the one item here not yet started) → Phase 5 (certification
-campaigns are done; approval workflows are Phase 6, not Phase 5 — see
-below) → Phase 6 workflow automation & remediation → Phase 7 risk
-scoring/SoD → Phase 8 reporting/analytics & scale hardening. Do not build
-a later phase's feature ahead of its gate without updating
-`OPEN_ITEMS.md` to reflect the new status in the same change — CSV import
-and certification campaigns are the precedent for how to do this
-honestly: each was pulled forward deliberately, each resolved its own
-"decision required" row in `OPEN_ITEMS.md` in the same change the code
+engine pulled forward from Phase 4, certification campaigns pulled
+forward from Phase 5, and remediation task tracking pulled forward from
+Phase 6 — see below) → Phase 4 integrations (Entra GCC High SSO remains
+the one item here not yet started) → Phase 5 (certification campaigns are
+done) → Phase 6 (remediation task tracking is done; approval workflows
+and access requests are not) → Phase 7 risk scoring/SoD → Phase 8
+reporting/analytics & scale hardening. Do not build a later phase's
+feature ahead of its gate without updating `OPEN_ITEMS.md` to reflect the
+new status in the same change — CSV import, certification campaigns, and
+remediation task tracking are the precedent for how to do this honestly:
+each was pulled forward deliberately, each resolved its own "decision
+required" or open row in `OPEN_ITEMS.md` in the same change the code
 landed, and each kept the still-undone part of its original phase (Entra
-GCC High; approval workflows/remediation/access requests) clearly
-separate rather than implying it moved too.
+GCC High; approval workflows/access requests) clearly separate rather
+than implying it moved too.
 
 ## Per-milestone checklist (repo standard)
 

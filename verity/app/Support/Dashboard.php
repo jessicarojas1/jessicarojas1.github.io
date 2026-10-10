@@ -7,10 +7,10 @@ namespace Verity\Support;
 /**
  * Enterprise Dashboard KPIs (module 1 / section 19). Every metric here is a
  * real COUNT against stored records — no placeholder numbers. KPIs that
- * depend on modules not yet built (campaigns, remediation, risk findings)
- * are deliberately OMITTED rather than shown as zero/fake — a zero would
- * read as "nothing pending" when the true state is "not implemented yet".
- * See OPEN_ITEMS.md for what's missing and why.
+ * depend on a module not yet built (risk scoring, SoD) are deliberately
+ * OMITTED rather than shown as zero/fake — a zero would read as "nothing
+ * pending" when the true state is "not implemented yet". See
+ * OPEN_ITEMS.md for what's missing and why.
  */
 final class Dashboard
 {
@@ -34,6 +34,13 @@ final class Dashboard
                  JOIN person p ON p.id = sa.person_id
                  WHERE p.employment_status = 'terminated' AND sa.status = 'enabled'"
             ),
+            'active_campaigns' => (int) Db::fetchValue("SELECT COUNT(*) FROM certification_campaign WHERE status = 'active'"),
+            'pending_campaign_reviews' => (int) Db::fetchValue(
+                "SELECT COUNT(*) FROM certification_campaign_item i
+                 JOIN certification_campaign c ON c.id = i.campaign_id
+                 WHERE i.decision = 'pending' AND c.status = 'active'"
+            ),
+            'open_remediation_tasks' => (int) Db::fetchValue("SELECT COUNT(*) FROM remediation_task WHERE status = 'open'"),
         ];
     }
 

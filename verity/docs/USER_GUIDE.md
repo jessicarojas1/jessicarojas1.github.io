@@ -2,9 +2,9 @@
 
 How to use Verity day to day. This describes exactly what exists in the
 running application today — nothing aspirational. For what's not built yet
-(approval workflows, remediation task management, access requests, risk
-scoring, Entra SSO), see [`../OPEN_ITEMS.md`](../OPEN_ITEMS.md). For the
-developer/operator docs, see [`ARCHITECTURE.md`](ARCHITECTURE.md),
+(approval workflows, access requests, risk scoring, SoD, MFA, Entra SSO),
+see [`../OPEN_ITEMS.md`](../OPEN_ITEMS.md). For the developer/operator
+docs, see [`ARCHITECTURE.md`](ARCHITECTURE.md),
 [`DEPLOYMENT.md`](DEPLOYMENT.md), and [`SECURITY.md`](SECURITY.md).
 
 ## Contents
@@ -19,11 +19,12 @@ developer/operator docs, see [`ARCHITECTURE.md`](ARCHITECTURE.md),
 8. [Application Catalog](#application-catalog)
 9. [Certification Campaigns](#certification-campaigns)
 10. [My Reviews](#my-reviews)
-11. [Dynamic Fields](#dynamic-fields)
-12. [Access & Security (Admin IAM)](#access--security-admin-iam)
-13. [Settings & Branding](#settings--branding)
-14. [Audit History](#audit-history)
-15. [Role quick reference](#role-quick-reference)
+11. [Remediation Tasks](#remediation-tasks)
+12. [Dynamic Fields](#dynamic-fields)
+13. [Access & Security (Admin IAM)](#access--security-admin-iam)
+14. [Settings & Branding](#settings--branding)
+15. [Audit History](#audit-history)
+16. [Role quick reference](#role-quick-reference)
 
 ## Signing in
 
@@ -55,12 +56,18 @@ database — not a mockup:
 - **Terminated, Still Enabled** and **Expired Temporary Access** — these two
   are risk indicators worth checking regularly; a non-zero count here means
   something needs attention
+- **Active Campaigns** and **Pending Campaign Reviews** — how many
+  certification campaigns are currently running, and how many of their
+  items are still awaiting a reviewer's decision
+- **Open Remediation Tasks** — access findings flagged for action and not
+  yet resolved or dismissed
 - Three breakdown tables: accounts by application, identities by department,
   and connector health
 
-A note at the bottom explains that campaign/remediation/risk KPIs aren't
-shown — those modules don't exist yet, and showing a zero for them would
-misleadingly suggest "nothing outstanding" rather than "not built."
+A note at the bottom explains that risk-intelligence and
+separation-of-duties KPIs aren't shown — those modules don't exist yet,
+and showing a zero for them would misleadingly suggest "nothing
+outstanding" rather than "not built."
 
 ## My Account
 
@@ -224,9 +231,11 @@ still-pending items stay recorded as pending) or **Cancel Campaign**.
 that a reviewer decided the access should not continue — Verity has no
 live connector that can push a revocation back to a source system, so
 deleting its own inventory record of the access would claim a removal
-that didn't actually happen anywhere. Acting on a revoked item (removing
-the access) is a manual step today, through the Access Matrix or the
-account's own detail page.
+that didn't actually happen anywhere. Instead, revoking an item
+automatically opens a [Remediation Task](#remediation-tasks) so it's
+tracked — actually removing the access is still a manual step, through
+the Access Matrix or the account's own detail page, but it's no longer
+something you have to remember to do separately.
 
 ## My Reviews
 
@@ -241,6 +250,30 @@ that specific access) or **Revoke** (you'll be asked to confirm — see the
 note above about what Revoke does and doesn't do). Once decided, an item
 shows its outcome instead of the action buttons; decisions cannot be
 undone from this page.
+
+## Remediation Tasks
+
+*(Requires "Remediation" in your nav — `remediation.view` or
+`remediation.manage`.)* A tracked to-do for an access finding — this
+workspace lists every task, open or closed, with who it's for and what's
+needed.
+
+Tasks come from two places:
+- **Automatically**, when a certification campaign reviewer revokes an
+  item (see above) — no action needed to create these, they just appear.
+- **Manually**, from any account's detail page: click **Flag for
+  Remediation**, pick a task type (Remove access / Disable account /
+  Investigate), optionally point it at one specific entitlement rather
+  than the whole account, and add a description.
+
+If you have `remediation.manage`, each open task has **Resolve** (with an
+optional note — use this once you've actually made the change, wherever
+you made it) and **Dismiss** (for a false positive or a finding that
+turns out not to need action). Both require a reason-worthy note when it
+matters, and both are final — a resolved or dismissed task stays that way.
+**Resolving a task does not itself change any access** — exactly like
+revoking a campaign item, this app only tracks that something needs doing
+(or was done); it never executes the removal for you.
 
 ## Dynamic Fields
 
@@ -316,10 +349,10 @@ typing part of an action name (e.g. `account.link`).
 | Role | Can generally do |
 |---|---|
 | **Enterprise Administrator** | Everything, by default (the wildcard role) — individual permissions can still be explicitly denied to override this |
-| **Security / Compliance Admin** | Broad read access, governance configuration (applications, connectors, dynamic fields, settings), account correlation, user/permission management, launching/managing certification campaigns, and acting as a reviewer — a strong admin role without the unconditional wildcard |
+| **Security / Compliance Admin** | Broad read access, governance configuration (applications, connectors, dynamic fields, settings), account correlation, user/permission management, launching/managing certification campaigns and remediation tasks, and acting as a reviewer — a strong admin role without the unconditional wildcard |
 | **Supervisor** | Their own reporting chain only — identities, accounts, entitlements, and the Supervisor Access Matrix view, scoped automatically — plus acting as a reviewer on campaign items assigned to them (typically their own direct reports' access) |
 | **System Owner** | Applications where they're recorded as the system owner — that application's access matrix view and entitlement visibility — plus acting as a reviewer on campaign items assigned to them |
-| **Auditor** | Enterprise-wide read access to identities, accounts, entitlements, the matrix, the audit log, and campaign progress — no write access anywhere, including campaigns (view only, not manage or review) |
+| **Auditor** | Enterprise-wide read access to identities, accounts, entitlements, the matrix, the audit log, campaign progress, and remediation tasks — no write access anywhere, including campaigns and remediation (view only) |
 
 An administrator can also layer explicit grants or denials on top of any
 role for an individual user — see [Access & Security](#access--security-admin-iam)

@@ -30,6 +30,9 @@ require __DIR__ . '/partials/app_header.php';
   <div class="kpi <?= $kpis['terminated_with_enabled_accounts'] > 0 ? 'risk' : '' ?>"><div class="n"><?= number_format($kpis['terminated_with_enabled_accounts']) ?></div><div class="label">Terminated, Still Enabled</div></div>
   <div class="kpi <?= $kpis['expired_temporary_access'] > 0 ? 'risk' : '' ?>"><div class="n"><?= number_format($kpis['expired_temporary_access']) ?></div><div class="label">Expired Temporary Access</div></div>
   <div class="kpi"><div class="n"><?= number_format($kpis['disabled_accounts']) ?></div><div class="label">Disabled Accounts</div></div>
+  <div class="kpi"><div class="n"><?= number_format($kpis['active_campaigns']) ?></div><div class="label">Active Campaigns</div></div>
+  <div class="kpi <?= $kpis['pending_campaign_reviews'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['pending_campaign_reviews']) ?></div><div class="label">Pending Campaign Reviews</div></div>
+  <div class="kpi <?= $kpis['open_remediation_tasks'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['open_remediation_tasks']) ?></div><div class="label">Open Remediation Tasks</div></div>
 </div>
 
 <div class="field-row">
@@ -73,9 +76,9 @@ require __DIR__ . '/partials/app_header.php';
 
 <div class="card mt-14">
   <p class="hint">
-    Certification campaigns, remediation tracking, risk intelligence, and separation-of-duties KPIs are not shown
-    here because those modules are not implemented yet — see <code>OPEN_ITEMS.md</code>. Showing a zero for them
-    would misleadingly read as "nothing outstanding" rather than "not built yet".
+    Risk intelligence and separation-of-duties KPIs are not shown here because those modules are not implemented
+    yet — see <code>OPEN_ITEMS.md</code>. Showing a zero for them would misleadingly read as "nothing outstanding"
+    rather than "not built yet".
   </p>
 </div>
 

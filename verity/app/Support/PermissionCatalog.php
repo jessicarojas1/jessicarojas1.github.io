@@ -88,6 +88,14 @@ final class PermissionCatalog
                     'campaign.review' => 'Act on review items assigned to you',
                 ],
             ],
+            'remediation' => [
+                'label' => 'Remediation Tasks',
+                'icon' => '🛠️',
+                'actions' => [
+                    'remediation.view' => 'View remediation tasks',
+                    'remediation.manage' => 'Create, resolve, and dismiss remediation tasks',
+                ],
+            ],
             'dynamicfield' => [
                 'label' => 'Dynamic Fields',
                 'icon' => '🧬',

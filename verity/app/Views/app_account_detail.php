@@ -1,5 +1,5 @@
 <?php
-/** @var array $account @var array $history @var array $assignments @var array|null $suggestion @var string $csrf @var string $NONCE */
+/** @var array $account @var array $history @var array $assignments @var array|null $suggestion @var bool $canFlagRemediation @var array $remediationTasks @var string $csrf @var string $NONCE */
 use Verity\Support\Security;
 
 $appScript = '/assets/accounts.js';
@@ -116,6 +116,62 @@ require __DIR__ . '/partials/app_header.php';
       <?php endforeach; ?>
     </tbody>
   </table>
+</div>
+
+<div class="card mt-14">
+  <h2>Remediation Tasks (<?= count($remediationTasks) ?>)</h2>
+  <?php if ($remediationTasks === []): ?>
+  <p class="empty-state-sm">No remediation tasks for this account.</p>
+  <?php else: ?>
+  <table class="grid">
+    <thead><tr><th>Type</th><th>Entitlement</th><th>Status</th><th>Opened</th><th>Resolution</th></tr></thead>
+    <tbody>
+      <?php foreach ($remediationTasks as $t): ?>
+      <tr>
+        <td><?= Security::h(ucwords(str_replace('_', ' ', $t['task_type']))) ?></td>
+        <td><?= Security::h($t['entitlement_name'] ?? 'Whole account') ?></td>
+        <td>
+          <?php $tcls = $t['status'] === 'open' ? 'b-warn' : ($t['status'] === 'resolved' ? 'b-ok' : 'b-neutral'); ?>
+          <span class="badge <?= $tcls ?>"><?= Security::h(ucwords($t['status'])) ?></span>
+        </td>
+        <td><?= Security::h(substr((string) $t['created_at'], 0, 16)) ?><?= $t['source'] === 'campaign' ? ' (from a campaign revoke)' : '' ?></td>
+        <td><?= Security::h($t['resolution_note'] ?? '—') ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+  <?php endif; ?>
+
+  <?php if ($canFlagRemediation): ?>
+  <details class="mt-12">
+    <summary class="btn sm inline-block">Flag for Remediation</summary>
+    <form method="post" action="/app/remediation/create" class="mt-12">
+      <?= $csrf ?>
+      <input type="hidden" name="system_account_id" value="<?= (int) $account['id'] ?>">
+      <div class="field-row">
+        <div class="field">
+          <label for="task_type">Task type</label>
+          <select id="task_type" name="task_type" required>
+            <option value="remove_access">Remove access</option>
+            <option value="disable_account">Disable account</option>
+            <option value="investigate">Investigate</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="entitlement_id">Specific entitlement (optional — leave blank for the whole account)</label>
+          <select id="entitlement_id" name="entitlement_id">
+            <option value="">Whole account</option>
+            <?php foreach ($assignments as $a): ?>
+            <option value="<?= (int) $a['entitlement_id'] ?>"><?= Security::h($a['entitlement_name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label for="remediation_description">Description</label><textarea id="remediation_description" name="description" rows="2"></textarea></div>
+      <button type="submit" class="btn primary">Create Task</button>
+    </form>
+  </details>
+  <?php endif; ?>
 </div>
 
 <?php require __DIR__ . '/partials/app_footer.php'; ?>

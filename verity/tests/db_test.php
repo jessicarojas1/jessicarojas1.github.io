@@ -17,6 +17,7 @@ use Verity\Support\Campaigns;
 use Verity\Support\Connectors;
 use Verity\Support\CsvImport;
 use Verity\Support\Db;
+use Verity\Support\RemediationTasks;
 
 if (!Db::isConfigured() || getenv('VERITY_TEST_DB') !== '1') {
     T::group('Database-backed tests');
@@ -233,6 +234,41 @@ try {
     Campaigns::complete($launch['id'], null);
     $completed = Campaigns::get($launch['id']);
     T::eq('completed', $completed['status'], 'Campaigns::complete() marks the campaign completed');
+
+    T::group('RemediationTasks — auto-created from a campaign revoke, manual creation, and resolve/dismiss lifecycle');
+    $autoTask = Db::fetchOne('SELECT * FROM remediation_task WHERE campaign_item_id = :cid', ['cid' => (int) $unmatchedItem['id']]);
+    T::ok($autoTask !== null, 'revoking a campaign item automatically opens a remediation task — the loop closes without a separate manual step');
+    T::eq('campaign', $autoTask['source'] ?? null, 'the auto-created task records its source as "campaign", not "manual"');
+    T::eq('open', $autoTask['status'] ?? null, 'a freshly created task starts open');
+    T::eq((int) $campAcctUnmatched, (int) ($autoTask['system_account_id'] ?? 0), 'the auto-created task is tied to the correct account');
+
+    $manualTaskId = RemediationTasks::create([
+        'system_account_id' => $campAcctMatched, 'entitlement_id' => $campEnt,
+        'task_type' => 'investigate', 'description' => 'Flagged manually during testing',
+    ], 1);
+    $manualTask = RemediationTasks::get($manualTaskId);
+    T::eq('manual', $manualTask['source'], 'a manually created task records its source as "manual"');
+    try {
+        RemediationTasks::create(['system_account_id' => $campAcctMatched, 'task_type' => 'not-a-real-type'], 1);
+        T::ok(false, 'an invalid task_type must be rejected');
+    } catch (\InvalidArgumentException $e) {
+        T::ok(true, 'RemediationTasks::create() rejects an invalid task_type rather than silently accepting it');
+    }
+
+    RemediationTasks::resolve($manualTaskId, 'Access was already removed by the application owner', 1);
+    $resolved = RemediationTasks::get($manualTaskId);
+    T::eq('resolved', $resolved['status'], 'resolve() marks the task resolved');
+    T::ok($resolved['resolved_at'] !== null, 'resolve() stamps resolved_at');
+    try {
+        RemediationTasks::resolve($manualTaskId, null, 1);
+        T::ok(false, 'resolving an already-resolved task must throw');
+    } catch (\RuntimeException $e) {
+        T::ok(str_contains($e->getMessage(), 'already'), 'the correct, specific error is thrown for a double-resolve attempt');
+    }
+
+    $dismissTaskId = RemediationTasks::create(['system_account_id' => $campAcctMatched, 'task_type' => 'remove_access'], 1);
+    RemediationTasks::dismiss($dismissTaskId, 'Determined to be a false positive', 1);
+    T::eq('dismissed', RemediationTasks::get($dismissTaskId)['status'], 'dismiss() marks the task dismissed, distinct from resolved');
 
     // --- Db::update() behavior ----------------------------------------------
     T::group('Db::update — auto-appends updated_at only when the column exists');
