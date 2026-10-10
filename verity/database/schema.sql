@@ -278,6 +278,56 @@ CREATE TABLE IF NOT EXISTS dynamic_field_value (
 CREATE INDEX IF NOT EXISTS idx_field_value_entity ON dynamic_field_value(entity_type, entity_id);
 
 -- -----------------------------------------------------------------------------
+-- Module: Certification Campaigns (Phase 5)
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS certification_campaign (
+    id                          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name                        TEXT NOT NULL,
+    description                 TEXT,
+    -- Scope is frozen at launch (campaign_item rows are a snapshot) so a
+    -- campaign is never a moving target mid-review.
+    scope_type                  TEXT NOT NULL CHECK (scope_type IN ('application', 'privileged', 'all')),
+    scope_application_id        BIGINT REFERENCES application(id) ON DELETE SET NULL,
+    -- 'manager': each item's reviewer is the linked account's person's
+    -- direct manager, falling back to default_reviewer_person_id when the
+    -- account is unmatched or the person has no manager. 'fixed': every
+    -- item goes to default_reviewer_person_id regardless.
+    reviewer_strategy            TEXT NOT NULL DEFAULT 'fixed' CHECK (reviewer_strategy IN ('manager', 'fixed')),
+    default_reviewer_person_id   BIGINT REFERENCES person(id) ON DELETE SET NULL,
+    status                       TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'cancelled')),
+    due_at                       TIMESTAMPTZ,
+    created_by_user_id           BIGINT REFERENCES app_user(id) ON DELETE SET NULL,
+    created_at                   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at                   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_campaign_status ON certification_campaign(status);
+
+-- One row per in-scope entitlement_assignment at launch time.
+-- system_account_id/entitlement_id are snapshot columns, independent of
+-- entitlement_assignment_id (ON DELETE SET NULL) — a decision already
+-- made and audited must stay meaningful even if the live assignment is
+-- later deleted or changed, the same way identity_account_link survives
+-- an account unlink.
+CREATE TABLE IF NOT EXISTS certification_campaign_item (
+    id                          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    campaign_id                  BIGINT NOT NULL REFERENCES certification_campaign(id) ON DELETE CASCADE,
+    entitlement_assignment_id    BIGINT REFERENCES entitlement_assignment(id) ON DELETE SET NULL,
+    system_account_id            BIGINT NOT NULL REFERENCES system_account(id) ON DELETE CASCADE,
+    entitlement_id                BIGINT NOT NULL REFERENCES entitlement(id) ON DELETE CASCADE,
+    reviewer_person_id            BIGINT REFERENCES person(id) ON DELETE SET NULL,
+    decision                      TEXT NOT NULL DEFAULT 'pending' CHECK (decision IN ('pending', 'approved', 'revoked')),
+    decision_note                 TEXT,
+    decided_by_user_id            BIGINT REFERENCES app_user(id) ON DELETE SET NULL,
+    decided_at                    TIMESTAMPTZ,
+    created_at                    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (campaign_id, system_account_id, entitlement_id)
+);
+CREATE INDEX IF NOT EXISTS idx_campaign_item_campaign ON certification_campaign_item(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_campaign_item_reviewer ON certification_campaign_item(reviewer_person_id);
+CREATE INDEX IF NOT EXISTS idx_campaign_item_decision ON certification_campaign_item(decision);
+
+-- -----------------------------------------------------------------------------
 -- Module: Saved Views
 -- -----------------------------------------------------------------------------
 

@@ -1,16 +1,21 @@
 # VERITY — Open Items / Production-Readiness Register
 
 Honest status as of this review. Verity is a **working application**
-(Phases 1–3 of an 8-phase build) — the Enterprise Dashboard, Identity
-Directory, Access Inventory/Unmatched Accounts, Application Catalog +
-connector catalog, Enterprise Access Matrix, Dynamic Fields, self-service
+(Phases 1–3 of an 8-phase build, plus two items pulled forward from later
+phases — CSV import from Phase 4, certification campaigns from Phase 5) —
+the Enterprise Dashboard, Identity Directory, Access Inventory/Unmatched
+Accounts (manual correlation plus deterministic match suggestions),
+Application Catalog + connector catalog (with a real CSV import sync
+engine), Enterprise Access Matrix, Dynamic Fields, self-service
 account/password management, a full admin user-management flow (create with
 password, edit details, reset password, activate/disable) inside the Admin
-IAM console, Settings/Branding, and Audit trail are built and exercised by
-an automated test suite (78 assertions, all passing). Everything below is
-grouped by theme, each with **Impact** and **Suggested action**. Nothing in
-this list should be read as "broken" — it is "not yet built," stated plainly
-rather than implied to exist.
+IAM console, Settings/Branding, Audit trail, and certification campaigns
+(scope frozen at launch, manager- or fixed-reviewer assignment, audited
+approve/revoke decisions) are built and exercised by an automated test
+suite (110 assertions, all passing). Everything below is grouped by theme,
+each with **Impact** and **Suggested action**. Nothing in this list should
+be read as "broken" — it is "not yet built," stated plainly rather than
+implied to exist.
 
 ## Integrations
 
@@ -25,9 +30,9 @@ rather than implied to exist.
 
 | Item | Impact | Suggested action |
 |---|---|---|
-| No certification/access-review campaigns | `entitlement_assignment.last_certified_at` exists as a column but nothing drives a review cycle, reminders, or sign-off | Build a campaign module (scope → reviewer assignment → decision capture → `last_certified_at` update), reusing `Authorize` scoping for reviewer assignment |
+| ~~No certification/access-review campaigns~~ — **resolved (pulled forward from Phase 5, same precedent as CSV import)** | `app/Support/Campaigns.php` + `CampaignsController`: launch a campaign scoped to one application, all privileged access, or the entire enterprise, which immediately snapshots every in-scope `entitlement_assignment` into `certification_campaign_item` — the review set is frozen, never a moving target. Reviewer assignment is either `manager` (each item's reviewer is the linked account's person's direct manager, falling back to a required default reviewer when unmatched/managerless) or `fixed` (one named reviewer for everything). Reviewers act from a "My Reviews" queue; `Campaigns::decide()` re-verifies server-side that the item is actually assigned to the caller before recording a decision (never trusts the controller to have checked). Approving sets `entitlement_assignment.last_certified_at` for real. Revoking records the judgment but deliberately does NOT delete the assignment — no connector here claims `revoke_access`, so there's no live system to push a revocation back to; see the next row. Verified live end-to-end in a browser: launched a 776-item enterprise-wide campaign, approved and revoked items as the resolved reviewer, confirmed the revoked assignment was untouched in the database, confirmed the permission boundary (a role without `campaign.manage`/`campaign.review` gets `403` both via hidden UI and a direct bypass fetch), and confirmed the new permission module renders correctly in the IAM console. Regression-tested (11 new DB-backed assertions: scope snapshot, manager-vs-fixed reviewer resolution, the unmatched-account fallback, reviewer-mismatch rejection, double-decision rejection, `last_certified_at` update, and the revoke-doesn't-delete behavior) | None for what's built. Not built: reminder/escalation emails (no notification system exists at all yet — separate item below), a bulk "approve all pending" action (every decision is intentionally one at a time, per the audit trail), and campaign *templates*/recurrence (every campaign today is a one-off manual launch) |
 | No approval workflows or visual workflow designer | No request/approve/deny lifecycle exists anywhere in the app | Scope a minimal request→approve model before attempting a general-purpose designer |
-| No remediation task management | Exception-view findings (orphaned accounts, stale temporary access, disabled-but-assigned entitlements) are visible but there is no task/ticket to track fixing them | Add a lightweight remediation-task table keyed off Matrix "exception" view rows |
+| No remediation task management | Exception-view findings (orphaned accounts, stale temporary access, disabled-but-assigned entitlements) are visible but there is no task/ticket to track fixing them. Certification campaigns (above) added a second, concrete trigger for the same gap — a reviewer's "revoked" decision is recorded and visible on the campaign's detail page, but there is still no task/ticket to track actually removing that access | Add a lightweight remediation-task table keyed off either trigger (Matrix exceptions, revoked campaign items) once a first design is scoped |
 | No access requests | There is no self-service "request access" flow; all entitlement assignment today is seeded or implied by direct DB/admin action | Design around the existing `entitlement_assignment` table once approval workflow above exists |
 
 ## Governance & Risk
@@ -107,6 +112,19 @@ rather than implied to exist.
   suite) were also simulated locally against a disposable database before
   being committed. `database/schema.sql` applies cleanly start-to-finish
   against a fresh database with no errors.
+- **Verified in this review (2026-10-10):** `php tests/run.php` now passes
+  **110/110** (47 logic-only, 63 live-database) against a throwaway local
+  PostgreSQL 16 instance — up from the 78/78 recorded above, covering the
+  at-scale benchmark's recursive-CTE cycle-safety fix, deterministic
+  account-matching, the CSV import sync engine, and certification
+  campaigns, all added since the note above. Each of those four was also
+  verified live in a browser or via direct HTTP calls against the running
+  app, not just at the unit level — see their own rows above and
+  `docs/ARCHITECTURE.md`'s "Performance characteristics" section for the
+  benchmark specifically. `database/schema.sql` (now with the
+  `certification_campaign`/`certification_campaign_item` tables and three
+  new functional indexes on `person`) continues to apply cleanly
+  start-to-finish against a fresh database.
 - **Not verified in this environment: the production Docker build.** The
   Dockerfile was changed to compile the PHP `curl` extension (needed by
   the new breach check) alongside `pdo_pgsql`, but no Docker daemon is

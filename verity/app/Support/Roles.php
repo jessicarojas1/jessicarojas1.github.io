@@ -17,9 +17,9 @@ namespace Verity\Support;
  * Scope: only permissions for modules actually implemented in this build pass
  * (Dashboard, Identity Directory, Access Inventory/Matrix, Application
  * Catalog read model, Dynamic Fields, Saved Views, Admin IAM,
- * Settings/Branding, Audit) are defined here. Campaign/workflow/remediation/
- * risk/SoD/reporting permissions will be added when those modules land — see
- * OPEN_ITEMS.md.
+ * Settings/Branding, Audit, Certification Campaigns) are defined here.
+ * Workflow/remediation/risk/SoD/reporting permissions will be added when
+ * those modules land — see OPEN_ITEMS.md.
  *
  * Every role is granted `dashboard.view` by default (including
  * `enterprise_admin` via its wildcard) so the dashboard remains every
@@ -51,10 +51,17 @@ final class Roles
             'iam.view', 'iam.manage',
             'audit.view',
             'settings.manage',
+            'campaign.view', 'campaign.manage', 'campaign.review',
         ],
 
         // Line manager: scoped to their own reporting chain via Authorize's
         // reporting-chain check (ctx['subject_person_id']) — never a bypass.
+        // campaign.review here is the manager-review half of a certification
+        // campaign — a supervisor acts on review items the reviewer_strategy
+        // assigned to them personally (reviewer_person_id = their own
+        // person_id), which Campaigns::decide() checks directly rather than
+        // through the reporting-chain scope (the assignment already IS the
+        // scope, decided at campaign-creation time).
         'supervisor' => [
             'dashboard.view',
             'identity.view.reports',
@@ -62,6 +69,7 @@ final class Roles
             'entitlement.view.reports',
             'matrix.view.supervisor',
             'savedview.manage.own',
+            'campaign.review',
         ],
 
         // Application/system owner: scoped to applications where they are
@@ -72,6 +80,7 @@ final class Roles
             'matrix.view.application.owned',
             'entitlement.view.owned',
             'savedview.manage.own',
+            'campaign.review',
         ],
 
         // Read-only enterprise visibility for internal/external auditors.
@@ -83,6 +92,7 @@ final class Roles
             'matrix.view.enterprise',
             'audit.view',
             'savedview.manage.own',
+            'campaign.view',
         ],
     ];
 

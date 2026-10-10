@@ -1,9 +1,9 @@
 # Verity — User Guide
 
 How to use Verity day to day. This describes exactly what exists in the
-running application today (Phases 1–3) — nothing aspirational. For what's
-not built yet (certification campaigns, approval workflows, live connector
-sync, Entra SSO), see [`../OPEN_ITEMS.md`](../OPEN_ITEMS.md). For the
+running application today — nothing aspirational. For what's not built yet
+(approval workflows, remediation task management, access requests, risk
+scoring, Entra SSO), see [`../OPEN_ITEMS.md`](../OPEN_ITEMS.md). For the
 developer/operator docs, see [`ARCHITECTURE.md`](ARCHITECTURE.md),
 [`DEPLOYMENT.md`](DEPLOYMENT.md), and [`SECURITY.md`](SECURITY.md).
 
@@ -17,11 +17,13 @@ developer/operator docs, see [`ARCHITECTURE.md`](ARCHITECTURE.md),
 6. [Enterprise Access Matrix](#enterprise-access-matrix)
 7. [Unmatched Accounts](#unmatched-accounts)
 8. [Application Catalog](#application-catalog)
-9. [Dynamic Fields](#dynamic-fields)
-10. [Access & Security (Admin IAM)](#access--security-admin-iam)
-11. [Settings & Branding](#settings--branding)
-12. [Audit History](#audit-history)
-13. [Role quick reference](#role-quick-reference)
+9. [Certification Campaigns](#certification-campaigns)
+10. [My Reviews](#my-reviews)
+11. [Dynamic Fields](#dynamic-fields)
+12. [Access & Security (Admin IAM)](#access--security-admin-iam)
+13. [Settings & Branding](#settings--branding)
+14. [Audit History](#audit-history)
+15. [Role quick reference](#role-quick-reference)
 
 ## Signing in
 
@@ -193,6 +195,53 @@ updates — running it again with a smaller file never disables an account
 or removes an entitlement that an earlier file granted; to remove access,
 use the Access Matrix or Unmatched Accounts workspace directly.
 
+## Certification Campaigns
+
+*(Requires "Campaigns" in your nav — `campaign.view` or `campaign.manage`.)*
+An access-review campaign. The list shows every campaign's status, item
+count, how many items are decided, and how many were revoked.
+
+If you have `campaign.manage`, you can **Launch Campaign** from the list
+page:
+
+- **Scope** — one application, all privileged access, or the entire
+  enterprise. Whatever is in scope **at the moment you launch** is what
+  gets reviewed — the scope is a frozen snapshot, not a live query, so a
+  campaign is never a moving target mid-review. Anything added to the
+  system after launch is simply not part of that campaign.
+- **Reviewer assignment** — either each account holder's own manager (an
+  unmatched account, or a person with no manager, falls back to the
+  default reviewer you pick), or one named reviewer for every item.
+- A **default / fallback reviewer** is always required, for exactly that
+  fallback case.
+
+Click a campaign to see its progress (total/approved/revoked/pending) and
+every item's current decision, reviewer, and who decided it. If you have
+`campaign.manage`, you can **Complete Campaign** (marks it done; any
+still-pending items stay recorded as pending) or **Cancel Campaign**.
+
+**A "Revoked" decision does not remove the access by itself.** It records
+that a reviewer decided the access should not continue — Verity has no
+live connector that can push a revocation back to a source system, so
+deleting its own inventory record of the access would claim a removal
+that didn't actually happen anywhere. Acting on a revoked item (removing
+the access) is a manual step today, through the Access Matrix or the
+account's own detail page.
+
+## My Reviews
+
+*(Requires `campaign.review` — supervisors, system owners, and security
+admins have this by default.)* Entitlement assignments a campaign has
+assigned to *you* specifically for review, across every active campaign.
+Switch between "Pending only" and "All (including decided)."
+
+For each pending item, add an optional note and click **Approve** (this
+updates the item's `last_certified_at` — the "last reviewed" record for
+that specific access) or **Revoke** (you'll be asked to confirm — see the
+note above about what Revoke does and doesn't do). Once decided, an item
+shows its outcome instead of the action buttons; decisions cannot be
+undone from this page.
+
 ## Dynamic Fields
 
 *(Requires `dynamicfield.manage`.)* Custom attributes you can attach to
@@ -267,10 +316,10 @@ typing part of an action name (e.g. `account.link`).
 | Role | Can generally do |
 |---|---|
 | **Enterprise Administrator** | Everything, by default (the wildcard role) — individual permissions can still be explicitly denied to override this |
-| **Security / Compliance Admin** | Broad read access, governance configuration (applications, connectors, dynamic fields, settings), account correlation, user/permission management — a strong admin role without the unconditional wildcard |
-| **Supervisor** | Their own reporting chain only — identities, accounts, entitlements, and the Supervisor Access Matrix view, scoped automatically |
-| **System Owner** | Applications where they're recorded as the system owner — that application's access matrix view and entitlement visibility |
-| **Auditor** | Enterprise-wide read access to identities, accounts, entitlements, the matrix, and the audit log — no write access anywhere |
+| **Security / Compliance Admin** | Broad read access, governance configuration (applications, connectors, dynamic fields, settings), account correlation, user/permission management, launching/managing certification campaigns, and acting as a reviewer — a strong admin role without the unconditional wildcard |
+| **Supervisor** | Their own reporting chain only — identities, accounts, entitlements, and the Supervisor Access Matrix view, scoped automatically — plus acting as a reviewer on campaign items assigned to them (typically their own direct reports' access) |
+| **System Owner** | Applications where they're recorded as the system owner — that application's access matrix view and entitlement visibility — plus acting as a reviewer on campaign items assigned to them |
+| **Auditor** | Enterprise-wide read access to identities, accounts, entitlements, the matrix, the audit log, and campaign progress — no write access anywhere, including campaigns (view only, not manage or review) |
 
 An administrator can also layer explicit grants or denials on top of any
 role for an individual user — see [Access & Security](#access--security-admin-iam)

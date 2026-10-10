@@ -24,6 +24,8 @@ $showIdentities = $can('identity.view') || $can('identity.view.reports');
 $showUnmatched = $can('account.view.unmatched');
 $showMatrix = $can('matrix.view.enterprise') || $can('matrix.view.supervisor') || $can('matrix.view.application.owned') || $can('matrix.view.privileged');
 $showApplications = $can('application.view') || $can('application.view.owned');
+$showCampaigns = $can('campaign.view') || $can('campaign.manage');
+$showMyReviews = $can('campaign.review');
 $showDynamicFields = $can('dynamicfield.manage');
 $showIam = $can('iam.view');
 $showAudit = $can('audit.view');
@@ -49,6 +51,8 @@ $showSettings = $can('settings.manage');
     <?php if ($showUnmatched): ?><a href="/app/accounts/unmatched"<?= $navActive === 'unmatched' ? ' class="active"' : '' ?>>Unmatched Accounts</a><?php endif; ?>
     <?php if ($showMatrix): ?><a href="/app/matrix"<?= $navActive === 'matrix' ? ' class="active"' : '' ?>>Access Matrix</a><?php endif; ?>
     <?php if ($showApplications): ?><a href="/app/applications"<?= $navActive === 'applications' ? ' class="active"' : '' ?>>Applications</a><?php endif; ?>
+    <?php if ($showCampaigns): ?><a href="/app/campaigns"<?= $navActive === 'campaigns' ? ' class="active"' : '' ?>>Campaigns</a><?php endif; ?>
+    <?php if ($showMyReviews): ?><a href="/app/campaigns/my-reviews"<?= $navActive === 'myreviews' ? ' class="active"' : '' ?>>My Reviews</a><?php endif; ?>
     <?php if ($showDynamicFields): ?><a href="/app/admin/dynamic-fields"<?= $navActive === 'dynamicfields' ? ' class="active"' : '' ?>>Dynamic Fields</a><?php endif; ?>
     <?php if ($showAudit): ?><a href="/app/admin/audit"<?= $navActive === 'audit' ? ' class="active"' : '' ?>>Audit</a><?php endif; ?>
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>

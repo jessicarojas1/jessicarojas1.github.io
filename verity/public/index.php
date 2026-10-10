@@ -11,6 +11,7 @@ use Verity\Http\ApiRouter;
 use Verity\Http\ApplicationsController;
 use Verity\Http\AuditController;
 use Verity\Http\AuthController;
+use Verity\Http\CampaignsController;
 use Verity\Http\DashboardController;
 use Verity\Http\DynamicFieldsController;
 use Verity\Http\IamController;
@@ -125,6 +126,26 @@ switch ($path) {
         http_response_code(405); return;
     case '/app/applications/connector/sync-csv':
         if ($method === 'POST') { ApplicationsController::syncCsv(); return; }
+        http_response_code(405); return;
+
+    case '/app/campaigns':
+        if ($method === 'POST') { CampaignsController::create(); return; }
+        CampaignsController::index($nonce);
+        return;
+    case '/app/campaigns/view':
+        CampaignsController::view($nonce);
+        return;
+    case '/app/campaigns/complete':
+        if ($method === 'POST') { CampaignsController::complete(); return; }
+        http_response_code(405); return;
+    case '/app/campaigns/cancel':
+        if ($method === 'POST') { CampaignsController::cancel(); return; }
+        http_response_code(405); return;
+    case '/app/campaigns/my-reviews':
+        CampaignsController::myReviews($nonce);
+        return;
+    case '/app/campaigns/decide':
+        if ($method === 'POST') { CampaignsController::decide(); return; }
         http_response_code(405); return;
 
     case '/app/matrix':

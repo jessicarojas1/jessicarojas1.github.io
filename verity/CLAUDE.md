@@ -18,11 +18,15 @@ real CSV import sync engine (`app/Support/CsvImport.php` — see
 `OPEN_ITEMS.md` updated in the same change this happened — the Entra GCC
 High half of that Phase 4 item is still not started), Enterprise Access
 Matrix (6 authorization-scoped views + CSV export + saved views), Dynamic
-Fields, Admin IAM console, Settings/Branding, and an append-only Audit
-trail. Do **not** claim the rest of Phase 4+ (Entra GCC High SSO, MFA,
-certification campaigns, approval workflows, remediation task management,
-access requests, risk scoring, SoD rules, notifications) exists — see
-`OPEN_ITEMS.md` for the authoritative list of what's missing.
+Fields, Admin IAM console, Settings/Branding, an append-only Audit trail,
+and — pulled forward from Phase 5, same precedent as CSV import —
+**certification campaigns** (`app/Support/Campaigns.php`: scope frozen at
+launch, manager- or fixed-reviewer assignment, approve/revoke decision
+capture, `entitlement_assignment.last_certified_at` driven by real
+approvals). Do **not** claim the rest of Phase 4+ (Entra GCC High SSO,
+MFA, approval workflows, remediation task management, access requests,
+risk scoring, SoD rules, notifications) exists — see `OPEN_ITEMS.md` for
+the authoritative list of what's missing.
 
 ## Standing rules for this project
 
@@ -121,6 +125,38 @@ access requests, risk scoring, SoD rules, notifications) exists — see
   the old one via `replaces_field_definition_id`
   (`DynamicFields::replace()`). Preserve this lineage pattern for any
   future field-definition lifecycle work.
+- **A certification campaign's scope is frozen at launch — never a live
+  query.** `Campaigns::create()` snapshots every currently in-scope
+  `entitlement_assignment` into `certification_campaign_item` the moment
+  the campaign launches; the campaign is reviewed against that snapshot,
+  never against whatever the Matrix would return if you asked the same
+  question later. This is a deliberate product decision (a mid-review
+  moving target defeats the point of a point-in-time attestation), not a
+  performance shortcut — don't "simplify" this to a live join.
+- **A "revoked" campaign decision records the reviewer's judgment — it
+  does NOT delete the underlying `entitlement_assignment`.** No connector
+  in this build claims `revoke_access`/`modify_access` (see
+  `Connectors::defaultManifest()`), so there is no live system this app
+  could push a revocation back to; silently deleting Verity's own
+  inventory record would claim a removal that didn't actually happen
+  anywhere, which is exactly the capability-manifest dishonesty that rule
+  forbids. Acting on a revoke decision (actually removing the access) is
+  intentionally a separate, not-yet-built step — see `OPEN_ITEMS.md`'s "No
+  remediation task management" entry. Do not wire campaign revocation
+  straight into deleting the assignment without a product decision to
+  change this.
+- **Reviewer authorization is a direct ownership check
+  (`reviewer_person_id = the caller's own person_id`), re-verified inside
+  `Campaigns::decide()` itself — not delegated to the controller, and not
+  the reporting-chain scope.** A campaign item's reviewer was decided once,
+  at snapshot time (`Campaigns::create()`'s `reviewer_strategy`
+  resolution); "can this caller act on this item" is then a simple
+  equality check against that stored value, the same pattern
+  `ProfileController` uses for "is this your own account" — not a new
+  entry in `Authorize`'s scoped-permission families. `decide()` re-checks
+  this itself (`WHERE id = :id AND reviewer_person_id = :pid`) specifically
+  so there is no path to deciding someone else's review item even if a
+  future caller forgets to check first.
 - **`Users::create()` must always receive a password and set the account
   `active` immediately.** An earlier version inserted `status = 'invited'`
   with no `password_hash` at all — since there is no invitation-email flow
@@ -258,17 +294,20 @@ access requests, risk scoring, SoD rules, notifications) exists — see
 ## Roadmap gates (8-phase build)
 
 Phase 1–3 (now, built + tested; now also includes a real CSV import sync
-engine, pulled forward from Phase 4 — see below) → Phase 4 integrations
-(Entra GCC High SSO remains the one item here not yet started) → Phase 5
-certification/review campaigns → Phase 6 workflow automation & remediation
-→ Phase 7 risk scoring/SoD → Phase 8 reporting/analytics & scale
-hardening. Do not build a later phase's feature ahead of its gate without
-updating `OPEN_ITEMS.md` to reflect the new status in the same change —
-CSV import is the precedent for how to do this honestly: it was pulled
-forward deliberately, `OPEN_ITEMS.md`'s "First real connector to build"
-decision was resolved in the same change the code landed, and the
-still-undone half of the original Phase 4 item (Entra GCC High) was kept
-clearly separate rather than implying it moved too.
+engine pulled forward from Phase 4, and certification campaigns pulled
+forward from Phase 5 — see below) → Phase 4 integrations (Entra GCC High
+SSO remains the one item here not yet started) → Phase 5 (certification
+campaigns are done; approval workflows are Phase 6, not Phase 5 — see
+below) → Phase 6 workflow automation & remediation → Phase 7 risk
+scoring/SoD → Phase 8 reporting/analytics & scale hardening. Do not build
+a later phase's feature ahead of its gate without updating
+`OPEN_ITEMS.md` to reflect the new status in the same change — CSV import
+and certification campaigns are the precedent for how to do this
+honestly: each was pulled forward deliberately, each resolved its own
+"decision required" row in `OPEN_ITEMS.md` in the same change the code
+landed, and each kept the still-undone part of its original phase (Entra
+GCC High; approval workflows/remediation/access requests) clearly
+separate rather than implying it moved too.
 
 ## Per-milestone checklist (repo standard)
 

@@ -159,6 +159,23 @@ must be server-verified — **provenance** (how/why a value in the audit
 trail came to be true) must be too, whenever a client could otherwise
 claim a stronger label for its own action than it actually earned.
 
+**A third authorization pattern, alongside the three-state model and the
+two scoped families above: direct, re-verified ownership — certification
+campaign reviews.** `Campaigns::decide()` doesn't add a new scoped
+permission family to `Authorize` for "can this caller review this item";
+a campaign item's reviewer was already decided once, at campaign-launch
+time (`Campaigns::create()`'s `reviewer_strategy` resolution), and is
+stored directly on the item (`reviewer_person_id`). Acting on it is then
+a simple equality check against the caller's own `person_id` — the same
+shape as `ProfileController` checking "is this your own account," not a
+new `Authorize::can()` scope. `decide()` re-runs this check itself
+(`WHERE id = :id AND reviewer_person_id = :pid`) rather than trusting the
+controller to have verified it first, so there is no path to deciding
+someone else's review item even if a future caller forgets. Verified
+live: the correct reviewer could decide an item; a different person
+attempting the same item (same approach used to test any reviewer
+mismatch) was rejected with a specific error, not a generic failure.
+
 ## Data protection
 
 - **In transit:** TLS is provided by the hosting platform (Render

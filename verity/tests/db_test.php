@@ -13,6 +13,7 @@ declare(strict_types=1);
 use Verity\Support\Accounts;
 use Verity\Support\Auth;
 use Verity\Support\Authorize;
+use Verity\Support\Campaigns;
 use Verity\Support\Connectors;
 use Verity\Support\CsvImport;
 use Verity\Support\Db;
@@ -173,6 +174,65 @@ try {
     $r3 = CsvImport::run($csvConnector, $csvBadHeader, null);
     T::eq('failed', $r3['status'], 'a file missing the required external_account_id header fails immediately');
     T::eq(0, $r3['imported_accounts'], 'nothing is imported when the header itself is invalid');
+
+    // --- Fixture: entitlement assignments for a certification campaign -----
+    // $report's manager is $manager (set up in the reporting-chain fixture
+    // above) — exactly what the 'manager' reviewer_strategy should resolve.
+    $campEnt = Db::insert('entitlement', ['application_id' => $app, 'name' => 'Campaign Test Role ' . uniqid(), 'is_privileged' => true]);
+    $campAcctMatched = Db::insert('system_account', ['application_id' => $app, 'person_id' => $report, 'external_account_id' => uniqid('camp-matched-')]);
+    $campAcctUnmatched = Db::insert('system_account', ['application_id' => $app, 'person_id' => null, 'external_account_id' => uniqid('camp-unmatched-')]);
+    Db::insert('entitlement_assignment', ['system_account_id' => $campAcctMatched, 'entitlement_id' => $campEnt]);
+    Db::insert('entitlement_assignment', ['system_account_id' => $campAcctUnmatched, 'entitlement_id' => $campEnt]);
+
+    T::group('Campaigns::create — scope snapshot + reviewer resolution');
+    $launch = Campaigns::create([
+        'name' => 'Test Privileged Review', 'scope_type' => 'privileged',
+        'reviewer_strategy' => 'manager', 'default_reviewer_person_id' => $ceo,
+    ], null);
+    T::ok($launch['item_count'] >= 2, 'at least the two privileged fixture assignments were snapshotted');
+    $matchedItem = Db::fetchOne('SELECT * FROM certification_campaign_item WHERE campaign_id = :cid AND system_account_id = :sa', ['cid' => $launch['id'], 'sa' => $campAcctMatched]);
+    T::eq($manager, (int) $matchedItem['reviewer_person_id'], 'manager strategy resolves the reviewer to the account holder\'s actual manager, not the default');
+    $unmatchedItem = Db::fetchOne('SELECT * FROM certification_campaign_item WHERE campaign_id = :cid AND system_account_id = :sa', ['cid' => $launch['id'], 'sa' => $campAcctUnmatched]);
+    T::eq($ceo, (int) $unmatchedItem['reviewer_person_id'], 'manager strategy falls back to the campaign default reviewer for an unmatched account');
+
+    $fixedLaunch = Campaigns::create([
+        'name' => 'Test Fixed Review', 'scope_type' => 'application', 'scope_application_id' => $app,
+        'reviewer_strategy' => 'fixed', 'default_reviewer_person_id' => $ceo,
+    ], null);
+    $fixedItem = Db::fetchOne('SELECT * FROM certification_campaign_item WHERE campaign_id = :cid AND system_account_id = :sa', ['cid' => $fixedLaunch['id'], 'sa' => $campAcctMatched]);
+    T::eq($ceo, (int) $fixedItem['reviewer_person_id'], 'fixed strategy assigns the named reviewer regardless of the account holder\'s actual manager');
+    try {
+        Campaigns::create(['name' => 'x', 'scope_type' => 'bogus', 'reviewer_strategy' => 'fixed', 'default_reviewer_person_id' => $ceo], null);
+        T::ok(false, 'an invalid scope_type must be rejected before any snapshot is attempted');
+    } catch (\InvalidArgumentException $e) {
+        T::ok(true, 'an invalid scope_type throws InvalidArgumentException rather than silently creating a malformed campaign');
+    }
+
+    T::group('Campaigns::decide — reviewer authorization, idempotency, and last_certified_at');
+    try {
+        Campaigns::decide((int) $matchedItem['id'], $report, 'approved', null, 1);
+        T::ok(false, 'deciding as someone other than the assigned reviewer must throw');
+    } catch (\RuntimeException $e) {
+        T::ok(str_contains($e->getMessage(), 'not assigned'), 'the correct, specific error is thrown for a reviewer mismatch');
+    }
+    $beforeCert = Db::fetchValue('SELECT last_certified_at FROM entitlement_assignment WHERE system_account_id = :sa AND entitlement_id = :e', ['sa' => $campAcctMatched, 'e' => $campEnt]);
+    T::ok($beforeCert === null, 'last_certified_at starts NULL — never certified yet');
+    Campaigns::decide((int) $matchedItem['id'], $manager, 'approved', 'looks fine', 1);
+    $afterCert = Db::fetchValue('SELECT last_certified_at FROM entitlement_assignment WHERE system_account_id = :sa AND entitlement_id = :e', ['sa' => $campAcctMatched, 'e' => $campEnt]);
+    T::ok($afterCert !== null, 'approving a campaign item sets last_certified_at on the real entitlement_assignment row');
+    try {
+        Campaigns::decide((int) $matchedItem['id'], $manager, 'approved', null, 1);
+        T::ok(false, 'deciding an already-decided item must throw');
+    } catch (\RuntimeException $e) {
+        T::ok(str_contains($e->getMessage(), 'already'), 'the correct, specific error is thrown for a double-decision attempt');
+    }
+    Campaigns::decide((int) $unmatchedItem['id'], $ceo, 'revoked', 'access no longer needed', 1);
+    $unmatchedAssignmentStillExists = (int) Db::fetchValue('SELECT COUNT(*) FROM entitlement_assignment WHERE system_account_id = :sa AND entitlement_id = :e', ['sa' => $campAcctUnmatched, 'e' => $campEnt]);
+    T::eq(1, $unmatchedAssignmentStillExists, 'a "revoked" decision records the judgment but does NOT delete the underlying assignment — this app has no connector that can push a revocation back to a source system');
+
+    Campaigns::complete($launch['id'], null);
+    $completed = Campaigns::get($launch['id']);
+    T::eq('completed', $completed['status'], 'Campaigns::complete() marks the campaign completed');
 
     // --- Db::update() behavior ----------------------------------------------
     T::group('Db::update — auto-appends updated_at only when the column exists');

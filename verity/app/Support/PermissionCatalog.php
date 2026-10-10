@@ -79,6 +79,15 @@ final class PermissionCatalog
                     'connector.manage' => 'Create/edit connector configuration',
                 ],
             ],
+            'campaign' => [
+                'label' => 'Certification Campaigns',
+                'icon' => '✅',
+                'actions' => [
+                    'campaign.view' => 'View all campaigns and their progress',
+                    'campaign.manage' => 'Launch, complete, and cancel campaigns',
+                    'campaign.review' => 'Act on review items assigned to you',
+                ],
+            ],
             'dynamicfield' => [
                 'label' => 'Dynamic Fields',
                 'icon' => '🧬',
