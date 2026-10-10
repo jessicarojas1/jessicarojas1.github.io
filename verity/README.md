@@ -4,7 +4,8 @@
 
 > **Status: Phases 1–3 of an 8-phase build.** Working modules: Enterprise
 > Dashboard, Identity Directory, Access Inventory / Unmatched Accounts
-> (manual correlation only), Application Catalog + connector catalog
+> (manual correlation plus deterministic match suggestions — never
+> auto-applied), Application Catalog + connector catalog
 > (configuration only — no live sync), Enterprise Access Matrix (6
 > authorization-scoped views, CSV export, saved views), Dynamic Fields,
 > self-service account/password management, a full admin user-management
@@ -119,16 +120,18 @@ Open `http://localhost:8090` and sign in with any of the 5 seeded accounts
 ## Testing
 
 Zero-dependency harness (`tests/lib/T.php`, not PHPUnit): `php tests/run.php`
-runs **82 assertions, all passing** (verified in this session) — 47
+runs **88 assertions, all passing** (verified in this session) — 47
 pure-logic checks (role/grant/deny layering including the wildcard-vs-deny
 regression test, coarse-alias expansion, password length policy, the
 breach-check response parser against synthetic HIBP-shaped bodies — no
 network call in this group, deliberately — and connector
-capability-manifest honesty) that always run, plus 35 live-database checks
+capability-manifest honesty) that always run, plus 41 live-database checks
 (reporting-chain scoping including cycle-safety against a deliberately
-reintroduced self-reference and a 2-node cycle, application-ownership
-scoping, `Db::update`'s automatic `updated_at`, basic insert/fetch, SQL
-identifier allowlisting, dedicated-schema isolation, and the
+reintroduced self-reference and a 2-node cycle, deterministic
+account-matching heuristics including the ambiguous-match and
+already-linked cases, application-ownership scoping, `Db::update`'s
+automatic `updated_at`, basic insert/fetch, SQL identifier allowlisting,
+dedicated-schema isolation, and the
 user-creation/password-reset flow) that self-skip unless both
 `DATABASE_URL` and `VERITY_TEST_DB=1` are set. The
 DB-backed group builds its own isolated fixture inside a transaction that is

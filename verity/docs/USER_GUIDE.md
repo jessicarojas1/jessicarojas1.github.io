@@ -138,18 +138,28 @@ scale, your browser never has to hold the full inventory in memory.
 connected application with no linked person — orphaned accounts,
 essentially. Filter by application or search term.
 
+The list itself may show a **Suggested Match** badge next to an account —
+Verity found exactly one person whose employee ID or email exactly matches
+(or, at medium confidence, whose email's name-part matches) the account's
+own identifiers. This is a suggestion only: nothing is ever linked until a
+person clicks to confirm it.
+
 Click **Link / Review** on an account to open its detail page. From there:
 
-- **To link it**: type a few letters of the person's name, email, or
-  employee ID in "Link to identity," click the matching result, optionally
-  add a note, and click **Link Account**.
+- **If a suggested match appears**, review the name and the reason given,
+  then click **Accept Suggested Match** (with an optional note) to link it.
+- **To link it to someone else, or when there's no suggestion**: type a few
+  letters of the person's name, email, or employee ID under "Or search
+  manually," click the matching result, optionally add a note, and click
+  **Link Account**.
 - **To unlink** an already-linked account: open it, optionally give a
   reason, and click **Unlink Identity** (you'll be asked to confirm).
 
 Every link and unlink is recorded in that account's **Correlation
-History**, with who did it and when — correlation here is always manual and
-always audited; Verity never auto-merges accounts based on a name or email
-match alone.
+History**, with who did it, when, and the method — `deterministic` for an
+accepted suggestion, `manual` for anything typed and picked by hand.
+Correlation always requires a person to click confirm; Verity never
+auto-merges accounts on its own, no matter how confident a suggestion is.
 
 ## Application Catalog
 

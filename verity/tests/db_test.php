@@ -10,6 +10,7 @@ declare(strict_types=1);
  * the end — never touches or depends on seed.php's data.
  */
 
+use Verity\Support\Accounts;
 use Verity\Support\Auth;
 use Verity\Support\Authorize;
 use Verity\Support\Db;
@@ -97,6 +98,42 @@ try {
     T::group('Authorize — application-ownership scoping (real DB, isolated fixture)');
     T::ok(Authorize::ownsApplication($manager, $app), 'the recorded system owner owns the application');
     T::ok(!Authorize::ownsApplication($report, $app), 'a non-owner does not own the application');
+
+    // --- Fixture: deterministic account-matching candidates ----------------
+    Db::update('person', ['employee_id' => 'EMP-UNIQ-1', 'email' => 'unique.report@benchmark.test'], ['id' => $report]);
+    Db::update('person', ['employee_id' => 'EMP-DUP-1', 'email' => 'ambiguous@benchmark.test'], ['id' => $manager]);
+    $dupPerson = Db::insert('person', [
+        'first_name' => 'Test', 'last_name' => 'Duplicate', 'display_name' => 'Test Duplicate',
+        'department' => 'Executive', 'identity_type' => 'employee', 'employment_status' => 'active',
+        'identity_authority' => 'test', 'email' => 'ambiguous@benchmark.test',
+    ]);
+    $acctByEmployeeId = Db::insert('system_account', [
+        'application_id' => $app, 'external_account_id' => 'EMP-UNIQ-1', 'username' => 'unrelated-username', 'source' => 'manual',
+    ]);
+    $acctByEmail = Db::insert('system_account', [
+        'application_id' => $app, 'external_account_id' => uniqid('ext-'), 'username' => 'unique.report@benchmark.test', 'source' => 'manual',
+    ]);
+    $acctByLocalPart = Db::insert('system_account', [
+        'application_id' => $app, 'external_account_id' => uniqid('ext-'), 'username' => 'unique.report', 'source' => 'manual',
+    ]);
+    $acctAmbiguous = Db::insert('system_account', [
+        'application_id' => $app, 'external_account_id' => uniqid('ext-'), 'username' => 'ambiguous@benchmark.test', 'source' => 'manual',
+    ]);
+    $acctNoMatch = Db::insert('system_account', [
+        'application_id' => $app, 'external_account_id' => uniqid('ext-nomatch-'), 'username' => uniqid('nomatch-'), 'source' => 'manual',
+    ]);
+
+    T::group('Accounts::suggestMatch — deterministic matching heuristics, never auto-applies');
+    $byEmployeeId = Accounts::suggestMatch($acctByEmployeeId);
+    T::ok($byEmployeeId !== null && $byEmployeeId['person_id'] === $report && $byEmployeeId['confidence'] === 'high', 'exact employee_id match finds the right person at high confidence');
+    $byEmail = Accounts::suggestMatch($acctByEmail);
+    T::ok($byEmail !== null && $byEmail['person_id'] === $report && $byEmail['confidence'] === 'high', 'exact email match (username = email) finds the right person at high confidence');
+    $byLocalPart = Accounts::suggestMatch($acctByLocalPart);
+    T::ok($byLocalPart !== null && $byLocalPart['person_id'] === $report && $byLocalPart['confidence'] === 'medium', 'email local-part match (bare username, no @) finds the right person at medium confidence');
+    T::ok(Accounts::suggestMatch($acctAmbiguous) === null, 'two people sharing the same email is treated as NO confident match, never a guess');
+    T::ok(Accounts::suggestMatch($acctNoMatch) === null, 'an account matching nobody returns null, not a weak guess');
+    Accounts::link($acctByEmployeeId, $report, 'deterministic', null);
+    T::ok(Accounts::suggestMatch($acctByEmployeeId) === null, 'an already-linked account is never suggested again');
 
     // --- Db::update() behavior ----------------------------------------------
     T::group('Db::update — auto-appends updated_at only when the column exists');

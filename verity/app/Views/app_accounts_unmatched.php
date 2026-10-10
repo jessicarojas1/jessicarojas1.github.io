@@ -26,10 +26,10 @@ $lastPage = max(1, (int) ceil($total / $pageSize));
 
 <div class="table-wrap">
 <table class="grid">
-  <thead><tr><th>Application</th><th>Account</th><th>Type</th><th>Status</th><th>Discovered</th><th></th></tr></thead>
+  <thead><tr><th>Application</th><th>Account</th><th>Type</th><th>Status</th><th>Discovered</th><th>Suggested Match</th><th></th></tr></thead>
   <tbody>
     <?php if ($accounts === []): ?>
-    <tr class="empty-row"><td colspan="6" class="empty-state-sm">No unmatched accounts — every discovered account is linked to an identity.</td></tr>
+    <tr class="empty-row"><td colspan="7" class="empty-state-sm">No unmatched accounts — every discovered account is linked to an identity.</td></tr>
     <?php endif; ?>
     <?php foreach ($accounts as $a): ?>
     <tr>
@@ -38,6 +38,11 @@ $lastPage = max(1, (int) ceil($total / $pageSize));
       <td><?= Security::h(ucwords($a['account_type'])) ?></td>
       <td><?= $a['status'] === 'enabled' ? '<span class="badge b-ok">Enabled</span>' : '<span class="badge b-neutral">Disabled</span>' ?></td>
       <td><?= Security::h(substr((string) $a['created_at'], 0, 10)) ?></td>
+      <td><?php if ($a['suggestion'] !== null): ?>
+        <span class="badge <?= $a['suggestion']['confidence'] === 'high' ? 'b-ok' : 'b-warn' ?>" title="<?= Security::h($a['suggestion']['reason']) ?>"><?= Security::h($a['suggestion']['person_name']) ?></span>
+      <?php else: ?>
+        <span class="badge b-neutral">None</span>
+      <?php endif; ?></td>
       <td><a class="btn sm" href="/app/accounts/view?id=<?= (int) $a['id'] ?>">Link / Review</a></td>
     </tr>
     <?php endforeach; ?>

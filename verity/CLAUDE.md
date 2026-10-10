@@ -175,6 +175,26 @@ exist — see `OPEN_ITEMS.md` for the authoritative list of what's missing.
   response bodies. The PHP `curl` extension is required in production —
   the Dockerfile compiles it alongside `pdo_pgsql` (`curl-dev` build dep +
   `docker-php-ext-install curl`).
+- **`Accounts::suggestMatch()` only ever suggests — never call `Accounts::link()`
+  from anywhere except a request a human submitted.** The deterministic
+  matching engine (employee-ID/email heuristics) returns a candidate only
+  when exactly one person qualifies under a given rule; ambiguous or
+  no-match cases return `null` rather than guessing. There is no "auto-link
+  all high-confidence suggestions" batch path, and none should be added
+  without a product decision — see OPEN_ITEMS.md's "reviewed before
+  auto-applying at scale" framing, which is the whole reason this stays a
+  suggestion engine. Just as important: **the `link_method='deterministic'`
+  audit label is server-verified, never client-asserted.**
+  `AccountsController::link()` re-runs `suggestMatch()` itself before
+  trusting a request's `accept_suggestion` flag, and only records
+  'deterministic' if the server's own fresh computation agrees with the
+  submitted `person_id` — otherwise it silently falls back to 'manual'.
+  This was verified directly, not just written: a bypassing API call that
+  claimed `accept_suggestion=1` with a `person_id` that didn't match the
+  real suggestion was correctly recorded as 'manual'. Preserve this
+  re-verification if `link()` is ever touched again — a client should
+  never get to dictate what the audit trail says about *how* a decision
+  was made, only what the decision *was*.
 - **`Authorize::reportsOf()` / `isInReportingChain()`'s recursive CTEs
   must stay cycle-safe — never remove the path-tracking guard.**
   `person.manager_person_id` is operator-editable data, not a hierarchy

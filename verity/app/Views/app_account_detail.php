@@ -1,5 +1,5 @@
 <?php
-/** @var array $account @var array $history @var array $assignments @var string $csrf @var string $NONCE */
+/** @var array $account @var array $history @var array $assignments @var array|null $suggestion @var string $csrf @var string $NONCE */
 use Verity\Support\Security;
 
 $appScript = '/assets/accounts.js';
@@ -41,12 +41,26 @@ require __DIR__ . '/partials/app_header.php';
         <button type="submit" class="btn danger" data-confirm="Unlink this account from its identity?">Unlink Identity</button>
       </form>
     <?php else: ?>
+      <?php if ($suggestion !== null): ?>
+      <form method="post" action="/app/accounts/link" id="suggestedLinkForm" class="mt-12">
+        <?= $csrf ?>
+        <input type="hidden" name="account_id" value="<?= (int) $account['id'] ?>">
+        <input type="hidden" name="person_id" value="<?= (int) $suggestion['person_id'] ?>">
+        <input type="hidden" name="accept_suggestion" value="1">
+        <div class="card">
+          <span class="badge <?= $suggestion['confidence'] === 'high' ? 'b-ok' : 'b-warn' ?>">Suggested match — <?= Security::h(ucfirst($suggestion['confidence'])) ?> confidence</span>
+          <p class="mt-6"><strong><?= Security::h($suggestion['person_name']) ?></strong> — <?= Security::h($suggestion['reason']) ?>.</p>
+          <div class="field"><label for="suggested_note">Note</label><input type="text" id="suggested_note" name="note" placeholder="Optional correlation note"></div>
+          <button type="submit" class="btn primary">Accept Suggested Match</button>
+        </div>
+      </form>
+      <?php endif; ?>
       <form method="post" action="/app/accounts/link" id="linkForm" class="mt-12">
         <?= $csrf ?>
         <input type="hidden" name="account_id" value="<?= (int) $account['id'] ?>">
         <input type="hidden" name="person_id" id="link_person_id" value="">
         <div class="field">
-          <label for="link_search">Link to identity</label>
+          <label for="link_search">Or search manually</label>
           <input type="text" id="link_search" autocomplete="off" placeholder="Search by name, email, or employee ID">
           <div id="link_results" class="card dropdown-panel hidden"></div>
         </div>

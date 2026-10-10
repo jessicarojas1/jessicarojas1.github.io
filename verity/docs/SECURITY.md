@@ -143,6 +143,22 @@ check. The `ApiRouter` REST surface demonstrates this: it reuses the exact
 same `Authorize` engine as the HTML routes rather than re-implementing
 authorization for the API.
 
+**A related, narrower trust-boundary rule — audit metadata is
+server-verified, never client-asserted.** The deterministic
+account-matching engine (`Accounts::suggestMatch()`, Unmatched Accounts)
+is the example today: a request can ask to record `link_method =
+'deterministic'` (the "Accept Suggested Match" button), but
+`AccountsController::link()` never takes that claim on faith — it
+re-runs `suggestMatch()` itself and only records 'deterministic' if the
+server's own fresh computation agrees with the submitted `person_id`,
+falling back to 'manual' otherwise. Verified directly: a bypassing API
+call that claimed the flag with a mismatched `person_id` was correctly
+recorded as 'manual'. The general principle for any future feature:
+**authorization** (can this caller do this?) is not the only thing that
+must be server-verified — **provenance** (how/why a value in the audit
+trail came to be true) must be too, whenever a client could otherwise
+claim a stronger label for its own action than it actually earned.
+
 ## Data protection
 
 - **In transit:** TLS is provided by the hosting platform (Render

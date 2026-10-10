@@ -60,6 +60,14 @@ CREATE TABLE IF NOT EXISTS person (
 CREATE INDEX IF NOT EXISTS idx_person_manager ON person(manager_person_id);
 CREATE INDEX IF NOT EXISTS idx_person_department ON person(department);
 CREATE INDEX IF NOT EXISTS idx_person_employment_status ON person(employment_status);
+-- Functional indexes backing Accounts::suggestMatch()'s case-insensitive
+-- deterministic-match lookups (employee_id/email exact match, email
+-- local-part match) — a plain index on employee_id (from its UNIQUE
+-- constraint) or email would not be used by a query wrapped in lower()/
+-- split_part().
+CREATE INDEX IF NOT EXISTS idx_person_employee_id_lower ON person(lower(employee_id));
+CREATE INDEX IF NOT EXISTS idx_person_email_lower ON person(lower(email));
+CREATE INDEX IF NOT EXISTS idx_person_email_local_part_lower ON person(lower(split_part(email, '@', 1)));
 
 -- Secondary relationships (delegate reviewers, dotted-line reporting). The
 -- primary manager chain used for supervisor-scope authorization is always
