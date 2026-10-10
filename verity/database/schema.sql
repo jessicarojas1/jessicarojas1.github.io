@@ -306,6 +306,12 @@ CREATE TABLE IF NOT EXISTS audit_event (
 CREATE INDEX IF NOT EXISTS idx_audit_actor ON audit_event(actor_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_event(created_at);
 CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_event(action);
+-- Login rate-limiting (Auth::isLoginRateLimited()) counts recent
+-- 'auth.login_failed' rows by target (email) and by ip, on every single
+-- login attempt — give both their own composite index rather than relying
+-- on idx_audit_action alone to narrow a growing table fast enough.
+CREATE INDEX IF NOT EXISTS idx_audit_action_target_created ON audit_event(action, target, created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_action_ip_created ON audit_event(action, ip, created_at);
 
 -- No UPDATE/DELETE grants should ever be issued to the application's runtime
 -- DB role on audit_event in production — insert/select only. This cannot be

@@ -17,8 +17,18 @@ Local email + password only, today. `Auth` (`app/Support/Auth.php`):
   either way.
 - Sessions cookie: `VERITY_SID`, `HttpOnly`, `SameSite=Lax`, `Secure`
   whenever the request is HTTPS (directly or via `X-Forwarded-Proto`).
-- There is **no MFA** and **no account lockout/rate limiting on login
-  attempts** — both are open items, see `OPEN_ITEMS.md`.
+- There is **no MFA** — still an open item, see `OPEN_ITEMS.md`.
+- **Login rate limiting** (`Auth::isLoginThrottled()`): 10 failed attempts
+  against one account, or 30 failed attempts from one source IP across any
+  accounts, within a rolling 15-minute window, each independently triggers a
+  soft, time-boxed lockout (expires on its own — not permanent, so an
+  attacker can't lock out a legitimate user just by guessing their password
+  wrong on purpose). Enforced against the existing `audit_event` log, not a
+  separate table. The time window is computed inside the SQL itself
+  (`NOW() - make_interval(...)`) rather than passed as a PHP-formatted
+  timestamp — an earlier version did the latter and the threshold was
+  silently wrong (Postgres interpreted the naive UTC string against its own
+  session timezone, not UTC, pushing the cutoff hours into the future).
 - Password policy is length-only, per NIST SP 800-63B (no forced symbol/digit
   mixing): `Auth::MIN_PASSWORD_LENGTH` (12) / `Auth::MAX_PASSWORD_LENGTH`
   (128), enforced by `Auth::passwordPolicyError()` everywhere a password is
@@ -46,6 +56,19 @@ activate/disable an account (`Users::setStatus()`). **An admin cannot disable
 their own account** — enforced server-side in `IamController::setStatus()`,
 not just hidden in the UI, so there is always at least one way to regain
 enterprise_admin access without direct database surgery.
+
+**Authorization state is re-validated live, every request — never trusted
+from a login-time snapshot.** `Auth::user()` re-fetches the signed-in user's
+`status`, roles, and permission grants from the database on every request
+(cached only for the duration of that one request, never across requests).
+Practical effect: a permission change, role change, or account disable takes
+effect on that user's *very next request* — not merely their next login.
+Disabling an account terminates its already-active session immediately
+(verified: the next request 302s to `/auth/login` and an
+`auth.session_terminated` row is written to `audit_event`). A password
+reset *alone*, without also disabling, does not retroactively invalidate an
+already-issued session cookie — the live check covers status/roles/grants,
+not `password_hash`; to fully cut off an account right now, disable it.
 
 **Microsoft Entra ID (GCC High) SSO is planned, not implemented.**
 `GET /auth/sso` returns a deliberate `503` with an explanatory message

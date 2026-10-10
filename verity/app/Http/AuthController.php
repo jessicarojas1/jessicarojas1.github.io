@@ -32,6 +32,14 @@ final class AuthController
         }
         $email = (string) ($_POST['email'] ?? '');
         $password = (string) ($_POST['password'] ?? '');
+        // Checked before attempting the login so the message is accurate;
+        // Auth::attemptLocal() enforces the same throttle independently
+        // regardless of this check, so there's exactly one place this can
+        // actually be bypassed (nowhere).
+        if (Auth::isLoginThrottled($email)) {
+            self::loginForm($nonce, 'Too many failed sign-in attempts. Please try again in a few minutes.');
+            return;
+        }
         if (!Auth::attemptLocal($email, $password)) {
             self::loginForm($nonce, 'Incorrect email or password.');
             return;

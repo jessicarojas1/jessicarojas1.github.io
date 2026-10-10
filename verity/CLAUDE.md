@@ -126,6 +126,43 @@ exist — see `OPEN_ITEMS.md` for the authoritative list of what's missing.
   rejected). Keep this guard if `setStatus()` is ever refactored; without it,
   an `enterprise_admin` with no other admin account could lock themselves out
   with no way back in short of direct database access.
+- **`Auth::user()` re-validates against the database on every request — it
+  must never go back to trusting a snapshot cached in `$_SESSION` across
+  requests.** This used to be a real gap: roles/grants were read once at
+  login and stashed in the session, so a permission revocation or an
+  account disable didn't take effect until the affected user's *next
+  login* — confirmed live during this build (a fresh explicit deny was
+  invisible to an already-authenticated session). Fixed by making
+  `$_SESSION` hold only the user id; `Auth::user()` re-fetches
+  status/roles/grants fresh every request, cached with a private static
+  flag for the duration of that one request only (`self::$requestUser` /
+  `self::$requestUserLoaded` — these must stay request-scoped, never
+  persisted). If `status` is no longer `'active'`, the session is
+  destroyed on the spot. The one known remaining gap, intentionally not
+  "fixed" further without a product decision: a password reset *alone*
+  (without also disabling) does not retroactively invalidate an
+  already-issued session, since the live check covers status/roles/grants,
+  not `password_hash` — see `OPEN_ITEMS.md`.
+- **Never compare a PHP-formatted timestamp string against a `TIMESTAMPTZ`
+  column — compute the interval inside the SQL instead.** A real bug: the
+  original login-rate-limit check built its time threshold with PHP's
+  `gmdate()` (UTC) and passed it as a plain `:since` parameter. Postgres
+  interprets a naive (no-offset) string against the *session's* `TimeZone`
+  setting, not UTC — the threshold silently landed hours in the future, and
+  the failed-attempt count always read 0 (never throttled, no matter how
+  many failures). Fixed by using `NOW() - make_interval(mins => :n)` so
+  Postgres does all the time arithmetic itself, with no PHP/Postgres
+  timezone boundary to get wrong. Apply the same pattern to any future
+  "how many X happened in the last N minutes" query — see
+  `Auth::isLoginRateLimited()` for the reference implementation.
+- **`Session::destroy()` guards `session_destroy()`/`setcookie()` behind
+  `session_status() === PHP_SESSION_ACTIVE`.** Under CLI SAPI,
+  `Session::start()` never calls the real `session_start()` (by design, to
+  avoid header warnings in tests), so a CLI-context call to `destroy()` used
+  to emit a PHP warning trying to tear down a session that was never
+  started. Found when `Auth::user()`'s live re-validation started calling
+  `Session::destroy()` from a code path a test could actually reach. Keep
+  the guard if this method is ever touched again.
 - **Keep the doc set current.** Update `docs/`, `deployments/`,
   `README.md`, `OPEN_ITEMS.md`, and `database/schema.sql` in the same
   change as any feature, migration, or config change. `schema.sql` must

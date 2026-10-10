@@ -46,7 +46,7 @@ verity/
 │  ├─ Http/               AccountsController, ApplicationsController, AuditController,
 │  │                      AuthController, DashboardController, DynamicFieldsController,
 │  │                      IamController, IdentitiesController, MatrixController,
-│  │                      SettingsController, ApiRouter
+│  │                      ProfileController, SettingsController, SetupController, ApiRouter
 │  ├─ Support/            Db, Security, Session, Config, Auth, Authorize, Roles,
 │  │                      PermissionCatalog, Audit, People, Accounts, Applications,
 │  │                      Connectors, Matrix, DynamicFields, Users, Settings, SavedViews, Dashboard
@@ -55,7 +55,8 @@ verity/
 │  ├─ schema.sql          Idempotent reference schema (17 tables)
 │  └─ seed.php            Synthetic demo-data generator (refuses on APP_ENV=production)
 ├─ tests/                 Zero-dependency harness: run.php, unit_test.php, db_test.php, lib/T.php
-├─ docs/                  ARCHITECTURE, DEPLOYMENT, DISASTER_RECOVERY, SECURITY
+├─ docs/                  USER_GUIDE, ARCHITECTURE, DEPLOYMENT, DISASTER_RECOVERY,
+│                          SECURITY, GCC_HIGH_INTEGRATION, API_SPECIFICATION
 ├─ deployments/           Per-target operator guides
 ├─ Dockerfile, render.yaml, composer.json, .env.example
 ├─ OPEN_ITEMS.md
@@ -112,10 +113,10 @@ Open `http://localhost:8090` and sign in with any of the 5 seeded accounts
 ## Testing
 
 Zero-dependency harness (`tests/lib/T.php`, not PHPUnit): `php tests/run.php`
-runs **66 assertions, all passing** (verified in this session) — 42
+runs **73 assertions, all passing** (verified in this session) — 42
 pure-logic checks (role/grant/deny layering including the wildcard-vs-deny
 regression test, coarse-alias expansion, password policy, connector
-capability-manifest honesty) that always run, plus 24 live-database checks
+capability-manifest honesty) that always run, plus 31 live-database checks
 (reporting-chain scoping, application-ownership scoping, `Db::update`'s
 automatic `updated_at`, basic insert/fetch, SQL identifier allowlisting,
 dedicated-schema isolation, and the user-creation/password-reset flow) that

@@ -47,11 +47,43 @@ final class Auth
         return $row !== null && !empty($row['password_hash']) && password_verify($password, (string) $row['password_hash']);
     }
 
+    /**
+     * Per-request cache only — never per-session. Re-fetching on every
+     * request (rather than trusting a snapshot taken at login) is what makes
+     * a permission change, password reset, or disable take effect on the
+     * very next request instead of only at the affected user's next login.
+     * See CLAUDE.md / OPEN_ITEMS.md for the incident that prompted this.
+     */
+    private static ?array $requestUser = null;
+    private static bool $requestUserLoaded = false;
+
     /** @return array<string,mixed>|null */
     public static function user(): ?array
     {
         Session::start();
-        return $_SESSION['user'] ?? null;
+        if (self::$requestUserLoaded) {
+            return self::$requestUser;
+        }
+        self::$requestUserLoaded = true;
+
+        $userId = $_SESSION['user_id'] ?? null;
+        if ($userId === null) {
+            return self::$requestUser = null;
+        }
+        if (!Db::isConfigured()) {
+            // Dev-without-a-database edge case: nothing to re-validate against.
+            return self::$requestUser = null;
+        }
+
+        $fresh = self::loadCurrentUser((int) $userId);
+        if ($fresh === null || $fresh['status'] !== 'active') {
+            // Account was disabled or deleted since this session began —
+            // terminate it now rather than letting a stale cookie keep working.
+            Audit::log('auth.session_terminated', 'app_user#' . $userId, null, ['reason' => $fresh === null ? 'deleted' : $fresh['status']], null, (int) $userId);
+            Session::destroy();
+            return self::$requestUser = null;
+        }
+        return self::$requestUser = $fresh;
     }
 
     public static function check(): bool
@@ -67,18 +99,87 @@ final class Auth
     }
 
     /**
+     * Rate-limit window/thresholds for failed login attempts, enforced
+     * against the existing append-only `audit_event` log (every failed
+     * attempt is already recorded there — no separate table needed). Two
+     * independent limits: per-account (stops a targeted brute force against
+     * one email) and per-IP (stops a credential-stuffing spray across many
+     * emails from one source). Both are soft, time-boxed lockouts — they
+     * expire on their own once the window passes, not a permanent lock —
+     * which is a deliberate tradeoff: a hard per-account lockout with no
+     * expiry would let an attacker lock a legitimate user out indefinitely
+     * just by repeatedly guessing their password wrong.
+     */
+    public const LOGIN_ATTEMPT_WINDOW_MINUTES = 15;
+    public const MAX_FAILED_ATTEMPTS_PER_EMAIL = 10;
+    public const MAX_FAILED_ATTEMPTS_PER_IP = 30;
+
+    /**
      * Verify local email + password and, on success, establish the session.
-     * Returns false on any failure (bad credentials, no password set, inactive).
+     * Returns false on any failure (bad credentials, no password set,
+     * inactive, or currently rate-limited).
      */
     public static function attemptLocal(string $email, string $password): bool
     {
+        $normalizedEmail = strtolower(trim($email));
+        if (self::isLoginRateLimited($normalizedEmail)) {
+            Audit::denied('auth.login_throttled', $normalizedEmail);
+            return false;
+        }
         $userId = self::checkLocalCredentials($email, $password);
         if ($userId === null) {
-            Audit::denied('auth.login_failed', $email);
+            Audit::denied('auth.login_failed', $normalizedEmail);
             return false;
         }
         self::establishForUser($userId);
         return true;
+    }
+
+    /** Public check so the controller can show an accurate message — enforcement itself happens inside attemptLocal() regardless. */
+    public static function isLoginThrottled(string $email): bool
+    {
+        return self::isLoginRateLimited(strtolower(trim($email)));
+    }
+
+    private static function isLoginRateLimited(string $normalizedEmail): bool
+    {
+        if (!Db::isConfigured()) {
+            return false;
+        }
+        // The threshold is computed by Postgres itself (NOW() - INTERVAL),
+        // never passed as a PHP-formatted timestamp string: PHP has no way
+        // to know what session TimeZone setting Postgres will interpret a
+        // naive (no-offset) string against, and a mismatch there silently
+        // shifts the window — found and fixed during this build (gmdate()'s
+        // UTC string was being reinterpreted in the server's local zone,
+        // pushing "since" hours into the future and making the count always
+        // read 0). Let Postgres do all the time arithmetic in one place.
+        $windowMinutes = self::LOGIN_ATTEMPT_WINDOW_MINUTES;
+
+        $emailFailures = (int) Db::fetchValue(
+            "SELECT COUNT(*) FROM audit_event
+             WHERE action = 'auth.login_failed' AND target = :target
+               AND created_at > NOW() - make_interval(mins => :window_minutes)",
+            ['target' => $normalizedEmail, 'window_minutes' => $windowMinutes]
+        );
+        if ($emailFailures >= self::MAX_FAILED_ATTEMPTS_PER_EMAIL) {
+            return true;
+        }
+
+        $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+        if ($ip !== null) {
+            $ipFailures = (int) Db::fetchValue(
+                "SELECT COUNT(*) FROM audit_event
+                 WHERE action = 'auth.login_failed' AND ip = :ip
+                   AND created_at > NOW() - make_interval(mins => :window_minutes)",
+                ['ip' => $ip, 'window_minutes' => $windowMinutes]
+            );
+            if ($ipFailures >= self::MAX_FAILED_ATTEMPTS_PER_IP) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -110,15 +211,31 @@ final class Auth
     /** Build the session for a known app_user id (used by local login). */
     public static function establishForUser(int $userId): void
     {
+        $u = self::loadCurrentUser($userId);
+        if ($u === null) {
+            self::fail('Account not found.');
+        }
+        Session::regenerate();
+        // Only the id is persisted in the session — Auth::user() re-fetches
+        // everything else (roles, grants, status, name, email) fresh on
+        // every request. See the doc comment on Auth::user().
+        $_SESSION['user_id'] = $u['id'];
+        self::$requestUser = $u;
+        self::$requestUserLoaded = true;
+        Audit::log('auth.login', 'app_user#' . $userId);
+    }
+
+    /** @return array<string,mixed>|null */
+    private static function loadCurrentUser(int $userId): ?array
+    {
         $u = Db::fetchOne(
             'SELECT id, email, display_name, status, person_id FROM app_user WHERE id = :id',
             ['id' => $userId]
         );
         if ($u === null) {
-            self::fail('Account not found.');
+            return null;
         }
-        Session::regenerate();
-        $_SESSION['user'] = [
+        return [
             'id' => (int) $u['id'],
             'email' => (string) $u['email'],
             'name' => (string) $u['display_name'],
@@ -127,7 +244,6 @@ final class Auth
             'roles' => self::loadRoles($userId),
             'grants' => self::loadGrants($userId),
         ];
-        Audit::log('auth.login', 'app_user#' . $userId);
     }
 
     public static function logout(): void

@@ -50,11 +50,18 @@ final class Session
     {
         self::start();
         $_SESSION = [];
-        if (ini_get('session.use_cookies')) {
-            $p = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
+        // Under CLI (tests, and any future CLI-driven call path) start()
+        // never calls the real session_start(), so session_status() stays
+        // PHP_SESSION_NONE — calling session_destroy()/setcookie() in that
+        // state emits a PHP warning for no benefit. Only tear down a session
+        // that was genuinely started.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            if (ini_get('session.use_cookies')) {
+                $p = session_get_cookie_params();
+                setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
+            }
+            session_destroy();
         }
-        session_destroy();
         self::$started = false;
     }
 }

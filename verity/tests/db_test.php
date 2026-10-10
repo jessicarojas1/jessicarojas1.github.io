@@ -10,6 +10,7 @@ declare(strict_types=1);
  * the end — never touches or depends on seed.php's data.
  */
 
+use Verity\Support\Auth;
 use Verity\Support\Authorize;
 use Verity\Support\Db;
 
@@ -87,6 +88,34 @@ try {
     }
     T::ok($rejected, 'a non-identifier string (attempted injection) is rejected before it reaches SQL');
 
+    // --- Auth::isLoginThrottled — a real timezone bug fixed in this change
+    // set: the threshold used to be computed in PHP (gmdate(), UTC) and
+    // compared against a TIMESTAMPTZ column, which Postgres interprets a
+    // naive/no-offset string against using the SESSION's timezone, not UTC —
+    // silently pushing the cutoff hours into the future and making the
+    // count always read 0 (never throttled, no matter how many failures).
+    // Fixed by computing the interval inside the SQL itself (NOW() -
+    // make_interval(...)), so there is no PHP/Postgres timezone boundary to
+    // get wrong. These insert directly into audit_event (not via Audit::log,
+    // to control the exact timestamps/targets precisely) inside the same
+    // fixture transaction, so they roll back with everything else.
+    T::group('Auth::isLoginThrottled — per-account and per-IP rate limiting');
+    $throttleEmail = 'throttle-test-' . bin2hex(random_bytes(4)) . '@example.test';
+    $throttleIp = '203.0.113.' . random_int(1, 254); // TEST-NET-3, RFC 5737 — guaranteed not a real client IP
+    for ($i = 0; $i < Auth::MAX_FAILED_ATTEMPTS_PER_EMAIL - 1; $i++) {
+        Db::insert('audit_event', ['action' => 'auth.login_failed', 'target' => $throttleEmail, 'ip' => $throttleIp, 'result' => 'denied']);
+    }
+    T::ok(!Auth::isLoginThrottled($throttleEmail), 'one under the threshold: not yet throttled');
+    Db::insert('audit_event', ['action' => 'auth.login_failed', 'target' => $throttleEmail, 'ip' => $throttleIp, 'result' => 'denied']);
+    T::ok(Auth::isLoginThrottled($throttleEmail), 'at the threshold: throttled');
+    T::ok(!Auth::isLoginThrottled('someone-else-entirely@example.test'), 'a different, never-attempted account is NOT throttled — this is per-account, not global');
+    // An old failure outside the window must not count towards the threshold.
+    Db::query(
+        "UPDATE audit_event SET created_at = NOW() - INTERVAL '1 hour' WHERE target = :t",
+        ['t' => $throttleEmail]
+    );
+    T::ok(!Auth::isLoginThrottled($throttleEmail), 'failures outside the time window no longer count — the lockout is time-boxed, not permanent');
+
     // --- Users::create() / Auth — the real bug fixed in this change set ----
     // Users::create() used to insert status='invited' with no password_hash
     // at all, producing an account that could never log in (there is no
@@ -160,3 +189,47 @@ $inPublic = (int) Db::fetchValue(
 );
 T::eq(0, $inPublic, 'the probe table was created ONLY inside the dedicated schema — public is untouched, proving real isolation');
 Db::query('DROP SCHEMA IF EXISTS ' . Db::ident($testSchema) . ' CASCADE');
+
+// --- Auth::user() live re-validation — a real bug fixed in this build ------
+// Auth::user() used to return a snapshot cached in $_SESSION at login time;
+// a permission/status change for an already-signed-in user had no effect
+// until their next login. Like the DB_SCHEMA test above, this needs a
+// genuinely fresh process: Auth's per-request cache (self::$requestUser) is
+// a static property that would otherwise make a second in-process call
+// return a stale cached answer regardless of what the first call saw.
+T::group('Auth::user() — live re-validation of status on every request (not session-cached)');
+$sessionTestEmail = 'test-session-' . bin2hex(random_bytes(4)) . '@example.test';
+$sessionTestUserId = \Verity\Support\Users::create($sessionTestEmail, 'Test Session User', 'a-perfectly-fine-password-12', ['auditor'], null, null);
+
+$probeAuthUser = function () use ($sessionTestUserId) {
+    $script = implode("\n", [
+        'require ' . var_export(dirname(__DIR__) . '/app/bootstrap.php', true) . ';',
+        'use Verity\Support\Auth;',
+        '$_SESSION = $_SESSION ?? [];',
+        '$_SESSION[\'user_id\'] = ' . $sessionTestUserId . ';',
+        '$u = Auth::user();',
+        'echo $u === null ? \'null\' : $u[\'status\'];',
+    ]);
+    $env = ['DATABASE_URL' => (string) getenv('DATABASE_URL')];
+    $process = proc_open([PHP_BINARY, '-r', $script], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, $env);
+    if ($process === false) {
+        return 'proc_open failed';
+    }
+    $out = stream_get_contents($pipes[1]) . stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    proc_close($process);
+    return trim($out);
+};
+
+T::eq('active', $probeAuthUser(), 'a fresh process with user_id in $_SESSION gets the live, current status back (active)');
+\Verity\Support\Users::setStatus($sessionTestUserId, 'disabled', null);
+T::eq('null', $probeAuthUser(), 'after the account is disabled, the VERY NEXT request (a fresh process, no re-login) sees it immediately — Auth::user() returns null rather than a stale cached "active"');
+
+$terminatedEvent = Db::fetchOne(
+    "SELECT after_value FROM audit_event WHERE action = 'auth.session_terminated' AND target = :t ORDER BY created_at DESC LIMIT 1",
+    ['t' => 'app_user#' . $sessionTestUserId]
+);
+T::ok($terminatedEvent !== null, 'the live termination was itself audited (auth.session_terminated)');
+
+Db::delete('app_user', ['id' => $sessionTestUserId]);
