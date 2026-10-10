@@ -86,6 +86,35 @@ try {
         $rejected = true;
     }
     T::ok($rejected, 'a non-identifier string (attempted injection) is rejected before it reaches SQL');
+
+    // --- Users::create() / Auth — the real bug fixed in this change set ----
+    // Users::create() used to insert status='invited' with no password_hash
+    // at all, producing an account that could never log in (there is no
+    // invitation-acceptance flow). Regression-guards that specifically.
+    T::group('Users::create — a newly created user can log in immediately');
+    $newUserEmail = 'test-newuser-' . bin2hex(random_bytes(4)) . '@example.test';
+    $newUserId = \Verity\Support\Users::create($newUserEmail, 'Test New User', 'a-perfectly-fine-password-12', ['auditor'], null, null);
+    $row = Db::fetchOne('SELECT status, password_hash FROM app_user WHERE id = :id', ['id' => $newUserId]);
+    T::eq('active', $row['status'] ?? null, 'a newly created user is status=active, not the unusable "invited" state');
+    T::ok(!empty($row['password_hash']), 'a newly created user has a password_hash set');
+    T::eq(
+        $newUserId,
+        \Verity\Support\Auth::checkLocalCredentials($newUserEmail, 'a-perfectly-fine-password-12'),
+        'the exact password given at creation time authenticates successfully — this is the bug that was fixed'
+    );
+    T::ok(
+        \Verity\Support\Auth::checkLocalCredentials($newUserEmail, 'wrong-password-entirely') === null,
+        'an incorrect password is still rejected for the new account'
+    );
+
+    T::group('Users::updateDetails — updates name/email/person, never touches password or status');
+    $beforeHash = Db::fetchValue('SELECT password_hash FROM app_user WHERE id = :id', ['id' => $newUserId]);
+    \Verity\Support\Users::updateDetails($newUserId, 'Renamed User', $newUserEmail, $report, null);
+    $afterUpdate = Db::fetchOne('SELECT display_name, person_id, password_hash, status FROM app_user WHERE id = :id', ['id' => $newUserId]);
+    T::eq('Renamed User', $afterUpdate['display_name'], 'display_name was updated');
+    T::eq($report, (int) $afterUpdate['person_id'], 'person_id (linked identity) was updated');
+    T::ok($beforeHash === $afterUpdate['password_hash'], 'password_hash is untouched by a details update'); // T::ok, not T::eq — avoid echoing a hash value into test output
+    T::eq('active', $afterUpdate['status'], 'status is untouched by a details update');
 } finally {
     $pdo->rollBack();
 }

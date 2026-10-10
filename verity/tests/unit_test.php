@@ -9,6 +9,7 @@ declare(strict_types=1);
  * the connector capability-manifest honesty rule.
  */
 
+use Verity\Support\Auth;
 use Verity\Support\Authorize;
 use Verity\Support\Connectors;
 use Verity\Support\Roles;
@@ -32,6 +33,14 @@ T::ok(strlen($token) >= 32, 'a generated CSRF token is non-trivially long');
 T::ok(Security::validateCsrf($token), 'the token just issued validates successfully');
 T::ok(!Security::validateCsrf('not-the-right-token'), 'an unrelated token is rejected');
 T::ok(!Security::validateCsrf(null), 'a missing token is rejected, not silently accepted');
+
+T::group('Auth::passwordPolicyError — length-based policy (no DB)');
+T::ok(Auth::passwordPolicyError('short') !== null, 'a password under the minimum length is rejected');
+T::ok(Auth::passwordPolicyError(str_repeat('a', Auth::MIN_PASSWORD_LENGTH)) === null, 'exactly the minimum length is accepted');
+T::ok(Auth::passwordPolicyError(str_repeat('a', Auth::MIN_PASSWORD_LENGTH - 1)) !== null, 'one character under the minimum is rejected');
+T::ok(Auth::passwordPolicyError(str_repeat('a', Auth::MAX_PASSWORD_LENGTH)) === null, 'exactly the maximum length is accepted');
+T::ok(Auth::passwordPolicyError(str_repeat('a', Auth::MAX_PASSWORD_LENGTH + 1)) !== null, 'one character over the maximum is rejected');
+T::ok(Auth::passwordPolicyError('correct horse battery staple!') === null, 'a long passphrase with no symbol-complexity requirement is accepted');
 
 T::group('Roles — role defaults and coarse-alias expansion');
 T::ok(in_array('*', Roles::permissionsFor(['enterprise_admin']), true), 'enterprise_admin holds the wildcard permission');

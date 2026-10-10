@@ -45,12 +45,19 @@ final class Users
         return $u;
     }
 
-    public static function create(string $email, string $displayName, array $roles, ?int $personId, ?int $actorId): int
+    /**
+     * Create a user with an initial password, set active immediately (there
+     * is no invitation-email flow in this build — see OPEN_ITEMS.md — so an
+     * account with no password and status 'invited' would be permanently
+     * unusable; the admin hands the password to the new user out of band).
+     */
+    public static function create(string $email, string $displayName, string $password, array $roles, ?int $personId, ?int $actorId): int
     {
         $id = Db::insert('app_user', [
             'email' => strtolower(trim($email)),
             'display_name' => $displayName,
-            'status' => 'invited',
+            'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+            'status' => 'active',
             'person_id' => $personId,
         ]);
         self::setRoles($id, $roles, $actorId);
@@ -76,6 +83,24 @@ final class Users
         $before = self::get($userId);
         Db::update('app_user', ['status' => $status], ['id' => $userId]);
         Audit::log('iam.status_set', 'app_user#' . $userId, $before, ['status' => $status], null, $actorId);
+    }
+
+    /**
+     * Update display name / email / linked identity for an existing user.
+     * Never touches status, roles, grants, or password_hash — each of those
+     * has its own focused method with its own audit action name.
+     */
+    public static function updateDetails(int $userId, string $displayName, string $email, ?int $personId, ?int $actorId): void
+    {
+        $before = self::get($userId);
+        Db::update('app_user', [
+            'display_name' => $displayName,
+            'email' => strtolower(trim($email)),
+            'person_id' => $personId,
+        ], ['id' => $userId]);
+        Audit::log('iam.details_updated', 'app_user#' . $userId, $before, [
+            'display_name' => $displayName, 'email' => $email, 'person_id' => $personId,
+        ], null, $actorId);
     }
 
     /**

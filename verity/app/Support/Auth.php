@@ -15,6 +15,38 @@ namespace Verity\Support;
  */
 final class Auth
 {
+    /**
+     * Minimum/maximum password length. Length over complexity rules,
+     * following NIST SP 800-63B guidance — no forced symbol/digit mixing.
+     * The maximum is defense-in-depth against pathologically large inputs
+     * being hashed, not a real-world password constraint.
+     */
+    public const MIN_PASSWORD_LENGTH = 12;
+    public const MAX_PASSWORD_LENGTH = 128;
+
+    /** Null when valid; otherwise a user-facing reason the password was rejected. */
+    public static function passwordPolicyError(string $password): ?string
+    {
+        $len = strlen($password);
+        if ($len < self::MIN_PASSWORD_LENGTH) {
+            return 'Password must be at least ' . self::MIN_PASSWORD_LENGTH . ' characters.';
+        }
+        if ($len > self::MAX_PASSWORD_LENGTH) {
+            return 'Password must be at most ' . self::MAX_PASSWORD_LENGTH . ' characters.';
+        }
+        return null;
+    }
+
+    /** Verify a password against a specific user id (for self-service "current password" checks). */
+    public static function verifyPassword(int $userId, string $password): bool
+    {
+        if (!Db::isConfigured() || $password === '') {
+            return false;
+        }
+        $row = Db::fetchOne('SELECT password_hash FROM app_user WHERE id = :id', ['id' => $userId]);
+        return $row !== null && !empty($row['password_hash']) && password_verify($password, (string) $row['password_hash']);
+    }
+
     /** @return array<string,mixed>|null */
     public static function user(): ?array
     {

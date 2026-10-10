@@ -55,7 +55,7 @@ $showSettings = $can('settings.manage');
     <?php if ($showSettings): ?><a href="/app/admin/settings"<?= $navActive === 'settings' ? ' class="active"' : '' ?>>Settings</a><?php endif; ?>
   </nav>
   <div class="who">
-    <span class="who-name"><?= Security::h($user['name'] ?? 'User') ?></span>
+    <a href="/app/profile" class="who-name"><?= Security::h($user['name'] ?? 'User') ?></a>
     <a href="/auth/logout">Sign out</a>
   </div>
 </header>

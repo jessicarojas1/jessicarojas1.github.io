@@ -17,10 +17,35 @@ Local email + password only, today. `Auth` (`app/Support/Auth.php`):
   either way.
 - Sessions cookie: `VERITY_SID`, `HttpOnly`, `SameSite=Lax`, `Secure`
   whenever the request is HTTPS (directly or via `X-Forwarded-Proto`).
-- There is **no MFA**, **no account lockout/rate limiting on login
-  attempts**, and **no password complexity policy enforced by the app**
-  beyond whatever `password_hash()` accepts. All three are open items — see
-  `OPEN_ITEMS.md`.
+- There is **no MFA** and **no account lockout/rate limiting on login
+  attempts** — both are open items, see `OPEN_ITEMS.md`.
+- Password policy is length-only, per NIST SP 800-63B (no forced symbol/digit
+  mixing): `Auth::MIN_PASSWORD_LENGTH` (12) / `Auth::MAX_PASSWORD_LENGTH`
+  (128), enforced by `Auth::passwordPolicyError()` everywhere a password is
+  set — self-service change, admin creation, and admin reset alike. No
+  breach-list (e.g. HaveIBeenPwned range) check is performed — that remains
+  an open item.
+
+**Self-service password change** (`/app/profile`, `ProfileController`) is
+available to every authenticated user regardless of role — it only ever acts
+on the caller's own account, so it needs no `Authorize` permission check,
+only `Auth::requireAuth()`. Requires the current password (verified via
+`Auth::verifyPassword()`) before accepting a new one, rejects a new password
+identical to the current one, and regenerates the session id on success.
+
+**Admin user management** (`iam.manage` permission, inside the Admin IAM
+console) covers the full lifecycle: `Users::create()` requires an initial
+password and sets the account `active` immediately — there is no invitation-
+email flow in this build (see `OPEN_ITEMS.md`), so a password-less
+`'invited'` account would be permanently unusable; a prior version of this
+code had exactly that bug, since fixed. Admins can also edit a user's
+display name/email/linked identity (`Users::updateDetails()`), reset a
+user's password (`Auth::setPassword()` via `IamController::resetPassword()`
+— no email delivery, the admin shares the new password out of band), and
+activate/disable an account (`Users::setStatus()`). **An admin cannot disable
+their own account** — enforced server-side in `IamController::setStatus()`,
+not just hidden in the UI, so there is always at least one way to regain
+enterprise_admin access without direct database surgery.
 
 **Microsoft Entra ID (GCC High) SSO is planned, not implemented.**
 `GET /auth/sso` returns a deliberate `503` with an explanatory message

@@ -16,6 +16,7 @@ use Verity\Http\DynamicFieldsController;
 use Verity\Http\IamController;
 use Verity\Http\IdentitiesController;
 use Verity\Http\MatrixController;
+use Verity\Http\ProfileController;
 use Verity\Http\SettingsController;
 use Verity\Http\SetupController;
 
@@ -81,6 +82,13 @@ switch ($path) {
     case '/app':
         DashboardController::index($nonce);
         return;
+
+    case '/app/profile':
+        ProfileController::index($nonce);
+        return;
+    case '/app/profile/password':
+        if ($method === 'POST') { ProfileController::changePassword(); return; }
+        http_response_code(405); return;
 
     case '/app/identities':
         IdentitiesController::index($nonce);
@@ -148,6 +156,15 @@ switch ($path) {
         http_response_code(405); return;
     case '/app/admin/iam/create-user':
         if ($method === 'POST') { IamController::createUser(); return; }
+        http_response_code(405); return;
+    case '/app/admin/iam/update-details':
+        if ($method === 'POST') { IamController::updateUserDetails(); return; }
+        http_response_code(405); return;
+    case '/app/admin/iam/reset-password':
+        if ($method === 'POST') { IamController::resetPassword(); return; }
+        http_response_code(405); return;
+    case '/app/admin/iam/set-status':
+        if ($method === 'POST') { IamController::setStatus(); return; }
         http_response_code(405); return;
 
     case '/app/admin/settings':

@@ -3,9 +3,11 @@
 Honest status as of this review. Verity is a **working application**
 (Phases 1–3 of an 8-phase build) — the Enterprise Dashboard, Identity
 Directory, Access Inventory/Unmatched Accounts, Application Catalog +
-connector catalog, Enterprise Access Matrix, Dynamic Fields, Admin IAM
-console, Settings/Branding, and Audit trail are built and exercised by an
-automated test suite (47 assertions, all passing). Everything below is
+connector catalog, Enterprise Access Matrix, Dynamic Fields, self-service
+account/password management, a full admin user-management flow (create with
+password, edit details, reset password, activate/disable) inside the Admin
+IAM console, Settings/Branding, and Audit trail are built and exercised by
+an automated test suite (66 assertions, all passing). Everything below is
 grouped by theme, each with **Impact** and **Suggested action**. Nothing in
 this list should be read as "broken" — it is "not yet built," stated plainly
 rather than implied to exist.
@@ -48,6 +50,8 @@ rather than implied to exist.
 | No secrets-manager integration | Configuration is "whatever environment variables the platform injects"; no AWS Secrets Manager / Azure Key Vault wiring exists | Wire in per target as part of each `deployments/*.md` guide |
 | FIPS readiness not evaluated | No assessment has been done of whether this app's cryptographic operations meet FIPS 140 | Commission a FIPS assessment before any claim of FIPS readiness; do not infer it from the GCC High endpoint defaults, which are a convention, not a crypto validation |
 | Permission/role changes don't take effect for an already-logged-in session | `Auth::establishForUser()` reads `roles`/`grants` from the DB once, at login, into `$_SESSION` — `Authorize::can()` reads only that cached snapshot. An IAM admin revoking (or denying) a permission for a currently-signed-in user does not take effect until that user's session ends and they sign in again; confirmed live during this review (a fresh explicit deny was invisible to an already-authenticated session, and only took effect after re-login) | Document this operationally (tell admins that a revocation requires the affected user to re-authenticate, or add a "force sign-out" action) until/unless session grants are re-read per-request or a session-invalidation hook is added to `IamController::save()` |
+| Same root cause, surfaced by the new admin password-reset/disable actions: neither terminates the target user's already-active session | If an admin resets a compromised user's password or disables their account specifically to cut off access, an attacker who already has a valid session cookie keeps working until that session naturally expires — the new password and "disabled" status only block *future* logins, not the current one | Add a server-side session store (DB- or Redis-backed, keyed by user id) so an admin action can actively invalidate a specific user's live sessions; until then, treat password reset/disable as "blocks new logins," not "immediately revokes access," and note this when advising on incident response |
+| Password policy is length-only (12–128 chars); no breach-list (e.g. HaveIBeenPwned range API) or common-password check | A user can set a long but widely-known-compromised password | Add a breach-list check (k-anonymity range query, no plaintext password ever leaves the server) before accepting a new password, in `Auth::passwordPolicyError()` |
 | No CI pipeline for this app | Tests are run manually (`php tests/run.php`); nothing gates merges or deploys | Add a workflow that lints every PHP file and runs the full suite (including the DB-backed group) against a throwaway PostgreSQL service |
 
 ## Performance & Scale
@@ -80,12 +84,22 @@ rather than implied to exist.
 ## Notes / known limitations
 
 - **Verified in this review (2026-10-09):** `php tests/run.php` passes
-  34/34 logic assertions with no database configured; against a throwaway
+  42/42 logic assertions with no database configured; against a throwaway
   local PostgreSQL 16 instance with `VERITY_TEST_DB=1` set, the full suite
-  passes **47/47** (0 failed, 0 skipped), including the reporting-chain and
+  passes **66/66** (0 failed, 0 skipped), including the reporting-chain and
   application-ownership scoping tests against an isolated fixture that is
-  rolled back afterward (confirmed empty post-run). `database/schema.sql`
-  applies cleanly start-to-finish against a fresh database with no errors.
+  rolled back afterward (confirmed empty post-run), and the user-creation/
+  password-reset flow (regression-tested specifically because an earlier
+  version of `Users::create()` produced permanently unusable accounts —
+  see the Security Hardening and git history for the fix). Also verified
+  live in a browser against the running app: self-service password change
+  (wrong-current-password rejection, then a successful change, then
+  confirmed the old password stops working and the new one works), admin
+  "Invite User" with a generated password (confirmed the new account could
+  sign in immediately), admin password reset (confirmed the new password
+  works for login), and the self-disable guard (blocked both in the UI and
+  via a direct API call bypassing it). `database/schema.sql` applies
+  cleanly start-to-finish against a fresh database with no errors.
 - `person_relationship` (secondary manager/delegate relationships) exists in
   the schema but is additive and not yet surfaced anywhere in the UI.
 - `connector_sync_job` exists in the schema to record sync job history but

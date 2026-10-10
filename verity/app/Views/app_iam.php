@@ -24,6 +24,14 @@ require __DIR__ . '/partials/app_header.php';
         </select>
       </div>
     </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="new_user_password">Initial Password</label>
+        <input type="text" id="new_user_password" name="password" minlength="<?= (int) $bootstrap['minPasswordLength'] ?>" required>
+        <p class="hint">At least <?= (int) $bootstrap['minPasswordLength'] ?> characters. There is no email invitation flow yet — share this with the new user directly.</p>
+      </div>
+      <div class="field field-end"><button type="button" class="btn sm" id="generatePassword">Generate</button></div>
+    </div>
     <div class="field">
       <label>Roles</label>
       <div class="field-row">
@@ -58,6 +66,7 @@ require __DIR__ . '/partials/app_header.php';
       <button type="button" class="btn primary sm" id="saveBtn" disabled>Save changes</button>
     </div>
     <div id="selectedUserInfo" class="hint mb-8">Select a user to edit permissions.</div>
+    <div id="userDetails"></div>
     <div id="editor"></div>
   </section>
 </div>

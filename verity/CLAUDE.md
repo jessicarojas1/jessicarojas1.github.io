@@ -105,6 +105,27 @@ exist — see `OPEN_ITEMS.md` for the authoritative list of what's missing.
   the old one via `replaces_field_definition_id`
   (`DynamicFields::replace()`). Preserve this lineage pattern for any
   future field-definition lifecycle work.
+- **`Users::create()` must always receive a password and set the account
+  `active` immediately.** An earlier version inserted `status = 'invited'`
+  with no `password_hash` at all — since there is no invitation-email flow
+  in this build, that produced a permanently unusable account (nothing could
+  ever set its password). Fixed, and guarded by a regression test
+  (`tests/db_test.php`, "Users::create — a newly created user can log in
+  immediately"). If an invitation-email flow is ever built, the `'invited'`
+  status can become meaningful again — until then, every path that creates a
+  user must supply a password through `Auth::passwordPolicyError()` /
+  `password_hash()`, exactly like `IamController::createUser()` does.
+- **Every password-setting path — self-service change
+  (`ProfileController::changePassword()`), admin creation
+  (`IamController::createUser()`), and admin reset
+  (`IamController::resetPassword()`) — must validate through
+  `Auth::passwordPolicyError()`.** Don't add a fourth path that skips it.
+- **An admin can never disable their own account** — enforced server-side in
+  `IamController::setStatus()`, not just hidden in the UI (verified during
+  this build: a direct API call bypassing the UI was still correctly
+  rejected). Keep this guard if `setStatus()` is ever refactored; without it,
+  an `enterprise_admin` with no other admin account could lock themselves out
+  with no way back in short of direct database access.
 - **Keep the doc set current.** Update `docs/`, `deployments/`,
   `README.md`, `OPEN_ITEMS.md`, and `database/schema.sql` in the same
   change as any feature, migration, or config change. `schema.sql` must

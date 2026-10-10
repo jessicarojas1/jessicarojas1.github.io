@@ -4,8 +4,10 @@
 > Dashboard, Identity Directory, Access Inventory / Unmatched Accounts
 > (manual correlation only), Application Catalog + connector catalog
 > (configuration only — no live sync), Enterprise Access Matrix (6
-> authorization-scoped views, CSV export, saved views), Dynamic Fields, Admin
-> IAM console, Settings/Branding, and an append-only Audit trail. **No CI
+> authorization-scoped views, CSV export, saved views), Dynamic Fields,
+> self-service account/password management, a full admin user-management
+> flow (create with password, edit details, reset password, activate/
+> disable), Settings/Branding, and an append-only Audit trail. **No CI
 > badge exists.** See [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for an honest,
 > itemized account of what is and is not built.
 
@@ -110,11 +112,13 @@ Open `http://localhost:8090` and sign in with any of the 5 seeded accounts
 ## Testing
 
 Zero-dependency harness (`tests/lib/T.php`, not PHPUnit): `php tests/run.php`
-runs **47 assertions, all passing** (verified in this session) — 34
-pure-logic checks (role/grant/deny layering, coarse-alias expansion,
-connector capability-manifest honesty) that always run, plus 13 live-database
-checks (reporting-chain scoping, application-ownership scoping, `Db::update`'s
-automatic `updated_at`, basic insert/fetch, SQL identifier allowlisting) that
+runs **66 assertions, all passing** (verified in this session) — 42
+pure-logic checks (role/grant/deny layering including the wildcard-vs-deny
+regression test, coarse-alias expansion, password policy, connector
+capability-manifest honesty) that always run, plus 24 live-database checks
+(reporting-chain scoping, application-ownership scoping, `Db::update`'s
+automatic `updated_at`, basic insert/fetch, SQL identifier allowlisting,
+dedicated-schema isolation, and the user-creation/password-reset flow) that
 self-skip unless both `DATABASE_URL` and `VERITY_TEST_DB=1` are set. The
 DB-backed group builds its own isolated fixture inside a transaction that is
 always rolled back — it never touches or depends on `seed.php`'s data.

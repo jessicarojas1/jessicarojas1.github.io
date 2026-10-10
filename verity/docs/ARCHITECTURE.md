@@ -40,7 +40,7 @@ background worker — everything a request needs happens inside that request.
 | Layer | Path | Responsibility |
 |---|---|---|
 | Front controller | `public/index.php` | Manual switch-based router (no framework), security headers, CSP nonce, `/health`, `/api/*` dispatch |
-| HTTP controllers | `app/Http/*Controller.php` | One per module; call `Auth::requireAuth()` + `Authorize::requirePermission()` before touching data, validate CSRF on every POST, require views |
+| HTTP controllers | `app/Http/*Controller.php` | One per module; call `Auth::requireAuth()` + `Authorize::requirePermission()` before touching data, validate CSRF on every POST, require views. One deliberate exception: `ProfileController` (self-service account/password page) only calls `Auth::requireAuth()` — it never needs a permission check because it only ever acts on the signed-in user's own account, not on an arbitrary target the caller could escalate through |
 | API router | `app/Http/ApiRouter.php` | Minimal versioned REST surface (`/api/v1/matrix` today); reuses the exact same `Authorize` engine as the HTML routes — never a parallel check |
 | Support services | `app/Support/*.php` | Framework + domain logic: `Db`, `Security`, `Session`, `Config`, `Auth`, `Authorize`, `Roles`, `PermissionCatalog`, `Audit`, plus one class per module (`People`, `Accounts`, `Applications`, `Connectors`, `Matrix`, `DynamicFields`, `Users`, `Settings`, `SavedViews`, `Dashboard`) |
 | Views | `app/Views/*.php` | Plain PHP templates; all output escaped via `Security::h()`; no inline event handlers or `style=""` attributes anywhere |
