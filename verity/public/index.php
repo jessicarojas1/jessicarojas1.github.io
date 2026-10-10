@@ -17,6 +17,7 @@ use Verity\Http\IamController;
 use Verity\Http\IdentitiesController;
 use Verity\Http\MatrixController;
 use Verity\Http\SettingsController;
+use Verity\Http\SetupController;
 
 $nonce = Security::nonce();
 $csp = implode('; ', [
@@ -52,6 +53,11 @@ if ($path === '/health') {
 
 if (str_starts_with($path, '/api/')) {
     ApiRouter::dispatch($method, $path);
+    return;
+}
+
+if ($path === '/setup') {
+    SetupController::run();
     return;
 }
 

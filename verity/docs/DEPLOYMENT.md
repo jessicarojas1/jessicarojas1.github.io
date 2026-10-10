@@ -65,6 +65,11 @@ configuration is required for any implemented feature.
 
 ## Database setup
 
+**No shell/SSH access on the deploy target** (e.g. Render's free compute
+plan gates both Shell and One-Off Jobs behind a paid plan): skip straight to
+"Remote bootstrap (`/setup`)" below instead of the shell commands in this
+section — they all assume a shell.
+
 **Dedicated database (`DB_SCHEMA` unset):** apply the idempotent reference
 schema directly:
 
@@ -104,6 +109,26 @@ shell invocation (e.g. `APP_ENV=development php database/seed.php --force`
 in a Render shell), then let the service's normal environment (`production`)
 resume on the next deploy/restart. Do this only against a database that
 should hold nothing but fictional demo data.
+
+### Remote bootstrap (`/setup`) — for targets with no shell access
+
+`app/Http/SetupController.php` exists specifically for deploy targets that
+give no shell/SSH/one-off-job access at all (Render's free compute plan is
+the motivating case). It applies `schema.sql` and runs `seed.php` over a
+plain HTTPS request instead:
+
+1. Set a `SETUP_TOKEN` env var on the service to a long random value (e.g.
+   `openssl rand -hex 32`). The route 404s unconditionally while this is
+   unset — it does not exist until explicitly turned on.
+2. Visit `https://<your-service>/setup?token=<that value>` once (or
+   `curl`/browser — it's a plain `GET`).
+3. It applies the schema (idempotent) and seeds **only if** the `person`
+   table is currently empty — it will never overwrite or duplicate real
+   data on a second accidental hit.
+4. **Unset `SETUP_TOKEN` afterward** to close the endpoint back to a
+   permanent 404. See `OPEN_ITEMS.md` for the full security rationale (why
+   it's safe to leave reachable even if the token briefly leaked, and why
+   it should still be closed once done).
 
 Seed creates 150 synthetic people across 10 departments with a manager
 hierarchy, 15 synthetic applications (one GCC High entry explicitly marked as
