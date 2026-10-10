@@ -58,6 +58,20 @@ final class Config
         return self::get('DB_SCHEMA');
     }
 
+    /**
+     * Whether Auth::passwordPolicyError() checks new passwords against the
+     * Have I Been Pwned Pwned Passwords range API (k-anonymity — only a
+     * 5-character hash prefix ever leaves this server). Defaults to enabled,
+     * since every deployment target except air-gapped has outbound internet.
+     * Set PASSWORD_BREACH_CHECK_ENABLED=false for an air-gapped deployment —
+     * see deployments/AIRGAPPED.md — or if this third-party dependency is
+     * ever unwanted for another reason.
+     */
+    public static function breachCheckEnabled(): bool
+    {
+        return self::bool('PASSWORD_BREACH_CHECK_ENABLED', true);
+    }
+
     // --- Microsoft GCC High endpoints (NEVER commercial) --------------------
     // Section 5 of the Verity build directive: GCC High is mandatory and the
     // commercial graph.microsoft.com / login.microsoftonline.com endpoints must

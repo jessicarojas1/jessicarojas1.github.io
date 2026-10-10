@@ -24,6 +24,9 @@ final class Auth
     public const MIN_PASSWORD_LENGTH = 12;
     public const MAX_PASSWORD_LENGTH = 128;
 
+    /** Timeout for the breach-check HTTP call — see isPasswordBreached(). */
+    public const BREACH_CHECK_TIMEOUT_SECONDS = 2;
+
     /** Null when valid; otherwise a user-facing reason the password was rejected. */
     public static function passwordPolicyError(string $password): ?string
     {
@@ -34,7 +37,76 @@ final class Auth
         if ($len > self::MAX_PASSWORD_LENGTH) {
             return 'Password must be at most ' . self::MAX_PASSWORD_LENGTH . ' characters.';
         }
+        if (Config::breachCheckEnabled() && self::isPasswordBreached($password)) {
+            return 'This password has appeared in known data breaches. Choose a different password.';
+        }
         return null;
+    }
+
+    /**
+     * k-anonymity check against the "Have I Been Pwned" Pwned Passwords
+     * range API. Only the first 5 hex characters of the password's SHA-1
+     * hash are ever sent over the network — never the plaintext password,
+     * never the full hash. `Add-Padding` asks the API to pad its response
+     * with decoy entries, per HIBP's own guidance, so a network observer
+     * cannot infer how many real matches came back from response size alone.
+     *
+     * Fails OPEN (returns false — "not known to be breached") on any
+     * network error, timeout, non-200 response, or malformed body: a
+     * third-party API outage must never block sign-in, a password change,
+     * or account creation. Disable this check entirely (and avoid the
+     * outbound call altogether) via Config::breachCheckEnabled() — e.g. for
+     * an air-gapped deployment with no outbound internet.
+     */
+    public static function isPasswordBreached(string $password): bool
+    {
+        $hash = strtoupper(sha1($password));
+        $prefix = substr($hash, 0, 5);
+        $suffix = substr($hash, 5);
+
+        if (!function_exists('curl_init')) {
+            return false;
+        }
+
+        $ch = curl_init('https://api.pwnedpasswords.com/range/' . $prefix);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => self::BREACH_CHECK_TIMEOUT_SECONDS,
+            CURLOPT_TIMEOUT => self::BREACH_CHECK_TIMEOUT_SECONDS,
+            CURLOPT_HTTPHEADER => ['Add-Padding: true'],
+            CURLOPT_USERAGENT => 'Verity-IGA-PasswordBreachCheck',
+        ]);
+        $body = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $errno = curl_errno($ch);
+        // curl_close() is a no-op since PHP 8.0 (handles are closed when the
+        // CurlHandle object is destroyed) and deprecated since PHP 8.5 — not
+        // called here since this build targets 8.2+ and is tested on 8.5.
+
+        if ($errno !== 0 || $status !== 200 || !is_string($body)) {
+            return false;
+        }
+
+        return self::rangeResponseContainsSuffix($body, $suffix);
+    }
+
+    /**
+     * Pure parsing logic split out from isPasswordBreached() so it can be
+     * unit-tested against synthetic response bodies without a real network
+     * call — automated tests must not depend on a third party's uptime.
+     * Each line of the range response is "SUFFIX:COUNT"; COUNT is ignored.
+     */
+    public static function rangeResponseContainsSuffix(string $body, string $suffix): bool
+    {
+        $suffix = strtoupper($suffix);
+        foreach (preg_split('/\r?\n/', trim($body)) as $line) {
+            $colon = strpos($line, ':');
+            $lineSuffix = $colon === false ? $line : substr($line, 0, $colon);
+            if (strtoupper($lineSuffix) === $suffix) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Verify a password against a specific user id (for self-service "current password" checks). */

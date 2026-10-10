@@ -29,12 +29,27 @@ Local email + password only, today. `Auth` (`app/Support/Auth.php`):
   timestamp — an earlier version did the latter and the threshold was
   silently wrong (Postgres interpreted the naive UTC string against its own
   session timezone, not UTC, pushing the cutoff hours into the future).
-- Password policy is length-only, per NIST SP 800-63B (no forced symbol/digit
-  mixing): `Auth::MIN_PASSWORD_LENGTH` (12) / `Auth::MAX_PASSWORD_LENGTH`
-  (128), enforced by `Auth::passwordPolicyError()` everywhere a password is
-  set — self-service change, admin creation, and admin reset alike. No
-  breach-list (e.g. HaveIBeenPwned range) check is performed — that remains
-  an open item.
+- Password policy is length-first, per NIST SP 800-63B (no forced
+  symbol/digit mixing): `Auth::MIN_PASSWORD_LENGTH` (12) /
+  `Auth::MAX_PASSWORD_LENGTH` (128), plus a breach-list check, both enforced
+  by `Auth::passwordPolicyError()` everywhere a password is set —
+  self-service change, admin creation, and admin reset alike.
+  `Auth::isPasswordBreached()` queries the Have I Been Pwned Pwned
+  Passwords range API using k-anonymity: only the first 5 hex characters of
+  the password's SHA-1 hash are ever sent, with response padding
+  (`Add-Padding: true`) requested so a network observer cannot infer the
+  real match count from response size — the plaintext password and the
+  full hash never leave this server. The check **fails open** (treats the
+  password as not breached) on any network error, timeout, or malformed
+  response, since a third-party outage must never block sign-in or a
+  password change; it is disabled entirely, with no outbound call made at
+  all, via `PASSWORD_BREACH_CHECK_ENABLED=false` (required for air-gapped
+  deployments — see `deployments/AIRGAPPED.md`). The seeded demo password
+  (`ChangeMe123!`, used only by `database/seed.php`, which bypasses this
+  policy check entirely since it is not reachable by the public) is itself
+  a known-breached string — expected and harmless for a value whose name
+  says to change it immediately, but a sign that any copy-pasted "obviously
+  temporary" password is a bad real-world choice.
 
 **Self-service password change** (`/app/profile`, `ProfileController`) is
 available to every authenticated user regardless of role — it only ever acts

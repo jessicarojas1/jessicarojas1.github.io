@@ -14,11 +14,20 @@ Checked against the real code rather than assumed:
   Ollama or any other inference service — §6 below is a placeholder for a
   *hypothetical* future need, not a present dependency. Do not provision
   Ollama for this deployment unless/until an AI feature actually ships.
-- **No live external API calls anywhere in the code.** The GCC High
-  connector (`connector_type='entra_gcc_high_mock'`) is a catalog/config
-  entry with a capability manifest — there is no Microsoft Graph HTTP call
-  in `app/`. Nothing needs outbound access to `graph.microsoft.us` or
-  `login.microsoftonline.us` for this build to function.
+- **No live external API calls anywhere in the code, with exactly one
+  exception you must disable here.** The GCC High connector
+  (`connector_type='entra_gcc_high_mock'`) is a catalog/config entry with a
+  capability manifest — there is no Microsoft Graph HTTP call in `app/`.
+  Nothing needs outbound access to `graph.microsoft.us` or
+  `login.microsoftonline.us` for this build to function. The one real
+  exception: `Auth::isPasswordBreached()` calls the public Have I Been
+  Pwned range API (`api.pwnedpasswords.com`) on every password set
+  (self-service change, admin create, admin reset) unless disabled. It
+  fails open (never blocks a password change) if that host is unreachable,
+  but an enclave with no outbound internet should set
+  **`PASSWORD_BREACH_CHECK_ENABLED=false`** explicitly rather than rely on
+  the fail-open behavior — the fail-open path exists for an *unexpected*
+  outage, not as the intended way to run this check off permanently.
 - **The CSP allows, but nothing actually loads, Google Fonts.**
   `public/index.php` sets `font-src 'self' https://fonts.gstatic.com` and
   `style-src ... https://fonts.googleapis.com` in its Content-Security-Policy,
@@ -45,6 +54,8 @@ the only difference is how the image and the Postgres instance get there.
 - A one-way transfer mechanism (data diode, removable media, or an
   equivalent approved process) for moving the built image and the schema
   file into the enclave.
+- Set `PASSWORD_BREACH_CHECK_ENABLED=false` in the enclave's environment
+  before go-live — see §1 above.
 
 ## 4. Offline image transfer
 

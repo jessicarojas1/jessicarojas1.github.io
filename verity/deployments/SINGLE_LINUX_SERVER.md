@@ -54,6 +54,7 @@ nginx config.
 |----------|---------|---------|
 | `APP_ENV` | `production` | Disables PHP error display; blocks `database/seed.php`. |
 | `DATABASE_URL` | `postgresql://verity_app:***@127.0.0.1:5432/verity?sslmode=require` | PDO Postgres DSN. Use a dedicated, least-privilege database role — not a superuser. |
+| `PASSWORD_BREACH_CHECK_ENABLED` | `true` (default) | Checks new passwords against the Have I Been Pwned range API (k-anonymity; only a 5-char hash prefix leaves this server). Fails open on any network error. Requires outbound HTTPS to `api.pwnedpasswords.com`; set to `false` if egress is firewalled. |
 
 Leave the `ENTRA_*`/`GRAPH_BASE_URL`/`ENTRA_AUTHORITY_HOST`/`AZURE_PORTAL_URL`
 variables unset unless/until the GCC High connector (Phase 4) is implemented —

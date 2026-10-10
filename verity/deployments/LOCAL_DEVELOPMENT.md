@@ -60,6 +60,7 @@ git-ignored and the Dockerfile explicitly removes it from the image).
 |----------|---------|---------|
 | `APP_ENV` | `development` | Runtime mode (default `development`). `production` disables PHP error display and blocks `database/seed.php`. |
 | `DATABASE_URL` | `postgresql://user:password@127.0.0.1:5432/verity_dev` | PDO Postgres DSN. Required for any page beyond the login screen — the app degrades honestly (not fake data) when unset. |
+| `PASSWORD_BREACH_CHECK_ENABLED` | `true` (default) | Checks new passwords against the Have I Been Pwned range API (k-anonymity; only a 5-char hash prefix leaves this server). Fails open on any network error. Leave at the default locally — it needs outbound internet from your dev machine. |
 
 The `ENTRA_*`/`GRAPH_BASE_URL`/`ENTRA_AUTHORITY_HOST`/`AZURE_PORTAL_URL`
 variables exist for the future GCC High connector; leave them unset for local

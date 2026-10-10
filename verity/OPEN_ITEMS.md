@@ -7,7 +7,7 @@ connector catalog, Enterprise Access Matrix, Dynamic Fields, self-service
 account/password management, a full admin user-management flow (create with
 password, edit details, reset password, activate/disable) inside the Admin
 IAM console, Settings/Branding, and Audit trail are built and exercised by
-an automated test suite (73 assertions, all passing). Everything below is
+an automated test suite (78 assertions, all passing). Everything below is
 grouped by theme, each with **Impact** and **Suggested action**. Nothing in
 this list should be read as "broken" — it is "not yet built," stated plainly
 rather than implied to exist.
@@ -51,8 +51,8 @@ rather than implied to exist.
 | FIPS readiness not evaluated | No assessment has been done of whether this app's cryptographic operations meet FIPS 140 | Commission a FIPS assessment before any claim of FIPS readiness; do not infer it from the GCC High endpoint defaults, which are a convention, not a crypto validation |
 | ~~Permission/role changes didn't take effect for an already-logged-in session~~ — **resolved** | `Auth::user()` used to return a snapshot cached in `$_SESSION` at login time. It now re-fetches roles/grants/status fresh from the DB on every request (cached per-*request*, never per-session) — a permission change takes effect on the signed-in user's very next request, not at their next login. Verified live: disabling a user mid-session now terminates that session immediately (confirmed via curl — the next request 302s to `/auth/login`, and `auth.session_terminated` is written to `audit_event`), with zero re-login cycle needed | None — already shipped. Three extra DB queries per authenticated request (user row + roles + grants) is the accepted cost for always-correct, live authorization; revisit only if this is ever shown to be a real bottleneck |
 | A password reset alone (without also disabling the account) does not terminate the target user's already-active session | `Auth::user()`'s live re-check covers `status`, roles, and grants — not `password_hash`. An admin resetting a compromised user's password cuts off *future* logins immediately, but an attacker who already holds a valid session cookie keeps working until it naturally expires. This is standard behavior in most systems (a password reset isn't usually treated as a full kill-switch), but it should be the *documented*, intentional behavior, not an assumption: **to fully cut off an account right now, disable it — that already works instantly** | If "reset password" should also always kill existing sessions, that's a product decision, not a bug — flag it if wanted. Until then, document the distinction in incident-response guidance: disable = immediate, reset-password-only = blocks future logins only |
-| Password policy is length-only (12–128 chars); no breach-list (e.g. HaveIBeenPwned range API) or common-password check | A user can set a long but widely-known-compromised password | Add a breach-list check (k-anonymity range query, no plaintext password ever leaves the server) before accepting a new password, in `Auth::passwordPolicyError()` |
-| ~~No CI pipeline for this app~~ — **resolved** | `.github/workflows/verity-ci.yml` lints every PHP file and runs the full 73-assertion suite (logic + live-DB groups) against a fresh Postgres 16 service container, on every push/PR touching `verity/**`. Modeled on `redoubt-ci.yml`'s established pattern. Verified by simulating the exact same steps locally end-to-end against a throwaway database before committing (schema applied cleanly, 73/73 passed) | None — already shipped. No deploy-gating yet (Render deploys are still manual/git-push triggered, independent of CI's pass/fail) — add a required-status-check branch rule if merges to `main` should be blocked on a red build |
+| ~~Password policy is length-only; no breach-list check~~ — **resolved** | `Auth::passwordPolicyError()` now also calls `Auth::isPasswordBreached()`, which queries the Have I Been Pwned range API via k-anonymity (only a 5-char SHA-1 prefix leaves the server; response padding requested; plaintext password and full hash never transmitted). Fails open on any network error/timeout so a third-party outage never blocks sign-in or a password change; disable entirely via `PASSWORD_BREACH_CHECK_ENABLED=false` (required for air-gapped — see `deployments/AIRGAPPED.md`, updated). Verified live end-to-end through the real `/app/profile` HTTP form: a known-breached password (`password123456`) was correctly rejected, a unique password was accepted, and a regression test (`tests/unit_test.php`) covers the pure response-parsing logic deterministically with no network dependency in the always-on test group. **Notable finding surfaced by this check:** the seeded demo password `ChangeMe123!` (used by `database/seed.php` only, which bypasses this policy check entirely) is itself a known-breached string — harmless for a value whose own name says to change it immediately, but confirms the check works correctly against a realistic weak password | None — already shipped. Requires the PHP `curl` extension in production; the Dockerfile was updated to compile it (`curl-dev` build dep + `docker-php-ext-install curl`) but **this container build has not been verified in this environment (no Docker available here)** — verify the next Render deploy picks it up cleanly |
+| ~~No CI pipeline for this app~~ — **resolved** | `.github/workflows/verity-ci.yml` lints every PHP file and runs the full test suite (logic + live-DB groups, currently 78 assertions) against a fresh Postgres 16 service container, on every push/PR touching `verity/**`. Modeled on `redoubt-ci.yml`'s established pattern. Verified by simulating the exact same steps locally end-to-end against a throwaway database before committing (schema applied cleanly, all assertions passed) | None — already shipped. No deploy-gating yet (Render deploys are still manual/git-push triggered, independent of CI's pass/fail) — add a required-status-check branch rule if merges to `main` should be blocked on a red build |
 
 ## Performance & Scale
 
@@ -84,9 +84,9 @@ rather than implied to exist.
 ## Notes / known limitations
 
 - **Verified in this review (2026-10-09):** `php tests/run.php` passes
-  42/42 logic assertions with no database configured; against a throwaway
+  47/47 logic assertions with no database configured; against a throwaway
   local PostgreSQL 16 instance with `VERITY_TEST_DB=1` set, the full suite
-  passes **73/73** (0 failed, 0 skipped), including the reporting-chain and
+  passes **78/78** (0 failed, 0 skipped), including the reporting-chain and
   application-ownership scoping tests against an isolated fixture that is
   rolled back afterward (confirmed empty post-run), and the user-creation/
   password-reset flow (regression-tested specifically because an earlier
@@ -97,9 +97,24 @@ rather than implied to exist.
   confirmed the old password stops working and the new one works), admin
   "Invite User" with a generated password (confirmed the new account could
   sign in immediately), admin password reset (confirmed the new password
-  works for login), and the self-disable guard (blocked both in the UI and
-  via a direct API call bypassing it). `database/schema.sql` applies
-  cleanly start-to-finish against a fresh database with no errors.
+  works for login), the self-disable guard (blocked both in the UI and via
+  a direct API call bypassing it), and the new breach-list password check
+  (a known-breached password was correctly rejected by the live
+  `/app/profile` change-password form, and a unique password was accepted
+  — the full round trip through the real `Auth::isPasswordBreached()` →
+  Have I Been Pwned HTTP call, not just the pure parsing logic). The CI
+  pipeline's exact steps (lint, apply `database/schema.sql`, run the full
+  suite) were also simulated locally against a disposable database before
+  being committed. `database/schema.sql` applies cleanly start-to-finish
+  against a fresh database with no errors.
+- **Not verified in this environment: the production Docker build.** The
+  Dockerfile was changed to compile the PHP `curl` extension (needed by
+  the new breach check) alongside `pdo_pgsql`, but no Docker daemon is
+  available in this environment to actually build the image — the change
+  is reviewed and follows the exact same pattern as the existing
+  `postgresql-dev`/`pdo_pgsql` build step, but `docker build .` should be
+  run (or the next Render deploy watched) to confirm it compiles cleanly
+  before relying on it in production.
 - `person_relationship` (secondary manager/delegate relationships) exists in
   the schema but is additive and not yet surfaced anywhere in the UI.
 - `connector_sync_job` exists in the schema to record sync job history but

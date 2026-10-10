@@ -10,13 +10,14 @@
 # here if/when a real dependency is introduced.
 
 FROM php:8.3-cli-alpine AS base
-# pdo_pgsql needs libpq's dev headers (libpq-fe.h) to compile against — Alpine
-# ships those in postgresql-dev, which is NOT present in the base php image.
-# Install it as a virtual, named package group so it can be cleanly removed
-# after compiling; keep the actual runtime shared library (libpq) installed
-# separately so the compiled extension still loads at runtime.
-RUN apk add --no-cache --virtual .build-deps postgresql-dev \
-    && docker-php-ext-install pdo pdo_pgsql \
+# pdo_pgsql needs libpq's dev headers (libpq-fe.h), and the PHP curl
+# extension (Auth::isPasswordBreached()'s HIBP range-API call) needs
+# curl's dev headers — neither ships in the base php image. Install both as
+# a virtual, named package group so they can be cleanly removed after
+# compiling; keep the actual runtime shared libraries (libpq, curl)
+# installed separately so the compiled extensions still load at runtime.
+RUN apk add --no-cache --virtual .build-deps postgresql-dev curl-dev \
+    && docker-php-ext-install pdo pdo_pgsql curl \
     && apk add --no-cache libpq curl \
     && apk del .build-deps
 

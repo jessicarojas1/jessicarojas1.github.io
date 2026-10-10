@@ -75,6 +75,7 @@ not end-user authentication.
 | `APP_ENV` | `production` | Runtime mode |
 | `PORT` | `8080` | Container listen port — matches the Dockerfile's `EXPOSE 8080`; configure the ALB target group/App Runner port to match |
 | `DATABASE_URL` | Secrets Manager reference resolving to `postgresql://verity_app:***@<rds-endpoint>.rds.amazonaws.com:5432/verity?sslmode=require` | PDO Postgres DSN — inject via the task's `secrets` block, not plaintext `environment` |
+| `PASSWORD_BREACH_CHECK_ENABLED` | `true` (default) | Checks new passwords against the Have I Been Pwned range API (k-anonymity; only a 5-char hash prefix leaves the task). Fails open on any network error. Needs a NAT gateway/egress path to the public internet — set to `false` if the task runs in a fully private subnet with no egress, or in GovCloud if `api.pwnedpasswords.com` is not an approved external endpoint |
 
 ## 6. AWS Commercial vs. GovCloud
 

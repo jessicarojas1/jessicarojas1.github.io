@@ -155,6 +155,26 @@ exist — see `OPEN_ITEMS.md` for the authoritative list of what's missing.
   timezone boundary to get wrong. Apply the same pattern to any future
   "how many X happened in the last N minutes" query — see
   `Auth::isLoginRateLimited()` for the reference implementation.
+- **`Auth::passwordPolicyError()` checks a breach list, not just length —
+  keep the network call fail-open and config-gated.**
+  `Auth::isPasswordBreached()` queries the Have I Been Pwned range API
+  using k-anonymity (only a 5-char SHA-1 prefix ever leaves the server).
+  Two invariants to preserve if this is ever touched again: (1) **fail
+  open** — any network error, timeout, non-200, or malformed response must
+  make the password pass the breach check, never fail it, since this
+  app's own availability (sign-in, password change, account creation) must
+  never depend on a third party's uptime; (2) **config-gated** —
+  `Config::breachCheckEnabled()` (`PASSWORD_BREACH_CHECK_ENABLED`, default
+  `true`) must stay checkable to `false` with zero outbound call made at
+  all, since the air-gapped deployment target (`deployments/AIRGAPPED.md`)
+  has no path to `api.pwnedpasswords.com`. This is also why the
+  always-on, no-DB unit test group for `passwordPolicyError()` disables the
+  check via `putenv()` first — those assertions must stay deterministic and
+  network-free; the breach-check logic itself is tested separately via the
+  pure `Auth::rangeResponseContainsSuffix()` parser against synthetic
+  response bodies. The PHP `curl` extension is required in production —
+  the Dockerfile compiles it alongside `pdo_pgsql` (`curl-dev` build dep +
+  `docker-php-ext-install curl`).
 - **`Session::destroy()` guards `session_destroy()`/`setcookie()` behind
   `session_status() === PHP_SESSION_ACTIVE`.** Under CLI SAPI,
   `Session::start()` never calls the real `session_start()` (by design, to

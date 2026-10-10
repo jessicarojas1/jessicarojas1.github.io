@@ -65,8 +65,15 @@ No queue, no worker Deployment, no Redis — there is nothing else to run.
 
 | Source | Keys |
 |--------|------|
-| ConfigMap (non-secret) | `APP_ENV=production` |
+| ConfigMap (non-secret) | `APP_ENV=production`, `PASSWORD_BREACH_CHECK_ENABLED=true` |
 | Secret | `DATABASE_URL` |
+
+`PASSWORD_BREACH_CHECK_ENABLED` (default `true`) checks new passwords
+against the Have I Been Pwned range API (k-anonymity; only a 5-char hash
+prefix ever leaves the pod) and fails open on any network error. It needs
+an egress-allowed path to `api.pwnedpasswords.com` — set it to `false` in
+the ConfigMap if a `NetworkPolicy` blocks outbound internet from this
+namespace.
 
 Omit the `ENTRA_*`/`GRAPH_BASE_URL`/`ENTRA_AUTHORITY_HOST`/`AZURE_PORTAL_URL`
 variables entirely unless you are specifically staging for the future GCC

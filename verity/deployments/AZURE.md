@@ -73,6 +73,7 @@ expecting it to do anything yet.
 | `APP_ENV` | `production` | Runtime mode |
 | `PORT` | `8080` | Container listen port (Container Apps sets this automatically; keep it aligned with the Dockerfile's `EXPOSE 8080`) |
 | `DATABASE_URL` | Key Vault reference, e.g. `@Microsoft.KeyVault(...)` resolving to `postgresql://verity_app:***@<server>.postgres.database.azure.com:5432/verity?sslmode=require` | PDO Postgres DSN — inject via managed identity + Key Vault, not as plaintext |
+| `PASSWORD_BREACH_CHECK_ENABLED` | `true` (default) | Checks new passwords against the Have I Been Pwned range API (k-anonymity; only a 5-char hash prefix leaves the container). Fails open on any network error. Needs outbound internet from the Container App's environment — set to `false` if a VNet-integrated environment has no NAT/egress, or in Azure Government if `api.pwnedpasswords.com` is not an approved external endpoint |
 
 ## 6. Azure Commercial vs. Azure Government
 

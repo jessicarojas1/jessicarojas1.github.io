@@ -117,9 +117,11 @@ Open `http://localhost:8090` and sign in with any of the 5 seeded accounts
 ## Testing
 
 Zero-dependency harness (`tests/lib/T.php`, not PHPUnit): `php tests/run.php`
-runs **73 assertions, all passing** (verified in this session) — 42
+runs **78 assertions, all passing** (verified in this session) — 47
 pure-logic checks (role/grant/deny layering including the wildcard-vs-deny
-regression test, coarse-alias expansion, password policy, connector
+regression test, coarse-alias expansion, password length policy, the
+breach-check response parser against synthetic HIBP-shaped bodies — no
+network call in this group, deliberately — and connector
 capability-manifest honesty) that always run, plus 31 live-database checks
 (reporting-chain scoping, application-ownership scoping, `Db::update`'s
 automatic `updated_at`, basic insert/fetch, SQL identifier allowlisting,

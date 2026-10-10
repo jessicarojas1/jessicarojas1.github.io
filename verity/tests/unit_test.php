@@ -34,13 +34,27 @@ T::ok(Security::validateCsrf($token), 'the token just issued validates successfu
 T::ok(!Security::validateCsrf('not-the-right-token'), 'an unrelated token is rejected');
 T::ok(!Security::validateCsrf(null), 'a missing token is rejected, not silently accepted');
 
-T::group('Auth::passwordPolicyError — length-based policy (no DB)');
+T::group('Auth::passwordPolicyError — length-based policy (no DB, no network)');
+// This group tests only the length rule, deterministically — disable the
+// HIBP breach check (on by default) so these assertions never depend on
+// network reachability or a third party's uptime. The breach check itself
+// is tested separately below via the pure, synthetic-response parsing logic.
+putenv('PASSWORD_BREACH_CHECK_ENABLED=false');
 T::ok(Auth::passwordPolicyError('short') !== null, 'a password under the minimum length is rejected');
 T::ok(Auth::passwordPolicyError(str_repeat('a', Auth::MIN_PASSWORD_LENGTH)) === null, 'exactly the minimum length is accepted');
 T::ok(Auth::passwordPolicyError(str_repeat('a', Auth::MIN_PASSWORD_LENGTH - 1)) !== null, 'one character under the minimum is rejected');
 T::ok(Auth::passwordPolicyError(str_repeat('a', Auth::MAX_PASSWORD_LENGTH)) === null, 'exactly the maximum length is accepted');
 T::ok(Auth::passwordPolicyError(str_repeat('a', Auth::MAX_PASSWORD_LENGTH + 1)) !== null, 'one character over the maximum is rejected');
 T::ok(Auth::passwordPolicyError('correct horse battery staple!') === null, 'a long passphrase with no symbol-complexity requirement is accepted');
+putenv('PASSWORD_BREACH_CHECK_ENABLED'); // restore default (enabled) for any later test/process
+
+T::group('Auth::rangeResponseContainsSuffix — HIBP range-response parsing (pure, no network)');
+$sampleBody = "003D68EB55068C33ACE09247EE4C639306B:3\nAAC4F66AD4716BC7C1F5D27B2A1D43D2AED:11\n0034E6D8B8B7C0C1E8D1D3D2D2E2B9A9B9C:5";
+T::ok(Auth::rangeResponseContainsSuffix($sampleBody, 'AAC4F66AD4716BC7C1F5D27B2A1D43D2AED'), 'a suffix present in the response is found');
+T::ok(Auth::rangeResponseContainsSuffix($sampleBody, 'aac4f66ad4716bc7c1f5d27b2a1d43d2aed'), 'the match is case-insensitive');
+T::ok(!Auth::rangeResponseContainsSuffix($sampleBody, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 'a suffix absent from the response is not found');
+T::ok(!Auth::rangeResponseContainsSuffix('', 'AAC4F66AD4716BC7C1F5D27B2A1D43D2AED'), 'an empty response body matches nothing');
+T::ok(Auth::rangeResponseContainsSuffix($sampleBody . "\n", 'AAC4F66AD4716BC7C1F5D27B2A1D43D2AED'), 'a trailing newline (as the real API sends) does not break matching');
 
 T::group('Roles — role defaults and coarse-alias expansion');
 T::ok(in_array('*', Roles::permissionsFor(['enterprise_admin']), true), 'enterprise_admin holds the wildcard permission');
