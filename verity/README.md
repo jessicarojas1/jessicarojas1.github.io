@@ -146,6 +146,8 @@ autoloader when it isn't, so the app runs identically with or without
 
 ## Further reading
 
+- [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) — how to use the application:
+  every screen, who can see what, and a role-by-role quick reference.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — platform, design
   principles, the dual DB-backed authorization scoping, request/error
   contract, observability.
