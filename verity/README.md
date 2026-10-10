@@ -1,5 +1,7 @@
 # VERITY — Enterprise Identity & Access Governance
 
+[![VERITY CI](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/verity-ci.yml/badge.svg)](https://github.com/jessicarojas1/jessicarojas1.github.io/actions/workflows/verity-ci.yml)
+
 > **Status: Phases 1–3 of an 8-phase build.** Working modules: Enterprise
 > Dashboard, Identity Directory, Access Inventory / Unmatched Accounts
 > (manual correlation only), Application Catalog + connector catalog
@@ -7,9 +9,9 @@
 > authorization-scoped views, CSV export, saved views), Dynamic Fields,
 > self-service account/password management, a full admin user-management
 > flow (create with password, edit details, reset password, activate/
-> disable), Settings/Branding, and an append-only Audit trail. **No CI
-> badge exists.** See [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for an honest,
-> itemized account of what is and is not built.
+> disable), Settings/Branding, and an append-only Audit trail. See
+> [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for an honest, itemized account of what
+> is and is not built.
 
 *"Unified Visibility. Verified Access. Complete Accountability."*
 
@@ -68,8 +70,10 @@ verity/
 - **PHP 8.2+** (tested on PHP 8.5), **zero Composer dependencies** — see
   `composer.json`'s empty `require` beyond the PHP version itself.
 - **PostgreSQL 14+** via PDO (`pdo_pgsql` extension).
-- No Node, no frontend framework, no Redis, no queue, no CI pipeline
-  specific to this app.
+- No Node, no frontend framework, no Redis, no queue.
+- GitHub Actions CI (`.github/workflows/verity-ci.yml`): lints every PHP
+  file and runs the full test suite against a Postgres service container
+  on every push/PR touching `verity/**`.
 
 ## Prerequisites
 
@@ -132,8 +136,8 @@ DATABASE_URL="postgresql://user:pass@127.0.0.1:5432/verity_test" VERITY_TEST_DB=
 
 ## Build status
 
-**Phase 1–3 of 8 complete.** No CI pipeline exists for this app yet — test
-runs are manual. See [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for the full
+**Phase 1–3 of 8 complete.** CI (badge above) lints and tests every push/PR
+touching `verity/**`. See [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for the full
 production-readiness register, and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 for how the implemented pieces fit together.
 
