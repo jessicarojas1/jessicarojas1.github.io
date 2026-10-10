@@ -315,5 +315,6 @@ CREATE INDEX IF NOT EXISTS idx_audit_action_ip_created ON audit_event(action, ip
 
 -- No UPDATE/DELETE grants should ever be issued to the application's runtime
 -- DB role on audit_event in production — insert/select only. This cannot be
--- enforced from this script (it depends on the deployment's role setup); see
--- docs/SECURITY.md.
+-- enforced from this script (it depends on the deployment's role setup) —
+-- run database/restrict_audit_event_grants.sql separately; see its own
+-- header comment and docs/SECURITY.md's "Auditability" section.

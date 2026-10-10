@@ -54,8 +54,9 @@ verity/
 │  │                      Connectors, Matrix, DynamicFields, Users, Settings, SavedViews, Dashboard
 │  └─ Views/              Plain PHP templates + partials/
 ├─ database/
-│  ├─ schema.sql          Idempotent reference schema (17 tables)
-│  └─ seed.php            Synthetic demo-data generator (refuses on APP_ENV=production)
+│  ├─ schema.sql                        Idempotent reference schema (17 tables)
+│  ├─ seed.php                          Synthetic demo-data generator (refuses on APP_ENV=production)
+│  └─ restrict_audit_event_grants.sql   Ready-to-run audit_event INSERT/SELECT-only grant (see docs/SECURITY.md)
 ├─ tests/                 Zero-dependency harness: run.php, unit_test.php, db_test.php, lib/T.php
 ├─ docs/                  USER_GUIDE, ARCHITECTURE, DEPLOYMENT, DISASTER_RECOVERY,
 │                          SECURITY, GCC_HIGH_INTEGRATION, API_SPECIFICATION

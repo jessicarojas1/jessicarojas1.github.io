@@ -206,15 +206,44 @@ every CSV export, and every authorization denial writes a row.
 **No code path in this application ever issues `UPDATE` or `DELETE` against
 `audit_event`** — corrections are additional rows, never mutations. That is
 enforced today only by convention (the application code simply doesn't do
-it); it is **not yet enforced at the database layer**. The recommended
-hardening, not yet configured in any deployment target, is to grant the
-application's runtime database role **`INSERT`/`SELECT` only** on
-`audit_event` — no `UPDATE`, no `DELETE` — so a compromised application
-process (e.g. via a future SQL-injection bug elsewhere, or a bug in a module
-not yet built) cannot tamper with the audit trail even if it tries. This is
-an infrastructure/DBA-level configuration step (the role grant), not
-something `schema.sql` itself can express or enforce — see the callout at
-the bottom of `database/schema.sql`.
+it); database-level enforcement is available as a ready-to-run script,
+**`database/restrict_audit_event_grants.sql`**:
+
+```bash
+psql "$DATABASE_URL" -v app_role=your_runtime_role_name \
+  -f database/restrict_audit_event_grants.sql
+# add -v app_schema=verity if using DB_SCHEMA isolation (default: public)
+```
+
+This revokes every privilege the named role holds on `audit_event` and
+grants back exactly `INSERT`/`SELECT` — idempotent, safe to re-run, and
+verified directly against a real PostgreSQL 16 instance before being
+written (including the DB_SCHEMA-isolated-schema case, the default-schema
+case, and the missing-argument case, which fails with a clear message
+instead of a confusing SQL error).
+
+**Read the limitation in the script's own header before relying on it as
+your only control.** It was verified that `REVOKE` genuinely restricts a
+table's *owner* role in PostgreSQL (ownership does not exempt a role from
+explicit DML privilege checks — this was tested, not assumed), so this
+works even in this app's common single-role deployment shape. But it was
+equally verified that an owner role retains the inherent, ownership-derived
+authority to `GRANT` itself the privilege back, with no superuser needed —
+so this script is real protection against an *accidental* `UPDATE`/`DELETE`
+from a future application bug, but **not** defense-in-depth against a
+fully arbitrary-SQL-execution compromise (e.g. a hypothetical future
+SQL-injection bug), since that class of attacker could simply re-run
+`GRANT` first. Genuine defense-in-depth against that threat model requires
+the application's runtime role to not own `audit_event` (or any table) —
+a larger change (a second, non-owner role; splitting which connection
+string handles schema/seed operations vs. ordinary request traffic) that
+this script deliberately does not attempt on your behalf, since it depends
+on deployment-specific decisions (role-naming conventions, who manages
+credential rotation) that belong to whoever owns this database's role
+layout, not to an assumption baked into a script.
+This is an infrastructure/DBA-level configuration step, not something
+`schema.sql` itself can express or enforce — see the callout at the bottom
+of `database/schema.sql`.
 
 ## Classification & DLP
 
