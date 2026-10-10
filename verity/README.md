@@ -56,6 +56,7 @@ verity/
 ├─ database/
 │  ├─ schema.sql                        Idempotent reference schema (17 tables)
 │  ├─ seed.php                          Synthetic demo-data generator (refuses on APP_ENV=production)
+│  ├─ benchmark.php                     Destructive, set-based at-scale benchmark generator (see docs/ARCHITECTURE.md)
 │  └─ restrict_audit_event_grants.sql   Ready-to-run audit_event INSERT/SELECT-only grant (see docs/SECURITY.md)
 ├─ tests/                 Zero-dependency harness: run.php, unit_test.php, db_test.php, lib/T.php
 ├─ docs/                  USER_GUIDE, ARCHITECTURE, DEPLOYMENT, DISASTER_RECOVERY,
@@ -118,16 +119,18 @@ Open `http://localhost:8090` and sign in with any of the 5 seeded accounts
 ## Testing
 
 Zero-dependency harness (`tests/lib/T.php`, not PHPUnit): `php tests/run.php`
-runs **78 assertions, all passing** (verified in this session) — 47
+runs **82 assertions, all passing** (verified in this session) — 47
 pure-logic checks (role/grant/deny layering including the wildcard-vs-deny
 regression test, coarse-alias expansion, password length policy, the
 breach-check response parser against synthetic HIBP-shaped bodies — no
 network call in this group, deliberately — and connector
-capability-manifest honesty) that always run, plus 31 live-database checks
-(reporting-chain scoping, application-ownership scoping, `Db::update`'s
-automatic `updated_at`, basic insert/fetch, SQL identifier allowlisting,
-dedicated-schema isolation, and the user-creation/password-reset flow) that
-self-skip unless both `DATABASE_URL` and `VERITY_TEST_DB=1` are set. The
+capability-manifest honesty) that always run, plus 35 live-database checks
+(reporting-chain scoping including cycle-safety against a deliberately
+reintroduced self-reference and a 2-node cycle, application-ownership
+scoping, `Db::update`'s automatic `updated_at`, basic insert/fetch, SQL
+identifier allowlisting, dedicated-schema isolation, and the
+user-creation/password-reset flow) that self-skip unless both
+`DATABASE_URL` and `VERITY_TEST_DB=1` are set. The
 DB-backed group builds its own isolated fixture inside a transaction that is
 always rolled back — it never touches or depends on `seed.php`'s data.
 

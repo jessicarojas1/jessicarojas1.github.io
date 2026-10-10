@@ -56,6 +56,42 @@ try {
     T::ok(in_array($manager, $reports, true) && in_array($report, $reports, true), 'reportsOf() returns the full downward chain');
     T::ok(!in_array($unrelated, $reports, true), 'reportsOf() excludes people outside the chain');
 
+    // --- Fixture: a self-reference and a 2-node cycle in manager_person_id -
+    // Found live via a 20,000-row synthetic benchmark dataset: a floating-
+    // point boundary case in the generator produced a few self-referencing
+    // rows, and the un-guarded recursive CTE hung indefinitely (confirmed:
+    // the Postgres backend pegged at ~100% CPU for minutes) rather than
+    // erroring or returning. Real data isn't guaranteed to stay a clean
+    // DAG either (a manual edit or a bad connector import could do the
+    // same) — this regression test fails (by hanging the whole suite) if
+    // the path-tracking guard in reportsOf()/isInReportingChain() is ever
+    // removed. See CLAUDE.md.
+    $selfRef = Db::insert('person', [
+        'first_name' => 'Test', 'last_name' => 'SelfRef', 'display_name' => 'Test SelfRef',
+        'department' => 'Executive', 'identity_type' => 'employee', 'employment_status' => 'active',
+        'identity_authority' => 'test',
+    ]);
+    Db::update('person', ['manager_person_id' => $selfRef], ['id' => $selfRef]);
+    $cycleA = Db::insert('person', [
+        'first_name' => 'Test', 'last_name' => 'CycleA', 'display_name' => 'Test CycleA',
+        'department' => 'Executive', 'identity_type' => 'employee', 'employment_status' => 'active',
+        'identity_authority' => 'test',
+    ]);
+    $cycleB = Db::insert('person', [
+        'first_name' => 'Test', 'last_name' => 'CycleB', 'display_name' => 'Test CycleB',
+        'department' => 'Executive', 'identity_type' => 'employee', 'employment_status' => 'active',
+        'identity_authority' => 'test', 'manager_person_id' => $cycleA,
+    ]);
+    Db::update('person', ['manager_person_id' => $cycleB], ['id' => $cycleA]);
+
+    T::group('Authorize — recursive CTEs terminate against cyclic manager_person_id data');
+    $selfRefReports = Authorize::reportsOf($selfRef);
+    T::ok(is_array($selfRefReports), 'reportsOf() against a self-referencing node returns (does not hang) and includes itself exactly once');
+    T::eq(1, count(array_filter($selfRefReports, static fn ($id) => $id === $selfRef)), 'the self-referencing node is not duplicated by the un-deduplicated UNION ALL recursion');
+    $cycleReports = Authorize::reportsOf($cycleA);
+    T::ok(is_array($cycleReports) && in_array($cycleB, $cycleReports, true), 'reportsOf() against a 2-node cycle returns (does not hang) and still finds the other node in the cycle');
+    T::ok(Authorize::isInReportingChain($cycleB, $cycleA), 'isInReportingChain() against the same cycle returns (does not hang)');
+
     // --- Fixture: an application an owner does/doesn't own -----------------
     $app = Db::insert('application', ['name' => 'Test App ' . uniqid(), 'system_owner_person_id' => $manager]);
     T::group('Authorize — application-ownership scoping (real DB, isolated fixture)');

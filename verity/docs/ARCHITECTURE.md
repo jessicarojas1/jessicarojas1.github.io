@@ -170,6 +170,76 @@ What exists today, verified against the code — nothing more:
 There is no metrics endpoint, no distributed tracing, no log aggregation
 integration, and no alerting — see `OPEN_ITEMS.md`.
 
+## Performance characteristics
+
+Benchmarked once, against a real PostgreSQL 16 instance, at a synthetic
+dataset near this platform's stated design target (OPEN_ITEMS.md:
+"100k-account/1M-assignment") — via `database/benchmark.php`, which
+generates the dataset set-based (no PHP insert loop) and times the real
+`Matrix`/`Authorize` code every view in the app actually runs through, not
+reimplemented SQL. Actual dataset: 20,000 people, 50 applications, 1,000
+entitlements, 100,000 system accounts, 999,216 entitlement assignments.
+Numbers below are from that one run — re-run the script before relying on
+them for a capacity decision; hardware, Postgres version, and data shape
+all move these numbers.
+
+| Query | min / avg / max |
+|---|---|
+| Enterprise Matrix view, page 1, no filter | 287 / 302 / 309 ms |
+| Enterprise Matrix view, deep page (offset 50,000) | 308 / 324 / 340 ms |
+| Enterprise Matrix view, free-text search (`ILIKE`) | 507 / 515 / 525 ms |
+| Privileged view | 303 / 312 / 321 ms |
+| Exception view (unmatched/disabled/expired) | 297 / 302 / 306 ms |
+| CSV export query shape (5,000-row cap) | 297 / 313 / 320 ms |
+| `Authorize::reportsOf()` (recursive CTE, 12,063-person chain — 60% of the org) | 17 / 18 / 19 ms |
+| Supervisor view (500-person `IN`-list, capped) | 24 / 25 / 25 ms |
+
+**The reporting-chain/supervisor-scoped path scales well** — the recursive
+CTE itself is sub-20ms even for a chain covering 60% of a 20,000-person
+org, and narrowing the Matrix join with `p.id IN (...)` first keeps the
+supervisor view fast (25ms) at any account-table size, because the sort
+below only ever runs over that narrow result.
+
+**The enterprise-wide views carry a real, flat ~300ms tax at this scale**,
+independent of which page you're on — `EXPLAIN (ANALYZE, BUFFERS)` on the
+no-filter query shows why: the default sort key (`person.display_name`) is
+on a table joined one-to-many through `entitlement_assignment`, so
+Postgres cannot push `LIMIT`/`OFFSET` into an index-ordered scan — it must
+materialize and sort the *entire* fanned-out join (999,216 rows at this
+scale) before any page can be returned, which is why page 1 and the
+offset-50,000 page cost almost exactly the same. Verified this is a CPU
+cost, not a memory/disk one: raising `work_mem` from the 4MB default to
+64MB turned the sort from an on-disk external merge into an in-memory
+quicksort with no meaningful change in wall-clock time (242ms vs. 217ms —
+within normal run-to-run variance), so this is not a tunable-knob fix.
+Free-text search is slower still (515ms) because `ILIKE` across four
+unindexed text columns adds a full scan on top of the same sort cost.
+Acceptable today for an internal admin console with a modest number of
+concurrent staff; **not** a workload that scales flat with page depth or
+total row count. If a materially larger organization or heavier concurrent
+admin usage is ever a real requirement, the fix is architectural — e.g. a
+denormalized/materialized summary the Matrix reads from instead of the
+live fanned-out join, or defaulting the sort to an indexed, non-fanned-out
+column (`sa.id`) when the caller hasn't explicitly asked for a
+person-name sort — not attempted here, since it is a real design decision
+(what the default sort order should be; whether to maintain a summary
+table and keep it consistent) rather than a drop-in fix.
+
+**A genuine bug was found and fixed by this benchmark, unrelated to raw
+performance:** the synthetic generator's random manager-hierarchy
+assignment hit a floating-point boundary case and produced a few
+self-referencing `person.manager_person_id` rows. `Authorize::reportsOf()`
+and `isInReportingChain()`'s recursive CTEs had no cycle guard, so the
+self-reference turned into an infinite loop — confirmed live: the Postgres
+backend pegged at ~100% CPU for several minutes with no sign of
+terminating on its own. Since `manager_person_id` is operator-editable
+data (not something this schema's constraints prevent from cycling), this
+was a real latent availability risk reachable by an ordinary data-entry
+mistake or a future connector-import bug, not just a benchmark artifact.
+Fixed with a path-tracking guard on both queries; see `CLAUDE.md` and
+`tests/db_test.php`'s "recursive CTEs terminate against cyclic
+manager_person_id data" regression test.
+
 ## Deployment topology
 
 A single PHP process (today: PHP's built-in server, `php -S`, inside the

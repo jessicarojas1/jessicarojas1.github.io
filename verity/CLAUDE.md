@@ -175,6 +175,25 @@ exist — see `OPEN_ITEMS.md` for the authoritative list of what's missing.
   response bodies. The PHP `curl` extension is required in production —
   the Dockerfile compiles it alongside `pdo_pgsql` (`curl-dev` build dep +
   `docker-php-ext-install curl`).
+- **`Authorize::reportsOf()` / `isInReportingChain()`'s recursive CTEs
+  must stay cycle-safe — never remove the path-tracking guard.**
+  `person.manager_person_id` is operator-editable data, not a hierarchy
+  this schema's constraints prevent from cycling. A plain `WITH RECURSIVE`
+  over it (no guard) never terminates against a self-reference or a cycle,
+  because `UNION ALL` doesn't deduplicate — a cyclic node keeps
+  re-qualifying for the join every iteration forever, pegging the database
+  connection's CPU indefinitely. Found live, not hypothetically: a
+  20,000-row synthetic benchmark dataset (`database/benchmark.php`)
+  produced a few self-referencing rows via a floating-point boundary case
+  in its own generator, and the un-guarded query hung for minutes against
+  a real PostgreSQL 16 instance before this fix. Both queries now carry a
+  visited-ids array (`path`) and a `WHERE NOT (p.id = ANY(path))` guard;
+  verified to terminate in milliseconds against a deliberately
+  reintroduced self-reference and a 2-node cycle, and covered by a
+  regression test (`tests/db_test.php`, "recursive CTEs terminate against
+  cyclic manager_person_id data"). Preserve this guard — and apply the
+  same pattern to any future recursive CTE walking operator-editable
+  parent/child data — if these queries are ever touched again.
 - **`Session::destroy()` guards `session_destroy()`/`setcookie()` behind
   `session_status() === PHP_SESSION_ACTIVE`.** Under CLI SAPI,
   `Session::start()` never calls the real `session_start()` (by design, to
