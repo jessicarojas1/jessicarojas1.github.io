@@ -168,7 +168,27 @@ Safe to re-run on every deploy (every statement is `IF NOT EXISTS`).
   no connection pooling of its own (`Db::connection()` holds one PDO
   connection per PHP process/request).
 
-## 9. Verification
+## 9. WAF
+
+Kubernetes has no built-in WAF — add one at whichever layer actually
+terminates public traffic for this cluster:
+- **Ingress-level:** if using `ingress-nginx`, add the ModSecurity
+  annotations (`nginx.ingress.kubernetes.io/enable-modsecurity: "true"`,
+  `enable-owasp-core-rules: "true"`) and start in `SecRuleEngine
+  DetectionOnly`.
+- **Cloud-LB-level:** if the Ingress/Service is fronted by a cloud load
+  balancer (an AWS ALB via the AWS Load Balancer Controller, an Azure
+  Application Gateway via AGIC, or similar), attach that cloud's own WAF
+  there instead — see `AWS.md`/`AZURE.md` §8 for the specific managed rule
+  groups — rather than duplicating protection at both layers.
+Either way, start in detection/count mode first: this app's own inputs
+(Dynamic Fields' free-text values, the Matrix CSV export's query-string
+filters, JSON POST bodies) can trip a default CRS profile, and a WAF here
+is a second layer on top of this app's own controls (parameterized SQL,
+CSRF tokens, CSP, `Auth::isLoginThrottled()`'s rate limiting), not a
+replacement for them.
+
+## 10. Verification
 
 ```bash
 kubectl get pods -l app=verity                       # all Running/Ready
@@ -181,12 +201,12 @@ curl -fsS https://<ingress-host>/health               # via Ingress
 - Confirm `DATABASE_URL` does not appear in `kubectl get configmap
   verity-config -o yaml` (it must only be in the Secret).
 
-## 10. Day-2 / troubleshooting
+## 11. Day-2 / troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | Pods CrashLoopBackOff | Missing/malformed `DATABASE_URL` Secret | `kubectl logs` — `Db::connection()` raises a generic "Database connection failed" without the DSN; check the Secret value directly |
 | Users randomly logged out under load | >1 replica without sticky sessions | Add `sessionAffinity: ClientIP` or an Ingress sticky annotation (see §4/§8 caveat) |
-| Readiness probe flapping | `/health`'s `db` field only checks `DATABASE_URL` is set, not connectivity — a pod can be "ready" with an unreachable DB | Add a separate connectivity check if you need stricter readiness, or rely on the dashboard-render check in §9 |
+| Readiness probe flapping | `/health`'s `db` field only checks `DATABASE_URL` is set, not connectivity — a pod can be "ready" with an unreachable DB | Add a separate connectivity check if you need stricter readiness, or rely on the dashboard-render check in §10 |
 | Ingress 502 | Probe/port mismatch | Confirm the container listens on `8080` and the probe/Service target that port |
 | Schema Job fails on first run | Database not yet created, or `DATABASE_URL`'s dbname missing | Create the target database first; the Job only applies tables, not the database itself |

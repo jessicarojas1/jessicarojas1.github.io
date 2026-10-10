@@ -103,6 +103,17 @@ server {
   `.dockerignore` for the same reason.
 - Apply OS security patches on a schedule; keep PHP and PostgreSQL on
   supported minor versions.
+- **WAF: ModSecurity + OWASP Core Rule Set (CRS) in front of nginx.**
+  Install `libmodsecurity3` + the nginx ModSecurity connector module, load
+  CRS, and start in `SecRuleEngine DetectionOnly` before switching to
+  `On` — this app's own inputs include things a default CRS profile can
+  false-positive on (Dynamic Fields' free-text values, the Matrix CSV
+  export's query-string filters, JSON POST bodies from `iam.js`/
+  `accounts.js`/`settings.js`), so a burn-in/detection period before
+  blocking is not optional here. CRS complements, but does not replace,
+  this app's own controls (parameterized SQL, CSRF tokens, CSP, login
+  rate limiting via `Auth::isLoginThrottled()`) — it is a second layer,
+  not the primary defense.
 
 ## 8. Log location
 

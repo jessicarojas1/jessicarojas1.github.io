@@ -111,7 +111,27 @@ curl -fsS https://<app-fqdn>/health
 - Confirm no plaintext database password appears in the Container App
   revision definition or any ConfigMap.
 
-## 8. Day-2 operations
+## 8. WAF
+
+Front the app with **Azure Front Door** (Standard/Premium tier) or an
+**Application Gateway WAF v2**, with the managed **OWASP CRS** rule set
+enabled. Start in **Detection mode** before switching to **Prevention** —
+this app's own inputs (Dynamic Fields' free-text values, the Matrix CSV
+export's query-string filters, JSON POST bodies) can trip a default CRS
+profile, so confirm no false positives in Detection mode first. WAF is a
+second layer on top of this app's own controls (parameterized SQL, CSRF
+tokens, CSP, `Auth::isLoginThrottled()`'s rate limiting), not a
+replacement for them. **Azure Government:** both options are available in
+Azure Government (Front Door Standard/Premium has edge locations in the
+US Government regions), with one difference to plan for — Azure-managed
+TLS certificates are not supported for Front Door Standard/Premium in
+Government Cloud, so bring your own certificate (BYOC) there instead of
+relying on the managed-certificate flow used in Commercial. Confirm
+current regional/feature availability against Microsoft's own Azure
+Government documentation before committing, since cloud service parity
+between Commercial and Government shifts over time.
+
+## 9. Day-2 operations
 
 - Rotate the Postgres role password (or AAD token lifetime) on a schedule;
   Key Vault versioning lets you roll forward without redeploying the image.
@@ -120,7 +140,7 @@ curl -fsS https://<app-fqdn>/health
 - Monitor Container Apps/AKS logs for `password_hash`/auth failures and for
   PDO connection errors.
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|

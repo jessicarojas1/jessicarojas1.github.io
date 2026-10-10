@@ -110,7 +110,24 @@ curl -fsS https://<alb-or-app-runner-url>/health
 - Confirm the task role's policy does not grant broader Secrets Manager or
   RDS access than the one secret/connection it needs.
 
-## 8. Day-2 operations
+## 8. WAF
+
+Attach **AWS WAF** (`AWSManagedRulesCommonRuleSet` +
+`AWSManagedRulesSQLiRuleSet`, plus a rate-based rule) to the ALB (or, if
+fronting with CloudFront, attach it there instead — CloudFront + WAF is
+the lower-latency option for a public-facing deployment). App Runner
+supports WAF via an association as well. Start the managed rule groups in
+**Count mode** before switching to **Block** — this app's own inputs
+(Dynamic Fields' free-text values, the Matrix CSV export's query-string
+filters, JSON POST bodies) can trip a default CRS-equivalent profile, so
+confirm no false positives in Count mode first. WAF is a second layer on
+top of this app's own controls (parameterized SQL, CSRF tokens, CSP,
+`Auth::isLoginThrottled()`'s rate limiting), not a replacement for them.
+**GovCloud:** AWS WAF is available in `aws-us-gov` under the same API: the
+rule groups above still apply, with no commercial-vs-GovCloud divergence
+in WAF capability itself.
+
+## 9. Day-2 operations
 
 - Rotate the Secrets Manager secret value on a schedule (or enable automatic
   rotation against the RDS master credential); ECS re-resolves secrets on
@@ -122,7 +139,7 @@ curl -fsS https://<alb-or-app-runner-url>/health
 - Monitor CloudWatch Logs for the ECS task (stdout/stderr, which is where
   PHP's `error_log()` output lands per `app/bootstrap.php`'s `log_errors=1`).
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
