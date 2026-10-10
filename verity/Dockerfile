@@ -10,8 +10,15 @@
 # here if/when a real dependency is introduced.
 
 FROM php:8.3-cli-alpine AS base
-RUN docker-php-ext-install pdo pdo_pgsql \
-    && apk add --no-cache curl
+# pdo_pgsql needs libpq's dev headers (libpq-fe.h) to compile against — Alpine
+# ships those in postgresql-dev, which is NOT present in the base php image.
+# Install it as a virtual, named package group so it can be cleanly removed
+# after compiling; keep the actual runtime shared library (libpq) installed
+# separately so the compiled extension still loads at runtime.
+RUN apk add --no-cache --virtual .build-deps postgresql-dev \
+    && docker-php-ext-install pdo pdo_pgsql \
+    && apk add --no-cache libpq curl \
+    && apk del .build-deps
 
 FROM base AS app
 WORKDIR /var/www/verity
