@@ -32,6 +32,7 @@ final class IdentitiesController
             'department' => (string) ($_GET['department'] ?? ''),
             'employment_status' => (string) ($_GET['employment_status'] ?? ''),
             'identity_type' => (string) ($_GET['identity_type'] ?? ''),
+            'risk' => (string) ($_GET['risk'] ?? ''),
         ];
         if (!$canAll && $canReports) {
             $selfId = $user['person_id'] ?? null;
@@ -40,6 +41,17 @@ final class IdentitiesController
                 $ids[] = (int) $selfId;
             }
             $filters['person_ids'] = $ids;
+        }
+
+        $riskTier = $filters['risk'];
+        if (in_array($riskTier, ['low', 'medium', 'high', 'critical'], true)) {
+            $riskPersonIds = RiskScoring::personIdsInTier($riskTier);
+            // Compose with any reporting-chain scope already set above —
+            // both constraints must hold, never either/or, the same way an
+            // empty person_ids array already means "nothing," not "no filter."
+            $filters['person_ids'] = isset($filters['person_ids'])
+                ? array_values(array_intersect($filters['person_ids'], $riskPersonIds))
+                : $riskPersonIds;
         }
 
         $page = max(1, (int) ($_GET['page'] ?? 1));

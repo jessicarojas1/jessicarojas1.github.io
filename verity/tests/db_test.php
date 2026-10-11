@@ -619,6 +619,22 @@ try {
     $afterCritical = RiskScoring::countsByTier()['critical'];
     T::eq($beforeCritical + 1, $afterCritical, 'countsByTier() reflects a newly created critical-tier identity (delta-checked, since the shared fixture already contains other scored identities)');
 
+    T::group('RiskScoring::personIdsInTier — for the Dashboard\'s risk KPIs linking straight to a filtered Identity Directory');
+    $criticalIds = RiskScoring::personIdsInTier('critical');
+    T::ok(in_array($terminatedPerson, $criticalIds, true), 'the 88-scoring (critical) person is included in the critical tier');
+    T::ok(in_array($secondTerminatedPerson, $criticalIds, true), 'the second critical-tier person from the countsByTier delta check is also included');
+    T::ok(!in_array($riskPerson, $criticalIds, true), 'the 38-scoring (high, not critical) person is correctly excluded from the critical tier');
+    $highIds = RiskScoring::personIdsInTier('high');
+    T::ok(in_array($riskPerson, $highIds, true), 'the 38-scoring person IS included in the high tier');
+    T::ok(!in_array($terminatedPerson, $highIds, true), 'an 88-scoring (critical) person is correctly excluded from the high tier — tier ranges do not overlap');
+    T::ok(!in_array($unrelated, RiskScoring::personIdsInTier('critical'), true) && !in_array($unrelated, RiskScoring::personIdsInTier('high'), true), 'a zero-scoring person appears in neither the high nor critical tier');
+    try {
+        RiskScoring::personIdsInTier('not-a-real-tier');
+        T::ok(false, 'an invalid tier name must be rejected');
+    } catch (\InvalidArgumentException $e) {
+        T::ok(true, 'the correct, specific error is thrown for an invalid tier name');
+    }
+
     T::group('Authorize::canManageAccountAccess — always derives the account\'s REAL owner, never trusts a separately-supplied person_id');
     $unrelatedAcct = Db::insert('system_account', ['application_id' => $riskApp, 'person_id' => $unrelated, 'external_account_id' => uniqid('unrelated-acct-')]);
     $managerUser = ['id' => 1, 'person_id' => $manager, 'grants' => ['deny' => []]];

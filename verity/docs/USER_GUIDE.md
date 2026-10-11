@@ -55,7 +55,12 @@ always links to [My Account](#my-account) regardless of role.
 ## Dashboard
 
 Your landing page after signing in. Every number is a live count from the
-database — not a mockup:
+database — not a mockup — and **every KPI card and breakdown-table row is a
+link to the actual, correctly-filtered screen behind that number.** Click
+"Unmatched Accounts" and you land on exactly those accounts; click a
+department in "Identities by Department" and you land on the Identity
+Directory filtered to that department. If you land on a "not authorized"
+page instead, that reflects your own role's boundaries, not a broken link:
 
 - **Total / Active Identities**, **Connected Applications**, **Discovered
   Accounts**, **Entitlement Assignments**
@@ -128,8 +133,10 @@ directory.)*
 
 A list of every person Verity knows about — employees, contractors, guests,
 service identities. Filter by search term, department, employment status,
-or identity type. Each row shows a **Risk** badge (Low/Medium/High/
-Critical) — a computed score, not a stored field; see below.
+identity type, or **risk tier** (Low/Medium/High/Critical — this is how the
+Dashboard's Critical/High-Risk Identity KPIs link here, already filtered).
+Each row shows a **Risk** badge — a computed score, not a stored field; see
+below.
 
 Click a name to open their profile:
 

@@ -20,22 +20,22 @@ require __DIR__ . '/partials/app_header.php';
 <?php else: ?>
 
 <div class="kpi-grid">
-  <div class="kpi"><div class="n"><?= number_format($kpis['total_identities']) ?></div><div class="label">Total Identities</div></div>
-  <div class="kpi"><div class="n"><?= number_format($kpis['active_identities']) ?></div><div class="label">Active Identities</div></div>
-  <div class="kpi"><div class="n"><?= number_format($kpis['connected_applications']) ?></div><div class="label">Connected Applications</div></div>
-  <div class="kpi"><div class="n"><?= number_format($kpis['discovered_accounts']) ?></div><div class="label">Discovered Accounts</div></div>
-  <div class="kpi"><div class="n"><?= number_format($kpis['discovered_entitlement_assignments']) ?></div><div class="label">Entitlement Assignments</div></div>
-  <div class="kpi"><div class="n"><?= number_format($kpis['privileged_accounts']) ?></div><div class="label">Privileged Accounts</div></div>
-  <div class="kpi <?= $kpis['unmatched_accounts'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['unmatched_accounts']) ?></div><div class="label">Unmatched Accounts</div></div>
-  <div class="kpi <?= $kpis['terminated_with_enabled_accounts'] > 0 ? 'risk' : '' ?>"><div class="n"><?= number_format($kpis['terminated_with_enabled_accounts']) ?></div><div class="label">Terminated, Still Enabled</div></div>
-  <div class="kpi <?= $kpis['expired_temporary_access'] > 0 ? 'risk' : '' ?>"><div class="n"><?= number_format($kpis['expired_temporary_access']) ?></div><div class="label">Expired Temporary Access</div></div>
-  <div class="kpi"><div class="n"><?= number_format($kpis['disabled_accounts']) ?></div><div class="label">Disabled Accounts</div></div>
-  <div class="kpi"><div class="n"><?= number_format($kpis['active_campaigns']) ?></div><div class="label">Active Campaigns</div></div>
-  <div class="kpi <?= $kpis['pending_campaign_reviews'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['pending_campaign_reviews']) ?></div><div class="label">Pending Campaign Reviews</div></div>
-  <div class="kpi <?= $kpis['open_remediation_tasks'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['open_remediation_tasks']) ?></div><div class="label">Open Remediation Tasks</div></div>
-  <div class="kpi <?= $kpis['pending_access_requests'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['pending_access_requests']) ?></div><div class="label">Pending Access Requests</div></div>
-  <div class="kpi <?= $kpis['critical_risk_identities'] > 0 ? 'critical' : '' ?>"><div class="n"><?= number_format($kpis['critical_risk_identities']) ?></div><div class="label">Critical-Risk Identities</div></div>
-  <div class="kpi <?= $kpis['high_risk_identities'] > 0 ? 'risk' : '' ?>"><div class="n"><?= number_format($kpis['high_risk_identities']) ?></div><div class="label">High-Risk Identities</div></div>
+  <a class="kpi" href="/app/identities"><div class="n"><?= number_format($kpis['total_identities']) ?></div><div class="label">Total Identities</div></a>
+  <a class="kpi" href="/app/identities?employment_status=active"><div class="n"><?= number_format($kpis['active_identities']) ?></div><div class="label">Active Identities</div></a>
+  <a class="kpi" href="/app/applications?status=active"><div class="n"><?= number_format($kpis['connected_applications']) ?></div><div class="label">Connected Applications</div></a>
+  <a class="kpi" href="/app/matrix?view=enterprise"><div class="n"><?= number_format($kpis['discovered_accounts']) ?></div><div class="label">Discovered Accounts</div></a>
+  <a class="kpi" href="/app/matrix?view=enterprise"><div class="n"><?= number_format($kpis['discovered_entitlement_assignments']) ?></div><div class="label">Entitlement Assignments</div></a>
+  <a class="kpi" href="/app/matrix?view=privileged"><div class="n"><?= number_format($kpis['privileged_accounts']) ?></div><div class="label">Privileged Accounts</div></a>
+  <a class="kpi <?= $kpis['unmatched_accounts'] > 0 ? 'warn' : '' ?>" href="/app/accounts/unmatched"><div class="n"><?= number_format($kpis['unmatched_accounts']) ?></div><div class="label">Unmatched Accounts</div></a>
+  <a class="kpi <?= $kpis['terminated_with_enabled_accounts'] > 0 ? 'risk' : '' ?>" href="/app/matrix?view=exception"><div class="n"><?= number_format($kpis['terminated_with_enabled_accounts']) ?></div><div class="label">Terminated, Still Enabled</div></a>
+  <a class="kpi <?= $kpis['expired_temporary_access'] > 0 ? 'risk' : '' ?>" href="/app/matrix?view=exception"><div class="n"><?= number_format($kpis['expired_temporary_access']) ?></div><div class="label">Expired Temporary Access</div></a>
+  <a class="kpi" href="/app/matrix?view=enterprise&amp;account_status=disabled"><div class="n"><?= number_format($kpis['disabled_accounts']) ?></div><div class="label">Disabled Accounts</div></a>
+  <a class="kpi" href="/app/campaigns?status=active"><div class="n"><?= number_format($kpis['active_campaigns']) ?></div><div class="label">Active Campaigns</div></a>
+  <a class="kpi <?= $kpis['pending_campaign_reviews'] > 0 ? 'warn' : '' ?>" href="/app/campaigns?status=active"><div class="n"><?= number_format($kpis['pending_campaign_reviews']) ?></div><div class="label">Pending Campaign Reviews</div></a>
+  <a class="kpi <?= $kpis['open_remediation_tasks'] > 0 ? 'warn' : '' ?>" href="/app/remediation?status=open"><div class="n"><?= number_format($kpis['open_remediation_tasks']) ?></div><div class="label">Open Remediation Tasks</div></a>
+  <a class="kpi <?= $kpis['pending_access_requests'] > 0 ? 'warn' : '' ?>" href="/app/access-requests?status=pending"><div class="n"><?= number_format($kpis['pending_access_requests']) ?></div><div class="label">Pending Access Requests</div></a>
+  <a class="kpi <?= $kpis['critical_risk_identities'] > 0 ? 'critical' : '' ?>" href="/app/identities?risk=critical"><div class="n"><?= number_format($kpis['critical_risk_identities']) ?></div><div class="label">Critical-Risk Identities</div></a>
+  <a class="kpi <?= $kpis['high_risk_identities'] > 0 ? 'risk' : '' ?>" href="/app/identities?risk=high"><div class="n"><?= number_format($kpis['high_risk_identities']) ?></div><div class="label">High-Risk Identities</div></a>
 </div>
 
 <div class="field-row">
@@ -46,7 +46,7 @@ require __DIR__ . '/partials/app_header.php';
       <tbody>
         <?php if ($byApplication === []): ?><tr class="empty-row"><td colspan="2" class="empty-state-sm">No applications yet.</td></tr><?php endif; ?>
         <?php foreach ($byApplication as $row): ?>
-        <tr><td><?= Security::h($row['name']) ?></td><td class="num"><?= number_format((int) $row['account_count']) ?></td></tr>
+        <tr><td><a href="/app/applications/view?id=<?= (int) $row['id'] ?>"><?= Security::h($row['name']) ?></a></td><td class="num"><?= number_format((int) $row['account_count']) ?></td></tr>
         <?php endforeach; ?>
       </tbody>
     </table>
@@ -58,7 +58,7 @@ require __DIR__ . '/partials/app_header.php';
       <tbody>
         <?php if ($byDepartment === []): ?><tr class="empty-row"><td colspan="2" class="empty-state-sm">No department data yet.</td></tr><?php endif; ?>
         <?php foreach ($byDepartment as $row): ?>
-        <tr><td><?= Security::h($row['department']) ?></td><td class="num"><?= number_format((int) $row['n']) ?></td></tr>
+        <tr><td><a href="/app/identities?department=<?= urlencode($row['department']) ?>"><?= Security::h($row['department']) ?></a></td><td class="num"><?= number_format((int) $row['n']) ?></td></tr>
         <?php endforeach; ?>
       </tbody>
     </table>
@@ -70,7 +70,7 @@ require __DIR__ . '/partials/app_header.php';
       <tbody>
         <?php if ($connectorHealth === []): ?><tr class="empty-row"><td colspan="2" class="empty-state-sm">No connectors configured yet.</td></tr><?php endif; ?>
         <?php foreach ($connectorHealth as $row): ?>
-        <tr><td><?= Security::h($row['connection_health']) ?></td><td class="num"><?= number_format((int) $row['n']) ?></td></tr>
+        <tr><td><a href="/app/applications"><?= Security::h($row['connection_health']) ?></a></td><td class="num"><?= number_format((int) $row['n']) ?></td></tr>
         <?php endforeach; ?>
       </tbody>
     </table>

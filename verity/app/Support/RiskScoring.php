@@ -113,6 +113,37 @@ final class RiskScoring
         );
     }
 
+    /**
+     * Every person_id whose score falls in $tier — for deep-linking from
+     * the Dashboard's Critical/High-Risk Identity KPIs (and any future
+     * filter) straight to a correctly-filtered Identity Directory list,
+     * composed with IdentitiesController's existing person_ids filter the
+     * same way supervisor-chain scoping already is.
+     * @return int[]
+     */
+    public static function personIdsInTier(string $tier): array
+    {
+        [$min, $max] = self::tierBounds($tier);
+        $sql = 'SELECT person_id FROM (' . self::baseSql('1=1') . ') scored WHERE total_score >= :min' . ($max !== null ? ' AND total_score < :max' : '');
+        $params = ['min' => $min];
+        if ($max !== null) {
+            $params['max'] = $max;
+        }
+        return array_map(static fn ($r) => (int) $r['person_id'], Db::fetchAll($sql, $params));
+    }
+
+    /** @return array{0:int,1:?int} [inclusive min, exclusive max or null for no ceiling] — kept in sync with tierFor()'s own thresholds. */
+    private static function tierBounds(string $tier): array
+    {
+        return match ($tier) {
+            'critical' => [self::TIER_THRESHOLDS['critical'], null],
+            'high' => [self::TIER_THRESHOLDS['high'], self::TIER_THRESHOLDS['critical']],
+            'medium' => [self::TIER_THRESHOLDS['medium'], self::TIER_THRESHOLDS['high']],
+            'low' => [0, self::TIER_THRESHOLDS['medium']],
+            default => throw new \InvalidArgumentException('Invalid risk tier.'),
+        };
+    }
+
     /** @return array{critical:int, high:int} counts for the dashboard KPIs. */
     public static function countsByTier(): array
     {

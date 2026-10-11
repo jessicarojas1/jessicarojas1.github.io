@@ -10,6 +10,14 @@ require __DIR__ . '/partials/app_header.php';
 
 <form method="get" class="filter-bar">
   <div class="field"><label for="q">Search</label><input type="text" id="q" name="q" value="<?= Security::h($_GET['q'] ?? '') ?>" placeholder="Application name"></div>
+  <div class="field">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="">All</option>
+      <option value="active" <?= ($_GET['status'] ?? '') === 'active' ? 'selected' : '' ?>>Active</option>
+      <option value="inactive" <?= ($_GET['status'] ?? '') === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+    </select>
+  </div>
   <button type="submit" class="btn primary">Filter</button>
 </form>
 

@@ -38,6 +38,15 @@ $lastPage = max(1, (int) ceil($total / $pageSize));
       <?php endforeach; ?>
     </select>
   </div>
+  <div class="field">
+    <label for="risk">Risk</label>
+    <select id="risk" name="risk">
+      <option value="">All</option>
+      <?php foreach (['low' => 'Low', 'medium' => 'Medium', 'high' => 'High', 'critical' => 'Critical'] as $k => $v): ?>
+      <option value="<?= $k ?>" <?= $filters['risk'] === $k ? 'selected' : '' ?>><?= $v ?></option>
+      <?php endforeach; ?>
+    </select>
+  </div>
   <button type="submit" class="btn primary">Filter</button>
 </form>
 

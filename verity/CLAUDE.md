@@ -530,6 +530,21 @@ what's missing.
   account row, not from a caller-supplied person_id) — use
   `canManageAccountAccess()` for any new caller rather than hand-rolling
   this check a third way.
+- **Every Dashboard KPI and breakdown-table row must link to the actual
+  screen behind that number, correctly filtered.** `app_home.php`'s
+  `.kpi` cards are `<a>` elements (CSS: `a.kpi { display: block; color:
+  inherit; text-decoration: none; }` — without this, an anchor inherits
+  the accent color and loses the KPI's visual styling). When a new KPI is
+  added, it must link somewhere real; if no existing filter supports the
+  exact destination (e.g. there is no single-condition filter separating
+  "terminated but still enabled" from "expired temporary access" — both
+  route to the Matrix's existing "exception" view, which already ORs both
+  conditions together), link to the closest correct existing filter rather
+  than leaving it unlinked or fabricating a new one that doesn't actually
+  narrow results. A composed filter (like the Identity Directory's new
+  `?risk=` param) must intersect with any other active scope rather than
+  replace it — see `IdentitiesController::index()`'s `array_intersect`
+  with the existing reporting-chain `person_ids` filter for the pattern.
 
 ## Roadmap gates (8-phase build)
 

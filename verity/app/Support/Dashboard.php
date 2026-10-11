@@ -73,9 +73,9 @@ final class Dashboard
     public static function byApplication(): array
     {
         return Db::fetchAll(
-            'SELECT a.name, COUNT(sa.id) AS account_count
+            'SELECT a.id, a.name, COUNT(sa.id) AS account_count
              FROM application a LEFT JOIN system_account sa ON sa.application_id = a.id
-             GROUP BY a.name ORDER BY account_count DESC'
+             GROUP BY a.id, a.name ORDER BY account_count DESC'
         );
     }
 }

@@ -20,7 +20,10 @@ final class ApplicationsController
         $user = Auth::user();
         Authorize::requirePermission($user, Authorize::can($user, 'application.view') ? 'application.view' : 'application.view.owned');
 
-        $applications = Applications::list(['search' => trim((string) ($_GET['q'] ?? ''))]);
+        $applications = Applications::list([
+            'search' => trim((string) ($_GET['q'] ?? '')),
+            'status' => trim((string) ($_GET['status'] ?? '')),
+        ]);
         if (!Authorize::can($user, 'application.view')) {
             $selfId = $user['person_id'] ?? null;
             $applications = array_values(array_filter($applications, static fn ($a) => $selfId !== null && (int) $a['system_owner_person_id'] === (int) $selfId));
