@@ -20,6 +20,7 @@ use Verity\Support\CsvImport;
 use Verity\Support\Db;
 use Verity\Support\Mfa;
 use Verity\Support\RemediationTasks;
+use Verity\Support\RiskScoring;
 use Verity\Support\Totp;
 
 if (!Db::isConfigured() || getenv('VERITY_TEST_DB') !== '1') {
@@ -568,6 +569,55 @@ try {
     T::eq($report, (int) $afterUpdate['person_id'], 'person_id (linked identity) was updated');
     T::ok($beforeHash === $afterUpdate['password_hash'], 'password_hash is untouched by a details update'); // T::ok, not T::eq — avoid echoing a hash value into test output
     T::eq('active', $afterUpdate['status'], 'status is untouched by a details update');
+
+    T::group('RiskScoring — a v1 heuristic computed entirely from existing fields, hand-verified against exact expected weights');
+    $riskApp = Db::insert('application', ['name' => 'Risk Test App ' . uniqid(), 'classification' => 'restricted']);
+    $riskEnt = Db::insert('entitlement', ['application_id' => $riskApp, 'name' => 'Risk Test Critical Role ' . uniqid(), 'risk_level' => 'critical', 'is_privileged' => true]);
+    $riskPerson = Db::insert('person', [
+        'first_name' => 'Test', 'last_name' => 'HighRisk', 'display_name' => 'Test HighRisk',
+        'department' => 'Other', 'identity_type' => 'employee', 'employment_status' => 'active', 'identity_authority' => 'test',
+    ]);
+    $riskAcct = Db::insert('system_account', ['application_id' => $riskApp, 'person_id' => $riskPerson, 'external_account_id' => uniqid('risk-acct-')]);
+    Db::insert('entitlement_assignment', ['system_account_id' => $riskAcct, 'entitlement_id' => $riskEnt]);
+    // Expected: one critical+privileged entitlement (20 + 6 = 26) in one restricted application (12) = 38 -> "high" (30-59), not yet "critical" (60+).
+    $highScore = RiskScoring::identityScore($riskPerson);
+    T::eq(38, $highScore['score'], 'one critical+privileged entitlement (26) plus one restricted-app touch (12) sums to exactly 38');
+    T::eq('high', $highScore['tier'], 'a score of 38 falls in the "high" tier (30-59), below the "critical" threshold of 60');
+    T::eq(1, $highScore['factors']['entitlement']['count'], 'exactly one entitlement contributed to the entitlement factor');
+    T::eq(26, $highScore['factors']['entitlement']['weight'], 'the entitlement factor weight is critical(20) + privileged(6)');
+    T::eq(12, $highScore['factors']['application']['weight'], 'the application factor weight is restricted(12) for the one distinct application touched');
+
+    $terminatedPerson = Db::insert('person', [
+        'first_name' => 'Test', 'last_name' => 'Terminated', 'display_name' => 'Test Terminated',
+        'department' => 'Other', 'identity_type' => 'employee', 'employment_status' => 'terminated', 'identity_authority' => 'test',
+    ]);
+    $terminatedAcct = Db::insert('system_account', ['application_id' => $riskApp, 'person_id' => $terminatedPerson, 'external_account_id' => uniqid('risk-term-'), 'status' => 'enabled']);
+    Db::insert('entitlement_assignment', ['system_account_id' => $terminatedAcct, 'entitlement_id' => $riskEnt]);
+    // Expected: same 26 + 12 = 38 as above, PLUS one enabled account on a terminated identity (50) = 88 -> "critical" (60+).
+    $criticalScore = RiskScoring::identityScore($terminatedPerson);
+    T::eq(88, $criticalScore['score'], 'adding one enabled-account-on-a-terminated-identity condition (50) to the same 38 pushes the total to 88');
+    T::eq('critical', $criticalScore['tier'], 'a score of 88 crosses the critical threshold (60+)');
+    T::eq(1, $criticalScore['factors']['terminated_enabled']['count'], 'exactly one enabled account on this terminated identity was counted');
+
+    $zeroScore = RiskScoring::identityScore($unrelated);
+    T::eq(0, $zeroScore['score'], 'a person with zero entitlement assignments, zero accounts, and no terminated/expired conditions scores exactly 0');
+    T::eq('low', $zeroScore['tier'], 'a score of 0 is the "low" tier');
+
+    $batch = RiskScoring::scoresFor([$riskPerson, $terminatedPerson, $unrelated, 999999999]);
+    T::eq(38, $batch[$riskPerson]['score'] ?? null, 'scoresFor() batch returns the same score as identityScore() for the same person, in one query');
+    T::eq(88, $batch[$terminatedPerson]['score'] ?? null, 'scoresFor() batch returns the correct score for a second person in the same batch');
+    T::eq(0, $batch[$unrelated]['score'] ?? null, 'scoresFor() batch fills in an explicit 0 for a person with no contributing factors, rather than omitting them');
+    T::eq(0, $batch[999999999]['score'] ?? null, 'scoresFor() fills in 0 for any requested id with no computed score, including a nonexistent one — callers (always a prior People::list() result) are trusted to pass only real ids, the same contract DynamicFields::valuesFor() already uses');
+
+    $beforeCritical = RiskScoring::countsByTier()['critical'];
+    $secondTerminatedPerson = Db::insert('person', [
+        'first_name' => 'Test', 'last_name' => 'TerminatedTwo', 'display_name' => 'Test TerminatedTwo',
+        'department' => 'Other', 'identity_type' => 'employee', 'employment_status' => 'terminated', 'identity_authority' => 'test',
+    ]);
+    $secondTerminatedAcct = Db::insert('system_account', ['application_id' => $riskApp, 'person_id' => $secondTerminatedPerson, 'external_account_id' => uniqid('risk-term2-'), 'status' => 'enabled']);
+    Db::insert('entitlement_assignment', ['system_account_id' => $secondTerminatedAcct, 'entitlement_id' => $riskEnt]);
+    $afterCritical = RiskScoring::countsByTier()['critical'];
+    T::eq($beforeCritical + 1, $afterCritical, 'countsByTier() reflects a newly created critical-tier identity (delta-checked, since the shared fixture already contains other scored identities)');
 } finally {
     $pdo->rollBack();
 }

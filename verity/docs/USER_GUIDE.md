@@ -2,7 +2,7 @@
 
 How to use Verity day to day. This describes exactly what exists in the
 running application today — nothing aspirational. For what's not built yet
-(risk scoring, separation-of-duties, MFA, Entra SSO), see
+(separation-of-duties, Entra SSO), see
 [`../OPEN_ITEMS.md`](../OPEN_ITEMS.md). For the developer/operator docs,
 see [`ARCHITECTURE.md`](ARCHITECTURE.md), [`DEPLOYMENT.md`](DEPLOYMENT.md),
 and [`SECURITY.md`](SECURITY.md).
@@ -70,6 +70,10 @@ database — not a mockup:
   yet resolved or dismissed
 - **Pending Access Requests** — requests awaiting an owner's or admin's
   decision
+- **Critical-Risk Identities** and **High-Risk Identities** — counts from
+  the identity risk-scoring model (see [Identity Directory](#identity-directory)).
+  A non-zero count is worth investigating, same as the other risk
+  indicators above
 - Three breakdown tables: accounts by application, identities by department,
   and connector health
 
@@ -124,13 +128,21 @@ directory.)*
 
 A list of every person Verity knows about — employees, contractors, guests,
 service identities. Filter by search term, department, employment status,
-or identity type.
+or identity type. Each row shows a **Risk** badge (Low/Medium/High/
+Critical) — a computed score, not a stored field; see below.
 
 Click a name to open their profile:
 
 - **Profile** — employee ID, email, department, manager (click through to
   theirs), location, employment status, start date
 - **Direct Reports** — anyone who reports to this person
+- **Risk Score** — the tier and numeric score, broken down by exactly what
+  contributed: entitlements held (weighted by their own risk level and
+  whether they're privileged), applications touched (weighted by data
+  classification), privileged accounts, expired temporary access still
+  assigned, and enabled accounts on a terminated identity. This is a **v1
+  heuristic**, computed live from data already in Verity — it has not been
+  reviewed or approved as an official risk model, and the page says so.
 - **System Accounts** — every account this person has across every
   connected application, with a link to each account's detail page. This is
   the "one person → many accounts" view — the core promise of an identity

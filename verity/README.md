@@ -20,10 +20,14 @@
 > executed action), and access requests (request an entitlement for an
 > existing account; the application's system owner or an admin approves
 > or denies it, re-checked live via the same ownership scoping the Matrix
-> uses), and optional TOTP multi-factor authentication (hand-rolled RFC
+> uses), optional TOTP multi-factor authentication (hand-rolled RFC
 > 6238, verified against the RFC's own published test vectors — see
-> `app/Support/Totp.php`). See [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for an
-> honest, itemized account of what is and is not built.
+> `app/Support/Totp.php`), and identity risk scoring (a v1 heuristic model
+> computed entirely from already-stored fields, no new schema — see
+> `app/Support/RiskScoring.php`; the per-factor weights are a documented
+> default pending business review, not yet an approved model). See
+> [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for an honest, itemized account of what
+> is and is not built.
 
 *"Unified Visibility. Verified Access. Complete Accountability."*
 
@@ -67,7 +71,7 @@ verity/
 │  ├─ Support/            Db, Security, Session, Config, Auth, Authorize, Roles,
 │  │                      PermissionCatalog, Audit, People, Accounts, Applications,
 │  │                      Connectors, CsvImport, Campaigns, RemediationTasks,
-│  │                      AccessRequests, Mfa, Totp, Matrix, DynamicFields, Users,
+│  │                      AccessRequests, Mfa, Totp, RiskScoring, Matrix, DynamicFields, Users,
 │  │                      Settings, SavedViews, Dashboard
 │  └─ Views/              Plain PHP templates + partials/
 ├─ database/
@@ -137,14 +141,14 @@ Open `http://localhost:8090` and sign in with any of the 5 seeded accounts
 ## Testing
 
 Zero-dependency harness (`tests/lib/T.php`, not PHPUnit): `php tests/run.php`
-runs **203 assertions, all passing** (verified in this session) — 78
+runs **218 assertions, all passing** (verified in this session) — 78
 pure-logic checks (role/grant/deny layering including the wildcard-vs-deny
 regression test, coarse-alias expansion, password length policy, the
 breach-check response parser against synthetic HIBP-shaped bodies — no
 network call in this group, deliberately — connector capability-manifest
 honesty, and `Totp::hotp()`/`base32Encode()`/`base32Decode()` verified
 directly against RFC 4226's and RFC 4648's own published test vectors)
-that always run, plus 125 live-database checks (reporting-chain scoping
+that always run, plus 140 live-database checks (reporting-chain scoping
 including cycle-safety against a deliberately reintroduced self-reference
 and a 2-node cycle, deterministic account-matching heuristics including
 the ambiguous-match and already-linked cases, the CSV import sync engine —
@@ -161,9 +165,13 @@ rejection, approve/deny/cancel lifecycle, double-decision and
 non-requester-cancel rejection — MFA — enrollment, confirmation-before-
 activation, wrong-code and reused-recovery-code rejection, rate limiting,
 and (via `proc_open()` subprocess isolation, since these exercise
-`Auth::establishForUser()`) the full login challenge — application-ownership
-scoping, `Db::update`'s automatic `updated_at`, basic insert/fetch, SQL
-identifier allowlisting, dedicated-schema isolation, and the
+`Auth::establishForUser()`) the full login challenge — risk scoring — exact
+weight arithmetic hand-verified for a "high" and a "critical" scenario, a
+genuine zero-factor score, the batch/single-query consistency of
+`RiskScoring::scoresFor()`, and a tier-count delta after adding a new
+critical-tier identity — application-ownership scoping, `Db::update`'s
+automatic `updated_at`, basic insert/fetch, SQL identifier allowlisting,
+dedicated-schema isolation, and the
 user-creation/password-reset flow) that self-skip unless both
 `DATABASE_URL` and `VERITY_TEST_DB=1` are set. The
 DB-backed group builds its own isolated fixture inside a transaction that is

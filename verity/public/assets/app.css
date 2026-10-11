@@ -16,6 +16,8 @@
   --warn-bg: #fdf1dc;
   --risk: #b42318;
   --risk-bg: #fdeceb;
+  --critical: #ffffff;
+  --critical-bg: #7a1222;
   --neutral-bg: #eef1f6;
   --radius: 8px;
   --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 1px rgba(15, 23, 42, 0.04);
@@ -37,6 +39,8 @@
     --warn-bg: #2c2410;
     --risk: #f06a60;
     --risk-bg: #2c1412;
+    --critical: #ffffff;
+    --critical-bg: #8a1a2c;
     --neutral-bg: #1a2230;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
@@ -107,6 +111,7 @@ nav.breadcrumbs a { color: var(--muted); }
 .kpi .label { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .kpi.warn .n { color: var(--warn); }
 .kpi.risk .n { color: var(--risk); }
+.kpi.critical .n { color: var(--critical-bg); }
 
 /* ---- Tables (high information density) --------------------------------- */
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
@@ -125,6 +130,7 @@ table.grid td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .b-ok { background: var(--ok-bg); color: var(--ok); }
 .b-warn { background: var(--warn-bg); color: var(--warn); }
 .b-risk { background: var(--risk-bg); color: var(--risk); }
+.b-critical { background: var(--critical-bg); color: var(--critical); }
 .b-neutral { background: var(--neutral-bg); color: var(--muted); }
 
 /* ---- Buttons / forms ----------------------------------------------------- */

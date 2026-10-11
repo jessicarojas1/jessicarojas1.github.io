@@ -44,9 +44,16 @@ comment for why that's not the same kind of claim). Also built, not
 phase-gated: **optional TOTP multi-factor authentication**
 (`app/Support/Totp.php` + `app/Support/Mfa.php` — hand-rolled RFC 6238,
 verified directly against the RFC's own published test vectors; see
-their own standing-rule entries below). Do **not** claim the rest of
-Phase 4+ (Entra GCC High SSO, risk scoring, SoD rules, notifications)
-exists — see `OPEN_ITEMS.md` for the authoritative list of
+their own standing-rule entries below), and — pulled forward from
+Phase 7 — **identity risk scoring** (`app/Support/RiskScoring.php`: a v1
+heuristic model computed entirely from existing fields —
+`entitlement.risk_level`/`is_privileged`, `application.classification`,
+privileged account type, expired temporary access, terminated-but-enabled
+accounts — with no new schema; the per-factor weights are a documented
+default, not yet a business-approved model, see OPEN_ITEMS.md's
+"Decisions required"). Do **not** claim the rest of Phase 4+ (Entra GCC
+High SSO, SoD rules, notifications) exists — see `OPEN_ITEMS.md` for the
+authoritative list of
 what's missing.
 
 ## Standing rules for this project
@@ -459,6 +466,21 @@ what's missing.
   once, before the if/else. When a controller branches on whether the
   caller has some optional attribute, check first whether the variables the
   REQUIRE'd view unconditionally reads are still assigned on every branch.
+- **Risk-scoring weights (`RiskScoring.php`) are a documented v1 default,
+  not a business decision this app made on its own.** Every per-factor
+  weight and tier threshold is a plain class constant specifically so it's
+  trivially retunable without touching the query logic. Never present a
+  risk score anywhere in this app's UI or docs as validated/approved —
+  always as "computed from a documented heuristic model, pending business
+  review." See OPEN_ITEMS.md's "Decisions required" for the actual
+  decision this is waiting on.
+- **Batch a derived value for a whole list in ONE query, never per-row.**
+  `RiskScoring::scoresFor(int[] $personIds)` follows the exact pattern
+  `DynamicFields::valuesFor()` already established: compute everything for
+  the given ids in a single query, return it keyed by id, and have the
+  caller merge it into already-fetched rows — never loop the list calling
+  a single-id lookup once per row. Follow this same shape for any future
+  per-row computed/derived value added to a paginated list.
 
 ## Roadmap gates (8-phase build)
 

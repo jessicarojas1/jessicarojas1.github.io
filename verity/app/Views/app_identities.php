@@ -1,5 +1,5 @@
 <?php
-/** @var array $filters @var array $people @var array $departments @var int $total @var int $page @var int $pageSize */
+/** @var array $filters @var array $people @var array $departments @var int $total @var int $page @var int $pageSize @var array $riskScores */
 use Verity\Support\Security;
 
 require __DIR__ . '/partials/app_header.php';
@@ -43,12 +43,13 @@ $lastPage = max(1, (int) ceil($total / $pageSize));
 
 <div class="table-wrap">
 <table class="grid">
-  <thead><tr><th>Name</th><th>Department</th><th>Title</th><th>Manager</th><th>Type</th><th>Status</th><th class="num">Accounts</th></tr></thead>
+  <thead><tr><th>Name</th><th>Department</th><th>Title</th><th>Manager</th><th>Type</th><th>Status</th><th class="num">Accounts</th><th>Risk</th></tr></thead>
   <tbody>
     <?php if ($people === []): ?>
-    <tr class="empty-row"><td colspan="7" class="empty-state-sm">No identities match these filters.</td></tr>
+    <tr class="empty-row"><td colspan="8" class="empty-state-sm">No identities match these filters.</td></tr>
     <?php endif; ?>
     <?php foreach ($people as $p): ?>
+    <?php $riskTier = $riskScores[(int) $p['id']]['tier'] ?? 'low'; $riskScore = $riskScores[(int) $p['id']]['score'] ?? 0; ?>
     <tr>
       <td><a href="/app/identities/view?id=<?= (int) $p['id'] ?>"><?= Security::h($p['display_name']) ?></a></td>
       <td><?= Security::h($p['department'] ?? '—') ?></td>
@@ -61,6 +62,10 @@ $lastPage = max(1, (int) ceil($total / $pageSize));
         <?php else: ?><span class="badge b-warn">On Leave</span><?php endif; ?>
       </td>
       <td class="num"><?= (int) $p['account_count'] ?></td>
+      <td>
+        <?php $riskCls = ['low' => 'b-neutral', 'medium' => 'b-warn', 'high' => 'b-risk', 'critical' => 'b-critical'][$riskTier]; ?>
+        <span class="badge <?= $riskCls ?>" title="Risk score: <?= $riskScore ?>"><?= ucfirst($riskTier) ?></span>
+      </td>
     </tr>
     <?php endforeach; ?>
   </tbody>

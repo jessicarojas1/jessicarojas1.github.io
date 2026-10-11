@@ -1,5 +1,5 @@
 <?php
-/** @var array $person @var array $accounts @var array $reports */
+/** @var array $person @var array $accounts @var array $reports @var array $risk */
 use Verity\Support\Security;
 
 require __DIR__ . '/partials/app_header.php';
@@ -48,6 +48,22 @@ require __DIR__ . '/partials/app_header.php';
       </table>
     <?php endif; ?>
   </div>
+</div>
+
+<div class="card mt-14">
+  <?php $riskCls = ['low' => 'b-neutral', 'medium' => 'b-warn', 'high' => 'b-risk', 'critical' => 'b-critical'][$risk['tier']]; ?>
+  <h2>Risk Score — <span class="badge <?= $riskCls ?>"><?= ucfirst($risk['tier']) ?></span> (<?= (int) $risk['score'] ?>)</h2>
+  <p class="hint">A v1 heuristic computed from existing entitlement risk levels, application classifications, and account/employment conditions already on record — not a business-approved risk model yet. See <code>OPEN_ITEMS.md</code> and <code>app/Support/RiskScoring.php</code> for exactly how this is calculated and why the weights are what they are.</p>
+  <table class="grid">
+    <thead><tr><th>Factor</th><th>Contributing items</th><th class="num">Weight</th></tr></thead>
+    <tbody>
+      <tr><th>Entitlements held (by risk level + privileged)</th><td><?= (int) $risk['factors']['entitlement']['count'] ?></td><td class="num"><?= (int) $risk['factors']['entitlement']['weight'] ?></td></tr>
+      <tr><th>Applications touched (by data classification)</th><td><?= (int) $risk['factors']['application']['count'] ?></td><td class="num"><?= (int) $risk['factors']['application']['weight'] ?></td></tr>
+      <tr><th>Privileged accounts</th><td><?= (int) $risk['factors']['privileged_account']['count'] ?></td><td class="num"><?= (int) $risk['factors']['privileged_account']['weight'] ?></td></tr>
+      <tr><th>Expired temporary access still assigned</th><td><?= (int) $risk['factors']['expired_temporary']['count'] ?></td><td class="num"><?= (int) $risk['factors']['expired_temporary']['weight'] ?></td></tr>
+      <tr><th>Enabled accounts on a terminated identity</th><td><?= (int) $risk['factors']['terminated_enabled']['count'] ?></td><td class="num"><?= (int) $risk['factors']['terminated_enabled']['weight'] ?></td></tr>
+    </tbody>
+  </table>
 </div>
 
 <div class="card mt-14">

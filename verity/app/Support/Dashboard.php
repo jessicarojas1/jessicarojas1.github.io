@@ -7,10 +7,12 @@ namespace Verity\Support;
 /**
  * Enterprise Dashboard KPIs (module 1 / section 19). Every metric here is a
  * real COUNT against stored records — no placeholder numbers. KPIs that
- * depend on a module not yet built (risk scoring, SoD) are deliberately
- * OMITTED rather than shown as zero/fake — a zero would read as "nothing
- * pending" when the true state is "not implemented yet". See
- * OPEN_ITEMS.md for what's missing and why.
+ * depend on a module not yet built (SoD) are deliberately OMITTED rather
+ * than shown as zero/fake — a zero would read as "nothing pending" when
+ * the true state is "not implemented yet". See OPEN_ITEMS.md for what's
+ * missing and why. Risk-scoring KPIs (high_risk_identities,
+ * critical_risk_identities) were added once RiskScoring.php existed —
+ * see that class for the model.
  */
 final class Dashboard
 {
@@ -42,6 +44,15 @@ final class Dashboard
             ),
             'open_remediation_tasks' => (int) Db::fetchValue("SELECT COUNT(*) FROM remediation_task WHERE status = 'open'"),
             'pending_access_requests' => (int) Db::fetchValue("SELECT COUNT(*) FROM access_request WHERE status = 'pending'"),
+        ] + self::riskKpis();
+    }
+
+    private static function riskKpis(): array
+    {
+        $tiers = RiskScoring::countsByTier();
+        return [
+            'critical_risk_identities' => $tiers['critical'],
+            'high_risk_identities' => $tiers['high'],
         ];
     }
 

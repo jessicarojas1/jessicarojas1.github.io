@@ -34,6 +34,8 @@ require __DIR__ . '/partials/app_header.php';
   <div class="kpi <?= $kpis['pending_campaign_reviews'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['pending_campaign_reviews']) ?></div><div class="label">Pending Campaign Reviews</div></div>
   <div class="kpi <?= $kpis['open_remediation_tasks'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['open_remediation_tasks']) ?></div><div class="label">Open Remediation Tasks</div></div>
   <div class="kpi <?= $kpis['pending_access_requests'] > 0 ? 'warn' : '' ?>"><div class="n"><?= number_format($kpis['pending_access_requests']) ?></div><div class="label">Pending Access Requests</div></div>
+  <div class="kpi <?= $kpis['critical_risk_identities'] > 0 ? 'critical' : '' ?>"><div class="n"><?= number_format($kpis['critical_risk_identities']) ?></div><div class="label">Critical-Risk Identities</div></div>
+  <div class="kpi <?= $kpis['high_risk_identities'] > 0 ? 'risk' : '' ?>"><div class="n"><?= number_format($kpis['high_risk_identities']) ?></div><div class="label">High-Risk Identities</div></div>
 </div>
 
 <div class="field-row">
@@ -77,9 +79,11 @@ require __DIR__ . '/partials/app_header.php';
 
 <div class="card mt-14">
   <p class="hint">
-    Risk intelligence and separation-of-duties KPIs are not shown here because those modules are not implemented
-    yet — see <code>OPEN_ITEMS.md</code>. Showing a zero for them would misleadingly read as "nothing outstanding"
-    rather than "not built yet".
+    Separation-of-duties (SoD) KPIs are not shown here because that module is not implemented yet — see
+    <code>OPEN_ITEMS.md</code>. Showing a zero for it would misleadingly read as "nothing outstanding" rather
+    than "not built yet". The Critical/High-Risk Identity counts above <em>are</em> real, computed from a v1
+    heuristic scoring model — see <code>app/Support/RiskScoring.php</code> for exactly how, and why the
+    weights behind them are a documented default pending business review, not yet a business-approved model.
   </p>
 </div>
 

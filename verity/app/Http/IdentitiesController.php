@@ -7,6 +7,7 @@ namespace Verity\Http;
 use Verity\Support\Auth;
 use Verity\Support\Authorize;
 use Verity\Support\People;
+use Verity\Support\RiskScoring;
 use Verity\Support\Security;
 
 final class IdentitiesController
@@ -42,6 +43,7 @@ final class IdentitiesController
         $total = People::count($filters);
         $people = People::list($filters, $pageSize, ($page - 1) * $pageSize);
         $departments = People::departments();
+        $riskScores = RiskScoring::scoresFor(array_map(static fn ($p) => (int) $p['id'], $people));
 
         $title = 'Identity Directory';
         $navActive = 'identities';
@@ -68,6 +70,7 @@ final class IdentitiesController
 
         $accounts = \Verity\Support\People::accountsFor($id);
         $reports = People::directReports($id);
+        $risk = RiskScoring::identityScore($id);
 
         $title = $person['display_name'];
         $navActive = 'identities';
