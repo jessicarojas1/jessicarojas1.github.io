@@ -619,6 +619,16 @@ try {
     $afterCritical = RiskScoring::countsByTier()['critical'];
     T::eq($beforeCritical + 1, $afterCritical, 'countsByTier() reflects a newly created critical-tier identity (delta-checked, since the shared fixture already contains other scored identities)');
 
+    T::group('Authorize::canManageAccountAccess — always derives the account\'s REAL owner, never trusts a separately-supplied person_id');
+    $unrelatedAcct = Db::insert('system_account', ['application_id' => $riskApp, 'person_id' => $unrelated, 'external_account_id' => uniqid('unrelated-acct-')]);
+    $managerUser = ['id' => 1, 'person_id' => $manager, 'grants' => ['deny' => []]];
+    T::ok(Authorize::canManageAccountAccess($managerUser, $campAcctMatched), 'a manager CAN manage access on an account genuinely belonging to one of their reports');
+    T::ok(!Authorize::canManageAccountAccess($managerUser, $unrelatedAcct), 'the SAME manager CANNOT manage access on an account belonging to someone outside their chain — the exact IDOR this method exists to close: a caller cannot pass a report\'s person_id alongside an unrelated account_id and have that account_id silently accepted');
+    $unrelatedUser = ['id' => 2, 'person_id' => $unrelated, 'grants' => ['deny' => []]];
+    T::ok(!Authorize::canManageAccountAccess($unrelatedUser, $campAcctMatched), 'a person who is nobody\'s supervisor cannot manage access on an account they have no relationship to');
+    T::ok(!Authorize::canManageAccountAccess(['id' => 3, 'person_id' => null, 'grants' => ['deny' => []]], $campAcctMatched), 'a user with no linked person record at all is correctly denied, not fatally erroring');
+    T::ok(!Authorize::canManageAccountAccess($managerUser, 999999999), 'a nonexistent account id is denied, not silently treated as manageable');
+
     T::group('People::entitlementsForAccounts — batched per account, for the Identity detail access editor');
     $peAcct1 = Db::insert('system_account', ['application_id' => $riskApp, 'person_id' => $riskPerson, 'external_account_id' => uniqid('pe-acct1-')]);
     $peAcct2 = Db::insert('system_account', ['application_id' => $riskApp, 'person_id' => $riskPerson, 'external_account_id' => uniqid('pe-acct2-')]);

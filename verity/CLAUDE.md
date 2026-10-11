@@ -507,6 +507,29 @@ what's missing.
   built — see OPEN_ITEMS.md) should call `EntitlementAssignments::grant()`
   itself, not duplicate its authorization/cross-application/duplicate
   checks a third time.
+- **SECURITY — never let a request pair two ids and trust their
+  relationship without re-deriving it server-side.** The Identity detail
+  page's first "Flag for Removal" implementation took both `person_id` and
+  `system_account_id` from the same POST body and checked only "is
+  `person_id` in the caller's reporting chain" — never checking that
+  `system_account_id` actually BELONGED to `person_id`. A supervisor could
+  pair their own report's `person_id` with ANY `system_account_id` at all
+  (e.g. the CEO's) and the check would pass, an IDOR
+  (insecure-direct-object-reference) that let them flag access on accounts
+  they had no authority over. Fixed by `Authorize::canManageAccountAccess
+  (array $user, int $systemAccountId)`, which looks up the account's REAL
+  `person_id` itself and checks the reporting chain against that — never
+  against a value the request merely asserts alongside it. Found while
+  building the Matrix version of this same feature, before it could repeat
+  the same mistake there. **Every future "does this user have authority
+  over X" check must derive X's owning identity from X itself (a DB
+  lookup keyed by X's own id), never from a second, separately-supplied
+  field that the caller could set independently.** See
+  `EntitlementAssignments::grant()` for a check that was already correct
+  for the identical reason (it re-derives the account's owner from the
+  account row, not from a caller-supplied person_id) — use
+  `canManageAccountAccess()` for any new caller rather than hand-rolling
+  this check a third way.
 
 ## Roadmap gates (8-phase build)
 

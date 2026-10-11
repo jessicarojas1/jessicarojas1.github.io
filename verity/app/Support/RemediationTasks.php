@@ -103,6 +103,35 @@ final class RemediationTasks
     }
 
     /**
+     * Flag several (system_account_id, entitlement_id) pairs for removal in
+     * one submit — the Access Matrix's bulk toolbar. Each pair is created
+     * independently through create(), so one invalid pair never blocks the
+     * rest; the same row-level-failure-collection shape
+     * Campaigns::decideBulk() and CsvImport::run() already use.
+     * @param array<int,array{system_account_id:int,entitlement_id:?int}> $pairs
+     * @return array{succeeded:int, failed:array<int,string>} failed is index-in-$pairs => reason
+     */
+    public static function createBulk(array $pairs, ?string $note, int $actorId): array
+    {
+        $succeeded = 0;
+        $failed = [];
+        foreach (array_values($pairs) as $i => $pair) {
+            try {
+                self::create([
+                    'system_account_id' => (int) ($pair['system_account_id'] ?? 0),
+                    'entitlement_id' => $pair['entitlement_id'] ?? null,
+                    'task_type' => 'remove_access',
+                    'description' => $note ?? 'Flagged for removal from the Access Matrix.',
+                ], $actorId);
+                $succeeded++;
+            } catch (\InvalidArgumentException $e) {
+                $failed[$i] = $e->getMessage();
+            }
+        }
+        return ['succeeded' => $succeeded, 'failed' => $failed];
+    }
+
+    /**
      * Auto-creation from a campaign's "revoked" decision — called by
      * Campaigns::decide(). Creating the TASK (a tracking row) is safe to
      * do automatically; this is bookkeeping, not an access change, so it

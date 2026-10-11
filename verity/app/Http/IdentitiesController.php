@@ -101,9 +101,9 @@ final class IdentitiesController
     {
         Auth::requireAuth();
         $user = Auth::user();
-        self::requireEditAccess($user, (int) ($_GET['person_id'] ?? 0));
-        $applicationId = (int) ($_GET['application_id'] ?? 0);
         $accountId = (int) ($_GET['system_account_id'] ?? 0);
+        self::requireAccountEditAccess($user, $accountId);
+        $applicationId = (int) ($_GET['application_id'] ?? 0);
         header('Content-Type: application/json; charset=utf-8');
         echo Security::jsonForScript(['entitlements' => ($applicationId > 0 && $accountId > 0) ? AccessRequests::requestableEntitlements($applicationId, $accountId) : []]);
     }
@@ -113,7 +113,8 @@ final class IdentitiesController
         Auth::requireAuth();
         $user = Auth::user();
         $personId = (int) ($_POST['person_id'] ?? 0);
-        self::requireEditAccess($user, $personId);
+        $systemAccountId = (int) ($_POST['system_account_id'] ?? 0);
+        self::requireAccountEditAccess($user, $systemAccountId);
         if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
             http_response_code(400);
             echo 'Invalid request.';
@@ -121,7 +122,6 @@ final class IdentitiesController
         }
         $isAdmin = Authorize::can($user, 'entitlement.manage');
         $actingPersonId = $user['person_id'] ?? null;
-        $systemAccountId = (int) ($_POST['system_account_id'] ?? 0);
         $entitlementId = (int) ($_POST['entitlement_id'] ?? 0);
         $note = trim((string) ($_POST['note'] ?? '')) ?: null;
         try {
@@ -140,13 +140,13 @@ final class IdentitiesController
         Auth::requireAuth();
         $user = Auth::user();
         $personId = (int) ($_POST['person_id'] ?? 0);
-        self::requireEditAccess($user, $personId);
+        $systemAccountId = (int) ($_POST['system_account_id'] ?? 0);
+        self::requireAccountEditAccess($user, $systemAccountId);
         if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
             http_response_code(400);
             echo 'Invalid request.';
             return;
         }
-        $systemAccountId = (int) ($_POST['system_account_id'] ?? 0);
         $entitlementId = (int) ($_POST['entitlement_id'] ?? 0);
         $note = trim((string) ($_POST['note'] ?? '')) ?: null;
         try {
@@ -164,19 +164,20 @@ final class IdentitiesController
         header('Location: /app/identities/view?id=' . $personId . '&flagged=1');
     }
 
-    /** Admin (entitlement.manage) or the subject's own supervisor — re-verified here, not just trusted from a page render earlier in the request lifecycle. */
-    private static function requireEditAccess(array $user, int $subjectPersonId): void
+    /**
+     * Admin (entitlement.manage) or that ACCOUNT's real owner's supervisor
+     * — see Authorize::canManageAccountAccess() for why this always derives
+     * the account's actual person_id itself rather than trusting a
+     * person_id supplied alongside it in the same request.
+     */
+    private static function requireAccountEditAccess(array $user, int $systemAccountId): void
     {
-        if (Authorize::can($user, 'entitlement.manage')) {
+        if (Authorize::canManageAccountAccess($user, $systemAccountId)) {
             return;
         }
-        $actingPersonId = $user['person_id'] ?? null;
-        if ($actingPersonId !== null && $subjectPersonId > 0 && Authorize::isInReportingChain((int) $actingPersonId, $subjectPersonId)) {
-            return;
-        }
-        Audit::denied('authz.deny.entitlement.manage', 'person#' . $subjectPersonId, $user['id'] ?? null);
+        Audit::denied('authz.deny.entitlement.manage', 'system_account#' . $systemAccountId, $user['id'] ?? null);
         http_response_code(403);
-        echo 'You are not authorized to edit this identity\'s access.';
+        echo 'You are not authorized to edit this account\'s access.';
         exit;
     }
 }

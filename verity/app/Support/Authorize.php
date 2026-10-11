@@ -202,6 +202,40 @@ final class Authorize
         return $row !== null;
     }
 
+    /**
+     * Can $user directly grant/flag-for-removal entitlements on
+     * $systemAccountId? True if they hold 'entitlement.manage' (admin), or
+     * if $systemAccountId's ACTUAL linked person (looked up fresh here,
+     * never taken from caller input) is anywhere in $user's own reporting
+     * chain. This is the one place every grant/flag-for-removal surface in
+     * this app (Identity detail, the Access Matrix) must call to decide
+     * who may act on a given account — never accept a person_id supplied
+     * by the request itself for this decision, however convenient, since
+     * nothing then stops it from naming a DIFFERENT account than the one
+     * actually being mutated. (This method exists because an earlier
+     * version of the Identity detail page's "Flag for Removal" action did
+     * exactly that — trusted a client-supplied person_id instead of
+     * deriving the account's real owner — an IDOR a supervisor could have
+     * used to flag ANY account for removal, not just their own reports',
+     * by pairing their own report's id with someone else's
+     * system_account_id. Fixed by centralizing the correct check here.)
+     */
+    public static function canManageAccountAccess(array $user, int $systemAccountId): bool
+    {
+        if (self::can($user, 'entitlement.manage')) {
+            return true;
+        }
+        $actingPersonId = $user['person_id'] ?? null;
+        if ($actingPersonId === null || !Db::isConfigured()) {
+            return false;
+        }
+        $accountPersonId = Db::fetchValue('SELECT person_id FROM system_account WHERE id = :id', ['id' => $systemAccountId]);
+        if ($accountPersonId === null) {
+            return false;
+        }
+        return self::isInReportingChain((int) $actingPersonId, (int) $accountPersonId);
+    }
+
     private static function isReportsScoped(string $permission): bool
     {
         return str_ends_with($permission, '.reports') || $permission === 'matrix.view.supervisor';
