@@ -257,9 +257,24 @@ page:
   fallback case.
 
 Click a campaign to see its progress (total/approved/revoked/pending) and
-every item's current decision, reviewer, and who decided it. If you have
+every item's current decision, reviewer, "Decided At" timestamp, and
+"Decided By" — as separate columns, not combined. If you have
 `campaign.manage`, you can **Complete Campaign** (marks it done; any
-still-pending items stay recorded as pending) or **Cancel Campaign**.
+still-pending items stay recorded as pending) or **Cancel Campaign**, and
+you get two more capabilities here that an ordinary reviewer does not:
+
+- **Decide or grant for ANY item**, not only ones assigned to you as
+  reviewer — useful when an assigned reviewer (e.g. a manager who has
+  since left) can never act on a stuck item. Every decision you make this
+  way still records exactly who decided it and when, the same as a normal
+  reviewer decision.
+- **Bulk review**: tick the checkbox on several pending rows (or the
+  header checkbox to select every pending row at once), optionally add one
+  note for all of them, and click **Approve Selected** or **Revoke
+  Selected**. One item that's already been decided by someone else, or
+  doesn't exist anymore, is skipped — it never blocks the rest of your
+  selection from going through, and the page tells you how many succeeded
+  versus were skipped.
 
 **A "Revoked" decision does not remove the access by itself.** It records
 that a reviewer decided the access should not continue — Verity has no
@@ -282,8 +297,19 @@ For each pending item, add an optional note and click **Approve** (this
 updates the item's `last_certified_at` — the "last reviewed" record for
 that specific access) or **Revoke** (you'll be asked to confirm — see the
 note above about what Revoke does and doesn't do). Once decided, an item
-shows its outcome instead of the action buttons; decisions cannot be
-undone from this page.
+shows its outcome, plus when and who decided it, instead of the action
+buttons; decisions cannot be undone from this page.
+
+You can also tick several pending rows' checkboxes (or the header
+checkbox to select them all) and click **Approve Selected** / **Revoke
+Selected** at the top of the page to decide them together in one submit,
+with one shared optional note. And next to any pending item, **+ Add
+entitlement** expands a small picker of entitlements that account doesn't
+already have in that same application — choosing one and clicking **Grant**
+adds it immediately. This is *not* a request someone else approves: as the
+assigned reviewer (or supervisor) for that account, granting it directly
+here is recorded as your own decision, the same way approving or revoking
+already is.
 
 ## Remediation Tasks
 

@@ -24,6 +24,14 @@ namespace Verity\Support;
  * TASK is safe to automate (it's tracking, not an access change);
  * resolving it is still a deliberate human step — see
  * RemediationTasks.php.
+ *
+ * decide()/decideBulk() restrict a decision to the item's assigned
+ * reviewer UNLESS the caller holds 'campaign.manage' ("admin"), in which
+ * case any item can be decided regardless of whose queue it's in — so
+ * every decision is made by either the account holder's supervisor (the
+ * ordinary case under the 'manager' strategy) or an admin, never anyone
+ * else. grantEntitlement() applies the identical admin-or-supervisor rule
+ * to adding a NEW entitlement to an account while reviewing it.
  */
 final class Campaigns
 {
@@ -175,7 +183,7 @@ final class Campaigns
         $params['limit'] = $limit;
         $params['offset'] = $offset;
         return Db::fetchAll(
-            "SELECT i.*, sa.external_account_id, sa.username, a.name AS application_name,
+            "SELECT i.*, sa.external_account_id, sa.username, a.id AS application_id, a.name AS application_name,
                     e.name AS entitlement_name, e.is_privileged, e.risk_level,
                     p.display_name AS person_name, r.display_name AS reviewer_name,
                     db.display_name AS decided_by_name
@@ -217,15 +225,16 @@ final class Campaigns
         $params['offset'] = $offset;
         return Db::fetchAll(
             "SELECT i.*, c.name AS campaign_name, c.due_at,
-                    sa.external_account_id, sa.username, a.name AS application_name,
+                    sa.external_account_id, sa.username, a.id AS application_id, a.name AS application_name,
                     e.name AS entitlement_name, e.is_privileged, e.risk_level,
-                    p.display_name AS person_name
+                    p.display_name AS person_name, db.display_name AS decided_by_name
              FROM certification_campaign_item i
              JOIN certification_campaign c ON c.id = i.campaign_id
              JOIN system_account sa ON sa.id = i.system_account_id
              JOIN application a ON a.id = sa.application_id
              JOIN entitlement e ON e.id = i.entitlement_id
              LEFT JOIN person p ON p.id = sa.person_id
+             LEFT JOIN app_user db ON db.id = i.decided_by_user_id
              WHERE $where
              ORDER BY c.due_at NULLS LAST, i.id
              LIMIT :limit OFFSET :offset",
@@ -247,19 +256,28 @@ final class Campaigns
     }
 
     /**
-     * Record a reviewer's decision. $reviewerPersonId is the acting user's
-     * OWN person_id — the caller (controller) must verify the item is
-     * actually assigned to them before calling this; this method itself
-     * re-checks it too, so there is no path to deciding someone else's
-     * review item even if a caller forgets the check.
+     * Record a reviewer's decision. $actingPersonId is the acting user's OWN
+     * person_id — the caller (controller) must verify the item is actually
+     * assigned to them (or that the caller is a campaign admin) before
+     * calling this; this method itself re-checks it too, so there is no path
+     * to deciding someone else's review item even if a caller forgets the
+     * check. $actingIsAdmin (true only for a caller holding
+     * 'campaign.manage') lets an admin decide ANY item regardless of whose
+     * queue it's in — e.g. a stuck item whose assigned manager has left —
+     * without weakening the default rule that only the assigned reviewer
+     * (ordinarily that person's own manager, under the 'manager' strategy)
+     * can act on it.
      */
-    public static function decide(int $itemId, int $reviewerPersonId, string $decision, ?string $note, int $decidedByUserId): void
+    public static function decide(int $itemId, int $actingPersonId, string $decision, ?string $note, int $decidedByUserId, bool $actingIsAdmin = false): void
     {
         if (!in_array($decision, ['approved', 'revoked'], true)) {
             throw new \InvalidArgumentException('Invalid decision.');
         }
-        $item = Db::fetchOne('SELECT * FROM certification_campaign_item WHERE id = :id AND reviewer_person_id = :pid', ['id' => $itemId, 'pid' => $reviewerPersonId]);
+        $item = Db::fetchOne('SELECT * FROM certification_campaign_item WHERE id = :id', ['id' => $itemId]);
         if ($item === null) {
+            throw new \RuntimeException('Review item not found.');
+        }
+        if (!$actingIsAdmin && (int) $item['reviewer_person_id'] !== $actingPersonId) {
             throw new \RuntimeException('This review item is not assigned to you.');
         }
         if ($item['decision'] !== 'pending') {
@@ -290,6 +308,93 @@ final class Campaigns
             $note,
             $decidedByUserId
         );
+    }
+
+    /**
+     * Decide several items in one request (mass review). Each item is
+     * validated and recorded independently through decide() — one item
+     * already decided by someone else, or not actually assigned to this
+     * reviewer, fails ONLY that item rather than aborting the whole batch,
+     * the same row-level-failure-collection shape used by CsvImport::run().
+     * @param int[] $itemIds
+     * @return array{succeeded:int[], failed:array<int,string>} failed is itemId => reason
+     */
+    public static function decideBulk(array $itemIds, int $actingPersonId, string $decision, ?string $note, int $decidedByUserId, bool $actingIsAdmin = false): array
+    {
+        $succeeded = [];
+        $failed = [];
+        foreach (array_unique(array_map('intval', $itemIds)) as $itemId) {
+            try {
+                self::decide($itemId, $actingPersonId, $decision, $note, $decidedByUserId, $actingIsAdmin);
+                $succeeded[] = $itemId;
+            } catch (\InvalidArgumentException|\RuntimeException $e) {
+                $failed[$itemId] = $e->getMessage();
+            }
+        }
+        return ['succeeded' => $succeeded, 'failed' => $failed];
+    }
+
+    /**
+     * Grant a NEW entitlement to an account while reviewing its existing
+     * access — "I noticed this account is missing something it should
+     * have" is a real reviewer action distinct from approving/revoking what
+     * it already holds. Authorization mirrors decide()'s own rule (admin,
+     * or the account holder's supervisor anywhere up the reporting chain —
+     * see Authorize::isInReportingChain()) and is re-checked HERE, not just
+     * trusted from the caller, for the same defense-in-depth reason decide()
+     * documents. Creating the entitlement_assignment row directly (rather
+     * than opening an access_request) is deliberate: the person taking this
+     * action already IS the authorized approver for this account, so
+     * routing it through a second approval step would be theater, not
+     * governance — see AccessRequests.php's own doc comment for why
+     * approval creating the row (source='manual') is the established,
+     * correct meaning of that column in this schema.
+     * @return array{assignment_id:int}
+     */
+    public static function grantEntitlement(int $systemAccountId, int $entitlementId, int $actingUserId, ?int $actingPersonId, bool $actingIsAdmin, ?string $note = null): array
+    {
+        $account = Db::fetchOne('SELECT id, person_id, application_id FROM system_account WHERE id = :id', ['id' => $systemAccountId]);
+        if ($account === null) {
+            throw new \RuntimeException('Account not found.');
+        }
+        if (!$actingIsAdmin) {
+            $accountPersonId = $account['person_id'] !== null ? (int) $account['person_id'] : null;
+            if ($actingPersonId === null || $accountPersonId === null || !Authorize::isInReportingChain($actingPersonId, $accountPersonId)) {
+                throw new \RuntimeException('You are not authorized to add access for this account.');
+            }
+        }
+
+        $entitlement = Db::fetchOne('SELECT id, application_id FROM entitlement WHERE id = :id', ['id' => $entitlementId]);
+        if ($entitlement === null) {
+            throw new \RuntimeException('Entitlement not found.');
+        }
+        if ((int) $entitlement['application_id'] !== (int) $account['application_id']) {
+            throw new \InvalidArgumentException('That entitlement does not belong to this account\'s application.');
+        }
+        $already = Db::fetchOne(
+            "SELECT id FROM entitlement_assignment WHERE system_account_id = :sa AND entitlement_id = :e AND assignment_type = 'direct'",
+            ['sa' => $systemAccountId, 'e' => $entitlementId]
+        );
+        if ($already !== null) {
+            throw new \RuntimeException('This account already has that entitlement.');
+        }
+
+        $row = Db::fetchOne(
+            "INSERT INTO entitlement_assignment (system_account_id, entitlement_id, assignment_type, source)
+             VALUES (:sa, :e, 'direct', 'manual')
+             RETURNING id",
+            ['sa' => $systemAccountId, 'e' => $entitlementId]
+        );
+        $assignmentId = (int) $row['id'];
+        Audit::log(
+            'campaign.grant',
+            'entitlement_assignment#' . $assignmentId,
+            null,
+            ['system_account_id' => $systemAccountId, 'entitlement_id' => $entitlementId, 'note' => $note],
+            $note,
+            $actingUserId
+        );
+        return ['assignment_id' => $assignmentId];
     }
 
     public static function complete(int $campaignId, ?int $actorId): void

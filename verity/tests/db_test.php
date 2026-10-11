@@ -238,6 +238,68 @@ try {
     $completed = Campaigns::get($launch['id']);
     T::eq('completed', $completed['status'], 'Campaigns::complete() marks the campaign completed');
 
+    T::group('Campaigns::decide — admin override (admin-or-supervisor review)');
+    try {
+        Campaigns::decide((int) $fixedItem['id'], $unrelated, 'approved', null, 1);
+        T::ok(false, 'a non-reviewer, non-admin must still be rejected — admin override must not weaken the default rule');
+    } catch (\RuntimeException $e) {
+        T::ok(str_contains($e->getMessage(), 'not assigned'), 'an unrelated person without the admin flag is rejected exactly like before');
+    }
+    Campaigns::decide((int) $fixedItem['id'], $unrelated, 'approved', 'admin override', 1, true);
+    $fixedDecided = Db::fetchOne('SELECT decision, decided_by_user_id FROM certification_campaign_item WHERE id = :id', ['id' => (int) $fixedItem['id']]);
+    T::eq('approved', $fixedDecided['decision'], 'actingIsAdmin=true lets an admin decide an item that was never assigned to them');
+    T::eq(1, (int) $fixedDecided['decided_by_user_id'], 'the admin override still records who actually decided it');
+
+    T::group('Campaigns::decideBulk — mass review, partial-failure-safe');
+    $bulkEnt1 = Db::insert('entitlement', ['application_id' => $app, 'name' => 'Bulk Test Role 1 ' . uniqid()]);
+    $bulkEnt2 = Db::insert('entitlement', ['application_id' => $app, 'name' => 'Bulk Test Role 2 ' . uniqid()]);
+    $bulkAcct = Db::insert('system_account', ['application_id' => $app, 'person_id' => $report, 'external_account_id' => uniqid('bulk-acct-')]);
+    Db::insert('entitlement_assignment', ['system_account_id' => $bulkAcct, 'entitlement_id' => $bulkEnt1]);
+    Db::insert('entitlement_assignment', ['system_account_id' => $bulkAcct, 'entitlement_id' => $bulkEnt2]);
+    $bulkLaunch = Campaigns::create([
+        'name' => 'Test Bulk Review', 'scope_type' => 'application', 'scope_application_id' => $app,
+        'reviewer_strategy' => 'fixed', 'default_reviewer_person_id' => $manager,
+    ], null);
+    $bulkItem1 = Db::fetchOne('SELECT * FROM certification_campaign_item WHERE campaign_id = :cid AND system_account_id = :sa AND entitlement_id = :e', ['cid' => $bulkLaunch['id'], 'sa' => $bulkAcct, 'e' => $bulkEnt1]);
+    $bulkItem2 = Db::fetchOne('SELECT * FROM certification_campaign_item WHERE campaign_id = :cid AND system_account_id = :sa AND entitlement_id = :e', ['cid' => $bulkLaunch['id'], 'sa' => $bulkAcct, 'e' => $bulkEnt2]);
+    $bulkResult = Campaigns::decideBulk([(int) $bulkItem1['id'], (int) $bulkItem2['id'], 999999999], $manager, 'approved', 'bulk ok', 1);
+    T::eq(2, count($bulkResult['succeeded']), 'both real, pending, correctly-assigned items succeed in one bulk call');
+    T::eq(1, count($bulkResult['failed']), 'a nonexistent item id in the same batch fails independently rather than aborting the batch');
+    T::ok(str_contains($bulkResult['failed'][999999999] ?? '', 'not found'), 'the failure reason for a bogus id is specific, not a generic batch error');
+    $bulkRetry = Campaigns::decideBulk([(int) $bulkItem1['id'], (int) $bulkItem2['id']], $manager, 'approved', null, 1);
+    T::eq(0, count($bulkRetry['succeeded']), 're-submitting the same already-decided items succeeds on none of them');
+    T::eq(2, count($bulkRetry['failed']), 'both already-decided items fail independently on retry');
+
+    T::group('Campaigns::grantEntitlement — admin-or-supervisor can add access while reviewing, same rule as decide()');
+    $grantEnt1 = Db::insert('entitlement', ['application_id' => $app, 'name' => 'Grant Test Role 1 ' . uniqid()]);
+    $grantEnt2 = Db::insert('entitlement', ['application_id' => $app, 'name' => 'Grant Test Role 2 ' . uniqid()]);
+    try {
+        Campaigns::grantEntitlement($campAcctMatched, $grantEnt1, 1, $unrelated, false);
+        T::ok(false, 'a person outside the account holder\'s reporting chain, without the admin flag, must be rejected');
+    } catch (\RuntimeException $e) {
+        T::ok(str_contains($e->getMessage(), 'not authorized'), 'the correct, specific error is thrown for an unauthorized grant attempt');
+    }
+    $grantResult = Campaigns::grantEntitlement($campAcctMatched, $grantEnt1, 1, $manager, false, 'noticed it was missing');
+    $grantedExists = (int) Db::fetchValue('SELECT COUNT(*) FROM entitlement_assignment WHERE id = :id AND source = :src', ['id' => $grantResult['assignment_id'], 'src' => 'manual']);
+    T::eq(1, $grantedExists, 'the account holder\'s supervisor (anywhere up the reporting chain) can grant a new entitlement, recorded as source=manual');
+    try {
+        Campaigns::grantEntitlement($campAcctMatched, $grantEnt1, 1, $manager, false);
+        T::ok(false, 'granting an entitlement the account already holds must be rejected');
+    } catch (\RuntimeException $e) {
+        T::ok(str_contains($e->getMessage(), 'already has'), 'the correct, specific error is thrown for a duplicate grant');
+    }
+    $grantCrossApp = Db::insert('application', ['name' => 'Grant Test Cross App ' . uniqid()]);
+    $grantCrossAppEnt = Db::insert('entitlement', ['application_id' => $grantCrossApp, 'name' => 'Cross-App Grant Role ' . uniqid()]);
+    try {
+        Campaigns::grantEntitlement($campAcctMatched, $grantCrossAppEnt, 1, $manager, false);
+        T::ok(false, 'an entitlement from a different application than the account must be rejected');
+    } catch (\InvalidArgumentException $e) {
+        T::ok(str_contains($e->getMessage(), 'application'), 'the correct, specific error is thrown for a cross-application grant attempt');
+    }
+    Campaigns::grantEntitlement($campAcctMatched, $grantEnt2, 1, $unrelated, true, 'admin override');
+    $grantedByAdminExists = (int) Db::fetchValue('SELECT COUNT(*) FROM entitlement_assignment WHERE system_account_id = :sa AND entitlement_id = :e', ['sa' => $campAcctMatched, 'e' => $grantEnt2]);
+    T::eq(1, $grantedByAdminExists, 'actingIsAdmin=true lets an admin grant access to an account outside their own reporting chain');
+
     T::group('RemediationTasks — auto-created from a campaign revoke, manual creation, and resolve/dismiss lifecycle');
     $autoTask = Db::fetchOne('SELECT * FROM remediation_task WHERE campaign_item_id = :cid', ['cid' => (int) $unmatchedItem['id']]);
     T::ok($autoTask !== null, 'revoking a campaign item automatically opens a remediation task — the loop closes without a separate manual step');

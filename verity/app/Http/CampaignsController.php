@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Verity\Http;
 
+use Verity\Support\AccessRequests;
 use Verity\Support\Applications;
 use Verity\Support\Auth;
 use Verity\Support\Authorize;
@@ -143,13 +144,13 @@ final class CampaignsController
         Authorize::requirePermission($user, 'campaign.review');
 
         $personId = $user['person_id'] ?? null;
+        $pageSize = 25;
+        $page = max(1, (int) ($_GET['page'] ?? 1));
         if ($personId === null) {
             $items = [];
             $total = 0;
         } else {
             $pendingOnly = ($_GET['all'] ?? '') !== '1';
-            $page = max(1, (int) ($_GET['page'] ?? 1));
-            $pageSize = 25;
             $total = Campaigns::countReviewQueueFor((int) $personId, $pendingOnly);
             $items = Campaigns::reviewQueueFor((int) $personId, $pendingOnly, $pageSize, ($page - 1) * $pageSize);
         }
@@ -172,8 +173,9 @@ final class CampaignsController
             echo 'Invalid request.';
             return;
         }
+        $isAdmin = Authorize::can($user, 'campaign.manage');
         $personId = $user['person_id'] ?? null;
-        if ($personId === null) {
+        if ($personId === null && !$isAdmin) {
             http_response_code(400);
             echo 'Your account has no linked person record, so no review items can be assigned to you.';
             return;
@@ -182,12 +184,94 @@ final class CampaignsController
         $decision = (string) ($_POST['decision'] ?? '');
         $note = trim((string) ($_POST['note'] ?? '')) ?: null;
         try {
-            Campaigns::decide($itemId, (int) $personId, $decision, $note, (int) $user['id']);
+            Campaigns::decide($itemId, (int) ($personId ?? 0), $decision, $note, (int) $user['id'], $isAdmin);
         } catch (\InvalidArgumentException|\RuntimeException $e) {
             http_response_code(400);
             echo Security::h($e->getMessage());
             return;
         }
-        header('Location: /app/campaigns/my-reviews');
+        header('Location: ' . self::returnTo(['decided' => 1]));
+    }
+
+    /** Mass-review: the same decide() rule applied to several items from one submit. */
+    public static function decideBulk(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        Authorize::requirePermission($user, 'campaign.review');
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            http_response_code(400);
+            echo 'Invalid request.';
+            return;
+        }
+        $isAdmin = Authorize::can($user, 'campaign.manage');
+        $personId = $user['person_id'] ?? null;
+        if ($personId === null && !$isAdmin) {
+            http_response_code(400);
+            echo 'Your account has no linked person record, so no review items can be assigned to you.';
+            return;
+        }
+        $itemIds = array_map('intval', (array) ($_POST['item_id'] ?? []));
+        $decision = (string) ($_POST['decision'] ?? '');
+        $note = trim((string) ($_POST['note'] ?? '')) ?: null;
+        if ($itemIds === [] || !in_array($decision, ['approved', 'revoked'], true)) {
+            http_response_code(400);
+            echo 'Select at least one item and a decision.';
+            return;
+        }
+        $result = Campaigns::decideBulk($itemIds, (int) ($personId ?? 0), $decision, $note, (int) $user['id'], $isAdmin);
+        header('Location: ' . self::returnTo(['bulk_ok' => count($result['succeeded']), 'bulk_failed' => count($result['failed'])]));
+    }
+
+    /** JSON: entitlements an account can be granted (doesn't already hold) within its own application, for the review screen's "Add Entitlement" picker. */
+    public static function reviewEntitlements(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        Authorize::requirePermission($user, 'campaign.review');
+        $applicationId = (int) ($_GET['application_id'] ?? 0);
+        $accountId = (int) ($_GET['system_account_id'] ?? 0);
+        header('Content-Type: application/json; charset=utf-8');
+        echo Security::jsonForScript(['entitlements' => ($applicationId > 0 && $accountId > 0) ? AccessRequests::requestableEntitlements($applicationId, $accountId) : []]);
+    }
+
+    /** Grant a new entitlement to an account while reviewing it (admin or that account's supervisor only — enforced again inside Campaigns::grantEntitlement()). */
+    public static function grant(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        Authorize::requirePermission($user, 'campaign.review');
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            http_response_code(400);
+            echo 'Invalid request.';
+            return;
+        }
+        $isAdmin = Authorize::can($user, 'campaign.manage');
+        $personId = $user['person_id'] ?? null;
+        $systemAccountId = (int) ($_POST['system_account_id'] ?? 0);
+        $entitlementId = (int) ($_POST['entitlement_id'] ?? 0);
+        $note = trim((string) ($_POST['note'] ?? '')) ?: null;
+        try {
+            Campaigns::grantEntitlement($systemAccountId, $entitlementId, (int) $user['id'], $personId !== null ? (int) $personId : null, $isAdmin, $note);
+        } catch (\InvalidArgumentException|\RuntimeException $e) {
+            http_response_code(400);
+            echo Security::h($e->getMessage());
+            return;
+        }
+        header('Location: ' . self::returnTo(['granted' => 1]));
+    }
+
+    /**
+     * Where a decide/decide-bulk/grant POST should redirect back to — either
+     * My Reviews or the specific campaign's oversight view it came from,
+     * with $extraQuery merged in as a result flag (decided=1, granted=1,
+     * bulk_ok=N&bulk_failed=N).
+     */
+    private static function returnTo(array $extraQuery = []): string
+    {
+        $campaignId = (int) ($_POST['return_campaign_id'] ?? 0);
+        $query = $campaignId > 0 ? ['id' => $campaignId] + $extraQuery : $extraQuery;
+        $path = $campaignId > 0 ? '/app/campaigns/view' : '/app/campaigns/my-reviews';
+        return $path . '?' . http_build_query($query);
     }
 }

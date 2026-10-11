@@ -23,7 +23,10 @@ and — pulled forward from Phase 5, same precedent as CSV import —
 **certification campaigns** (`app/Support/Campaigns.php`: scope frozen at
 launch, manager- or fixed-reviewer assignment, approve/revoke decision
 capture, `entitlement_assignment.last_certified_at` driven by real
-approvals), plus — pulled forward from Phase 6, same precedent again —
+approvals; later extended with a checkbox-driven bulk-decide toolbar and a
+per-row "add entitlement while reviewing" action, both gated by an
+admin-or-the-account-holder's-supervisor rule — see the standing-rule
+entry below), plus — pulled forward from Phase 6, same precedent again —
 **remediation task tracking** (`app/Support/RemediationTasks.php`: a
 campaign's "revoked" decision auto-opens a task, or one can be flagged
 manually from any account's detail page; resolving/dismissing a task
@@ -424,6 +427,38 @@ what's missing.
   docs; see `OPEN_ITEMS.md`. Do not "fix" this silently by swapping in
   PHP-FPM/nginx without updating `docs/DEPLOYMENT.md`'s production
   checklist and `OPEN_ITEMS.md` in the same change.
+- **"Admin or the subject's supervisor" authorization pattern —
+  `Campaigns::decide()`/`decideBulk()`/`grantEntitlement()`.** Where a
+  campaign review decision or an in-review entitlement grant is concerned,
+  "admin" means the caller holds `campaign.manage`; "supervisor" means
+  `Authorize::isInReportingChain($actingPersonId, $subjectPersonId)` is
+  true for the account holder — the FULL downward reporting chain (same
+  semantics the Matrix's 'supervisor' view already uses), not just a
+  direct-manager check. Both decide() and grantEntitlement() re-verify this
+  themselves rather than trusting the controller already checked —
+  defense in depth, the same reasoning decide()'s own doc comment already
+  gave for the plain reviewer-match case. If a third "admin-or-X" action is
+  ever added to this file, reuse this exact pattern rather than inventing a
+  new one.
+- **Bulk actions fail per-item, never per-batch.** `Campaigns::decideBulk()`
+  calls `decide()` once per item inside a try/catch and collects
+  `{succeeded, failed}` — one already-decided or misassigned item in a
+  submitted batch never aborts the rest, matching the row-level
+  failure-collection shape `CsvImport::run()` already established. Follow
+  this shape for any future bulk operation in this app.
+- **Define loop-independent view variables BEFORE the branch, not inside
+  one arm of it.** `CampaignsController::myReviews()` used to set
+  `$pageSize`/`$page` only inside the "caller has a linked person_id"
+  branch; a user with `campaign.review` but no linked person (a platform
+  admin account not tied to a person record) hit the other branch, left
+  `$pageSize` undefined, and `app_my_reviews.php`'s
+  `ceil($total / $pageSize)` threw an uncaught `DivisionByZeroError` —
+  found live, by visiting the page as the seeded admin account, not by a
+  test (none of this file's existing tests exercised that specific
+  permission-without-person-link combination). Both variables are now set
+  once, before the if/else. When a controller branches on whether the
+  caller has some optional attribute, check first whether the variables the
+  REQUIRE'd view unconditionally reads are still assigned on every branch.
 
 ## Roadmap gates (8-phase build)
 

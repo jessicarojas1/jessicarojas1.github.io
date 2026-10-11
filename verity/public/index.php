@@ -164,6 +164,15 @@ switch ($path) {
     case '/app/campaigns/decide':
         if ($method === 'POST') { CampaignsController::decide(); return; }
         http_response_code(405); return;
+    case '/app/campaigns/decide-bulk':
+        if ($method === 'POST') { CampaignsController::decideBulk(); return; }
+        http_response_code(405); return;
+    case '/app/campaigns/entitlements':
+        CampaignsController::reviewEntitlements();
+        return;
+    case '/app/campaigns/grant':
+        if ($method === 'POST') { CampaignsController::grant(); return; }
+        http_response_code(405); return;
 
     case '/app/access-requests':
         AccessRequestsController::index($nonce);

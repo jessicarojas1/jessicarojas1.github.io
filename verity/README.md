@@ -137,24 +137,31 @@ Open `http://localhost:8090` and sign in with any of the 5 seeded accounts
 ## Testing
 
 Zero-dependency harness (`tests/lib/T.php`, not PHPUnit): `php tests/run.php`
-runs **190 assertions, all passing** (verified in this session) — 78
+runs **203 assertions, all passing** (verified in this session) — 78
 pure-logic checks (role/grant/deny layering including the wildcard-vs-deny
 regression test, coarse-alias expansion, password length policy, the
 breach-check response parser against synthetic HIBP-shaped bodies — no
-network call in this group, deliberately — and connector
-capability-manifest honesty) that always run, plus 88 live-database checks
-(reporting-chain scoping including cycle-safety against a deliberately
-reintroduced self-reference and a 2-node cycle, deterministic
-account-matching heuristics including the ambiguous-match and
-already-linked cases, the CSV import sync engine — mixed valid/invalid
-rows, idempotent re-import, the missing-required-header failure path —
-certification campaigns — scope snapshot, manager-vs-fixed reviewer
-resolution, reviewer-mismatch and double-decision rejection, the
-revoke-doesn't-delete behavior — remediation tasks — auto-creation from a
-campaign revoke, manual creation, resolve/dismiss lifecycle,
-double-resolve rejection — access requests — cross-application and
-already-held-entitlement rejection, approve/deny/cancel lifecycle,
-double-decision and non-requester-cancel rejection — application-ownership
+network call in this group, deliberately — connector capability-manifest
+honesty, and `Totp::hotp()`/`base32Encode()`/`base32Decode()` verified
+directly against RFC 4226's and RFC 4648's own published test vectors)
+that always run, plus 125 live-database checks (reporting-chain scoping
+including cycle-safety against a deliberately reintroduced self-reference
+and a 2-node cycle, deterministic account-matching heuristics including
+the ambiguous-match and already-linked cases, the CSV import sync engine —
+mixed valid/invalid rows, idempotent re-import, the missing-required-header
+failure path — certification campaigns — scope snapshot, manager-vs-fixed
+reviewer resolution, reviewer-mismatch and double-decision rejection, the
+revoke-doesn't-delete behavior, an admin-override decide, bulk-decide's
+partial-failure handling on a mixed valid/bogus/already-decided batch, and
+an in-review entitlement grant's unauthorized/duplicate/cross-application
+rejections — remediation tasks — auto-creation from a campaign revoke,
+manual creation, resolve/dismiss lifecycle, double-resolve rejection —
+access requests — cross-application and already-held-entitlement
+rejection, approve/deny/cancel lifecycle, double-decision and
+non-requester-cancel rejection — MFA — enrollment, confirmation-before-
+activation, wrong-code and reused-recovery-code rejection, rate limiting,
+and (via `proc_open()` subprocess isolation, since these exercise
+`Auth::establishForUser()`) the full login challenge — application-ownership
 scoping, `Db::update`'s automatic `updated_at`, basic insert/fetch, SQL
 identifier allowlisting, dedicated-schema isolation, and the
 user-creation/password-reset flow) that self-skip unless both
