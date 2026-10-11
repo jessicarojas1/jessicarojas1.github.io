@@ -37,9 +37,13 @@ scoped to the target application's system owner via the same
 `Authorize::ownsApplication()` family the Matrix already uses, or an
 admin; **approving genuinely creates the `entitlement_assignment` row**,
 unlike a campaign revoke or a remediation task — see that class's own doc
-comment for why that's not the same kind of claim). Do **not** claim the
-rest of Phase 4+ (Entra GCC High SSO, MFA, risk scoring, SoD rules,
-notifications) exists — see `OPEN_ITEMS.md` for the authoritative list of
+comment for why that's not the same kind of claim). Also built, not
+phase-gated: **optional TOTP multi-factor authentication**
+(`app/Support/Totp.php` + `app/Support/Mfa.php` — hand-rolled RFC 6238,
+verified directly against the RFC's own published test vectors; see
+their own standing-rule entries below). Do **not** claim the rest of
+Phase 4+ (Entra GCC High SSO, risk scoring, SoD rules, notifications)
+exists — see `OPEN_ITEMS.md` for the authoritative list of
 what's missing.
 
 ## Standing rules for this project
@@ -221,6 +225,72 @@ what's missing.
   (`accessrequest.approve.owned` + `ctx['application_id']`), reusing the
   dual DB-backed `Authorize` scoping rather than trusting a value written
   days or weeks earlier.
+- **MFA (TOTP) is hand-rolled, and that is a deliberate, justified exception
+  to this app's usual "no hand-rolled crypto" posture — not an oversight.**
+  `app/Support/Totp.php` implements RFC 6238/4226 directly (zero Composer
+  dependencies, this app's standing constraint). Unlike the JWT/OIDC
+  verification flagged elsewhere as needing a vetted library before
+  production use, TOTP is small, fully specified, and has official,
+  published test vectors — `Totp::hotp()` is verified in
+  `tests/unit_test.php` against RFC 4226 Appendix D's own answer key
+  (secret `"12345678901234567890"`, counters 0–9), and `base32Encode()`/
+  `base32Decode()` against RFC 4648 §10's. If this file is ever touched,
+  re-run against those same vectors before trusting a change — "the code
+  reads plausibly" is not evidence for crypto code; matching the spec's
+  published output is.
+- **`mfa_secret` is stored as plaintext, not hashed — this is correct, not
+  a shortcut.** A TOTP seed must be read back and recomputed against on
+  every verification; it cannot be one-way hashed the way
+  `password_hash`/recovery-code hashes are. See `database/schema.sql`'s
+  comment on the column and `docs/SECURITY.md`.
+- **`Mfa::confirmEnrollment()` never activates MFA on a secret the caller
+  hasn't proven they can actually generate a code from.**
+  `beginEnrollment()` stores the secret but leaves `mfa_enabled = false`;
+  only a real, current code through `confirmEnrollment()` flips it on. An
+  enrollment that silently "succeeded" without this check could lock a
+  person out the next time they try to sign in, with no way back in short
+  of an admin reset. Preserve the two-step shape if this is ever touched.
+- **The MFA-pending session state (`$_SESSION['mfa_pending_user_id']`) is a
+  SEPARATE key from `$_SESSION['user_id']`, read nowhere else in the
+  codebase.** `Auth::user()`/`Auth::check()` only ever look at `user_id` —
+  a pending MFA challenge grants no authenticated capability by
+  construction, not by a check that could be forgotten somewhere. Do not
+  "simplify" this into a single session key with a status flag; the
+  separation is what makes the safety property structural rather than
+  enforced by convention.
+- **A 6-digit TOTP code is only ~1-in-a-million — `Auth::completeMfaChallenge()`
+  must stay rate-limited the same way password attempts are
+  (`isMfaRateLimited()`, same `audit_event`-table/`NOW() - make_interval()`
+  pattern as the login throttle — see that entry below for why the SQL-side
+  interval computation matters).** Never remove or weaken this to make
+  testing more convenient.
+- **`Session::regenerate()` guards `session_regenerate_id()` behind
+  `session_status() === PHP_SESSION_ACTIVE`, exactly like `Session::destroy()`
+  already did.** Found the same way that one was: a CLI-reachable code path
+  (here, `Auth::beginMfaChallenge()`, exercised directly by
+  `tests/db_test.php`) started calling it. Keep the guard if this method is
+  ever touched again — see `Session.php`'s own comment.
+- **Any test that calls a code path ending in `Auth::establishForUser()`
+  — a *successful* `Auth::attemptLocal()` (no MFA, or MFA disabled) or a
+  *successful* `Auth::completeMfaChallenge()` — must run that call in a
+  subprocess (`proc_open()`, matching the existing pattern a few hundred
+  lines down in `tests/db_test.php`), never directly inside the shared
+  test process.** `establishForUser()` caches `Auth::$requestUser` in a
+  private static that lives for the rest of whatever process calls it —
+  `Auth::user()`'s own doc comment already says this. Found live, twice,
+  while building MFA: an in-process successful challenge (and, separately,
+  an in-process `attemptLocal()` call made right after a test disabled
+  MFA) each left a stale, soon-to-be-rolled-back user id cached — which
+  then silently broke an unrelated, pre-existing, later test's audit
+  trail (`Users::setStatus()`'s `Audit::log()` call, which relies on
+  `currentActorId()`'s implicit `Auth::user()` fallback, tried to insert a
+  real foreign-key reference to a user id that no longer existed —
+  caught by `Audit::log()`'s own `try/catch`, so no assertion failed, but
+  that test's audit row silently never got written). Not a production
+  concern (every real request is a fresh PHP process with no cross-request
+  cache), but a real, repeatable test-suite hazard — confirmed fixed only
+  after running the full suite several times in a row, since the original
+  bug didn't reproduce on every single run.
 - **`Users::create()` must always receive a password and set the account
   `active` immediately.** An earlier version inserted `status = 'invited'`
   with no `password_hash` at all — since there is no invitation-email flow

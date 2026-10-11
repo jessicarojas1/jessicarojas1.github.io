@@ -75,6 +75,9 @@ switch ($path) {
     case '/auth/login':
         if ($method === 'POST') { AuthController::login(); } else { AuthController::loginForm($nonce); }
         return;
+    case '/auth/mfa':
+        if ($method === 'POST') { AuthController::mfaVerify(); } else { AuthController::mfaForm($nonce); }
+        return;
     case '/auth/logout':
         AuthController::logout();
         return;
@@ -91,6 +94,18 @@ switch ($path) {
         return;
     case '/app/profile/password':
         if ($method === 'POST') { ProfileController::changePassword(); return; }
+        http_response_code(405); return;
+    case '/app/profile/mfa/enroll':
+        if ($method === 'POST') { ProfileController::mfaEnroll(); return; }
+        http_response_code(405); return;
+    case '/app/profile/mfa/confirm':
+        if ($method === 'POST') { ProfileController::mfaConfirm(); return; }
+        http_response_code(405); return;
+    case '/app/profile/mfa/disable':
+        if ($method === 'POST') { ProfileController::mfaDisable(); return; }
+        http_response_code(405); return;
+    case '/app/profile/mfa/regenerate-codes':
+        if ($method === 'POST') { ProfileController::mfaRegenerateCodes(); return; }
         http_response_code(405); return;
 
     case '/app/identities':
@@ -226,6 +241,9 @@ switch ($path) {
         http_response_code(405); return;
     case '/app/admin/iam/set-status':
         if ($method === 'POST') { IamController::setStatus(); return; }
+        http_response_code(405); return;
+    case '/app/admin/iam/reset-mfa':
+        if ($method === 'POST') { IamController::resetMfa(); return; }
         http_response_code(405); return;
 
     case '/app/admin/settings':

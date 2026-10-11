@@ -14,6 +14,7 @@ use Verity\Support\Authorize;
 use Verity\Support\Connectors;
 use Verity\Support\Roles;
 use Verity\Support\Security;
+use Verity\Support\Totp;
 
 T::group('Security::h — output escaping');
 T::eq('&lt;script&gt;alert(1)&lt;/script&gt;', Security::h('<script>alert(1)</script>'), 'escapes HTML special characters');
@@ -83,6 +84,40 @@ T::ok(!Authorize::can($noRoleButGranted, 'settings.manage'), 'a user with no mat
 $adminDeniedOnePermission = ['id' => 4, 'person_id' => null, 'roles' => ['enterprise_admin'], 'grants' => ['grant' => [], 'deny' => ['settings.manage']]];
 T::ok(!Authorize::can($adminDeniedOnePermission, 'settings.manage'), 'an explicit deny overrides even the wildcard (*) role — denials always win, with no exceptions');
 T::ok(Authorize::can($adminDeniedOnePermission, 'audit.view'), 'the wildcard role still grants every OTHER permission normally — only the denied one is blocked');
+
+T::group('Totp::hotp — verified against RFC 4226 Appendix D\'s own published test vectors');
+// Secret "12345678901234567890" (20 ASCII bytes) and counters 0-9 are the
+// RFC's own worked example — hand-rolled crypto gets tested against the
+// spec's answer key, not just trusted because the code reads plausibly.
+$rfc4226Secret = '12345678901234567890';
+$rfc4226Expected = ['755224', '287082', '359152', '969429', '338314', '254676', '287922', '162583', '399871', '520489'];
+foreach ($rfc4226Expected as $counter => $expectedCode) {
+    T::eq($expectedCode, Totp::hotp($rfc4226Secret, $counter), "HOTP counter=$counter matches the RFC 4226 published test vector");
+}
+
+T::group('Totp::base32Encode/Decode — verified against RFC 4648\'s own published test vectors');
+T::eq('MY', Totp::base32Encode('f'), 'base32("f") matches RFC 4648 §10 (unpadded)');
+T::eq('MZXQ', Totp::base32Encode('fo'), 'base32("fo") matches RFC 4648 §10 (unpadded)');
+T::eq('MZXW6', Totp::base32Encode('foo'), 'base32("foo") matches RFC 4648 §10 (unpadded)');
+T::eq('MZXW6YTBOI', Totp::base32Encode('foobar'), 'base32("foobar") matches RFC 4648 §10 (unpadded)');
+foreach (['', 'f', 'fo', 'foo', 'foob', 'fooba', 'foobar', random_bytes(20)] as $original) {
+    T::eq($original, Totp::base32Decode(Totp::base32Encode($original)), 'base32 encode/decode round-trips for a ' . strlen($original) . '-byte input');
+}
+
+T::group('Totp::verify — time-step drift window, boundary-tested against real HOTP counters');
+$secret = Totp::generateSecret();
+T::eq(32, strlen($secret), 'a generated secret is 32 base32 characters (160 bits, RFC 4226\'s own recommended HMAC-SHA1 key size)');
+$code = Totp::currentCode($secret);
+T::ok(Totp::verify($secret, $code), 'the current code verifies successfully');
+T::ok(!Totp::verify($secret, '000000'), 'an arbitrary wrong code is rejected');
+T::ok(!Totp::verify($secret, '12345'), 'a 5-digit (malformed) code is rejected before any HMAC computation runs');
+T::ok(!Totp::verify($secret, 'abcdef'), 'a non-numeric code is rejected before any HMAC computation runs');
+$step = intdiv(time(), Totp::PERIOD_SECONDS);
+$rawKey = Totp::base32Decode($secret);
+T::ok(Totp::verify($secret, Totp::hotp($rawKey, $step + 1)), 'a code from one step in the future verifies (clock-drift tolerance)');
+T::ok(Totp::verify($secret, Totp::hotp($rawKey, $step - 1)), 'a code from one step in the past verifies (clock-drift tolerance)');
+T::ok(!Totp::verify($secret, Totp::hotp($rawKey, $step + 2)), 'a code two steps in the future is rejected — the drift window has a real boundary, not an unbounded one');
+T::ok(!Totp::verify($secret, Totp::hotp($rawKey, $step - 2)), 'a code two steps in the past is rejected — same boundary enforced on both sides');
 
 T::group('Connectors::defaultManifest — never claims an unconfirmed capability');
 $manual = Connectors::defaultManifest('manual');

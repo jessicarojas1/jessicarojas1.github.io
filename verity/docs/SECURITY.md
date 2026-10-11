@@ -17,7 +17,36 @@ Local email + password only, today. `Auth` (`app/Support/Auth.php`):
   either way.
 - Sessions cookie: `VERITY_SID`, `HttpOnly`, `SameSite=Lax`, `Secure`
   whenever the request is HTTPS (directly or via `X-Forwarded-Proto`).
-- There is **no MFA** — still an open item, see `OPEN_ITEMS.md`.
+- **Optional TOTP multi-factor authentication** (`app/Support/Totp.php` +
+  `app/Support/Mfa.php`) — RFC 6238, hand-rolled because this app takes
+  zero Composer dependencies, but verified directly against RFC 4226
+  Appendix D's and RFC 4648 §10's own published test vectors in
+  `tests/unit_test.php` rather than trusted on inspection alone (unlike
+  the JWT/OIDC verification noted elsewhere in this doc, which genuinely
+  does need a vetted library before production use — TOTP's algorithm is
+  small and fully specified enough to test directly against the spec's
+  answer key). Self-service: enroll from "My Account," confirmed only
+  after entering a real, current code (an unconfirmed secret never
+  activates MFA — see `Mfa::confirmEnrollment()`), with 10 single-use,
+  bcrypt-hashed recovery codes shown once at confirmation. Login with MFA
+  enrolled is two-step: a correct password alone sets a narrowly-scoped,
+  5-minute `$_SESSION['mfa_pending_user_id']` state — a *different*
+  session key from `$_SESSION['user_id']`, which is the only key
+  `Auth::user()`/`Auth::check()` ever read, so a pending challenge grants
+  no authenticated capability by construction — and the session id is
+  regenerated again at this intermediate boundary (`Session::regenerate()`,
+  the same session-fixation defense already applied at final login).
+  Code/recovery-code attempts are rate-limited the same way password
+  attempts are (8 failures/15 minutes, same `audit_event`-based,
+  SQL-side-interval pattern as the login throttle). An admin can reset a
+  user's MFA entirely (Access & Security → user detail → Reset MFA, 
+  `iam.manage`) if they lose their device and exhaust their recovery
+  codes; this clears their enrollment — it does not touch their password
+  or account status. `app_user.mfa_secret` is stored as plaintext, not
+  hashed — a TOTP seed must be read back and recomputed against on every
+  verification, unlike a password or a recovery code, so one-way hashing
+  isn't an option here; see `database/schema.sql`'s comment on that
+  column. WebAuthn/hardware keys are not implemented.
 - **Login rate limiting** (`Auth::isLoginThrottled()`): 10 failed attempts
   against one account, or 30 failed attempts from one source IP across any
   accounts, within a rolling 15-minute window, each independently triggers a

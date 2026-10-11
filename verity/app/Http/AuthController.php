@@ -40,8 +40,46 @@ final class AuthController
             self::loginForm($nonce, 'Too many failed sign-in attempts. Please try again in a few minutes.');
             return;
         }
-        if (!Auth::attemptLocal($email, $password)) {
+        $result = Auth::attemptLocal($email, $password);
+        if ($result === Auth::LOGIN_MFA_REQUIRED) {
+            header('Location: /auth/mfa');
+            return;
+        }
+        if ($result !== Auth::LOGIN_SUCCESS) {
             self::loginForm($nonce, 'Incorrect email or password.');
+            return;
+        }
+        header('Location: /app');
+    }
+
+    public static function mfaForm(string $nonce, ?string $error = null): void
+    {
+        if (Auth::check()) {
+            header('Location: /app');
+            return;
+        }
+        if (Auth::mfaPendingUserId() === null) {
+            // No live challenge (expired, already used, or arrived here
+            // directly) — back to the password screen, never a blank or
+            // confusing code-entry form with nothing behind it.
+            header('Location: /auth/login');
+            return;
+        }
+        $NONCE = $nonce;
+        $csrf = Security::csrfField();
+        require dirname(__DIR__) . '/Views/auth_mfa.php';
+    }
+
+    public static function mfaVerify(): void
+    {
+        $nonce = Security::nonce();
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            self::mfaForm($nonce, 'Your session expired. Please try again.');
+            return;
+        }
+        $code = (string) ($_POST['code'] ?? '');
+        if (!Auth::completeMfaChallenge($code)) {
+            self::mfaForm($nonce, 'That code was not accepted. Try again, or use a recovery code.');
             return;
         }
         header('Location: /app');
@@ -49,6 +87,7 @@ final class AuthController
 
     public static function logout(): void
     {
+        Auth::cancelMfaChallenge();
         Auth::logout();
     }
 

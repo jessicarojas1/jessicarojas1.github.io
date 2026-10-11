@@ -39,11 +39,22 @@ final class Session
         self::$started = true;
     }
 
-    /** Regenerate the session id (call right after a successful login). */
+    /**
+     * Regenerate the session id (call right after a successful login, or at
+     * any other authentication-boundary crossing — e.g. Auth's MFA-pending
+     * state). Guarded the same way destroy() is: under CLI SAPI, start()
+     * never calls the real session_start(), so session_status() stays
+     * PHP_SESSION_NONE — calling session_regenerate_id() in that state
+     * emits a PHP warning for no benefit. Found the same way destroy()'s
+     * guard was: a CLI-reachable test path (Auth's MFA challenge) started
+     * calling this. Keep the guard if this method is ever touched again.
+     */
     public static function regenerate(): void
     {
         self::start();
-        session_regenerate_id(true);
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
     }
 
     public static function destroy(): void

@@ -20,8 +20,10 @@
 > executed action), and access requests (request an entitlement for an
 > existing account; the application's system owner or an admin approves
 > or denies it, re-checked live via the same ownership scoping the Matrix
-> uses). See [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for an honest, itemized
-> account of what is and is not built.
+> uses), and optional TOTP multi-factor authentication (hand-rolled RFC
+> 6238, verified against the RFC's own published test vectors — see
+> `app/Support/Totp.php`). See [`OPEN_ITEMS.md`](OPEN_ITEMS.md) for an
+> honest, itemized account of what is and is not built.
 
 *"Unified Visibility. Verified Access. Complete Accountability."*
 
@@ -65,8 +67,8 @@ verity/
 │  ├─ Support/            Db, Security, Session, Config, Auth, Authorize, Roles,
 │  │                      PermissionCatalog, Audit, People, Accounts, Applications,
 │  │                      Connectors, CsvImport, Campaigns, RemediationTasks,
-│  │                      AccessRequests, Matrix, DynamicFields, Users, Settings,
-│  │                      SavedViews, Dashboard
+│  │                      AccessRequests, Mfa, Totp, Matrix, DynamicFields, Users,
+│  │                      Settings, SavedViews, Dashboard
 │  └─ Views/              Plain PHP templates + partials/
 ├─ database/
 │  ├─ schema.sql                        Idempotent reference schema (17 tables)
@@ -135,7 +137,7 @@ Open `http://localhost:8090` and sign in with any of the 5 seeded accounts
 ## Testing
 
 Zero-dependency harness (`tests/lib/T.php`, not PHPUnit): `php tests/run.php`
-runs **135 assertions, all passing** (verified in this session) — 47
+runs **190 assertions, all passing** (verified in this session) — 78
 pure-logic checks (role/grant/deny layering including the wildcard-vs-deny
 regression test, coarse-alias expansion, password length policy, the
 breach-check response parser against synthetic HIBP-shaped bodies — no

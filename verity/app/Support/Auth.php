@@ -186,25 +186,128 @@ final class Auth
     public const MAX_FAILED_ATTEMPTS_PER_EMAIL = 10;
     public const MAX_FAILED_ATTEMPTS_PER_IP = 30;
 
+    public const LOGIN_SUCCESS = 'success';
+    public const LOGIN_MFA_REQUIRED = 'mfa_required';
+    public const LOGIN_FAILED = 'failed';
+
+    /** How long the password-verified-but-MFA-not-yet-completed state survives before it must be re-started from the password screen. */
+    public const MFA_PENDING_TTL_SECONDS = 300;
+    public const MAX_FAILED_MFA_ATTEMPTS = 8;
+
     /**
-     * Verify local email + password and, on success, establish the session.
-     * Returns false on any failure (bad credentials, no password set,
-     * inactive, or currently rate-limited).
+     * Verify local email + password. On success with no MFA enrolled,
+     * establishes the full session immediately (LOGIN_SUCCESS). On success
+     * with MFA enrolled, the password alone is NOT enough — a pending,
+     * narrowly-scoped challenge state is set (see beginMfaChallenge()) and
+     * LOGIN_MFA_REQUIRED is returned; the caller must not treat this as a
+     * completed login. Returns LOGIN_FAILED for bad credentials, no
+     * password set, inactive, or currently rate-limited — deliberately the
+     * same outward result for all of these, so a prober can't distinguish
+     * "wrong password" from "this account doesn't exist" from "this email
+     * is throttled" through the login response alone.
      */
-    public static function attemptLocal(string $email, string $password): bool
+    public static function attemptLocal(string $email, string $password): string
     {
         $normalizedEmail = strtolower(trim($email));
         if (self::isLoginRateLimited($normalizedEmail)) {
             Audit::denied('auth.login_throttled', $normalizedEmail);
-            return false;
+            return self::LOGIN_FAILED;
         }
         $userId = self::checkLocalCredentials($email, $password);
         if ($userId === null) {
             Audit::denied('auth.login_failed', $normalizedEmail);
-            return false;
+            return self::LOGIN_FAILED;
+        }
+        if (Mfa::isEnabled($userId)) {
+            self::beginMfaChallenge($userId);
+            return self::LOGIN_MFA_REQUIRED;
         }
         self::establishForUser($userId);
+        return self::LOGIN_SUCCESS;
+    }
+
+    /**
+     * Sets the password-verified, MFA-not-yet-completed session state.
+     * Regenerates the session id immediately (before the pending marker is
+     * even written) as a session-fixation defense at this intermediate
+     * boundary too, not just at final login — establishForUser() below
+     * regenerates it again once the challenge is actually completed, so
+     * the id in use never survives across either side of the MFA step.
+     * Deliberately stores ONLY the pending user id + an expiry in
+     * $_SESSION — Auth::user()/Auth::check() read $_SESSION['user_id']
+     * exclusively, a key this never touches, so a pending challenge grants
+     * no authenticated capability by construction, not by a check someone
+     * could forget to add.
+     */
+    private static function beginMfaChallenge(int $userId): void
+    {
+        Session::regenerate();
+        $_SESSION['mfa_pending_user_id'] = $userId;
+        $_SESSION['mfa_pending_expires'] = time() + self::MFA_PENDING_TTL_SECONDS;
+        Audit::log('auth.mfa_challenge_started', 'app_user#' . $userId);
+    }
+
+    /** Is there a live (unexpired) MFA challenge pending right now? */
+    public static function mfaPendingUserId(): ?int
+    {
+        Session::start();
+        $userId = $_SESSION['mfa_pending_user_id'] ?? null;
+        $expires = $_SESSION['mfa_pending_expires'] ?? 0;
+        if ($userId === null || time() > (int) $expires) {
+            return null;
+        }
+        return (int) $userId;
+    }
+
+    public static function cancelMfaChallenge(): void
+    {
+        Session::start();
+        unset($_SESSION['mfa_pending_user_id'], $_SESSION['mfa_pending_expires']);
+    }
+
+    /**
+     * Completes a pending MFA challenge with a TOTP code or a recovery
+     * code, rate-limited the same way password attempts are (see
+     * isMfaRateLimited()) — a 6-digit TOTP code is only ~1 in a million,
+     * which is not remotely safe to leave unthrottled. On success,
+     * establishes the real session (the only place MFA_PENDING ever
+     * converts into an authenticated one) and clears the pending state.
+     */
+    public static function completeMfaChallenge(string $code): bool
+    {
+        $userId = self::mfaPendingUserId();
+        if ($userId === null) {
+            return false;
+        }
+        if (self::isMfaRateLimited($userId)) {
+            Audit::denied('auth.mfa_throttled', 'app_user#' . $userId);
+            return false;
+        }
+
+        $secret = Db::fetchValue('SELECT mfa_secret FROM app_user WHERE id = :id', ['id' => $userId]);
+        $ok = ($secret !== null && Totp::verify((string) $secret, $code)) || Mfa::consumeRecoveryCode($userId, $code);
+        if (!$ok) {
+            Audit::denied('auth.mfa_failed', 'app_user#' . $userId);
+            return false;
+        }
+
+        self::cancelMfaChallenge();
+        self::establishForUser($userId);
         return true;
+    }
+
+    private static function isMfaRateLimited(int $userId): bool
+    {
+        if (!Db::isConfigured()) {
+            return false;
+        }
+        $failures = (int) Db::fetchValue(
+            "SELECT COUNT(*) FROM audit_event
+             WHERE action = 'auth.mfa_failed' AND target = :target
+               AND created_at > NOW() - make_interval(mins => :window_minutes)",
+            ['target' => 'app_user#' . $userId, 'window_minutes' => self::LOGIN_ATTEMPT_WINDOW_MINUTES]
+        );
+        return $failures >= self::MAX_FAILED_MFA_ATTEMPTS;
     }
 
     /** Public check so the controller can show an accurate message — enforcement itself happens inside attemptLocal() regardless. */

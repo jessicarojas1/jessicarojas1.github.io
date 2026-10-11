@@ -39,6 +39,12 @@ If you don't have an account, ask an administrator to create one for you
 (see [Access & Security](#access--security-admin-iam) below) — there is no
 public self-registration page.
 
+**If you've enabled two-factor authentication** (see [My
+Account](#my-account) below), a correct password takes you to a second
+screen asking for a code from your authenticator app — or one of your
+recovery codes if you've lost access to the app. You aren't signed in
+until that second step succeeds.
+
 ## Navigation and what you can see
 
 The top navigation bar only shows the modules you actually have permission
@@ -84,6 +90,31 @@ mixing in symbols), confirm it, and submit. Your session is refreshed
 automatically; you stay signed in.
 
 Role and permission changes aren't self-service — ask an administrator.
+
+**Two-Factor Authentication**, further down the same page, is optional and
+self-service:
+
+- **Enable** it, and you'll see a setup key (there's no QR code — this
+  build adds no new dependency and sends your secret to no external
+  image-generation service to make one) to type into an authenticator app
+  (Google Authenticator, Authy, 1Password, etc.), or a full `otpauth://`
+  URI if your app can import that directly. Enter the current 6-digit code
+  your app shows to confirm — this proves the setup actually works before
+  it's turned on, so you can't accidentally lock yourself out with a
+  secret you never actually got into your app correctly.
+- You'll then see **10 recovery codes once** — save them somewhere safe
+  (a password manager, not this page; it won't show them again). Each one
+  works exactly once, if you ever lose your device.
+- Once enabled, every sign-in asks for a code after your password (see
+  [Signing in](#signing-in) above).
+- **Regenerate Recovery Codes** invalidates your existing codes and issues
+  a fresh set — use this if you're running low or think an old set may
+  have been seen by someone else. Requires your current password.
+- **Disable** turns it off entirely — also requires your current password.
+
+If you lose your device *and* your recovery codes, you can't self-recover
+— ask an administrator to reset your MFA (Access & Security → your user →
+Reset MFA), then set it up again from scratch.
 
 ## Identity Directory
 
@@ -346,6 +377,11 @@ get:
   least one way to regain access without touching the database directly.
 - **Reset Password** — type a new password or click **Generate**, then
   **Set Password**. Same "share it yourself" caveat as account creation.
+- **Multi-Factor Authentication** — shows whether the user has it enabled.
+  If they do, **Reset MFA** clears their enrollment entirely (asks for
+  confirmation) — use this if they've lost their device and exhausted
+  their recovery codes. They set it up again from scratch next time they
+  sign in; this doesn't touch their password or account status.
 - **Roles** — check/uncheck role memberships.
 - **Permissions** — below the roles, every module is broken into its
   granular permissions. Each one shows its current state as a colored dot

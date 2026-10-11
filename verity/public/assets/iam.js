@@ -153,6 +153,13 @@
       '</div>' +
       '<p class="hint">No email delivery in this build — share the new password with the user directly.</p>' +
       '<button type="button" class="btn sm danger" id="setPasswordBtn">Set Password</button>' +
+      '</fieldset>' +
+      '<fieldset class="mb-14"><legend>Multi-Factor Authentication</legend>' +
+      '<p>Status: <span class="badge ' + (u.mfaEnabled ? 'b-ok">Enabled' : 'b-neutral">Not enabled') + '</span></p>' +
+      (u.mfaEnabled
+        ? '<p class="hint">Resetting clears their enrollment — they set it up again from scratch next time they sign in. Use this if they lost their device and exhausted their recovery codes.</p>' +
+          '<button type="button" class="btn sm danger" id="resetMfaBtn">Reset MFA</button>'
+        : '') +
       '</fieldset>';
 
     document.getElementById('generateResetPassword').addEventListener('click', function () {
@@ -163,6 +170,10 @@
     var applyStatusBtn = document.getElementById('applyStatusBtn');
     if (applyStatusBtn) {
       applyStatusBtn.addEventListener('click', function () { applyStatus(u.id); });
+    }
+    var resetMfaBtn = document.getElementById('resetMfaBtn');
+    if (resetMfaBtn) {
+      resetMfaBtn.addEventListener('click', function () { resetMfa(u.id); });
     }
   }
 
@@ -215,6 +226,29 @@
         }
       })
       .catch(function () { toast('Password reset failed — network error.', 'err'); });
+  }
+
+  function resetMfa(userId) {
+    if (!window.confirm('Reset this user\'s multi-factor authentication? They will need to set it up again from scratch.')) {
+      return;
+    }
+    fetch(boot.endpoints.resetMfa, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _csrf: csrf, user_id: userId }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.ok) {
+          csrf = data.csrf;
+          toast('MFA reset.', 'ok');
+          selectUser(userId);
+        } else {
+          toast(data.error || 'MFA reset failed.', 'err');
+        }
+      })
+      .catch(function () { toast('MFA reset failed — network error.', 'err'); });
   }
 
   function applyStatus(userId) {

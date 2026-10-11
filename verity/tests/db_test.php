@@ -18,7 +18,9 @@ use Verity\Support\Campaigns;
 use Verity\Support\Connectors;
 use Verity\Support\CsvImport;
 use Verity\Support\Db;
+use Verity\Support\Mfa;
 use Verity\Support\RemediationTasks;
+use Verity\Support\Totp;
 
 if (!Db::isConfigured() || getenv('VERITY_TEST_DB') !== '1') {
     T::group('Database-backed tests');
@@ -411,6 +413,91 @@ try {
         'an incorrect password is still rejected for the new account'
     );
 
+    T::group('Mfa — enrollment, confirmation, recovery codes, and disable');
+    $secretInfo = Mfa::beginEnrollment($newUserId, $newUserEmail);
+    T::ok(!Mfa::isEnabled($newUserId), 'MFA is not yet enabled immediately after beginEnrollment() — confirmation is required first');
+    try {
+        Mfa::confirmEnrollment($newUserId, '000000', $newUserId);
+        T::ok(false, 'confirming with a wrong code must throw and must not enable MFA');
+    } catch (\RuntimeException $e) {
+        T::ok(true, 'confirmEnrollment() rejects a wrong code with a specific error, not a silent false');
+    }
+    T::ok(!Mfa::isEnabled($newUserId), 'MFA is still not enabled after a failed confirmation attempt');
+
+    $correctCode = Totp::currentCode($secretInfo['secret']);
+    $recoveryCodes = Mfa::confirmEnrollment($newUserId, $correctCode, $newUserId);
+    T::ok(Mfa::isEnabled($newUserId), 'MFA becomes enabled once confirmed with a real, current code');
+    T::eq(Mfa::RECOVERY_CODE_COUNT, count($recoveryCodes), 'confirmEnrollment() returns the expected number of recovery codes');
+    T::eq(Mfa::RECOVERY_CODE_COUNT, Mfa::remainingRecoveryCodeCount($newUserId), 'all recovery codes start unused');
+
+    T::group('Auth::attemptLocal — returns a distinct state for MFA-enrolled accounts, never silently logs them in');
+    $result = Auth::attemptLocal($newUserEmail, 'a-perfectly-fine-password-12');
+    T::eq(Auth::LOGIN_MFA_REQUIRED, $result, 'a correct password for an MFA-enrolled account returns LOGIN_MFA_REQUIRED, not LOGIN_SUCCESS');
+    T::ok(!isset($_SESSION['user_id']), 'the full session is NOT established just from a correct password when MFA is enrolled');
+    T::eq($newUserId, Auth::mfaPendingUserId(), 'the pending-challenge state correctly identifies which user is mid-MFA');
+
+    // NOTE on what deliberately does NOT run here: a *successful*
+    // Auth::completeMfaChallenge() call ends in establishForUser(), which
+    // caches Auth::$requestUser/$requestUserLoaded — a private static that
+    // lives for the rest of THIS PHP process (see Auth::user()'s own doc
+    // comment, and the subprocess pattern used below for the exact same
+    // reason). Calling it successfully in-process here would leak a
+    // cached, soon-to-be-rolled-back user id into later, unrelated tests
+    // in this same file that rely on Audit::log()'s implicit actor-id
+    // fallback (Auth::user()) — confirmed directly: an earlier version of
+    // this test group did exactly that, and the later Auth::user()
+    // live-revalidation test's own Users::setStatus() call started
+    // failing a real FK constraint on a stale actor_id (caught by
+    // Audit::log()'s try/catch, so no assertion failed, but the audit row
+    // for that unrelated action silently never got written). The
+    // "challenge succeeds and establishes a real session" behavior is
+    // instead verified via subprocess, alongside the other
+    // process-isolated tests further down this file, using real
+    // (non-transactional, explicitly cleaned up) data for the same reason
+    // $sessionTestUserId is real there — a subprocess has its own
+    // database connection and cannot see this transaction's uncommitted
+    // rows.
+    T::group('Auth::completeMfaChallenge — wrong code does not complete the challenge; recovery codes are single-use');
+    T::ok(!Auth::completeMfaChallenge('000000'), 'a wrong TOTP code does not complete the challenge');
+    T::ok(!isset($_SESSION['user_id']), 'still not logged in after a wrong code');
+    T::eq($newUserId, Auth::mfaPendingUserId(), 'the pending challenge survives a single wrong attempt — not cancelled by one failure');
+    unset($_SESSION['mfa_pending_user_id'], $_SESSION['mfa_pending_expires']);
+
+    // Single-use recovery codes, tested directly at the Mfa layer (no
+    // Auth::completeMfaChallenge() / establishForUser() involved at all —
+    // see the note above for why that matters in this shared process).
+    $recoveryCode = $recoveryCodes[0];
+    T::ok(Mfa::consumeRecoveryCode($newUserId, $recoveryCode), 'a valid, unused recovery code is accepted');
+    T::ok(!Mfa::consumeRecoveryCode($newUserId, $recoveryCode), 'the same recovery code cannot be consumed a second time — single-use is enforced, not just claimed');
+    T::eq(Mfa::RECOVERY_CODE_COUNT - 1, Mfa::remainingRecoveryCodeCount($newUserId), 'exactly one recovery code was consumed');
+
+    T::group('Auth::completeMfaChallenge — rate-limited the same way password attempts are');
+    $throttleMfaEmail = 'test-mfathrottle-' . bin2hex(random_bytes(4)) . '@example.test';
+    $throttleMfaUserId = \Verity\Support\Users::create($throttleMfaEmail, 'Test MFA Throttle User', 'a-perfectly-fine-password-12', ['auditor'], null, null);
+    $throttleSecretInfo = Mfa::beginEnrollment($throttleMfaUserId, $throttleMfaEmail);
+    Mfa::confirmEnrollment($throttleMfaUserId, Totp::currentCode($throttleSecretInfo['secret']), $throttleMfaUserId);
+    Auth::attemptLocal($throttleMfaEmail, 'a-perfectly-fine-password-12');
+    for ($i = 0; $i < Auth::MAX_FAILED_MFA_ATTEMPTS; $i++) {
+        Auth::completeMfaChallenge('000000');
+    }
+    $realCurrentCode = Totp::currentCode($throttleSecretInfo['secret']);
+    T::ok(!Auth::completeMfaChallenge($realCurrentCode), 'after enough wrong attempts, even a genuinely correct code is rejected — the throttle has already engaged');
+    unset($_SESSION['user_id'], $_SESSION['mfa_pending_user_id'], $_SESSION['mfa_pending_expires']);
+
+    // NOTE: Auth::attemptLocal() itself is NOT called again in-process
+    // after this disable() — once MFA is off, attemptLocal() takes the
+    // direct-success path, which ends in establishForUser() and caches
+    // Auth::$requestUser, the exact same leak-into-later-tests problem
+    // documented above for completeMfaChallenge(). Mfa::isEnabled() is
+    // the real behavior under test here (disable() actually turned it
+    // off); attemptLocal()'s resulting LOGIN_SUCCESS/LOGIN_MFA_REQUIRED
+    // branching on top of that is already covered end-to-end by the
+    // subprocess-isolated test further down this file.
+    T::group('Mfa::disable — clears enrollment entirely');
+    Mfa::disable($newUserId, $newUserId);
+    T::ok(!Mfa::isEnabled($newUserId), 'MFA is disabled');
+    T::eq(0, Mfa::remainingRecoveryCodeCount($newUserId), 'disable() clears every recovery code too, not just the enabled flag');
+
     T::group('Users::updateDetails — updates name/email/person, never touches password or status');
     $beforeHash = Db::fetchValue('SELECT password_hash FROM app_user WHERE id = :id', ['id' => $newUserId]);
     \Verity\Support\Users::updateDetails($newUserId, 'Renamed User', $newUserEmail, $report, null);
@@ -508,3 +595,73 @@ $terminatedEvent = Db::fetchOne(
 T::ok($terminatedEvent !== null, 'the live termination was itself audited (auth.session_terminated)');
 
 Db::delete('app_user', ['id' => $sessionTestUserId]);
+
+// --- Auth::completeMfaChallenge — a successful challenge establishes a
+// real session, verified in a genuinely fresh process ------------------
+// Same reasoning as the live-revalidation test above: Auth::establishForUser()
+// (which a successful completeMfaChallenge() call ends in) caches
+// Auth::$requestUser for the rest of whatever process calls it — this
+// must be checked from a fresh subprocess, never in-process, or the
+// cached state leaks into later, unrelated tests in this same file (see
+// the detailed note earlier in this file, at the point that in-process
+// version was replaced after being caught doing exactly that).
+T::group('Auth::completeMfaChallenge — a correct code/recovery code establishes a real session (fresh process)');
+$mfaLoginEmail = 'test-mfalogin-' . bin2hex(random_bytes(4)) . '@example.test';
+$mfaLoginUserId = \Verity\Support\Users::create($mfaLoginEmail, 'Test MFA Login User', 'a-perfectly-fine-password-12', ['auditor'], null, null);
+$mfaLoginSecret = Mfa::beginEnrollment($mfaLoginUserId, $mfaLoginEmail)['secret'];
+$mfaLoginRecoveryCodes = Mfa::confirmEnrollment($mfaLoginUserId, Totp::currentCode($mfaLoginSecret), $mfaLoginUserId);
+
+$probeMfaLogin = function (string $code) use ($mfaLoginEmail) {
+    $script = implode("\n", [
+        'require ' . var_export(dirname(__DIR__) . '/app/bootstrap.php', true) . ';',
+        'use Verity\Support\Auth;',
+        '$_SESSION = $_SESSION ?? [];',
+        '$r1 = Auth::attemptLocal(' . var_export($mfaLoginEmail, true) . ', ' . var_export('a-perfectly-fine-password-12', true) . ');',
+        '$ok = Auth::completeMfaChallenge(' . var_export($code, true) . ');',
+        'echo $r1 . \',\' . ($ok ? \'1\' : \'0\') . \',\' . ($_SESSION[\'user_id\'] ?? \'none\');',
+    ]);
+    $env = ['DATABASE_URL' => (string) getenv('DATABASE_URL')];
+    $process = proc_open([PHP_BINARY, '-r', $script], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, $env);
+    if ($process === false) {
+        return 'proc_open failed';
+    }
+    $out = trim(stream_get_contents($pipes[1]) . stream_get_contents($pipes[2]));
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    proc_close($process);
+    return $out;
+};
+
+[$loginResult, $completedTotp, $sessionAfterTotp] = array_pad(explode(',', $probeMfaLogin(Totp::currentCode($mfaLoginSecret))), 3, null);
+T::eq('mfa_required', $loginResult, 'a correct password for an MFA-enrolled account returns mfa_required, confirmed from a genuinely fresh process');
+T::eq('1', $completedTotp, 'a correct, current TOTP code completes the challenge in that fresh process');
+T::eq((string) $mfaLoginUserId, $sessionAfterTotp, 'completing the challenge establishes the real, full session — $_SESSION[\'user_id\'] is actually set, not just a return value');
+
+[, $completedRecovery, $sessionAfterRecovery] = array_pad(explode(',', $probeMfaLogin($mfaLoginRecoveryCodes[0])), 3, null);
+T::eq('1', $completedRecovery, 'a valid, unused recovery code also completes the challenge (not just a TOTP code), in its own fresh process');
+T::eq((string) $mfaLoginUserId, $sessionAfterRecovery, 'the recovery-code path establishes the real session too');
+
+// Mfa::disable() -> Auth::attemptLocal() returning LOGIN_SUCCESS directly
+// (no more challenge) — same subprocess-isolation reasoning as above:
+// the direct-success path inside attemptLocal() also ends in
+// establishForUser(), so this is checked fresh, never in the shared
+// process (see the note on the earlier, in-process Mfa::disable() group).
+Mfa::disable($mfaLoginUserId, $mfaLoginUserId);
+$disableScript = implode("\n", [
+    'require ' . var_export(dirname(__DIR__) . '/app/bootstrap.php', true) . ';',
+    'use Verity\Support\Auth;',
+    '$_SESSION = $_SESSION ?? [];',
+    'echo Auth::attemptLocal(' . var_export($mfaLoginEmail, true) . ', ' . var_export('a-perfectly-fine-password-12', true) . ');',
+]);
+$envForDisableCheck = ['DATABASE_URL' => (string) getenv('DATABASE_URL')];
+$disableProcess = proc_open([PHP_BINARY, '-r', $disableScript], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $disablePipes, null, $envForDisableCheck);
+$resultAfterDisable = $disableProcess !== false ? trim(stream_get_contents($disablePipes[1]) . stream_get_contents($disablePipes[2])) : 'proc_open failed';
+if ($disableProcess !== false) {
+    fclose($disablePipes[1]);
+    fclose($disablePipes[2]);
+    proc_close($disableProcess);
+}
+T::eq('success', $resultAfterDisable, 'with MFA disabled, a correct password alone logs in directly again (LOGIN_SUCCESS, not LOGIN_MFA_REQUIRED) — checked fresh, no lingering challenge requirement');
+
+Db::delete('mfa_recovery_code', ['user_id' => $mfaLoginUserId]);
+Db::delete('app_user', ['id' => $mfaLoginUserId]);

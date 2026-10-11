@@ -6,6 +6,7 @@ namespace Verity\Http;
 
 use Verity\Support\Audit;
 use Verity\Support\Auth;
+use Verity\Support\Mfa;
 use Verity\Support\Security;
 use Verity\Support\Session;
 
@@ -21,6 +22,13 @@ final class ProfileController
     {
         Auth::requireAuth();
         $user = Auth::user();
+
+        $mfaEnabled = Mfa::isEnabled((int) $user['id']);
+        $mfaPending = $mfaEnabled ? null : Mfa::pendingEnrollment((int) $user['id'], (string) $user['email']);
+        $mfaRecoveryCodeCount = $mfaEnabled ? Mfa::remainingRecoveryCodeCount((int) $user['id']) : 0;
+        Session::start();
+        $newRecoveryCodes = $_SESSION['mfa_new_recovery_codes'] ?? null;
+        unset($_SESSION['mfa_new_recovery_codes']); // read-once
 
         $title = 'My Account';
         $navActive = 'profile';
@@ -72,5 +80,81 @@ final class ProfileController
         Session::regenerate();
 
         header('Location: /app/profile?changed=1');
+    }
+
+    /** Begins (or restarts) enrollment — generates and stores a secret, not yet active until confirmed. */
+    public static function mfaEnroll(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            self::index(Security::nonce(), 'Your session expired. Please try again.');
+            return;
+        }
+        Mfa::beginEnrollment((int) $user['id'], (string) $user['email']);
+        header('Location: /app/profile');
+    }
+
+    /** Confirms enrollment with a real code; shows the recovery codes exactly once via a short-lived session flash. */
+    public static function mfaConfirm(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        $nonce = Security::nonce();
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            self::index($nonce, 'Your session expired. Please try again.');
+            return;
+        }
+        try {
+            $codes = Mfa::confirmEnrollment((int) $user['id'], (string) ($_POST['code'] ?? ''), (int) $user['id']);
+        } catch (\RuntimeException $e) {
+            self::index($nonce, $e->getMessage());
+            return;
+        }
+        Session::start();
+        $_SESSION['mfa_new_recovery_codes'] = $codes; // read-once; app_profile.php clears it after displaying
+        header('Location: /app/profile?mfa_enrolled=1');
+    }
+
+    public static function mfaDisable(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        $nonce = Security::nonce();
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            self::index($nonce, 'Your session expired. Please try again.');
+            return;
+        }
+        if (!Auth::verifyPassword((int) $user['id'], (string) ($_POST['current_password'] ?? ''))) {
+            Audit::denied('mfa.disable_failed', 'app_user#' . $user['id']);
+            self::index($nonce, 'Current password is incorrect.');
+            return;
+        }
+        Mfa::disable((int) $user['id'], (int) $user['id']);
+        header('Location: /app/profile?mfa_disabled=1');
+    }
+
+    public static function mfaRegenerateCodes(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        $nonce = Security::nonce();
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            self::index($nonce, 'Your session expired. Please try again.');
+            return;
+        }
+        if (!Auth::verifyPassword((int) $user['id'], (string) ($_POST['current_password'] ?? ''))) {
+            Audit::denied('mfa.regenerate_codes_failed', 'app_user#' . $user['id']);
+            self::index($nonce, 'Current password is incorrect.');
+            return;
+        }
+        if (!Mfa::isEnabled((int) $user['id'])) {
+            self::index($nonce, 'Two-factor authentication is not enabled.');
+            return;
+        }
+        $codes = Mfa::regenerateRecoveryCodes((int) $user['id'], (int) $user['id']);
+        Session::start();
+        $_SESSION['mfa_new_recovery_codes'] = $codes;
+        header('Location: /app/profile?mfa_enrolled=1');
     }
 }

@@ -7,6 +7,7 @@ namespace Verity\Http;
 use Verity\Support\Audit;
 use Verity\Support\Auth;
 use Verity\Support\Authorize;
+use Verity\Support\Mfa;
 use Verity\Support\PermissionCatalog;
 use Verity\Support\People;
 use Verity\Support\Roles;
@@ -45,6 +46,7 @@ final class IamController
                 'updateDetails' => '/app/admin/iam/update-details',
                 'resetPassword' => '/app/admin/iam/reset-password',
                 'setStatus' => '/app/admin/iam/set-status',
+                'resetMfa' => '/app/admin/iam/reset-mfa',
             ],
         ];
 
@@ -97,6 +99,7 @@ final class IamController
                 'email' => $target['email'],
                 'status' => $target['status'],
                 'personId' => $target['person_id'] !== null ? (int) $target['person_id'] : null,
+                'mfaEnabled' => Mfa::isEnabled($id),
             ],
             'states' => Users::permissionStates($id),
         ]);
@@ -270,6 +273,38 @@ final class IamController
         }
 
         Users::setStatus($targetId, $status, (int) $user['id']);
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['ok' => true, 'csrf' => Security::rotateCsrf()]);
+    }
+
+    /**
+     * JSON POST: admin override for a user locked out of MFA (lost device
+     * and exhausted recovery codes). Clears their enrollment entirely —
+     * they re-enroll from scratch on next sign-in, through the same
+     * confirmed-enrollment flow as anyone else. Does not touch their
+     * password or account status.
+     */
+    public static function resetMfa(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        Authorize::requirePermission($user, 'iam.manage');
+
+        $raw = file_get_contents('php://input') ?: '{}';
+        $body = json_decode($raw, true) ?: [];
+        if (!Security::validateCsrf($body['_csrf'] ?? null)) {
+            self::jsonError(400, 'Invalid CSRF token.');
+            return;
+        }
+        $targetId = (int) ($body['user_id'] ?? 0);
+        if ($targetId <= 0 || Users::get($targetId) === null) {
+            http_response_code(404);
+            return;
+        }
+
+        Mfa::disable($targetId, (int) $user['id']);
+        Audit::log('iam.mfa_reset', 'app_user#' . $targetId, null, null, null, (int) $user['id']);
 
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(['ok' => true, 'csrf' => Security::rotateCsrf()]);

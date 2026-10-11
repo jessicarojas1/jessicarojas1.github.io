@@ -94,10 +94,41 @@ CREATE TABLE IF NOT EXISTS app_user (
     password_hash    TEXT,
     status           TEXT NOT NULL DEFAULT 'invited' CHECK (status IN ('active','invited','disabled')),
     person_id        BIGINT REFERENCES person(id) ON DELETE SET NULL,
+    -- MFA (TOTP, RFC 6238) — see app/Support/Totp.php. mfa_secret is a
+    -- base32 TOTP seed, not a password: it cannot be hashed one-way (the
+    -- app must read it back to compute a code to compare against), so it
+    -- is stored as plaintext like every other un-hashable credential
+    -- material in this schema (connector.credential_reference is a
+    -- reference, never a secret, by contrast — this genuinely has no
+    -- equivalent indirection available). See docs/SECURITY.md.
+    mfa_secret       TEXT,
+    mfa_enabled      BOOLEAN NOT NULL DEFAULT FALSE,
+    mfa_enrolled_at  TIMESTAMPTZ,
     created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- ADD COLUMN IF NOT EXISTS so this schema stays idempotent against an
+-- already-deployed app_user table (the CREATE TABLE above is a no-op once
+-- the table exists) — these three columns did not exist in earlier
+-- versions of this schema.
+ALTER TABLE app_user ADD COLUMN IF NOT EXISTS mfa_secret TEXT;
+ALTER TABLE app_user ADD COLUMN IF NOT EXISTS mfa_enabled BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE app_user ADD COLUMN IF NOT EXISTS mfa_enrolled_at TIMESTAMPTZ;
 CREATE INDEX IF NOT EXISTS idx_app_user_person ON app_user(person_id);
+
+-- Single-use recovery codes for when the enrolled TOTP device is
+-- unavailable. code_hash is bcrypt (password_hash()), exactly like
+-- app_user.password_hash — never stored in plaintext, unlike mfa_secret
+-- above (a recovery code, unlike a TOTP seed, only ever needs to be
+-- checked against what the user types, never read back and recomputed).
+CREATE TABLE IF NOT EXISTS mfa_recovery_code (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id     BIGINT NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+    code_hash   TEXT NOT NULL,
+    used_at     TIMESTAMPTZ,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_mfa_recovery_user ON mfa_recovery_code(user_id);
 
 CREATE TABLE IF NOT EXISTS app_user_role (
     user_id     BIGINT NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
