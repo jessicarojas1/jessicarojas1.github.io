@@ -2,7 +2,7 @@
 /**
  * @var array $result @var array $scope @var string $view @var array $fieldDefinitions
  * @var array $applications @var array $departments @var array $savedViews @var array $availableViews
- * @var int $page @var int $pageSize @var string $csrf
+ * @var int $page @var int $pageSize @var string $csrf @var bool $canEdit
  */
 use Verity\Support\Security;
 
@@ -91,21 +91,52 @@ $viewLabels = [
   <button type="submit" class="btn primary sm">Save</button>
 </form>
 
+<?php if (isset($_GET['bulk_ok'])): ?>
+<div class="card"><span class="badge b-ok"><?= (int) $_GET['bulk_ok'] ?> flagged for removal</span>
+  <?php if ((int) ($_GET['bulk_failed'] ?? 0) > 0): ?> <span class="badge b-risk"><?= (int) $_GET['bulk_failed'] ?> skipped — not yours to manage, or invalid</span><?php endif; ?>
+</div>
+<?php endif; ?>
+<?php if (!empty($_GET['granted'])): ?><div class="card"><span class="badge b-ok">Entitlement granted</span></div><?php endif; ?>
+<?php if (!empty($_GET['flagged'])): ?><div class="card"><span class="badge b-ok">Flagged for removal — see Remediation Tasks</span></div><?php endif; ?>
+
+<?php if ($canEdit): ?>
+<p class="empty-state-sm">
+  <?= $view === 'supervisor' ? 'As this view is already scoped to your own reporting chain, you can grant or flag access directly below.' : 'As an admin you can grant or flag access directly below, on any row.' ?>
+</p>
+<form method="post" action="/app/matrix/flag-for-removal-bulk" id="bulkForm" class="filter-bar">
+  <?= $csrf ?>
+  <input type="hidden" name="return_qs" value="<?= Security::h(http_build_query($_GET)) ?>" form="bulkForm">
+  <input type="text" name="note" placeholder="Note for selected items (optional)" form="bulkForm">
+  <button type="submit" class="btn sm danger" form="bulkForm" data-confirm="Flag every selected entitlement for removal? This opens a tracked remediation task for each — it does not remove the access immediately.">Flag Selected for Removal</button>
+  <span id="selectedCount" class="hint"></span>
+</form>
+<?php endif; ?>
+
 <div class="table-wrap">
 <table class="grid">
   <thead>
     <tr>
+      <?php if ($canEdit): ?><th><input type="checkbox" id="selectAll" class="w-auto"></th><?php endif; ?>
       <th>Person</th><th>Department</th><th>Application</th><th>Account</th><th>Account Status</th>
       <th>Entitlement</th><th>Assignment</th><th>Risk</th><th>Granted</th><th>Expires</th>
       <?php foreach ($fieldDefinitions as $fd): ?><th><?= Security::h($fd['label']) ?></th><?php endforeach; ?>
+      <?php if ($canEdit): ?><th></th><?php endif; ?>
     </tr>
   </thead>
   <tbody>
     <?php if ($rows === []): ?>
-    <tr class="empty-row"><td colspan="<?= 10 + count($fieldDefinitions) ?>" class="empty-state-sm">No access records match this view and filters.</td></tr>
+    <tr class="empty-row"><td colspan="<?= 10 + count($fieldDefinitions) + ($canEdit ? 2 : 0) ?>" class="empty-state-sm">No access records match this view and filters.</td></tr>
     <?php endif; ?>
     <?php foreach ($rows as $r): ?>
     <tr>
+      <?php if ($canEdit): ?>
+      <td>
+        <?php if ($r['assignment_id']): ?>
+        <input type="checkbox" name="pairs[<?= (int) $r['assignment_id'] ?>][system_account_id]" value="<?= (int) $r['account_id'] ?>" form="bulkForm" class="row-select w-auto">
+        <input type="hidden" name="pairs[<?= (int) $r['assignment_id'] ?>][entitlement_id]" value="<?= (int) $r['entitlement_id'] ?>" form="bulkForm">
+        <?php endif; ?>
+      </td>
+      <?php endif; ?>
       <td><?= $r['person_id'] ? '<a href="/app/identities/view?id=' . (int) $r['person_id'] . '">' . Security::h($r['person_name']) . '</a>' : '<span class="badge b-warn">Unmatched</span>' ?></td>
       <td><?= Security::h($r['department'] ?? '—') ?></td>
       <td><a href="/app/applications/view?id=<?= (int) $r['application_id'] ?>"><?= Security::h($r['application_name']) ?></a></td>
@@ -127,6 +158,32 @@ $viewLabels = [
       <?php foreach ($fieldDefinitions as $fd): ?>
         <td class="dynamic-col"><?= Security::h((string) ($r['dynamic'][$fd['field_key']] ?? '—')) ?></td>
       <?php endforeach; ?>
+      <?php if ($canEdit): ?>
+      <td>
+        <?php if ($r['assignment_id']): ?>
+        <form method="post" action="/app/matrix/flag-for-removal" class="field-row">
+          <?= $csrf ?>
+          <input type="hidden" name="return_qs" value="<?= Security::h(http_build_query($_GET)) ?>">
+          <input type="hidden" name="system_account_id" value="<?= (int) $r['account_id'] ?>">
+          <input type="hidden" name="entitlement_id" value="<?= (int) $r['entitlement_id'] ?>">
+          <button type="submit" class="btn sm danger" data-confirm="Flag this entitlement for removal? This opens a tracked remediation task — it does not remove the access immediately.">Flag for Removal</button>
+        </form>
+        <?php endif; ?>
+        <details class="mt-8">
+          <summary class="btn sm">+ Add entitlement</summary>
+          <form method="post" action="/app/matrix/grant" class="field-row mt-8"
+                data-add-entitlement data-application-id="<?= (int) $r['application_id'] ?>" data-account-id="<?= (int) $r['account_id'] ?>">
+            <?= $csrf ?>
+            <input type="hidden" name="return_qs" value="<?= Security::h(http_build_query($_GET)) ?>">
+            <input type="hidden" name="system_account_id" value="<?= (int) $r['account_id'] ?>">
+            <select name="entitlement_id" class="entitlement-select" disabled required>
+              <option value="">Loading…</option>
+            </select>
+            <button type="submit" class="btn sm primary" data-confirm="Grant this entitlement now? This creates real access in Verity's own record immediately.">Grant</button>
+          </form>
+        </details>
+      </td>
+      <?php endif; ?>
     </tr>
     <?php endforeach; ?>
   </tbody>

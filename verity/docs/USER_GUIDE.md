@@ -210,6 +210,25 @@ screen itself is; you can't export more than you can see.
 The table paginates server-side (50 rows at a time) — even at enterprise
 scale, your browser never has to hold the full inventory in memory.
 
+**Editing access directly.** If you're an admin, or you're on the
+Supervisor view (every row there is already your own reporting chain),
+you'll also see:
+
+- A checkbox per row (only on rows that have an actual entitlement) plus a
+  **Flag Selected for Removal** bulk action at the top — select several
+  rows, add an optional shared note, and flag them all at once. Each one
+  opens its own tracked remediation task; this does not remove the access
+  immediately (see [Remediation Tasks](#remediation-tasks)).
+- Per row: **Flag for Removal** (the same single-item version) and
+  **+ Add entitlement** — a picker scoped to that account's application,
+  granting real access immediately. This is the identical engine and
+  admin-or-supervisor rule the Identity detail page's access editor uses;
+  see that section for the full reasoning.
+
+The Application, Privileged Access, and Exception views can show rows for
+people outside a non-admin's authority, so these edit controls only appear
+there for admins.
+
 ## Unmatched Accounts
 
 *(Requires "Unmatched Accounts" in your nav.)* Accounts discovered in a
@@ -478,8 +497,8 @@ typing part of an action name (e.g. `account.link`).
 | Role | Can generally do |
 |---|---|
 | **Enterprise Administrator** | Everything, by default (the wildcard role) — individual permissions can still be explicitly denied to override this |
-| **Security / Compliance Admin** | Broad read access, governance configuration (applications, connectors, dynamic fields, settings), account correlation, user/permission management, launching/managing certification campaigns and remediation tasks, approving/denying any access request, directly granting or flagging-for-removal any identity's entitlements from their profile page, and acting as a reviewer — a strong admin role without the unconditional wildcard |
-| **Supervisor** | Their own reporting chain only — identities, accounts, entitlements, and the Supervisor Access Matrix view, scoped automatically — plus acting as a reviewer on campaign items assigned to them (typically their own direct reports' access), directly granting/flagging-for-removal entitlements for anyone in their reporting chain from that person's profile page, and submitting access requests |
+| **Security / Compliance Admin** | Broad read access, governance configuration (applications, connectors, dynamic fields, settings), account correlation, user/permission management, launching/managing certification campaigns and remediation tasks, approving/denying any access request, directly granting or flagging-for-removal any identity's entitlements from their profile page or the Access Matrix, and acting as a reviewer — a strong admin role without the unconditional wildcard |
+| **Supervisor** | Their own reporting chain only — identities, accounts, entitlements, and the Supervisor Access Matrix view, scoped automatically — plus acting as a reviewer on campaign items assigned to them (typically their own direct reports' access), directly granting/flagging-for-removal entitlements for anyone in their reporting chain from that person's profile page or the Supervisor Access Matrix view, and submitting access requests |
 | **System Owner** | Applications where they're recorded as the system owner — that application's access matrix view and entitlement visibility, plus approving or denying access requests for those applications specifically — plus acting as a reviewer on campaign items assigned to them and submitting access requests |
 | **Auditor** | Enterprise-wide read access to identities, accounts, entitlements, the matrix, the audit log, campaign progress, remediation tasks, and access requests — no write access anywhere, including campaigns, remediation, and access requests (view only) |
 

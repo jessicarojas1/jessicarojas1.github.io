@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Verity\Http;
 
+use Verity\Support\AccessRequests;
 use Verity\Support\Applications;
 use Verity\Support\Audit;
 use Verity\Support\Auth;
 use Verity\Support\Authorize;
 use Verity\Support\DynamicFields;
+use Verity\Support\EntitlementAssignments;
 use Verity\Support\Matrix;
 use Verity\Support\People;
+use Verity\Support\RemediationTasks;
 use Verity\Support\SavedViews;
 use Verity\Support\Security;
 
@@ -90,6 +93,21 @@ final class MatrixController
         if (Authorize::can($user, 'matrix.view.supervisor')) { $availableViews['supervisor'] = 'Supervisor'; }
         if (Authorize::can($user, 'matrix.view.privileged')) { $availableViews['privileged'] = 'Privileged Access'; }
         if (Authorize::can($user, 'matrix.view.exception')) { $availableViews['exception'] = 'Exception'; }
+
+        // Edit controls (bulk flag-for-removal, per-row grant) only render
+        // in the two cases where every visible row is already something
+        // the viewer plausibly has authority over: they're an admin
+        // (entitlement.manage, any row, any view), or they're looking at
+        // their OWN supervisor view (every row there is already scoped to
+        // their own reports by Matrix::buildWhere()'s 'supervisor' case).
+        // Every other view (enterprise/application/privileged/exception)
+        // can show rows for people outside the viewer's authority, so a
+        // non-admin never sees edit controls there — the mutating
+        // endpoints re-verify per-ACCOUNT via Authorize::canManageAccountAccess()
+        // regardless, but showing a button that would mostly 403 is bad UX,
+        // not a security boundary in itself.
+        $isEntitlementAdmin = Authorize::can($user, 'entitlement.manage');
+        $canEdit = $isEntitlementAdmin || ($view === 'supervisor' && Authorize::can($user, 'matrix.view.supervisor'));
 
         $title = 'Enterprise Access Matrix';
         $navActive = 'matrix';
@@ -184,5 +202,152 @@ final class MatrixController
             SavedViews::delete($id, $user['id']);
         }
         header('Location: /app/matrix');
+    }
+
+    /** JSON: entitlements an account can be granted (doesn't already hold) within its own application, for the Matrix's "+ Add Entitlement" picker. */
+    public static function entitlementsForAccount(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        $accountId = (int) ($_GET['system_account_id'] ?? 0);
+        self::requireAccountEditAccess($user, $accountId);
+        $applicationId = (int) ($_GET['application_id'] ?? 0);
+        header('Content-Type: application/json; charset=utf-8');
+        echo Security::jsonForScript(['entitlements' => ($applicationId > 0 && $accountId > 0) ? AccessRequests::requestableEntitlements($applicationId, $accountId) : []]);
+    }
+
+    /** Grant a new entitlement directly from the Matrix — same engine and admin-or-supervisor rule as the Identity detail page and campaign review. */
+    public static function grant(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        $systemAccountId = (int) ($_POST['system_account_id'] ?? 0);
+        self::requireAccountEditAccess($user, $systemAccountId);
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            http_response_code(400);
+            echo 'Invalid request.';
+            return;
+        }
+        $isAdmin = Authorize::can($user, 'entitlement.manage');
+        $actingPersonId = $user['person_id'] ?? null;
+        $entitlementId = (int) ($_POST['entitlement_id'] ?? 0);
+        $note = trim((string) ($_POST['note'] ?? '')) ?: null;
+        try {
+            EntitlementAssignments::grant($systemAccountId, $entitlementId, (int) $user['id'], $actingPersonId !== null ? (int) $actingPersonId : null, $isAdmin, $note);
+        } catch (\InvalidArgumentException|\RuntimeException $e) {
+            http_response_code(400);
+            echo Security::h($e->getMessage());
+            return;
+        }
+        header('Location: ' . self::returnTo(['granted' => 1]));
+    }
+
+    /** Flags a single entitlement assignment for removal — a tracked remediation task, never an immediate delete; see EntitlementAssignments.php's doc comment for why. */
+    public static function flagForRemoval(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        $systemAccountId = (int) ($_POST['system_account_id'] ?? 0);
+        self::requireAccountEditAccess($user, $systemAccountId);
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            http_response_code(400);
+            echo 'Invalid request.';
+            return;
+        }
+        $entitlementId = (int) ($_POST['entitlement_id'] ?? 0);
+        $note = trim((string) ($_POST['note'] ?? '')) ?: null;
+        try {
+            RemediationTasks::create([
+                'system_account_id' => $systemAccountId,
+                'entitlement_id' => $entitlementId,
+                'task_type' => 'remove_access',
+                'description' => $note ?? 'Flagged for removal from the Access Matrix.',
+            ], (int) $user['id']);
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(400);
+            echo Security::h($e->getMessage());
+            return;
+        }
+        header('Location: ' . self::returnTo(['flagged' => 1]));
+    }
+
+    /**
+     * Flag several entitlement assignments for removal in one submit — the
+     * bulk toolbar. RemediationTasks::createBulk()/create() carry NO
+     * authorization logic of their own (by design — see RemediationTasks.php;
+     * the single-row flagForRemoval() above gets its authorization entirely
+     * from requireAccountEditAccess() before ever calling create()), so
+     * THIS method is the only thing standing between a submitted batch and
+     * the database — each (account, entitlement) pair is individually
+     * checked against Authorize::canManageAccountAccess() BEFORE being
+     * included in what's passed to createBulk(); a pair outside the
+     * caller's authority is counted as a failure, never silently dropped
+     * and never silently allowed through just because other pairs in the
+     * same batch were legitimate. A coarse gate first allows only an admin
+     * or someone looking at their own supervisor view to attempt this at
+     * all, matching exactly which callers ever see the bulk toolbar
+     * rendered (MatrixController::index()'s $canEdit).
+     */
+    public static function flagForRemovalBulk(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        $isAdmin = Authorize::can($user, 'entitlement.manage');
+        if (!$isAdmin && !Authorize::can($user, 'matrix.view.supervisor')) {
+            Authorize::requirePermission($user, 'entitlement.manage'); // no legitimate path here; produces the standard 403 + audit denial
+            return;
+        }
+        if (!Security::validateCsrf($_POST['_csrf'] ?? null)) {
+            http_response_code(400);
+            echo 'Invalid request.';
+            return;
+        }
+        // Keyed by assignment_id (app_matrix.php's checkbox name="pairs[<assignment_id>][system_account_id]"),
+        // so a row whose checkbox was left unchecked contributes ONLY its
+        // always-present hidden entitlement_id field under that key, never
+        // a system_account_id — filtered out below by requiring both.
+        // Indexed array-of-pairs avoids the index-misalignment a sparse
+        // checked-only array and an unconditionally-submitted parallel
+        // array would otherwise create between which account and which
+        // entitlement actually belong together.
+        $submittedPairs = (array) ($_POST['pairs'] ?? []);
+        $note = trim((string) ($_POST['note'] ?? '')) ?: null;
+
+        $authorizedPairs = [];
+        $deniedCount = 0;
+        foreach ($submittedPairs as $pair) {
+            if (!isset($pair['system_account_id']) || $pair['system_account_id'] === '') {
+                continue; // this row's checkbox was never checked
+            }
+            $accountId = (int) $pair['system_account_id'];
+            if (Authorize::canManageAccountAccess($user, $accountId)) {
+                $authorizedPairs[] = ['system_account_id' => $accountId, 'entitlement_id' => isset($pair['entitlement_id']) && $pair['entitlement_id'] !== '' ? (int) $pair['entitlement_id'] : null];
+            } else {
+                $deniedCount++;
+            }
+        }
+        $result = RemediationTasks::createBulk($authorizedPairs, $note, (int) $user['id']);
+        header('Location: ' . self::returnTo(['bulk_ok' => $result['succeeded'], 'bulk_failed' => count($result['failed']) + $deniedCount]));
+    }
+
+    /** Admin (entitlement.manage) or that ACCOUNT's real owner's supervisor — see Authorize::canManageAccountAccess()'s own doc comment for why this always derives the account's actual owner itself. */
+    private static function requireAccountEditAccess(array $user, int $systemAccountId): void
+    {
+        if (Authorize::canManageAccountAccess($user, $systemAccountId)) {
+            return;
+        }
+        Audit::denied('authz.deny.entitlement.manage', 'system_account#' . $systemAccountId, $user['id'] ?? null);
+        http_response_code(403);
+        echo 'You are not authorized to edit this account\'s access.';
+        exit;
+    }
+
+    /** Redirect back to the Matrix with the current view/filters/page preserved, plus a result flag. */
+    private static function returnTo(array $extraQuery): string
+    {
+        $qs = (string) ($_POST['return_qs'] ?? '');
+        parse_str($qs, $query);
+        $query = array_merge($query, $extraQuery);
+        return '/app/matrix?' . http_build_query($query);
     }
 }

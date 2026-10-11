@@ -230,6 +230,18 @@ switch ($path) {
     case '/app/matrix/saved-views/delete':
         if ($method === 'POST') { MatrixController::deleteView(); return; }
         http_response_code(405); return;
+    case '/app/matrix/entitlements':
+        MatrixController::entitlementsForAccount();
+        return;
+    case '/app/matrix/grant':
+        if ($method === 'POST') { MatrixController::grant(); return; }
+        http_response_code(405); return;
+    case '/app/matrix/flag-for-removal':
+        if ($method === 'POST') { MatrixController::flagForRemoval(); return; }
+        http_response_code(405); return;
+    case '/app/matrix/flag-for-removal-bulk':
+        if ($method === 'POST') { MatrixController::flagForRemovalBulk(); return; }
+        http_response_code(405); return;
 
     case '/app/admin/dynamic-fields':
         if ($method === 'POST') { DynamicFieldsController::save(); return; }

@@ -20,7 +20,10 @@ real CSV import sync engine (`app/Support/CsvImport.php` — see
 "live connector sync" ahead of its original gate, deliberately, with
 `OPEN_ITEMS.md` updated in the same change this happened — the Entra GCC
 High half of that Phase 4 item is still not started), Enterprise Access
-Matrix (6 authorization-scoped views + CSV export + saved views), Dynamic
+Matrix (6 authorization-scoped views + CSV export + saved views; the
+Enterprise and Supervisor views also carry direct grant/flag-for-removal
+edit controls for an admin or that view's own supervisor, the same engine
+and rule the Identity detail page's access editor uses), Dynamic
 Fields, Admin IAM console, Settings/Branding, an append-only Audit trail,
 and — pulled forward from Phase 5, same precedent as CSV import —
 **certification campaigns** (`app/Support/Campaigns.php`: scope frozen at
@@ -545,6 +548,35 @@ what's missing.
   `?risk=` param) must intersect with any other active scope rather than
   replace it — see `IdentitiesController::index()`'s `array_intersect`
   with the existing reporting-chain `person_ids` filter for the pattern.
+- **A bulk form whose rows can be independently checked/unchecked must
+  never pair a checkbox-gated field with an unconditionally-submitted
+  one using separate flat arrays.** The Access Matrix's bulk "Flag
+  Selected for Removal" toolbar needs BOTH `system_account_id` (on the
+  checkbox, only submitted when checked) and `entitlement_id` (a hidden
+  field, always present) per row. A naive `name="system_account_id[]"` +
+  `name="entitlement_id[]"` pairing silently misaligns the two arrays'
+  indices the moment any row is left unchecked — the hidden fields still
+  all submit, the checkboxes don't, so array position N stops meaning
+  "the same row" between them. Fixed (before it ever shipped — caught in
+  self-review, not live) by indexing both fields under the SAME key per
+  row — `pairs[<assignment_id>][system_account_id]` /
+  `pairs[<assignment_id>][entitlement_id]` — so an unchecked row
+  contributes only `entitlement_id` under its own key, with no
+  `system_account_id` there to accidentally pair with a DIFFERENT row's
+  value. `MatrixController::flagForRemovalBulk()` then drops any `pairs`
+  entry missing `system_account_id`. Use this exact shape for any future
+  bulk form mixing a conditional (checkbox) field with an unconditional
+  one on the same logical row.
+- **`RemediationTasks::create()`/`createBulk()` have NO authorization
+  logic of their own — by design, matching how they've worked since
+  Phase 6.** Every caller is responsible for checking authorization
+  BEFORE calling them. `IdentitiesController::flagForRemoval()` and
+  `MatrixController::flagForRemoval()` each do this via
+  `requireAccountEditAccess()` before the single call they make;
+  `MatrixController::flagForRemovalBulk()` must check EVERY individual
+  pair in a submitted batch this same way before including it in what it
+  passes to `createBulk()` — never pass the whole raw batch straight
+  through on the strength of one coarse, request-level permission check.
 
 ## Roadmap gates (8-phase build)
 

@@ -336,6 +336,19 @@ try {
     RemediationTasks::dismiss($dismissTaskId, 'Determined to be a false positive', 1);
     T::eq('dismissed', RemediationTasks::get($dismissTaskId)['status'], 'dismiss() marks the task dismissed, distinct from resolved');
 
+    T::group('RemediationTasks::createBulk — the Access Matrix bulk toolbar, partial-failure-safe');
+    $bulkFlagAcct2 = Db::insert('system_account', ['application_id' => $app, 'person_id' => $report, 'external_account_id' => uniqid('bulk-flag-')]);
+    $bulkFlagResult = RemediationTasks::createBulk([
+        ['system_account_id' => $campAcctMatched, 'entitlement_id' => $campEnt],
+        ['system_account_id' => $bulkFlagAcct2, 'entitlement_id' => null],
+        ['system_account_id' => 0, 'entitlement_id' => null],
+    ], 'bulk test note', 1);
+    T::eq(2, $bulkFlagResult['succeeded'], 'two valid pairs (one with a specific entitlement, one for the whole account) both succeed');
+    T::eq(1, count($bulkFlagResult['failed']), 'the pair with no system_account_id (0) fails independently rather than aborting the batch');
+    T::ok(str_contains($bulkFlagResult['failed'][2] ?? '', 'required'), 'the failure reason for the invalid pair is specific, keyed by its position in the submitted batch');
+    $bulkCreatedTasks = Db::fetchAll("SELECT system_account_id, entitlement_id, task_type, description FROM remediation_task WHERE system_account_id IN (:a, :b) AND description = 'bulk test note'", ['a' => $campAcctMatched, 'b' => $bulkFlagAcct2]);
+    T::eq(2, count($bulkCreatedTasks), 'exactly the two successful pairs were actually persisted as remove_access tasks');
+
     // --- Fixture: access requests -------------------------------------------
     $arEnt = Db::insert('entitlement', ['application_id' => $app, 'name' => 'Access Request Test Role ' . uniqid()]);
     $arAcct = Db::insert('system_account', ['application_id' => $app, 'person_id' => $report, 'external_account_id' => uniqid('ar-acct-')]);
