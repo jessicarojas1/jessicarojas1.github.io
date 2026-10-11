@@ -143,10 +143,26 @@ Click a name to open their profile:
   assigned, and enabled accounts on a terminated identity. This is a **v1
   heuristic**, computed live from data already in Verity — it has not been
   reviewed or approved as an official risk model, and the page says so.
-- **System Accounts** — every account this person has across every
-  connected application, with a link to each account's detail page. This is
-  the "one person → many accounts" view — the core promise of an identity
+- **System Accounts & Access** — every account this person has across every
+  connected application, and for each one, every entitlement it actually
+  holds (not just a count): name, type, risk level, and expiry. This is the
+  "one person → many accounts" view — the core promise of an identity
   governance platform
+
+**If you're an admin, or this person's supervisor** (anywhere up the
+reporting chain — same rule campaign review uses), each account's
+entitlement list also has:
+
+- **Flag for Removal** next to any entitlement — opens a tracked
+  remediation task (visible in [Remediation Tasks](#remediation-tasks)).
+  This does **not** delete the access record immediately; Verity has no
+  connector that can push a real removal back to the source system, so a
+  human still has to go remove it there and then resolve the task.
+- **+ Add entitlement** at the bottom of each account's list — pick from
+  entitlements that account doesn't already have in that application, and
+  click **Grant**. This creates real access in Verity's own record
+  immediately — it is not a request someone else has to approve, since
+  you're already the authorized approver for this account.
 
 Click **View in Access Matrix** to jump straight to this person's access,
 pre-filtered.
@@ -455,8 +471,8 @@ typing part of an action name (e.g. `account.link`).
 | Role | Can generally do |
 |---|---|
 | **Enterprise Administrator** | Everything, by default (the wildcard role) — individual permissions can still be explicitly denied to override this |
-| **Security / Compliance Admin** | Broad read access, governance configuration (applications, connectors, dynamic fields, settings), account correlation, user/permission management, launching/managing certification campaigns and remediation tasks, approving/denying any access request, and acting as a reviewer — a strong admin role without the unconditional wildcard |
-| **Supervisor** | Their own reporting chain only — identities, accounts, entitlements, and the Supervisor Access Matrix view, scoped automatically — plus acting as a reviewer on campaign items assigned to them (typically their own direct reports' access) and submitting access requests |
+| **Security / Compliance Admin** | Broad read access, governance configuration (applications, connectors, dynamic fields, settings), account correlation, user/permission management, launching/managing certification campaigns and remediation tasks, approving/denying any access request, directly granting or flagging-for-removal any identity's entitlements from their profile page, and acting as a reviewer — a strong admin role without the unconditional wildcard |
+| **Supervisor** | Their own reporting chain only — identities, accounts, entitlements, and the Supervisor Access Matrix view, scoped automatically — plus acting as a reviewer on campaign items assigned to them (typically their own direct reports' access), directly granting/flagging-for-removal entitlements for anyone in their reporting chain from that person's profile page, and submitting access requests |
 | **System Owner** | Applications where they're recorded as the system owner — that application's access matrix view and entitlement visibility, plus approving or denying access requests for those applications specifically — plus acting as a reviewer on campaign items assigned to them and submitting access requests |
 | **Auditor** | Enterprise-wide read access to identities, accounts, entitlements, the matrix, the audit log, campaign progress, remediation tasks, and access requests — no write access anywhere, including campaigns, remediation, and access requests (view only) |
 

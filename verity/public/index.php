@@ -114,6 +114,15 @@ switch ($path) {
     case '/app/identities/view':
         IdentitiesController::view($nonce);
         return;
+    case '/app/identities/entitlements':
+        IdentitiesController::entitlementsForAccount();
+        return;
+    case '/app/identities/grant':
+        if ($method === 'POST') { IdentitiesController::grantAccess(); return; }
+        http_response_code(405); return;
+    case '/app/identities/flag-for-removal':
+        if ($method === 'POST') { IdentitiesController::flagForRemoval(); return; }
+        http_response_code(405); return;
 
     case '/app/accounts/unmatched':
         AccountsController::unmatched($nonce);

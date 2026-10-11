@@ -234,6 +234,7 @@ td.dynamic-col { color: var(--muted); font-size: 12.5px; }
 .mb-14 { margin-bottom: 14px; }
 .w-full { width: 100%; }
 .w-auto { width: auto; }
+.row-between { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
 .inline-block { display: inline-block; }
 .inline { display: inline; }
 .cursor-default { cursor: default; }

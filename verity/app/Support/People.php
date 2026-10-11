@@ -60,6 +60,42 @@ final class People
         );
     }
 
+    /**
+     * Entitlement assignments for exactly the given accounts, batched in one
+     * query and keyed by system_account_id — the same N+1-avoidance shape
+     * RiskScoring::scoresFor() and DynamicFields::valuesFor() already use.
+     * @param int[] $accountIds
+     * @return array<int, array<int,array<string,mixed>>>
+     */
+    public static function entitlementsForAccounts(array $accountIds): array
+    {
+        $accountIds = array_values(array_unique(array_map('intval', $accountIds)));
+        if ($accountIds === []) {
+            return [];
+        }
+        $in = [];
+        $params = [];
+        foreach ($accountIds as $i => $id) {
+            $key = 'aid' . $i;
+            $in[] = ':' . $key;
+            $params[$key] = $id;
+        }
+        $rows = Db::fetchAll(
+            "SELECT ea.id AS assignment_id, ea.system_account_id, ea.assignment_type, ea.expires_at,
+                    e.id AS entitlement_id, e.name AS entitlement_name, e.is_privileged, e.risk_level
+             FROM entitlement_assignment ea
+             JOIN entitlement e ON e.id = ea.entitlement_id
+             WHERE ea.system_account_id IN (" . implode(',', $in) . ')
+             ORDER BY e.name',
+            $params
+        );
+        $out = [];
+        foreach ($rows as $row) {
+            $out[(int) $row['system_account_id']][] = $row;
+        }
+        return $out;
+    }
+
     /** Direct reports only (one level), for the directory detail view. */
     public static function directReports(int $personId): array
     {

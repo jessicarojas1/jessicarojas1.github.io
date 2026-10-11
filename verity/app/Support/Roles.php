@@ -42,7 +42,7 @@ final class Roles
             'dashboard.view',
             'identity.view', 'identity.manage.correlate',
             'account.view', 'account.view.unmatched',
-            'entitlement.view',
+            'entitlement.view', 'entitlement.manage',
             'matrix.view.enterprise', 'matrix.view.privileged', 'matrix.view.exception',
             'application.view', 'application.manage',
             'connector.view', 'connector.manage',

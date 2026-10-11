@@ -1,7 +1,8 @@
 <?php
-/** @var array $person @var array $accounts @var array $reports @var array $risk */
+/** @var array $person @var array $accounts @var array $entitlementsByAccount @var array $reports @var array $risk @var bool $canEditAccess @var string $csrf */
 use Verity\Support\Security;
 
+$appScript = '/assets/identity_detail.js';
 require __DIR__ . '/partials/app_header.php';
 ?>
 <div class="page-header">
@@ -67,26 +68,80 @@ require __DIR__ . '/partials/app_header.php';
 </div>
 
 <div class="card mt-14">
-  <h2>System Accounts (<?= count($accounts) ?>)</h2>
-  <p class="hint">Every account discovered across connected applications for this person. This is the "one person → many accounts" view (section 7 of the build directive).</p>
-  <table class="grid">
-    <thead><tr><th>Application</th><th>Account</th><th>Type</th><th>Status</th><th class="num">Entitlements</th><th></th></tr></thead>
-    <tbody>
-      <?php if ($accounts === []): ?>
-      <tr class="empty-row"><td colspan="6" class="empty-state-sm">No accounts linked to this person yet.</td></tr>
-      <?php endif; ?>
-      <?php foreach ($accounts as $a): ?>
-      <tr>
-        <td><?= Security::h($a['application_name']) ?></td>
-        <td><?= Security::h($a['username'] ?? $a['external_account_id']) ?></td>
-        <td><?= Security::h(ucwords($a['account_type'])) ?></td>
-        <td><?= $a['status'] === 'enabled' ? '<span class="badge b-ok">Enabled</span>' : '<span class="badge b-neutral">Disabled</span>' ?></td>
-        <td class="num"><?= (int) $a['entitlement_count'] ?></td>
-        <td><a href="/app/accounts/view?id=<?= (int) $a['id'] ?>">Details</a></td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
+  <h2>System Accounts &amp; Access (<?= count($accounts) ?>)</h2>
+  <p class="hint">
+    Every account discovered across connected applications for this person, and exactly what each one holds.
+    <?php if ($canEditAccess): ?>
+    You can grant a new entitlement directly, or flag an existing one for removal — see
+    <code>app/Support/EntitlementAssignments.php</code> for why "remove" opens a tracked remediation task rather
+    than deleting the record immediately.
+    <?php endif; ?>
+  </p>
+  <?php if (!empty($_GET['granted'])): ?><div class="card"><span class="badge b-ok">Entitlement granted</span></div><?php endif; ?>
+  <?php if (!empty($_GET['flagged'])): ?><div class="card"><span class="badge b-ok">Flagged for removal — see Remediation Tasks</span></div><?php endif; ?>
+
+  <?php if ($accounts === []): ?>
+  <p class="empty-state-sm">No accounts linked to this person yet.</p>
+  <?php endif; ?>
+
+  <?php foreach ($accounts as $a): ?>
+  <?php $accountEntitlements = $entitlementsByAccount[(int) $a['id']] ?? []; ?>
+  <div class="card mt-12">
+    <div class="row-between">
+      <div>
+        <strong><?= Security::h($a['application_name']) ?></strong> —
+        <?= Security::h($a['username'] ?? $a['external_account_id']) ?>
+        <?= $a['status'] === 'enabled' ? '<span class="badge b-ok">Enabled</span>' : '<span class="badge b-neutral">Disabled</span>' ?>
+        <span class="hint"><?= Security::h(ucwords($a['account_type'])) ?> account</span>
+      </div>
+      <a href="/app/accounts/view?id=<?= (int) $a['id'] ?>">Account Details</a>
+    </div>
+    <table class="grid mt-8">
+      <thead><tr><th>Entitlement</th><th>Type</th><th>Risk</th><th>Expires</th><?php if ($canEditAccess): ?><th></th><?php endif; ?></tr></thead>
+      <tbody>
+        <?php if ($accountEntitlements === []): ?>
+        <tr class="empty-row"><td colspan="<?= $canEditAccess ? 5 : 4 ?>" class="empty-state-sm">No entitlements on this account.</td></tr>
+        <?php endif; ?>
+        <?php foreach ($accountEntitlements as $e): ?>
+        <tr>
+          <td><?= Security::h($e['entitlement_name']) ?><?= $e['is_privileged'] ? ' <span class="badge b-risk">Privileged</span>' : '' ?></td>
+          <td><?= Security::h(ucwords($e['assignment_type'])) ?></td>
+          <td><?php $rcls = ['low' => 'b-ok', 'medium' => 'b-warn', 'high' => 'b-risk', 'critical' => 'b-critical'][$e['risk_level']] ?? 'b-neutral'; ?><span class="badge <?= $rcls ?>"><?= Security::h(ucwords($e['risk_level'])) ?></span></td>
+          <td><?= $e['expires_at'] ? Security::h(substr((string) $e['expires_at'], 0, 10)) : '—' ?></td>
+          <?php if ($canEditAccess): ?>
+          <td>
+            <form method="post" action="/app/identities/flag-for-removal" class="field-row">
+              <?= $csrf ?>
+              <input type="hidden" name="person_id" value="<?= (int) $person['id'] ?>">
+              <input type="hidden" name="system_account_id" value="<?= (int) $a['id'] ?>">
+              <input type="hidden" name="entitlement_id" value="<?= (int) $e['entitlement_id'] ?>">
+              <input type="text" name="note" placeholder="Reason (optional)">
+              <button type="submit" class="btn sm danger" data-confirm="Flag this entitlement for removal? This opens a tracked remediation task — it does not delete the access record immediately.">Flag for Removal</button>
+            </form>
+          </td>
+          <?php endif; ?>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+    <?php if ($canEditAccess): ?>
+    <details class="mt-8">
+      <summary class="btn sm">+ Add entitlement</summary>
+      <form method="post" action="/app/identities/grant" class="field-row mt-8"
+            data-add-entitlement data-application-id="<?= (int) $a['application_id'] ?>" data-account-id="<?= (int) $a['id'] ?>" data-person-id="<?= (int) $person['id'] ?>">
+        <?= $csrf ?>
+        <input type="hidden" name="person_id" value="<?= (int) $person['id'] ?>">
+        <input type="hidden" name="system_account_id" value="<?= (int) $a['id'] ?>">
+        <select name="entitlement_id" class="entitlement-select" disabled required>
+          <option value="">Loading…</option>
+        </select>
+        <input type="text" name="note" placeholder="Note (optional)">
+        <button type="submit" class="btn sm primary" data-confirm="Grant this entitlement now? This creates real access in Verity's own record immediately — it is not a request someone else approves.">Grant</button>
+      </form>
+    </details>
+    <?php endif; ?>
+  </div>
+  <?php endforeach; ?>
 </div>
 
 <?php require __DIR__ . '/partials/app_footer.php'; ?>

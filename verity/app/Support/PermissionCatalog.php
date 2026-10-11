@@ -49,6 +49,7 @@ final class PermissionCatalog
                     'entitlement.view' => 'View all entitlement assignments',
                     'entitlement.view.reports' => 'View entitlements within reporting chain',
                     'entitlement.view.owned' => 'View entitlements for owned applications',
+                    'entitlement.manage' => 'Directly grant/flag-for-removal any entitlement assignment',
                 ],
             ],
             'matrix' => [

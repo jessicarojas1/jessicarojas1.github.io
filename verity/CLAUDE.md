@@ -9,7 +9,10 @@ to main). This file adds VERITY-specific context.
 An **Enterprise Identity & Access Governance (IGA)** platform —
 *"Unified Visibility. Verified Access. Complete Accountability."* Current
 phase: **Phases 1–3 of an 8-phase build** are implemented and tested —
-Enterprise Dashboard, Identity Directory, Access Inventory/Unmatched
+Enterprise Dashboard, Identity Directory (each identity's detail page now
+doubles as a direct access editor — every entitlement on every account,
+with admin-or-supervisor grant/flag-for-removal controls — see
+`app/Support/EntitlementAssignments.php`), Access Inventory/Unmatched
 Accounts (manual correlation plus deterministic match suggestions — see
 `Accounts::suggestMatch()`), Application Catalog + connector catalog, a
 real CSV import sync engine (`app/Support/CsvImport.php` — see
@@ -481,6 +484,29 @@ what's missing.
   caller merge it into already-fetched rows — never loop the list calling
   a single-id lookup once per row. Follow this same shape for any future
   per-row computed/derived value added to a paginated list.
+- **No code path in this entire app may ever delete an
+  `entitlement_assignment` row.** This has now been independently
+  preserved three times by three different features (Campaigns' "revoked"
+  decision, CsvImport's add/update-only sync, and the Identity detail
+  page's "Flag for Removal") for the identical reason each time: no
+  connector in this build claims `revoke_access`
+  (`Connectors::defaultManifest()`), so there is no live system Verity
+  could actually push a removal to, and deleting Verity's own inventory
+  record would claim a removal that never happened anywhere. "Removing
+  access" in this app always means opening a `RemediationTasks::create()`
+  row (`task_type='remove_access'`) — a tracked to-do a human resolves
+  after actually handling it elsewhere — never a direct `DELETE`. If a
+  future feature needs to "remove" an entitlement, reuse
+  `RemediationTasks::create()`; do not add a fourth, inconsistent way to
+  do it.
+- **`EntitlementAssignments::grant()` is the one place that creates a
+  direct entitlement_assignment row outside AccessRequests' approval
+  flow.** `Campaigns::grantEntitlement()` is a thin wrapper around it kept
+  only for its existing call sites/tests; any NEW surface that needs to
+  grant access directly (the Matrix's eventual "+ Grant Access", if
+  built — see OPEN_ITEMS.md) should call `EntitlementAssignments::grant()`
+  itself, not duplicate its authorization/cross-application/duplicate
+  checks a third time.
 
 ## Roadmap gates (8-phase build)
 

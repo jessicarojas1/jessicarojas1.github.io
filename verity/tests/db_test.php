@@ -618,6 +618,19 @@ try {
     Db::insert('entitlement_assignment', ['system_account_id' => $secondTerminatedAcct, 'entitlement_id' => $riskEnt]);
     $afterCritical = RiskScoring::countsByTier()['critical'];
     T::eq($beforeCritical + 1, $afterCritical, 'countsByTier() reflects a newly created critical-tier identity (delta-checked, since the shared fixture already contains other scored identities)');
+
+    T::group('People::entitlementsForAccounts — batched per account, for the Identity detail access editor');
+    $peAcct1 = Db::insert('system_account', ['application_id' => $riskApp, 'person_id' => $riskPerson, 'external_account_id' => uniqid('pe-acct1-')]);
+    $peAcct2 = Db::insert('system_account', ['application_id' => $riskApp, 'person_id' => $riskPerson, 'external_account_id' => uniqid('pe-acct2-')]);
+    $peEnt2 = Db::insert('entitlement', ['application_id' => $riskApp, 'name' => 'People Test Role ' . uniqid(), 'risk_level' => 'low']);
+    Db::insert('entitlement_assignment', ['system_account_id' => $peAcct1, 'entitlement_id' => $riskEnt]);
+    Db::insert('entitlement_assignment', ['system_account_id' => $peAcct1, 'entitlement_id' => $peEnt2]);
+    // $peAcct2 is deliberately left with zero assignments.
+    $byAccount = \Verity\Support\People::entitlementsForAccounts([$peAcct1, $peAcct2]);
+    T::eq(2, count($byAccount[$peAcct1] ?? []), 'both entitlements on the first account are returned under its own key');
+    T::ok(!isset($byAccount[$peAcct2]), 'an account with zero assignments has no key at all, rather than an empty array fabricated for it');
+    $names = array_column($byAccount[$peAcct1], 'entitlement_name');
+    T::ok(array_filter($names, static fn ($n) => str_starts_with($n, 'People Test Role')) !== [], 'the batch includes the expected entitlement name');
 } finally {
     $pdo->rollBack();
 }
