@@ -20,10 +20,15 @@ real CSV import sync engine (`app/Support/CsvImport.php` — see
 "live connector sync" ahead of its original gate, deliberately, with
 `OPEN_ITEMS.md` updated in the same change this happened — the Entra GCC
 High half of that Phase 4 item is still not started), Enterprise Access
-Matrix (6 authorization-scoped views + CSV export + saved views; the
-Enterprise and Supervisor views also carry direct grant/flag-for-removal
-edit controls for an admin or that view's own supervisor, the same engine
-and rule the Identity detail page's access editor uses), Dynamic
+Matrix (7 authorization-scoped views + CSV export + saved views — 6 are
+one row per account × entitlement, the audit/edit granularity; the 7th,
+"By Person," is one row per identity with accounts/applications/
+entitlements as counts, for browsing rather than acting — see the
+standing-rule entry on why both shapes exist rather than one replacing
+the other. The Enterprise and Supervisor (per-entitlement) views also
+carry direct grant/flag-for-removal edit controls for an admin or that
+view's own supervisor, the same engine and rule the Identity detail
+page's access editor uses), Dynamic
 Fields, Admin IAM console, Settings/Branding, an append-only Audit trail,
 and — pulled forward from Phase 5, same precedent as CSV import —
 **certification campaigns** (`app/Support/Campaigns.php`: scope frozen at
@@ -577,6 +582,23 @@ what's missing.
   pair in a submitted batch this same way before including it in what it
   passes to `createBulk()` — never pass the whole raw batch straight
   through on the strength of one coarse, request-level permission check.
+- **The Matrix has two fundamentally different row shapes, on purpose —
+  don't collapse them into one.** The Enterprise/Supervisor/Application/
+  Privileged/Exception views are one row per (account × entitlement) —
+  the audit/compliance/bulk-edit granularity, where a reviewer approves,
+  revokes, or flags ONE specific grant. The 'byperson' view is one row per
+  PERSON with accounts/applications/entitlements as aggregate counts — the
+  browsing/overview granularity. Real enterprise IGA tools (SailPoint,
+  Saviynt, Entra ID Governance, Okta) all keep both shapes side by side for
+  exactly this reason; this app does too, as two tabs on one screen rather
+  than one trying to serve both jobs. `MatrixController::index()` branches
+  cleanly on `$view === 'byperson'` into entirely separate query/render
+  paths (`People::list()` + `RiskScoring::scoresFor()`, not
+  `Matrix::query()`) — don't try to force person-aggregate data through
+  the per-entitlement table template, or vice versa. `byperson` has no
+  edit controls (an aggregate row isn't an actionable thing) and its own
+  CSV export (`MatrixController::exportByPerson()`) since the column
+  shapes don't match either.
 
 ## Roadmap gates (8-phase build)
 

@@ -14,6 +14,7 @@ use Verity\Support\EntitlementAssignments;
 use Verity\Support\Matrix;
 use Verity\Support\People;
 use Verity\Support\RemediationTasks;
+use Verity\Support\RiskScoring;
 use Verity\Support\SavedViews;
 use Verity\Support\Security;
 
@@ -61,6 +62,22 @@ final class MatrixController
             case 'exception':
                 Authorize::requirePermission($user, 'matrix.view.exception');
                 break;
+            case 'byperson':
+                // Person-centric summary, not the per-entitlement detail
+                // rows every other view returns — see Matrix::queryByPerson().
+                // Same enterprise-or-own-chain scoping the 'supervisor' case
+                // above already uses, not a new rule.
+                $canAllPeople = Authorize::can($user, 'matrix.view.enterprise');
+                Authorize::requirePermission($user, $canAllPeople ? 'matrix.view.enterprise' : 'matrix.view.supervisor');
+                if (!$canAllPeople) {
+                    $selfId = $user['person_id'] ?? null;
+                    $ids = $selfId !== null ? Authorize::reportsOf((int) $selfId) : [];
+                    if ($selfId !== null) {
+                        $ids[] = (int) $selfId;
+                    }
+                    $scope['person_ids'] = $ids;
+                }
+                break;
             case 'enterprise':
             default:
                 $scope['view'] = 'enterprise';
@@ -79,10 +96,33 @@ final class MatrixController
 
         $page = max(1, (int) ($_GET['page'] ?? 1));
         $pageSize = 50;
-        $result = Matrix::query($scope, $pageSize, ($page - 1) * $pageSize);
 
-        $applicationId = $scope['application_id'] ?? null;
-        $fieldDefinitions = DynamicFields::activeDefinitions($applicationId, 'system_account');
+        $result = null;
+        $personRows = null;
+        $riskScores = [];
+        if ($view === 'byperson') {
+            // Person-centric summary — one row per person, with their
+            // accounts/applications/entitlements as COUNTS (People::list()'s
+            // existing account_count plus the application_count/
+            // entitlement_count/privileged_entitlement_count columns added
+            // for this), not the per-entitlement detail rows every other
+            // view returns. Reuses People::list()'s own search/department/
+            // person_ids filtering — no separate query engine needed.
+            $personFilters = array_filter([
+                'search' => $scope['search'],
+                'department' => $scope['department'],
+                'person_ids' => $scope['person_ids'] ?? null,
+            ], static fn ($v) => $v !== '' && $v !== null);
+            $total = People::count($personFilters);
+            $personRows = People::list($personFilters, $pageSize, ($page - 1) * $pageSize);
+            $riskScores = RiskScoring::scoresFor(array_map(static fn ($p) => (int) $p['id'], $personRows));
+            $fieldDefinitions = [];
+        } else {
+            $result = Matrix::query($scope, $pageSize, ($page - 1) * $pageSize);
+            $total = $result['total'];
+            $applicationId = $scope['application_id'] ?? null;
+            $fieldDefinitions = DynamicFields::activeDefinitions($applicationId, 'system_account');
+        }
 
         $applications = Applications::list();
         $departments = People::departments();
@@ -90,6 +130,7 @@ final class MatrixController
 
         $availableViews = [];
         if (Authorize::can($user, 'matrix.view.enterprise')) { $availableViews['enterprise'] = 'Enterprise'; }
+        if (Authorize::can($user, 'matrix.view.enterprise') || Authorize::can($user, 'matrix.view.supervisor')) { $availableViews['byperson'] = 'By Person'; }
         if (Authorize::can($user, 'matrix.view.supervisor')) { $availableViews['supervisor'] = 'Supervisor'; }
         if (Authorize::can($user, 'matrix.view.privileged')) { $availableViews['privileged'] = 'Privileged Access'; }
         if (Authorize::can($user, 'matrix.view.exception')) { $availableViews['exception'] = 'Exception'; }
@@ -124,6 +165,11 @@ final class MatrixController
         $user = Auth::user();
         [$view, $scope] = self::resolveScope($user, $_GET);
 
+        if ($view === 'byperson') {
+            self::exportByPerson($user, $scope);
+            return;
+        }
+
         $result = Matrix::query($scope, 5000, 0); // safety cap; enterprise-scale export is a documented Phase 8 follow-up
         $fieldDefinitions = DynamicFields::activeDefinitions($scope['application_id'] ?? null, 'system_account');
 
@@ -154,6 +200,34 @@ final class MatrixController
                 $row[] = $r['dynamic'][$fd['field_key']] ?? '';
             }
             fputcsv($out, $row, ',', '"', '\\');
+        }
+        fclose($out);
+    }
+
+    /** CSV export for the 'byperson' summary view — a parallel, smaller shape than the main export() above, not the per-entitlement rows. */
+    private static function exportByPerson(array $user, array $scope): void
+    {
+        $personFilters = array_filter([
+            'search' => $scope['search'],
+            'department' => $scope['department'],
+            'person_ids' => $scope['person_ids'] ?? null,
+        ], static fn ($v) => $v !== '' && $v !== null);
+        $people = People::list($personFilters, 5000, 0); // same safety cap as the main export
+        $riskScores = RiskScoring::scoresFor(array_map(static fn ($p) => (int) $p['id'], $people));
+
+        Audit::log('matrix.export', 'view#byperson', null, ['row_count' => count($people)], null, $user['id']);
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="verity-access-matrix-byperson-' . date('Ymd-His') . '.csv"');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['Person', 'Department', 'Employment Status', 'Accounts', 'Applications', 'Entitlements', 'Privileged Entitlements', 'Risk Tier', 'Risk Score'], ',', '"', '\\');
+        foreach ($people as $p) {
+            $risk = $riskScores[(int) $p['id']] ?? ['tier' => 'low', 'score' => 0];
+            fputcsv($out, [
+                $p['display_name'], $p['department'] ?? '', $p['employment_status'],
+                (int) $p['account_count'], (int) $p['application_count'], (int) $p['entitlement_count'], (int) $p['privileged_entitlement_count'],
+                ucfirst($risk['tier']), $risk['score'],
+            ], ',', '"', '\\');
         }
         fclose($out);
     }

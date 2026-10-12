@@ -670,6 +670,29 @@ try {
     T::ok(!isset($byAccount[$peAcct2]), 'an account with zero assignments has no key at all, rather than an empty array fabricated for it');
     $names = array_column($byAccount[$peAcct1], 'entitlement_name');
     T::ok(array_filter($names, static fn ($n) => str_starts_with($n, 'People Test Role')) !== [], 'the batch includes the expected entitlement name');
+
+    T::group('People::list — application_count/entitlement_count/privileged_entitlement_count, for the Matrix "By Person" summary view');
+    $summaryPerson = Db::insert('person', [
+        'first_name' => 'Test', 'last_name' => 'Summary', 'display_name' => 'Test Summary',
+        'department' => 'Other', 'identity_type' => 'employee', 'employment_status' => 'active', 'identity_authority' => 'test',
+    ]);
+    $summaryApp2 = Db::insert('application', ['name' => 'Summary Test App 2 ' . uniqid()]);
+    $summaryEnt1a = Db::insert('entitlement', ['application_id' => $riskApp, 'name' => 'Summary Role 1a ' . uniqid(), 'is_privileged' => false]);
+    $summaryEnt1b = Db::insert('entitlement', ['application_id' => $riskApp, 'name' => 'Summary Role 1b ' . uniqid(), 'is_privileged' => true]);
+    $summaryEnt2 = Db::insert('entitlement', ['application_id' => $summaryApp2, 'name' => 'Summary Role 2 ' . uniqid()]);
+    $summaryAcct1 = Db::insert('system_account', ['application_id' => $riskApp, 'person_id' => $summaryPerson, 'external_account_id' => uniqid('summary-acct1-')]);
+    $summaryAcct2 = Db::insert('system_account', ['application_id' => $summaryApp2, 'person_id' => $summaryPerson, 'external_account_id' => uniqid('summary-acct2-')]);
+    Db::insert('entitlement_assignment', ['system_account_id' => $summaryAcct1, 'entitlement_id' => $summaryEnt1a]);
+    Db::insert('entitlement_assignment', ['system_account_id' => $summaryAcct1, 'entitlement_id' => $summaryEnt1b]);
+    Db::insert('entitlement_assignment', ['system_account_id' => $summaryAcct2, 'entitlement_id' => $summaryEnt2]);
+    // 2 accounts, 2 distinct applications, 3 total entitlement assignments, 1 of them privileged.
+    $summaryRows = \Verity\Support\People::list(['person_ids' => [$summaryPerson]], 10, 0);
+    T::eq(1, count($summaryRows), 'the person_ids filter returns exactly the one requested person');
+    $summaryRow = $summaryRows[0];
+    T::eq(2, (int) $summaryRow['account_count'], 'account_count reflects both accounts (unchanged, pre-existing column)');
+    T::eq(2, (int) $summaryRow['application_count'], 'application_count counts DISTINCT applications, not raw account rows');
+    T::eq(3, (int) $summaryRow['entitlement_count'], 'entitlement_count sums every entitlement_assignment across every one of this person\'s accounts');
+    T::eq(1, (int) $summaryRow['privileged_entitlement_count'], 'privileged_entitlement_count counts only the entitlements actually flagged is_privileged, not all of them');
 } finally {
     $pdo->rollBack();
 }

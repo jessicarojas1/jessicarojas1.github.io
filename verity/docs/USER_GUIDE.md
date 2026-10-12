@@ -184,7 +184,8 @@ for):
 
 | View | Shows |
 |---|---|
-| Enterprise | Everything, enterprise-wide |
+| Enterprise | Everything, enterprise-wide — one row per account × entitlement |
+| By Person | One row per PERSON instead — accounts/applications/entitlements as totals, plus their risk tier. For a quick overview rather than acting on one specific grant; click a name for the full per-account breakdown (and to edit) on their Identity detail page. Scoped the same as Supervisor below when you don't have enterprise-wide access |
 | Supervisor | Only people in your own reporting chain |
 | Privileged Access | Only privileged entitlements/accounts, across the whole enterprise |
 | Exception | Orphaned (unmatched) accounts, disabled-but-still-entitled accounts, and expired temporary access — the things worth investigating |
@@ -192,6 +193,14 @@ for):
 Two more views exist but aren't reachable as tabs — **Person** and
 **Application** views open when you click "View in Access Matrix" from an
 identity's or application's detail page.
+
+**Why two different row shapes?** Enterprise/Supervisor/Privileged/Exception
+show one row per *grant* (account × entitlement) because that's what you act
+on — approve, revoke, flag — one specific item at a time, and it's the
+format an audit export needs. By Person shows one row per *identity*
+instead, for browsing. This is how enterprise access-governance tools
+generally split it — grant-level rows for certification/review, person-level
+summaries for overview — not a Verity-specific choice.
 
 **Filters**: free-text search (matches person, account, entitlement, or
 application name), department, account status, assignment type (direct,

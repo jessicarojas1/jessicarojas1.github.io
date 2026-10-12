@@ -18,7 +18,10 @@ final class People
     {
         [$where, $params] = self::buildWhere($filters);
         $sql = "SELECT p.*, m.display_name AS manager_name,
-                       (SELECT COUNT(*) FROM system_account sa WHERE sa.person_id = p.id) AS account_count
+                       (SELECT COUNT(*) FROM system_account sa WHERE sa.person_id = p.id) AS account_count,
+                       (SELECT COUNT(DISTINCT sa.application_id) FROM system_account sa WHERE sa.person_id = p.id) AS application_count,
+                       (SELECT COUNT(*) FROM entitlement_assignment ea JOIN system_account sa ON sa.id = ea.system_account_id WHERE sa.person_id = p.id) AS entitlement_count,
+                       (SELECT COUNT(*) FROM entitlement_assignment ea JOIN system_account sa ON sa.id = ea.system_account_id JOIN entitlement e ON e.id = ea.entitlement_id WHERE sa.person_id = p.id AND e.is_privileged) AS privileged_entitlement_count
                 FROM person p
                 LEFT JOIN person m ON m.id = p.manager_person_id
                 WHERE $where
