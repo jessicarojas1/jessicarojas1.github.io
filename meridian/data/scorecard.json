@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-09",
+  "updated": "2026-10-12",
   "summary": {
-    "correct": 17,
+    "correct": 18,
     "incorrect": 5,
     "partial": 8,
-    "pending": 59,
-    "note": "2026-10-09: two prior forecasts graded this cycle, both tied to the Army Secretary nomination. fc-2026-09-09-parnell-nomination resolved INCORRECT: the standing 30-day window closed today with no formal transmittal of Parnell or any alternative. fc-2026-10-07-parnell-withdrawal resolved CORRECT: the window's lapse without a transmittal satisfies that forecast's 'let the window lapse' clause, well ahead of its own 14-day deadline. Three new PENDING forecasts added: whether independent tanker-tracker data corroborates Secretary Rubio's 7 Oct claim that Iran has 'lost complete control' of Hormuz; whether the Army Secretary question produces either a formal nomination or an explicit extended-acting-capacity statement within 21 days; and whether CISA's KEV catalog breaks its five-day quiet streak within 7 days of 13 Oct Patch Tuesday."
+    "pending": 63,
+    "note": "2026-10-12: one prior forecast graded this cycle. fc-2026-10-07-houthi-yemen-escalation resolved CORRECT: the 6-7 Oct Houthi strikes on Riyadh/Abha airports and Khamis Mushait, plus the Saudi-backed Yemeni government's 'battle of liberation' counteroffensive near Mocha, confirm a genuinely widening two-front Yemen conflict well within the 14-day window. Five new PENDING forecasts added, reflecting this cycle's sweep: whether the Yemeni government counteroffensive achieves a confirmed territorial gain near Mocha within 30 days; whether a specifically named FortiMail (CVE-2026-104286) victim organization is identified within 21 days; whether the newly disclosed NetScaler flaw (CVE-2026-107406) moves from undisclosed-exploitation to confirmed active exploitation within 21 days; whether the Jordan-detained ShinyHunters-linked suspect is charged or extradited within 60 days; and whether a House or Senate defense-reconciliation package sees floor action within 30 days given Sen. Thune's reported openness to a third package."
   },
   "forecasts": [
     {
@@ -733,9 +733,9 @@
       "date": "2026-10-07",
       "forecast": "The Houthi attack on Aden airport and the Saudi-backed Yemeni government counteroffensive will produce at least one further confirmed cross-front engagement (Houthi-vs-government or Houthi-vs-Saudi) within 14 days, confirming a genuinely widening two-front conflict rather than an isolated incident cluster.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Trending toward CORRECT: AFP-sourced reporting (10/8 cycle) describes ~270 combined government/Houthi fighter deaths in a single 24-hour period, consistent with continued cross-front engagement; window remains open (closes ~10/21). Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-12",
+      "note": "Confirmed well within the window: Houthi strikes on Riyadh/Abha airports and Khamis Mushait (6-7 Oct, independently corroborated by Daily Maverick, Tribune.com.pk, newsonair.gov.in, Bernama) plus the Saudi-backed Yemeni government's 'battle of liberation' ground counteroffensive near Mocha together satisfy both the Houthi-vs-Saudi and Houthi-vs-government engagement clauses. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-07-ukraine-strike-response",
@@ -808,6 +808,51 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether the current five-day pause (since the 4 Oct NetScaler SAML entry) -- the longest in the wave to date -- is temporary or reflects a genuine slowdown. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-12-houthi-counteroffensive",
+      "date": "2026-10-12",
+      "forecast": "The Saudi-backed Yemeni government counteroffensive ('battle of liberation') will achieve at least one independently confirmed territorial gain on the Red Sea coast near Mocha within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the newly opened ground counteroffensive converts air support and initial momentum into a confirmed, independently verifiable territorial outcome rather than remaining a contested claim. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-12-fortimail-named-victim",
+      "date": "2026-10-12",
+      "forecast": "A specifically named FortiMail (CVE-2026-104286) victim organization, beyond F5's sector-level disclosure (government/healthcare/financial in the US and Hong Kong), will be publicly identified within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this flaw produces a named victim faster than the nine-plus prior vendor families in the ongoing wave, none of which has yet yielded one. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-12-netscaler-107406-exploited",
+      "date": "2026-10-12",
+      "forecast": "Citrix's newly disclosed NetScaler memory-overflow flaw (CVE-2026-107406, disclosed 9 Oct with no exploitation observed at disclosure) will be confirmed under active exploitation within 21 days, continuing the wave's pattern of rapid post-disclosure exploitation.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this disclosure follows the same rapid exploitation timeline as prior NetScaler CVEs in the wave (e.g., CVE-2026-88779, exploited within days of disclosure). Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-12-shinyhunters-jordan-charges",
+      "date": "2026-10-12",
+      "forecast": "The ShinyHunters-linked suspect detained in Jordan (tied to the FBIJobs.gov breach) will be formally charged in a U.S. or allied jurisdiction, or an extradition proceeding will be confirmed, within 60 days.",
+      "horizon": "0-60 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's first concrete law-enforcement consequence in the government/contractor breach wave progresses to a formal legal outcome. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
+    },
+    {
+      "id": "fc-2026-10-12-reconciliation-floor-action",
+      "date": "2026-10-12",
+      "forecast": "Given Senate Majority Leader Thune's reported openness to a third ('reconciliation 3.0') defense-funding package tied to the Iran-war context, the House or Senate will take some floor action (committee markup, vote, or formal introduction) on a defense-reconciliation package within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether Golden Dome's genuine FY27 funding exposure (~$17.1B of the $17.5B request depending on an unpassed reconciliation package) sees any legislative movement. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
     }
   ]
 }
