@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-12",
+  "updated": "2026-10-13",
   "summary": {
     "correct": 18,
-    "incorrect": 5,
+    "incorrect": 6,
     "partial": 8,
-    "pending": 63,
-    "note": "2026-10-12: one prior forecast graded this cycle. fc-2026-10-07-houthi-yemen-escalation resolved CORRECT: the 6-7 Oct Houthi strikes on Riyadh/Abha airports and Khamis Mushait, plus the Saudi-backed Yemeni government's 'battle of liberation' counteroffensive near Mocha, confirm a genuinely widening two-front Yemen conflict well within the 14-day window. Five new PENDING forecasts added, reflecting this cycle's sweep: whether the Yemeni government counteroffensive achieves a confirmed territorial gain near Mocha within 30 days; whether a specifically named FortiMail (CVE-2026-104286) victim organization is identified within 21 days; whether the newly disclosed NetScaler flaw (CVE-2026-107406) moves from undisclosed-exploitation to confirmed active exploitation within 21 days; whether the Jordan-detained ShinyHunters-linked suspect is charged or extradited within 60 days; and whether a House or Senate defense-reconciliation package sees floor action within 30 days given Sen. Thune's reported openness to a third package."
+    "pending": 67,
+    "note": "2026-10-13: one prior forecast graded this cycle. fc-2026-10-09-hormuz-rubio-claim resolved INCORRECT: Kpler's own Hormuz-specific data shows transit at a 2-month low and crude volumes down ~27% w/w, directly contradicting Secretary Rubio's 7 Oct claim that Iran 'lost complete control' of the Strait and that flows are nearly back to pre-war levels -- the aggregate regional-export figure his claim rests on includes rerouted volumes and is not a Hormuz-specific measure. Five new PENDING forecasts added, reflecting this cycle's sweep: whether CENTCOM's 10 Oct strike disabling the commercial cargo ship Ocean Molica/Arika Sun provokes a formal international reaction within 14 days; whether independent confirmation of Yemen's disputed Mocha recapture claim surfaces within 14 days; whether a primary Fortinet advisory resolves the conflicting FortiMail patch-availability reports within 14 days; whether the 2 missing Sohar/Petro Dolphin seafarers are found within 7 days; and whether the now-named ShinyHunters suspect (Saif al-Din Khader) is formally charged within 45 days."
   },
   "forecasts": [
     {
@@ -787,9 +787,9 @@
       "date": "2026-10-09",
       "forecast": "Independent tanker-tracking data (Kpler, Lloyd's List Intelligence, or UKMTO) will show Hormuz transit volumes recovering toward pre-war levels within 14 days, corroborating Secretary Rubio's 7 Oct claim that Iran has 'lost complete control' of the Strait.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests a direct contradiction between senior U.S. official messaging and this program's own tracked data showing a 27% w/w crude-flow decline and a 2-month transit low as of 8 Oct. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-13",
+      "note": "Kpler's own Hormuz-specific data (via Reuters/Oman Observer, 6-9 Oct) shows the opposite of recovery: transit as low as 7 vessels/day (lowest since 23 Jul) and Hormuz crude volumes down ~27% w/w to ~10.1M bpd. The aggregate regional export figure (~18.3M bpd, near pre-war) that appears to underlie Rubio's claim includes rerouted Gulf-of-Oman/Red Sea volumes and is a different metric from Hormuz-specific transit -- it does not corroborate the Strait itself recovering. Graded INCORRECT on the forecast's specific test. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-09-army-secretary-resolution",
@@ -816,7 +816,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the newly opened ground counteroffensive converts air support and initial momentum into a confirmed, independently verifiable territorial outcome rather than remaining a contested claim. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "New info this cycle: Yemen's government (via Saba, 5-8 Oct) claims it already recaptured Mocha/Dhubab and 'neutralised' 1,860 Houthi fighters, but the Houthis dispute the Mocha claim and say they captured At Turbah in Taiz the same week -- the front is contested and fragmented rather than resolved either way; no independent (non-government, non-Houthi) confirmation identified. Remains PENDING. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-12-fortimail-named-victim",
@@ -825,7 +825,7 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether this flaw produces a named victim faster than the nine-plus prior vendor families in the ongoing wave, none of which has yet yielded one. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "New info: FortiMail's patch status is now reported inconsistently -- a Singapore CSA bulletin (6 Oct) claims a patch is available while other sources describe fixes as still pending for the 7.4/7.6/8.0 branches; neither resolves this forecast's named-victim test, and direct verification against Fortinet's own advisory was not possible this cycle. Still no named victim identified. Remains PENDING. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-12-netscaler-107406-exploited",
@@ -843,7 +843,7 @@
       "horizon": "0-60 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether this cycle's first concrete law-enforcement consequence in the government/contractor breach wave progresses to a formal legal outcome. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
+      "note": "New info: the detained suspect has now been named across multiple outlets as Saif al-Din Khader ('Rey') and is reportedly cooperating with the FBI to identify other ShinyHunters members, but the FBI has not confirmed this on the record and no formal charges or extradition proceeding has been identified. Remains PENDING. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
     },
     {
       "id": "fc-2026-10-12-reconciliation-floor-action",
@@ -852,7 +852,52 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether Golden Dome's genuine FY27 funding exposure (~$17.1B of the $17.5B request depending on an unpassed reconciliation package) sees any legislative movement. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+      "note": "No confirmed floor action identified this cycle; window remains open (~18 days left). Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+    },
+    {
+      "id": "fc-2026-10-13-blockade-vessel-strike-reaction",
+      "date": "2026-10-13",
+      "forecast": "A formal international reaction (a flag-state diplomatic protest, a UNSC session, or a G7/EU statement) specifically citing CENTCOM's 10 Oct strike on the Panama-flagged cargo ship Ocean Molica/Arika Sun will be publicly reported within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the first confirmed direct US strike on a non-Iranian-flagged commercial vessel provokes diplomatic blowback distinct from reaction to Iran/Houthi-attributed attacks. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-13-mocha-independent-confirm",
+      "date": "2026-10-13",
+      "forecast": "Independent (non-Yemeni-government, non-Houthi) confirmation of Mocha's actual territorial control status will be publicly reported within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the contested recapture claim can be resolved by a third-party source (UN, ICRC, wire-service ground reporting) given both sides' claims are currently unverified. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-13-fortimail-patch-confirm",
+      "date": "2026-10-13",
+      "forecast": "A primary Fortinet security advisory (FG-IR-26-175) confirming a released, versioned FortiMail patch will be publicly available within 14 days, resolving the conflict between the Singapore CSA bulletin (patch available) and other sources (patch pending).",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's verification gap on FortiMail's patch status closes with a direct primary-source confirmation. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-13-sohar-missing-seafarers",
+      "date": "2026-10-13",
+      "forecast": "The 2 Indian seafarers missing after the 11 Oct drone attack on the tanker MT Petro Dolphin at Sohar anchorage, Oman, will be confirmed found (alive or deceased) within 7 days.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests the outcome of the ongoing Omani Coast Guard search-and-rescue operation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-13-khader-charges",
+      "date": "2026-10-13",
+      "forecast": "Saif al-Din Khader ('Rey'), the ShinyHunters-linked suspect detained in Jordan, will be formally charged by US or allied authorities, or a confirmed cooperation/plea arrangement will be publicly reported, within 45 days.",
+      "horizon": "0-45 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Narrower, more specific successor to fc-2026-10-12-shinyhunters-jordan-charges now that the suspect has been named. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
     }
   ]
 }
