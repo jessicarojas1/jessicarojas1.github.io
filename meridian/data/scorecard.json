@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-13",
+  "updated": "2026-10-14",
   "summary": {
     "correct": 18,
-    "incorrect": 6,
+    "incorrect": 7,
     "partial": 8,
-    "pending": 67,
-    "note": "2026-10-13: one prior forecast graded this cycle. fc-2026-10-09-hormuz-rubio-claim resolved INCORRECT: Kpler's own Hormuz-specific data shows transit at a 2-month low and crude volumes down ~27% w/w, directly contradicting Secretary Rubio's 7 Oct claim that Iran 'lost complete control' of the Strait and that flows are nearly back to pre-war levels -- the aggregate regional-export figure his claim rests on includes rerouted volumes and is not a Hormuz-specific measure. Five new PENDING forecasts added, reflecting this cycle's sweep: whether CENTCOM's 10 Oct strike disabling the commercial cargo ship Ocean Molica/Arika Sun provokes a formal international reaction within 14 days; whether independent confirmation of Yemen's disputed Mocha recapture claim surfaces within 14 days; whether a primary Fortinet advisory resolves the conflicting FortiMail patch-availability reports within 14 days; whether the 2 missing Sohar/Petro Dolphin seafarers are found within 7 days; and whether the now-named ShinyHunters suspect (Saif al-Din Khader) is formally charged within 45 days."
+    "pending": 70,
+    "note": "2026-10-14: one prior forecast graded this cycle. fc-2026-10-06-moldova-nato-commitment resolved INCORRECT: NATO Deputy SecGen Shekerinska's 8-9 Oct Chisinau visit, now concluded, produced reaffirmation of the existing ~€50M Defence Capacity Building package rather than any new, concrete commitment -- graded on the triggering event's own already-known outcome rather than waiting out the full 14-day window. Four new PENDING forecasts added, reflecting this cycle's two new findings (North Korea's 12 Oct missile launch; a single, unconfirmed report of a Panama flag-state inquiry into the Ocean Molica strike) and the approaching FAR Overhaul deadline: whether North Korea conducts a further launch within 14 days; whether the reported Panama inquiry escalates to a formal protest or IMO referral within 21 days; whether the FAR Overhaul's 19 Oct deadline passes without an extension; and whether a Rubio/Hegseth response to the senators' letter on the Taiwan arms package surfaces within 30 days."
   },
   "forecasts": [
     {
@@ -706,9 +706,9 @@
       "date": "2026-10-06",
       "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chișinau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "The 10/8-9 visit has not yet occurred as of 10/7 (window remains open). Separately, Russia's 10/6-10/7 mass strike on Kyiv/Pryluki/Poltava raises the profile of any Western response generally this cycle. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-14",
+      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~€50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-06-flydubai-reversal-effect",
@@ -898,6 +898,42 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Narrower, more specific successor to fc-2026-10-12-shinyhunters-jordan-charges now that the suspect has been named. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
+    },
+    {
+      "id": "fc-2026-10-14-nk-cadence-continues",
+      "date": "2026-10-14",
+      "forecast": "North Korea will conduct at least one further missile launch (any range or type) within 14 days, continuing the accelerated cadence shown by the 3 Oct and 12 Oct tests against the backdrop of a border landmine incident and South Korea's own 8 Oct hypersonic test.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the two-launches-in-ten-days cadence is a sustained acceleration or a temporary cluster. Tracked on the new Korean Peninsula Missile-Testing Cadence thread."
+    },
+    {
+      "id": "fc-2026-10-14-panama-inquiry-escalation",
+      "date": "2026-10-14",
+      "forecast": "The single-sourced, unconfirmed report of a Panamanian flag-state inquiry into the Ocean Molica/Arika Sun strike will either be corroborated by a primary Panamanian government statement, or will escalate to a formal diplomatic protest or IMO referral, within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's single-source claim survives corroboration and whether it develops into the first concrete flag-state pushback against US blockade enforcement in this conflict. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-14-far-overhaul-no-extension",
+      "date": "2026-10-14",
+      "forecast": "The FAR Overhaul's 19 Oct comment deadline on all eight published proposed rules will pass without a formal extension being granted, despite industry criticism of the compressed comment periods.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the compliance-calendar pressure this program has tracked since 18 Sep produces a last-minute extension or holds firm. Tracked on the FAR Overhaul / Acquisition Reform thread."
+    },
+    {
+      "id": "fc-2026-10-14-taiwan-letter-response",
+      "date": "2026-10-14",
+      "forecast": "A confirmed Rubio or Hegseth response to the McConnell-led senators' letter on the stalled $14B Taiwan arms package will be publicly reported within 30 days, given the letter is now roughly three weeks old with no reply identified.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether continued silence on the letter persists or whether the administration formally addresses the senators' concerns. Tracked on the China-Taiwan Pressure / Trump-Xi Summit thread."
     }
   ]
 }
