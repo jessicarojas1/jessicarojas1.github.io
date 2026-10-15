@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-14",
+  "updated": "2026-10-15",
   "summary": {
-    "correct": 18,
+    "correct": 19,
     "incorrect": 7,
-    "partial": 8,
-    "pending": 70,
-    "note": "2026-10-14: one prior forecast graded this cycle. fc-2026-10-06-moldova-nato-commitment resolved INCORRECT: NATO Deputy SecGen Shekerinska's 8-9 Oct Chisinau visit, now concluded, produced reaffirmation of the existing ~€50M Defence Capacity Building package rather than any new, concrete commitment -- graded on the triggering event's own already-known outcome rather than waiting out the full 14-day window. Four new PENDING forecasts added, reflecting this cycle's two new findings (North Korea's 12 Oct missile launch; a single, unconfirmed report of a Panama flag-state inquiry into the Ocean Molica strike) and the approaching FAR Overhaul deadline: whether North Korea conducts a further launch within 14 days; whether the reported Panama inquiry escalates to a formal protest or IMO referral within 21 days; whether the FAR Overhaul's 19 Oct deadline passes without an extension; and whether a Rubio/Hegseth response to the senators' letter on the Taiwan arms package surfaces within 30 days."
+    "partial": 9,
+    "pending": 73,
+    "note": "2026-10-15: two prior forecasts graded this cycle. fc-2026-10-14-nk-cadence-continues resolved CORRECT within less than 24 hours of its own creation: North Korea test-fired two types of submarine-launched strategic cruise missiles on 14 Oct (its first since Jan 2024, and its third distinct weapons-test event in 12 days), confirmed by KCNA and South Korea's Joint Chiefs of Staff. fc-2026-09-24-anthropic-deadline, open since 24 Sep, resolved PARTIAL: no injunction blocked DoD's migration off classified Anthropic workloads (the forecast's conditional premise held), but no primary source has confirmed 100% completion by the 29 Sep deadline in any cycle through 10/15, so the specific test remains unverified rather than affirmatively met. Five new PENDING forecasts added, reflecting this cycle's findings: whether North Korea's cadence extends further within 10 days; whether a Trump-Kim meeting is held or firmly scheduled around the 18-19 Nov APEC summit; whether Microsoft's 13 Oct Patch Tuesday zero-day (CVE-2026-96951) is confirmed added to the CISA KEV catalog; whether industry associations confirm filing FAR Overhaul comments ahead of 19 Oct; and whether a DIB/federal-contractor organization is named among the firms affected by the retroactively-discovered 'PixelLeak' agentic-AI incident."
   },
   "forecasts": [
     {
@@ -454,9 +454,9 @@
       "date": "2026-09-24",
       "forecast": "DoD will complete (or credible reporting will confirm) 100% migration off classified Anthropic workloads by the 29 Sep department-wide deadline, absent a new D.C. Circuit ruling or injunction in the interim.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "A new DC Circuit ruling did occur (25 Sep) but it upheld rather than blocked the designation, reinforcing rather than disrupting the migration timeline. Deadline is tomorrow; DoD reported ~90% migrated as of mid-September. Tracked on the DoD AI Vendor Governance / Anthropic Dispute thread."
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-10-15",
+      "note": "No injunction or new ruling blocked the migration (the 25 Sep DC Circuit ruling in fact upheld the Pentagon's designation), and DoD was reported ~90% migrated as of mid-September, so the trajectory strongly favored completion -- the forecast's conditional clause held. However, no primary DoD statement or credible report explicitly confirming 100% completion by the 29 Sep deadline has been located in any subsequent cycle through 10/15, over two weeks past the window's close. Graded PARTIAL rather than CORRECT or INCORRECT because the forecast's substantive premise (no blocking injunction) was met, but its specific test (confirmed 100% completion) remains unverified rather than affirmatively satisfied. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     },
     {
       "id": "fc-2026-09-25-iran-roadmap-response",
@@ -904,9 +904,9 @@
       "date": "2026-10-14",
       "forecast": "North Korea will conduct at least one further missile launch (any range or type) within 14 days, continuing the accelerated cadence shown by the 3 Oct and 12 Oct tests against the backdrop of a border landmine incident and South Korea's own 8 Oct hypersonic test.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the two-launches-in-ten-days cadence is a sustained acceleration or a temporary cluster. Tracked on the new Korean Peninsula Missile-Testing Cadence thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-15",
+      "note": "North Korea test-fired two types of submarine-launched strategic cruise missiles on 14 Oct -- confirmed by KCNA (announced 15 Oct) and South Korea's Joint Chiefs of Staff, which tracked the launch -- resolving this forecast CORRECT within less than 24 hours of its creation, well inside the 14-day window. This is North Korea's first submarine-launched strategic cruise missile test since Jan 2024 and its third distinct weapons-test event in 12 days. Tracked on the Korean Peninsula Missile-Testing Cadence thread."
     },
     {
       "id": "fc-2026-10-14-panama-inquiry-escalation",
@@ -934,6 +934,51 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether continued silence on the letter persists or whether the administration formally addresses the senators' concerns. Tracked on the China-Taiwan Pressure / Trump-Xi Summit thread."
+    },
+    {
+      "id": "fc-2026-10-15-nk-third-launch-pattern",
+      "date": "2026-10-15",
+      "forecast": "North Korea will conduct at least one further missile or weapons test (any type) within 10 days, extending the pattern of three distinct test events (3 Oct, 12 Oct, 14 Oct) in under two weeks into a sustained accelerated cadence rather than a temporary cluster.",
+      "horizon": "0-10 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the now three-events-in-12-days cadence continues at pace. Tracked on the Korean Peninsula Missile-Testing Cadence thread."
+    },
+    {
+      "id": "fc-2026-10-15-trump-kim-meeting",
+      "date": "2026-10-15",
+      "forecast": "Trump and Kim Jong Un will hold or firmly schedule a bilateral meeting around the 18-19 Nov APEC summit in Shenzhen, despite Kim Yo Jong's 13 Oct denial of any current Trump-Kim communications.",
+      "horizon": "0-35 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether Trump's 13 Oct 'I might' remark develops into an actual meeting or firm scheduling by the APEC date, or remains unrealized rhetoric as with his earlier 2026 comments about seeing Kim 'later this year.' Tracked on the Korean Peninsula Missile-Testing Cadence thread."
+    },
+    {
+      "id": "fc-2026-10-15-patch-tuesday-kev-confirm",
+      "date": "2026-10-15",
+      "forecast": "CISA will add Microsoft's 13 Oct Patch Tuesday actively-exploited Windows Shell flaw (CVE-2026-96951) to the KEV catalog within 14 days, resolving this cycle's standing verification gap on that specific CVE.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether direct CISA/primary-source verification becomes possible, or whether the listing itself can be confirmed via reliable secondary reporting even without direct catalog access. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-15-far-overhaul-filed-comments",
+      "date": "2026-10-15",
+      "forecast": "At least one major industry association (e.g., NDIA, PSC, AIA) will publicly confirm having filed FAR Overhaul comments ahead of the 19 Oct deadline.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests visibility into industry's actual response to the compressed comment window, independent of whether the deadline itself is extended. Tracked on the FAR Overhaul / Acquisition Reform thread."
+    },
+    {
+      "id": "fc-2026-10-15-pixelleak-dib-exposure",
+      "date": "2026-10-15",
+      "forecast": "At least one DIB/federal-contractor organization will be named among the 300+ firms affected by Glow Labs' 'PixelLeak' AI-coding-agent GitHub-screenshot exposure within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this retroactively-discovered incident's affected-organization list, when more fully disclosed, includes a defense-sector victim -- which would be a first across all tracked agentic-AI and edge-CVE incidents this program has followed. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     }
   ]
 }
