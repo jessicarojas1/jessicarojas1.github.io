@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-15",
+  "updated": "2026-10-16",
   "summary": {
-    "correct": 19,
+    "correct": 21,
     "incorrect": 7,
     "partial": 9,
-    "pending": 73,
-    "note": "2026-10-15: two prior forecasts graded this cycle. fc-2026-10-14-nk-cadence-continues resolved CORRECT within less than 24 hours of its own creation: North Korea test-fired two types of submarine-launched strategic cruise missiles on 14 Oct (its first since Jan 2024, and its third distinct weapons-test event in 12 days), confirmed by KCNA and South Korea's Joint Chiefs of Staff. fc-2026-09-24-anthropic-deadline, open since 24 Sep, resolved PARTIAL: no injunction blocked DoD's migration off classified Anthropic workloads (the forecast's conditional premise held), but no primary source has confirmed 100% completion by the 29 Sep deadline in any cycle through 10/15, so the specific test remains unverified rather than affirmatively met. Five new PENDING forecasts added, reflecting this cycle's findings: whether North Korea's cadence extends further within 10 days; whether a Trump-Kim meeting is held or firmly scheduled around the 18-19 Nov APEC summit; whether Microsoft's 13 Oct Patch Tuesday zero-day (CVE-2026-96951) is confirmed added to the CISA KEV catalog; whether industry associations confirm filing FAR Overhaul comments ahead of 19 Oct; and whether a DIB/federal-contractor organization is named among the firms affected by the retroactively-discovered 'PixelLeak' agentic-AI incident."
+    "pending": 75,
+    "note": "2026-10-16: two prior forecasts graded this cycle, both CORRECT. fc-2026-09-28-anthropic-enbanc and fc-2026-10-08-anthropic-filing both resolved CORRECT: Anthropic PBC filed a petition on 13 Oct 2026 for panel rehearing/rehearing en banc of the D.C. Circuit's 25 Sep ruling upholding the Pentagon's 'supply chain risk' designation, well within both forecasts' windows. Four new PENDING forecasts added, reflecting this cycle's lead finding -- a Black Sea drone/mine campaign against commercial shipping reaching NATO-member waters for the first time (Chelsea 3 sunk off Bulgaria 13 Oct; Yara J fire off Romania 15 Oct, drone link disputed) -- plus the narrowed FortiMail verification gap and the Anthropic litigation's next decision point: whether NATO confirms a concrete new Black Sea asset deployment within 14 days; whether either incident receives independent attribution within 21 days; whether Fortinet ships a confirmed FortiMail patch within 14 days; and whether the D.C. Circuit rules on Anthropic's rehearing petition within 45 days."
   },
   "forecasts": [
     {
@@ -490,9 +490,9 @@
       "date": "2026-09-28",
       "forecast": "Anthropic will formally petition for en banc rehearing or seek Supreme Court review of the DC Circuit's 25 Sep 2-1 ruling within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "The ruling's own 7-day stay (the practical window to preserve the status quo pending review) lapsed ~10/2 with no confirmed filing located; the broader 30-day forecast window remains open to ~10/28. As of 10/6, still no filing found, and the deadline itself is now revealed as ambiguous across secondary sources (7-day stay vs. a separately described 14-day en banc window to ~10/9) -- needs direct docket verification. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-13",
+      "note": "Anthropic PBC filed a petition on 13 Oct 2026 asking the full D.C. Circuit for panel rehearing/rehearing en banc of the 25 Sep ruling -- well within the 30-day window. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     },
     {
       "id": "fc-2026-09-28-netscaler-dib-victim",
@@ -778,9 +778,9 @@
       "date": "2026-10-08",
       "forecast": "Anthropic will formally file for en banc rehearing or petition for Supreme Court review of the DC Circuit's 9/25 ruling within 14 days, now that the stay's purpose (to permit exactly this filing) has been clarified.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "A narrower, nearer-term test than the standing 30-day fc-2026-09-28-anthropic-enbanc forecast, now that the stay's intent is better understood. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-13",
+      "note": "Same 13 Oct filing (petition for panel rehearing/rehearing en banc) resolves this narrower-window forecast as well, well within its 14-day horizon. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     },
     {
       "id": "fc-2026-10-09-hormuz-rubio-claim",
@@ -979,6 +979,42 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether this retroactively-discovered incident's affected-organization list, when more fully disclosed, includes a defense-sector victim -- which would be a first across all tracked agentic-AI and edge-CVE incidents this program has followed. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-10-16-blacksea-nato-deployment",
+      "date": "2026-10-16",
+      "forecast": "NATO or a member state will confirm a concrete new surveillance or anti-drone asset deployment to the western Black Sea within 14 days, given Bulgaria's and Romania's request for help following the Chelsea 3 sinking and NATO Secretary General Rutte's statement that the alliance will adjust posture 'as needed.'",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether NATO's response to the first sinking inside member-state waters in this attack pattern moves from rhetoric to a concrete asset commitment. Tracked on the new Black Sea Maritime Attack Campaign thread."
+    },
+    {
+      "id": "fc-2026-10-16-blacksea-attribution",
+      "date": "2026-10-16",
+      "forecast": "Independent (non-governmental) attribution of either the Chelsea 3 sinking (13 Oct, Bulgaria) or the Yara J fire (15 Oct, Romania) to a specific actor will be publicly reported within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether Bulgaria's claimed Russian attribution and Romania's own radar-based doubt about the drone narrative can be resolved by independent forensic or intelligence sourcing. Tracked on the new Black Sea Maritime Attack Campaign thread."
+    },
+    {
+      "id": "fc-2026-10-16-fortimail-patch-ships",
+      "date": "2026-10-16",
+      "forecast": "Fortinet will publish a confirmed, released (not 'upcoming') FortiMail patch for CVE-2026-104286 within 14 days, given this cycle's converging sourcing that fixed releases remain pending more than two weeks after disclosure.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the narrowed-but-unresolved verification gap on FortiMail's patch status closes with an actual shipped fix. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-16-anthropic-rehearing-ruling",
+      "date": "2026-10-16",
+      "forecast": "The D.C. Circuit will rule (grant or deny) on Anthropic's 13 Oct petition for panel rehearing/rehearing en banc within 45 days.",
+      "horizon": "0-45 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests how quickly the full court acts on Anthropic's first concrete procedural move since the adverse 25 Sep ruling. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     }
   ]
 }
