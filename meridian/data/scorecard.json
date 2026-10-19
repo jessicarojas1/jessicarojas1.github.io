@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-16",
+  "updated": "2026-10-19",
   "summary": {
-    "correct": 21,
+    "correct": 22,
     "incorrect": 7,
     "partial": 9,
-    "pending": 75,
-    "note": "2026-10-16: two prior forecasts graded this cycle, both CORRECT. fc-2026-09-28-anthropic-enbanc and fc-2026-10-08-anthropic-filing both resolved CORRECT: Anthropic PBC filed a petition on 13 Oct 2026 for panel rehearing/rehearing en banc of the D.C. Circuit's 25 Sep ruling upholding the Pentagon's 'supply chain risk' designation, well within both forecasts' windows. Four new PENDING forecasts added, reflecting this cycle's lead finding -- a Black Sea drone/mine campaign against commercial shipping reaching NATO-member waters for the first time (Chelsea 3 sunk off Bulgaria 13 Oct; Yara J fire off Romania 15 Oct, drone link disputed) -- plus the narrowed FortiMail verification gap and the Anthropic litigation's next decision point: whether NATO confirms a concrete new Black Sea asset deployment within 14 days; whether either incident receives independent attribution within 21 days; whether Fortinet ships a confirmed FortiMail patch within 14 days; and whether the D.C. Circuit rules on Anthropic's rehearing petition within 45 days."
+    "pending": 78,
+    "note": "2026-10-19: one prior forecast graded this cycle, CORRECT. fc-2026-10-14-far-overhaul-no-extension resolved CORRECT: the FAR Overhaul's 19 Oct comment deadline landed with no extension identified, confirming the long-tracked compliance-calendar collision with CMMC's continued non-public status. This cycle's lead finding is a correction, not a new event: converging secondary reporting (Geographical/PBS NewsHour, CNN, IBTimes, France 24) revises the Black Sea maritime-attack campaign's October toll sharply upward to roughly two dead and 25 missing across 7+ vessels, superseding this program's prior casualty-free characterization of the 13 Oct incident; NATO has scheduled a dedicated Black Sea agenda item while Bulgaria has taken unilateral air-defense/counter-drone steps. Four new PENDING forecasts added: whether a single authoritative source reconciles the Black Sea campaign's conflicting vessel/casualty facts within 14 days; whether NATO's scheduled meeting produces more than consultation within 7 days; whether Bulgaria's IRIS-T approval converts to a confirmed contract within 60 days; and whether a primary Fortinet/CISA source ends this program's multi-cycle FortiMail verification gap within 14 days."
   },
   "forecasts": [
     {
@@ -879,7 +879,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether this cycle's verification gap on FortiMail's patch status closes with a direct primary-source confirmation. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "Still no primary-source (Fortinet/CISA) confirmation located either way on FortiMail's patch status this cycle; this program's direct access to both sites again could not be confirmed. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-13-sohar-missing-seafarers",
@@ -922,9 +922,9 @@
       "date": "2026-10-14",
       "forecast": "The FAR Overhaul's 19 Oct comment deadline on all eight published proposed rules will pass without a formal extension being granted, despite industry criticism of the compressed comment periods.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the compliance-calendar pressure this program has tracked since 18 Sep produces a last-minute extension or holds firm. Tracked on the FAR Overhaul / Acquisition Reform thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-19",
+      "note": "The 19 Oct comment deadline on all eight published FAR Overhaul rules landed today with no extension identified in any source checked this cycle, within the forecast's 0-7-day window (from 10/14). This program's own access could not directly verify the Federal Register docket for a last-minute notice, so graded on the balance of available secondary sourcing. Tracked on the FAR Overhaul / Acquisition Reform thread."
     },
     {
       "id": "fc-2026-10-14-taiwan-letter-response",
@@ -987,7 +987,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether NATO's response to the first sinking inside member-state waters in this attack pattern moves from rhetoric to a concrete asset commitment. Tracked on the new Black Sea Maritime Attack Campaign thread."
+      "note": "NATO has scheduled a dedicated Black Sea agenda item for the week of 19 Oct (per Rutte's Brussels meeting with Bulgarian PM Radev and Romanian President Dan) but has not yet confirmed a new alliance-level asset deployment. Bulgaria's own national deployment (IRIS-T batteries, drone/missile systems) does not satisfy this forecast's NATO-level test. Window remains open to ~30 Oct. Tracked on the Black Sea Maritime Attack Campaign thread."
     },
     {
       "id": "fc-2026-10-16-blacksea-attribution",
@@ -996,7 +996,7 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether Bulgaria's claimed Russian attribution and Romania's own radar-based doubt about the drone narrative can be resolved by independent forensic or intelligence sourcing. Tracked on the new Black Sea Maritime Attack Campaign thread."
+      "note": "No independent attribution identified this cycle for either the Chelsea 3 or Yara J incidents; if anything, the broader campaign's attribution and even basic incident facts (vessel identities, casualty counts) have grown more contested as additional, partially conflicting secondary reporting surfaced this cycle. Window remains open to ~6 Nov. Tracked on the Black Sea Maritime Attack Campaign thread."
     },
     {
       "id": "fc-2026-10-16-fortimail-patch-ships",
@@ -1005,7 +1005,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the narrowed-but-unresolved verification gap on FortiMail's patch status closes with an actual shipped fix. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "No newer primary-source evidence located this cycle on whether Fortinet has shipped a fixed FortiMail release; the most recent confirming reporting (early October) still described fixed releases as upcoming. Window remains open to ~30 Oct. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-16-anthropic-rehearing-ruling",
@@ -1015,6 +1015,42 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests how quickly the full court acts on Anthropic's first concrete procedural move since the adverse 25 Sep ruling. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-10-19-blacksea-toll-reconciliation",
+      "date": "2026-10-19",
+      "forecast": "A single authoritative source (a flag-state maritime authority, the IMO, or a marine insurer) will publicly reconcile the Black Sea campaign's conflicting vessel identities and casualty counts (currently split across HS Dignity/Azov Concord naming and differing missing-crew totals) within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the genuinely unreconciled secondary reporting on this campaign's basic facts converges on a single authoritative account. Tracked on the Black Sea Maritime Attack Campaign thread."
+    },
+    {
+      "id": "fc-2026-10-19-nato-blacksea-meeting-outcome",
+      "date": "2026-10-19",
+      "forecast": "NATO's scheduled Black Sea agenda item during the week of 19 Oct will produce a statement of continued consultation/posture adjustment, not a confirmed new alliance-level (as opposed to national) asset deployment, within 7 days.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether NATO's scheduled consultation outpaces or merely restates its prior rhetorical posture, given Bulgaria's unilateral action has so far exceeded any confirmed alliance-level commitment. Tracked on the Black Sea Maritime Attack Campaign thread."
+    },
+    {
+      "id": "fc-2026-10-19-bulgaria-irist-contract",
+      "date": "2026-10-19",
+      "forecast": "Bulgaria's parliament-approved acquisition of five additional German IRIS-T air-defense batteries will have a confirmed contract or delivery schedule publicly reported within 60 days.",
+      "horizon": "0-60 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this concrete allied air-defense demand signal converts to an actual contract on a near-term timeline. Tracked on the Black Sea Maritime Attack Campaign and Allies & Partners threads."
+    },
+    {
+      "id": "fc-2026-10-19-fortimail-primary-source",
+      "date": "2026-10-19",
+      "forecast": "A primary Fortinet or CISA source (not secondary technical press) will confirm FortiMail's patch status, either way, within 14 days, ending this program's multi-cycle verification gap.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this program's own repeated access limitations to cisa.gov/fortiguard.com resolve, independent of the underlying patch question. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     }
   ]
 }
