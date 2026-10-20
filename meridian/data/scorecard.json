@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-19",
+  "updated": "2026-10-20",
   "summary": {
-    "correct": 22,
-    "incorrect": 7,
-    "partial": 9,
+    "correct": 23,
+    "incorrect": 9,
+    "partial": 10,
     "pending": 78,
-    "note": "2026-10-19: one prior forecast graded this cycle, CORRECT. fc-2026-10-14-far-overhaul-no-extension resolved CORRECT: the FAR Overhaul's 19 Oct comment deadline landed with no extension identified, confirming the long-tracked compliance-calendar collision with CMMC's continued non-public status. This cycle's lead finding is a correction, not a new event: converging secondary reporting (Geographical/PBS NewsHour, CNN, IBTimes, France 24) revises the Black Sea maritime-attack campaign's October toll sharply upward to roughly two dead and 25 missing across 7+ vessels, superseding this program's prior casualty-free characterization of the 13 Oct incident; NATO has scheduled a dedicated Black Sea agenda item while Bulgaria has taken unilateral air-defense/counter-drone steps. Four new PENDING forecasts added: whether a single authoritative source reconciles the Black Sea campaign's conflicting vessel/casualty facts within 14 days; whether NATO's scheduled meeting produces more than consultation within 7 days; whether Bulgaria's IRIS-T approval converts to a confirmed contract within 60 days; and whether a primary Fortinet/CISA source ends this program's multi-cycle FortiMail verification gap within 14 days."
+    "note": "2026-10-20: four prior forecasts graded this cycle. fc-2026-10-15-patch-tuesday-kev-confirm resolved CORRECT (CISA added CVE-2026-96951 to KEV on 13 Oct, the same day as disclosure, closing a multi-cycle verification gap). fc-2026-09-15-cyberstrategy-release and fc-2026-10-01-russia-warhead both resolved INCORRECT on non-resolution within their windows (DoD's cyber strategy remains unreleased past its 30-day window; the pylon-severing-warhead claim remains unresolved by independent reporting past its 14-day window). fc-2026-10-05-sda-t1tla-checkout resolved PARTIAL after a factual correction: the premised 5 Oct launch date was wrong (the mission actually scrubbed 5 Oct and flew 10 Oct), with the launch itself now confirmed successful but on-orbit checkout still unconfirmed. This cycle's lead finding is that the prior cycle's 17-19 Oct Hormuz 'quiet window' concealed a major escalation: the IRGC declared the Strait of Hormuz closed (17 Oct) after a record attack week and two disputed mine-strike claims, while Senate Majority Leader Thune's on-record statement converts Golden Dome's reconciliation-funding risk from inferred to confirmed, and a 10th vendor family (Ivanti Connect Secure, CVE-2026-104935) joined the actively-exploited edge/identity campaign. Four new PENDING forecasts added: independent verification or debunking of the Hormuz mine-strike claims within 21 days; whether Hormuz transit continues despite the declared closure within 14 days; whether a named DIB victim of the Ivanti Connect Secure flaw surfaces within 30 days; and whether Golden Dome reconciliation funding passes before the midterms despite Thune's stated timeline."
   },
   "forecasts": [
     {
@@ -238,9 +238,9 @@
       "date": "2026-09-15",
       "forecast": "DoD will publicly release its first overarching cyber strategy since 2023 within 30 days, despite having already missed its informal early-September expectation.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Still unreleased into a fourth cycle. Previews sharpened this cycle to include contractor support for offensive cyber operations, a reported break from past policy. Window closes ~15 Oct. Tracked on the DoD Leadership Continuity thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-20",
+      "note": "The 30-day window closed 15 Oct with no release found across multiple dedicated searches in that and subsequent cycles, including a fresh dedicated search this cycle that found only continued in-progress reporting (an April 2026 SASC hearing reference to the strategy being prepared, a June 2026 quantum-specific strategy that is a distinct document, and no primary war.gov publication). Graded INCORRECT on the window's lapse rather than a certainty that the document will never appear. Tracked on the DoD Leadership Continuity thread."
     },
     {
       "id": "fc-2026-09-15-gatekeeper-solicitation",
@@ -562,9 +562,9 @@
       "date": "2026-10-01",
       "forecast": "Independent forensic or technical reporting will confirm (or specifically debunk) Russia's reported first-ever use of a purpose-built pylon-severing 'steel-cutting' warhead against Ukraine's power grid within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Currently rests on a single Zelensky-adviser characterization. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-20",
+      "note": "The 14-day window closed 15 Oct without the predicted independent resolution. A dedicated search this cycle found the claim still rests entirely on Ukrainian-official sourcing (presidential adviser Serhii 'Flash' Beskrestnov's 30 Sep characterization of a cumulative-cutting-charge/KRSN warhead, and a separate August HUR claim from Maj. Gen. Skibitskyi) with no independent forensic confirmation or debunking from any non-Ukrainian-government source. Graded INCORRECT because the forecast specifically predicted resolution within the window, not because the underlying claim is judged false. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-01-cisco-sdwan-victim",
@@ -643,9 +643,9 @@
       "date": "2026-10-05",
       "forecast": "SDA/USSF will formally confirm successful on-orbit acquisition/checkout of all 21 Tranche 1 Transport Layer A satellites launched 5 Oct within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Liftoff and payload manifest are confirmed via SpaceX/SDA sourcing; full on-orbit checkout confirmation beyond liftoff itself was not independently located at brief time. As of 10/7, a second follow-up sweep still could not independently reverify launch success or checkout via reachable sources -- treat as not yet confirmed either way, window remains open (closes ~10/19). Tracked on the Golden Dome Procurement thread, now alongside a newly identified shutdown-funding-risk intersection."
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-10-20",
+      "note": "FACTUAL CORRECTION this cycle: the launch this forecast premised on 5 Oct did not occur that day -- SpaceX scrubbed the attempt in the final countdown minute and the mission actually flew 10 Oct, five days late. The launch itself is now confirmed successful (21 satellites, fourth of nine planned Tranche 1 launches), but no on-orbit checkout confirmation has been located from either the original 14-day window (which would have closed 10/19 under the mistaken 5 Oct premise) or a recalculated window from the actual 10/10 launch date (which would run to ~10/24, not yet closed). Graded PARTIAL to reflect the confirmed launch success against the still-unconfirmed checkout and the forecast's incorrect premised date. Tracked on the Golden Dome Procurement thread."
     },
     {
       "id": "fc-2026-10-05-lipsi-attribution",
@@ -958,9 +958,9 @@
       "date": "2026-10-15",
       "forecast": "CISA will add Microsoft's 13 Oct Patch Tuesday actively-exploited Windows Shell flaw (CVE-2026-96951) to the KEV catalog within 14 days, resolving this cycle's standing verification gap on that specific CVE.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether direct CISA/primary-source verification becomes possible, or whether the listing itself can be confirmed via reliable secondary reporting even without direct catalog access. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-20",
+      "note": "Confirmed this cycle via improved secondary-source access: CISA added CVE-2026-96951 (Windows Command Injection) to the KEV catalog on 13 October 2026, the same day as the Patch Tuesday disclosure -- well within the 14-day window and resolving the verification gap carried since the 15-19 Oct cycles. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-15-far-overhaul-filed-comments",
@@ -1050,7 +1050,43 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether this program's own repeated access limitations to cisa.gov/fortiguard.com resolve, independent of the underlying patch question. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "Tests whether this program's own repeated access limitations to cisa.gov/fortiguard.com resolve, independent of the underlying patch question. This cycle, one secondary source (safeguard.sh, ~18 Oct) claims Fortinet's advisory now lists fixed builds as shipped rather than upcoming, but this conflicts with other similarly-dated sources and is not a primary Fortinet statement, so the gap remains open. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-20-hormuz-mine-verification",
+      "date": "2026-10-20",
+      "forecast": "Independent (non-IRGC) verification of at least one of the two claimed supertanker mine strikes (17-18 Oct) will be confirmed or specifically debunked by JMIC, a flag state, or the vessel operator within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the JMIC's current 'no substantiation' posture hardens into a formal debunking or is instead overtaken by independent confirmation (vessel identification, flag-state statement, or operator disclosure). Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-20-hormuz-transit-reality",
+      "date": "2026-10-20",
+      "forecast": "Despite the IRGC's 17 Oct 'Strait closed' declaration, independent reporting will confirm commercial transit through Hormuz continuing (via the Omani corridor or otherwise) rather than a fully enforced physical closure, within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the declared closure converts into a demonstrated physical-interdiction capability or remains primarily rhetorical/declaratory, consistent with reduced-but-continuing transit reported at brief time. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-20-ivanti-dib-victim",
+      "date": "2026-10-20",
+      "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to CVE-2026-104935 (Ivanti Connect Secure) will be publicly reported within 30 days, given confirmed pre-disclosure exploitation by UTA0576 chained to root-level code execution.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this 10th vendor family, with a named actor and a confirmed pre-disclosure exploitation timeline, produces a named victim faster than the nine prior tracked CVE families, none of which has yet yielded a named DIB victim. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-20-goldendome-no-premidterm-reconciliation",
+      "date": "2026-10-20",
+      "forecast": "No Golden Dome-specific reconciliation or supplemental funding bill will pass Congress before the November 2026 midterm elections, consistent with Senate Majority Leader Thune's 15 Sep statement and the Senate's reported post-midterm adjournment.",
+      "horizon": "0-20 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "A direct test of Thune's on-record timeline against actual legislative action; tests whether an unexpected pre-midterm vehicle emerges despite the stated reluctance. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
     }
   ]
 }

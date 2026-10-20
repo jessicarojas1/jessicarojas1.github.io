@@ -2,15 +2,15 @@
   {
     "name": "U.S.-Iran Conflict / Strait of Hormuz",
     "firstDetected": "2026-09-07",
-    "status": "No new confirmed Hormuz-area attack was identified for 17-19 Oct specifically, extending the quiet window first noted 12 Oct -- now roughly eight days, though this program's own search access could not confirm UKMTO's feed directly this cycle, so this remains a reporting gap rather than confirmed de-escalation. The two named Indian seafarers (Bir Bahadur Yadav, Amit Singh) remain missing per the most recent reporting located (12-13 Oct), with no newer update found. The Panama flag-state inquiry into the Ocean Molica strike remains uncorroborated. On Yemen, Al Jazeera's own reporting states it has 'not independently verified the full extent' of the government's claimed Mocha/Dhubab recapture, with government sources separately describing Houthi fighters retreating toward the highlands rather than a clean recapture -- the contested picture is unchanged from 16 Oct.",
-    "importance": "Critical -- Gulf/Red Sea maritime risk has widened qualitatively: US enforcement strikes on commercial shipping are now a distinct threat vector alongside Iran/Houthi attacks and unattributed incidents, while Yemen's contested two-front war adds a second stressed chokepoint at Bab el-Mandeb.",
-    "direction": "UNCERTAIN",
+    "status": "The 17-19 Oct 'quiet window' this program tracked in the prior cycle is now confirmed to have been a collection gap, not a lull: Iran's IRGC Navy declared the Strait of Hormuz 'closed to vessels of all nationalities' on 17 October following the war's highest weekly attack count (UKMTO-linked estimates of roughly 10-12 incidents) and two disputed supertanker mine-strike claims that the Joint Maritime Information Center says it cannot substantiate. The US disputes Iran's account of a separate sunk container ship (asserting an IRGC projectile, not a mine, caused it), and reduced-volume transit reportedly continues via a southern Omani corridor despite the declared closure. The two named Indian seafarers (Bir Bahadur Yadav, Amit Singh) and the Panama flag-state inquiry remain unresolved with no newer reporting located. Yemen's Mocha recapture claim remains independently unverified.",
+    "importance": "Critical -- Gulf maritime risk has sharply escalated: a declared (if disputed) chokepoint closure now sits alongside US enforcement strikes, Iran/Houthi attacks, unattributed incidents, and Yemen's contested two-front war as concurrent, unresolved threat vectors.",
+    "direction": "ESCALATING",
     "indicatorLevel": "RED",
-    "assessment": "ASSESSED: a pause in new confirmed kinetic incidents should not be read as de-escalation -- it may reflect a genuine lull or this cycle's own search-access limitations on real-time maritime advisories, which cannot be distinguished from available sources. The Mocha recapture and 1,860-casualty claims are both CLAIMED by an interested party and disputed by the opposing side; treat the fragmented, overlapping claims as evidence of a protracted two-front war rather than a near-term decisive outcome. The reported Panama inquiry, if confirmed, would be the first flag-state response specifically to US (not Iranian) conduct in this conflict.",
-    "confidence": "LOW",
-    "lastChange": "2026-10-19 -- No new confirmed Hormuz-area attack identified across the 10/16-10/19 gap (a search-access/reporting-lag limitation, not confirmed quiet). No update on the 2 missing seafarers or the Panama inquiry. Mocha's status remains independently unverified per Al Jazeera's own caveat.",
-    "orgRelevance": "Specify Hormuz-specific vs. aggregate-regional scope before citing any Gulf oil-flow 'recovery' figure internally -- the two are now decoupled. Flag the new US-enforcement threat vector separately from Iran/Houthi-attributed risk in any Gulf shipping briefing. Do not cite the Mocha recapture or 1,860-casualty claim, or the Panama inquiry, as established pending independent/primary confirmation. Reflect Yemen's government offensive as aimed at Sanaa, not only the coast, in any Yemen-risk materials. Correct any internal materials assuming Nimitz is part of the CENTCOM buildout.",
-    "nextIndicator": "Any new Hormuz/Red Sea incident; primary-source confirmation or denial of the Panama inquiry; independent (non-government, non-Houthi) confirmation of Mocha's status; resolution of the 2 missing Sohar seafarers.",
+    "assessment": "ASSESSED: the IRGC's 'closure' declaration is coercive signaling with a real, corroborated attack-tempo increase behind it, not yet a confirmed physical blockade given continuing (if reduced) transit. The mine-strike claims and the closure's enforcement in practice remain genuinely contested between Iran and the US, which is a live factual dispute rather than merely differing interpretation. The Mocha recapture claim remains CLAIMED/disputed as before.",
+    "confidence": "MODERATE",
+    "lastChange": "2026-10-20 -- IRGC declared the Strait of Hormuz closed (17 Oct) after a record attack week and two disputed mine-strike claims (JMIC: 'no substantiation'); US disputes Iran's account of a related sinking; reduced transit reportedly continues via Oman. This resolves the prior cycle's 17-19 Oct reporting gap as a real, missed escalation. No update on the 2 missing seafarers, the Panama inquiry, or Mocha's status.",
+    "orgRelevance": "Treat the IRGC's 'closure' as a contested declaration, not a confirmed physical blockade, pending independent UKMTO/CENTCOM transit-volume confirmation. Specify Hormuz-specific vs. aggregate-regional scope before citing any Gulf oil-flow figure internally. Flag the US-enforcement threat vector separately from Iran/Houthi-attributed risk in any Gulf shipping briefing. Do not cite the Mocha recapture, the mine-strike claims, or the Panama inquiry as established pending independent/primary confirmation.",
+    "nextIndicator": "Independent (UKMTO/CENTCOM primary-source) confirmation of actual transit volumes; JMIC or flag-state confirmation or denial of either mine-strike claim; any new Hormuz/Red Sea incident; resolution of the 2 missing Sohar seafarers.",
     "history": [
       {
         "date": "2026-02-28",
@@ -147,6 +147,10 @@
       {
         "date": "2026-10-19",
         "note": "No new confirmed Hormuz-area attack identified for 17-19 Oct (reporting-lag limitation). Missing seafarers and Panama inquiry remain unresolved; Mocha recapture claim remains independently unverified."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "CORRECTION: the 17-19 Oct 'quiet window' concealed a major escalation. IRGC declared the Strait of Hormuz closed to all vessels (17 Oct) after a record attack week (~10-12 UKMTO-linked incidents) and two disputed supertanker mine-strike claims; JMIC states 'no substantiation' for the mine claims. US disputes Iran's account of a related sinking (IRGC projectile vs. mine); reduced transit reportedly continues via Oman. Missing seafarers and Panama inquiry remain unresolved."
       }
     ]
   },
@@ -159,8 +163,8 @@
     "indicatorLevel": "YELLOW",
     "assessment": "Policy pause, not repeal, remains the leading read. No evidence of a scope change behind the delay -- continued deliberation is the more likely explanation than an active decision to abandon the report.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- No public release found across the 10/16-10/19 gap; no successor date offered. The FAR Overhaul's 19 Oct comment deadline landed today without CMMC guidance available, confirming this thread's own month-long prediction of a compliance-calendar collision.",
-    "orgRelevance": "Anchor compliance planning to DFARS Class Deviation 2026-O0025 Rev 3's confirmed terms (self-assessment through 2028) rather than the still-non-public CMMC report; finalize FAR Overhaul comment positions ahead of 19 Oct regardless of the shutdown's effect on other contracting activity.",
+    "lastChange": "2026-10-20 -- No public release found across the 10/19-10/20 gap; no successor date offered. The FAR Overhaul's 19 Oct comment deadline is now confirmed in the past with no extension identified, closing that compliance-calendar collision (tracked to closure as its own standalone thread as of this cycle). The government remains funded through 11 Dec 2026 under the standing CR (H.R. 6500); no shutdown complicates this thread.",
+    "orgRelevance": "Anchor compliance planning to DFARS Class Deviation 2026-O0025 Rev 3's confirmed terms (self-assessment through 2028) rather than the still-non-public CMMC report. The FAR Overhaul comment window has now closed; confirm internal filing status occurred rather than continuing to track the deadline itself.",
     "nextIndicator": "A Federal Register notice, class deviation, or 32 CFR Part 170 amendment with a firm CMMC release date; shutdown resolution.",
     "history": [
       {
@@ -274,6 +278,10 @@
       {
         "date": "2026-10-19",
         "note": "CMMC report remains non-public with no successor target. The FAR Overhaul's 19 Oct comment deadline landed today without CMMC guidance -- the predicted compliance-calendar collision materialized as modeled."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "No material change; CMMC report remains non-public with no successor target. The FAR Overhaul's 19 Oct deadline is now confirmed in the past with no extension identified -- the FAR Overhaul / Acquisition Reform thread is folded into this entry going forward given its central open item (CMMC guidance) is tracked here. Confirmed no active federal shutdown (CR funds government through 11 Dec 2026)."
       }
     ]
   },
@@ -286,7 +294,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: China's minimal-commitment approach at the summit preserves its rare-earth leverage into the 10/27 Nov suspension-expiry window. The operational conclusion is unchanged: licence status has stopped predicting delivery, and delivered material -- not the trade-truce headlines -- remains the correct risk gate.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- No new PRC action identified across the 10/16-10/19 gap; the 10 Nov suspension-expiry window is now roughly three weeks out. No new Arsenal-2 milestone identified.",
+    "lastChange": "2026-10-20 -- No new PRC action identified across the 10/19-10/20 gap; the 10 Nov suspension-expiry window is now 21 days out, converging with Golden Dome's own confirmed post-midterm reconciliation-funding window on a similar late-year timeline. No new Arsenal-2 milestone identified.",
     "orgRelevance": "Re-confirm BOM/second-sourcing plans assume no near-term PRC relief; do not read the trade truce as supply-chain relief. Seek independent corroboration of the reported 1/1/2027 magnet-restriction deadline before relying on it for planning. Track the 10/27 Nov suspension-expiry cluster and the 1 Jan 2027 waiver cutoff as the near-term inflection points.",
     "nextIndicator": "Any PRC signal ahead of the 10 Nov or 27 Nov suspension expiries; first reported Decree No. 841 enforcement case; independent corroboration (or debunking) of the reported 1/1/2027 magnet-restriction deadline.",
     "history": [
@@ -409,21 +417,25 @@
       {
         "date": "2026-10-19",
         "note": "No new PRC action; 10 Nov suspension-expiry window now roughly three weeks out. No new Arsenal-2 milestone."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "No new PRC action; 10 Nov suspension-expiry window now 21 days out, converging with Golden Dome's confirmed post-midterm reconciliation-funding timeline onto a similar late-year decision window. No new Arsenal-2 milestone."
       }
     ]
   },
   {
     "name": "Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs",
     "firstDetected": "2026-09-06",
-    "status": "The verification gap on FortiMail's patch status persists: this program's most recent reporting (converging technical-press sources from early October) describes Fortinet's FG-IR-26-175 advisory as still listing fixed releases (8.0.2, 7.6.7, 7.4.9) as upcoming rather than available, and no newer primary-source confirmation (positive or negative) was located this cycle. No new CISA KEV addition was confirmed for 17-19 Oct specifically; direct access to cisa.gov and fortiguard.com again could not be confirmed. Still no named DIB/federal-contractor victim on any tracked campaign after roughly seven weeks.",
-    "importance": "Critical -- the exploited-surface class now spans nine enterprise-edge/identity vendor families plus the first self-disclosed autonomous-AI-agent exploitation chain, with named government-sector victims on NetScaler specifically but still no named DIB/federal-contractor victim on any campaign after roughly five weeks.",
+    "status": "A 10th vendor family confirmed this cycle: Ivanti Connect Secure (CVE-2026-104935, auth-bypass-by-spoofing, CVSS 8.6), disclosed by Ivanti and KEV-listed by CISA both on 13 October, with Volexity (corroborated by Defused) tracking actor UTA0576 exploiting it pre-disclosure since 1-3 October and chaining it with a still-unpatched privilege-escalation flaw for root-level code execution on fully patched devices. This cycle also independently confirms CISA's 13-14 Oct KEV additions this program could not verify in prior cycles: a Microsoft Windows command-injection flaw (CVE-2026-96951, tied to the 13 Oct Patch Tuesday), Palo Alto PAN-OS (CVE-2026-0322), Cisco Secure Email Gateway (CVE-2026-76519), and two Ahsay AhsayCBS flaws. On FortiMail, one secondary source (dated ~18 Oct) now claims Fortinet's FG-IR-26-175 advisory lists fixed builds (8.0.2, 7.6.7, 7.4.9) as released rather than upcoming, directly conflicting with other similarly-dated sources; this program's direct access to Fortinet's own advisory could not be confirmed this cycle, so the patch-status verification gap persists unresolved. Still no named DIB/federal-contractor victim on any of the ten tracked vendor families after roughly seven weeks.",
+    "importance": "Critical -- the exploited-surface class now spans ten enterprise-edge/identity vendor families, including a well-attributed, confirmed-pre-disclosure case (Ivanti/UTA0576), with named government-sector victims on NetScaler specifically but still no named DIB/federal-contractor victim on any campaign after roughly seven weeks.",
     "direction": "ESCALATING",
     "indicatorLevel": "RED",
-    "assessment": "ASSESSED: the multi-vendor edge/perimeter campaign continues widening rather than plateauing; the Zammad/DIVD incident adds a qualitatively new dimension (autonomous exploitation) rather than merely another vendor name. The absence of a named DIB victim after nine vendor families is increasingly notable.",
+    "assessment": "ASSESSED: the multi-vendor edge/perimeter campaign continues widening and maturing (a named actor, a confirmed pre-disclosure exploitation timeline) rather than plateauing. The absence of a named DIB victim after ten vendor families is increasingly notable.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- No new KEV addition confirmed across the 10/16-10/19 gap; no newer evidence located on whether FortiMail's fix has shipped since early October. Direct CISA/Fortinet access again unconfirmed. Still no named DIB victim.",
-    "orgRelevance": "Verify NetScaler SAML configurations for pre-patch compromise, not just current patch status; maintain FortiMail interim mitigations (disable IBE or restrict management-interface access) pending a confirmed patch across all branches.",
-    "nextIndicator": "A named DIB/federal-contractor victim on any tracked campaign; a confirmed FortiMail patched release; further KEV additions.",
+    "lastChange": "2026-10-20 -- Ivanti Connect Secure (CVE-2026-104935) confirmed as a 10th vendor family with pre-disclosure exploitation by UTA0576 since 1-3 Oct; CISA's 13-14 Oct KEV additions (Windows, PAN-OS, Cisco Secure Email Gateway, Ahsay AhsayCBS) independently confirmed, closing the prior-cycle verification gap. FortiMail patch status remains contested between secondary sources; still no named DIB victim.",
+    "orgRelevance": "Patch Ivanti Connect Secure immediately and treat any pre-13 Oct internet-facing instance as a possible prior-compromise candidate regardless of current patch status, given confirmed pre-disclosure exploitation. Verify NetScaler SAML configurations for pre-patch compromise. Maintain FortiMail interim mitigations pending primary-source patch confirmation -- do not stand down based on the uncorroborated secondary claim surfaced this cycle.",
+    "nextIndicator": "A named DIB/federal-contractor victim on any tracked campaign; a primary Fortinet advisory confirming FortiMail's patch status; Ivanti's release of a fix for the chained privilege-escalation flaw.",
     "history": [
       {
         "date": "2026-09-02",
@@ -548,21 +560,25 @@
       {
         "date": "2026-10-19",
         "note": "No new KEV addition confirmed; FortiMail's patch-shipped status remains unconfirmed either way. Still no named DIB victim after roughly seven weeks."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "10th vendor family confirmed: Ivanti Connect Secure CVE-2026-104935, disclosed and KEV-listed 13 Oct, exploited pre-disclosure since 1-3 Oct by UTA0576 and chained with an unpatched privilege-escalation flaw for root-level code execution. CISA's 13-14 Oct KEV additions (Windows CVE-2026-96951, PAN-OS, Cisco Secure Email Gateway, two Ahsay AhsayCBS flaws) independently confirmed. A secondary source claims FortiMail's patch has shipped (8.0.2/7.6.7/7.4.9) but this conflicts with other sources and remains primary-source-unconfirmed. Still no named DIB victim after roughly seven weeks."
       }
     ]
   },
   {
     "name": "Golden Dome Procurement & FY27 Reconciliation Funding Risk",
     "firstDetected": "2026-09-06",
-    "status": "No new SDA/MDA award or SHIELD task order was identified this cycle. The program's FY27 funding exposure remains unresolved three weeks into the fiscal year: Congress has shown little appetite for the ~$350B reconciliation package roughly $17B of the program's ~$17.5B FY27 request depends on, and Gen. Guetlein's warning that there is 'no Golden Dome' without it stands unaddressed. No reconciliation-package floor action was identified in either chamber.",
-    "importance": "Critical -- the program's genuine funding exposure runs through an unpassed reconciliation package, layered onto the still-unresolved cost-methodology dispute; this is a fiscal-process risk to a marquee program, not a technical or contractor-performance issue.",
-    "direction": "UNCERTAIN",
-    "indicatorLevel": "ORANGE",
-    "assessment": "CORRECTED 2026-10-08: no federal shutdown occurred. Procurement mechanics (SHIELD's pre-task-order posture, ~2,100+ qualified vendors) continue advancing on schedule; the program's genuine schedule risk is reconciliation non-passage, and no confirmed program impact from that gap has been found yet.",
-    "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- No new SDA/MDA award, SHIELD task order, or reconciliation floor action identified across the 10/16-10/19 gap. Three weeks into FY27 with the funding question still unresolved; Congress reported to show little appetite for the reconciliation package.",
-    "orgRelevance": "Track the reconciliation package's legislative status directly as the real funding-risk variable. Firms positioned on SDA/MDA vehicles or SHIELD should plan around funding uncertainty, not a shutdown (none currently exists). Watch for the first SHIELD task order and any Northrop GAO filing.",
-    "nextIndicator": "Any reconciliation-package floor action in either chamber; a confirmed program statement tying a delay to the funding gap; independent confirmation of on-orbit checkout of the 5 Oct launch; first SHIELD task order; any Northrop GAO protest filing.",
+    "status": "The funding risk is now confirmed, not merely assessed: Senate Majority Leader Thune stated (15 Sep) the Senate will 'probably' not take up another reconciliation bill with defense funding until after the midterms, and the Senate has reportedly since adjourned until after the elections. The House Appropriations Committee's base FY27 bill funds only ~$397.9M against the program's ~$17.1B reconciliation-dependent request -- over 97% of the ask remains contingent. DoD obligated ~93% of the program's FY26 ($25B) reconciliation tranche before the FY27 cutoff, leaving the remainder exposed to an ~8.3% sequestration-style cut. Separately, SDA completed its 21-satellite Tranche 1 Transport Layer A launch on 10 Oct (5 days late after a 5 Oct scrub), confirming procurement execution on already-obligated funds continues on schedule.",
+    "importance": "Critical -- the program's funding exposure is now a named-official, on-the-record certainty through at least the midterms, layered onto the still-unresolved cost-methodology dispute; this remains a fiscal-process risk to a marquee program, not a technical or contractor-performance issue.",
+    "direction": "ESCALATING",
+    "indicatorLevel": "RED",
+    "assessment": "Procurement mechanics (the 10 Oct SDA launch, SHIELD's vendor base) continue advancing on already-obligated funds; the program's FY27-forward funding risk is now confirmed, not inferred, given Thune's on-record statement and the HAC bill's minimal allocation.",
+    "confidence": "HIGH",
+    "lastChange": "2026-10-20 -- Thune's reconciliation-timing statement and the Senate's reported post-midterm adjournment, the HAC's ~$397.9M FY27 figure, and the ~93%-obligated/8.3%-sequestration detail together convert this thread's funding-risk assessment from inferred to confirmed. SDA's delayed Tranche 1 Transport Layer A launch (21 satellites) completed 10 Oct.",
+    "orgRelevance": "Treat near-term FY27 reconciliation-funded Golden Dome task-order growth as confirmed unlikely before a post-midterm legislative window at the earliest; distinguish this from the program's healthy execution on already-obligated funds. Watch for the first SHIELD task order and any post-midterm reconciliation or supplemental vehicle naming Golden Dome.",
+    "nextIndicator": "Any post-midterm reconciliation or supplemental vehicle naming Golden Dome; the first SHIELD task order; any confirmed program-level schedule impact tied explicitly to the funding gap; any Northrop GAO protest filing.",
     "history": [
       {
         "date": "2026-08",
@@ -675,6 +691,10 @@
       {
         "date": "2026-10-19",
         "note": "No new award or reconciliation floor action; three weeks into FY27 with funding exposure unresolved and reported congressional reluctance on the reconciliation package."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "Funding risk converted from inferred to confirmed: Thune's 15 Sep statement (Senate 'probably' won't take up reconciliation with defense funding until after the midterms) and the Senate's reported post-midterm adjournment; HAC base bill funds only ~$397.9M of the ~$17.1B FY27 ask; ~93% of the prior ($25B) reconciliation tranche already obligated, remainder exposed to an ~8.3% sequestration-style cut. SDA's delayed 21-satellite Tranche 1 Transport Layer A launch completed 10 Oct, confirming procurement execution on obligated funds continues on schedule."
       }
     ]
   },
@@ -687,7 +707,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: whether the 10/6-10/7 strike reflects deliberate escalation or variance within an already-severe pattern remains undetermined; the toll's continued rise through 10/8 argues for maintaining the RED/ESCALATING read rather than downgrading.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- No new primary-source development identified across the 10/16-10/19 gap beyond what prior cycles already captured (the 11-12 Oct Trump-announced 'energy ceasefire,' which Zelensky says Russia has continued to violate with strikes on Kharkiv-area energy infrastructure). This program's search access could not confirm same-day (17-19 Oct) strike reporting specifically.",
+    "lastChange": "2026-10-20 -- No new primary-source strike development identified across the 10/19-10/20 gap. The standing 'steel-cutting'/pylon-severing warhead claim (Beskrestnov, 30 Sep) remains sourced only to Ukrainian officials -- no independent forensic confirmation or debunking was found within its 14-day test window (closed 15 Oct), so this program's related forecast is graded INCORRECT on the scorecard for non-resolution, not for the underlying claim being false.",
     "orgRelevance": "Macro European air-defense, counter-UAS, electronic-warfare, and grid-hardening/resilience demand context; correct any internal materials citing a 'Poltava' strike -- the correct location is Pryluky, Chernihiv region.",
     "nextIndicator": "Final confirmed toll; any G7/EU/NATO statement citing this strike; outcome of the NATO Chisinau visit and Moldova Security Forum; resolution of the ZNPP power-status data gap.",
     "history": [
@@ -810,6 +830,10 @@
       {
         "date": "2026-10-19",
         "note": "No new primary-source development beyond the previously tracked 11-12 Oct energy-ceasefire announcement and reported Russian violations; same-day 17-19 Oct reporting could not be confirmed."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "No new primary-source strike or ZNPP development identified. The standing 'steel-cutting' pylon-severing warhead claim's 14-day independent-confirmation window closed 15 Oct with no independent forensic resolution either way (only continued single-source Ukrainian-official reporting); the related forecast is graded INCORRECT on the scorecard for non-resolution within the window, not as a finding that the claim is false."
       }
     ]
   },
@@ -822,7 +846,7 @@
     "indicatorLevel": "ORANGE",
     "assessment": "ASSESSED: China's minimal-commitment approach preserves its rare-earth leverage into the 10/27 Nov suspension-expiry window. The Taiwan arms delay, per available reporting, looks like a genuine US-side capacity constraint rather than a policy signal, though this should be held with some caution given the issue's political sensitivity and the difficulty of independently verifying motive.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- No new PRC action or Taiwan MND PLA aircraft/vessel count identified for 17-19 Oct specifically (a continued search-access gap, not confirmed quiet). No change to the standing post-summit assessment.",
+    "lastChange": "2026-10-20 -- No new PRC action or Taiwan MND PLA aircraft/vessel count identified for the 17-20 Oct window (a continued, now multi-cycle search-access gap, not confirmed quiet). No Rubio/Hegseth response to the senators' letter identified. No change to the standing post-summit assessment.",
     "orgRelevance": "Firms pursuing Taiwan-related FMS opportunities should weigh Rubio's stated US-side production-capacity rationale alongside political/export-control factors when building delivery-schedule assumptions; do not treat the truce rollover as supply-chain relief.",
     "nextIndicator": "Any Taiwan arms-package transmittal to Congress; a confirmed Rubio/Hegseth response to the senators' letter; PLA activity clearly beyond the routine band; any joint-statement text with specific rare-earth licensing language.",
     "history": [
@@ -933,6 +957,10 @@
       {
         "date": "2026-10-19",
         "note": "No new PRC action; Taiwan MND PLA activity counts for 17-19 Oct unavailable (search-access gap)."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "No new PRC action or Rubio/Hegseth response identified; Taiwan MND PLA activity counts remain unavailable for a now multi-cycle search-access gap."
       }
     ]
   },
@@ -945,7 +973,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "The original window's lapse without either a nomination or an explicit withdrawal most plausibly reflects genuine Senate-confirmation math friction specific to Parnell, not a deliberate broader delay; no evidence of an alternative candidate being actively advanced. The cyber-strategy item remains 'still pending per trade press, ambiguity resolved via secondary reconciliation.'",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- No new Army Secretary nomination, withdrawal, or acting-capacity statement identified across the 10/16-10/19 gap.",
+    "lastChange": "2026-10-20 -- No new Army Secretary nomination, withdrawal, or acting-capacity statement identified across the 10/19-10/20 gap; the 21-day resolution window (to ~30 Oct) remains open with roughly 10 days left. Separately, a dedicated search this cycle found no confirmation that DoD's own cyber strategy has been released despite the 30-day forecast window having closed 15 Oct; that forecast is graded INCORRECT on the scorecard.",
     "orgRelevance": "Decide a leadership-level position on whether contractor support to offensive cyber operations is in or out of scope as a market before a solicitation forces the question; monitor for either a formal nomination or an explicit extended-acting-capacity statement over the next three weeks.",
     "nextIndicator": "A formal Army Secretary nomination transmittal (Parnell or an alternative), an explicit withdrawal announcement, or an explicit White House statement on an extended Telle acting-capacity arrangement; a primary war.gov release of the Pentagon's own cyber strategy.",
     "history": [
@@ -1064,6 +1092,10 @@
       {
         "date": "2026-10-19",
         "note": "No new development on the Army Secretary question."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "No new development on the Army Secretary question; window to ~30 Oct remains open. DoD's own cyber strategy remains unconfirmed as released despite a dedicated search; the standing 30-day forecast (window closed 15 Oct) is graded INCORRECT."
       }
     ]
   },
@@ -1076,7 +1108,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: this is a genuine split-track US response to real (if not fully verified) agentic-AI security incidents -- voluntary accord and compelled regulatory fact-finding proceeding in parallel rather than either substituting for the other; the FTC's 6(b) study is information-gathering, not enforcement, but its civil-investigative-demand authority is compulsory and could surface materially new facts.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- No D.C. Circuit action identified across the 10/16-10/19 gap; no new FTC CID identified.",
+    "lastChange": "2026-10-20 -- No D.C. Circuit action identified across the 10/19-10/20 gap; no new FTC CID identified. A single, uncorroborated secondary-source report of a new White House 'Super Intelligence Force' AI task force (DNI/FTC/Pentagon/OPM, reported for 4 Oct) could not be verified against any primary or major-outlet source this cycle and is tracked as UNKNOWN pending corroboration, not treated as confirmed.",
     "orgRelevance": "Track the FTC study and the Anthropic litigation clock as distinct tracks; do not assume GenAI.mil availability implies Anthropic-model availability for DoD-adjacent work; treat AI-agent execution, data-access permissions, AND public-repository/tooling write-access as a privileged-access surface given four independent incidents (Zammad, Transluce, OpenAI/Australia, PixelLeak) in roughly six weeks.",
     "nextIndicator": "Formal issuance of FTC civil investigative demands; direct docket confirmation of the Anthropic en banc/SCOTUS filing deadline and status; a genuinely new (post-10/15) fifth independently disclosed agentic-AI-security incident.",
     "history": [
@@ -1191,6 +1223,10 @@
       {
         "date": "2026-10-19",
         "note": "No D.C. Circuit action on the en banc petition; no new FTC CID identified."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "No D.C. Circuit action; no new FTC CID. A single-source, uncorroborated report of a new White House 'Super Intelligence Force' AI task force surfaced but could not be verified this cycle -- tracked as UNKNOWN, not fact."
       }
     ]
   },
@@ -1203,7 +1239,7 @@
     "indicatorLevel": "ORANGE",
     "assessment": "ASSESSED: a deliberate staged rewrite that has reached the operative buying mechanics. The prior cycle's characterization of the 18 Sep publication as a single rule and as the first concrete text was wrong on both counts. Expect a third batch covering the remaining four rules. A countervailing signal exists: final rules from the June batch reportedly stalled earlier in 2026 while OMB weighed changes, so proposed-stage publication does not guarantee timely finalization.",
     "confidence": "HIGH",
-    "lastChange": "2026-10-19 -- The 19 Oct comment deadline on all eight published rules arrived today with no extension identified; the predicted collision with CMMC's continued non-public status is now confirmed rather than merely anticipated.",
+    "lastChange": "2026-10-20 -- No new proposed rules identified; the 19 Oct comment deadline is now confirmed in the past with no extension found. Attention now shifts to whether the remaining four of twelve planned rules are published and whether any of the eight September rules are materially revised at the final-rule stage.",
     "orgRelevance": "Assign a named owner to each of the eight published rules now and finalize comment positions this week, with 7 days remaining. Triage by revenue exposure: Parts 12 and 15 first for competitive positioning, Parts 9 and 27 for qualification and IP risk, Parts 16, 17 and 35 for holders of IDIQ, flexible-vehicle or R&D work. The binding constraint is contracts and legal review capacity, not awareness.",
     "nextIndicator": "Publication of the remaining four rules in the twelve-rule package; comments filed by major industry associations on Parts 12 and 15; any final-rule timeline announcement; whether any September rule is materially revised between proposed and final.",
     "history": [
@@ -1294,6 +1330,10 @@
       {
         "date": "2026-10-19",
         "note": "The 19 Oct FAR Overhaul comment deadline landed with no extension identified and no CMMC guidance available -- confirming the predicted compliance-calendar collision."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "No new proposed rules; the 19 Oct deadline is now confirmed closed. No confirmation yet of major industry-association filings or of the remaining four-rule batch."
       }
     ]
   },
@@ -1306,7 +1346,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: each incident's occurrence and rough scope is KNOWN or REPORTED via the respective institution/claimant; attribution is UNKNOWN for Dodd Group/DMDC but the FBIJobs.gov incident now has a confirmed technical root cause (contractor patch-management failure). Whether this reflects three independent coincidences or a broader wave of third-party/vendor-system targeting remains the central uncertainty for the other two.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- No new reporting on formal charges against Saif al-Din Khader or new attribution for DMDC/Dodd Group identified across the 10/16-10/19 gap.",
+    "lastChange": "2026-10-20 -- No new reporting on formal charges against Saif al-Din Khader or new attribution for DMDC/Dodd Group identified across the 10/19-10/20 gap.",
     "orgRelevance": "Any organization with veteran, reservist, or military-affiliated staff should assume some employees may be in the DMDC-affected population; any organization with facilities-maintenance subcontractors should audit access scope comparable to the Dodd Group/Lynx pattern; any organization using a third-party-managed Oracle PeopleSoft or similar outsourced platform should verify patch-management SLAs are actually enforced, not just contracted, given the FBIJobs.gov root cause.",
     "nextIndicator": "Independent confirmation of the FBIJobs.gov data volume/scope; formal UK government attribution of the Dodd Group/Lynx incident; any DMDC misuse confirmation; a fourth comparable disclosure.",
     "history": [
@@ -1365,6 +1405,10 @@
       {
         "date": "2026-10-19",
         "note": "No new development on charges or attribution."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "No new development on charges or attribution for any of the three incidents; no fourth comparable disclosure identified."
       }
     ]
   },
@@ -1377,7 +1421,7 @@
     "indicatorLevel": "ORANGE",
     "assessment": "ASSESSED: North Korea's third test in twelve days, now diversifying into a submarine-launched capability it has not demonstrated since Jan 2024, reads as continued and intensifying capability signaling. The test's timing one day after Trump's floated-meeting remark is consistent with negotiating-from-a-position-of-strength signaling (with precedent before the 2018 Singapore and 2019 Hanoi summits), but this is an analytic judgment, not a confirmed causal link -- North Korea's own stated rationale (readiness/deterrence) does not depend on any US statement. CAPABILITY vs. INTENT: the submarine-launch capability is demonstrated; broader strategic intent (signaling for leverage vs. genuine openness to talks vs. routine cadence) remains ASSESSED, not confirmed.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- No further North Korean missile or weapons test identified since the 14 Oct SLCM test. Trump's floated Kim meeting around the 18-19 Nov APEC summit remains unconfirmed by North Korea.",
+    "lastChange": "2026-10-20 -- No further North Korean missile or weapons test identified since the 14 Oct SLCM test, now six days without a new launch. Trump's floated Kim meeting around the 18-19 Nov APEC summit remains unconfirmed by North Korea. Additional confirmed detail on the 14 Oct test: one missile from a vertical launch tube, one from a torpedo tube, per South Korea's Joint Chiefs of Staff; at least one was the Pulhwasal-3-31 variant.",
     "orgRelevance": "Any logistics, personnel, or customer exposure touching the Korean Peninsula or broader Northeast Asia should be flagged for closer monitoring; otherwise macro Indo-Pacific undersea-detection, missile-warning, and PNT-resilience demand context. Track the 18-19 Nov APEC summit as a potential inflection date.",
     "nextIndicator": "Any further North Korean test within 10 days; confirmation or denial of a Trump-Kim meeting around 18-19 Nov; independent confirmation of the Hero Kim Kun Ok as the launch platform; any ROK/US/Japan joint statement on the cadence.",
     "history": [
@@ -1412,6 +1456,10 @@
       {
         "date": "2026-10-19",
         "note": "No further North Korean test since 14 Oct; Trump-Kim meeting remains unconfirmed."
+      },
+      {
+        "date": "2026-10-20",
+        "note": "No further North Korean test since 14 Oct (six days); Trump-Kim meeting remains unconfirmed. Confirmed additional technical detail on the 14 Oct test (launch-tube types, Pulhwasal-3-31 variant) via South Korea's Joint Chiefs of Staff."
       }
     ]
   },
@@ -1424,9 +1472,9 @@
     "indicatorLevel": "RED",
     "assessment": "CORRECTED 2026-10-19: this program's 16 Oct brief understated the campaign's severity by characterizing the lead 13 Oct incident as casualty-free; converging reporting now establishes a real, multi-incident human toll. ASSESSED: Russian attribution remains unproven (even Bulgaria's own PM concedes 'we cannot prove it') and basic incident facts (vessel names, exact casualty counts) remain genuinely unreconciled across otherwise credible outlets -- treat the aggregate scale as more reliable than any single incident's specifics. Bulgaria's unilateral air-defense buildout is now the most concrete response to the campaign, ahead of any confirmed NATO-level asset commitment.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-19 -- Major upward revision to the campaign's confirmed toll (~2 dead, 25 missing, 7+ vessels in October), correcting this program's prior casualty-free characterization of the 13 Oct incident. NATO has scheduled a dedicated agenda item; Bulgaria has taken concrete unilateral steps (IRIS-T expansion, national drone/missile deployment, formal NATO ask) that outpace any confirmed alliance-level action.",
-    "orgRelevance": "Correct any internal materials that characterized the 13 Oct incident as casualty-free. Treat Black Sea/Eastern European maritime, insurance, and crewing risk as materially elevated. Track Bulgaria's IRIS-T/drone procurement as a concrete near-term allied air-defense demand signal, and the outcome of NATO's scheduled agenda item as the test of alliance-level commitment.",
-    "nextIndicator": "The outcome of NATO's scheduled Black Sea agenda item; a single authoritative reconciliation of vessel identities and casualties; any further incident; any confirmed NATO (not national) asset deployment.",
+    "lastChange": "2026-10-20 -- NATO's North Atlantic Council is confirmed meeting today in Brussels specifically on Black Sea drone strikes (per Romanian FM Toiu); Romanian F-16s shot down attack drones over the Black Sea over the preceding weekend, the campaign's first confirmed successful kinetic intercept. Outcome of today's meeting not yet known.",
+    "orgRelevance": "Correct any internal materials that characterized the 13 Oct incident as casualty-free. Treat Black Sea/Eastern European maritime, insurance, and crewing risk as materially elevated. Track Bulgaria's IRIS-T/drone procurement and Romania's own intercept capability as concrete near-term allied air-defense demand signals, and the outcome of today's NAC meeting as the test of alliance-level commitment.",
+    "nextIndicator": "The outcome of today's North Atlantic Council meeting; a single authoritative reconciliation of vessel identities and casualties; any further incident or intercept; any confirmed NATO (not national) asset deployment.",
     "history": [
       {
         "date": "2026-10-05",
@@ -1451,6 +1499,10 @@
       {
         "date": "2026-10-19",
         "note": "CORRECTION: converging reporting revises the campaign's toll sharply upward to ~2 dead/25 missing across 7+ vessels, superseding the prior casualty-free characterization of the 13 Oct incident. NATO scheduled a Black Sea agenda item; Bulgaria approved 5 more IRIS-T batteries and is deploying national drone/missile assets; Romania's President Dan called the trend 'unacceptable.'"
+      },
+      {
+        "date": "2026-10-20",
+        "note": "Romanian F-16s shot down attack drones over the Black Sea over the weekend -- the campaign's first confirmed successful kinetic intercept. NATO's North Atlantic Council meets today in Brussels specifically on Black Sea drone strikes, per Romanian FM Oana Toiu; outcome not yet known at this cycle's close."
       }
     ]
   }
