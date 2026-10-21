@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-20",
+  "updated": "2026-10-21",
   "summary": {
-    "correct": 23,
-    "incorrect": 9,
+    "correct": 27,
+    "incorrect": 11,
     "partial": 10,
-    "pending": 78,
-    "note": "2026-10-20: four prior forecasts graded this cycle. fc-2026-10-15-patch-tuesday-kev-confirm resolved CORRECT (CISA added CVE-2026-96951 to KEV on 13 Oct, the same day as disclosure, closing a multi-cycle verification gap). fc-2026-09-15-cyberstrategy-release and fc-2026-10-01-russia-warhead both resolved INCORRECT on non-resolution within their windows (DoD's cyber strategy remains unreleased past its 30-day window; the pylon-severing-warhead claim remains unresolved by independent reporting past its 14-day window). fc-2026-10-05-sda-t1tla-checkout resolved PARTIAL after a factual correction: the premised 5 Oct launch date was wrong (the mission actually scrubbed 5 Oct and flew 10 Oct), with the launch itself now confirmed successful but on-orbit checkout still unconfirmed. This cycle's lead finding is that the prior cycle's 17-19 Oct Hormuz 'quiet window' concealed a major escalation: the IRGC declared the Strait of Hormuz closed (17 Oct) after a record attack week and two disputed mine-strike claims, while Senate Majority Leader Thune's on-record statement converts Golden Dome's reconciliation-funding risk from inferred to confirmed, and a 10th vendor family (Ivanti Connect Secure, CVE-2026-104935) joined the actively-exploited edge/identity campaign. Four new PENDING forecasts added: independent verification or debunking of the Hormuz mine-strike claims within 21 days; whether Hormuz transit continues despite the declared closure within 14 days; whether a named DIB victim of the Ivanti Connect Secure flaw surfaces within 30 days; and whether Golden Dome reconciliation funding passes before the midterms despite Thune's stated timeline."
+    "pending": 77,
+    "note": "2026-10-21: six prior forecasts graded this cycle. Two FTC-study forecasts (fc-2026-10-01-ftc-ai-cid, fc-2026-10-02-ftc-cid-issued) resolved CORRECT after the FTC confirmed issuing civil investigative demands to OpenAI and Anthropic (~14 Oct). fc-2026-10-09-kev-lull-ends resolved CORRECT on the already-confirmed 13-14 Oct KEV additions falling inside its window. fc-2026-10-13-sohar-missing-seafarers resolved INCORRECT on non-resolution (the two seafarers remain missing past the window). fc-2026-10-16-blacksea-nato-deployment resolved CORRECT and fc-2026-10-19-nato-blacksea-meeting-outcome resolved INCORRECT on the same event: NATO's 20 Oct North Atlantic Council committed alliance-level maritime patrol aircraft, radar, EOD teams, intelligence personnel and drones to the Black Sea -- a confirmed new asset deployment, not merely continued consultation. This cycle's lead findings are a reported near-total Hormuz transit collapse (~4 vs. ~85 vessels/day, secondary-sourced and not yet primary-confirmed) as Iran's Araghchi ties reopening to a 7-day US concession plan; an 11th KEV entry (Fortinet CVE-2025-61624) joining the already-tracked 10th vendor family (Ivanti Connect Secure); and the FTC's compulsory AI-safety CIDs to OpenAI/Anthropic landing a day after the administration's voluntary AI accord, alongside confirmation that the White House's 'Super Intelligence Force' is formally stood up. Five new PENDING forecasts added: primary-source confirmation of the Hormuz transit figure; a named NATO Black Sea asset on station; a third-lab FTC CID; Chinese confirmation (or not) of the reported rare-earth 'general licenses' claim; and naming of the Army unit earmarked for Golden Dome support."
   },
   "forecasts": [
     {
@@ -580,9 +580,9 @@
       "date": "2026-10-01",
       "forecast": "The FTC will issue at least one civil investigative demand under its new 6(b) study to OpenAI, Anthropic, or METR within 60 days.",
       "horizon": "0-60 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the reported 6(b) study proceeds to compulsory document production on the timeline multiple outlets described ('coming weeks'). Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-21",
+      "note": "FTC spokesperson confirmed to CBS News that the agency issued civil investigative demands (each 50+ pages) to OpenAI and Anthropic on or about 14 Oct 2026 seeking AI-safety-incident documentation, well within the 60-day window. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     },
     {
       "id": "fc-2026-10-01-bitget-vendor-named",
@@ -634,9 +634,9 @@
       "date": "2026-10-02",
       "forecast": "The FTC will formally issue at least one 6(b) civil investigative demand to OpenAI, Anthropic, or METR within 30 days, consistent with reporting that demands are expected 'in coming weeks.'",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "A narrower, nearer-term test than the standing 60-day fc-2026-10-01-ftc-ai-cid forecast. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-21",
+      "note": "Same 14 Oct CIDs to OpenAI and Anthropic resolve this narrower 30-day-window forecast as well. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     },
     {
       "id": "fc-2026-10-05-sda-t1tla-checkout",
@@ -798,16 +798,16 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the Army civilian-leadership question moves toward resolution (either direction) now that the original forecast window has lapsed. Tracked on the DoD Leadership Continuity thread."
+      "note": "New info this cycle: acting Secretary Telle issued a 1 Oct memo directing creation of a Futures and Autonomous Systems Command (FASCOM) and gave his first public address at AUSA (12 Oct) -- substantive institutional activity, but neither a nomination, a withdrawal, nor an explicit acting-capacity-extension statement. Window remains open (~9 days left, to ~10/30). Tracked on the DoD Leadership Continuity thread."
     },
     {
       "id": "fc-2026-10-09-kev-lull-ends",
       "date": "2026-10-09",
       "forecast": "CISA will add at least one new actively-exploited edge/perimeter/identity CVE to the KEV catalog within 7 days, given Microsoft's 13 Oct Patch Tuesday and the pattern of past short lulls in this five-week wave reversing quickly.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the current five-day pause (since the 4 Oct NetScaler SAML entry) -- the longest in the wave to date -- is temporary or reflects a genuine slowdown. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-16",
+      "note": "CISA's 13-14 Oct KEV additions (Windows CVE-2026-96951, Palo Alto PAN-OS, Cisco Secure Email Gateway, two Ahsay AhsayCBS flaws), independently confirmed on the 10/20 cycle, fall within this forecast's 7-day window from 10/9 (closing ~10/16), resolving it CORRECT. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-12-houthi-counteroffensive",
@@ -886,9 +886,9 @@
       "date": "2026-10-13",
       "forecast": "The 2 Indian seafarers missing after the 11 Oct drone attack on the tanker MT Petro Dolphin at Sohar anchorage, Oman, will be confirmed found (alive or deceased) within 7 days.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests the outcome of the ongoing Omani Coast Guard search-and-rescue operation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-20",
+      "note": "The 7-day window (from 10/13, closing ~10/20) lapsed with the two Petro Dolphin seafarers (Bir Bahadur Yadav, Amit Singh) still reported missing and no resolution (alive or deceased) identified. Graded INCORRECT on the window's lapse rather than a finding that they will never be found. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-13-khader-charges",
@@ -915,7 +915,7 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether this cycle's single-source claim survives corroboration and whether it develops into the first concrete flag-state pushback against US blockade enforcement in this conflict. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Clarification this cycle: the 'Panama inquiry' most likely attaches to the CENTCOM-disabled Panama-flagged Ocean Molica/Arika Sun (struck 10/10), where UKMTO confirmed 'authorities are investigating,' rather than a separate Petro Dolphin-linked inquiry -- no corroboration of a distinct Petro Dolphin inquiry was found. This narrows what this forecast is actually testing; window remains open to ~11/4. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-14-far-overhaul-no-extension",
@@ -985,9 +985,9 @@
       "date": "2026-10-16",
       "forecast": "NATO or a member state will confirm a concrete new surveillance or anti-drone asset deployment to the western Black Sea within 14 days, given Bulgaria's and Romania's request for help following the Chelsea 3 sinking and NATO Secretary General Rutte's statement that the alliance will adjust posture 'as needed.'",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "NATO has scheduled a dedicated Black Sea agenda item for the week of 19 Oct (per Rutte's Brussels meeting with Bulgarian PM Radev and Romanian President Dan) but has not yet confirmed a new alliance-level asset deployment. Bulgaria's own national deployment (IRIS-T batteries, drone/missile systems) does not satisfy this forecast's NATO-level test. Window remains open to ~30 Oct. Tracked on the Black Sea Maritime Attack Campaign thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-20",
+      "note": "NATO's North Atlantic Council (20 Oct) agreed to commit maritime patrol aircraft, radar systems, EOD teams, intelligence personnel and drones to the Black Sea following Bulgaria's and Romania's requests -- a confirmed alliance-level (not merely national) asset commitment, well within the 14-day window. Tracked on the Black Sea Maritime Attack Campaign thread."
     },
     {
       "id": "fc-2026-10-16-blacksea-attribution",
@@ -996,7 +996,7 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "No independent attribution identified this cycle for either the Chelsea 3 or Yara J incidents; if anything, the broader campaign's attribution and even basic incident facts (vessel identities, casualty counts) have grown more contested as additional, partially conflicting secondary reporting surfaced this cycle. Window remains open to ~6 Nov. Tracked on the Black Sea Maritime Attack Campaign thread."
+      "note": "No independent attribution identified again this cycle for either the Chelsea 3 sinking or the Yara J fire. Window remains open to ~11/6. Tracked on the Black Sea Maritime Attack Campaign thread."
     },
     {
       "id": "fc-2026-10-16-fortimail-patch-ships",
@@ -1023,16 +1023,16 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the genuinely unreconciled secondary reporting on this campaign's basic facts converges on a single authoritative account. Tracked on the Black Sea Maritime Attack Campaign thread."
+      "note": "Not yet reconciled by a single authoritative source; this program's own research this cycle found converging secondary reporting (Geographical/PBS NewsHour, CNN, IBTimes, France 24) revising the toll upward to ~2 dead/25 missing across at least seven vessels in three incident clusters, correcting this thread's own prior casualty-free characterization -- but still no single authoritative (flag-state/IMO/insurer) reconciliation. Window remains open to ~11/2. Tracked on the Black Sea Maritime Attack Campaign thread."
     },
     {
       "id": "fc-2026-10-19-nato-blacksea-meeting-outcome",
       "date": "2026-10-19",
       "forecast": "NATO's scheduled Black Sea agenda item during the week of 19 Oct will produce a statement of continued consultation/posture adjustment, not a confirmed new alliance-level (as opposed to national) asset deployment, within 7 days.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether NATO's scheduled consultation outpaces or merely restates its prior rhetorical posture, given Bulgaria's unilateral action has so far exceeded any confirmed alliance-level commitment. Tracked on the Black Sea Maritime Attack Campaign thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-20",
+      "note": "The 20 Oct North Atlantic Council meeting produced exactly what this forecast bet against: a confirmed alliance-level (not merely national) asset commitment (patrol aircraft, radar, EOD teams, intelligence personnel, drones), not merely a statement of continued consultation. Tracked on the Black Sea Maritime Attack Campaign thread."
     },
     {
       "id": "fc-2026-10-19-bulgaria-irist-contract",
@@ -1050,7 +1050,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether this program's own repeated access limitations to cisa.gov/fortiguard.com resolve, independent of the underlying patch question. This cycle, one secondary source (safeguard.sh, ~18 Oct) claims Fortinet's advisory now lists fixed builds as shipped rather than upcoming, but this conflicts with other similarly-dated sources and is not a primary Fortinet statement, so the gap remains open. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "No primary Fortinet/CISA confirmation located again this cycle; a separate, newly KEV-listed Fortinet flaw (CVE-2025-61624, 16 Oct) is unrelated to FortiMail's own disputed patch status. Window remains open to ~11/2. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-20-hormuz-mine-verification",
@@ -1068,7 +1068,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the declared closure converts into a demonstrated physical-interdiction capability or remains primarily rhetorical/declaratory, consistent with reduced-but-continuing transit reported at brief time. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Trending toward INCORRECT: reported shipping-data aggregation now describes transit collapsing to ~4 vessels/day (18 Oct) against an ~85/day baseline -- the opposite of 'transit continuing' -- but this traces to secondary aggregation, not a primary UKMTO/CENTCOM confirmation, so not yet graded. Window remains open to ~11/3. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-20-ivanti-dib-victim",
@@ -1087,6 +1087,51 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "A direct test of Thune's on-record timeline against actual legislative action; tests whether an unexpected pre-midterm vehicle emerges despite the stated reluctance. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+    },
+    {
+      "id": "fc-2026-10-21-hormuz-transit-primary",
+      "date": "2026-10-21",
+      "forecast": "A primary UKMTO/CENTCOM or Lloyd's List Intelligence source will confirm or substantially contradict the reported ~4-vessel/day Hormuz transit figure (18 Oct, vs. an ~85/day baseline) within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's secondary-sourced transit-collapse figure, which would convert the 17 Oct declared closure into an effectively enforced blockade, survives primary-source scrutiny. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-21-nato-blacksea-asset-named",
+      "date": "2026-10-21",
+      "forecast": "A specifically named NATO (not national) asset will be confirmed physically on station in the Black Sea within 21 days, following the 20 Oct North Atlantic Council's commitment of patrol aircraft, radar, EOD teams, intelligence personnel and drones.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the Council's commitment converts into a confirmed, named alliance-level deployment rather than remaining a general statement of intent. Tracked on the Black Sea Maritime Attack Campaign thread."
+    },
+    {
+      "id": "fc-2026-10-21-ftc-third-lab-cid",
+      "date": "2026-10-21",
+      "forecast": "The FTC will issue a civil investigative demand to a third AI lab (e.g., METR) within 30 days, given reporting that further CIDs beyond OpenAI and Anthropic are expected.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the FTC's compulsory AI-safety inquiry widens beyond the two labs already confirmed. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-10-21-rareearth-general-licenses",
+      "date": "2026-10-21",
+      "forecast": "China will NOT officially confirm (via MOFCOM or another government statement) the reported 'general licenses' rare-earth streamlining within 30 days, consistent with the structural suspension-expiry timeline (10/27 Nov) remaining unresolved.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's unconfirmed, US-sourced claim of Chinese rare-earth licensing relief is ever officially confirmed by Beijing, or remains an unverified characterization. Tracked on the Critical Minerals / Rare-Earth Magnets thread."
+    },
+    {
+      "id": "fc-2026-10-21-goldendome-unit-named",
+      "date": "2026-10-21",
+      "forecast": "The Army air-defense unit 'earmarked' for Golden Dome support (per Lt. Gen. Rafferty, AUSA, 20 Oct) will be formally named within 45 days.",
+      "horizon": "0-45 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's institutional-build-out signal converts into a concrete, named organizational commitment. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
     }
   ]
 }
