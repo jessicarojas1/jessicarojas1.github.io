@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-21",
+  "updated": "2026-10-22",
   "summary": {
     "correct": 27,
-    "incorrect": 11,
+    "incorrect": 14,
     "partial": 10,
-    "pending": 77,
-    "note": "2026-10-21: six prior forecasts graded this cycle. Two FTC-study forecasts (fc-2026-10-01-ftc-ai-cid, fc-2026-10-02-ftc-cid-issued) resolved CORRECT after the FTC confirmed issuing civil investigative demands to OpenAI and Anthropic (~14 Oct). fc-2026-10-09-kev-lull-ends resolved CORRECT on the already-confirmed 13-14 Oct KEV additions falling inside its window. fc-2026-10-13-sohar-missing-seafarers resolved INCORRECT on non-resolution (the two seafarers remain missing past the window). fc-2026-10-16-blacksea-nato-deployment resolved CORRECT and fc-2026-10-19-nato-blacksea-meeting-outcome resolved INCORRECT on the same event: NATO's 20 Oct North Atlantic Council committed alliance-level maritime patrol aircraft, radar, EOD teams, intelligence personnel and drones to the Black Sea -- a confirmed new asset deployment, not merely continued consultation. This cycle's lead findings are a reported near-total Hormuz transit collapse (~4 vs. ~85 vessels/day, secondary-sourced and not yet primary-confirmed) as Iran's Araghchi ties reopening to a 7-day US concession plan; an 11th KEV entry (Fortinet CVE-2025-61624) joining the already-tracked 10th vendor family (Ivanti Connect Secure); and the FTC's compulsory AI-safety CIDs to OpenAI/Anthropic landing a day after the administration's voluntary AI accord, alongside confirmation that the White House's 'Super Intelligence Force' is formally stood up. Five new PENDING forecasts added: primary-source confirmation of the Hormuz transit figure; a named NATO Black Sea asset on station; a third-lab FTC CID; Chinese confirmation (or not) of the reported rare-earth 'general licenses' claim; and naming of the Army unit earmarked for Golden Dome support."
+    "pending": 78,
+    "note": "2026-10-22: three prior forecasts graded this cycle, all INCORRECT on window lapse. fc-2026-10-08-cmmc-release lapsed with the CMMC Reform Task Force report still non-public and no successor date -- the third consecutive missed informal timing signal. fc-2026-10-08-hormuz-tempo lapsed with no formal multinational escort/convoy response identified despite the wartime-high attack tempo. fc-2026-10-15-far-overhaul-filed-comments lapsed with no specific public confirmation that any major industry association filed comments against the exact 19 Oct deadline. This cycle's lead finding is the first confirmed nation-state (PRC-nexus) attribution within the seven-plus-week edge/identity exploitation wave: Google/Mandiant tied a BeyondTrust Remote Support zero-day (CVE-2026-102764), exploited pre-disclosure since 29 Aug, to ARMORY CASTLE (formerly UNC5221) -- a qualitative escalation from the wave's previously criminal-actor-only pattern. CISA separately KEV-listed Plex2Shell, SiteGuard, and a Siemens flaw (20 Oct). Hormuz saw a new UKMTO-confirmed strike (M/T Al Dasma, 21 Oct) with the transit-collapse figure still unconfirmed by any primary source for a second cycle; the Black Sea campaign's casualty toll diverged further rather than reconciling, with a new economic-disruption data point (shipowner avoidance, rising insurance costs). The standalone FAR Overhaul / Acquisition Reform thread was merged into CMMC Implementation given full content overlap, reducing the active thread count to 12. Four new PENDING forecasts added: a named DIB victim tied to the BeyondTrust campaign; a new DoD-stated CMMC target date; independent corroboration of Plex2Shell exploitation beyond one honeypot; and authoritative reconciliation of the Black Sea casualty toll."
   },
   "forecasts": [
     {
@@ -760,18 +760,18 @@
       "date": "2026-10-08",
       "forecast": "Given the Strait of Hormuz attack tempo reaching a wartime high in early October (~9 attacks, the 'On Peace' tanker injuring 12 of 19 crew), at least one formal multinational escort/convoy response or renewed U.S./allied naval-protection announcement will be publicly reported within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the rising frequency and casualty severity of Hormuz attacks forces a concrete multinational response rather than continued unilateral/bilateral handling. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-22",
+      "note": "The 14-day window closed today with no formal multinational escort/convoy response or renewed naval-protection announcement identified, despite continued attacks (including the 21 Oct Al Dasma strike near Oman). A March-2026-era White House plan for a US-led escort coalition was never confirmed as formally launched. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-08-cmmc-release",
       "date": "2026-10-08",
       "forecast": "The CMMC Reform Task Force report (delivered to DoD CIO Davies 9/11) will be publicly released within 14 days, given a trade-association figure's floated 'early October' expectation has itself now passed.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether a third informal release-timing expectation proves any more reliable than the two missed before it. Tracked on the CMMC Implementation thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-22",
+      "note": "The 14-day window closed today with the report still non-public and no successor date offered -- the third informal release-timing expectation proved no more reliable than the two missed before it. Tracked on the CMMC Implementation thread."
     },
     {
       "id": "fc-2026-10-08-anthropic-filing",
@@ -967,9 +967,9 @@
       "date": "2026-10-15",
       "forecast": "At least one major industry association (e.g., NDIA, PSC, AIA) will publicly confirm having filed FAR Overhaul comments ahead of the 19 Oct deadline.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests visibility into industry's actual response to the compressed comment window, independent of whether the deadline itself is extended. Tracked on the FAR Overhaul / Acquisition Reform thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-22",
+      "note": "The 7-day window closed today with no specific public confirmation located that any association filed comments against this exact 19 Oct deadline; AIA's well-documented history of commenting on every prior FAR Overhaul tranche is suggestive but does not satisfy this forecast's specific test. Graded on the window's lapse rather than a finding that no association filed. Tracked on the FAR Overhaul / Acquisition Reform thread (now merged into CMMC Implementation)."
     },
     {
       "id": "fc-2026-10-15-pixelleak-dib-exposure",
@@ -1132,6 +1132,42 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether this cycle's institutional-build-out signal converts into a concrete, named organizational commitment. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+    },
+    {
+      "id": "fc-2026-10-22-beyondtrust-dib-victim",
+      "date": "2026-10-22",
+      "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to CVE-2026-102764 (BeyondTrust Remote Support) will be publicly reported within 30 days, given confirmed pre-disclosure exploitation by a named PRC-nexus actor (ARMORY CASTLE/ex-UNC5221) and Mandiant's warning that broader exploitation is likely now the flaw is public.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this wave's first confirmed nation-state-attributed vendor family produces a named victim faster than the dozen-plus prior tracked CVE families, none of which has yet yielded one. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-22-cmmc-new-target",
+      "date": "2026-10-22",
+      "forecast": "DoD will publicly offer a new, specific target date for the CMMC Reform Task Force report's release within 21 days, given the third consecutive missed informal target.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether DoD re-anchors expectations with a new date or continues offering no timeline at all. Tracked on the CMMC Implementation thread."
+    },
+    {
+      "id": "fc-2026-10-22-plex2shell-wider-confirm",
+      "date": "2026-10-22",
+      "forecast": "Independent confirmation of Plex2Shell exploitation beyond the single researcher's honeypot (e.g., a security vendor's telemetry or an ISP/CDN-level report) will be publicly reported within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this newly KEV-listed chain's exploitation evidence generalizes beyond one honeypot's data. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-22-nato-blacksea-casualty-reconciliation",
+      "date": "2026-10-22",
+      "forecast": "A single authoritative source (a flag-state, the IMO, or a marine insurer) will reconcile the Black Sea campaign's diverging casualty figures (over 20 dead vs. 2 dead/25 missing) within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the campaign's casualty toll, which has diverged further rather than converged across successive cycles, is ever authoritatively settled. Tracked on the Black Sea Maritime Attack Campaign thread."
     }
   ]
 }
