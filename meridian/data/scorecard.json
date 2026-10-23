@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-22",
+  "updated": "2026-10-23",
   "summary": {
     "correct": 27,
-    "incorrect": 14,
+    "incorrect": 18,
     "partial": 10,
     "pending": 78,
-    "note": "2026-10-22: three prior forecasts graded this cycle, all INCORRECT on window lapse. fc-2026-10-08-cmmc-release lapsed with the CMMC Reform Task Force report still non-public and no successor date -- the third consecutive missed informal timing signal. fc-2026-10-08-hormuz-tempo lapsed with no formal multinational escort/convoy response identified despite the wartime-high attack tempo. fc-2026-10-15-far-overhaul-filed-comments lapsed with no specific public confirmation that any major industry association filed comments against the exact 19 Oct deadline. This cycle's lead finding is the first confirmed nation-state (PRC-nexus) attribution within the seven-plus-week edge/identity exploitation wave: Google/Mandiant tied a BeyondTrust Remote Support zero-day (CVE-2026-102764), exploited pre-disclosure since 29 Aug, to ARMORY CASTLE (formerly UNC5221) -- a qualitative escalation from the wave's previously criminal-actor-only pattern. CISA separately KEV-listed Plex2Shell, SiteGuard, and a Siemens flaw (20 Oct). Hormuz saw a new UKMTO-confirmed strike (M/T Al Dasma, 21 Oct) with the transit-collapse figure still unconfirmed by any primary source for a second cycle; the Black Sea campaign's casualty toll diverged further rather than reconciling, with a new economic-disruption data point (shipowner avoidance, rising insurance costs). The standalone FAR Overhaul / Acquisition Reform thread was merged into CMMC Implementation given full content overlap, reducing the active thread count to 12. Four new PENDING forecasts added: a named DIB victim tied to the BeyondTrust campaign; a new DoD-stated CMMC target date; independent corroboration of Plex2Shell exploitation beyond one honeypot; and authoritative reconciliation of the Black Sea casualty toll."
+    "note": "2026-10-23: four prior forecasts graded this cycle, all INCORRECT -- three were overdue window lapses not caught in intervening cycles (fc-2026-09-14-salalah-reschedule: no Salalah reschedule or Iran-Oman arrangement was ever confirmed; fc-2026-09-25-f5-named-victim: no named F5 BIG-IP APM victim beyond F5's own internal discovery has surfaced; fc-2026-10-07-ukraine-strike-response: no Western statement specifically referencing the 6-7 Oct Kyiv/Pryluky/Poltava strike was ever found), and one closed on today's window (fc-2026-10-02-fbi-shinyhunters-scope: no independent confirmation of the FBIJobs.gov data volume/scope beyond ShinyHunters' own claim). Lead findings this cycle: (1) US envoy Witkoff met Putin in St. Petersburg (21 Oct); per Kremlin aide Ushakov, Russia is 'in principle' ready to resume US-Russia-Ukraine trilateral talks (floated mid-November), announced the same week as a fresh Kyiv strike (late 21-22 Oct, 6+ injured) -- the Ukraine Ceasefire Diplomacy thread's direction changed from ESCALATING to UNCERTAIN to reflect this new, countervailing diplomatic signal. (2) Google Cloud/Mandiant published forensic detail on ARMORY CASTLE's BeyondTrust tradecraft: a custom webshell (SAWFLY) and a SUID-based technique achieving persistent root execution, with Mandiant recommending a forensic rebuild over in-place patching -- sharpening, not resolving, the sector-wide DIB-visibility gap. (3) NATO's 20 Oct Black Sea commitment produced its first physical follow-through: a US P-8A Poseidon (Varna, Bulgaria) and a French surveillance aircraft (Romania), both national assets at host-nation request, not yet NATO-badged. (4) A second, separate Hormuz-area incident (near Al Faw, Iraq, 20 Oct) adds to a rising October attack count (~28, up from ~18) even as pace is separately described as 'slowed.' (5) BAE Systems and the Department of War signed a new APKWS production-scaling framework (19-20 Oct), a concrete but unfunded munitions-demand signal. (6) A proposed class action (Edwards v. US DoW) was filed over the DMDC breach. Four new PENDING forecasts added, testing: whether the trilateral-talks track converts to an actually-convened meeting; whether further organizations report ARMORY CASTLE's specific persistence indicators; whether the APKWS framework converts to funded orders within 180 days; and whether the Cyber AB's 27 Oct Town Hall produces a CMMC timing signal."
   },
   "forecasts": [
     {
@@ -193,9 +193,9 @@
       "date": "2026-09-14",
       "forecast": "A rescheduled GCC-Iran ministerial meeting, or a publicly confirmed Iran-Oman bilateral shipping arrangement, will be announced within 30 days despite this week's postponement.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No reschedule date or publicly confirmed Iran-Oman bilateral arrangement identified. The diplomatic centre of gravity has shifted to UNGA, where the 22 Sep Trump-Gulf-leaders meeting and a possible Trump-Pezeshkian contact now overshadow the Salalah track. Window closes ~14 Oct."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-23",
+      "note": "This forecast's 30-day window closed ~14 Oct without being graded in intervening cycles. Through the present cycle, no reschedule of the Salalah ministerial and no publicly confirmed Iran-Oman bilateral shipping arrangement has ever been identified. Graded INCORRECT now on the window's lapse."
     },
     {
       "id": "fc-2026-09-14-ciscofmc-dib-victim",
@@ -472,9 +472,9 @@
       "date": "2026-09-25",
       "forecast": "At least one confirmed enterprise or DIB-sector victim organization (beyond F5's own internal discovery) tied to CVE-2026-94127 will be publicly reported within 21 days of today's federal remediation deadline.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the F5 BIG-IP APM zero-day's exploitation scope becomes visible beyond F5's own vendor-discovered case. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-23",
+      "note": "Window closed ~16 Oct. No named F5 BIG-IP APM victim beyond F5's own internal discovery has surfaced in any cycle's research, including this cycle's dedicated DIB-victim sweep across all tracked edge-CVE vendor families. Graded INCORRECT on the window's lapse. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-28-iran-post-midterm-strikes",
@@ -616,9 +616,9 @@
       "date": "2026-10-02",
       "forecast": "An independent (non-claimant-sourced) confirmation of the scope of data taken from the FBIJobs.gov breach (volume and record types) will be publicly reported within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the FBI or an independent forensic source corroborates or disputes ShinyHunters' ~2TB claim. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-23",
+      "note": "Window closes today, 23 Oct. This cycle's dedicated breach-wave research sweep found no independent confirmation of the FBIJobs.gov data volume/scope beyond ShinyHunters' own ~2TB claim and the FBI's bare acknowledgment of 'a cybersecurity incident.' Graded INCORRECT on the window's lapse. Tracked on the Government/Defense Personnel & Contractor Data Breach Wave thread."
     },
     {
       "id": "fc-2026-10-02-doddgroup-attribution",
@@ -742,9 +742,9 @@
       "date": "2026-10-07",
       "forecast": "The 10/6-10/7 mass Russian strike on Kyiv/Pryluki/Poltava (19+ killed) will produce a concrete new Western response (a sanctions action, an air-defense commitment, or a formal G7/EU/NATO statement specifically referencing this strike) within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this materially larger strike event (vs. the preceding bridge campaign) produces a distinguishable Western policy response. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-23",
+      "note": "Window closed ~21 Oct. No sanctions action, air-defense commitment, or formal G7/EU/NATO statement specifically referencing that strike was identified across any subsequent cycle's research. Graded INCORRECT on the window's lapse. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-07-parnell-withdrawal",
@@ -1168,6 +1168,42 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether the campaign's casualty toll, which has diverged further rather than converged across successive cycles, is ever authoritatively settled. Tracked on the Black Sea Maritime Attack Campaign thread."
+    },
+    {
+      "id": "fc-2026-10-23-ukraine-trilateral-talks",
+      "date": "2026-10-23",
+      "forecast": "A trilateral (US-Russia-Ukraine) negotiator-level meeting, following the reported Witkoff-Putin 'agreement in principle,' will be confirmed convened within 30 days (by ~22 Nov), despite continued Russian strikes on Kyiv the same week the agreement was announced.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's diplomatic opening converts into an actually-convened meeting, or stalls as prior 2026 overtures (the September energy-halt dispute, Iran's rejected roadmap) have. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+    },
+    {
+      "id": "fc-2026-10-23-beyondtrust-persistence-evidence",
+      "date": "2026-10-23",
+      "forecast": "Given Mandiant's disclosure of ARMORY CASTLE's SAWFLY webshell and SUID-based root-persistence technique, at least one additional organization (beyond BeyondTrust's own two disclosed cases) will report finding evidence of this specific persistence technique on its own appliance within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the published forensic indicators lead to discovery of further compromised organizations, which would also bear on the standing fc-2026-10-22-beyondtrust-dib-victim forecast. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-23-bae-apkws-funding",
+      "date": "2026-10-23",
+      "forecast": "The BAE Systems-Department of War APKWS production framework agreement (19-20 Oct) will convert to a funded, congressionally authorized multiyear contract within 180 days.",
+      "horizon": "0-180 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this framework, explicitly contingent on congressional action, converts to funded orders within six months. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+    },
+    {
+      "id": "fc-2026-10-23-cmmc-townhall-signal",
+      "date": "2026-10-23",
+      "forecast": "The Cyber Accreditation Body's 27 Oct Town Hall will produce at least an informal DoD-sourced signal on CMMC Reform Task Force timing, beyond the Town Hall's routine agenda, within 7 days.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the flagged Town Hall date actually becomes a venue for a CMMC timing signal, or passes without one -- directly informing the standing fc-2026-10-22-cmmc-new-target forecast. Tracked on the CMMC Implementation thread."
     }
   ]
 }
