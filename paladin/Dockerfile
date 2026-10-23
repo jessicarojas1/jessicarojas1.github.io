@@ -2,7 +2,7 @@
 # Cloud-agnostic; runs on Azure Government (Container Apps / AKS / App Service),
 # AWS GovCloud (ECS / EKS / EC2), Kubernetes, Docker Swarm or on-prem Linux.
 # base image: php:8.3-apache
-FROM php:8.3-apache@sha256:954d6198d9877b396382aa8a93d8be4832ab4908a7dc64f58dcc4be2833b8e29
+FROM php:8.5-apache@sha256:65094755171975e565538ddbfa589847548e80d15adfbb9064a20b86f8485215
 
 # System deps + PHP extensions (PostgreSQL, GD, OPcache, sodium for at-rest encryption)
 RUN apt-get update && apt-get install -y --no-install-recommends \
