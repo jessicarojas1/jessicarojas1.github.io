@@ -1,0 +1,175 @@
+// PAL design tokens. Components use these custom properties, never hard-coded colours,
+// so light/dark themes and branding stay consistent.
+:root {
+  --pal-surface: #ffffff;
+  --pal-surface-sunken: #f5f7fb;
+  --pal-border: #dfe4ee;
+  --pal-text: #111827;
+  --pal-text-muted: #4b5563;
+  --pal-focus: #1d4ed8;
+  --pal-radius: 10px;
+  --pal-radius-sm: 6px;
+  --pal-space-1: 4px;
+  --pal-space-2: 8px;
+  --pal-space-3: 12px;
+  --pal-space-4: 16px;
+  --pal-space-6: 24px;
+  --pal-space-8: 32px;
+  --pal-shadow: 0 1px 2px rgb(15 23 42 / 6%), 0 4px 12px rgb(15 23 42 / 6%);
+  // Derived from the organisation's accent at runtime (stores/branding.ts); defaults match #2f5bd3.
+  --pal-on-primary: #ffffff;
+  --pal-primary-on-light: #2f5bd3;
+  --pal-primary-on-dark: #6384de;
+  --pal-primary-text: var(--pal-primary-on-light);
+}
+
+body.body--dark {
+  --pal-surface: #111a2e;
+  --pal-surface-sunken: #0b1220;
+  --pal-border: #24314d;
+  --pal-text: #e5e7eb;
+  --pal-text-muted: #a3adbf;
+  --pal-focus: #93c5fd;
+  --pal-shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 12px rgb(0 0 0 / 30%);
+  --pal-primary-text: var(--pal-primary-on-dark);
+}
+
+body {
+  background: var(--pal-surface-sunken);
+  color: var(--pal-text);
+}
+
+// Always-visible keyboard focus (WCAG 2.4.7 / 2.4.11).
+:focus-visible {
+  outline: 3px solid var(--pal-focus);
+  outline-offset: 2px;
+}
+
+.pal-skip-link {
+  position: absolute;
+  left: var(--pal-space-4);
+  top: -48px;
+  z-index: 10000;
+  padding: var(--pal-space-2) var(--pal-space-4);
+  background: var(--pal-surface);
+  color: var(--pal-text);
+  border-radius: var(--pal-radius-sm);
+  box-shadow: var(--pal-shadow);
+
+  &:focus {
+    top: var(--pal-space-2);
+  }
+}
+
+.pal-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--pal-space-6) var(--pal-space-4) var(--pal-space-8);
+}
+
+.pal-page-header {
+  margin-bottom: var(--pal-space-6);
+
+  h1 {
+    font-size: 1.6rem;
+    line-height: 1.25;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  p {
+    margin: var(--pal-space-1) 0 0;
+    color: var(--pal-text-muted);
+  }
+}
+
+.pal-card {
+  background: var(--pal-surface);
+  border: 1px solid var(--pal-border);
+  border-radius: var(--pal-radius);
+  box-shadow: var(--pal-shadow);
+  padding: var(--pal-space-6);
+}
+
+.pal-muted {
+  color: var(--pal-text-muted);
+}
+
+.pal-field-key {
+  margin-top: var(--pal-space-3);
+  padding: var(--pal-space-3) var(--pal-space-4);
+  border-radius: var(--pal-radius-sm);
+  background: var(--pal-surface-sunken);
+  border: 1px solid var(--pal-border);
+  font-size: 0.85rem;
+
+  dt {
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0 0 var(--pal-space-2);
+    color: var(--pal-text-muted);
+  }
+}
+
+.pal-brand-logo {
+  max-height: 32px;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+.pal-accent-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--pal-radius-sm);
+  border: 1px solid var(--pal-border);
+  background: var(--q-primary);
+}
+
+.pal-brand-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pal-signin-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.pal-form-narrow {
+  max-width: 560px;
+}
+
+// Matches the height of an outlined Quasar field so buttons align with inputs.
+.pal-field-height {
+  height: 56px;
+}
+
+// Accent used as text (links, active navigation, chips): always meets 4.5:1 on the current theme.
+.pal-text-primary {
+  color: var(--pal-primary-text);
+}
+
+// Text placed on the accent colour (header, filled primary buttons).
+.pal-on-primary,
+.bg-primary.text-white {
+  color: var(--pal-on-primary) !important;
+}
+
+.pal-role-chip {
+  color: var(--pal-primary-text);
+  border-color: currentColor;
+}
+
+// Programmatic focus target of the skip link: focus moves here, but it is not a control.
+#main-content:focus {
+  outline: none;
+}
+
+// Keep the brand visible on narrow screens; the toolbar title may shrink but not vanish.
+.pal-toolbar-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
