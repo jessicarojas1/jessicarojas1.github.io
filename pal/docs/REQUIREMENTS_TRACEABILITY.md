@@ -34,4 +34,5 @@ Spec section → design location → phase → verification. Status is `Designed
 | R28 | Multi-timezone effective dates, single org scope (owner D6/D7) | §11 | 5 | DST + cross-timezone display tests |
 | R29 | Logs to Microsoft Sentinel (owner) | ADR-0011 | 1/8 | Events visible in Sentinel workspace (org-run test) |
 | R30 | Migrate from on-prem Confluence (owner) | ADR-0012 | 6b | Pilot reconciliation report |
-| R31 | Email via SMTP (+ Graph optional) (owner) | §1a, §14.1 | 4–6 | Notification delivery tests |
+| R32 | Entra ID sign-in + Graph group sync only (owner D18) | ADR-0004, ADR-0010 | 1 | Sign-in E2E; sync add/remove tests; disabled-user lockout test |
+| R31 | Email via SMTP (owner; Graph mail out of v1 per D18) | §1a, §14.1 | 4–6 | Notification delivery tests |

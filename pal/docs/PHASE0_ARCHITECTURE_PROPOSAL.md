@@ -69,7 +69,8 @@ Five design choices carry most of the correctness requirements in the spec:
 
 | # | Question | Owner answer (2026-10-25) | Design consequence |
 |---|---|---|---|
-| D0 | Build vs. SharePoint | Integrity controls are required. **Not built on SharePoint or Microsoft platforms.** | Custom build confirmed. No SharePoint, Power Platform, Office for the web or Azure hosting. Identity and directory sit behind adapters (D18). |
+| D0 | Build vs. SharePoint | Integrity controls are required. **Not built on SharePoint or Microsoft platforms.** | Custom build confirmed. No SharePoint, Power Platform, Office for the web or Azure hosting. |
+| D18 | Identity provider | **Keep Entra ID for sign-in and group sync only.** "Not Microsoft" meant not building on SharePoint/M365. | Entra ID via OIDC (BFF) for sign-in; Microsoft Graph, read-only, for group and user sync. No other Microsoft dependency. Identity stays behind OIDC and directory adapters, so it can still be swapped later. |
 | D1 | Language | **PHP** | ADR-0008 (Symfony recommended, D13). ADR-0002 superseded. |
 | D2 | First target | **On-prem Linux** | §14.2 is the primary design. The Azure option is retained only as a documented future path. |
 | D3 | Authoring | **Full in-browser editor + upload Word, PDF, Excel** | ADR-0009. Native editor + file documents. Phase 3 grows. |
@@ -79,7 +80,7 @@ Five design choices carry most of the correctness requirements in the spec:
 | D10 | Recovery / performance targets | **Unknown to owner** | Provisional defaults adopted (RPO 15 min, RTO 4 h, §17 performance). They need confirmation from the IT / business owner before Phase 7. Plain-language explanation in §18. |
 | D12 | Repository | **Portfolio repo for now; private company repo at handover** | Keep all content generic. Handover checklist in §18. |
 | — | Existing documents | **On-prem Confluence** | ADR-0012. Importer + Phase 6b. |
-| — | Email | **SMTP and Graph** | `Mailer` transport adapter: SMTP first. Graph only if D18 keeps Microsoft identity. |
+| — | Email | **SMTP and Graph**, narrowed by D18 ("Entra for sign-in and group sync only") | **SMTP only in v1.** The transport is an adapter, so Graph mail can be enabled later as a separate decision (it would need `Mail.Send` scoped to one mailbox). |
 | — | Logging | **Microsoft Sentinel** | ADR-0011 |
 
 ---
@@ -454,7 +455,7 @@ Rules:
 **Two layers, both enforced in the backend:**
 
 1. **Global roles** (from Entra app roles or group mapping, per D4): `SystemAdministrator`, `PalAdministrator`, `Publisher`, `Reader` (all employees by default). Global `Author` means "may create new documents".
-2. **Category- and document-scoped roles granted to users or directory groups** (`access_grant`, rev 2, ADR-0010): `Owner`, `Author`, `Reviewer`, `Approver`, `Reader`. Documents inherit their category's grants and can add their own. Grants are allow-only, with no deny rules. A category or document marked *restricted* drops the default all-employee read access. Groups are synced from the directory (Entra via Graph, or LDAP/AD, per D18), never taken from token claims.
+2. **Category- and document-scoped roles granted to users or directory groups** (`access_grant`, rev 2, ADR-0010): `Owner`, `Author`, `Reviewer`, `Approver`, `Reader`. Documents inherit their category's grants and can add their own. Grants are allow-only, with no deny rules. A category or document marked *restricted* drops the default all-employee read access. Groups are synced from Entra ID through Microsoft Graph, read-only (D18), never taken from token claims.
 
 **Permissions are fine-grained strings, checked per action**, for example:
 `document.create`, `document.edit_metadata`, `document.change_owner`, `revision.create_draft`, `revision.edit`, `revision.submit`, `revision.withdraw`, `workflow.decide`, `workflow.cancel`, `workflow.reassign`, `publication.schedule`, `publication.release`, `publication.emergency`, `document.obsolete`, `document.archive`, `document.legal_hold`, `admin.workflows`, `admin.numbering`, `admin.types`, `admin.retention`, `audit.read`, `audit.export`, `report.export`, `system.config`.
@@ -494,7 +495,7 @@ Same container images in every environment. Environment differences are **config
 | Malware scanner | Yes | ClamAV (`clamd`) |
 | `pal-converter` (Gotenberg) | Yes for Office preview | No egress; internal only |
 | Reverse proxy / TLS | Yes | nginx on-prem (internal CA or public cert) |
-| SMTP relay (Graph optional, D18) | Yes | Dedicated sender address |
+| SMTP relay | Yes | Dedicated sender address; Graph mail not used (D18) |
 | Log forwarding to Microsoft Sentinel | Yes (prod) | AMA via Arc, or existing syslog/CEF forwarder (ADR-0011) |
 | Health / uptime monitoring | Yes (prod) | Sentinel is not uptime monitoring; target TBD (D17) |
 | WAF | Optional | Recommended if internet-exposed |
@@ -518,7 +519,7 @@ Same container images in every environment. Environment differences are **config
    │ PostgreSQL 17 (host B)    │        │ NAS / blob volume      │
    │ WAL archiving → backup    │        │ (immutable perms, snaps)│
    └───────────────────────────┘        └───────────────────────┘
-        Outbound only: identity provider (OIDC), directory (Graph or LDAP), SMTP relay, ClamAV mirror,
+        Outbound only: Entra ID (OIDC sign-in), Microsoft Graph (read-only group/user sync), SMTP relay, ClamAV mirror,
         log collector → Microsoft Sentinel
 ```
 - Two VMs minimum for prod (app; DB). DB on its own host for resource isolation and backup control.
@@ -580,7 +581,7 @@ STRIDE-oriented, top risks ranked by likelihood × impact for this system.
 | T11 | **Scheduler race / double publish** | Duplicate workers, retries | Row lock + conditional update + exclusion constraint + idempotency key |
 | T12 | **Supply chain** | NuGet/npm packages, base images | Lockfiles, Dependabot/Renovate, SCA in CI (fail on high/critical), pinned and scanned container images (Trivy), SBOM (CycloneDX), secret scanning (gitleaks) |
 | T13 | **Secrets exposure** | Config, logs | Managed identity on Azure, Key Vault/Docker secrets on-prem, no secrets in repo/images, structured logging with redaction |
-| T14 | **Mail abuse** | Over-privileged Graph permission | Scope `Mail.Send` to one mailbox |
+| T14 | **Over-privileged directory access** | Graph app permissions broader than needed; leaked client credential | Read-only application permissions only (D16); sync limited to groups PAL actually uses; certificate credential (not a client secret) stored outside the repo and rotated; no `Mail.Send` (SMTP is used instead) |
 | T16 | **Stored XSS via the editor** | Crafted editor JSON, pasted HTML, embedded images/links | Schema-validated JSON only; server-side rendering from the schema; HtmlSanitizer as a second layer; `javascript:` and data URLs blocked in links; images through the upload pipeline; strict CSP with nonces |
 | T17 | **Import as an attack path** | Malicious Confluence content or attachments | Same sanitize/scan pipeline as uploads; read-only service account; import runs offline from user traffic |
 | T15 | **DoS** | Large uploads, expensive search/conversion | Request size limits, rate limiting (Symfony RateLimiter) per user/IP, conversion queue with concurrency cap and timeouts |
@@ -596,7 +597,7 @@ Changes from the spec's plan: (1) a **thin end-to-end slice by the end of Phase 
 | Phase | Scope | Exit criteria (objective) |
 |---|---|---|
 | **0 — Architecture** *(this doc)* | Proposal, ADRs, data model, state machine, threat model, plan | Owner approves; D0–D11 answered or deferred explicitly |
-| **1 — Foundation** | Repo layout (`pal/backend`, `pal/frontend`, `pal/deploy`), Symfony app with module boundaries (Deptrac), Doctrine migrations + `database/schema.sql`, BFF + OIDC (IdP per D18), directory group sync, role mapping, permission handler skeleton, health/readiness, OpenTelemetry logging, CI (build, test, SAST, SCA, secret scan, container scan), Docker Compose, Render/Azure config, Quasar shell + design tokens, **a11y spike**, the standard doc set | Login works against a dev Entra tenant; unauthenticated → 401; permission test matrix green; CI fails on seeded vulnerable dependency; axe clean on shell; restore of empty DB from backup demonstrated |
+| **1 — Foundation** | Repo layout (`pal/backend`, `pal/frontend`, `pal/deploy`), Symfony app with module boundaries (Deptrac), Doctrine migrations + `database/schema.sql`, BFF + Entra ID OIDC sign-in, Graph group/user sync, role mapping, permission handler skeleton, health/readiness, OpenTelemetry logging, CI (build, test, SAST, SCA, secret scan, container scan), Docker Compose, Render/Azure config, Quasar shell + design tokens, **a11y spike**, the standard doc set | Login works against a dev Entra tenant; unauthenticated → 401; permission test matrix green; CI fails on seeded vulnerable dependency; axe clean on shell; restore of empty DB from backup demonstrated |
 | **2 — Repository + walking skeleton** | Document/type/number entities, upload pipeline (quarantine, detect, scan, promote), blob abstraction (filesystem/NAS + S3), metadata, library list/search (FTS), details page, **single-approver workflow + immediate publish (thin)** | **Scenario 1 and 7 pass as automated tests**; infected test file (EICAR) stays quarantined; spoofed extension rejected; reader cannot fetch draft by ID (404) |
 | **3 — Versioning + native editor** | Revisions, content freeze, manifest hashing, numbering policies, history, rollback-as-new-revision, metadata diff. **Native editor v1** (ADR-0009): schema, autosave, checkout, templates, images, server-side rendering, PDF rendition, structural diff | **Scenario 2, 8** pass, for both native and file documents; DB trigger blocks direct content update; XSS test corpus produces no script execution; editor passes axe + keyboard checks |
 | **4 — Workflow engine** | Definitions/versions, sequential/parallel/quorum, required/optional, SoD, reassignment/delegation, cancellation, escalation, re-auth (if D9) | **Scenario 3, 10** pass, including a concurrency test firing N parallel decisions; SoD violations refused with audit |
@@ -627,19 +628,18 @@ Sizing is deliberately not estimated in calendar time until D1/D2 (team size and
 ## 18. Decisions required before Phase 1
 
 ### 18.1 Answered (rev 2)
-D0 custom build, not on SharePoint/Microsoft · D1 PHP · D2 on-prem Linux · D3 full in-browser editor + Word/Excel/PDF uploads · D5 group access · D6 many time zones → effective at one instant, shown in local time · D7 one organisation-wide scope · D12 portfolio now, private repo at handover. Defaults accepted with no objection: D4 (directory groups → global roles), D8 (numbering), D9 (re-sign-in to approve), D11 (show the effective revision plus an "upcoming revision" banner).
+D0 custom build, not on SharePoint/Microsoft · D1 PHP · D2 on-prem Linux · D3 full in-browser editor + Word/Excel/PDF uploads · D5 group access · D6 many time zones → effective at one instant, shown in local time · D7 one organisation-wide scope · D12 portfolio now, private repo at handover · **D18 Entra ID for sign-in and group sync only** (not SharePoint/M365) → SMTP-only email in v1. Defaults accepted with no objection: D4 (directory groups → global roles), D8 (numbering), D9 (re-sign-in to approve), D11 (show the effective revision plus an "upcoming revision" banner).
 
 ### 18.2 Still open
 
 | ID | Decision | Options | Recommendation |
 |---|---|---|---|
-| **D18** | **Identity provider.** "Not Microsoft" vs. the spec's Entra ID SSO. Does sign-in still use Entra ID? | Entra ID (OIDC) / on-prem AD via LDAP + an OIDC broker (e.g. Keycloak) / another IdP | Keep **Entra ID for sign-in only** if that's where your accounts live. PAL talks plain OIDC, so it can be swapped later. |
 | **D13** | **PHP framework** | Symfony / Laravel / in-house | Symfony (ADR-0008) |
 | D6a | Organisation's default timezone for scheduling | Headquarters timezone / UTC | Headquarters timezone (most intuitive for publishers); users still see their own local time |
 | **D10** | **Recovery targets (provisional)** | — | **RPO 15 min** (at most the last 15 minutes of edits could be lost after a server failure) and **RTO 4 h** (PAL back within half a working day). Confirm with IT; tightening later mostly adds a standby DB server, not a redesign. |
 | D14 | In-browser editing of Word/Excel files | Defer / ONLYOFFICE Docs / Collabora Online | Defer to Phase 9; download → edit → upload until then |
 | D15 | Real-time co-authoring in the native editor | Defer / add a Node.js collaboration service | Defer; single-editor checkout in v1 |
-| D16 | Directory read permission | Graph `GroupMember.Read.All` (admin consent) / LDAP read-only bind | Depends on D18 |
+| D16 | Graph permissions for sync (Entra admin consent needed) | Read-only application permissions: `GroupMember.Read.All` for memberships, plus `User.Read.All` to detect disabled accounts. The exact least-privilege set is confirmed in Phase 1. | Approve read-only; sync only groups that PAL grants use or an admin lists. Use a certificate credential. |
 | D17 | Sentinel forwarding path and uptime monitoring | Azure Monitor Agent via Arc / existing syslog-CEF forwarder; monitoring target TBD | Use whatever your SOC already runs |
 | D19 | Confluence facts | Edition + version; number of spaces/pages; must page history migrate? Is an approvals app (e.g. Comala) in use? | Inventory before Phase 6b |
 
