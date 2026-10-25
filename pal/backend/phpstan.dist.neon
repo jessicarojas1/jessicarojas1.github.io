@@ -1,0 +1,12 @@
+# Production code: strictest level. Tests: see phpstan.tests.neon.
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-symfony/rules.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    tmpDir: var/phpstan

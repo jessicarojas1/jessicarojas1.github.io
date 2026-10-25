@@ -1,0 +1,30 @@
+security:
+    providers:
+        pal_users:
+            id: App\Identity\Security\PalUserProvider
+
+    firewalls:
+        dev:
+            pattern: ^/(_profiler|_wdt)/
+            security: false
+        health:
+            pattern: ^/health/
+            security: false
+        main:
+            lazy: true
+            provider: pal_users
+            custom_authenticators:
+                - App\Identity\Security\OidcCallbackAuthenticator
+            entry_point: App\Identity\Security\ApiAuthenticationEntryPoint
+            access_denied_handler: App\Identity\Security\ApiAccessDeniedHandler
+            logout:
+                path: auth_logout
+                invalidate_session: true
+                # CSRF for logout is enforced by CsrfHeaderSubscriber (X-CSRF-Token header).
+                enable_csrf: false
+
+    # Coarse gate only. Fine-grained checks use #[IsGranted(Permission::X)] and voters.
+    access_control:
+        - { path: ^/auth/(login|callback)$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/branding$, methods: [GET], roles: PUBLIC_ACCESS }
+        - { path: ^/api/, roles: IS_AUTHENTICATED }

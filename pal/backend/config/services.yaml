@@ -1,0 +1,43 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/**/Message/*.php'
+            - '../src/Audit/AuditEntry.php'
+            - '../src/Audit/AuditActor.php'
+            - '../src/Audit/AuditChainReport.php'
+            - '../src/Identity/User/PalUser.php'
+            - '../src/Identity/Oidc/AuthorizationRequest.php'
+            - '../src/Identity/Oidc/IdTokenClaims.php'
+            - '../src/Identity/Oidc/OidcException.php'
+            - '../src/Identity/Directory/Directory{GroupInfo,UserInfo,Exception}.php'
+            - '../src/Identity/Directory/SyncSummary.php'
+            - '../src/Platform/Http/ApiProblem.php'
+            - '../src/Settings/Branding.php'
+
+    # Message handlers live next to their messages; register them explicitly.
+    App\Audit\Message\VerifyAuditChainHandler: ~
+    App\Identity\Message\SyncDirectoryHandler: ~
+
+    App\Identity\Directory\DirectoryAdapter: '@App\Identity\Directory\GraphDirectoryAdapter'
+
+    # Sessions in PostgreSQL on their own PDO connection (separate from DBAL, so session
+    # locking never interferes with application transactions). Advisory locks avoid
+    # holding a transaction open for the whole request.
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
+        arguments:
+            - '%env(DATABASE_URL)%'
+            - { db_table: sessions, lock_mode: 1 }
+
+    # Distributed lock for the scheduler, using PostgreSQL advisory locks (no extra infrastructure).
+    pal.lock.store:
+        class: Symfony\Component\Lock\Store\DoctrineDbalPostgreSqlStore
+        arguments: ['@doctrine.dbal.default_connection']
+    pal.lock.factory:
+        class: Symfony\Component\Lock\LockFactory
+        arguments: ['@pal.lock.store']

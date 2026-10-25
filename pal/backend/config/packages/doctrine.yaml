@@ -1,0 +1,6 @@
+# DBAL only, no ORM: PAL's invariants (exclusion constraints, ranges, append-only
+# audit written in the same transaction) are expressed in explicit SQL. See ADR-0013.
+doctrine:
+    dbal:
+        url: '%env(resolve:DATABASE_URL)%'
+        profiling_collect_backtrace: '%kernel.debug%'

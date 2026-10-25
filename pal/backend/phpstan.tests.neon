@@ -1,0 +1,13 @@
+# Tests run at level 6 by decision: at max, findings are almost entirely "mixed from
+# json_decode()" inside assertions, which adds noise without catching defects.
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-symfony/rules.neon
+
+parameters:
+    level: 6
+    paths:
+        - tests
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    tmpDir: var/phpstan-tests

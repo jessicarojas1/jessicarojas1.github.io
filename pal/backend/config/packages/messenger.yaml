@@ -1,0 +1,26 @@
+framework:
+    messenger:
+        failure_transport: failed
+
+        transports:
+            # Durable queue in PostgreSQL. Handlers must be idempotent (at-least-once delivery).
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: async
+                retry_strategy:
+                    max_retries: 5
+                    delay: 2000
+                    multiplier: 3
+                    max_delay: 600000
+            failed:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: failed
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                async: 'in-memory://'
+                failed: 'in-memory://'

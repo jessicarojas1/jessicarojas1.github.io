@@ -1,0 +1,49 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    http_method_override: false
+    handle_all_throwables: true
+
+    # Behind nginx (same container) and possibly a load balancer. Only these proxies may
+    # set X-Forwarded-*; only these hosts are accepted (Host-header attack protection).
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port']
+    trusted_hosts: '%env(TRUSTED_HOSTS)%'
+
+    csrf_protection:
+        enabled: true
+
+    session:
+        handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
+        name: '%env(PAL_SESSION_COOKIE_NAME)%'
+        cookie_secure: '%env(bool:PAL_SESSION_COOKIE_SECURE)%'
+        cookie_httponly: true
+        cookie_samesite: lax
+        cookie_lifetime: 0
+        gc_maxlifetime: '%env(int:PAL_SESSION_IDLE_SECONDS)%'
+        gc_probability: 1
+        gc_divisor: 100
+
+    http_client:
+        default_options:
+            timeout: 10
+            max_redirects: 0
+
+    rate_limiter:
+        auth_login:
+            policy: sliding_window
+            limit: 20
+            interval: '1 minute'
+        api:
+            policy: sliding_window
+            limit: 600
+            interval: '1 minute'
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file
+        cache:
+            app: cache.adapter.array
+        http_client:
+            mock_response_factory: App\Tests\Support\FakeEntraId

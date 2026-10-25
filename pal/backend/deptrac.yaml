@@ -1,0 +1,32 @@
+# Module boundaries for the modular monolith (ADR-0001). CI fails on violations.
+deptrac:
+  paths:
+    - ./src
+  layers:
+    - name: Platform
+      collectors:
+        - { type: classLike, value: '^App\\Platform\\.*' }
+    - name: Audit
+      collectors:
+        - { type: classLike, value: '^App\\Audit\\.*' }
+    - name: Identity
+      collectors:
+        - { type: classLike, value: '^App\\Identity\\.*' }
+    - name: Settings
+      collectors:
+        - { type: classLike, value: '^App\\Settings\\.*' }
+  ruleset:
+    Platform:
+      # The scheduler wires messages from feature modules; nothing else in Platform may.
+      - Audit
+      - Identity
+    Audit:
+      - Platform
+    Identity:
+      - Platform
+      - Audit
+      - Settings
+    Settings:
+      - Platform
+      - Audit
+      - Identity
