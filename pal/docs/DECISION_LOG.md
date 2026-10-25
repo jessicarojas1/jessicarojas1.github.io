@@ -18,5 +18,7 @@
 | 14 | 2026-10-25 | Owner: one organisation-wide scope; many time zones → single effective instant shown in local time | Decided | Proposal §11 |
 | 15 | 2026-10-25 | Owner: portfolio repo now, private company repo at handover | Decided | Proposal §18.3 |
 | 16 | 2026-10-25 | Owner (D18): Entra ID for sign-in and group sync only; "not Microsoft" = not SharePoint/M365 → SMTP-only email in v1 | Decided | Proposal §1a, ADR-0004, ADR-0010 |
+| 17 | 2026-10-25 | Owner (D6a): organisation default timezone `America/Denver` | Decided | Proposal §11 |
 
-Still open: D13 framework, D6a default timezone, D10 recovery targets (provisional), D14–D17, D19. See [proposal §18.2](PHASE0_ARCHITECTURE_PROPOSAL.md#182-still-open).
+
+Still open: D13 framework, D10 recovery targets (provisional), D14–D17, D19. See [proposal §18.2](PHASE0_ARCHITECTURE_PROPOSAL.md#182-still-open).

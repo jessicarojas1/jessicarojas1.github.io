@@ -75,7 +75,7 @@ Five design choices carry most of the correctness requirements in the spec:
 | D2 | First target | **On-prem Linux** | §14.2 is the primary design. The Azure option is retained only as a documented future path. |
 | D3 | Authoring | **Full in-browser editor + upload Word, PDF, Excel** | ADR-0009. Native editor + file documents. Phase 3 grows. |
 | D5 | Visibility | **Group access is required** | ADR-0010. Category/document grants to directory groups, enforced in SQL. |
-| D6 | Effective-date semantics | **Many time zones** | §11: each change takes effect at a single moment, chosen with a date, a time and a timezone, and shown to every user in their own timezone. The organisation's default timezone is still to be named (D6a). |
+| D6 | Effective-date semantics | **Many time zones** | §11: each change takes effect at a single moment, chosen with a date, a time and a timezone, and shown to every user in their own timezone. Organisation default timezone: **`America/Denver`** (D6a, Mountain Time with DST). |
 | D7 | Publication scope | **One organisation-wide scope** | Confirmed. `scope_id` stays in the schema as a single fixed value. |
 | D10 | Recovery / performance targets | **Unknown to owner** | Provisional defaults adopted (RPO 15 min, RTO 4 h, §17 performance). They need confirmation from the IT / business owner before Phase 7. Plain-language explanation in §18. |
 | D12 | Repository | **Portfolio repo for now; private company repo at handover** | Keep all content generic. Handover checklist in §18. |
@@ -335,7 +335,7 @@ Constraints:
 - **`directory_group`** (`id`, `directory_object_id` unique, `display_name`, `synced_at`) and **`group_membership`** (`group_id`, `user_id`, `valid_from`, `valid_to`). Membership history is kept, so "who could read this on date X?" stays answerable.
 - **`access_grant`** (`scope_type CATEGORY|DOCUMENT`, `scope_id`, `principal_type USER|GROUP`, `principal_id`, `role`, `valid_from`, `valid_to`, `granted_by`) and **`category`** (hierarchical, `restricted bool`).
 - **`document_access`**: materialized effective access (`document_id`, `principal_id`, `role`) joined inside every list/search query.
-- **`app_user.timezone`** (IANA name, defaulting from the browser and changeable by the user) and **`org_setting.default_timezone`**.
+- **`app_user.timezone`** (IANA name, defaulting from the browser and changeable by the user) and **`org_setting.default_timezone`** (seeded `America/Denver`, admin-configurable).
 - **`import_mapping`** (`source_system`, `source_id`, `source_version`, `document_id`, `revision_id`, `batch_id`) for the idempotent Confluence import.
 
 **`outbox_message`**, **`notification`**, **`job_failure`**, **`search_document`** (projection keyed by `(revision_id, visibility_class)`).
@@ -440,9 +440,10 @@ Rules:
   5. Write audit events, outbox messages (notifications, reindex) and commit.
 - **Visible vs. effective (Scenario 4):** between Nov 1 and Nov 5, 2.0 is *published* (readers can view it, labelled "Effective from 5 Nov 2026") while 1.x is still *effective* (labelled "Current until 5 Nov"). The library defaults to showing the effective revision, with a clear banner for the upcoming one. **DECISION D11** confirms this display rule.
 - **Time handling across many time zones (rev 2, D6):** with one organisation-wide scope, a revision becomes effective at **one instant for everyone**. Per-user local midnight would mean two revisions are effective at once somewhere in the world, which breaks the core guarantee.
-  - The publisher picks **date + time + timezone**. The timezone defaults to the organisation's default timezone (D6a), and the time defaults to 00:00.
+  - The publisher picks **date + time + timezone**. The timezone defaults to the organisation's default, **`America/Denver`** (D6a), and the time defaults to 00:00.
   - PAL stores the UTC instant **and** the entered local values (`effective_local`, `effective_tz`) for display and audit.
-  - Every user sees times in their own timezone, labelled. For example: "Effective 5 Nov 2026, 00:00 America/New_York (06:00 your time, Europe/Berlin)". Notification emails show both.
+  - Every user sees times in their own timezone, labelled. For example: "Effective 5 Nov 2026, 00:00 America/Denver (08:00 your time, Europe/Berlin)", stored as 2026-11-05T07:00Z. Notification emails show both.
+  - **Scenario 4 crosses a DST change:** US daylight saving ends on Sunday 1 Nov 2026, the scheduled publication date. Denver is UTC−6 before the change and UTC−7 after, so the Phase 5 tests must cover publish and effective instants on both sides of it.
   - DST is resolved by the IANA timezone database at entry time. Nonexistent or ambiguous local times during DST changes (e.g. 02:30 on a spring-forward night) are **rejected with a clear message**, not guessed.
   - The scheduler sweeps every minute for `publish_at ≤ now() AND status='SCHEDULED'`, so **downtime self-heals**: overdue releases run on restart. Effectivity needs no job at all, because it is computed from ranges at read time.
 - **Crash mid-release (Scenario 9):** the release is one DB transaction. A crash before commit rolls back completely, and the next sweep retries. A crash after commit is caught by step 2 on retry. Side effects (email, reindex) go through the outbox, so they cannot run unless the release committed, and they retry until delivered.
@@ -628,14 +629,13 @@ Sizing is deliberately not estimated in calendar time until D1/D2 (team size and
 ## 18. Decisions required before Phase 1
 
 ### 18.1 Answered (rev 2)
-D0 custom build, not on SharePoint/Microsoft · D1 PHP · D2 on-prem Linux · D3 full in-browser editor + Word/Excel/PDF uploads · D5 group access · D6 many time zones → effective at one instant, shown in local time · D7 one organisation-wide scope · D12 portfolio now, private repo at handover · **D18 Entra ID for sign-in and group sync only** (not SharePoint/M365) → SMTP-only email in v1. Defaults accepted with no objection: D4 (directory groups → global roles), D8 (numbering), D9 (re-sign-in to approve), D11 (show the effective revision plus an "upcoming revision" banner).
+D0 custom build, not on SharePoint/Microsoft · D1 PHP · D2 on-prem Linux · D3 full in-browser editor + Word/Excel/PDF uploads · D5 group access · D6 many time zones → effective at one instant, shown in local time · D7 one organisation-wide scope · D12 portfolio now, private repo at handover · **D6a default timezone `America/Denver`** · **D18 Entra ID for sign-in and group sync only** (not SharePoint/M365) → SMTP-only email in v1. Defaults accepted with no objection: D4 (directory groups → global roles), D8 (numbering), D9 (re-sign-in to approve), D11 (show the effective revision plus an "upcoming revision" banner).
 
 ### 18.2 Still open
 
 | ID | Decision | Options | Recommendation |
 |---|---|---|---|
 | **D13** | **PHP framework** | Symfony / Laravel / in-house | Symfony (ADR-0008) |
-| D6a | Organisation's default timezone for scheduling | Headquarters timezone / UTC | Headquarters timezone (most intuitive for publishers); users still see their own local time |
 | **D10** | **Recovery targets (provisional)** | — | **RPO 15 min** (at most the last 15 minutes of edits could be lost after a server failure) and **RTO 4 h** (PAL back within half a working day). Confirm with IT; tightening later mostly adds a standby DB server, not a redesign. |
 | D14 | In-browser editing of Word/Excel files | Defer / ONLYOFFICE Docs / Collabora Online | Defer to Phase 9; download → edit → upload until then |
 | D15 | Real-time co-authoring in the native editor | Defer / add a Node.js collaboration service | Defer; single-editor checkout in v1 |

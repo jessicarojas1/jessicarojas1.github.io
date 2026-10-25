@@ -6,7 +6,6 @@ Honest readiness register. **Nothing is implemented. Phase 0 (architecture) is i
 | Item | Impact | Action |
 |---|---|---|
 | D13 PHP framework | Whole backend | Owner approves Symfony (or picks Laravel) |
-| D6a default timezone | Scheduling defaults | Owner names the organisation's default timezone |
 | D10 RPO/RTO (provisional 15 min / 4 h) | Backup, HA, cost | IT / business owner confirms before Phase 7 |
 | D16 Graph read-only permissions | Group access, disabled-account detection | Entra admin grants consent for read-only app permissions; certificate credential |
 | D17 Sentinel path + uptime monitoring | Observability | SOC confirms the collector; name an uptime monitor |

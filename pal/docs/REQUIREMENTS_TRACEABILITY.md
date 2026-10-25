@@ -31,7 +31,7 @@ Spec section → design location → phase → verification. Status is `Designed
 | R25 | Full in-browser editor (owner D3) | §7.7, ADR-0009 | 3 | Editor E2E; XSS corpus; a11y |
 | R26 | Upload Word/Excel/PDF (owner D3) | §7.2, ADR-0009 | 2 | Upload pipeline tests |
 | R27 | Group-based access (owner D5) | ADR-0010 | 1–2 | Group grant/revoke + search-filter tests |
-| R28 | Multi-timezone effective dates, single org scope (owner D6/D7) | §11 | 5 | DST + cross-timezone display tests |
+| R28 | Multi-timezone effective dates, single org scope, default `America/Denver` (owner D6/D6a/D7) | §11 | 5 | DST tests incl. the 1 Nov 2026 change; cross-timezone display tests |
 | R29 | Logs to Microsoft Sentinel (owner) | ADR-0011 | 1/8 | Events visible in Sentinel workspace (org-run test) |
 | R30 | Migrate from on-prem Confluence (owner) | ADR-0012 | 6b | Pilot reconciliation report |
 | R32 | Entra ID sign-in + Graph group sync only (owner D18) | ADR-0004, ADR-0010 | 1 | Sign-in E2E; sync add/remove tests; disabled-user lockout test |
