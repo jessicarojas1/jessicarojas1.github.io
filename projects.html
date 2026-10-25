@@ -924,14 +924,16 @@
                 <span class="badge bg-warning text-dark" style="font-size:0.7rem">Phase 0 · Architecture</span>
               </div>
               <p class="card-text text-muted small mb-1" style="font-style:italic">Enterprise Process Asset Library — Document Control</p>
-              <p class="card-text">An enterprise document management and document control system for policies, processes, procedures, standards, work instructions, templates and forms. It supports ISO 27001, CMMI Level 3 and CMMC Level 2 process documentation. The architecture separates document identity from <strong>immutable revisions</strong> and binds every <strong>approval to the file's SHA-256 hash</strong>. Approval, scheduled publication and the <strong>effective date</strong> are separate steps, and a PostgreSQL exclusion constraint guarantees exactly one effective revision at any point in time. Publication is idempotent and crash-safe, workflows are configurable (sequential, parallel, quorum) with separation of duties, and the audit trail is append-only and hash-chained. Planned stack: ASP.NET Core modular monolith, Vue 3 + Quasar, Entra ID SSO via BFF, deployable on-premises or on Azure. Currently in architecture review, with no application code yet.</p>
+              <p class="card-text">An enterprise document management and document control system for policies, processes, procedures, standards, work instructions, templates and forms. It supports ISO 27001, CMMI Level 3 and CMMC Level 2 process documentation. The architecture separates document identity from <strong>immutable revisions</strong> and binds every <strong>approval to the file's SHA-256 hash</strong>. Approval, scheduled publication and the <strong>effective date</strong> are separate steps, and a PostgreSQL exclusion constraint guarantees exactly one effective revision at any point in time. Publication is idempotent and crash-safe, workflows are configurable (sequential, parallel, quorum) with separation of duties, and the audit trail is append-only and hash-chained. Documents can be written in a native in-browser editor or uploaded as Word, Excel and PDF files, with group-based access and an importer for existing Confluence content. Planned stack: PHP on Symfony, Vue 3 + Quasar and PostgreSQL, hosted on-premises on Linux, with logs forwarded to Microsoft Sentinel. Currently in architecture review, with no application code yet.</p>
               <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-primary" style="font-size:0.7rem">ASP.NET Core · .NET 10</span>
+                <span class="badge bg-primary" style="font-size:0.7rem">PHP · Symfony</span>
                 <span class="badge bg-success" style="font-size:0.7rem">PostgreSQL 17</span>
                 <span class="badge bg-info text-dark" style="font-size:0.7rem">Vue 3 · Quasar · TypeScript</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Entra ID · OIDC</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">SSO · Group Access</span>
                 <span class="badge bg-danger" style="font-size:0.7rem">OWASP ASVS L2</span>
                 <span class="badge bg-secondary" style="font-size:0.7rem">ISO 27001 · CMMI L3 · CMMC L2</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">In-Browser Editor</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">On-Prem Linux · Docker</span>
                 <span class="badge bg-secondary" style="font-size:0.7rem">ADRs · Threat Model</span>
               </div>
             </div>

@@ -1,6 +1,6 @@
 # ADR-0002: Backend framework: ASP.NET Core (.NET 10 LTS)
 
-- **Status:** Proposed, **conditional on decision D1** (team skills)
+- **Status:** **Superseded** by [ADR-0008](ADR-0008-php-symfony.md). The owner selected PHP on 2026-10-25 (decision D1). Kept for the record.
 - **Date:** 2026-10-25
 
 ## Decision

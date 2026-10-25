@@ -2,7 +2,7 @@
 
 **Product:** Enterprise Process Asset Library (PAL)
 **Phase:** 0 — Discovery & Architecture (no application code)
-**Status:** DRAFT, awaiting owner approval
+**Status:** DRAFT **rev 2** (owner decisions incorporated 2026-10-25), awaiting owner approval
 **Date:** 2026-10-25
 **Companion records:** [ADRs](adr/) · [Decision Log](DECISION_LOG.md) · [Requirements Traceability Matrix](REQUIREMENTS_TRACEABILITY.md) · [Open Items](../OPEN_ITEMS.md)
 
@@ -13,10 +13,11 @@
 ## Contents
 
 1. [Executive summary](#1-executive-summary)
+   - [1a. Owner decisions, rev 2](#1a-owner-decisions-rev-2)
 2. [Specification analysis: ambiguities, gaps, conflicts](#2-specification-analysis)
 3. [Capabilities missing compared with commercial document control](#3-competitive-gap-analysis)
 4. [Build vs. buy check](#4-build-vs-buy-check)
-5. [Backend: ASP.NET Core vs. NestJS](#5-backend-aspnet-core-vs-nestjs)
+5. [Backend: PHP on Symfony](#5-backend-php-on-symfony)
 6. [Frontend: Vue 3 + Quasar](#6-frontend-vue-3--quasar)
 7. [Database, storage, search, preview and jobs](#7-database-storage-search-preview-jobs)
 8. [Data model](#8-data-model)
@@ -35,20 +36,51 @@
 
 ## 1. Executive summary
 
-**RECOMMENDATION:** a **modular monolith** on **ASP.NET Core (.NET 10 LTS)**, with a **Vue 3 + TypeScript + Quasar** SPA served through a **backend-for-frontend (BFF)** cookie session. Data lives in **PostgreSQL 17**. Files go into **content-addressed, immutable object storage** behind a storage abstraction (filesystem/NAS, Azure Blob, or S3-compatible). Search uses **PostgreSQL full-text**. Previews come from **Gotenberg/LibreOffice in a network-isolated container**. Durable background work runs as a separate **worker process** using **Quartz.NET (clustered, Postgres job store)** plus a **transactional outbox**.
+**RECOMMENDATION (rev 2):** a **modular monolith** in **PHP 8.4+ on Symfony (LTS)**, hosted **on-premises on Linux** with Docker Compose (nginx + PHP-FPM, plus separate background-worker containers). The UI is a **Vue 3 + TypeScript + Quasar** single-page app that signs in through a **backend-for-frontend (BFF)** session cookie, so the browser never holds login tokens.
+
+| Area | Choice |
+|---|---|
+| Authoring | A **native in-browser editor** (TipTap) for PAL documents, plus **Word / Excel / PDF uploads** |
+| Data | **PostgreSQL 17**, which also provides search (built-in full-text) |
+| Files | **Content-addressed, immutable storage** on filesystem/NAS, with an S3 option |
+| Background jobs | **Symfony Messenger + Scheduler**, with the queue kept in PostgreSQL |
+| Previews | **Gotenberg** in a network-isolated container |
+| Malware scanning | **ClamAV** |
+| Access | **Group-based** grants synced from the directory |
+| Logs | Structured logs forwarded to **Microsoft Sentinel** |
+| Existing documents | A repeatable importer from **on-prem Confluence** |
 
 Five design choices carry most of the correctness requirements in the spec:
 
-1. **Document identity is separate from immutable revisions.** A revision's content freezes when it is submitted. An approved revision can never change.
-2. **The 12 statuses in the spec are not stored as one column.** Each fact is stored where it belongs: revision state, workflow instance state, publication records, and document disposition. The user-facing status is computed from them (§9). This makes illegal combinations, such as "Published and also In Review", impossible to store.
-3. **Publication is a time-bounded record.** "Exactly one effective revision" is enforced by a **PostgreSQL exclusion constraint** over effective periods, not only by application code (§11).
-4. **Each approval is bound to a revision ID plus the file's SHA-256 hash.** Release re-verifies that hash (§10).
-5. **The audit log is append-only.** The application's database role has no UPDATE or DELETE rights on it, and each event is hash-chained to the previous one with periodic external anchoring (§13).
+1. **Document identity is separate from immutable revisions.** A revision's content (editor JSON or uploaded files) freezes when it is submitted. An approved revision can never change.
+2. **The 12 statuses in the spec are not stored as one column.** Each fact is stored where it belongs: revision state, workflow instance state, publication records, and document disposition. The user-facing status is computed from them (§9, ADR-0007).
+3. **Publication is a time-bounded record.** "Exactly one effective revision" is enforced by a **PostgreSQL exclusion constraint** over effective periods (§11).
+4. **Each approval is bound to a revision ID plus a SHA-256 hash of the exact content.** Release re-verifies that hash (§10).
+5. **The audit log is append-only.** The application's database role has no UPDATE or DELETE rights on it, events are hash-chained with periodic external anchoring (§13), and a copy is forwarded to Sentinel.
 
-**Two challenges to the brief before any code is written:**
+**Challenges carried forward:**
 
-- **Build vs. buy (§4).** Microsoft 365 / SharePoint, which the Entra ID requirement implies you already have, covers a large share of the spec at no extra licence cost. It is weak on exactly the hard parts: approvals bound to file hashes, separate publication and effective dates, point-in-time reconstruction, and a tamper-evident audit trail. A custom build is justified *if those controls are real requirements*. Confirm that before spending the build effort.
-- **The spec's phase order delays the first end-to-end proof until Phase 5.** I recommend a **walking skeleton**: Scenario 1 (create → review → approve → publish 1.0) working end to end, thin, by the end of Phase 2, then deepened. Security verification should run in every phase, not be held until Phase 7 (§16).
+- **Ship a thin end-to-end slice early.** Scenario 1 (create → review → approve → publish 1.0) should work by the end of Phase 2, and security checks should run in every phase (§16).
+- **The full in-browser editor is the largest scope item.** v1 is a structured editor with single-editor checkout. Real-time co-authoring and in-browser editing of Word/Excel files are separate, deferred decisions (D14, D15).
+
+---
+
+## 1a. Owner decisions, rev 2
+
+| # | Question | Owner answer (2026-10-25) | Design consequence |
+|---|---|---|---|
+| D0 | Build vs. SharePoint | Integrity controls are required. **Not built on SharePoint or Microsoft platforms.** | Custom build confirmed. No SharePoint, Power Platform, Office for the web or Azure hosting. Identity and directory sit behind adapters (D18). |
+| D1 | Language | **PHP** | ADR-0008 (Symfony recommended, D13). ADR-0002 superseded. |
+| D2 | First target | **On-prem Linux** | §14.2 is the primary design. The Azure option is retained only as a documented future path. |
+| D3 | Authoring | **Full in-browser editor + upload Word, PDF, Excel** | ADR-0009. Native editor + file documents. Phase 3 grows. |
+| D5 | Visibility | **Group access is required** | ADR-0010. Category/document grants to directory groups, enforced in SQL. |
+| D6 | Effective-date semantics | **Many time zones** | §11: each change takes effect at a single moment, chosen with a date, a time and a timezone, and shown to every user in their own timezone. The organisation's default timezone is still to be named (D6a). |
+| D7 | Publication scope | **One organisation-wide scope** | Confirmed. `scope_id` stays in the schema as a single fixed value. |
+| D10 | Recovery / performance targets | **Unknown to owner** | Provisional defaults adopted (RPO 15 min, RTO 4 h, §17 performance). They need confirmation from the IT / business owner before Phase 7. Plain-language explanation in §18. |
+| D12 | Repository | **Portfolio repo for now; private company repo at handover** | Keep all content generic. Handover checklist in §18. |
+| — | Existing documents | **On-prem Confluence** | ADR-0012. Importer + Phase 6b. |
+| — | Email | **SMTP and Graph** | `Mailer` transport adapter: SMTP first. Graph only if D18 keeps Microsoft identity. |
+| — | Logging | **Microsoft Sentinel** | ADR-0011 |
 
 ---
 
@@ -67,7 +99,7 @@ Five design choices carry most of the correctness requirements in the spec:
 | A7 | Revision numbering "1.0 / 1.1 / 2.0" | When is a number assigned? At draft creation (so drafts show "1.1") or at release? What about drafts that are abandoned? | Drafts carry a *proposed* label ("1.1 (draft)"). The number is **confirmed at approval** and is unique among released revisions. Abandoned drafts keep their label, marked withdrawn. **DECISION D8** |
 | A8 | Document number | Assigned at creation or at first release? Are gaps acceptable? | Reserved at creation from a per-scheme counter. Gaps from abandoned documents are acceptable and audited. **DECISION D8** |
 | A9 | "Encryption at rest" | Platform-managed keys, or customer-managed keys (CMK)? | Platform-managed (Azure SSE / LUKS on-prem). CMK optional. |
-| A10 | "Malware scanning integration" | The engine is unspecified. | ClamAV on-prem. Microsoft Defender for Storage malware scanning on Azure (§7.6). |
+| A10 | "Malware scanning integration" | The engine is unspecified. | ClamAV (on-prem, rev 2). |
 | A11 | Retention policies (admin menu) | No retention periods given. They may be driven by ISO 27001 / CMMC record-keeping needs. | Configurable per document type. **No automatic deletion in v1.** Disposition requires a manual, audited action. |
 
 ### 2.2 Gaps (missing requirements that change the design)
@@ -124,6 +156,8 @@ Capabilities commonly found in mature commercial document-control products (for 
 
 ## 4. Build vs. buy check
 
+> **Resolved (rev 2):** the owner confirmed the integrity controls are required and that PAL will **not** be built on SharePoint or other Microsoft platforms. The analysis below is kept for the record.
+
 **FINDING:** the spec is a classic document-control system. The cheapest credible alternative is already in your tenant.
 
 | Option | Covers well | Falls short on | Cost |
@@ -131,7 +165,7 @@ Capabilities commonly found in mature commercial document-control products (for 
 | **SharePoint Online + Power Automate** (M365 already licensed, implied by Entra) | Storage, versioning, metadata, search, permissions, simple approvals, retention labels | Approval bound to an exact file hash; separate publication and effective dates with an "exactly one effective" guarantee; point-in-time reconstruction; tamper-evident audit (the audit log is admin-searchable, retained 180 days to 1 year depending on licence tier); configurable SoD; idempotent scheduled release. Power Automate flows become fragile at this complexity. | Near $0 incremental licence; build effort in flows |
 | **Open-source DMS** (e.g. Mayan EDMS, Alfresco Community) | Repository, OCR, workflows (Alfresco) | Document-control semantics (effectivity, supersession, approval integrity) still need custom work. Alfresco Community's operational footprint is heavy (Java, Solr). | $0 licence, high ops/customization |
 | **Commercial eQMS / DMS** | Everything, validated | Typically priced per user per year. For 300 users, often a five- to six-figure annual sum (vendor quote needed). Usually bundles QMS modules you explicitly excluded. | High |
-| **Custom PAL (this proposal)** | All stated requirements, exactly | Build and ownership cost; you operate it | Infra: a few hundred USD per month on Azure (§14) + engineering |
+| **Custom PAL (this proposal)** | All stated requirements, exactly | Build and ownership cost; you operate it | On-prem infrastructure + engineering and operations (§14) |
 
 **RECOMMENDATION:** proceed with the custom build **only if** the owner confirms that the integrity controls (hash-bound approvals, effectivity guarantees, historical reconstruction, tamper-evident audit) are genuine audit requirements for your ISO 27001 / CMMI / CMMC evidence. If "good enough versioning and approvals" would satisfy your auditors, SharePoint is the lower-risk choice. **DECISION D0.**
 
@@ -139,22 +173,26 @@ Capabilities commonly found in mature commercial document-control products (for 
 
 ---
 
-## 5. Backend: ASP.NET Core vs. NestJS
+## 5. Backend: PHP on Symfony
 
-| Criterion | ASP.NET Core (.NET 10 LTS) | NestJS (Node.js 22/24 LTS) |
-|---|---|---|
-| **Entra ID / OIDC** | Microsoft.Identity.Web is first-party. BFF cookie + OIDC, token cache and Graph client are built in. | Passport/openid-client works but is community-maintained; more glue code. |
-| **Type safety** | Compiler-enforced, nullable reference types, no `any` escape | TypeScript is strong at compile time but erased at runtime. DTO validation relies on class-validator decorators. |
-| **Data access** | EF Core + Npgsql: mature migrations, optimistic concurrency via `xmin`, raw SQL where needed | TypeORM (history of maintenance gaps), Prisma (good; limited support for exclusion constraints and range types, needs raw SQL), Drizzle (newer) |
-| **Background jobs** | Quartz.NET clustered Postgres store; hosted services; in-process or separate worker from the same codebase | BullMQ needs **Redis** (an extra stateful component), or pg-boss (Postgres-backed, smaller community) |
-| **Performance** | Excellent; not a differentiator at 1,000 users | Ample at this scale |
-| **Security baseline** | Built-in antiforgery, data protection, authorization policies with resource-based handlers | Assembled from middleware (helmet, csurf alternatives; `csurf` itself is deprecated) |
-| **Supply chain** | Smaller NuGet dependency graph; most needs met by the framework | npm dependency graph is far larger; higher supply-chain exposure |
-| **Long-term support** | LTS releases supported 3 years, predictable cadence (.NET 10 LTS: Nov 2025 → Nov 2028) | Node LTS 30 months; NestJS major versions roughly yearly |
-| **Shared language with frontend** | No (C# / TS). OpenAPI → generated TS client closes most of the gap. | Yes. Real productivity gain for a small JS-centric team. |
-| **Hiring / team fit** | Strong in enterprise / Microsoft shops | Strong in web-product teams |
+The owner selected **PHP** (D1). The ASP.NET Core vs. NestJS comparison from rev 1 is preserved in [ADR-0002](adr/ADR-0002-backend-framework.md) (superseded).
 
-**RECOMMENDATION: ASP.NET Core**, *conditional on* D1. Its advantages land on PAL's riskiest areas: identity, authorization, transactional integrity and durable jobs without Redis. **If the team that will maintain PAL is TypeScript-only with no C# experience, NestJS + pg-boss is acceptable**, and maintainability by the actual team outweighs the technical edge. See [ADR-0002](adr/ADR-0002-backend-framework.md).
+**RECOMMENDATION: Symfony (current LTS), PHP 8.4+**, see [ADR-0008](adr/ADR-0008-php-symfony.md). Symfony's own components map directly onto PAL's hardest requirements:
+
+| PAL requirement | Symfony component |
+|---|---|
+| Server-enforced lifecycle state machine (§9) | **Workflow** (state machines with guards and transition events) |
+| Global + document/group-scoped authorization (§12) | **Security voters** (per-object decisions) |
+| Durable, idempotent background jobs without Redis (§7.5) | **Messenger** (PostgreSQL transport) + **Scheduler** |
+| PostgreSQL ranges / exclusion constraints | **Doctrine Migrations** with raw SQL |
+| Safe rendering of editor content (ADR-0009) | **HtmlSanitizer** |
+| CSRF, sessions, CSP nonces | Security CSRF tokens, PDO session handler, a CSP bundle (e.g. NelmioSecurityBundle) |
+
+**Type safety in PHP** is enforced by `declare(strict_types=1)`, typed properties and enums, and **PHPStan at its strictest level as a CI gate**.
+
+**Alternatives:** Laravel is acceptable if the receiving team knows it. The in-house PHP framework used elsewhere in this repo is **not recommended** for a company handover (ADR-0008).
+
+**PHP-specific operational risk:** long-running Messenger consumers. Mitigation: memory and time limits per worker, automatic restart under supervisor, and idempotent handlers.
 
 ---
 
@@ -168,7 +206,7 @@ Capabilities commonly found in mature commercial document-control products (for 
   - **Visual polish.** Quasar's default Material look reads as "admin dashboard". A design-token layer (colour, spacing, type scale, density) is needed to reach the "commercial SaaS" bar.
   - **Bus factor.** The project is smaller than Vuetify or PrimeVue. *Mitigation:* keep business logic out of components and wrap Quasar components in a thin PAL component layer, so a framework swap stays bounded.
 - **Alternatives considered:** PrimeVue (strong a11y effort, unstyled mode suits a custom design system). Vuetify 3 (larger community, Material). Quasar wins only if a ready-made enterprise kit is valued over design freedom. **RECOMMENDATION:** keep the Quasar baseline unless the Phase 1 a11y spike fails. In that case, switch to PrimeVue before Phase 2. See [ADR-0003](adr/ADR-0003-frontend-framework.md).
-- **Token handling: BFF, not SPA tokens.** The SPA never holds access or refresh tokens. The backend runs the OIDC code flow, keeps tokens server-side, and issues an `HttpOnly; Secure; SameSite=Lax` session cookie. This removes token theft via XSS as a risk class. CSRF protection is then required and provided by ASP.NET Core antiforgery. See [ADR-0004](adr/ADR-0004-authentication-bff.md).
+- **Token handling: BFF, not SPA tokens.** The SPA never holds access or refresh tokens. The backend runs the OIDC code flow, keeps tokens server-side, and issues an `HttpOnly; Secure; SameSite=Lax` session cookie. This removes token theft via XSS as a risk class. CSRF protection is then required, and is provided by Symfony CSRF tokens on every state-changing request. See [ADR-0004](adr/ADR-0004-authentication-bff.md).
 
 ---
 
@@ -179,8 +217,8 @@ Chosen for its transactional DDL, **range types plus exclusion constraints** (th
 
 ### 7.2 Document storage: content-addressed and immutable
 - Each file is stored under its hash: `blobs/sha256/ab/cd/<full-hash>`. Users never see this key. **Identical bytes are stored once**, which makes rollback free.
-- Objects are **write-once**. The application identity can create and read, **but not overwrite or delete** (Azure: no `Delete` in the role; optional immutability policy. On-prem: a separate, restricted disposition service account).
-- The interface is `IBlobStore { PutAsync(stream) → hash; OpenReadAsync(hash); ExistsAsync(hash) }`, with `FileSystemBlobStore` (local/NAS), `AzureBlobStore` (managed identity) and `S3BlobStore`.
+- Objects are **write-once**. The application identity can create and read, **but not overwrite or delete** (On-prem: storage directory owned by a separate account; the app user has create/read only, and a restricted disposition service account).
+- The interface is `BlobStore { put(stream): Sha256; openRead(Sha256): stream; exists(Sha256): bool }`, with `FileSystemBlobStore` (local/NAS, **primary for on-prem**) and `S3BlobStore` (any S3-compatible store, optional). An Azure Blob adapter is not needed under D0/D2.
 - **Upload pipeline:** stream to a quarantine area while hashing → size limit → magic-byte type detection (extension is ignored for trust) → allow-list check → malware scan → promote to the immutable store → record `stored_file`. Nothing can be attached to a revision until the scan passes.
 - **On-prem object storage:** default to the filesystem/NAS backend. MinIO's community distribution changed materially in 2025 (admin console removed, binary releases moved to source-only). Treat it as an option to be re-evaluated, not a default. **RISK** noted.
 
@@ -197,14 +235,27 @@ Chosen for its transactional DDL, **range types plus exclusion constraints** (th
 - **No live HTML preview** of untrusted content. HTML uploads are not on the default allow-list.
 
 ### 7.5 Background processing
-- A **separate worker process** from the same codebase, scalable and restartable without affecting the API.
-- **Quartz.NET** clustered on the Postgres job store handles schedules (publication sweeps, review-due checks, notification digests). The **transactional outbox** (`outbox_message` written in the same transaction as the business change) feeds notifications and search reindexing. Delivery is at-least-once and handlers are idempotent.
-- Job visibility: an admin page of failed jobs and outbox messages, with retry/dead-letter.
+- **Separate worker containers** from the same codebase, scalable and restartable without affecting the web tier.
+- **Symfony Messenger** with the **PostgreSQL (Doctrine) transport** is the durable queue: no Redis or RabbitMQ to operate. **Symfony Scheduler** handles schedules (publication sweeps every minute, review-due checks, notification digests, directory sync, audit-chain verification).
+- **Transactional outbox:** messages are written in the same DB transaction as the business change, so a notification or reindex happens if and only if the change committed. Delivery is at-least-once and every handler is idempotent.
+- **Failure transport + retry policy** (exponential backoff, capped attempts). An admin page lists failed messages with retry and discard actions (both audited).
 
 ### 7.6 Malware scanning
 - **On-prem:** ClamAV (`clamd`) sidecar. Signatures update via freshclam, or an internal mirror in restricted networks.
-- **Azure:** Microsoft Defender for Storage on-upload malware scanning on the *quarantine* container. The result arrives via Event Grid / blob index tag. PAL waits for the verdict before promotion.
-- Both sit behind `IMalwareScanner`. "Scanner unavailable" fails closed: the file stays quarantined.
+- *(Azure / Defender for Storage path removed in rev 2: not applicable under D0/D2.)*
+- Both sit behind a `MalwareScanner` interface. **ClamAV is the scanner for the on-prem target (D2).** "Scanner unavailable" fails closed: the file stays quarantined.
+
+### 7.7 Authoring: native editor + file uploads (ADR-0009)
+- **Native documents:** TipTap editor in Vue. Content is canonical ProseMirror JSON, validated against PAL's schema, stored as an immutable hashed blob and rendered server-side from the schema. It is never stored or served as raw client HTML. PDF renditions are made by Gotenberg.
+- **File documents:** Word / Excel / PDF uploads through the quarantine → type-detection → ClamAV → promote pipeline (§7.2).
+- **v1 editing model:** autosave + optimistic concurrency + soft checkout lock. Real-time co-authoring is deferred (D15). In-browser editing of Office files via ONLYOFFICE or Collabora is deferred (D14), since Microsoft is excluded.
+- **Comparison:** structural diff for native documents (accurate). Metadata + extracted-text diff for files (best effort, labelled as such).
+
+### 7.8 Logging and SIEM (ADR-0011)
+Structured JSON logs (Monolog) in two streams, operational and security/audit, forwarded to **Microsoft Sentinel** through the organisation's existing collector (Azure Monitor Agent via Arc, or a syslog/CEF forwarder). The database audit table stays the system of record.
+
+### 7.9 Confluence migration (ADR-0012)
+A repeatable, idempotent import command reads on-prem Confluence through its REST API. Pages become native documents and attachments become file documents. Macros with no PAL equivalent are flagged for manual review. Imported revisions are released as `imported` historical revisions with owner-attested effective dates. Each batch gets a reconciliation report, and a pilot space goes first.
 
 ---
 
@@ -253,7 +304,7 @@ Constraints:
 
 **`stored_file`**: `sha256 char(64) PK`, `size_bytes`, `detected_mime`, `scan_status` (`PENDING | CLEAN | INFECTED | ERROR`), `scan_engine`, `scanned_at`, `storage_backend`, `created_at`. No filename. Names belong to the usage, not the bytes.
 
-**`revision_file`**: `revision_id`, `sha256 FK`, `role` (`PRIMARY | ATTACHMENT | RENDITION`), `original_filename` (sanitized for display; never used as a path), `rendition_of_sha256`, `sort_order`.
+**`revision_file`**: `revision_id`, `sha256 FK`, `content_kind` (`NATIVE_JSON | FILE`, rev 2), `role` (`PRIMARY | ATTACHMENT | RENDITION | EMBEDDED_IMAGE`), `original_filename` (sanitized for display; never used as a path), `rendition_of_sha256`, `sort_order`.
 
 **`workflow_definition`** / **`workflow_definition_version`**: definitions are versioned and immutable once used. An instance always points at the exact version it ran under. A version's `spec jsonb` holds ordered stages, each `{ kind: REVIEW|APPROVAL, mode: ALL|ANY|QUORUM(n), participants: [user | role-in-org-unit | document-role], required: bool, due_days }` plus SoD policy flags. Selected by (document_type, org_unit), with fallback to the type default.
 
@@ -273,11 +324,18 @@ Constraints:
 
 **`periodic_review`**: `document_id`, `revision_id`, `due_date`, `outcome` (`NO_CHANGE | REVISION_STARTED | OBSOLETED`), `completed_by`, `completed_at`, `comment`.
 
-**`document_role_assignment`**: `document_id`, `user_id` *or* `group_id`, `role` (`OWNER | AUTHOR | REVIEWER | APPROVER | READER`), `granted_by`, `valid_from`, `valid_to`. Ending a role sets `valid_to` rather than deleting the row, so who held a role on a past date stays answerable.
+**`document_role_assignment`** (superseded in rev 2 by `access_grant`, ADR-0010): `document_id`, `user_id` *or* `group_id`, `role` (`OWNER | AUTHOR | REVIEWER | APPROVER | READER`), `granted_by`, `valid_from`, `valid_to`. Ending a role sets `valid_to` rather than deleting the row, so who held a role on a past date stays answerable.
 
 **`document_relationship`**: `from_document_id`, `to_document_id`, `kind` (`REFERENCES | IMPLEMENTS | USES_FORM | PARENT_OF`).
 
 **`audit_event`**: see §13.
+
+**Rev 2 additions:**
+- **`directory_group`** (`id`, `directory_object_id` unique, `display_name`, `synced_at`) and **`group_membership`** (`group_id`, `user_id`, `valid_from`, `valid_to`). Membership history is kept, so "who could read this on date X?" stays answerable.
+- **`access_grant`** (`scope_type CATEGORY|DOCUMENT`, `scope_id`, `principal_type USER|GROUP`, `principal_id`, `role`, `valid_from`, `valid_to`, `granted_by`) and **`category`** (hierarchical, `restricted bool`).
+- **`document_access`**: materialized effective access (`document_id`, `principal_id`, `role`) joined inside every list/search query.
+- **`app_user.timezone`** (IANA name, defaulting from the browser and changeable by the user) and **`org_setting.default_timezone`**.
+- **`import_mapping`** (`source_system`, `source_id`, `source_version`, `document_id`, `revision_id`, `batch_id`) for the idempotent Confluence import.
 
 **`outbox_message`**, **`notification`**, **`job_failure`**, **`search_document`** (projection keyed by `(revision_id, visibility_class)`).
 
@@ -380,7 +438,12 @@ Rules:
   4. Close the predecessor's `visible_period` at `publish_at` and its `effective_period` at `effective_at`. Open the new one's. The exclusion constraint makes any overlap a hard error that rolls back the whole transaction.
   5. Write audit events, outbox messages (notifications, reindex) and commit.
 - **Visible vs. effective (Scenario 4):** between Nov 1 and Nov 5, 2.0 is *published* (readers can view it, labelled "Effective from 5 Nov 2026") while 1.x is still *effective* (labelled "Current until 5 Nov"). The library defaults to showing the effective revision, with a clear banner for the upcoming one. **DECISION D11** confirms this display rule.
-- **Time handling:** all instants are stored as `timestamptz` in UTC. User-entered *dates* are stored as local date + IANA timezone and converted at write time. DST is handled by the timezone database, never by fixed offsets. The scheduler sweeps every minute for `publish_at ≤ now() AND status='SCHEDULED'`, so **downtime self-heals**: on restart, overdue releases run. Effective-date transitions need no job at all, because "effective" is computed from ranges at read time.
+- **Time handling across many time zones (rev 2, D6):** with one organisation-wide scope, a revision becomes effective at **one instant for everyone**. Per-user local midnight would mean two revisions are effective at once somewhere in the world, which breaks the core guarantee.
+  - The publisher picks **date + time + timezone**. The timezone defaults to the organisation's default timezone (D6a), and the time defaults to 00:00.
+  - PAL stores the UTC instant **and** the entered local values (`effective_local`, `effective_tz`) for display and audit.
+  - Every user sees times in their own timezone, labelled. For example: "Effective 5 Nov 2026, 00:00 America/New_York (06:00 your time, Europe/Berlin)". Notification emails show both.
+  - DST is resolved by the IANA timezone database at entry time. Nonexistent or ambiguous local times during DST changes (e.g. 02:30 on a spring-forward night) are **rejected with a clear message**, not guessed.
+  - The scheduler sweeps every minute for `publish_at ≤ now() AND status='SCHEDULED'`, so **downtime self-heals**: overdue releases run on restart. Effectivity needs no job at all, because it is computed from ranges at read time.
 - **Crash mid-release (Scenario 9):** the release is one DB transaction. A crash before commit rolls back completely, and the next sweep retries. A crash after commit is caught by step 2 on retry. Side effects (email, reindex) go through the outbox, so they cannot run unless the release committed, and they retry until delivered.
 - **Emergency publication** (C2): same transaction, `is_emergency=true`, PAL Admin only, justification mandatory, and it creates a follow-up review obligation and banner.
 
@@ -391,12 +454,12 @@ Rules:
 **Two layers, both enforced in the backend:**
 
 1. **Global roles** (from Entra app roles or group mapping, per D4): `SystemAdministrator`, `PalAdministrator`, `Publisher`, `Reader` (all employees by default). Global `Author` means "may create new documents".
-2. **Document-scoped roles** (`document_role_assignment`, inheritable from org unit defaults): `Owner`, `Author`, `Reviewer`, `Approver`, `Reader` (restricted audience).
+2. **Category- and document-scoped roles granted to users or directory groups** (`access_grant`, rev 2, ADR-0010): `Owner`, `Author`, `Reviewer`, `Approver`, `Reader`. Documents inherit their category's grants and can add their own. Grants are allow-only, with no deny rules. A category or document marked *restricted* drops the default all-employee read access. Groups are synced from the directory (Entra via Graph, or LDAP/AD, per D18), never taken from token claims.
 
 **Permissions are fine-grained strings, checked per action**, for example:
 `document.create`, `document.edit_metadata`, `document.change_owner`, `revision.create_draft`, `revision.edit`, `revision.submit`, `revision.withdraw`, `workflow.decide`, `workflow.cancel`, `workflow.reassign`, `publication.schedule`, `publication.release`, `publication.emergency`, `document.obsolete`, `document.archive`, `document.legal_hold`, `admin.workflows`, `admin.numbering`, `admin.types`, `admin.retention`, `audit.read`, `audit.export`, `report.export`, `system.config`.
 
-**Evaluation:** ASP.NET Core **resource-based authorization**. `IAuthorizationHandler<PermissionRequirement, Document|Revision>` combines global role → permission map, document-scoped assignments valid *now*, the revision state (e.g. `revision.edit` only in `DRAFT`) and SoD rules. Every handler, query and download goes through it.
+**Evaluation:** Symfony **security voters** (`DocumentVoter`, `RevisionVoter`, `WorkflowTaskVoter`) combine global role → permission map, document-scoped assignments valid *now*, the revision state (e.g. `revision.edit` only in `DRAFT`) and SoD rules. Every handler, query and download goes through it.
 
 **Notable rules:**
 - `SystemAdministrator` does **not** imply document authority. Sysadmins configure the system but cannot approve or publish unless separately assigned. This limits insider blast radius and supports SoD.
@@ -410,7 +473,7 @@ Rules:
 - **`audit_event`**: `id bigint identity`, `event_id uuid`, `occurred_at`, `event_type`, `actor_user_id`, `actor_snapshot`, `actor_ip` (optional; privacy review), `correlation_id` (request trace id), `document_id`, `revision_id`, `workflow_instance_id`, `publication_id`, `from_state`, `to_state`, `changes jsonb` (field-level before/after for metadata), `reason`, `prev_hash`, `hash` (SHA-256 of canonical JSON of the row + `prev_hash`).
 - Written **in the same transaction** as the change it describes. If the change commits, the audit commits too. No audit, no change.
 - **Privilege separation:** `pal_migrator` owns the schema (deploy-time only, credentials not available to the running app). `pal_app` has `INSERT, SELECT` on `audit_event` and **no UPDATE/DELETE/TRUNCATE**. A trigger also raises on UPDATE/DELETE as a backstop against owner-level mistakes.
-- **Tamper evidence:** the hash chain is verified by a scheduled job and on demand (`/admin/audit/verify`). The chain head is **anchored daily** to an external write-once location: an Azure Blob container with a time-based immutability policy, or on-prem a WORM/append-only share or signed email to a compliance mailbox. A DBA who rewrites rows and recomputes hashes still cannot rewrite the anchors.
+- **Tamper evidence:** the hash chain is verified by a scheduled job and on demand (`/admin/audit/verify`). The chain head is **anchored daily** to an external write-once location: on-prem, a WORM / append-only share or immutable S3-compatible bucket (object lock) owned by a different team, or a signed digest sent to a compliance mailbox. A DBA who rewrites rows and recomputes hashes still cannot rewrite the anchors.
 - **Export:** CSV/JSON by date range, document or actor, including chain-verification status. Exporting is itself audited.
 - **Reconstruction:** the "as-of" view of a document renders metadata, effective revision, decisions and assignments at timestamp T from publications, assignment validity ranges and audit events (Scenario 6).
 
@@ -424,20 +487,21 @@ Same container images in every environment. Environment differences are **config
 
 | Component | Mandatory | Notes |
 |---|---|---|
-| `pal-api` (ASP.NET Core, serves SPA static assets + BFF) | Yes | Stateless, horizontally scalable; data-protection keys in DB/Blob |
-| `pal-worker` | Yes | Same image, different entrypoint; ≥1 instance |
+| `pal-web` (nginx + PHP-FPM / Symfony; serves the SPA and the BFF API) | Yes | Stateless, horizontally scalable; sessions in PostgreSQL |
+| `pal-worker` (Messenger consumers) + `pal-scheduler` | Yes | Same image, different entrypoint; ≥1 consumer, exactly 1 scheduler |
 | PostgreSQL 17 | Yes | `btree_gist`, `pg_trgm` |
-| Blob storage (FS/NAS, Azure Blob, S3) | Yes | Immutable, versioned |
-| Malware scanner | Yes | ClamAV / Defender for Storage |
+| Blob storage (filesystem/NAS; S3 optional) | Yes | Immutable, write-once permissions, snapshots |
+| Malware scanner | Yes | ClamAV (`clamd`) |
 | `pal-converter` (Gotenberg) | Yes for Office preview | No egress; internal only |
-| Reverse proxy / TLS | Yes | nginx or Caddy on-prem; platform ingress on Azure |
-| SMTP relay or Graph mail | Yes | Scoped sender |
-| Central logging/metrics | Yes (prod) | OpenTelemetry → your stack |
+| Reverse proxy / TLS | Yes | nginx on-prem (internal CA or public cert) |
+| SMTP relay (Graph optional, D18) | Yes | Dedicated sender address |
+| Log forwarding to Microsoft Sentinel | Yes (prod) | AMA via Arc, or existing syslog/CEF forwarder (ADR-0011) |
+| Health / uptime monitoring | Yes (prod) | Sentinel is not uptime monitoring; target TBD (D17) |
 | WAF | Optional | Recommended if internet-exposed |
 | Redis | **No** | Not required by this design |
 | Kubernetes | **No** | Not justified at this scale (see ADR-0001) |
 
-### 14.2 Option A: On-premises (Linux)
+### 14.2 Option A: On-premises (Linux), **selected (D2)**
 
 ```
             Users (corporate network / VPN)
@@ -447,21 +511,22 @@ Same container images in every environment. Environment differences are **config
                  └──────┬───────┘
           ┌─────────────┼───────────────┐
      ┌────▼────┐   ┌────▼─────┐   ┌─────▼──────┐   ┌──────────┐
-     │ pal-api │   │pal-worker│──▶│pal-converter│   │  clamd   │
+     │ pal-web │   │pal-worker│──▶│pal-converter│   │  clamd   │
      └────┬────┘   └────┬─────┘   │ (no egress) │   └──────────┘
           │             │          └────────────┘
    ┌──────▼─────────────▼──────┐        ┌───────────────────────┐
    │ PostgreSQL 17 (host B)    │        │ NAS / blob volume      │
    │ WAL archiving → backup    │        │ (immutable perms, snaps)│
    └───────────────────────────┘        └───────────────────────┘
-        Outbound only: Entra ID (login.microsoftonline.com), SMTP relay, ClamAV mirror
+        Outbound only: identity provider (OIDC), directory (Graph or LDAP), SMTP relay, ClamAV mirror,
+        log collector → Microsoft Sentinel
 ```
 - Two VMs minimum for prod (app; DB). DB on its own host for resource isolation and backup control.
 - Backups: `pgBackRest` (full weekly, incremental daily, continuous WAL → RPO minutes), NAS snapshots + off-site copy, restore drills quarterly.
-- Monitoring: OpenTelemetry → existing stack (e.g. Prometheus/Grafana/Loki) or whatever the org runs. **ASSUMPTION:** an existing monitoring platform is available (unknown).
+- Logs: structured JSON → the organisation's Sentinel collector (ADR-0011). Health/uptime monitoring target is still unknown (D17).
 - **Cost:** $0 software licences. Real costs: 2–3 VMs (existing virtualization), backup storage, and **operations labour** (patching OS/Postgres/ClamAV, backups, certs). Labour is typically the dominant cost and is usually underestimated.
 
-### 14.3 Option B: Microsoft Azure
+### 14.3 Option B: Microsoft Azure, **not selected** (D0/D2; kept only as a documented future path)
 
 ```
  Users ──HTTPS──▶ Azure Container Apps environment (VNet-integrated)
@@ -508,7 +573,7 @@ STRIDE-oriented, top risks ranked by likelihood × impact for this system.
 | T4 | **Approval integrity bypass** | Editing a file after approval, swapping blobs | Content freeze on submit, DB trigger, hash-bound decisions, verify-on-release, write-once storage |
 | T5 | **Privilege abuse / insider** | Admin self-approves or edits audit | Sysadmin ≠ document authority, SoD at decision time, audit role separation + hash chain + external anchoring, admin actions themselves audited |
 | T6 | **Session / token theft** | XSS, token leakage | BFF (no tokens in browser), strict CSP with nonces, HttpOnly/Secure/SameSite cookies, short idle timeout, OIDC re-auth for approvals (if D9) |
-| T7 | **CSRF** | Cookie session | ASP.NET Core antiforgery on all state-changing requests + SameSite=Lax + no state change on GET |
+| T7 | **CSRF** | Cookie session | Symfony CSRF tokens on all state-changing requests + SameSite=Lax + no state change on GET |
 | T8 | **XSS** | Titles, comments, filenames rendered in UI | Vue's default escaping, no `v-html` with user data (lint rule), CSP, filename sanitization, `Content-Disposition: attachment` for downloads |
 | T9 | **SSRF / XXE** | LibreOffice fetching external resources, OOXML parsers | Converter has no network; XML parsing with DTD/external entities disabled |
 | T10 | **Path traversal** | Original filenames | Filenames never touch the filesystem; storage keys are hashes |
@@ -516,7 +581,9 @@ STRIDE-oriented, top risks ranked by likelihood × impact for this system.
 | T12 | **Supply chain** | NuGet/npm packages, base images | Lockfiles, Dependabot/Renovate, SCA in CI (fail on high/critical), pinned and scanned container images (Trivy), SBOM (CycloneDX), secret scanning (gitleaks) |
 | T13 | **Secrets exposure** | Config, logs | Managed identity on Azure, Key Vault/Docker secrets on-prem, no secrets in repo/images, structured logging with redaction |
 | T14 | **Mail abuse** | Over-privileged Graph permission | Scope `Mail.Send` to one mailbox |
-| T15 | **DoS** | Large uploads, expensive search/conversion | Request size limits, rate limiting (ASP.NET Core rate limiter) per user/IP, conversion queue with concurrency cap and timeouts |
+| T16 | **Stored XSS via the editor** | Crafted editor JSON, pasted HTML, embedded images/links | Schema-validated JSON only; server-side rendering from the schema; HtmlSanitizer as a second layer; `javascript:` and data URLs blocked in links; images through the upload pipeline; strict CSP with nonces |
+| T17 | **Import as an attack path** | Malicious Confluence content or attachments | Same sanitize/scan pipeline as uploads; read-only service account; import runs offline from user traffic |
+| T15 | **DoS** | Large uploads, expensive search/conversion | Request size limits, rate limiting (Symfony RateLimiter) per user/IP, conversion queue with concurrency cap and timeouts |
 
 **Verification target:** OWASP ASVS **Level 2**. A requirement-by-requirement checklist with evidence links is a Phase 7 exit artifact, started in Phase 1.
 
@@ -529,14 +596,16 @@ Changes from the spec's plan: (1) a **thin end-to-end slice by the end of Phase 
 | Phase | Scope | Exit criteria (objective) |
 |---|---|---|
 | **0 — Architecture** *(this doc)* | Proposal, ADRs, data model, state machine, threat model, plan | Owner approves; D0–D11 answered or deferred explicitly |
-| **1 — Foundation** | Repo layout (`pal/backend`, `pal/frontend`, `pal/deploy`), .NET 10 solution with modules, EF Core migrations + `database/schema.sql`, BFF + Entra OIDC, role mapping, permission handler skeleton, health/readiness, OpenTelemetry logging, CI (build, test, SAST, SCA, secret scan, container scan), Docker Compose, Render/Azure config, Quasar shell + design tokens, **a11y spike**, the standard doc set | Login works against a dev Entra tenant; unauthenticated → 401; permission test matrix green; CI fails on seeded vulnerable dependency; axe clean on shell; restore of empty DB from backup demonstrated |
-| **2 — Repository + walking skeleton** | Document/type/number entities, upload pipeline (quarantine, detect, scan, promote), blob abstraction (FS + Azure), metadata, library list/search (FTS), details page, **single-approver workflow + immediate publish (thin)** | **Scenario 1 and 7 pass as automated tests**; infected test file (EICAR) stays quarantined; spoofed extension rejected; reader cannot fetch draft by ID (404) |
-| **3 — Versioning** | Revisions, content freeze, manifest hashing, numbering policies, history, rollback-as-new-revision, metadata diff, bulk import (historical revisions) | **Scenario 2, 8** pass; DB trigger blocks direct content update; import of a sample set reconciles counts and hashes |
+| **1 — Foundation** | Repo layout (`pal/backend`, `pal/frontend`, `pal/deploy`), Symfony app with module boundaries (Deptrac), Doctrine migrations + `database/schema.sql`, BFF + OIDC (IdP per D18), directory group sync, role mapping, permission handler skeleton, health/readiness, OpenTelemetry logging, CI (build, test, SAST, SCA, secret scan, container scan), Docker Compose, Render/Azure config, Quasar shell + design tokens, **a11y spike**, the standard doc set | Login works against a dev Entra tenant; unauthenticated → 401; permission test matrix green; CI fails on seeded vulnerable dependency; axe clean on shell; restore of empty DB from backup demonstrated |
+| **2 — Repository + walking skeleton** | Document/type/number entities, upload pipeline (quarantine, detect, scan, promote), blob abstraction (filesystem/NAS + S3), metadata, library list/search (FTS), details page, **single-approver workflow + immediate publish (thin)** | **Scenario 1 and 7 pass as automated tests**; infected test file (EICAR) stays quarantined; spoofed extension rejected; reader cannot fetch draft by ID (404) |
+| **3 — Versioning + native editor** | Revisions, content freeze, manifest hashing, numbering policies, history, rollback-as-new-revision, metadata diff. **Native editor v1** (ADR-0009): schema, autosave, checkout, templates, images, server-side rendering, PDF rendition, structural diff | **Scenario 2, 8** pass, for both native and file documents; DB trigger blocks direct content update; XSS test corpus produces no script execution; editor passes axe + keyboard checks |
 | **4 — Workflow engine** | Definitions/versions, sequential/parallel/quorum, required/optional, SoD, reassignment/delegation, cancellation, escalation, re-auth (if D9) | **Scenario 3, 10** pass, including a concurrency test firing N parallel decisions; SoD violations refused with audit |
 | **5 — Publication** | Scheduling, separate effective dates, timezone handling, supersession, emergency publish, periodic review, obsolete/archive, legal hold | **Scenario 4, 5, 9** pass, including fault injection (kill worker mid-release, double scheduler); DST-boundary tests; exclusion constraint proven by negative test |
 | **6 — Experience** | Dashboard, saved views, previews (PDF.js + converter), notifications (email + in-app), admin consoles, reports (CSV/XLSX), as-of view, audit export | **Scenario 6** passes; previews of malicious samples are contained; WCAG 2.2 AA audit on core journeys |
+| **6b — Confluence migration** (can run in parallel after Phase 3) | Import command, macro mapping, user/permission mapping, dry-run + reconciliation reports, pilot space, cutover runbook | Pilot space imported with 100% of pages and attachments accounted for (imported or flagged); re-run is idempotent; owner signs off the pilot |
 | **7 — Security & quality** | ASVS L2 evidence, pen-test (external if possible), load test, DR drill, a11y manual testing | All criteria in §17 |
-| **8 — Production readiness** | Admin/user guides, runbook, monitoring dashboards and alerts, release checklist, UAT | Owner sign-off on UAT; go-live checklist complete |
+| **8 — Production readiness** | Admin/user guides, runbook, monitoring dashboards and alerts, Sentinel detections handed to the SOC, release checklist, UAT | Owner sign-off on UAT; go-live checklist complete |
+| **9 — Optional, post-v1** | In-browser Office editing (D14), real-time co-authoring (D15) | Separate approval |
 
 Sizing is deliberately not estimated in calendar time until D1/D2 (team size and skills) are known.
 
@@ -557,22 +626,24 @@ Sizing is deliberately not estimated in calendar time until D1/D2 (team size and
 
 ## 18. Decisions required before Phase 1
 
-High-impact questions are **bold**. The rest have proposed defaults that apply unless overruled.
+### 18.1 Answered (rev 2)
+D0 custom build, not on SharePoint/Microsoft · D1 PHP · D2 on-prem Linux · D3 full in-browser editor + Word/Excel/PDF uploads · D5 group access · D6 many time zones → effective at one instant, shown in local time · D7 one organisation-wide scope · D12 portfolio now, private repo at handover. Defaults accepted with no objection: D4 (directory groups → global roles), D8 (numbering), D9 (re-sign-in to approve), D11 (show the effective revision plus an "upcoming revision" banner).
+
+### 18.2 Still open
 
 | ID | Decision | Options | Recommendation |
 |---|---|---|---|
-| **D0** | **Do the integrity controls justify a custom build over SharePoint?** | Custom build / SharePoint + Power Automate / commercial | Custom, *if* hash-bound approvals, effectivity and tamper-evident audit are real audit needs |
-| **D1** | **Who builds and maintains PAL, and in which language?** | C#/.NET team / TypeScript team / mixed | ASP.NET Core, unless the maintainers are TS-only |
-| **D2** | **First production target** | On-prem / Azure Commercial / Azure Government | Azure Commercial (lowest ops burden). Confirm no Gov requirement, given no CUI |
-| **D3** | **Authoring model** | Upload-only / upload + in-app Markdown / full in-browser editor | Upload-only for v1 |
-| **D4** | Role source | Entra app roles / Entra groups → mapping / in-app only | Entra groups mapped to global roles; document roles in-app |
-| **D5** | **Published-document visibility** | All employees / per-document restricted audiences | All employees + optional restricted audience |
-| D6 | Effective date semantics | Date in org timezone / exact instant | Date, 00:00 in org timezone (configurable timezone) |
-| D7 | Publication scopes | Single global / multiple | Single in v1, schema-ready |
-| D8 | Numbering | Number at creation vs. release; one open draft per document | Doc number at creation; revision label confirmed at approval; one open draft |
-| D9 | Re-authentication at approval | Yes / no | Yes (cheap with OIDC `max_age`) |
-| **D10** | **RPO / RTO and performance targets** | — | RPO 15 min, RTO 4 h, targets in §17 |
-| D11 | Library display between publication and effective date | Show effective + banner / show newest | Show effective revision + "upcoming revision" banner |
-| D12 | **Source repository and visibility** | `pal/` in this public portfolio repo / private repo | **See note below** |
+| **D18** | **Identity provider.** "Not Microsoft" vs. the spec's Entra ID SSO. Does sign-in still use Entra ID? | Entra ID (OIDC) / on-prem AD via LDAP + an OIDC broker (e.g. Keycloak) / another IdP | Keep **Entra ID for sign-in only** if that's where your accounts live. PAL talks plain OIDC, so it can be swapped later. |
+| **D13** | **PHP framework** | Symfony / Laravel / in-house | Symfony (ADR-0008) |
+| D6a | Organisation's default timezone for scheduling | Headquarters timezone / UTC | Headquarters timezone (most intuitive for publishers); users still see their own local time |
+| **D10** | **Recovery targets (provisional)** | — | **RPO 15 min** (at most the last 15 minutes of edits could be lost after a server failure) and **RTO 4 h** (PAL back within half a working day). Confirm with IT; tightening later mostly adds a standby DB server, not a redesign. |
+| D14 | In-browser editing of Word/Excel files | Defer / ONLYOFFICE Docs / Collabora Online | Defer to Phase 9; download → edit → upload until then |
+| D15 | Real-time co-authoring in the native editor | Defer / add a Node.js collaboration service | Defer; single-editor checkout in v1 |
+| D16 | Directory read permission | Graph `GroupMember.Read.All` (admin consent) / LDAP read-only bind | Depends on D18 |
+| D17 | Sentinel forwarding path and uptime monitoring | Azure Monitor Agent via Arc / existing syslog-CEF forwarder; monitoring target TBD | Use whatever your SOC already runs |
+| D19 | Confluence facts | Edition + version; number of spaces/pages; must page history migrate? Is an approvals app (e.g. Comala) in use? | Inventory before Phase 6b |
+
+### 18.3 Handover to the private company repo (D12)
+Before handover: move `pal/` to the private repository with full history (`git subtree split`), rotate any credentials ever used in development, and keep only a summary card and generic architecture here afterwards. Until then: no real tenant IDs, hostnames, org structure, Confluence content or document content in this repo.
 
 > **D12 note (RISK):** this repository is public (GitHub Pages). Generic architecture is fine to publish. Real tenant IDs, hostnames, document content, org structure or deployment specifics of the organization must **not** be committed here. If PAL is built for a real employer, recommend developing in a private repository and keeping only a portfolio summary here.
