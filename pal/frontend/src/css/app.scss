@@ -22,6 +22,9 @@
   --pal-primary-on-dark: #6384de;
   --pal-primary-text: var(--pal-primary-on-light);
   --pal-danger-text: #b91c1c;
+  --pal-dot-group: #15803d;
+  --pal-dot-explicit: #c2410c;
+  --pal-dot-none: #9ca3af;
   color-scheme: light;
 }
 
@@ -35,6 +38,9 @@ body.body--dark {
   --pal-shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 12px rgb(0 0 0 / 30%);
   --pal-primary-text: var(--pal-primary-on-dark);
   --pal-danger-text: #fca5a5;
+  --pal-dot-group: #4ade80;
+  --pal-dot-explicit: #fb923c;
+  --pal-dot-none: #6b7280;
   color-scheme: dark;
 }
 
@@ -284,4 +290,140 @@ body {
   color: var(--pal-primary-text);
   font-weight: 500;
   background: var(--pal-surface-sunken);
+}
+
+.pal-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--pal-space-3);
+  color: var(--pal-text-muted);
+  font-size: 0.85rem;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--pal-border);
+  }
+}
+
+// An SSO option that exists on the roadmap but is not configured: visible, not actionable.
+.pal-sso-unavailable {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 40px;
+  padding: var(--pal-space-2) var(--pal-space-4);
+  border: 1px dashed var(--pal-border);
+  border-radius: var(--pal-radius-sm);
+}
+
+// Users administration: two-pane IAM layout.
+.pal-page-wide {
+  max-width: 1280px;
+}
+
+.pal-iam {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--pal-space-4);
+
+  @media (min-width: 900px) {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+}
+
+.pal-iam-list {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.pal-iam-user {
+  display: flex;
+  gap: var(--pal-space-3);
+  width: 100%;
+  padding: var(--pal-space-3) var(--pal-space-4);
+  border: 0;
+  border-top: 1px solid var(--pal-border);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--pal-surface-sunken);
+  }
+}
+
+.pal-iam-user--active {
+  background: var(--pal-surface-sunken);
+  box-shadow: inset 3px 0 0 var(--pal-primary-text);
+}
+
+.pal-iam-user-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pal-avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--q-primary);
+  color: var(--pal-on-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.pal-dot {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.pal-dot--group {
+  background: var(--pal-dot-group);
+}
+
+.pal-dot--explicit {
+  background: var(--pal-dot-explicit);
+}
+
+.pal-dot--none {
+  background: var(--pal-dot-none);
+}
+
+.pal-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--pal-space-2);
+  font-size: 0.85rem;
+  color: var(--pal-text-muted);
+}
+
+.pal-dialog-card {
+  width: 100%;
+  max-width: 520px;
+}
+
+// Native disclosure widget (accessible by default; Quasar expansion items inside lists are not).
+.pal-accordion {
+  border-top: 1px solid var(--pal-border);
+
+  summary {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--pal-space-2);
+    padding: var(--pal-space-3) var(--pal-space-2);
+    cursor: pointer;
+    list-style-position: inside;
+  }
 }

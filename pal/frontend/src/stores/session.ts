@@ -2,7 +2,15 @@ import { defineStore } from 'pinia'
 import { api, ApiError, setCsrfToken, setUnauthorizedHandler } from '@/api/client'
 
 export interface Me {
-  user: { id: string; displayName: string; email: string | null; timezone: string | null }
+  user: {
+    id: string
+    displayName: string
+    email: string | null
+    timezone: string | null
+    username?: string | null
+    signInMethod?: 'password' | 'entra'
+    mustChangePassword?: boolean
+  }
   roles: string[]
   permissions: string[]
   csrfToken: string

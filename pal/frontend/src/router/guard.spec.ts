@@ -43,6 +43,15 @@ describe('navigation guard', () => {
     expect(await guard(route('unavailable', { public: true }))).toBe(true)
   })
 
+  it('forces a temporary password to be changed before anything else', async () => {
+    const session = useSessionStore()
+    session.status = 'authenticated'
+    session.me = { user: { id: '1', displayName: 'A', email: null, timezone: null, mustChangePassword: true }, roles: ['READER'], permissions: ['library.read'], csrfToken: 't', defaultTimezone: 'America/Denver', session: { idleTimeoutSeconds: 3600, absoluteExpiresAt: null } }
+
+    expect(await guard(route('library'))).toEqual({ name: 'change-password' })
+    expect(await guard(route('change-password'))).toBe(true)
+  })
+
   it('lets public pages through and skips sign-in when already authenticated', async () => {
     const session = useSessionStore()
     session.status = 'anonymous'

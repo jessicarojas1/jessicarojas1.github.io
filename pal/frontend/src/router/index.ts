@@ -14,6 +14,7 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/sign-in', name: 'sign-in', component: () => import('@/pages/SignInPage.vue'), meta: { public: true, title: 'Sign in' } },
+    { path: '/change-password', name: 'change-password', component: () => import('@/pages/ChangePasswordPage.vue'), meta: { title: 'Change password' } },
     { path: '/unavailable', name: 'unavailable', component: () => import('@/pages/UnavailablePage.vue'), meta: { public: true, title: 'PAL is unavailable' } },
     {
       path: '/',
@@ -24,6 +25,8 @@ export const router = createRouter({
         { path: 'workspace', name: 'workspace', component: () => import('@/pages/WorkspacePage.vue'), meta: { title: 'My workspace' } },
         { path: 'documents/new', name: 'new-document', component: () => import('@/pages/NewDocumentPage.vue'), meta: { permission: 'document.create', title: 'New document' } },
         { path: 'documents/:id', name: 'document', component: () => import('@/pages/DocumentPage.vue'), meta: { title: 'Document' } },
+        { path: 'admin/users', name: 'users-admin', component: () => import('@/pages/UsersAdminPage.vue'), meta: { permission: 'admin.users', title: 'Users' } },
+        { path: 'settings/sign-in', name: 'sign-in-methods', component: () => import('@/pages/SignInMethodsPage.vue'), meta: { permission: 'system.config', title: 'Sign-in methods' } },
         { path: 'admin/reference', name: 'reference-admin', component: () => import('@/pages/ReferenceAdminPage.vue'), meta: { permission: 'admin.types', title: 'Types and departments' } },
         { path: 'settings/preferences', name: 'preferences', component: () => import('@/pages/PreferencesPage.vue'), meta: { title: 'Preferences' } },
         { path: 'settings/branding', name: 'branding', component: () => import('@/pages/BrandingPage.vue'), meta: { permission: 'system.config', title: 'Branding' } },
@@ -51,6 +54,10 @@ export async function guard(to: RouteLocationNormalized): Promise<true | { name:
   }
   if (session.status !== 'authenticated') {
     return { name: 'sign-in', query: { returnTo: to.fullPath } }
+  }
+  // A temporary password must be replaced before anything else.
+  if (session.me?.user.mustChangePassword === true && to.name !== 'change-password') {
+    return { name: 'change-password' }
   }
   if (to.meta.permission !== undefined && !session.can(to.meta.permission)) {
     return { name: 'forbidden' }
