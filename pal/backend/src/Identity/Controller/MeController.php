@@ -9,6 +9,7 @@ use App\Audit\AuditEntry;
 use App\Audit\AuditLogger;
 use App\Identity\Authorization\GlobalRole;
 use App\Identity\Authorization\RolePermissionMap;
+use App\Identity\Local\LocalAccountService;
 use App\Identity\Security\CsrfHeaderSubscriber;
 use App\Identity\Security\SessionLifetimeSubscriber;
 use App\Identity\User\PalUser;
@@ -32,6 +33,7 @@ final class MeController
         private readonly UserRepository $users,
         private readonly AuditLogger $audit,
         private readonly Connection $connection,
+        private readonly LocalAccountService $accounts,
         #[Autowire(env: 'int:PAL_SESSION_IDLE_SECONDS')]
         private readonly int $idleSeconds,
         #[Autowire(env: 'int:PAL_SESSION_ABSOLUTE_SECONDS')]
@@ -50,6 +52,9 @@ final class MeController
                 'displayName' => $user->displayName,
                 'email' => $user->email,
                 'timezone' => $user->timezone,
+                'username' => $user->username,
+                'signInMethod' => $user->isLocal() ? 'password' : 'entra',
+                'mustChangePassword' => $user->mustChangePassword,
             ],
             'roles' => array_map(fn (GlobalRole $role): string => $role->value, $user->globalRoles),
             'permissions' => RolePermissionMap::permissionsFor($user->globalRoles),
@@ -60,6 +65,19 @@ final class MeController
                 'absoluteExpiresAt' => \is_int($authTime) ? gmdate('Y-m-d\TH:i:s\Z', $authTime + $this->absoluteSeconds) : null,
             ],
         ]);
+    }
+
+    #[Route('/api/me/password', name: 'api_me_password', methods: ['POST'])]
+    public function changePassword(#[CurrentUser] PalUser $user, Request $request): JsonResponse
+    {
+        $body = JsonBody::decode($request, 4096);
+        $this->accounts->changePassword(
+            $user,
+            \is_string($body['currentPassword'] ?? null) ? $body['currentPassword'] : '',
+            \is_string($body['newPassword'] ?? null) ? $body['newPassword'] : '',
+        );
+
+        return new JsonResponse(['ok' => true]);
     }
 
     #[Route('/api/me/preferences', name: 'api_me_preferences', methods: ['PATCH'])]
@@ -79,7 +97,7 @@ final class MeController
                 $this->users->updateTimezone($user->id, $timezone);
                 $this->audit->record(new AuditEntry(
                     'USER_PREFERENCES_CHANGED',
-                    AuditActor::user($user->id, $user->displayName, $user->objectId),
+                    $user->auditActor(),
                     'app_user',
                     $user->id,
                     ['timezone' => ['from' => $user->timezone, 'to' => $timezone]],

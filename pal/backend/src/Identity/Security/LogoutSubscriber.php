@@ -37,7 +37,7 @@ final class LogoutSubscriber implements EventSubscriberInterface
     {
         $user = $event->getToken()?->getUser();
         if ($user instanceof PalUser) {
-            $this->audit->record(new AuditEntry('USER_SIGNED_OUT', AuditActor::user($user->id, $user->displayName, $user->objectId), 'app_user', $user->id));
+            $this->audit->record(new AuditEntry('USER_SIGNED_OUT', $user->auditActor(), 'app_user', $user->id));
         }
 
         $endSessionUrl = null;

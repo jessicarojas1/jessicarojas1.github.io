@@ -29,6 +29,16 @@ final class AuditActor
         ]);
     }
 
+    public static function localUser(string $userId, string $displayName, string $username): self
+    {
+        return new self($userId, [
+            'type' => 'user',
+            'id' => $userId,
+            'display_name' => $displayName,
+            'username' => $username,
+        ]);
+    }
+
     public static function system(string $name): self
     {
         return new self(null, ['type' => 'system', 'name' => $name]);

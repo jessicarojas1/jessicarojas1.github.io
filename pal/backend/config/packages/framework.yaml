@@ -37,6 +37,11 @@ framework:
             policy: sliding_window
             limit: 600
             interval: '1 minute'
+        # Per-username password attempts (complements per-IP auth_login and account lockout).
+        login_username:
+            policy: sliding_window
+            limit: 10
+            interval: '15 minutes'
 
 when@test:
     framework:
@@ -53,6 +58,10 @@ when@test:
                 limit: 100000
                 interval: '1 minute'
             auth_login:
+                policy: sliding_window
+                limit: 100000
+                interval: '1 minute'
+            login_username:
                 policy: sliding_window
                 limit: 100000
                 interval: '1 minute'

@@ -30,6 +30,7 @@ final class Permission
     public const ADMIN_RETENTION = 'admin.retention';
     public const ADMIN_WORKFLOWS = 'admin.workflows';
     public const ADMIN_ROLES = 'admin.roles';
+    public const ADMIN_USERS = 'admin.users';
     public const ADMIN_DIRECTORY = 'admin.directory';
     public const AUDIT_READ = 'audit.read';
     public const AUDIT_EXPORT = 'audit.export';
@@ -41,6 +42,6 @@ final class Permission
         self::DOCUMENT_ARCHIVE, self::DOCUMENT_LEGAL_HOLD, self::WORKFLOW_REASSIGN, self::WORKFLOW_CANCEL,
         self::PUBLICATION_SCHEDULE, self::PUBLICATION_RELEASE, self::PUBLICATION_EMERGENCY, self::ADMIN_TYPES, self::ADMIN_DEPARTMENTS,
         self::ADMIN_NUMBERING, self::ADMIN_RETENTION, self::ADMIN_WORKFLOWS, self::ADMIN_ROLES,
-        self::ADMIN_DIRECTORY, self::AUDIT_READ, self::AUDIT_EXPORT, self::REPORT_EXPORT, self::SYSTEM_CONFIG,
+        self::ADMIN_USERS, self::ADMIN_DIRECTORY, self::AUDIT_READ, self::AUDIT_EXPORT, self::REPORT_EXPORT, self::SYSTEM_CONFIG,
     ];
 }

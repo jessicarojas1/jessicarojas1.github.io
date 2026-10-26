@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Identity\User;
 
+use App\Audit\AuditActor;
 use App\Identity\Authorization\GlobalRole;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -22,12 +23,15 @@ final class PalUser implements UserInterface, EquatableInterface
      */
     public function __construct(
         string $id,
-        public readonly string $tenantId,
-        public readonly string $objectId,
+        public readonly ?string $tenantId,
+        public readonly ?string $objectId,
         public readonly string $displayName,
         public readonly ?string $email,
         public readonly ?string $timezone,
         public readonly array $globalRoles,
+        /** Set for local (username/password) accounts. */
+        public readonly ?string $username = null,
+        public readonly bool $mustChangePassword = false,
     ) {
         if ('' === $id) {
             throw new \InvalidArgumentException('A user must have an ID.');
@@ -46,6 +50,18 @@ final class PalUser implements UserInterface, EquatableInterface
     public function getRoles(): array
     {
         return array_map(fn (GlobalRole $role): string => $role->symfonyRole(), $this->globalRoles);
+    }
+
+    public function isLocal(): bool
+    {
+        return null !== $this->username;
+    }
+
+    public function auditActor(): AuditActor
+    {
+        return null !== $this->objectId
+            ? AuditActor::user($this->id, $this->displayName, $this->objectId)
+            : AuditActor::localUser($this->id, $this->displayName, (string) $this->username);
     }
 
     public function hasRole(GlobalRole $role): bool

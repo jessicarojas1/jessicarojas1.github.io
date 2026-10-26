@@ -31,7 +31,7 @@ final class RoleResolver
     /**
      * @return list<GlobalRole>
      */
-    public function rolesFor(string $userId, string $objectId): array
+    public function rolesFor(string $userId, ?string $objectId): array
     {
         $roles = [GlobalRole::Reader];
         $mapped = $this->connection->fetchFirstColumn(<<<'SQL'
@@ -39,15 +39,17 @@ final class RoleResolver
             FROM global_role_mapping m
             JOIN group_membership gm ON gm.group_id = m.group_id AND gm.valid_to IS NULL
             JOIN directory_group g ON g.id = m.group_id AND g.tracked
-            WHERE gm.user_id = ?
-            SQL, [$userId]);
+            WHERE gm.user_id = :user
+            UNION
+            SELECT ur.role FROM user_role ur WHERE ur.user_id = :user
+            SQL, ['user' => $userId]);
         foreach (Row::strings($mapped) as $value) {
             $role = GlobalRole::tryFrom($value);
             if (null !== $role && !\in_array($role, $roles, true)) {
                 $roles[] = $role;
             }
         }
-        if (\in_array(strtolower($objectId), $this->bootstrapAdminObjectIds, true) && !\in_array(GlobalRole::SystemAdministrator, $roles, true)) {
+        if (null !== $objectId && \in_array(strtolower($objectId), $this->bootstrapAdminObjectIds, true) && !\in_array(GlobalRole::SystemAdministrator, $roles, true)) {
             $roles[] = GlobalRole::SystemAdministrator;
         }
 

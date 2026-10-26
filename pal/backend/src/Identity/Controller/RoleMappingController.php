@@ -83,7 +83,7 @@ final class RoleMappingController
             throw new ApiProblem(503, 'directory_unavailable', 'Directory sync is not configured, so groups cannot be resolved.');
         }
 
-        $actor = AuditActor::user($user->id, $user->displayName, $user->objectId);
+        $actor = $user->auditActor();
         try {
             $group = $this->directory->trackGroup($objectId, $actor);
         } catch (DirectoryException $e) {
@@ -144,7 +144,7 @@ final class RoleMappingController
         }
         $this->connection->transactional(function () use ($mapping, $user, $id): void {
             $this->mappings->remove($id);
-            $this->audit->record(new AuditEntry('ROLE_MAPPING_REMOVED', AuditActor::user($user->id, $user->displayName, $user->objectId), 'global_role_mapping', $id, [
+            $this->audit->record(new AuditEntry('ROLE_MAPPING_REMOVED', $user->auditActor(), 'global_role_mapping', $id, [
                 'role' => $mapping['role'],
                 'group_object_id' => $mapping['idp_object_id'],
                 'group_display_name' => $mapping['display_name'],

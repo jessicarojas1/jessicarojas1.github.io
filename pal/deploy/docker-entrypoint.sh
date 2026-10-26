@@ -35,6 +35,8 @@ case "$role" in
             export DATABASE_URL="$DATABASE_URL_MIGRATIONS"
         fi
         php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+        # Create the first local administrator from PAL_BOOTSTRAP_LOCAL_ADMIN_* (only if none exists).
+        php bin/console pal:users:bootstrap-admin
         # Keep the audit trail append-only for the runtime role even when a migration has just
         # created it (default privileges would otherwise grant UPDATE/DELETE until roles.sql re-runs).
         if [ -n "${PAL_APP_DB_ROLE:-}" ]; then

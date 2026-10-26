@@ -1,0 +1,259 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Functional;
+
+use App\Audit\AuditActor;
+use App\Identity\Authorization\GlobalRole;
+use App\Identity\Local\LocalAccountService;
+use App\Identity\Local\PasswordPolicy;
+use App\Identity\Security\PalUserProvider;
+use App\Tests\Support\DatabaseReset;
+use Doctrine\DBAL\Connection;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Console\Tester\CommandTester;
+
+final class LocalSignInTest extends WebTestCase
+{
+    use DatabaseReset;
+
+    private const PASSWORD = 'correct horse battery staple';
+
+    private KernelBrowser $client;
+    private Connection $db;
+
+    protected function setUp(): void
+    {
+        $this->client = self::createClient();
+        $this->db = self::getContainer()->get(Connection::class);
+        self::resetTables($this->db);
+    }
+
+    /**
+     * Creates a local account with a known, already-changed password.
+     *
+     * @param list<GlobalRole> $roles
+     */
+    private function account(string $username, array $roles = [], bool $mustChange = false): string
+    {
+        $created = self::getContainer()->get(LocalAccountService::class)->create(AuditActor::system('test'), null, $username, ucfirst($username), null, $roles);
+        $this->db->executeStatement('UPDATE local_credential SET password_hash = ?, must_change = ? WHERE user_id = ?', [PasswordPolicy::hash(self::PASSWORD), $mustChange ? 'true' : 'false', $created['id']]);
+
+        return $created['id'];
+    }
+
+    private function loginCsrf(): string
+    {
+        $this->client->request('GET', '/auth/methods');
+
+        return (string) json_decode((string) $this->client->getResponse()->getContent(), true)['csrfToken'];
+    }
+
+    private function signIn(string $username, string $password, ?string $csrf = null): int
+    {
+        $csrf ??= $this->loginCsrf();
+        $this->client->request('POST', '/auth/password', server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf], content: json_encode(['username' => $username, 'password' => $password]));
+
+        return $this->client->getResponse()->getStatusCode();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function json(): array
+    {
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+
+        return \is_array($data) ? $data : [];
+    }
+
+    private function apiCsrf(): string
+    {
+        $this->client->request('GET', '/api/me');
+
+        return (string) $this->json()['csrfToken'];
+    }
+
+    public function testSignInMethodsExposeStatusButNoConfiguration(): void
+    {
+        $this->client->request('GET', '/auth/methods');
+        $body = $this->json();
+
+        self::assertNotEmpty($body['csrfToken']);
+        $methods = array_column($body['methods'], 'connected', 'id');
+        self::assertSame(['password' => true, 'entra' => true, 'okta' => false, 'google' => false, 'saml' => false], $methods);
+        self::assertStringNotContainsString('11111111-1111-4111-8111-111111111111', (string) $this->client->getResponse()->getContent(), 'tenant IDs are not exposed');
+    }
+
+    public function testSuccessfulSignInRotatesTheSessionAndAudits(): void
+    {
+        $this->account('ada');
+        $csrf = $this->loginCsrf();
+        $before = $this->client->getCookieJar()->get('MOCKSESSID')?->getValue();
+
+        self::assertSame(200, $this->signIn('ADA ', self::PASSWORD, $csrf), 'usernames are case-insensitive and trimmed');
+
+        self::assertNotSame($before, $this->client->getCookieJar()->get('MOCKSESSID')?->getValue(), 'session id must change at sign-in');
+        $this->client->request('GET', '/api/me');
+        self::assertSame('ada', $this->json()['user']['username']);
+        self::assertSame('password', $this->json()['user']['signInMethod']);
+        self::assertSame(1, (int) $this->db->fetchOne("SELECT count(*) FROM audit_event WHERE event_type = 'USER_SIGNED_IN' AND changes->>'method' = 'password'"));
+    }
+
+    public function testFailuresAreIndistinguishableWhetherOrNotTheAccountExists(): void
+    {
+        $this->account('ada');
+
+        $this->signIn('ada', 'wrong password entirely');
+        $wrongPassword = $this->client->getResponse()->getContent();
+        $this->signIn('nobody-here', 'wrong password entirely');
+        $unknownUser = $this->client->getResponse()->getContent();
+
+        self::assertSame(401, $this->client->getResponse()->getStatusCode());
+        self::assertSame($wrongPassword, $unknownUser);
+    }
+
+    public function testRepeatedFailuresLockTheAccountEvenAgainstTheRightPassword(): void
+    {
+        $this->account('ada');
+        for ($i = 0; $i < LocalAccountService::MAX_FAILED_ATTEMPTS; ++$i) {
+            $this->signIn('ada', 'not the password '.$i);
+        }
+
+        self::assertSame(401, $this->signIn('ada', self::PASSWORD));
+        self::assertSame(1, (int) $this->db->fetchOne("SELECT count(*) FROM audit_event WHERE event_type = 'USER_LOCKED_OUT'"));
+        self::assertNotNull($this->db->fetchOne('SELECT locked_until FROM local_credential'));
+
+        // Once the lock expires, the right password works again and counters reset.
+        $this->db->executeStatement("UPDATE local_credential SET locked_until = now() - interval '1 second'");
+        self::assertSame(200, $this->signIn('ada', self::PASSWORD));
+        self::assertSame(0, (int) $this->db->fetchOne('SELECT failed_attempts FROM local_credential'));
+    }
+
+    public function testLoginCsrfIsRequired(): void
+    {
+        $this->account('ada');
+
+        self::assertSame(401, $this->signIn('ada', self::PASSWORD, 'forged-token'));
+        $this->client->request('GET', '/api/me');
+        self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testInactiveAccountsCannotSignIn(): void
+    {
+        $id = $this->account('ada');
+        $this->db->executeStatement('UPDATE app_user SET is_active = false WHERE id = ?', [$id]);
+
+        self::assertSame(401, $this->signIn('ada', self::PASSWORD));
+    }
+
+    public function testTemporaryPasswordsMustBeChangedBeforeAnythingElse(): void
+    {
+        $this->account('ada', [GlobalRole::Author], mustChange: true);
+
+        self::assertSame(200, $this->signIn('ada', self::PASSWORD));
+        self::assertTrue($this->json()['mustChangePassword']);
+        $csrf = $this->apiCsrf();
+        $this->client->request('GET', '/api/library');
+        self::assertResponseStatusCodeSame(403);
+        self::assertSame('password_change_required', $this->json()['error']);
+
+        $change = fn (string $current, string $new) => $this->client->request('POST', '/api/me/password', server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf], content: json_encode(['currentPassword' => $current, 'newPassword' => $new]));
+        $change('wrong current', 'a brand new passphrase');
+        self::assertResponseStatusCodeSame(422);
+        $change(self::PASSWORD, 'short');
+        self::assertResponseStatusCodeSame(422);
+        $change(self::PASSWORD, 'ada-is-my-name-here');
+        self::assertResponseStatusCodeSame(422);
+        $change(self::PASSWORD, self::PASSWORD);
+        self::assertResponseStatusCodeSame(422);
+        $change(self::PASSWORD, 'a brand new passphrase');
+        self::assertResponseIsSuccessful();
+
+        $this->client->request('GET', '/api/library');
+        self::assertResponseIsSuccessful();
+    }
+
+    public function testAdministratorsManageLocalAccountsAndRoles(): void
+    {
+        $adminId = $this->account('root', [GlobalRole::SystemAdministrator]);
+        $this->signIn('root', self::PASSWORD);
+        $csrf = $this->apiCsrf();
+        $send = fn (string $method, string $uri, array $body = []) => $this->client->request($method, $uri, server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf], content: json_encode($body));
+
+        $send('POST', '/api/admin/users', ['username' => 'bea', 'displayName' => 'Bea Author', 'roles' => ['AUTHOR']]);
+        self::assertResponseStatusCodeSame(201);
+        $created = $this->json();
+        self::assertMatchesRegularExpression('/^[A-Za-z0-9]{5}(-[A-Za-z0-9]{5}){3}$/', $created['temporaryPassword']);
+        self::assertNotSame($created['temporaryPassword'], $this->db->fetchOne('SELECT password_hash FROM local_credential WHERE user_id = ?', [$created['id']]), 'only a hash is stored');
+
+        $send('POST', '/api/admin/users', ['username' => 'bea', 'displayName' => 'Duplicate']);
+        self::assertResponseStatusCodeSame(422);
+
+        // Separation of duties: no granting yourself document authority.
+        $send('PUT', '/api/admin/users/'.$adminId.'/roles', ['roles' => ['SYSTEM_ADMINISTRATOR', 'PUBLISHER']]);
+        self::assertResponseStatusCodeSame(403);
+        $send('PUT', '/api/admin/users/'.$created['id'].'/roles', ['roles' => ['AUTHOR', 'PUBLISHER']]);
+        self::assertResponseIsSuccessful();
+        self::assertEqualsCanonicalizing(['AUTHOR', 'PUBLISHER'], $this->db->fetchFirstColumn('SELECT role FROM user_role WHERE user_id = ?', [$created['id']]));
+
+        $send('POST', '/api/admin/users/'.$created['id'].'/reset-password');
+        self::assertResponseIsSuccessful();
+        self::assertTrue((bool) $this->db->fetchOne('SELECT must_change FROM local_credential WHERE user_id = ?', [$created['id']]));
+
+        $send('PUT', '/api/admin/users/'.$adminId.'/active', ['isActive' => false]);
+        self::assertResponseStatusCodeSame(409);
+
+        $this->client->request('GET', '/api/admin/users?q=bea');
+        self::assertSame(['Bea Author'], array_column($this->json()['users'], 'displayName'));
+        self::assertContains('USER_ROLES_CHANGED', $this->db->fetchFirstColumn('SELECT event_type FROM audit_event'));
+    }
+
+    public function testNonAdministratorsCannotManageUsers(): void
+    {
+        $this->account('ada', [GlobalRole::PalAdministrator]);
+        $this->signIn('ada', self::PASSWORD);
+
+        $this->client->request('GET', '/api/admin/users');
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testEntraAndLocalUsersShareTheRoleModel(): void
+    {
+        $entraUser = self::createUser($this->db, 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'Eve Entra');
+        $this->db->executeStatement("INSERT INTO user_role (user_id, role) VALUES (?, 'PUBLISHER')", [$entraUser]);
+
+        $user = self::getContainer()->get(PalUserProvider::class)->loadUserByIdentifier($entraUser);
+
+        self::assertSame([GlobalRole::Reader, GlobalRole::Publisher], $user->globalRoles);
+        self::assertFalse($user->isLocal());
+    }
+
+    public function testBootstrapCreatesTheFirstAdministratorOnlyOnce(): void
+    {
+        $run = function (string $password): CommandTester {
+            $_ENV['PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME'] = $_SERVER['PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME'] = 'admin';
+            $_ENV['PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD'] = $_SERVER['PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD'] = $password;
+            self::ensureKernelShutdown();
+            $tester = new CommandTester((new Application(self::bootKernel()))->find('pal:users:bootstrap-admin'));
+            $tester->execute([]);
+
+            return $tester;
+        };
+
+        try {
+            self::assertSame(1, $run('weak')->getStatusCode(), 'weak bootstrap passwords are refused');
+            self::assertSame(0, $run('a strong bootstrap passphrase')->getStatusCode());
+            self::assertStringContainsString('already exists', $run('another strong passphrase')->getDisplay());
+            $db = self::getContainer()->get(Connection::class);
+            self::assertSame(1, (int) $db->fetchOne("SELECT count(*) FROM app_user WHERE source = 'LOCAL'"));
+            self::assertTrue((bool) $db->fetchOne('SELECT must_change FROM local_credential'));
+            self::assertEqualsCanonicalizing(['SYSTEM_ADMINISTRATOR', 'PAL_ADMINISTRATOR'], $db->fetchFirstColumn('SELECT role FROM user_role'));
+        } finally {
+            unset($_ENV['PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME'], $_SERVER['PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME'], $_ENV['PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD'], $_SERVER['PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD']);
+        }
+    }
+}

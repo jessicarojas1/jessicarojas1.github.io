@@ -48,7 +48,7 @@ final class UploadService
         $path = $file->getPathname();
         $filename = FileTypePolicy::safeFilename($file->getClientOriginalName());
         $size = (int) filesize($path);
-        $actor = AuditActor::user($user->id, $user->displayName, $user->objectId);
+        $actor = $user->auditActor();
 
         if ($size <= 0) {
             throw new ApiProblem(422, 'file_empty', 'The file is empty.');

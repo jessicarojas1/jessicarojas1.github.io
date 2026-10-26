@@ -15,6 +15,7 @@ security:
             provider: pal_users
             custom_authenticators:
                 - App\Identity\Security\OidcCallbackAuthenticator
+                - App\Identity\Security\LocalPasswordAuthenticator
             entry_point: App\Identity\Security\ApiAuthenticationEntryPoint
             access_denied_handler: App\Identity\Security\ApiAccessDeniedHandler
             logout:
@@ -25,6 +26,6 @@ security:
 
     # Coarse gate only. Fine-grained checks use #[IsGranted(Permission::X)] and voters.
     access_control:
-        - { path: ^/auth/(login|callback)$, roles: PUBLIC_ACCESS }
+        - { path: ^/auth/(login|callback|password|methods)$, roles: PUBLIC_ACCESS }
         - { path: ^/api/branding$, methods: [GET], roles: PUBLIC_ACCESS }
         - { path: ^/api/, roles: IS_AUTHENTICATED }

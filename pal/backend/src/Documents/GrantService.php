@@ -68,7 +68,7 @@ final class GrantService
         if (!Ids::isUuid($userId) && !Ids::isUuid($groupObjectId)) {
             throw ApiProblem::validation(['principal' => 'Choose a person or enter a group object ID.']);
         }
-        $actor = AuditActor::user($user->id, $user->displayName, $user->objectId);
+        $actor = $user->auditActor();
         $groupId = null;
         $groupName = null;
         if (!Ids::isUuid($userId) && \is_string($groupObjectId)) {
@@ -119,7 +119,7 @@ final class GrantService
                 throw new ApiProblem(404, 'not_found', 'Grant not found.');
             }
             $this->connection->executeStatement('UPDATE document_grant SET valid_to = GREATEST(now(), valid_from + interval \'1 microsecond\') WHERE id = ?', [$grantId]);
-            $this->audit->record(new AuditEntry('DOCUMENT_ACCESS_REVOKED', AuditActor::user($user->id, $user->displayName, $user->objectId), 'document', $documentId, [
+            $this->audit->record(new AuditEntry('DOCUMENT_ACCESS_REVOKED', $user->auditActor(), 'document', $documentId, [
                 'grant_id' => $grantId, 'role' => Row::string($grant, 'role'),
                 'user_id' => Row::nullableString($grant, 'user_id'), 'group_id' => Row::nullableString($grant, 'group_id'),
             ]));

@@ -51,7 +51,7 @@ final class BrandingController
             $this->settings->set(self::KEY, $branding->toStorage(), $user->id);
             $this->audit->record(new AuditEntry(
                 'BRANDING_UPDATED',
-                AuditActor::user($user->id, $user->displayName, $user->objectId),
+                $user->auditActor(),
                 'org_setting',
                 self::KEY,
                 [

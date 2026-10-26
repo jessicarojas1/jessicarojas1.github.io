@@ -18,12 +18,17 @@ final class UserRepository
     /**
      * @return array<string, mixed>|null
      */
-    public function findById(string $id): ?array
+    public function findById(string $id, bool $withCredentialState = false): ?array
     {
         if (1 !== preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $id)) {
             return null;
         }
-        $row = $this->connection->fetchAssociative('SELECT * FROM app_user WHERE id = ?', [$id]);
+        $row = $this->connection->fetchAssociative(
+            $withCredentialState
+                ? 'SELECT u.*, c.must_change FROM app_user u LEFT JOIN local_credential c ON c.user_id = u.id WHERE u.id = ?'
+                : 'SELECT * FROM app_user WHERE id = ?',
+            [$id],
+        );
 
         return false === $row ? null : $row;
     }

@@ -26,21 +26,23 @@ final class PalUserProvider implements UserProviderInterface
 
     public function loadUserByIdentifier(string $identifier): PalUser
     {
-        $row = $this->users->findById($identifier);
+        $row = $this->users->findById($identifier, true);
         if (null === $row || !Row::bool($row, 'is_active')) {
             throw new UserNotFoundException('User not found or disabled.');
         }
         $id = Row::string($row, 'id');
-        $objectId = Row::string($row, 'idp_object_id');
+        $objectId = Row::nullableString($row, 'idp_object_id');
 
         return new PalUser(
             $id,
-            Row::string($row, 'idp_tenant_id'),
+            Row::nullableString($row, 'idp_tenant_id'),
             $objectId,
             Row::string($row, 'display_name'),
             Row::nullableString($row, 'email'),
             Row::nullableString($row, 'timezone'),
             $this->roles->rolesFor($id, $objectId),
+            Row::nullableString($row, 'username'),
+            true === ($row['must_change'] ?? false),
         );
     }
 

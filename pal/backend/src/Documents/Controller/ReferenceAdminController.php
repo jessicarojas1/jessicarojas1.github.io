@@ -88,7 +88,7 @@ final class ReferenceAdminController
         try {
             $id = $this->connection->transactional(function () use ($table, $code, $name, $user, $event): string {
                 $id = Row::scalarString($this->connection->fetchOne('INSERT INTO '.$table.' (code, name) VALUES (?, ?) RETURNING id', [$code, $name]));
-                $this->audit->record(new AuditEntry($event, AuditActor::user($user->id, $user->displayName, $user->objectId), $table, $id, ['code' => $code, 'name' => $name]));
+                $this->audit->record(new AuditEntry($event, $user->auditActor(), $table, $id, ['code' => $code, 'name' => $name]));
 
                 return $id;
             });
@@ -116,7 +116,7 @@ final class ReferenceAdminController
                 throw ApiProblem::validation(['name' => 'Enter a name (up to 120 characters).']);
             }
             $this->connection->executeStatement('UPDATE '.$table.' SET name = ?, is_active = ?, updated_at = now() WHERE id = ?', [$name, $active ? 'true' : 'false', $id]);
-            $this->audit->record(new AuditEntry($event, AuditActor::user($user->id, $user->displayName, $user->objectId), $table, $id, [
+            $this->audit->record(new AuditEntry($event, $user->auditActor(), $table, $id, [
                 'name' => ['from' => Row::string($current, 'name'), 'to' => $name],
                 'is_active' => ['from' => Row::bool($current, 'is_active'), 'to' => $active],
             ]));

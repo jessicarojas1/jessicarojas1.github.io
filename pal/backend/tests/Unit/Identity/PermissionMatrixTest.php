@@ -31,7 +31,7 @@ final class PermissionMatrixTest extends TestCase
             Permission::REPORT_EXPORT, Permission::WORKFLOW_CANCEL, Permission::WORKFLOW_REASSIGN,
         ],
         'SYSTEM_ADMINISTRATOR' => [
-            Permission::ADMIN_DIRECTORY, Permission::ADMIN_ROLES, Permission::ADMIN_WORKFLOWS, Permission::AUDIT_READ, Permission::SYSTEM_CONFIG,
+            Permission::ADMIN_DIRECTORY, Permission::ADMIN_ROLES, Permission::ADMIN_USERS, Permission::ADMIN_WORKFLOWS, Permission::AUDIT_READ, Permission::SYSTEM_CONFIG,
         ],
     ];
 

@@ -576,6 +576,6 @@ final class LifecycleService
 
     private function actor(PalUser $user): AuditActor
     {
-        return AuditActor::user($user->id, $user->displayName, $user->objectId);
+        return $user->auditActor();
     }
 }

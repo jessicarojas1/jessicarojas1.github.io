@@ -20,7 +20,7 @@ final class RolePermissionMap
         ],
         // Configures the system; holds no authority over document content or releases.
         'SYSTEM_ADMINISTRATOR' => [
-            Permission::SYSTEM_CONFIG, Permission::ADMIN_ROLES, Permission::ADMIN_DIRECTORY,
+            Permission::SYSTEM_CONFIG, Permission::ADMIN_ROLES, Permission::ADMIN_USERS, Permission::ADMIN_DIRECTORY,
             Permission::ADMIN_WORKFLOWS, Permission::AUDIT_READ,
         ],
     ];
