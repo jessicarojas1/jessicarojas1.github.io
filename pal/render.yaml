@@ -1,0 +1,89 @@
+# PAL: reference Render configuration (Blueprint format).
+#
+# PAL's selected production target is on-premises Linux (decision D2). This file keeps
+# the project Render-deployable for demos and evaluation, per the repository standard.
+# It is NOT referenced by the repository's root render.yaml, so nothing is created or
+# billed on Render until someone deploys it deliberately (New > Blueprint, path pal/render.yaml).
+#
+# Do not load real organisational documents into a demo deployment.
+#
+# LIMITATION: Render gives one database role, so the runtime role owns audit_event and
+# PAL_APP_DB_ROLE cannot be used. Here the audit trail is tamper-EVIDENT (hash chain,
+# pal:audit:verify) but not tamper-RESISTANT. See deploy/sql/roles.sql for the real model.
+#
+# Entra: set "Assignment required = Yes" on the enterprise application; every account that
+# can sign in becomes a Reader.
+
+services:
+  - type: web
+    name: pal-web
+    runtime: docker
+    rootDir: pal
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: web
+    plan: starter
+    healthCheckPath: /health/ready
+    preDeployCommand: /usr/local/bin/pal-entrypoint migrate
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: APP_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pal-db
+          property: connectionString
+      - key: MESSENGER_TRANSPORT_DSN
+        value: doctrine://default?auto_setup=0
+      - key: PAL_BASE_URL
+        sync: false            # e.g. https://pal-web.onrender.com
+      - key: TRUSTED_HOSTS
+        sync: false            # e.g. ^pal-web\.onrender\.com$
+      - key: TRUSTED_PROXIES
+        value: private_ranges
+      - key: OIDC_TENANT_ID
+        sync: false
+      - key: OIDC_CLIENT_ID
+        sync: false
+      - key: OIDC_CLIENT_SECRET
+        sync: false
+      - key: PAL_BOOTSTRAP_ADMIN_OIDS
+        sync: false
+      - key: PAL_DEFAULT_TIMEZONE
+        value: America/Denver
+
+  - type: worker
+    name: pal-worker
+    runtime: docker
+    rootDir: pal
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: worker
+    plan: starter
+    envVars:
+      - key: APP_SECRET
+        fromService:
+          type: web
+          name: pal-web
+          envVarKey: APP_SECRET
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pal-db
+          property: connectionString
+      - key: MESSENGER_TRANSPORT_DSN
+        value: doctrine://default?auto_setup=0
+      - key: OIDC_TENANT_ID
+        sync: false
+      - key: OIDC_CLIENT_ID
+        sync: false
+      - key: OIDC_CLIENT_SECRET
+        sync: false
+      - key: PAL_DEFAULT_TIMEZONE
+        value: America/Denver
+
+databases:
+  - name: pal-db
+    databaseName: pal
+    plan: basic-256mb
+    postgresMajorVersion: "17"

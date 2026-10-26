@@ -11,6 +11,7 @@ use App\Identity\Authorization\GlobalRole;
 use App\Identity\Authorization\Permission;
 use App\Identity\Directory\DirectoryException;
 use App\Identity\Directory\DirectorySynchronizer;
+use App\Identity\Directory\GroupRepository;
 use App\Identity\Directory\RoleMappingRepository;
 use App\Identity\User\PalUser;
 use App\Platform\Database\Row;
@@ -34,6 +35,7 @@ final class RoleMappingController
     public function __construct(
         private readonly RoleMappingRepository $mappings,
         private readonly DirectorySynchronizer $directory,
+        private readonly GroupRepository $groups,
         private readonly AuditLogger $audit,
         private readonly Connection $connection,
         private readonly LoggerInterface $logger,
@@ -87,6 +89,24 @@ final class RoleMappingController
         } catch (DirectoryException $e) {
             $this->logger->warning('Could not resolve directory group', ['exception' => $e]);
             throw new ApiProblem(502, 'directory_lookup_failed', 'The group could not be found in the directory.');
+        }
+
+        // Separation of duties: nobody grants document authority to a group they are in.
+        // Membership is refreshed from the directory first so a recent join cannot slip through.
+        if ($role->hasDocumentAuthority()) {
+            try {
+                $this->directory->syncGroup($group['id'], $objectId, $actor);
+            } catch (DirectoryException $e) {
+                $this->logger->warning('Could not refresh group membership before a role mapping', ['exception' => $e]);
+                throw new ApiProblem(502, 'directory_lookup_failed', 'Group membership could not be checked, so the mapping was not saved. Try again.');
+            }
+            if ($this->groups->isOpenMember($group['id'], $user->id)) {
+                $this->audit->record(new AuditEntry('ROLE_MAPPING_SELF_GRANT_REFUSED', $actor, 'directory_group', $group['id'], [
+                    'role' => $role->value,
+                    'group_object_id' => $objectId,
+                ]));
+                throw new ApiProblem(403, 'self_grant_forbidden', 'You are a member of this group, so another administrator must grant it this role.');
+            }
         }
 
         $mappingId = $this->connection->transactional(function () use ($role, $group, $user, $actor, $objectId): ?string {

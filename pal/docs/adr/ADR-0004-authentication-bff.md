@@ -1,6 +1,6 @@
 # ADR-0004: Authentication: OIDC SSO via backend-for-frontend (BFF)
 
-- **Status:** Proposed. Identity provider confirmed: **Entra ID** (D18, 2026-10-25), for sign-in only
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed. Identity provider confirmed: **Entra ID** (D18, 2026-10-25), for sign-in only
 - **Date:** 2026-10-25
 
 ## Decision

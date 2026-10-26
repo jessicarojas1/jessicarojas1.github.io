@@ -1,24 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useSessionStore } from '@/stores/session'
+import { formatDateTime, roleLabel } from '@/format'
 
 const session = useSessionStore()
 const health = ref<'checking' | 'ready' | 'degraded'>('checking')
 
-const ROLE_LABELS: Record<string, string> = {
-  READER: 'Reader',
-  AUTHOR: 'Author',
-  PUBLISHER: 'Publisher',
-  PAL_ADMINISTRATOR: 'PAL Administrator',
-  SYSTEM_ADMINISTRATOR: 'System Administrator',
-}
-
-const roles = computed(() => (session.me?.roles ?? []).map((role) => ROLE_LABELS[role] ?? role))
+const roles = computed(() => (session.me?.roles ?? []).map(roleLabel))
 
 const sessionEnds = computed(() => {
   const at = session.me?.session.absoluteExpiresAt
   if (at === undefined || at === null) return null
-  return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short', timeZone: session.effectiveTimezone }).format(new Date(at))
+  return formatDateTime(at, session.effectiveTimezone)
 })
 
 onMounted(async () => {

@@ -32,7 +32,7 @@ final class RoleMappingRepository
      */
     public function find(string $id): ?array
     {
-        if (1 !== preg_match('/^[0-9a-f-]{36}$/', $id)) {
+        if (1 !== preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $id)) {
             return null;
         }
         $row = $this->connection->fetchAssociative(

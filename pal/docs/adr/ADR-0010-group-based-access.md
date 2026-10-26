@@ -1,6 +1,6 @@
 # ADR-0010: Group-based access control with a directory adapter
 
-- **Status:** Proposed (owner decision D5, 2026-10-25: "there needs to be group access")
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed (owner decision D5, 2026-10-25: "there needs to be group access")
 - **Date:** 2026-10-25
 
 ## Decision

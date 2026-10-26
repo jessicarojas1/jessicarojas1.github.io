@@ -45,5 +45,15 @@ when@test:
             storage_factory_id: session.storage.factory.mock_file
         cache:
             app: cache.adapter.array
+            pools:
+                # Not reset between test requests (array pools are), so limits accumulate.
+                pal.test.rate_limiter:
+                    adapter: cache.adapter.filesystem
+        rate_limiter:
+            api:
+                policy: sliding_window
+                limit: 5
+                interval: '1 minute'
+                cache_pool: pal.test.rate_limiter
         http_client:
             mock_response_factory: App\Tests\Support\FakeEntraId

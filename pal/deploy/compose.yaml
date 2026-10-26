@@ -1,0 +1,99 @@
+# PAL on a single Linux host (on-premises, decision D2), with Docker Compose.
+#
+#   cp deploy/pal.env.example deploy/pal.env   # then fill in real values
+#   docker compose -f deploy/compose.yaml --profile bundled-db up -d   # includes PostgreSQL
+#   docker compose -f deploy/compose.yaml up -d                        # external PostgreSQL
+#
+# TLS terminates at a reverse proxy on the host (see deployments/SINGLE_LINUX_SERVER.md);
+# the web container listens on 127.0.0.1:8080 only.
+
+name: pal
+
+x-pal: &pal
+  image: ${PAL_IMAGE:-pal:latest}
+  build:
+    context: ..
+    dockerfile: Dockerfile
+  env_file: pal.env
+  read_only: true
+  tmpfs:
+    - /tmp
+    - /srv/pal/backend/var/cache:uid=10001,gid=10001
+    - /srv/pal/backend/var/log:uid=10001,gid=10001
+  security_opt:
+    - no-new-privileges:true
+  cap_drop: [ALL]
+  restart: unless-stopped
+  # Entra app certificate (private_key_jwt). Point OIDC_CLIENT_CERT_PATH / OIDC_CLIENT_KEY_PATH here.
+  secrets:
+    - pal_oidc_cert
+    - pal_oidc_key
+
+services:
+  migrate:
+    <<: *pal
+    command: ["migrate"]
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+        required: false
+
+  web:
+    <<: *pal
+    command: ["web"]
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *pal
+    command: ["worker"]
+    healthcheck:
+      disable: true
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  db:
+    profiles: ["bundled-db"]
+    image: postgres:17-alpine
+    # pal_admin is the bootstrap superuser, used only for administration. On first start,
+    # init-roles.sh creates the least-privilege pal_owner (migrations) and pal_app (runtime) roles.
+    environment:
+      POSTGRES_DB: pal
+      POSTGRES_USER: pal_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/pal_db_admin_password
+      PAL_OWNER_ROLE: pal_owner
+      PAL_APP_ROLE: pal_app
+    secrets:
+      - pal_db_admin_password
+      - pal_db_owner_password
+      - pal_db_app_password
+    volumes:
+      - pal-db:/var/lib/postgresql/data
+      - ./sql:/sql:ro
+      - ./sql/init-roles.sh:/docker-entrypoint-initdb.d/10-pal-roles.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pal_admin -d pal"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+secrets:
+  pal_db_admin_password:
+    file: ./secrets/db_admin_password.txt
+  pal_db_owner_password:
+    file: ./secrets/db_owner_password.txt
+  pal_db_app_password:
+    file: ./secrets/db_app_password.txt
+  pal_oidc_cert:
+    file: ./secrets/oidc_cert.pem
+  pal_oidc_key:
+    file: ./secrets/oidc_key.pem
+
+volumes:
+  pal-db:

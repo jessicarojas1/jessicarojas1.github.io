@@ -1,6 +1,6 @@
 # ADR-0001: Modular monolith, no Kubernetes
 
-- **Status:** Proposed (Phase 0)
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed (Phase 0)
 - **Date:** 2026-10-25
 
 ## Context

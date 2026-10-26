@@ -10,6 +10,7 @@ describe('branding validation', () => {
     ['data:image/svg+xml;base64,PHN2Zz4=', false],
     ['data:text/html;base64,PGgxPg==', false],
     ['https://user:pw@example.test/logo.png', false],
+    ['http://cdn.example.test/logo.png', false],
     ['ftp://example.test/logo.png', false],
   ])('logo %s -> %s', (value, expected) => {
     expect(isSafeLogoUrl(value)).toBe(expected)
@@ -36,6 +37,19 @@ describe('accent contrast', () => {
     expect(contrastRatio(onAccent(accent), accent)).toBeGreaterThanOrEqual(4.5)
     expect(contrastRatio(accentForText(accent, LIGHT_SURFACE), LIGHT_SURFACE)).toBeGreaterThanOrEqual(4.5)
     expect(contrastRatio(accentForText(accent, DARK_SURFACE), DARK_SURFACE)).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('text on the accent meets 4.5:1 across the whole colour space', () => {
+    let worst = 21
+    for (let r = 0; r <= 255; r += 15) {
+      for (let g = 0; g <= 255; g += 15) {
+        for (let b = 0; b <= 255; b += 15) {
+          const accent = '#' + [r, g, b].map((c) => c.toString(16).padStart(2, '0')).join('')
+          worst = Math.min(worst, contrastRatio(onAccent(accent), accent))
+        }
+      }
+    }
+    expect(worst).toBeGreaterThanOrEqual(4.5)
   })
 
   it('leaves an already-readable accent unchanged', () => {

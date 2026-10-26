@@ -1,6 +1,6 @@
 # ADR-0011: Security and audit logging to the organisation's SIEM (Microsoft Sentinel)
 
-- **Status:** Proposed (owner fact, 2026-10-25: logs go to Microsoft Sentinel)
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed (owner fact, 2026-10-25: logs go to Microsoft Sentinel)
 - **Date:** 2026-10-25
 
 ## Decision

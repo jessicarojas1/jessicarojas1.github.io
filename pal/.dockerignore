@@ -1,0 +1,13 @@
+**/node_modules
+**/vendor
+**/var
+**/dist
+**/.env
+**/.env.*
+!backend/.env.example
+**/.phpunit.cache
+**/.deptrac.cache
+**/.git
+docs
+deployments
+*.md

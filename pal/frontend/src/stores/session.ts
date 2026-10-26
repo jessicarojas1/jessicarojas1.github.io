@@ -10,7 +10,7 @@ export interface Me {
   session: { idleTimeoutSeconds: number; absoluteExpiresAt: string | null }
 }
 
-type Status = 'unknown' | 'authenticated' | 'anonymous'
+type Status = 'unknown' | 'authenticated' | 'anonymous' | 'unreachable'
 
 interface SessionState {
   status: Status
@@ -32,7 +32,7 @@ export const useSessionStore = defineStore('session', {
     },
 
     async load(): Promise<void> {
-      setUnauthorizedHandler(() => this.markSignedOut())
+      setUnauthorizedHandler(() => this.handleSessionEnded())
       try {
         const me = await api<Me>('/api/me')
         this.me = me
@@ -43,7 +43,18 @@ export const useSessionStore = defineStore('session', {
           this.markSignedOut()
           return
         }
-        throw error
+        // Server or network failure: surfaced by the router as the "unavailable" page.
+        this.status = 'unreachable'
+      }
+    },
+
+    /** A 401 while using the app means the session ended (idle/absolute limit, revocation). */
+    handleSessionEnded(): void {
+      const wasSignedIn = this.status === 'authenticated'
+      this.markSignedOut()
+      if (wasSignedIn) {
+        const returnTo = window.location.pathname + window.location.search
+        window.location.assign('/sign-in?auth_error=sign_in_expired&returnTo=' + encodeURIComponent(returnTo))
       }
     },
 
@@ -62,9 +73,10 @@ export const useSessionStore = defineStore('session', {
       try {
         const result = await api<{ ok: boolean; endSessionUrl: string | null }>('/api/session/logout', { method: 'POST' })
         endSessionUrl = result.endSessionUrl
-      } finally {
-        this.markSignedOut()
+      } catch {
+        // Fall through: never leave the user on a protected screen after signing out.
       }
+      this.markSignedOut()
       window.location.assign(endSessionUrl !== null && endSessionUrl.startsWith('https://') ? endSessionUrl : '/sign-in')
     },
   },

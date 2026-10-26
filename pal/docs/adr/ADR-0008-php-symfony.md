@@ -1,6 +1,6 @@
 # ADR-0008: Backend: PHP 8.4+ on Symfony (LTS)
 
-- **Status:** Proposed (owner selected PHP, D1, 2026-10-25; framework choice is D13)
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed (owner selected PHP, D1, 2026-10-25; framework choice is D13)
 - **Date:** 2026-10-25
 - **Supersedes:** ADR-0002
 

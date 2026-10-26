@@ -1,6 +1,6 @@
 # ADR-0007: Decompose the 12-state lifecycle across revision, workflow, publication and document
 
-- **Status:** Proposed
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed
 - **Date:** 2026-10-25
 
 ## Context

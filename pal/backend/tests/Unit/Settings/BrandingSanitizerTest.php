@@ -53,6 +53,7 @@ final class BrandingSanitizerTest extends TestCase
         yield 'html data url' => ['data:text/html;base64,PGgxPg=='];
         yield 'credentials in url' => ['https://user:pass@example.test/logo.png'];
         yield 'ftp' => ['ftp://example.test/logo.png'];
+        yield 'plain http' => ['http://cdn.example.test/logo.png'];
         yield 'oversized data url' => ['data:image/png;base64,'.str_repeat('A', 400_000)];
     }
 

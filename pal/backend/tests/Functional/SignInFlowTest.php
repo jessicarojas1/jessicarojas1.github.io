@@ -86,15 +86,27 @@ final class SignInFlowTest extends WebTestCase
 
         $this->client->request('GET', '/auth/callback', ['code' => 'auth-code', 'state' => $query['state']]);
 
-        self::assertResponseRedirects('/?auth_error=sign_in_expired');
+        self::assertResponseRedirects('/sign-in?auth_error=sign_in_expired');
     }
 
-    public function testUnknownStateIsRejectedAndAudited(): void
+    public function testUnsolicitedCallbacksAreRejectedWithoutTouchingTheAuditTrail(): void
     {
-        $this->client->request('GET', '/auth/callback', ['code' => 'x', 'state' => 'forged-state']);
+        foreach ([['code' => 'x', 'state' => 'forged-state'], [], ['error' => 'access_denied']] as $query) {
+            $this->client->request('GET', '/auth/callback', $query);
+        }
 
-        self::assertResponseRedirects('/?auth_error=sign_in_expired');
+        self::assertResponseRedirects('/sign-in?auth_error=sign_in_cancelled');
         self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM app_user'));
+        self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM audit_event'), 'Junk callbacks must not grow the append-only audit trail');
+    }
+
+    public function testFailuresOfARealSignInAttemptAreAudited(): void
+    {
+        $query = $this->startSignIn();
+        FakeEntraId::$nextIdTokenClaims = ['nonce' => 'wrong'];
+
+        $this->client->request('GET', '/auth/callback', ['code' => 'auth-code', 'state' => $query['state']]);
+
         self::assertSame('USER_SIGN_IN_FAILED', $this->db->fetchOne('SELECT event_type FROM audit_event'));
     }
 
@@ -105,7 +117,7 @@ final class SignInFlowTest extends WebTestCase
 
         $this->client->request('GET', '/auth/callback', ['code' => 'auth-code', 'state' => $query['state']]);
 
-        self::assertResponseRedirects('/?auth_error=sign_in_failed');
+        self::assertResponseRedirects('/sign-in?auth_error=sign_in_failed');
         self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM app_user'));
     }
 
@@ -116,14 +128,14 @@ final class SignInFlowTest extends WebTestCase
 
         $this->client->request('GET', '/auth/callback', ['code' => 'expired-code', 'state' => $query['state']]);
 
-        self::assertResponseRedirects('/?auth_error=sign_in_failed');
+        self::assertResponseRedirects('/sign-in?auth_error=sign_in_failed');
     }
 
     public function testUserCancellationAtTheProvider(): void
     {
         $this->client->request('GET', '/auth/callback', ['error' => 'access_denied', 'error_description' => '<script>x</script>']);
 
-        self::assertResponseRedirects('/?auth_error=sign_in_cancelled');
+        self::assertResponseRedirects('/sign-in?auth_error=sign_in_cancelled');
     }
 
     public function testDisabledUsersCannotSignIn(): void
@@ -134,7 +146,7 @@ final class SignInFlowTest extends WebTestCase
 
         $this->client->request('GET', '/auth/callback', ['code' => 'auth-code', 'state' => $query['state']]);
 
-        self::assertResponseRedirects('/?auth_error=account_disabled');
+        self::assertResponseRedirects('/sign-in?auth_error=account_disabled');
         $this->client->request('GET', '/api/me');
         self::assertResponseStatusCodeSame(401);
     }

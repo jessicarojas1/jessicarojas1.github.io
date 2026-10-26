@@ -1,6 +1,6 @@
 # ADR-0009: Authoring: native in-browser editor plus Word/Excel/PDF uploads
 
-- **Status:** Proposed (owner decision D3, 2026-10-25: "a full in-browser editor" plus uploads)
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed (owner decision D3, 2026-10-25: "a full in-browser editor" plus uploads)
 - **Date:** 2026-10-25
 
 ## Context

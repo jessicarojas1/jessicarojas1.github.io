@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useQuasar } from 'quasar'
+import { useRoute, useRouter } from 'vue-router'
 import BrandMark from '@/components/BrandMark.vue'
 import { useSessionStore } from '@/stores/session'
 import { storeThemePreference } from '@/theme'
 
 const $q = useQuasar()
 const session = useSessionStore()
+const route = useRoute()
 const drawerOpen = ref($q.screen.gt.sm)
+
+// In overlay (mobile) mode the drawer would otherwise stay open over the new page.
+useRouter().afterEach(() => {
+  if ($q.screen.lt.md) drawerOpen.value = false
+})
 
 interface NavItem {
   label: string
@@ -75,9 +82,9 @@ async function signOut(): Promise<void> {
           <router-link
             to="/"
             class="pal-brand-link"
-            aria-label="Go to dashboard"
           >
             <BrandMark />
+            <span class="pal-visually-hidden"> – dashboard</span>
           </router-link>
         </q-toolbar-title>
         <q-btn
@@ -125,6 +132,7 @@ async function signOut(): Promise<void> {
       show-if-above
       bordered
       :width="248"
+      aria-label="Navigation"
     >
       <nav aria-label="Main">
         <q-list padding>
@@ -141,6 +149,7 @@ async function signOut(): Promise<void> {
               :to="item.to"
               exact
               clickable
+              :aria-current="route.path === item.to ? 'page' : undefined"
               active-class="pal-text-primary text-weight-medium"
             >
               <q-item-section avatar>
@@ -157,6 +166,7 @@ async function signOut(): Promise<void> {
     </q-drawer>
 
     <q-page-container>
+      <!-- The only <main> landmark: pages rendered here must not use q-page (it renders <main> too). -->
       <main
         id="main-content"
         tabindex="-1"

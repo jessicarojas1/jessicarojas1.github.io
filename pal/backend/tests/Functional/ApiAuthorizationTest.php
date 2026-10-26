@@ -6,6 +6,7 @@ namespace App\Tests\Functional;
 
 use App\Identity\Security\PalUserProvider;
 use App\Tests\Support\DatabaseReset;
+use App\Tests\Support\FakeEntraId;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -177,5 +178,39 @@ final class ApiAuthorizationTest extends WebTestCase
         $this->client->request('GET', '/api/admin/role-mappings');
 
         self::assertResponseIsSuccessful();
+    }
+
+    public function testAdministratorsCannotGrantDocumentAuthorityToTheirOwnGroup(): void
+    {
+        FakeEntraId::reset();
+        $mine = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+        $other = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+        $me = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+        FakeEntraId::$groups[$mine] = ['displayName' => 'IT Admins', 'members' => [['id' => $me, 'displayName' => 'Me', 'accountEnabled' => true]]];
+        FakeEntraId::$groups[$other] = ['displayName' => 'Quality Publishers', 'members' => []];
+        $this->signInAs($me, 'SYSTEM_ADMINISTRATOR');
+        $csrf = $this->csrf();
+
+        $this->sendJson('POST', '/api/admin/role-mappings', ['role' => 'PUBLISHER', 'groupObjectId' => $mine], $csrf);
+        self::assertResponseStatusCodeSame(403);
+        self::assertSame('self_grant_forbidden', json_decode((string) $this->client->getResponse()->getContent(), true)['error']);
+        self::assertSame(1, (int) $this->db->fetchOne("SELECT count(*) FROM audit_event WHERE event_type = 'ROLE_MAPPING_SELF_GRANT_REFUSED'"));
+        self::assertSame(0, (int) $this->db->fetchOne("SELECT count(*) FROM global_role_mapping m JOIN directory_group g ON g.id = m.group_id WHERE g.idp_object_id = ?", [$mine]));
+
+        $this->sendJson('POST', '/api/admin/role-mappings', ['role' => 'PUBLISHER', 'groupObjectId' => $other], $csrf);
+        self::assertResponseStatusCodeSame(201);
+
+        // System Administrator carries no document authority, so it is not subject to this rule.
+        $this->sendJson('POST', '/api/admin/role-mappings', ['role' => 'SYSTEM_ADMINISTRATOR', 'groupObjectId' => $mine], $csrf);
+        self::assertResponseStatusCodeSame(201);
+    }
+
+    public function testMalformedMappingIdsAreNotFoundRatherThanServerErrors(): void
+    {
+        $this->signInAs('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'SYSTEM_ADMINISTRATOR');
+
+        $this->client->request('DELETE', '/api/admin/role-mappings/'.str_repeat('-', 36), server: ['HTTP_X_CSRF_TOKEN' => $this->csrf()]);
+
+        self::assertResponseStatusCodeSame(404);
     }
 }

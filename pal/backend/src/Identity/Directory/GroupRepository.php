@@ -63,6 +63,14 @@ final class GroupRepository
         return false === $id ? null : Row::scalarString($id);
     }
 
+    public function isOpenMember(string $groupId, string $userId): bool
+    {
+        return false !== $this->connection->fetchOne(
+            'SELECT 1 FROM group_membership WHERE group_id = ? AND user_id = ? AND valid_to IS NULL',
+            [$groupId, $userId],
+        );
+    }
+
     public function markSynced(string $groupId, string $displayName, \DateTimeImmutable $now): void
     {
         $this->connection->executeStatement(

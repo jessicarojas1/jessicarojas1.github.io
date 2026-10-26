@@ -1,6 +1,6 @@
 # ADR-0006: Immutable, content-addressed blob storage behind an abstraction
 
-- **Status:** Proposed
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed
 - **Date:** 2026-10-25
 
 ## Decision

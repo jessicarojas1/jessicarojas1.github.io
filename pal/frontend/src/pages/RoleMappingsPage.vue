@@ -2,6 +2,8 @@
 import { onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { api, ApiError } from '@/api/client'
+import { formatDateTime, roleLabel } from '@/format'
+import { useSessionStore } from '@/stores/session'
 
 interface Mapping {
   id: string
@@ -10,14 +12,8 @@ interface Mapping {
   createdAt: string
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  SYSTEM_ADMINISTRATOR: 'System Administrator',
-  PAL_ADMINISTRATOR: 'PAL Administrator',
-  PUBLISHER: 'Publisher',
-  AUTHOR: 'Author',
-}
-
 const $q = useQuasar()
+const session = useSessionStore()
 const loading = ref(true)
 const loadError = ref<string | null>(null)
 const mappings = ref<Mapping[]>([])
@@ -27,9 +23,11 @@ const newRole = ref<string | null>(null)
 const newGroup = ref('')
 const fieldErrors = ref<Record<string, string>>({})
 const adding = ref(false)
+const formError = ref<string | null>(null)
+const actionError = ref<string | null>(null)
 
 const columns = [
-  { name: 'role', label: 'Role', field: (row: Mapping) => ROLE_LABELS[row.role] ?? row.role, align: 'left' as const, sortable: true },
+  { name: 'role', label: 'Role', field: (row: Mapping) => roleLabel(row.role), align: 'left' as const, sortable: true },
   { name: 'group', label: 'Entra group', field: (row: Mapping) => row.group.displayName, align: 'left' as const, sortable: true },
   { name: 'members', label: 'Members', field: (row: Mapping) => row.group.memberCount, align: 'right' as const },
   { name: 'sync', label: 'Last sync', field: (row: Mapping) => row.group.syncedAt, align: 'left' as const },
@@ -52,8 +50,10 @@ async function load(): Promise<void> {
 }
 
 async function add(): Promise<void> {
+  if (adding.value) return
   adding.value = true
   fieldErrors.value = {}
+  formError.value = null
   try {
     await api('/api/admin/role-mappings', { method: 'POST', body: { role: newRole.value, groupObjectId: newGroup.value.trim() } })
     $q.notify({ type: 'positive', message: 'Mapping added. Members were synced from the directory.' })
@@ -63,9 +63,9 @@ async function add(): Promise<void> {
   } catch (e) {
     if (e instanceof ApiError) {
       fieldErrors.value = e.fields
-      if (Object.keys(e.fields).length === 0) $q.notify({ type: 'negative', message: e.message })
+      formError.value = Object.keys(e.fields).length > 0 ? null : e.message
     } else {
-      $q.notify({ type: 'negative', message: 'The mapping could not be added.' })
+      formError.value = 'The mapping could not be added.'
     }
   } finally {
     adding.value = false
@@ -75,25 +75,30 @@ async function add(): Promise<void> {
 function confirmRemove(mapping: Mapping): void {
   $q.dialog({
     title: 'Remove role mapping?',
-    message: `Members of "${mapping.group.displayName}" will lose the ${ROLE_LABELS[mapping.role] ?? mapping.role} role unless another mapping grants it.`,
+    message: `Members of "${mapping.group.displayName}" will lose the ${roleLabel(mapping.role)} role unless another mapping grants it.`,
     cancel: { flat: true, noCaps: true, label: 'Cancel' },
     ok: { color: 'negative', unelevated: true, noCaps: true, label: 'Remove mapping' },
     persistent: true,
+    // Safe default for a destructive action: focus starts on Cancel.
+    focus: 'cancel',
   }).onOk(() => {
     void (async () => {
+      actionError.value = null
       try {
         await api(`/api/admin/role-mappings/${encodeURIComponent(mapping.id)}`, { method: 'DELETE' })
         $q.notify({ type: 'positive', message: 'Mapping removed.' })
         await load()
       } catch (e) {
-        $q.notify({ type: 'negative', message: e instanceof ApiError ? e.message : 'The mapping could not be removed.' })
+        actionError.value = e instanceof ApiError ? e.message : 'The mapping could not be removed.'
       }
+      // The removed row's button no longer exists; return focus to a stable place.
+      document.getElementById('mappings-heading')?.focus()
     })()
   })
 }
 
 function formatTime(value: string | null): string {
-  return value === null ? 'Never' : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
+  return value === null ? 'Never' : formatDateTime(value, session.effectiveTimezone)
 }
 
 onMounted(load)
@@ -123,11 +128,19 @@ onMounted(load)
       <h2 class="text-subtitle1 text-weight-medium q-mt-none">
         Add a mapping
       </h2>
+      <q-banner
+        v-if="formError"
+        class="bg-negative text-white q-mb-md"
+        rounded
+        role="alert"
+      >
+        {{ formError }}
+      </q-banner>
       <div class="row q-col-gutter-md items-start">
         <q-select
           v-model="newRole"
           class="col-12 col-sm-4"
-          :options="roles.map((value) => ({ value, label: ROLE_LABELS[value] ?? value }))"
+          :options="roles.map((value) => ({ value, label: roleLabel(value) }))"
           emit-value
           map-options
           label="Role"
@@ -159,6 +172,21 @@ onMounted(load)
       </div>
     </form>
 
+    <h2
+      id="mappings-heading"
+      class="text-subtitle1 text-weight-medium"
+      tabindex="-1"
+    >
+      Current mappings
+    </h2>
+    <q-banner
+      v-if="actionError"
+      class="bg-negative text-white q-mb-md"
+      rounded
+      role="alert"
+    >
+      {{ actionError }}
+    </q-banner>
     <q-banner
       v-if="loadError"
       class="bg-negative text-white"
@@ -166,12 +194,21 @@ onMounted(load)
       role="alert"
     >
       {{ loadError }}
+      <template #action>
+        <q-btn
+          flat
+          no-caps
+          color="white"
+          label="Try again"
+          @click="load"
+        />
+      </template>
     </q-banner>
     <q-table
       v-else
       flat
       bordered
-      title="Current mappings"
+      aria-labelledby="mappings-heading"
       :rows="mappings"
       :columns="columns"
       row-key="id"
@@ -205,9 +242,9 @@ onMounted(load)
             flat
             dense
             no-caps
-            color="negative"
+            class="pal-text-danger"
             icon="delete"
-            :label="'Remove'"
+            label="Remove"
             :aria-label="`Remove mapping for ${props.row.group.displayName}`"
             @click="confirmRemove(props.row)"
           />

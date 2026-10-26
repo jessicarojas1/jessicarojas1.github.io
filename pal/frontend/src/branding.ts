@@ -11,7 +11,7 @@ export function isSafeLogoUrl(value: string): boolean {
   }
   try {
     const url = new URL(value)
-    return (url.protocol === 'https:' || url.protocol === 'http:') && url.username === '' && url.password === ''
+    return url.protocol === 'https:' && url.username === '' && url.password === ''
   } catch {
     return false
   }
@@ -47,7 +47,8 @@ const AA_NORMAL_TEXT = 4.5
 // Worst-case (lightest) surfaces for each theme; see --pal-surface tokens in app.scss.
 export const LIGHT_SURFACE = '#f5f7fb'
 export const DARK_SURFACE = '#111a2e'
-const DARK_TEXT = '#111827'
+// Pure black guarantees >= 4.58:1 against any accent where white falls short.
+const DARK_TEXT = '#000000'
 
 function channels(hex: string): [number, number, number] {
   const n = parseInt(hex.slice(1), 16)

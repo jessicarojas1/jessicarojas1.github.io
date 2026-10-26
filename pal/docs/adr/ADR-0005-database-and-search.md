@@ -1,6 +1,6 @@
 # ADR-0005: PostgreSQL 17 for data and full-text search
 
-- **Status:** Proposed
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed
 - **Date:** 2026-10-25
 
 ## Decision

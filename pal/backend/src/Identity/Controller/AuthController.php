@@ -33,7 +33,7 @@ final class AuthController
     public function login(Request $request): Response
     {
         if (!$this->loginLimiter->create($request->getClientIp() ?? 'unknown')->consume()->isAccepted()) {
-            return new RedirectResponse('/?auth_error=too_many_attempts');
+            return new RedirectResponse('/sign-in?auth_error=too_many_attempts');
         }
         $pending = AuthorizationRequest::start(
             ReturnToValidator::sanitize($request->query->get('returnTo')),
@@ -44,7 +44,7 @@ final class AuthController
         } catch (OidcException $e) {
             $this->logger->error('Sign-in is unavailable', ['reason' => $e->reasonCode, 'exception' => $e]);
 
-            return new RedirectResponse('/?auth_error=sign_in_unavailable');
+            return new RedirectResponse('/sign-in?auth_error=sign_in_unavailable');
         }
         PendingAuthorizations::put($request->getSession(), $pending, $this->clock->now()->getTimestamp());
 
@@ -58,7 +58,7 @@ final class AuthController
     #[Route('/auth/callback', name: 'auth_callback', methods: ['GET'])]
     public function callback(): Response
     {
-        return new RedirectResponse('/?auth_error=sign_in_failed');
+        return new RedirectResponse('/sign-in?auth_error=sign_in_failed');
     }
 
     /**

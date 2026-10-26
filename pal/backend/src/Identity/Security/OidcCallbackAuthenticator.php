@@ -14,9 +14,11 @@ use App\Identity\Oidc\PendingAuthorizations;
 use App\Identity\User\SignInService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -34,7 +36,8 @@ final class OidcCallbackAuthenticator extends AbstractAuthenticator
 {
     public const CALLBACK_PATH = '/auth/callback';
     private const RETURN_TO_ATTRIBUTE = '_pal_return_to';
-    private const USER_FACING_ERRORS = ['sign_in_cancelled', 'account_disabled', 'sign_in_expired', 'sign_in_failed', 'sign_in_unavailable'];
+    private const HAD_PENDING_STATE_ATTRIBUTE = '_pal_had_pending_state';
+    private const USER_FACING_ERRORS = ['sign_in_cancelled', 'account_disabled', 'sign_in_expired', 'sign_in_failed', 'sign_in_unavailable', 'too_many_attempts'];
 
     public function __construct(
         private readonly OidcClient $client,
@@ -44,6 +47,8 @@ final class OidcCallbackAuthenticator extends AbstractAuthenticator
         private readonly AuditLogger $audit,
         private readonly ClockInterface $clock,
         private readonly LoggerInterface $logger,
+        #[Autowire(service: 'limiter.auth_login')]
+        private readonly RateLimiterFactory $loginLimiter,
     ) {
     }
 
@@ -54,6 +59,11 @@ final class OidcCallbackAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): Passport
     {
+        // Checked before anything else (including audit writes), so the public callback
+        // cannot be used to flood the append-only audit trail.
+        if (!$this->loginLimiter->create($request->getClientIp() ?? 'unknown')->consume()->isAccepted()) {
+            throw new CustomUserMessageAuthenticationException('too_many_attempts');
+        }
         if ($request->query->has('error')) {
             $this->logger->notice('Identity provider returned an error to the callback', [
                 'error' => preg_replace('/[^a-z_]/', '', (string) $request->query->get('error')),
@@ -69,6 +79,7 @@ final class OidcCallbackAuthenticator extends AbstractAuthenticator
         if (null === $pending) {
             throw new CustomUserMessageAuthenticationException('sign_in_expired');
         }
+        $request->attributes->set(self::HAD_PENDING_STATE_ATTRIBUTE, true);
 
         try {
             $idToken = $this->client->exchangeCode($code, $pending);
@@ -101,10 +112,16 @@ final class OidcCallbackAuthenticator extends AbstractAuthenticator
         if (!\in_array($code, self::USER_FACING_ERRORS, true)) {
             $code = 'sign_in_failed';
         }
-        $this->audit->record(new AuditEntry('USER_SIGN_IN_FAILED', AuditActor::system('sign_in'), reason: $code, changes: [
-            'client_ip' => $request->getClientIp(),
-        ]));
+        // Only attempts that started a real sign-in reach the audit trail. Unsolicited hits on
+        // the public callback (no matching state) are logged but never written to the chain.
+        if (true === $request->attributes->get(self::HAD_PENDING_STATE_ATTRIBUTE)) {
+            $this->audit->record(new AuditEntry('USER_SIGN_IN_FAILED', AuditActor::system('sign_in'), reason: $code, changes: [
+                'client_ip' => $request->getClientIp(),
+            ]));
+        } else {
+            $this->logger->notice('Sign-in callback rejected without a pending sign-in', ['reason' => $code, 'client_ip' => $request->getClientIp()]);
+        }
 
-        return new RedirectResponse('/?auth_error='.$code);
+        return new RedirectResponse('/sign-in?auth_error='.$code);
     }
 }

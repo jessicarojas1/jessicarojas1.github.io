@@ -27,6 +27,15 @@ enum GlobalRole: string
     }
 
     /**
+     * Roles that carry authority over document content or releases. Granting them is
+     * subject to separation of duties (a user may not grant them to a group they belong to).
+     */
+    public function hasDocumentAuthority(): bool
+    {
+        return \in_array($this, [self::PalAdministrator, self::Publisher, self::Author], true);
+    }
+
+    /**
      * @return list<string>
      */
     public static function mappableValues(): array

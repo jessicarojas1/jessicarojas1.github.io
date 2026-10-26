@@ -1,6 +1,6 @@
 # PAL Requirements Traceability Matrix
 
-Spec section → design location → phase → verification. Status is `Designed` for everything until implementation begins. No requirement is implemented or tested yet.
+Spec section → design location → phase → verification. See **Phase 1 status** below the table for what is implemented and tested.
 
 | Req | Requirement (spec §) | Design | Phase | Verification |
 |---|---|---|---|---|
@@ -36,3 +36,17 @@ Spec section → design location → phase → verification. Status is `Designed
 | R30 | Migrate from on-prem Confluence (owner) | ADR-0012 | 6b | Pilot reconciliation report |
 | R32 | Entra ID sign-in + Graph group sync only (owner D18) | ADR-0004, ADR-0010 | 1 | Sign-in E2E; sync add/remove tests; disabled-user lockout test |
 | R31 | Email via SMTP (owner; Graph mail out of v1 per D18) | §1a, §14.1 | 4–6 | Notification delivery tests |
+
+## Phase 1 status (2026-10-26)
+
+| Req | Status | Evidence |
+|---|---|---|
+| R16 | **Partly implemented.** Global roles, granular permissions and a voter are enforced server-side on every endpoint. Document- and category-scoped grants come in Phase 2. | `PermissionMatrixTest` (role × permission), `ApiAuthorizationTest` (endpoint × role) |
+| R17 | **Implemented** for Phase 1 events: append-only triggers, hash chain, verifier, anchor writer, DB role separation. | `AuditTrailTest` (tamper/deletion detection, guards, rollback); role test against PostgreSQL (app role denied UPDATE/DELETE/TRUNCATE/ALTER) |
+| R18 | **In progress.** Phase 1 controls are in place (OIDC/PKCE, CSRF, sessions, headers, rate limits, Host allowlist, CSP). The ASVS L2 checklist with evidence is due in Phase 7. | Security audit report (Phase 1), tests above |
+| R23 | **Implemented.** Container image, Compose for on-prem Linux, roles script, CI container build and smoke test. | `pal/Dockerfile`, `pal/deploy/`, `.github/workflows/pal-ci.yml`. The image has **not** been built locally (no Docker on the dev machine); CI builds it. |
+| R27 | **Partly implemented.** Directory groups are synced (read-only Graph) with membership history, and roles are mapped to groups. Document/category group grants come in Phase 2. | `DirectorySyncTest` |
+| R28 | **Partly implemented.** User timezone preference and the `America/Denver` organisation default are stored and displayed. Effective-date scheduling comes in Phase 5. | `ApiAuthorizationTest::testTimezonePreferenceIsValidatedAndAudited` |
+| R29 | **Partly implemented.** A structured `pal_audit` log channel exists, as JSON to stderr in prod. Ingestion into Sentinel is not verified and depends on the organisation's collector (D17). | `config/packages/monolog.yaml` |
+| R32 | **Implemented.** Entra ID sign-in (BFF) and Graph group/user sync. Tested end to end against an in-process fake Entra ID that signs real RS256 tokens; **not yet tested against a real tenant**. | `SignInFlowTest`, `IdTokenValidatorTest`, `GraphDirectoryAdapterTest` |
+| R15 | **Phase 1 shell verified.** axe-core reports 0 WCAG 2.0–2.2 A/AA violations on all pages in both themes and with a hostile accent colour; the skip link works. A manual screen-reader pass is still due (Phase 6/7). | Browser verification, Phase 1 session report |

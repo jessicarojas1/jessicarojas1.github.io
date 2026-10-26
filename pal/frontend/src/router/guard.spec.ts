@@ -32,6 +32,17 @@ describe('navigation guard', () => {
     expect(await guard(route('dashboard'))).toBe(true)
   })
 
+  it('sends users to the unavailable page when the API cannot be reached', async () => {
+    const session = useSessionStore()
+    vi.spyOn(session, 'load').mockImplementation(() => {
+      session.status = 'unreachable'
+      return Promise.resolve()
+    })
+
+    expect(await guard(route('dashboard', {}, '/admin/roles'))).toEqual({ name: 'unavailable', query: { returnTo: '/admin/roles' } })
+    expect(await guard(route('unavailable', { public: true }))).toBe(true)
+  })
+
   it('lets public pages through and skips sign-in when already authenticated', async () => {
     const session = useSessionStore()
     session.status = 'anonymous'

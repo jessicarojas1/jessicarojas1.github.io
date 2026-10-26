@@ -1,6 +1,6 @@
 # ADR-0003: Frontend: Vue 3 + TypeScript + Quasar (gated by an accessibility spike)
 
-- **Status:** Proposed
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed
 - **Date:** 2026-10-25
 
 ## Decision

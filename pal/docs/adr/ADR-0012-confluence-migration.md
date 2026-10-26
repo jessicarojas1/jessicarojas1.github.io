@@ -1,6 +1,6 @@
 # ADR-0012: Migration of existing process documents from on-prem Confluence
 
-- **Status:** Proposed (owner fact, 2026-10-25: current documents live in on-prem Confluence)
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed (owner fact, 2026-10-25: current documents live in on-prem Confluence)
 - **Date:** 2026-10-25
 
 ## Decision

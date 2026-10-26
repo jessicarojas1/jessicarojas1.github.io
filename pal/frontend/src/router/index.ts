@@ -1,3 +1,4 @@
+import { nextTick } from 'vue'
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { useSessionStore } from '@/stores/session'
 
@@ -13,6 +14,7 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/sign-in', name: 'sign-in', component: () => import('@/pages/SignInPage.vue'), meta: { public: true, title: 'Sign in' } },
+    { path: '/unavailable', name: 'unavailable', component: () => import('@/pages/UnavailablePage.vue'), meta: { public: true, title: 'PAL is unavailable' } },
     {
       path: '/',
       component: () => import('@/layouts/MainLayout.vue'),
@@ -33,8 +35,11 @@ export const router = createRouter({
  */
 export async function guard(to: RouteLocationNormalized): Promise<true | { name: string; query?: Record<string, string> }> {
   const session = useSessionStore()
-  if (session.status === 'unknown') {
+  if (session.status === 'unknown' || (session.status === 'unreachable' && to.name !== 'unavailable')) {
     await session.load()
+  }
+  if (session.status === 'unreachable') {
+    return to.name === 'unavailable' ? true : { name: 'unavailable', query: { returnTo: to.fullPath } }
   }
   if (to.meta.public === true) {
     return session.status === 'authenticated' && to.name === 'sign-in' ? { name: 'dashboard' } : true
@@ -49,3 +54,16 @@ export async function guard(to: RouteLocationNormalized): Promise<true | { name:
 }
 
 router.beforeEach(guard)
+
+// After in-app navigation, move focus to the new page's main heading so keyboard and
+// screen-reader users land on the new content (the initial load keeps natural focus).
+router.afterEach((to, from) => {
+  if (from.matched.length === 0) return
+  void nextTick(() => {
+    const heading = document.querySelector<HTMLElement>('#main-content h1, main h1')
+    if (heading !== null) {
+      heading.setAttribute('tabindex', '-1')
+      heading.focus()
+    }
+  })
+})

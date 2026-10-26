@@ -21,6 +21,8 @@
   --pal-primary-on-light: #2f5bd3;
   --pal-primary-on-dark: #6384de;
   --pal-primary-text: var(--pal-primary-on-light);
+  --pal-danger-text: #b91c1c;
+  color-scheme: light;
 }
 
 body.body--dark {
@@ -32,6 +34,8 @@ body.body--dark {
   --pal-focus: #93c5fd;
   --pal-shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 12px rgb(0 0 0 / 30%);
   --pal-primary-text: var(--pal-primary-on-dark);
+  --pal-danger-text: #fca5a5;
+  color-scheme: dark;
 }
 
 body {
@@ -119,13 +123,6 @@ body {
   object-fit: contain;
 }
 
-.pal-accent-swatch {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--pal-radius-sm);
-  border: 1px solid var(--pal-border);
-  background: var(--q-primary);
-}
 
 .pal-brand-link {
   color: inherit;
@@ -172,4 +169,33 @@ body {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+// Focus ring inside the accent-coloured header: use the on-accent colour so it always
+// contrasts with whatever accent the organisation chose (WCAG 2.4.7 / 1.4.11).
+.q-header {
+  --pal-focus: var(--pal-on-primary);
+}
+
+// Quasar colours focused fields with the raw accent; use the contrast-safe accent instead.
+.q-field--focused:not(.q-field--error) .q-field__control,
+.q-field--focused:not(.q-field--error) .q-field__label {
+  color: var(--pal-primary-text);
+}
+
+// Destructive text actions (flat/outline buttons); meets 4.5:1 in both themes.
+.pal-text-danger {
+  color: var(--pal-danger-text);
+}
+
+.pal-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

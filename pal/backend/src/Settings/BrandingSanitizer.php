@@ -9,6 +9,7 @@ use App\Platform\Http\ApiProblem;
 /**
  * Validates branding input. Logos may only be http(s) URLs or base64 raster data URLs
  * (PNG, JPEG, GIF, WebP). SVG is excluded because it is a scriptable document format.
+ * Remote logos must be https.
  */
 final class BrandingSanitizer
 {
@@ -35,7 +36,7 @@ final class BrandingSanitizer
 
         $logoUrl = self::optionalString($input['logoUrl'] ?? null);
         if (null !== $logoUrl && !self::isAllowedLogo($logoUrl)) {
-            $errors['logoUrl'] = 'Use an http(s) image URL, or upload a PNG, JPEG, GIF or WebP image under 300 KB.';
+            $errors['logoUrl'] = 'Use an https:// image URL, or upload a PNG, JPEG, GIF or WebP image under 300 KB.';
         }
 
         $accentColor = self::optionalString($input['accentColor'] ?? null);
@@ -80,6 +81,7 @@ final class BrandingSanitizer
         }
         $scheme = strtolower((string) parse_url($url, \PHP_URL_SCHEME));
 
-        return \in_array($scheme, ['http', 'https'], true) && '' !== (string) parse_url($url, \PHP_URL_HOST) && null === parse_url($url, \PHP_URL_USER);
+        // https only: the SPA's CSP (img-src 'self' data: https:) would block http images anyway.
+        return 'https' === $scheme && '' !== (string) parse_url($url, \PHP_URL_HOST) && null === parse_url($url, \PHP_URL_USER);
     }
 }
