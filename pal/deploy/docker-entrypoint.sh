@@ -14,6 +14,12 @@ require() {
     done
 }
 
+# Platforms that replace the image ENTRYPOINT with their start command (some PaaS) pass this
+# script's own path first; drop it so "pal-entrypoint web" works either way.
+case "${1:-}" in
+    */pal-entrypoint|pal-entrypoint) shift ;;
+esac
+
 role="${1:-web}"
 [ "$#" -gt 0 ] && shift
 

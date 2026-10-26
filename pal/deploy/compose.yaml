@@ -44,9 +44,15 @@ services:
     command: ["web"]
     ports:
       - "127.0.0.1:8080:8080"
+    # Document blobs (PAL_BLOB_DIR=/srv/pal/data/blobs). On first use the named volume takes the
+    # image's ownership (uid 10001). For NAS storage, bind-mount the share here instead.
+    volumes:
+      - pal-blobs:/srv/pal/data
     depends_on:
       migrate:
         condition: service_completed_successfully
+      clamd:
+        condition: service_healthy
 
   worker:
     <<: *pal
@@ -56,6 +62,20 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+
+  # Malware scanning for uploads (PAL_CLAMD_ADDRESS=clamd:3310). Uploads fail closed while it
+  # is down. Needs ~1.5 GB RAM for signatures; the first start downloads them (freshclam).
+  clamd:
+    image: clamav/clamav:1.5.4
+    volumes:
+      - pal-clamav:/var/lib/clamav
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      start_period: 300s
+      retries: 3
+    restart: unless-stopped
 
   db:
     profiles: ["bundled-db"]
@@ -97,3 +117,5 @@ secrets:
 
 volumes:
   pal-db:
+  pal-blobs:
+  pal-clamav:

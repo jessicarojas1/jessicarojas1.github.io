@@ -17,7 +17,7 @@ final class HealthTest extends WebTestCase
 
         $client->request('GET', '/health/ready');
         self::assertResponseIsSuccessful();
-        self::assertSame(['status' => 'ready', 'checks' => ['database' => 'ok', 'migrations' => 'ok']], json_decode((string) $client->getResponse()->getContent(), true));
+        self::assertSame(['status' => 'ready', 'checks' => ['database' => 'ok', 'migrations' => 'ok', 'storage' => 'ok']], json_decode((string) $client->getResponse()->getContent(), true));
     }
 
     public function testSecurityHeadersAndRequestIdArePresent(): void

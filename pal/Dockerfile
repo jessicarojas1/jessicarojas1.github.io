@@ -70,13 +70,16 @@ COPY --chmod=0755 deploy/docker-entrypoint.sh /usr/local/bin/pal-entrypoint
 # Writable runtime paths live under /tmp and var/; the application code is read-only to the app user.
 RUN chown -R root:root /srv/pal/backend \
     && mkdir -p /srv/pal/backend/var/cache /srv/pal/backend/var/log \
-    && chown -R pal:pal /srv/pal/backend/var
+    && chown -R pal:pal /srv/pal/backend/var \
+    && mkdir -p /srv/pal/data/blobs \
+    && chown -R pal:pal /srv/pal/data
 
 ENV APP_ENV=prod \
     APP_DEBUG=0 \
     TRUSTED_PROXIES=private_ranges \
     PAL_SESSION_COOKIE_NAME=__Host-pal_session \
-    PAL_SESSION_COOKIE_SECURE=1
+    PAL_SESSION_COOKIE_SECURE=1 \
+    PAL_BLOB_DIR=/srv/pal/data/blobs
 
 USER pal
 EXPOSE 8080

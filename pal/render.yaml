@@ -1,30 +1,46 @@
-# PAL: reference Render configuration (Blueprint format).
+# PAL: Render Blueprint for a demo / evaluation deployment (full Phase 2 with uploads).
 #
-# PAL's selected production target is on-premises Linux (decision D2). This file keeps
-# the project Render-deployable for demos and evaluation, per the repository standard.
-# It is NOT referenced by the repository's root render.yaml, so nothing is created or
-# billed on Render until someone deploys it deliberately (New > Blueprint, path pal/render.yaml).
+# PAL's selected production target is on-premises Linux (decision D2). This file keeps the
+# project Render-deployable for demos, per the repository standard. The repository's root
+# render.yaml does NOT include it, so nothing is created or billed on Render until someone
+# deploys it deliberately: Render dashboard > New > Blueprint > Blueprint Path "pal/render.yaml".
 #
-# Do not load real organisational documents into a demo deployment.
+# Never load real organisational documents into a demo deployment.
 #
-# LIMITATION: Render gives one database role, so the runtime role owns audit_event and
-# PAL_APP_DB_ROLE cannot be used. Here the audit trail is tamper-EVIDENT (hash chain,
-# pal:audit:verify) but not tamper-RESISTANT. See deploy/sql/roles.sql for the real model.
+# Cost: every service here is on a paid plan (a persistent disk, pre-deploy commands and
+# private services all require one; free Postgres expires after 30 days). Check current
+# prices at https://render.com/pricing before deploying.
 #
-# Entra: set "Assignment required = Yes" on the enterprise application; every account that
-# can sign in becomes a Reader.
+# Known limitations of this demo topology (see deployments/ and OPEN_ITEMS.md):
+# - Render gives one database role, so the runtime role owns audit_event and PAL_APP_DB_ROLE
+#   cannot be used. The audit trail is tamper-EVIDENT (hash chain, pal:audit:verify) but not
+#   tamper-RESISTANT here. deploy/sql/roles.sql is the real model.
+# - A service with a persistent disk runs as a single instance and loses zero-downtime deploys.
+# - If the disk mount is not writable by the container user (uid 10001), /health/ready reports
+#   "storage":"fail" and the deploy does not go live.
+#
+# Sign-in: username/password (local accounts). After the first deploy, sign in as
+# PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME, change the temporary password, then delete both
+# bootstrap variables. Entra ID stays "Not connected" unless the OIDC_* values are set.
 
 services:
   - type: web
     name: pal-web
     runtime: docker
-    rootDir: pal
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    dockerCommand: web
-    plan: starter
+    # Paths are relative to the repository root.
+    dockerfilePath: ./pal/Dockerfile
+    dockerContext: ./pal
+    dockerCommand: /usr/local/bin/pal-entrypoint web
+    plan: 0.5c-512mb
     healthCheckPath: /health/ready
     preDeployCommand: /usr/local/bin/pal-entrypoint migrate
+    buildFilter:
+      paths:
+        - pal/**
+    disk:
+      name: pal-blobs
+      mountPath: /srv/pal/data
+      sizeGB: 1
     envVars:
       - key: PORT
         value: "8080"
@@ -37,11 +53,31 @@ services:
       - key: MESSENGER_TRANSPORT_DSN
         value: doctrine://default?auto_setup=0
       - key: PAL_BASE_URL
-        sync: false            # e.g. https://pal-web.onrender.com
+        sync: false            # https://<your-service>.onrender.com (no trailing slash)
+      - key: DEFAULT_URI
+        sync: false            # same value as PAL_BASE_URL
       - key: TRUSTED_HOSTS
-        sync: false            # e.g. ^pal-web\.onrender\.com$
+        sync: false            # ^<your-service>\.onrender\.com$
       - key: TRUSTED_PROXIES
         value: private_ranges
+      - key: PAL_DEFAULT_TIMEZONE
+        value: America/Denver
+      - key: PAL_BLOB_DIR
+        value: /srv/pal/data/blobs
+      - key: PAL_MAX_UPLOAD_BYTES
+        value: "26214400"      # 25 MiB = ClamAV's default StreamMaxLength
+      - key: PAL_CLAMD_ADDRESS
+        fromService:
+          type: pserv
+          name: pal-clamav
+          property: hostport
+      - key: PAL_ALLOW_UNSCANNED_UPLOADS
+        value: "0"
+      - key: PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME
+        sync: false            # e.g. admin; remove after first sign-in
+      - key: PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD
+        sync: false            # 12+ chars, temporary; must be changed at first sign-in
+      # Optional Entra ID single sign-on. Leave unset to show it as "Not connected".
       - key: OIDC_TENANT_ID
         sync: false
       - key: OIDC_CLIENT_ID
@@ -50,17 +86,17 @@ services:
         sync: false
       - key: PAL_BOOTSTRAP_ADMIN_OIDS
         sync: false
-      - key: PAL_DEFAULT_TIMEZONE
-        value: America/Denver
 
   - type: worker
     name: pal-worker
     runtime: docker
-    rootDir: pal
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    dockerCommand: worker
-    plan: starter
+    dockerfilePath: ./pal/Dockerfile
+    dockerContext: ./pal
+    dockerCommand: /usr/local/bin/pal-entrypoint worker
+    plan: 0.5c-512mb
+    buildFilter:
+      paths:
+        - pal/**
     envVars:
       - key: APP_SECRET
         fromService:
@@ -73,17 +109,29 @@ services:
           property: connectionString
       - key: MESSENGER_TRANSPORT_DSN
         value: doctrine://default?auto_setup=0
+      - key: DEFAULT_URI
+        sync: false            # same value as PAL_BASE_URL on pal-web
+      - key: PAL_DEFAULT_TIMEZONE
+        value: America/Denver
       - key: OIDC_TENANT_ID
         sync: false
       - key: OIDC_CLIENT_ID
         sync: false
       - key: OIDC_CLIENT_SECRET
         sync: false
-      - key: PAL_DEFAULT_TIMEZONE
-        value: America/Denver
+
+  # Upload malware scanning (clamd, port 3310). Private: reachable only from pal-web.
+  # Holds ~1.5 GB of signatures in memory and briefly more while reloading them, hence 4 GB.
+  # Uploads fail closed while it is starting (first start downloads signatures: several minutes).
+  - type: pserv
+    name: pal-clamav
+    runtime: image
+    image:
+      url: docker.io/clamav/clamav:1.5.4
+    plan: 2c-4g
 
 databases:
   - name: pal-db
     databaseName: pal
-    plan: basic-256mb
+    plan: 0.1c-256mb
     postgresMajorVersion: "17"

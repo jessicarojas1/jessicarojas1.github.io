@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\Migrations\DependencyFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -17,11 +18,16 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 final class HealthController
 {
+    /**
+     * @param iterable<ReadinessProbe> $probes
+     */
     public function __construct(
         private readonly Connection $connection,
         #[Autowire(service: 'doctrine.migrations.dependency_factory')]
         private readonly DependencyFactory $migrations,
         private readonly LoggerInterface $logger,
+        #[AutowireIterator(ReadinessProbe::TAG)]
+        private readonly iterable $probes = [],
     ) {
     }
 
@@ -38,6 +44,9 @@ final class HealthController
             'database' => $this->check('database', fn (): bool => 1 === $this->connection->fetchOne('SELECT 1')),
             'migrations' => $this->check('migrations', fn (): bool => 0 === $this->migrations->getMigrationStatusCalculator()->getNewMigrations()->count()),
         ];
+        foreach ($this->probes as $probe) {
+            $checks[$probe->name()] = $this->check($probe->name(), $probe->isReady(...));
+        }
         $ready = !\in_array('fail', $checks, true);
 
         return new JsonResponse(['status' => $ready ? 'ready' : 'not_ready', 'checks' => $checks], $ready ? 200 : 503);
