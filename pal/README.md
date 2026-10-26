@@ -92,8 +92,8 @@ psql -d postgres -c "CREATE DATABASE pal_test OWNER pal"
 
 # 2. Backend
 cd pal/backend
+cp .env.example .env                      # before composer install: its scripts need .env
 composer install
-cp .env.example .env
 printf 'APP_SECRET=%s\n' "$(openssl rand -hex 32)" > .env.local
 php bin/console doctrine:migrations:migrate --no-interaction
 php -S 127.0.0.1:8000 -t public          # API on :8000

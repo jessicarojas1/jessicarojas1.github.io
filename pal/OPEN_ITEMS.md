@@ -23,6 +23,7 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | Container image never built locally (no Docker on the dev machine) | The first build may fail | Check the first `PAL CI` container job; fix as needed |
 | Sign-in and Graph sync never tested against a real Entra tenant | Claim validation, the certificate assertion (`x5t`/`x5t#S256`) and Graph permissions are unproven | Register a dev app; run sign-in, `pal:roles:map` and `pal:directory:sync` end to end |
 | Production session handler (`PdoSessionHandler`) has no automated test (tests use the mock store) | Idle expiry and locking are unproven in tests | Add an integration test against PostgreSQL, or a manual check on staging |
+| One unexplained PHPUnit failure on the first run in a fresh checkout (1 of 101 tests; 7 later runs clean, including a cold cache) | Possible flaky test | Watch CI; if it recurs, capture the failing test name and fix the root cause |
 | Audit chain under concurrent writers has no automated test | Ordering is reasoned, not proven | Add a parallel-writer integration test |
 | Manual screen-reader pass (NVDA, VoiceOver) not done | Automated checks miss some issues | Do it at the Phase 6/7 accessibility audit |
 | `init-roles.sh` password setting not fully tested (local PostgreSQL trusts local logins) | Bundled-DB passwords unproven | Test on a host with `scram-sha-256` auth |

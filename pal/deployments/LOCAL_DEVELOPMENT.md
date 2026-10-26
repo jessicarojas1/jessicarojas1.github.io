@@ -121,8 +121,8 @@ docker exec pal-pg createdb -U pal pal_test
 
 # Backend
 cd pal/backend
+cp .env.example .env          # before composer install: its post-install scripts need .env
 composer install
-cp .env.example .env
 cat > .env.local <<'EOF'
 APP_SECRET=replace-with-openssl-rand-hex-32
 DATABASE_URL="postgresql://pal:pal@127.0.0.1:5432/pal_dev?serverVersion=17&charset=utf8"

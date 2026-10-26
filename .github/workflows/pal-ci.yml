@@ -48,14 +48,15 @@ jobs:
           coverage: none
           tools: composer:v2
 
+      # Symfony's post-install scripts need .env, so create it from the template first.
+      - name: Prepare environment
+        run: cp .env.example .env
+
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Dependency vulnerability audit
         run: composer audit
-
-      - name: Prepare environment
-        run: cp .env.example .env
 
       - name: Container lint (dev and prod)
         run: |
