@@ -23,7 +23,8 @@ final class SchemaParityTest extends KernelTestCase
         $db->executeStatement('DROP SCHEMA IF EXISTS parity CASCADE');
         $db->executeStatement('CREATE SCHEMA parity');
         try {
-            $db->executeStatement('SET search_path TO parity');
+            // Extensions (btree_gist, pg_trgm) live in public, so keep it on the path.
+            $db->executeStatement('SET search_path TO parity, public');
             $db->executeStatement($sql);
             $db->executeStatement($sql);
             $db->executeStatement('SET search_path TO public');

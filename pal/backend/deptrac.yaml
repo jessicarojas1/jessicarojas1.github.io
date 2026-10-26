@@ -15,6 +15,12 @@ deptrac:
     - name: Settings
       collectors:
         - { type: classLike, value: '^App\\Settings\\.*' }
+    - name: Storage
+      collectors:
+        - { type: classLike, value: '^App\\Storage\\.*' }
+    - name: Documents
+      collectors:
+        - { type: classLike, value: '^App\\Documents\\.*' }
   ruleset:
     Platform:
       # The scheduler wires messages from feature modules; nothing else in Platform may.
@@ -30,3 +36,12 @@ deptrac:
       - Platform
       - Audit
       - Identity
+    Storage:
+      - Platform
+      - Audit
+      - Identity
+    Documents:
+      - Platform
+      - Audit
+      - Identity
+      - Storage

@@ -13,6 +13,8 @@ final class Permission
 {
     public const LIBRARY_READ = 'library.read';
     public const DOCUMENT_CREATE = 'document.create';
+    public const DOCUMENT_READ_ALL = 'document.read_all';
+    public const DOCUMENT_MANAGE_ACCESS = 'document.manage_access';
     public const DOCUMENT_CHANGE_OWNER = 'document.change_owner';
     public const DOCUMENT_OBSOLETE = 'document.obsolete';
     public const DOCUMENT_ARCHIVE = 'document.archive';
@@ -23,6 +25,7 @@ final class Permission
     public const PUBLICATION_RELEASE = 'publication.release';
     public const PUBLICATION_EMERGENCY = 'publication.emergency';
     public const ADMIN_TYPES = 'admin.types';
+    public const ADMIN_DEPARTMENTS = 'admin.departments';
     public const ADMIN_NUMBERING = 'admin.numbering';
     public const ADMIN_RETENTION = 'admin.retention';
     public const ADMIN_WORKFLOWS = 'admin.workflows';
@@ -34,9 +37,9 @@ final class Permission
     public const SYSTEM_CONFIG = 'system.config';
 
     public const ALL = [
-        self::LIBRARY_READ, self::DOCUMENT_CREATE, self::DOCUMENT_CHANGE_OWNER, self::DOCUMENT_OBSOLETE,
+        self::LIBRARY_READ, self::DOCUMENT_CREATE, self::DOCUMENT_READ_ALL, self::DOCUMENT_MANAGE_ACCESS, self::DOCUMENT_CHANGE_OWNER, self::DOCUMENT_OBSOLETE,
         self::DOCUMENT_ARCHIVE, self::DOCUMENT_LEGAL_HOLD, self::WORKFLOW_REASSIGN, self::WORKFLOW_CANCEL,
-        self::PUBLICATION_SCHEDULE, self::PUBLICATION_RELEASE, self::PUBLICATION_EMERGENCY, self::ADMIN_TYPES,
+        self::PUBLICATION_SCHEDULE, self::PUBLICATION_RELEASE, self::PUBLICATION_EMERGENCY, self::ADMIN_TYPES, self::ADMIN_DEPARTMENTS,
         self::ADMIN_NUMBERING, self::ADMIN_RETENTION, self::ADMIN_WORKFLOWS, self::ADMIN_ROLES,
         self::ADMIN_DIRECTORY, self::AUDIT_READ, self::AUDIT_EXPORT, self::REPORT_EXPORT, self::SYSTEM_CONFIG,
     ];

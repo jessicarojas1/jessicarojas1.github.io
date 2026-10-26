@@ -8,6 +8,9 @@ parameters:
     level: 6
     paths:
         - tests
+    excludePaths:
+        # Standalone helper script run as a child process (intentional infinite server loop).
+        - tests/Support/fake-clamd.php
     symfony:
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
     tmpDir: var/phpstan-tests
