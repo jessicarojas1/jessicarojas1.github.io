@@ -91,6 +91,10 @@ final class DocumentAccess
         if (self::can($user, Permission::DOCUMENT_READ_ALL) || $this->isOwnerOrAuthor($user, $document)) {
             return true;
         }
+        // Publishers review what they release: approved revisions not yet released.
+        if (null !== $revisionId && self::can($user, Permission::PUBLICATION_RELEASE) && $this->isAwaitingRelease($revisionId)) {
+            return true;
+        }
 
         return null !== $revisionId && false !== $this->connection->fetchOne(<<<'SQL'
             SELECT 1 FROM workflow_task t JOIN workflow_instance i ON i.id = t.instance_id
@@ -111,11 +115,25 @@ final class DocumentAccess
         if (self::can($user, Permission::DOCUMENT_READ_ALL) || [] !== $this->relations($user, $document)) {
             return true;
         }
+        if (self::can($user, Permission::PUBLICATION_RELEASE) && false !== $this->connection->fetchOne(<<<'SQL'
+            SELECT 1 FROM revision r WHERE r.document_id = ? AND r.state = 'APPROVED'
+              AND NOT EXISTS (SELECT 1 FROM publication p WHERE p.revision_id = r.id AND p.status = 'RELEASED')
+            SQL, [Row::string($document, 'id')])) {
+            return true;
+        }
 
         return false !== $this->connection->fetchOne(<<<'SQL'
             SELECT 1 FROM workflow_task t JOIN workflow_instance i ON i.id = t.instance_id JOIN revision r ON r.id = i.revision_id
             WHERE r.document_id = ? AND t.assignee_user_id = ?
             SQL, [Row::string($document, 'id'), $user->id]);
+    }
+
+    private function isAwaitingRelease(string $revisionId): bool
+    {
+        return false !== $this->connection->fetchOne(<<<'SQL'
+            SELECT 1 FROM revision r WHERE r.id = ? AND r.state = 'APPROVED'
+              AND NOT EXISTS (SELECT 1 FROM publication p WHERE p.revision_id = r.id AND p.status = 'RELEASED')
+            SQL, [$revisionId]);
     }
 
     /**

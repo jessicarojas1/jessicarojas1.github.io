@@ -25,10 +25,21 @@ interface NavItem {
 
 const sections = computed(() => {
   const all: { heading: string; items: NavItem[] }[] = [
-    { heading: 'Home', items: [{ label: 'Dashboard', icon: 'space_dashboard', to: '/' }] },
+    {
+      heading: 'Documents',
+      items: [
+        { label: 'Dashboard', icon: 'space_dashboard', to: '/' },
+        { label: 'Library', icon: 'local_library', to: '/library' },
+        { label: 'My workspace', icon: 'work_outline', to: '/workspace' },
+        { label: 'New document', icon: 'note_add', to: '/documents/new', permission: 'document.create' },
+      ],
+    },
     {
       heading: 'Administration',
-      items: [{ label: 'Role mappings', icon: 'admin_panel_settings', to: '/admin/roles', permission: 'admin.roles' }],
+      items: [
+        { label: 'Role mappings', icon: 'admin_panel_settings', to: '/admin/roles', permission: 'admin.roles' },
+        { label: 'Types and departments', icon: 'category', to: '/admin/reference', permission: 'admin.types' },
+      ],
     },
     {
       heading: 'Settings',
@@ -134,34 +145,44 @@ async function signOut(): Promise<void> {
       :width="248"
       aria-label="Navigation"
     >
-      <nav aria-label="Main">
-        <q-list padding>
-          <template
-            v-for="section in sections"
-            :key="section.heading"
+      <nav
+        aria-label="Main"
+        class="q-py-sm"
+      >
+        <template
+          v-for="section in sections"
+          :key="section.heading"
+        >
+          <p
+            :id="`nav-${section.heading}`"
+            class="pal-nav-heading"
           >
-            <q-item-label header>
-              {{ section.heading }}
-            </q-item-label>
-            <q-item
+            {{ section.heading }}
+          </p>
+          <ul
+            class="pal-plain-list"
+            :aria-labelledby="`nav-${section.heading}`"
+          >
+            <li
               v-for="item in section.items"
               :key="item.to"
-              :to="item.to"
-              exact
-              clickable
-              :aria-current="route.path === item.to ? 'page' : undefined"
-              active-class="pal-text-primary text-weight-medium"
             >
-              <q-item-section avatar>
+              <router-link
+                :to="item.to"
+                class="pal-nav-link"
+                :class="{ 'pal-nav-link--active': route.path === item.to }"
+                :aria-current="route.path === item.to ? 'page' : undefined"
+              >
                 <q-icon
                   :name="item.icon"
+                  size="20px"
                   aria-hidden="true"
                 />
-              </q-item-section>
-              <q-item-section>{{ item.label }}</q-item-section>
-            </q-item>
-          </template>
-        </q-list>
+                <span>{{ item.label }}</span>
+              </router-link>
+            </li>
+          </ul>
+        </template>
       </nav>
     </q-drawer>
 

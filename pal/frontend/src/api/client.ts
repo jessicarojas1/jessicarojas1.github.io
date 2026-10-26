@@ -81,3 +81,32 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
 
   return data as T
 }
+
+export interface UploadResult {
+  id: string
+  filename: string
+  sizeBytes: number
+  mime: string
+  sha256: string
+}
+
+/** Uploads one file (multipart) to the scanning pipeline. */
+export async function uploadFile(file: File): Promise<UploadResult> {
+  const form = new FormData()
+  form.append('file', file)
+  const headers: Record<string, string> = { Accept: 'application/json' }
+  if (csrfToken !== null) headers['X-CSRF-Token'] = csrfToken
+  let response: Response
+  try {
+    response = await fetch('/api/uploads', { method: 'POST', headers, credentials: 'same-origin', body: form })
+  } catch {
+    throw new ApiError(0, 'network_error', 'PAL could not be reached. Check your connection and try again.')
+  }
+  const data: unknown = await response.json().catch(() => null)
+  const body = (typeof data === 'object' && data !== null ? data : {}) as Partial<ApiErrorBody> & Partial<UploadResult>
+  if (!response.ok) {
+    if (response.status === 401 && onUnauthorized !== null) onUnauthorized()
+    throw new ApiError(response.status, body.error ?? 'http_' + String(response.status), body.message ?? 'The upload failed.', body.fields ?? {})
+  }
+  return body as UploadResult
+}

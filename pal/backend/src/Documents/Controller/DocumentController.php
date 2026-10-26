@@ -78,6 +78,17 @@ final class DocumentController
         return new JsonResponse($this->presenter->present($user, $document));
     }
 
+    #[Route('/api/documents/{id}/approvers', name: 'api_document_approvers', methods: ['GET'])]
+    public function approvers(#[CurrentUser] PalUser $user, string $id): JsonResponse
+    {
+        $document = $this->documents->findDocument($id);
+        if (null === $document || !$this->access->isOwnerOrAuthor($user, $document)) {
+            throw new ApiProblem(404, 'not_found', 'Document not found.');
+        }
+
+        return new JsonResponse(['approvers' => $this->lifecycle->eligibleApprovers($id, $user->id)]);
+    }
+
     #[Route('/api/documents/{id}/revisions', name: 'api_document_new_revision', methods: ['POST'])]
     public function newRevision(#[CurrentUser] PalUser $user, string $id): JsonResponse
     {

@@ -199,3 +199,89 @@ body {
   white-space: nowrap;
   border: 0;
 }
+
+.pal-state-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pal-space-1);
+  padding: 2px var(--pal-space-2);
+  border: 1px solid var(--pal-border);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--pal-text);
+  background: var(--pal-surface-sunken);
+}
+
+.pal-doc-number {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--pal-text-muted);
+}
+
+.pal-filter-panel {
+  margin-top: var(--pal-space-3);
+}
+
+.pal-list-item {
+  display: block;
+  padding: var(--pal-space-4);
+  border-bottom: 1px solid var(--pal-border);
+  color: inherit;
+  text-decoration: none;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:hover {
+    background: var(--pal-surface-sunken);
+  }
+}
+
+.pal-section + .pal-section {
+  margin-top: var(--pal-space-6);
+}
+
+.pal-plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+// Repo-standard empty state.
+.empty-state-sm {
+  color: var(--pal-text-muted);
+  text-align: center;
+}
+
+.pal-plain-fieldset {
+  border: 0;
+}
+
+// Drawer navigation: native list semantics (Quasar's QList/QItem links form an invalid list).
+.pal-nav-heading {
+  margin: var(--pal-space-4) var(--pal-space-4) var(--pal-space-1);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--pal-text-muted);
+}
+
+.pal-nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--pal-space-4);
+  min-height: 44px;
+  padding: var(--pal-space-2) var(--pal-space-4);
+  color: var(--pal-text);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--pal-surface-sunken);
+  }
+}
+
+.pal-nav-link--active {
+  color: var(--pal-primary-text);
+  font-weight: 500;
+  background: var(--pal-surface-sunken);
+}

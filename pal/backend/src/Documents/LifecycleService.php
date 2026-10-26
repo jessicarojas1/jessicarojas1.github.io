@@ -424,6 +424,29 @@ final class LifecycleService
         }
     }
 
+    /**
+     * People who may be chosen as approver: active users with an open APPROVER grant,
+     * directly or through a current group membership, excluding the given author.
+     *
+     * @return list<array{id: string, displayName: string, email: string|null}>
+     */
+    public function eligibleApprovers(string $documentId, string $excludeUserId): array
+    {
+        return array_map(fn (array $r): array => [
+            'id' => Row::string($r, 'id'),
+            'displayName' => Row::string($r, 'display_name'),
+            'email' => Row::nullableString($r, 'email'),
+        ], $this->connection->fetchAllAssociative(<<<'SQL'
+            SELECT DISTINCT u.id, u.display_name, u.email FROM app_user u
+            WHERE u.is_active AND u.id <> :exclude AND EXISTS (
+                SELECT 1 FROM document_grant g WHERE g.document_id = :doc AND g.role = 'APPROVER' AND g.valid_to IS NULL
+                  AND (g.user_id = u.id OR g.group_id IN (
+                      SELECT gm.group_id FROM group_membership gm WHERE gm.user_id = u.id AND gm.valid_to IS NULL)))
+            ORDER BY u.display_name
+            LIMIT 200
+            SQL, ['doc' => $documentId, 'exclude' => $excludeUserId]));
+    }
+
     public function isEligibleApprover(string $documentId, string $userId): bool
     {
         return false !== $this->connection->fetchOne(<<<'SQL'

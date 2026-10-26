@@ -421,4 +421,39 @@ final class DocumentLifecycleTest extends WebTestCase
 
         self::assertSame(['SOP-QA-0001', 'SOP-QA-0002', 'SOP-QA-0003'], $numbers);
     }
+
+    public function testEligibleApproversAreListedForEditorsOnly(): void
+    {
+        [$documentId] = $this->draftDocument();
+
+        $this->as('author');
+        $this->client->request('GET', '/api/documents/'.$documentId.'/approvers');
+        self::assertSame(['Abe Approver'], array_column($this->json()['approvers'], 'displayName'));
+
+        $this->as('reader');
+        $this->client->request('GET', '/api/documents/'.$documentId.'/approvers');
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testPublishersCanReviewWhatTheyReleaseButNotDrafts(): void
+    {
+        [$documentId, $revisionId] = $this->draftDocument();
+
+        // A draft is invisible to publishers.
+        $this->as('publisher');
+        $this->client->request('GET', '/api/documents/'.$documentId);
+        self::assertResponseStatusCodeSame(404);
+
+        $this->submitAndApprove($revisionId);
+
+        // Once approved, the publisher sees it, can download the approved file, and is offered release.
+        $this->as('publisher');
+        $this->client->request('GET', '/api/documents/'.$documentId);
+        self::assertResponseIsSuccessful();
+        self::assertContains('release', $this->json()['awaitingRelease']['actions']);
+        $this->client->request('GET', '/api/revisions/'.$revisionId.'/file');
+        self::assertResponseIsSuccessful();
+        $this->client->request('GET', '/api/workspace');
+        self::assertSame($documentId, $this->json()['awaitingRelease'][0]['documentId']);
+    }
 }

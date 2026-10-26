@@ -20,6 +20,11 @@ export const router = createRouter({
       component: () => import('@/layouts/MainLayout.vue'),
       children: [
         { path: '', name: 'dashboard', component: () => import('@/pages/DashboardPage.vue'), meta: { title: 'Dashboard' } },
+        { path: 'library', name: 'library', component: () => import('@/pages/LibraryPage.vue'), meta: { title: 'Library' } },
+        { path: 'workspace', name: 'workspace', component: () => import('@/pages/WorkspacePage.vue'), meta: { title: 'My workspace' } },
+        { path: 'documents/new', name: 'new-document', component: () => import('@/pages/NewDocumentPage.vue'), meta: { permission: 'document.create', title: 'New document' } },
+        { path: 'documents/:id', name: 'document', component: () => import('@/pages/DocumentPage.vue'), meta: { title: 'Document' } },
+        { path: 'admin/reference', name: 'reference-admin', component: () => import('@/pages/ReferenceAdminPage.vue'), meta: { permission: 'admin.types', title: 'Types and departments' } },
         { path: 'settings/preferences', name: 'preferences', component: () => import('@/pages/PreferencesPage.vue'), meta: { title: 'Preferences' } },
         { path: 'settings/branding', name: 'branding', component: () => import('@/pages/BrandingPage.vue'), meta: { permission: 'system.config', title: 'Branding' } },
         { path: 'admin/roles', name: 'role-mappings', component: () => import('@/pages/RoleMappingsPage.vue'), meta: { permission: 'admin.roles', title: 'Role mappings' } },
@@ -57,13 +62,30 @@ router.beforeEach(guard)
 
 // After in-app navigation, move focus to the new page's main heading so keyboard and
 // screen-reader users land on the new content (the initial load keeps natural focus).
-router.afterEach((to, from) => {
-  if (from.matched.length === 0) return
-  void nextTick(() => {
-    const heading = document.querySelector<HTMLElement>('#main-content h1, main h1')
+// Pages that load data first render their heading later, so wait (briefly) for it.
+function focusHeadingWhenReady(timeoutMs = 3000): void {
+  const find = (): HTMLElement | null => document.querySelector<HTMLElement>('#main-content h1, main h1')
+  const focus = (heading: HTMLElement): void => {
+    heading.setAttribute('tabindex', '-1')
+    heading.focus()
+  }
+  const existing = find()
+  if (existing !== null) {
+    focus(existing)
+    return
+  }
+  const observer = new MutationObserver(() => {
+    const heading = find()
     if (heading !== null) {
-      heading.setAttribute('tabindex', '-1')
-      heading.focus()
+      observer.disconnect()
+      focus(heading)
     }
   })
+  observer.observe(document.body, { childList: true, subtree: true })
+  window.setTimeout(() => observer.disconnect(), timeoutMs)
+}
+
+router.afterEach((to, from) => {
+  if (from.matched.length === 0) return
+  void nextTick(() => focusHeadingWhenReady())
 })

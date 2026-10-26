@@ -94,9 +94,22 @@ onMounted(async () => {
             />
             {{ health === 'ready' ? 'All services are ready.' : health === 'checking' ? 'Checking…' : 'Some services are not ready. Contact your administrator.' }}
           </p>
-          <p class="pal-muted q-mb-none q-mt-md">
-            The document library, workflows and publishing arrive in the next releases.
-          </p>
+          <div class="row q-gutter-sm q-mt-md">
+            <q-btn
+              outline
+              no-caps
+              icon="local_library"
+              label="Open the library"
+              to="/library"
+            />
+            <q-btn
+              outline
+              no-caps
+              icon="work_outline"
+              label="My workspace"
+              to="/workspace"
+            />
+          </div>
         </div>
       </section>
     </div>
