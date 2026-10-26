@@ -137,8 +137,19 @@ jobs:
           docker run -d --name pal-smoke -p 8080:8080 \
             -e APP_SECRET=ci -e PAL_BASE_URL=http://localhost:8080 -e TRUSTED_HOSTS='^localhost$' \
             -e DATABASE_URL='postgresql://none:none@127.0.0.1:5432/none?serverVersion=17' pal:ci
-          for i in $(seq 1 30); do curl -fsS http://localhost:8080/health/live && break; sleep 1; done
-          curl -fsS http://localhost:8080/health/live
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8080/health/live; then ok=1; break; fi
+            sleep 1
+          done
+          if [ "$ok" != 1 ]; then
+            echo "::group::container diagnostics"
+            docker ps -a --filter name=pal-smoke
+            docker logs pal-smoke 2>&1 | tail -100
+            docker exec pal-smoke sh -c 'ps aux; ls -la /tmp' 2>&1 || true
+            echo "::endgroup::"
+            exit 1
+          fi
           curl -fsS -o /dev/null -w '%{http_code}\n' http://localhost:8080/sign-in | grep -q 200
           test "$(docker exec pal-smoke id -u)" = "10001"
           docker rm -f pal-smoke
