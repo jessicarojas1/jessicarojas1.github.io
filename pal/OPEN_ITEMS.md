@@ -14,13 +14,12 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | Audit | ✅ Append-only hash chain: triggers, DB role separation (verified against PostgreSQL), verifier, anchor writer, revokes re-applied on migrate |
 | Platform | ✅ Health/readiness, request IDs, JSON errors, typed row access, Messenger + Scheduler with an advisory lock |
 | UI | ✅ Sign-in, dashboard, preferences, branding, role mappings. 0 axe violations (WCAG 2.0–2.2 A/AA) in both themes |
-| Delivery | ✅ One non-root image, Compose for on-prem, DB roles script, CI (tests, PHPStan, Deptrac, audits, Trivy, gitleaks) |
+| Delivery | ✅ One non-root image, Compose for on-prem, DB roles script, CI (tests, PHPStan, Deptrac, audits, Trivy, gitleaks). **CI green 2026-10-26**: image builds, starts as uid 10001, refuses missing config, serves health and the SPA, and has no HIGH/CRITICAL fixable CVEs |
 | Docs | ✅ README, CLAUDE.md, `docs/` ×4, `deployments/` ×6, ADR-0001…0013, decision log, traceability matrix |
 
 ## Not verified (must be confirmed before go-live)
 | Item | Impact | Action |
 |---|---|---|
-| Container image never built locally (no Docker on the dev machine) | The first build may fail | Check the first `PAL CI` container job; fix as needed |
 | Sign-in and Graph sync never tested against a real Entra tenant | Claim validation, the certificate assertion (`x5t`/`x5t#S256`) and Graph permissions are unproven | Register a dev app; run sign-in, `pal:roles:map` and `pal:directory:sync` end to end |
 | Production session handler (`PdoSessionHandler`) has no automated test (tests use the mock store) | Idle expiry and locking are unproven in tests | Add an integration test against PostgreSQL, or a manual check on staging |
 | One unexplained PHPUnit failure on the first run in a fresh checkout (1 of 101 tests; 7 later runs clean, including a cold cache) | Possible flaky test | Watch CI; if it recurs, capture the failing test name and fix the root cause |
