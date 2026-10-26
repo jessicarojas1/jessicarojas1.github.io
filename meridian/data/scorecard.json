@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-23",
+  "updated": "2026-10-26",
   "summary": {
     "correct": 27,
-    "incorrect": 18,
+    "incorrect": 19,
     "partial": 10,
-    "pending": 78,
-    "note": "2026-10-23: four prior forecasts graded this cycle, all INCORRECT -- three were overdue window lapses not caught in intervening cycles (fc-2026-09-14-salalah-reschedule: no Salalah reschedule or Iran-Oman arrangement was ever confirmed; fc-2026-09-25-f5-named-victim: no named F5 BIG-IP APM victim beyond F5's own internal discovery has surfaced; fc-2026-10-07-ukraine-strike-response: no Western statement specifically referencing the 6-7 Oct Kyiv/Pryluky/Poltava strike was ever found), and one closed on today's window (fc-2026-10-02-fbi-shinyhunters-scope: no independent confirmation of the FBIJobs.gov data volume/scope beyond ShinyHunters' own claim). Lead findings this cycle: (1) US envoy Witkoff met Putin in St. Petersburg (21 Oct); per Kremlin aide Ushakov, Russia is 'in principle' ready to resume US-Russia-Ukraine trilateral talks (floated mid-November), announced the same week as a fresh Kyiv strike (late 21-22 Oct, 6+ injured) -- the Ukraine Ceasefire Diplomacy thread's direction changed from ESCALATING to UNCERTAIN to reflect this new, countervailing diplomatic signal. (2) Google Cloud/Mandiant published forensic detail on ARMORY CASTLE's BeyondTrust tradecraft: a custom webshell (SAWFLY) and a SUID-based technique achieving persistent root execution, with Mandiant recommending a forensic rebuild over in-place patching -- sharpening, not resolving, the sector-wide DIB-visibility gap. (3) NATO's 20 Oct Black Sea commitment produced its first physical follow-through: a US P-8A Poseidon (Varna, Bulgaria) and a French surveillance aircraft (Romania), both national assets at host-nation request, not yet NATO-badged. (4) A second, separate Hormuz-area incident (near Al Faw, Iraq, 20 Oct) adds to a rising October attack count (~28, up from ~18) even as pace is separately described as 'slowed.' (5) BAE Systems and the Department of War signed a new APKWS production-scaling framework (19-20 Oct), a concrete but unfunded munitions-demand signal. (6) A proposed class action (Edwards v. US DoW) was filed over the DMDC breach. Four new PENDING forecasts added, testing: whether the trilateral-talks track converts to an actually-convened meeting; whether further organizations report ARMORY CASTLE's specific persistence indicators; whether the APKWS framework converts to funded orders within 180 days; and whether the Cyber AB's 27 Oct Town Hall produces a CMMC timing signal."
+    "pending": 81,
+    "note": "2026-10-26: this cycle followed a 3-day gap (no briefs issued 10-24/10-25), so the research sweep widened to ~72-96h. One prior forecast graded: fc-2026-10-15-nk-third-launch-pattern (INCORRECT) -- North Korea's test pause, running since the 14 Oct SLCM test, outlasted the standing 10-day cadence window (closed ~25 Oct) with no further launch identified across a dedicated multi-cycle search; the Korean Peninsula Missile-Testing Cadence thread's direction is downgraded from ESCALATING to UNCERTAIN. Lead findings this cycle: (1) a third, separate Hormuz-area incident surfaced only via a UKMTO report delayed by roughly three days (a tanker disabled by a projectile strike at 0839 UTC 23 Oct), underscoring that this program's real-time Hormuz picture likely understates the Strait's true attack tempo. (2) CISA KEV-listed CVE-2026-110447 (Collabora Online's built-in CODE server for Nextcloud) on 23 Oct -- a 13th-plus vendor family in the ongoing edge-CVE wave, the first in a collaboration/file-sharing platform, with confirmed exploitation running a full month (mid-Sep to 15 Oct) before the CVE/patch existed; still no named DIB victim across any tracked family after 8+ weeks. (3) Russia released US citizen Stephen Hubbard during the 21 Oct Witkoff-Putin meeting, a confidence-building gesture layered on the still-unconfirmed trilateral-talks opening. (4) CMMC, Golden Dome, the Anthropic D.C. Circuit litigation, the FTC's third-lab CID question, and NATO's Black Sea asset-badging question all remained exactly where they were on 23 Oct, with no material development identified despite a deliberately widened search window. Three new PENDING forecasts added, testing: whether the new Hormuz incident remains unattributed; whether a named DIB victim surfaces for the Collabora/Nextcloud CVE; and whether a confirmed trilateral-talks date/venue emerges within three weeks."
   },
   "forecasts": [
     {
@@ -1203,7 +1203,43 @@
       "horizon": "0-7 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the flagged Town Hall date actually becomes a venue for a CMMC timing signal, or passes without one -- directly informing the standing fc-2026-10-22-cmmc-new-target forecast. Tracked on the CMMC Implementation thread."
+      "note": "Tests whether the flagged Town Hall date actually becomes a venue for a CMMC timing signal, or passes without one -- directly informing the standing fc-2026-10-22-cmmc-new-target forecast. Tracked on the CMMC Implementation thread. As of 26 Oct the Town Hall has not yet occurred (scheduled for the following day)."
+    },
+    {
+      "id": "fc-2026-10-15-nk-third-launch-pattern",
+      "date": "2026-10-15",
+      "forecast": "North Korea will conduct at least one further missile or weapons test (any type) within 10 days, extending the pattern of three distinct test events (3 Oct, 12 Oct, 14 Oct) in under two weeks into a sustained accelerated cadence rather than a temporary cluster.",
+      "horizon": "0-10 days",
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-26",
+      "note": "The 10-day window (from 15 Oct, closing ~25 Oct) lapsed with no further North Korean test identified since the 14 Oct SLCM test -- the pause is now roughly twelve days, the longest of the current cluster, confirmed via a dedicated multi-cycle search sweep rather than a mere reporting gap. Graded INCORRECT on the window's lapse; the Korean Peninsula Missile-Testing Cadence thread's direction is downgraded from ESCALATING to UNCERTAIN to reflect the broken cadence."
+    },
+    {
+      "id": "fc-2026-10-26-hormuz-newincident-attribution",
+      "date": "2026-10-26",
+      "forecast": "Formal attribution (a named actor, e.g. Iran/IRGC, or an official vessel-identity confirmation) for the 23 Oct Hormuz-area tanker strike -- surfaced only via a multi-day-delayed UKMTO report -- will remain unestablished within 14 days, consistent with the pattern for prior unattributed incidents in this wave.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this newly surfaced, delayed-report incident follows the same unattributed pattern as the already-tracked 20 Oct Al Faw and 21 Oct Al Dasma strikes. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-26-collabora-dib-victim",
+      "date": "2026-10-26",
+      "forecast": "A named DIB/federal-contractor victim organization tied to CVE-2026-110447 (Collabora/Nextcloud built-in CODE server) will be publicly reported within 30 days, given confirmed pre-disclosure exploitation running a full month before the CVE existed.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this 13th-plus vendor family, and the first in a collaboration/file-sharing platform rather than a remote-access/identity appliance, produces a named victim faster than the dozen-plus prior tracked CVE families, none of which has yet yielded one. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-26-trilateral-date-confirmed",
+      "date": "2026-10-26",
+      "forecast": "A confirmed date and venue for the Witkoff-floated US-Russia-Ukraine trilateral talks (previously cited as mid-November, possibly Abu Dhabi) will be announced within 21 days, given Russia's accompanying goodwill gesture (the release of US citizen Stephen Hubbard).",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "A narrower, nearer-term complement to the standing fc-2026-10-23-ukraine-trilateral-talks (30-day, convened-meeting) forecast -- tests specifically whether a date/venue (not yet a convened meeting) is confirmed within three weeks. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     }
   ]
 }
