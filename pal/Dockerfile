@@ -37,7 +37,8 @@ COPY deploy/php/fpm-pool.conf /usr/local/etc/php-fpm.d/zz-pal.conf
 COPY deploy/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY deploy/supervisord.conf /etc/supervisord.conf
 RUN addgroup -S -g 10001 pal && adduser -S -D -H -u 10001 -G pal pal \
-    && rm -f /usr/local/etc/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/zz-docker.conf \
+    # Remove the image's default [www] pool (www.conf, docker.conf, zz-docker.conf); zz-pal.conf replaces it.
+    && rm -f /usr/local/etc/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf \
     && mkdir -p /var/lib/nginx /var/log/nginx /run/nginx \
     && chown -R pal:pal /var/lib/nginx /var/log/nginx /run/nginx
 
