@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-26",
+  "updated": "2026-10-27",
   "summary": {
     "correct": 27,
     "incorrect": 19,
     "partial": 10,
-    "pending": 81,
-    "note": "2026-10-26: this cycle followed a 3-day gap (no briefs issued 10-24/10-25), so the research sweep widened to ~72-96h. One prior forecast graded: fc-2026-10-15-nk-third-launch-pattern (INCORRECT) -- North Korea's test pause, running since the 14 Oct SLCM test, outlasted the standing 10-day cadence window (closed ~25 Oct) with no further launch identified across a dedicated multi-cycle search; the Korean Peninsula Missile-Testing Cadence thread's direction is downgraded from ESCALATING to UNCERTAIN. Lead findings this cycle: (1) a third, separate Hormuz-area incident surfaced only via a UKMTO report delayed by roughly three days (a tanker disabled by a projectile strike at 0839 UTC 23 Oct), underscoring that this program's real-time Hormuz picture likely understates the Strait's true attack tempo. (2) CISA KEV-listed CVE-2026-110447 (Collabora Online's built-in CODE server for Nextcloud) on 23 Oct -- a 13th-plus vendor family in the ongoing edge-CVE wave, the first in a collaboration/file-sharing platform, with confirmed exploitation running a full month (mid-Sep to 15 Oct) before the CVE/patch existed; still no named DIB victim across any tracked family after 8+ weeks. (3) Russia released US citizen Stephen Hubbard during the 21 Oct Witkoff-Putin meeting, a confidence-building gesture layered on the still-unconfirmed trilateral-talks opening. (4) CMMC, Golden Dome, the Anthropic D.C. Circuit litigation, the FTC's third-lab CID question, and NATO's Black Sea asset-badging question all remained exactly where they were on 23 Oct, with no material development identified despite a deliberately widened search window. Three new PENDING forecasts added, testing: whether the new Hormuz incident remains unattributed; whether a named DIB victim surfaces for the Collabora/Nextcloud CVE; and whether a confirmed trilateral-talks date/venue emerges within three weeks."
+    "pending": 84,
+    "note": "2026-10-27: no prior forecast resolved this cycle. Lead findings: (1) CISA KEV-listed a core-PHP RCE pair (CVE-2026-109618/109619, CVSS 9.2) on 26 Oct, disclosed early after a leak -- the edge/DevOps/identity/AI-infra exploitation wave's first entry to hit a base language runtime rather than a specific appliance or application, implying a categorically larger exposed population than any of the 14+ prior tracked vendor families, none of which has yet yielded a named DIB victim. (2) A single, uncorroborated secondary aggregator reported the IRGC re-declared the Strait of Hormuz closed on 26 Oct and that Houthis struck Saudi Arabia's East-West pipeline; neither claim could be verified against a primary or named-wire-service source, and the closure claim sits in tension with same-day market reporting of oil prices easing on diplomatic-breakthrough hopes -- held at CLAIMED/LOW confidence pending corroboration. (3) Per Ukrainian government statements, Putin rejected Zelensky's proposed mutual halt on energy-infrastructure strikes while Witkoff's broader security-guarantees document remains with Russia awaiting a response. (4) A breach-tracking aggregator named Oak Grove Technologies, a NC military training/simulation firm, as an unconfirmed DragonForce ransomware victim. (5) A previously uncaptured 23 Oct Black Sea drone sinking (the Khoryv) and a materially larger AP month-wide toll (7+ vessels, 2 dead, ~25 missing) surfaced, revising this program's tracked Black Sea figures upward. CMMC's Cyber AB Town Hall occurred today with no outcome yet reported; Golden Dome, Taiwan, North Korea's test pause, and the AI-governance tracks (FTC/Anthropic/Super Intelligence Force) remained materially unchanged. Three new PENDING forecasts added, testing: whether a named DIB victim surfaces for the core-PHP CVEs; whether today's Hormuz claims are ever corroborated or denied; and whether Russia responds to the broader security-guarantees document."
   },
   "forecasts": [
     {
@@ -1240,6 +1240,33 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "A narrower, nearer-term complement to the standing fc-2026-10-23-ukraine-trilateral-talks (30-day, convened-meeting) forecast -- tests specifically whether a date/venue (not yet a convened meeting) is confirmed within three weeks. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+    },
+    {
+      "id": "fc-2026-10-27-php-core-dib-victim",
+      "date": "2026-10-27",
+      "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to CVE-2026-109618/CVE-2026-109619 (core-PHP RCE) will be publicly reported within 30 days, given the CVSS 9.2 severity, the early leak-driven disclosure, and Unit 42's observed proof-of-concept exploitation.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this wave's first base-language-runtime entry -- with a categorically larger theoretical exposure population than any prior appliance/application-specific entry -- breaks the pattern in which none of the 14+ prior tracked vendor families has yet yielded a named DIB victim. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-27-hormuz-closure-confirm",
+      "date": "2026-10-27",
+      "forecast": "A primary source (CENTCOM, a UKMTO/NAVTEX notice, or a named wire service) will confirm or explicitly deny the 26 Oct single-aggregator claim of a renewed IRGC Strait of Hormuz closure and the accompanying Houthi East-West-pipeline strike claim within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether today's lowest-confidence Hormuz claims, sourced to a single secondary aggregator and in tension with same-day market reporting, are ever corroborated or explicitly refuted, or simply fade unresolved as several prior single-source claims on this thread have. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-27-ukraine-energy-response",
+      "date": "2026-10-27",
+      "forecast": "Russia will issue some public response (accept, reject, or counter) to Witkoff's security-guarantees document within 14 days, distinct from its already-reported rejection of the narrower mutual energy-strike-halt proposal.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the broader security-guarantees track moves at all following Russia's rejection of the narrower, bounded energy-halt proposal. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     }
   ]
 }

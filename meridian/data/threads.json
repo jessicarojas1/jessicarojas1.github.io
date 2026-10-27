@@ -2,13 +2,13 @@
   {
     "name": "U.S.-Iran Conflict / Strait of Hormuz",
     "firstDetected": "2026-09-07",
-    "status": "UPDATE (23 Oct): a second, separate Hormuz-area incident occurred near Al Faw, Iraq on 20 Oct (unidentified projectile/drone, crew safe, vessel identity disputed -- one Iraqi source names the tanker Corden Eikel), distinct from the already-tracked 21 Oct Al Dasma strike near Oman's Bukha. Maritime-security firm Vanguard Tech now counts roughly 28 reported/confirmed October Hormuz-area attacks (up from ~18 cited two weeks earlier) while separately assessing the attack pace has 'slowed compared to early October' -- both can be true simultaneously (a high cumulative count atop a genuinely front-loaded surge). The ~4-vs-~85/day transit-collapse figure remains unconfirmed by any primary source for a third-plus consecutive cycle. Iran's security chief Rezaei called the US response to Iran's 7-day reopening plan 'insufficient' (~11 Oct); no further US-Iran exchange has been identified since. PRIOR (unresolved): the 17 Oct IRGC closure declaration, the disputed mine-strike claims (JMIC 'no substantiation' posture unchanged), the two named missing Indian seafarers (Bir Bahadur Yadav, Amit Singh), and Yemen's disputed Mocha recapture claim all remain as previously tracked with no new developments this cycle.",
+    "status": "UPDATE (27 Oct): a single, uncorroborated secondary aggregator reports the IRGC re-declared the Strait 'closed' on 26 Oct -- reusing the already-unconfirmed ~4-vs-~85/day transit figure -- alongside an unconfirmed Houthi claim of drone strikes on Saudi Arabia's East-West pipeline pumping stations; neither claim could be verified against a primary or named-wire-service source this cycle, and the closure claim is in tension with same-day market reporting of oil prices easing on diplomatic-breakthrough hopes. Separately, UKMTO classified a vessel fire ~63nm from Al-Faw as 'suspicious activity' (not a confirmed attack, cause undetermined), and Iranian state-linked media claimed an unconfirmed anti-ship cruise-missile strike near Sirik Island (26 Oct). JMIC's 25 Oct assessment holds the Strait at SEVERE with further deliberate attacks assessed highly likely, independent of today's specific claims. PRIOR (unresolved): the disputed mine-strike claims, the two named missing Indian seafarers (Bir Bahadur Yadav, Amit Singh), and Yemen's disputed Mocha recapture claim all remain as previously tracked with no new developments this cycle.",
     "importance": "Critical -- Gulf maritime risk remains sharply elevated: a second distinct attack within 24 hours and a rising cumulative attack count, even amid a described pace slowdown, keep the transit-collapse question and the broader threat picture unresolved.",
     "direction": "ESCALATING",
     "indicatorLevel": "RED",
     "assessment": "REPORTED (both the transit-collapse figure and the rising cumulative attack count trace to secondary shipping-data/maritime-security-firm aggregation, not primary UKMTO/CENTCOM confirmation this cycle) / ASSESSED: the directional signal (sustained, elevated risk) is corroborated across multiple independent threads even though precise magnitude and pace characterizations remain unverified and at times apparently in tension with each other -- confidence in direction is MODERATE, confidence in any specific figure is LOW pending primary-source check. The mine-strike claims remain a live factual dispute between Iran and the US/JMIC. The Mocha recapture claim remains CLAIMED/disputed as before.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-26 -- A third, separate Hormuz-area incident surfaced this cycle via a multi-day-delayed UKMTO report: a tanker disabled by a projectile strike at 0839 UTC on 23 Oct, only reaching public reporting around 26 Oct. This is distinct from the already-tracked 20 Oct Al Faw and 21 Oct Al Dasma strikes. The reporting lag itself is now a tracked data point -- it means the Strait's real-time attack tempo is likely understated by any single reporting cycle. No update on Iran's 'insufficient' characterization of the US response, the 2 missing seafarers, or Mocha's status.",
+    "lastChange": "2026-10-27 -- A single, uncorroborated aggregator (not a wire service or primary source) reports a renewed 26 Oct IRGC Hormuz closure declaration and an unconfirmed Houthi East-West-pipeline strike claim; neither could be verified this cycle, and the closure claim is in tension with same-day CNBC reporting of oil prices easing on diplomatic-breakthrough hopes. UKMTO separately logged an unconfirmed 'suspicious activity' vessel fire near Al-Faw, and Iranian state-linked media claimed an unconfirmed Sirik-area cruise-missile strike. JMIC's 25 Oct SEVERE assessment stands independent of these specific claims. No update on the 2 missing seafarers or Mocha's status.",
     "orgRelevance": "Validate the reported transit-collapse figure and attack-pace characterizations against a primary UKMTO/CENTCOM/Lloyd's List source before citing either externally; review any Gulf-adjacent logistics, travel, or energy-price exposure now rather than assuming either the prior 'reduced but continuing' or a new 'pace slowed' framing resolves the underlying risk. Treat the IRGC's 'closure,' the transit figure, and the attack-pace characterization as REPORTED, not KNOWN. Flag the US-enforcement threat vector separately from Iran/Houthi-attributed risk in any Gulf shipping briefing. Do not cite the Mocha recapture, the mine-strike claims, or a Petro-Dolphin-specific Panama inquiry as established. Treat any apparent quiet reporting window as a possible lag artifact, not confirmed de-escalation, given this cycle's confirmed multi-day UKMTO delay.",
     "nextIndicator": "Independent (UKMTO/CENTCOM primary-source) confirmation of actual transit volumes and attack-pace trends; any further US-Iran exchange beyond the 'insufficient' characterization; JMIC or flag-state confirmation or denial of either mine-strike claim; resolution of the 2 missing Sohar seafarers.",
     "history": [
@@ -167,6 +167,10 @@
       {
         "date": "2026-10-26",
         "note": "A third, separate Hormuz-area incident surfaced only via a multi-day-delayed UKMTO report: a tanker disabled by a projectile strike at 0839 UTC on 23 Oct, reaching public reporting only around 26 Oct. No update on the transit-collapse figure, Iran's 'insufficient' characterization, the 2 missing seafarers, or Mocha's status. The confirmed reporting lag is now itself a tracked risk factor for this thread."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "A single uncorroborated aggregator claims a renewed 26 Oct IRGC closure declaration and an unconfirmed Houthi East-West-pipeline strike; neither verified. UKMTO logs an unconfirmed 'suspicious activity' vessel fire near Al-Faw; Iran claims an unconfirmed Sirik-area cruise-missile strike. JMIC holds SEVERE (25 Oct). Today's closure claim is in tension with same-day market reporting of oil prices easing on diplomatic-breakthrough hopes."
       }
     ]
   },
@@ -179,7 +183,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "Policy pause, not repeal, remains the leading read on CMMC. No evidence of a scope change behind the delay -- continued deliberation is the more likely explanation than an active decision to abandon the report. On FAR Overhaul: a deliberate staged rewrite that has reached operative buying mechanics (Parts 12/15 competitive positioning, Parts 9/27 qualification/IP risk); a countervailing signal is that June-batch final rules reportedly stalled while OMB weighed changes, so proposed-stage publication does not guarantee timely finalization.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-26 -- Still non-public with no new DoD-stated date. The Cyber Accreditation Body's Town Hall (tomorrow, 27 Oct) remains the flagged forward venue for a possible signal -- not yet occurred as of this cycle. No new Federal Register notice, DFARS class deviation, or FAR Overhaul rule publication identified.",
+    "lastChange": "2026-10-27 -- The Cyber AB's Town Hall is occurring today; no outcome had been reported as of this brief's compilation. A fourth consecutive missed informal target would be confirmed if today passes without a DoD-sourced date. No new Federal Register notice, DFARS class deviation, or FAR Overhaul rule publication identified.",
     "orgRelevance": "Anchor compliance planning to DFARS Class Deviation 2026-O0025 Rev 3's confirmed terms (self-assessment through 2028) rather than any informal CMMC timing signal, which has now failed three times running. For FAR Overhaul: assign a named owner to each of the eight published rules and finalize comment positions; triage by revenue exposure (Parts 12/15 first, then 9/27, then 16/17/35 for IDIQ/R&D holders) -- the binding constraint is contracts/legal review capacity, not awareness.",
     "nextIndicator": "A Federal Register notice, class deviation, or 32 CFR Part 170 amendment with a firm CMMC release date; publication of the remaining four of twelve FAR Overhaul rules; any final-rule timeline announcement for the eight already-proposed rules.",
     "history": [
@@ -314,19 +318,23 @@
       {
         "date": "2026-10-26",
         "note": "No material change; report remains non-public with no successor date. The Cyber AB's Town Hall is tomorrow (27 Oct) and has not yet occurred. No new Federal Register notice, DFARS class deviation, or FAR Overhaul rule publication identified."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "The Cyber AB's Town Hall is occurring today; no outcome reported as of this cycle's compilation. No new Federal Register notice, DFARS class deviation, or FAR Overhaul rule publication identified."
       }
     ]
   },
   {
     "name": "Critical Minerals / Rare-Earth Magnets",
     "firstDetected": "2026-09-06",
-    "status": "No new PRC licensing action or Decree No. 841 enforcement case was identified this cycle. A new, unconfirmed data point surfaced: reporting attributed to the White House describes China as having agreed to introduce streamlined rare-earth 'general licenses,' characterized by the administration as a de facto end of China's export controls; Beijing has not publicly confirmed this, and one analyst source cautions such licenses could take months to implement even if genuine. The 10 Nov suspension-expiry window (MOFCOM/GAC Announcement No. 70 of 2025) is now roughly three weeks out with no PRC relief signal independently confirmed; the related gallium/germanium/antimony suspension expiry (27 Nov) remains on the same track. No new Arsenal-2 or comparable DIB-capacity-financing milestone was identified this cycle.",
+    "status": "New Reuters-sourced reporting elaborates the previously tracked, unconfirmed 'general licenses' claim: China issued its first batch of rare-earth general licenses in December 2025, with JL MAG, Ningbo Yunsheng, and Zhongke Sanhuan named as holders, but industry sources say such licenses are likely to be harder to obtain for users associated with defense or other sensitive areas, with 'more clarity' expected only by year-end. This argues against reading the broader relief claim as applicable to the military-affiliated-firm license denial this thread tracks. No new Decree No. 841 enforcement case identified. The 10 Nov suspension-expiry window (MOFCOM/GAC Announcement No. 70 of 2025) is now roughly two weeks out with no PRC relief signal specific to defense-affiliated firms; the related gallium/germanium/antimony suspension expiry (27 Nov, MOFCOM Announcement No. 72) remains on the same track. No new Arsenal-2 or comparable DIB-capacity-financing milestone was identified this cycle.",
     "importance": "Critical -- the unconfirmed 'general licenses' claim, if real, would be the first potential PRC relief signal of this thread's tracking, but it remains unverified by Beijing and should not be mistaken for resolved supply-chain relief heading into the suspension-expiry window.",
     "direction": "ESCALATING",
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the claim of streamlined licensing is REPORTED/CLAIMED via a US-side characterization, not CONFIRMED by Chinese authorities; the operational conclusion is unchanged -- delivered material, not trade-truce or licensing headlines, remains the correct risk gate. China's minimal-commitment posture at the summit continues to preserve its leverage into the suspension-expiry window regardless of this claim's veracity.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-26 -- No material change; no new PRC licensing action, Decree No. 841 enforcement case, or Chinese confirmation/denial of the 'general licenses' claim identified. The broader case-by-case licensing requirement on the seven controlled heavy rare earths (in force since Apr 2025) remains fully active and unaffected by any general-license claim. The 10 Nov suspension-expiry window is now roughly two weeks out.",
+    "lastChange": "2026-10-27 -- New reporting names three Chinese firms (JL MAG, Ningbo Yunsheng, Zhongke Sanhuan) holding limited general licenses since Dec 2025, but describes such licenses as harder to obtain for defense-affiliated end users specifically, with 'more clarity' expected only by year-end -- elaborating, not resolving, the standing unconfirmed relief claim. No new PRC action or Arsenal-2/Northlake milestone identified. Suspension-expiry window now roughly two weeks out.",
     "orgRelevance": "Continue to assume no near-term PRC relief for BOM/second-sourcing planning; do not treat the unconfirmed 'general licenses' claim as planning-grade information absent Chinese confirmation or an observed change in license-approval behavior. Track the 10 Nov and 27 Nov suspension-expiry dates as the near-term inflection points.",
     "nextIndicator": "Independent (Chinese MOFCOM or observed license-approval-behavior) confirmation or denial of the 'general licenses' claim; any PRC signal ahead of the 10/27 Nov suspension expiries; first reported Decree No. 841 enforcement case.",
     "history": [
@@ -473,19 +481,23 @@
       {
         "date": "2026-10-26",
         "note": "No new PRC action or Arsenal-2/Northlake milestone identified; no Chinese confirmation or denial of the 'general licenses' claim. The broader case-by-case licensing requirement on the seven controlled heavy rare earths remains fully in force. Suspension-expiry window now roughly two weeks out."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "New Reuters-sourced reporting names JL MAG, Ningbo Yunsheng, and Zhongke Sanhuan as holders of general licenses issued since Dec 2025, but describes such licenses as harder to obtain for defense-affiliated users specifically. No new PRC action, Decree 841 enforcement case, or Arsenal-2/Northlake milestone identified."
       }
     ]
   },
   {
     "name": "Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs",
     "firstDetected": "2026-09-06",
-    "status": "A qualitative escalation this cycle: Google/Mandiant attributed active exploitation of a BeyondTrust Remote Support authentication-bypass zero-day (CVE-2026-102764, KEV-listed 16 Oct) to ARMORY CASTLE, a suspected PRC-nexus espionage actor formerly tracked as UNC5221 -- the first confirmed nation-state attribution within this specific wave, which had until now featured only criminal actors (e.g., UTA0576 on Ivanti). BeyondTrust confirmed exploitation began 29 Aug 2026 (pre-disclosure) against one hosted instance and one self-hosted appliance; the SaaS fix shipped 8 Oct, self-hosted patch BT26-05-RS requires manual action. Separately, CISA KEV-listed four chained Plex Media Server CVEs ('Plex2Shell') plus an EG Secure Solutions SiteGuard and a Siemens Software Center flaw on 20 Oct, extending the wave to a 12th-plus vendor family grouping. Plex2Shell exploitation (crypto-mining, a residential-proxy payload) is so far documented mainly via one researcher's honeypot. Still no named DIB/federal-contractor victim on any tracked vendor family after roughly seven weeks, now including BeyondTrust.",
+    "status": "A base-runtime escalation this cycle: CISA KEV-listed a core-PHP RCE pair (CVE-2026-109618/CVE-2026-109619, CVSS 9.2) on 26 Oct, disclosed early after a leak; PHP Foundation fixes shipped 21 Oct and Unit 42 observed proof-of-concept exploitation, with at least one European government reportedly taking a site offline as a precaution. This is the wave's first entry to hit the underlying language runtime rather than a specific appliance or application, implying a categorically larger exposed population than any prior entry. PRIOR: Google/Mandiant attributed active exploitation of a BeyondTrust Remote Support authentication-bypass zero-day (CVE-2026-102764, KEV-listed 16 Oct) to ARMORY CASTLE, a suspected PRC-nexus espionage actor formerly tracked as UNC5221 -- the first confirmed nation-state attribution within this specific wave, which had until now featured only criminal actors (e.g., UTA0576 on Ivanti). BeyondTrust confirmed exploitation began 29 Aug 2026 (pre-disclosure) against one hosted instance and one self-hosted appliance; the SaaS fix shipped 8 Oct, self-hosted patch BT26-05-RS requires manual action. Separately, CISA KEV-listed four chained Plex Media Server CVEs ('Plex2Shell') plus an EG Secure Solutions SiteGuard and a Siemens Software Center flaw on 20 Oct, extending the wave to a 12th-plus vendor family grouping. Plex2Shell exploitation (crypto-mining, a residential-proxy payload) is so far documented mainly via one researcher's honeypot. Still no named DIB/federal-contractor victim on any tracked vendor family after roughly seven weeks, now including BeyondTrust.",
     "importance": "Critical -- the campaign now spans both criminal and confirmed nation-state actors across widening product classes (enterprise remote-access, identity, AI-gateway, media-server, industrial software), while the sustained absence of a named DIB victim is itself an increasingly notable open question, sharpened by the new espionage dimension.",
     "direction": "ESCALATING",
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the multi-vendor edge/perimeter campaign continues widening in both sophistication (a confirmed PRC-nexus actor) and breadth (media-server/industrial software) rather than plateauing. Espionage-motivated intrusions (as opposed to the ransomware-driven disclosure incentives of criminal actors) are disclosed far less reliably, making continued DIB under-reporting more plausible than genuine immunity.",
     "confidence": "HIGH",
-    "lastChange": "2026-10-26 -- CISA KEV-listed CVE-2026-110447 (Collabora Online's built-in CODE server component for Nextcloud, OS command injection) on 23 Oct -- a 13th-plus distinct vendor family, the first in a collaboration/file-sharing platform rather than a remote-access/identity appliance. Confirmed exploitation began mid-September, a full month before the CVE/patch existed (disclosed/patched 15 Oct), with webshells deployed to harvest credentials and cryptocurrency wallets from compromised hosts. FortiMail's patch-status verification gap persists unresolved. Still no named DIB victim on any tracked family after 8+ weeks, now including both BeyondTrust and Collabora/Nextcloud.",
+    "lastChange": "2026-10-27 -- CISA added CVE-2026-109618/CVE-2026-109619 (core-PHP RCE, CVSS 9.2) to the KEV catalog on 26 Oct and updated its PHP Alert; disclosure came early after a leak, PHP Foundation fixes shipped 21 Oct (8.5.12/8.4.27/8.3.36/8.2.35 plus backports), and Unit 42 reports observed proof-of-concept exploitation, with at least one European government reportedly taking a site offline as a precaution. This is a 15th-plus distinct entry and the first base-language-runtime entry in the wave. FortiMail's patch-status gap persists unresolved. Still no named DIB victim on any tracked family after 8+ weeks.",
     "orgRelevance": "Patch all BeyondTrust Remote Support/Privileged Remote Access instances (self-hosted via BT26-05-RS) and treat any pre-8-Oct internet-facing self-hosted appliance as a possible prior-compromise candidate; review any MSP/vendor-access relationship using the product. Patch Ivanti Connect Secure and Fortinet CVE-2025-61624 on federal (BOD 26-04) timelines; maintain FortiMail interim mitigations pending primary-source patch confirmation. Lower-priority: inventory Plex Media Server, SiteGuard, and Siemens Software Center if present.",
     "nextIndicator": "A named DIB/federal-contractor victim on any tracked campaign, BeyondTrust included; broader corroboration of Plex2Shell exploitation beyond one honeypot; a primary Fortinet advisory confirming FortiMail's patch status; further ARMORY CASTLE activity tied to other edge/identity products.",
     "history": [
@@ -636,6 +648,10 @@
       {
         "date": "2026-10-26",
         "note": "CISA KEV-listed CVE-2026-110447 (Collabora/Nextcloud built-in CODE server, OS command injection) on 23 Oct -- a 13th-plus vendor family, and the first in a collaboration/file-sharing platform. Exploitation confirmed to have begun mid-September, a month before the CVE/patch existed; webshells were used to harvest credentials and cryptocurrency wallets. FortiMail patch-status gap persists. Still no named DIB victim after 8+ weeks across any tracked family."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "CISA KEV-listed a core-PHP RCE pair (CVE-2026-109618/109619, CVSS 9.2) on 26 Oct after an early leak-driven disclosure; PHP Foundation fixes shipped 21 Oct; Unit 42 observed PoC exploitation; at least one European government reportedly took a site offline as precaution. First base-language-runtime entry in this wave -- a categorically larger exposure surface than any prior appliance/application-specific entry. Still no named DIB victim after 8+ weeks."
       }
     ]
   },
@@ -648,7 +664,7 @@
     "indicatorLevel": "RED",
     "assessment": "Procurement mechanics and now organizational/mission build-out continue advancing largely independent of the confirmed FY27 funding gap; near-term opportunity (cyber-defense-of-missile-defense-systems, support-unit sustainment) may open before major new procurement funding clears.",
     "confidence": "HIGH",
-    "lastChange": "2026-10-26 -- No material change; no new SHIELD task order, naming of the earmarked Army unit, JTF-Gold mission detail, or on-orbit checkout confirmation identified this cycle. Northrop's GAO-protest window on the F/A-XX award nears close (~31 Oct) with still no filing identified, continuing to trend toward 'no protest.' FY27 funding risk remains unresolved. The BAE-DoW APKWS production framework remains unfunded with no new congressional action identified.",
+    "lastChange": "2026-10-27 -- No material change; no new SHIELD task order, naming of the earmarked Army unit, JTF-Gold mission detail, or on-orbit checkout confirmation identified this cycle. Northrop's GAO-protest window on the F/A-XX award now has roughly 4 days left with still no filing identified, continuing to trend toward 'no protest.' FY27 funding risk remains unresolved. The BAE-DoW APKWS production framework remains unfunded; recent multiyear munitions awards (SM-6, AMRAAM, Patriot) still await full congressional appropriation.",
     "orgRelevance": "Watch for near-term RFIs/solicitations tied to JTF-Gold's expanded cyber mission or the earmarked Army unit's sustainment needs -- these may open ahead of any major new procurement gated by the FY27 funding risk. Continue to treat near-term reconciliation-funded task-order growth as unlikely before a post-midterm legislative window.",
     "nextIndicator": "Naming of the earmarked Army unit; JTF-Gold mission-expansion details; progress of the Self bill; any post-midterm reconciliation or supplemental vehicle naming Golden Dome; the first SHIELD task order.",
     "history": [
@@ -787,6 +803,10 @@
       {
         "date": "2026-10-26",
         "note": "No material change; no new SHIELD task order, unit naming, JTF-Gold detail, or checkout confirmation identified. Northrop's F/A-XX GAO-protest window nears close (~31 Oct) still unfiled, continuing to trend toward no protest. APKWS framework remains unfunded."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "No material change; no new SHIELD task order, unit naming, JTF-Gold detail, or checkout confirmation identified. Northrop's F/A-XX GAO-protest window now has roughly 4 days left, still unfiled."
       }
     ]
   },
@@ -799,7 +819,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the Witkoff-Putin 'in principle' agreement to resume trilateral talks is a genuine opening but rests entirely on interested-party (Russian- and Ukrainian-official) statements, with Russia framing the agenda around a postwar security architecture rather than an immediate ceasefire; the unaffected strike tempo argues against reading this as imminent de-escalation. Direction changed from ESCALATING to UNCERTAIN to reflect this new, countervailing diplomatic signal running alongside continued lethal strikes.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-26 -- Russia released US citizen Stephen Hubbard (detained since 2022) during the 21 Oct Witkoff-Putin meeting, with Trump and Witkoff both stating no prisoner swap was required -- a unilateral confidence-building gesture layered on the standing 'in principle' trilateral-talks opening. No confirmed trilateral-meeting date/venue emerged this cycle, and no new large-scale Kyiv strike was identified in this narrower 72h window (a reporting-coverage limitation given the preceding 3-day no-brief gap, not a confirmed lull). ZNPP power-status data gap persists.",
+    "lastChange": "2026-10-27 -- Per Ukrainian government statements on the 20 Oct Oslo and 21 Oct St. Petersburg meetings, Putin rejected Zelensky's proposed mutual, bounded halt on strikes against sensitive energy infrastructure; Witkoff's broader security-guarantees document (a NATO Article-5-style option or a lighter variant) remains with Russia awaiting a response. Zelensky separately said US ballistic-missile early-warning intelligence sharing was restored after a roughly week-long gap. No confirmed trilateral-meeting date/venue. ZNPP power-status data gap persists.",
     "orgRelevance": "Macro European air-defense, counter-UAS, electronic-warfare, and grid-hardening/resilience demand context; do not revise demand assumptions based on the talks announcement alone absent a confirmed meeting date or a measurable change in strike tempo. Correct any internal materials citing a 'Poltava' strike -- the correct location is Pryluky, Chernihiv region.",
     "nextIndicator": "A confirmed trilateral-meeting date/venue; any measurable reduction in strike tempo ahead of such a meeting; final confirmed toll from the 21-22 Oct strike; resolution of the ZNPP power-status data gap.",
     "history": [
@@ -946,6 +966,10 @@
       {
         "date": "2026-10-26",
         "note": "Russia released US citizen Stephen Hubbard during the 21 Oct Witkoff-Putin meeting (no swap required, per Trump/Witkoff) -- a goodwill gesture layered on the standing trilateral-talks opening. No confirmed meeting date/venue; no new large-scale Kyiv strike identified in this cycle's narrower window. ZNPP data gap persists."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "Putin reportedly rejected Zelensky's proposed mutual energy-infrastructure strike halt (per Ukrainian statements on the 20 Oct Oslo / 21 Oct St. Petersburg meetings); Witkoff's broader security-guarantees document remains with Russia awaiting a response. Zelensky says US ballistic-missile early-warning intel sharing was restored after a week-long gap. No confirmed trilateral-meeting date."
       }
     ]
   },
@@ -958,7 +982,7 @@
     "indicatorLevel": "ORANGE",
     "assessment": "ASSESSED: China's minimal-commitment approach preserves its rare-earth leverage into the 10/27 Nov suspension-expiry window. The Taiwan arms delay, per available reporting, looks like a genuine US-side capacity constraint rather than a policy signal, though this should be held with some caution given the issue's political sensitivity and the difficulty of independently verifying motive.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-26 -- No newer Taiwan MND count was located this cycle (search-access limitation); the 18 Oct count (2 aircraft, 5 PLAN vessels, 9 official ships, both aircraft crossing the median line) remains the latest available and within the routine band. No new PRC action or Rubio/Hegseth response identified.",
+    "lastChange": "2026-10-27 -- No newer Taiwan MND count was located this cycle (search-access limitation persists); the 18 Oct count remains the latest available and within the routine band. Taiwan's MND says it is watching for a possible large-scale PLA exercise as the historical 'peak season' for such drills approaches; none has been staged this year as of this cycle. No new PRC action or Rubio/Hegseth response identified.",
     "orgRelevance": "Firms pursuing Taiwan-related FMS opportunities should weigh Rubio's stated US-side production-capacity rationale alongside political/export-control factors when building delivery-schedule assumptions; do not treat the truce rollover as supply-chain relief.",
     "nextIndicator": "Any Taiwan arms-package transmittal to Congress; a confirmed Rubio/Hegseth response to the senators' letter; PLA activity clearly beyond the routine band; any joint-statement text with specific rare-earth licensing language.",
     "history": [
@@ -1089,6 +1113,10 @@
       {
         "date": "2026-10-26",
         "note": "No newer Taiwan MND count located this cycle (search-access gap); the 18 Oct count remains the latest available. No new PRC action or Rubio/Hegseth response identified."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "No newer Taiwan MND count located (search-access gap persists); 18 Oct remains latest. Taiwan's MND is watching for a possible large-scale PLA 'peak season' exercise, none staged this year as of this cycle. No new PRC action or Rubio/Hegseth response identified."
       }
     ]
   },
@@ -1101,7 +1129,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "The original window's lapse without either a nomination or an explicit withdrawal most plausibly reflects genuine Senate-confirmation math friction specific to Parnell, not a deliberate broader delay; no evidence of an alternative candidate being actively advanced. The cyber-strategy item remains 'still pending per trade press, ambiguity resolved via secondary reconciliation.'",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-26 -- No material change; no nomination, withdrawal, or acting-capacity statement identified this cycle. The 21-day resolution window (to ~30 Oct) has roughly 4 days left. No DoD cyber-strategy release identified.",
+    "lastChange": "2026-10-27 -- No material change; no nomination, withdrawal, or acting-capacity statement identified this cycle. The 21-day resolution window (to ~30 Oct) has roughly 3 days left. No DoD cyber-strategy release identified.",
     "orgRelevance": "Decide a leadership-level position on whether contractor support to offensive cyber operations is in or out of scope as a market before a solicitation forces the question; watch FASCOM's stand-up for new autonomous-systems acquisition pathways; monitor for either a formal nomination or an explicit extended-acting-capacity statement within the next ~9 days.",
     "nextIndicator": "A formal Army Secretary nomination transmittal (Parnell or an alternative), an explicit withdrawal announcement, or an explicit White House statement on an extended Telle acting-capacity arrangement; a primary war.gov release of the Pentagon's own cyber strategy.",
     "history": [
@@ -1240,6 +1268,10 @@
       {
         "date": "2026-10-26",
         "note": "No material change; no nomination, withdrawal, or acting-capacity statement identified. Resolution window now has roughly 4 days left (to ~30 Oct). No DoD cyber-strategy release identified."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "No material change; no nomination, withdrawal, or acting-capacity statement identified. Resolution window now has roughly 3 days left (to ~30 Oct). No DoD cyber-strategy release identified."
       }
     ]
   },
@@ -1252,7 +1284,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: this is a genuine split-track US response -- voluntary accord and compelled regulatory fact-finding proceeding in parallel rather than either substituting for the other; the FTC's CIDs are compulsory document-production demands, not yet enforcement action, but materially raise discovery risk for AI-safety documentation.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-26 -- A second consecutive quiet cycle; no new FTC CID to a third lab (e.g. METR), no D.C. Circuit action on Anthropic's en banc petition, and no new Super Intelligence Force output identified.",
+    "lastChange": "2026-10-27 -- A third consecutive quiet cycle; no new FTC CID to a third lab (e.g. METR), no D.C. Circuit action on Anthropic's en banc petition, and no new Super Intelligence Force output identified.",
     "orgRelevance": "Track the FTC's CIDs and the Anthropic litigation as distinct tracks from GenAI.mil vendor-availability questions. Treat AI-vendor safety/governance documentation as now subject to active regulatory discovery risk, not merely internal policy -- review internal AI-vendor governance documentation posture against a comparable standard.",
     "nextIndicator": "A further FTC CID to a third-party lab (e.g., METR); a D.C. Circuit ruling on Anthropic's en banc petition; the Super Intelligence Force's first public output or budget/timeline disclosure.",
     "history": [
@@ -1391,6 +1423,10 @@
       {
         "date": "2026-10-26",
         "note": "A second consecutive quiet cycle; no new FTC CID to a third lab, D.C. Circuit action on Anthropic's en banc petition, or Super Intelligence Force output identified."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "A third consecutive quiet cycle; no new FTC CID to a third lab, D.C. Circuit action on Anthropic's en banc petition, or Super Intelligence Force output identified."
       }
     ]
   },
@@ -1403,7 +1439,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: each incident's occurrence and rough scope is KNOWN or REPORTED via the respective institution/claimant; attribution is UNKNOWN for Dodd Group/DMDC but the FBIJobs.gov incident now has a confirmed technical root cause (contractor patch-management failure). Whether this reflects three independent coincidences or a broader wave of third-party/vendor-system targeting remains the central uncertainty for the other two.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-26 -- No material change; no new charges against Saif al-Din Khader, no new attribution for DMDC or Dodd Group/Lynx, and no fourth comparable disclosure identified this cycle. The Edwards v. DoW class action remains the wave's only legal-consequence track.",
+    "lastChange": "2026-10-27 -- A breach-tracking aggregator (not yet confirmed by the company or a named outlet) lists Oak Grove Technologies, a North Carolina military training/simulation firm, as a DragonForce ransomware victim (~19 Oct discovery, ~261GB claimed leak) -- a potential fourth, unconfirmed disclosure in this wave. No new charges against Saif al-Din Khader and no new attribution for DMDC or Dodd Group/Lynx identified.",
     "orgRelevance": "Any organization with veteran, reservist, or military-affiliated staff should assume some employees may be in the DMDC-affected population; any organization with facilities-maintenance subcontractors should audit access scope comparable to the Dodd Group/Lynx pattern; any organization using a third-party-managed Oracle PeopleSoft or similar outsourced platform should verify patch-management SLAs are actually enforced, not just contracted, given the FBIJobs.gov root cause.",
     "nextIndicator": "Independent confirmation of the FBIJobs.gov data volume/scope; formal UK government attribution of the Dodd Group/Lynx incident; any DMDC misuse confirmation; a fourth comparable disclosure.",
     "history": [
@@ -1482,6 +1518,10 @@
       {
         "date": "2026-10-26",
         "note": "No material change; no new charges against Khader, no new attribution for DMDC or Dodd Group/Lynx, and no fourth comparable disclosure identified this cycle."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "An unconfirmed breach-aggregator claim names Oak Grove Technologies (NC military training/simulation firm) as a DragonForce ransomware victim (~19 Oct discovery, ~261GB claimed) -- a potential, unconfirmed fourth disclosure in this wave, distinct from DMDC and Dodd Group/Lynx. No company statement or named-outlet confirmation identified; no new Khader charges or DMDC/Dodd Group attribution."
       }
     ]
   },
@@ -1494,7 +1534,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "ASSESSED: North Korea's third test in twelve days, now diversifying into a submarine-launched capability it has not demonstrated since Jan 2024, reads as continued and intensifying capability signaling. The test's timing one day after Trump's floated-meeting remark is consistent with negotiating-from-a-position-of-strength signaling (with precedent before the 2018 Singapore and 2019 Hanoi summits), but this is an analytic judgment, not a confirmed causal link -- North Korea's own stated rationale (readiness/deterrence) does not depend on any US statement. CAPABILITY vs. INTENT: the submarine-launch capability is demonstrated; broader strategic intent (signaling for leverage vs. genuine openness to talks vs. routine cadence) remains ASSESSED, not confirmed.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-26 -- No further North Korean test identified; the pause since the 14 Oct SLCM test is now roughly twelve days, the longest of the current cluster, and has outlasted the standing 10-day cadence forecast (fc-2026-10-15-nk-third-launch-pattern), which closed ~25 Oct without a further launch and is graded INCORRECT. Direction downgraded from ESCALATING to UNCERTAIN to reflect the broken cadence; cause (achieved objectives vs. pre-APEC signaling lull vs. routine variation) remains unconfirmed. No new development on the floated Trump-Kim meeting ahead of the 18-19 Nov APEC summit.",
+    "lastChange": "2026-10-27 -- No further North Korean test identified; the pause since the 14 Oct SLCM test is now roughly 13 days, still the longest of the current cluster. Trump told reporters he 'doesn't know' whether he will meet Kim at the 18-19 Nov APEC Shenzhen summit, while calling his relationship with Kim 'very good'; Pyongyang has not publicly responded to US overtures. Cause of the pause remains UNKNOWN.",
     "orgRelevance": "Any logistics, personnel, or customer exposure touching the Korean Peninsula or broader Northeast Asia should be flagged for closer monitoring; otherwise macro Indo-Pacific undersea-detection, missile-warning, and PNT-resilience demand context. Track the 18-19 Nov APEC summit as a potential inflection date.",
     "nextIndicator": "Any further North Korean test within 10 days; confirmation or denial of a Trump-Kim meeting around 18-19 Nov; independent confirmation of the Hero Kim Kun Ok as the launch platform; any ROK/US/Japan joint statement on the cadence.",
     "history": [
@@ -1549,6 +1589,10 @@
       {
         "date": "2026-10-26",
         "note": "No further North Korean test identified; the pause is now roughly twelve days, outlasting the standing 10-day cadence forecast (closed ~25 Oct, graded INCORRECT). Direction downgraded to UNCERTAIN. No new development on a Trump-Kim meeting ahead of the 18-19 Nov APEC summit."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "No further North Korean test identified; pause now roughly 13 days. Trump says he 'doesn't know' whether an APEC Trump-Kim meeting will occur; Pyongyang has not responded to overtures. Pause cause remains UNKNOWN."
       }
     ]
   },
@@ -1561,7 +1605,7 @@
     "indicatorLevel": "RED",
     "assessment": "REPORTED via NATO-spokesperson statements and allied-government readouts carried by multiple outlets, not yet independently verified against a single authoritative NATO press release. ASSESSED: NATO is responding to sustained allied pressure (particularly Bulgaria and Romania) with calibrated reinforcement short of Article 5, while Russian attribution for the underlying campaign stays genuinely unproven.",
     "confidence": "MODERATE",
-    "lastChange": "2026-10-26 -- No material change; no new incident, no specifically named NATO-badged (vs. national) asset confirmed on station, and no single authoritative casualty/vessel-count reconciliation identified this cycle. The US P-8A Poseidon and French surveillance aircraft continue patrolling at host-nation request per the most recent confirmed reporting.",
+    "lastChange": "2026-10-27 -- A previously uncaptured 23 Oct incident surfaced this cycle: a drone sank the Comoros-flagged cargo vessel Khoryv ~13nm east of Constanta, Romania (1 of 13 crew killed, 3 missing, 9 rescued). AP separately gives a month-wide toll of 7+ vessels struck off Romania/Bulgaria in October, 2 dead, ~25 missing -- a materially larger figure than this thread had previously logged. No NATO-badged (vs. national) asset confirmed on station this cycle.",
     "orgRelevance": "Track Bulgaria's IRIS-T/drone procurement and NATO's new Black Sea asset commitment as concrete near-term allied maritime-domain-awareness and counter-drone demand signals; watch for the first specifically named NATO (not national) asset physically on station, and for Turkish ratification of the expanded Mine Countermeasures Group mission.",
     "nextIndicator": "The first specifically named NATO (not national) asset confirmed on station; Turkish ratification of the expanded Mine Countermeasures Group mission; a single authoritative reconciliation of vessel identities and casualties; any further incident or intercept.",
     "history": [
@@ -1612,6 +1656,10 @@
       {
         "date": "2026-10-26",
         "note": "No material change; no new incident, no NATO-badged asset confirmed on station, and no casualty/vessel-count reconciliation identified this cycle. National assets continue patrolling at host-nation request."
+      },
+      {
+        "date": "2026-10-27",
+        "note": "A previously uncaptured 23 Oct drone sinking (the Khoryv, near Constanta) surfaced this cycle, along with an AP month-wide toll of 7+ vessels struck, 2 dead, ~25 missing in October -- a material upward revision to this thread's tracked toll. No new incident since 23 Oct and no NATO-badged asset confirmed on station."
       }
     ]
   }
