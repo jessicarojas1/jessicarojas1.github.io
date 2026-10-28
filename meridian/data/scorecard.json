@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-27",
+  "updated": "2026-10-28",
   "summary": {
-    "correct": 27,
-    "incorrect": 19,
-    "partial": 10,
+    "correct": 29,
+    "incorrect": 20,
+    "partial": 11,
     "pending": 84,
-    "note": "2026-10-27: no prior forecast resolved this cycle. Lead findings: (1) CISA KEV-listed a core-PHP RCE pair (CVE-2026-109618/109619, CVSS 9.2) on 26 Oct, disclosed early after a leak -- the edge/DevOps/identity/AI-infra exploitation wave's first entry to hit a base language runtime rather than a specific appliance or application, implying a categorically larger exposed population than any of the 14+ prior tracked vendor families, none of which has yet yielded a named DIB victim. (2) A single, uncorroborated secondary aggregator reported the IRGC re-declared the Strait of Hormuz closed on 26 Oct and that Houthis struck Saudi Arabia's East-West pipeline; neither claim could be verified against a primary or named-wire-service source, and the closure claim sits in tension with same-day market reporting of oil prices easing on diplomatic-breakthrough hopes -- held at CLAIMED/LOW confidence pending corroboration. (3) Per Ukrainian government statements, Putin rejected Zelensky's proposed mutual halt on energy-infrastructure strikes while Witkoff's broader security-guarantees document remains with Russia awaiting a response. (4) A breach-tracking aggregator named Oak Grove Technologies, a NC military training/simulation firm, as an unconfirmed DragonForce ransomware victim. (5) A previously uncaptured 23 Oct Black Sea drone sinking (the Khoryv) and a materially larger AP month-wide toll (7+ vessels, 2 dead, ~25 missing) surfaced, revising this program's tracked Black Sea figures upward. CMMC's Cyber AB Town Hall occurred today with no outcome yet reported; Golden Dome, Taiwan, North Korea's test pause, and the AI-governance tracks (FTC/Anthropic/Super Intelligence Force) remained materially unchanged. Three new PENDING forecasts added, testing: whether a named DIB victim surfaces for the core-PHP CVEs; whether today's Hormuz claims are ever corroborated or denied; and whether Russia responds to the broader security-guarantees document."
+    "note": "2026-10-28: four prior forecasts resolved this cycle -- Yemen displacement (CORRECT, IOM/UNICEF confirm >217,000 by 12 Oct, well past the 150,000 threshold), F5 BIG-IP APM vendor-reporting scope (CORRECT, multiple vendor/government advisories within the 21-day window), a NetScaler DIB-victim forecast (INCORRECT, 30-day window closed with only broad sector attribution, no named victim), and DoD's Anthropic-removal-from-GenAI.mil forecast (PARTIAL, no blocking injunction but no primary confirmation of 100% migration completion). Lead findings: (1) Unit 42 documented an agentic-AI platform autonomously driving post-exploitation (credential/MFA-secret theft, NTLM-relay into Active Directory, attempted Domain Admin escalation within ~2 hours) against a European government via the PHP2Shell flaws -- the edge-CVE wave's first documented case of AI-agent autonomy in the attack chain itself. (2) CYFIRMA reported a suspected (MODERATE confidence) DPRK-linked PHP2Shell scanning campaign ('June 2026 Minjun') from 21 rotating nodes against government/financial targets; South Korea raised its cyber alert level. (3) A second AI-discovered base-infrastructure RCE (CVE-2026-111497, 'Broccoli2Shell,' Brotli decoder) surfaced, not yet exploited or KEV-listed. (4) The long-unconfirmed Hormuz transit-collapse figure (~4 vs ~85/day) was traced to IMF PortWatch, a named joint IMF/Oxford dataset -- a provenance upgrade from 'anonymous aggregator,' though the dataset's ~1-week-plus lag and AIS-only methodology mean it is not real-time confirmation; CENTCOM reportedly maintains Hormuz transit lanes are clear of mines. (5) Golden Dome's own program chief's August-warned October funding-halt-risk window arrived with no public resolution; a House Golden Dome Caucus co-chair voiced concern reconciliation funds could be diverted to Iran-war munitions replenishment. CMMC's Town Hall readout, Ukraine-Russia diplomacy, Black Sea, Taiwan PLA activity, and China rare-earth licensing all saw no material new development this cycle. Four new PENDING forecasts added, testing: a second agentic-AI-post-exploitation case; a named DPRK-campaign victim; a confirmed Golden Dome slowdown/halt; and a reconciled, fresher Hormuz transit figure."
   },
   "forecasts": [
     {
@@ -103,9 +103,9 @@
       "date": "2026-09-08",
       "forecast": "DoD will proceed with removing Anthropic's models from GenAI.mil by late September as stated, absent a D.C. Circuit stay or injunction.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No D.C. Circuit ruling and no new migration reporting across the gap. The 29 Sep department-wide removal deadline is now eight days out and resolves this forecast either way. Tracked on the DoD AI Vendor Governance / Anthropic Dispute thread."
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-10-28",
+      "note": "No blocking injunction occurred (the D.C. Circuit panel upheld the designation 25 Sep), and GenAI.mil has since added ChatGPT Mil and Grok while omitting Claude, consistent with removal proceeding. However, no primary DoD/CDAO statement explicitly confirming 100% completion of the classified-workload migration has been located in any cycle, mirroring the already-PARTIAL-graded near-duplicate forecast fc-2026-09-24-anthropic-deadline."
     },
     {
       "id": "fc-2026-09-09-hormuz-kinetic",
@@ -418,18 +418,18 @@
       "date": "2026-09-23",
       "forecast": "UN-reported displacement figures from the Houthi Red Sea coast offensive and the resulting Saudi air campaign will exceed 150,000 within 30 days, consistent with the UN's own trajectory toward a 230,000 forecast.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Still tracking below the 150,000 threshold as of this cycle (last confirmed figure past 130,000, 25 Sep); the Houthi-Saudi air campaign and Yemen displacement continue widening independent of the Hormuz-focused diplomatic channel. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-28",
+      "note": "IOM/UNICEF confirm Yemen displacement exceeded 200,000 by 7 Oct and reached ~217,300 by 12 Oct -- well past the 150,000 threshold and well within the 30-day window (closed ~23 Oct)."
     },
     {
       "id": "fc-2026-09-23-f5-bigip-scope",
       "date": "2026-09-23",
       "forecast": "Given F5 BIG-IP APM CVE-2026-94127's CVSS 9.8 unauthenticated RCE and confirmed exploitation, at least one additional vendor advisory, researcher report, or confirmed victim organization tied to this CVE will be publicly reported within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the F5 BIG-IP APM zero-day's exploitation scope becomes more visible beyond F5's own internal-discovery disclosure. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-28",
+      "note": "Multiple vendor/government advisories (Rapid7, SOCRadar, Field Effect, Canadian Centre for Cyber Security) published well within the 21-day window (closed ~14 Oct); no specific victim organization has still been named."
     },
     {
       "id": "fc-2026-09-24-hormuz-indirect-followon",
@@ -499,9 +499,9 @@
       "date": "2026-09-28",
       "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to the Citrix NetScaler zero-days (CVE-2026-88771/CVE-2026-88772) will be publicly reported within 30 days, given confirmed multi-week pre-patch exploitation including webshell deployment.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the confirmed pre-patch zero-day exploitation window produced a discoverable named victim, given the unusually long undisclosed-exploitation period. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-28",
+      "note": "Window closed today. Mandiant/GTIG and other reporting attribute victims only by broad sector (government, financial services, education, legal/professional services) across North America and Europe; no specifically named victim organization identified despite dedicated searches across multiple cycles."
     },
     {
       "id": "fc-2026-09-29-iran-us-response",
@@ -1267,6 +1267,42 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether the broader security-guarantees track moves at all following Russia's rejection of the narrower, bounded energy-halt proposal. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+    },
+    {
+      "id": "fc-2026-10-28-agentic-ai-exploitation-spread",
+      "date": "2026-10-28",
+      "forecast": "A second, independently documented case of an agentic-AI platform autonomously driving post-exploitation (beyond Unit 42's PHP2Shell/European-government case) will be publicly reported within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether Unit 42's documented case represents a durable attacker-tradecraft shift or a one-off. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-28-dprk-php2shell-named-victim",
+      "date": "2026-10-28",
+      "forecast": "CYFIRMA's suspected (MODERATE confidence) DPRK-linked 'June 2026 Minjun' PHP2Shell scanning campaign will produce a specifically named victim organization within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this suspected nation-state reconnaissance campaign, like nearly every other tracked edge-CVE family, fails to produce a named victim despite broad targeting claims. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-10-28-goldendome-october-halt",
+      "date": "2026-10-28",
+      "forecast": "A confirmed Golden Dome program slowdown or halt, tied to the FY27 reconciliation funding gap Gen. Guetlein flagged for October, will be publicly reported within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether Guetlein's own August-warned October halt-risk window produces a confirmed, visible consequence or resolves quietly without one. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+    },
+    {
+      "id": "fc-2026-10-28-hormuz-portwatch-reconciliation",
+      "date": "2026-10-28",
+      "forecast": "A fresher (post-18 Oct) IMF PortWatch Hormuz transit figure will be published and reconciled with other sourcing (UKMTO/CENTCOM/named wire services) within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this program's improved sourcing on the transit-collapse figure's provenance (IMF PortWatch) is followed by a timelier, reconciled data point given the dataset's known ~1-week-plus lag. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     }
   ]
 }
