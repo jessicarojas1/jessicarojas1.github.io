@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-28",
+  "updated": "2026-10-29",
   "summary": {
     "correct": 29,
     "incorrect": 20,
     "partial": 11,
-    "pending": 84,
-    "note": "2026-10-28: four prior forecasts resolved this cycle -- Yemen displacement (CORRECT, IOM/UNICEF confirm >217,000 by 12 Oct, well past the 150,000 threshold), F5 BIG-IP APM vendor-reporting scope (CORRECT, multiple vendor/government advisories within the 21-day window), a NetScaler DIB-victim forecast (INCORRECT, 30-day window closed with only broad sector attribution, no named victim), and DoD's Anthropic-removal-from-GenAI.mil forecast (PARTIAL, no blocking injunction but no primary confirmation of 100% migration completion). Lead findings: (1) Unit 42 documented an agentic-AI platform autonomously driving post-exploitation (credential/MFA-secret theft, NTLM-relay into Active Directory, attempted Domain Admin escalation within ~2 hours) against a European government via the PHP2Shell flaws -- the edge-CVE wave's first documented case of AI-agent autonomy in the attack chain itself. (2) CYFIRMA reported a suspected (MODERATE confidence) DPRK-linked PHP2Shell scanning campaign ('June 2026 Minjun') from 21 rotating nodes against government/financial targets; South Korea raised its cyber alert level. (3) A second AI-discovered base-infrastructure RCE (CVE-2026-111497, 'Broccoli2Shell,' Brotli decoder) surfaced, not yet exploited or KEV-listed. (4) The long-unconfirmed Hormuz transit-collapse figure (~4 vs ~85/day) was traced to IMF PortWatch, a named joint IMF/Oxford dataset -- a provenance upgrade from 'anonymous aggregator,' though the dataset's ~1-week-plus lag and AIS-only methodology mean it is not real-time confirmation; CENTCOM reportedly maintains Hormuz transit lanes are clear of mines. (5) Golden Dome's own program chief's August-warned October funding-halt-risk window arrived with no public resolution; a House Golden Dome Caucus co-chair voiced concern reconciliation funds could be diverted to Iran-war munitions replenishment. CMMC's Town Hall readout, Ukraine-Russia diplomacy, Black Sea, Taiwan PLA activity, and China rare-earth licensing all saw no material new development this cycle. Four new PENDING forecasts added, testing: a second agentic-AI-post-exploitation case; a named DPRK-campaign victim; a confirmed Golden Dome slowdown/halt; and a reconciled, fresher Hormuz transit figure."
+    "pending": 88,
+    "note": "2026-10-29: no prior forecasts resolved this cycle -- none of the open windows checked (F/A-XX protest, Army Secretary nomination, Golden Dome October halt, Hormuz PortWatch reconciliation, PHP2Shell DIB victim) reached a clean resolution; all remain PENDING with updated notes. Lead findings: (1) Amazon's own threat-intelligence team confirmed PHP2Shell (CVE-2026-109618/109619) exploitation began roughly four days before PHP's 21 Oct patches existed, a near-zero-day window; Cloudflare documented millions of exploit attempts within a day of disclosure; independent exposure estimates range 32.5M-41M internet-facing services; SOCRadar found weaponized PHP2Shell exploitation tooling staged in the wild, tied to (but not confirmed linked to) a Japanese real-estate extortion operator. Still no named DIB/federal-contractor victim. (2) Anthropic publicly filed its Form S-1 for a Nasdaq IPO (ticker 'ANT') on 26 Oct; the same day, an FTC spokesperson confirmed to Axios the agency demanded named Anthropic executives testify in a consumer-protection probe distinct from the already-tracked AI-safety-incident CID and from Anthropic's pending D.C. Circuit en banc petition over its DoD supply-chain-risk designation -- three concurrent federal tracks. (3) Several already-awarded multiyear missile contracts (Raytheon SM-6 up to $24.4B, a ~$20.7B provisional Raytheon AMRAAM multiyear, Lockheed's up-to-$58.6B Patriot deal) are reported still unappropriated by Congress, extending the reconciliation/appropriations-timing risk this program had tracked as specific to Golden Dome across the broader missile/munitions portfolio. (4) China's 10 Nov rare-earth suspension-expiry window narrows to ~12 days with no PRC relief signal; the binding military-affiliated-firm license denial is a separate, unaffected instrument either way. (5) The Army Secretary nomination window closes within ~1 day with still no transmittal, though Rep. Brian Mast newly surfaced as a possible candidate; Northrop's F/A-XX GAO-protest window closes within ~2 days with no filing identified. Hormuz, Ukraine-Russia diplomacy, Black Sea, Taiwan PLA activity, CMMC's Town Hall readout, and North Korea's test cadence (pause now ~15 days) all saw no corroborated material new development this cycle -- treated as a reporting-index gap on several fast-moving threads, not resolution. Four new PENDING forecasts added, testing: a confirmed production PHP2Shell-tooling intrusion; a concrete FTC Anthropic-testimony date; Anthropic's IPO roadshow timing; and appropriation/slowdown on the SM-6/AMRAAM/Patriot multiyears."
   },
   "forecasts": [
     {
@@ -1303,6 +1303,42 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether this program's improved sourcing on the transit-collapse figure's provenance (IMF PortWatch) is followed by a timelier, reconciled data point given the dataset's known ~1-week-plus lag. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-29-php2shell-prod-victim",
+      "date": "2026-10-29",
+      "forecast": "Given Amazon's confirmation of pre-disclosure PHP2Shell exploitation and SOCRadar's discovery of weaponized exploitation tooling in the wild, at least one confirmed production (non-honeypot) intrusion -- distinct from the already-documented agentic-AI and suspected-DPRK cases -- attributable to that or comparable weaponized tooling will be publicly reported within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the observed weaponized tooling (tied by SOCRadar to a Japanese real-estate extortion operator, with the link to PHP2Shell itself unconfirmed) produces a publicly reported real intrusion faster than this program's prior edge-CVE victim forecasts have resolved."
+    },
+    {
+      "id": "fc-2026-10-29-anthropic-ftc-testimony-date",
+      "date": "2026-10-29",
+      "forecast": "A specific date, venue, or named Anthropic executive for the FTC's demanded testimony (per the 26 Oct Axios report) will be publicly reported within 45 days.",
+      "horizon": "0-45 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the FTC's consumer-protection testimony demand, confirmed only in general terms by an FTC spokesperson to Axios on 26 Oct, becomes more concrete."
+    },
+    {
+      "id": "fc-2026-10-29-anthropic-ipo-roadshow",
+      "date": "2026-10-29",
+      "forecast": "Anthropic's IPO marketing/roadshow will begin within 30 days of its 26 Oct S-1 filing, consistent with press reporting of a possible week-of-9-Nov start, absent a material delay tied to the concurrent FTC or DoD tracks.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the IPO process proceeds on the reported timeline despite the same-day FTC testimony demand and the unresolved DoD supply-chain-risk designation dispute."
+    },
+    {
+      "id": "fc-2026-10-29-missile-multiyear-appropriation",
+      "date": "2026-10-29",
+      "forecast": "At least one of the three reported-unappropriated multiyear missile contracts (Raytheon SM-6, Raytheon AMRAAM, Lockheed Patriot) will be confirmed appropriated/funded, or will be confirmed to have suffered an execution slowdown, within 60 days.",
+      "horizon": "0-60 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the appropriations-timing risk this cycle flagged as extending beyond Golden Dome alone resolves (in either direction) on any of the three named vehicles."
     }
   ]
 }
