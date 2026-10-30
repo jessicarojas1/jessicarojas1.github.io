@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-29",
+  "updated": "2026-10-30",
   "summary": {
-    "correct": 29,
-    "incorrect": 20,
+    "correct": 30,
+    "incorrect": 22,
     "partial": 11,
     "pending": 88,
-    "note": "2026-10-29: no prior forecasts resolved this cycle -- none of the open windows checked (F/A-XX protest, Army Secretary nomination, Golden Dome October halt, Hormuz PortWatch reconciliation, PHP2Shell DIB victim) reached a clean resolution; all remain PENDING with updated notes. Lead findings: (1) Amazon's own threat-intelligence team confirmed PHP2Shell (CVE-2026-109618/109619) exploitation began roughly four days before PHP's 21 Oct patches existed, a near-zero-day window; Cloudflare documented millions of exploit attempts within a day of disclosure; independent exposure estimates range 32.5M-41M internet-facing services; SOCRadar found weaponized PHP2Shell exploitation tooling staged in the wild, tied to (but not confirmed linked to) a Japanese real-estate extortion operator. Still no named DIB/federal-contractor victim. (2) Anthropic publicly filed its Form S-1 for a Nasdaq IPO (ticker 'ANT') on 26 Oct; the same day, an FTC spokesperson confirmed to Axios the agency demanded named Anthropic executives testify in a consumer-protection probe distinct from the already-tracked AI-safety-incident CID and from Anthropic's pending D.C. Circuit en banc petition over its DoD supply-chain-risk designation -- three concurrent federal tracks. (3) Several already-awarded multiyear missile contracts (Raytheon SM-6 up to $24.4B, a ~$20.7B provisional Raytheon AMRAAM multiyear, Lockheed's up-to-$58.6B Patriot deal) are reported still unappropriated by Congress, extending the reconciliation/appropriations-timing risk this program had tracked as specific to Golden Dome across the broader missile/munitions portfolio. (4) China's 10 Nov rare-earth suspension-expiry window narrows to ~12 days with no PRC relief signal; the binding military-affiliated-firm license denial is a separate, unaffected instrument either way. (5) The Army Secretary nomination window closes within ~1 day with still no transmittal, though Rep. Brian Mast newly surfaced as a possible candidate; Northrop's F/A-XX GAO-protest window closes within ~2 days with no filing identified. Hormuz, Ukraine-Russia diplomacy, Black Sea, Taiwan PLA activity, CMMC's Town Hall readout, and North Korea's test cadence (pause now ~15 days) all saw no corroborated material new development this cycle -- treated as a reporting-index gap on several fast-moving threads, not resolution. Four new PENDING forecasts added, testing: a confirmed production PHP2Shell-tooling intrusion; a concrete FTC Anthropic-testimony date; Anthropic's IPO roadshow timing; and appropriation/slowdown on the SM-6/AMRAAM/Patriot multiyears."
+    "note": "2026-10-30: three prior forecasts resolved this cycle. fc-2026-10-09-army-secretary-resolution graded INCORRECT -- the second 21-day Army Secretary resolution window closed with no nomination, withdrawal, or acting-capacity statement; Telle remains acting Secretary indefinitely. fc-2026-10-01-fa-xx-protest graded CORRECT -- Northrop's 30-day GAO-protest window closed with no filing. fc-2026-10-23-cmmc-townhall-signal graded INCORRECT -- no readout of the 27 Oct Cyber AB Town Hall surfaced within its 7-day signal window, a fifth consecutive missed informal CMMC timing signal. Lead findings: (1) Iran's IRGC/army claim 3-4 tankers struck mines in the Strait of Hormuz over 27-29 Oct while CENTCOM explicitly denied the mine-strike claims (28 Oct) -- a direct, unreconciled factual dispute; UKMTO independently confirmed a distinct limpet-device attack near Khasab, Oman (30 Oct) and a separate projectile strike (29 Oct), and reporting indicates post-midterm military options for Iran are being prepared. (2) North Korea fired ~10 SRBMs from Wonsan (29 Oct), ending a 15-day pause, with Kim observing new drone and 600mm-class 'Sniper' MRL demonstrations, the same day the US and ~10 allies sanctioned a North Korean IT-worker revenue network. (3) Defense Secretary Hegseth fired Army Lt. Gen. Brett Sylvia over admitted classified leaks on Iran/Ukraine to journalists (failed 4 polygraphs, recorded admission). (4) CISA added three more actively exploited CVEs -- VMware ESX (CVE-2026-41709, attributed by CrowdStrike to actor 'WARP PANDA'), a Linux kernel flaw (CVE-2026-46300), and a max-severity GitLab RCE (CVE-2026-97229, 3-day federal deadline) -- while PHP2Shell separately rooted 25 servers including 3 US government-affiliated systems (vendor/victim unnamed); still no named DIB victim after ~9 weeks. (5) Golden Dome's self-warned October funding-halt risk window (Guetlein, August) has effectively elapsed with no public confirmation either way. Critical Minerals (10 Nov window now ~11 days out), Ukraine-Russia trilateral-talks timing, China-Taiwan PLA activity, and the Black Sea campaign all saw no corroborated material new development this cycle. Three new PENDING forecasts added, testing: independent verification of the Hormuz mine claims; whether North Korea's test cadence resumes on a sustained basis; and whether the Sylvia leak case results in formal prosecution."
   },
   "forecasts": [
     {
@@ -598,9 +598,9 @@
       "date": "2026-10-01",
       "forecast": "Northrop Grumman will not file a formal bid protest against the F/A-XX award within 30 days of the 29-30 Sep decision.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Trending toward CORRECT so far: trade press describes Northrop as 'almost certain' to explore options but no formal GAO or court filing identified as of 2 Oct. Tracked on the Sixth-Generation Fighter Competitive Landscape thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-10-30",
+      "note": "The 30-day window (from the 29-30 Sep award decision) closed today with no GAO bid-protest filing by Northrop Grumman identified in any cycle's dedicated search, consistent with trade-press framing of Northrop as 'almost certain' to explore options but not formally pursue them. Tracked on the Sixth-Generation Fighter Competitive Landscape / DoD Leadership Continuity threads."
     },
     {
       "id": "fc-2026-10-02-fortimail-victim",
@@ -796,9 +796,9 @@
       "date": "2026-10-09",
       "forecast": "Following the lapse of the original 30-day nomination window without a transmittal, the White House will either formally nominate a permanent Army Secretary (Parnell or an alternative) or explicitly confirm an extended acting-capacity arrangement for Adam Telle, within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "New info this cycle: acting Secretary Telle issued a 1 Oct memo directing creation of a Futures and Autonomous Systems Command (FASCOM) and gave his first public address at AUSA (12 Oct) -- substantive institutional activity, but neither a nomination, a withdrawal, nor an explicit acting-capacity-extension statement. Window remains open (~9 days left, to ~10/30). Tracked on the DoD Leadership Continuity thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-30",
+      "note": "The 21-day window (from 9 Oct) closed today with neither a formal Army Secretary nomination transmittal (Parnell, Mast, or any alternative) nor an explicit extended-acting-capacity statement for Adam Telle identified, despite Rep. Brian Mast newly surfacing as a possible candidate this week. Telle continues as acting Secretary indefinitely. Tracked on the DoD Leadership Continuity thread."
     },
     {
       "id": "fc-2026-10-09-kev-lull-ends",
@@ -1201,9 +1201,9 @@
       "date": "2026-10-23",
       "forecast": "The Cyber Accreditation Body's 27 Oct Town Hall will produce at least an informal DoD-sourced signal on CMMC Reform Task Force timing, beyond the Town Hall's routine agenda, within 7 days.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the flagged Town Hall date actually becomes a venue for a CMMC timing signal, or passes without one -- directly informing the standing fc-2026-10-22-cmmc-new-target forecast. Tracked on the CMMC Implementation thread. As of 26 Oct the Town Hall has not yet occurred (scheduled for the following day)."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-10-30",
+      "note": "The 7-day window closed today with no readout of the 27 Oct Cyber AB Town Hall located despite a dedicated search; the CMMC Reform Task Force report remains non-public with no successor date -- a fifth consecutive missed informal timing signal. Tracked on the CMMC Implementation thread."
     },
     {
       "id": "fc-2026-10-15-nk-third-launch-pattern",
@@ -1221,7 +1221,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether this newly surfaced, delayed-report incident follows the same unattributed pattern as the already-tracked 20 Oct Al Faw and 21 Oct Al Dasma strikes. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No attribution for the specific 23 Oct Hormuz-area tanker strike has surfaced this cycle, trending toward CORRECT, though the broader Hormuz picture has been overtaken by a new, more consequential 27-29 Oct mine-claim dispute between Iran and CENTCOM tracked separately. Window remains open."
     },
     {
       "id": "fc-2026-10-26-collabora-dib-victim",
@@ -1257,7 +1257,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether today's lowest-confidence Hormuz claims, sourced to a single secondary aggregator and in tension with same-day market reporting, are ever corroborated or explicitly refuted, or simply fade unresolved as several prior single-source claims on this thread have. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "CENTCOM's 28 Oct denial addresses related but distinct mine-strike claims (27-29 Oct), not specifically the 26 Oct closure/pipeline-strike claim this forecast tests; treated as partial, non-resolving movement. Window remains open."
     },
     {
       "id": "fc-2026-10-27-ukraine-energy-response",
@@ -1293,7 +1293,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether Guetlein's own August-warned October halt-risk window produces a confirmed, visible consequence or resolves quietly without one. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+      "note": "Gen. Guetlein's own August-warned October funding-halt risk window has now effectively elapsed with no public confirmation of either a slowdown or a resolution. No new SHIELD task order, checkout confirmation, or GAO filing identified. Window remains open to ~27 Nov. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
     },
     {
       "id": "fc-2026-10-28-hormuz-portwatch-reconciliation",
@@ -1311,7 +1311,7 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the observed weaponized tooling (tied by SOCRadar to a Japanese real-estate extortion operator, with the link to PHP2Shell itself unconfirmed) produces a publicly reported real intrusion faster than this program's prior edge-CVE victim forecasts have resolved."
+      "note": "New supporting evidence this cycle: researchers (Dream) report PHP2Shell chained with a kernel privilege-escalation exploit rooted 25 servers including three in a US government-affiliated environment, but the organization/vendor remains unnamed and this may be a distinct exploitation chain from the SOCRadar-observed tooling this forecast specifically tests. Window remains open."
     },
     {
       "id": "fc-2026-10-29-anthropic-ftc-testimony-date",
@@ -1338,7 +1338,34 @@
       "horizon": "0-60 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the appropriations-timing risk this cycle flagged as extending beyond Golden Dome alone resolves (in either direction) on any of the three named vehicles."
+      "note": "No new development this cycle on the SM-6, AMRAAM, or Patriot multiyears' appropriation status. Window remains open."
+    },
+    {
+      "id": "fc-2026-10-30-hormuz-mine-verification",
+      "date": "2026-10-30",
+      "forecast": "Independent (non-Iranian, non-CENTCOM-denial-only) technical/forensic verification of actual mine damage -- as opposed to limpet-device or projectile damage -- on any of the claimed 27-29 Oct Hormuz tanker incidents will emerge within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's central Hormuz factual dispute (Iran's mine claims vs. CENTCOM's explicit denial) resolves toward either side's account, or remains unreconciled like several prior single-source Hormuz claims. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-10-30-nk-cadence-resumes",
+      "date": "2026-10-30",
+      "forecast": "North Korea will conduct at least one further missile or weapons test within 14 days of the 29 Oct Wonsan SRBM barrage, confirming a renewed sustained cadence rather than a single resumption event after its 15-day pause.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the pause's end marks a return to the cluster's earlier accelerated pace (3 Oct, 12 Oct, 14 Oct) or was a one-off resumption. Tracked on the Korean Peninsula Missile-Testing Cadence thread."
+    },
+    {
+      "id": "fc-2026-10-30-sylvia-prosecution",
+      "date": "2026-10-30",
+      "forecast": "Lt. Gen. Brett Sylvia will face a formal criminal charge or referral over his admitted classified leaks on Iran/Ukraine within 60 days of his firing.",
+      "horizon": "0-60 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the admitted conduct (failed polygraphs, recorded admission) results in a formal legal consequence beyond termination, or remains an internal personnel action. Tracked on the DoD Leadership Continuity thread."
     }
   ]
 }
