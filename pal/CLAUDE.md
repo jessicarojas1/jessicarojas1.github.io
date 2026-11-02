@@ -4,7 +4,7 @@ Inherits the repository root `CLAUDE.md` and global rules. Where the root rules 
 
 ## Scope and phases
 - **DMS only.** Refuse scope creep into training, CAPA, NCR, risk, audit management, acknowledgements, ERP or PM.
-- Phase 1 (foundation) is done. Each later phase exits only when its criteria in `docs/PHASE0_ARCHITECTURE_PROPOSAL.md` §16 are verified.
+- Phase 1 (foundation) is done. **Phase 2 (repository + walking skeleton) is delivered** (documents, immutable revisions, scanned uploads, single-approver approval bound to a manifest hash, immediate publication, library search) together with local username/password accounts alongside Entra ID (ADR-0014). Its remaining verification items (Render deploy, Compose stack with real ClamAV) are tracked in `OPEN_ITEMS.md`. Each later phase exits only when its criteria in `docs/PHASE0_ARCHITECTURE_PROPOSAL.md` §16 are verified.
 
 ## Invariants that must never regress
 - Approved revisions are immutable; approvals bind to a manifest hash (Phase 3+).
@@ -16,7 +16,7 @@ Inherits the repository root `CLAUDE.md` and global rules. Where the root rules 
 - No tokens in the browser (BFF). No `v-html`, no inline scripts/handlers, CSP stays strict.
 
 ## Engineering conventions
-- Backend modules: `Platform`, `Audit`, `Identity`, `Settings` (and future `Repository`, `Revisions`, `Workflow`, `Publication`, …). Boundaries are enforced by `backend/deptrac.yaml`, so update it when adding a module.
+- Backend modules: `Platform`, `Audit`, `Identity`, `Settings`, `Storage`, `Documents` (and future `Workflow`, `Publication`, …). Boundaries are enforced by `backend/deptrac.yaml`, so update it when adding a module.
 - Read DB values through `App\Platform\Database\Row` (no blind casts). Write SQL with bound parameters only.
 - Expected API errors throw `App\Platform\Http\ApiProblem`. Request bodies go through `JsonBody::decode()`.
 - Every state-changing endpoint: CSRF header (automatic for `/api`), a permission check, an audit event in the same transaction.

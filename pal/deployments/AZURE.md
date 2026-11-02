@@ -7,7 +7,7 @@ Two shapes are described:
 - **Azure Container Apps (ACA)** + Azure Database for PostgreSQL Flexible Server + Key Vault + Azure Container Registry. Detailed below.
 - **AKS**: use [KUBERNETES.md](KUBERNETES.md) with Microsoft Entra Workload ID for the secret operator (External Secrets Operator or the Key Vault Secrets Store CSI driver). Azure-specific notes are in §4 and §6.
 
-Scope: PAL **Phase 1 foundation**. All state is in PostgreSQL; no document storage, malware scanner or preview converter yet (Phase 2+). PAL makes no LLM calls and calls no Azure resource APIs itself.
+Scope: PAL through **Phase 2**. State is in PostgreSQL **and** the blob store (an Azure Files share here). Uploads need a ClamAV Container App. No preview converter yet. PAL makes no LLM calls and calls no Azure resource APIs itself.
 
 Nothing in this guide has been deployed or tested in Azure. Service-specific behaviour marked *verify* must be confirmed in your subscription.
 
@@ -17,7 +17,9 @@ Nothing in this guide has been deployed or tested in Azure. Service-specific beh
 
 | Component | Azure service | Notes |
 |---|---|---|
-| `pal-web` | Container App, args `["web"]`, ingress target port 8080 | 1+ replicas; stateless (sessions in PostgreSQL) |
+| `pal-web` | Container App, args `["web"]`, ingress target port 8080 | 1+ replicas; sessions in PostgreSQL, document files on the Azure Files mount |
+| `pal-clamav` | Container App, image `clamav/clamav:1.5.4` (mirrored to ACR), internal **TCP** ingress on 3310 | min = max = 1. About 1.5 GB of RAM for signatures; 4 GiB suggested (not measured). Reachable only inside the environment |
+| Blob store | Azure Files share mounted at `/srv/pal/data` on `pal-web` (environment storage) | Shared by all web replicas. Verify that uid 10001 can write, and that atomic rename works, on your share type (SMB or NFS) |
 | `pal-worker` | Container App, args `["worker"]`, **no ingress** | min = max = **1** replica (scheduler; the PostgreSQL advisory lock makes extras safe but wasteful). Exits hourly by design (`PAL_WORKER_TIME_LIMIT`); ACA restarts it |
 | `pal-migrate` | Container Apps **Job**, trigger Manual, args `["migrate"]` | Run before each rollout |
 | Database | Azure Database for PostgreSQL Flexible Server, PostgreSQL 17 (16+ supported) | Private access (VNet integration); TLS enforced |
@@ -46,6 +48,9 @@ Nothing in this guide has been deployed or tested in Azure. Service-specific beh
    +----------------------------------------------------------------------+
    | Azure Database for PostgreSQL Flexible Server (private endpoint/VNet) |
    +----------------------------------------------------------------------+
+   pal-web -> Azure Files share (/srv/pal/data)
+   pal-web -> pal-clamav :3310 (internal TCP ingress)
+   pal-clamav egress -> ClamAV signature mirror
    web + worker egress HTTPS 443 -> Entra ID + Microsoft Graph
    stdout/stderr -> Log Analytics workspace -> Microsoft Sentinel
 ```
@@ -59,7 +64,9 @@ Nothing in this guide has been deployed or tested in Azure. Service-specific beh
 | Network | VNet with a subnet for the ACA environment and a delegated subnet / private endpoint for PostgreSQL; egress to Entra and Graph (NAT gateway or firewall rules for the authority and Graph hosts) |
 | Tools | Azure CLI with the `containerapp` extension; `psql` on a host with VNet access (to run `roles.sql`) |
 | Image | `pal` image built from `pal/Dockerfile` and pushed to ACR (e.g. `palacr.azurecr.io/pal:1.0.0`) |
-| Entra ID | App registration as in [SINGLE_LINUX_SERVER.md §4.2](SINGLE_LINUX_SERVER.md#42-entra-id-app-registration-shared-by-all-deployment-guides), including the **mandatory** enterprise-application setting *Assignment required = Yes* with only the PAL users group assigned. Every account that can sign in becomes a Reader, B2B guests included |
+| PostgreSQL extensions | Allow-list `BTREE_GIST` and `PG_TRGM` in the server parameter `azure.extensions` before migrating (verify) |
+| Storage | Storage account with an Azure Files share; private endpoint |
+| Entra ID (only for SSO) | App registration as in [SINGLE_LINUX_SERVER.md §4.2](SINGLE_LINUX_SERVER.md#42-entra-id-app-registration-shared-by-all-deployment-guides), including the **mandatory** enterprise-application setting *Assignment required = Yes* with only the PAL users group assigned. Every account that can sign in becomes a Reader, B2B guests included |
 | DNS / TLS | Custom domain (e.g. `pal.example.internal`) and certificate bound to the ACA environment |
 
 ## 4. Identity and credentials
@@ -82,6 +89,8 @@ PAL's own code does not use the managed identity. On AKS, grant the same Key Vau
 | Entra app certificate + key | PAL authenticates to Entra with a client secret **or** a certificate file pair (`private_key_jwt`). It does not support managed identity / workload identity federation as the app credential | Key Vault **certificate** created with content type `application/x-pem-file`; referenced as an ACA secret and mounted as a file |
 | `pal_app` / `pal_owner` passwords | PAL connects with a static password in `DATABASE_URL`; Entra authentication for PostgreSQL (token passwords) is not supported | Key Vault secrets holding the full `DATABASE_URL` / `DATABASE_URL_MIGRATIONS` |
 | `APP_SECRET` | Application secret | Key Vault secret |
+| Azure Files mount | ACA environment storage uses the storage account key (verify current options for managed identity) | Environment storage definition; rotate per §8 |
+| `PAL_BOOTSTRAP_LOCAL_ADMIN_*` | One-off first administrator | Key Vault secrets referenced by the migrate job only; delete after first sign-in |
 
 A Key Vault PEM certificate referenced as a secret yields one PEM file containing both the private key and the certificate. PHP's OpenSSL functions read the matching block from a combined PEM, so `OIDC_CLIENT_CERT_PATH` and `OIDC_CLIENT_KEY_PATH` can point to the **same file**. This is expected to work but has not been tested; verify sign-in in a non-production environment. The key must not be password-protected.
 
@@ -113,6 +122,7 @@ Configure on the Container Apps (secrets as `secretref:`). Full descriptions: [S
 | `DATABASE_URL` host | `pal-pg.postgres.database.azure.com` | `pal-pg.postgres.database.usgovcloudapi.net` | Flexible Server FQDN |
 | Key Vault reference | `https://pal-kv.vault.azure.net/secrets/<name>` | `https://pal-kv.vault.usgovcloudapi.net/secrets/<name>` | ACA secret `keyvaultref:` |
 | Registry | `palacr.azurecr.io` | `palacr.azurecr.us` | Image location |
+| Azure Files endpoint | `<account>.file.core.windows.net` | `<account>.file.core.usgovcloudapi.net` | Blob store share |
 | CLI cloud | `az cloud set --name AzureCloud` | `az cloud set --name AzureUSGovernment` | Tooling |
 
 ### 5.2 All PAL variables
@@ -143,6 +153,12 @@ Configure on the Container Apps (secrets as `secretref:`). Full descriptions: [S
 | `PAL_AUDIT_ANCHOR_DIR` | `/mnt/pal-anchor` | Audit anchor directory (Azure Files mount on the worker) | worker |
 | `LOG_LEVEL` | `info` | Log level | all |
 | `PAL_WORKER_TIME_LIMIT` / `PAL_WORKER_MEMORY_LIMIT` | `3600` / `256M` | Worker recycling | worker |
+| `PAL_BLOB_DIR` | `/srv/pal/data/blobs` | Blob store root (image default). Must be writable by uid 10001; `/health/ready` reports `"storage":"fail"` otherwise | web |
+| `PAL_MAX_UPLOAD_BYTES` | `26214400` | Largest accepted file. App default is `52428800`; set this to stay within clamd's default `StreamMaxLength` (25 MiB) | web |
+| `PAL_UPLOAD_DAILY_BYTES` | `524288000` | Per-user limit on clean uploaded bytes in any 24 hours | web |
+| `PAL_CLAMD_ADDRESS` | `tcp://pal-clamav:3310` | ClamAV daemon (verify the internal hostname and port exposure in your environment). Empty or unreachable: uploads are refused | web |
+| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0`. Ignored when `APP_ENV=prod` | web |
+| `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` / `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | `admin` / `secretref:` | First local administrator; temporary password. Delete after first sign-in | migrate job |
 
 Image defaults to keep: `APP_ENV=prod`, `APP_DEBUG=0`, `PAL_SESSION_COOKIE_NAME=__Host-pal_session`, `PAL_SESSION_COOKIE_SECURE=1`.
 
@@ -151,14 +167,16 @@ Image defaults to keep: `APP_ENV=prod`, `APP_DEBUG=0`, `PAL_SESSION_COOKIE_NAME=
 | Setting | Example | Purpose |
 |---|---|---|
 | Web ingress | external (or internal + Application Gateway/Front Door), target port `8080`, transport HTTP, insecure connections disabled | TLS at the ACA ingress |
-| Web probes | liveness `GET /health/live`, readiness `GET /health/ready`, port 8080 | Readiness fails (503) on DB loss or unapplied migrations |
+| Web probes | liveness `GET /health/live`, readiness `GET /health/ready`, port 8080 | Readiness fails (503) on DB loss, unapplied migrations or an unwritable blob directory |
+| Web ingress limits | ACA ingress request size and timeout | Must allow 52 MB bodies and 120 s on `/api/uploads` (verify the platform's limits) |
+| Blob mount | `storageType: AzureFile`, environment storage `pal-blobs`, mount `/srv/pal/data` | SMB ignores POSIX modes and `chmod 0440` unless mount options are set; verify with check 12. Deny delete at the storage level is not available per user on a shared key mount |
 | Worker | no ingress, no HTTP probes, `minReplicas: 1`, `maxReplicas: 1` | Scheduler |
 | Migrate job | `replicaTimeout: 600`, `replicaRetryLimit: 0`, trigger Manual | One-shot |
 | Secret volume | ACA secrets mounted at `/run/secrets/pal` (select only `oidc-pem` and `db-ca`) | Certificate files; verify they are readable by uid 10001 |
 | `X-Forwarded-For` | The ACA ingress (Envoy) is expected to append the connecting address (verify). With `TRUSTED_PROXIES` limited to the infrastructure subnet, Symfony takes the right-most untrusted address, so client-supplied entries to its left are ignored | Verify with the spoof test in §7. If you put Application Gateway/Front Door in front, add its addresses to `TRUSTED_PROXIES` deliberately and confirm that hop does not trust client-supplied values |
 | Read-only root filesystem | Not configurable in ACA | The image runs non-root; Compose/Kubernetes hardening (`read_only`) is not reproducible here |
 | PostgreSQL | `require_secure_transport=ON` (default), private access, HA zone-redundant if RTO requires | TLS + availability |
-| Backups | Flexible Server automated backups with PITR (retention 7–35 days) | Meets the provisional RPO 15 min (decision D10, unconfirmed) via PITR; verify restore time against RTO 4 h |
+| Backups | Flexible Server automated backups with PITR (retention 7–35 days), **plus Azure Files share snapshots / Azure Backup at an interval ≤ RPO** | Meets the provisional RPO 15 min (decision D10, unconfirmed) via PITR only if blobs keep up; verify restore time against RTO 4 h |
 
 Example (fragment) of the web app's `template` and secrets, for `az containerapp create --yaml`:
 
@@ -219,23 +237,29 @@ Field names follow the ACA YAML schema as documented at the time of writing and 
 |---|---|---|---|
 | 1 | Migrations | `az containerapp job start -n pal-migrate -g <rg>`; check execution status and logs | Succeeded; log ends `audit trail revokes applied to role pal_app` |
 | 2 | Liveness | `curl -fsS https://pal.example.internal/health/live` | `{"status":"ok"}` |
-| 3 | Readiness | `curl -sS https://pal.example.internal/health/ready` | 200, `"database":"ok","migrations":"ok"` |
+| 3 | Readiness | `curl -sS https://pal.example.internal/health/ready` | 200, `"database":"ok","migrations":"ok","storage":"ok"` |
 | 4 | Secrets resolved | `az containerapp exec -n pal-web -g <rg> --command "sh -c 'test -r \$OIDC_CLIENT_CERT_PATH && echo readable'"`; the app's revision shows no secret-reference errors | `readable` |
 | 5 | DB TLS + roles | As admin: `SELECT a.usename, s.ssl FROM pg_stat_activity a JOIN pg_stat_ssl s USING (pid) WHERE a.datname='pal';` | only `pal_app` at runtime; `ssl = t` |
-| 6 | Sign-in | Browse the site | Signed in, not on `/sign-in?auth_error=…`; an unassigned account is refused by Entra (AADSTS50105) |
+| 5a | Local admin sign-in + forced change | Sign in with `PAL_BOOTSTRAP_LOCAL_ADMIN_*` | Redirected to `/change-password`; other API calls answer 403 `password_change_required`; after the change, the dashboard. Then delete both values |
+| 6 | Entra sign-in | Browse the site | Signed in, not on `/sign-in?auth_error=…`; an unassigned account is refused by Entra (AADSTS50105) |
 | 7 | Directory sync | `az containerapp exec -n pal-worker -g <rg> --command "php /srv/pal/backend/bin/console pal:directory:sync"` (after a mapping exists, e.g. `pal:roles:map PAL_ADMINISTRATOR <group-object-id>`) | exits 0, `N members (+a / -r)` |
 | 8 | Audit chain | `... --command "php /srv/pal/backend/bin/console pal:audit:verify"` | `Audit chain valid: …` |
 | 9 | Client IP not spoofable | `curl -s -o /dev/null -H 'X-Forwarded-For: 203.0.113.9' 'https://pal.example.internal/auth/callback?state=x&code=y'`; query the web app's console logs | Your real egress IP, not `203.0.113.9` and not an ingress address |
-| 10 | Upload accepted + scanned, object written | — | **Not applicable until Phase 2 (document storage)** |
+| 10 | Upload accepted + scanned | Upload a small PDF to a draft. As admin: `SELECT status FROM upload ORDER BY created_at DESC LIMIT 1;`, `SELECT scan_engine, sha256 FROM stored_file ORDER BY created_at DESC LIMIT 1;` | `CLEAN`; `clamd` |
+| 11 | Malware refused | Upload the standard EICAR test file as `eicar.txt` | 422 `malware_detected`; no new `stored_file` row |
+| 12 | Object written | `az containerapp exec -n pal-web -g <rg> --command "ls -l /srv/pal/data/blobs/sha256/<ab>/<cd>/"` | File present |
+| 13 | Indexed | Publish the document and search its title in the library | Found |
 
 ## 8. Day-2 operations
 
 - **Upgrade:** push the new image → `az containerapp job update -n pal-migrate --image <new>` → `job start` and wait for success → re-run `roles.sql` (§4.3) → `az containerapp update -n pal-web --image <new>` and the same for `pal-worker`. New web revisions only receive traffic once readiness passes.
-- **Backups / restore:** PITR restores to a **new** server; repoint the `database-url*` secrets, re-run `roles.sql` if needed, restart the apps, then run `pal:audit:verify` and compare with the latest anchor. Also back up Key Vault (soft delete + purge protection on) and the anchor share.
+- **Backups / restore:** back up the **database first, blobs after** ([DISASTER_RECOVERY.md §3.1](../docs/DISASTER_RECOVERY.md#31-blob-store)). PITR restores to a **new** server; repoint the `database-url*` secrets, re-run `roles.sql` if needed, restore the share from a snapshot taken at or after the recovery point, restart the apps, then run `pal:audit:verify`, compare with the latest anchor, and run the blob consistency check (runbook step 8a). Also back up Key Vault (soft delete + purge protection on) and the anchor share.
 - **Audit anchoring:** mount an Azure Files share on `pal-worker` at `PAL_AUDIT_ANCHOR_DIR`, owned by a different team (separate storage account/RBAC); SMB mount options must make it writable for uid 10001 (verify). Azure Files has no write-once mode; for WORM, have that team copy the file into immutable Blob storage.
 - **Logs / Sentinel:** console logs land in the environment's Log Analytics workspace; enable Sentinel on it and filter `channel == "pal_audit"` for the security stream. Alert on `Audit chain verification FAILED`. Do not use the legacy HTTP Data Collector API. Uptime: an availability test on `/health/ready`.
 - **Secret rotation:** add a new version in Key Vault (references without a version pick up the latest after a refresh delay; verify the interval), then restart the revision (`az containerapp revision restart`) so environment variables are re-read. For the Entra certificate, create the new Key Vault certificate version, upload its public cert to the app registration alongside the old one, restart, verify sign-in and sync, then remove the old cert from Entra.
 - **Failed jobs:** `php /srv/pal/backend/bin/console messenger:failed:show` via `az containerapp exec` on the worker.
+- **Local accounts:** `php /srv/pal/backend/bin/console pal:users:unlock <username>` via `az containerapp exec` clears a lockout.
+- **ClamAV:** signatures update in the container through `freshclam` (verify egress). Raise `StreamMaxLength` before raising `PAL_MAX_UPLOAD_BYTES`. Rotate the storage key by updating the environment storage definition and restarting `pal-web`.
 
 ## 9. Troubleshooting
 
@@ -253,6 +277,17 @@ Field names follow the ACA YAML schema as documented at the time of writing and 
 | Graph sync HTTP 403 | Application permissions/admin consent missing, or Graph URL for the wrong cloud | Grant consent; fix `GRAPH_BASE_URL` |
 | HTTP **403** `self_grant_forbidden` on role mapping | Admin is in the group being mapped to `PAL_ADMINISTRATOR`/`PUBLISHER`/`AUTHOR` | Another administrator creates the mapping |
 | Branding logo URL rejected | Only `https://` or raster `data:` URLs are accepted | Use `https://` |
+| `/health/ready` **503** `"storage":"fail"` | `PAL_BLOB_DIR` missing, not mounted, read-only, or not writable by uid 10001 | Check the environment storage definition and mount; SMB mount options must make it writable for uid 10001 (verify) |
+| Upload **503** `scanner_unavailable`; log `ClamAV is unreachable` | clamd down, still loading signatures (first start: several minutes), wrong `PAL_CLAMD_ADDRESS`, or the network path to TCP 3310 is blocked | Check `pal-clamav` replicas and logs, and that its TCP ingress is enabled. Reading and downloading are unaffected |
+| Upload **503** `scanner_unavailable`; log `ClamAV returned an unexpected reply` for larger files | File exceeds clamd's `StreamMaxLength` (ClamAV default 25 MiB) | Keep `PAL_MAX_UPLOAD_BYTES=26214400`, or raise `StreamMaxLength` in clamd's configuration first (and keep the value ≤ PHP's 50M) |
+| Upload **413** `file_too_large` | File above `PAL_MAX_UPLOAD_BYTES` or PHP's 50M | Expected; users see the limit from `GET /api/reference` (`maxUploadBytes`) |
+| Upload **429** `too_many_uploads` / `upload_quota_exceeded` | 30 uploads/hour per user, or `PAL_UPLOAD_DAILY_BYTES` reached | Wait, or raise the quota |
+| `migrate` fails `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD rejected` | Password fails the policy (12–128 characters, no username, not a common password) | Choose a passphrase; re-run |
+| Local sign-in always 401 `invalid_credentials` | Wrong password, account inactive, locked (5 failures, 15 minutes), or stale login CSRF token | Wait 15 minutes or `pal:users:unlock <username>`; reload the page for a fresh token |
+| Every API call **403** `password_change_required` | Temporary password not changed yet | Change it at `/change-password` |
+| **403** `role_escalation_forbidden` | Conferring a document role, or resetting the password of an account with one, without holding `PAL_ADMINISTRATOR` | Have a PAL Administrator with `admin.users` do it |
+| **409** `last_administrator` | The change would leave no active System Administrator | Grant another System Administrator first |
+| Migrate fails `permission denied to create extension` / `extension … is not allow-listed` | `azure.extensions` lacks `BTREE_GIST`, `PG_TRGM` | Add them (§3); re-run the job |
 | `roles.sql`: `must be able to SET ROLE "pal_owner"` | Admin not a member of `pal_owner` | `GRANT pal_owner TO <admin>` (§4.3) |
 
 ---

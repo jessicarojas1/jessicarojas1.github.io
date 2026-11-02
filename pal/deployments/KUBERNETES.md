@@ -2,7 +2,7 @@
 
 Reference for running PAL on a Kubernetes cluster (on-premises, AKS or EKS). This is **not** the selected production target (that is a single on-prem Linux host, see [SINGLE_LINUX_SERVER.md](SINGLE_LINUX_SERVER.md)); use it if the organisation standardises on Kubernetes.
 
-Scope: PAL **Phase 1 foundation**. All state is in PostgreSQL. No document storage, malware scanner or preview converter yet (Phase 2+), so PAL needs **no persistent volumes** of its own. PAL makes no LLM calls.
+Scope: PAL through **Phase 2**. State is in PostgreSQL **and** a persistent blob volume, which needs **ReadWriteMany** when `pal-web` runs more than one replica. Uploads need a ClamAV service. No preview converter yet. PAL makes no LLM calls.
 
 The manifests below are minimal examples, checked for YAML syntax only; they have **not** been applied to a cluster. Review them against your cluster's policies.
 
@@ -13,7 +13,9 @@ The manifests below are minimal examples, checked for YAML syntax only; they hav
 | Object | Image role | Count | Notes |
 |---|---|---|---|
 | `Job/pal-migrate-<version>` | `migrate` | once per release, before rollout | Runs Doctrine migrations as the owner role, re-applies `audit_event` revokes to `PAL_APP_DB_ROLE` |
-| `Deployment/pal-web` | `web` | 2+ | nginx + PHP-FPM under supervisord, port 8080. Stateless (sessions are in PostgreSQL) |
+| `Deployment/pal-web` | `web` | 2+ | nginx + PHP-FPM under supervisord, port 8080. Sessions are in PostgreSQL; document files are on `PVC/pal-blobs` |
+| `PersistentVolumeClaim/pal-blobs` | — | 1 | Mounted at `/srv/pal/data` on `pal-web` only. ReadWriteMany (NFS, Azure Files, EFS) for 2+ replicas; ReadWriteOnce only with 1 replica |
+| `Deployment/pal-clamav` + `Service/pal-clamav` | `clamav/clamav:1.5.4` | 1 | clamd on TCP 3310, ClusterIP, reachable only from `pal-web`. About 1.5 GB of RAM; first start downloads signatures. Uploads fail closed while it is down |
 | `Deployment/pal-worker` | `worker` | **1** | `messenger:consume async scheduler_default`. Runs the scheduler |
 | `Service/pal-web` | — | — | ClusterIP, port 80 → 8080 |
 | `Ingress/pal` | — | — | TLS termination; must preserve `Host` and set `X-Forwarded-Proto` |
@@ -47,6 +49,8 @@ The manifests below are minimal examples, checked for YAML syntax only; they hav
         +---------------------------------------------------+
         | PostgreSQL 17 (managed or operator) TCP 5432      |
         +---------------------------------------------------+
+   pal-web --> PVC pal-blobs (RWX) at /srv/pal/data
+   pal-web --> Service pal-clamav :3310 --> Deployment pal-clamav
    web + worker egress HTTPS 443 --> Entra ID (login.microsoftonline.com)
                                  --> Microsoft Graph (graph.microsoft.com)
    Secrets: External Secrets Operator / Secrets Store CSI <-- Key Vault / Secrets Manager / Vault
@@ -64,6 +68,8 @@ The manifests below are minimal examples, checked for YAML syntax only; they hav
 | Egress | HTTPS 443 to the Entra authority host and Graph host (directly or via proxy) |
 | Entra ID | App registration as in [SINGLE_LINUX_SERVER.md §4.2](SINGLE_LINUX_SERVER.md#42-entra-id-app-registration-shared-by-all-deployment-guides), including the **mandatory** *Assignment required = Yes* with only the PAL users group assigned (every account that can sign in becomes a Reader, B2B guests included) |
 | Nodes | NTP-synchronised (ID token leeway is 120 s) |
+| Storage | A StorageClass offering ReadWriteMany for the blob volume, snapshot-capable if possible. Atomic rename on shared storage is by design but not tested |
+| ClamAV | Node capacity for about 1.5 GB of RAM (more while reloading); egress to the signature mirror, or an offline mirror ([AIRGAPPED.md §8.5](AIRGAPPED.md#85-offline-clamav-signatures)). The `restricted` Pod Security level may reject this image (verify; run it in its own namespace with a looser level if needed) |
 
 ## 4. Identity and credentials
 
@@ -81,6 +87,7 @@ PAL itself calls **no cloud APIs**: it talks only to PostgreSQL, Entra ID and Gr
 | Entra app certificate + key | PAL supports only a client secret or a certificate file pair (`private_key_jwt`); there is no federated/workload-identity client assertion support | Secret volume, files at `OIDC_CLIENT_CERT_PATH` / `OIDC_CLIENT_KEY_PATH` |
 | `pal_app` / `pal_owner` passwords | PAL connects with a static password in `DATABASE_URL`; no token-based DB auth (Entra / IAM DB auth) | `DATABASE_URL`, `DATABASE_URL_MIGRATIONS` env from Secret |
 | `APP_SECRET` | Application secret | env from Secret |
+| `PAL_BOOTSTRAP_LOCAL_ADMIN_*` | One-off first administrator | env from a separate Secret, mounted only in the migrate Job; delete after first sign-in |
 
 Kubernetes Secrets are only base64-encoded. Enable encryption at rest for etcd, restrict `get/list` on Secrets in the `pal` namespace with RBAC, and source values from a vault via an operator.
 
@@ -124,6 +131,12 @@ Same set as the Linux guide (full descriptions: [SINGLE_LINUX_SERVER.md §5](SIN
 | `PAL_AUDIT_ANCHOR_DIR` | `/srv/pal-anchor` | Audit anchor directory (worker; needs a writable volume) | ConfigMap |
 | `LOG_LEVEL` | `info` | Log level | ConfigMap |
 | `PAL_WORKER_TIME_LIMIT` / `PAL_WORKER_MEMORY_LIMIT` | `3600` / `256M` | Worker recycling | worker env |
+| `PAL_BLOB_DIR` | `/srv/pal/data/blobs` | Blob store root (image default). Must be writable by uid 10001; `/health/ready` reports `"storage":"fail"` otherwise | Image default |
+| `PAL_MAX_UPLOAD_BYTES` | `26214400` | Largest accepted file. App default is `52428800`; set this to stay within clamd's default `StreamMaxLength` (25 MiB) | ConfigMap |
+| `PAL_UPLOAD_DAILY_BYTES` | `524288000` | Per-user limit on clean uploaded bytes in any 24 hours | ConfigMap |
+| `PAL_CLAMD_ADDRESS` | `tcp://pal-clamav:3310` | ClamAV daemon. Empty or unreachable: uploads are refused | ConfigMap |
+| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0`. Ignored when `APP_ENV=prod` | ConfigMap |
+| `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` / `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | `admin` / 12+ characters, one-off | First local administrator; temporary password. Delete after first sign-in | Secret `pal-bootstrap`, migrate Job only |
 
 Image defaults (leave as is): `APP_ENV=prod`, `APP_DEBUG=0`, `PAL_SESSION_COOKIE_NAME=__Host-pal_session`, `PAL_SESSION_COOKIE_SECURE=1`.
 
@@ -135,9 +148,10 @@ Image defaults (leave as is): `APP_ENV=prod`, `APP_DEBUG=0`, `PAL_SESSION_COOKIE
 | `runAsUser` / `runAsGroup` / `fsGroup` | `10001` | Image user `pal`; `fsGroup` makes secret files and emptyDirs readable/writable |
 | `readOnlyRootFilesystem` | `true` | Writable paths via emptyDir: `/tmp`, `/srv/pal/backend/var/cache`, `/srv/pal/backend/var/log` (same as `deploy/compose.yaml` tmpfs) |
 | Liveness probe (web) | `GET /health/live` :8080 | Process up; no DB check |
-| Readiness probe (web) | `GET /health/ready` :8080 | DB reachable and no unapplied migrations; 503 otherwise |
+| Readiness probe (web) | `GET /health/ready` :8080 | DB reachable, no unapplied migrations, blob directory writable; 503 otherwise |
+| Blob mount | `pal-blobs` at `/srv/pal/data` | The one writable data path besides the emptyDirs. `fsGroup: 10001` covers most volumes; NFS-style storage may ignore it, so give the share uid/gid 10001 |
 | Worker probes | none | No HTTP listener. Kubernetes restarts the container when it exits |
-| Ingress body size | `nginx.ingress.kubernetes.io/proxy-body-size: 2m` | PAL's own limit is 2 MB |
+| Ingress body size | `nginx.ingress.kubernetes.io/proxy-body-size: 52m`, `proxy-read-timeout: 120` | Needed for `/api/uploads`. PAL's own nginx still caps every other path at 2 MB |
 | `TRUSTED_PROXIES` | ingress controller pod CIDR, e.g. `10.244.0.0/16` | Set it to the narrowest range that contains the ingress controller pods (a dedicated node pool/subnet helps). `private_ranges` (Symfony: 10/8, 172.16/12, 192.168/16, loopback, link-local, IPv6 ULA) also trusts every other pod, and does not cover CGNAT pod CIDRs such as `100.64.0.0/10` |
 | `X-Forwarded-For` handling | ingress overwrites it | ingress-nginx's default (`use-forwarded-headers: false`) does not trust client-supplied forwarded headers (verify for your controller and version). Do not enable `use-forwarded-headers`/`compute-full-forwarded-for` unless a trusted load balancer in front sets the header |
 | Forwarded headers | `X-Forwarded-For`, `-Proto`, `-Port` trusted; **`X-Forwarded-Host` is not** | Ingress must pass the original `Host` (ingress-nginx does by default) |
@@ -185,11 +199,16 @@ data:
   PAL_SESSION_IDLE_SECONDS: "3600"
   PAL_SESSION_ABSOLUTE_SECONDS: "43200"
   LOG_LEVEL: "info"
+  PAL_MAX_UPLOAD_BYTES: "26214400"
+  PAL_UPLOAD_DAILY_BYTES: "524288000"
+  PAL_CLAMD_ADDRESS: "tcp://pal-clamav:3310"
+  PAL_ALLOW_UNSCANNED_UPLOADS: "0"
 ---
 # Secrets are normally created by External Secrets Operator (example below).
 # Expected keys:
 #   pal-runtime:    APP_SECRET, DATABASE_URL
 #   pal-migrations: DATABASE_URL_MIGRATIONS
+#   pal-bootstrap:  PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME, PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD (first run; optional: false only then)
 #   pal-oidc:       tls.crt, tls.key   (type kubernetes.io/tls)
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
@@ -242,6 +261,9 @@ spec:
                 name: pal-runtime
             - secretRef:
                 name: pal-migrations
+            - secretRef:
+                name: pal-bootstrap
+                optional: true     # delete the Secret after first sign-in
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -310,10 +332,14 @@ spec:
             - { name: cache, mountPath: /srv/pal/backend/var/cache }
             - { name: log, mountPath: /srv/pal/backend/var/log }
             - { name: oidc, mountPath: /run/secrets/pal-oidc, readOnly: true }
+            - { name: blobs, mountPath: /srv/pal/data }
       volumes:
         - { name: tmp, emptyDir: {} }
         - { name: cache, emptyDir: {} }
         - { name: log, emptyDir: {} }
+        - name: blobs
+          persistentVolumeClaim:
+            claimName: pal-blobs
         - name: oidc
           secret:
             secretName: pal-oidc
@@ -372,6 +398,59 @@ spec:
             defaultMode: 0440
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pal-blobs
+  namespace: pal
+spec:
+  accessModes: ["ReadWriteMany"]
+  storageClassName: <rwx-storage-class>
+  resources:
+    requests: { storage: 100Gi }     # size for your documents; files are never reclaimed
+---
+# Check this image against your Pod Security level (see §3). Readiness uses a TCP check.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pal-clamav
+  namespace: pal
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: pal, component: clamav }
+  template:
+    metadata:
+      labels: { app: pal, component: clamav }
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: clamd
+          image: registry.example.internal/clamav/clamav:1.5.4
+          ports:
+            - { name: clamd, containerPort: 3310 }
+          readinessProbe:
+            tcpSocket: { port: clamd }
+            periodSeconds: 30
+            failureThreshold: 20       # first start downloads signatures
+          resources:
+            requests: { cpu: 500m, memory: 2Gi }
+            limits: { memory: 4Gi }    # not measured for PAL
+          volumeMounts:
+            - { name: signatures, mountPath: /var/lib/clamav }
+      volumes:
+        - { name: signatures, emptyDir: {} }   # disposable; a PVC avoids re-downloading on restart
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pal-clamav
+  namespace: pal
+spec:
+  selector: { app: pal, component: clamav }
+  ports:
+    - { name: clamd, port: 3310, targetPort: clamd }
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: pal-web
@@ -387,7 +466,8 @@ metadata:
   name: pal
   namespace: pal
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "2m"
+    nginx.ingress.kubernetes.io/proxy-body-size: "52m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: nginx
@@ -414,7 +494,7 @@ spec:
     matchLabels: { app: pal, component: web }
 ```
 
-A NetworkPolicy restricting ingress to the ingress controller and egress to PostgreSQL (5432), DNS and HTTPS 443 is recommended; its selectors depend on your CNI and ingress namespace.
+A NetworkPolicy restricting ingress to the ingress controller, egress to PostgreSQL (5432), `pal-clamav` (3310), DNS and HTTPS 443, and ingress to `pal-clamav` to `pal-web` only (clamd has no authentication), is recommended; its selectors depend on your CNI and ingress namespace.
 
 The certificate Secret can be created from the files generated in [SINGLE_LINUX_SERVER.md §4.2](SINGLE_LINUX_SERVER.md#42-entra-id-app-registration-shared-by-all-deployment-guides) when not using an operator:
 
@@ -436,15 +516,19 @@ kubectl -n pal rollout status deploy/pal-web
 | # | Check | Command | Expected |
 |---|---|---|---|
 | 1 | Liveness | `kubectl -n pal exec deploy/pal-web -- wget -qO- http://127.0.0.1:8080/health/live` | `{"status":"ok"}` |
-| 2 | Readiness | `curl -sS https://pal.example.internal/health/ready` | 200, `"database":"ok","migrations":"ok"` |
+| 2 | Readiness | `curl -sS https://pal.example.internal/health/ready` | 200, `"database":"ok","migrations":"ok","storage":"ok"` |
 | 3 | Pods non-root | `kubectl -n pal exec deploy/pal-web -- id -u` | `10001` |
 | 4 | Secrets resolved | `kubectl -n pal exec deploy/pal-web -- sh -c 'test -r "$OIDC_CLIENT_CERT_PATH" && test -r "$OIDC_CLIENT_KEY_PATH" && echo readable'` | `readable` |
-| 5 | Sign-in | Browse `https://pal.example.internal/` | Signed in, not on `/sign-in?auth_error=…`; an unassigned account is refused by Entra (AADSTS50105) |
+| 5a | Local admin sign-in + forced change | Sign in with `PAL_BOOTSTRAP_LOCAL_ADMIN_*` | Redirected to `/change-password`; other API calls answer 403 `password_change_required`; after the change, the dashboard. Then delete Secret `pal-bootstrap` |
+| 5 | Entra sign-in | Browse `https://pal.example.internal/` | Signed in, not on `/sign-in?auth_error=…`; an unassigned account is refused by Entra (AADSTS50105) |
 | 6 | Directory sync | `kubectl -n pal exec deploy/pal-worker -- php /srv/pal/backend/bin/console pal:roles:map PAL_ADMINISTRATOR <group-object-id>` then `... pal:directory:sync` | Mapping created; sync exits 0 |
 | 7 | Audit chain | `kubectl -n pal exec deploy/pal-worker -- php /srv/pal/backend/bin/console pal:audit:verify` | `Audit chain valid: …` |
 | 8 | Append-only | As DBA: `SELECT has_table_privilege('pal_app','audit_event','UPDATE');` | `f` |
 | 9 | Client IP, not spoofable | `curl -s -o /dev/null -H 'X-Forwarded-For: 203.0.113.9' 'https://pal.example.internal/auth/callback?state=x&code=y'`, then `kubectl -n pal logs deploy/pal-web` | Log shows your real IP, not `203.0.113.9` and not an ingress pod IP. (Junk callbacks without a valid pending sign-in are logged to the application log only, not the audit trail) |
-| 10 | Upload accepted + scanned, object written | — | **Not applicable until Phase 2 (document storage)** |
+| 10 | Upload accepted + scanned, object written | Upload a small PDF to a draft. As DBA: `SELECT status FROM upload ORDER BY created_at DESC LIMIT 1;`, `SELECT scan_engine, sha256 FROM stored_file ORDER BY created_at DESC LIMIT 1;`. `kubectl -n pal exec deploy/pal-web -- ls /srv/pal/data/blobs/sha256/<ab>/<cd>/` | `CLEAN`; `clamd`; file present |
+| 11 | Malware refused | Upload the standard EICAR test file as `eicar.txt` | 422 `malware_detected`; `upload.status = INFECTED`; no new `stored_file` row |
+| 12 | Fails closed | `kubectl -n pal scale deploy/pal-clamav --replicas=0`, upload, scale back | 503 `scanner_unavailable` |
+| 13 | Indexed | Publish the document and search its title in the library | Found |
 
 `kubectl exec` bypasses the entrypoint and starts in `/srv/pal`, hence the full `bin/console` path.
 
@@ -452,7 +536,11 @@ kubectl -n pal rollout status deploy/pal-web
 
 **Upgrade:** build and push a new tag → create `Job/pal-migrate-<new>` with the new image and wait for completion → DBA re-runs `roles.sql` → update the image on `pal-web` and `pal-worker` (`kubectl set image` or GitOps) → `rollout status`. With Helm/Argo CD, model the migrate Job as a pre-upgrade hook / earlier sync wave. Readiness 503s on the **new** pods if migrations were skipped, so a forgotten migration stalls the rollout instead of serving errors. Old pods keep running during a rolling update against the migrated schema; keep migrations backward compatible with the previous release, or scale web to 0 for breaking migrations.
 
-**Backups:** PAL pods are stateless. Back up PostgreSQL (WAL archiving / managed PITR to meet the provisional RPO 15 min / RTO 4 h, decision D10), the vault holding PAL secrets, and the audit anchor storage. Restore procedure: [SINGLE_LINUX_SERVER.md §8.2](SINGLE_LINUX_SERVER.md#82-backups).
+**Backups:** Back up PostgreSQL (WAL archiving / managed PITR to meet the provisional RPO 15 min / RTO 4 h, decision D10) **and the `pal-blobs` volume, database first and blobs after, at an interval no longer than the RPO** (volume snapshots or storage replication), plus the vault holding PAL secrets and the audit anchor storage. Restore procedure and consistency check: [DISASTER_RECOVERY.md §4](../docs/DISASTER_RECOVERY.md#4-restore-runbook).
+
+**Local accounts:** clear a lockout with `kubectl -n pal exec deploy/pal-worker -- php /srv/pal/backend/bin/console pal:users:unlock <username>`.
+
+**ClamAV:** signatures update in the pod through `freshclam` (image behaviour, verify). Raise `StreamMaxLength` in clamd's configuration before raising `PAL_MAX_UPLOAD_BYTES`.
 
 **Audit anchoring:** mount a writable volume (backed by storage another team controls) at `PAL_AUDIT_ANCHOR_DIR` in `pal-worker` only.
 
@@ -478,7 +566,20 @@ kubectl -n pal rollout status deploy/pal-web
 | `/sign-in?auth_error=sign_in_failed` | Redirect URI mismatch, cert not uploaded to Entra, clock skew | Check app registration and NTP |
 | `/sign-in?auth_error=sign_in_expired` | Cookie lost: TLS not terminated as HTTPS, or `X-Forwarded-Proto` missing | Check ingress TLS and headers |
 | Worker restarts about hourly | Expected: `--time-limit=3600` | None (tune `PAL_WORKER_TIME_LIMIT`) |
-| `Read-only file system` errors | A path outside the three emptyDirs is written | Report it; add an emptyDir for that path as a workaround |
+| `/health/ready` **503** `"storage":"fail"` | `PAL_BLOB_DIR` missing, not mounted, read-only, or not writable by uid 10001 | Check the PVC is bound and mounted on `pal-web`; `kubectl -n pal exec deploy/pal-web -- ls -ld /srv/pal/data /srv/pal/data/blobs`; give the share uid/gid 10001 if `fsGroup` is ignored |
+| Upload **503** `scanner_unavailable`; log `ClamAV is unreachable` | clamd down, still loading signatures (first start: several minutes), wrong `PAL_CLAMD_ADDRESS`, or the network path to TCP 3310 is blocked | `kubectl -n pal get pods -l component=clamav`, `logs`; check the NetworkPolicy. Reading and downloading are unaffected |
+| Upload **503** `scanner_unavailable`; log `ClamAV returned an unexpected reply` for larger files | File exceeds clamd's `StreamMaxLength` (ClamAV default 25 MiB) | Keep `PAL_MAX_UPLOAD_BYTES=26214400`, or raise `StreamMaxLength` in clamd's configuration first (and keep the value ≤ PHP's 50M) |
+| Upload **413** `file_too_large` | File above `PAL_MAX_UPLOAD_BYTES` or PHP's 50M | Expected; users see the limit from `GET /api/reference` (`maxUploadBytes`) |
+| Upload **429** `too_many_uploads` / `upload_quota_exceeded` | 30 uploads/hour per user, or `PAL_UPLOAD_DAILY_BYTES` reached | Wait, or raise the quota |
+| `migrate` fails `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD rejected` | Password fails the policy (12–128 characters, no username, not a common password) | Choose a passphrase; re-run |
+| Local sign-in always 401 `invalid_credentials` | Wrong password, account inactive, locked (5 failures, 15 minutes), or stale login CSRF token | Wait 15 minutes or `pal:users:unlock <username>`; reload the page for a fresh token |
+| Every API call **403** `password_change_required` | Temporary password not changed yet | Change it at `/change-password` |
+| **403** `role_escalation_forbidden` | Conferring a document role, or resetting the password of an account with one, without holding `PAL_ADMINISTRATOR` | Have a PAL Administrator with `admin.users` do it |
+| **409** `last_administrator` | The change would leave no active System Administrator | Grant another System Administrator first |
+| `pal-clamav` pod rejected or `OOMKilled` | Pod Security level, or too little memory | Own namespace with a looser level; raise the limit |
+| `pal-web` second replica `Multi-Attach` error | PVC is ReadWriteOnce | Use a ReadWriteMany class |
+| Ingress returns **413** on upload | `proxy-body-size` below 52m | Set the annotation |
+| `Read-only file system` errors | A path outside the three emptyDirs and the blob mount is written | Report it; add an emptyDir for that path as a workaround |
 | Migrate Job `field is immutable` on re-apply | Job names are immutable | Use a new Job name per release, or delete the finished Job |
 
 ---

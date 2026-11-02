@@ -22,6 +22,8 @@
 | 18 | 2026-10-25 | Owner (D13): Symfony approved; rev 2 architecture approved; Phase 1 started | Decided | ADR-0008 |
 | 20 | 2026-10-26 | Security audit: refuse self-grant of document-authority roles (interim control for D20); audit only real sign-in failures; rate-limit the callback; https-only logos | Accepted | ADR-0013, OPEN_ITEMS.md |
 | 19 | 2026-10-26 | Phase 1 implementation decisions (OIDC client, DBAL, PHPStan levels, sessions, role refresh, DB role separation, image roles, contrast-safe branding) | Accepted | [ADR-0013](adr/ADR-0013-phase1-implementation-decisions.md) |
+| 21 | 2026-10-26 | Owner: local username/password accounts alongside Entra ID (argon2id, 5-failure/15-min lockout, per-IP + per-username throttling, forced change of temporary passwords, env-based first-admin bootstrap). Amends #4. Okta / Google Workspace / SAML shown as "Not connected", not implemented | **Accepted** | [ADR-0014](adr/ADR-0014-local-accounts.md) |
+| 22 | 2026-10-26 | Render demo topology (`pal/render.yaml`): web + worker + private ClamAV service + 1 GB persistent disk for blobs + PostgreSQL `0.1c-256mb`; 25 MiB upload cap (ClamAV default `StreamMaxLength`); local-account sign-in. Accepted limitations: single DB role (audit tamper-evident only), single web instance (disk), paid plans. Demo/evaluation only; production stays on-prem Linux (#13) | Accepted | `render.yaml`, [DEPLOYMENT.md §12](DEPLOYMENT.md#12-render-demo--evaluation), OPEN_ITEMS.md |
 
 
-Still open: D10 recovery targets (provisional), D14–D17, D19, D20 (second control on document-role mappings). See [proposal §18.2](PHASE0_ARCHITECTURE_PROPOSAL.md#182-still-open).
+Still open: D10 recovery targets (provisional), D14–D17, D19, D20 (second control on document-role mappings), and whether local accounts are allowed in production beyond break-glass administrators (ADR-0014). See [proposal §18.2](PHASE0_ARCHITECTURE_PROPOSAL.md#182-still-open).

@@ -2,7 +2,7 @@
 
 How to build, configure, migrate and run PAL. This guide covers what is common to every target; the per-target operator guides in [`../deployments/`](../deployments/) add the topology, identity and verification steps for each environment.
 
-> **Scope.** This describes the Phase 1 foundation as implemented. There is no document storage, malware scanner, converter or SMTP relay to deploy yet (*Planned — Phases 2–6*). When those land, this guide and the per-target guides must be updated in the same change.
+> **Scope.** Through Phase 2: PAL now needs a **writable blob volume** and a **ClamAV daemon** in addition to PostgreSQL. There is no converter or SMTP relay to deploy yet (*Planned — Phases 4–6*). When those land, this guide and the per-target guides must be updated in the same change.
 
 Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [SECURITY.md](SECURITY.md) · [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
 
@@ -21,6 +21,7 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [SECURITY.md](SECURITY.md) · [DI
 9. [Ollama configuration](#9-ollama-configuration)
 10. [GPU acceleration](#10-gpu-acceleration)
 11. [Production checklist](#11-production-checklist)
+12. [Render (demo / evaluation)](#12-render-demo--evaluation)
 
 ---
 
@@ -33,8 +34,8 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [SECURITY.md](SECURITY.md) · [DI
 | Kubernetes | [KUBERNETES.md](../deployments/KUBERNETES.md) | Reference only. ADR-0001 does not recommend Kubernetes at PAL's scale. |
 | Microsoft Azure (Commercial / Government) | [AZURE.md](../deployments/AZURE.md) | Reference only. Not selected (D0/D2). |
 | AWS (Commercial / GovCloud) | [AWS.md](../deployments/AWS.md) | Reference only. Not selected. |
-| Air-gapped | [AIRGAPPED.md](../deployments/AIRGAPPED.md) | Reference. Note that sign-in and group sync require outbound access to Entra ID and Microsoft Graph. |
-| Render (`pal/render.yaml`) | This guide, §3 and §4 | Demo/evaluation only. Not referenced by the repository's root `render.yaml`; deploy deliberately via New → Blueprint with path `pal/render.yaml`. Do not load real documents. |
+| Air-gapped | [AIRGAPPED.md](../deployments/AIRGAPPED.md) | Reference. Entra sign-in and group sync require outbound access to Entra ID and Microsoft Graph; local accounts work without it. ClamAV signatures need an offline mirror. |
+| Render (`pal/render.yaml`) | This guide, [§12](#12-render-demo--evaluation) | Demo/evaluation only, not yet deployed. Not referenced by the repository's root `render.yaml`; deploy deliberately via New → Blueprint with path `pal/render.yaml`. Do not load real documents. |
 
 All models run the **same image** with different environment variables. The image has four roles: `web`, `worker`, `migrate`, `console` (see [ARCHITECTURE.md §9](ARCHITECTURE.md#9-deployment-topology)).
 
@@ -43,11 +44,13 @@ All models run the **same image** with different environment variables. The imag
 | Requirement | Detail |
 |---|---|
 | Container runtime | Docker Engine with Compose v2 (for `deploy/compose.yaml`), or any OCI runtime/orchestrator |
-| PostgreSQL | 17 for production (16+ works with `database/schema.sql`). A superuser/DBA account to create roles once. |
-| Reverse proxy | TLS termination in front of the web container (nginx, HAProxy, a load balancer). It must send `X-Forwarded-Proto` / `X-Forwarded-For` and be inside `TRUSTED_PROXIES`. |
+| PostgreSQL | 17 for production (16+ works with `database/schema.sql`). A superuser/DBA account to create roles once. Extensions `btree_gist` and `pg_trgm` must be available; migration 2 creates them as the owner role (trusted extensions). Managed services may need them allow-listed. |
+| Blob storage | A volume or NAS share mounted at `/srv/pal/data` on **web**, writable by uid 10001. Shared by all web instances. Sized for your documents; files are never deleted by the app. |
+| ClamAV | A `clamd` daemon reachable from web on TCP 3310 (`clamav/clamav:1.5.4` in Compose and Render). About 1.5 GB of RAM for signatures, more while reloading (not measured for PAL; see OPEN_ITEMS.md). The first start downloads signatures (several minutes). Uploads are refused without it. |
+| Reverse proxy | TLS termination in front of the web container (nginx, HAProxy, a load balancer). It must send `X-Forwarded-Proto` / `X-Forwarded-For` and be inside `TRUSTED_PROXIES`, and allow request bodies up to 52 MB and at least 120 s on `/api/uploads`. |
 | DNS + certificate | A hostname for PAL; its exact origin goes into `PAL_BASE_URL` and the Entra redirect URI. |
-| Entra ID app registration | Redirect URI `<PAL_BASE_URL>/auth/callback`; front-channel logout / post-logout redirect `<PAL_BASE_URL>/`; delegated scopes `openid profile email`; a client **certificate** (production) or secret (development). For group sync: Microsoft Graph **application** permissions `GroupMember.Read.All` and `User.Read.All` with admin consent (decision D16, still open). **Mandatory:** on the Enterprise application, set **Assignment required = Yes** and assign only the intended users/groups. PAL makes every account that can sign in a Reader, so without this every account in the tenant, **guests included**, gets Reader access. |
-| Outbound HTTPS | From web and worker to `login.microsoftonline.com` (or your `OIDC_AUTHORITY` host) and `graph.microsoft.com` (or your `GRAPH_BASE_URL` host). |
+| Entra ID app registration (only for SSO) | Redirect URI `<PAL_BASE_URL>/auth/callback`; front-channel logout / post-logout redirect `<PAL_BASE_URL>/`; delegated scopes `openid profile email`; a client **certificate** (production) or secret (development). For group sync: Microsoft Graph **application** permissions `GroupMember.Read.All` and `User.Read.All` with admin consent (decision D16, still open). **Mandatory:** on the Enterprise application, set **Assignment required = Yes** and assign only the intended users/groups. PAL makes every account that can sign in a Reader, so without this every account in the tenant, **guests included**, gets Reader access. |
+| Outbound HTTPS (only for SSO and, unless mirrored, ClamAV signatures) | From web and worker to `login.microsoftonline.com` (or your `OIDC_AUTHORITY` host) and `graph.microsoft.com` (or your `GRAPH_BASE_URL` host). |
 | Log collector | The host's collector forwarding container stdout/stderr to Microsoft Sentinel ([ADR-0011](adr/ADR-0011-logging-to-microsoft-sentinel.md); path undecided, D17). |
 | Build tooling (only if building from source) | Docker BuildKit. Local development: PHP 8.4 with `pdo_pgsql`, `intl`, `openssl`; Composer 2; Node.js ≥ 22 (CI uses 24). |
 
@@ -65,7 +68,7 @@ or, with Compose (context `..` relative to `deploy/`):
 docker compose -f pal/deploy/compose.yaml build
 ```
 
-The multi-stage build compiles the SPA (`node:24-alpine`, `npm ci && npm run build`), installs production Composer dependencies with an authoritative class map, warms the Symfony prod cache, and produces a runtime on `php:8.4-fpm-alpine` with `pdo_pgsql`, `intl` and `opcache`. The final image runs as UID/GID 10001 (`pal`), application code is owned by root (read-only to the app user), and only `var/cache` and `var/log` are writable. Base images are pinned by tag; pin them by digest in your registry mirror.
+The multi-stage build compiles the SPA (`node:24-alpine`, `npm ci && npm run build`), installs production Composer dependencies with an authoritative class map, warms the Symfony prod cache, and produces a runtime on `php:8.4-fpm-alpine` with `pdo_pgsql`, `intl` and `opcache`. The final image runs as UID/GID 10001 (`pal`), application code is owned by root (read-only to the app user), and only `var/cache`, `var/log` and `/srv/pal/data` (created for the blob store, owned by uid 10001) are writable. PHP allows `upload_max_filesize` 50M and `post_max_size` 52M; nginx allows 52 MB bodies on `/api/uploads` only and 2 MB elsewhere. Base images are pinned by tag; pin them by digest in your registry mirror.
 
 CI (`.github/workflows/pal-ci.yml`) builds the same image, smoke-tests it (refuses to start without config, `/health/live` answers, runs as UID 10001) and scans it with Trivy (HIGH/CRITICAL, fixed-only, fails the build).
 
@@ -83,11 +86,17 @@ Every variable below was verified against `%env(...)%` references in `config/`, 
 | `DATABASE_URL` | `postgresql://pal_app:CHANGE_ME@db:5432/pal?serverVersion=17&charset=utf8` | Runtime DB connection (least-privilege app role). Also used by the PDO session handler. **Secret** (contains password). |
 | `PAL_BASE_URL` | `https://pal.example.internal` | Public origin; builds the OIDC redirect URI (`/auth/callback`) and post-logout URI. Must match the Entra registration exactly. Required by the `web` role. |
 | `TRUSTED_HOSTS` | `^pal\.example\.internal$` | Regex allowlist for the `Host` header (Host-header injection protection). Required by the `web` role. |
+| `PAL_CLAMD_ADDRESS` | `clamd:3310` or `tcp://clamd:3310` | Required for uploads, not for start-up. ClamAV daemon address. Empty or unreachable means every upload is refused (503 `scanner_unavailable`). |
+
+For Entra sign-in and directory sync (optional; without them the sign-in page shows Entra as "Not connected" and people use local accounts):
+
+| Variable | Example | Purpose |
+|---|---|---|
 | `OIDC_TENANT_ID` | `00000000-0000-0000-0000-000000000000` (placeholder) | Entra tenant GUID. The all-zero GUID is rejected as "not configured". |
 | `OIDC_CLIENT_ID` | `00000000-0000-0000-0000-000000000000` (placeholder) | Application (client) GUID. |
-| `OIDC_CLIENT_SECRET` **or** `OIDC_CLIENT_CERT_PATH` + `OIDC_CLIENT_KEY_PATH` | `/run/secrets/pal_oidc_cert.pem`, `/run/secrets/pal_oidc_key.pem` | Exactly one credential must be set. Certificate (private_key_jwt, RFC 7523) is recommended for production; the secret is for development. **Secret.** |
+| `OIDC_CLIENT_SECRET` **or** `OIDC_CLIENT_CERT_PATH` + `OIDC_CLIENT_KEY_PATH` | `/run/secrets/pal_oidc_cert`, `/run/secrets/pal_oidc_key` | Exactly one credential must be set. Certificate (private_key_jwt, RFC 7523) is recommended for production; the secret is for development. **Secret.** |
 
-Sign-in and directory sync stay disabled (sign-in redirects with `auth_error=sign_in_unavailable`; role-mapping API returns 503) until the OIDC variables are valid. Health checks work without them.
+Until the OIDC variables are valid, `/auth/login` redirects with `auth_error=sign_in_unavailable` and the role-mapping API returns 503. Health checks and local accounts work without them.
 
 ### 4.2 Optional / defaults
 
@@ -107,6 +116,12 @@ Sign-in and directory sync stay disabled (sign-in redirects with `auth_error=sig
 | `OIDC_AUTHORITY` | `https://login.microsoftonline.com` | Entra authority. Must be `https`. All discovered endpoints must be on this host. |
 | `GRAPH_BASE_URL` | `https://graph.microsoft.com/v1.0` | Microsoft Graph base URL. Pagination links outside this origin are refused. |
 | `PAL_BOOTSTRAP_ADMIN_OIDS` | comma-separated Entra object IDs | Grants System Administrator before any group mapping exists. **Remove after mappings are configured.** |
+| `PAL_BLOB_DIR` | `/srv/pal/data/blobs` (image) / `var/blobs` (`.env.example`) | Root of the content-addressed blob store. Created if possible; `/health/ready` reports `"storage":"fail"` when missing or not writable. Needed on **web**. |
+| `PAL_MAX_UPLOAD_BYTES` | `52428800` (app default, `backend/.env.example`) / `26214400` (`deploy/pal.env.example`, `render.yaml`) | Largest accepted file. Keep at or below clamd's `StreamMaxLength` (ClamAV default 25 MiB, hence the 26214400 override) or those scans fail closed, and at or below PHP's `upload_max_filesize` (50M). Exposed to the UI as `maxUploadBytes` by `GET /api/reference`. |
+| `PAL_UPLOAD_DAILY_BYTES` | `524288000` (default) / `209715200` (`render.yaml`) | Per-user limit on clean uploaded bytes in any 24 hours (429 `upload_quota_exceeded`). |
+| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | `1` accepts uploads without scanning when `PAL_CLAMD_ADDRESS` is empty, **only outside `APP_ENV=prod`**. Ignored in production. |
+| `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` | `admin` | Read by the `migrate` role. With the password below, creates the first local administrator if no local account exists. Remove after first sign-in. |
+| `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | 12–128 characters, one-off value | Temporary: must be changed at first sign-in. A value that fails the policy makes `migrate` fail. **Secret.** Remove after first sign-in. |
 | `PAL_AUDIT_ANCHOR_DIR` | `/var/lib/pal-anchors` | Directory where the audit chain head is appended (`audit-anchors.jsonl`). Should be write-once storage owned by another team. Empty = anchoring off. Requires a writable mount in the worker container (see §6). |
 | `LOG_LEVEL` | `info` | Minimum Monolog level for the JSON stderr handler. |
 | `DEFAULT_URI` | `http://localhost:5173` | Base URI for URLs generated outside HTTP requests (Symfony router). |
@@ -119,7 +134,8 @@ Sign-in and directory sync stay disabled (sign-in redirects with `auth_error=sig
 
 - Generate `APP_SECRET` with `openssl rand -hex 32`; use the same value on all web and worker instances.
 - Prefer **files mounted as Docker secrets** for the OIDC certificate and key (`OIDC_CLIENT_CERT_PATH`, `OIDC_CLIENT_KEY_PATH` point to them). The bundled PostgreSQL reads its passwords from `deploy/secrets/db_*_password.txt` via Docker secrets.
-- **Gap:** `deploy/compose.yaml` does not declare or mount `pal_oidc_cert.pem` / `pal_oidc_key.pem` into the web and worker services, although `pal.env.example` points at `/run/secrets/...`. Add those secrets to the `x-pal` anchor (or use a client secret in a non-production install) before expecting sign-in to work. See [SINGLE_LINUX_SERVER.md](../deployments/SINGLE_LINUX_SERVER.md).
+- `deploy/compose.yaml` mounts `deploy/secrets/oidc_cert.pem` and `oidc_key.pem` as `/run/secrets/pal_oidc_cert` and `/run/secrets/pal_oidc_key`. Compose refuses to start if the files are missing, so keep empty placeholders when not using a certificate. See [SINGLE_LINUX_SERVER.md](../deployments/SINGLE_LINUX_SERVER.md).
+- `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` needs to reach only the `migrate` step, and should be deleted after first sign-in ([SECURITY.md §2.7](SECURITY.md#27-local-accounts-identitylocal-securitylocalpasswordauthenticator)).
 - `DATABASE_URL` and `APP_SECRET` are read from environment variables; PAL has no built-in integration with Vault, Key Vault or Secrets Manager. Inject them from your secret store at container start.
 - Rotation procedures are in [SECURITY.md §9](SECURITY.md#9-secrets-rotation).
 
@@ -164,7 +180,7 @@ From source (`pal/backend`):
 php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
-The container role runs `doctrine:migrations:migrate --no-interaction --allow-no-migration` with `DATABASE_URL_MIGRATIONS` if set, then, if `PAL_APP_DB_ROLE` is set, revokes `UPDATE, DELETE, TRUNCATE` on `audit_event` from that role. **Still re-run `roles.sql` after each migration** so new tables are owned by the owner role and granted to the app role.
+The container role runs `doctrine:migrations:migrate --no-interaction --allow-no-migration` with `DATABASE_URL_MIGRATIONS` if set, then `pal:users:bootstrap-admin` (a no-op unless the bootstrap variables are set and no local account exists), then, if `PAL_APP_DB_ROLE` is set, revokes `UPDATE, DELETE, TRUNCATE` on `audit_event` from that role. **Still re-run `roles.sql` after each migration** so new tables are owned by the owner role and granted to the app role.
 
 Check status:
 
@@ -172,7 +188,7 @@ Check status:
 docker run --rm --env-file pal/deploy/pal.env pal:latest console doctrine:migrations:status
 ```
 
-`/health/ready` returns 503 with `"migrations":"fail"` while any migration is pending.
+`/health/ready` returns 503 with `"migrations":"fail"` while any migration is pending. Current migrations: `Version20261026000001` (foundation), `…000002` (documents, revisions, uploads, workflow, publications; extensions `btree_gist`, `pg_trgm`), `…000003` (local accounts, explicit user roles).
 
 ### 5.3 Rollback
 
@@ -180,7 +196,7 @@ Do **not** run down-migrations against a database with real data. `Version202610
 
 ### 5.4 Render
 
-`render.yaml` runs `/usr/local/bin/pal-entrypoint migrate` as `preDeployCommand` with the single Render-managed database user. There is no owner/app split and `PAL_APP_DB_ROLE` is not set, so the app role is the table owner on Render; only the audit triggers protect `audit_event` there. The audit trail there is **tamper-evident** (hash chain, verification) but **not tamper-resistant**: the connecting role owns the table and can disable the triggers. The same applies to any deployment that uses a single database role. Acceptable for a demo, not for production.
+See also [§12](#12-render-demo--evaluation). `render.yaml` runs `/usr/local/bin/pal-entrypoint migrate` as `preDeployCommand` with the single Render-managed database user. There is no owner/app split and `PAL_APP_DB_ROLE` is not set, so the app role is the table owner on Render; only the audit triggers protect `audit_event` there. The audit trail there is **tamper-evident** (hash chain, verification) but **not tamper-resistant**: the connecting role owns the table and can disable the triggers. The same applies to any deployment that uses a single database role. Acceptable for a demo, not for production.
 
 ## 6. The worker / background process
 
@@ -198,13 +214,24 @@ The worker runs `php bin/console messenger:consume async scheduler_default --tim
 Operational notes:
 
 - Run **at least one** worker. Running more is safe: the schedule takes the PostgreSQL advisory lock `pal-schedule-default`, so jobs do not double-fire.
-- The `async` queue is configured (retries: 5, exponential backoff from 2 s, capped at 10 min; failures go to the `failed` queue) but **no message is routed to it in Phase 1**. Inspect failures with `docker run --rm --env-file … pal:latest console messenger:failed:show`.
-- The scheduler's "catch up missed runs" state uses the Symfony app cache, which in the container is the tmpfs `var/cache`. It is lost on every worker restart (hourly by default), so a run missed while the worker was down may not be replayed. Low impact for Phase 1 (the next run happens on schedule); revisit before Phase 5 publication sweeps.
+- The `async` queue is configured (retries: 5, exponential backoff from 2 s, capped at 10 min; failures go to the `failed` queue) but **no message is routed to it yet**. The worker needs neither the blob volume nor ClamAV. Inspect failures with `docker run --rm --env-file … pal:latest console messenger:failed:show`.
+- The scheduler's "catch up missed runs" state uses the Symfony app cache, which in the container is the tmpfs `var/cache`. It is lost on every worker restart (hourly by default), so a run missed while the worker was down may not be replayed. Low impact today (the next run happens on schedule); revisit before Phase 5 publication sweeps.
 - **Anchor mount:** containers run with a read-only root filesystem. To use `PAL_AUDIT_ANCHOR_DIR`, mount a writable directory (ideally on write-once storage) into the **worker** container at that path, owned by or writable for UID 10001. `compose.yaml` does not do this by default.
 - Manual runs: `docker run --rm --env-file … pal:latest console pal:directory:sync` and `… console pal:audit:verify [--anchor]`.
 - **Revocation latency:** removing a user from a mapped Entra group, or disabling the account, takes effect in PAL after the next directory sync (up to 15 minutes) or, for users outside tracked groups, when their session reaches the idle/absolute limit. Run `pal:directory:sync` manually for urgent revocations, or `TRUNCATE sessions` to sign everyone out ([SECURITY.md §9](SECURITY.md#9-secrets-rotation)).
 
 ## 7. First sign-in and role mapping
+
+**With a local administrator** (no Entra needed):
+
+1. Set `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` and `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` for the `migrate` step and run it. Its log says `Created local administrator "<name>"`.
+2. Sign in on the sign-in page. PAL forces a new password (`/change-password`); every other API call answers 403 `password_change_required` until then.
+3. Delete both variables. The account holds `SYSTEM_ADMINISTRATOR` and `PAL_ADMINISTRATOR`, so one person can confer document authority until D20 is decided: create separate accounts under **Administration › Users** and split these roles after bootstrap.
+4. If locked out (5 failures, 15 minutes): `docker run --rm --env-file pal/deploy/pal.env pal:latest console pal:users:unlock <username>`.
+
+Conferring `PAL_ADMINISTRATOR`, `PUBLISHER` or `AUTHOR`, or resetting the password of an account holding one, requires the caller to hold `PAL_ADMINISTRATOR` (403 `role_escalation_forbidden`). The last active System Administrator cannot be removed (409 `last_administrator`).
+
+**With Entra ID:**
 
 1. Set `PAL_BOOTSTRAP_ADMIN_OIDS` to your Entra object ID and restart web.
 2. Sign in. You hold System Administrator (plus the implicit Reader).
@@ -221,17 +248,22 @@ Operational notes:
 | Check | Command / expectation |
 |---|---|
 | Liveness | `curl -fsS https://<host>/health/live` → `{"status":"ok"}` |
-| Readiness | `curl -fsS https://<host>/health/ready` → `{"status":"ready","checks":{"database":"ok","migrations":"ok"}}` (503 otherwise) |
+| Readiness | `curl -fsS https://<host>/health/ready` → `{"status":"ready","checks":{"database":"ok","migrations":"ok","storage":"ok"}}` (503 otherwise) |
 | Host allowlist | A request with a non-matching `Host` header is rejected by Symfony |
 | Unauthenticated API | `curl -s -o /dev/null -w '%{http_code}' https://<host>/api/me` → `401` |
 | Security headers | SPA response carries `Content-Security-Policy` with `script-src 'self'`; `/api` responses carry `default-src 'none'`, `Cache-Control: no-store, private`, `X-Request-Id`; `Strict-Transport-Security` present over HTTPS |
-| Sign-in | Browser sign-in completes and lands on the dashboard; `GET /api/me` returns roles and `csrfToken`; audit has `USER_SIGNED_IN`. A failed sign-in lands on `/sign-in?auth_error=<code>` |
+| Local admin + forced change | Bootstrap admin signs in, is sent to `/change-password`, and reaches the dashboard after changing it; audit has `USER_SIGNED_IN` (`method: password`) and `USER_PASSWORD_CHANGED` |
+| Sign-in (Entra) | Browser sign-in completes and lands on the dashboard; `GET /api/me` returns roles and `csrfToken`; audit has `USER_SIGNED_IN`. A failed sign-in lands on `/sign-in?auth_error=<code>` |
 | Assignment required | An account not assigned to the Entra enterprise application is refused by Entra before reaching PAL |
 | Directory sync | `console pal:directory:sync` succeeds; mapped group shows a member count and `syncedAt` |
 | Audit chain | `console pal:audit:verify` → `Audit chain valid: N events, head <hash>` |
 | Logs | JSON lines on stderr with `correlation_id`; `pal_audit` channel records present at the collector |
 
-Document upload, indexing and malware-scan checks do not apply until Phase 2.
+| Upload accepted + scanned | Upload a small PDF on a draft. `SELECT status, reason FROM upload ORDER BY created_at DESC LIMIT 1` → `CLEAN`; `SELECT scan_engine FROM stored_file ORDER BY created_at DESC LIMIT 1` → `clamd` |
+| Object written | The file exists at `$PAL_BLOB_DIR/sha256/ab/cd/<hash>` with mode `0440` |
+| Malware refused | Upload the standard EICAR test file as `eicar.txt` → 422 `malware_detected`; `upload.status = INFECTED`; audit `UPLOAD_MALWARE_DETECTED`; no `stored_file` row |
+| Scanner failure is closed | With clamd stopped, an upload → 503 `scanner_unavailable`; `upload.status = ERROR` |
+| Indexed | Publish the document; searching its title in the library finds it |
 
 ## 9. Ollama configuration
 
@@ -249,6 +281,9 @@ Document upload, indexing and malware-scan checks do not apply until Phase 2.
 - [ ] Graph permissions limited to read-only `GroupMember.Read.All` + `User.Read.All` (application), admin-consented; nothing else granted (no `Mail.Send`, no write scopes).
 - [ ] Separate DB roles: web/worker use the app role; only `migrate` has `DATABASE_URL_MIGRATIONS`; `PAL_APP_DB_ROLE` set; `roles.sql` re-run after every migration.
 - [ ] `PAL_BOOTSTRAP_ADMIN_OIDS` emptied once group mappings exist.
+- [ ] `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` / `_PASSWORD` deleted after first sign-in; temporary password changed.
+- [ ] Decision taken on local accounts in production (ADR-0014): keep to break-glass where Entra exists; they have no MFA. `SYSTEM_ADMINISTRATOR` and `PAL_ADMINISTRATOR` held by different people.
+- [ ] `PAL_ALLOW_UNSCANNED_UPLOADS=0` and `PAL_CLAMD_ADDRESS` set.
 - [ ] Entra enterprise application has **Assignment required = Yes** with only intended users/groups assigned (otherwise every tenant account, guests included, becomes a Reader).
 - [ ] Review who is mapped to `SYSTEM_ADMINISTRATOR`: that role can map groups it is **not** a member of to any role, including document roles; self-grants are blocked but collusion between administrators is only detected through audit (see [SECURITY.md §4.3](SECURITY.md#43-separation-of-duties)).
 - [ ] No filled-in `pal.env`, `.env.local` or secret file committed (CI gitleaks job green).
@@ -259,6 +294,8 @@ Document upload, indexing and malware-scan checks do not apply until Phase 2.
 - [ ] `TRUSTED_PROXIES` set to the exact reverse-proxy IP(s), not `private_ranges`, and the proxy **overwrites** `X-Forwarded-For` with the real client address. With `private_ranges`, any host on a private network that can reach port 8080 can spoof its client IP (affects rate-limit keys and client IPs recorded in logs and audit events).
 - [ ] Upstream proxy strips or overwrites client-supplied `X-Request-Id` if correlation IDs must be trustworthy (PAL accepts a well-formed client value as the correlation ID).
 - [ ] `TRUSTED_HOSTS` matches only the production hostname.
+- [ ] Proxy allows 52 MB bodies and a 120 s timeout on `/api/uploads`.
+- [ ] clamd's port 3310 reachable from web only (it has no authentication); never published.
 - [ ] `PAL_SESSION_COOKIE_SECURE=1` and `PAL_SESSION_COOKIE_NAME=__Host-pal_session` (image defaults; do not override).
 - [ ] Egress limited to the Entra authority, Graph and the log collector.
 
@@ -266,14 +303,66 @@ Document upload, indexing and malware-scan checks do not apply until Phase 2.
 - [ ] Containers run read-only, `cap_drop: [ALL]`, `no-new-privileges` (as in `compose.yaml`).
 - [ ] Base images pinned by digest in your registry; Trivy scan clean for HIGH/CRITICAL.
 - [ ] `APP_ENV=prod`, `APP_DEBUG=0`.
+- [ ] Blob storage: writable by uid 10001 only, encrypted, deletion denied to the app user where the storage supports it.
+- [ ] `PAL_MAX_UPLOAD_BYTES` ≤ clamd `StreamMaxLength`; `PAL_UPLOAD_DAILY_BYTES` sized against the volume.
 - [ ] PostgreSQL not exposed beyond the app host(s); TLS to the database if it is on another host (append `sslmode=require` or stricter to the DSN; not configured by default).
 - [ ] `PAL_DEFAULT_TIMEZONE` understood as fallback only; the effective default is the `org_setting.default_timezone` row (`America/Denver`).
 - [ ] OS, Docker and PostgreSQL patching owned by a named team.
 
 ### 11.4 Resilience & operations
 - [ ] Backups with WAL archiving configured and a restore drill completed ([DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)); provisional RPO 15 min / RTO 4 h confirmed by IT (D10).
+- [ ] **Blob store backed up together with the database** (database first, blobs after; blob snapshot interval ≤ RPO), and the consistency check rehearsed ([DISASTER_RECOVERY.md §4](DISASTER_RECOVERY.md#4-restore-runbook) step 8a).
+- [ ] ClamAV signatures updating (or offline mirror refreshed); RAM sized; alert on `ClamAV is unreachable`, `UPLOAD_MALWARE_DETECTED` and repeated 503 `scanner_unavailable`.
+- [ ] Disk-space alert on the blob volume (files are never reclaimed).
 - [ ] Backup taken before every migration; previous image tag retained for rollback.
 - [ ] `PAL_AUDIT_ANCHOR_DIR` mounted into the worker on write-once storage owned by another team; anchors copied off-host.
 - [ ] Log forwarding to Sentinel live; alert on `Audit chain verification FAILED` (critical) and repeated `USER_SIGN_IN_FAILED`.
 - [ ] Uptime monitor polling `/health/ready` (target still undecided, D17).
 - [ ] At least one worker running; monitor that `AUDIT_CHAIN_VERIFIED` appears daily and directory sync shows recent `syncedAt`.
+
+## 12. Render (demo / evaluation)
+
+`pal/render.yaml` deploys the full Phase 2 stack for demos. PAL's production target remains on-premises Linux (D2; [decision log #22](DECISION_LOG.md)). **This Blueprint has not been deployed yet** ([OPEN_ITEMS.md](../OPEN_ITEMS.md)). Never load real organisational documents into it.
+
+| Resource | Type / plan | Notes |
+|---|---|---|
+| `pal-web` | Docker web service, `0.5c-512mb` | `dockerCommand: /usr/local/bin/pal-entrypoint web`; health check `/health/ready`; `preDeployCommand: /usr/local/bin/pal-entrypoint migrate`; disk `pal-blobs`, 1 GB, at `/srv/pal/data` |
+| `pal-worker` | Docker background worker, `0.5c-512mb` | `dockerCommand: /usr/local/bin/pal-entrypoint worker` |
+| `pal-clamav` | Private service, image `docker.io/clamav/clamav:1.5.4`, `2c-4g` | Reachable only from inside the Render account; `PAL_CLAMD_ADDRESS` comes from its `hostport` |
+| `pal-db` | PostgreSQL 17, `0.1c-256mb` | Single database role |
+
+Every service is on a paid plan. Check [current prices](https://render.com/pricing) first. The build filter is `pal/**`, and `dockerfilePath` / `dockerContext` are relative to the repository root.
+
+### 12.1 Steps
+
+1. Render dashboard: **New > Blueprint**, connect this repository.
+2. **Blueprint Path:** `pal/render.yaml`.
+3. Fill in the `sync: false` variables:
+
+   | Variable | Service | Example | Purpose |
+   |---|---|---|---|
+   | `PAL_BASE_URL` | `pal-web` | `https://<your-service>.onrender.com` | Public origin, no trailing slash |
+   | `DEFAULT_URI` | `pal-web`, `pal-worker` | same value | URLs generated outside requests |
+   | `TRUSTED_HOSTS` | `pal-web` | `^<your-service>\.onrender\.com$` | Host allowlist |
+   | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` | `pal-web` | a name that is hard to guess | First local administrator. Anyone who knows a username can trigger its lockout |
+   | `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | `pal-web` | 12+ characters, one-off | Temporary; forced change at first sign-in |
+   | `OIDC_TENANT_ID`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `PAL_BOOTSTRAP_ADMIN_OIDS` | `pal-web` (`OIDC_*` also `pal-worker`) | leave empty | Only to connect Entra ID. Otherwise it shows as "Not connected" |
+
+4. Apply. The pre-deploy step migrates the database and creates the administrator. If the password fails the policy, the deploy fails with `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD rejected`.
+5. Check `https://<your-service>.onrender.com/health/ready` → `{"status":"ready","checks":{"database":"ok","migrations":"ok","storage":"ok"}}`.
+6. **First sign-in:** username and password on the sign-in page, then choose a new password when prompted.
+7. **Delete** `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` and `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` from `pal-web`.
+8. Test an upload. ClamAV's first start downloads signatures for several minutes; until it is up, uploads answer 503 `scanner_unavailable`.
+
+### 12.2 Limitations of this topology
+
+| Limitation | Effect |
+|---|---|
+| **One database role** | The runtime role owns the tables and `PAL_APP_DB_ROLE` cannot be used. The audit trail is tamper-evident (hash chain, `pal:audit:verify`), **not** tamper-resistant. See §5.4 |
+| **Disk ownership unverified** | If the mount is not writable by uid 10001, `/health/ready` reports `"storage":"fail"` and the deploy does not go live |
+| **Single web instance** | A service with a persistent disk runs one instance and loses zero-downtime deploys (per `render.yaml`) |
+| **25 MiB upload cap** | `PAL_MAX_UPLOAD_BYTES=26214400`, ClamAV's default `StreamMaxLength` |
+| **1 GB disk, 200 MiB per user per day** | `PAL_UPLOAD_DAILY_BYTES=209715200`. Files are never reclaimed |
+| **ClamAV memory** | About 1.5 GB of signatures, more while reloading, hence `2c-4g` (per `render.yaml`; not measured) |
+| **Forwarded headers** | `TRUSTED_PROXIES=private_ranges`, since Render's proxy addresses are not fixed; client IPs are less trustworthy than with an exact proxy address |
+| **Backups** | Not configured by the Blueprint. Check Render's database and disk backup features before relying on the demo's data |

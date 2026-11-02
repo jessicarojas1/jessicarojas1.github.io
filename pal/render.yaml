@@ -76,7 +76,7 @@ services:
       - key: PAL_ALLOW_UNSCANNED_UPLOADS
         value: "0"
       - key: PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME
-        sync: false            # e.g. admin; remove after first sign-in
+        sync: false            # not guessable (anyone who knows it can trigger lockout); remove after first sign-in
       - key: PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD
         sync: false            # 12+ chars, temporary; must be changed at first sign-in
       # Optional Entra ID single sign-on. Leave unset to show it as "Not connected".

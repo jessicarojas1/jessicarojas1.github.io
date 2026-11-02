@@ -1,6 +1,6 @@
 # PAL — Security Guide
 
-The security model of PAL as implemented in Phase 1, the controls planned for later phases, and what operators must do to keep a deployment secure.
+The security model of PAL as implemented through Phase 2, the controls planned for later phases, and what operators must do to keep a deployment secure.
 
 > **Target.** OWASP ASVS **Level 2** ([Proposal §15](PHASE0_ARCHITECTURE_PROPOSAL.md#15-threat-model)). A requirement-by-requirement ASVS checklist with evidence is a Phase 7 exit artifact; it does not exist in the repository yet. Nothing in this guide is a claim that PAL is ASVS L2 compliant today.
 
@@ -27,21 +27,21 @@ Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [DEPLOYMENT.md](DEPLOYMENT.md) ·
 
 ## 1. Security overview
 
-| Area | Implemented in Phase 1 | Planned |
+| Area | Implemented (Phases 1–2) | Planned |
 |---|---|---|
-| Authentication | Entra ID OIDC, authorization code + PKCE, BFF session | Re-authentication before approvals (D9) — Phase 4 |
+| Authentication | Entra ID OIDC, authorization code + PKCE, BFF session; local username/password accounts (argon2id, lockout, throttling, forced change of temporary passwords) | Re-authentication before approvals (D9) — Phase 4. MFA for local accounts and Okta / Google Workspace / SAML connectors are **not implemented** (the last three appear as "Not connected") |
 | Sessions | Server-side in PostgreSQL, idle + absolute limits, `__Host-` cookie | — |
-| CSRF | `X-CSRF-Token` header on every state-changing `/api` call + `SameSite=Lax` | — |
-| Authorization | 5 global roles from directory groups, 21 granular permissions, voter, self-grant block on role mappings | Category/document-scoped grants, SQL-level filtering, 404-not-403 for hidden drafts — Phase 2+ |
+| CSRF | `X-CSRF-Token` header on every state-changing `/api` call + `SameSite=Lax`; login CSRF token on `POST /auth/password`, checked before credentials | — |
+| Authorization | 5 global roles from directory groups and explicit grants, 25 granular permissions, voter, self-grant block, `role_escalation_forbidden`, last-administrator guard; document grants, SQL-level filtering, 404-not-403 for hidden drafts | Category-scoped grants — Phase 3 |
 | Audit | Append-only, hash-chained, same-transaction audit; DB role separation; triggers; daily verification; file anchoring; SIEM copy | Audit export, `/admin/audit/verify` UI — Phase 6 |
-| Input handling | Strict JSON decoding, field validation, branding sanitizer | Upload pipeline (type detection, ClamAV, quarantine), editor JSON schema validation — Phases 2–3 |
+| Input handling | Strict JSON decoding, field validation, branding sanitizer, upload pipeline (libmagic allow-list, ClamAV fail-closed, write-once storage) | Editor JSON schema validation — Phase 3 |
 | Transport / headers | HSTS (when proxied over HTTPS), strict CSPs, frame denial, nosniff | — |
-| Rate limiting | `/auth/login` and `/auth/callback` 20/min per client IP; `/api` 600/min per user or IP (per replica) | Upload/conversion limits — Phase 2+ |
+| Rate limiting | `/auth/login`, `/auth/callback`, `/auth/password` 20/min per client IP; password attempts 10 per 15 min per username; uploads 30/hour per user plus a daily byte quota; `/api` 600/min per user or IP (per replica) | Conversion limits — Phase 6 |
 | Supply chain | Lockfiles, `composer audit`, `npm audit`, Trivy image scan, gitleaks, SHA-pinned GitHub Actions | SBOM (CycloneDX), Renovate/Dependabot ([Proposal T12](PHASE0_ARCHITECTURE_PROPOSAL.md#15-threat-model)) |
 
 ## 2. Identity and authentication
 
-PAL signs users in with **Microsoft Entra ID** over OpenID Connect and uses Entra for nothing else except read-only Graph group sync (owner decision D18).
+PAL signs users in with **Microsoft Entra ID** over OpenID Connect, using Entra for nothing else except read-only Graph group sync (owner decision D18), and with **local username/password accounts** ([ADR-0014](adr/ADR-0014-local-accounts.md), §2.7). Okta, Google Workspace and SAML are listed by `/auth/methods` as "Not connected" and are not implemented.
 
 ### 2.1 Sign-in flow (`Identity/Oidc`, `Identity/Security`)
 
@@ -95,6 +95,24 @@ PAL grants **Reader** to every account that completes sign-in; it has no allowli
 
 `POST /api/session/logout` (CSRF header required; other methods → 405) invalidates the PAL session, audits `USER_SIGNED_OUT`, and returns Entra's `end_session_endpoint` (with `post_logout_redirect_uri = <PAL_BASE_URL>/`) so the SPA can end the Entra session too. Local sign-out succeeds even if Entra is unreachable.
 
+### 2.7 Local accounts (`Identity/Local`, `Security/LocalPasswordAuthenticator`)
+
+| Control | Behaviour |
+|---|---|
+| Hashing | `password_hash()` with **argon2id** where PHP provides it, otherwise bcrypt; rehashed on the next successful sign-in when parameters change |
+| Password policy | 12–128 characters, no composition rules, must not contain the username, not on a short deny list, not one repeated character; a change must differ from the current password. **No breached-password corpus check** |
+| Lockout | 5 consecutive failures lock the account for 15 minutes (`USER_LOCKED_OUT`). A locked account is refused even with the correct password. A successful sign-in or an administrator reset clears the counter |
+| Throttling | `auth_login` 20/min per client IP and `login_username` 10 per 15 min per username; exceeded → 429 `too_many_attempts` |
+| Enumeration resistance | Every failure, including unknown users, wrong passwords, inactive or locked accounts and bad login CSRF tokens, returns the same 401 `invalid_credentials`. Unknown usernames verify against a dummy hash to equalise timing |
+| Login CSRF | Token ID `pal_login` from `GET /auth/methods`, sent as `X-CSRF-Token`, validated **before** the password, so a refused request can never record a successful sign-in |
+| Sessions | Same PostgreSQL sessions as Entra; session ID rotated on sign-in |
+| Temporary passwords | Bootstrap, account creation and resets set `must_change`. Until changed, `PasswordChangeRequiredSubscriber` answers 403 `password_change_required` on every `/api` path except `/api/me`, `/api/me/password`, `/api/session/logout` and `/api/branding`. Generated temporary passwords (20 random characters) are returned once to the administrator, never stored or logged |
+| Recovery | `pal:users:unlock <username>` clears a lockout from the server (audited `USER_UNLOCKED`, actor `system`). Lockout can be triggered by anyone who knows a username, so this is the path back when the only administrator is locked out |
+
+**Bootstrap secrets.** `pal:users:bootstrap-admin` (run by the `migrate` role) reads `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` and `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD`, and creates a local administrator holding `SYSTEM_ADMINISTRATOR` + `PAL_ADMINISTRATOR` **only if no local account exists**. The password must meet the policy (otherwise `migrate` fails) and is marked temporary. Treat the two variables as secrets: inject them only into the migrate step, use a one-off value, and **delete them after first sign-in**. They are harmless but needless once a local account exists.
+
+**Differences from SSO to weigh:** local accounts have no MFA or Conditional Access, and disabling a person in Entra does not disable a local account of the same person. Deactivate it in Administration › Users. Where Entra is available, keep local accounts to break-glass administrators.
+
 ## 3. Sessions and request protection
 
 ### 3.1 Sessions
@@ -113,16 +131,18 @@ Roles are re-resolved on **every request** (`PalUserProvider::refreshUser`), so 
 
 ### 3.2 CSRF
 
-Every `/api` request with a method other than GET/HEAD/OPTIONS must include `X-CSRF-Token` with the session's token (ID `pal_api`, returned by `GET /api/me`). The check runs **before the firewall** (`CsrfHeaderSubscriber`, priority 16), so it covers logout too. Failure → 403 `csrf_invalid`. This is defence in depth on top of `SameSite=Lax`; no state changes are exposed on GET.
+Every `/api` request with a method other than GET/HEAD/OPTIONS must include `X-CSRF-Token` with the session's token (ID `pal_api`, returned by `GET /api/me`). The check runs **before the firewall** (`CsrfHeaderSubscriber`, priority 16), so it covers logout too. Failure → 403 `csrf_invalid`. This is defence in depth on top of `SameSite=Lax`; no state changes are exposed on GET. `POST /auth/password` uses its own login token (§2.7).
 
 ### 3.3 Rate limiting
 
 | Limiter | Policy | Applied in | Key |
 |---|---|---|---|
-| `auth_login` | sliding window, 20 / minute | `AuthController::login` and the `/auth/callback` handling | client IP |
+| `auth_login` | sliding window, 20 / minute | `AuthController::login`, the `/auth/callback` handling and `LocalPasswordAuthenticator` | client IP |
+| `login_username` | sliding window, 10 / 15 minutes | `LocalPasswordAuthenticator` | normalised username |
+| `upload` | sliding window, 30 / hour | `UploadController` (429 `too_many_uploads`) | user ID |
 | `api` | sliding window, 600 / minute | `ApiRateLimitSubscriber` (all `/api` paths, after the firewall) | `user:<id>` when signed in, else `ip:<client IP>` |
 
-Both limiters are active. Exceeding the API budget returns 429 `too_many_requests` with `Retry-After`. Limiter state uses the Symfony app cache (`cache.app`, the container's tmpfs filesystem), so **limits are per replica and reset on restart**: with N web replicas the effective budget is up to N times the configured limit. Correct client IPs depend on `TRUSTED_PROXIES` (§3.4).
+All limiters are active. Separately, `PAL_UPLOAD_DAILY_BYTES` caps clean uploaded bytes per user in any 24 hours (429 `upload_quota_exceeded`; counted from the `upload` table, so it holds across replicas, with slight overshoot possible under concurrency). Exceeding the API budget returns 429 `too_many_requests` with `Retry-After`. Limiter state uses the Symfony app cache (`cache.app`, the container's tmpfs filesystem), so **limits are per replica and reset on restart**: with N web replicas the effective budget is up to N times the configured limit. Correct client IPs depend on `TRUSTED_PROXIES` (§3.4).
 
 ### 3.4 Host and proxy trust
 
@@ -145,9 +165,10 @@ The SPA CSP allows no inline script at all (no nonces needed). `img-src https:` 
 
 ### 4.1 Model
 
-- **Global roles** (`GlobalRole`): `SYSTEM_ADMINISTRATOR`, `PAL_ADMINISTRATOR`, `PUBLISHER`, `AUTHOR`, `READER`. Every active user implicitly holds `READER`. Other roles come from **directory group → role mappings** (`global_role_mapping`) for groups the user currently belongs to (open membership, tracked group), plus `SYSTEM_ADMINISTRATOR` for object IDs in `PAL_BOOTSTRAP_ADMIN_OIDS`.
+- **Global roles** (`GlobalRole`): `SYSTEM_ADMINISTRATOR`, `PAL_ADMINISTRATOR`, `PUBLISHER`, `AUTHOR`, `READER`. Every active user implicitly holds `READER`. Other roles come from **directory group → role mappings** (`global_role_mapping`) for groups the user currently belongs to (open membership, tracked group), from **explicit per-user grants** (`user_role`, Administration › Users), plus `SYSTEM_ADMINISTRATOR` for object IDs in `PAL_BOOTSTRAP_ADMIN_OIDS`.
+- **Document access** (`DocumentAccess`): `OWNER` plus open grants (`AUTHOR`, `APPROVER`, `READER`) to users or directory groups. Published documents are visible to all employees unless marked restricted. A document or revision the user may not see answers **404, never 403**, and the same policy is applied in SQL for lists and search.
 - **Permissions** are granular strings checked with `#[IsGranted(Permission::X)]` and `PermissionVoter`, which grants a permission if any of the user's roles carries it in `RolePermissionMap`. Effective permissions are the union over roles.
-- `security.yaml` `access_control` is a coarse gate only: `/auth/login` and `/auth/callback` and `GET /api/branding` are public, every other `/api/` path requires authentication. `/health/*` has no firewall.
+- `security.yaml` `access_control` is a coarse gate only: `/auth/login`, `/auth/callback`, `/auth/password`, `/auth/methods` and `GET /api/branding` are public, every other `/api/` path requires authentication. `/health/*` has no firewall.
 - The SPA's route guards and hidden menu items are UX only; the API enforces every check.
 
 ### 4.2 Role × permission matrix
@@ -158,6 +179,8 @@ Copied from `pal/backend/src/Identity/Authorization/RolePermissionMap.php`. ✓ 
 |---|:-:|:-:|:-:|:-:|:-:|
 | `library.read` | ✓ | | | | |
 | `document.create` | | ✓ | | ✓ | |
+| `document.read_all` | | | | ✓ | |
+| `document.manage_access` | | | | ✓ | |
 | `document.change_owner` | | | | ✓ | |
 | `document.obsolete` | | | | ✓ | |
 | `document.archive` | | | | ✓ | |
@@ -168,10 +191,12 @@ Copied from `pal/backend/src/Identity/Authorization/RolePermissionMap.php`. ✓ 
 | `publication.release` | | | ✓ | | |
 | `publication.emergency` | | | | ✓ | |
 | `admin.types` | | | | ✓ | |
+| `admin.departments` | | | | ✓ | |
 | `admin.numbering` | | | | ✓ | |
 | `admin.retention` | | | | ✓ | |
 | `admin.workflows` | | | | | ✓ |
 | `admin.roles` | | | | | ✓ |
+| `admin.users` | | | | | ✓ |
 | `admin.directory` | | | | | ✓ |
 | `audit.read` | | | | ✓ | ✓ |
 | `audit.export` | | | | ✓ | |
@@ -180,16 +205,20 @@ Copied from `pal/backend/src/Identity/Authorization/RolePermissionMap.php`. ✓ 
 
 Because `READER` is implicit, every signed-in user also has `library.read`.
 
-**Enforced today:** `system.config` (`PUT /api/admin/branding`) and `admin.roles` (all `/api/admin/role-mappings` endpoints). The other permissions are defined for the document modules and are not yet attached to any endpoint (*Planned — Phases 2–6*). Document-scoped permissions (`revision.edit`, `workflow.decide`, …) and category/document access grants to groups ([ADR-0010](adr/ADR-0010-group-based-access.md)) are *Planned — Phase 2+*.
+**Enforced today:** `system.config` (`PUT /api/admin/branding`), `admin.roles` (`/api/admin/role-mappings`), `admin.users` (`/api/admin/users`), `admin.types` and `admin.departments` (reference admin), `document.create`, `document.read_all`, `document.manage_access`, `publication.release`. The other permissions are defined for later phases and are not yet attached to any endpoint (*Planned — Phases 3–6*). Editing, submitting and deciding are governed by document relations and task assignment (§4.1), not by global permissions. Category-level grants ([ADR-0010](adr/ADR-0010-group-based-access.md)) are *Planned — Phase 3*.
 
 ### 4.3 Separation of duties
 
 - `SYSTEM_ADMINISTRATOR` configures the system and **holds no document authority**: it cannot create, release, publish, obsolete or archive documents by virtue of that role.
 - `PAL_ADMINISTRATOR` cannot schedule or release normal publications (`PUBLISHER` does that); it holds only the emergency-publication permission.
 - **Self-grant block:** a user cannot map a directory group they currently belong to onto `PAL_ADMINISTRATOR`, `PUBLISHER` or `AUTHOR`; the request is refused with **403 `self_grant_forbidden`**. This stops a System Administrator from giving themselves document authority alone.
-- **Residual risk:** a System Administrator can still map a group they are **not** in, and group membership is managed in Entra outside PAL, so two people acting together (or an administrator who can also edit Entra groups) can still obtain document authority. This is detected, not prevented: every change is audited (`ROLE_MAPPING_ADDED` / `ROLE_MAPPING_REMOVED`) and forwarded to Sentinel. A stronger control — a separate permission for document-role mappings, or a second approver — is an open owner decision (**D20**).
+- **Self-grant block (users API):** the same refusal applies when an administrator adds a document-authority role to their own account.
+- **Role escalation:** creating an account or resetting a password hands the administrator a working password. So conferring `PAL_ADMINISTRATOR`, `PUBLISHER` or `AUTHOR`, or resetting the password of an account that holds one (explicitly or through a group), requires the caller to hold `PAL_ADMINISTRATOR`: otherwise **403 `role_escalation_forbidden`**. A System Administrator alone cannot do it. Since `admin.users` belongs to `SYSTEM_ADMINISTRATOR`, in practice the caller holds both roles.
+- **Last administrator:** a role change or deactivation that would leave no active System Administrator is refused and rolled back (**409 `last_administrator`**). Nobody can deactivate themselves (409 `cannot_deactivate_self`).
+- **Known limitation:** the bootstrap local administrator holds both roles, so one person can confer document authority until the second control (**D20**) is decided. Split the roles across two people after bootstrap.
+- **Residual risk:** `role_escalation_forbidden` covers the users API only. A System Administrator can still map a group they are **not** in, and group membership is managed in Entra outside PAL, so two people acting together (or an administrator who can also edit Entra groups) can still obtain document authority. This is detected, not prevented: every change is audited (`ROLE_MAPPING_ADDED` / `ROLE_MAPPING_REMOVED`) and forwarded to Sentinel. A stronger control — a separate permission for document-role mappings, or a second approver — is an open owner decision (**D20**).
 - `admin.workflows` sits with `SYSTEM_ADMINISTRATOR`. Once workflow definitions exist (Phase 4), configuring them influences who approves; revisit this assignment with the owner before Phase 4.
-- Decision-time SoD rules (author ≠ approver, etc.) are *Planned — Phase 4*.
+- **Decision-time SoD (implemented for the single-approver workflow):** the document owner and anyone who created, edited, attached a file to or submitted the revision cannot approve it (403 `separation_of_duties`; contributions are read from the audit trail), they cannot be chosen as approver at submission, and eligibility is **re-checked at decision time** (403 `approver_revoked` if the grant or membership has gone). Each decision is bound to the manifest hash. Release needs `publication.release`, which authors do not hold by virtue of `AUTHOR`.
 
 ## 5. Data protection
 
@@ -199,17 +228,37 @@ Because `READER` is implicit, every signed-in user also has `library.read`.
 | Data in transit (to Entra / Graph) | HTTPS, no redirects, host-pinned endpoints |
 | Data in transit (to PostgreSQL) | **Not enforced by PAL.** Add `sslmode=require` (or `verify-full`) to the DSNs when the database is on another host. |
 | Data at rest | PAL does not encrypt columns. Use encrypted volumes / storage for PostgreSQL, backups and anchors. |
+| Local credentials | argon2id hashes in `local_credential`; plaintext is never stored or logged. Database backups contain the hashes, so protect them accordingly |
+| Document files | Filesystem/NAS under `PAL_BLOB_DIR`, unencrypted by PAL. Use an encrypted volume. Never served directly: only through `GET /api/revisions/{id}/file` after an access check |
 | Tokens | No OIDC tokens are given to the browser (BFF). The ID token is used only to validate sign-in. Graph tokens stay in worker/web memory. |
-| Personal data held | Entra object/tenant IDs, display name, email, UPN, timezone preference, group memberships with validity ranges, client IP in sign-in-failure audit events, actor snapshots in audit events |
+| Personal data held | Entra object/tenant IDs, local usernames, display name, email, UPN, timezone preference, group memberships with validity ranges, client IP in sign-in-failure audit events, actor snapshots in audit events |
 | Logs | Structured JSON; tokens, secrets and request bodies are not logged; token-endpoint errors log only error codes and trace IDs; nginx logs the path without the query string. Audit SIEM records contain actor snapshot and subject, not document content. |
 | Branding logo | `https://` URL (≤ 2048 chars) or base64 raster data URL (PNG, JPEG, GIF, WebP; ≤ 400 000 chars). `http://` is rejected (the SPA CSP `img-src 'self' data: https:` would block it anyway); SVG is refused (scriptable). An external logo URL makes browsers contact that host; prefer an uploaded data URL or an internal host. |
 | Error responses | Generic messages; internals never returned; 500s carry only a correlation ID |
+
+### 5.1 Upload scanning and file handling
+
+Bytes enter PAL only through `UploadService` (`POST /api/uploads`). Order: per-user rate limit → daily quota → size → SHA-256 → type → malware scan → store.
+
+| Control | Behaviour |
+|---|---|
+| Type allow-list | Decided from the bytes by libmagic (`finfo`), never from the name: PDF, DOCX, XLSX, PPTX, plain text. Macro-enabled and legacy binary Office formats are refused. The extension must agree with the detected type (422 `file_type_not_allowed`) |
+| Malware scan | clamd INSTREAM over TCP (`PAL_CLAMD_ADDRESS`; clamd needs no filesystem access), 30 s timeout. Infected → 422 `malware_detected`, audited `UPLOAD_MALWARE_DETECTED` |
+| **Fail closed** | Scanner unset, unreachable, or any unexpected reply (including a file over clamd's `StreamMaxLength`) → 503 `scanner_unavailable`, nothing stored |
+| Unscanned mode | `PAL_ALLOW_UNSCANNED_UPLOADS=1` is honoured **only** when `PAL_CLAMD_ADDRESS` is empty and `APP_ENV` is not `prod`; files are recorded with scan engine `none (development)`. In production the flag has no effect |
+| Storage | Content-addressed path `sha256/ab/cd/<hash>`; identifiers validated against `^[0-9a-f]{64}$` (no path traversal); written to a temp name, re-hashed, set to `0440`, renamed atomically; existing objects never overwritten. Client filenames are sanitised and stored only as metadata |
+| Evidence | Every attempt is a row in `upload` (`CLEAN`, `INFECTED`, `REJECTED`, `ERROR`) and an audit event. Only `CLEAN` uploads can be attached, and only by their uploader |
+| Download | `Content-Disposition: attachment`, `X-Content-Type-Options: nosniff`, `Content-Security-Policy: default-src 'none'; sandbox`, type from the stored detection result |
+| Integrity | Release re-hashes the stored bytes and the metadata against the approved manifest (409 `approval_integrity_failed`) |
+| Limits | nginx allows large bodies on `/api/uploads` only (52 MB); PHP 50M/52M; application `PAL_MAX_UPLOAD_BYTES` |
+
+**Limits, stated openly:** a clean scan means no *known* signature matched; signature freshness depends on the operator's `freshclam` or offline mirror. The real clamd has not yet been exercised in tests (a protocol-level stand-in is used; see [OPEN_ITEMS.md](../OPEN_ITEMS.md)). The code never deletes or overwrites blobs, but the application user owns them, so true immutability needs the storage to deny it deletion (§10). Blobs are not re-scanned when signatures update. Stored files are not encrypted by PAL.
 
 ## 6. Auditability
 
 ### 6.1 What is recorded
 
-Event types emitted in Phase 1: `USER_PROVISIONED`, `USER_SIGNED_IN`, `USER_SIGN_IN_FAILED`, `USER_SIGNED_OUT`, `USER_PREFERENCES_CHANGED`, `USER_DEACTIVATED`, `DIRECTORY_GROUP_TRACKED`, `DIRECTORY_GROUP_SYNCED`, `ROLE_MAPPING_ADDED`, `ROLE_MAPPING_REMOVED`, `BRANDING_UPDATED`, `AUDIT_CHAIN_VERIFIED`. Each row stores event ID, UTC timestamp, type, actor user ID and snapshot, correlation (request) ID, subject, from/to state, field-level changes and reason.
+Event types emitted: `USER_PROVISIONED`, `USER_SIGNED_IN`, `USER_SIGN_IN_FAILED`, `USER_SIGNED_OUT`, `USER_MEMBERSHIPS_REFRESHED`, `USER_PREFERENCES_CHANGED`, `USER_ACTIVATED`, `USER_DEACTIVATED`, `USER_LOCKED_OUT`, `USER_UNLOCKED`, `USER_PASSWORD_CHANGED`, `USER_PASSWORD_RESET`, `USER_ROLES_CHANGED`, `LOCAL_USER_CREATED`, `DIRECTORY_GROUP_TRACKED`, `DIRECTORY_GROUP_SYNCED`, `ROLE_MAPPING_ADDED`, `ROLE_MAPPING_REMOVED`, `ROLE_MAPPING_SELF_GRANT_REFUSED`, `BRANDING_UPDATED`, `AUDIT_CHAIN_VERIFIED`, `UPLOAD_ACCEPTED`, `UPLOAD_REJECTED`, `UPLOAD_MALWARE_DETECTED`, `DOCUMENT_CREATED`, `DOCUMENT_ACCESS_GRANTED`, `DOCUMENT_ACCESS_REVOKED`, `DOCUMENT_TYPE_CREATED`, `DOCUMENT_TYPE_UPDATED`, `DEPARTMENT_CREATED`, `DEPARTMENT_UPDATED`, `REVISION_CREATED`, `REVISION_EDITED`, `REVISION_FILE_ATTACHED`, `REVISION_SUBMITTED`, `REVISION_APPROVED`, `REVISION_REJECTED`, `REVISION_CHANGES_REQUESTED`, `REVISION_REOPENED`, `REVISION_WITHDRAWN`, `REVISION_RELEASED`, `REVISION_SUPERSEDED`. Downloads are logged on the `pal_audit` channel as `document_downloaded`, not stored in `audit_event`. Each row stores event ID, UTC timestamp, type, actor user ID and snapshot, correlation (request) ID, subject, from/to state, field-level changes and reason.
 
 ### 6.2 Protections (layered)
 
@@ -230,7 +279,7 @@ Event types emitted in Phase 1: `USER_PROVISIONED`, `USER_SIGNED_IN`, `USER_SIGN
   - PAL has **no** CUI marking, banner, dissemination-control or export-control features, and none are planned.
   - Documents that are or contain CUI (or classified, export-controlled, or other regulated data) **must not** be uploaded. The organisation must enforce this through policy, author training and review; PAL cannot detect it.
   - Keeping CUI out keeps the PAL hosts outside the CUI assessment boundary. If that changes, PAL would need re-assessment against NIST SP 800-171 controls, including FIPS-validated cryptography (§8), and its hosting, backups and SIEM forwarding would enter scope.
-- **DLP:** PAL implements no content inspection, classification labels or DLP. Phase 2 uploads will be scanned for malware (ClamAV), not for sensitive content. If DLP is required, it must be provided by the organisation's existing tooling or added as a new requirement.
+- **DLP:** PAL implements no content inspection, classification labels or DLP. Uploads are scanned for malware (ClamAV), not for sensitive content. If DLP is required, it must be provided by the organisation's existing tooling or added as a new requirement.
 - **Public repository:** the code repository contains placeholders only; real tenant IDs, hostnames, organisation structure and document content must never be committed (decision D12).
 
 ## 8. FIPS readiness
@@ -240,6 +289,8 @@ Event types emitted in Phase 1: `USER_PROVISIONED`, `USER_SIGNED_IN`, `USER_SIGN
 | Function | Implementation | FIPS consideration |
 |---|---|---|
 | ID-token signature verification, client assertion signing | `firebase/php-jwt` → PHP `openssl` extension (RS256 = RSA PKCS#1 v1.5 with SHA-256) | Approved algorithm. Uses whatever OpenSSL the PHP build links. The image uses Alpine's OpenSSL 3 with no FIPS provider configured. |
+| Local password hashing | argon2id (bcrypt fallback) via PHP `password_hash()` | **Argon2id and bcrypt are not FIPS-approved** password-hashing mechanisms. In a FIPS-bound deployment disable local accounts (operationally: create none) or replace the hash with PBKDF2 (code change, not built). |
+| File hashes (blob names, manifest) | PHP `hash_file('sha256', ...)`, `hash('sha256', ...)` | Same consideration as the audit chain below. |
 | Audit hash chain | PHP `hash('sha256', ...)` | Approved algorithm, but PHP's `hash` extension uses its **own** implementation, not OpenSSL, so it would not run inside a validated module even on a FIPS host. |
 | Random values (state, nonce, PKCE, UUIDs) | `random_bytes()` → OS CSPRNG | Depends on the kernel/OS configuration. |
 | Certificate thumbprint `x5t` | SHA-1 | Used as an identifier header required by Entra, not as a security function; `x5t#S256` is also sent. |
@@ -253,7 +304,9 @@ To pursue FIPS: run on a base image and host whose OpenSSL is a FIPS-validated m
 
 | Secret | Procedure | Effect |
 |---|---|---|
-| `APP_SECRET` | Generate a new value (`openssl rand -hex 32`), update it in the secret store, restart **all** web and worker containers together. | Based on code inspection (not tested): Phase 1 does not derive sessions or CSRF tokens from `APP_SECRET`. Sessions are server-side rows and CSRF tokens are random values stored in the session, so rotating `APP_SECRET` alone does **not** sign users out. To force everyone to sign in again after a suspected compromise, also run `TRUNCATE sessions` (see below). Re-check this when features that sign data with the kernel secret (signed URLs, remember-me, login links) are added. |
+| `APP_SECRET` | Generate a new value (`openssl rand -hex 32`), update it in the secret store, restart **all** web and worker containers together. | Based on code inspection (not tested): PAL does not derive sessions or CSRF tokens from `APP_SECRET`. Sessions are server-side rows and CSRF tokens are random values stored in the session, so rotating `APP_SECRET` alone does **not** sign users out. To force everyone to sign in again after a suspected compromise, also run `TRUNCATE sessions` (see below). Re-check this when features that sign data with the kernel secret (signed URLs, remember-me, login links) are added. |
+| Local account password | User: **Change password**. Administrator: Administration › Users › reset, which issues a one-time temporary password (subject to `role_escalation_forbidden`). Lockout only: `pal:users:unlock <username>`. | Existing sessions are not revoked by a password change or reset (no such code path was found); delete the user's session rows or `TRUNCATE sessions` if compromise is suspected. |
+| `PAL_BOOTSTRAP_LOCAL_ADMIN_*` | Delete after first sign-in. Changing them later has no effect once a local account exists. | — |
 | Sessions (emergency revocation) | `psql "$ADMIN_URL" -c "TRUNCATE sessions"` | All users must sign in again; CSRF tokens are discarded with the sessions. |
 | Entra client certificate | 1) Create the new certificate and upload its public part to the app registration (Entra allows several at once). 2) Replace the files at `OIDC_CLIENT_CERT_PATH` / `OIDC_CLIENT_KEY_PATH` (recreate the containers if they come from Docker secrets). 3) Verify sign-in and `pal:directory:sync`. 4) Remove the old certificate from Entra. | No downtime if done in this order. Files are read each time an assertion is built. |
 | Entra client secret (dev) | Add a new secret in Entra, update `OIDC_CLIENT_SECRET`, restart web and worker, delete the old secret. | Brief restart. |
@@ -275,8 +328,11 @@ PAL's controls assume the operator:
 6. Forwards logs to Microsoft Sentinel and alerts on `Audit chain verification FAILED`, bursts of `USER_SIGN_IN_FAILED`, 429 spikes, and `ROLE_MAPPING_ADDED` for privileged roles.
 7. Reviews `SYSTEM_ADMINISTRATOR` and `PAL_ADMINISTRATOR` mappings regularly (at least quarterly).
 8. Patches the host, Docker, PostgreSQL and rebuilds the image for base-image fixes; pins base images by digest.
-9. Encrypts database storage, backups and the anchor store; enables database TLS when the database is remote.
+9. Encrypts database storage, backups, the blob volume and the anchor store; enables database TLS when the database is remote.
 10. Keeps CUI and other regulated content out of PAL (§7).
+11. Runs ClamAV with current signatures, reachable only from `web` (TCP 3310 has no authentication), and alerts on `ClamAV is unreachable` and `UPLOAD_MALWARE_DETECTED`.
+12. Mounts `PAL_BLOB_DIR` writable for uid 10001 only, on storage that denies deletion by the application user where the platform supports it, and backs it up with the database ([DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)).
+13. Removes `PAL_BOOTSTRAP_LOCAL_ADMIN_*` after first sign-in, splits `SYSTEM_ADMINISTRATOR` and `PAL_ADMINISTRATOR` across two people, and transmits temporary passwords out of band.
 
 ## 11. Known gaps and residual risks
 
@@ -294,6 +350,12 @@ PAL's controls assume the operator:
 | Anchoring off by default; Compose mounts no anchor directory | Whole-chain rewrite by a DBA would go undetected | Mount write-once storage, set `PAL_AUDIT_ANCHOR_DIR` |
 | Revocation latency | Up to 15 min (sync interval) for tracked groups; up to the idle (1 h) / absolute (12 h) session limit for users in no tracked group | Accept, run a manual sync for urgent cases, or shorten limits |
 | `PdoSessionHandler` is replaced by a mock session store in the test environment | PostgreSQL session handling (locking, idle expiry) has no automated test | Add an integration test against PostgreSQL |
+| Local accounts have no MFA; no breached-password check | Password-only sign-in | Limit to break-glass where Entra exists; owner decision (ADR-0014) |
+| Bootstrap admin holds both System and PAL Administrator | One person can confer document authority | D20; split the roles after bootstrap |
+| `role_escalation_forbidden` does not cover group role mappings | A System Administrator can map a group they are not in onto a document role | D20 |
+| Okta, Google Workspace, SAML shown as "Not connected" | Labels only; no sign-in path exists | Implement on an owner decision |
+| Real ClamAV not exercised in tests | Integration proven only against a protocol stand-in | Run the Compose stack and an EICAR upload |
+| Blobs not re-scanned; app user can delete at filesystem level | A file clean at upload may later match a new signature; immutability is partly an operator control | Periodic re-scan; storage-level delete denial |
 | ASVS L2 checklist not started | No evidence-backed compliance claim | Start the checklist (planned from Phase 1) |
 | SBOM and automated dependency update PRs absent | Slower response to new CVEs | Add CycloneDX and Renovate/Dependabot |
 

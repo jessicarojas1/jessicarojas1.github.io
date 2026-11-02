@@ -347,6 +347,16 @@ final class DocumentLifecycleTest extends WebTestCase
         self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM directory_group WHERE idp_object_id = ?', [$groupObjectId]));
     }
 
+    public function testReferenceDataIncludesTheUploadLimit(): void
+    {
+        $this->as('reader');
+        $this->client->request('GET', '/api/reference');
+
+        self::assertResponseIsSuccessful();
+        self::assertIsInt($this->json()['maxUploadBytes']);
+        self::assertGreaterThan(0, $this->json()['maxUploadBytes']);
+    }
+
     public function testDailyUploadQuotaIsEnforced(): void
     {
         $csrf = $this->as('author');
@@ -361,6 +371,7 @@ final class DocumentLifecycleTest extends WebTestCase
         $this->db->executeStatement("UPDATE upload SET size_bytes = 524288000 WHERE uploaded_by = ? AND status = 'CLEAN'", [$this->users['author']]);
         $this->upload($csrf, 'b.pdf', "%PDF-1.4\n% b\n%%EOF\n");
         self::assertResponseStatusCodeSame(429);
+        self::assertSame('upload_quota_exceeded', $this->json()['error']);
     }
 
     public function testScenario3RejectionReworkAndResubmission(): void

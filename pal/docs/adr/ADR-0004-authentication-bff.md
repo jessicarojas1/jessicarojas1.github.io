@@ -1,6 +1,6 @@
 # ADR-0004: Authentication: OIDC SSO via backend-for-frontend (BFF)
 
-- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed. Identity provider confirmed: **Entra ID** (D18, 2026-10-25), for sign-in only
+- **Status:** Accepted (architecture approved 2026-10-25). Originally proposed. Identity provider confirmed: **Entra ID** (D18, 2026-10-25), for sign-in only. **Amended by [ADR-0014](ADR-0014-local-accounts.md)** (2026-10-26): local username/password accounts exist alongside Entra ID; the BFF session model, CSRF and "no tokens in the browser" are unchanged
 - **Date:** 2026-10-25
 
 ## Decision

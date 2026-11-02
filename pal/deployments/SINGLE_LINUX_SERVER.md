@@ -2,7 +2,7 @@
 
 This is the **selected production target** for PAL (owner decision D2: on-premises Linux, Docker Compose). It is the most detailed guide in this folder; the other guides refer back to it for shared material (Entra app registration, database roles, environment variables).
 
-Scope: PAL **Phase 1 foundation**. PAL currently stores everything in PostgreSQL. There is **no document storage, malware scanner or preview converter yet**; those arrive in Phase 2+. Steps that depend on them are marked *Not applicable until Phase 2*.
+Scope: PAL through **Phase 2**. State lives in PostgreSQL **and** the blob volume (`pal-blobs`), which must be backed up together. Uploads are scanned by a `clamd` container and refused without it. There is no preview converter yet. Sign-in is by local accounts, Entra ID, or both.
 
 All hostnames, IDs and paths below are placeholders (`pal.example.internal`, `<tenant-guid>`). The repository is public: never put real values in files that are committed.
 
@@ -12,7 +12,7 @@ Files referenced (all under `pal/`):
 |---|---|
 | `Dockerfile` | One image, four roles (`web`, `worker`, `migrate`, `console`) |
 | `deploy/docker-entrypoint.sh` | Validates required variables, then runs the role |
-| `deploy/compose.yaml` | Compose project `pal`: `migrate`, `web`, `worker`, optional `db` (profile `bundled-db`) |
+| `deploy/compose.yaml` | Compose project `pal`: `migrate`, `web`, `worker`, `clamd`, optional `db` (profile `bundled-db`); volumes `pal-blobs`, `pal-clamav`, `pal-db` |
 | `deploy/pal.env.example` | Runtime variable template; copy to `deploy/pal.env` |
 | `deploy/sql/roles.sql` | Least-privilege database roles (owner + app) |
 | `deploy/sql/init-roles.sh` | First-start hook for the bundled PostgreSQL container |
@@ -29,14 +29,16 @@ One Linux host runs Docker Engine with the Compose plugin. A reverse proxy on th
 | Reverse proxy (host) | nginx / Apache / HAProxy (operator's choice) | TLS termination on 443, forwards to `127.0.0.1:8080`, sets `X-Forwarded-*` |
 | `web` container | `pal` image, role `web`, uid 10001 | supervisord runs nginx (port 8080) + PHP-FPM (127.0.0.1:9000). Serves the SPA, `/api`, `/auth`, `/health` |
 | `worker` container | `pal` image, role `worker`, uid 10001 | `messenger:consume async scheduler_default`. Runs the scheduler: directory sync every 15 minutes, audit-chain verification daily 02:15 UTC |
-| `migrate` container | `pal` image, role `migrate`, one-shot | `doctrine:migrations:migrate`, then revokes `UPDATE, DELETE, TRUNCATE ON audit_event` from `PAL_APP_DB_ROLE` |
+| `migrate` container | `pal` image, role `migrate`, one-shot | `doctrine:migrations:migrate`, then `pal:users:bootstrap-admin`, then revokes `UPDATE, DELETE, TRUNCATE ON audit_event` from `PAL_APP_DB_ROLE` |
+| `clamd` container | `clamav/clamav:1.5.4`, volume `pal-clamav` at `/var/lib/clamav` | Malware scanning over INSTREAM on TCP 3310 (Compose network only, not published). Healthcheck `clamdcheck.sh`, start period 300 s. About 1.5 GB of RAM. Downloads signatures with `freshclam` |
+| `pal-blobs` volume | Named volume mounted at `/srv/pal/data` on `web` only | Document files under `PAL_BLOB_DIR=/srv/pal/data/blobs`. On first use the volume takes the image's ownership (uid 10001). For NAS storage, bind-mount the share here instead (§8.7) |
 | `db` container (optional) | `postgres:17-alpine`, profile `bundled-db` | Bundled PostgreSQL. Use an external, DBA-managed PostgreSQL 16+ (17 recommended) where one exists |
-| PostgreSQL | external or bundled | Holds **all** state: data, sessions, Messenger queue, audit trail |
-| Microsoft Entra ID | external (internet) | OIDC sign-in and read-only Microsoft Graph group sync |
+| PostgreSQL | external or bundled | Holds data, local password hashes, sessions, Messenger queue and the audit trail. Document files are in `pal-blobs` |
+| Microsoft Entra ID (optional) | external (internet) | OIDC sign-in and read-only Microsoft Graph group sync |
 
 Container hardening already set in `deploy/compose.yaml` for `migrate`, `web` and `worker`: `read_only: true`, tmpfs on `/tmp`, `/srv/pal/backend/var/cache` and `/srv/pal/backend/var/log`, `cap_drop: [ALL]`, `no-new-privileges:true`, `restart: unless-stopped` (except `migrate`).
 
-Start order is enforced by Compose: `migrate` waits for `db` to be healthy (when the bundled DB is used); `web` and `worker` start only after `migrate` exits successfully.
+Start order is enforced by Compose: `migrate` waits for `db` to be healthy (when the bundled DB is used); `web` and `worker` start only after `migrate` exits successfully, and `web` also waits for `clamd` to be healthy, so the first start can take several minutes while signatures download. `clamd` is not hardened like the PAL services in `compose.yaml` (no `read_only` or `cap_drop`).
 
 ## 2. Topology
 
@@ -55,7 +57,12 @@ Start order is enforced by Compose: `migrate` waits for `db` to be healthy (when
 |  | web  (nginx :8080 -> PHP-FPM 127.0.0.1:9000)  |                      |
 |  |   /           SPA (static)                    |                      |
 |  |   /api /auth /health -> Symfony               |                      |
-|  +-----------------------+-----------------------+                      |
+|  +-----+-----------------+-----------+-----------+                      |
+|        | INSTREAM TCP 3310 |           | /srv/pal/data                  |
+|  +-----v----------+        |     +-----v---------------------+            |
+|  | clamd          |        |     | volume pal-blobs (or NAS) |            |
+|  | vol pal-clamav |        |     | sha256/ab/cd/<hash>       |            |
+|  +----------------+        |     +---------------------------+            |
 |                          |                                              |
 |  +-----------------------v--+     +--------------------------------+    |
 |  | worker (Messenger +      |     | migrate (one-shot, before web/ |    |
@@ -67,10 +74,11 @@ Start order is enforced by Compose: `migrate` waits for `db` to be healthy (when
 |  | data, sessions, messenger_messages, audit_event             |         |
 |  +-------------------------------------------------------------+         |
 +--------------+----------------------------------------------------------+
-               | HTTPS :443 egress (web + worker)
+               | HTTPS :443 egress (web + worker; clamd for signature updates)
                v
    login.microsoftonline.com (OIDC)    graph.microsoft.com (Graph, read-only)
    [Azure Government: login.microsoftonline.us / graph.microsoft.us — verify for your cloud]
+   ClamAV signature mirror (freshclam; see AIRGAPPED.md if not allowed)
 
    Logs: container stdout/stderr (JSON) -> host log pipeline -> Microsoft Sentinel
 ```
@@ -81,12 +89,13 @@ Start order is enforced by Compose: `migrate` waits for `db` to be healthy (when
 |---|---|
 | OS | 64-bit Linux host supported by Docker Engine (x86_64 is what CI builds; arm64 is untested) |
 | Docker | Docker Engine with the Compose v2 plugin. `deploy/compose.yaml` uses `depends_on.required` and `condition: service_completed_successfully`, which need a recent Compose v2 (verify with `docker compose version`) |
-| CPU / RAM | Not yet measured. PHP-FPM is capped at 16 children × 256 MB `memory_limit` (`deploy/php/fpm-pool.conf`, `deploy/php/php.ini`); size RAM accordingly plus PostgreSQL |
+| CPU / RAM | Not yet measured. PHP-FPM is capped at 16 children × 256 MB `memory_limit` (`deploy/php/fpm-pool.conf`, `deploy/php/php.ini`); size RAM accordingly, plus PostgreSQL, plus about 1.5 GB for clamd (more during signature reloads) |
+| Disk | Blob volume sized for your documents; files are never deleted by the app. A few GB for `pal-clamav` |
 | PostgreSQL | 16+ (17 recommended). External DBA-managed, or the bundled `db` service |
 | DNS / TLS | A DNS name (e.g. `pal.example.internal`) and a certificate trusted by users' browsers |
-| Egress | HTTPS 443 from the host (web + worker containers) to the Entra authority host and the Graph host. If egress goes through a proxy, see §6 |
+| Egress | HTTPS 443 from the `clamd` container to the ClamAV signature mirror, and (for SSO) from web + worker to the Entra authority host and the Graph host. If egress goes through a proxy, see §6 |
 | Time | NTP synchronised. ID tokens are validated with a 120-second leeway; clock skew breaks sign-in |
-| Entra ID | Permission to create an app registration and to grant admin consent for Graph application permissions (decision D16) |
+| Entra ID (only for SSO) | Permission to create an app registration and to grant admin consent for Graph application permissions (decision D16) |
 | Image | Either build on the host (`docker compose build`) or pull a CI-built image from an internal registry (`PAL_IMAGE`) |
 
 ## 4. Identity and credentials
@@ -101,6 +110,7 @@ There is no managed/workload identity on a standalone Linux host. Credentials ar
 | Runtime DB password (`pal_app`) | web, worker (`DATABASE_URL`) | inside `DATABASE_URL` in `deploy/pal.env`; for the bundled DB also `deploy/secrets/db_app_password.txt` |
 | Migration DB password (`pal_owner`) | migrate (`DATABASE_URL_MIGRATIONS`) | inside `DATABASE_URL_MIGRATIONS` in `deploy/pal.env`; for the bundled DB also `deploy/secrets/db_owner_password.txt` |
 | DB admin password (`pal_admin`, bundled DB only) | administration only | `deploy/secrets/db_admin_password.txt` |
+| First local admin (`PAL_BOOTSTRAP_LOCAL_ADMIN_*`) | migrate only, once | `deploy/pal.env`, deleted after first sign-in. Compose's `env_file` also gives it to web and worker while present; they do not read it |
 | Entra app credential | web (sign-in), worker (Graph sync) | **Certificate (recommended):** `deploy/secrets/oidc_cert.pem` + unencrypted `deploy/secrets/oidc_key.pem`, mounted by `deploy/compose.yaml` as Docker secrets `pal_oidc_cert` / `pal_oidc_key` at `/run/secrets/pal_oidc_cert` and `/run/secrets/pal_oidc_key`. **Client secret (development):** `OIDC_CLIENT_SECRET` in `deploy/pal.env` |
 
 Limitation (verified in code): PAL reads `DATABASE_URL`, `APP_SECRET` and `OIDC_CLIENT_SECRET` only from environment variables. There is no `*_FILE` variant, so these values live in `deploy/pal.env`. Protect that file (`chmod 600`, owned by root) and keep it out of version control (`deploy/secrets/.gitignore` covers the secrets folder; `pal.env` must never be committed).
@@ -221,6 +231,13 @@ Set in `deploy/pal.env` (Compose `env_file`). Values not set fall back to the im
 | `PAL_SESSION_ABSOLUTE_SECONDS` | `43200` | Absolute session lifetime from sign-in | web | |
 | `PAL_AUDIT_ANCHOR_DIR` | `/srv/pal-anchor` | Directory where the verified audit chain head is appended (`audit-anchors.jsonl`). Used by the daily scheduled verification in **worker** and by `pal:audit:verify --anchor`. Empty = scheduled run skips anchoring; `--anchor` fails | worker | |
 | `LOG_LEVEL` | `info` | Minimum Monolog level for the JSON stderr log in prod | all | |
+| `PAL_BLOB_DIR` | `/srv/pal/data/blobs` | Blob store root (image default). Must be writable by uid 10001; `/health/ready` reports `"storage":"fail"` otherwise | web | |
+| `PAL_MAX_UPLOAD_BYTES` | `26214400` | Largest accepted file. App default is `52428800` (`backend/.env.example`); `pal.env.example` sets this to stay within clamd's default `StreamMaxLength` (25 MiB) | web | |
+| `PAL_UPLOAD_DAILY_BYTES` | `524288000` | Per-user limit on clean uploaded bytes in any 24 hours (429 `upload_quota_exceeded`) | web | |
+| `PAL_CLAMD_ADDRESS` | `clamd:3310` | ClamAV daemon. Empty or unreachable: uploads are refused (503 `scanner_unavailable`). `tcp://clamd:3310` also works | web | Uploads |
+| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0`. Honoured only outside `APP_ENV=prod`, and only when `PAL_CLAMD_ADDRESS` is empty | web | |
+| `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` | `admin` | First local administrator, created by `migrate` only if no local account exists. Delete after first sign-in | migrate | |
+| `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | 12+ characters, one-off | Temporary; forced change at first sign-in. A value failing the policy makes `migrate` exit non-zero. **Secret.** Delete after first sign-in | migrate | |
 | `DEFAULT_URI` | `https://pal.example.internal` | Symfony router default URI for URL generation outside HTTP requests (CLI/worker). Not in `pal.env.example`; the image default is `http://localhost:5173`. Set it to `PAL_BASE_URL` | all | |
 | `PAL_WORKER_TIME_LIMIT` | `3600` | Seconds before the worker exits cleanly to reclaim memory (Compose restarts it) | worker | |
 | `PAL_WORKER_MEMORY_LIMIT` | `256M` | Worker memory limit before clean exit | worker | |
@@ -250,6 +267,9 @@ The host is on-premises, so only the identity cloud differs. Which column applie
 | `deploy/secrets/oidc_cert.pem` | PEM certificate | Docker secret `pal_oidc_cert` → `/run/secrets/pal_oidc_cert` (web, worker) |
 | `deploy/secrets/oidc_key.pem` | unencrypted PEM key, mode 0440, group 10001 | Docker secret `pal_oidc_key` → `/run/secrets/pal_oidc_key` (web, worker) |
 | Published port | `127.0.0.1:8080:8080` | `web` listens on loopback only; the host reverse proxy is the only client |
+| `pal-blobs` volume | Named volume, or a bind mount in an override (§8.7) | Document files, mounted at `/srv/pal/data` on `web` |
+| `pal-clamav` volume | Named volume at `/var/lib/clamav` | ClamAV signatures; disposable |
+| `clamd` memory / start | About 1.5 GB; healthcheck start period 300 s | `web` starts only when `clamd` is healthy |
 
 ### 6.2 Fixed in the image (change only by rebuilding)
 
@@ -258,9 +278,11 @@ The host is on-premises, so only the identity cloud differs. Which column applie
 | Container port | `8080` (nginx) | `deploy/nginx/nginx.conf` |
 | Container user | `pal`, uid/gid `10001` | `Dockerfile` |
 | PHP-FPM | `127.0.0.1:9000`, `pm=dynamic`, `max_children=16`, `max_requests=500` | `deploy/php/fpm-pool.conf` |
-| Request body limit | nginx `client_max_body_size 2m`; PHP `post_max_size=2M`, `upload_max_filesize=1M` | `nginx.conf`, `php.ini` |
+| Request body limit | nginx `client_max_body_size 2m`, except `52m` with 120 s timeouts on `/api/uploads`; PHP `post_max_size=52M`, `upload_max_filesize=50M`, `max_input_time=120` | `nginx.conf`, `php.ini` |
 | PHP limits | `memory_limit=256M`, `max_execution_time=30`, opcache with `validate_timestamps=0` | `php.ini` |
-| Rate limits | `/auth/login` and `/auth/callback`: 20/min per client IP (`auth_login` limiter); `/api/*`: 600/min per user (or per IP when anonymous) | `config/packages/framework.yaml` |
+| Rate limits | `/auth/login`, `/auth/callback`, `/auth/password`: 20/min per client IP (`auth_login`); password attempts: 10 per 15 min per username (`login_username`); uploads: 30/hour per user (`upload`); `/api/*`: 600/min per user (or per IP when anonymous) | `config/packages/framework.yaml` |
+| Account lockout | 5 consecutive failures, 15 minutes | `LocalAccountService` |
+| Accepted file types | PDF, DOCX, XLSX, PPTX, plain text, by content; the extension must match | `FileTypePolicy` |
 | Branding logo URL | `https://` only (plain `http://` rejected) or a raster `data:` image URL | Settings > Branding |
 | Trusted forwarded headers | `X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Port` (**not** `X-Forwarded-Host`) | `framework.yaml` |
 | HSTS | Sent only when the request arrived with `X-Forwarded-Proto: https` | `nginx.conf` |
@@ -276,7 +298,7 @@ Requirements that follow from the code:
 - Forward the original `Host` header unchanged. PAL does not trust `X-Forwarded-Host`, and `TRUSTED_HOSTS` is checked against `Host`.
 - Set `X-Forwarded-Proto https` (enables HSTS and makes Symfony see HTTPS).
 - **Overwrite** `X-Forwarded-For` with the connecting client address (`$remote_addr`). Do **not** append (`$proxy_add_x_forwarded_for`): appending keeps whatever the client sent, and a client could then choose the IP PAL uses for rate limiting and records as `client_ip` in audit events. (If there is a second trusted proxy in front of this one, configure that chain deliberately and list every hop in `TRUSTED_PROXIES`.)
-- Allow request bodies of at least 2 MB (PAL's own limit).
+- Allow request bodies of at least 52 MB on `/api/uploads` and a read timeout of at least 120 s there (PAL's own limits). Everywhere else PAL's nginx caps bodies at 2 MB.
 
 Example (nginx on the host):
 
@@ -291,6 +313,17 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
 
     client_max_body_size 2m;
+
+    location = /api/uploads {
+        client_max_body_size 52m;
+        proxy_read_timeout   120s;
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Forwarded-For   $remote_addr;   # overwrite, never append
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Port  443;
+        proxy_set_header X-Request-ID      $request_id;
+    }
 
     location / {
         proxy_pass http://127.0.0.1:8080;
@@ -342,8 +375,10 @@ done
 # 2. Runtime configuration
 cp deploy/pal.env.example deploy/pal.env && chmod 600 deploy/pal.env
 #    Fill in APP_SECRET, PAL_BASE_URL, TRUSTED_HOSTS, TRUSTED_PROXIES, both DATABASE_URLs (use
-#    the owner/app passwords from step 1), OIDC_*, PAL_BOOTSTRAP_ADMIN_OIDS, DEFAULT_URI.
-#    The OIDC certificate and key must already be in deploy/secrets/ (§4.2 step 5).
+#    the owner/app passwords from step 1), DEFAULT_URI, and at least one way in:
+#    PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME/_PASSWORD and/or OIDC_* + PAL_BOOTSTRAP_ADMIN_OIDS.
+#    The OIDC certificate and key must already be in deploy/secrets/ (§4.2 step 5);
+#    without SSO, keep empty placeholder files there and blank the OIDC paths.
 
 # 3. Check the rendered configuration (catches env-file quoting problems, e.g. in TRUSTED_HOSTS)
 docker compose $PAL_COMPOSE --profile bundled-db config | grep -E 'TRUSTED_HOSTS|PAL_BASE_URL|OIDC_CLIENT_(CERT|KEY)_PATH'
@@ -351,7 +386,7 @@ docker compose $PAL_COMPOSE --profile bundled-db config | grep -E 'TRUSTED_HOSTS
 # 4. Build (or set PAL_IMAGE to a registry image) and start
 docker compose $PAL_COMPOSE build
 docker compose $PAL_COMPOSE --profile bundled-db up -d     # omit --profile for external PostgreSQL
-docker compose $PAL_COMPOSE ps -a                           # migrate: Exited (0); web, worker: running
+docker compose $PAL_COMPOSE ps -a                           # migrate: Exited (0); clamd: healthy; web, worker: running
 docker compose $PAL_COMPOSE logs migrate                    # "audit trail revokes applied to role pal_app"
 ```
 
@@ -360,19 +395,25 @@ docker compose $PAL_COMPOSE logs migrate                    # "audit trail revok
 | # | Check | Command | Expected |
 |---|---|---|---|
 | 1 | Liveness | `curl -fsS http://127.0.0.1:8080/health/live` | `{"status":"ok"}` |
-| 2 | Readiness (DB + migrations current) | `curl -sS https://pal.example.internal/health/ready` | HTTP 200, `{"status":"ready","checks":{"database":"ok","migrations":"ok"}}` |
+| 2 | Readiness (DB, migrations current, blob storage writable) | `curl -sS https://pal.example.internal/health/ready` | HTTP 200, `{"status":"ready","checks":{"database":"ok","migrations":"ok","storage":"ok"}}` |
 | 3 | Host header protection | `curl -s -o /dev/null -w '%{http_code}\n' -H 'Host: evil.example' http://127.0.0.1:8080/health/live` | `400` |
 | 4 | TLS + headers | `curl -sI https://pal.example.internal/` | `200`, `Strict-Transport-Security`, `Content-Security-Policy`, `X-Frame-Options: DENY` |
 | 5 | Secrets resolved: certificate readable by uid 10001 | `docker compose $PAL_COMPOSE exec web sh -c 'test -r "$OIDC_CLIENT_CERT_PATH" && test -r "$OIDC_CLIENT_KEY_PATH" && echo readable'` | `readable` |
 | 6 | Secrets resolved: DB roles in use (+ TLS for external DB) | As DB admin: `SELECT a.usename, a.application_name, s.ssl FROM pg_stat_activity a LEFT JOIN pg_stat_ssl s USING (pid) WHERE a.datname = 'pal';` | Only `pal_app` connections while running (`pal_owner` only during migrate); `ssl = t` for external DB |
-| 7 | Sign-in | Browse `https://pal.example.internal/`, sign in with a bootstrap admin account | Lands in PAL signed in, not on `/sign-in?auth_error=…`. `GET /api/me` returns your user |
+| 6a | Local admin sign-in + forced change | Browse `https://pal.example.internal/`, sign in with `PAL_BOOTSTRAP_LOCAL_ADMIN_*` | Redirected to `/change-password`; other API calls answer 403 `password_change_required`; after the change, the dashboard. Then delete both variables from `deploy/pal.env` and recreate the containers |
+| 7 | Entra sign-in | Browse `https://pal.example.internal/`, use the Entra button with a bootstrap admin account | Lands in PAL signed in, not on `/sign-in?auth_error=…`. `GET /api/me` returns your user |
 | 7a | Assignment enforced | Sign in with a tenant account that is **not** in the PAL users group | Entra refuses (AADSTS50105, user not assigned); no PAL user is created |
 | 8 | Directory sync (Graph credentials + consent) | `docker compose $PAL_COMPOSE exec worker php /srv/pal/backend/bin/console pal:roles:map PAL_ADMINISTRATOR <group-object-id>` then `... pal:directory:sync` | `PAL_ADMINISTRATOR mapped to "<group name>" (N members).`; sync prints `<group-id>: N members (+a / -r)` and exits 0 |
 | 9 | Audit chain | `docker compose $PAL_COMPOSE exec worker php /srv/pal/backend/bin/console pal:audit:verify` | `Audit chain valid: N events, head <hash>` |
 | 10 | Audit trail append-only for runtime role | As DB admin: `SELECT has_table_privilege('pal_app','audit_event','UPDATE'), has_table_privilege('pal_app','audit_event','DELETE');` | `f`, `f` |
 | 11 | Client IP seen correctly, not spoofable | `curl -s -o /dev/null -H 'X-Forwarded-For: 203.0.113.9' 'https://pal.example.internal/auth/callback?state=x&code=y'` from a known workstation, then `docker compose $PAL_COMPOSE logs web` | The application log entry for that callback shows the workstation's real IP, **not** `203.0.113.9` and not the bridge gateway. (Junk callbacks without a valid pending sign-in go to the application log only, not the audit trail) |
 | 12 | Worker scheduler running | `docker compose $PAL_COMPOSE logs worker \| grep -i 'directory sync'` (after ≤15 min) | `Scheduled directory sync finished` (or `skipped` if Graph is not configured) |
-| 13 | Upload accepted + scanned, object written | — | **Not applicable until Phase 2 (document storage)** |
+| 13 | ClamAV healthy | `docker compose $PAL_COMPOSE ps clamd` | `healthy` |
+| 14 | Upload accepted + scanned | Upload a small PDF to a draft. As DB admin: `SELECT status FROM upload ORDER BY created_at DESC LIMIT 1;` and `SELECT scan_engine, sha256 FROM stored_file ORDER BY created_at DESC LIMIT 1;` | `CLEAN`; `clamd` |
+| 15 | Object written | `docker compose $PAL_COMPOSE exec web ls -l /srv/pal/data/blobs/sha256/<ab>/<cd>/<hash>` | File exists, mode `-r--r-----`, owner uid 10001 |
+| 16 | Malware refused | Upload the standard EICAR test file as `eicar.txt` | 422 `malware_detected`; `upload.status = INFECTED`; no new `stored_file` row |
+| 17 | Fails closed | `docker compose $PAL_COMPOSE stop clamd`, upload again, then `start clamd` | 503 `scanner_unavailable`; `upload.status = ERROR` |
+| 18 | Indexed | Publish the document and search its title in the library | Found |
 
 After group mappings exist and you have signed in through a mapped group, remove `PAL_BOOTSTRAP_ADMIN_OIDS` and recreate `web`.
 
@@ -391,7 +432,7 @@ Migrations are applied by the `migrate` role. Build/pull the new image first, th
 ```sh
 export PAL_IMAGE=registry.example.internal/pal:1.1.0
 docker compose $PAL_COMPOSE pull web worker migrate          # if using a registry
-# 1. Back up (§8.2) — migrations are forward-only in practice.
+# 1. Back up database and blobs (§8.2) — migrations are forward-only in practice.
 # 2. Apply migrations (also re-applies the audit_event revokes)
 docker compose $PAL_COMPOSE run --rm migrate
 # 3. Re-run roles.sql as DB admin (bundled DB shown; external: run psql as in §4.4)
@@ -406,10 +447,17 @@ Rollback: if the release contained no migration, set `PAL_IMAGE` back and `up -d
 
 ### 8.2 Backups
 
-All state is in PostgreSQL. The provisional recovery targets are RPO 15 min / RTO 4 h (decision D10, not yet confirmed). A nightly logical dump alone does **not** meet a 15-minute RPO; use continuous WAL archiving (e.g. pgBackRest or your DBA's standard) for the external database. For the bundled DB, a logical dump:
+State is in PostgreSQL **and** the blob store. Back up the **database first, then the blobs** (the later snapshot is a superset, because blobs are never overwritten or deleted); see [DISASTER_RECOVERY.md §3.1](../docs/DISASTER_RECOVERY.md#31-blob-store). The provisional recovery targets are RPO 15 min / RTO 4 h (decision D10, not yet confirmed). A nightly logical dump alone does **not** meet a 15-minute RPO; use continuous WAL archiving (e.g. pgBackRest or your DBA's standard) for the external database. For the bundled DB, a logical dump:
 
 ```sh
 docker compose $PAL_COMPOSE exec -T db pg_dump -U pal_admin -d pal -Fc > /backup/pal-$(date -u +%Y%m%dT%H%MZ).dump
+```
+
+Blobs, from a named volume (prefer NAS snapshots, §8.7):
+
+```sh
+docker run --rm -v pal_pal-blobs:/data:ro -v /backup:/backup <utility-image-with-tar> \
+  tar -C /data -czf /backup/pal-blobs-$(date -u +%Y%m%dT%H%MZ).tar.gz .
 ```
 
 Also back up, separately and encrypted: `deploy/pal.env`, `deploy/secrets/` (DB passwords, OIDC certificate and key), the reverse proxy certificate, and the audit anchor directory.
@@ -428,7 +476,7 @@ docker compose $PAL_COMPOSE up -d web worker
 docker compose $PAL_COMPOSE exec worker php /srv/pal/backend/bin/console pal:audit:verify
 ```
 
-`DROP DATABASE` is destructive: confirm the backup is readable (`pg_restore -l`) first. Restoring `audit_event` works because the triggers block only UPDATE/DELETE/TRUNCATE. Compare the verified head hash with the last line of `audit-anchors.jsonl` to confirm the restored trail matches what was anchored.
+`DROP DATABASE` is destructive: confirm the backup is readable (`pg_restore -l`) first. Restoring `audit_event` works because the triggers block only UPDATE/DELETE/TRUNCATE. Compare the verified head hash with the last line of `audit-anchors.jsonl` to confirm the restored trail matches what was anchored. Restore the blobs from a snapshot taken at or after the dump, then run the blob consistency check ([DISASTER_RECOVERY.md §4](../docs/DISASTER_RECOVERY.md#4-restore-runbook) step 8a).
 
 ### 8.3 Audit anchoring
 
@@ -471,6 +519,23 @@ docker compose $PAL_COMPOSE exec worker php /srv/pal/backend/bin/console messeng
 docker compose $PAL_COMPOSE exec worker php /srv/pal/backend/bin/console messenger:failed:retry
 ```
 
+### 8.7 Blob storage and ClamAV
+
+**NAS instead of a named volume** (host-local `deploy/compose.override.yaml`, added to `PAL_COMPOSE`, §4.3):
+
+```yaml
+services:
+  web:
+    volumes:
+      - /mnt/pal-data:/srv/pal/data
+```
+
+Create `/mnt/pal-data/blobs` owned by uid 10001 first. A bind mount does not take the image's ownership. Where the storage allows it, deny the application user delete rights on existing files (see [SECURITY.md §5.1](../docs/SECURITY.md#51-upload-scanning-and-file-handling)). Alert on free space: files are never reclaimed.
+
+**ClamAV.** Signatures update through `freshclam` inside the container. To allow files above 25 MiB, raise `StreamMaxLength` in the container's clamd configuration **before** raising `PAL_MAX_UPLOAD_BYTES`, and stay at or below PHP's 50M (see the image's documentation for how to supply `clamd.conf`; not tested with PAL). `compose.yaml` pins `clamav/clamav:1.5.4`; review that tag when ClamAV publishes updates.
+
+**Local accounts.** Clear a lockout with `docker compose $PAL_COMPOSE exec worker php /srv/pal/backend/bin/console pal:users:unlock <username>`. Everything else is under Administration › Users. The bootstrap account holds both `SYSTEM_ADMINISTRATOR` and `PAL_ADMINISTRATOR`; split these across two people afterwards (D20).
+
 ## 9. Troubleshooting
 
 | Symptom | Cause | Fix |
@@ -501,7 +566,19 @@ docker compose $PAL_COMPOSE exec worker php /srv/pal/backend/bin/console messeng
 | `docker compose up` fails: secret file `oidc_cert.pem`/`oidc_key.pem` not found | Compose needs every referenced secret file | Create the files (§4.2 step 5), or empty placeholders when using a client secret |
 | `sign_in_unavailable` with reason `not_configured` and log `client certificate or key is not readable` | Secret files not readable by uid 10001 (bind mount keeps host mode) | `chown root:10001`, `chmod 0440` on both files; recreate web/worker |
 | `roles.sql` fails `must be able to SET ROLE "pal_owner"` / `must be owner of` | Admin is not superuser | `GRANT pal_owner TO <dba>;` then re-run |
-| Disk fills on the host | Unrotated container logs | Configure Docker log rotation (§8.4) |
+| `/health/ready` **503** `"storage":"fail"` | `PAL_BLOB_DIR` missing, not mounted, read-only, or not writable by uid 10001 | `docker compose $PAL_COMPOSE exec web ls -ld /srv/pal/data /srv/pal/data/blobs`; `chown -R 10001:10001` the bind mount, or check the volume is mounted (§8.7) |
+| Upload **503** `scanner_unavailable`; log `ClamAV is unreachable` | clamd down, still loading signatures (first start: several minutes), wrong `PAL_CLAMD_ADDRESS`, or the network path to TCP 3310 is blocked | `docker compose $PAL_COMPOSE ps clamd`, `logs clamd`. Reading and downloading are unaffected |
+| Upload **503** `scanner_unavailable`; log `ClamAV returned an unexpected reply` for larger files | File exceeds clamd's `StreamMaxLength` (ClamAV default 25 MiB) | Keep `PAL_MAX_UPLOAD_BYTES=26214400`, or raise `StreamMaxLength` in clamd's configuration first (and keep the value ≤ PHP's 50M) |
+| Upload **413** `file_too_large` | File above `PAL_MAX_UPLOAD_BYTES` or PHP's 50M | Expected; users see the limit from `GET /api/reference` (`maxUploadBytes`) |
+| Upload **429** `too_many_uploads` / `upload_quota_exceeded` | 30 uploads/hour per user, or `PAL_UPLOAD_DAILY_BYTES` reached | Wait, or raise the quota |
+| `migrate` fails `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD rejected` | Password fails the policy (12–128 characters, no username, not a common password) | Choose a passphrase; re-run |
+| Local sign-in always 401 `invalid_credentials` | Wrong password, account inactive, locked (5 failures, 15 minutes), or stale login CSRF token | Wait 15 minutes or `pal:users:unlock <username>` (§8.7); reload the page for a fresh token |
+| Every API call **403** `password_change_required` | Temporary password not changed yet | Change it at `/change-password` |
+| **403** `role_escalation_forbidden` | Conferring a document role, or resetting the password of an account with one, without holding `PAL_ADMINISTRATOR` | Have a PAL Administrator with `admin.users` do it |
+| **409** `last_administrator` | The change would leave no active System Administrator | Grant another System Administrator first |
+| `web` never starts; `clamd` stays `starting` or `unhealthy` | Signatures cannot download (egress blocked), or too little RAM (OOM-killed) | `docker compose $PAL_COMPOSE logs clamd`; allow the mirror or use an offline mirror ([AIRGAPPED.md §8.5](AIRGAPPED.md#85-offline-clamav-signatures)); add RAM |
+| Proxy returns its own **413** on upload | Host proxy `client_max_body_size` below 52m on `/api/uploads` | Fix per §6.3 |
+| Disk fills on the host | Unrotated container logs, or the blob volume | Configure Docker log rotation (§8.4); extend the blob storage |
 
 ---
 

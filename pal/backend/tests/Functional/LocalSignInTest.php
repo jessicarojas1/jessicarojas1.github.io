@@ -158,6 +158,7 @@ final class LocalSignInTest extends WebTestCase
         // Creating an account they would hold the password for.
         $send('POST', '/api/admin/users', ['username' => 'sock', 'displayName' => 'Sock', 'roles' => ['PUBLISHER']]);
         self::assertResponseStatusCodeSame(403);
+        self::assertSame('role_escalation_forbidden', $this->json()['error']);
         self::assertFalse($this->db->fetchOne("SELECT 1 FROM app_user WHERE username = 'sock'"));
         // Promoting an account they control.
         $send('PUT', '/api/admin/users/'.$plainId.'/roles', ['roles' => ['AUTHOR']]);

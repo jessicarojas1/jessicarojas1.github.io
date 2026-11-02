@@ -1,6 +1,6 @@
 # PAL — Phase 2 plan: document repository + walking skeleton
 
-**Status:** in progress (started 2026-10-26) · **Exit criteria:** proposal §16, Phase 2 row
+**Status:** delivered (see [REQUIREMENTS_TRACEABILITY.md](REQUIREMENTS_TRACEABILITY.md#phase-2-status-2026-10-26) and [OPEN_ITEMS.md](../OPEN_ITEMS.md)) · **Exit criteria:** proposal §16, Phase 2 row
 
 ## Goal
 Get one document through its whole life, thinly but correctly:

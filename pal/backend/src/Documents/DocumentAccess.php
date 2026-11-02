@@ -16,7 +16,7 @@ use Doctrine\DBAL\Connection;
  * Callers answer "not visible" with HTTP 404 (never 403), so the existence of drafts and
  * restricted documents is not revealed. The same rules are expressed in SQL in
  * {@see self::visibilitySql()} for lists and search, and the two must stay in step
- * (both are covered by DocumentAccessTest).
+ * (both are covered by DocumentLifecycleTest).
  */
 final class DocumentAccess
 {
