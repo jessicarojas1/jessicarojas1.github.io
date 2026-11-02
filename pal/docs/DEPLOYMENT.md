@@ -366,3 +366,45 @@ Every service is on a paid plan. Check [current prices](https://render.com/prici
 | **ClamAV memory** | About 1.5 GB of signatures, more while reloading, hence `2c-4g` (per `render.yaml`; not measured) |
 | **Forwarded headers** | `TRUSTED_PROXIES=private_ranges`, since Render's proxy addresses are not fixed; client IPs are less trustworthy than with an exact proxy address |
 | **Backups** | Not configured by the Blueprint. Check Render's database and disk backup features before relying on the demo's data |
+
+### 12.3 Single Web Service on a shared database (free plan)
+
+The topology chosen for the portfolio demo. Created by hand (**New > Web Service**), without the Blueprint: one free PAL Web Service, one paid private ClamAV service, and an existing shared PostgreSQL database with one schema per app. All three must be in the **same region and workspace**: free web services can send private network traffic to data stores and paid services in the same region, but cannot receive it.
+
+**ClamAV** (**New > Private Service > Existing Image**): image `docker.io/clamav/clamav:1.5.4`, name `pal-clamav`, a plan with about 4 GB of memory. Copy its internal address for `PAL_CLAMD_ADDRESS`.
+
+**PAL Web Service:**
+
+| Setting | Value |
+|---|---|
+| Language / runtime | Docker |
+| Branch | `main` |
+| Dockerfile path | `pal/Dockerfile` |
+| Docker build context | `pal` |
+| Docker command | `/usr/local/bin/pal-entrypoint web` |
+| Health check path | `/health/ready` |
+| Build filter (included paths) | `pal/**` |
+| Instance type | Free |
+
+| Variable | Example | Purpose |
+|---|---|---|
+| `PORT` | `8080` | Port nginx listens on in the image |
+| `APP_SECRET` | use Render's **Generate** | Symfony secret |
+| `DATABASE_URL` | internal URL of the shared database | Enter as a secret; never commit it |
+| `DB_SCHEMA` | `pal` | Keeps PAL's objects out of `public`; sets `search_path=pal,public` through `PGOPTIONS` |
+| `PAL_MIGRATE_ON_START` | `1` | Runs migrations and the admin bootstrap at start, because this topology has no separate migrate step |
+| `PAL_BASE_URL`, `DEFAULT_URI` | `https://<your-service>.onrender.com` | Public origin, no trailing slash |
+| `TRUSTED_HOSTS` | `^<your-service>\.onrender\.com$` | Host allowlist |
+| `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Message transport |
+| `PAL_CLAMD_ADDRESS` | `<clamav-internal-host>:3310` | Malware scanner |
+| `PAL_MAX_UPLOAD_BYTES` | `26214400` | 25 MiB, ClamAV's default stream limit |
+| `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME`, `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | hard to guess; 12+ characters | First administrator. Delete both after first sign-in |
+
+The database role needs `CREATE` on the shared database, for the schema and for the `btree_gist` and `pg_trgm` extensions.
+
+**Limits of this topology:**
+- **Uploaded files do not last.** Free web services have no persistent disk, and the filesystem is wiped on every spin-down (15 idle minutes), restart or redeploy. The database keeps the records, so PAL then shows "no longer in storage", downloads answer 410 `file_unavailable`, and release is refused (409 `approval_integrity_failed`). The approve-and-publish flow only works within one uninterrupted session.
+- **No worker.** The scheduled audit-chain check and directory sync do not run.
+- **No shell** on free instances, so `pal:users:unlock` is unavailable; a lockout clears after 15 minutes.
+- **Shared role.** Every app using the same database role can read and change PAL's schema. The audit trail stays tamper-evident only. Never use this topology for real documents.
+- A free Render Postgres database itself expires after 30 days. Check the shared database's plan.

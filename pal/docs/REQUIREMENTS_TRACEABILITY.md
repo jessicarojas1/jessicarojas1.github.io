@@ -54,7 +54,7 @@ Spec section → design location → phase → verification. See **Phase 1 statu
 
 ## Phase 2 status (2026-10-26)
 
-Phase 2 (repository + walking skeleton, [PHASE2_PLAN.md](PHASE2_PLAN.md)) and local accounts (ADR-0014) are implemented. Evidence: after the audit fixes the backend suite (`php vendor/bin/phpunit`) ran **OK, 155 tests** against PostgreSQL `pal_test` (local PHP 8.5.10; CI uses 8.4), and the frontend suite (`npm test`) ran **54 tests passed**. Later changes need their own run. Test classes are under `pal/backend/tests/`.
+Phase 2 (repository + walking skeleton, [PHASE2_PLAN.md](PHASE2_PLAN.md)) and local accounts (ADR-0014) are implemented. Evidence: after the audit fixes the backend suite (`php vendor/bin/phpunit`) ran **OK, 156 tests** against PostgreSQL `pal_test` (local PHP 8.5.10; CI uses 8.4), and the frontend suite (`npm test`) ran **54 tests passed**. Later changes need their own run. Test classes are under `pal/backend/tests/`.
 
 | Req | Status | Code | Evidence (tests) |
 |---|---|---|---|

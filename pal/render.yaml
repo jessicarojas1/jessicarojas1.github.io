@@ -19,6 +19,9 @@
 # - If the disk mount is not writable by the container user (uid 10001), /health/ready reports
 #   "storage":"fail" and the deploy does not go live.
 #
+# This Blueprint creates a dedicated database. For the free single Web Service on a shared
+# database, see docs/DEPLOYMENT.md section 12.3.
+#
 # Sign-in: username/password (local accounts). After the first deploy, sign in as
 # PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME, change the temporary password, then delete both
 # bootstrap variables. Entra ID stays "Not connected" unless the OIDC_* values are set.
