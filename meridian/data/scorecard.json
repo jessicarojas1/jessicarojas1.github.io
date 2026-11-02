@@ -1,11 +1,11 @@
 {
-  "updated": "2026-10-30",
+  "updated": "2026-11-02",
   "summary": {
-    "correct": 30,
-    "incorrect": 22,
-    "partial": 11,
-    "pending": 88,
-    "note": "2026-10-30: three prior forecasts resolved this cycle. fc-2026-10-09-army-secretary-resolution graded INCORRECT -- the second 21-day Army Secretary resolution window closed with no nomination, withdrawal, or acting-capacity statement; Telle remains acting Secretary indefinitely. fc-2026-10-01-fa-xx-protest graded CORRECT -- Northrop's 30-day GAO-protest window closed with no filing. fc-2026-10-23-cmmc-townhall-signal graded INCORRECT -- no readout of the 27 Oct Cyber AB Town Hall surfaced within its 7-day signal window, a fifth consecutive missed informal CMMC timing signal. Lead findings: (1) Iran's IRGC/army claim 3-4 tankers struck mines in the Strait of Hormuz over 27-29 Oct while CENTCOM explicitly denied the mine-strike claims (28 Oct) -- a direct, unreconciled factual dispute; UKMTO independently confirmed a distinct limpet-device attack near Khasab, Oman (30 Oct) and a separate projectile strike (29 Oct), and reporting indicates post-midterm military options for Iran are being prepared. (2) North Korea fired ~10 SRBMs from Wonsan (29 Oct), ending a 15-day pause, with Kim observing new drone and 600mm-class 'Sniper' MRL demonstrations, the same day the US and ~10 allies sanctioned a North Korean IT-worker revenue network. (3) Defense Secretary Hegseth fired Army Lt. Gen. Brett Sylvia over admitted classified leaks on Iran/Ukraine to journalists (failed 4 polygraphs, recorded admission). (4) CISA added three more actively exploited CVEs -- VMware ESX (CVE-2026-41709, attributed by CrowdStrike to actor 'WARP PANDA'), a Linux kernel flaw (CVE-2026-46300), and a max-severity GitLab RCE (CVE-2026-97229, 3-day federal deadline) -- while PHP2Shell separately rooted 25 servers including 3 US government-affiliated systems (vendor/victim unnamed); still no named DIB victim after ~9 weeks. (5) Golden Dome's self-warned October funding-halt risk window (Guetlein, August) has effectively elapsed with no public confirmation either way. Critical Minerals (10 Nov window now ~11 days out), Ukraine-Russia trilateral-talks timing, China-Taiwan PLA activity, and the Black Sea campaign all saw no corroborated material new development this cycle. Three new PENDING forecasts added, testing: independent verification of the Hormuz mine claims; whether North Korea's test cadence resumes on a sustained basis; and whether the Sylvia leak case results in formal prosecution."
+    "correct": 31,
+    "incorrect": 27,
+    "partial": 12,
+    "pending": 84,
+    "note": "2026-11-02: seven prior forecasts resolved this cycle, the largest single-cycle resolution batch to date, concentrated in the actively-exploited-CVE wave's victim-identification tests. fc-2026-09-30-netscaler-govt-victim, fc-2026-10-01-cisco-sdwan-victim, fc-2026-10-01-bitget-vendor-named, fc-2026-10-02-fortimail-victim, and fc-2026-10-12-fortimail-named-victim all graded INCORRECT -- dedicated searches this cycle found sector-level victim description at most, with no specifically named victim organization or vendor on any of the five. fc-2026-10-12-netscaler-107406-exploited graded PARTIAL given genuinely conflicting evidence on whether CISA KEV-listed the CVE (one unverified source says yes, a tracker says exploitation status is 'None'; CISA's own catalog could not be directly accessed to adjudicate). fc-2026-10-30-sylvia-prosecution graded CORRECT -- its 'or referral' clause is satisfied by reported Pentagon referral of the Sylvia case to DOJ for possible criminal prosecution, well within the 60-day window, even though no formal charge has been confirmed. Lead findings: (1) the 3 Nov midterm elections are now explicitly reported as gating both a post-election US Iran decision and Golden Dome's FY27 reconciliation-funding path, concentrating two major open questions into the same near-term window. (2) CrowdStrike/CSA research on WARP PANDA reframes the 30 Oct VMware ESX KEV listing as the public surfacing of a multi-year-dwell (since at least 2023) espionage campaign against US law firms, tech, and manufacturing firms, with CISA's federal deadline set for 11 Nov. (3) The Hormuz mine-claims-vs-CENTCOM-denial dispute, the CMMC Reform Task Force's non-public status (sixth consecutive quiet cycle), and the 10 Nov rare-earth suspension-expiry window (now ~8 days out) all persist unchanged amid a thin weekend/pre-election reporting window. (4) The Sylvia case's DOJ referral and continued Army Secretary vacancy keep DoD leadership-continuity and personnel-security scrutiny elevated simultaneously. Three new PENDING forecasts added, testing: whether the 3 Nov elections resolve into a visible US Iran decision within 30 days; whether a post-midterm reconciliation floor action naming Golden Dome occurs within 45 days; and whether a specifically named WARP PANDA/BrickStorm victim organization surfaces within 30 days."
   },
   "forecasts": [
     {
@@ -553,9 +553,9 @@
       "date": "2026-09-30",
       "forecast": "A specifically named DIB or federal-contractor victim organization of the NetScaler WHIPSHOT/SLAPSHOT campaign will be publicly identified within 30 days, given Mandiant's confirmation of a government-sector victim class.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Mandiant/Google Threat Intelligence Group named the government sector broadly as a victim class on 29-30 Sep but did not name a specific organization. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-02",
+      "note": "The 30-day window closed ~30 Oct; a dedicated search this cycle found only sector-level victim description (government, financial services, education, legal/professional services) with no specifically named victim organization identified. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-01-russia-warhead",
@@ -571,9 +571,9 @@
       "date": "2026-10-01",
       "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to CVE-2026-76504 (Cisco Catalyst SD-WAN Manager) will be publicly reported within 30 days, given confirmed active exploitation and no available workaround.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this newly KEV-listed, no-workaround flaw produces a named victim faster than prior tracked CVE families have. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-02",
+      "note": "The 30-day window closed ~31 Oct; a dedicated search this cycle found Cisco has not disclosed any named victim organization or a victim count. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-01-ftc-ai-cid",
@@ -589,9 +589,9 @@
       "date": "2026-10-01",
       "forecast": "The specific third-party security-appliance vendor behind the Bitget hack ('Appliance A'/'Appliance B') will be publicly named by Mandiant, SlowMist, or the vendor itself within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the undisclosed-vendor gap flagged this cycle closes, given other organizations using the same unnamed products may be similarly exposed."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-02",
+      "note": "The 30-day window closed ~31 Oct; a dedicated search this cycle found the vendor still referred to only as 'Product A'/'Product B' pending vendor disclosure or public CVE assignment, with no public naming by Mandiant, SlowMist, or Bitget."
     },
     {
       "id": "fc-2026-10-01-fa-xx-protest",
@@ -607,9 +607,9 @@
       "date": "2026-10-02",
       "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to CVE-2026-104286 (FortiMail) will be publicly reported within 30 days, given confirmed active exploitation, a CVSS 9.8 severity, and no patch yet available.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this newly KEV-listed, patch-unavailable flaw produces a named victim faster than the six prior tracked edge-vendor CVE families. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-02",
+      "note": "The 30-day window closed ~1 Nov; a dedicated search this cycle found extensive coverage of the vulnerability and its exploitation but no named victim organization. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-02-fbi-shinyhunters-scope",
@@ -823,18 +823,18 @@
       "date": "2026-10-12",
       "forecast": "A specifically named FortiMail (CVE-2026-104286) victim organization, beyond F5's sector-level disclosure (government/healthcare/financial in the US and Hong Kong), will be publicly identified within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "New info: FortiMail's patch status is now reported inconsistently -- a Singapore CSA bulletin (6 Oct) claims a patch is available while other sources describe fixes as still pending for the 7.4/7.6/8.0 branches; neither resolves this forecast's named-victim test, and direct verification against Fortinet's own advisory was not possible this cycle. Still no named victim identified. Remains PENDING. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-02",
+      "note": "The 21-day window closed ~2 Nov; the same dedicated search that resolved the companion fc-2026-10-02-fortimail-victim forecast found no named victim beyond sector-level description. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-12-netscaler-107406-exploited",
       "date": "2026-10-12",
       "forecast": "Citrix's newly disclosed NetScaler memory-overflow flaw (CVE-2026-107406, disclosed 9 Oct with no exploitation observed at disclosure) will be confirmed under active exploitation within 21 days, continuing the wave's pattern of rapid post-disclosure exploitation.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this disclosure follows the same rapid exploitation timeline as prior NetScaler CVEs in the wave (e.g., CVE-2026-88779, exploited within days of disclosure). Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-11-02",
+      "note": "The 21-day window closed ~2 Nov with genuinely conflicting evidence: one unverified secondary source claims CISA added the CVE to its KEV catalog (implying confirmed exploitation), while another vulnerability tracker (Feedly) lists exploitation status as 'None'; CISA's own catalog page could not be directly accessed this cycle to adjudicate. Graded PARTIAL rather than forcing a clean call. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-12-shinyhunters-jordan-charges",
@@ -1293,7 +1293,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Gen. Guetlein's own August-warned October funding-halt risk window has now effectively elapsed with no public confirmation of either a slowdown or a resolution. No new SHIELD task order, checkout confirmation, or GAO filing identified. Window remains open to ~27 Nov. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+      "note": "Still PENDING (window open to ~27 Nov). New context: a Senate aide reportedly says another reconciliation bill is unlikely before the midterms, reinforcing that no near-term resolution is likely, but no confirmed slowdown or halt has been publicly reported either way. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
     },
     {
       "id": "fc-2026-10-28-hormuz-portwatch-reconciliation",
@@ -1363,9 +1363,36 @@
       "date": "2026-10-30",
       "forecast": "Lt. Gen. Brett Sylvia will face a formal criminal charge or referral over his admitted classified leaks on Iran/Ukraine within 60 days of his firing.",
       "horizon": "0-60 days",
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-02",
+      "note": "Satisfied by the 'or referral' clause: Pentagon officials reportedly referred Sylvia's case to the Department of Justice for possible criminal prosecution, within days of his firing and well within the 60-day window. No formal charge or indictment has been confirmed, but the forecast's referral threshold is met. Tracked on the DoD Leadership Continuity thread."
+    },
+    {
+      "id": "fc-2026-11-02-midterm-iran-decision",
+      "date": "2026-11-02",
+      "forecast": "Within 30 days of the 3 Nov midterm elections, the US will either take a publicly reported military action against Iran or issue a public statement explicitly ruling one out for a further defined period, given CENTCOM's prepared post-election strike options and Trump's pre-election pledge.",
+      "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the admitted conduct (failed polygraphs, recorded admission) results in a formal legal consequence beyond termination, or remains an internal personnel action. Tracked on the DoD Leadership Continuity thread."
+      "note": "Tests whether the explicit election-gating reported this cycle resolves into a visible decision (either direction) within a month of the vote, rather than continuing indefinitely as an open question. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-11-02-goldendome-reconciliation-post-midterm",
+      "date": "2026-11-02",
+      "forecast": "Within 45 days of the 3 Nov midterms, the Senate will take some formal floor action (committee markup, vote, or formal introduction) on a reconciliation package including Golden Dome FY27 funding.",
+      "horizon": "0-45 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the reported post-midterm timing for reconciliation action materializes within a reasonable window, given this program's history of similar informal timing signals slipping. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+    },
+    {
+      "id": "fc-2026-11-02-warp-panda-named-victim",
+      "date": "2026-11-02",
+      "forecast": "A specifically named WARP PANDA/BrickStorm victim organization (beyond the general law-firm/technology/manufacturing sector description) will be publicly identified within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this newly elaborated, multi-year-dwell campaign breaks the wave's otherwise consistent pattern of sector-level-only victim disclosure. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     }
   ]
 }
