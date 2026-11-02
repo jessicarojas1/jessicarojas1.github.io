@@ -12,6 +12,7 @@ export interface FileInfo {
   sizeBytes: number
   mime: string
   sha256: string
+  available: boolean
 }
 
 export interface WorkflowInfo {

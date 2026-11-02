@@ -113,6 +113,10 @@ final class RevisionController
         }
 
         $sha = Row::string($file, 'sha256');
+        // Checked here because a failure inside the stream would arrive after the headers.
+        if (!$this->blobs->exists($sha)) {
+            throw new ApiProblem(410, 'file_unavailable', 'This file is no longer in storage.');
+        }
         $filename = Row::string($file, 'original_filename');
         $this->auditLog->info('document_downloaded', [
             'user_id' => $user->id, 'document_id' => Row::string($document, 'id'), 'document_number' => Row::string($document, 'document_number'),

@@ -448,6 +448,9 @@ final class LifecycleService
             throw new ApiProblem(409, 'approval_integrity_failed', 'The approved content could not be verified, so the revision was not released.');
         }
         foreach ($files as $file) {
+            if (!$this->blobs->exists($file['sha256'])) {
+                throw new ApiProblem(409, 'approval_integrity_failed', 'A stored file is missing, so the revision was not released.');
+            }
             $handle = $this->blobs->openRead($file['sha256']);
             $context = hash_init('sha256');
             hash_update_stream($context, $handle);

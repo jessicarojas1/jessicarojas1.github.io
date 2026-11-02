@@ -311,8 +311,14 @@ watch(id, () => void load(), { immediate: true })
               {{ k }}
             </q-chip>
           </div>
+          <p
+            v-if="doc.current.file && !doc.current.file.available"
+            class="pal-text-danger q-mb-none"
+          >
+            {{ doc.current.file.filename }} is no longer in storage. The record and its fingerprint are kept, but the file must be restored.
+          </p>
           <q-btn
-            v-if="doc.current.file"
+            v-else-if="doc.current.file"
             color="primary"
             unelevated
             no-caps
@@ -384,7 +390,7 @@ watch(id, () => void load(), { immediate: true })
           </dd>
         </dl>
         <q-btn
-          v-if="open.file"
+          v-if="open.file?.available"
           outline
           no-caps
           icon="download"
@@ -537,8 +543,12 @@ watch(id, () => void load(), { immediate: true })
         >
           <p class="q-mb-xs">
             <strong>File:</strong> {{ open.file ? `${open.file.filename} (${formatBytes(open.file.sizeBytes)})` : 'none attached yet' }}
+            <span
+              v-if="open.file && !open.file.available"
+              class="pal-text-danger"
+            > No longer in storage: attach it again.</span>
             <a
-              v-if="open.file"
+              v-if="open.file?.available"
               :href="`/api/revisions/${open.id}/file`"
               class="q-ml-sm pal-text-primary"
             >Download</a>

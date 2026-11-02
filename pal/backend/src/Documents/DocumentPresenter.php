@@ -6,6 +6,7 @@ namespace App\Documents;
 
 use App\Identity\Authorization\Permission;
 use App\Identity\User\PalUser;
+use App\Storage\BlobStore;
 use App\Platform\Database\Row;
 
 /**
@@ -18,6 +19,7 @@ final class DocumentPresenter
         private readonly DocumentRepository $documents,
         private readonly DocumentAccess $access,
         private readonly GrantService $grants,
+        private readonly BlobStore $blobs,
     ) {
     }
 
@@ -130,6 +132,7 @@ final class DocumentPresenter
                 'sizeBytes' => Row::int($file, 'size_bytes'),
                 'mime' => Row::string($file, 'detected_mime'),
                 'sha256' => Row::string($file, 'sha256'),
+                'available' => $this->blobs->exists(Row::string($file, 'sha256')),
             ],
             'workflow' => null === $workflow ? null : [
                 'status' => Row::string($workflow, 'status'),

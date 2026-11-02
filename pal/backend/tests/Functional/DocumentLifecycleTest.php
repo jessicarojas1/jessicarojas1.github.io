@@ -347,6 +347,38 @@ final class DocumentLifecycleTest extends WebTestCase
         self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM directory_group WHERE idp_object_id = ?', [$groupObjectId]));
     }
 
+    public function testAMissingStoredFileIsReportedAndBlocksRelease(): void
+    {
+        [$documentId, $revisionId] = $this->draftDocument("%PDF-1.4\n% lost on restart\n%%EOF\n");
+        $this->submitAndApprove($revisionId);
+        $sha = (string) $this->db->fetchOne('SELECT sha256 FROM revision_file WHERE revision_id = ?', [$revisionId]);
+        $blob = self::blobPath($sha);
+        self::assertFileExists($blob);
+        unlink($blob);
+
+        $csrf = $this->as('publisher');
+        $this->client->request('GET', '/api/revisions/'.$revisionId.'/file');
+        self::assertResponseStatusCodeSame(410);
+        self::assertSame('file_unavailable', $this->json()['error']);
+        $this->client->request('GET', '/api/documents/'.$documentId);
+        self::assertFalse($this->json()['awaitingRelease']['file']['available']);
+
+        $this->call($csrf, 'POST', '/api/revisions/'.$revisionId.'/release');
+        self::assertResponseStatusCodeSame(409);
+        self::assertSame('approval_integrity_failed', $this->json()['error']);
+        self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM publication'));
+    }
+
+    private static function blobPath(string $sha): string
+    {
+        $root = (string) ($_ENV['PAL_BLOB_DIR'] ?? $_SERVER['PAL_BLOB_DIR']);
+        if (!str_starts_with($root, '/')) {
+            $root = \dirname(__DIR__, 2).'/'.$root;
+        }
+
+        return rtrim($root, '/').'/sha256/'.substr($sha, 0, 2).'/'.substr($sha, 2, 2).'/'.$sha;
+    }
+
     public function testReferenceDataIncludesTheUploadLimit(): void
     {
         $this->as('reader');
