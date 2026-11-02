@@ -66,6 +66,8 @@ services:
         value: /srv/pal/data/blobs
       - key: PAL_MAX_UPLOAD_BYTES
         value: "26214400"      # 25 MiB = ClamAV's default StreamMaxLength
+      - key: PAL_UPLOAD_DAILY_BYTES
+        value: "209715200"     # 200 MiB per user per day, so one account cannot fill the 1 GB disk quickly
       - key: PAL_CLAMD_ADDRESS
         fromService:
           type: pserv

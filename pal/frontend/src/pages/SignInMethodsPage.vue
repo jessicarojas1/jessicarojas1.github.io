@@ -17,6 +17,7 @@ const DETAILS: Record<string, string> = {
 onMounted(async () => {
   try {
     const response = await fetch('/auth/methods', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+    if (!response.ok) throw new Error('methods unavailable')
     methods.value = ((await response.json()) as { methods: Method[] }).methods
   } catch {
     error.value = 'Sign-in methods could not be loaded.'

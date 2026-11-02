@@ -1,31 +1,63 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { ApiError, uploadFile, type UploadResult } from '@/api/client'
-import { formatBytes } from '@/api/documents'
+import { formatBytes, loadReference } from '@/api/documents'
 
 const props = defineProps<{ id: string; label: string; disabled?: boolean }>()
-const emit = defineEmits<{ uploaded: [result: UploadResult] }>()
+const emit = defineEmits<{
+  uploaded: [result: UploadResult]
+  // Fired when a previous result no longer applies (new attempt started, or the user removed it).
+  cleared: []
+  uploading: [active: boolean]
+}>()
 
 const uploading = ref(false)
 const error = ref<string | null>(null)
 const done = ref<UploadResult | null>(null)
+const maxBytes = ref<number | null>(null)
+
+onMounted(async () => {
+  try {
+    maxBytes.value = (await loadReference()).maxUploadBytes
+  } catch {
+    // The key falls back to generic wording; the server still enforces the limit.
+  }
+})
+
+function setUploading(active: boolean): void {
+  uploading.value = active
+  emit('uploading', active)
+}
 
 async function onChange(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   input.value = ''
   if (file === undefined || uploading.value) return
-  uploading.value = true
   error.value = null
-  done.value = null
+  if (done.value !== null) {
+    done.value = null
+    emit('cleared')
+  }
+  if (maxBytes.value !== null && file.size > maxBytes.value) {
+    error.value = `This file is ${formatBytes(file.size)}; files can be up to ${formatBytes(maxBytes.value)}.`
+    return
+  }
+  setUploading(true)
   try {
     done.value = await uploadFile(file)
     emit('uploaded', done.value)
   } catch (e) {
     error.value = e instanceof ApiError ? e.message : 'The upload failed.'
   } finally {
-    uploading.value = false
+    setUploading(false)
   }
+}
+
+function remove(): void {
+  done.value = null
+  error.value = null
+  emit('cleared')
 }
 </script>
 
@@ -64,12 +96,22 @@ async function onChange(event: Event): Promise<void> {
         aria-hidden="true"
       /> {{ done.filename }} ({{ formatBytes(done.sizeBytes) }}) scanned and ready.</span>
     </p>
+    <q-btn
+      v-if="done && !uploading"
+      flat
+      dense
+      no-caps
+      icon="close"
+      :label="`Remove ${done.filename}`"
+      :disable="props.disabled"
+      @click="remove"
+    />
     <dl
       :id="`${props.id}-key`"
       class="pal-field-key"
     >
       <dt>Accepted files</dt>
-      <dd>PDF, Word (.docx), Excel (.xlsx), PowerPoint (.pptx) or plain text (.txt), up to 50 MB.</dd>
+      <dd>PDF, Word (.docx), Excel (.xlsx), PowerPoint (.pptx) or plain text (.txt), up to {{ maxBytes !== null ? formatBytes(maxBytes) : 'the configured size limit' }}.</dd>
       <dt>Checked on upload</dt>
       <dd>The real file type is read from its contents and must match the extension. Every file is scanned for malware; infected or disguised files are refused and the attempt is recorded.</dd>
       <dt>Not accepted</dt>

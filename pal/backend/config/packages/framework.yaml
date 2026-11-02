@@ -42,6 +42,11 @@ framework:
             policy: sliding_window
             limit: 10
             interval: '15 minutes'
+        # Per-user uploads (PAL_UPLOAD_DAILY_BYTES bounds the volume stored).
+        upload:
+            policy: sliding_window
+            limit: 30
+            interval: '1 hour'
 
 when@test:
     framework:
@@ -61,6 +66,10 @@ when@test:
                 policy: sliding_window
                 limit: 100000
                 interval: '1 minute'
+            upload:
+                policy: sliding_window
+                limit: 100000
+                interval: '1 hour'
             login_username:
                 policy: sliding_window
                 limit: 100000

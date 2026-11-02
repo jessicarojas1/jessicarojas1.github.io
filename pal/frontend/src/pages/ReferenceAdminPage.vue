@@ -10,6 +10,7 @@ const session = useSessionStore()
 const types = ref<ReferenceItem[]>([])
 const departments = ref<ReferenceItem[]>([])
 const loadError = ref<string | null>(null)
+const loading = ref(true)
 const errors = ref<Record<string, string | null>>({})
 const fields = ref<Record<string, Record<string, string>>>({})
 const busy = ref(false)
@@ -24,6 +25,8 @@ async function load(): Promise<void> {
     departments.value = data.departments
   } catch (e) {
     loadError.value = e instanceof ApiError ? e.message : 'Reference data could not be loaded.'
+  } finally {
+    loading.value = false
   }
 }
 
@@ -50,11 +53,30 @@ async function create(kind: 'departments' | 'document-types'): Promise<void> {
   }
 }
 
-async function toggle(kind: 'departments' | 'document-types', item: ReferenceItem): Promise<void> {
+function toggle(kind: 'departments' | 'document-types', item: ReferenceItem): void {
+  if (!item.isActive) {
+    void applyToggle(kind, item)
+    return
+  }
+  $q.dialog({
+    title: `Deactivate ${item.name}?`,
+    message: 'It can no longer be chosen for new documents. Existing documents keep their numbers. You can reactivate it later.',
+    cancel: { flat: true, noCaps: true, label: 'Cancel' },
+    ok: { color: 'negative', unelevated: true, noCaps: true, label: 'Deactivate' },
+    focus: 'cancel',
+    persistent: true,
+  }).onOk(() => {
+    void applyToggle(kind, item)
+  })
+}
+
+async function applyToggle(kind: 'departments' | 'document-types', item: ReferenceItem): Promise<void> {
   if (busy.value) return
   busy.value = true
+  errors.value = { ...errors.value, [kind]: null }
   try {
     await api(`/api/admin/${kind}/${item.id}`, { method: 'PATCH', body: { isActive: !item.isActive } })
+    $q.notify({ type: 'positive', message: `${item.name} ${item.isActive ? 'deactivated' : 'reactivated'}.` })
     await load()
   } catch (e) {
     errors.value = { ...errors.value, [kind]: e instanceof ApiError ? e.message : 'That could not be saved.' }
@@ -79,9 +101,27 @@ onMounted(load)
       role="alert"
     >
       {{ loadError }}
+      <template #action>
+        <q-btn
+          flat
+          no-caps
+          label="Try again"
+          @click="load"
+        />
+      </template>
     </q-banner>
+    <div
+      v-if="loading"
+      class="q-pa-md"
+      role="status"
+    >
+      <q-spinner size="24px" /> Loading…
+    </div>
 
-    <div class="row q-col-gutter-lg">
+    <div
+      v-else-if="!loadError"
+      class="row q-col-gutter-lg"
+    >
       <section
         v-for="block in [
           { kind: 'departments' as const, title: 'Departments', items: departments, model: newDept, codeHint: '2–10 capital letters or digits, e.g. QA', can: session.can('admin.departments') },
@@ -144,7 +184,7 @@ onMounted(load)
           >
             <q-input
               v-model="block.model.code"
-              class="col-4"
+              class="col-12 col-sm-4"
               outlined
               label="Code"
               :hint="block.codeHint"
@@ -153,13 +193,13 @@ onMounted(load)
             />
             <q-input
               v-model="block.model.name"
-              class="col-5"
+              class="col-12 col-sm-5"
               outlined
               label="Name"
               :error="fields[block.kind]?.name !== undefined"
               :error-message="fields[block.kind]?.name"
             />
-            <div class="col-3">
+            <div class="col-12 col-sm-3">
               <q-btn
                 type="submit"
                 color="primary"

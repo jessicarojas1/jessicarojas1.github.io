@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { safeReturnTo } from '@/returnTo'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BrandMark from '@/components/BrandMark.vue'
@@ -9,10 +10,7 @@ const router = useRouter()
 const session = useSessionStore()
 const retrying = ref(false)
 
-const returnTo = computed(() => {
-  const value = route.query.returnTo
-  return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : '/'
-})
+const returnTo = computed(() => safeReturnTo(route.query.returnTo))
 
 async function retry(): Promise<void> {
   retrying.value = true

@@ -61,6 +61,11 @@ function toggleDark(): void {
   storeThemePreference($q.dark.isActive)
 }
 
+// A document belongs to the Library section of the navigation.
+function isCurrent(to: string): boolean {
+  return route.path === to || (to === '/library' && route.path.startsWith('/documents/'))
+}
+
 async function signOut(): Promise<void> {
   try {
     await session.signOut()
@@ -182,8 +187,8 @@ async function signOut(): Promise<void> {
               <router-link
                 :to="item.to"
                 class="pal-nav-link"
-                :class="{ 'pal-nav-link--active': route.path === item.to }"
-                :aria-current="route.path === item.to ? 'page' : undefined"
+                :class="{ 'pal-nav-link--active': isCurrent(item.to) }"
+                :aria-current="isCurrent(item.to) ? 'page' : undefined"
               >
                 <q-icon
                   :name="item.icon"
@@ -204,6 +209,31 @@ async function signOut(): Promise<void> {
         id="main-content"
         tabindex="-1"
       >
+        <nav
+          v-if="route.name !== 'dashboard'"
+          class="pal-breadcrumbs"
+          aria-label="Breadcrumb"
+        >
+          <ol>
+            <li>
+              <router-link to="/">
+                Dashboard
+              </router-link>
+            </li>
+            <li v-if="route.meta.parent">
+              <router-link
+                v-if="route.meta.parent.to"
+                :to="route.meta.parent.to"
+              >
+                {{ route.meta.parent.label }}
+              </router-link>
+              <span v-else>{{ route.meta.parent.label }}</span>
+            </li>
+            <li aria-current="page">
+              {{ route.meta.title }}
+            </li>
+          </ol>
+        </nav>
         <router-view />
       </main>
     </q-page-container>

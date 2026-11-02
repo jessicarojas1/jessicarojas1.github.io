@@ -14,6 +14,14 @@ describe('formatDateTime', () => {
   })
 })
 
+describe('formatDateTime with missing values', () => {
+  it('renders a dash instead of throwing for null, empty or invalid input', () => {
+    expect(formatDateTime(null, 'America/Denver')).toBe('—')
+    expect(formatDateTime('', 'America/Denver')).toBe('—')
+    expect(formatDateTime('not-a-date', 'America/Denver')).toBe('—')
+  })
+})
+
 describe('roleLabel', () => {
   it('maps known roles and passes unknown ones through', () => {
     expect(roleLabel('PAL_ADMINISTRATOR')).toBe('PAL Administrator')

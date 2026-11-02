@@ -114,11 +114,38 @@ final class LifecycleService
             }
             $this->audit->record(new AuditEntry('REVISION_EDITED', $this->actor($user), 'revision', $revisionId, [
                 'document_id' => Row::string($document, 'id'),
-                'title' => ['from' => Row::string($revision, 'title'), 'to' => $content['title']],
+                ...$this->contentDiff($revision, $content),
             ]));
 
             return $rowVersion + 1;
         });
+    }
+
+    /**
+     * Changed draft fields as {field: {from, to}}, so the audit trail shows every edit.
+     *
+     * @param array<string, mixed>                                                                         $revision
+     * @param array{title: string, description: ?string, keywords: list<string>, changeSummary: ?string} $content
+     *
+     * @return array<string, array{from: mixed, to: mixed}>
+     */
+    private function contentDiff(array $revision, array $content): array
+    {
+        $before = [
+            'title' => Row::string($revision, 'title'),
+            'description' => Row::nullableString($revision, 'description'),
+            'keywords' => DocumentRepository::keywords($revision['keywords']),
+            'change_summary' => Row::nullableString($revision, 'change_summary'),
+        ];
+        $after = ['title' => $content['title'], 'description' => $content['description'], 'keywords' => $content['keywords'], 'change_summary' => $content['changeSummary']];
+        $diff = [];
+        foreach ($before as $field => $value) {
+            if ($value !== $after[$field]) {
+                $diff[$field] = ['from' => $value, 'to' => $after[$field]];
+            }
+        }
+
+        return $diff;
     }
 
     public function attachPrimaryFile(PalUser $user, string $revisionId, string $uploadId): void
@@ -145,6 +172,9 @@ final class LifecycleService
             }
             if (!Ids::isUuid($approverId) || $approverId === $user->id || $approverId === Row::string($revision, 'created_by')) {
                 throw ApiProblem::validation(['approverId' => 'Choose an approver other than the author or yourself.']);
+            }
+            if ($approverId === Row::string($document, 'owner_user_id') || $this->contributedTo($revisionId, $approverId)) {
+                throw ApiProblem::validation(['approverId' => 'The owner, and anyone who edited this revision, cannot approve it.']);
             }
             if (!$this->isEligibleApprover($documentId, $approverId)) {
                 throw ApiProblem::validation(['approverId' => 'That person is not an approver for this document. The owner can add approvers under Access.']);
@@ -202,8 +232,12 @@ final class LifecycleService
                 throw new ApiProblem(409, 'task_closed', 'This task has already been completed or cancelled.');
             }
             // Separation of duties is re-checked at decision time; roles may have changed since submission.
-            if ($user->id === Row::string($revision, 'created_by') || $user->id === Row::string($task, 'initiated_by')) {
-                throw new ApiProblem(403, 'separation_of_duties', 'You cannot approve a revision you wrote or submitted.');
+            if ($user->id === Row::string($revision, 'created_by') || $user->id === Row::string($task, 'initiated_by')
+                || $user->id === Row::string($document, 'owner_user_id') || $this->contributedTo(Row::string($revision, 'id'), $user->id)) {
+                throw new ApiProblem(403, 'separation_of_duties', 'You cannot approve a revision you own, wrote, edited or submitted.');
+            }
+            if (!$this->isEligibleApprover(Row::string($document, 'id'), $user->id)) {
+                throw new ApiProblem(403, 'approver_revoked', 'You are no longer an approver for this document.');
             }
             $currentHash = ManifestHasher::hash(
                 Row::string($revision, 'title'),
@@ -438,13 +472,34 @@ final class LifecycleService
             'email' => Row::nullableString($r, 'email'),
         ], $this->connection->fetchAllAssociative(<<<'SQL'
             SELECT DISTINCT u.id, u.display_name, u.email FROM app_user u
-            WHERE u.is_active AND u.id <> :exclude AND EXISTS (
+            WHERE u.is_active AND u.id <> :exclude
+              AND u.id <> (SELECT d.owner_user_id FROM document d WHERE d.id = :doc)
+              AND NOT EXISTS (
+                SELECT 1 FROM revision r WHERE r.document_id = :doc AND r.state = 'DRAFT'
+                  AND (r.created_by = u.id OR EXISTS (
+                      SELECT 1 FROM audit_event a WHERE a.actor_user_id = u.id AND a.subject_type = 'revision'
+                        AND a.subject_id = r.id::text AND a.event_type IN ('REVISION_CREATED', 'REVISION_EDITED', 'REVISION_FILE_ATTACHED'))))
+              AND EXISTS (
                 SELECT 1 FROM document_grant g WHERE g.document_id = :doc AND g.role = 'APPROVER' AND g.valid_to IS NULL
                   AND (g.user_id = u.id OR g.group_id IN (
                       SELECT gm.group_id FROM group_membership gm WHERE gm.user_id = u.id AND gm.valid_to IS NULL)))
             ORDER BY u.display_name
             LIMIT 200
             SQL, ['doc' => $documentId, 'exclude' => $excludeUserId]));
+    }
+
+    /**
+     * Whether the user created, edited or attached files to this revision (read from the audit
+     * trail, which records every content change). Such people may not approve it.
+     */
+    private function contributedTo(string $revisionId, string $userId): bool
+    {
+        return false !== $this->connection->fetchOne(<<<'SQL'
+            SELECT 1 FROM audit_event
+            WHERE actor_user_id = :user AND subject_type = 'revision' AND subject_id = :revision
+              AND event_type IN ('REVISION_CREATED', 'REVISION_EDITED', 'REVISION_FILE_ATTACHED')
+            LIMIT 1
+            SQL, ['user' => $userId, 'revision' => $revisionId]);
     }
 
     public function isEligibleApprover(string $documentId, string $userId): bool

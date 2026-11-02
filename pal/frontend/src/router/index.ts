@@ -7,8 +7,14 @@ declare module 'vue-router' {
     public?: boolean
     permission?: string
     title?: string
+    /** Parent shown before the page title in the breadcrumb trail. */
+    parent?: { label: string; to?: string }
   }
 }
+
+const LIBRARY = { label: 'Library', to: '/library' }
+const ADMIN = { label: 'Administration' }
+const SETTINGS = { label: 'Settings' }
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -23,14 +29,14 @@ export const router = createRouter({
         { path: '', name: 'dashboard', component: () => import('@/pages/DashboardPage.vue'), meta: { title: 'Dashboard' } },
         { path: 'library', name: 'library', component: () => import('@/pages/LibraryPage.vue'), meta: { title: 'Library' } },
         { path: 'workspace', name: 'workspace', component: () => import('@/pages/WorkspacePage.vue'), meta: { title: 'My workspace' } },
-        { path: 'documents/new', name: 'new-document', component: () => import('@/pages/NewDocumentPage.vue'), meta: { permission: 'document.create', title: 'New document' } },
-        { path: 'documents/:id', name: 'document', component: () => import('@/pages/DocumentPage.vue'), meta: { title: 'Document' } },
-        { path: 'admin/users', name: 'users-admin', component: () => import('@/pages/UsersAdminPage.vue'), meta: { permission: 'admin.users', title: 'Users' } },
-        { path: 'settings/sign-in', name: 'sign-in-methods', component: () => import('@/pages/SignInMethodsPage.vue'), meta: { permission: 'system.config', title: 'Sign-in methods' } },
-        { path: 'admin/reference', name: 'reference-admin', component: () => import('@/pages/ReferenceAdminPage.vue'), meta: { permission: 'admin.types', title: 'Types and departments' } },
-        { path: 'settings/preferences', name: 'preferences', component: () => import('@/pages/PreferencesPage.vue'), meta: { title: 'Preferences' } },
-        { path: 'settings/branding', name: 'branding', component: () => import('@/pages/BrandingPage.vue'), meta: { permission: 'system.config', title: 'Branding' } },
-        { path: 'admin/roles', name: 'role-mappings', component: () => import('@/pages/RoleMappingsPage.vue'), meta: { permission: 'admin.roles', title: 'Role mappings' } },
+        { path: 'documents/new', name: 'new-document', component: () => import('@/pages/NewDocumentPage.vue'), meta: { permission: 'document.create', title: 'New document', parent: LIBRARY } },
+        { path: 'documents/:id', name: 'document', component: () => import('@/pages/DocumentPage.vue'), meta: { title: 'Document', parent: LIBRARY } },
+        { path: 'admin/users', name: 'users-admin', component: () => import('@/pages/UsersAdminPage.vue'), meta: { permission: 'admin.users', title: 'Users', parent: ADMIN } },
+        { path: 'settings/sign-in', name: 'sign-in-methods', component: () => import('@/pages/SignInMethodsPage.vue'), meta: { permission: 'system.config', title: 'Sign-in methods', parent: SETTINGS } },
+        { path: 'admin/reference', name: 'reference-admin', component: () => import('@/pages/ReferenceAdminPage.vue'), meta: { permission: 'admin.types', title: 'Types and departments', parent: ADMIN } },
+        { path: 'settings/preferences', name: 'preferences', component: () => import('@/pages/PreferencesPage.vue'), meta: { title: 'Preferences', parent: SETTINGS } },
+        { path: 'settings/branding', name: 'branding', component: () => import('@/pages/BrandingPage.vue'), meta: { permission: 'system.config', title: 'Branding', parent: SETTINGS } },
+        { path: 'admin/roles', name: 'role-mappings', component: () => import('@/pages/RoleMappingsPage.vue'), meta: { permission: 'admin.roles', title: 'Role mappings', parent: ADMIN } },
         { path: 'forbidden', name: 'forbidden', component: () => import('@/pages/ForbiddenPage.vue'), meta: { title: 'Access denied' } },
         { path: ':pathMatch(.*)*', name: 'not-found', component: () => import('@/pages/NotFoundPage.vue'), meta: { title: 'Not found' } },
       ],

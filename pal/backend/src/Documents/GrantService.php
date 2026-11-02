@@ -69,6 +69,9 @@ final class GrantService
             throw ApiProblem::validation(['principal' => 'Choose a person or enter a group object ID.']);
         }
         $actor = $user->auditActor();
+        // Authorize before the directory lookup: tracking a group is a lasting side effect
+        // (the worker syncs its members), so unauthorized callers must not reach it.
+        $this->requireManageable($user, $documentId, false);
         $groupId = null;
         $groupName = null;
         if (!Ids::isUuid($userId) && \is_string($groupObjectId)) {
@@ -129,9 +132,9 @@ final class GrantService
     /**
      * @return array<string, mixed>
      */
-    private function requireManageable(PalUser $user, string $documentId): array
+    private function requireManageable(PalUser $user, string $documentId, bool $lock = true): array
     {
-        $document = $this->documents->findDocument($documentId, true);
+        $document = $this->documents->findDocument($documentId, $lock);
         if (null === $document || !$this->access->canSeeDocument($user, $document, null !== $this->documents->visibleRevision($documentId))) {
             throw new ApiProblem(404, 'not_found', 'Document not found.');
         }

@@ -39,6 +39,14 @@ async function save(): Promise<void> {
     saving.value = false
   }
 }
+
+async function signOut(): Promise<void> {
+  try {
+    await session.signOut()
+  } catch {
+    formError.value = 'Sign-out could not be confirmed. Close the browser to end your session.'
+  }
+}
 </script>
 
 <template>
@@ -115,7 +123,7 @@ async function save(): Promise<void> {
                 flat
                 no-caps
                 label="Sign out"
-                @click="session.signOut()"
+                @click="signOut"
               />
               <q-btn
                 type="submit"

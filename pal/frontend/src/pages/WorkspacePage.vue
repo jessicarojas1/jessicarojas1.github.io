@@ -81,7 +81,7 @@ onMounted(load)
       <q-spinner size="32px" /><span class="pal-visually-hidden">Loading…</span>
     </div>
 
-    <template v-else>
+    <template v-else-if="!error">
       <section
         class="pal-section"
         aria-labelledby="tasks-heading"

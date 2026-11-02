@@ -13,7 +13,10 @@ export function roleLabel(role: string): string {
 }
 
 /** Formats an ISO timestamp in the user's PAL timezone (not the browser's), labelled. */
-export function formatDateTime(iso: string, timeZone: string): string {
+export function formatDateTime(iso: string | null | undefined, timeZone: string): string {
+  const date = new Date(iso ?? '')
+  // Intl throws a RangeError on an invalid date, which would break the whole page render.
+  if (Number.isNaN(date.getTime())) return '—'
   // dateStyle/timeStyle cannot be combined with timeZoneName, so list the fields explicitly.
   return new Intl.DateTimeFormat(undefined, {
     year: 'numeric',
@@ -23,5 +26,5 @@ export function formatDateTime(iso: string, timeZone: string): string {
     minute: '2-digit',
     timeZone,
     timeZoneName: 'short',
-  }).format(new Date(iso))
+  }).format(date)
 }

@@ -53,7 +53,8 @@ final class LibraryQuery
             SQL;
         $whereSql = ' WHERE '.implode(' AND ', $where);
         $total = Row::int(['n' => $this->connection->fetchOne('SELECT count(*) '.$from.$whereSql, $params)], 'n');
-        $page = max(1, $page);
+        // Bounded so OFFSET stays an integer whatever the client sends.
+        $page = min(max(1, $page), 100_000);
         $order = '' !== $query
             ? "ORDER BY ts_rank(r.search_vector, websearch_to_tsquery('english', :q)) DESC, d.document_number"
             : 'ORDER BY d.document_number';

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import BrandMark from '@/components/BrandMark.vue'
+import { safeReturnTo } from '@/returnTo'
 import { useSessionStore } from '@/stores/session'
 
 interface Method { id: string; label: string; connected: boolean }
@@ -31,15 +32,13 @@ const ssoError = computed(() => {
   const code = route.query.auth_error
   return typeof code === 'string' ? (MESSAGES[code] ?? MESSAGES.sign_in_failed) : null
 })
-const returnTo = computed(() => {
-  const value = route.query.returnTo
-  return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : '/'
-})
+const returnTo = computed(() => safeReturnTo(route.query.returnTo))
 const sso = computed(() => methods.value.filter((m) => m.id !== 'password'))
 
 async function loadMethods(): Promise<void> {
   try {
     const response = await fetch('/auth/methods', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+    if (!response.ok) throw new Error('methods unavailable')
     const data = (await response.json()) as { csrfToken: string; methods: Method[] }
     csrf.value = data.csrfToken
     methods.value = data.methods
@@ -173,6 +172,7 @@ onMounted(loadMethods)
           </p>
 
           <div
+            v-if="sso.length > 0"
             class="pal-divider q-my-lg"
             role="separator"
             aria-label="or use single sign-on"
@@ -180,7 +180,10 @@ onMounted(loadMethods)
             <span>or use single sign-on</span>
           </div>
 
-          <ul class="pal-plain-list q-gutter-y-sm">
+          <ul
+            v-if="sso.length > 0"
+            class="pal-plain-list q-gutter-y-sm"
+          >
             <li
               v-for="method in sso"
               :key="method.id"

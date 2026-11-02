@@ -26,7 +26,11 @@ const departments = ref<ReferenceItem[]>([])
 const pages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 const activeFilters = computed(() => (typeId.value !== null ? 1 : 0) + (departmentId.value !== null ? 1 : 0))
 
+// Only the newest request may update the page; a slow older response is ignored.
+let latestRequest = 0
+
 async function load(): Promise<void> {
+  const request = ++latestRequest
   loading.value = true
   error.value = null
   const params = new URLSearchParams()
@@ -36,20 +40,23 @@ async function load(): Promise<void> {
   params.set('page', String(page.value))
   try {
     const data = await api<{ items: LibraryItem[]; total: number; pageSize: number }>(`/api/library?${params.toString()}`)
+    if (request !== latestRequest) return
     items.value = data.items
     total.value = data.total
     pageSize.value = data.pageSize
   } catch (e) {
-    error.value = e instanceof ApiError ? e.message : 'The library could not be loaded.'
+    if (request === latestRequest) error.value = e instanceof ApiError ? e.message : 'The library could not be loaded.'
   } finally {
-    loading.value = false
+    if (request === latestRequest) loading.value = false
   }
 }
 
 function search(): void {
+  const pageChanges = page.value !== 1
   page.value = 1
   void router.replace({ query: { ...(query.value.trim() !== '' ? { q: query.value.trim() } : {}), ...(typeId.value !== null ? { type: typeId.value } : {}), ...(departmentId.value !== null ? { department: departmentId.value } : {}) } })
-  void load()
+  // Changing the page already triggers a load through the watcher.
+  if (!pageChanges) void load()
 }
 
 function clearFilters(): void {

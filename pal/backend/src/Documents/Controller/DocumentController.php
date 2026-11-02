@@ -15,6 +15,7 @@ use App\Identity\Authorization\Permission;
 use App\Identity\User\PalUser;
 use App\Platform\Http\ApiProblem;
 use App\Platform\Http\JsonBody;
+use App\Storage\UploadService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -30,13 +31,18 @@ final class DocumentController
         private readonly LibraryQuery $library,
         private readonly ReferenceRepository $reference,
         private readonly GrantService $grants,
+        private readonly UploadService $uploads,
     ) {
     }
 
     #[Route('/api/reference', name: 'api_reference', methods: ['GET'])]
     public function reference(): JsonResponse
     {
-        return new JsonResponse(['documentTypes' => $this->reference->documentTypes(true), 'departments' => $this->reference->departments(true)]);
+        return new JsonResponse([
+            'documentTypes' => $this->reference->documentTypes(true),
+            'departments' => $this->reference->departments(true),
+            'maxUploadBytes' => $this->uploads->maxBytes(),
+        ]);
     }
 
     #[Route('/api/library', name: 'api_library', methods: ['GET'])]

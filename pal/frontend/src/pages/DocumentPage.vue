@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useLeaveGuard } from '@/composables/useLeaveGuard'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
@@ -29,6 +30,7 @@ const editKeywords = ref<string[]>([])
 const editSummary = ref('')
 // Submission
 const approvers = ref<Person[]>([])
+const approversError = ref<string | null>(null)
 const approverId = ref<string | null>(null)
 const submitComment = ref('')
 // Decision
@@ -60,19 +62,56 @@ async function load(): Promise<void> {
     doc.value = await api<DocumentDetail>(`/api/documents/${encodeURIComponent(id.value)}`)
     notFound.value = false
     const draft = doc.value.openRevision
-    if (draft !== null) {
+    // Re-seed the edit fields only for a different draft or when nothing is unsaved, so a
+    // reload after another action (attaching a file, granting access) never discards edits.
+    if (draft !== null && (seeded.value === null || seeded.value.id !== draft.id || !draftDirty.value)) {
       editTitle.value = draft.title
       editDescription.value = draft.description ?? ''
       editKeywords.value = [...draft.keywords]
       editSummary.value = draft.changeSummary ?? ''
-      if (draft.actions.includes('submit')) {
-        approvers.value = (await api<{ approvers: Person[] }>(`/api/documents/${encodeURIComponent(id.value)}/approvers`)).approvers
-      }
+      seeded.value = snapshot(draft.id)
     }
   } catch (e) {
     if (e instanceof ApiError && e.status === 404) notFound.value = true
     else loadError.value = e instanceof ApiError ? e.message : 'The document could not be loaded.'
+    return
   }
+  await loadApprovers()
+}
+
+// A failed approver lookup is shown on the submit section, not as a page-level failure.
+async function loadApprovers(): Promise<void> {
+  approversError.value = null
+  const draft = doc.value?.openRevision ?? null
+  if (draft === null || !draft.actions.includes('submit')) return
+  try {
+    approvers.value = (await api<{ approvers: Person[] }>(`/api/documents/${encodeURIComponent(id.value)}/approvers`)).approvers
+  } catch (e) {
+    approversError.value = e instanceof ApiError ? e.message : 'Approvers could not be loaded.'
+  }
+}
+
+interface DraftSnapshot { id: string; title: string; description: string; keywords: string; summary: string }
+const seeded = ref<DraftSnapshot | null>(null)
+
+function snapshot(revisionId: string): DraftSnapshot {
+  return { id: revisionId, title: editTitle.value, description: editDescription.value, keywords: JSON.stringify(editKeywords.value), summary: editSummary.value }
+}
+
+const draftDirty = computed(() => {
+  const base = seeded.value
+  // Only an editable draft can hold unsaved work (it may have been withdrawn or submitted).
+  if (base === null || open.value?.id !== base.id || !open.value.actions.includes('edit')) return false
+  const now = snapshot(base.id)
+  return now.title !== base.title || now.description !== base.description || now.keywords !== base.keywords || now.summary !== base.summary
+})
+
+useLeaveGuard(draftDirty)
+
+function goBack(): void {
+  // A deep-linked visitor has no in-app history; going "back" would leave PAL.
+  if (window.history.state?.back) router.back()
+  else void router.push('/library')
 }
 
 async function run(section: string, action: () => Promise<unknown>, success: string): Promise<void> {
@@ -92,7 +131,11 @@ async function run(section: string, action: () => Promise<unknown>, success: str
 }
 
 function saveDraft(rev: RevisionView): Promise<void> {
-  return run('draft', () => api(`/api/revisions/${rev.id}`, { method: 'PATCH', body: { title: editTitle.value, description: editDescription.value, keywords: editKeywords.value, changeSummary: editSummary.value, rowVersion: rev.rowVersion } }), 'Draft saved.')
+  return run('draft', async () => {
+    await api(`/api/revisions/${rev.id}`, { method: 'PATCH', body: { title: editTitle.value, description: editDescription.value, keywords: editKeywords.value, changeSummary: editSummary.value, rowVersion: rev.rowVersion } })
+    // Saved: the reload below takes the server's values as the new baseline.
+    seeded.value = null
+  }, 'Draft saved.')
 }
 
 function attach(rev: RevisionView, uploadId: string): Promise<void> {
@@ -100,6 +143,10 @@ function attach(rev: RevisionView, uploadId: string): Promise<void> {
 }
 
 function submit(rev: RevisionView): Promise<void> {
+  if (draftDirty.value) {
+    sectionError.value = { ...sectionError.value, draft: 'Save your changes to the draft before submitting it.' }
+    return Promise.resolve()
+  }
   return run('draft', () => api(`/api/revisions/${rev.id}/submit`, { method: 'POST', body: { approverId: approverId.value, comment: submitComment.value } }), 'Submitted for approval.')
 }
 
@@ -152,8 +199,17 @@ function addGrant(): Promise<void> {
   }, 'Access granted.')
 }
 
-function revokeGrant(grant: Grant): Promise<void> {
-  return run('access', () => api(`/api/documents/${id.value}/grants/${grant.id}`, { method: 'DELETE' }), 'Access removed.')
+function revokeGrant(grant: Grant): void {
+  $q.dialog({
+    title: `Remove access for ${grant.principal.displayName}?`,
+    message: `They lose the ${GRANT_ROLE_LABELS[grant.role]} access on this document. The change is recorded and can be granted again.`,
+    cancel: { flat: true, noCaps: true, label: 'Cancel' },
+    ok: { color: 'negative', unelevated: true, noCaps: true, label: 'Remove access' },
+    focus: 'cancel',
+    persistent: true,
+  }).onOk(() => {
+    void run('access', () => api(`/api/documents/${id.value}/grants/${grant.id}`, { method: 'DELETE' }), 'Access removed.')
+  })
 }
 
 watch(id, () => void load(), { immediate: true })
@@ -232,7 +288,7 @@ watch(id, () => void load(), { immediate: true })
         </p>
         <template v-else>
           <p class="q-mb-sm">
-            <strong>Revision {{ doc.current.label }}</strong>, released {{ formatDateTime(doc.current.releasedAt ?? '', tz) }}, effective from {{ formatDateTime(doc.current.effectiveFrom ?? '', tz) }}.
+            <strong>Revision {{ doc.current.label }}</strong>, released {{ formatDateTime(doc.current.releasedAt, tz) }}, effective from {{ formatDateTime(doc.current.effectiveFrom, tz) }}.
           </p>
           <p v-if="doc.current.description">
             {{ doc.current.description }}
@@ -484,7 +540,7 @@ watch(id, () => void load(), { immediate: true })
             <a
               v-if="open.file"
               :href="`/api/revisions/${open.id}/file`"
-              class="q-ml-sm"
+              class="q-ml-sm pal-text-primary"
             >Download</a>
           </p>
           <FileUploadField
@@ -770,7 +826,7 @@ watch(id, () => void load(), { immediate: true })
           no-caps
           icon="arrow_back"
           label="Back"
-          @click="router.back()"
+          @click="goBack"
         />
       </div>
     </template>

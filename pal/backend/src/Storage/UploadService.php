@@ -31,7 +31,15 @@ final class UploadService
         private readonly ClockInterface $clock,
         #[Autowire(env: 'int:PAL_MAX_UPLOAD_BYTES')]
         private readonly int $maxBytes,
+        #[Autowire(env: 'int:default:pal.upload_daily_bytes_default:PAL_UPLOAD_DAILY_BYTES')]
+        private readonly int $dailyBytes = 524_288_000,
     ) {
+    }
+
+    /** The configured upload limit (PAL_MAX_UPLOAD_BYTES), shown to users before they upload. */
+    public function maxBytes(): int
+    {
+        return $this->maxBytes;
     }
 
     /**
@@ -53,6 +61,7 @@ final class UploadService
         if ($size <= 0) {
             throw new ApiProblem(422, 'file_empty', 'The file is empty.');
         }
+        $this->assertWithinDailyQuota($user, $size);
         if ($size > $this->maxBytes) {
             $this->record($user, $actor, $filename, $size, null, null, 'REJECTED', 'too large');
             throw new ApiProblem(413, 'file_too_large', $this->tooLargeMessage());
@@ -129,6 +138,22 @@ final class UploadService
         };
 
         return $this->connection->isTransactionActive() ? $write() : $this->connection->transactional($write);
+    }
+
+    /**
+     * Every accepted upload consumes storage that is never reclaimed (write-once), so one
+     * account must not be able to fill the volume. Slight overshoot under concurrent uploads
+     * is acceptable; the limit is a safeguard, not an accounting control.
+     */
+    private function assertWithinDailyQuota(PalUser $user, int $size): void
+    {
+        $used = $this->connection->fetchOne(
+            "SELECT COALESCE(sum(size_bytes), 0) FROM upload WHERE uploaded_by = ? AND status = 'CLEAN' AND created_at > now() - interval '24 hours'",
+            [$user->id],
+        );
+        if (is_numeric($used) && (int) $used + $size > $this->dailyBytes) {
+            throw new ApiProblem(429, 'upload_quota_exceeded', 'You have reached the daily upload limit. Try again tomorrow.');
+        }
     }
 
     private function tooLargeMessage(): string

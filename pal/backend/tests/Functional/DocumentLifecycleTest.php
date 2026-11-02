@@ -301,6 +301,68 @@ final class DocumentLifecycleTest extends WebTestCase
         self::assertSame('CHANGES_REQUESTED', $this->db->fetchOne('SELECT state FROM revision WHERE id = ?', [$revisionId]));
     }
 
+    public function testAnyoneWhoEditedARevisionCannotApproveIt(): void
+    {
+        [$documentId, $revisionId] = $this->draftDocument();
+        $csrf = $this->as('author');
+        $this->call($csrf, 'POST', '/api/documents/'.$documentId.'/grants', ['role' => 'AUTHOR', 'userId' => $this->users['approver']]);
+        self::assertResponseStatusCodeSame(201);
+        $rowVersion = (int) $this->db->fetchOne('SELECT row_version FROM revision WHERE id = ?', [$revisionId]);
+
+        // The approver edits the content through their author grant, then is chosen to approve it.
+        $this->call($this->as('approver'), 'PATCH', '/api/revisions/'.$revisionId, ['title' => 'Rewritten by the approver', 'rowVersion' => $rowVersion]);
+        self::assertResponseIsSuccessful();
+        $csrf = $this->as('author');
+        $this->client->request('GET', '/api/documents/'.$documentId.'/approvers');
+        self::assertSame([], $this->json()['approvers']);
+        $this->call($csrf, 'POST', '/api/revisions/'.$revisionId.'/submit', ['approverId' => $this->users['approver']]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testRevokedApproverCannotDecideAnOpenTask(): void
+    {
+        [$documentId, $revisionId] = $this->draftDocument();
+        $csrf = $this->as('author');
+        $this->call($csrf, 'POST', '/api/revisions/'.$revisionId.'/submit', ['approverId' => $this->users['approver']]);
+        self::assertResponseIsSuccessful();
+        $grantId = (string) $this->db->fetchOne("SELECT id FROM document_grant WHERE document_id = ? AND role = 'APPROVER'", [$documentId]);
+        $this->call($csrf, 'DELETE', '/api/documents/'.$documentId.'/grants/'.$grantId);
+        self::assertResponseIsSuccessful();
+
+        $taskId = (string) $this->db->fetchOne('SELECT t.id FROM workflow_task t JOIN workflow_instance i ON i.id = t.instance_id WHERE i.revision_id = ?', [$revisionId]);
+        $this->call($this->as('approver'), 'POST', '/api/tasks/'.$taskId.'/decision', ['decision' => 'APPROVE']);
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertSame('IN_WORKFLOW', $this->db->fetchOne('SELECT state FROM revision WHERE id = ?', [$revisionId]));
+    }
+
+    public function testGroupGrantsAreAuthorizedBeforeAnyDirectoryLookup(): void
+    {
+        [$documentId] = $this->draftDocument();
+        $groupObjectId = 'b0000000-0000-4000-8000-0000000000ff';
+
+        $this->call($this->as('reader'), 'POST', '/api/documents/'.$documentId.'/grants', ['role' => 'READER', 'groupObjectId' => $groupObjectId]);
+
+        self::assertResponseStatusCodeSame(404);
+        self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM directory_group WHERE idp_object_id = ?', [$groupObjectId]));
+    }
+
+    public function testDailyUploadQuotaIsEnforced(): void
+    {
+        $csrf = $this->as('author');
+        $this->db->executeStatement(
+            "INSERT INTO upload (uploaded_by, original_filename, size_bytes, status, reason) VALUES (?, 'big.pdf', 524288000, 'REJECTED', 'x')",
+            [$this->users['author']],
+        );
+        // Refused uploads do not count against the quota.
+        $this->upload($csrf, 'a.pdf', "%PDF-1.4\n% a\n%%EOF\n");
+        self::assertResponseStatusCodeSame(201);
+
+        $this->db->executeStatement("UPDATE upload SET size_bytes = 524288000 WHERE uploaded_by = ? AND status = 'CLEAN'", [$this->users['author']]);
+        $this->upload($csrf, 'b.pdf', "%PDF-1.4\n% b\n%%EOF\n");
+        self::assertResponseStatusCodeSame(429);
+    }
+
     public function testScenario3RejectionReworkAndResubmission(): void
     {
         [, $revisionId] = $this->draftDocument();

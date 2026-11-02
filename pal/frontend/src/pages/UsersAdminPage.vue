@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useLeaveGuard } from '@/composables/useLeaveGuard'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { api, ApiError } from '@/api/client'
@@ -40,6 +41,8 @@ const selectedId = ref<string | null>(null)
 const draftRoles = ref<string[]>([])
 const saving = ref(false)
 const loadError = ref<string | null>(null)
+const loading = ref(true)
+const activating = ref(false)
 const actionError = ref<string | null>(null)
 const openModules = ref<string[]>([])
 const creating = ref(false)
@@ -87,14 +90,22 @@ async function load(): Promise<void> {
     if (selectedId.value === null && data.users[0] !== undefined) selectedId.value = data.users[0].id
   } catch (e) {
     loadError.value = e instanceof ApiError ? e.message : 'Users could not be loaded.'
+  } finally {
+    loading.value = false
   }
 }
 
-watch(selected, (user) => {
+watch(selected, (user, previous) => {
+  const sameUser = user !== null && user.id === previous?.id
+  // A refresh of the same user (after a reset, say) must not discard unsaved role edits.
+  if (sameUser && [...draftRoles.value].sort().join() !== [...previous.explicitRoles].sort().join()) return
   draftRoles.value = user === null ? [] : [...user.explicitRoles]
+  if (sameUser) return
   actionError.value = null
   openModules.value = modules.value.slice(0, 3).map((m) => m.key)
 })
+
+useLeaveGuard(dirty)
 
 function selectUser(id: string): void {
   if (dirty.value) {
@@ -149,7 +160,18 @@ function resetPassword(user: AdminUser): void {
     })
 }
 
+function confirmSetActive(user: AdminUser, active: boolean): void {
+  if (active) {
+    void setActive(user, true)
+    return
+  }
+  $q.dialog({ title: `Deactivate ${user.displayName}?`, message: 'They are signed out and cannot sign in until the account is reactivated. Their history is kept.', cancel: { flat: true, noCaps: true, label: 'Cancel' }, ok: { color: 'negative', unelevated: true, noCaps: true, label: 'Deactivate' }, focus: 'cancel', persistent: true })
+    .onOk(() => { void setActive(user, false) })
+}
+
 async function setActive(user: AdminUser, active: boolean): Promise<void> {
+  if (activating.value) return
+  activating.value = true
   actionError.value = null
   try {
     await api(`/api/admin/users/${user.id}/active`, { method: 'PUT', body: { isActive: active } })
@@ -157,6 +179,8 @@ async function setActive(user: AdminUser, active: boolean): Promise<void> {
     await load()
   } catch (e) {
     actionError.value = e instanceof ApiError ? e.message : 'The account could not be updated.'
+  } finally {
+    activating.value = false
   }
 }
 
@@ -234,14 +258,21 @@ onMounted(load)
             </template>
           </q-input>
         </div>
+        <div
+          v-if="loading"
+          class="q-pa-md"
+          role="status"
+        >
+          <q-spinner size="24px" /> Loading users…
+        </div>
         <p
-          v-if="filtered.length === 0"
+          v-else-if="filtered.length === 0 && !loadError"
           class="empty-state-sm q-pa-md"
         >
           No users match.
         </p>
         <ul
-          v-else
+          v-else-if="filtered.length > 0"
           class="pal-plain-list"
         >
           <li
@@ -314,7 +345,8 @@ onMounted(load)
               no-caps
               :class="selected.isActive ? 'pal-text-danger' : ''"
               :label="selected.isActive ? 'Deactivate account' : 'Reactivate account'"
-              @click="setActive(selected, !selected.isActive)"
+              :loading="activating"
+              @click="confirmSetActive(selected, !selected.isActive)"
             />
           </div>
         </div>

@@ -86,6 +86,8 @@ final class UserAdminController
     {
         $body = JsonBody::decode($request);
         $roles = $this->parseRoles($body['roles'] ?? []);
+        // The new account's temporary password is shown to this administrator, so they could act as it.
+        $this->assertNoEscalation($admin, $roles);
         $created = $this->accounts->create(
             $admin->auditActor(),
             $admin->id,
@@ -117,10 +119,12 @@ final class UserAdminController
                     }
                 }
             }
+            $this->assertNoEscalation($admin, array_map(GlobalRole::from(...), $added));
             $this->connection->executeStatement('DELETE FROM user_role WHERE user_id = ?', [$id]);
             foreach ($after as $value) {
                 $this->connection->executeStatement('INSERT INTO user_role (user_id, role, granted_by) VALUES (?, ?, ?)', [$id, $value, $admin->id]);
             }
+            $this->assertAdministratorRemains();
             if ($before !== $after) {
                 $this->audit->record(new AuditEntry('USER_ROLES_CHANGED', $admin->auditActor(), 'app_user', $id, [
                     'user' => Row::string($target, 'display_name'), 'from' => $before, 'to' => $after,
@@ -144,6 +148,7 @@ final class UserAdminController
         $target = $this->requireUser($id);
         $this->connection->transactional(function () use ($admin, $id, $active, $target): void {
             $this->connection->executeStatement('UPDATE app_user SET is_active = ?, updated_at = now() WHERE id = ?', [$active ? 'true' : 'false', $id]);
+            $this->assertAdministratorRemains();
             $this->audit->record(new AuditEntry($active ? 'USER_ACTIVATED' : 'USER_DEACTIVATED', $admin->auditActor(), 'app_user', $id, ['user' => Row::string($target, 'display_name')]));
         });
 
@@ -154,8 +159,63 @@ final class UserAdminController
     public function resetPassword(#[CurrentUser] PalUser $admin, string $id): JsonResponse
     {
         $this->requireUser($id);
+        // A reset hands this administrator a working password for the account.
+        $this->assertNoEscalation($admin, $this->effectiveRoles($id));
 
         return new JsonResponse(['ok' => true, 'temporaryPassword' => $this->accounts->resetPassword($admin, $id)]);
+    }
+
+    /**
+     * Separation of duties without a second approver (see D20): a System Administrator alone
+     * can never obtain document authority, directly or through an account they control.
+     * Conferring it, or taking over an account that has it, requires PAL Administrator.
+     *
+     * @param list<GlobalRole> $roles
+     */
+    private function assertNoEscalation(PalUser $admin, array $roles): void
+    {
+        if ($admin->hasRole(GlobalRole::PalAdministrator)) {
+            return;
+        }
+        foreach ($roles as $role) {
+            if ($role->hasDocumentAuthority()) {
+                throw new ApiProblem(403, 'role_escalation_forbidden', 'Only a PAL Administrator can give a role with document authority, or reset the password of an account that has one.');
+            }
+        }
+    }
+
+    /**
+     * Explicit and group-inherited roles of a user.
+     *
+     * @return list<GlobalRole>
+     */
+    private function effectiveRoles(string $userId): array
+    {
+        $values = Row::strings($this->connection->fetchFirstColumn(<<<'SQL'
+            SELECT role FROM user_role WHERE user_id = :id
+            UNION
+            SELECT m.role FROM global_role_mapping m
+            JOIN group_membership gm ON gm.group_id = m.group_id AND gm.valid_to IS NULL
+            WHERE gm.user_id = :id
+            SQL, ['id' => $userId]));
+
+        return array_values(array_filter(array_map(GlobalRole::tryFrom(...), $values)));
+    }
+
+    /** Refuses (and so rolls back) a change that would leave no active System Administrator. */
+    private function assertAdministratorRemains(): void
+    {
+        $remains = $this->connection->fetchOne(<<<'SQL'
+            SELECT count(*) > 0 FROM app_user u
+            WHERE u.is_active AND (
+                EXISTS (SELECT 1 FROM user_role ur WHERE ur.user_id = u.id AND ur.role = :role)
+                OR EXISTS (SELECT 1 FROM global_role_mapping m
+                           JOIN group_membership gm ON gm.group_id = m.group_id AND gm.valid_to IS NULL
+                           WHERE gm.user_id = u.id AND m.role = :role))
+            SQL, ['role' => GlobalRole::SystemAdministrator->value]);
+        if (true !== $remains) {
+            throw new ApiProblem(409, 'last_administrator', 'At least one active System Administrator must remain.');
+        }
     }
 
     /**

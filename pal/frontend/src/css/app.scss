@@ -77,6 +77,36 @@ body {
   padding: var(--pal-space-6) var(--pal-space-4) var(--pal-space-8);
 }
 
+.pal-breadcrumbs + .pal-page {
+  padding-top: var(--pal-space-4);
+}
+
+.pal-breadcrumbs {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--pal-space-4) var(--pal-space-4) 0;
+  font-size: 0.875rem;
+
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li + li::before {
+    content: '/';
+    margin: 0 8px;
+    color: var(--pal-text-muted);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+
 .pal-page-header {
   margin-bottom: var(--pal-space-6);
 

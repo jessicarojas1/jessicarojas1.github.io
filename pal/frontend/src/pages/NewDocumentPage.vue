@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useLeaveGuard } from '@/composables/useLeaveGuard'
 import { useRouter } from 'vue-router'
 import { api, ApiError } from '@/api/client'
 import type { ReferenceItem } from '@/api/documents'
@@ -15,9 +16,13 @@ const description = ref('')
 const keywords = ref<string[]>([])
 const restricted = ref(false)
 const uploadId = ref<string | null>(null)
+const uploading = ref(false)
 const fieldErrors = ref<Record<string, string>>({})
 const formError = ref<string | null>(null)
 const saving = ref(false)
+const created = ref(false)
+const dirty = computed(() => !created.value && (typeId.value !== null || departmentId.value !== null || title.value !== '' || description.value !== '' || keywords.value.length > 0 || uploadId.value !== null))
+useLeaveGuard(dirty)
 
 onMounted(async () => {
   try {
@@ -30,7 +35,7 @@ onMounted(async () => {
 })
 
 async function create(): Promise<void> {
-  if (saving.value) return
+  if (saving.value || uploading.value) return
   saving.value = true
   fieldErrors.value = {}
   formError.value = null
@@ -39,6 +44,7 @@ async function create(): Promise<void> {
       method: 'POST',
       body: { typeId: typeId.value, departmentId: departmentId.value, title: title.value, description: description.value, keywords: keywords.value, restricted: restricted.value, uploadId: uploadId.value },
     })
+    created.value = true
     await router.push(`/documents/${result.id}`)
   } catch (e) {
     if (e instanceof ApiError) {
@@ -138,6 +144,8 @@ async function create(): Promise<void> {
         id="new-doc-file"
         label="Document file (you can also add it later)"
         @uploaded="uploadId = $event.id"
+        @cleared="uploadId = null"
+        @uploading="uploading = $event"
       />
       <p
         v-if="fieldErrors.uploadId"
@@ -160,6 +168,7 @@ async function create(): Promise<void> {
           no-caps
           label="Create draft"
           :loading="saving"
+          :disable="uploading"
         />
       </div>
     </form>

@@ -135,11 +135,68 @@ final class LocalSignInTest extends WebTestCase
 
     public function testLoginCsrfIsRequired(): void
     {
-        $this->account('ada');
+        $id = $this->account('ada');
 
         self::assertSame(401, $this->signIn('ada', self::PASSWORD, 'forged-token'));
         $this->client->request('GET', '/api/me');
         self::assertResponseStatusCodeSame(401);
+        // A refused request leaves no trace of a successful sign-in.
+        self::assertNotContains('USER_SIGNED_IN', $this->db->fetchFirstColumn('SELECT event_type FROM audit_event'));
+        self::assertNull($this->db->fetchOne('SELECT last_login_at FROM app_user WHERE id = ?', [$id]));
+    }
+
+    public function testSystemAdministratorsAloneCannotObtainDocumentAuthority(): void
+    {
+        $this->account('root', [GlobalRole::SystemAdministrator]);
+        $this->account('other', [GlobalRole::SystemAdministrator]);
+        $publisherId = $this->account('pat', [GlobalRole::Publisher]);
+        $plainId = $this->account('plain');
+        $this->signIn('root', self::PASSWORD);
+        $csrf = $this->apiCsrf();
+        $send = fn (string $method, string $uri, array $body = []) => $this->client->request($method, $uri, server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf], content: json_encode($body));
+
+        // Creating an account they would hold the password for.
+        $send('POST', '/api/admin/users', ['username' => 'sock', 'displayName' => 'Sock', 'roles' => ['PUBLISHER']]);
+        self::assertResponseStatusCodeSame(403);
+        self::assertFalse($this->db->fetchOne("SELECT 1 FROM app_user WHERE username = 'sock'"));
+        // Promoting an account they control.
+        $send('PUT', '/api/admin/users/'.$plainId.'/roles', ['roles' => ['AUTHOR']]);
+        self::assertResponseStatusCodeSame(403);
+        // Taking over an account that already has authority.
+        $send('POST', '/api/admin/users/'.$publisherId.'/reset-password');
+        self::assertResponseStatusCodeSame(403);
+
+        // Non-document administration still works.
+        $send('POST', '/api/admin/users', ['username' => 'ops', 'displayName' => 'Ops', 'roles' => ['SYSTEM_ADMINISTRATOR']]);
+        self::assertResponseStatusCodeSame(201);
+        $send('POST', '/api/admin/users/'.$plainId.'/reset-password');
+        self::assertResponseIsSuccessful();
+    }
+
+    public function testTheLastActiveSystemAdministratorIsProtected(): void
+    {
+        $adminId = $this->account('root', [GlobalRole::SystemAdministrator]);
+        $this->signIn('root', self::PASSWORD);
+        $csrf = $this->apiCsrf();
+
+        $this->client->request('PUT', '/api/admin/users/'.$adminId.'/roles', server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf], content: json_encode(['roles' => []]));
+
+        self::assertResponseStatusCodeSame(409);
+        self::assertSame(['SYSTEM_ADMINISTRATOR'], $this->db->fetchFirstColumn('SELECT role FROM user_role WHERE user_id = ?', [$adminId]));
+    }
+
+    public function testUnlockCommandClearsALockoutAndIsAudited(): void
+    {
+        $id = $this->account('ada');
+        $this->db->executeStatement("UPDATE local_credential SET failed_attempts = 5, locked_until = now() + interval '15 minutes' WHERE user_id = ?", [$id]);
+        self::assertSame(401, $this->signIn('ada', self::PASSWORD));
+
+        $tester = new CommandTester((new Application(self::$kernel))->find('pal:users:unlock'));
+        self::assertSame(0, $tester->execute(['username' => 'ADA']));
+        self::assertSame(1, $tester->execute(['username' => 'nobody']));
+
+        self::assertSame(200, $this->signIn('ada', self::PASSWORD));
+        self::assertContains('USER_UNLOCKED', $this->db->fetchFirstColumn('SELECT event_type FROM audit_event'));
     }
 
     public function testInactiveAccountsCannotSignIn(): void
@@ -179,7 +236,7 @@ final class LocalSignInTest extends WebTestCase
 
     public function testAdministratorsManageLocalAccountsAndRoles(): void
     {
-        $adminId = $this->account('root', [GlobalRole::SystemAdministrator]);
+        $adminId = $this->account('root', [GlobalRole::SystemAdministrator, GlobalRole::PalAdministrator]);
         $this->signIn('root', self::PASSWORD);
         $csrf = $this->apiCsrf();
         $send = fn (string $method, string $uri, array $body = []) => $this->client->request($method, $uri, server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf], content: json_encode($body));

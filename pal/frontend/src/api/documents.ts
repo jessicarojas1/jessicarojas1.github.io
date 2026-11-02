@@ -1,5 +1,7 @@
 // Shapes returned by the documents API (see backend DocumentPresenter / LibraryQuery).
 
+import { api } from '@/api/client'
+
 export interface Named {
   code: string
   name: string
@@ -119,4 +121,21 @@ export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+export interface ReferenceData {
+  documentTypes: ReferenceItem[]
+  departments: ReferenceItem[]
+  maxUploadBytes: number
+}
+
+let referencePromise: Promise<ReferenceData> | null = null
+
+/** Active types, departments and the upload limit; fetched once per page load and shared. */
+export function loadReference(): Promise<ReferenceData> {
+  referencePromise ??= api<ReferenceData>('/api/reference').catch((e: unknown) => {
+    referencePromise = null
+    throw e
+  })
+  return referencePromise
 }

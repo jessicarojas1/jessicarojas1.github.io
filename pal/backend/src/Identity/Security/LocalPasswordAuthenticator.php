@@ -16,6 +16,8 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
@@ -41,6 +43,7 @@ final class LocalPasswordAuthenticator extends AbstractAuthenticator
         private readonly RateLimiterFactory $ipLimiter,
         #[Autowire(service: 'limiter.login_username')]
         private readonly RateLimiterFactory $usernameLimiter,
+        private readonly CsrfTokenManagerInterface $csrf,
     ) {
     }
 
@@ -65,6 +68,12 @@ final class LocalPasswordAuthenticator extends AbstractAuthenticator
         if ('' === $username || '' === $password || \strlen($password) > 1024) {
             throw new CustomUserMessageAuthenticationException('invalid_credentials');
         }
+        // Checked before verify(): a correct password records a successful sign-in, which must
+        // not happen for a request that is then refused for its CSRF token.
+        $csrfToken = (string) $request->headers->get(CsrfHeaderSubscriber::HEADER, '');
+        if (!$this->csrf->isTokenValid(new CsrfToken(self::CSRF_ID, $csrfToken))) {
+            throw new CustomUserMessageAuthenticationException('invalid_credentials');
+        }
         $userId = $this->accounts->verify($username, $password);
         if (null === $userId) {
             throw new CustomUserMessageAuthenticationException('invalid_credentials');
@@ -72,7 +81,7 @@ final class LocalPasswordAuthenticator extends AbstractAuthenticator
 
         return new SelfValidatingPassport(
             new UserBadge($userId, $this->users->loadUserByIdentifier(...)),
-            [new CsrfTokenBadge(self::CSRF_ID, (string) $request->headers->get(CsrfHeaderSubscriber::HEADER, ''))],
+            [new CsrfTokenBadge(self::CSRF_ID, $csrfToken)],
         );
     }
 
