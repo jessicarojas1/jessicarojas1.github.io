@@ -13,8 +13,12 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
  * no access to PAL's filesystem). clamd's StreamMaxLength must be at least
  * PAL_MAX_UPLOAD_BYTES, or large files are reported as an error and rejected.
  *
- * With no PAL_CLAMD_ADDRESS, uploads are refused, unless PAL_ALLOW_UNSCANNED_UPLOADS=1
- * outside production (local development without ClamAV).
+ * With no PAL_CLAMD_ADDRESS, uploads are refused (fail closed) unless the operator explicitly
+ * sets PAL_ALLOW_UNSCANNED_UPLOADS=1. That flag is an explicit, off-by-default opt-out of malware
+ * scanning: outside production it is a convenience for local development; in production it is
+ * honoured too (e.g. a single-service demo with no scanner) but logged as an error on every
+ * upload and recorded with scan engine "none (unscanned)". Do not enable it where real documents
+ * are stored.
  */
 #[AsAlias(MalwareScanner::class)]
 final class ClamdScanner implements MalwareScanner
@@ -36,13 +40,18 @@ final class ClamdScanner implements MalwareScanner
     public function scan(string $path): ScanResult
     {
         if ('' === trim($this->address)) {
-            if ($this->allowUnscanned && 'prod' !== $this->environment) {
-                $this->logger->warning('Upload accepted WITHOUT malware scanning (PAL_ALLOW_UNSCANNED_UPLOADS, non-production)');
-
-                return ScanResult::clean('none (development)');
+            if (!$this->allowUnscanned) {
+                return ScanResult::error('clamd', 'scanner not configured');
             }
+            // Explicit operator opt-out of scanning. Loud in production so it can never pass silently.
+            if ('prod' === $this->environment) {
+                $this->logger->error('Upload accepted WITHOUT malware scanning in PRODUCTION (PAL_ALLOW_UNSCANNED_UPLOADS=1, no PAL_CLAMD_ADDRESS)');
 
-            return ScanResult::error('clamd', 'scanner not configured');
+                return ScanResult::clean('none (unscanned)');
+            }
+            $this->logger->warning('Upload accepted WITHOUT malware scanning (PAL_ALLOW_UNSCANNED_UPLOADS, non-production)');
+
+            return ScanResult::clean('none (development)');
         }
 
         $socket = @stream_socket_client($this->address, $errorCode, $errorMessage, $this->timeoutSeconds);

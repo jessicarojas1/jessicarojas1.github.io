@@ -114,7 +114,7 @@ All variables from [SINGLE_LINUX_SERVER.md §5](SINGLE_LINUX_SERVER.md#5-environ
 | `PAL_BLOB_DIR` | `/srv/pal/data/blobs` | Blob store root; storage inside the enclave |
 | `PAL_MAX_UPLOAD_BYTES` | `26214400` | Largest accepted file; stays within clamd's default `StreamMaxLength` (25 MiB). App default `52428800` |
 | `PAL_UPLOAD_DAILY_BYTES` | `524288000` | Per-user limit on clean uploaded bytes in any 24 hours |
-| `PAL_CLAMD_ADDRESS` | `clamd:3310` | Local clamd. Uploads are refused without it; `PAL_ALLOW_UNSCANNED_UPLOADS` is ignored in production |
+| `PAL_CLAMD_ADDRESS` | `clamd:3310` | Local clamd. Uploads are refused without it unless `PAL_ALLOW_UNSCANNED_UPLOADS=1` is set as an explicit opt-out (honoured in any environment; logged as error and recorded `none (unscanned)` in prod). Keep clamd in an air-gapped install — never store real documents unscanned |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` / `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | `admin` / 12+ characters, one-off | First local administrator (required in Situation B); temporary password. Delete after first sign-in |
 | `OIDC_*`, `GRAPH_BASE_URL` | *(leave `OIDC_TENANT_ID`/`OIDC_CLIENT_ID` at placeholders, credentials blank)* | Situation B: SSO shows as "Not connected" |
 

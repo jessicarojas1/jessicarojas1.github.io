@@ -157,7 +157,7 @@ Configure on the Container Apps (secrets as `secretref:`). Full descriptions: [S
 | `PAL_MAX_UPLOAD_BYTES` | `26214400` | Largest accepted file. App default is `52428800`; set this to stay within clamd's default `StreamMaxLength` (25 MiB) | web |
 | `PAL_UPLOAD_DAILY_BYTES` | `524288000` | Per-user limit on clean uploaded bytes in any 24 hours | web |
 | `PAL_CLAMD_ADDRESS` | `tcp://pal-clamav:3310` | ClamAV daemon (verify the internal hostname and port exposure in your environment). Empty or unreachable: uploads are refused | web |
-| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0`. Ignored when `APP_ENV=prod` | web |
+| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0` and run ClamAV. `1` is an explicit opt-out honoured in any environment (logged as error, recorded `none (unscanned)` in prod) — not for production with real documents | web |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` / `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | `admin` / `secretref:` | First local administrator; temporary password. Delete after first sign-in | migrate job |
 
 Image defaults to keep: `APP_ENV=prod`, `APP_DEBUG=0`, `PAL_SESSION_COOKIE_NAME=__Host-pal_session`, `PAL_SESSION_COOKIE_SECURE=1`.

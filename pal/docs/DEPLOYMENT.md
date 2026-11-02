@@ -119,7 +119,7 @@ Until the OIDC variables are valid, `/auth/login` redirects with `auth_error=sig
 | `PAL_BLOB_DIR` | `/srv/pal/data/blobs` (image) / `var/blobs` (`.env.example`) | Root of the content-addressed blob store. Created if possible; `/health/ready` reports `"storage":"fail"` when missing or not writable. Needed on **web**. |
 | `PAL_MAX_UPLOAD_BYTES` | `52428800` (app default, `backend/.env.example`) / `26214400` (`deploy/pal.env.example`, `render.yaml`) | Largest accepted file. Keep at or below clamd's `StreamMaxLength` (ClamAV default 25 MiB, hence the 26214400 override) or those scans fail closed, and at or below PHP's `upload_max_filesize` (50M). Exposed to the UI as `maxUploadBytes` by `GET /api/reference`. |
 | `PAL_UPLOAD_DAILY_BYTES` | `524288000` (default) / `209715200` (`render.yaml`) | Per-user limit on clean uploaded bytes in any 24 hours (429 `upload_quota_exceeded`). |
-| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | `1` accepts uploads without scanning when `PAL_CLAMD_ADDRESS` is empty, **only outside `APP_ENV=prod`**. Ignored in production. |
+| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Explicit, off-by-default opt-out of malware scanning. `1` accepts uploads without scanning when `PAL_CLAMD_ADDRESS` is empty, **in any environment**. In production each such upload is logged as an error and recorded with scan engine `none (unscanned)`. Leave `0` and run ClamAV wherever real documents are stored; set `1` only for a scanner-less demo (see §12.3). |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` | `admin` | Read by the `migrate` role. With the password below, creates the first local administrator if no local account exists. Remove after first sign-in. |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | 12–128 characters, one-off value | Temporary: must be changed at first sign-in. A value that fails the policy makes `migrate` fail. **Secret.** Remove after first sign-in. |
 | `PAL_AUDIT_ANCHOR_DIR` | `/var/lib/pal-anchors` | Directory where the audit chain head is appended (`audit-anchors.jsonl`). Should be write-once storage owned by another team. Empty = anchoring off. Requires a writable mount in the worker container (see §6). |
@@ -371,7 +371,10 @@ Every service is on a paid plan. Check [current prices](https://render.com/prici
 
 The topology chosen for the portfolio demo. Created by hand (**New > Web Service**), without the Blueprint: one free PAL Web Service, one paid private ClamAV service, and an existing shared PostgreSQL database with one schema per app. All three must be in the **same region and workspace**: free web services can send private network traffic to data stores and paid services in the same region, but cannot receive it.
 
-**ClamAV** (**New > Private Service > Existing Image**): image `docker.io/clamav/clamav:1.5.4`, name `pal-clamav`, a plan with about 4 GB of memory. Copy its internal address for `PAL_CLAMD_ADDRESS`.
+**Malware scanning — pick one:**
+
+- **With ClamAV (recommended):** **New > Private Service > Existing Image**, image `docker.io/clamav/clamav:1.5.4`, name `pal-clamav`, a plan with **about 4 GB of memory** (512 MB will OOM on first start while it loads ~1.5 GB of signatures). Its internal address appears as `pal-clamav:<port>` only once it is healthy (first start downloads signatures, several minutes); copy that for `PAL_CLAMD_ADDRESS`, and set `PAL_ALLOW_UNSCANNED_UPLOADS=0`.
+- **Without ClamAV (scanner-less demo — cheapest):** skip the ClamAV service entirely. Leave `PAL_CLAMD_ADDRESS` **unset** and set `PAL_ALLOW_UNSCANNED_UPLOADS=1`. Uploads are then accepted **without malware scanning** (logged as an error, recorded as `none (unscanned)`). The web service boots and runs on just a Web Service + a database. **Never load real documents in this mode.**
 
 **PAL Web Service:**
 
@@ -396,7 +399,8 @@ The topology chosen for the portfolio demo. Created by hand (**New > Web Service
 | `PAL_BASE_URL`, `DEFAULT_URI` | `https://<your-service>.onrender.com` | Public origin, no trailing slash |
 | `TRUSTED_HOSTS` | `^<your-service>\.onrender\.com$` | Host allowlist |
 | `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Message transport |
-| `PAL_CLAMD_ADDRESS` | `<clamav-internal-host>:3310` | Malware scanner |
+| `PAL_CLAMD_ADDRESS` | `pal-clamav:3310` (ClamAV) / **unset** (scanner-less) | Malware scanner address. Omit it for the scanner-less variant |
+| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` (ClamAV) / `1` (scanner-less) | `1` accepts uploads with no scanner; demo only |
 | `PAL_MAX_UPLOAD_BYTES` | `26214400` | 25 MiB, ClamAV's default stream limit |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME`, `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | hard to guess; 12+ characters | First administrator. Delete both after first sign-in |
 

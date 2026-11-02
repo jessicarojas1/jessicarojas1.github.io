@@ -235,7 +235,7 @@ Set in `deploy/pal.env` (Compose `env_file`). Values not set fall back to the im
 | `PAL_MAX_UPLOAD_BYTES` | `26214400` | Largest accepted file. App default is `52428800` (`backend/.env.example`); `pal.env.example` sets this to stay within clamd's default `StreamMaxLength` (25 MiB) | web | |
 | `PAL_UPLOAD_DAILY_BYTES` | `524288000` | Per-user limit on clean uploaded bytes in any 24 hours (429 `upload_quota_exceeded`) | web | |
 | `PAL_CLAMD_ADDRESS` | `clamd:3310` | ClamAV daemon. Empty or unreachable: uploads are refused (503 `scanner_unavailable`). `tcp://clamd:3310` also works | web | Uploads |
-| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0`. Honoured only outside `APP_ENV=prod`, and only when `PAL_CLAMD_ADDRESS` is empty | web | |
+| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0` and run ClamAV. `1` is an explicit opt-out honoured in any environment when `PAL_CLAMD_ADDRESS` is empty (logged as error, recorded `none (unscanned)` in prod) — not for a server with real documents | web | |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` | `admin` | First local administrator, created by `migrate` only if no local account exists. Delete after first sign-in | migrate | |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | 12+ characters, one-off | Temporary; forced change at first sign-in. A value failing the policy makes `migrate` exit non-zero. **Secret.** Delete after first sign-in | migrate | |
 | `DEFAULT_URI` | `https://pal.example.internal` | Symfony router default URI for URL generation outside HTTP requests (CLI/worker). Not in `pal.env.example`; the image default is `http://localhost:5173`. Set it to `PAL_BASE_URL` | all | |

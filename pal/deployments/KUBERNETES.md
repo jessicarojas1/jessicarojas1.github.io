@@ -135,7 +135,7 @@ Same set as the Linux guide (full descriptions: [SINGLE_LINUX_SERVER.md §5](SIN
 | `PAL_MAX_UPLOAD_BYTES` | `26214400` | Largest accepted file. App default is `52428800`; set this to stay within clamd's default `StreamMaxLength` (25 MiB) | ConfigMap |
 | `PAL_UPLOAD_DAILY_BYTES` | `524288000` | Per-user limit on clean uploaded bytes in any 24 hours | ConfigMap |
 | `PAL_CLAMD_ADDRESS` | `tcp://pal-clamav:3310` | ClamAV daemon. Empty or unreachable: uploads are refused | ConfigMap |
-| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0`. Ignored when `APP_ENV=prod` | ConfigMap |
+| `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0` and run ClamAV. `1` is an explicit opt-out honoured in any environment (logged as error, recorded `none (unscanned)` in prod) — not for a cluster holding real documents | ConfigMap |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` / `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | `admin` / 12+ characters, one-off | First local administrator; temporary password. Delete after first sign-in | Secret `pal-bootstrap`, migrate Job only |
 
 Image defaults (leave as is): `APP_ENV=prod`, `APP_DEBUG=0`, `PAL_SESSION_COOKIE_NAME=__Host-pal_session`, `PAL_SESSION_COOKIE_SECURE=1`.

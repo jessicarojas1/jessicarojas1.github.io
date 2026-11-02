@@ -59,12 +59,23 @@ final class StoragePrimitivesTest extends TestCase
         $garbage->stop();
     }
 
-    public function testUnscannedModeIsNeverAvailableInProduction(): void
+    public function testUnscannedModeRequiresExplicitOptInAndIsLabelledPerEnvironment(): void
     {
         $path = $this->file('ok.pdf', FakeClamd::minimalPdf());
 
-        self::assertTrue((new ClamdScanner('', true, 'dev', new NullLogger()))->scan($path)->isClean());
-        self::assertFalse((new ClamdScanner('', true, 'prod', new NullLogger()))->scan($path)->isClean());
+        // Fail closed by default: no scanner and no explicit opt-in => refused, in any environment.
+        self::assertFalse((new ClamdScanner('', false, 'prod', new NullLogger()))->scan($path)->isClean());
+        self::assertFalse((new ClamdScanner('', false, 'dev', new NullLogger()))->scan($path)->isClean());
+
+        // Explicit opt-in (PAL_ALLOW_UNSCANNED_UPLOADS=1) accepts without scanning in any environment,
+        // but the recorded scan engine marks production uploads as unscanned rather than "development".
+        $dev = (new ClamdScanner('', true, 'dev', new NullLogger()))->scan($path);
+        self::assertTrue($dev->isClean());
+        self::assertSame('none (development)', $dev->engine);
+
+        $prod = (new ClamdScanner('', true, 'prod', new NullLogger()))->scan($path);
+        self::assertTrue($prod->isClean());
+        self::assertSame('none (unscanned)', $prod->engine);
     }
 
     public function testTypeIsDecidedByContentAndMustMatchTheExtension(): void
