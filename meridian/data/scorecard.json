@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-02",
+  "updated": "2026-11-03",
   "summary": {
-    "correct": 31,
-    "incorrect": 27,
+    "correct": 33,
+    "incorrect": 31,
     "partial": 12,
-    "pending": 84,
-    "note": "2026-11-02: seven prior forecasts resolved this cycle, the largest single-cycle resolution batch to date, concentrated in the actively-exploited-CVE wave's victim-identification tests. fc-2026-09-30-netscaler-govt-victim, fc-2026-10-01-cisco-sdwan-victim, fc-2026-10-01-bitget-vendor-named, fc-2026-10-02-fortimail-victim, and fc-2026-10-12-fortimail-named-victim all graded INCORRECT -- dedicated searches this cycle found sector-level victim description at most, with no specifically named victim organization or vendor on any of the five. fc-2026-10-12-netscaler-107406-exploited graded PARTIAL given genuinely conflicting evidence on whether CISA KEV-listed the CVE (one unverified source says yes, a tracker says exploitation status is 'None'; CISA's own catalog could not be directly accessed to adjudicate). fc-2026-10-30-sylvia-prosecution graded CORRECT -- its 'or referral' clause is satisfied by reported Pentagon referral of the Sylvia case to DOJ for possible criminal prosecution, well within the 60-day window, even though no formal charge has been confirmed. Lead findings: (1) the 3 Nov midterm elections are now explicitly reported as gating both a post-election US Iran decision and Golden Dome's FY27 reconciliation-funding path, concentrating two major open questions into the same near-term window. (2) CrowdStrike/CSA research on WARP PANDA reframes the 30 Oct VMware ESX KEV listing as the public surfacing of a multi-year-dwell (since at least 2023) espionage campaign against US law firms, tech, and manufacturing firms, with CISA's federal deadline set for 11 Nov. (3) The Hormuz mine-claims-vs-CENTCOM-denial dispute, the CMMC Reform Task Force's non-public status (sixth consecutive quiet cycle), and the 10 Nov rare-earth suspension-expiry window (now ~8 days out) all persist unchanged amid a thin weekend/pre-election reporting window. (4) The Sylvia case's DOJ referral and continued Army Secretary vacancy keep DoD leadership-continuity and personnel-security scrutiny elevated simultaneously. Three new PENDING forecasts added, testing: whether the 3 Nov elections resolve into a visible US Iran decision within 30 days; whether a post-midterm reconciliation floor action naming Golden Dome occurs within 45 days; and whether a specifically named WARP PANDA/BrickStorm victim organization surfaces within 30 days."
+    "pending": 80,
+    "note": "2026-11-03: six prior forecasts resolved this cycle. fc-2026-10-20-goldendome-no-premidterm-reconciliation and fc-2026-10-20-hormuz-transit-reality graded CORRECT -- no Golden Dome reconciliation bill passed before the midterms, and Hormuz commercial transit continued (reduced but not fully closed) despite Iran's claimed closure. Four graded INCORRECT: fc-2026-10-13-fortimail-patch-confirm, fc-2026-10-16-fortimail-patch-ships, and fc-2026-10-19-fortimail-primary-source (three independent attempts to get a primary-source confirmation of FortiMail CVE-2026-104286's patch status all failed, extending this wave's under-disclosure pattern from victim identification into basic remediation facts); and fc-2026-10-19-blacksea-toll-reconciliation (no authoritative reconciliation of the Black Sea campaign's casualty/vessel counts was found). Lead findings this cycle: (1) US forces struck Iranian radar/missile-launcher sites on Qeshm Island on 2 Nov, hours before midterm polls opened, officially framed as a defensive response rather than the anticipated post-election strike decision -- Iran reportedly countered with a 2-day Hormuz-reopening offer. (2) The 3 Nov midterm elections arrived exactly as this program's forecasts anticipated as the gating trigger for both the Iran-decision and Golden Dome-reconciliation tracks, with the latter's pre-midterm-no-bill forecast resolving cleanly. (3) A CVSS-9.8 FortiMail zero-day's patch status remains unconfirmed by any primary source a full month after disclosure. (4) China's rare-earth suspension-expiry window is now 7 days out with no PRC signal. North Korea's 29 Oct Wonsan resumption (following the already-resolved 15 Oct cadence forecast) remains untested against its own separate 14-day window. Three new forecasts added: Qeshm Island strike-aftermath, a midterm chamber-control baseline, and the rare-earth 10 Nov outcome."
   },
   "forecasts": [
     {
@@ -141,7 +141,7 @@
       "horizon": "0-14 days",
       "outcome": "PARTIAL",
       "resolvedDate": "2026-09-11",
-      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range — but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range \u2014 but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-10-kev-networkedge",
@@ -150,7 +150,7 @@
       "horizon": "0-30 days",
       "outcome": "CORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate — well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
+      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate \u2014 well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-11-bahrain-basing",
@@ -168,7 +168,7 @@
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "The meeting was postponed entirely rather than held — it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "The meeting was postponed entirely rather than held \u2014 it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-11-pipeline",
@@ -704,11 +704,11 @@
     {
       "id": "fc-2026-10-06-moldova-nato-commitment",
       "date": "2026-10-06",
-      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chișinau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
+      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chi\u0219inau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-10-14",
-      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~€50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~\u20ac50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-06-flydubai-reversal-effect",
@@ -877,9 +877,9 @@
       "date": "2026-10-13",
       "forecast": "A primary Fortinet security advisory (FG-IR-26-175) confirming a released, versioned FortiMail patch will be publicly available within 14 days, resolving the conflict between the Singapore CSA bulletin (patch available) and other sources (patch pending).",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Still no primary-source (Fortinet/CISA) confirmation located either way on FortiMail's patch status this cycle; this program's direct access to both sites again could not be confirmed. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-03",
+      "note": "No primary Fortinet/CISA source confirming a released, versioned FortiMail patch was identified within the 14-day window; secondary press remained split between 'released' and 'pending' characterizations."
     },
     {
       "id": "fc-2026-10-13-sohar-missing-seafarers",
@@ -934,15 +934,6 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether continued silence on the letter persists or whether the administration formally addresses the senators' concerns. Tracked on the China-Taiwan Pressure / Trump-Xi Summit thread."
-    },
-    {
-      "id": "fc-2026-10-15-nk-third-launch-pattern",
-      "date": "2026-10-15",
-      "forecast": "North Korea will conduct at least one further missile or weapons test (any type) within 10 days, extending the pattern of three distinct test events (3 Oct, 12 Oct, 14 Oct) in under two weeks into a sustained accelerated cadence rather than a temporary cluster.",
-      "horizon": "0-10 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the now three-events-in-12-days cadence continues at pace. Tracked on the Korean Peninsula Missile-Testing Cadence thread."
     },
     {
       "id": "fc-2026-10-15-trump-kim-meeting",
@@ -1003,9 +994,9 @@
       "date": "2026-10-16",
       "forecast": "Fortinet will publish a confirmed, released (not 'upcoming') FortiMail patch for CVE-2026-104286 within 14 days, given this cycle's converging sourcing that fixed releases remain pending more than two weeks after disclosure.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No newer primary-source evidence located this cycle on whether Fortinet has shipped a fixed FortiMail release; the most recent confirming reporting (early October) still described fixed releases as upcoming. Window remains open to ~30 Oct. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-03",
+      "note": "Same verification gap as fc-2026-10-13-fortimail-patch-confirm; no primary-source confirmation of released fixed builds was identified within this forecast's window either."
     },
     {
       "id": "fc-2026-10-16-anthropic-rehearing-ruling",
@@ -1021,9 +1012,9 @@
       "date": "2026-10-19",
       "forecast": "A single authoritative source (a flag-state maritime authority, the IMO, or a marine insurer) will publicly reconcile the Black Sea campaign's conflicting vessel identities and casualty counts (currently split across HS Dignity/Azov Concord naming and differing missing-crew totals) within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Not yet reconciled by a single authoritative source; this program's own research this cycle found converging secondary reporting (Geographical/PBS NewsHour, CNN, IBTimes, France 24) revising the toll upward to ~2 dead/25 missing across at least seven vessels in three incident clusters, correcting this thread's own prior casualty-free characterization -- but still no single authoritative (flag-state/IMO/insurer) reconciliation. Window remains open to ~11/2. Tracked on the Black Sea Maritime Attack Campaign thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-03",
+      "note": "No authoritative (flag-state, IMO, or marine-insurer) reconciliation of the Black Sea campaign's conflicting vessel identities and casualty counts was identified within the 14-day window."
     },
     {
       "id": "fc-2026-10-19-nato-blacksea-meeting-outcome",
@@ -1048,9 +1039,9 @@
       "date": "2026-10-19",
       "forecast": "A primary Fortinet or CISA source (not secondary technical press) will confirm FortiMail's patch status, either way, within 14 days, ending this program's multi-cycle verification gap.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No primary Fortinet/CISA confirmation located again this cycle; a separate, newly KEV-listed Fortinet flaw (CVE-2025-61624, 16 Oct) is unrelated to FortiMail's own disputed patch status. Window remains open to ~11/2. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-03",
+      "note": "The verification gap continues unresolved by any primary source; this is the third consecutive FortiMail patch-status forecast to close without resolution, consistent with this wave's broader under-disclosure pattern."
     },
     {
       "id": "fc-2026-10-20-hormuz-mine-verification",
@@ -1066,9 +1057,9 @@
       "date": "2026-10-20",
       "forecast": "Despite the IRGC's 17 Oct 'Strait closed' declaration, independent reporting will confirm commercial transit through Hormuz continuing (via the Omani corridor or otherwise) rather than a fully enforced physical closure, within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Trending toward INCORRECT: reported shipping-data aggregation now describes transit collapsing to ~4 vessels/day (18 Oct) against an ~85/day baseline -- the opposite of 'transit continuing' -- but this traces to secondary aggregation, not a primary UKMTO/CENTCOM confirmation, so not yet graded. Window remains open to ~11/3. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-03",
+      "note": "S&P Global reported continued (if sharply reduced) VLCC transits through late October (six VLCCs, most since 17 Oct), and a US official stated primary routes remained clear of mines; no fully enforced physical closure was confirmed despite the IRGC's 17 Oct declaration."
     },
     {
       "id": "fc-2026-10-20-ivanti-dib-victim",
@@ -1084,9 +1075,9 @@
       "date": "2026-10-20",
       "forecast": "No Golden Dome-specific reconciliation or supplemental funding bill will pass Congress before the November 2026 midterm elections, consistent with Senate Majority Leader Thune's 15 Sep statement and the Senate's reported post-midterm adjournment.",
       "horizon": "0-20 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "A direct test of Thune's on-record timeline against actual legislative action; tests whether an unexpected pre-midterm vehicle emerges despite the stated reluctance. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-03",
+      "note": "Confirmed: no Golden Dome-specific reconciliation or supplemental funding bill passed Congress before the 3 Nov midterms, consistent with reported Senate aide statements that reconciliation was unlikely before the vote."
     },
     {
       "id": "fc-2026-10-21-hormuz-transit-primary",
@@ -1393,6 +1384,33 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether this newly elaborated, multi-year-dwell campaign breaks the wave's otherwise consistent pattern of sector-level-only victim disclosure. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-11-03-qeshm-strike-aftermath",
+      "date": "2026-11-03",
+      "forecast": "Within 14 days of the 2 Nov Qeshm Island strikes, either a further publicly reported US/Israeli kinetic action against Iran will occur, or a confirmed, independently corroborated step toward Iran's offered 2-day Hormuz reopening will be reported.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tracks whether the Qeshm Island action was an isolated defensive incident or the opening move of a broader post-election track, and whether Iran's reopening offer is substantive."
+    },
+    {
+      "id": "fc-2026-11-03-midterm-chamber-call",
+      "date": "2026-11-03",
+      "forecast": "A confirmed call of House control (and, separately, Senate control) will be publicly reported within 48 hours of midterm polls closing, consistent with pre-election forecasts favoring Democrats for the House and a closer Senate race.",
+      "horizon": "0-2 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Baseline tracking forecast for the midterm results themselves, which were not yet available at this brief's generation time."
+    },
+    {
+      "id": "fc-2026-11-03-rareearth-nov10-outcome",
+      "date": "2026-11-03",
+      "forecast": "China will not issue a MOFCOM/GAC statement extending, reinstating, or substantively clarifying the rare-earth-control suspension before its 10 Nov expiry; the window will lapse with the suspension's status ambiguous rather than cleanly resolved either way.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tracks whether Beijing acts before the hard 10 Nov checkpoint or lets the window lapse without a clear public signal."
     }
   ]
 }
