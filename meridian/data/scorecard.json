@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-03",
+  "updated": "2026-11-04",
   "summary": {
-    "correct": 33,
+    "correct": 39,
     "incorrect": 31,
     "partial": 12,
-    "pending": 80,
-    "note": "2026-11-03: six prior forecasts resolved this cycle. fc-2026-10-20-goldendome-no-premidterm-reconciliation and fc-2026-10-20-hormuz-transit-reality graded CORRECT -- no Golden Dome reconciliation bill passed before the midterms, and Hormuz commercial transit continued (reduced but not fully closed) despite Iran's claimed closure. Four graded INCORRECT: fc-2026-10-13-fortimail-patch-confirm, fc-2026-10-16-fortimail-patch-ships, and fc-2026-10-19-fortimail-primary-source (three independent attempts to get a primary-source confirmation of FortiMail CVE-2026-104286's patch status all failed, extending this wave's under-disclosure pattern from victim identification into basic remediation facts); and fc-2026-10-19-blacksea-toll-reconciliation (no authoritative reconciliation of the Black Sea campaign's casualty/vessel counts was found). Lead findings this cycle: (1) US forces struck Iranian radar/missile-launcher sites on Qeshm Island on 2 Nov, hours before midterm polls opened, officially framed as a defensive response rather than the anticipated post-election strike decision -- Iran reportedly countered with a 2-day Hormuz-reopening offer. (2) The 3 Nov midterm elections arrived exactly as this program's forecasts anticipated as the gating trigger for both the Iran-decision and Golden Dome-reconciliation tracks, with the latter's pre-midterm-no-bill forecast resolving cleanly. (3) A CVSS-9.8 FortiMail zero-day's patch status remains unconfirmed by any primary source a full month after disclosure. (4) China's rare-earth suspension-expiry window is now 7 days out with no PRC signal. North Korea's 29 Oct Wonsan resumption (following the already-resolved 15 Oct cadence forecast) remains untested against its own separate 14-day window. Three new forecasts added: Qeshm Island strike-aftermath, a midterm chamber-control baseline, and the rare-earth 10 Nov outcome."
+    "pending": 77,
+    "note": "2026-11-04: six prior forecasts resolved this cycle, all graded CORRECT. fc-2026-11-03-midterm-chamber-call resolved cleanly same-day: AP/CNN/NBC/NYT called both the House and Senate for Democrats within hours of polls closing. Five long-overdue Iran/Hormuz- and rare-earth-adjacent forecasts whose windows had lapsed weeks ago without being graded were also closed out this cycle: fc-2026-09-16-energy-dispute, fc-2026-09-18-trump-iran-decision, fc-2026-09-21-unga-iran-framework, fc-2026-09-22-gulf-guarantee, and fc-2026-09-24-summit-rareearth-gap -- each resolved CORRECT on a straightforward reading of their now-closed windows against extensive, consistent thread history. Lead findings this cycle: (1) Democrats won control of both chambers of Congress on 3 Nov, ending unified Republican government from January 2027 and adding a new, genuinely two-sided variable to the Golden Dome reconciliation-funding outlook. (2) Trump told Fox News the Iran war was 'a part of' the GOP's midterm losses; Iran is separately reported 'playing down hope' for the Hormuz-reopening deal it floated 2 Nov, even as it continues disputing CENTCOM's mine-free claim. (3) This program's own direct access to CISA's KEV catalog was blocked this cycle, and a 29 Oct Black Sea incident was found to have been missed in the prior cycle's tracking -- both flagged explicitly as tradecraft gaps rather than absorbed into 'no material change' findings. (4) China's rare-earth suspension-expiry window is now 6 days out with no PRC signal, and a second, distinct suspension (gallium/germanium/antimony/superhard materials) is clarified to expire separately on 27 Nov. Three new forecasts added: the Anthropic IPO-roadshow timing claim, a Democratic-Congress/Golden-Dome-priority test, and independent confirmation of the 29 Oct Black Sea incident."
   },
   "forecasts": [
     {
@@ -274,9 +274,9 @@
       "date": "2026-09-16",
       "forecast": "Ukraine and Russia will not achieve a durable, mutually verified halt on energy-infrastructure strikes within 30 days, despite Trump's push for one.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Trending strongly toward CORRECT. Ukraine's largest strike package of the war damaged a Moscow refinery facility on 19-20 Sep with no halt agreed, and United Russia's two-thirds constitutional majority removes the last internal route to a policy change. The 30-day window remains open to 16 Oct, so not graded yet."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-04",
+      "note": "Graded on the window's lapse (16 Oct) rather than forced earlier. No durable, mutually verified halt was ever achieved; extensive Ukraine-thread history through October and into November documents continued reciprocal strikes on energy/grid infrastructure with no confirmed halt agreement on either side."
     },
     {
       "id": "fc-2026-09-17-hormuz-escalation",
@@ -310,9 +310,9 @@
       "date": "2026-09-18",
       "forecast": "Trump will not order a major overt military action beyond the current strike posture against Iran within 30 days, despite the 'annihilate' framing in his 17 Sep Axios interview.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Trending toward CORRECT: Trump rejected Iran's roadmap on 26 Sep but WSJ reports he is weighing strikes specifically after the midterms (post-~4 Nov), consistent with no major action inside this forecast's ~18 Oct window. No new major overt action confirmed yet."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-04",
+      "note": "Graded on the window's lapse (~18 Oct) rather than forced earlier. No major overt action beyond the existing blockade/skirmish posture occurred within that window; the 2 Nov Qeshm Island strikes came after this forecast's window had already closed and are tracked separately (fc-2026-11-03-qeshm-strike-aftermath)."
     },
     {
       "id": "fc-2026-09-18-far-overhaul-finalize",
@@ -346,9 +346,9 @@
       "date": "2026-09-21",
       "forecast": "No publicly announced U.S.-Iran ceasefire or framework agreement will be reached within 14 days of the 22 Sep Trump-Gulf-leaders meeting, despite Pezeshkian's UNGA attendance and Trump's stated openness to meeting him.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Still no framework announced as of 24 Sep, consistent with the base case. Reporting since has clarified that the 22 Sep session was conducted indirectly through Qatari intermediaries rather than face-to-face, and Araghchi faces domestic Iranian backlash -- both cut against a fast framework and restore confidence toward the original base case. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-04",
+      "note": "Graded on the window's lapse (~6 Oct) rather than forced earlier. No ceasefire or comprehensive framework was ever reached within that window, consistent with the subsequent months of continued skirmishing, mine-claim disputes, and the still-unresolved Hormuz-reopening offer tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-21-houthi-saudi-followon",
@@ -400,9 +400,9 @@
       "date": "2026-09-22",
       "forecast": "No specific, publicly announced U.S. security-guarantee or air-defense-resupply commitment to Gulf Cooperation Council states will be identified within 14 days of the 22 Sep Trump-Gulf-leaders meeting, consistent with the postwar plan's reported deferral until after the November midterms.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No specific security-guarantee or resupply commitment identified as of 23 Sep, consistent with the base case so far; reporting instead describes Gulf states independently accelerating their own layered air-defense procurement (Patriot/THAAD/counter-UAS) rather than a new US commitment. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-04",
+      "note": "Graded on the window's lapse (~6 Oct) rather than forced earlier. No specific US security-guarantee or resupply commitment to GCC states was ever identified within the window or in any subsequent cycle through today; Gulf states were instead reported independently accelerating their own air-defense procurement. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-23-hormuz-framework",
@@ -445,9 +445,9 @@
       "date": "2026-09-24",
       "forecast": "No formal Xi-Trump joint statement or fact sheet containing rare-earth licensing language for military-affiliated U.S. firms will be identified within 14 days of the 24 Sep summit.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Four days into the window, still no formal joint statement or fact sheet has surfaced with rare-earth licensing language, consistent with the base case. Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-04",
+      "note": "Graded on the window's lapse (~8 Oct) rather than forced earlier. No such joint statement or fact sheet was ever identified within that window or in any subsequent cycle through today. Tracked on the Critical Minerals / Rare-Earth Magnets and China-Taiwan Pressure / Trump-Xi Summit threads."
     },
     {
       "id": "fc-2026-09-24-anthropic-deadline",
@@ -1374,7 +1374,7 @@
       "horizon": "0-45 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the reported post-midterm timing for reconciliation action materializes within a reasonable window, given this program's history of similar informal timing signals slipping. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+      "note": "Tests whether the reported post-midterm timing for reconciliation action materializes within a reasonable window, given this program's history of similar informal timing signals slipping. Democrats were called for control of both chambers on 3 Nov; this forecast tests the current Republican-controlled lame-duck Senate (through early Jan 2027), not the incoming Democratic one. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
     },
     {
       "id": "fc-2026-11-02-warp-panda-named-victim",
@@ -1392,16 +1392,16 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracks whether the Qeshm Island action was an isolated defensive incident or the opening move of a broader post-election track, and whether Iran's reopening offer is substantive."
+      "note": "Tracks whether the Qeshm Island action was an isolated defensive incident or the opening move of a broader post-election track, and whether Iran's reopening offer is substantive. This cycle: no further strike confirmed, but Iran is reported 'playing down hope' for a deal -- a cooling signal short of either clause resolving; window remains open to ~16 Nov."
     },
     {
       "id": "fc-2026-11-03-midterm-chamber-call",
       "date": "2026-11-03",
       "forecast": "A confirmed call of House control (and, separately, Senate control) will be publicly reported within 48 hours of midterm polls closing, consistent with pre-election forecasts favoring Democrats for the House and a closer Senate race.",
       "horizon": "0-2 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Baseline tracking forecast for the midterm results themselves, which were not yet available at this brief's generation time."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-04",
+      "note": "AP, CNN, NBC and the NYT called both the House and Senate for Democrats within hours of polls closing on 3 Nov -- well within the 48-hour window."
     },
     {
       "id": "fc-2026-11-03-rareearth-nov10-outcome",
@@ -1410,7 +1410,34 @@
       "horizon": "0-7 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tracks whether Beijing acts before the hard 10 Nov checkpoint or lets the window lapse without a clear public signal."
+      "note": "No MOFCOM/GAC statement identified this cycle; window now 6 days out. Clarified that a second, distinct suspension (gallium/germanium/antimony/superhard materials) expires separately on 27 Nov and is not covered by this forecast's specific 10 Nov test."
+    },
+    {
+      "id": "fc-2026-11-04-anthropic-ipo-roadshow",
+      "date": "2026-11-04",
+      "forecast": "Anthropic's IPO roadshow will begin during the week of 9 Nov 2026, and the company will debut on Nasdaq (ticker ANT) before Thanksgiving (26 Nov 2026).",
+      "horizon": "0-22 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests Bloomberg's reported timing signal (via secondary outlets) against an amended S-1 filing and the actual roadshow/debut dates. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-11-04-dem-congress-goldendome-priority",
+      "date": "2026-11-04",
+      "forecast": "The Democratic majorities that won control of the House and Senate in the 3 Nov midterms will not make Golden-Dome-specific reconciliation funding an early legislative priority once the 119th Congress is seated in January 2027, making a reconciliation-funded path materially less likely than it would have been under continued Republican control.",
+      "horizon": "3-6 months",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the changed congressional majority meaningfully alters Golden Dome's reconciliation prospects, as this brief's analysis assesses, or whether bipartisan defense-spending support proves the more important variable. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+    },
+    {
+      "id": "fc-2026-11-04-blacksea-oct29-incident-confirm",
+      "date": "2026-11-04",
+      "forecast": "An independent, authoritative source (flag-state, IMO, or marine-insurer) will confirm the reported 29 Oct Liberian-flagged container-ship sinking in Bulgaria's Black Sea EEZ within 14 days, given this program's own prior-cycle tracking gap in capturing it contemporaneously.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests both the incident's veracity and this program's ability to self-correct a tracking gap. Tracked on the Black Sea Maritime Attack Campaign thread."
     }
   ]
 }
