@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-04",
+  "updated": "2026-11-05",
   "summary": {
     "correct": 39,
     "incorrect": 31,
     "partial": 12,
-    "pending": 77,
-    "note": "2026-11-04: six prior forecasts resolved this cycle, all graded CORRECT. fc-2026-11-03-midterm-chamber-call resolved cleanly same-day: AP/CNN/NBC/NYT called both the House and Senate for Democrats within hours of polls closing. Five long-overdue Iran/Hormuz- and rare-earth-adjacent forecasts whose windows had lapsed weeks ago without being graded were also closed out this cycle: fc-2026-09-16-energy-dispute, fc-2026-09-18-trump-iran-decision, fc-2026-09-21-unga-iran-framework, fc-2026-09-22-gulf-guarantee, and fc-2026-09-24-summit-rareearth-gap -- each resolved CORRECT on a straightforward reading of their now-closed windows against extensive, consistent thread history. Lead findings this cycle: (1) Democrats won control of both chambers of Congress on 3 Nov, ending unified Republican government from January 2027 and adding a new, genuinely two-sided variable to the Golden Dome reconciliation-funding outlook. (2) Trump told Fox News the Iran war was 'a part of' the GOP's midterm losses; Iran is separately reported 'playing down hope' for the Hormuz-reopening deal it floated 2 Nov, even as it continues disputing CENTCOM's mine-free claim. (3) This program's own direct access to CISA's KEV catalog was blocked this cycle, and a 29 Oct Black Sea incident was found to have been missed in the prior cycle's tracking -- both flagged explicitly as tradecraft gaps rather than absorbed into 'no material change' findings. (4) China's rare-earth suspension-expiry window is now 6 days out with no PRC signal, and a second, distinct suspension (gallium/germanium/antimony/superhard materials) is clarified to expire separately on 27 Nov. Three new forecasts added: the Anthropic IPO-roadshow timing claim, a Democratic-Congress/Golden-Dome-priority test, and independent confirmation of the 29 Oct Black Sea incident."
+    "pending": 80,
+    "note": "2026-11-05: no prior forecasts resolved this cycle; all standing short-fuse windows (rare-earth 10 Nov outcome, Anthropic IPO timing, Qeshm-strike aftermath, midterm Iran decision) remain open. Lead findings this cycle: (1) Iran's IRGC pressed new Hormuz mine-strike claims (5 Nov) extending the unresolved CENTCOM dispute into a second week, alongside an unverified trade-press 'emboldened after the midterms' characterization. (2) New WSJ-sourced reporting (via secondary outlets) targets an Anthropic Nasdaq debut the week of 16 Nov at a $1.5-2T valuation/$100B+ raise -- a more specific, and partly distinct, timing signal from the 4 Nov Bloomberg-sourced 'week of 9 Nov roadshow start' claim; no amended S-1/A filed. (3) This program's direct access to CISA's KEV catalog and several primary/press domains was blocked for a second consecutive cycle; secondary sourcing nonetheless surfaced two new KEV entries (an Apple flaw reportedly linked to APT29, and a WordPress Core flaw), neither independently verified. (4) China's rare-earth suspension-expiry window is now 5 days out with no PRC signal. Three new forecasts added: whether Iran's 'emboldened' framing manifests in a verifiable escalation, whether Anthropic files an amended S-1/A within 10 days, and whether a named victim surfaces for the newly reported Apple/APT29 or WordPress KEV entries."
   },
   "forecasts": [
     {
@@ -1438,6 +1438,33 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests both the incident's veracity and this program's ability to self-correct a tracking gap. Tracked on the Black Sea Maritime Attack Campaign thread."
+    },
+    {
+      "id": "fc-2026-11-05-iran-emboldened-escalation",
+      "date": "2026-11-05",
+      "forecast": "Following press characterizations that Iran is 'emboldened' after the 3 Nov US midterms, Iran or an aligned actor will conduct at least one action against a US-linked vessel or asset that goes beyond routine IRGC mine-strike claims (e.g., an attack CENTCOM itself confirms, a vessel seizure, or a formal Hormuz-closure declaration) within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the 'emboldened' press framing (Maritime Executive, 5 Nov) reflects a genuine posture shift or is simply interpretive gloss on the same claim/denial pattern this program has tracked since late October. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-11-05-anthropic-s1-amendment",
+      "date": "2026-11-05",
+      "forecast": "Anthropic will file an amended S-1 (S-1/A) with a specific price range on SEC EDGAR within 10 days, consistent with reporting that its IPO roadshow cannot begin until that filing occurs.",
+      "horizon": "0-10 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "A concrete, checkable near-term milestone distinct from press-estimated valuation/debut-date figures. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-11-05-kev-apple-wordpress-named-victim",
+      "date": "2026-11-05",
+      "forecast": "A named DIB/federal-contractor or otherwise notable enterprise victim tied to the newly KEV-listed Apple flaw CVE-2024-27834 (reportedly APT29-linked per Sekoia) or WordPress Core flaw CVE-2026-119977 will be publicly reported within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether these two newly identified KEV entries follow this wave's near-universal pattern of sector-level-only victim disclosure with no named organization. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     }
   ]
 }
