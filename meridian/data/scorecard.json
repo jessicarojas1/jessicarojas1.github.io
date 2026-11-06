@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-05",
+  "updated": "2026-11-06",
   "summary": {
-    "correct": 39,
-    "incorrect": 31,
+    "correct": 40,
+    "incorrect": 34,
     "partial": 12,
-    "pending": 80,
-    "note": "2026-11-05: no prior forecasts resolved this cycle; all standing short-fuse windows (rare-earth 10 Nov outcome, Anthropic IPO timing, Qeshm-strike aftermath, midterm Iran decision) remain open. Lead findings this cycle: (1) Iran's IRGC pressed new Hormuz mine-strike claims (5 Nov) extending the unresolved CENTCOM dispute into a second week, alongside an unverified trade-press 'emboldened after the midterms' characterization. (2) New WSJ-sourced reporting (via secondary outlets) targets an Anthropic Nasdaq debut the week of 16 Nov at a $1.5-2T valuation/$100B+ raise -- a more specific, and partly distinct, timing signal from the 4 Nov Bloomberg-sourced 'week of 9 Nov roadshow start' claim; no amended S-1/A filed. (3) This program's direct access to CISA's KEV catalog and several primary/press domains was blocked for a second consecutive cycle; secondary sourcing nonetheless surfaced two new KEV entries (an Apple flaw reportedly linked to APT29, and a WordPress Core flaw), neither independently verified. (4) China's rare-earth suspension-expiry window is now 5 days out with no PRC signal. Three new forecasts added: whether Iran's 'emboldened' framing manifests in a verifiable escalation, whether Anthropic files an amended S-1/A within 10 days, and whether a named victim surfaces for the newly reported Apple/APT29 or WordPress KEV entries."
+    "pending": 79,
+    "note": "2026-11-06: one standing forecast resolved CORRECT (North Korea's ~1 Nov test confirms its missile cadence resumed within the 14-day window following the 29 Oct Wonsan barrage) and three closed INCORRECT on window lapse without resolution (Hormuz transit-figure primary-source reconciliation; Black Sea Chelsea 3/Yara J independent attribution; the Ocean Molica/Arika Sun Panama flag-state inquiry). Lead findings this cycle: (1) China's 10 Nov rare-earth suspension-expiry window narrowed to under 24 hours with no MOFCOM/GAC signal of any kind. (2) Research surfaced that Anthropic filed an S-1/A amendment ~2-3 Nov adding Q3 financials and ~$895B in disclosed compute commitments -- correcting the 11-05 brief's 'no amendment filed' read -- but it still carries no price range, so IPO-roadshow timing remains unconfirmed. (3) Iran's IRGC mine-strike claim/CENTCOM-denial pattern continued with no new confirmed incident or CENTCOM response to the 5 Nov claim identified. (4) This program's own direct access to additional primary sources (SEC EDGAR, alongside CISA's KEV catalog) was blocked this session, broadening a now-recurring sourcing-access limitation. Three new forecasts added: China's rare-earth-expiry disclosure posture, an Anthropic price-range S-1/A filing, and a CENTCOM response to the 5 Nov Hormuz claim."
   },
   "forecasts": [
     {
@@ -913,9 +913,9 @@
       "date": "2026-10-14",
       "forecast": "The single-sourced, unconfirmed report of a Panamanian flag-state inquiry into the Ocean Molica/Arika Sun strike will either be corroborated by a primary Panamanian government statement, or will escalate to a formal diplomatic protest or IMO referral, within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Clarification this cycle: the 'Panama inquiry' most likely attaches to the CENTCOM-disabled Panama-flagged Ocean Molica/Arika Sun (struck 10/10), where UKMTO confirmed 'authorities are investigating,' rather than a separate Petro Dolphin-linked inquiry -- no corroboration of a distinct Petro Dolphin inquiry was found. This narrows what this forecast is actually testing; window remains open to ~11/4. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-06",
+      "note": "The 21-day window (closing ~4 Nov) lapsed with no primary Panamanian government corroboration and no escalation to a formal diplomatic protest or IMO referral identified in this or intervening cycles' research. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-14-far-overhaul-no-extension",
@@ -985,9 +985,9 @@
       "date": "2026-10-16",
       "forecast": "Independent (non-governmental) attribution of either the Chelsea 3 sinking (13 Oct, Bulgaria) or the Yara J fire (15 Oct, Romania) to a specific actor will be publicly reported within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No independent attribution identified again this cycle for either the Chelsea 3 sinking or the Yara J fire. Window remains open to ~11/6. Tracked on the Black Sea Maritime Attack Campaign thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-06",
+      "note": "The 21-day window closed today with no independent (non-governmental) attribution of either the Chelsea 3 sinking or the Yara J fire identified across any cycle's research. Tracked on the Black Sea Maritime Attack Campaign thread."
     },
     {
       "id": "fc-2026-10-16-fortimail-patch-ships",
@@ -1084,9 +1084,9 @@
       "date": "2026-10-21",
       "forecast": "A primary UKMTO/CENTCOM or Lloyd's List Intelligence source will confirm or substantially contradict the reported ~4-vessel/day Hormuz transit figure (18 Oct, vs. an ~85/day baseline) within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this cycle's secondary-sourced transit-collapse figure, which would convert the 17 Oct declared closure into an effectively enforced blockade, survives primary-source scrutiny. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-06",
+      "note": "The 14-day window (closing ~4 Nov) lapsed with no primary-source (UKMTO/CENTCOM/Lloyd's List) reconciliation of the ~4-vessel/day transit figure identified in this or intervening cycles' research. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-10-21-nato-blacksea-asset-named",
@@ -1345,9 +1345,9 @@
       "date": "2026-10-30",
       "forecast": "North Korea will conduct at least one further missile or weapons test within 14 days of the 29 Oct Wonsan SRBM barrage, confirming a renewed sustained cadence rather than a single resumption event after its 15-day pause.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the pause's end marks a return to the cluster's earlier accelerated pace (3 Oct, 12 Oct, 14 Oct) or was a one-off resumption. Tracked on the Korean Peninsula Missile-Testing Cadence thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-06",
+      "note": "North Korea fired two short-range ballistic missiles into the East Sea around 1 Nov, reported by South Korea's Joint Chiefs of Staff and NK News as the sixth missile-test event within roughly a two-week span -- well within the 14-day window (to ~12 Nov), confirming the resumption is a sustained cadence rather than a single event. Tracked on the Korean Peninsula Missile-Testing Cadence thread."
     },
     {
       "id": "fc-2026-10-30-sylvia-prosecution",
@@ -1465,6 +1465,33 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether these two newly identified KEV entries follow this wave's near-universal pattern of sector-level-only victim disclosure with no named organization. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-11-06-rareearth-reimposition",
+      "date": "2026-11-06",
+      "forecast": "Given no PRC extension, reinstatement, or clarification signal has emerged ahead of the 10 Nov expiry, China will allow the MOFCOM/GAC Announcement No. 70 suspension to lapse into an ambiguous state (neither a clear, explicit reimposition statement nor an explicit extension) rather than issuing a definitive public statement either way, within 7 days.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether Beijing's minimal-disclosure posture through the entire suspension period continues past the expiry itself, or whether it breaks pattern with an explicit statement. Tracked on the Critical Minerals / Rare-Earth Magnets thread."
+    },
+    {
+      "id": "fc-2026-11-06-anthropic-pricerange",
+      "date": "2026-11-06",
+      "forecast": "Anthropic will file a price-range S-1/A amendment on SEC EDGAR within 10 days, enabling an investor roadshow consistent with reported timing toward a week-of-16-Nov Nasdaq debut.",
+      "horizon": "0-10 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "A concrete, checkable successor to fc-2026-11-05-anthropic-s1-amendment now that a financials-only (non-price-range) S-1/A has been identified as already filed ~2-3 Nov. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-11-06-hormuz-centcom-response",
+      "date": "2026-11-06",
+      "forecast": "CENTCOM will issue an on-the-record response (confirmation or denial) specifically addressing Iran's 5 Nov IRGC mine-strike claim within 7 days.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether CENTCOM continues its pattern of responding to IRGC mine-strike claims, or whether this specific claim goes unaddressed longer than prior ones. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     }
   ]
 }
