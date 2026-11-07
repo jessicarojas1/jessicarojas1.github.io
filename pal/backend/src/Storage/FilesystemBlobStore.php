@@ -67,6 +67,74 @@ final class FilesystemBlobStore implements BlobStore
         return 'filesystem';
     }
 
+    /**
+     * Yields the SHA-256 identifier of every content blob on disk (skipping `.incoming-*`
+     * temporaries). Used by garbage collection to find on-disk orphans — files with no
+     * `stored_file` row, e.g. left by a put() whose database insert then failed.
+     *
+     * @return \Generator<string>
+     */
+    public function listStoredHashes(): \Generator
+    {
+        $root = rtrim($this->root, '/');
+        foreach (glob($root.'/sha256/*/*/*') ?: [] as $file) {
+            if (is_file($file) && 1 === preg_match('/^[0-9a-f]{64}$/', basename($file))) {
+                yield basename($file);
+            }
+        }
+    }
+
+    /**
+     * Seconds since the blob was last modified, or null if it is not present.
+     */
+    public function ageSeconds(string $sha256): ?int
+    {
+        $mtime = @filemtime($this->path($sha256));
+
+        return false === $mtime ? null : max(0, time() - $mtime);
+    }
+
+    /**
+     * Removes an unreferenced blob. Named explicitly to mark that it breaks the write-once
+     * contract and is for garbage collection only; callers must have proven the blob is not
+     * referenced. Returns true if the blob is gone afterwards (deleted or already absent).
+     */
+    public function deleteOrphan(string $sha256): bool
+    {
+        $target = $this->path($sha256);
+        if (!is_file($target)) {
+            return true;
+        }
+        @unlink($target);
+
+        return !is_file($target);
+    }
+
+    /**
+     * Deletes abandoned `.incoming-*` temporaries older than $minAgeSeconds (a put() that was
+     * interrupted before the atomic rename). Always safe: these are never committed content.
+     *
+     * @return array{found: int, deleted: int}
+     */
+    public function pruneStaleTemporaries(int $minAgeSeconds, bool $delete): array
+    {
+        $root = rtrim($this->root, '/');
+        $found = 0;
+        $deleted = 0;
+        foreach (glob($root.'/sha256/*/*/.incoming-*') ?: [] as $temp) {
+            $mtime = @filemtime($temp);
+            if (!is_file($temp) || false === $mtime || (time() - $mtime) < $minAgeSeconds) {
+                continue;
+            }
+            ++$found;
+            if ($delete && @unlink($temp) && !is_file($temp)) {
+                ++$deleted;
+            }
+        }
+
+        return ['found' => $found, 'deleted' => $deleted];
+    }
+
     private function path(string $sha256): string
     {
         if (1 !== preg_match('/^[0-9a-f]{64}$/', $sha256)) {
