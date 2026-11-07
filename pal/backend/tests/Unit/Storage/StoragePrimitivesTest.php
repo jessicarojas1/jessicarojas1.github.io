@@ -46,6 +46,19 @@ final class StoragePrimitivesTest extends TestCase
         $clamd->stop();
     }
 
+    public function testSchemelessHostPortAddressConnectsOverTcp(): void
+    {
+        // Render exposes a private service as a scheme-less "host:port" (its `hostport`), so
+        // PAL_CLAMD_ADDRESS can arrive without a tcp:// prefix. PHP's stream client assumes TCP.
+        $clamd = new FakeClamd();
+        $schemeless = (string) preg_replace('#^tcp://#', '', $clamd->address);
+        self::assertStringNotContainsString('://', $schemeless);
+
+        $scanner = new ClamdScanner($schemeless, false, 'test', new NullLogger(), 5.0);
+        self::assertTrue($scanner->scan($this->file('ok.pdf', FakeClamd::minimalPdf()))->isClean());
+        $clamd->stop();
+    }
+
     public function testScannerFailsClosed(): void
     {
         $path = $this->file('ok.pdf', FakeClamd::minimalPdf());

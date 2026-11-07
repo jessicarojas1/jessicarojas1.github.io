@@ -49,6 +49,12 @@ final class BootstrapLocalAdminCommand extends Command
 
             return Command::SUCCESS;
         }
+        $usernameReason = LocalAccountService::usernameRejectionReason($this->username);
+        if (null !== $usernameReason) {
+            $io->error('PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME rejected: '.$usernameReason);
+
+            return Command::FAILURE;
+        }
         $reason = PasswordPolicy::rejectionReason($this->password, LocalAccountService::normalizeUsername($this->username));
         if (null !== $reason) {
             $io->error('PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD rejected: '.$reason);

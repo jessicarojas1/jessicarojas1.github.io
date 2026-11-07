@@ -98,8 +98,9 @@ final class LocalAccountService
         $username = self::normalizeUsername($username);
         $displayName = trim((string) preg_replace('/[\x00-\x1F\x7F]/u', '', $displayName));
         $errors = [];
-        if (1 !== preg_match('/^[a-z0-9][a-z0-9._-]{2,63}$/', $username)) {
-            $errors['username'] = 'Use 3–64 lowercase letters, digits, dots, hyphens or underscores.';
+        $usernameReason = self::usernameRejectionReason($username);
+        if (null !== $usernameReason) {
+            $errors['username'] = $usernameReason;
         }
         if ('' === $displayName || mb_strlen($displayName) > 256) {
             $errors['displayName'] = 'Enter the person\'s name.';
@@ -184,5 +185,19 @@ final class LocalAccountService
     public static function normalizeUsername(string $username): string
     {
         return strtolower(trim($username));
+    }
+
+    /**
+     * The local-username format rule, shared by account creation and the bootstrap-admin command.
+     * Returns a human-readable reason when the (normalised) username is not acceptable, or null.
+     * A username is NOT an email address: `@` and uppercase are rejected.
+     */
+    public static function usernameRejectionReason(string $username): ?string
+    {
+        if (1 !== preg_match('/^[a-z0-9][a-z0-9._-]{2,63}$/', self::normalizeUsername($username))) {
+            return 'Use 3–64 lowercase letters, digits, dots, hyphens or underscores (not an email address).';
+        }
+
+        return null;
     }
 }
