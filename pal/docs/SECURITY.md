@@ -302,6 +302,8 @@ To pursue FIPS: run on a base image and host whose OpenSSL is a FIPS-validated m
 
 ## 9. Secrets rotation
 
+Secrets can be supplied either as environment variables or, for `APP_SECRET`, `DATABASE_URL`, `DATABASE_URL_MIGRATIONS`, `OIDC_CLIENT_SECRET` and `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD`, as files via the matching `<NAME>_FILE` variable (Docker/Kubernetes secrets, Vault/CSI mounts). The entrypoint reads the file at start and strips a trailing newline; set a variable or its `_FILE`, never both. With file-mounted secrets, rotation is: update the file in the secret store, then recreate the containers so the new value is read.
+
 | Secret | Procedure | Effect |
 |---|---|---|
 | `APP_SECRET` | Generate a new value (`openssl rand -hex 32`), update it in the secret store, restart **all** web and worker containers together. | Based on code inspection (not tested): PAL does not derive sessions or CSRF tokens from `APP_SECRET`. Sessions are server-side rows and CSRF tokens are random values stored in the session, so rotating `APP_SECRET` alone does **not** sign users out. To force everyone to sign in again after a suspected compromise, also run `TRUNCATE sessions` (see below). Re-check this when features that sign data with the kernel secret (signed URLs, remember-me, login links) are added. |

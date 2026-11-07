@@ -14,11 +14,38 @@ require() {
     done
 }
 
+# Secrets can be delivered as files (Docker/Compose/Kubernetes secrets, Vault/CSI mounts)
+# instead of environment variables: for each NAME below, if NAME_FILE points at a readable
+# file and NAME is not already set, read the file into NAME. A single trailing newline is
+# stripped (secret files commonly end with one). Setting both NAME and NAME_FILE is an error,
+# so a stale inline value can never silently win over the mounted secret.
+load_secret_files() {
+    for name in APP_SECRET DATABASE_URL DATABASE_URL_MIGRATIONS OIDC_CLIENT_SECRET PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD; do
+        eval "file=\${${name}_FILE:-}"
+        [ -n "$file" ] || continue
+        eval "current=\${$name:-}"
+        if [ -n "$current" ]; then
+            echo "pal: set either $name or ${name}_FILE, not both" >&2
+            exit 64
+        fi
+        if [ ! -r "$file" ]; then
+            echo "pal: ${name}_FILE=$file is not a readable file" >&2
+            exit 64
+        fi
+        # Command substitution strips trailing newlines, which is what we want for secret files.
+        value="$(cat "$file")"
+        export "$name=$value"
+    done
+}
+
 # Platforms that replace the image ENTRYPOINT with their start command (some PaaS) pass this
 # script's own path first; drop it so "pal-entrypoint web" works either way.
 case "${1:-}" in
     */pal-entrypoint|pal-entrypoint) shift ;;
 esac
+
+# Resolve any *_FILE secrets into their environment variables before the config checks below.
+load_secret_files
 
 # Shared database: keep PAL's objects in their own schema (same convention as the repository's
 # other apps). libpq reads PGOPTIONS, so this covers both the DBAL and the session connections.

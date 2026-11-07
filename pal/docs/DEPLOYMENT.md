@@ -136,7 +136,7 @@ Until the OIDC variables are valid, `/auth/login` redirects with `auth_error=sig
 - Prefer **files mounted as Docker secrets** for the OIDC certificate and key (`OIDC_CLIENT_CERT_PATH`, `OIDC_CLIENT_KEY_PATH` point to them). The bundled PostgreSQL reads its passwords from `deploy/secrets/db_*_password.txt` via Docker secrets.
 - `deploy/compose.yaml` mounts `deploy/secrets/oidc_cert.pem` and `oidc_key.pem` as `/run/secrets/pal_oidc_cert` and `/run/secrets/pal_oidc_key`. Compose refuses to start if the files are missing, so keep empty placeholders when not using a certificate. See [SINGLE_LINUX_SERVER.md](../deployments/SINGLE_LINUX_SERVER.md).
 - `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` needs to reach only the `migrate` step, and should be deleted after first sign-in ([SECURITY.md §2.7](SECURITY.md#27-local-accounts-identitylocal-securitylocalpasswordauthenticator)).
-- `DATABASE_URL` and `APP_SECRET` are read from environment variables; PAL has no built-in integration with Vault, Key Vault or Secrets Manager. Inject them from your secret store at container start.
+- `DATABASE_URL` and `APP_SECRET` are read from environment variables; PAL has no built-in integration with Vault, Key Vault or Secrets Manager. Inject them from your secret store at container start, **or** mount them as files and point `<NAME>_FILE` at the path — the entrypoint supports `APP_SECRET_FILE`, `DATABASE_URL_FILE`, `DATABASE_URL_MIGRATIONS_FILE`, `OIDC_CLIENT_SECRET_FILE` and `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD_FILE` (reads the file, strips a trailing newline; setting both the variable and its `_FILE` is an error). This keeps secrets off the process environment with Docker/Kubernetes secrets and Vault/CSI mounts.
 - Rotation procedures are in [SECURITY.md §9](SECURITY.md#9-secrets-rotation).
 
 ## 5. Database roles and migrations
@@ -277,6 +277,7 @@ Conferring `PAL_ADMINISTRATOR`, `PUBLISHER` or `AUTHOR`, or resetting the passwo
 
 ### 11.1 Secrets & identity
 - [ ] `APP_SECRET` generated with `openssl rand -hex 32`, stored in the secret store, identical on web and worker.
+- [ ] Secrets delivered as files where supported: `APP_SECRET_FILE`, `DATABASE_URL_FILE`, `DATABASE_URL_MIGRATIONS_FILE`, `OIDC_CLIENT_SECRET_FILE`, `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD_FILE` keep the value off the process environment (Docker/K8s secrets, Vault/CSI). Do not set both a variable and its `_FILE` (the entrypoint errors).
 - [ ] Entra uses a **certificate** credential (`OIDC_CLIENT_CERT_PATH` + `OIDC_CLIENT_KEY_PATH`), not a client secret; files mounted read-only as secrets.
 - [ ] Graph permissions limited to read-only `GroupMember.Read.All` + `User.Read.All` (application), admin-consented; nothing else granted (no `Mail.Send`, no write scopes).
 - [ ] Separate DB roles: web/worker use the app role; only `migrate` has `DATABASE_URL_MIGRATIONS`; `PAL_APP_DB_ROLE` set; `roles.sql` re-run after every migration.
