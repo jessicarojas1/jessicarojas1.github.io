@@ -69,7 +69,7 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | Dev-only npm advisories: 17 moderate through `@vue/test-utils` and ESLint (`glob`, `minimatch`); none high or critical; production dependencies clean | Low | Upgrade when non-breaking fixes ship; CI fails on high and above |
 | IAM UI differs from the repository standard: role-based only, with read-only effective permissions. No per-user module × action grants, Grant All / Clear All, or rotated CSRF token (CSRF is session-scoped) | Medium | 🟡 Owner decision. Recommended: keep role-only RBAC, which preserves separation of duties and the server-side model |
 | Free single Web Service on a shared database (DEPLOYMENT 12.3): files wiped on spin-down, no worker, shared DB role | Medium | 🟡 Owner's choice for the demo. Missing files are reported and block release. Never use for real documents |
-| Unreferenced blobs can remain after a failed DB write (store-then-insert) | Info | ⛔ Harmless (content-addressed); add a garbage-collection/verification command (also needed for DR consistency checks) |
+| Unreferenced blobs can remain after a failed DB write (store-then-insert) | Info | 🟡 Harmless (content-addressed); verification now exists (`pal:storage:verify`). Garbage collection (`pal:storage:gc`) still to add |
 | App user can delete blobs at the filesystem level (code never does) | Low | Operator control: deny delete on the blob directory where the storage supports it (SECURITY.md §5) |
 
 ## Security (from the Phase 1 audit)
@@ -101,7 +101,7 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 |---|---|---|
 | ClamAV memory and plan sizing not measured (~1.5 GB for signatures per compose/render comments; Render plan `2c-4g`) | Under-sized hosts OOM-kill clamd; uploads then fail closed (503 `scanner_unavailable`) | Measure clamd RSS during a signature reload; size hosts and the Render plan from that |
 | Upload limit coupling: `PAL_MAX_UPLOAD_BYTES` must stay ≤ clamd `StreamMaxLength` (default 25 MiB per the repo's comments) and ≤ PHP `upload_max_filesize` (50M) / nginx 52m | Above clamd's limit, scans fail and uploads are refused; above PHP's, PHP rejects first (413) | `deploy/pal.env.example` and `render.yaml` set 26214400 (25 MiB) to stay within it; the app default is 52428800 (`backend/.env.example`), which a deployment without an override inherits. Raise clamd's limit before raising the app limit |
-| No blob verification / garbage-collection command | DR consistency must be checked by script (DISASTER_RECOVERY.md §4) | Add `pal:storage:verify` (exists + hash) |
+| Blob verification / garbage-collection command | 🟡 **Verification done:** `pal:storage:verify` (2026-11-07) checks every `stored_file` exists + matches its SHA-256, exits non-zero on any missing/corrupt, and DISASTER_RECOVERY §4 step 8a now uses it (`StorageVerifier` + `StorageVerifierTest`). **Still open:** a garbage-collection command for unreferenced blobs | Add `pal:storage:gc` to reclaim unreferenced blobs |
 | S3-compatible blob backend | Only filesystem/NAS today | Phase 6 (PHASE2_PLAN.md) |
 | `PAL_DEFAULT_TIMEZONE` is only a fallback; the stored setting has no admin UI | Changing the org timezone needs SQL | Add an admin setting (Phase 5, with scheduling) |
 | Audit anchors need a write-once mount; Compose has none (read-only FS) | `--anchor` fails in default Compose | Mount a WORM/append-only share at `PAL_AUDIT_ANCHOR_DIR`. `pal:audit:verify` does not yet compare against anchors automatically |

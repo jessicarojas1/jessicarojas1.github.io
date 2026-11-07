@@ -170,7 +170,11 @@ Assumes the single-host Compose deployment with an **external** PostgreSQL 17 ma
    - **Mismatch:** stop, as in step 7.
    - **Anchors newer than the restored maximum:** expected after a point-in-time restore or when the last WAL was lost. Events after the recovery point are gone from the database. Record the range (`max(id)+1` to the newer anchor's `last_event_id`) in the incident report, and use the `pal_audit` records in Sentinel for that window to document what was lost.
 
-8a. **Check blob consistency.** No PAL command exists for this yet ([OPEN_ITEMS.md](../OPEN_ITEMS.md)). From a host that can read both the database and the blob storage (bash):
+8a. **Check blob consistency.** Run PAL's verifier, which checks every `stored_file` row exists in the blob store and still matches its SHA-256:
+   ```bash
+   docker compose -f pal/deploy/compose.yaml run --rm --no-deps migrate console pal:storage:verify
+   ```
+   Expected: `Storage verified: N file(s) present and intact`. It exits non-zero and lists the offending hashes under **Missing** / **Corrupt** otherwise — handle them as below. If the database and blob storage are on a host without PHP/PAL, use this equivalent bash instead:
    ```bash
    BLOB_ROOT=/mnt/pal-blobs/blobs
    psql "$ADMIN_URL" -At -c "SELECT sha256 FROM stored_file" | while read -r h; do
