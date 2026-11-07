@@ -65,7 +65,7 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | Sessions and password changes | ✅ Done (2026-11-07): a credential version (`password_changed_at`) is compared in `PalUser::isEqualTo`, so a password change or admin reset revokes every **other** session on its next request; the session that performs a self-change is kept valid (MeController refreshes its token). `/api/me/password` now rate-limits (shared username limiter) and audits (`USER_PASSWORD_CHANGE_FAILED`) a wrong current password. Covered by `PalUserEqualityTest` + a `LocalSignInTest` case | — |
 | Username timing difference (existing account does extra DB and audit writes), not measured | Low | ⛔ Measure; pad to a minimum duration if significant |
 | `GET /auth/methods` creates a DB session for each cookieless request, unthrottled | Low | ⛔ Rate-limit `/auth/` (nginx `limit_req` needs real client IPs behind the proxy, or apply the `auth_login` limiter) |
-| Bootstrap command sets the password outside the create transaction, without an audit event; temporary passwords never expire | Low | ⛔ Audit it; add an expiry on `must_change` |
+| Bootstrap password handling | 🟡 ✅ The bootstrap password is now set in one audited transaction (`LocalAccountService::setBootstrapPassword` records `USER_PASSWORD_CHANGED`; `BootstrapPasswordTest`). **Still open:** temporary passwords never expire | Add an expiry on `must_change` (needs a column + sign-in check) |
 | Dev-only npm advisories: 17 moderate through `@vue/test-utils` and ESLint (`glob`, `minimatch`); none high or critical; production dependencies clean | Low | Upgrade when non-breaking fixes ship; CI fails on high and above |
 | IAM UI differs from the repository standard: role-based only, with read-only effective permissions. No per-user module × action grants, Grant All / Clear All, or rotated CSRF token (CSRF is session-scoped) | Medium | 🟡 Owner decision. Recommended: keep role-only RBAC, which preserves separation of duties and the server-side model |
 | Free single Web Service on a shared database (DEPLOYMENT 12.3): files wiped on spin-down, no worker, shared DB role | Medium | 🟡 Owner's choice for the demo. Missing files are reported and block release. Never use for real documents |
@@ -82,7 +82,7 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | Single-role deployments (Render, local) are tamper-evident only (L4) | Low | 🟡 Documented. Use separate owner/app roles in production |
 | Base images pinned by tag, not digest (L5) | Low | ⛔ Pin digests in the registry mirror; add Renovate |
 | SIEM copy of an audit event is logged before commit (I1) | Info | ⛔ Emit after commit (post-commit hook or Messenger) |
-| Client-supplied `X-Request-Id` lands in audit `correlation_id` (I2) | Info | ⛔ Accept only from trusted proxies, or store separately |
+| Client-supplied `X-Request-Id` lands in audit `correlation_id` (I2) | Info | ✅ Done (2026-11-07): `RequestIdSubscriber` honours an upstream `X-Request-Id` only from a trusted proxy (`isFromTrustedProxy()`); direct clients get a fresh ID. `RequestIdSubscriberTest` covers both. |
 | Revocation latency up to the sync interval or session limits (I7) | Info | Documented; inherent to the BFF design |
 | Large-group role mapping syncs synchronously and may time out (I8) | Info | ⛔ Move the initial sync to Messenger (the async transport exists) |
 | GitHub Pages serves the `pal/` source publicly (I9) | Info | No secrets committed. Moves to a private repo at handover |

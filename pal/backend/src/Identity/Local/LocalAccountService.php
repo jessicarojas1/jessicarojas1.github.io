@@ -196,6 +196,23 @@ final class LocalAccountService
         return $temporary;
     }
 
+    /**
+     * Sets the bootstrap administrator's password (pal:users:bootstrap-admin) in one audited
+     * transaction. create() made the account row with a throwaway temporary password; this
+     * replaces the hash with the operator-supplied one and records it. The password stays
+     * temporary (must_change is left true) so it is changed at first sign-in.
+     */
+    public function setBootstrapPassword(AuditActor $actor, string $userId, string $password): void
+    {
+        $this->connection->transactional(function () use ($actor, $userId, $password): void {
+            $this->connection->executeStatement(
+                'UPDATE local_credential SET password_hash = ?, password_changed_at = now(), updated_at = now() WHERE user_id = ?',
+                [PasswordPolicy::hash($password), $userId],
+            );
+            $this->audit->record(new AuditEntry('USER_PASSWORD_CHANGED', $actor, 'app_user', $userId));
+        });
+    }
+
     public static function normalizeUsername(string $username): string
     {
         return strtolower(trim($username));

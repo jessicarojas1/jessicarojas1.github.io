@@ -61,8 +61,9 @@ final class BootstrapLocalAdminCommand extends Command
 
             return Command::FAILURE;
         }
-        $created = $this->accounts->create(AuditActor::system('bootstrap'), null, $this->username, 'Administrator', null, [GlobalRole::SystemAdministrator, GlobalRole::PalAdministrator]);
-        $this->connection->executeStatement('UPDATE local_credential SET password_hash = ? WHERE user_id = ?', [PasswordPolicy::hash($this->password), $created['id']]);
+        $actor = AuditActor::system('bootstrap');
+        $created = $this->accounts->create($actor, null, $this->username, 'Administrator', null, [GlobalRole::SystemAdministrator, GlobalRole::PalAdministrator]);
+        $this->accounts->setBootstrapPassword($actor, $created['id'], $this->password);
         $io->success(\sprintf('Created local administrator "%s". The password must be changed at first sign-in.', LocalAccountService::normalizeUsername($this->username)));
 
         return Command::SUCCESS;
