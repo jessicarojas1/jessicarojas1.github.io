@@ -235,6 +235,29 @@ final class LocalSignInTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
+    public function testPasswordChangeRevokesOtherSessionsAndAuditsWrongCurrentPassword(): void
+    {
+        $id = $this->account('eve');
+        self::assertSame(200, $this->signIn('eve', self::PASSWORD));
+        $csrf = $this->apiCsrf();
+
+        // A wrong current password is rejected and audited, so a hijacked session cannot
+        // brute-force it silently.
+        $this->client->request('POST', '/api/me/password', server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf], content: json_encode(['currentPassword' => 'not my password', 'newPassword' => 'a completely new passphrase']));
+        self::assertResponseStatusCodeSame(422);
+        self::assertSame(1, (int) $this->db->fetchOne("SELECT count(*) FROM audit_event WHERE event_type = 'USER_PASSWORD_CHANGE_FAILED' AND subject_id = ?", [$id]));
+
+        // The current session is still valid.
+        $this->client->request('GET', '/api/me');
+        self::assertResponseIsSuccessful();
+
+        // Another session (or an admin reset) moves the credential version. A session still
+        // holding the previous version must be revoked on its next request.
+        $this->db->executeStatement("UPDATE local_credential SET password_changed_at = password_changed_at + interval '1 second' WHERE user_id = ?", [$id]);
+        $this->client->request('GET', '/api/me');
+        self::assertResponseStatusCodeSame(401);
+    }
+
     public function testAdministratorsManageLocalAccountsAndRoles(): void
     {
         $adminId = $this->account('root', [GlobalRole::SystemAdministrator, GlobalRole::PalAdministrator]);

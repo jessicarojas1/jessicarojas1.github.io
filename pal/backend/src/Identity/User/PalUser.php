@@ -32,6 +32,12 @@ final class PalUser implements UserInterface, EquatableInterface
         /** Set for local (username/password) accounts. */
         public readonly ?string $username = null,
         public readonly bool $mustChangePassword = false,
+        /**
+         * The local credential's `password_changed_at`, used as a credential version: a change
+         * or admin reset moves it, which invalidates every other session via isEqualTo(). Null
+         * for SSO accounts (no local credential).
+         */
+        public readonly ?string $passwordChangedAt = null,
     ) {
         if ('' === $id) {
             throw new \InvalidArgumentException('A user must have an ID.');
@@ -79,6 +85,12 @@ final class PalUser implements UserInterface, EquatableInterface
     {
         // Roles are intentionally not compared: authorization reads current roles from the
         // refreshed user, and comparing them would sign users out on every role change.
-        return $user instanceof self && $user->id === $this->id;
+        // The credential version IS compared: when a password change or admin reset moves
+        // `password_changed_at`, every session still holding the old value is signed out on
+        // its next request. The session that performs a self-change is kept valid by
+        // MeController refreshing its token (so only other sessions are revoked).
+        return $user instanceof self
+            && $user->id === $this->id
+            && $user->passwordChangedAt === $this->passwordChangedAt;
     }
 }

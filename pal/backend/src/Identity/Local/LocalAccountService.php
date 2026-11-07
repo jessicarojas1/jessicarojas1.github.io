@@ -14,6 +14,8 @@ use App\Platform\Http\ApiProblem;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 /**
  * Local (username/password) accounts: verification with lockout, creation, password
@@ -31,6 +33,8 @@ final class LocalAccountService
         private readonly Connection $connection,
         private readonly AuditLogger $audit,
         private readonly ClockInterface $clock,
+        #[Autowire(service: 'limiter.login_username')]
+        private readonly RateLimiterFactory $usernameLimiter,
     ) {
     }
 
@@ -144,6 +148,16 @@ final class LocalAccountService
         }
         $hash = $this->connection->fetchOne('SELECT password_hash FROM local_credential WHERE user_id = ?', [$user->id]);
         if (!\is_string($hash) || !password_verify($current, $hash)) {
+            // Rate-limit and audit a wrong current password, so a hijacked session cannot
+            // brute-force it silently. The username limiter is shared with sign-in.
+            $username = (string) $user->username;
+            $allowed = '' === $username || $this->usernameLimiter->create($username)->consume()->isAccepted();
+            $this->connection->transactional(fn () => $this->audit->record(
+                new AuditEntry('USER_PASSWORD_CHANGE_FAILED', $user->auditActor(), 'app_user', $user->id),
+            ));
+            if (!$allowed) {
+                throw new ApiProblem(429, 'too_many_attempts', 'Too many password attempts. Please wait and try again.');
+            }
             throw ApiProblem::validation(['currentPassword' => 'Your current password is not correct.']);
         }
         $reason = PasswordPolicy::rejectionReason($new, $user->username);

@@ -25,7 +25,7 @@ final class UserRepository
         }
         $row = $this->connection->fetchAssociative(
             $withCredentialState
-                ? 'SELECT u.*, c.must_change FROM app_user u LEFT JOIN local_credential c ON c.user_id = u.id WHERE u.id = ?'
+                ? 'SELECT u.*, c.must_change, c.password_changed_at FROM app_user u LEFT JOIN local_credential c ON c.user_id = u.id WHERE u.id = ?'
                 : 'SELECT * FROM app_user WHERE id = ?',
             [$id],
         );

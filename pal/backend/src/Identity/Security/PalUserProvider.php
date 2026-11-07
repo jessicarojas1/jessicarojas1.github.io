@@ -43,6 +43,7 @@ final class PalUserProvider implements UserProviderInterface
             $this->roles->rolesFor($id, $objectId),
             Row::nullableString($row, 'username'),
             true === ($row['must_change'] ?? false),
+            Row::nullableString($row, 'password_changed_at'),
         );
     }
 

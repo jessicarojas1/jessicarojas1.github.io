@@ -11,6 +11,7 @@ use App\Identity\Authorization\GlobalRole;
 use App\Identity\Authorization\RolePermissionMap;
 use App\Identity\Local\LocalAccountService;
 use App\Identity\Security\CsrfHeaderSubscriber;
+use App\Identity\Security\PalUserProvider;
 use App\Identity\Security\SessionLifetimeSubscriber;
 use App\Identity\User\PalUser;
 use App\Identity\User\UserRepository;
@@ -22,6 +23,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
@@ -68,7 +70,7 @@ final class MeController
     }
 
     #[Route('/api/me/password', name: 'api_me_password', methods: ['POST'])]
-    public function changePassword(#[CurrentUser] PalUser $user, Request $request): JsonResponse
+    public function changePassword(#[CurrentUser] PalUser $user, Request $request, TokenStorageInterface $tokens, PalUserProvider $provider): JsonResponse
     {
         $body = JsonBody::decode($request, 4096);
         $this->accounts->changePassword(
@@ -76,6 +78,11 @@ final class MeController
             \is_string($body['currentPassword'] ?? null) ? $body['currentPassword'] : '',
             \is_string($body['newPassword'] ?? null) ? $body['newPassword'] : '',
         );
+
+        // Keep THIS session valid after it changed its own password; every other session still
+        // holds the previous credential version and is revoked on its next request
+        // (PalUser::isEqualTo compares password_changed_at).
+        $tokens->getToken()?->setUser($provider->loadUserByIdentifier($user->id));
 
         return new JsonResponse(['ok' => true]);
     }
