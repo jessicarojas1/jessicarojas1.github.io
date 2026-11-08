@@ -45,6 +45,7 @@ use Redoubt\Http\AssistantController;
 use Redoubt\Http\IntegrationsController;
 use Redoubt\Http\ApiDocsController;
 use Redoubt\Http\ExportController;
+use Redoubt\Http\PortfolioController;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Session;
 
@@ -221,6 +222,10 @@ switch ($path) {
 
     case '/app/export':
         ExportController::csv();
+        return;
+
+    case '/app/portfolio':
+        PortfolioController::index($nonce);
         return;
 
     case '/app/report':

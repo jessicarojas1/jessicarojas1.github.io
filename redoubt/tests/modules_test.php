@@ -24,6 +24,7 @@ use Redoubt\Support\ApiKey;
 use Redoubt\Support\Webhooks;
 use Redoubt\Support\OpenApi;
 use Redoubt\Support\Connectors;
+use Redoubt\Support\Portfolio;
 use Redoubt\Support\AccessRequests;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Sample;
@@ -263,6 +264,17 @@ T::eq('bulk created 2 valid rows', 2, $bulk['created']);
 T::ok('bulk skipped header + invalid email', $bulk['skipped'] >= 2);
 $pendingEmails = array_map(static fn ($r) => $r['email'], AccessRequests::listForProgram($pid, 'pending'));
 T::ok('imported request is pending', in_array('newa@acme.us', $pendingEmails, true));
+
+// Portfolio roll-up
+T::group('Portfolio roll-up (live DB)');
+$port = Portfolio::forUser($pm);
+T::ok('portfolio lists the program', $port !== [] && $port[0]['name'] === 'Falcon');
+T::ok('portfolio has a member count', (int) $port[0]['members'] >= 1);
+$tot = Portfolio::totals($port);
+T::eq('totals program count matches rows', count($port), $tot['programs']);
+T::ok('PM (access.view) sees pending count', $port[0]['pending'] !== null);
+$subPort = Portfolio::forUser($sam);
+T::ok('sub (no access.view) has pending hidden', $subPort[0]['pending'] === null);
 
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');

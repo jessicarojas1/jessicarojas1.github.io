@@ -30,6 +30,7 @@ if (!empty($showIam)) { $nav[] = ['label' => 'Access & Security (IAM)', 'url' =>
 if (!empty($showAnalytics)) { $nav[] = ['label' => 'Analytics & Health', 'url' => '/app/analytics']; $nav[] = ['label' => 'Audit Log', 'url' => '/app/admin/audit']; }
 if (!empty($showIntegrations)) { $nav[] = ['label' => 'Integrations (API & Webhooks)', 'url' => '/app/admin/integrations']; }
 if (!empty($hasProgram)) { $nav[] = ['label' => 'API Docs', 'url' => '/app/api-docs']; }
+if (!empty($showPortfolio)) { $nav[] = ['label' => 'Program Portfolio', 'url' => '/app/portfolio']; }
 if (!empty($showSettings)) { $nav[] = ['label' => 'Settings & Branding', 'url' => '/app/admin/settings']; }
 ?>
 <div id="palette" class="palette" hidden aria-hidden="true">
