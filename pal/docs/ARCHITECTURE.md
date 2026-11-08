@@ -119,7 +119,7 @@ Allowed dependencies (`deptrac.yaml`): Platform → Audit, Identity (only so the
 | Method | Path | Access | Purpose |
 |---|---|---|---|
 | GET | `/health/live` | Public (no firewall) | Liveness: process is up |
-| GET | `/health/ready` | Public (no firewall) | Readiness: database reachable, no pending migrations, blob directory present and writable (`storage`); 503 otherwise. ClamAV is **not** part of readiness |
+| GET | `/health/ready` | Public (no firewall) | Readiness: database reachable, no pending migrations, the DB schema no newer than this image (`schema_version`), blob directory present and writable (`storage`); 503 otherwise. ClamAV is **not** part of readiness |
 | GET | `/auth/login?returnTo=` | Public, rate-limited | Starts OIDC authorization-code + PKCE flow |
 | GET | `/auth/callback` | Public, rate-limited (same `auth_login` limiter, per client IP) | Completes sign-in (handled by `OidcCallbackAuthenticator`) |
 | GET | `/auth/methods` | Public | Login CSRF token and sign-in methods with `connected` flags (labels and booleans only). Okta, Google Workspace and SAML are always `connected: false` |
@@ -294,7 +294,7 @@ Full detail in [SECURITY.md](SECURITY.md).
 | Audit/security log stream | Monolog channel **`pal_audit`**. `AuditLogger` emits one `audit_event` record per audit row (event ID, type, actor snapshot, subject, state change). Forwarded to Microsoft Sentinel by the host's collector ([ADR-0011](adr/ADR-0011-logging-to-microsoft-sentinel.md)). The database row stays the system of record. The log line is written **inside** the database transaction, so a transaction that later rolls back can leave a phantom SIEM record with no matching audit row; reconcile against the database by `event_id`. |
 | Access logs | nginx JSON access log on stdout (`time`, `request_id`, `remote_addr`, method, path, status, bytes, duration, user agent). Query strings are not logged (`$uri`). |
 | PHP-FPM / nginx errors | stderr, via supervisord. |
-| Health | `/health/live` (liveness) and `/health/ready` (database `SELECT 1`, no pending migrations, plus module probes: today `storage`, which fails when `PAL_BLOB_DIR` is missing or not writable). Responses list each check as `ok` or `fail`. The image `HEALTHCHECK` polls `/health/live`. ClamAV outages show up as `ClamAV is unreachable` errors and `UPLOAD_REJECTED` audit events, not in readiness. |
+| Health | `/health/live` (liveness) and `/health/ready` (database `SELECT 1`, no pending migrations, `schema_version` — the DB has no migration this image lacks, so an old replica during a rolling deploy is pulled out — plus module probes: today `storage`, which fails when `PAL_BLOB_DIR` is missing or not writable). Responses list each check as `ok` or `fail`. The image `HEALTHCHECK` polls `/health/live`. ClamAV outages show up as `ClamAV is unreachable` errors and `UPLOAD_REJECTED` audit events, not in readiness. |
 | Audit integrity | Daily `VerifyAuditChain` job; a broken chain is logged at `critical` (`Audit chain verification FAILED`) and deliberately **not** written to the audit table. |
 
 Gaps (to be tracked in [OPEN_ITEMS.md](../OPEN_ITEMS.md)): there is no metrics endpoint and no OpenTelemetry instrumentation yet (listed in the Phase 1 scope of [Proposal §16](PHASE0_ARCHITECTURE_PROPOSAL.md#16-phased-delivery-plan)); the `pal_audit` channel is written to the **same** stderr stream as operational logs, distinguished by its `channel` field, not to a separate stream as ADR-0011 describes; the uptime-monitoring target is undecided (D17).

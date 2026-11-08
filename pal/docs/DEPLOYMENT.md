@@ -189,7 +189,7 @@ Check status:
 docker run --rm --env-file pal/deploy/pal.env pal:latest console doctrine:migrations:status
 ```
 
-`/health/ready` returns 503 with `"migrations":"fail"` while any migration is pending. Current migrations: `Version20261026000001` (foundation), `…000002` (documents, revisions, uploads, workflow, publications; extensions `btree_gist`, `pg_trgm`), `…000003` (local accounts, explicit user roles).
+`/health/ready` returns 503 with `"migrations":"fail"` while any migration is pending (the code is ahead of the DB). It also returns 503 with `"schema_version":"fail"` when the DB is ahead of the code — it has executed a migration this image does not carry — so an old replica lingering during a rolling deploy is taken out of rotation until it is replaced by the newer image. (Deleting an already-applied migration file from the codebase would also trip this; keep migration history immutable.) Current migrations: `Version20261026000001` (foundation), `…000002` (documents, revisions, uploads, workflow, publications; extensions `btree_gist`, `pg_trgm`), `…000003` (local accounts, explicit user roles).
 
 ### 5.3 Rollback
 
@@ -249,7 +249,7 @@ Conferring `PAL_ADMINISTRATOR`, `PUBLISHER` or `AUTHOR`, or resetting the passwo
 | Check | Command / expectation |
 |---|---|
 | Liveness | `curl -fsS https://<host>/health/live` → `{"status":"ok"}` |
-| Readiness | `curl -fsS https://<host>/health/ready` → `{"status":"ready","checks":{"database":"ok","migrations":"ok","storage":"ok"}}` (503 otherwise) |
+| Readiness | `curl -fsS https://<host>/health/ready` → `{"status":"ready","checks":{"database":"ok","migrations":"ok","schema_version":"ok","storage":"ok"}}` (503 otherwise) |
 | Host allowlist | A request with a non-matching `Host` header is rejected by Symfony |
 | Unauthenticated API | `curl -s -o /dev/null -w '%{http_code}' https://<host>/api/me` → `401` |
 | Security headers | SPA response carries `Content-Security-Policy` with `script-src 'self'`; `/api` responses carry `default-src 'none'`, `Cache-Control: no-store, private`, `X-Request-Id`; `Strict-Transport-Security` present over HTTPS |
@@ -352,7 +352,7 @@ Every service is on a paid plan. Check [current prices](https://render.com/prici
    | `OIDC_TENANT_ID`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `PAL_BOOTSTRAP_ADMIN_OIDS` | `pal-web` (`OIDC_*` also `pal-worker`) | leave empty | Only to connect Entra ID. Otherwise it shows as "Not connected" |
 
 4. Apply. The pre-deploy step migrates the database and creates the administrator. If the password fails the policy, the deploy fails with `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD rejected`.
-5. Check `https://<your-service>.onrender.com/health/ready` → `{"status":"ready","checks":{"database":"ok","migrations":"ok","storage":"ok"}}`.
+5. Check `https://<your-service>.onrender.com/health/ready` → `{"status":"ready","checks":{"database":"ok","migrations":"ok","schema_version":"ok","storage":"ok"}}`.
 6. **First sign-in:** username and password on the sign-in page, then choose a new password when prompted.
 7. **Delete** `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` and `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` from `pal-web`.
 8. Test an upload. ClamAV's first start downloads signatures for several minutes; until it is up, uploads answer 503 `scanner_unavailable`.

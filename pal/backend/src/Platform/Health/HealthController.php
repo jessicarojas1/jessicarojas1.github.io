@@ -42,7 +42,13 @@ final class HealthController
     {
         $checks = [
             'database' => $this->check('database', fn (): bool => 1 === $this->connection->fetchOne('SELECT 1')),
+            // `migrations` fails when the code is ahead of the DB (migrations not yet applied).
             'migrations' => $this->check('migrations', fn (): bool => 0 === $this->migrations->getMigrationStatusCalculator()->getNewMigrations()->count()),
+            // `schema_version` fails when the DB is ahead of the code: the database has executed
+            // migrations this image does not carry, so an older image must not serve a newer schema
+            // (e.g. an old replica lingering during a rolling deploy). Removing an applied migration
+            // file from the codebase would also trip this — keep migration history immutable.
+            'schema_version' => $this->check('schema_version', fn (): bool => 0 === $this->migrations->getMigrationStatusCalculator()->getExecutedUnavailableMigrations()->count()),
         ];
         foreach ($this->probes as $probe) {
             $checks[$probe->name()] = $this->check($probe->name(), $probe->isReady(...));

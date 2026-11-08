@@ -200,7 +200,7 @@ Assumes the single-host Compose deployment with an **external** PostgreSQL 17 ma
     docker compose -f pal/deploy/compose.yaml up -d web worker
     curl -fsS https://<pal-host>/health/ready
     ```
-    Expected: `{"status":"ready","checks":{"database":"ok","migrations":"ok","storage":"ok"}}`.
+    Expected: `{"status":"ready","checks":{"database":"ok","migrations":"ok","schema_version":"ok","storage":"ok"}}`.
 
 11. **Functional checks.** Sign in; confirm roles in `GET /api/me`; open Admin → Role mappings; **download a published document** and upload a test file (confirms blobs and clamd); run a directory sync so memberships reflect the directory now:
     ```bash

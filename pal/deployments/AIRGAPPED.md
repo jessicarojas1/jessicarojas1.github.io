@@ -207,7 +207,7 @@ As in [SINGLE_LINUX_SERVER.md §7](SINGLE_LINUX_SERVER.md#7-verification), plus:
 |---|---|---|---|
 | 1 | Image provenance | `docker image inspect --format '{{index .RepoDigests 0}}' registry.example.internal/pal:1.0.0` | Digest matches the release record from the build host |
 | 2 | No unexpected egress | Review the proxy/firewall log after a sign-in and a sync | Only the authority and Graph hosts |
-| 3 | Liveness / readiness | `curl -fsS http://127.0.0.1:8080/health/live`; `curl -sS https://pal.example.internal/health/ready` | `ok`; `ready` with `"database":"ok","migrations":"ok","storage":"ok"` |
+| 3 | Liveness / readiness | `curl -fsS http://127.0.0.1:8080/health/live`; `curl -sS https://pal.example.internal/health/ready` | `ok`; `ready` with `"database":"ok","migrations":"ok","schema_version":"ok","storage":"ok"` |
 | 4 | Secrets resolved | `docker compose -f deploy/compose.yaml exec web sh -c 'test -r "$OIDC_CLIENT_CERT_PATH" && test -r "$OIDC_CLIENT_KEY_PATH" && echo readable'` | `readable` |
 | 4a | Local admin sign-in + forced change | Sign in with `PAL_BOOTSTRAP_LOCAL_ADMIN_*` | Redirected to `/change-password`; after the change, the dashboard. Then delete both values |
 | 5 | Entra sign-in (Situation A) | Browse PAL and sign in | Signed in; not on `/sign-in?auth_error=…` |
