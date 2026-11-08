@@ -22,7 +22,8 @@ use Symfony\Component\Uid\Uuid;
  */
 final class AuditLogger
 {
-    private const CHAIN_LOCK_KEY = 7_243_001;
+    /** PostgreSQL advisory-lock key that serialises chain writers (see write()). */
+    public const CHAIN_LOCK_KEY = 7_243_001;
 
     /**
      * SIEM forwards buffered until their transaction commits. Each entry is
