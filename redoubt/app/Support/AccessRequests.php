@@ -41,6 +41,47 @@ final class AccessRequests
         return $id;
     }
 
+    /**
+     * Bulk onboarding from pasted CSV: email,name,company_id,role,us_person (one
+     * per line; a header row starting with "email" is ignored). Invalid rows are
+     * skipped. @return array{created:int,skipped:int}
+     */
+    public static function bulkCreate(int $programId, string $csv, ?int $sponsorId): array
+    {
+        $created = 0;
+        $skipped = 0;
+        foreach (preg_split('/\r\n|\r|\n/', trim($csv)) ?: [] as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+            $cols = str_getcsv($line, ',', '"', '');
+            $email = strtolower(trim((string) ($cols[0] ?? '')));
+            if ($email === '' || $email === 'email' || !str_contains($email, '@')) {
+                $skipped++;
+                continue;
+            }
+            $role = trim((string) ($cols[3] ?? 'sub_member')) ?: 'sub_member';
+            $usp = strtolower(trim((string) ($cols[4] ?? '')));
+            $company = trim((string) ($cols[2] ?? ''));
+            try {
+                self::create($programId, [
+                    'email'          => $email,
+                    'display_name'   => trim((string) ($cols[1] ?? '')) ?: null,
+                    'company_id'     => ctype_digit($company) ? (int) $company : null,
+                    'requested_role' => $role,
+                    'kind'           => 'external',
+                    'is_us_person'   => $usp === '' ? null : in_array($usp, ['yes', 'y', '1', 'true', 'us'], true),
+                ], $sponsorId);
+                $created++;
+            } catch (\Throwable $e) {
+                $skipped++;
+            }
+        }
+        Audit::log('access.bulk_import', "created={$created} skipped={$skipped}", $programId, $sponsorId);
+        return ['created' => $created, 'skipped' => $skipped];
+    }
+
     /** @return array<int,array<string,mixed>> */
     public static function listForProgram(int $programId, ?string $status = null): array
     {

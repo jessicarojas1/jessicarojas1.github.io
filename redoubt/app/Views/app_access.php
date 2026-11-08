@@ -59,6 +59,17 @@ require __DIR__ . '/partials/app_header.php';
       <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Submit request</button></div>
     </form>
   </details>
+  <details style="margin-top:4px">
+    <summary style="cursor:pointer;font-weight:700">⬆ Bulk import a team (CSV)</summary>
+    <form method="post" action="/app/admin/access" style="margin-top:12px">
+      <?= Security::csrfField() ?>
+      <input type="hidden" name="action" value="bulk_request">
+      <input type="hidden" name="program_id" value="<?= (int) $programId ?>">
+      <p class="perm-key" style="margin:0 0 6px">One person per line: <code>email,name,company_id,role,us_person</code> — e.g. <code>sam@acme.us,Sam Vega,,sub_member,yes</code>. A header row is ignored; invalid rows are skipped. Roles: sub_member, sub_admin, customer_cor, internal_member.</p>
+      <textarea name="csv" rows="6" placeholder="sam@acme.us,Sam Vega,,sub_member,yes&#10;lee@acme.us,Lee Park,,sub_member,no" style="font-family:ui-monospace,Menlo,monospace;font-size:12.5px"></textarea>
+      <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Import &amp; create requests</button></div>
+    </form>
+  </details>
 </div>
 <?php endif; ?>
 

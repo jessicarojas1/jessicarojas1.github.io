@@ -80,6 +80,10 @@ final class AccessController
                         'justification'  => trim((string) ($_POST['justification'] ?? '')) ?: null,
                     ], $actorId);
                     break;
+                case 'bulk_request':
+                    Authorize::requirePermission($user, 'access.request', ['program_id' => $programId]);
+                    AccessRequests::bulkCreate($programId, (string) ($_POST['csv'] ?? ''), $actorId);
+                    break;
                 case 'approve':
                     Authorize::requirePermission($user, 'access.grant', ['program_id' => $programId]);
                     AccessRequests::approve((int) ($_POST['id'] ?? 0), $programId, $actorId);

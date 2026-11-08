@@ -252,6 +252,18 @@ T::eq('connector disabled', false, $after[0]['active']);
 Connectors::delete($cid, $pid, $ids['pm']);
 T::ok('connector deleted', array_filter(Connectors::listForProgram($pid), static fn ($c) => $c['id'] === $cid) === []);
 
+// Bulk onboarding import (CSV)
+T::group('Bulk onboarding import (live DB)');
+$csv = "email,name,company_id,role,us_person\n"
+    . "newa@acme.us,New A,,sub_member,yes\n"
+    . "bademail,Bad Row,,sub_member,no\n"
+    . "newb@acme.us,New B,,sub_member,no";
+$bulk = AccessRequests::bulkCreate($pid, $csv, $ids['pm']);
+T::eq('bulk created 2 valid rows', 2, $bulk['created']);
+T::ok('bulk skipped header + invalid email', $bulk['skipped'] >= 2);
+$pendingEmails = array_map(static fn ($r) => $r['email'], AccessRequests::listForProgram($pid, 'pending'));
+T::ok('imported request is pending', in_array('newa@acme.us', $pendingEmails, true));
+
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');
 $reqId = AccessRequests::create($pid, [
