@@ -77,6 +77,7 @@ $showOnboard = $canAny($user, 'access.request') || $canAny($user, 'access.view')
     <?php if ($showOnboard): ?><a href="/app/admin/access"<?= $navActive === 'onboarding' ? ' class="active"' : '' ?>>Onboarding</a><?php endif; ?>
     <?php if ($showIam): ?><a href="/app/admin/iam"<?= $navActive === 'iam' ? ' class="active"' : '' ?>>Access &amp; Security</a><?php endif; ?>
     <?php if ($showIntegrations): ?><a href="/app/admin/integrations"<?= $navActive === 'integrations' ? ' class="active"' : '' ?>>Integrations</a><?php endif; ?>
+    <?php if ($hasProgram): ?><a href="/app/api-docs"<?= $navActive === 'apidocs' ? ' class="active"' : '' ?>>API Docs</a><?php endif; ?>
     <?php if ($showSettings): ?><a href="/app/admin/settings"<?= $navActive === 'settings' ? ' class="active"' : '' ?>>Settings</a><?php endif; ?>
     <a href="/about" title="Program documentation">Docs</a>
   </nav>

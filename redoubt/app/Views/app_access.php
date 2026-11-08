@@ -20,6 +20,7 @@ require __DIR__ . '/partials/app_header.php';
       <?php endforeach; ?>
     </select>
     <button class="btn btn-sm" type="submit">Switch</button>
+    <a class="btn btn-sm" href="/app/export?type=roster&amp;program_id=<?= (int) $programId ?>">⬇ Roster CSV</a>
   </form>
 </div>
 

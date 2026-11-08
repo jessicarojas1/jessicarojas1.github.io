@@ -43,6 +43,8 @@ use Redoubt\Http\AnalyticsController;
 use Redoubt\Http\AuditController;
 use Redoubt\Http\AssistantController;
 use Redoubt\Http\IntegrationsController;
+use Redoubt\Http\ApiDocsController;
+use Redoubt\Http\ExportController;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Session;
 
@@ -211,6 +213,14 @@ switch ($path) {
         } else {
             IntegrationsController::index($nonce);
         }
+        return;
+
+    case '/app/api-docs':
+        ApiDocsController::index($nonce);
+        return;
+
+    case '/app/export':
+        ExportController::csv();
         return;
 
     case '/app/report':

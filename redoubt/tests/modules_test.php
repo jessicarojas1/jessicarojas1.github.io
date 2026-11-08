@@ -22,6 +22,8 @@ use Redoubt\Support\Assistant;
 use Redoubt\Support\ApiClients;
 use Redoubt\Support\ApiKey;
 use Redoubt\Support\Webhooks;
+use Redoubt\Support\OpenApi;
+use Redoubt\Support\Connectors;
 use Redoubt\Support\AccessRequests;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Sample;
@@ -234,6 +236,21 @@ Webhooks::sendTest($newSub, $pid, $ids['pm']);
 T::ok('test delivery is logged', count(Webhooks::listDeliveries($newSub, 5)) >= 1);
 Webhooks::deleteSubscription($newSub, $pid, $ids['pm']);
 T::ok('subscription deleted', array_filter(Webhooks::listSubscriptions($pid), static fn ($s) => $s['id'] === $newSub) === []);
+
+// OpenAPI spec + inbound connectors
+T::group('OpenAPI spec + Connectors (live DB)');
+$spec = OpenApi::spec('example.us');
+T::eq('openapi version is 3.0.3', '3.0.3', $spec['openapi']);
+T::ok('spec documents /announcements', isset($spec['paths']['/announcements']));
+T::ok('spec lists webhook events', ($spec['x-webhooks']['events'] ?? []) !== []);
+$cid = Connectors::create($pid, 'ats', ['base_url' => 'https://ats.example.us', 'note' => 'recruiting'], 'ats-key', $ids['pm']);
+T::ok('connector created', $cid > 0);
+T::ok('connector listed (kind ats)', array_filter(Connectors::listForProgram($pid), static fn ($c) => $c['kind'] === 'ats') !== []);
+Connectors::setActive($cid, $pid, false, $ids['pm']);
+$after = array_values(array_filter(Connectors::listForProgram($pid), static fn ($c) => $c['id'] === $cid));
+T::eq('connector disabled', false, $after[0]['active']);
+Connectors::delete($cid, $pid, $ids['pm']);
+T::ok('connector deleted', array_filter(Connectors::listForProgram($pid), static fn ($c) => $c['id'] === $cid) === []);
 
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');

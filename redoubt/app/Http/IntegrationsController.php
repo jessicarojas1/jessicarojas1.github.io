@@ -7,6 +7,7 @@ namespace Redoubt\Http;
 use Redoubt\Support\ApiClients;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Authorize;
+use Redoubt\Support\Connectors;
 use Redoubt\Support\Db;
 use Redoubt\Support\Security;
 use Redoubt\Support\Session;
@@ -46,6 +47,8 @@ final class IntegrationsController
         }
         $scopes = ApiClients::SCOPES;
         $events = Webhooks::EVENTS;
+        $connectors = Connectors::listForProgram($programId);
+        $kinds = Connectors::KINDS;
         $flash = self::takeFlash();
         $csrf = Security::csrfToken();
         $NONCE = $nonce;
@@ -89,6 +92,19 @@ final class IntegrationsController
             case 'test_hook':
                 Webhooks::sendTest((int) ($_POST['id'] ?? 0), $programId, $actorId);
                 self::setFlash('info', 'Test event sent — check the delivery log below.');
+                break;
+            case 'create_connector':
+                $url = trim((string) ($_POST['base_url'] ?? ''));
+                Connectors::create($programId, (string) ($_POST['kind'] ?? 'other'), [
+                    'base_url' => ($url !== '' && preg_match('#^https?://#i', $url)) ? $url : null,
+                    'note'     => trim((string) ($_POST['note'] ?? '')) ?: null,
+                ], trim((string) ($_POST['secret_ref'] ?? '')), $actorId);
+                break;
+            case 'toggle_connector':
+                Connectors::setActive((int) ($_POST['id'] ?? 0), $programId, ($_POST['active'] ?? '') === '1', $actorId);
+                break;
+            case 'delete_connector':
+                Connectors::delete((int) ($_POST['id'] ?? 0), $programId, $actorId);
                 break;
             default:
                 self::plain(400, 'Unknown action.');

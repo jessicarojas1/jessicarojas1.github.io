@@ -36,6 +36,7 @@ $fields = function (array $c = []) {
       <?php endforeach; ?>
     </select>
     <button class="btn btn-sm" type="submit">Switch</button>
+    <a class="btn btn-sm" href="/app/export?type=directory&amp;program_id=<?= (int) $programId ?>">⬇ CSV</a>
   </form>
 </div>
 

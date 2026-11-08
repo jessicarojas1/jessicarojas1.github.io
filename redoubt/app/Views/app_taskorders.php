@@ -44,6 +44,7 @@ $toFields = function (array $t = []) {
       <?php endforeach; ?>
     </select>
     <button class="btn btn-sm" type="submit">Switch</button>
+    <a class="btn btn-sm" href="/app/export?type=task-orders&amp;program_id=<?= (int) $programId ?>">⬇ CSV</a>
   </form>
 </div>
 

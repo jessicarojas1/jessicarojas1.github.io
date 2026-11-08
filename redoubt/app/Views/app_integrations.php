@@ -113,4 +113,43 @@ $host = ($_SERVER['HTTP_HOST'] ?? 'your-host');
     </div>
   <?php endforeach; endif; ?>
 </div>
+<!-- CONNECTORS (inbound systems of record) -->
+<div class="card">
+  <h3 class="dash-h">Connectors</h3>
+  <p class="perm-key" style="margin:-4px 0 12px">Register external systems of record (ATS, Finance, Contracts, Teams, SharePoint/Graph). Config is stored here; secrets live in your secret manager and are referenced by name — never stored in the portal.</p>
+  <details style="margin-bottom:12px"><summary style="cursor:pointer;font-weight:700">➕ Add connector</summary>
+    <form method="post" action="/app/admin/integrations" style="margin-top:12px">
+      <?= Security::csrfField() ?><input type="hidden" name="action" value="create_connector"><input type="hidden" name="program_id" value="<?= (int) $programId ?>">
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">
+        <div><label>System</label><select name="kind"><?php foreach ($kinds as $k => $lbl): ?><option value="<?= Security::h($k) ?>"><?= Security::h($lbl) ?></option><?php endforeach; ?></select></div>
+        <div style="flex:1;min-width:220px"><label>Base URL</label><input type="url" name="base_url" placeholder="https://ats.example.us"></div>
+        <div style="flex:1;min-width:180px"><label>Secret reference (name in secret manager)</label><input type="text" name="secret_ref" placeholder="ats-api-key"></div>
+      </div>
+      <label>Note</label><input type="text" name="note" placeholder="What this connector is for">
+      <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Add connector</button></div>
+    </form>
+  </details>
+  <?php if ($connectors === []): ?><div class="empty-state-sm">No connectors registered.</div>
+  <?php else: ?>
+    <div class="tablewrap"><table>
+      <thead><tr><th>System</th><th>Base URL</th><th>Secret ref</th><th>Status</th><th style="width:1%">Actions</th></tr></thead>
+      <tbody>
+      <?php foreach ($connectors as $c): ?>
+        <tr<?= $c['active'] ? '' : ' style="opacity:.55"' ?>>
+          <td><strong><?= Security::h($kinds[$c['kind']] ?? $c['kind']) ?></strong><?php if (!empty($c['config']['note'])): ?><div class="perm-key"><?= Security::h($c['config']['note']) ?></div><?php endif; ?></td>
+          <td class="perm-key mono"><?= Security::h((string) ($c['config']['base_url'] ?? '—')) ?></td>
+          <td class="perm-key"><?= Security::h((string) ($c['secret_ref'] ?: '—')) ?></td>
+          <td><span class="badge <?= $c['active'] ? 'b-ok' : 'b-muted' ?>"><?= $c['active'] ? 'Active' : 'Disabled' ?></span></td>
+          <td>
+            <div style="display:flex;gap:6px">
+              <form method="post" action="/app/admin/integrations"><?= Security::csrfField() ?><input type="hidden" name="action" value="toggle_connector"><input type="hidden" name="program_id" value="<?= (int) $programId ?>"><input type="hidden" name="id" value="<?= (int) $c['id'] ?>"><input type="hidden" name="active" value="<?= $c['active'] ? '0' : '1' ?>"><button class="btn btn-sm" type="submit"><?= $c['active'] ? 'Disable' : 'Enable' ?></button></form>
+              <form method="post" action="/app/admin/integrations"><?= Security::csrfField() ?><input type="hidden" name="action" value="delete_connector"><input type="hidden" name="program_id" value="<?= (int) $programId ?>"><input type="hidden" name="id" value="<?= (int) $c['id'] ?>"><button class="btn btn-sm" type="submit">Delete</button></form>
+            </div>
+          </td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table></div>
+  <?php endif; ?>
+</div>
 <?php require __DIR__ . '/partials/app_footer.php'; ?>

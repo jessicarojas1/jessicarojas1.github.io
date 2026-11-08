@@ -33,6 +33,12 @@ final class ApiRouter
 {
     public static function dispatch(string $method, string $path): void
     {
+        // Public API contract — no auth required (describes the API, exposes no data).
+        if ($method === 'GET' && ($path === '/api/v1/openapi.json' || $path === '/api/v1/openapi')) {
+            self::json(200, \Redoubt\Support\OpenApi::spec($_SERVER['HTTP_HOST'] ?? 'localhost'));
+            return;
+        }
+
         // Identify the caller: API client (bearer) or interactive session.
         $client = ApiKey::resolve(ApiKey::bearerFromRequest());
         $user = Auth::user();
