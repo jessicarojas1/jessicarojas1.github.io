@@ -46,6 +46,7 @@ use Redoubt\Http\IntegrationsController;
 use Redoubt\Http\ApiDocsController;
 use Redoubt\Http\ExportController;
 use Redoubt\Http\PortfolioController;
+use Redoubt\Http\ReviewController;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Session;
 
@@ -226,6 +227,14 @@ switch ($path) {
 
     case '/app/portfolio':
         PortfolioController::index($nonce);
+        return;
+
+    case '/app/reviews':
+        if ($method === 'POST') {
+            ReviewController::post();
+        } else {
+            ReviewController::index($nonce);
+        }
         return;
 
     case '/app/report':

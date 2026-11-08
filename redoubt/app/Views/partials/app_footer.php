@@ -23,6 +23,7 @@ if (!empty($showTo)) { $nav[] = ['label' => 'Task Orders', 'url' => '/app/task-o
 if (!empty($showJobs)) { $nav[] = ['label' => 'Jobs', 'url' => '/app/jobs']; }
 if (!empty($showDir)) { $nav[] = ['label' => 'Directory', 'url' => '/app/directory']; }
 if (!empty($showMilestones)) { $nav[] = ['label' => 'Milestones', 'url' => '/app/milestones']; }
+if (!empty($showReviews)) { $nav[] = ['label' => 'Review & Approval', 'url' => '/app/reviews']; }
 if (!empty($hasProgram)) { $nav[] = ['label' => 'Quick Links', 'url' => '/app/quick-links']; $nav[] = ['label' => 'FAQ', 'url' => '/app/faq']; }
 if (!empty($showContent)) { $nav[] = ['label' => 'Content Administration', 'url' => '/app/admin/content']; }
 if (!empty($showOnboard)) { $nav[] = ['label' => 'Onboarding & Access', 'url' => '/app/admin/access']; }

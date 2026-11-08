@@ -44,6 +44,11 @@ final class PermissionCatalog
             'finance' => ['label' => 'Financial', 'icon' => '💲', 'actions' => [
                 'finance.view' => 'View financials',
             ]],
+            'review' => ['label' => 'Review & Approval', 'icon' => '✅', 'actions' => [
+                'review.view' => 'View review items', 'review.submit' => 'Create / submit (author)',
+                'review.peer' => 'Peer review', 'review.qa' => 'QA review',
+                'review.authorize' => 'Executive authorization',
+            ]],
             'iam' => ['label' => 'Access & Security', 'icon' => '🔐', 'actions' => [
                 'access.view' => 'View access', 'access.request' => 'Request access (sponsor)',
                 'access.grant' => 'Grant/modify access', 'access.revoke' => 'Revoke / offboard',

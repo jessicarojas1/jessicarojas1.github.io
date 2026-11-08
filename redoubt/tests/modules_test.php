@@ -25,6 +25,7 @@ use Redoubt\Support\Webhooks;
 use Redoubt\Support\OpenApi;
 use Redoubt\Support\Connectors;
 use Redoubt\Support\Portfolio;
+use Redoubt\Support\ReviewWorkflow;
 use Redoubt\Support\AccessRequests;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Sample;
@@ -276,6 +277,41 @@ T::eq('totals program count matches rows', count($port), $tot['programs']);
 T::ok('PM (access.view) sees pending count', $port[0]['pending'] !== null);
 $subPort = Portfolio::forUser($sam);
 T::ok('sub (no access.view) has pending hidden', $subPort[0]['pending'] === null);
+
+// Review / approval workflow (Concept -> WIP -> Approved; author->peer->qa->exec)
+T::group('Review workflow (live DB)');
+$rid = ReviewWorkflow::create($pid, ['title' => 'Systems Engineering Plan', 'kind' => 'document', 'description' => 'SEP v1'], $ids['pm']);
+$r = ReviewWorkflow::getRaw($rid, $pid);
+T::eq('new item starts at Concept', 'concept', $r['stage']);
+T::eq('concept only allows submit', ['submit'], ReviewWorkflow::availableActions($r));
+ReviewWorkflow::act($rid, $pid, 'submit', $ids['pm']);
+$r = ReviewWorkflow::getRaw($rid, $pid);
+T::eq('submit -> WIP', 'wip', $r['stage']);
+T::eq('submit -> at peer step', 'peer', $r['current_step']);
+ReviewWorkflow::act($rid, $pid, 'peer_skip', $ids['pm']);   // peer is optional
+T::eq('peer skip -> QA', 'qa', ReviewWorkflow::getRaw($rid, $pid)['current_step']);
+ReviewWorkflow::act($rid, $pid, 'qa_reject', $ids['pm'], 'needs rework');
+$r = ReviewWorkflow::getRaw($rid, $pid);
+T::eq('QA reject -> back to author', 'author', $r['current_step']);
+T::eq('QA reject keeps stage WIP', 'wip', $r['stage']);
+ReviewWorkflow::act($rid, $pid, 'submit', $ids['pm']);
+ReviewWorkflow::act($rid, $pid, 'peer_approve', $ids['pm']);
+ReviewWorkflow::act($rid, $pid, 'qa_approve', $ids['pm']);
+T::eq('QA approve -> exec authorization', 'exec', ReviewWorkflow::getRaw($rid, $pid)['current_step']);
+ReviewWorkflow::act($rid, $pid, 'exec_approve', $ids['pm']);
+$r = ReviewWorkflow::getRaw($rid, $pid);
+T::eq('exec authorize -> Approved', 'approved', $r['stage']);
+T::eq('approved only allows reopen', ['reopen'], ReviewWorkflow::availableActions($r));
+T::ok('workflow history recorded', count(ReviewWorkflow::history($rid)) >= 5);
+$threw = false;
+try {
+    ReviewWorkflow::act($rid, $pid, 'qa_approve', $ids['pm']);
+} catch (\Throwable $e) {
+    $threw = true;
+}
+T::ok('invalid transition is rejected', $threw);
+T::ok('PM holds exec authorization permission', Authorize::can($pm, 'review.authorize', ['program_id' => $pid]));
+T::ok('sub_member lacks QA permission', !Authorize::can($sam, 'review.qa', ['program_id' => $pid]));
 
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');

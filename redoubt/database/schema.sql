@@ -304,9 +304,39 @@ CREATE TABLE IF NOT EXISTS access_request (
 );
 
 -- ---------------------------------------------------------------------------
+-- Review / approval workflow: items move Concept -> WIP -> Approved, routed
+-- author -> peer reader (optional) -> QA reviewer -> exec authorization.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS review_item (
+    id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    program_id   BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+    title        TEXT NOT NULL,
+    kind         TEXT NOT NULL DEFAULT 'deliverable',
+    description  TEXT,
+    ref_url      TEXT,
+    stage        TEXT NOT NULL DEFAULT 'concept' CHECK (stage IN ('concept','wip','approved')),
+    current_step TEXT NOT NULL DEFAULT 'author'  CHECK (current_step IN ('author','peer','qa','exec','done')),
+    created_by   BIGINT REFERENCES app_user(id),
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS review_action (
+    id        BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    item_id   BIGINT NOT NULL REFERENCES review_item(id) ON DELETE CASCADE,
+    step      TEXT NOT NULL,          -- submit | peer | qa | exec | reopen
+    action    TEXT NOT NULL,          -- submit | approve | reject | skip | reopen
+    actor_id  BIGINT REFERENCES app_user(id),
+    comment   TEXT,
+    at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ---------------------------------------------------------------------------
 -- Indexes (idempotent)
 -- ---------------------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_access_req_prog     ON access_request(program_id, status);
+CREATE INDEX IF NOT EXISTS idx_review_item_prog    ON review_item(program_id, stage);
+CREATE INDEX IF NOT EXISTS idx_review_action_item  ON review_action(item_id, at);
 CREATE INDEX IF NOT EXISTS idx_prog_member_user   ON program_membership(user_id);
 CREATE INDEX IF NOT EXISTS idx_announcement_prog  ON announcement(program_id);
 CREATE INDEX IF NOT EXISTS idx_docref_prog_zone   ON document_ref(program_id, zone);
