@@ -23,6 +23,8 @@ final class ReviewWorkflow
 
     public static function create(int $programId, array $d, ?int $actorId): int
     {
+        $docId = isset($d['document_id']) && $d['document_id'] !== null && $d['document_id'] !== ''
+            ? (int) $d['document_id'] : null;
         $id = Db::insert('review_item', [
             'program_id'  => $programId,
             'title'       => (string) ($d['title'] ?? ''),
@@ -31,17 +33,57 @@ final class ReviewWorkflow
             'ref_url'     => (($u = trim((string) ($d['ref_url'] ?? ''))) !== '' && preg_match('#^https?://#i', $u)) ? $u : null,
             'stage'       => 'concept',
             'current_step' => 'author',
+            'document_id' => $docId,
             'created_by'  => $actorId,
         ]);
-        Audit::log('review.create', 'item#' . $id, $programId, $actorId);
+        Audit::log('review.create', 'item#' . $id . ($docId !== null ? ' doc#' . $docId : ''), $programId, $actorId);
         return $id;
+    }
+
+    /**
+     * Latest review item per document, for a set of document ids in a program.
+     * Keyed by document_id. Used by the Documents module to show each document's
+     * own approval state and decide whether a new review may be started.
+     *
+     * @param int[] $docIds
+     * @return array<int,array{id:int,stage:string,current_step:string,title:string}>
+     */
+    public static function statusForDocuments(array $docIds, int $programId): array
+    {
+        $ids = array_values(array_unique(array_map('intval', array_filter($docIds, static fn ($v) => (int) $v > 0))));
+        if ($ids === [] || !Db::isConfigured()) {
+            return [];
+        }
+        // DISTINCT ON picks the most recent review_item row per document_id.
+        $place = [];
+        $params = ['p' => $programId];
+        foreach ($ids as $i => $v) {
+            $place[] = ':d' . $i;
+            $params['d' . $i] = $v;
+        }
+        $sql = 'SELECT DISTINCT ON (document_id) document_id, id, stage, current_step, title
+                  FROM review_item
+                 WHERE program_id = :p AND document_id IN (' . implode(',', $place) . ')
+                 ORDER BY document_id, id DESC';
+        $out = [];
+        foreach (Db::fetchAll($sql, $params) as $r) {
+            $out[(int) $r['document_id']] = [
+                'id'           => (int) $r['id'],
+                'stage'        => (string) $r['stage'],
+                'current_step' => (string) $r['current_step'],
+                'title'        => (string) $r['title'],
+            ];
+        }
+        return $out;
     }
 
     /** @return array<int,array<string,mixed>> */
     public static function listForProgram(int $programId, ?string $stage = null): array
     {
-        $sql = 'SELECT ri.*, COALESCE(u.display_name, u.email) AS author
-                  FROM review_item ri LEFT JOIN app_user u ON u.id = ri.created_by
+        $sql = 'SELECT ri.*, COALESCE(u.display_name, u.email) AS author, d.title AS doc_title
+                  FROM review_item ri
+                  LEFT JOIN app_user u ON u.id = ri.created_by
+                  LEFT JOIN document_ref d ON d.id = ri.document_id
                  WHERE ri.program_id = :p';
         $params = ['p' => $programId];
         if ($stage !== null && isset(self::STAGES[$stage])) {
@@ -205,6 +247,8 @@ final class ReviewWorkflow
             'stage'        => $r['stage'],
             'current_step' => $r['current_step'],
             'author'       => $r['author'] ?? null,
+            'document_id'  => isset($r['document_id']) && $r['document_id'] !== null ? (int) $r['document_id'] : null,
+            'doc_title'    => $r['doc_title'] ?? null,
             'created_by'   => $r['created_by'] !== null ? (int) $r['created_by'] : null,
             'updated_at'   => $r['updated_at'] ?? null,
         ];

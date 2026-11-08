@@ -335,6 +335,19 @@ T::ok('exec approval notifies the author', in_array('Review approved: Acme Test 
 T::ok('approved item leaves the approver queue', !in_array('Acme Test Plan', $queueTitles($pm), true));
 T::ok('actor is never self-notified for review events', !in_array('Review awaiting you: Acme Test Plan', $titlesFor($ids['sam']), true));
 
+// Document <-> review linkage (a document carries its own approval state).
+$docId = (int) Db::fetchOne("SELECT id FROM document_ref WHERE title='Falcon overview' AND program_id=:p", ['p' => $pid])['id'];
+$dr1 = ReviewWorkflow::create($pid, ['title' => 'Falcon overview — approval', 'kind' => 'document', 'document_id' => $docId], $ids['pm']);
+$st = ReviewWorkflow::statusForDocuments([$docId], $pid);
+T::ok('document carries a linked review status', isset($st[$docId]));
+T::eq('linked review starts at Concept', 'concept', $st[$docId]['stage'] ?? null);
+$linked = array_values(array_filter(ReviewWorkflow::listForProgram($pid), static fn ($i) => $i['id'] === $dr1))[0] ?? [];
+T::eq('review item exposes the document title', 'Falcon overview', $linked['doc_title'] ?? null);
+T::eq('review item exposes the document id', $docId, $linked['document_id'] ?? null);
+$dr2 = ReviewWorkflow::create($pid, ['title' => 'Falcon overview — approval v2', 'kind' => 'document', 'document_id' => $docId], $ids['pm']);
+T::eq('statusForDocuments returns the newest review per document', $dr2, ReviewWorkflow::statusForDocuments([$docId], $pid)[$docId]['id'] ?? null);
+T::eq('a document with no review yields no status', [], ReviewWorkflow::statusForDocuments([999999], $pid));
+
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');
 $reqId = AccessRequests::create($pid, [

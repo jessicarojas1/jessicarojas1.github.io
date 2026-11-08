@@ -316,10 +316,13 @@ CREATE TABLE IF NOT EXISTS review_item (
     ref_url      TEXT,
     stage        TEXT NOT NULL DEFAULT 'concept' CHECK (stage IN ('concept','wip','approved')),
     current_step TEXT NOT NULL DEFAULT 'author'  CHECK (current_step IN ('author','peer','qa','exec','done')),
+    document_id  BIGINT REFERENCES document_ref(id) ON DELETE SET NULL,  -- optional: the document under review
     created_by   BIGINT REFERENCES app_user(id),
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+-- Idempotent migration for databases created before document linkage existed.
+ALTER TABLE review_item ADD COLUMN IF NOT EXISTS document_id BIGINT REFERENCES document_ref(id) ON DELETE SET NULL;
 
 CREATE TABLE IF NOT EXISTS review_action (
     id        BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -336,6 +339,7 @@ CREATE TABLE IF NOT EXISTS review_action (
 -- ---------------------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_access_req_prog     ON access_request(program_id, status);
 CREATE INDEX IF NOT EXISTS idx_review_item_prog    ON review_item(program_id, stage);
+CREATE INDEX IF NOT EXISTS idx_review_item_doc     ON review_item(document_id);
 CREATE INDEX IF NOT EXISTS idx_review_action_item  ON review_action(item_id, at);
 CREATE INDEX IF NOT EXISTS idx_prog_member_user   ON program_membership(user_id);
 CREATE INDEX IF NOT EXISTS idx_announcement_prog  ON announcement(program_id);

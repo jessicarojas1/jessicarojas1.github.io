@@ -9,6 +9,7 @@ use Redoubt\Support\Auth;
 use Redoubt\Support\Authorize;
 use Redoubt\Support\Db;
 use Redoubt\Support\Documents;
+use Redoubt\Support\ReviewWorkflow;
 use Redoubt\Support\Security;
 
 /**
@@ -44,7 +45,10 @@ final class DocumentsController
         $can = [
             'create' => Authorize::can($user, 'document.create', ['program_id' => $programId]),
             'edit'   => Authorize::can($user, 'document.edit', ['program_id' => $programId]),
+            'review' => Authorize::can($user, 'review.submit', ['program_id' => $programId]),
         ];
+        // Each document's own approval state (latest linked review item, if any).
+        $reviewStatus = ReviewWorkflow::statusForDocuments(array_column($items, 'id'), $programId);
         $csrf = Security::csrfToken();
         $NONCE = $nonce;
         require dirname(__DIR__) . '/Views/app_documents.php';
@@ -77,6 +81,24 @@ final class DocumentsController
                 Authorize::requirePermission($user, 'document.edit', ['program_id' => $programId]);
                 Documents::delete($id, $programId, $actorId);
                 break;
+            case 'start_review':
+                // Begin an approval workflow for this document. Requires review.submit
+                // AND that the caller can actually see the document (defense in depth
+                // for CUI/ITAR), so a review is never opened on an inaccessible doc.
+                Authorize::requirePermission($user, 'review.submit', ['program_id' => $programId]);
+                $row = Documents::get($id, $programId);
+                if ($row === null || !Documents::canSee($user, $row, $programId)) {
+                    self::plain(403, '403 Forbidden — document not found or not visible to you.');
+                    return;
+                }
+                ReviewWorkflow::create($programId, [
+                    'title'       => (string) ($row['title'] ?? 'Document') . ' — approval',
+                    'kind'        => 'document',
+                    'description' => 'Approval workflow for document reference #' . $id . '.',
+                    'document_id' => $id,
+                ], $actorId);
+                header('Location: /app/reviews?program_id=' . $programId);
+                return;
             default:
                 self::plain(400, 'Unknown action.');
                 return;

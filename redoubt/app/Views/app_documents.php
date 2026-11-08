@@ -5,8 +5,11 @@
  */
 use Redoubt\Support\Security;
 use Redoubt\Support\Documents;
+use Redoubt\Support\ReviewWorkflow;
 
 $title = 'Documents';
+$reviewStatus = $reviewStatus ?? [];
+$stageClass = ['concept' => 'b-muted', 'wip' => 'b-warn', 'approved' => 'b-ok'];
 $navActive = 'documents';
 $breadcrumbs = ['Home' => '/app', 'Documents' => null];
 require __DIR__ . '/partials/app_header.php';
@@ -86,7 +89,7 @@ $docFields = function (array $d = []) {
     <div class="empty-state-sm">No documents visible in this view.</div>
   <?php else: ?>
     <div class="tablewrap"><table>
-      <thead><tr><th>Title</th><th>Zone</th><th>Markings</th><th style="width:1%">Actions</th></tr></thead>
+      <thead><tr><th>Title</th><th>Zone</th><th>Markings</th><th>Review</th><th style="width:1%">Actions</th></tr></thead>
       <tbody>
       <?php foreach ($items as $d): ?>
         <tr>
@@ -99,6 +102,35 @@ $docFields = function (array $d = []) {
             <?php if ($d['cui_marked']): ?><span class="badge b-warn">CUI</span> <?php endif; ?>
             <?php if ($d['export_controlled']): ?><span class="badge b-warn">ITAR/EAR</span><?php endif; ?>
             <?php if (!$d['cui_marked'] && !$d['export_controlled']): ?><span class="perm-key">—</span><?php endif; ?>
+          </td>
+          <td>
+            <?php $rs = $reviewStatus[$d['id']] ?? null; ?>
+            <?php if ($rs !== null): ?>
+              <a href="/app/reviews?program_id=<?= (int) $programId ?>" title="Open in Review &amp; Approval">
+                <span class="badge <?= $stageClass[$rs['stage']] ?? 'b-muted' ?>"><?= Security::h(ReviewWorkflow::STAGES[$rs['stage']] ?? $rs['stage']) ?></span>
+              </a>
+              <?php if ($rs['stage'] !== 'approved'): ?>
+                <span class="perm-key">at <?= Security::h(ReviewWorkflow::STEPS[$rs['current_step']] ?? $rs['current_step']) ?></span>
+              <?php elseif ($can['review']): ?>
+                <form method="post" action="/app/documents" style="display:inline">
+                  <?= Security::csrfField() ?>
+                  <input type="hidden" name="action" value="start_review">
+                  <input type="hidden" name="program_id" value="<?= (int) $programId ?>">
+                  <input type="hidden" name="id" value="<?= (int) $d['id'] ?>">
+                  <button class="btn btn-sm" type="submit" title="Start a new approval cycle">Re-review</button>
+                </form>
+              <?php endif; ?>
+            <?php elseif ($can['review']): ?>
+              <form method="post" action="/app/documents" style="display:inline">
+                <?= Security::csrfField() ?>
+                <input type="hidden" name="action" value="start_review">
+                <input type="hidden" name="program_id" value="<?= (int) $programId ?>">
+                <input type="hidden" name="id" value="<?= (int) $d['id'] ?>">
+                <button class="btn btn-sm" type="submit">Submit for review</button>
+              </form>
+            <?php else: ?>
+              <span class="perm-key">—</span>
+            <?php endif; ?>
           </td>
           <td>
             <div style="display:flex;gap:6px;flex-wrap:wrap">
@@ -116,7 +148,7 @@ $docFields = function (array $d = []) {
           </td>
         </tr>
         <?php if ($can['edit']): ?>
-        <tr><td colspan="4" style="padding-top:0">
+        <tr><td colspan="5" style="padding-top:0">
           <details>
             <summary style="cursor:pointer;color:var(--muted);font-size:12.5px">Edit metadata</summary>
             <form method="post" action="/app/documents" style="margin-top:10px">

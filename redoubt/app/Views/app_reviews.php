@@ -74,7 +74,7 @@ $base = '/app/reviews?program_id=' . (int) $programId;
         <div>
           <strong><?= Security::h($it['title']) ?></strong> <span class="perm-key"><?= Security::h($it['kind']) ?></span>
           <div style="margin-top:4px"><?= $stageBadge((string) $it['stage']) ?> &nbsp; <?= $chain($it) ?></div>
-          <div class="perm-key" style="margin-top:3px">author: <?= Security::h($it['author'] ?: '—') ?><?php if ($it['ref_url']): ?> · <a href="<?= Security::h($it['ref_url']) ?>" target="_blank" rel="noopener">reference ↗</a><?php endif; ?></div>
+          <div class="perm-key" style="margin-top:3px">author: <?= Security::h($it['author'] ?: '—') ?><?php if (!empty($it['document_id'])): ?> · 📄 <a href="/app/documents/open?program_id=<?= (int) $programId ?>&amp;id=<?= (int) $it['document_id'] ?>"><?= Security::h($it['doc_title'] ?: 'linked document') ?></a><?php endif; ?><?php if ($it['ref_url']): ?> · <a href="<?= Security::h($it['ref_url']) ?>" target="_blank" rel="noopener">reference ↗</a><?php endif; ?></div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start">
           <?php foreach ($actions as $a): if (empty($perms[$actPerm[$a]])) { continue; } ?>

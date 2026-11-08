@@ -66,7 +66,10 @@ requirement.** The blockers below flow from these.
   gated per zone through Authorize incl. the **US-person export gate** and **company
   scoping**; `open()` re-authorizes before redirecting (defense-in-depth for CUI/ITAR);
   `GET /api/v1/documents` (export-controlled excluded for API clients); Graph client
-  ready for live SharePoint resolve (`Documents`, `DocumentsController`, `app_documents.php`).
+  ready for live SharePoint resolve. Each document shows its own **approval state**
+  and can be **submitted for review** (links to the Review & Approval workflow,
+  gated by `review.submit` + document visibility) (`Documents`,
+  `DocumentsController`, `app_documents.php`).
 - **Task Orders module** (Annex H): `/app/task-orders` (create/edit/award/delete),
   program- and company-scoped; award emits `taskorder.awarded` webhook + audit;
   `GET /api/v1/task-orders` (`TaskOrders`, `TaskOrdersController`, `app_taskorders.php`).
@@ -146,11 +149,12 @@ Jobs, Directory, Search).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
-- **Automated test suite** (zero-dependency): `php tests/run.php` — 154 checks
-  (15 authorization-engine logic + 130 live-DB assertions: modules, job targeting,
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 160 checks
+  (15 authorization-engine logic + 136 live-DB assertions: modules, job targeting,
   Settings/Branding sanitization, notification fan-out, review/approval workflow +
-  its next-approver notifications and per-user review queue, onboarding lifecycle,
-  local auth, sample loader) via `tests/lib/T` + `tests/lib/Seed`; DB tests self-skip
+  its next-approver notifications, per-user review queue, and document↔review
+  linkage, onboarding lifecycle, local auth, sample loader) via `tests/lib/T` +
+  `tests/lib/Seed`; DB tests self-skip
   unless `REDOUBT_TEST_DB=1`. An end-to-end HTTP flow (setup → local login → app)
   is also verified.
 - **CI**: `.github/workflows/redoubt-ci.yml` lints every PHP file and runs the full
@@ -204,10 +208,11 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 154 checks —
+  These checks are now a **repeatable suite** (`php tests/run.php`, 160 checks —
   incl. job targeting by company/contract/program-wide + filters, the
-  review/approval workflow with next-approver notifications + per-user queue, and
-  Settings/Branding persistence + sanitization) enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
+  review/approval workflow with next-approver notifications + per-user queue +
+  document↔review linkage, and Settings/Branding persistence + sanitization)
+  enforced in CI. Bugs caught & fixed in the process: PHP `bool` bound via native
   prepares became `''` (Db now emits `true`/`false`); webhook `@>` needed `::jsonb`;
   reused `:pid` broke native prepares; `Db::update` now appends `updated_at` only
   when the column exists (+ `updated_at` on `announcement`/`app_user`/`task_order`).
