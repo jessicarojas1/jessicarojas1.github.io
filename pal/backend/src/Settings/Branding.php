@@ -7,7 +7,7 @@ namespace App\Settings;
 final class Branding
 {
     public const DEFAULT_DISPLAY_NAME = 'PAL';
-    public const DEFAULT_ACCENT_COLOR = '#2f5bd3';
+    public const DEFAULT_ACCENT_COLOR = '#2e7d32';
 
     public function __construct(
         public readonly ?string $displayName,

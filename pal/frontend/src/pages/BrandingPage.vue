@@ -37,7 +37,7 @@ onMounted(() => {
 })
 
 const logoError = computed(() => (isSafeLogoUrl(logoUrl.value) ? null : 'Use an https:// image URL, or upload an image.'))
-const colourError = computed(() => (accentColor.value === '' || isHexColour(accentColor.value) ? null : 'Use a hex colour such as #2f5bd3.'))
+const colourError = computed(() => (accentColor.value === '' || isHexColour(accentColor.value) ? null : 'Use a hex colour such as #2e7d32.'))
 const previewName = computed(() => (displayName.value.trim() === '' ? DEFAULT_BRANDING.displayName : displayName.value.trim()))
 const previewColour = computed(() => (isHexColour(accentColor.value) ? accentColor.value : DEFAULT_BRANDING.accentColor))
 const isDataUrl = computed(() => logoUrl.value.startsWith('data:'))
@@ -216,7 +216,7 @@ function resetAll(): void {
               class="col"
               label="Accent colour"
               outlined
-              placeholder="#2f5bd3"
+              placeholder="#2e7d32"
               hint="Hex colour used for the header, buttons and links. Leave empty for the default."
               :error="colourError !== null || fieldErrors.accentColor !== undefined"
               :error-message="colourError ?? fieldErrors.accentColor"

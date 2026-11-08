@@ -42,7 +42,7 @@ final class BrandingSanitizer
         $accentColor = self::optionalString($input['accentColor'] ?? null);
         if (null !== $accentColor) {
             if (1 !== preg_match('/^#[0-9a-fA-F]{6}$/', $accentColor)) {
-                $errors['accentColor'] = 'Use a hex colour such as #2f5bd3.';
+                $errors['accentColor'] = 'Use a hex colour such as #2e7d32.';
             }
             $accentColor = strtolower($accentColor);
         }

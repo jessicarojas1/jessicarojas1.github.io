@@ -13,7 +13,7 @@ export interface Branding {
 export const DEFAULT_BRANDING: Branding = {
   displayName: 'PAL',
   logoUrl: null,
-  accentColor: '#2f5bd3',
+  accentColor: '#2e7d32',
   isDefault: { displayName: true, logoUrl: true, accentColor: true },
 }
 

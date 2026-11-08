@@ -33,7 +33,7 @@ describe('accent contrast', () => {
     expect(contrastRatio('#2f5bd3', '#111a2e')).toBeCloseTo(2.93, 1)
   })
 
-  it.each(['#2f5bd3', '#ffd400', '#00ff00', '#111111', '#7c3aed', '#ffffff', '#000000'])('derives readable colours for accent %s', (accent) => {
+  it.each(['#2e7d32', '#2f5bd3', '#ffd400', '#00ff00', '#111111', '#7c3aed', '#ffffff', '#000000'])('derives readable colours for accent %s', (accent) => {
     expect(contrastRatio(onAccent(accent), accent)).toBeGreaterThanOrEqual(4.5)
     expect(contrastRatio(accentForText(accent, LIGHT_SURFACE), LIGHT_SURFACE)).toBeGreaterThanOrEqual(4.5)
     expect(contrastRatio(accentForText(accent, DARK_SURFACE), DARK_SURFACE)).toBeGreaterThanOrEqual(4.5)
