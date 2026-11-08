@@ -227,7 +227,7 @@ Because `READER` is implicit, every signed-in user also has `library.read`.
 |---|---|
 | Data in transit (browser) | TLS at the operator's reverse proxy; HSTS; `Secure` + `__Host-` session cookie |
 | Data in transit (to Entra / Graph) | HTTPS, no redirects, host-pinned endpoints |
-| Data in transit (to PostgreSQL) | **Not enforced by PAL.** Add `sslmode=require` (or `verify-full`) to the DSNs when the database is on another host. |
+| Data in transit (to PostgreSQL) | **Not enforced by PAL.** Enable `sslmode=verify-full` (with `sslrootcert`) on the DSNs — or via `PGSSL*` — when the database is on another host; both the app and session connections share `DATABASE_URL`. Full how-to and a `pg_stat_ssl` verification query: [DEPLOYMENT.md §4.4](DEPLOYMENT.md#44-database-tls). |
 | Data at rest | PAL does not encrypt columns. Use encrypted volumes / storage for PostgreSQL, backups and anchors. |
 | Local credentials | argon2id hashes in `local_credential`; plaintext is never stored or logged. Database backups contain the hashes, so protect them accordingly |
 | Document files | Filesystem/NAS under `PAL_BLOB_DIR`, unencrypted by PAL. Use an encrypted volume. Never served directly: only through `GET /api/revisions/{id}/file` after an access check |
@@ -349,7 +349,7 @@ PAL's controls assume the operator:
 | Rate-limit and OIDC metadata caches are per container (tmpfs) | Limits multiply with replicas and reset on restart | Accept for one web instance; use a shared cache pool before scaling out |
 | `TRUSTED_PROXIES=private_ranges` default | Client-IP spoofing from internal networks | Exact proxy IPs; proxy overwrites `X-Forwarded-For` |
 | Entra **Assignment required** not enforced by PAL | Every tenant account, guests included, becomes a Reader if unset | Mandatory operator setting (§2.5) |
-| Database TLS not configured by default | Credentials and data in clear on the network if the DB is remote | Add `sslmode` to DSNs |
+| Database TLS not configured by default | Credentials and data in clear on the network if the DB is remote | Set `sslmode=verify-full` + `sslrootcert` ([DEPLOYMENT.md §4.4](DEPLOYMENT.md#44-database-tls)) |
 | Anchoring off by default; Compose mounts no anchor directory | Whole-chain rewrite by a DBA would go undetected | Mount write-once storage, set `PAL_AUDIT_ANCHOR_DIR` |
 | Revocation latency | Up to 15 min (sync interval) for tracked groups; up to the idle (1 h) / absolute (12 h) session limit for users in no tracked group | Accept, run a manual sync for urgent cases, or shorten limits |
 | `PdoSessionHandler` is replaced by a mock session store in the test environment | PostgreSQL session handling (locking, idle expiry) has no automated test | Add an integration test against PostgreSQL |

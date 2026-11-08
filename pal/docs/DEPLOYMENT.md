@@ -141,6 +141,33 @@ Until the OIDC variables are valid, `/auth/login` redirects with `auth_error=sig
 - `DATABASE_URL` and `APP_SECRET` are read from environment variables; PAL has no built-in integration with Vault, Key Vault or Secrets Manager. Inject them from your secret store at container start, **or** mount them as files and point `<NAME>_FILE` at the path — the entrypoint supports `APP_SECRET_FILE`, `DATABASE_URL_FILE`, `DATABASE_URL_MIGRATIONS_FILE`, `OIDC_CLIENT_SECRET_FILE`, `OIDC_CLIENT_KEY_PASSPHRASE_FILE` and `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD_FILE` (reads the file, strips a trailing newline; setting both the variable and its `_FILE` is an error). This keeps secrets off the process environment with Docker/Kubernetes secrets and Vault/CSI mounts.
 - Rotation procedures are in [SECURITY.md §9](SECURITY.md#9-secrets-rotation).
 
+### 4.4 Database TLS
+
+PAL does not enforce TLS to PostgreSQL; enable it whenever the database is on another host. Both database connections — Doctrine (application queries) **and** the PostgreSQL session handler — read the same `DATABASE_URL`, so configuring it once covers both; migrations use `DATABASE_URL_MIGRATIONS`, so set it there too. There is no separate in-app TLS switch: PAL relies on libpq, driven either by DSN query parameters or by `PGSSL*` environment variables.
+
+Recommended (verifies the server certificate against a CA **and** checks the hostname):
+
+```
+# On the DSNs (URL-encode any special characters in the path):
+DATABASE_URL="postgresql://pal_app:***@db.internal:5432/pal?serverVersion=17&charset=utf8&sslmode=verify-full&sslrootcert=/run/secrets/pg_ca.crt"
+DATABASE_URL_MIGRATIONS="postgresql://pal_owner:***@db.internal:5432/pal?serverVersion=17&charset=utf8&sslmode=verify-full&sslrootcert=/run/secrets/pg_ca.crt"
+
+# …or, equivalently, as environment variables that libpq reads for every connection:
+PGSSLMODE=verify-full
+PGSSLROOTCERT=/run/secrets/pg_ca.crt
+```
+
+For mutual TLS add `sslcert` / `sslkey` (or `PGSSLCERT` / `PGSSLKEY`). Mount the CA (and any client cert/key) read-only as secrets; the `serverVersion` and `charset` parameters must stay. `sslmode=require` encrypts but does **not** authenticate the server, so a MITM is still possible — prefer `verify-full`.
+
+Verify end to end from a running container (both the app role and the migrate role):
+
+```
+docker run --rm --env-file prod.env pal:latest console dbal:run-sql \
+  "SELECT ssl, version FROM pg_stat_ssl WHERE pid = pg_backend_pid()"
+```
+
+`ssl = t` confirms the application connection is encrypted. The session handler uses the same `DATABASE_URL`, so it inherits the setting; confirm sign-in still works after enabling TLS. This has not been exercised against a TLS-enabled server in this project — run the check above on staging before go-live.
+
 ## 5. Database roles and migrations
 
 ### 5.1 Roles (once, then after every migration)
@@ -309,7 +336,7 @@ Conferring `PAL_ADMINISTRATOR`, `PUBLISHER` or `AUTHOR`, or resetting the passwo
 - [ ] `APP_ENV=prod`, `APP_DEBUG=0`.
 - [ ] Blob storage: writable by uid 10001 only, encrypted, deletion denied to the app user where the storage supports it.
 - [ ] `PAL_MAX_UPLOAD_BYTES` ≤ clamd `StreamMaxLength`; `PAL_UPLOAD_DAILY_BYTES` sized against the volume.
-- [ ] PostgreSQL not exposed beyond the app host(s); TLS to the database if it is on another host (append `sslmode=require` or stricter to the DSN; not configured by default).
+- [ ] PostgreSQL not exposed beyond the app host(s); TLS to the database if it is on another host — `sslmode=verify-full` + `sslrootcert`, verified with the `pg_stat_ssl` query in [§4.4](#44-database-tls) (not configured by default).
 - [ ] `PAL_DEFAULT_TIMEZONE` understood as fallback only; the effective default is the `org_setting.default_timezone` row (`America/Denver`).
 - [ ] OS, Docker and PostgreSQL patching owned by a named team.
 
