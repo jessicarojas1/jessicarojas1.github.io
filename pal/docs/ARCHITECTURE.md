@@ -83,6 +83,7 @@ Owner decisions that shape the platform (see [Proposal §1a](PHASE0_ARCHITECTURE
 │                    scheduler_default       │  users, local credentials,    │
 │  - SyncDirectory     every 15 min │        │  groups, roles, settings,     │
 │  - VerifyAuditChain  daily 02:15Z │        │  documents, revisions, files, │
+│  - SyncDirectoryGroup  on demand  │        │                               │
 └──────────┬────────────────────────┘        │  workflow, publications,      │
            │                                 │  audit_event (append-only),   │
            │                                 │  sessions, messenger_messages │
@@ -130,7 +131,7 @@ Allowed dependencies (`deptrac.yaml`): Platform → Audit, Identity (only so the
 | GET | `/api/branding` | Public | Effective branding for the sign-in screen and shell |
 | PUT | `/api/admin/branding` | `system.config` + CSRF | Updates branding |
 | GET | `/api/admin/role-mappings` | `admin.roles` | Lists group → role mappings |
-| POST | `/api/admin/role-mappings` | `admin.roles` + CSRF | Adds a mapping (group is resolved in Graph first). Refused with 403 `self_grant_forbidden` when the caller is a member of the group and the role is `PAL_ADMINISTRATOR`, `PUBLISHER` or `AUTHOR`. The first membership sync runs synchronously; for a large group it may time out, but the mapping is already saved and the next scheduled sync completes it. |
+| POST | `/api/admin/role-mappings` | `admin.roles` + CSRF | Adds a mapping (group is resolved in Graph first). Refused with 403 `self_grant_forbidden` when the caller is a member of the group and the role is `PAL_ADMINISTRATOR`, `PUBLISHER` or `AUTHOR`. For those document-authority roles the membership sync runs synchronously (the self-grant check needs fresh membership before granting); for every other role the initial sync is dispatched to the `async` transport (`SyncDirectoryGroup`) so a large group cannot time out the request. |
 | DELETE | `/api/admin/role-mappings/{id}` | `admin.roles` + CSRF | Removes a mapping |
 | GET | `/api/admin/users` | `admin.users` | Lists users with sign-in method, lock state, explicit and group-inherited roles (`?q=`, max 500) |
 | POST | `/api/admin/users` | `admin.users` + CSRF | Creates a local account; returns a temporary password once. 403 `role_escalation_forbidden` when giving a document-authority role without holding `PAL_ADMINISTRATOR` |
@@ -340,5 +341,5 @@ The selected production target is **on-premises Linux with Docker Compose** (`de
 - ADR-0006 describes a quarantine area and Azure/S3 backends. The implementation scans PHP's upload temp file in place and only promotes it afterwards (no separate quarantine directory), and has only the filesystem backend. The ADR's "application identity cannot delete or overwrite" depends on the operator: the code never does, but the app user owns the files (`0440`, directories `0750`) unless the storage denies deletion.
 - Upload is checked by the `BlobStore` hash at write and at release, not on every download.
 - The `audit_event` table has no `actor_ip` or document/revision/workflow/publication foreign-key columns yet; the sign-in-failure event stores the client IP inside `changes`.
-- No message is routed to the `async` Messenger transport yet; the worker currently only does scheduled work and does not touch blobs or ClamAV.
+- The only producer on the `async` Messenger transport is `SyncDirectoryGroup`, dispatched when a non-document-authority role mapping is added so the initial membership pull runs off-request (I8). It is low-volume (one message per mapping, an admin action), so one worker still suffices. The worker otherwise does scheduled work and does not touch blobs or ClamAV.
 - `composer.json` allows PHP `>=8.2` while the stated platform is PHP 8.4+.

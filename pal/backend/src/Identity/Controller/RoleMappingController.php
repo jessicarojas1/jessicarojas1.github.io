@@ -13,6 +13,7 @@ use App\Identity\Directory\DirectoryException;
 use App\Identity\Directory\DirectorySynchronizer;
 use App\Identity\Directory\GroupRepository;
 use App\Identity\Directory\RoleMappingRepository;
+use App\Identity\Message\SyncDirectoryGroup;
 use App\Identity\User\PalUser;
 use App\Platform\Database\Row;
 use App\Platform\Http\ApiProblem;
@@ -21,6 +22,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -39,6 +41,7 @@ final class RoleMappingController
         private readonly AuditLogger $audit,
         private readonly Connection $connection,
         private readonly LoggerInterface $logger,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -125,11 +128,12 @@ final class RoleMappingController
             throw new ApiProblem(409, 'mapping_exists', 'This group is already mapped to that role.');
         }
 
-        try {
-            $this->directory->syncGroup($group['id'], $objectId, $actor);
-        } catch (DirectoryException $e) {
-            // The mapping is saved; membership arrives with the next scheduled sync.
-            $this->logger->warning('Initial membership sync failed for a new role mapping', ['exception' => $e]);
+        // Document-authority mappings already refreshed membership synchronously above (the SoD
+        // gate needs it before granting), so re-syncing now would pull the same large group twice.
+        // For every other role the initial membership pull runs off-request (I8): a large group
+        // must not time out this request, and the message is durable until the worker consumes it.
+        if (!$role->hasDocumentAuthority()) {
+            $this->bus->dispatch(new SyncDirectoryGroup($group['id'], $objectId));
         }
 
         return new JsonResponse(['ok' => true, 'id' => $mappingId], 201);

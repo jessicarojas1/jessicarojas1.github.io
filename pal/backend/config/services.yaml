@@ -26,6 +26,7 @@ services:
     # Message handlers live next to their messages; register them explicitly.
     App\Audit\Message\VerifyAuditChainHandler: ~
     App\Identity\Message\SyncDirectoryHandler: ~
+    App\Identity\Message\SyncDirectoryGroupHandler: ~
 
     App\Identity\Directory\DirectoryAdapter: '@App\Identity\Directory\GraphDirectoryAdapter'
 

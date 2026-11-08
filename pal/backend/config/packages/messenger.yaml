@@ -2,6 +2,12 @@ framework:
     messenger:
         failure_transport: failed
 
+        routing:
+            # Off-request directory work goes to the durable queue so a large group's membership
+            # pull cannot time out the HTTP request that triggered it (OPEN_ITEMS I8). Consumed by
+            # the `messenger:consume async` worker; the message is durable in PostgreSQL until then.
+            App\Identity\Message\SyncDirectoryGroup: async
+
         transports:
             # Durable queue in PostgreSQL. Handlers must be idempotent (at-least-once delivery).
             async:

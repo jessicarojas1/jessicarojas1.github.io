@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Identity\Message\SyncDirectoryGroup;
 use App\Identity\Security\PalUserProvider;
 use App\Tests\Support\DatabaseReset;
 use App\Tests\Support\FakeEntraId;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 /**
  * Endpoint × role checks for the Phase 1 API, plus CSRF and input validation.
@@ -203,6 +205,49 @@ final class ApiAuthorizationTest extends WebTestCase
         // System Administrator carries no document authority, so it is not subject to this rule.
         $this->sendJson('POST', '/api/admin/role-mappings', ['role' => 'SYSTEM_ADMINISTRATOR', 'groupObjectId' => $mine], $csrf);
         self::assertResponseStatusCodeSame(201);
+    }
+
+    public function testMappingANonAuthorityRoleSyncsTheGroupOffRequest(): void
+    {
+        FakeEntraId::reset();
+        $group = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+        FakeEntraId::$groups[$group] = ['displayName' => 'All Staff', 'members' => []];
+        // Keep one container across requests so the in-memory transport is not reset on reboot.
+        $this->client->disableReboot();
+        $this->signInAs('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'SYSTEM_ADMINISTRATOR');
+        $csrf = $this->csrf();
+
+        // SYSTEM_ADMINISTRATOR carries no document authority, so there is no SoD pre-sync; the
+        // initial membership pull must be dispatched to the durable queue (I8), not run inline.
+        $this->sendJson('POST', '/api/admin/role-mappings', ['role' => 'SYSTEM_ADMINISTRATOR', 'groupObjectId' => $group], $csrf);
+        self::assertResponseStatusCodeSame(201);
+
+        $transport = self::getContainer()->get('messenger.transport.async');
+        self::assertInstanceOf(InMemoryTransport::class, $transport);
+        $sent = $transport->getSent();
+        self::assertCount(1, $sent, 'the initial membership sync is dispatched off-request');
+        $message = $sent[0]->getMessage();
+        self::assertInstanceOf(SyncDirectoryGroup::class, $message);
+        self::assertSame($group, $message->groupObjectId);
+    }
+
+    public function testMappingADocumentAuthorityRoleSyncsInlineForSeparationOfDuties(): void
+    {
+        FakeEntraId::reset();
+        $group = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
+        FakeEntraId::$groups[$group] = ['displayName' => 'Quality Publishers', 'members' => []];
+        $this->client->disableReboot();
+        $this->signInAs('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'SYSTEM_ADMINISTRATOR');
+        $csrf = $this->csrf();
+
+        // PUBLISHER confers document authority, so membership is synced synchronously before the
+        // grant (the SoD self-grant check needs fresh membership); nothing is queued afterward.
+        $this->sendJson('POST', '/api/admin/role-mappings', ['role' => 'PUBLISHER', 'groupObjectId' => $group], $csrf);
+        self::assertResponseStatusCodeSame(201);
+
+        $transport = self::getContainer()->get('messenger.transport.async');
+        self::assertInstanceOf(InMemoryTransport::class, $transport);
+        self::assertCount(0, $transport->getSent(), 'document-authority mappings sync inline, not via the queue');
     }
 
     public function testMalformedMappingIdsAreNotFoundRatherThanServerErrors(): void
