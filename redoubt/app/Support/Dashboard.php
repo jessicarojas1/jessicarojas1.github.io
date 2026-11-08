@@ -41,18 +41,27 @@ final class Dashboard
             $stats['onboarding'] = ['label' => 'Pending Access', 'icon' => '🔐', 'count' => count(AccessRequests::listForProgram($programId, 'pending')), 'url' => '/app/admin/access'];
         }
 
+        // Review queue: items currently waiting on this user (as an approver, or as
+        // an author with returned work). Only surfaced to reviewers/authorizers or
+        // when something is actually waiting, so it never shows a perpetual "0".
+        $awaitingReviews = $can('review.view') ? ReviewWorkflow::awaitingForUser($user, $programId) : [];
+        $isReviewer = $can('review.peer') || $can('review.qa') || $can('review.authorize');
+        if ($awaitingReviews !== [] || $isReviewer) {
+            $stats['reviews'] = ['label' => 'Awaiting Your Review', 'icon' => '✅', 'count' => count($awaitingReviews), 'url' => '/app/reviews'];
+        }
+
         return [
             'program'       => $prog,
             'stats'         => $stats,
             'announcements' => $can('announcement.view') ? array_slice(Announcements::listForUser($user, $programId), 0, 5) : [],
             'milestones'    => $can('milestone.view') ? Milestones::upcoming($programId, 5) : [],
-            'actions'       => self::actions($user, $programId, $can),
+            'actions'       => self::actions($user, $programId, $can, count($awaitingReviews)),
             'unread'        => !empty($user['id']) ? Notifications::unreadCount((int) $user['id']) : 0,
         ];
     }
 
     /** "My actions" — things that need the user's attention. @return array<int,array{label:string,url:string,count:int}> */
-    private static function actions(array $user, int $programId, callable $can): array
+    private static function actions(array $user, int $programId, callable $can, int $awaitingReviews = 0): array
     {
         $out = [];
         if ($can('access.grant')) {
@@ -71,6 +80,9 @@ final class Dashboard
         if ($due !== [] && $can('milestone.view')) {
             $n = count($due);
             $out[] = ['label' => "$n milestone" . ($n === 1 ? '' : 's') . ' due within 7 days', 'url' => '/app/milestones', 'count' => $n];
+        }
+        if ($awaitingReviews > 0) {
+            $out[] = ['label' => "$awaitingReviews review item" . ($awaitingReviews === 1 ? '' : 's') . ' awaiting your action', 'url' => '/app/reviews', 'count' => $awaitingReviews];
         }
         return $out;
     }

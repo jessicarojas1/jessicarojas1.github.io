@@ -313,6 +313,28 @@ T::ok('invalid transition is rejected', $threw);
 T::ok('PM holds exec authorization permission', Authorize::can($pm, 'review.authorize', ['program_id' => $pid]));
 T::ok('sub_member lacks QA permission', !Authorize::can($sam, 'review.qa', ['program_id' => $pid]));
 
+// Review notifications (next-approver fan-out + author alerts) and the per-user queue.
+Notifications::markAllRead($ids['pm']);
+Notifications::markAllRead($ids['sam']);
+$titlesFor = static fn (int $uid): array => array_map(static fn ($n) => $n['title'], Notifications::listFor($uid));
+$queueTitles = static fn (array $u): array => array_map(static fn ($i) => $i['title'], ReviewWorkflow::awaitingForUser($u, $pid));
+$rid2 = ReviewWorkflow::create($pid, ['title' => 'Acme Test Plan', 'kind' => 'deliverable'], $ids['sam']);
+ReviewWorkflow::act($rid2, $pid, 'submit', $ids['sam']);               // author=sam -> peer step; notify peers (PM)
+T::ok('submit notifies the next approver (PM)', in_array('Review awaiting you: Acme Test Plan', $titlesFor($ids['pm']), true));
+T::ok('PM review queue shows the waiting item', in_array('Acme Test Plan', $queueTitles($pm), true));
+T::ok('submit-only sub has nothing awaiting at peer step', !in_array('Acme Test Plan', $queueTitles($sam), true));
+ReviewWorkflow::act($rid2, $pid, 'peer_approve', $ids['pm']);           // -> QA
+ReviewWorkflow::act($rid2, $pid, 'qa_reject', $ids['pm'], 'fix section 3'); // back to author (sam)
+T::ok('QA reject notifies the author', in_array('Review returned to you: Acme Test Plan', $titlesFor($ids['sam']), true));
+T::ok('returned item appears in author queue', in_array('Acme Test Plan', $queueTitles($sam), true));
+ReviewWorkflow::act($rid2, $pid, 'submit', $ids['sam']);
+ReviewWorkflow::act($rid2, $pid, 'peer_approve', $ids['pm']);
+ReviewWorkflow::act($rid2, $pid, 'qa_approve', $ids['pm']);
+ReviewWorkflow::act($rid2, $pid, 'exec_approve', $ids['pm']);           // approved -> notify author
+T::ok('exec approval notifies the author', in_array('Review approved: Acme Test Plan', $titlesFor($ids['sam']), true));
+T::ok('approved item leaves the approver queue', !in_array('Acme Test Plan', $queueTitles($pm), true));
+T::ok('actor is never self-notified for review events', !in_array('Review awaiting you: Acme Test Plan', $titlesFor($ids['sam']), true));
+
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');
 $reqId = AccessRequests::create($pid, [
