@@ -253,7 +253,7 @@ Bytes enter PAL only through `UploadService` (`POST /api/uploads`). Order: per-u
 | Integrity | Release re-hashes the stored bytes and the metadata against the approved manifest (409 `approval_integrity_failed`) |
 | Limits | nginx allows large bodies on `/api/uploads` only (52 MB); PHP 50M/52M; application `PAL_MAX_UPLOAD_BYTES` |
 
-**Limits, stated openly:** a clean scan means no *known* signature matched; signature freshness depends on the operator's `freshclam` or offline mirror. The real clamd has not yet been exercised in tests (a protocol-level stand-in is used; see [OPEN_ITEMS.md](../OPEN_ITEMS.md)). The code never deletes or overwrites blobs, but the application user owns them, so true immutability needs the storage to deny it deletion (§10). Blobs are not re-scanned when signatures update. Stored files are not encrypted by PAL.
+**Limits, stated openly:** a clean scan means no *known* signature matched; signature freshness depends on the operator's `freshclam` or offline mirror. The real clamd has not yet been exercised in tests (a protocol-level stand-in is used; see [OPEN_ITEMS.md](../OPEN_ITEMS.md)). The code never deletes or overwrites blobs, but the application user owns them, so true immutability needs the storage to deny it deletion (§10). Blobs are not re-scanned when signatures update. Stored files are not encrypted by PAL. A clean upload that is never attached to a revision keeps its blob (quota bounds growth but does not free it); `pal:storage:unattached` reports how much space these occupy (read-only, with `--fail-over-bytes` for alerting), but reclaiming them is gated on a retention-policy decision (see [OPEN_ITEMS.md](../OPEN_ITEMS.md)).
 
 ## 6. Auditability
 
