@@ -123,12 +123,72 @@ final class UnattachedUploadScannerTest extends KernelTestCase
 
         $tester = new CommandTester((new Application(self::$kernel))->find('pal:storage:unattached'));
 
-        self::assertSame(Command::SUCCESS, $tester->execute(['--fail-over-bytes' => '8192']), 'below the threshold → success');
-        self::assertSame(Command::FAILURE, $tester->execute(['--fail-over-bytes' => '1024']), 'at/over the threshold → non-zero for alerting');
+        // --older-than=0 reports all (the fresh upload is newer than the 30d default window).
+        self::assertSame(Command::SUCCESS, $tester->execute(['--older-than' => '0', '--fail-over-bytes' => '8192']), 'below the threshold → success');
+        self::assertSame(Command::FAILURE, $tester->execute(['--older-than' => '0', '--fail-over-bytes' => '1024']), 'at/over the threshold → non-zero for alerting');
         self::assertStringContainsString('4.0 KiB', $tester->getDisplay());
 
         // Read-only: the stored_file and upload rows are untouched.
         self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM stored_file WHERE sha256 = ?', [$sha]));
         self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM upload WHERE stored_sha256 = ?', [$sha]));
+    }
+
+    public function testReclaimDeletesOnlyEligibleUploadRowsAndAudits(): void
+    {
+        $old = str_repeat('1', 64);
+        $this->storedFile($old, 4096, "now() - interval '40 days'");
+        $this->cleanUpload($old, 4096);
+        $this->cleanUpload($old, 4096); // two upload rows, one blob
+
+        $recent = str_repeat('2', 64);
+        $this->storedFile($recent, 10, "now() - interval '2 days'");
+        $this->cleanUpload($recent, 10);
+
+        $attached = str_repeat('3', 64);
+        $this->storedFile($attached, 20, "now() - interval '90 days'");
+        $this->cleanUpload($attached, 20);
+        $this->attachToDraft($attached);
+
+        $actor = \App\Audit\AuditActor::system('test');
+        $reclaimer = self::getContainer()->get(\App\Storage\UnattachedUploadReclaimer::class);
+
+        self::assertSame(['sizeBytes' => 4096, 'uploads' => 2], $reclaimer->reclaim($old, 30 * 86400, $actor));
+        self::assertNull($reclaimer->reclaim($recent, 30 * 86400, $actor), 'within the window → skipped');
+        self::assertNull($reclaimer->reclaim($attached, 30 * 86400, $actor), 'attached → skipped');
+
+        self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM stored_file WHERE sha256 = ?', [$old]), 'reclaimed blob row removed');
+        self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM upload WHERE stored_sha256 = ?', [$old]), 'its upload rows removed');
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM stored_file WHERE sha256 = ?', [$recent]), 'recent kept');
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM stored_file WHERE sha256 = ?', [$attached]), 'attached kept');
+        self::assertSame(1, (int) $this->db->fetchOne(
+            "SELECT count(*) FROM audit_event WHERE event_type = 'UPLOAD_RECLAIMED' AND subject_id = ?",
+            [$old],
+        ));
+    }
+
+    public function testDeleteCommandNeedsAPositiveRetentionWindow(): void
+    {
+        $tester = new CommandTester((new Application(self::$kernel))->find('pal:storage:unattached'));
+
+        self::assertSame(Command::INVALID, $tester->execute(['--delete' => true, '--older-than' => '0']));
+        self::assertStringContainsString('positive', $tester->getDisplay());
+    }
+
+    public function testDeleteCommandReclaimsOldUploadsOnly(): void
+    {
+        $old = str_repeat('4', 64);
+        $this->storedFile($old, 2048, "now() - interval '45 days'");
+        $this->cleanUpload($old, 2048);
+
+        $recent = str_repeat('5', 64);
+        $this->storedFile($recent, 2048, "now() - interval '3 days'");
+        $this->cleanUpload($recent, 2048);
+
+        $tester = new CommandTester((new Application(self::$kernel))->find('pal:storage:unattached'));
+        self::assertSame(Command::SUCCESS, $tester->execute(['--delete' => true]));
+        self::assertStringContainsString('Reclaimed 1', $tester->getDisplay());
+
+        self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM stored_file WHERE sha256 = ?', [$old]));
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM stored_file WHERE sha256 = ?', [$recent]), '3-day-old upload is within the 30d window');
     }
 }

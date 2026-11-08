@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Storage\Command;
 
+use App\Audit\AuditActor;
+use App\Storage\UnattachedUploadReclaimer;
 use App\Storage\UnattachedUploadScanner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -13,18 +15,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Reports never-attached uploads — blobs stored for a clean upload that were never referenced by
- * any document revision — and the disk space they occupy. READ-ONLY: it deletes nothing. Use it
- * for disk-usage visibility/alerting. Reclaiming this space is a separate, policy-gated step
- * (retention window + removing the upload/stored_file rows) that is not yet implemented.
+ * Reports, and with --delete reclaims, never-attached uploads — blobs stored for a clean upload
+ * that no document revision references — and the disk space they occupy.
+ *
+ * Dry-run by default (report only). --delete removes the DATABASE rows (the upload records and the
+ * stored_file row) for candidates older than --older-than (default 30d); the retention window
+ * protects uploads a user has not yet attached, so --delete requires a positive window. The blob
+ * file is then unreferenced; `pal:storage:gc --delete` frees it from disk race-safely.
  */
-#[AsCommand(name: 'pal:storage:unattached', description: 'Report never-attached uploads and the space they occupy (read-only)')]
+#[AsCommand(name: 'pal:storage:unattached', description: 'Report (or with --delete reclaim) never-attached uploads older than a retention window')]
 final class ReportUnattachedUploadsCommand extends Command
 {
     private const SAMPLE = 20;
+    private const DEFAULT_AGE = '30d';
 
     public function __construct(
         private readonly UnattachedUploadScanner $scanner,
+        private readonly UnattachedUploadReclaimer $reclaimer,
     ) {
         parent::__construct();
     }
@@ -32,8 +39,9 @@ final class ReportUnattachedUploadsCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption('older-than', null, InputOption::VALUE_REQUIRED, 'Only count uploads stored before this age (e.g. 7d, 24h, 30d); default: all', '0')
-            ->addOption('fail-over-bytes', null, InputOption::VALUE_REQUIRED, 'Exit non-zero when the reclaimable total is at least this many bytes (for alerting)');
+            ->addOption('older-than', null, InputOption::VALUE_REQUIRED, 'Retention window: only uploads stored before this (e.g. 30d, 24h). Use 0 to report all.', self::DEFAULT_AGE)
+            ->addOption('delete', null, InputOption::VALUE_NONE, 'Reclaim (delete upload + stored_file rows); otherwise report only')
+            ->addOption('fail-over-bytes', null, InputOption::VALUE_REQUIRED, 'Report mode: exit non-zero when the reclaimable total is at least this many bytes (for alerting)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -41,7 +49,7 @@ final class ReportUnattachedUploadsCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $rawOption = $input->getOption('older-than');
-        $raw = \is_string($rawOption) ? $rawOption : '0';
+        $raw = \is_string($rawOption) ? $rawOption : self::DEFAULT_AGE;
         $minAge = self::parseDuration($raw);
         if (null === $minAge) {
             $io->error(\sprintf('Invalid --older-than value "%s". Use seconds or a suffix: 30m, 24h, 7d.', $raw));
@@ -49,8 +57,14 @@ final class ReportUnattachedUploadsCommand extends Command
             return Command::INVALID;
         }
 
-        $report = $this->scanner->scan($minAge, self::SAMPLE);
+        return true === $input->getOption('delete')
+            ? $this->reclaim($io, $minAge, $raw)
+            : $this->report($io, $input, $minAge, $raw);
+    }
 
+    private function report(SymfonyStyle $io, InputInterface $input, int $minAge, string $raw): int
+    {
+        $report = $this->scanner->scan($minAge, self::SAMPLE);
         $scope = $minAge > 0 ? \sprintf(' stored more than %s ago', $raw) : '';
         if (0 === $report->fileCount) {
             $io->success(\sprintf('No never-attached uploads%s.', $scope));
@@ -71,7 +85,7 @@ final class ReportUnattachedUploadsCommand extends Command
                 ], $report->sample),
             );
         }
-        $io->note('Read-only: nothing was deleted. Reclaiming this space needs a retention policy and is not yet implemented (see OPEN_ITEMS.md).');
+        $io->note('Read-only: nothing was deleted. Re-run with --delete to reclaim, then `pal:storage:gc --delete` to free disk.');
 
         $failOver = $input->getOption('fail-over-bytes');
         if (\is_string($failOver) && ctype_digit($failOver) && $report->totalBytes >= (int) $failOver) {
@@ -79,6 +93,47 @@ final class ReportUnattachedUploadsCommand extends Command
 
             return Command::FAILURE;
         }
+
+        return Command::SUCCESS;
+    }
+
+    private function reclaim(SymfonyStyle $io, int $minAge, string $raw): int
+    {
+        if ($minAge <= 0) {
+            $io->error('--delete needs a positive --older-than retention window (e.g. 30d); it protects uploads a user has not yet attached.');
+
+            return Command::INVALID;
+        }
+
+        $actor = AuditActor::system('storage-reclaim');
+        $reclaimed = 0;
+        $skipped = 0;
+        $bytes = 0;
+        $uploadRows = 0;
+        // Materialise the candidate SHAs first so iterating is not disturbed by the deletes.
+        foreach (iterator_to_array($this->reclaimer->candidates($minAge), false) as $sha256) {
+            $result = $this->reclaimer->reclaim($sha256, $minAge, $actor);
+            if (null === $result) {
+                ++$skipped;
+
+                continue;
+            }
+            ++$reclaimed;
+            $bytes += $result['sizeBytes'];
+            $uploadRows += $result['uploads'];
+        }
+
+        if (0 === $reclaimed) {
+            $io->success(\sprintf('No never-attached uploads to reclaim (older than %s).%s', $raw, $skipped > 0 ? \sprintf(' Skipped %d that became ineligible.', $skipped) : ''));
+
+            return Command::SUCCESS;
+        }
+
+        $io->success(\sprintf('Reclaimed %d never-attached upload(s) (%d upload row(s)); %s of blobs are now unreferenced.', $reclaimed, $uploadRows, self::humanBytes($bytes)));
+        if ($skipped > 0) {
+            $io->writeln(\sprintf('Skipped %d that became attached or were already gone.', $skipped));
+        }
+        $io->note('Run `pal:storage:gc --delete` to remove the unreferenced blobs from disk (it is race-safe against a concurrent re-upload).');
 
         return Command::SUCCESS;
     }

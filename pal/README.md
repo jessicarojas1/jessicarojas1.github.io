@@ -158,7 +158,8 @@ Sign in at `http://localhost:5173` and choose a new password when asked, then re
 | Verify the audit chain | `php bin/console pal:audit:verify [--anchor]` |
 | Verify blob storage (exists + SHA-256) | `php bin/console pal:storage:verify` |
 | Reclaim unreferenced blobs | `php bin/console pal:storage:gc [--delete] [--older-than=24h]` (dry-run without `--delete`) |
-| Report never-attached uploads (read-only) | `php bin/console pal:storage:unattached [--older-than=7d] [--fail-over-bytes=N]` |
+| Report never-attached uploads (read-only) | `php bin/console pal:storage:unattached [--older-than=30d] [--fail-over-bytes=N]` |
+| Reclaim never-attached uploads (then run GC) | `php bin/console pal:storage:unattached --delete [--older-than=30d]` (deletes upload + stored_file rows; blob freed by `pal:storage:gc --delete`) |
 | Sync directory groups now | `php bin/console pal:directory:sync` |
 | Map a group to a role | `php bin/console pal:roles:map PUBLISHER <group-object-id>` |
 | Create the first local admin | `php bin/console pal:users:bootstrap-admin` (reads `PAL_BOOTSTRAP_LOCAL_ADMIN_*`; no-op once any local account exists) |
