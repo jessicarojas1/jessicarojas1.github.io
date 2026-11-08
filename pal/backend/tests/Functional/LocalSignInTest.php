@@ -235,6 +235,52 @@ final class LocalSignInTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
+    /** Age a credential so a temporary password is older than the 24h test window. */
+    private function ageCredential(string $userId, string $interval, bool $mustChange = true): void
+    {
+        $this->db->executeStatement(
+            'UPDATE local_credential SET must_change = ?, password_changed_at = now() - ?::interval WHERE user_id = ?',
+            [$mustChange ? 'true' : 'false', $interval, $userId],
+        );
+    }
+
+    public function testExpiredTemporaryPasswordsAreRefusedWithADistinctError(): void
+    {
+        $id = $this->account('ivy', mustChange: true);
+        $this->ageCredential($id, '48 hours'); // the test window is 24h
+
+        self::assertSame(403, $this->signIn('ivy', self::PASSWORD), 'a correct but expired temporary password is refused');
+        self::assertSame('password_expired', $this->json()['error']);
+        self::assertSame(1, (int) $this->db->fetchOne(
+            "SELECT count(*) FROM audit_event WHERE subject_id = ? AND event_type = 'USER_SIGN_IN_FAILED' AND reason = 'temporary_password_expired'",
+            [$id],
+        ));
+        self::assertSame(0, (int) $this->db->fetchOne(
+            "SELECT count(*) FROM audit_event WHERE subject_id = ? AND event_type = 'USER_SIGNED_IN'",
+            [$id],
+        ), 'an expired sign-in is never recorded as a success');
+    }
+
+    public function testPermanentPasswordsNeverExpire(): void
+    {
+        $id = $this->account('hank');
+        $this->ageCredential($id, '1000 hours', mustChange: false);
+
+        self::assertSame(200, $this->signIn('hank', self::PASSWORD), 'only must-change passwords expire');
+    }
+
+    public function testResettingAnExpiredTemporaryPasswordRestoresSignIn(): void
+    {
+        $id = $this->account('nora', mustChange: true);
+        $this->ageCredential($id, '48 hours');
+        self::assertSame(403, $this->signIn('nora', self::PASSWORD));
+
+        // An administrator reset (or a bootstrap re-run) stamps a fresh password_changed_at.
+        $this->ageCredential($id, '0 hours');
+        self::assertSame(200, $this->signIn('nora', self::PASSWORD), 'a fresh temporary password signs in again');
+        self::assertTrue($this->json()['mustChangePassword']);
+    }
+
     public function testPasswordChangeRevokesOtherSessionsAndAuditsWrongCurrentPassword(): void
     {
         $id = $this->account('eve');

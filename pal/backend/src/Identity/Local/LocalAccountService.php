@@ -35,7 +35,19 @@ final class LocalAccountService
         private readonly ClockInterface $clock,
         #[Autowire(service: 'limiter.login_username')]
         private readonly RateLimiterFactory $usernameLimiter,
+        #[Autowire(env: 'int:default:pal.temp_password_max_age_hours_default:PAL_TEMP_PASSWORD_MAX_AGE_HOURS')]
+        private readonly int $tempPasswordMaxAgeHours = 0,
     ) {
+    }
+
+    /**
+     * Whether a temporary (must-change) password set at $passwordChangedAt has expired. Only
+     * must-change credentials expire, and only when a positive window is configured, so a
+     * permanent password and the disabled default (0) never lock anyone out.
+     */
+    public static function temporaryPasswordExpired(bool $mustChange, \DateTimeImmutable $passwordChangedAt, \DateTimeImmutable $now, int $maxAgeHours): bool
+    {
+        return $maxAgeHours > 0 && $mustChange && $now > $passwordChangedAt->modify('+'.$maxAgeHours.' hours');
     }
 
     /**
@@ -45,7 +57,8 @@ final class LocalAccountService
     {
         $username = self::normalizeUsername($username);
         $row = '' === $username ? false : $this->connection->fetchAssociative(<<<'SQL'
-            SELECT u.id, u.display_name, u.username, u.is_active, c.password_hash, c.failed_attempts, c.locked_until
+            SELECT u.id, u.display_name, u.username, u.is_active, c.password_hash, c.failed_attempts, c.locked_until,
+                   c.must_change, c.password_changed_at
             FROM app_user u JOIN local_credential c ON c.user_id = u.id
             WHERE u.username = ?
             SQL, [$username]);
@@ -77,6 +90,17 @@ final class LocalAccountService
             });
 
             return null;
+        }
+
+        // Correct password, but a temporary one that has expired: refuse sign-in (no USER_SIGNED_IN,
+        // no attempt reset) and surface a distinct, actionable failure. An administrator reset or a
+        // re-run of pal:users:bootstrap-admin stamps a fresh password_changed_at and clears this.
+        if (self::temporaryPasswordExpired(Row::bool($row, 'must_change'), new \DateTimeImmutable(Row::string($row, 'password_changed_at')), $now, $this->tempPasswordMaxAgeHours)) {
+            $this->connection->transactional(fn () => $this->audit->record(
+                new AuditEntry('USER_SIGN_IN_FAILED', $actor, 'app_user', $userId, ['method' => 'password'], 'temporary_password_expired'),
+            ));
+
+            throw new TemporaryPasswordExpiredException();
         }
 
         $this->connection->transactional(function () use ($userId, $row, $password, $actor): void {

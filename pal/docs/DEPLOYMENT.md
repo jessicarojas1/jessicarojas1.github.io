@@ -122,6 +122,7 @@ Until the OIDC variables are valid, `/auth/login` redirects with `auth_error=sig
 | `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Explicit, off-by-default opt-out of malware scanning. `1` accepts uploads without scanning when `PAL_CLAMD_ADDRESS` is empty, **in any environment**. In production each such upload is logged as an error and recorded with scan engine `none (unscanned)`. Leave `0` and run ClamAV wherever real documents are stored; set `1` only for a scanner-less demo (see §12.3). |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` | `admin` | Read by the `migrate` role. With the password below, creates the first local administrator if no local account exists. Remove after first sign-in. |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | 12–128 characters, one-off value | Temporary: must be changed at first sign-in. A value that fails the policy makes `migrate` fail. **Secret.** Remove after first sign-in. |
+| `PAL_TEMP_PASSWORD_MAX_AGE_HOURS` | `0` | Hours a temporary (must-change) password stays valid after it is issued; after that, sign-in is refused with `403 password_expired` until an administrator resets it. `0` (default) disables expiry, so an upgrade never starts locking anyone out. Keep a recovery path for the sole/bootstrap admin: re-running `pal:users:bootstrap-admin` or another admin's reset issues a fresh temporary password and restarts the clock. |
 | `PAL_AUDIT_ANCHOR_DIR` | `/var/lib/pal-anchors` | Directory where the audit chain head is appended (`audit-anchors.jsonl`). Should be write-once storage owned by another team. Empty = anchoring off. Requires a writable mount in the worker container (see §6). |
 | `LOG_LEVEL` | `info` | Minimum Monolog level for the JSON stderr handler. |
 | `DEFAULT_URI` | `http://localhost:5173` | Base URI for URLs generated outside HTTP requests (Symfony router). |
@@ -283,6 +284,7 @@ Conferring `PAL_ADMINISTRATOR`, `PUBLISHER` or `AUTHOR`, or resetting the passwo
 - [ ] Separate DB roles: web/worker use the app role; only `migrate` has `DATABASE_URL_MIGRATIONS`; `PAL_APP_DB_ROLE` set; `roles.sql` re-run after every migration.
 - [ ] `PAL_BOOTSTRAP_ADMIN_OIDS` emptied once group mappings exist.
 - [ ] `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` / `_PASSWORD` deleted after first sign-in; temporary password changed.
+- [ ] Decide `PAL_TEMP_PASSWORD_MAX_AGE_HOURS` (temporary-password expiry; `0` = off). If enabled, confirm the sole/bootstrap-admin recovery path (`pal:users:bootstrap-admin` re-run, or another admin's reset) before relying on it.
 - [ ] Decision taken on local accounts in production (ADR-0014): keep to break-glass where Entra exists; they have no MFA. `SYSTEM_ADMINISTRATOR` and `PAL_ADMINISTRATOR` held by different people.
 - [ ] `PAL_ALLOW_UNSCANNED_UPLOADS=0` and `PAL_CLAMD_ADDRESS` set.
 - [ ] Entra enterprise application has **Assignment required = Yes** with only intended users/groups assigned (otherwise every tenant account, guests included, becomes a Reader).

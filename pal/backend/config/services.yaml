@@ -1,5 +1,8 @@
 parameters:
     pal.upload_daily_bytes_default: 524288000
+    # Temporary (must-change) password lifetime in hours. 0 disables expiry (the default, so an
+    # upgrade never starts locking anyone out); operators opt in per policy. See SECURITY.md.
+    pal.temp_password_max_age_hours_default: 0
 
 services:
     _defaults:
@@ -20,6 +23,7 @@ services:
             - '../src/Identity/Oidc/OidcException.php'
             - '../src/Identity/Directory/Directory{GroupInfo,UserInfo,Exception}.php'
             - '../src/Identity/Directory/SyncSummary.php'
+            - '../src/Identity/Local/TemporaryPasswordExpiredException.php'
             - '../src/Platform/Http/ApiProblem.php'
             - '../src/Settings/Branding.php'
 

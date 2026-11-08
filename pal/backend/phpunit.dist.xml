@@ -33,6 +33,7 @@
         <env name="PAL_MAX_UPLOAD_BYTES" value="1048576" />
         <env name="PAL_CLAMD_ADDRESS" value="" />
         <env name="PAL_ALLOW_UNSCANNED_UPLOADS" value="0" />
+        <env name="PAL_TEMP_PASSWORD_MAX_AGE_HOURS" value="24" />
     </php>
 
     <testsuites>

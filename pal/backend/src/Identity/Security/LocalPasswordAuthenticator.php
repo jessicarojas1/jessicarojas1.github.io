@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Identity\Security;
 
 use App\Identity\Local\LocalAccountService;
+use App\Identity\Local\TemporaryPasswordExpiredException;
 use App\Platform\Http\ApiProblem;
 use App\Platform\Http\JsonBody;
 use Symfony\Component\Clock\ClockInterface;
@@ -74,7 +75,12 @@ final class LocalPasswordAuthenticator extends AbstractAuthenticator
         if (!$this->csrf->isTokenValid(new CsrfToken(self::CSRF_ID, $csrfToken))) {
             throw new CustomUserMessageAuthenticationException('invalid_credentials');
         }
-        $userId = $this->accounts->verify($username, $password);
+        try {
+            $userId = $this->accounts->verify($username, $password);
+        } catch (TemporaryPasswordExpiredException) {
+            // Only reachable with a correct password, so a distinct answer here leaks nothing new.
+            throw new CustomUserMessageAuthenticationException('password_expired');
+        }
         if (null === $userId) {
             throw new CustomUserMessageAuthenticationException('invalid_credentials');
         }
@@ -100,6 +106,7 @@ final class LocalPasswordAuthenticator extends AbstractAuthenticator
     {
         return match ($exception->getMessageKey()) {
             'too_many_attempts' => new JsonResponse(['error' => 'too_many_attempts', 'message' => 'Too many sign-in attempts. Wait a few minutes and try again.'], 429),
+            'password_expired' => new JsonResponse(['error' => 'password_expired', 'message' => 'Your temporary password has expired. Ask an administrator to reset it.'], 403),
             'invalid_request' => new JsonResponse(['error' => 'invalid_request', 'message' => 'The sign-in request was malformed.'], 400),
             // Also covers an invalid CSRF token, so the page can simply reload its token.
             default => new JsonResponse(['error' => 'invalid_credentials', 'message' => 'The username or password is incorrect, or the account is temporarily locked.'], 401),
