@@ -33,7 +33,7 @@ $examples = ['When is the kickoff?', 'How do I badge in?', 'Latest task order', 
 
 <?php if ($answer !== null): ?>
 <div class="card">
-  <h3 class="dash-h">Answer</h3>
+  <h3 class="dash-h">Answer <?php if (!empty($answer['composed'])): ?><span class="badge b-ok" style="font-weight:600">Composed by in-enclave model</span><?php else: ?><span class="badge b-muted" style="font-weight:600">Retrieval</span><?php endif; ?></h3>
   <div style="font-size:15px;white-space:pre-wrap"><?= Security::h((string) $answer['summary']) ?></div>
 </div>
 <?php if (($answer['results'] ?? []) !== []): ?>

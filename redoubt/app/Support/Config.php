@@ -84,6 +84,25 @@ final class Config
         return self::get('DATABASE_URL');
     }
 
+    // --- Optional in-enclave LLM for the Program Assistant ------------------
+    // Point at a self-hosted model (e.g. Ollama in the enclave). Off by default:
+    // with no URL the assistant uses retrieval only (air-gap safe, no external AI).
+
+    public static function assistantLlmUrl(): ?string
+    {
+        return self::get('ASSISTANT_LLM_URL'); // e.g. http://ollama:11434/api/generate
+    }
+
+    public static function assistantLlmModel(): string
+    {
+        return self::get('ASSISTANT_LLM_MODEL', 'llama3.1') ?? 'llama3.1';
+    }
+
+    public static function assistantLlmEnabled(): bool
+    {
+        return self::assistantLlmUrl() !== null;
+    }
+
     /**
      * Entra SSO is OPTIONAL. When configured it's offered as an additional sign-in
      * method; the portal always supports built-in local email/password accounts so

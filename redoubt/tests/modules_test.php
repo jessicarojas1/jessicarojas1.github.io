@@ -212,6 +212,7 @@ T::ok('audit total > 0', $total > 0);
 T::ok('audit action filter never exceeds total', AuditLog::count($pid, 'announcement.published') <= $total);
 $ans = Assistant::ask($pm, $pid, 'kickoff announcement');
 T::ok('assistant returns a non-empty summary', is_string($ans['summary']) && $ans['summary'] !== '');
+T::eq('assistant uses retrieval when no LLM configured', false, $ans['composed'] ?? null);
 $pmFalcon = Assistant::ask($pm, $pid, 'Falcon');
 T::ok('assistant finds accessible items for PM', $pmFalcon['count'] >= 1);
 $ninaAns = Assistant::ask($nina, $pid, 'Falcon classified');

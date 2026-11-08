@@ -49,7 +49,33 @@ final class Assistant
                     . ' you can access, the most relevant is "' . $top['title'] . '" (' . $top['type'] . ').';
             }
         }
-        return ['summary' => $summary, 'count' => count($results), 'results' => $results];
+
+        // Optionally let a self-hosted in-enclave model compose the answer from the
+        // SAME permission-trimmed sources. The model only ever sees $results, so it
+        // cannot surface anything outside the asker's access. Falls back to retrieval.
+        $composed = false;
+        if ($results !== [] && Config::assistantLlmEnabled()) {
+            $text = LlmClient::generate(self::prompt($question, $results));
+            if ($text !== null) {
+                $summary = $text;
+                $composed = true;
+            }
+        }
+
+        return ['summary' => $summary, 'count' => count($results), 'results' => $results, 'composed' => $composed];
+    }
+
+    /** Build the LLM prompt from the already-trimmed sources (the model's whole world). */
+    private static function prompt(string $question, array $results): string
+    {
+        $ctx = '';
+        foreach ($results as $i => $r) {
+            $ctx .= ($i + 1) . '. [' . $r['type'] . '] ' . $r['title'] . "\n   " . ($r['snippet'] ?? '') . "\n";
+        }
+        return "You are a program assistant for a U.S. defense program portal. Answer the user's "
+            . "question using ONLY the sources below — do not invent facts, and if the sources do "
+            . "not contain the answer, say so plainly. Be concise and cite source numbers in [brackets].\n\n"
+            . "SOURCES:\n" . $ctx . "\nQUESTION: " . $question . "\n\nANSWER:";
     }
 
     /** @return string[] */
