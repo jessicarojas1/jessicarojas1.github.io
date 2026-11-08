@@ -104,16 +104,29 @@ final class Notifications
               GROUP BY u.id, u.kind, u.is_us_person, pm.company_id",
             ['p' => $programId]
         );
+
+        // Explicit per-user grants/denials for this program, so fan-out resolves
+        // recipients exactly as the Authorize engine does (role defaults + grants
+        // − denials) — not role defaults alone. Otherwise a user granted, say,
+        // review.qa only by an explicit grant would never be notified.
+        $grantsByUser = [];
+        foreach (Db::fetchAll('SELECT user_id, permission_key, effect FROM user_permission_grant WHERE program_id = :p', ['p' => $programId]) as $g) {
+            $uid = (int) $g['user_id'];
+            $bucket = ($g['effect'] === 'deny') ? 'deny' : 'grant';
+            $grantsByUser[$uid][$bucket][] = (string) $g['permission_key'];
+        }
+
         $out = [];
         foreach ($rows as $r) {
             $companyId = $r['company_id'] !== null ? (int) $r['company_id'] : null;
+            $uid = (int) $r['id'];
             $out[] = [
-                'id'           => (int) $r['id'],
+                'id'           => $uid,
                 'kind'         => (string) $r['kind'],
                 'is_us_person' => $r['is_us_person'] === null ? null : (bool) $r['is_us_person'],
                 'memberships'  => [$programId => ['roles' => $r['roles'] !== null ? explode(',', $r['roles']) : [], 'company_id' => $companyId]],
                 'companies'    => $companyId !== null ? [$companyId] : [],
-                'grants'       => [],
+                'grants'       => isset($grantsByUser[$uid]) ? [$programId => $grantsByUser[$uid]] : [],
             ];
         }
         return $out;

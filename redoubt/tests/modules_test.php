@@ -335,6 +335,15 @@ T::ok('exec approval notifies the author', in_array('Review approved: Acme Test 
 T::ok('approved item leaves the approver queue', !in_array('Acme Test Plan', $queueTitles($pm), true));
 T::ok('actor is never self-notified for review events', !in_array('Review awaiting you: Acme Test Plan', $titlesFor($ids['sam']), true));
 
+// Fan-out honors EXPLICIT grants, not just role defaults. Give the sub an explicit
+// review.peer grant and confirm a submit routes a notification to them.
+Db::query($up, ['p' => $pid, 'u' => $ids['sam'], 'k' => 'review.peer', 'e' => 'grant', 'b' => $ids['pm']]);
+Notifications::markAllRead($ids['sam']);
+$g1 = ReviewWorkflow::create($pid, ['title' => 'Grant-routed Item', 'kind' => 'deliverable'], $ids['pm']);
+ReviewWorkflow::act($g1, $pid, 'submit', $ids['pm']);   // -> peer step; sam holds review.peer only via the explicit grant
+T::ok('fan-out reaches an explicitly-granted approver', in_array('Review awaiting you: Grant-routed Item', $titlesFor($ids['sam']), true));
+Db::query('DELETE FROM user_permission_grant WHERE program_id=:p AND user_id=:u AND permission_key=:k', ['p' => $pid, 'u' => $ids['sam'], 'k' => 'review.peer']);
+
 // Document <-> review linkage (a document carries its own approval state).
 $docId = (int) Db::fetchOne("SELECT id FROM document_ref WHERE title='Falcon overview' AND program_id=:p", ['p' => $pid])['id'];
 $dr1 = ReviewWorkflow::create($pid, ['title' => 'Falcon overview — approval', 'kind' => 'document', 'document_id' => $docId], $ids['pm']);
