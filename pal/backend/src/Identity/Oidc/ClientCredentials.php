@@ -44,7 +44,8 @@ final class ClientCredentials
             throw new OidcException('not_configured', 'client certificate or key is not readable');
         }
         $certificate = openssl_x509_read((string) file_get_contents($certPath));
-        $privateKey = openssl_pkey_get_private((string) file_get_contents($keyPath));
+        // Supports an encrypted private key: OIDC_CLIENT_KEY_PASSPHRASE (null when unencrypted).
+        $privateKey = openssl_pkey_get_private((string) file_get_contents($keyPath), $this->settings->clientKeyPassphrase());
         if (false === $certificate || false === $privateKey || !openssl_x509_export($certificate, $pem) || !\is_string($pem)) {
             throw new OidcException('not_configured', 'client certificate or key could not be parsed');
         }

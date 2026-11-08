@@ -91,7 +91,7 @@ PAL itself calls **no cloud APIs**: it talks only to PostgreSQL, Entra ID and Gr
 
 Kubernetes Secrets are only base64-encoded. Enable encryption at rest for etcd, restrict `get/list` on Secrets in the `pal` namespace with RBAC, and source values from a vault via an operator.
 
-To keep secrets off the pod environment entirely, mount them as files (a Secret volume or a Secrets Store CSI mount) and point the matching `_FILE` variable at the path: `APP_SECRET_FILE`, `DATABASE_URL_FILE`, `DATABASE_URL_MIGRATIONS_FILE`, `OIDC_CLIENT_SECRET_FILE`, `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD_FILE`. The entrypoint reads the file (stripping a trailing newline) into the variable before startup; set a variable or its `_FILE`, never both.
+To keep secrets off the pod environment entirely, mount them as files (a Secret volume or a Secrets Store CSI mount) and point the matching `_FILE` variable at the path: `APP_SECRET_FILE`, `DATABASE_URL_FILE`, `DATABASE_URL_MIGRATIONS_FILE`, `OIDC_CLIENT_SECRET_FILE`, `OIDC_CLIENT_KEY_PASSPHRASE_FILE`, `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD_FILE`. The entrypoint reads the file (stripping a trailing newline) into the variable before startup; set a variable or its `_FILE`, never both.
 
 ### 4.3 Database roles
 

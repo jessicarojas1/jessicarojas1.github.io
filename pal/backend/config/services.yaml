@@ -3,6 +3,8 @@ parameters:
     # Temporary (must-change) password lifetime in hours. 0 disables expiry (the default, so an
     # upgrade never starts locking anyone out); operators opt in per policy. See SECURITY.md.
     pal.temp_password_max_age_hours_default: 0
+    # Optional passphrase for an encrypted Entra client private key. Empty = the key is unencrypted.
+    pal.oidc_client_key_passphrase_default: ''
 
 services:
     _defaults:

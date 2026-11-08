@@ -60,6 +60,39 @@ final class ClientCredentialsTest extends TestCase
         }
     }
 
+    public function testEncryptedPrivateKeyIsLoadedWithItsPassphrase(): void
+    {
+        $dir = sys_get_temp_dir().'/pal-cert-'.bin2hex(random_bytes(4));
+        mkdir($dir);
+        $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => \OPENSSL_KEYTYPE_RSA]);
+        self::assertNotFalse($key);
+        $csr = openssl_csr_new(['commonName' => 'pal-test'], $key);
+        self::assertNotFalse($csr);
+        $cert = openssl_csr_sign($csr, null, $key, 1);
+        self::assertNotFalse($cert);
+        openssl_x509_export_to_file($cert, $dir.'/cert.pem');
+        $passphrase = 'a-strong-key-passphrase';
+        openssl_pkey_export_to_file($key, $dir.'/key.pem', $passphrase);
+
+        try {
+            // Correct passphrase → the assertion is produced and verifies against the public key.
+            $ok = new OidcSettings('https://login.microsoftonline.com', self::TENANT, self::CLIENT, '', $dir.'/cert.pem', $dir.'/key.pem', 'http://localhost', $passphrase);
+            $params = (new ClientCredentials($ok, new MockClock()))->tokenRequestParameters('https://login.microsoftonline.com/token');
+            JWT::$timestamp = (new MockClock())->now()->getTimestamp();
+            $claims = (array) JWT::decode($params['client_assertion'], new Key(openssl_pkey_get_details($key)['key'], 'RS256'));
+            JWT::$timestamp = null;
+            self::assertSame(self::CLIENT, $claims['iss']);
+
+            // Missing passphrase → the encrypted key cannot be parsed, surfaced as not_configured.
+            $noPass = new OidcSettings('https://login.microsoftonline.com', self::TENANT, self::CLIENT, '', $dir.'/cert.pem', $dir.'/key.pem', 'http://localhost');
+            $this->expectException(\App\Identity\Oidc\OidcException::class);
+            (new ClientCredentials($noPass, new MockClock()))->tokenRequestParameters('https://login.microsoftonline.com/token');
+        } finally {
+            array_map('unlink', glob($dir.'/*') ?: []);
+            rmdir($dir);
+        }
+    }
+
     public function testSettingsRejectAmbiguousOrMissingCredentials(): void
     {
         $both = new OidcSettings('https://login.microsoftonline.com', self::TENANT, self::CLIENT, 'secret', '/c.pem', '/k.pem', 'http://localhost');

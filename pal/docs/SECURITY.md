@@ -74,7 +74,7 @@ Failures redirect to `/sign-in?auth_error=<code>` with a fixed vocabulary (`too_
 
 Exactly one of:
 
-- **Certificate (recommended for production):** a signed client assertion (RFC 7523 `private_key_jwt`, RS256, 5-minute lifetime, unique `jti`, `x5t` and `x5t#S256` thumbprints) built from `OIDC_CLIENT_CERT_PATH` and `OIDC_CLIENT_KEY_PATH`. The files are read when an assertion is built.
+- **Certificate (recommended for production):** a signed client assertion (RFC 7523 `private_key_jwt`, RS256, 5-minute lifetime, unique `jti`, `x5t` and `x5t#S256` thumbprints) built from `OIDC_CLIENT_CERT_PATH` and `OIDC_CLIENT_KEY_PATH`. The files are read when an assertion is built. An **encrypted** private key is supported: set `OIDC_CLIENT_KEY_PASSPHRASE` (or, preferably, `OIDC_CLIENT_KEY_PASSPHRASE_FILE`) to decrypt it; leave it empty for an unencrypted key.
 - **Client secret (development):** `OIDC_CLIENT_SECRET`.
 
 ### 2.4 Directory sync (Microsoft Graph)

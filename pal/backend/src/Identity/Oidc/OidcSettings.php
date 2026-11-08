@@ -22,6 +22,7 @@ final class OidcSettings
         #[Autowire(env: 'OIDC_CLIENT_CERT_PATH')] private readonly string $clientCertPath,
         #[Autowire(env: 'OIDC_CLIENT_KEY_PATH')] private readonly string $clientKeyPath,
         #[Autowire(env: 'PAL_BASE_URL')] private readonly string $baseUrl,
+        #[Autowire(env: 'string:default:pal.oidc_client_key_passphrase_default:OIDC_CLIENT_KEY_PASSPHRASE')] private readonly string $clientKeyPassphrase = '',
     ) {
     }
 
@@ -86,6 +87,12 @@ final class OidcSettings
     public function clientKeyPath(): ?string
     {
         return '' === $this->clientKeyPath ? null : $this->clientKeyPath;
+    }
+
+    /** Passphrase for an encrypted client private key, or null when the key is unencrypted. */
+    public function clientKeyPassphrase(): ?string
+    {
+        return '' === $this->clientKeyPassphrase ? null : $this->clientKeyPassphrase;
     }
 
     private function configurationProblem(): ?string

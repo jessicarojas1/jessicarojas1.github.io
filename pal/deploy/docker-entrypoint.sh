@@ -20,7 +20,7 @@ require() {
 # stripped (secret files commonly end with one). Setting both NAME and NAME_FILE is an error,
 # so a stale inline value can never silently win over the mounted secret.
 load_secret_files() {
-    for name in APP_SECRET DATABASE_URL DATABASE_URL_MIGRATIONS OIDC_CLIENT_SECRET PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD; do
+    for name in APP_SECRET DATABASE_URL DATABASE_URL_MIGRATIONS OIDC_CLIENT_SECRET OIDC_CLIENT_KEY_PASSPHRASE PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD; do
         eval "file=\${${name}_FILE:-}"
         [ -n "$file" ] || continue
         eval "current=\${$name:-}"
