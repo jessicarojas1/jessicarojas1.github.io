@@ -42,6 +42,12 @@ framework:
             policy: sliding_window
             limit: 10
             interval: '15 minutes'
+        # Per-IP budget for unauthenticated sign-in reads (/auth/methods, /auth/login), which
+        # each start a session. Bounds anonymous session-row flooding; generous for real users.
+        auth_read:
+            policy: sliding_window
+            limit: 60
+            interval: '1 minute'
         # Per-user uploads (PAL_UPLOAD_DAILY_BYTES bounds the volume stored).
         upload:
             policy: sliding_window
@@ -71,6 +77,10 @@ when@test:
                 limit: 100000
                 interval: '1 hour'
             login_username:
+                policy: sliding_window
+                limit: 100000
+                interval: '1 minute'
+            auth_read:
                 policy: sliding_window
                 limit: 100000
                 interval: '1 minute'
