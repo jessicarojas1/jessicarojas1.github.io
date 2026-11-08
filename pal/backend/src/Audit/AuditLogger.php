@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Audit;
 
 use App\Platform\Http\RequestContext;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
@@ -23,6 +24,14 @@ final class AuditLogger
 {
     private const CHAIN_LOCK_KEY = 7_243_001;
 
+    /**
+     * SIEM forwards buffered until their transaction commits. Each entry is
+     * ['event_id' => string, 'payload' => array]. Flushed by flushPendingForward().
+     *
+     * @var list<array{event_id: string, payload: array<string, mixed>}>
+     */
+    private array $pendingForward = [];
+
     public function __construct(
         private readonly Connection $connection,
         private readonly AuditCanonicalizer $canonicalizer,
@@ -39,10 +48,47 @@ final class AuditLogger
     public function record(AuditEntry $entry): string
     {
         if ($this->connection->isTransactionActive()) {
+            // Nested in a business transaction: buffer the SIEM forward; it is emitted only once
+            // that transaction commits (flushPendingForward, called after the request/command or
+            // by the next self-managed record), so a rollback never forwards a phantom event.
             return $this->write($entry);
         }
 
-        return $this->connection->transactional(fn (): string => $this->write($entry));
+        $eventId = $this->connection->transactional(fn (): string => $this->write($entry));
+        $this->flushPendingForward();
+
+        return $eventId;
+    }
+
+    /**
+     * Forwards buffered events to the SIEM, but only those that are actually committed to
+     * audit_event — so events written inside a transaction that then rolled back are dropped.
+     * Never runs inside an open transaction (read-your-writes would forward prematurely).
+     */
+    public function flushPendingForward(): void
+    {
+        if ([] === $this->pendingForward || $this->connection->isTransactionActive()) {
+            return;
+        }
+        $pending = $this->pendingForward;
+        $this->pendingForward = [];
+
+        $ids = array_map(static fn (array $p): string => $p['event_id'], $pending);
+        $committed = [];
+        foreach ($this->connection->fetchFirstColumn(
+            'SELECT event_id FROM audit_event WHERE event_id IN (?)',
+            [$ids],
+            [ArrayParameterType::STRING],
+        ) as $eventId) {
+            if (\is_string($eventId)) {
+                $committed[$eventId] = true;
+            }
+        }
+        foreach ($pending as $entry) {
+            if (isset($committed[$entry['event_id']])) {
+                $this->auditLog->info('audit_event', $entry['payload']);
+            }
+        }
     }
 
     private function write(AuditEntry $entry): string
@@ -85,16 +131,20 @@ final class AuditLogger
             'hash' => $hash,
         ]);
 
-        // Forwarded copy for the SIEM (Microsoft Sentinel). The database row stays the record of truth.
-        $this->auditLog->info('audit_event', [
+        // Buffer the SIEM (Microsoft Sentinel) forward until the transaction commits; the database
+        // row stays the record of truth. See flushPendingForward().
+        $this->pendingForward[] = [
             'event_id' => $record['event_id'],
-            'event_type' => $record['event_type'],
-            'actor' => $record['actor_snapshot'],
-            'subject_type' => $record['subject_type'],
-            'subject_id' => $record['subject_id'],
-            'from_state' => $record['from_state'],
-            'to_state' => $record['to_state'],
-        ]);
+            'payload' => [
+                'event_id' => $record['event_id'],
+                'event_type' => $record['event_type'],
+                'actor' => $record['actor_snapshot'],
+                'subject_type' => $record['subject_type'],
+                'subject_id' => $record['subject_id'],
+                'from_state' => $record['from_state'],
+                'to_state' => $record['to_state'],
+            ],
+        ];
 
         return $record['event_id'];
     }

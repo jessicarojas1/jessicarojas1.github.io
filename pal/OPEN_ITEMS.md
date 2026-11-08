@@ -81,7 +81,7 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | Every account that can sign in becomes a Reader (L3) | Low | 🟡 Documented as mandatory: Entra "Assignment required = Yes". Optional: require a PAL-users group in code (Phase 2) |
 | Single-role deployments (Render, local) are tamper-evident only (L4) | Low | 🟡 Documented. Use separate owner/app roles in production |
 | Base images pinned by tag, not digest (L5) | Low | ⛔ Pin digests in the registry mirror; add Renovate |
-| SIEM copy of an audit event is logged before commit (I1) | Info | ⛔ Emit after commit (post-commit hook or Messenger) |
+| SIEM copy of an audit event is logged before commit (I1) | Info | ✅ Done (2026-11-07): the SIEM forward is buffered during the transaction and emitted after commit (`AuditForwardFlushSubscriber` on kernel/console/worker terminate), forwarding only events actually present in `audit_event` — so a rolled-back event is never forwarded. `AuditForwardTest` covers both cases. |
 | Client-supplied `X-Request-Id` lands in audit `correlation_id` (I2) | Info | ✅ Done (2026-11-07): `RequestIdSubscriber` honours an upstream `X-Request-Id` only from a trusted proxy (`isFromTrustedProxy()`); direct clients get a fresh ID. `RequestIdSubscriberTest` covers both. |
 | Revocation latency up to the sync interval or session limits (I7) | Info | Documented; inherent to the BFF design |
 | Large-group role mapping syncs synchronously and may time out (I8) | Info | ⛔ Move the initial sync to Messenger (the async transport exists) |

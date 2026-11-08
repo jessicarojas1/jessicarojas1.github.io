@@ -20,6 +20,10 @@ when@dev:
 when@test:
     monolog:
         handlers:
+            # Captures the SIEM forward (pal_audit channel) so tests can assert what was emitted.
+            pal_audit_test:
+                type: test
+                channels: ['pal_audit']
             main:
                 type: fingers_crossed
                 action_level: error

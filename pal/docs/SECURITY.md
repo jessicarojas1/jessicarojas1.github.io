@@ -268,7 +268,7 @@ Event types emitted: `USER_PROVISIONED`, `USER_SIGNED_IN`, `USER_SIGN_IN_FAILED`
 4. **Role separation.** The runtime app role has no `UPDATE`, `DELETE` or `TRUNCATE` on `audit_event` (`roles.sql`, re-applied by `migrate` when `PAL_APP_DB_ROLE` is set) and cannot alter tables, so it cannot disable the triggers.
 5. **Verification.** `pal:audit:verify` (and the daily 02:15 UTC job) recomputes every hash and detects edits, deletions, insertions and reordering. A failure is logged `critical` and deliberately not appended to the chain.
 6. **External anchoring.** With `PAL_AUDIT_ANCHOR_DIR` set, the verified head (`last_event_id`, `head_hash`) is appended to `audit-anchors.jsonl`. A database owner who rewrites rows **and** recomputes all later hashes passes `pal:audit:verify`, but no longer matches the anchors. The anchor's value depends entirely on that directory being write-once storage the DBAs cannot alter.
-7. **SIEM copy.** Every audit row is also emitted on the `pal_audit` log channel for Microsoft Sentinel ([ADR-0011](adr/ADR-0011-logging-to-microsoft-sentinel.md)). The log line is written **inside** the database transaction, so if the transaction later rolls back, Sentinel can hold a phantom record with no audit row. The database is authoritative; reconcile by `event_id`.
+7. **SIEM copy.** Every audit row is also emitted on the `pal_audit` log channel for Microsoft Sentinel ([ADR-0011](adr/ADR-0011-logging-to-microsoft-sentinel.md)). The forward is **buffered during the transaction and emitted after it commits** (after the HTTP response, the console command, or each handled worker message), and only for events that are actually present in `audit_event` — so a rolled-back transaction never produces a phantom Sentinel record. The database remains authoritative.
 
 **Limits, stated openly:** the trail is tamper-*evident*, not tamper-*proof*. A PostgreSQL superuser or the owner role can disable triggers and rewrite rows; detection then relies on the anchors and the SIEM copy. Anchoring is off by default and the default Compose file does not mount an anchor directory. On **Render or any single-role deployment** (the connecting role owns the tables) the trail is tamper-evident but **not tamper-resistant**: the application's own credentials can disable the triggers. Comparing the database with the anchors is a manual step ([DISASTER_RECOVERY.md §4](DISASTER_RECOVERY.md#4-restore-runbook) step 8); `pal:audit:verify` does not read the anchor file.
 
@@ -341,7 +341,7 @@ PAL's controls assume the operator:
 | Item | Impact | Suggested action |
 |---|---|---|
 | Administrators can map groups they are not in to document roles (§4.3) | SoD against collusion is detective (audit), not preventive | Owner decision D20: separate permission or second approver |
-| SIEM audit line written inside the transaction | Rolled-back changes can leave phantom Sentinel records | Reconcile by `event_id`; or emit after commit |
+| SIEM audit line | Emitted after the transaction commits, and only for events present in `audit_event`, so a rollback leaves no phantom Sentinel record | ✅ Resolved (post-commit forward) |
 | Client-supplied `X-Request-Id` accepted | Correlation IDs can be forged or reused | Strip/overwrite at the proxy if needed |
 | Large-group role mapping syncs synchronously | Request may time out (mapping still saved) | Move the initial sync to the worker queue |
 | Single-role deployments (Render) | Audit trail tamper-evident, not tamper-resistant | Use the owner/app role split in production |
