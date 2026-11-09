@@ -109,6 +109,21 @@ final class DocumentsController
                 }
                 header('Location: /app/documents?program_id=' . $programId . '#doc-' . $id);
                 return;
+            case 'delete_comment':
+                $cid = (int) ($_POST['comment_id'] ?? 0);
+                $c = DocumentComments::get($cid, $programId);
+                if ($c === null) {
+                    self::plain(404, 'Comment not found.');
+                    return;
+                }
+                $isAuthor = $c['author_id'] !== null && (int) $c['author_id'] === (int) $actorId;
+                if (!$isAuthor && !Authorize::can($user, 'document.edit', ['program_id' => $programId])) {
+                    self::plain(403, '403 Forbidden — only the author or a document editor may delete a comment.');
+                    return;
+                }
+                DocumentComments::delete($cid, $programId, $actorId);
+                header('Location: /app/documents?program_id=' . $programId . '#doc-' . (int) $c['document_id']);
+                return;
             case 'update':
                 Authorize::requirePermission($user, 'document.edit', ['program_id' => $programId]);
                 Documents::update($id, $programId, self::formData(), $actorId);

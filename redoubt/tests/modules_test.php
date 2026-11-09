@@ -131,6 +131,11 @@ $notified = DocumentComments::notifyParticipants($docRow0, $pid, $ids['pm']);   
 T::ok('comment notifies other thread participants', $notified >= 1);
 T::ok('participant receives the comment notice', in_array('New comment on: Falcon overview', array_map(static fn ($n) => $n['title'], Notifications::listFor($ids['sam'])), true));
 T::ok('comment author is not self-notified', !in_array('New comment on: Falcon overview', array_map(static fn ($n) => $n['title'], Notifications::listFor($ids['pm'])), true));
+T::eq('comment list exposes author_id', $ids['sam'], (int) ($byDoc[$doc0][0]['author_id'] ?? 0));
+$cidDel = DocumentComments::add($doc0, $pid, $ids['sam'], 'This one will be removed.');
+T::eq('comment get returns the author', $ids['sam'], (int) (DocumentComments::get($cidDel, $pid)['author_id'] ?? 0));
+DocumentComments::delete($cidDel, $pid, $ids['sam']);
+T::ok('deleted comment is gone', DocumentComments::get($cidDel, $pid) === null);
 
 // Task Orders scoping + award webhook
 T::eq('PM sees both TOs', 2, count(TaskOrders::listForUser($pm, $pid)));
@@ -510,3 +515,4 @@ T::ok('sample seeds in-flight reviews', ($sm['open'] + $sm['by_stage']['approved
 T::ok('sample seeds an approved review', $sm['by_stage']['approved'] >= 1);
 T::ok('sample seeds an overdue review', $sm['overdue'] >= 1);
 T::ok('sample links reviews to documents', (int) Db::fetchOne('SELECT count(*) c FROM review_item WHERE program_id=:p AND document_id IS NOT NULL', ['p' => $sp])['c'] >= 2);
+T::ok('sample seeds a document comment thread', (int) Db::fetchOne('SELECT count(*) c FROM document_comment WHERE program_id=:p', ['p' => $sp])['c'] >= 2);

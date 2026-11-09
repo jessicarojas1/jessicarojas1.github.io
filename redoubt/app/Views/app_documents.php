@@ -184,9 +184,19 @@ $docFields = function (array $d = []) {
             <div style="margin-top:8px">
               <?php if ($cmts === []): ?><div class="empty-state-sm">No comments yet.</div><?php endif; ?>
               <?php foreach ($cmts as $c): ?>
+                <?php $mine = isset($c['author_id']) && (int) $c['author_id'] === (int) ($user['id'] ?? 0); ?>
                 <div class="feed-row" style="padding:6px 0;align-items:flex-start">
                   <span class="perm-key" style="width:150px;flex:0 0 auto"><strong><?= Security::h($c['author']) ?></strong><br><?= Security::h($c['at']) ?></span>
-                  <span class="feed-title" style="white-space:pre-wrap"><?= Security::h($c['body']) ?></span>
+                  <span class="feed-title" style="white-space:pre-wrap;flex:1"><?= Security::h($c['body']) ?></span>
+                  <?php if ($mine || !empty($can['edit'])): ?>
+                    <form method="post" action="/app/documents" style="flex:0 0 auto">
+                      <?= Security::csrfField() ?>
+                      <input type="hidden" name="action" value="delete_comment">
+                      <input type="hidden" name="program_id" value="<?= (int) $programId ?>">
+                      <input type="hidden" name="comment_id" value="<?= (int) $c['id'] ?>">
+                      <button class="btn btn-sm" type="submit" title="<?= $mine ? 'Delete your comment' : 'Remove (moderator)' ?>">✕</button>
+                    </form>
+                  <?php endif; ?>
                 </div>
               <?php endforeach; ?>
               <?php if (!empty($can['comment'])): ?>

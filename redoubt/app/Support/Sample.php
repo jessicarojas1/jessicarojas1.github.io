@@ -72,6 +72,10 @@ final class Sample
         $mkReview('Quality Assurance Plan', 'policy', ['submit', 'peer_approve', 'qa_approve', 'exec_approve']);           // Approved (full cycle)
         $mkReview('Security Controls Package (SSP)', 'document', ['submit'], null, date('Y-m-d', strtotime('-3 days')));   // WIP · at peer · OVERDUE
 
+        // A sample discussion thread on a document (shown from the read-only view).
+        DocumentComments::add($pmpDoc, $pid, $adminId, 'Baseline PMP posted — please review the staffing plan in section 4 before Thursday.');
+        DocumentComments::add($pmpDoc, $pid, $adminId, 'Added the updated org chart; see the linked diagram.');
+
         Settings::saveBranding($pid, ['displayName' => 'GMRE — Falcon Program', 'accent' => '#1e6fb8', 'logoUrl' => null], $adminId);
         Audit::log('setup.sample_loaded', 'program#' . $pid, $pid, $adminId);
     }

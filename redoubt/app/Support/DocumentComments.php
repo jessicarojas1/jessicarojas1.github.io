@@ -37,7 +37,7 @@ final class DocumentComments
             $params['d' . $i] = $v;
         }
         $rows = Db::fetchAll(
-            "SELECT dc.document_id, dc.id, dc.body,
+            "SELECT dc.document_id, dc.id, dc.body, dc.author_id,
                     to_char(dc.created_at, 'YYYY-MM-DD HH24:MI') AS at,
                     COALESCE(u.display_name, u.email) AS author
                FROM document_comment dc
@@ -49,10 +49,11 @@ final class DocumentComments
         $out = [];
         foreach ($rows as $r) {
             $out[(int) $r['document_id']][] = [
-                'id'     => (int) $r['id'],
-                'body'   => (string) $r['body'],
-                'author' => (string) ($r['author'] ?: 'Unknown'),
-                'at'     => (string) $r['at'],
+                'id'        => (int) $r['id'],
+                'body'      => (string) $r['body'],
+                'author'    => (string) ($r['author'] ?: 'Unknown'),
+                'author_id' => $r['author_id'] !== null ? (int) $r['author_id'] : null,
+                'at'        => (string) $r['at'],
             ];
         }
         return $out;
@@ -76,6 +77,20 @@ final class DocumentComments
         ]);
         Audit::log('document.comment', 'document#' . $docId, $programId, $authorId);
         return $id;
+    }
+
+    /** One comment (id, document_id, author_id, body) scoped to a program, or null. */
+    public static function get(int $id, int $programId): ?array
+    {
+        $r = Db::fetchOne('SELECT id, document_id, author_id, body FROM document_comment WHERE id = :id AND program_id = :p', ['id' => $id, 'p' => $programId]);
+        return $r ?: null;
+    }
+
+    /** Delete a comment. Authorization (author or document editor) is the controller's. */
+    public static function delete(int $id, int $programId, ?int $actorId): void
+    {
+        Db::query('DELETE FROM document_comment WHERE id = :id AND program_id = :p', ['id' => $id, 'p' => $programId]);
+        Audit::log('document.comment.delete', 'comment#' . $id, $programId, $actorId);
     }
 
     /**
