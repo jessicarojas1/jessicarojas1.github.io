@@ -162,7 +162,8 @@ Sign in at `http://localhost:5173` and choose a new password when asked, then re
 | Reclaim never-attached uploads (then run GC) | `php bin/console pal:storage:unattached --delete [--older-than=30d]` (deletes upload + stored_file rows; blob freed by `pal:storage:gc --delete`) |
 | Sync directory groups now | `php bin/console pal:directory:sync` |
 | Map a group to a role | `php bin/console pal:roles:map PUBLISHER <group-object-id>` |
-| Create the first local admin | `php bin/console pal:users:bootstrap-admin` (reads `PAL_BOOTSTRAP_LOCAL_ADMIN_*`; no-op once any local account exists) |
+| Create the first local Owner | `php bin/console pal:users:bootstrap-admin` (reads `PAL_BOOTSTRAP_LOCAL_ADMIN_*`; no-op once any local account exists) |
+| Designate an Owner (superuser) | `php bin/console pal:users:grant-owner <username>` (add `--revoke` to remove; audited) |
 | Clear a sign-in lockout | `php bin/console pal:users:unlock <username>` |
 | Run the worker | `php bin/console messenger:consume async scheduler_default` |
 | Frontend checks | `npm run lint && npm run typecheck && npm test && npm run build` (in `pal/frontend`) |
