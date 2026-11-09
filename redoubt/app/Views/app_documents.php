@@ -178,6 +178,35 @@ $docFields = function (array $d = []) {
           </details>
         </td></tr>
         <?php endif; ?>
+        <?php $vers = $versions[$d['id']] ?? []; ?>
+        <?php if (!empty($can['edit']) || $vers !== []): ?>
+        <tr><td colspan="5" style="padding-top:0">
+          <details>
+            <summary style="cursor:pointer;color:var(--muted);font-size:12.5px">🗂 Versions (<?= count($vers) ?> prior)</summary>
+            <div style="margin-top:8px">
+              <?php if ($vers === []): ?><div class="empty-state-sm">No prior versions.</div><?php endif; ?>
+              <?php foreach ($vers as $v): ?>
+                <div class="feed-row" style="padding:4px 0;align-items:center">
+                  <span class="perm-key" style="width:150px;flex:0 0 auto"><?= Security::h($v['at']) ?><?php if (!empty($v['by'])): ?> · <?= Security::h($v['by']) ?><?php endif; ?></span>
+                  <span class="feed-title" style="flex:1"><?= Security::h((string) ($v['original_name'] ?: 'file')) ?><?php if (!empty($v['size_bytes'])): ?> · <?= (int) ceil($v['size_bytes'] / 1024) ?> KB<?php endif; ?></span>
+                  <a class="btn btn-sm" href="/app/documents/version?program_id=<?= (int) $programId ?>&amp;id=<?= (int) $d['id'] ?>&amp;v=<?= (int) $v['id'] ?>">Download</a>
+                </div>
+              <?php endforeach; ?>
+              <?php if (!empty($can['edit'])): ?>
+                <form method="post" action="/app/documents" enctype="multipart/form-data" style="margin-top:8px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+                  <?= Security::csrfField() ?>
+                  <input type="hidden" name="action" value="upload_version">
+                  <input type="hidden" name="program_id" value="<?= (int) $programId ?>">
+                  <input type="hidden" name="id" value="<?= (int) $d['id'] ?>">
+                  <div><label style="font-size:12px">Upload new version (replaces the current file; the old one is kept here)</label><input type="file" name="file" accept=".png,.jpg,.jpeg,.gif,.webp,.svg,.pdf,.txt,.csv,.drawio,.vsdx,.docx,.xlsx,.pptx"></div>
+                  <button class="btn btn-sm btn-primary" type="submit">Upload version</button>
+                </form>
+                <p class="perm-key" style="margin:6px 0 0">Field reference: <strong>file</strong> — the new current file; the previous current file becomes a downloadable version above.</p>
+              <?php endif; ?>
+            </div>
+          </details>
+        </td></tr>
+        <?php endif; ?>
         <tr><td colspan="5" style="padding-top:0">
           <details<?= $cmts !== [] ? ' open' : '' ?>>
             <summary style="cursor:pointer;color:var(--muted);font-size:12.5px">💬 Comments (<?= count($cmts) ?>)</summary>

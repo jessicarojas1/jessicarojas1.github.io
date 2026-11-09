@@ -139,6 +139,19 @@ ALTER TABLE document_ref ADD COLUMN IF NOT EXISTS original_name TEXT;
 ALTER TABLE document_ref ADD COLUMN IF NOT EXISTS mime_type     TEXT;
 ALTER TABLE document_ref ADD COLUMN IF NOT EXISTS size_bytes    BIGINT;
 
+-- Prior uploaded versions of a document (newest current file lives on document_ref).
+CREATE TABLE IF NOT EXISTS document_version (
+    id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    document_id   BIGINT NOT NULL REFERENCES document_ref(id) ON DELETE CASCADE,
+    program_id    BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+    stored_path   TEXT NOT NULL,
+    original_name TEXT,
+    mime_type     TEXT,
+    size_bytes    BIGINT,
+    uploaded_by   BIGINT REFERENCES app_user(id),
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Threaded discussion on a document, available from the read-only interface.
 CREATE TABLE IF NOT EXISTS document_comment (
     id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -368,6 +381,7 @@ CREATE INDEX IF NOT EXISTS idx_prog_member_user   ON program_membership(user_id)
 CREATE INDEX IF NOT EXISTS idx_announcement_prog  ON announcement(program_id);
 CREATE INDEX IF NOT EXISTS idx_docref_prog_zone   ON document_ref(program_id, zone);
 CREATE INDEX IF NOT EXISTS idx_doc_comment_doc    ON document_comment(document_id, id);
+CREATE INDEX IF NOT EXISTS idx_doc_version_doc     ON document_version(document_id, id);
 CREATE INDEX IF NOT EXISTS idx_taskorder_prog     ON task_order(program_id);
 CREATE INDEX IF NOT EXISTS idx_job_prog           ON job_requisition(program_id);
 CREATE INDEX IF NOT EXISTS idx_audit_prog_at      ON audit_event(program_id, at);

@@ -55,6 +55,8 @@ final class DocumentsController
         $reviewStatus = ReviewWorkflow::statusForDocuments($docIds, $programId);
         // Read-only discussion threads (one query for the page).
         $comments = DocumentComments::forDocuments($docIds, $programId);
+        // Prior file versions (one query for the page).
+        $versions = Documents::versionsForDocuments($docIds, $programId);
         $flash = isset($_GET['err']) ? ['type' => 'error', 'text' => (string) $_GET['err']] : null;
         $csrf = Security::csrfToken();
         $NONCE = $nonce;
@@ -132,6 +134,21 @@ final class DocumentsController
                 Authorize::requirePermission($user, 'document.edit', ['program_id' => $programId]);
                 Documents::delete($id, $programId, $actorId);
                 break;
+            case 'upload_version':
+                Authorize::requirePermission($user, 'document.edit', ['program_id' => $programId]);
+                $file = $_FILES['file'] ?? null;
+                if (!is_array($file) || (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                    header('Location: /app/documents?program_id=' . $programId . '&err=' . rawurlencode('Choose a file to upload as the new version.'));
+                    return;
+                }
+                try {
+                    Documents::addVersion($id, $programId, Documents::storeUpload($file), $actorId);
+                } catch (Throwable $e) {
+                    header('Location: /app/documents?program_id=' . $programId . '&err=' . rawurlencode($e->getMessage()));
+                    return;
+                }
+                header('Location: /app/documents?program_id=' . $programId . '#doc-' . $id);
+                return;
             case 'start_review':
                 // Begin an approval workflow for this document. Requires review.submit
                 // AND that the caller can actually see the document (defense in depth
@@ -220,6 +237,37 @@ final class DocumentsController
             return;
         }
         self::streamFile($path, (string) ($row['original_name'] ?? 'image'), (string) $row['mime_type'], 'inline');
+    }
+
+    /**
+     * GET /app/documents/version?id=&v=&program_id= — download a prior version of a
+     * document. Re-authorizes against the PARENT document (canSee, incl. the export
+     * gate), then streams the version blob as an attachment.
+     */
+    public static function version(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        $programId = (int) ($_GET['program_id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? 0);
+        $vid = (int) ($_GET['v'] ?? 0);
+        $row = Documents::get($id, $programId);
+        if ($row === null) {
+            self::plain(404, 'Not found.');
+            return;
+        }
+        if (!Documents::canSee($user, $row, $programId)) {
+            Audit::log('authz.deny', 'document.version#' . $id, $programId, $user['id'] ?? null);
+            self::plain(403, '403 Forbidden.');
+            return;
+        }
+        $v = Documents::versionFilePath($vid, $id, $programId);
+        if ($v === null) {
+            self::plain(404, 'Version not found.');
+            return;
+        }
+        Audit::log('document.version.download', 'document#' . $id . ' v#' . $vid, $programId, $user['id'] ?? null);
+        self::streamFile($v['path'], $v['original_name'], $v['mime_type']);
     }
 
     /**

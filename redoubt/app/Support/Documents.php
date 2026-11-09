@@ -217,11 +217,139 @@ final class Documents
         if ($row !== null) {
             $path = self::storedFilePath($row);
             if ($path !== null) {
-                @unlink($path); // best-effort cleanup of the portal-stored blob
+                @unlink($path); // best-effort cleanup of the current blob
+            }
+            // Unlink prior-version blobs too (rows cascade on the delete below).
+            foreach (Db::fetchAll('SELECT stored_path FROM document_version WHERE document_id = :d', ['d' => $id]) as $v) {
+                $vp = Config::uploadDir() . '/' . basename((string) $v['stored_path']);
+                if (is_file($vp)) {
+                    @unlink($vp);
+                }
             }
         }
         Db::query('DELETE FROM document_ref WHERE id = :id AND program_id = :p', ['id' => $id, 'p' => $programId]);
         Audit::log('document.delete', 'document#' . $id, $programId, $actorId);
+    }
+
+    /**
+     * Replace a document's current file with a newly uploaded one, snapshotting the
+     * existing file into document_version first (so prior revisions stay
+     * downloadable). $meta is the result of storeUpload(). Returns the version id
+     * created for the superseded file, or 0 if the document had no file yet.
+     *
+     * @param array{stored_path:string,original_name:string,mime_type:string,size_bytes:int} $meta
+     */
+    public static function addVersion(int $id, int $programId, array $meta, ?int $actorId): int
+    {
+        $row = self::get($id, $programId);
+        if ($row === null) {
+            throw new \RuntimeException('Document not found.');
+        }
+        $versionId = 0;
+        if (!empty($row['stored_path'])) {
+            $versionId = Db::insert('document_version', [
+                'document_id'   => $id,
+                'program_id'    => $programId,
+                'stored_path'   => (string) $row['stored_path'],
+                'original_name' => $row['original_name'] ?? null,
+                'mime_type'     => $row['mime_type'] ?? null,
+                'size_bytes'    => $row['size_bytes'] ?? null,
+                'uploaded_by'   => $actorId,
+            ]);
+        }
+        Db::update('document_ref', [
+            'stored_path'   => $meta['stored_path'],
+            'original_name' => $meta['original_name'],
+            'mime_type'     => $meta['mime_type'],
+            'size_bytes'    => $meta['size_bytes'],
+        ], ['id' => $id, 'program_id' => $programId]);
+        Audit::log('document.version', 'document#' . $id, $programId, $actorId);
+        return $versionId;
+    }
+
+    /**
+     * Prior versions for a set of documents, grouped by document id (newest first).
+     * One query for the whole page (no N+1).
+     *
+     * @param int[] $docIds
+     * @return array<int,array<int,array<string,mixed>>>
+     */
+    public static function versionsForDocuments(array $docIds, int $programId): array
+    {
+        $ids = array_values(array_unique(array_map('intval', array_filter($docIds, static fn ($v) => (int) $v > 0))));
+        if ($ids === []) {
+            return [];
+        }
+        $place = [];
+        $params = ['p' => $programId];
+        foreach ($ids as $i => $v) {
+            $place[] = ':d' . $i;
+            $params['d' . $i] = $v;
+        }
+        $rows = Db::fetchAll(
+            "SELECT dv.document_id, dv.id, dv.original_name, dv.mime_type, dv.size_bytes,
+                    to_char(dv.created_at, 'YYYY-MM-DD HH24:MI') AS at,
+                    COALESCE(u.display_name, u.email) AS by
+               FROM document_version dv
+               LEFT JOIN app_user u ON u.id = dv.uploaded_by
+              WHERE dv.program_id = :p AND dv.document_id IN (" . implode(',', $place) . ")
+              ORDER BY dv.document_id, dv.id DESC",
+            $params
+        );
+        $out = [];
+        foreach ($rows as $r) {
+            $out[(int) $r['document_id']][] = [
+                'id'            => (int) $r['id'],
+                'original_name' => $r['original_name'],
+                'size_bytes'    => $r['size_bytes'] !== null ? (int) $r['size_bytes'] : null,
+                'at'            => (string) $r['at'],
+                'by'            => (string) ($r['by'] ?? ''),
+            ];
+        }
+        return $out;
+    }
+
+    /** Prior versions of a document (newest first), for download. @return array<int,array<string,mixed>> */
+    public static function listVersions(int $id, int $programId): array
+    {
+        return array_map(static function (array $r): array {
+            return [
+                'id'            => (int) $r['id'],
+                'original_name' => $r['original_name'],
+                'mime_type'     => $r['mime_type'],
+                'size_bytes'    => $r['size_bytes'] !== null ? (int) $r['size_bytes'] : null,
+                'at'            => $r['at'],
+                'by'            => $r['by'] ?? null,
+            ];
+        }, Db::fetchAll(
+            "SELECT dv.id, dv.original_name, dv.mime_type, dv.size_bytes,
+                    to_char(dv.created_at, 'YYYY-MM-DD HH24:MI') AS at,
+                    COALESCE(u.display_name, u.email) AS by
+               FROM document_version dv
+               LEFT JOIN app_user u ON u.id = dv.uploaded_by
+              WHERE dv.document_id = :d AND dv.program_id = :p
+              ORDER BY dv.id DESC",
+            ['d' => $id, 'p' => $programId]
+        ));
+    }
+
+    /**
+     * Absolute path of one stored version, forced to a basename so a tampered id
+     * can't traverse out of the upload dir. $parentId guards cross-document access.
+     */
+    public static function versionFilePath(int $versionId, int $parentDocId, int $programId): ?array
+    {
+        $r = Db::fetchOne(
+            'SELECT stored_path, original_name, mime_type FROM document_version WHERE id = :v AND document_id = :d AND program_id = :p',
+            ['v' => $versionId, 'd' => $parentDocId, 'p' => $programId]
+        );
+        if ($r === null || empty($r['stored_path'])) {
+            return null;
+        }
+        $path = Config::uploadDir() . '/' . basename((string) $r['stored_path']);
+        return is_file($path)
+            ? ['path' => $path, 'original_name' => (string) ($r['original_name'] ?? 'document'), 'mime_type' => (string) ($r['mime_type'] ?? 'application/octet-stream')]
+            : null;
     }
 
     /**

@@ -69,7 +69,7 @@ requirement.** The blockers below flow from these.
   ready for live SharePoint resolve. Supports **direct file upload** (e.g. a diagram)
   OR a SharePoint link: uploads are validated (extension allowlist + content-sniffed
   MIME + 25&nbsp;MB cap), stored under a **randomized name outside the web root**, and
-  served only through the authorized download endpoint as an **attachment with
+  kept as downloadable **versions** when a new file is uploaded; served only through the authorized download endpoint as an **attachment with
   `nosniff`** (no inline execution); delete removes the blob. Uploaded **raster
   images** (png/jpg/gif/webp) also get an **inline thumbnail + full preview** via a
   separate authorized `preview` endpoint (`inline` disposition + `nosniff`); SVG and
@@ -176,8 +176,8 @@ Jobs, Directory, Search).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
-- **Automated test suite** (zero-dependency): `php tests/run.php` — 213 checks
-  (15 authorization-engine logic + 190 live-DB assertions: modules, job targeting,
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 221 checks
+  (15 authorization-engine logic + 198 live-DB assertions: modules, job targeting,
   Settings/Branding sanitization, notification fan-out, review/approval workflow +
   its next-approver notifications, per-user review queue, and document↔review
   linkage, onboarding lifecycle, local auth, sample loader) via `tests/lib/T` +
@@ -241,7 +241,7 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 213 checks —
+  These checks are now a **repeatable suite** (`php tests/run.php`, 221 checks —
   incl. job targeting by company/contract/program-wide + filters, the
   review/approval workflow with next-approver notifications + per-user queue +
   document↔review linkage, and Settings/Branding persistence + sanitization)

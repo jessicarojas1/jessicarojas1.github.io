@@ -112,6 +112,26 @@ T::ok('upload rejects content/extension mismatch', $rejMime);
 $blobPath = $updir . '/' . $meta['stored_path'];
 Documents::delete($docUp, $pid, $ids['pm']);
 T::ok('delete removes the stored blob', !is_file($blobPath));
+
+// Versioning: uploading a new version retains the prior file as downloadable.
+$v1meta = Documents::storeUpload(['name' => 'arch-v1.png', 'tmp_name' => $mkTmp($pngBytes), 'error' => 0, 'size' => strlen($pngBytes)]);
+$verDoc = Documents::register($pid, ['title' => 'Architecture', 'zone' => 'project'] + $v1meta, $ids['pm']);
+$v2meta = Documents::storeUpload(['name' => 'arch-v2.png', 'tmp_name' => $mkTmp($pngBytes), 'error' => 0, 'size' => strlen($pngBytes)]);
+$newVid = Documents::addVersion($verDoc, $pid, $v2meta, $ids['pm']);
+T::ok('addVersion snapshots the prior file', $newVid > 0);
+$curV = Documents::get($verDoc, $pid);
+T::eq('current file is now v2', 'arch-v2.png', $curV['original_name']);
+$verList = Documents::listVersions($verDoc, $pid);
+T::eq('one prior version recorded', 1, count($verList));
+T::eq('prior version keeps its name', 'arch-v1.png', $verList[0]['original_name']);
+$vfp = Documents::versionFilePath($verList[0]['id'], $verDoc, $pid);
+T::ok('versionFilePath resolves the prior blob', $vfp !== null && is_file($vfp['path']));
+T::ok('cross-document version access is blocked', Documents::versionFilePath($verList[0]['id'], 999999, $pid) === null);
+$curStored = $updir . '/' . $curV['stored_path'];
+$verStored = $vfp['path'];
+Documents::delete($verDoc, $pid, $ids['pm']);
+T::ok('delete removes the current blob', !is_file($curStored));
+T::ok('delete removes prior-version blobs', !is_file($verStored));
 putenv('UPLOAD_DIR');
 
 $doc0 = (int) Db::fetchOne("SELECT id FROM document_ref WHERE title='Falcon overview' AND program_id=:p", ['p' => $pid])['id'];
