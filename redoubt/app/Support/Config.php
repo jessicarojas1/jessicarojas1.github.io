@@ -103,6 +103,16 @@ final class Config
         return self::assistantLlmUrl() !== null;
     }
 
+    // --- Review digest email delivery (optional) ----------------------------
+    // GCC High mailbox (UPN or object id) that app-only Graph sendMail sends the
+    // review digests *from*. Unset ⇒ email digests are skipped (Teams webhook and
+    // the in-portal notifications still work). Never a secret; just an address.
+
+    public static function digestSender(): ?string
+    {
+        return self::get('DIGEST_MAIL_SENDER'); // e.g. no-reply@agency.onmicrosoft.us
+    }
+
     /**
      * Entra SSO is OPTIONAL. When configured it's offered as an additional sign-in
      * method; the portal always supports built-in local email/password accounts so

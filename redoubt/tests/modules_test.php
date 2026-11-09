@@ -29,6 +29,7 @@ use Redoubt\Support\ReviewWorkflow;
 use Redoubt\Support\AccessRequests;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Sample;
+use Redoubt\Support\Digest;
 
 /** Database-backed module tests (skipped unless a throwaway test DB is provided). */
 
@@ -394,6 +395,23 @@ $itarApi = array_values(array_filter($apiFeed, static fn ($i) => $i['id'] === $i
 T::eq('API feed hides export-controlled document id', null, $itarApi['document_id']);
 T::eq('API feed redacts export-controlled title', '[export-controlled review]', $itarApi['title'] ?? null);
 T::ok('API feed omits doc_title + author fields', !array_key_exists('doc_title', $itarApi) && !array_key_exists('author', $itarApi));
+
+// Review digests (email/Teams delivery; builders are offline-testable).
+T::group('Review digests (live DB)');
+$dg = Digest::buildForProgram($pid);
+$pmDigest = array_values(array_filter($dg, static fn ($d) => $d['user_id'] === $ids['pm']))[0] ?? null;
+T::ok('digest built for a user with pending reviews', $pmDigest !== null && $pmDigest['pending'] !== []);
+T::eq('digest carries recipient email', 'pm@gmre.us', $pmDigest['email'] ?? null);
+T::ok('digest text lists awaiting items', str_contains(Digest::renderText('Falcon', $pmDigest), 'awaiting your action'));
+$card = Digest::teamsCard('Falcon', ReviewWorkflow::metrics($pid));
+T::eq('teams card is a MessageCard', 'MessageCard', $card['@type']);
+T::ok('teams card includes fact figures', isset($card['sections'][0]['facts']) && count($card['sections'][0]['facts']) >= 3);
+$mail = Digest::emailPayload('Falcon', $pmDigest);
+T::eq('email payload targets the recipient', 'pm@gmre.us', $mail['message']['toRecipients'][0]['emailAddress']['address'] ?? null);
+$run = Digest::run($pid, $ids['pm']);
+T::eq('run sends no email when Graph is unconfigured', 0, $run['emails_sent']);
+T::ok('run reports no delivery channel configured', $run['teams'] === null && $run['reason'] !== null);
+T::ok('digest run is audited', (int) Db::fetchOne("SELECT count(*) c FROM audit_event WHERE program_id=:p AND action='digest.run'", ['p' => $pid])['c'] >= 1);
 
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');

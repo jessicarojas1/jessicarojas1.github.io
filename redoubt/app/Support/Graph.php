@@ -87,4 +87,37 @@ final class Graph
         }
         return json_decode((string) $body, true, 512, JSON_THROW_ON_ERROR);
     }
+
+    /**
+     * POST JSON to an absolute Graph path (e.g. "/v1.0/users/{id}/sendMail").
+     * Returns the decoded body, or [] for the common 202 Accepted / empty response.
+     */
+    public static function post(string $path, array $json): array
+    {
+        $url = Config::graphBaseUrl() . $path;
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => json_encode($json, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . self::appToken(),
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ],
+        ]);
+        $body = curl_exec($ch);
+        $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        if ($body === false) {
+            throw new RuntimeException('Graph request error: ' . curl_error($ch));
+        }
+        if ($code === 429) {
+            throw new RuntimeException('Graph throttled (429) — apply backoff.');
+        }
+        if ($code >= 400) {
+            throw new RuntimeException('Graph error ' . $code);
+        }
+        return ($body === '' || $body === false) ? [] : (json_decode((string) $body, true, 512, JSON_THROW_ON_ERROR) ?: []);
+    }
 }

@@ -89,19 +89,23 @@ final class Notifications
     }
 
     /**
-     * Program members as in-session-shaped user arrays for predicate evaluation.
+     * Program members as in-session-shaped user arrays (for Authorize predicate
+     * evaluation), each also carrying 'email' and 'name' for digest delivery.
+     * Public so other delivery channels (e.g. Digest) reuse the exact same
+     * membership + explicit-grant resolution as the in-portal fan-out.
+     *
      * @return array<int,array<string,mixed>>
      */
-    private static function programMembers(int $programId): array
+    public static function programMembers(int $programId): array
     {
         $rows = Db::fetchAll(
-            "SELECT u.id, u.kind, u.is_us_person, pm.company_id,
+            "SELECT u.id, u.kind, u.is_us_person, u.email, u.display_name, pm.company_id,
                     string_agg(DISTINCT r.key, ',') AS roles
                FROM program_membership pm
                JOIN app_user u ON u.id = pm.user_id
                JOIN role r ON r.id = pm.role_id
               WHERE pm.program_id = :p AND (pm.expires_at IS NULL OR pm.expires_at > NOW())
-              GROUP BY u.id, u.kind, u.is_us_person, pm.company_id",
+              GROUP BY u.id, u.kind, u.is_us_person, u.email, u.display_name, pm.company_id",
             ['p' => $programId]
         );
 
@@ -123,6 +127,8 @@ final class Notifications
             $out[] = [
                 'id'           => $uid,
                 'kind'         => (string) $r['kind'],
+                'email'        => $r['email'] ?? null,
+                'name'         => $r['display_name'] ?? ($r['email'] ?? null),
                 'is_us_person' => $r['is_us_person'] === null ? null : (bool) $r['is_us_person'],
                 'memberships'  => [$programId => ['roles' => $r['roles'] !== null ? explode(',', $r['roles']) : [], 'company_id' => $companyId]],
                 'companies'    => $companyId !== null ? [$companyId] : [],

@@ -9,6 +9,7 @@ use Redoubt\Support\Auth;
 use Redoubt\Support\Authorize;
 use Redoubt\Support\Connectors;
 use Redoubt\Support\Db;
+use Redoubt\Support\Digest;
 use Redoubt\Support\Security;
 use Redoubt\Support\Session;
 use Redoubt\Support\Webhooks;
@@ -95,10 +96,25 @@ final class IntegrationsController
                 break;
             case 'create_connector':
                 $url = trim((string) ($_POST['base_url'] ?? ''));
+                $hook = trim((string) ($_POST['webhook_url'] ?? ''));
                 Connectors::create($programId, (string) ($_POST['kind'] ?? 'other'), [
-                    'base_url' => ($url !== '' && preg_match('#^https?://#i', $url)) ? $url : null,
-                    'note'     => trim((string) ($_POST['note'] ?? '')) ?: null,
+                    'base_url'    => ($url !== '' && preg_match('#^https?://#i', $url)) ? $url : null,
+                    'webhook_url' => ($hook !== '' && preg_match('#^https?://#i', $hook)) ? $hook : null,
+                    'note'        => trim((string) ($_POST['note'] ?? '')) ?: null,
                 ], trim((string) ($_POST['secret_ref'] ?? '')), $actorId);
+                break;
+            case 'send_digest':
+                $r = Digest::run($programId, $actorId);
+                if ($r['recipients'] === 0) {
+                    $msg = 'No one has pending reviews right now — nothing to send.';
+                } elseif ($r['reason'] !== null) {
+                    $msg = 'Prepared digests for ' . $r['recipients'] . ' recipient(s), but ' . $r['reason'] . '.';
+                } else {
+                    $msg = 'Review digests sent to ' . $r['recipients'] . ' recipient(s): '
+                        . $r['emails_sent'] . ' email(s)' . ($r['teams'] ? ' + Teams card' : '')
+                        . ($r['emails_skipped'] > 0 ? ' (' . $r['emails_skipped'] . ' skipped)' : '') . '.';
+                }
+                self::setFlash('info', $msg);
                 break;
             case 'toggle_connector':
                 Connectors::setActive((int) ($_POST['id'] ?? 0), $programId, ($_POST['active'] ?? '') === '1', $actorId);

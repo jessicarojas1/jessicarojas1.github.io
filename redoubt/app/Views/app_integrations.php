@@ -125,6 +125,7 @@ $host = ($_SERVER['HTTP_HOST'] ?? 'your-host');
         <div style="flex:1;min-width:220px"><label>Base URL</label><input type="url" name="base_url" placeholder="https://ats.example.us"></div>
         <div style="flex:1;min-width:180px"><label>Secret reference (name in secret manager)</label><input type="text" name="secret_ref" placeholder="ats-api-key"></div>
       </div>
+      <label>Teams incoming-webhook URL (for a Teams connector — receives review digests)</label><input type="url" name="webhook_url" placeholder="https://outlook.office.com/webhook/...">
       <label>Note</label><input type="text" name="note" placeholder="What this connector is for">
       <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Add connector</button></div>
     </form>
@@ -151,5 +152,16 @@ $host = ($_SERVER['HTTP_HOST'] ?? 'your-host');
       </tbody>
     </table></div>
   <?php endif; ?>
+</div>
+
+<div class="card">
+  <h3 class="dash-h">Review digests</h3>
+  <p class="perm-key" style="margin:-4px 0 12px">Push pending-review reminders beyond the in-portal bell: a program summary card to each active <strong>Teams</strong> connector webhook, and a personalized email to each approver with work waiting (Microsoft Graph sendMail in GCC High, from <span class="mono">DIGEST_MAIL_SENDER</span>). Unconfigured channels are skipped safely. Schedule it with the <span class="mono">bin/digest.php</span> runner (cron / Kubernetes CronJob); or send one now:</p>
+  <form method="post" action="/app/admin/integrations">
+    <?= Security::csrfField() ?>
+    <input type="hidden" name="action" value="send_digest">
+    <input type="hidden" name="program_id" value="<?= (int) $programId ?>">
+    <button class="btn btn-primary" type="submit">Send review digests now</button>
+  </form>
 </div>
 <?php require __DIR__ . '/partials/app_footer.php'; ?>

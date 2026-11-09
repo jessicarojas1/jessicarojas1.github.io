@@ -69,8 +69,31 @@ psql "$DATABASE_URL" -f database/schema.sql
 
 ## 5. Background/worker process
 
-Phase 2 introduces a worker for notifications/digests and scheduled
-publish/expire of announcements. Not present in discovery.
+**Review digests** ship now and run as a scheduled one-shot, not a long-lived
+worker:
+
+```
+php bin/digest.php        # every active program
+php bin/digest.php <id>   # a single program
+```
+
+Schedule it with the platform's scheduler — a crontab entry, a **Kubernetes
+CronJob** (same image, command `php bin/digest.php`), or Render's Cron Jobs —
+e.g. each business morning. It builds each approver's pending-review digest and
+delivers it through whatever channels are configured:
+
+- **Teams** — a program summary card POSTed to each active `teams` connector's
+  incoming-webhook URL (set under Integrations → connectors).
+- **Email** — app-only Microsoft **Graph sendMail** (GCC High), from the mailbox
+  in `DIGEST_MAIL_SENDER`, requiring the Graph app registration + `Mail.Send`.
+
+Both channels are optional; unconfigured ones are skipped safely (air-gap
+friendly), so the runner is safe to schedule before either is wired up. The same
+action is available on demand from the Integrations console ("Send review digests
+now").
+
+A durable queue/worker for other async work (scheduled announcement
+publish/expire, webhook retries) remains Phase 2.
 
 ## 6. Self-hosted LLM (Ollama) — future
 
