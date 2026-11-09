@@ -83,7 +83,8 @@ final class ReviewWorkflow
     /** @return array<int,array<string,mixed>> */
     public static function listForProgram(int $programId, ?string $stage = null): array
     {
-        $sql = 'SELECT ri.*, COALESCE(u.display_name, u.email) AS author, d.title AS doc_title
+        $sql = 'SELECT ri.*, COALESCE(u.display_name, u.email) AS author,
+                       d.title AS doc_title, d.export_controlled AS doc_export
                   FROM review_item ri
                   LEFT JOIN app_user u ON u.id = ri.created_by
                   LEFT JOIN document_ref d ON d.id = ri.document_id
@@ -95,6 +96,35 @@ final class ReviewWorkflow
         }
         $sql .= ' ORDER BY ri.updated_at DESC, ri.id DESC';
         return array_map([self::class, 'hydrate'], Db::fetchAll($sql, $params));
+    }
+
+    /**
+     * Governance projection for API clients (no US-person context). Returns only
+     * lifecycle fields — no author, description, ref_url, or document title — and
+     * suppresses the document_id of an export-controlled document, so an API token
+     * can never learn the identity of an ITAR/EAR-marked item through the review
+     * feed. Mirrors Documents::listForApiClient's export exclusion.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public static function listForApiClient(int $programId): array
+    {
+        $out = [];
+        foreach (self::listForProgram($programId) as $i) {
+            $export = !empty($i['doc_export']);
+            $out[] = [
+                'id'           => $i['id'],
+                // Titles auto-generated from a document echo that document's name, so
+                // redact the title (and hide the id) when the linked doc is controlled.
+                'title'        => $export ? '[export-controlled review]' : $i['title'],
+                'kind'         => $i['kind'],
+                'stage'        => $i['stage'],
+                'current_step' => $i['current_step'],
+                'due_date'     => $i['due_date'],
+                'document_id'  => $export ? null : $i['document_id'],
+            ];
+        }
+        return $out;
     }
 
     /**
@@ -211,6 +241,35 @@ final class ReviewWorkflow
         Db::insert('review_action', ['item_id' => $id, 'step' => $recStep, 'action' => $recAction, 'actor_id' => $actorId, 'comment' => trim($comment) ?: null]);
         Audit::log('review.' . $action, 'item#' . $id, $programId, $actorId);
         self::notify($it, $programId, $step, $recAction, $actorId);
+        self::emitWebhook($it, $id, $programId, $action, $stage, $step);
+    }
+
+    /**
+     * Emit a signed webhook for the lifecycle milestones external systems care
+     * about: submitted, approved (authorized), and rejected/returned. The payload
+     * carries no free-text beyond the (program-visible) title and the document id —
+     * subscriptions are program-scoped, so this does not cross a program boundary.
+     */
+    private static function emitWebhook(array $raw, int $id, int $programId, string $action, string $stage, string $step): void
+    {
+        $event = match ($action) {
+            'submit'                   => 'review.submitted',
+            'exec_approve'             => 'review.approved',
+            'qa_reject', 'exec_reject' => 'review.rejected',
+            default                    => null,
+        };
+        if ($event === null) {
+            return;
+        }
+        Webhooks::dispatch($event, [
+            'id'           => $id,
+            'program_id'   => $programId,
+            'title'        => (string) ($raw['title'] ?? ''),
+            'kind'         => (string) ($raw['kind'] ?? ''),
+            'stage'        => $stage,
+            'current_step' => $step,
+            'document_id'  => isset($raw['document_id']) && $raw['document_id'] !== null ? (int) $raw['document_id'] : null,
+        ], $programId);
     }
 
     /**
@@ -312,6 +371,7 @@ final class ReviewWorkflow
             'author'       => $r['author'] ?? null,
             'document_id'  => isset($r['document_id']) && $r['document_id'] !== null ? (int) $r['document_id'] : null,
             'doc_title'    => $r['doc_title'] ?? null,
+            'doc_export'   => !empty($r['doc_export']),
             'due_date'     => $r['due_date'] ?? null,
             'created_by'   => $r['created_by'] !== null ? (int) $r['created_by'] : null,
             'updated_at'   => $r['updated_at'] ?? null,

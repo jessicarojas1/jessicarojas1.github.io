@@ -105,6 +105,9 @@ final class Webhooks
         'announcement.published' => 'Announcement published',
         'taskorder.awarded'      => 'Task order awarded',
         'job.posted'             => 'Job posted',
+        'review.submitted'       => 'Review submitted for approval',
+        'review.approved'        => 'Review approved (authorized)',
+        'review.rejected'        => 'Review rejected / returned',
     ];
 
     /** Create a subscription; returns the signing secret (shown once). */

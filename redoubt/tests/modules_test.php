@@ -372,6 +372,29 @@ T::eq('valid due date persists', date('Y-m-d', strtotime('-2 days')), $ovRow['du
 $badRow = $find($badId);
 T::ok('invalid due date stored as null', array_key_exists('due_date', $badRow) && $badRow['due_date'] === null);
 
+// Review webhooks: lifecycle events fan out to subscribed endpoints.
+Db::insert('webhook_subscription', ['program_id' => $pid, 'url' => 'http://127.0.0.1:59999/h', 'secret' => 's2', 'events' => ['review.submitted', 'review.approved', 'review.rejected'], 'active' => true]);
+$wrk = ReviewWorkflow::create($pid, ['title' => 'Webhook Item', 'kind' => 'deliverable'], $ids['pm']);
+ReviewWorkflow::act($wrk, $pid, 'submit', $ids['pm']);
+T::eq('review.submitted webhook emitted', 'review.submitted', $lastEvent());
+ReviewWorkflow::act($wrk, $pid, 'peer_skip', $ids['pm']);
+ReviewWorkflow::act($wrk, $pid, 'qa_reject', $ids['pm'], 'redo');
+T::eq('review.rejected webhook emitted', 'review.rejected', $lastEvent());
+ReviewWorkflow::act($wrk, $pid, 'submit', $ids['pm']);
+ReviewWorkflow::act($wrk, $pid, 'peer_skip', $ids['pm']);
+ReviewWorkflow::act($wrk, $pid, 'qa_approve', $ids['pm']);
+ReviewWorkflow::act($wrk, $pid, 'exec_approve', $ids['pm']);
+T::eq('review.approved webhook emitted', 'review.approved', $lastEvent());
+
+// API-client review feed redacts export-controlled items (no US-person context).
+$itarDoc = (int) Db::fetchOne("SELECT id FROM document_ref WHERE title='Falcon classified' AND program_id=:p", ['p' => $pid])['id'];
+$itarRev = ReviewWorkflow::create($pid, ['title' => 'Falcon classified — approval', 'kind' => 'document', 'document_id' => $itarDoc], $ids['pm']);
+$apiFeed = ReviewWorkflow::listForApiClient($pid);
+$itarApi = array_values(array_filter($apiFeed, static fn ($i) => $i['id'] === $itarRev))[0] ?? [];
+T::eq('API feed hides export-controlled document id', null, $itarApi['document_id']);
+T::eq('API feed redacts export-controlled title', '[export-controlled review]', $itarApi['title'] ?? null);
+T::ok('API feed omits doc_title + author fields', !array_key_exists('doc_title', $itarApi) && !array_key_exists('author', $itarApi));
+
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');
 $reqId = AccessRequests::create($pid, [

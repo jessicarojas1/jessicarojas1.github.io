@@ -52,6 +52,7 @@ final class OpenApi
                 '/jobs' => $module('/jobs', 'List open job requisitions (scope job.view)', 'jobs'),
                 '/directory' => $module('/directory', 'List program contacts (scope directory.view)', 'directory'),
                 '/milestones' => $module('/milestones', 'List milestones / key dates (scope milestone.view)', 'milestones'),
+                '/reviews' => $module('/reviews', 'List review/approval items with stage + step; export-controlled links redacted for clients (scope review.view)', 'items'),
                 '/search' => [
                     'get' => ['summary' => 'Permission-trimmed global search', 'parameters' => [
                         $pid, ['name' => 'q', 'in' => 'query', 'required' => true, 'schema' => ['type' => 'string']],

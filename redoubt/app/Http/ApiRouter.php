@@ -15,6 +15,7 @@ use Redoubt\Support\Directory;
 use Redoubt\Support\Documents;
 use Redoubt\Support\Jobs;
 use Redoubt\Support\Milestones;
+use Redoubt\Support\ReviewWorkflow;
 use Redoubt\Support\Search;
 use Redoubt\Support\TaskOrders;
 use Throwable;
@@ -93,6 +94,12 @@ final class ApiRouter
                     self::moduleList($user, $client, 'milestone.view',
                         static fn (array $u, int $p) => Milestones::listForProgram($p),
                         static fn (int $p) => Milestones::listForProgram($p), 'milestones');
+                    return;
+
+                case $route === 'GET /api/v1/reviews':
+                    self::moduleList($user, $client, 'review.view',
+                        static fn (array $u, int $p) => ReviewWorkflow::listForProgram($p),
+                        static fn (int $p) => ReviewWorkflow::listForApiClient($p), 'reviews');
                     return;
 
                 case $route === 'GET /api/v1/search':
