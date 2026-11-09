@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-06",
+  "updated": "2026-11-09",
   "summary": {
     "correct": 40,
-    "incorrect": 34,
+    "incorrect": 36,
     "partial": 12,
-    "pending": 79,
-    "note": "2026-11-06: one standing forecast resolved CORRECT (North Korea's ~1 Nov test confirms its missile cadence resumed within the 14-day window following the 29 Oct Wonsan barrage) and three closed INCORRECT on window lapse without resolution (Hormuz transit-figure primary-source reconciliation; Black Sea Chelsea 3/Yara J independent attribution; the Ocean Molica/Arika Sun Panama flag-state inquiry). Lead findings this cycle: (1) China's 10 Nov rare-earth suspension-expiry window narrowed to under 24 hours with no MOFCOM/GAC signal of any kind. (2) Research surfaced that Anthropic filed an S-1/A amendment ~2-3 Nov adding Q3 financials and ~$895B in disclosed compute commitments -- correcting the 11-05 brief's 'no amendment filed' read -- but it still carries no price range, so IPO-roadshow timing remains unconfirmed. (3) Iran's IRGC mine-strike claim/CENTCOM-denial pattern continued with no new confirmed incident or CENTCOM response to the 5 Nov claim identified. (4) This program's own direct access to additional primary sources (SEC EDGAR, alongside CISA's KEV catalog) was blocked this session, broadening a now-recurring sourcing-access limitation. Three new forecasts added: China's rare-earth-expiry disclosure posture, an Anthropic price-range S-1/A filing, and a CENTCOM response to the 5 Nov Hormuz claim."
+    "pending": 82,
+    "note": "2026-11-09: two standing forecasts on China's rare-earth suspension (fc-2026-11-03-rareearth-nov10-outcome, fc-2026-11-06-rareearth-reimposition) closed INCORRECT after two converging specialist trade-press sources (Shanghai Metals Market, MLQ) reported China issued an explicit MOFCOM/GAC extension statement (suspension extended to 10 Jan 2027) ahead of the 10 Nov deadline -- graded with an explicit caveat that no primary MOFCOM/GAC text was independently obtained this cycle, as direct access to several reference domains (a Chinese-government-linked trade site, a specialist metals-trade site, and a major wire service) was restricted or failed to resolve in this research environment. Lead findings this cycle: (1) Russia's 3 Nov mass strike on Ukraine's energy grid (among the largest this year per Ukrainian officials) collapsed a reported energy ceasefire four days before the confirmed 10-11 Nov Abu Dhabi US-Russia-Ukraine trilateral talks. (2) Hormuz attack tempo continued into November with a reported crew fatality (tanker Velos Sapphire, ~4 Nov); no CENTCOM response to the 5 Nov IRGC mine claim was identified. (3) A chained Ivanti Connect Secure exploitation set (3 CVEs, deadlines through 13 Nov) was confirmed via multiple converging outlets, partially offsetting the prior two cycles' blocked-CISA-access pattern. (4) Anthropic's IPO process advanced on paper (a financials-only S-1/A filed ~2-3 Nov) but still lacks a price range as the reported week-of-9-Nov roadshow window opens. Five new forecasts added: primary-source confirmation of the rare-earth extension, an Abu Dhabi talks deliverable, a DOJ outcome in the Sylvia matter, a named Ivanti-chain DIB victim, and a dated UK-Australia bilateral AUKUS-adjacent treaty confirmation."
   },
   "forecasts": [
     {
@@ -141,7 +141,7 @@
       "horizon": "0-14 days",
       "outcome": "PARTIAL",
       "resolvedDate": "2026-09-11",
-      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range \u2014 but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range — but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-10-kev-networkedge",
@@ -150,7 +150,7 @@
       "horizon": "0-30 days",
       "outcome": "CORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate \u2014 well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
+      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate — well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-11-bahrain-basing",
@@ -168,7 +168,7 @@
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "The meeting was postponed entirely rather than held \u2014 it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "The meeting was postponed entirely rather than held — it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-11-pipeline",
@@ -704,11 +704,11 @@
     {
       "id": "fc-2026-10-06-moldova-nato-commitment",
       "date": "2026-10-06",
-      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chi\u0219inau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
+      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chișinau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-10-14",
-      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~\u20ac50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~€50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-06-flydubai-reversal-effect",
@@ -1408,9 +1408,9 @@
       "date": "2026-11-03",
       "forecast": "China will not issue a MOFCOM/GAC statement extending, reinstating, or substantively clarifying the rare-earth-control suspension before its 10 Nov expiry; the window will lapse with the suspension's status ambiguous rather than cleanly resolved either way.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No MOFCOM/GAC statement identified this cycle; window now 6 days out. Clarified that a second, distinct suspension (gallium/germanium/antimony/superhard materials) expires separately on 27 Nov and is not covered by this forecast's specific 10 Nov test."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-09",
+      "note": "Two converging specialist trade-press sources (Shanghai Metals Market, MLQ) report China issued a specific MOFCOM/GAC extension statement (suspension extended to 10 Jan 2027) ahead of the 10 Nov expiry -- an explicit clarifying action, not the ambiguous lapse this forecast predicted. Graded with the caveat that no primary MOFCOM/GAC text was independently obtained this cycle; direct access to the relevant trade-data and reference domains was restricted in this research environment."
     },
     {
       "id": "fc-2026-11-04-anthropic-ipo-roadshow",
@@ -1471,9 +1471,9 @@
       "date": "2026-11-06",
       "forecast": "Given no PRC extension, reinstatement, or clarification signal has emerged ahead of the 10 Nov expiry, China will allow the MOFCOM/GAC Announcement No. 70 suspension to lapse into an ambiguous state (neither a clear, explicit reimposition statement nor an explicit extension) rather than issuing a definitive public statement either way, within 7 days.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether Beijing's minimal-disclosure posture through the entire suspension period continues past the expiry itself, or whether it breaks pattern with an explicit statement. Tracked on the Critical Minerals / Rare-Earth Magnets thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-09",
+      "note": "Same reasoning as fc-2026-11-03-rareearth-nov10-outcome: reported trade-press sourcing (SMM, MLQ) describes an explicit extension statement (suspension to 10 Jan 2027), not an ambiguous lapse. Same primary-source-verification caveat applies."
     },
     {
       "id": "fc-2026-11-06-anthropic-pricerange",
@@ -1492,6 +1492,51 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether CENTCOM continues its pattern of responding to IRGC mine-strike claims, or whether this specific claim goes unaddressed longer than prior ones. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-11-09-rareearth-extension-primary-confirm",
+      "date": "2026-11-09",
+      "forecast": "Independent primary-source confirmation (a MOFCOM/GAC notice, or a major wire service citing the specific announcement number) of the reported 11 Nov 2026-10 Jan 2027 rare-earth suspension extension will emerge within 7 days.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's most consequential and least-verified claim (a reported but unconfirmed PRC suspension extension) can be independently corroborated, given this research environment's recurring access limitations on primary Chinese-government and trade-data sources. Tracked on the Critical Minerals / Rare-Earth Magnets thread."
+    },
+    {
+      "id": "fc-2026-11-09-abudhabi-talks-outcome",
+      "date": "2026-11-09",
+      "forecast": "The 10-11 Nov Abu Dhabi US-Russia-Ukraine trilateral talks will produce at least one concrete, independently confirmed deliverable (a renewed energy-strike halt, a prisoner/captive exchange, or a confirmed further round date) within 5 days of their conclusion, rather than ending with no confirmed outcome.",
+      "horizon": "2-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the fourth round of this negotiating track breaks the pattern of the prior three rounds (Abu Dhabi x2, Geneva), none of which produced a durable agreement. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+    },
+    {
+      "id": "fc-2026-11-09-sylvia-doj-outcome",
+      "date": "2026-11-09",
+      "forecast": "A criminal charge, court-martial referral, or formal declination will be publicly announced in the Lt. Gen. Brett Sylvia leak-investigation matter within 45 days of the 29 Oct DOJ referral.",
+      "horizon": "0-45 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this stalled leadership/legal-process thread resolves to a visible outcome within a reasonable window rather than remaining indefinitely open. Tracked on the DoD Leadership Continuity thread."
+    },
+    {
+      "id": "fc-2026-11-09-ivanti-dib-victim",
+      "date": "2026-11-09",
+      "forecast": "A named DIB/federal-contractor victim organization tied to exploitation of the Ivanti Connect Secure CVE-2026-104935/111357/118527 chain will be publicly reported within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this newly corroborated, chained exploitation set breaks the wave's otherwise consistent pattern of sector-level-only victim disclosure. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+    },
+    {
+      "id": "fc-2026-11-09-aukus-uk-australia-treaty",
+      "date": "2026-11-09",
+      "forecast": "A formal UK-Australia bilateral submarine-cooperation instrument (a signed treaty text, formal signature event, or official joint government statement) distinct from the existing trilateral AUKUS framework will be publicly confirmed, with a verifiable date, within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's single-outlet, date-uncertain report of a bilateral AUKUS-adjacent treaty track is substantiated by a dated primary or wire-service confirmation. Tracked on the Allies & Partners coverage; no dedicated thread yet given the sourcing uncertainty."
     }
   ]
 }
