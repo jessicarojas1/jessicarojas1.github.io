@@ -357,6 +357,21 @@ $dr2 = ReviewWorkflow::create($pid, ['title' => 'Falcon overview — approval v2
 T::eq('statusForDocuments returns the newest review per document', $dr2, ReviewWorkflow::statusForDocuments([$docId], $pid)[$docId]['id'] ?? null);
 T::eq('a document with no review yields no status', [], ReviewWorkflow::statusForDocuments([999999], $pid));
 
+// Review SLA metrics (due dates + aging).
+$ovId = ReviewWorkflow::create($pid, ['title' => 'Overdue CDRL', 'kind' => 'cdrl', 'due_date' => date('Y-m-d', strtotime('-2 days'))], $ids['pm']);
+ReviewWorkflow::create($pid, ['title' => 'Soon CDRL', 'kind' => 'cdrl', 'due_date' => date('Y-m-d', strtotime('+3 days'))], $ids['pm']);
+$badId = ReviewWorkflow::create($pid, ['title' => 'No Due', 'kind' => 'other', 'due_date' => 'not-a-date'], $ids['pm']);
+$m = ReviewWorkflow::metrics($pid);
+T::ok('metrics counts overdue open items', $m['overdue'] >= 1);
+T::ok('metrics counts due-soon items', $m['due_soon'] >= 1);
+T::ok('metrics reports approved cycle time', $m['avg_cycle_days'] !== null);
+T::ok('metrics lists oldest open items', $m['oldest'] !== []);
+$find = static fn (int $id) => array_values(array_filter(ReviewWorkflow::listForProgram($pid), static fn ($i) => $i['id'] === $id))[0] ?? [];
+$ovRow = $find($ovId);
+T::eq('valid due date persists', date('Y-m-d', strtotime('-2 days')), $ovRow['due_date'] ?? null);
+$badRow = $find($badId);
+T::ok('invalid due date stored as null', array_key_exists('due_date', $badRow) && $badRow['due_date'] === null);
+
 // Onboarding / offboarding lifecycle
 T::group('Onboarding / offboarding (live DB)');
 $reqId = AccessRequests::create($pid, [

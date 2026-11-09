@@ -317,12 +317,14 @@ CREATE TABLE IF NOT EXISTS review_item (
     stage        TEXT NOT NULL DEFAULT 'concept' CHECK (stage IN ('concept','wip','approved')),
     current_step TEXT NOT NULL DEFAULT 'author'  CHECK (current_step IN ('author','peer','qa','exec','done')),
     document_id  BIGINT REFERENCES document_ref(id) ON DELETE SET NULL,  -- optional: the document under review
+    due_date     DATE,                                                   -- optional: review SLA / target date
     created_by   BIGINT REFERENCES app_user(id),
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
--- Idempotent migration for databases created before document linkage existed.
+-- Idempotent migrations for databases created before these columns existed.
 ALTER TABLE review_item ADD COLUMN IF NOT EXISTS document_id BIGINT REFERENCES document_ref(id) ON DELETE SET NULL;
+ALTER TABLE review_item ADD COLUMN IF NOT EXISTS due_date DATE;
 
 CREATE TABLE IF NOT EXISTS review_action (
     id        BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

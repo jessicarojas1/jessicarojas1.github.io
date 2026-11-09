@@ -104,7 +104,9 @@ Jobs, Directory, Search).
   a ⬇ CSV button on those pages (`ExportController`).
 - **Program Analytics & Health** (`/app/analytics`, audit.view): content KPIs, a
   hand-rolled SVG 14-day activity chart, 7-day adoption gauge, top-actions bars,
-  and a compliance panel — all from the audit trail + content tables, offline
+  a compliance panel, and a **Review & Approval SLA panel** (open / overdue /
+  due-soon tallies, stage breakdown, average approved cycle time, and the oldest
+  open items with aging) — all from the audit trail + content tables, offline
   (no chart CDN) (`Analytics`, `AnalyticsController`, `app_analytics.php`).
 - **Compliance Audit Log viewer** (`/app/admin/audit`, audit.view): the
   append-only trail (time · actor · action · target · IP) with action filter and
@@ -149,8 +151,8 @@ Jobs, Directory, Search).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
-- **Automated test suite** (zero-dependency): `php tests/run.php` — 161 checks
-  (15 authorization-engine logic + 137 live-DB assertions: modules, job targeting,
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 167 checks
+  (15 authorization-engine logic + 143 live-DB assertions: modules, job targeting,
   Settings/Branding sanitization, notification fan-out, review/approval workflow +
   its next-approver notifications, per-user review queue, and document↔review
   linkage, onboarding lifecycle, local auth, sample loader) via `tests/lib/T` +
@@ -208,7 +210,7 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 161 checks —
+  These checks are now a **repeatable suite** (`php tests/run.php`, 167 checks —
   incl. job targeting by company/contract/program-wide + filters, the
   review/approval workflow with next-approver notifications + per-user queue +
   document↔review linkage, and Settings/Branding persistence + sanitization)

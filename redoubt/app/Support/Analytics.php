@@ -19,6 +19,7 @@ final class Analytics
             'actions'   => self::topActions($programId),
             'adoption'  => self::adoption($programId),
             'content'   => self::content($programId),
+            'reviews'   => ReviewWorkflow::metrics($programId),
         ];
     }
 

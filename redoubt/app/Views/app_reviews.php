@@ -58,6 +58,7 @@ $base = '/app/reviews?program_id=' . (int) $programId;
     <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">
       <div style="flex:1;min-width:220px"><label>Title</label><input type="text" name="title" required maxlength="200"></div>
       <div><label>Kind</label><select name="kind"><?php foreach (ReviewWorkflow::KINDS as $k): ?><option value="<?= $k ?>"><?= ucfirst($k) ?></option><?php endforeach; ?></select></div>
+      <div><label>Due date (optional)</label><input type="date" name="due_date"></div>
     </div>
     <label>Description</label><textarea name="description" rows="2"></textarea>
     <label>Reference URL (optional)</label><input type="url" name="ref_url" placeholder="https://…">
@@ -73,7 +74,12 @@ $base = '/app/reviews?program_id=' . (int) $programId;
       <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
         <div>
           <strong><?= Security::h($it['title']) ?></strong> <span class="perm-key"><?= Security::h($it['kind']) ?></span>
-          <div style="margin-top:4px"><?= $stageBadge((string) $it['stage']) ?> &nbsp; <?= $chain($it) ?></div>
+          <div style="margin-top:4px"><?= $stageBadge((string) $it['stage']) ?> &nbsp; <?= $chain($it) ?>
+            <?php if (!empty($it['due_date'])):
+                $overdue = $it['stage'] !== 'approved' && (string) $it['due_date'] < date('Y-m-d'); ?>
+              &nbsp; <span class="badge <?= $overdue ? 'b-risk' : 'b-muted' ?>"><?= $overdue ? 'Overdue · ' : 'Due ' ?><?= Security::h((string) $it['due_date']) ?></span>
+            <?php endif; ?>
+          </div>
           <div class="perm-key" style="margin-top:3px">author: <?= Security::h($it['author'] ?: '—') ?><?php if (!empty($it['document_id'])): ?> · 📄 <a href="/app/documents/open?program_id=<?= (int) $programId ?>&amp;id=<?= (int) $it['document_id'] ?>"><?= Security::h($it['doc_title'] ?: 'linked document') ?></a><?php endif; ?><?php if ($it['ref_url']): ?> · <a href="<?= Security::h($it['ref_url']) ?>" target="_blank" rel="noopener">reference ↗</a><?php endif; ?></div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start">

@@ -109,6 +109,7 @@ final class ReviewController
                     'kind'        => (string) ($_POST['kind'] ?? 'deliverable'),
                     'description' => (string) ($_POST['description'] ?? ''),
                     'ref_url'     => (string) ($_POST['ref_url'] ?? ''),
+                    'due_date'    => (string) ($_POST['due_date'] ?? ''),
                 ], $actorId);
             } else {
                 ReviewWorkflow::act((int) ($_POST['id'] ?? 0), $programId, $action, $actorId, (string) ($_POST['comment'] ?? ''));

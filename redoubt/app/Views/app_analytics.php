@@ -13,6 +13,8 @@ $n = count($act);
 $vw = 720; $vh = 180; $pad = 24; $bw = ($vw - $pad * 2) / $n;
 $ad = $data['adoption'];
 $maxAction = max(1, ...array_map(static fn ($a) => $a['count'], $data['actions'] ?: [['count' => 1]]));
+$rv = $data['reviews'] ?? ['by_stage' => ['concept' => 0, 'wip' => 0, 'approved' => 0], 'open' => 0, 'overdue' => 0, 'due_soon' => 0, 'avg_cycle_days' => null, 'oldest' => []];
+$stepLbl = ['author' => 'Author', 'peer' => 'Peer', 'qa' => 'QA', 'exec' => 'Exec', 'done' => 'Done'];
 ?>
 <div class="page-header">
   <h1 class="page-title">Program Analytics &amp; Health</h1>
@@ -70,5 +72,44 @@ $maxAction = max(1, ...array_map(static fn ($a) => $a['count'], $data['actions']
       <p class="perm-key" style="margin-top:8px">Every access, publish, provision and revoke is captured for CMMC / NIST 800-171 accountability.</p>
     </div>
   </div>
+</div>
+
+<div class="card">
+  <h3 class="dash-h">Review &amp; Approval — SLA &amp; aging</h3>
+  <div class="stat-grid" style="margin-bottom:12px">
+    <div class="stat-tile"><div class="stat-num"><?= (int) $rv['open'] ?></div><div class="stat-lbl">Open</div></div>
+    <div class="stat-tile"><div class="stat-num" style="color:<?= $rv['overdue'] > 0 ? 'var(--risk)' : 'inherit' ?>"><?= (int) $rv['overdue'] ?></div><div class="stat-lbl">Overdue</div></div>
+    <div class="stat-tile"><div class="stat-num" style="color:<?= $rv['due_soon'] > 0 ? 'var(--warn)' : 'inherit' ?>"><?= (int) $rv['due_soon'] ?></div><div class="stat-lbl">Due ≤ 7d</div></div>
+    <div class="stat-tile"><div class="stat-num"><?= $rv['avg_cycle_days'] === null ? '—' : Security::h((string) $rv['avg_cycle_days']) ?></div><div class="stat-lbl">Avg cycle (days)</div></div>
+    <div class="stat-tile"><div class="stat-num"><?= (int) $rv['by_stage']['approved'] ?></div><div class="stat-lbl">Approved</div></div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <span class="badge b-muted">Concept: <?= (int) $rv['by_stage']['concept'] ?></span>
+    <span class="badge b-warn">WIP: <?= (int) $rv['by_stage']['wip'] ?></span>
+    <span class="badge b-ok">Approved: <?= (int) $rv['by_stage']['approved'] ?></span>
+    <a class="badge b-muted" href="/app/reviews?program_id=<?= (int) $programId ?>" style="text-decoration:none">Open the workflow →</a>
+  </div>
+  <?php if (($rv['oldest'] ?? []) === []): ?>
+    <div class="empty-state-sm">No open review items — the pipeline is clear.</div>
+  <?php else: ?>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Oldest open items</th><th>Stage</th><th>At step</th><th>Age</th><th>Due</th></tr></thead>
+      <tbody>
+      <?php foreach ($rv['oldest'] as $o): ?>
+        <tr>
+          <td><strong><?= Security::h($o['title']) ?></strong></td>
+          <td><span class="badge <?= $o['stage'] === 'wip' ? 'b-warn' : 'b-muted' ?>"><?= Security::h(ucfirst($o['stage'])) ?></span></td>
+          <td class="perm-key"><?= Security::h($stepLbl[$o['current_step']] ?? $o['current_step']) ?></td>
+          <td><?= (int) $o['days_open'] ?>d</td>
+          <td>
+            <?php if ($o['due_date'] === null): ?><span class="perm-key">—</span>
+            <?php elseif ($o['overdue']): ?><span class="badge b-risk">Overdue · <?= Security::h((string) $o['due_date']) ?></span>
+            <?php else: ?><span class="perm-key"><?= Security::h((string) $o['due_date']) ?></span><?php endif; ?>
+          </td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table></div>
+  <?php endif; ?>
 </div>
 <?php require __DIR__ . '/partials/app_footer.php'; ?>

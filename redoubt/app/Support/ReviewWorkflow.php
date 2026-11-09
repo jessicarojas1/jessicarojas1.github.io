@@ -25,6 +25,8 @@ final class ReviewWorkflow
     {
         $docId = isset($d['document_id']) && $d['document_id'] !== null && $d['document_id'] !== ''
             ? (int) $d['document_id'] : null;
+        $due = trim((string) ($d['due_date'] ?? ''));
+        $dueDate = preg_match('/^\d{4}-\d{2}-\d{2}$/', $due) === 1 ? $due : null;
         $id = Db::insert('review_item', [
             'program_id'  => $programId,
             'title'       => (string) ($d['title'] ?? ''),
@@ -34,6 +36,7 @@ final class ReviewWorkflow
             'stage'       => 'concept',
             'current_step' => 'author',
             'document_id' => $docId,
+            'due_date'    => $dueDate,
             'created_by'  => $actorId,
         ]);
         Audit::log('review.create', 'item#' . $id . ($docId !== null ? ' doc#' . $docId : ''), $programId, $actorId);
@@ -92,6 +95,66 @@ final class ReviewWorkflow
         }
         $sql .= ' ORDER BY ri.updated_at DESC, ri.id DESC';
         return array_map([self::class, 'hydrate'], Db::fetchAll($sql, $params));
+    }
+
+    /**
+     * SLA / aging metrics for a program's review pipeline. Program-level
+     * aggregates only (no per-item visibility concerns): counts by stage, open /
+     * overdue / due-soon tallies, average approved cycle time, and the oldest
+     * still-open items. Used by the Analytics page.
+     *
+     * @return array<string,mixed>
+     */
+    public static function metrics(int $programId): array
+    {
+        $empty = [
+            'by_stage' => ['concept' => 0, 'wip' => 0, 'approved' => 0],
+            'open' => 0, 'overdue' => 0, 'due_soon' => 0, 'avg_cycle_days' => null, 'oldest' => [],
+        ];
+        if (!Db::isConfigured()) {
+            return $empty;
+        }
+        $byStage = ['concept' => 0, 'wip' => 0, 'approved' => 0];
+        foreach (Db::fetchAll('SELECT stage, count(*) c FROM review_item WHERE program_id = :p GROUP BY stage', ['p' => $programId]) as $r) {
+            if (isset($byStage[$r['stage']])) {
+                $byStage[$r['stage']] = (int) $r['c'];
+            }
+        }
+        $one = static fn (string $sql): int => (int) (Db::fetchOne($sql, ['p' => $programId])['c'] ?? 0);
+        $overdue = $one("SELECT count(*) c FROM review_item WHERE program_id = :p AND stage <> 'approved' AND due_date IS NOT NULL AND due_date < CURRENT_DATE");
+        $dueSoon = $one("SELECT count(*) c FROM review_item WHERE program_id = :p AND stage <> 'approved' AND due_date IS NOT NULL AND due_date >= CURRENT_DATE AND due_date <= CURRENT_DATE + 7");
+        $avgRow = Db::fetchOne(
+            "SELECT round(avg(EXTRACT(EPOCH FROM (updated_at - created_at)) / 86400)::numeric, 1) d
+               FROM review_item WHERE program_id = :p AND stage = 'approved'",
+            ['p' => $programId]
+        );
+        $today = date('Y-m-d');
+        $oldest = array_map(static function (array $r) use ($today): array {
+            return [
+                'id'           => (int) $r['id'],
+                'title'        => (string) $r['title'],
+                'stage'        => (string) $r['stage'],
+                'current_step' => (string) $r['current_step'],
+                'days_open'    => (int) round((float) $r['days_open']),
+                'due_date'     => $r['due_date'],
+                'overdue'      => $r['due_date'] !== null && (string) $r['due_date'] < $today,
+            ];
+        }, Db::fetchAll(
+            "SELECT id, title, stage, current_step, due_date,
+                    EXTRACT(EPOCH FROM (now() - created_at)) / 86400 AS days_open
+               FROM review_item
+              WHERE program_id = :p AND stage <> 'approved'
+              ORDER BY created_at ASC LIMIT 5",
+            ['p' => $programId]
+        ));
+        return [
+            'by_stage'       => $byStage,
+            'open'           => $byStage['concept'] + $byStage['wip'],
+            'overdue'        => $overdue,
+            'due_soon'       => $dueSoon,
+            'avg_cycle_days' => ($avgRow && $avgRow['d'] !== null) ? (float) $avgRow['d'] : null,
+            'oldest'         => $oldest,
+        ];
     }
 
     /** @return array<string,mixed>|null raw row */
@@ -249,6 +312,7 @@ final class ReviewWorkflow
             'author'       => $r['author'] ?? null,
             'document_id'  => isset($r['document_id']) && $r['document_id'] !== null ? (int) $r['document_id'] : null,
             'doc_title'    => $r['doc_title'] ?? null,
+            'due_date'     => $r['due_date'] ?? null,
             'created_by'   => $r['created_by'] !== null ? (int) $r['created_by'] : null,
             'updated_at'   => $r['updated_at'] ?? null,
         ];
