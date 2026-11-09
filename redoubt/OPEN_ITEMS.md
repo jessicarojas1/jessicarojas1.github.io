@@ -160,8 +160,8 @@ Jobs, Directory, Search).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
-- **Automated test suite** (zero-dependency): `php tests/run.php` — 173 checks
-  (15 authorization-engine logic + 149 live-DB assertions: modules, job targeting,
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 178 checks
+  (15 authorization-engine logic + 155 live-DB assertions: modules, job targeting,
   Settings/Branding sanitization, notification fan-out, review/approval workflow +
   its next-approver notifications, per-user review queue, and document↔review
   linkage, onboarding lifecycle, local auth, sample loader) via `tests/lib/T` +
@@ -184,7 +184,13 @@ Jobs, Directory, Search).
   Entra SSO is now optional (a "Sign in with Microsoft" button when configured).
   `/` → app/sign-in; discovery docs moved to `/about` (linked as "Docs" in-app).
   Verified end to end (setup → local login → app → sample content → live branding).
-- **Sample data loader** (`Sample::load`) populates one program across every module.
+- **Sample / guided-demo loader** (`Sample::load`, opt-in at `/setup`) populates one
+  program across every module — companies, announcements, documents (incl. an
+  ITAR/CUI item), task orders, targeted jobs, directory, milestones, a pending
+  onboarding request, branding, and **six review items spread across the lifecycle**
+  (Concept, at-peer/QA/exec, approved, plus one overdue and one due-soon, two linked
+  to documents) so the workflow, dashboard queue, and SLA analytics all show live
+  data on first login.
 
 **Phase 2 (next):**
 
@@ -219,7 +225,7 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 173 checks —
+  These checks are now a **repeatable suite** (`php tests/run.php`, 178 checks —
   incl. job targeting by company/contract/program-wide + filters, the
   review/approval workflow with next-approver notifications + per-user queue +
   document↔review linkage, and Settings/Branding persistence + sanitization)

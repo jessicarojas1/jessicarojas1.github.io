@@ -24,11 +24,11 @@ final class Sample
         Db::insert('announcement', ['program_id' => $pid, 'title' => 'Draft: award-fee narrative', 'body' => 'Draft for internal review before posting.', 'audience' => ['all'], 'priority' => 'normal', 'created_by' => $adminId]);
 
         // Documents (metadata + zone/markings; local upload/Graph optional)
-        Db::insert('document_ref', ['program_id' => $pid, 'zone' => 'project', 'company_scope' => [], 'title' => 'Program Management Plan (PMP)', 'updated_at' => date('c')]);
+        $pmpDoc = Db::insert('document_ref', ['program_id' => $pid, 'zone' => 'project', 'company_scope' => [], 'title' => 'Program Management Plan (PMP)', 'updated_at' => date('c')]);
         Db::insert('document_ref', ['program_id' => $pid, 'zone' => 'contracts', 'company_scope' => [], 'title' => 'Statement of Work (SOW)', 'updated_at' => date('c')]);
         Db::insert('document_ref', ['program_id' => $pid, 'zone' => 'company', 'company_scope' => [$acme], 'title' => 'Acme subcontract package', 'updated_at' => date('c')]);
         Db::insert('document_ref', ['program_id' => $pid, 'zone' => 'project', 'company_scope' => [], 'export_controlled' => true, 'cui_marked' => true, 'title' => 'ITAR technical data package', 'updated_at' => date('c')]);
-        Db::insert('document_ref', ['program_id' => $pid, 'zone' => 'customer', 'company_scope' => [], 'title' => 'CDRL A001 — Monthly Status Report', 'updated_at' => date('c')]);
+        $cdrlDoc = Db::insert('document_ref', ['program_id' => $pid, 'zone' => 'customer', 'company_scope' => [], 'title' => 'CDRL A001 — Monthly Status Report', 'updated_at' => date('c')]);
 
         // Task orders
         $to1 = Db::insert('task_order', ['program_id' => $pid, 'number' => 'TO-0001', 'title' => 'Systems Engineering Support', 'status' => 'awarded', 'company_scope' => [$acme]]);
@@ -48,6 +48,29 @@ final class Sample
 
         // A pending onboarding request
         Db::insert('access_request', ['program_id' => $pid, 'email' => 'jordan@acme.us', 'display_name' => 'Jordan Reyes', 'company_id' => $acme, 'requested_role' => 'sub_member', 'kind' => 'external', 'is_us_person' => true, 'justification' => 'New subcontractor engineer', 'status' => 'pending', 'sponsor_id' => $adminId]);
+
+        // Milestones / key dates (feeds the dashboard + analytics).
+        Milestones::create($pid, ['title' => 'Kickoff complete', 'due_date' => date('Y-m-d', strtotime('-7 days')), 'type' => 'event'], $adminId);
+        Milestones::create($pid, ['title' => 'CDRL A001 submission', 'due_date' => date('Y-m-d', strtotime('+5 days')), 'type' => 'CDRL'], $adminId);
+        Milestones::create($pid, ['title' => 'PDR — Preliminary Design Review', 'due_date' => date('Y-m-d', strtotime('+21 days')), 'type' => 'event'], $adminId);
+        Milestones::create($pid, ['title' => 'Annual DD254 review', 'due_date' => date('Y-m-d', strtotime('+60 days')), 'type' => 'deliverable'], $adminId);
+
+        // Review & approval items spread across the lifecycle, so the workflow,
+        // dashboard queue, and SLA analytics all show live data on first login.
+        // The admin (enterprise_admin) holds every review step, so advancing here
+        // needs no other accounts; notifications populate once people are onboarded.
+        $mkReview = static function (string $title, string $kind, array $steps, ?int $docId = null, ?string $due = null) use ($pid, $adminId): void {
+            $rid = ReviewWorkflow::create($pid, ['title' => $title, 'kind' => $kind, 'document_id' => $docId, 'due_date' => $due], $adminId);
+            foreach ($steps as $step) {
+                ReviewWorkflow::act($rid, $pid, $step, $adminId, $step === 'qa_reject' ? 'Please address review comments before resubmitting.' : '');
+            }
+        };
+        $mkReview('Systems Engineering Plan (SEP)', 'document', [], $pmpDoc);                                              // Concept (linked doc)
+        $mkReview('Monthly Status Report — CDRL A001', 'cdrl', ['submit'], $cdrlDoc, date('Y-m-d', strtotime('+5 days'))); // WIP · at peer · due soon (linked doc)
+        $mkReview('Risk Management Plan', 'document', ['submit', 'peer_approve']);                                         // WIP · at QA
+        $mkReview('Award-Fee Self-Assessment', 'deliverable', ['submit', 'peer_skip', 'qa_approve']);                      // WIP · awaiting exec authorization
+        $mkReview('Quality Assurance Plan', 'policy', ['submit', 'peer_approve', 'qa_approve', 'exec_approve']);           // Approved (full cycle)
+        $mkReview('Security Controls Package (SSP)', 'document', ['submit'], null, date('Y-m-d', strtotime('-3 days')));   // WIP · at peer · OVERDUE
 
         Settings::saveBranding($pid, ['displayName' => 'GMRE — Falcon Program', 'accent' => '#1e6fb8', 'logoUrl' => null], $adminId);
         Audit::log('setup.sample_loaded', 'program#' . $pid, $pid, $adminId);

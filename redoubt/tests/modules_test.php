@@ -434,3 +434,9 @@ T::ok('sample announcements loaded', (int) Db::fetchOne('SELECT count(*) c FROM 
 T::ok('sample jobs loaded', (int) Db::fetchOne('SELECT count(*) c FROM job_requisition WHERE program_id=:p', ['p' => $sp])['c'] >= 4);
 T::ok('sample task orders loaded', (int) Db::fetchOne('SELECT count(*) c FROM task_order WHERE program_id=:p', ['p' => $sp])['c'] >= 3);
 T::ok('sample pending access request loaded', (int) Db::fetchOne("SELECT count(*) c FROM access_request WHERE program_id=:p AND status='pending'", ['p' => $sp])['c'] >= 1);
+T::ok('sample milestones loaded', (int) Db::fetchOne('SELECT count(*) c FROM milestone WHERE program_id=:p', ['p' => $sp])['c'] >= 4);
+$sm = ReviewWorkflow::metrics($sp);
+T::ok('sample seeds in-flight reviews', ($sm['open'] + $sm['by_stage']['approved']) >= 6);
+T::ok('sample seeds an approved review', $sm['by_stage']['approved'] >= 1);
+T::ok('sample seeds an overdue review', $sm['overdue'] >= 1);
+T::ok('sample links reviews to documents', (int) Db::fetchOne('SELECT count(*) c FROM review_item WHERE program_id=:p AND document_id IS NOT NULL', ['p' => $sp])['c'] >= 2);
