@@ -105,6 +105,11 @@ $docFields = function (array $d = []) {
             <?php if (!empty($d['has_file'])): ?>
               <div class="perm-key">📎 <?= Security::h((string) ($d['original_name'] ?? 'file')) ?><?php if (!empty($d['size_bytes'])): ?> · <?= (int) ceil($d['size_bytes'] / 1024) ?> KB<?php endif; ?></div>
             <?php endif; ?>
+            <?php if (!empty($d['previewable'])): ?>
+              <a href="/app/documents/preview?program_id=<?= (int) $programId ?>&amp;id=<?= (int) $d['id'] ?>" target="_blank" rel="noopener" title="Open full image in a new tab">
+                <img src="/app/documents/preview?program_id=<?= (int) $programId ?>&amp;id=<?= (int) $d['id'] ?>" alt="Preview of <?= Security::h((string) ($d['original_name'] ?? 'image')) ?>" loading="lazy" style="max-width:140px;max-height:100px;border:1px solid var(--line);border-radius:6px;margin-top:6px;display:block">
+              </a>
+            <?php endif; ?>
             <?php if ($d['company_scope']): ?><div class="perm-key">companies: <?= Security::h(implode(', ', $d['company_scope'])) ?></div><?php endif; ?>
           </td>
           <td><span class="badge b-muted"><?= Security::h($zoneLabels[$d['zone']] ?? $d['zone']) ?></span></td>

@@ -175,8 +175,43 @@ final class DocumentsController
         header('Location: ' . $url);
     }
 
-    /** Stream a portal-stored file as a download. Caller MUST have authorized. */
-    private static function streamFile(string $path, string $downloadName, string $mime): void
+    /**
+     * GET /app/documents/preview?id=&program_id= — re-authorize, then render a
+     * stored raster image INLINE (png/jpg/gif/webp only). Anything not proven
+     * previewable falls back to the authorized download, so SVG/Office/PDF never
+     * render inline. Used by the thumbnail <img> on the documents page.
+     */
+    public static function preview(): void
+    {
+        Auth::requireAuth();
+        $user = Auth::user();
+        $programId = (int) ($_GET['program_id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? 0);
+        $row = Documents::get($id, $programId);
+        if ($row === null) {
+            self::plain(404, 'Not found.');
+            return;
+        }
+        if (!Documents::canSee($user, $row, $programId)) {
+            Audit::log('authz.deny', 'document.preview#' . $id, $programId, $user['id'] ?? null);
+            self::plain(403, '403 Forbidden.');
+            return;
+        }
+        $path = Documents::storedFilePath($row);
+        if ($path === null || !Documents::isPreviewable($row)) {
+            // Not an inline-safe image — send them to the authorized download.
+            header('Location: /app/documents/open?program_id=' . $programId . '&id=' . $id);
+            return;
+        }
+        self::streamFile($path, (string) ($row['original_name'] ?? 'image'), (string) $row['mime_type'], 'inline');
+    }
+
+    /**
+     * Stream a portal-stored file. Caller MUST have authorized. `inline` is only
+     * ever passed for raster images proven safe by Documents::isPreviewable; every
+     * other file is served as an attachment, so active content cannot execute.
+     */
+    private static function streamFile(string $path, string $downloadName, string $mime, string $disposition = 'attachment'): void
     {
         // Harden the Content-Disposition filename against header injection.
         $safeName = preg_replace('/[^A-Za-z0-9._ -]/', '_', $downloadName) ?: 'document';
@@ -185,7 +220,7 @@ final class DocumentsController
         }
         header('Content-Type: ' . $mime);
         header('X-Content-Type-Options: nosniff');
-        header('Content-Disposition: attachment; filename="' . $safeName . '"');
+        header('Content-Disposition: ' . $disposition . '; filename="' . $safeName . '"');
         header('Content-Length: ' . (string) (filesize($path) ?: 0));
         header('Cache-Control: private, no-store');
         readfile($path);

@@ -99,6 +99,10 @@ T::ok('storedFilePath resolves the blob', Documents::storedFilePath($rowUp) !== 
 $hUp = array_values(array_filter(Documents::listForUser($pm, $pid), static fn ($x) => $x['id'] === $docUp))[0] ?? [];
 T::ok('hydrate exposes has_file', !empty($hUp['has_file']));
 T::eq('hydrate exposes the original name', 'diagram.png', $hUp['original_name'] ?? null);
+T::ok('uploaded png is previewable', Documents::isPreviewable($rowUp));
+T::ok('hydrate exposes previewable', !empty($hUp['previewable']));
+T::ok('svg is NOT previewable (inline-unsafe)', !Documents::isPreviewable(['stored_path' => 'x.svg', 'mime_type' => 'image/svg+xml']));
+T::ok('a link-only doc is not previewable', !Documents::isPreviewable(['mime_type' => 'image/png']));
 $rejExt = false;
 try { Documents::storeUpload(['name' => 'evil.exe', 'tmp_name' => $mkTmp('MZbinary'), 'error' => 0, 'size' => 8]); } catch (\Throwable $e) { $rejExt = true; }
 T::ok('upload rejects a disallowed extension', $rejExt);

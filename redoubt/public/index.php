@@ -161,6 +161,10 @@ switch ($path) {
         DocumentsController::open();
         return;
 
+    case '/app/documents/preview':
+        DocumentsController::preview();
+        return;
+
     case '/app/task-orders':
         if ($method === 'POST') {
             TaskOrdersController::post();

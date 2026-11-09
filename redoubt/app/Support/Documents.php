@@ -107,6 +107,19 @@ final class Documents
     }
 
     /**
+     * Raster image types that are SAFE to render inline (no active content). SVG is
+     * deliberately excluded — it can carry script — and is only ever downloaded.
+     */
+    public const PREVIEW_MIME = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+
+    /** True when a document has a stored upload that is safe to show inline. */
+    public static function isPreviewable(array $row): bool
+    {
+        return !empty($row['stored_path'])
+            && in_array((string) ($row['mime_type'] ?? ''), self::PREVIEW_MIME, true);
+    }
+
+    /**
      * Absolute path of a document's stored upload, or null if it has none / the
      * file is missing. The stored name is forced to a basename so a tampered DB
      * value can never traverse outside the upload directory.
@@ -268,6 +281,7 @@ final class Documents
             'cui_marked'        => (bool) $r['cui_marked'],
             'web_url'           => $r['web_url'],
             'has_file'          => !empty($r['stored_path']),
+            'previewable'       => self::isPreviewable($r),
             'original_name'     => $r['original_name'] ?? null,
             'mime_type'         => $r['mime_type'] ?? null,
             'size_bytes'        => isset($r['size_bytes']) && $r['size_bytes'] !== null ? (int) $r['size_bytes'] : null,
