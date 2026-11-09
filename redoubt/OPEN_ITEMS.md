@@ -64,11 +64,16 @@ requirement.** The blockers below flow from these.
   on publish + audit (`Announcements`, `AnnouncementsController`, `app_announcements.php`).
 - **Documents module** (Annex H): `/app/documents` (register/edit/delete + zone filters),
   gated per zone through Authorize incl. the **US-person export gate** and **company
-  scoping**; `open()` re-authorizes before redirecting (defense-in-depth for CUI/ITAR);
+  scoping**; `open()` re-authorizes before serving (defense-in-depth for CUI/ITAR);
   `GET /api/v1/documents` (export-controlled excluded for API clients); Graph client
-  ready for live SharePoint resolve. Each document shows its own **approval state**
-  and can be **submitted for review** (links to the Review & Approval workflow,
-  gated by `review.submit` + document visibility) (`Documents`,
+  ready for live SharePoint resolve. Supports **direct file upload** (e.g. a diagram)
+  OR a SharePoint link: uploads are validated (extension allowlist + content-sniffed
+  MIME + 25&nbsp;MB cap), stored under a **randomized name outside the web root**, and
+  served only through the authorized download endpoint as an **attachment with
+  `nosniff`** (no inline execution); delete removes the blob. Each document shows its
+  own **approval state** and can be **submitted for review**, and carries a
+  **comment thread** usable from the read-only interface (anyone who can see the
+  document + holds `document.comment`) (`Documents`, `DocumentComments`,
   `DocumentsController`, `app_documents.php`).
 - **Review & Approval module**: `/app/reviews` — lifecycle **Concept → WIP →
   Approved** routed **author → peer (optional) → QA → exec authorization**, each
@@ -168,8 +173,8 @@ Jobs, Directory, Search).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
-- **Automated test suite** (zero-dependency): `php tests/run.php` — 187 checks
-  (15 authorization-engine logic + 164 live-DB assertions: modules, job targeting,
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 202 checks
+  (15 authorization-engine logic + 179 live-DB assertions: modules, job targeting,
   Settings/Branding sanitization, notification fan-out, review/approval workflow +
   its next-approver notifications, per-user review queue, and document↔review
   linkage, onboarding lifecycle, local auth, sample loader) via `tests/lib/T` +
@@ -233,7 +238,7 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 187 checks —
+  These checks are now a **repeatable suite** (`php tests/run.php`, 202 checks —
   incl. job targeting by company/contract/program-wide + filters, the
   review/approval workflow with next-approver notifications + per-user queue +
   document↔review linkage, and Settings/Branding persistence + sanitization)

@@ -24,7 +24,7 @@ final class Roles
         'program_admin'    => ['program.config', 'module.toggle', 'branding.manage', 'integration.config', 'audit.view', 'review.view', 'review.authorize'],
         'program_manager'  => [
             'announcement.view', 'announcement.create', 'announcement.edit', 'announcement.publish',
-            'document.view', 'document.create', 'document.edit', 'document.view.customer', 'document.view.contracts',
+            'document.view', 'document.create', 'document.edit', 'document.comment', 'document.view.customer', 'document.view.contracts',
             'taskorder.view', 'job.view', 'directory.view', 'audit.view',
             'milestone.view', 'milestone.manage',
             'access.view', 'access.request', 'access.grant', 'access.revoke', 'access.review',
@@ -32,18 +32,18 @@ final class Roles
         ],
         'content_manager'  => [
             'announcement.view', 'announcement.create', 'announcement.edit', 'announcement.publish',
-            'document.view', 'document.create', 'document.edit',
+            'document.view', 'document.create', 'document.edit', 'document.comment',
             'quicklink.manage', 'faq.manage', 'milestone.view', 'milestone.manage', 'contact.manage',
             'job.view', 'job.create', 'job.edit', 'job.publish', 'directory.view',
             'review.view', 'review.submit', 'review.peer', 'review.qa',
         ],
-        'contracts'        => ['announcement.view', 'document.view', 'document.create', 'document.edit', 'document.view.contracts', 'taskorder.view', 'taskorder.create', 'taskorder.edit', 'taskorder.publish', 'taskorder.approve', 'milestone.view', 'directory.view', 'review.view', 'review.submit', 'review.peer', 'review.qa'],
-        'finance'          => ['announcement.view', 'document.view', 'finance.view', 'taskorder.view', 'milestone.view', 'review.view', 'review.peer'],
+        'contracts'        => ['announcement.view', 'document.view', 'document.create', 'document.edit', 'document.comment', 'document.view.contracts', 'taskorder.view', 'taskorder.create', 'taskorder.edit', 'taskorder.publish', 'taskorder.approve', 'milestone.view', 'directory.view', 'review.view', 'review.submit', 'review.peer', 'review.qa'],
+        'finance'          => ['announcement.view', 'document.view', 'document.comment', 'finance.view', 'taskorder.view', 'milestone.view', 'review.view', 'review.peer'],
         'recruiting'       => ['announcement.view', 'job.view', 'job.create', 'job.edit', 'job.publish', 'directory.view', 'milestone.view'],
-        'internal_member'  => ['announcement.view', 'document.view', 'taskorder.view', 'job.view', 'directory.view', 'milestone.view', 'review.view', 'review.submit', 'review.peer'],
-        'sub_admin'        => ['announcement.view', 'document.view', 'taskorder.view', 'job.view', 'directory.view', 'company.roster.manage', 'access.request', 'milestone.view', 'review.view', 'review.submit'],
-        'sub_member'       => ['announcement.view', 'document.view', 'taskorder.view', 'job.view', 'directory.view', 'milestone.view', 'review.view', 'review.submit'],
-        'customer_cor'     => ['announcement.view.customer', 'document.view.customer'],
+        'internal_member'  => ['announcement.view', 'document.view', 'document.comment', 'taskorder.view', 'job.view', 'directory.view', 'milestone.view', 'review.view', 'review.submit', 'review.peer'],
+        'sub_admin'        => ['announcement.view', 'document.view', 'document.comment', 'taskorder.view', 'job.view', 'directory.view', 'company.roster.manage', 'access.request', 'milestone.view', 'review.view', 'review.submit'],
+        'sub_member'       => ['announcement.view', 'document.view', 'document.comment', 'taskorder.view', 'job.view', 'directory.view', 'milestone.view', 'review.view', 'review.submit'],
+        'customer_cor'     => ['announcement.view.customer', 'document.view.customer', 'document.comment'],
     ];
 
     /** @var array<string, string[]> coarse alias => granular keys */

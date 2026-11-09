@@ -113,6 +113,21 @@ final class Config
         return self::get('DIGEST_MAIL_SENDER'); // e.g. no-reply@agency.onmicrosoft.us
     }
 
+    // --- Document uploads ----------------------------------------------------
+    // Directory for portal-stored document uploads. MUST be outside the web root
+    // (files are served only through the authorized open endpoint, never directly).
+    // In production prefer a mounted volume or object storage; in CUI boundaries
+    // this is the authorized storage for portal-held content.
+
+    public static function uploadDir(): string
+    {
+        $dir = self::get('UPLOAD_DIR');
+        if ($dir === null || $dir === '') {
+            $dir = (defined('REDOUBT_ROOT') ? REDOUBT_ROOT : dirname(__DIR__, 2)) . '/storage/uploads';
+        }
+        return rtrim($dir, '/');
+    }
+
     /**
      * Entra SSO is OPTIONAL. When configured it's offered as an additional sign-in
      * method; the portal always supports built-in local email/password accounts so

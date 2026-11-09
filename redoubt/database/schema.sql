@@ -125,7 +125,28 @@ CREATE TABLE IF NOT EXISTS document_ref (
     sp_item_id    TEXT,                          -- SharePoint/Graph item id (for Graph resolve)
     web_url       TEXT,                          -- SharePoint web URL (direct-open fallback)
     title         TEXT,
+    -- Optional portal-stored upload (e.g. a diagram). Content lives outside the
+    -- web root; stored_path is a randomized filename, never the original name.
+    stored_path   TEXT,
+    original_name TEXT,
+    mime_type     TEXT,
+    size_bytes    BIGINT,
     updated_at    TIMESTAMPTZ
+);
+-- Idempotent migrations for databases created before uploads existed.
+ALTER TABLE document_ref ADD COLUMN IF NOT EXISTS stored_path   TEXT;
+ALTER TABLE document_ref ADD COLUMN IF NOT EXISTS original_name TEXT;
+ALTER TABLE document_ref ADD COLUMN IF NOT EXISTS mime_type     TEXT;
+ALTER TABLE document_ref ADD COLUMN IF NOT EXISTS size_bytes    BIGINT;
+
+-- Threaded discussion on a document, available from the read-only interface.
+CREATE TABLE IF NOT EXISTS document_comment (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    document_id BIGINT NOT NULL REFERENCES document_ref(id) ON DELETE CASCADE,
+    program_id  BIGINT NOT NULL REFERENCES program(id) ON DELETE CASCADE,
+    author_id   BIGINT REFERENCES app_user(id),
+    body        TEXT NOT NULL,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS task_order (
@@ -346,6 +367,7 @@ CREATE INDEX IF NOT EXISTS idx_review_action_item  ON review_action(item_id, at)
 CREATE INDEX IF NOT EXISTS idx_prog_member_user   ON program_membership(user_id);
 CREATE INDEX IF NOT EXISTS idx_announcement_prog  ON announcement(program_id);
 CREATE INDEX IF NOT EXISTS idx_docref_prog_zone   ON document_ref(program_id, zone);
+CREATE INDEX IF NOT EXISTS idx_doc_comment_doc    ON document_comment(document_id, id);
 CREATE INDEX IF NOT EXISTS idx_taskorder_prog     ON task_order(program_id);
 CREATE INDEX IF NOT EXISTS idx_job_prog           ON job_requisition(program_id);
 CREATE INDEX IF NOT EXISTS idx_audit_prog_at      ON audit_event(program_id, at);

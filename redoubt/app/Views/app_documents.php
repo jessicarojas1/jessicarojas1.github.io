@@ -69,16 +69,23 @@ $docFields = function (array $d = []) {
   <?php endforeach; ?>
 </div>
 
+<?php if (!empty($flash) && ($flash['type'] ?? '') === 'error'): ?>
+<div class="card" style="border-color:var(--risk)"><span class="badge b-risk">Upload rejected</span> <?= Security::h((string) $flash['text']) ?></div>
+<?php endif; ?>
+
 <?php if ($can['create']): ?>
 <div class="card">
   <details>
-    <summary style="cursor:pointer;font-weight:700">➕ Register document</summary>
-    <form method="post" action="/app/documents" style="margin-top:12px">
+    <summary style="cursor:pointer;font-weight:700">➕ Register / upload document</summary>
+    <form method="post" action="/app/documents" enctype="multipart/form-data" style="margin-top:12px">
       <?= Security::csrfField() ?>
       <input type="hidden" name="action" value="register">
       <input type="hidden" name="program_id" value="<?= (int) $programId ?>">
       <?= $docFields() ?>
-      <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Register</button></div>
+      <label>Upload a file (optional — e.g. a diagram; png, jpg, gif, webp, svg, pdf, txt, csv, drawio, vsdx, docx, xlsx, pptx; max 25&nbsp;MB)</label>
+      <input type="file" name="file" accept=".png,.jpg,.jpeg,.gif,.webp,.svg,.pdf,.txt,.csv,.drawio,.vsdx,.docx,.xlsx,.pptx">
+      <p class="perm-key" style="margin:6px 0 0">Field reference: <strong>file</strong> — a single uploaded file stored in the portal. Leave blank to register a SharePoint link only. Stored outside the web root under a randomized name; served only through the authorized download endpoint.</p>
+      <div style="margin-top:12px"><button class="btn btn-primary" type="submit">Register / upload</button></div>
     </form>
   </details>
 </div>
@@ -91,10 +98,13 @@ $docFields = function (array $d = []) {
     <div class="tablewrap"><table>
       <thead><tr><th>Title</th><th>Zone</th><th>Markings</th><th>Review</th><th style="width:1%">Actions</th></tr></thead>
       <tbody>
-      <?php foreach ($items as $d): ?>
-        <tr>
+      <?php foreach ($items as $d): $cmts = $comments[$d['id']] ?? []; ?>
+        <tr id="doc-<?= (int) $d['id'] ?>">
           <td>
             <strong><?= Security::h($d['title'] ?: '(untitled)') ?></strong>
+            <?php if (!empty($d['has_file'])): ?>
+              <div class="perm-key">📎 <?= Security::h((string) ($d['original_name'] ?? 'file')) ?><?php if (!empty($d['size_bytes'])): ?> · <?= (int) ceil($d['size_bytes'] / 1024) ?> KB<?php endif; ?></div>
+            <?php endif; ?>
             <?php if ($d['company_scope']): ?><div class="perm-key">companies: <?= Security::h(implode(', ', $d['company_scope'])) ?></div><?php endif; ?>
           </td>
           <td><span class="badge b-muted"><?= Security::h($zoneLabels[$d['zone']] ?? $d['zone']) ?></span></td>
@@ -134,7 +144,8 @@ $docFields = function (array $d = []) {
           </td>
           <td>
             <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <?php if ($d['web_url']): ?><a class="btn btn-sm btn-primary" href="/app/documents/open?program_id=<?= (int) $programId ?>&amp;id=<?= (int) $d['id'] ?>">Open</a><?php endif; ?>
+              <?php if (!empty($d['has_file'])): ?><a class="btn btn-sm btn-primary" href="/app/documents/open?program_id=<?= (int) $programId ?>&amp;id=<?= (int) $d['id'] ?>">Download</a>
+              <?php elseif ($d['web_url']): ?><a class="btn btn-sm btn-primary" href="/app/documents/open?program_id=<?= (int) $programId ?>&amp;id=<?= (int) $d['id'] ?>">Open</a><?php endif; ?>
               <?php if ($can['edit']): ?>
                 <form method="post" action="/app/documents">
                   <?= Security::csrfField() ?>
@@ -162,6 +173,30 @@ $docFields = function (array $d = []) {
           </details>
         </td></tr>
         <?php endif; ?>
+        <tr><td colspan="5" style="padding-top:0">
+          <details<?= $cmts !== [] ? ' open' : '' ?>>
+            <summary style="cursor:pointer;color:var(--muted);font-size:12.5px">💬 Comments (<?= count($cmts) ?>)</summary>
+            <div style="margin-top:8px">
+              <?php if ($cmts === []): ?><div class="empty-state-sm">No comments yet.</div><?php endif; ?>
+              <?php foreach ($cmts as $c): ?>
+                <div class="feed-row" style="padding:6px 0;align-items:flex-start">
+                  <span class="perm-key" style="width:150px;flex:0 0 auto"><strong><?= Security::h($c['author']) ?></strong><br><?= Security::h($c['at']) ?></span>
+                  <span class="feed-title" style="white-space:pre-wrap"><?= Security::h($c['body']) ?></span>
+                </div>
+              <?php endforeach; ?>
+              <?php if (!empty($can['comment'])): ?>
+                <form method="post" action="/app/documents" style="margin-top:8px;display:flex;gap:8px;align-items:flex-end">
+                  <?= Security::csrfField() ?>
+                  <input type="hidden" name="action" value="comment">
+                  <input type="hidden" name="program_id" value="<?= (int) $programId ?>">
+                  <input type="hidden" name="id" value="<?= (int) $d['id'] ?>">
+                  <div style="flex:1"><label style="font-size:12px">Add a comment</label><textarea name="body" rows="2" maxlength="4000" required placeholder="Share a note or question about this document…"></textarea></div>
+                  <button class="btn btn-sm btn-primary" type="submit">Comment</button>
+                </form>
+              <?php endif; ?>
+            </div>
+          </details>
+        </td></tr>
       <?php endforeach; ?>
       </tbody>
     </table></div>

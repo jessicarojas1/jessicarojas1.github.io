@@ -48,6 +48,15 @@ GCC High endpoints (`login.microsoftonline.us`, `graph.microsoft.us`,
   inferred client-side.
 - Data taxonomy: portal-owned · authoritative SoR (never copied) · linked ·
   embedded (live perms) · replicated (avoided).
+- **Document uploads:** portal-held attachments (e.g. diagrams) are validated by
+  an extension allowlist **and** a content-sniffed MIME that must match the
+  extension, capped at 25 MB, and stored under a **randomized filename outside the
+  web root** (never the original name, defeating path traversal). They are served
+  only through the authorized `open()` endpoint — which re-checks zone, company
+  scope, and the US-person export gate — as an **`attachment` with
+  `X-Content-Type-Options: nosniff`**, so active content (e.g. SVG) cannot execute
+  inline. Deletion removes the stored blob. Prefer SharePoint links for large or
+  authoritative artifacts so the portal does not become a shadow copy.
 
 ## Auditability
 

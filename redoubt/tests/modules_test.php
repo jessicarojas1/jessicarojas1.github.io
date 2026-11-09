@@ -30,6 +30,7 @@ use Redoubt\Support\AccessRequests;
 use Redoubt\Support\Auth;
 use Redoubt\Support\Sample;
 use Redoubt\Support\Digest;
+use Redoubt\Support\DocumentComments;
 
 /** Database-backed module tests (skipped unless a throwaway test DB is provided). */
 
@@ -79,6 +80,46 @@ T::ok('canSee ITAR: non-US denied', !Documents::canSee($nina, $itar, $pid));
 T::ok('canSee ITAR: US allowed', Documents::canSee($sam, $itar, $pid));
 T::eq('resolveOpenUrl falls back to web_url', 'https://x/c', Documents::resolveOpenUrl($itar));
 T::eq('API-client doc view excludes export-controlled', 0, count(array_filter(Documents::listForApiClient($pid), static fn ($d) => $d['export_controlled'])));
+
+// Document uploads (store/validate) + comments (non-edit discussion)
+T::group('Document uploads & comments (live DB)');
+$updir = sys_get_temp_dir() . '/redoubt_upl_' . getmypid();
+putenv('UPLOAD_DIR=' . $updir);
+$pngBytes = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+$mkTmp = static function (string $bytes): string { $t = tempnam(sys_get_temp_dir(), 'upl'); file_put_contents($t, $bytes); return $t; };
+$meta = Documents::storeUpload(['name' => 'diagram.png', 'type' => 'image/png', 'tmp_name' => $mkTmp($pngBytes), 'error' => 0, 'size' => strlen($pngBytes)]);
+T::eq('upload keeps the original name', 'diagram.png', $meta['original_name']);
+T::eq('upload content-sniffs the MIME', 'image/png', $meta['mime_type']);
+T::ok('upload stores under a random name', preg_match('/^[0-9a-f]{32}\.png$/', $meta['stored_path']) === 1);
+T::ok('stored blob exists on disk', is_file($updir . '/' . $meta['stored_path']));
+$docUp = Documents::register($pid, ['title' => 'Architecture Diagram', 'zone' => 'project'] + $meta, $ids['pm']);
+$rowUp = Documents::get($docUp, $pid);
+T::ok('registered doc records the stored path', !empty($rowUp['stored_path']));
+T::ok('storedFilePath resolves the blob', Documents::storedFilePath($rowUp) !== null);
+$hUp = array_values(array_filter(Documents::listForUser($pm, $pid), static fn ($x) => $x['id'] === $docUp))[0] ?? [];
+T::ok('hydrate exposes has_file', !empty($hUp['has_file']));
+T::eq('hydrate exposes the original name', 'diagram.png', $hUp['original_name'] ?? null);
+$rejExt = false;
+try { Documents::storeUpload(['name' => 'evil.exe', 'tmp_name' => $mkTmp('MZbinary'), 'error' => 0, 'size' => 8]); } catch (\Throwable $e) { $rejExt = true; }
+T::ok('upload rejects a disallowed extension', $rejExt);
+$rejMime = false;
+try { Documents::storeUpload(['name' => 'fake.png', 'tmp_name' => $mkTmp('this is plain text, not a png'), 'error' => 0, 'size' => 28]); } catch (\Throwable $e) { $rejMime = true; }
+T::ok('upload rejects content/extension mismatch', $rejMime);
+$blobPath = $updir . '/' . $meta['stored_path'];
+Documents::delete($docUp, $pid, $ids['pm']);
+T::ok('delete removes the stored blob', !is_file($blobPath));
+putenv('UPLOAD_DIR');
+
+$doc0 = (int) Db::fetchOne("SELECT id FROM document_ref WHERE title='Falcon overview' AND program_id=:p", ['p' => $pid])['id'];
+DocumentComments::add($doc0, $pid, $ids['sam'], 'Looks good — one question on section 2.');
+DocumentComments::add($doc0, $pid, $ids['pm'], 'Answered inline, thanks.');
+$byDoc = DocumentComments::forDocuments([$doc0], $pid);
+T::eq('both comments stored for the document', 2, count($byDoc[$doc0] ?? []));
+T::eq('comments are oldest-first with body', 'Looks good — one question on section 2.', $byDoc[$doc0][0]['body'] ?? null);
+T::ok('sub_member holds document.comment by default', Authorize::can($sam, 'document.comment', ['program_id' => $pid]));
+$emptyRej = false;
+try { DocumentComments::add($doc0, $pid, $ids['pm'], '   '); } catch (\Throwable $e) { $emptyRej = true; }
+T::ok('empty comment is rejected', $emptyRej);
 
 // Task Orders scoping + award webhook
 T::eq('PM sees both TOs', 2, count(TaskOrders::listForUser($pm, $pid)));

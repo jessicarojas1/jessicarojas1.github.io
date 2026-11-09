@@ -9,8 +9,10 @@ use Redoubt\Support\Auth;
 use Redoubt\Support\Authorize;
 use Redoubt\Support\Db;
 use Redoubt\Support\Documents;
+use Redoubt\Support\DocumentComments;
 use Redoubt\Support\ReviewWorkflow;
 use Redoubt\Support\Security;
+use Throwable;
 
 /**
  * Documents module (Annex H). Lists SharePoint-backed document references,
@@ -43,12 +45,17 @@ final class DocumentsController
         $zone = isset($_GET['zone']) && in_array($_GET['zone'], Documents::ZONES, true) ? $_GET['zone'] : null;
         $items = Documents::listForUser($user, $programId, $zone);
         $can = [
-            'create' => Authorize::can($user, 'document.create', ['program_id' => $programId]),
-            'edit'   => Authorize::can($user, 'document.edit', ['program_id' => $programId]),
-            'review' => Authorize::can($user, 'review.submit', ['program_id' => $programId]),
+            'create'  => Authorize::can($user, 'document.create', ['program_id' => $programId]),
+            'edit'    => Authorize::can($user, 'document.edit', ['program_id' => $programId]),
+            'review'  => Authorize::can($user, 'review.submit', ['program_id' => $programId]),
+            'comment' => Authorize::can($user, 'document.comment', ['program_id' => $programId]),
         ];
+        $docIds = array_column($items, 'id');
         // Each document's own approval state (latest linked review item, if any).
-        $reviewStatus = ReviewWorkflow::statusForDocuments(array_column($items, 'id'), $programId);
+        $reviewStatus = ReviewWorkflow::statusForDocuments($docIds, $programId);
+        // Read-only discussion threads (one query for the page).
+        $comments = DocumentComments::forDocuments($docIds, $programId);
+        $flash = isset($_GET['err']) ? ['type' => 'error', 'text' => (string) $_GET['err']] : null;
         $csrf = Security::csrfToken();
         $NONCE = $nonce;
         require dirname(__DIR__) . '/Views/app_documents.php';
@@ -71,8 +78,36 @@ final class DocumentsController
         switch ($action) {
             case 'register':
                 Authorize::requirePermission($user, 'document.create', ['program_id' => $programId]);
-                Documents::register($programId, self::formData(), $actorId);
+                $data = self::formData();
+                // Optional file upload (e.g. a diagram). Validated + stored server-side.
+                $file = $_FILES['file'] ?? null;
+                if (is_array($file) && (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                    try {
+                        $data = array_merge($data, Documents::storeUpload($file));
+                        if ($data['title'] === '' || $data['title'] === null) {
+                            $data['title'] = $data['original_name'];
+                        }
+                    } catch (Throwable $e) {
+                        header('Location: /app/documents?program_id=' . $programId . '&err=' . rawurlencode($e->getMessage()));
+                        return;
+                    }
+                }
+                Documents::register($programId, $data, $actorId);
                 break;
+            case 'comment':
+                $id = (int) ($_POST['id'] ?? 0);
+                $row = Documents::get($id, $programId);
+                if ($row === null || !Documents::canSee($user, $row, $programId)
+                    || !Authorize::can($user, 'document.comment', ['program_id' => $programId])) {
+                    self::plain(403, '403 Forbidden — you cannot comment on this document.');
+                    return;
+                }
+                $body = trim((string) ($_POST['body'] ?? ''));
+                if ($body !== '') {
+                    DocumentComments::add($id, $programId, $actorId, $body);
+                }
+                header('Location: /app/documents?program_id=' . $programId . '#doc-' . $id);
+                return;
             case 'update':
                 Authorize::requirePermission($user, 'document.edit', ['program_id' => $programId]);
                 Documents::update($id, $programId, self::formData(), $actorId);
@@ -123,6 +158,14 @@ final class DocumentsController
             self::plain(403, '403 Forbidden.');
             return;
         }
+        // Portal-stored upload: stream it (already authorized). Served as an
+        // attachment with nosniff so active content (e.g. SVG) can't execute inline.
+        $path = Documents::storedFilePath($row);
+        if ($path !== null) {
+            Audit::log('document.open', 'document#' . $id, $programId, $user['id'] ?? null);
+            self::streamFile($path, (string) ($row['original_name'] ?? 'document'), (string) ($row['mime_type'] ?? 'application/octet-stream'));
+            return;
+        }
         $url = Documents::resolveOpenUrl($row);
         if ($url === null) {
             self::plain(404, 'No document link available.');
@@ -130,6 +173,22 @@ final class DocumentsController
         }
         Audit::log('document.open', 'document#' . $id, $programId, $user['id'] ?? null);
         header('Location: ' . $url);
+    }
+
+    /** Stream a portal-stored file as a download. Caller MUST have authorized. */
+    private static function streamFile(string $path, string $downloadName, string $mime): void
+    {
+        // Harden the Content-Disposition filename against header injection.
+        $safeName = preg_replace('/[^A-Za-z0-9._ -]/', '_', $downloadName) ?: 'document';
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        header('Content-Type: ' . $mime);
+        header('X-Content-Type-Options: nosniff');
+        header('Content-Disposition: attachment; filename="' . $safeName . '"');
+        header('Content-Length: ' . (string) (filesize($path) ?: 0));
+        header('Cache-Control: private, no-store');
+        readfile($path);
     }
 
     /** @return array<string,mixed> */

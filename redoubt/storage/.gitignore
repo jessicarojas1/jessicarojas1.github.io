@@ -1,0 +1,6 @@
+# Portal-stored uploads (document attachments) live here by default
+# (Config::uploadDir / UPLOAD_DIR). Never commit uploaded content — keep the
+# directory, ignore everything in it. In production prefer a mounted volume or
+# object storage outside the repo.
+*
+!.gitignore
