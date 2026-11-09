@@ -77,4 +77,43 @@ final class DocumentComments
         Audit::log('document.comment', 'document#' . $docId, $programId, $authorId);
         return $id;
     }
+
+    /**
+     * Notify the other participants in a document's comment thread that a new
+     * comment landed. Recipients are the distinct prior commenters on that document
+     * (the conversation), minus the actor, and only those who can STILL see the
+     * document — Documents::canSee re-applies zone, company scope, and the
+     * US-person export gate, so a comment notification never leaks a document to
+     * someone whose access has since changed. Returns the number notified.
+     *
+     * @param array<string,mixed> $docRow a raw document_ref row (from Documents::get)
+     */
+    public static function notifyParticipants(array $docRow, int $programId, ?int $actorId): int
+    {
+        if (!Db::isConfigured()) {
+            return 0;
+        }
+        $docId = (int) ($docRow['id'] ?? 0);
+        if ($docId <= 0) {
+            return 0;
+        }
+        $priorIds = array_map(
+            static fn ($r) => (int) $r['author_id'],
+            Db::fetchAll('SELECT DISTINCT author_id FROM document_comment WHERE document_id = :d AND author_id IS NOT NULL', ['d' => $docId])
+        );
+        if ($priorIds === []) {
+            return 0;
+        }
+        $title = (string) ($docRow['title'] ?? 'a document');
+        $url = '/app/documents?program_id=' . $programId . '#doc-' . $docId;
+        return Notifications::fanOut(
+            $programId,
+            $actorId,
+            'document.comment',
+            'New comment on: ' . $title,
+            $url,
+            static fn (array $m): bool => in_array((int) $m['id'], $priorIds, true)
+                && Documents::canSee($m, $docRow, $programId)
+        );
+    }
 }

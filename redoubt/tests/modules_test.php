@@ -124,6 +124,13 @@ T::ok('sub_member holds document.comment by default', Authorize::can($sam, 'docu
 $emptyRej = false;
 try { DocumentComments::add($doc0, $pid, $ids['pm'], '   '); } catch (\Throwable $e) { $emptyRej = true; }
 T::ok('empty comment is rejected', $emptyRej);
+// A new comment notifies the OTHER thread participants (not the author), gated by canSee.
+$docRow0 = Documents::get($doc0, $pid);
+Notifications::markAllRead($ids['sam']);
+$notified = DocumentComments::notifyParticipants($docRow0, $pid, $ids['pm']);   // sam is a prior participant
+T::ok('comment notifies other thread participants', $notified >= 1);
+T::ok('participant receives the comment notice', in_array('New comment on: Falcon overview', array_map(static fn ($n) => $n['title'], Notifications::listFor($ids['sam'])), true));
+T::ok('comment author is not self-notified', !in_array('New comment on: Falcon overview', array_map(static fn ($n) => $n['title'], Notifications::listFor($ids['pm'])), true));
 
 // Task Orders scoping + award webhook
 T::eq('PM sees both TOs', 2, count(TaskOrders::listForUser($pm, $pid)));

@@ -76,7 +76,7 @@ requirement.** The blockers below flow from these.
   Office/PDF are never rendered inline (they fall back to download). Each document shows its
   own **approval state** and can be **submitted for review**, and carries a
   **comment thread** usable from the read-only interface (anyone who can see the
-  document + holds `document.comment`) (`Documents`, `DocumentComments`,
+  document + holds `document.comment`); a new comment notifies the other thread participants who can still see the document, which also surfaces in their digest (`Documents`, `DocumentComments`,
   `DocumentsController`, `app_documents.php`).
 - **Review & Approval module**: `/app/reviews` — lifecycle **Concept → WIP →
   Approved** routed **author → peer (optional) → QA → exec authorization**, each
@@ -176,8 +176,8 @@ Jobs, Directory, Search).
 - **Content Administration console** (§15): `/app/admin/content` — one hub that
   aggregates only the content types the user may author, with visible counts and
   quick links; grants no authority of its own (`ContentAdminController`).
-- **Automated test suite** (zero-dependency): `php tests/run.php` — 206 checks
-  (15 authorization-engine logic + 183 live-DB assertions: modules, job targeting,
+- **Automated test suite** (zero-dependency): `php tests/run.php` — 209 checks
+  (15 authorization-engine logic + 186 live-DB assertions: modules, job targeting,
   Settings/Branding sanitization, notification fan-out, review/approval workflow +
   its next-approver notifications, per-user review queue, and document↔review
   linkage, onboarding lifecycle, local auth, sample loader) via `tests/lib/T` +
@@ -241,7 +241,7 @@ Jobs, Directory, Search).
   webhook. **Jobs + Directory + Search: 13/13** against a live DB — draft→open +
   `job.posted` webhook, visibility-trimmed directory, and **permission-trimmed
   search that does not leak the ITAR doc to a non-US person**. Bugs caught & fixed
-  These checks are now a **repeatable suite** (`php tests/run.php`, 206 checks —
+  These checks are now a **repeatable suite** (`php tests/run.php`, 209 checks —
   incl. job targeting by company/contract/program-wide + filters, the
   review/approval workflow with next-approver notifications + per-user queue +
   document↔review linkage, and Settings/Branding persistence + sanitization)

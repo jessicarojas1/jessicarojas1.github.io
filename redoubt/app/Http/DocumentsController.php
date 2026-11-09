@@ -105,6 +105,7 @@ final class DocumentsController
                 $body = trim((string) ($_POST['body'] ?? ''));
                 if ($body !== '') {
                     DocumentComments::add($id, $programId, $actorId, $body);
+                    DocumentComments::notifyParticipants($row, $programId, $actorId);
                 }
                 header('Location: /app/documents?program_id=' . $programId . '#doc-' . $id);
                 return;
