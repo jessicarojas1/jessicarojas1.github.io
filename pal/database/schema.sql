@@ -455,6 +455,8 @@ ALTER TABLE app_user ADD CONSTRAINT ck_app_user_identity CHECK (
 ALTER TABLE app_user DROP CONSTRAINT IF EXISTS ck_app_user_username;
 ALTER TABLE app_user ADD CONSTRAINT ck_app_user_username CHECK (username IS NULL OR username ~ '^[a-z0-9][a-z0-9._-]{2,63}$');
 CREATE UNIQUE INDEX IF NOT EXISTS uq_app_user_username ON app_user (username) WHERE username IS NOT NULL;
+-- Supports the ordered user-administration listing (ORDER BY display_name under a LIMIT).
+CREATE INDEX IF NOT EXISTS idx_app_user_display_name ON app_user (display_name);
 
 CREATE TABLE IF NOT EXISTS local_credential (
     user_id             uuid PRIMARY KEY REFERENCES app_user (id),
@@ -474,5 +476,7 @@ CREATE TABLE IF NOT EXISTS user_role (
     granted_by uuid NULL REFERENCES app_user (id),
     granted_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, role),
-    CONSTRAINT ck_user_role_role CHECK (role IN ('SYSTEM_ADMINISTRATOR', 'PAL_ADMINISTRATOR', 'PUBLISHER', 'AUTHOR'))
+    -- OWNER (superuser) is an explicit grant only; it is intentionally absent from
+    -- ck_global_role_mapping_role so a directory group can never confer god mode.
+    CONSTRAINT ck_user_role_role CHECK (role IN ('OWNER', 'SYSTEM_ADMINISTRATOR', 'PAL_ADMINISTRATOR', 'PUBLISHER', 'AUTHOR'))
 );

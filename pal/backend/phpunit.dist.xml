@@ -29,6 +29,7 @@
         <env name="OIDC_CLIENT_KEY_PATH" value="" />
         <env name="GRAPH_BASE_URL" value="https://graph.microsoft.com/v1.0" />
         <env name="PAL_BOOTSTRAP_ADMIN_OIDS" value="99999999-9999-4999-8999-999999999999" />
+        <env name="PAL_BOOTSTRAP_OWNER_OIDS" value="88888888-8888-4888-8888-888888888888" />
         <env name="PAL_BLOB_DIR" value="var/test-blobs" />
         <env name="PAL_MAX_UPLOAD_BYTES" value="1048576" />
         <env name="PAL_CLAMD_ADDRESS" value="" />

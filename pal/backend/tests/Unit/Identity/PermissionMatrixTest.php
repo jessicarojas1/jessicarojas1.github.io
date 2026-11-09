@@ -21,6 +21,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 final class PermissionMatrixTest extends TestCase
 {
     private const EXPECTED = [
+        // Owner (superuser) holds every permission by definition.
+        'OWNER' => Permission::ALL,
         'READER' => [Permission::LIBRARY_READ],
         'AUTHOR' => [Permission::DOCUMENT_CREATE],
         'PUBLISHER' => [Permission::PUBLICATION_RELEASE, Permission::PUBLICATION_SCHEDULE],

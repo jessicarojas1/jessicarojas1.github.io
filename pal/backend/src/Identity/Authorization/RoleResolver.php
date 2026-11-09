@@ -10,21 +10,35 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Current global roles of a user: Reader for everyone, plus roles mapped to the
- * directory groups they currently belong to, plus the bootstrap administrator list.
+ * directory groups they currently belong to, plus the bootstrap administrator and
+ * bootstrap owner lists.
  */
 final class RoleResolver
 {
     /** @var list<string> */
     private readonly array $bootstrapAdminObjectIds;
+    /** @var list<string> */
+    private readonly array $bootstrapOwnerObjectIds;
 
     public function __construct(
         private readonly Connection $connection,
         #[Autowire(env: 'PAL_BOOTSTRAP_ADMIN_OIDS')]
         string $bootstrapAdminObjectIds,
+        #[Autowire(env: 'default::PAL_BOOTSTRAP_OWNER_OIDS')]
+        string $bootstrapOwnerObjectIds = '',
     ) {
-        $this->bootstrapAdminObjectIds = array_values(array_filter(array_map(
+        $this->bootstrapAdminObjectIds = self::parseObjectIds($bootstrapAdminObjectIds);
+        $this->bootstrapOwnerObjectIds = self::parseObjectIds($bootstrapOwnerObjectIds);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function parseObjectIds(string $raw): array
+    {
+        return array_values(array_filter(array_map(
             fn (string $id): string => strtolower(trim($id)),
-            explode(',', $bootstrapAdminObjectIds),
+            explode(',', $raw),
         )));
     }
 
@@ -49,8 +63,16 @@ final class RoleResolver
                 $roles[] = $role;
             }
         }
-        if (null !== $objectId && \in_array(strtolower($objectId), $this->bootstrapAdminObjectIds, true) && !\in_array(GlobalRole::SystemAdministrator, $roles, true)) {
-            $roles[] = GlobalRole::SystemAdministrator;
+        if (null !== $objectId) {
+            $normalisedObjectId = strtolower($objectId);
+            if (\in_array($normalisedObjectId, $this->bootstrapAdminObjectIds, true) && !\in_array(GlobalRole::SystemAdministrator, $roles, true)) {
+                $roles[] = GlobalRole::SystemAdministrator;
+            }
+            // The Entra root of trust: designated object IDs are Owners (god mode) until an
+            // Owner is granted in-app. Mirrors the local bootstrap Owner for SSO deployments.
+            if (\in_array($normalisedObjectId, $this->bootstrapOwnerObjectIds, true) && !\in_array(GlobalRole::Owner, $roles, true)) {
+                $roles[] = GlobalRole::Owner;
+            }
         }
 
         return $roles;

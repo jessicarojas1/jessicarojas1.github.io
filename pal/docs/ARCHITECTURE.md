@@ -135,7 +135,7 @@ Allowed dependencies (`deptrac.yaml`): Platform → Audit, Identity (only so the
 | DELETE | `/api/admin/role-mappings/{id}` | `admin.roles` + CSRF | Removes a mapping |
 | GET | `/api/admin/users` | `admin.users` | Lists users with sign-in method, lock state, explicit and group-inherited roles (`?q=`, max 500) |
 | POST | `/api/admin/users` | `admin.users` + CSRF | Creates a local account; returns a temporary password once. 403 `role_escalation_forbidden` when giving a document-authority role without holding `PAL_ADMINISTRATOR` |
-| PUT | `/api/admin/users/{id}/roles` | `admin.users` + CSRF | Replaces explicit roles. 403 `self_grant_forbidden` / `role_escalation_forbidden`; 409 `last_administrator` |
+| PUT | `/api/admin/users/{id}/roles` | `admin.users` + CSRF | Replaces explicit roles. 403 `self_grant_forbidden` / `role_escalation_forbidden` / `owner_grant_forbidden` (only an `OWNER` may grant or revoke the `OWNER` superuser role); 409 `last_administrator` |
 | PUT | `/api/admin/users/{id}/active` | `admin.users` + CSRF | Activates/deactivates. 409 `cannot_deactivate_self` / `last_administrator` |
 | POST | `/api/admin/users/{id}/reset-password` | `admin.users` + CSRF | New temporary password, returned once. 403 `role_escalation_forbidden` when the account holds a document-authority role and the caller does not hold `PAL_ADMINISTRATOR` |
 | GET | `/api/users?q=` | Authenticated | People picker: active users' names and emails (min 2 characters, max 20 results) |

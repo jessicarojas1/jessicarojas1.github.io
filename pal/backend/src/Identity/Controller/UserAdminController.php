@@ -64,7 +64,7 @@ final class UserAdminController
             'roles' => array_map(fn (GlobalRole $r): array => [
                 'value' => $r->value,
                 'permissions' => RolePermissionMap::permissionsFor([$r]),
-            ], array_values(array_filter(GlobalRole::cases(), fn (GlobalRole $r): bool => $r->isMappable()))),
+            ], array_values(array_filter(GlobalRole::cases(), fn (GlobalRole $r): bool => $r->isAssignable()))),
             'users' => array_map(fn (array $r): array => [
                 'id' => Row::string($r, 'id'),
                 'displayName' => Row::string($r, 'display_name'),
@@ -86,6 +86,8 @@ final class UserAdminController
     {
         $body = JsonBody::decode($request);
         $roles = $this->parseRoles($body['roles'] ?? []);
+        // Only an Owner may create another Owner (god mode is conferred solely by god mode).
+        $this->assertOwnerGrant($admin, $roles);
         // The new account's temporary password is shown to this administrator, so they could act as it.
         $this->assertNoEscalation($admin, $roles);
         $created = $this->accounts->create(
@@ -111,8 +113,15 @@ final class UserAdminController
             $after = array_map(fn (GlobalRole $r): string => $r->value, $roles);
             sort($after);
             $added = array_values(array_diff($after, $before));
-            // Separation of duties: nobody grants themselves document authority.
-            if ($id === $admin->id) {
+            $removed = array_values(array_diff($before, $after));
+            // Only an Owner may grant or revoke the Owner role (god mode manages god mode); a
+            // lesser administrator can neither create an Owner nor strip an existing one.
+            if ((\in_array(GlobalRole::Owner->value, $added, true) || \in_array(GlobalRole::Owner->value, $removed, true)) && !$admin->hasRole(GlobalRole::Owner)) {
+                throw new ApiProblem(403, 'owner_grant_forbidden', 'Only an Owner can grant or revoke the Owner role.');
+            }
+            // Separation of duties: nobody grants themselves document authority. An Owner is
+            // already god mode, so the self-grant rule does not constrain them.
+            if ($id === $admin->id && !$admin->hasRole(GlobalRole::Owner)) {
                 foreach ($added as $value) {
                     if (GlobalRole::from($value)->hasDocumentAuthority()) {
                         throw new ApiProblem(403, 'self_grant_forbidden', 'Another administrator must grant you a role with document authority.');
@@ -174,13 +183,27 @@ final class UserAdminController
      */
     private function assertNoEscalation(PalUser $admin, array $roles): void
     {
-        if ($admin->hasRole(GlobalRole::PalAdministrator)) {
+        if ($admin->hasRole(GlobalRole::Owner) || $admin->hasRole(GlobalRole::PalAdministrator)) {
             return;
         }
         foreach ($roles as $role) {
             if ($role->hasDocumentAuthority()) {
                 throw new ApiProblem(403, 'role_escalation_forbidden', 'Only a PAL Administrator can give a role with document authority, or reset the password of an account that has one.');
             }
+        }
+    }
+
+    /**
+     * God mode is conferred only by god mode: a request that grants the Owner role is refused
+     * unless the acting administrator is themselves an Owner. This runs before the general
+     * escalation check, which an Owner (and a PAL Administrator) would otherwise satisfy.
+     *
+     * @param list<GlobalRole> $roles
+     */
+    private function assertOwnerGrant(PalUser $admin, array $roles): void
+    {
+        if (\in_array(GlobalRole::Owner, $roles, true) && !$admin->hasRole(GlobalRole::Owner)) {
+            throw new ApiProblem(403, 'owner_grant_forbidden', 'Only an Owner can grant or revoke the Owner role.');
         }
     }
 
@@ -202,19 +225,24 @@ final class UserAdminController
         return array_values(array_filter(array_map(GlobalRole::tryFrom(...), $values)));
     }
 
-    /** Refuses (and so rolls back) a change that would leave no active System Administrator. */
+    /**
+     * Refuses (and so rolls back) a change that would leave no active administrator. An Owner
+     * (god mode) counts: it holds every System Administrator permission, so the system still
+     * has someone who can administer it. Owner is an explicit grant only, so the directory-group
+     * branch considers System Administrator alone.
+     */
     private function assertAdministratorRemains(): void
     {
         $remains = $this->connection->fetchOne(<<<'SQL'
             SELECT count(*) > 0 FROM app_user u
             WHERE u.is_active AND (
-                EXISTS (SELECT 1 FROM user_role ur WHERE ur.user_id = u.id AND ur.role = :role)
+                EXISTS (SELECT 1 FROM user_role ur WHERE ur.user_id = u.id AND ur.role IN (:sysadmin, :owner))
                 OR EXISTS (SELECT 1 FROM global_role_mapping m
                            JOIN group_membership gm ON gm.group_id = m.group_id AND gm.valid_to IS NULL
-                           WHERE gm.user_id = u.id AND m.role = :role))
-            SQL, ['role' => GlobalRole::SystemAdministrator->value]);
+                           WHERE gm.user_id = u.id AND m.role = :sysadmin))
+            SQL, ['sysadmin' => GlobalRole::SystemAdministrator->value, 'owner' => GlobalRole::Owner->value]);
         if (true !== $remains) {
-            throw new ApiProblem(409, 'last_administrator', 'At least one active System Administrator must remain.');
+            throw new ApiProblem(409, 'last_administrator', 'At least one active System Administrator or Owner must remain.');
         }
     }
 
@@ -229,7 +257,7 @@ final class UserAdminController
         $roles = [];
         foreach ($input as $value) {
             $role = \is_string($value) ? GlobalRole::tryFrom($value) : null;
-            if (null === $role || !$role->isMappable()) {
+            if (null === $role || !$role->isAssignable()) {
                 throw ApiProblem::validation(['roles' => 'Unknown role.']);
             }
             $roles[$role->value] = $role;

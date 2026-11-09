@@ -378,7 +378,8 @@ final class LocalSignInTest extends WebTestCase
             $db = self::getContainer()->get(Connection::class);
             self::assertSame(1, (int) $db->fetchOne("SELECT count(*) FROM app_user WHERE source = 'LOCAL'"));
             self::assertTrue((bool) $db->fetchOne('SELECT must_change FROM local_credential'));
-            self::assertEqualsCanonicalizing(['SYSTEM_ADMINISTRATOR', 'PAL_ADMINISTRATOR'], $db->fetchFirstColumn('SELECT role FROM user_role'));
+            // The bootstrap account is the Owner (superuser): the account's root of trust.
+            self::assertEqualsCanonicalizing(['OWNER'], $db->fetchFirstColumn('SELECT role FROM user_role'));
         } finally {
             unset($_ENV['PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME'], $_SERVER['PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME'], $_ENV['PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD'], $_SERVER['PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD']);
         }

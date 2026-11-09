@@ -20,7 +20,7 @@ One document can now go through its whole life, thinly: create, upload, submit, 
 ### What Phase 1 delivers
 - **Sign-in with Entra ID** via a backend-for-frontend: authorization code + PKCE, state, nonce, RS256 ID-token validation, server-side PostgreSQL sessions, and no tokens in the browser.
 - **Read-only Microsoft Graph sync** of the directory groups PAL uses, with membership history. Global roles are mapped to groups.
-- **Granular, server-enforced permissions** with separation of duties: a System Administrator has no authority over documents.
+- **Granular, server-enforced permissions** with separation of duties: a System Administrator has no authority over documents. An **Owner** (superuser / god mode) role is available as the account's root of trust — granted only by another Owner, never through a directory group, and fully audited.
 - **Append-only, hash-chained audit trail**: database triggers, least-privilege database roles, a chain verifier and an external anchor.
 - **Health and readiness endpoints**, request correlation IDs, a JSON error contract, security headers, rate limits and a Host-header allowlist.
 - **Branding**: logo by URL or upload, display name and accent colour, applied live and kept readable (WCAG AA) whatever colour is chosen.

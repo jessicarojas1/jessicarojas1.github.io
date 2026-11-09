@@ -48,6 +48,11 @@ const openModules = ref<string[]>([])
 const creating = ref(false)
 const newUser = ref({ username: '', displayName: '', email: '', roles: [] as string[] })
 const createErrors = ref<Record<string, string>>({})
+// Username is auto-suggested from the full name until the administrator edits it themselves.
+const usernameEdited = ref(false)
+// One-time temporary-password reveal (shown after create or reset), with a copy affordance.
+const tempPassword = ref<string | null>(null)
+const tempPasswordName = ref('')
 
 const filtered = computed(() => {
   const needle = search.value.trim().toLowerCase()
@@ -71,9 +76,26 @@ const modules = computed(() => {
   return Object.entries(groups).map(([key, perms]) => ({ key, label: MODULES[key] ?? key, perms, granted: perms.filter((p) => effective.value.has(p)).length }))
 })
 const totalGranted = computed(() => effective.value.size)
+// Only an Owner may confer the Owner role, so a non-Owner never sees it as a create option.
+// The server enforces this regardless (owner_grant_forbidden).
+const createRoles = computed(() => roles.value.filter((r) => r.value !== 'OWNER' || session.isOwner))
 
 function initials(name: string): string {
   return name.split(/\s+/).map((p) => p[0] ?? '').join('').slice(0, 2).toUpperCase()
+}
+
+/** Derives a valid username candidate from a person's name (e.g. "Jane Doe" → "jane.doe"). */
+function slugifyUsername(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^a-z0-9]+/g, '.')
+    .replace(/^[._-]+|[._-]+$/g, '')
+    .slice(0, 64)
+}
+
+function canToggleRole(role: string): boolean {
+  return role !== 'OWNER' || session.isOwner
 }
 
 function roleState(role: string): 'group' | 'explicit' | 'none' {
@@ -136,14 +158,33 @@ async function saveRoles(): Promise<void> {
 }
 
 function showTemporary(name: string, password: string): void {
-  $q.dialog({
-    title: 'Temporary password',
-    message: `Give this to ${name} through a secure channel. It is shown only once, and they must change it when they sign in:\n\n${password}`,
-    ok: { color: 'primary', unelevated: true, noCaps: true, label: 'Done' },
-    persistent: true,
-    style: 'white-space: pre-line',
-  })
+  tempPasswordName.value = name
+  tempPassword.value = password
 }
+
+async function copyTempPassword(): Promise<void> {
+  if (tempPassword.value === null) return
+  try {
+    await navigator.clipboard.writeText(tempPassword.value)
+    $q.notify({ type: 'positive', message: 'Password copied to the clipboard.' })
+  } catch {
+    // Clipboard access can be blocked (insecure context or denied permission); the password
+    // stays on screen to copy by hand.
+    $q.notify({ type: 'warning', message: 'Copy is unavailable here — select the password to copy it.' })
+  }
+}
+
+function openCreate(): void {
+  newUser.value = { username: '', displayName: '', email: '', roles: [] }
+  createErrors.value = {}
+  usernameEdited.value = false
+  creating.value = true
+}
+
+// Keep the username in step with the name until the administrator takes over the field.
+watch(() => newUser.value.displayName, (name) => {
+  if (!usernameEdited.value) newUser.value.username = slugifyUsername(name)
+})
 
 function resetPassword(user: AdminUser): void {
   $q.dialog({ title: `Reset ${user.displayName}'s password?`, message: 'Their current password stops working immediately. You will see a temporary password once.', cancel: { flat: true, noCaps: true, label: 'Cancel' }, ok: { color: 'negative', unelevated: true, noCaps: true, label: 'Reset password' }, focus: 'cancel', persistent: true })
@@ -193,6 +234,7 @@ async function createUser(): Promise<void> {
     creating.value = false
     showTemporary(newUser.value.displayName, result.temporaryPassword)
     newUser.value = { username: '', displayName: '', email: '', roles: [] }
+    usernameEdited.value = false
     await load()
     selectedId.value = result.id
   } catch (e) {
@@ -218,7 +260,7 @@ onMounted(load)
         no-caps
         icon="person_add"
         label="New local user"
-        @click="creating = true"
+        @click="openCreate"
       />
     </header>
     <q-banner
@@ -394,8 +436,8 @@ onMounted(load)
               />
               <q-checkbox
                 :model-value="draftRoles.includes(role.value) || selected.groupRoles.includes(role.value)"
-                :disable="selected.groupRoles.includes(role.value)"
-                :label="`${roleLabel(role.value)}${selected.groupRoles.includes(role.value) ? ' (from group)' : ''}`"
+                :disable="selected.groupRoles.includes(role.value) || !canToggleRole(role.value)"
+                :label="`${roleLabel(role.value)}${selected.groupRoles.includes(role.value) ? ' (from group)' : role.value === 'OWNER' ? ' (superuser)' : ''}`"
                 @update:model-value="toggleRole(role.value)"
               />
             </li>
@@ -486,20 +528,22 @@ onMounted(load)
               {{ createErrors.form }}
             </q-banner>
             <q-input
-              v-model="newUser.username"
-              outlined
-              label="Username"
-              autocapitalize="none"
-              hint="Lowercase letters, digits, dots, hyphens or underscores."
-              :error="createErrors.username !== undefined"
-              :error-message="createErrors.username"
-            />
-            <q-input
               v-model="newUser.displayName"
+              autofocus
               outlined
               label="Full name"
               :error="createErrors.displayName !== undefined"
               :error-message="createErrors.displayName"
+            />
+            <q-input
+              v-model="newUser.username"
+              outlined
+              label="Username"
+              autocapitalize="none"
+              hint="Suggested from the name — lowercase letters, digits, dots, hyphens or underscores."
+              :error="createErrors.username !== undefined"
+              :error-message="createErrors.username"
+              @update:model-value="usernameEdited = true"
             />
             <q-input
               v-model="newUser.email"
@@ -514,11 +558,11 @@ onMounted(load)
                 Roles (everyone is a Reader)
               </legend>
               <q-checkbox
-                v-for="role in roles"
+                v-for="role in createRoles"
                 :key="role.value"
                 v-model="newUser.roles"
                 :val="role.value"
-                :label="roleLabel(role.value)"
+                :label="role.value === 'OWNER' ? `${roleLabel(role.value)} (superuser — full access)` : roleLabel(role.value)"
               />
             </fieldset>
           </q-card-section>
@@ -541,5 +585,61 @@ onMounted(load)
         </form>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      :model-value="tempPassword !== null"
+      persistent
+      aria-labelledby="temp-password-heading"
+      @update:model-value="(open: boolean) => { if (!open) tempPassword = null }"
+    >
+      <q-card class="pal-dialog-card">
+        <q-card-section>
+          <h2
+            id="temp-password-heading"
+            class="text-h6 q-my-none"
+          >
+            Temporary password
+          </h2>
+          <p class="pal-muted q-mb-none">
+            Give this to {{ tempPasswordName }} through a secure channel. It is shown only once, and they must change it when they sign in.
+          </p>
+        </q-card-section>
+        <q-card-section>
+          <div class="pal-temp-password row items-center justify-between q-gutter-sm">
+            <code class="pal-temp-password-value">{{ tempPassword }}</code>
+            <q-btn
+              outline
+              no-caps
+              icon="content_copy"
+              label="Copy"
+              @click="copyTempPassword"
+            />
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            no-caps
+            label="Done"
+            @click="tempPassword = null"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
+
+<style scoped>
+.pal-temp-password {
+  padding: var(--pal-space-3);
+  background: var(--pal-surface-sunken);
+  border: 1px solid var(--pal-border);
+  border-radius: var(--pal-radius-sm);
+}
+.pal-temp-password-value {
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  word-break: break-all;
+  color: var(--pal-text);
+}
+</style>

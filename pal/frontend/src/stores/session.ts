@@ -33,6 +33,9 @@ export const useSessionStore = defineStore('session', {
   getters: {
     displayName: (state): string => state.me?.user.displayName ?? '',
     effectiveTimezone: (state): string => state.me?.user.timezone ?? state.me?.defaultTimezone ?? 'UTC',
+    // The Owner (superuser) is the only role that may grant or revoke Owner; the UI uses this
+    // to gate the Owner option. The server enforces it regardless.
+    isOwner: (state): boolean => state.me?.roles.includes('OWNER') ?? false,
   },
   actions: {
     can(permission: string): boolean {

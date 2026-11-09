@@ -7,6 +7,9 @@ namespace App\Identity\Authorization;
 final class RolePermissionMap
 {
     private const MAP = [
+        // Owner is the superuser: every permission, including any added later (Permission::ALL
+        // is the single source of truth). God mode is still evaluated server-side and audited.
+        'OWNER' => Permission::ALL,
         'READER' => [Permission::LIBRARY_READ],
         'AUTHOR' => [Permission::DOCUMENT_CREATE],
         'PUBLISHER' => [Permission::PUBLICATION_SCHEDULE, Permission::PUBLICATION_RELEASE],

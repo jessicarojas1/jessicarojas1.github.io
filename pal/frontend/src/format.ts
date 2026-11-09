@@ -6,6 +6,7 @@ export const ROLE_LABELS: Record<string, string> = {
   PUBLISHER: 'Publisher',
   PAL_ADMINISTRATOR: 'PAL Administrator',
   SYSTEM_ADMINISTRATOR: 'System Administrator',
+  OWNER: 'Owner',
 }
 
 export function roleLabel(role: string): string {

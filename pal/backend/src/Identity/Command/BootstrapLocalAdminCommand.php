@@ -17,12 +17,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Creates the first local System Administrator from PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME and
- * PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD, ONLY if no local account exists yet. The password is
- * marked temporary: it must be changed at first sign-in. Remove both variables afterwards.
- * Run automatically by the container's migrate step; idempotent.
+ * Creates the first local Owner (superuser / god mode) from PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME
+ * and PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD, ONLY if no local account exists yet. The Owner is the
+ * account's root of trust: god mode is granted only by another Owner, so the first one must be
+ * bootstrapped out of band here. The password is marked temporary: it must be changed at first
+ * sign-in. Remove both variables afterwards. Run automatically by the container's migrate step;
+ * idempotent.
  */
-#[AsCommand(name: 'pal:users:bootstrap-admin', description: 'Create the first local administrator from environment variables (once)')]
+#[AsCommand(name: 'pal:users:bootstrap-admin', description: 'Create the first local Owner (superuser) from environment variables (once)')]
 final class BootstrapLocalAdminCommand extends Command
 {
     public function __construct(
@@ -62,9 +64,9 @@ final class BootstrapLocalAdminCommand extends Command
             return Command::FAILURE;
         }
         $actor = AuditActor::system('bootstrap');
-        $created = $this->accounts->create($actor, null, $this->username, 'Administrator', null, [GlobalRole::SystemAdministrator, GlobalRole::PalAdministrator]);
+        $created = $this->accounts->create($actor, null, $this->username, 'Owner', null, [GlobalRole::Owner]);
         $this->accounts->setBootstrapPassword($actor, $created['id'], $this->password);
-        $io->success(\sprintf('Created local administrator "%s". The password must be changed at first sign-in.', LocalAccountService::normalizeUsername($this->username)));
+        $io->success(\sprintf('Created local Owner "%s" (superuser). The password must be changed at first sign-in.', LocalAccountService::normalizeUsername($this->username)));
 
         return Command::SUCCESS;
     }
