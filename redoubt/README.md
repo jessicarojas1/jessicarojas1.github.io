@@ -78,10 +78,17 @@ redoubt/
 
 ## Technology & prerequisites
 
-- PHP 8.2+ (with Composer)
+- PHP 8.2+ (with Composer). Required extensions: `pdo_pgsql`, `curl`, `fileinfo`
+  (upload MIME detection), `mbstring`, `json`, `openssl`. No third-party packages —
+  the app runs with or without a `vendor/` dir (built-in PSR-4 autoloader).
 - Docker (optional, for container runs)
 - PostgreSQL 14+ (Phase 1+)
-- A Microsoft 365 tenant + Entra ID app registration (Phase 1+)
+- A Microsoft 365 / Entra ID (GCC High) app registration — optional; the portal also
+  runs standalone with local email/password accounts.
+
+Optional environment (see [`.env.example`](.env.example)): `DATABASE_URL`,
+`ASSISTANT_LLM_URL` (in-enclave Ollama), `DIGEST_MAIL_SENDER` (review-digest email
+via Graph), `UPLOAD_DIR` (document upload storage, default `redoubt/storage/uploads`).
 
 ## Quick start (local)
 
@@ -107,16 +114,19 @@ docker run --rm -p 8080:8080 redoubt:discovery
 | `docker build -t redoubt:discovery .` | Build the container |
 | `curl -fsS localhost:8080/health` | Health check (JSON) |
 | `php tests/run.php` | Run the test suite (logic always; DB tests need `REDOUBT_TEST_DB=1` + `DATABASE_URL`) |
+| `php bin/digest.php [programId]` | Build + deliver review digests (Teams/email); for cron or a Kubernetes CronJob |
 
 ## Testing & CI
 
-Zero-dependency suite: `php tests/run.php` runs 44 checks — 15 authorization-engine
-logic tests plus 29 live-database module assertions (announcements, IAM grants,
-documents with the CUI/ITAR export gate, task orders, jobs, directory, and
-permission-trimmed search). DB tests self-skip unless `REDOUBT_TEST_DB=1` and a
-throwaway `DATABASE_URL` are set. `.github/workflows/redoubt-ci.yml` lints every
-PHP file and runs the full suite against a PostgreSQL 16 service on every change
-under `redoubt/`.
+Zero-dependency suite: `php tests/run.php` runs 221 checks — 15 authorization-engine
+logic tests plus 206 live-database module assertions (announcements, IAM grants,
+documents with the CUI/ITAR export gate — including **file uploads, inline image
+previews, comment threads, and versioning** — the **review/approval workflow** with
+notifications, per-user queue, SLA metrics, API and webhooks, task orders, jobs,
+directory, permission-trimmed search, and **review digests**). DB tests self-skip
+unless `REDOUBT_TEST_DB=1` and a throwaway `DATABASE_URL` are set.
+`.github/workflows/redoubt-ci.yml` lints every PHP file and runs the full suite
+against a PostgreSQL 16 service on every change under `redoubt/`.
 
 ```bash
 cd redoubt
