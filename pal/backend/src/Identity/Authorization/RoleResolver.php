@@ -24,7 +24,9 @@ final class RoleResolver
         private readonly Connection $connection,
         #[Autowire(env: 'PAL_BOOTSTRAP_ADMIN_OIDS')]
         string $bootstrapAdminObjectIds,
-        #[Autowire(env: 'default::PAL_BOOTSTRAP_OWNER_OIDS')]
+        // Has a container default of '' (see config/services.yaml), so a plain env() always
+        // resolves to a string even when the var is unset — unlike default::, which yields null.
+        #[Autowire(env: 'PAL_BOOTSTRAP_OWNER_OIDS')]
         string $bootstrapOwnerObjectIds = '',
     ) {
         $this->bootstrapAdminObjectIds = self::parseObjectIds($bootstrapAdminObjectIds);

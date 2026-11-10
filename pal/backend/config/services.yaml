@@ -5,6 +5,10 @@ parameters:
     pal.temp_password_max_age_hours_default: 0
     # Optional passphrase for an encrypted Entra client private key. Empty = the key is unencrypted.
     pal.oidc_client_key_passphrase_default: ''
+    # Optional comma-separated Entra object IDs granted Owner (god mode) until an Owner is granted
+    # in-app. Unset on most deployments, so it defaults to empty here (a bare env() with no default
+    # resolves to null and would break role resolution on every /api request). See SECURITY.md.
+    env(PAL_BOOTSTRAP_OWNER_OIDS): ''
 
 services:
     _defaults:
