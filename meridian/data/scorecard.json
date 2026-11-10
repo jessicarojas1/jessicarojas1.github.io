@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-09",
+  "updated": "2026-11-10",
   "summary": {
-    "correct": 40,
+    "correct": 42,
     "incorrect": 36,
     "partial": 12,
-    "pending": 82,
-    "note": "2026-11-09: two standing forecasts on China's rare-earth suspension (fc-2026-11-03-rareearth-nov10-outcome, fc-2026-11-06-rareearth-reimposition) closed INCORRECT after two converging specialist trade-press sources (Shanghai Metals Market, MLQ) reported China issued an explicit MOFCOM/GAC extension statement (suspension extended to 10 Jan 2027) ahead of the 10 Nov deadline -- graded with an explicit caveat that no primary MOFCOM/GAC text was independently obtained this cycle, as direct access to several reference domains (a Chinese-government-linked trade site, a specialist metals-trade site, and a major wire service) was restricted or failed to resolve in this research environment. Lead findings this cycle: (1) Russia's 3 Nov mass strike on Ukraine's energy grid (among the largest this year per Ukrainian officials) collapsed a reported energy ceasefire four days before the confirmed 10-11 Nov Abu Dhabi US-Russia-Ukraine trilateral talks. (2) Hormuz attack tempo continued into November with a reported crew fatality (tanker Velos Sapphire, ~4 Nov); no CENTCOM response to the 5 Nov IRGC mine claim was identified. (3) A chained Ivanti Connect Secure exploitation set (3 CVEs, deadlines through 13 Nov) was confirmed via multiple converging outlets, partially offsetting the prior two cycles' blocked-CISA-access pattern. (4) Anthropic's IPO process advanced on paper (a financials-only S-1/A filed ~2-3 Nov) but still lacks a price range as the reported week-of-9-Nov roadshow window opens. Five new forecasts added: primary-source confirmation of the rare-earth extension, an Abu Dhabi talks deliverable, a DOJ outcome in the Sylvia matter, a named Ivanti-chain DIB victim, and a dated UK-Australia bilateral AUKUS-adjacent treaty confirmation."
+    "pending": 85,
+    "note": "2026-11-10: fc-2026-11-09-rareearth-extension-primary-confirm graded CORRECT after four-plus independent mainstream outlets (ThePrint, The National, The Star Malaysia, The News International) corroborated the 9 Nov MOFCOM statement extending the rare-earth suspension to 10 Jan 2027 (primary MOFCOM/GACC text still not independently reached). fc-2026-11-05-iran-emboldened-escalation graded CORRECT on continued Hormuz/Gulf of Oman attack tempo (8+ incidents since 1 Nov) and the now-confirmed Velos Sapphire fatality. Lead findings this cycle: (1) CENTCOM stood up Task Force Iron Gate (7 Nov) to interdict Iran's land/Caspian smuggling routes and struck the cargo ship M/V Huda (7 Nov), widening the pressure campaign even as VP Vance publicly said the Iran war was 'the reason we lost' the midterms and Trump is reported to be weighing a post-midterm return to full-scale strikes. (2) Russia struck Ukraine's energy grid again 7-8 Nov (~850,000 without power) four days before the fourth US-Russia-Ukraine trilateral round opened in Abu Dhabi today, 10 Nov; no outcome yet reported. (3) The Ivanti Connect Secure chain and FortiMail remain unresolved with no named DIB victim; FortiMail's unpatched 7.2 branch reportedly reaches vendor end-of-support today. (4) Anthropic's IPO remains priced at zero: the 2 Nov S-1/A added Q3 financials but still no price range. Five new forecasts added: an Iron Gate interdiction result, the gallium/germanium/antimony/superhard-materials 27 Nov suspension outcome, a Trump post-midterm Iran-strike decision, a FortiMail PSIRT advisory, and an Anthropic pre-Thanksgiving debut test."
   },
   "forecasts": [
     {
@@ -1374,7 +1374,7 @@
       "horizon": "0-45 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the reported post-midterm timing for reconciliation action materializes within a reasonable window, given this program's history of similar informal timing signals slipping. Democrats were called for control of both chambers on 3 Nov; this forecast tests the current Republican-controlled lame-duck Senate (through early Jan 2027), not the incoming Democratic one. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+      "note": "No Senate floor action identified this cycle; Guetlein's public statement that there is little political will for another reconciliation bill remains the most recent data point."
     },
     {
       "id": "fc-2026-11-02-warp-panda-named-victim",
@@ -1383,7 +1383,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether this newly elaborated, multi-year-dwell campaign breaks the wave's otherwise consistent pattern of sector-level-only victim disclosure. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "No named victim organization identified this cycle; window remains open through ~2 Dec."
     },
     {
       "id": "fc-2026-11-03-qeshm-strike-aftermath",
@@ -1444,9 +1444,9 @@
       "date": "2026-11-05",
       "forecast": "Following press characterizations that Iran is 'emboldened' after the 3 Nov US midterms, Iran or an aligned actor will conduct at least one action against a US-linked vessel or asset that goes beyond routine IRGC mine-strike claims (e.g., an attack CENTCOM itself confirms, a vessel seizure, or a formal Hormuz-closure declaration) within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the 'emboldened' press framing (Maritime Executive, 5 Nov) reflects a genuine posture shift or is simply interpretive gloss on the same claim/denial pattern this program has tracked since late October. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-10",
+      "note": "Continued Hormuz/Gulf of Oman attack tempo within the 14-day window -- Seatrade Maritime tallies at least 8 vessel-attack incidents since 1 Nov, including a 7 Nov UKMTO-logged incident, plus the now-independently-confirmed Velos Sapphire fatality -- satisfies the forecast's test for further escalatory action by Iran or an aligned actor."
     },
     {
       "id": "fc-2026-11-05-anthropic-s1-amendment",
@@ -1455,7 +1455,7 @@
       "horizon": "0-10 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "A concrete, checkable near-term milestone distinct from press-estimated valuation/debut-date figures. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "note": "No price-range amendment identified as of 10 Nov; the 2 Nov S-1/A added only Q3 financials. Window remains open through ~15 Nov."
     },
     {
       "id": "fc-2026-11-05-kev-apple-wordpress-named-victim",
@@ -1482,7 +1482,7 @@
       "horizon": "0-10 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "A concrete, checkable successor to fc-2026-11-05-anthropic-s1-amendment now that a financials-only (non-price-range) S-1/A has been identified as already filed ~2-3 Nov. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "note": "No price-range amendment identified as of 10 Nov. Window remains open through ~16 Nov."
     },
     {
       "id": "fc-2026-11-06-hormuz-centcom-response",
@@ -1491,16 +1491,16 @@
       "horizon": "0-7 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether CENTCOM continues its pattern of responding to IRGC mine-strike claims, or whether this specific claim goes unaddressed longer than prior ones. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "No response identified this cycle, even as CENTCOM was otherwise highly active and vocal (Task Force Iron Gate, M/V Huda strike). Window remains open through ~13 Nov."
     },
     {
       "id": "fc-2026-11-09-rareearth-extension-primary-confirm",
       "date": "2026-11-09",
       "forecast": "Independent primary-source confirmation (a MOFCOM/GAC notice, or a major wire service citing the specific announcement number) of the reported 11 Nov 2026-10 Jan 2027 rare-earth suspension extension will emerge within 7 days.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this cycle's most consequential and least-verified claim (a reported but unconfirmed PRC suspension extension) can be independently corroborated, given this research environment's recurring access limitations on primary Chinese-government and trade-data sources. Tracked on the Critical Minerals / Rare-Earth Magnets thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-10",
+      "note": "At least four independent mainstream outlets (ThePrint, The National, The Star Malaysia, The News International) reported a 9 Nov MOFCOM statement extending the rare-earth suspension to 10 Jan 2027, well beyond the single trade-press pairing (Shanghai Metals Market, MLQ) flagged last cycle. Graded CORRECT on strong multi-outlet secondary corroboration, with the explicit caveat that this program still could not reach a primary MOFCOM/GACC text or a major wire service directly due to network restrictions in this research environment."
     },
     {
       "id": "fc-2026-11-09-abudhabi-talks-outcome",
@@ -1509,7 +1509,7 @@
       "horizon": "2-7 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether the fourth round of this negotiating track breaks the pattern of the prior three rounds (Abu Dhabi x2, Geneva), none of which produced a durable agreement. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "note": "Talks opened on schedule 10 Nov with an upgraded Russian delegation; no outcome has yet been reported as the round was still underway at compilation. Window remains open (2-7 days from 9 Nov)."
     },
     {
       "id": "fc-2026-11-09-sylvia-doj-outcome",
@@ -1527,7 +1527,7 @@
       "horizon": "0-30 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": "Tests whether this newly corroborated, chained exploitation set breaks the wave's otherwise consistent pattern of sector-level-only victim disclosure. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "note": "Sector-level reporting (SC Media, TechRadar, NSA-linked attribution) continues to describe the US defense industrial base broadly as targeted, but no specifically named victim organization has been identified this cycle."
     },
     {
       "id": "fc-2026-11-09-aukus-uk-australia-treaty",
@@ -1537,6 +1537,51 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "Tests whether this cycle's single-outlet, date-uncertain report of a bilateral AUKUS-adjacent treaty track is substantiated by a dated primary or wire-service confirmation. Tracked on the Allies & Partners coverage; no dedicated thread yet given the sourcing uncertainty."
+    },
+    {
+      "id": "fc-2026-11-10-ironGate-interdiction-result",
+      "date": "2026-11-10",
+      "forecast": "CENTCOM's newly established Task Force Iron Gate will report at least one confirmed interdiction/seizure result tied to Iran's land or Caspian smuggling routes within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the 7 Nov land-interdiction mission announcement converts into a reported operational result, as distinct from the existing naval blockade's tally."
+    },
+    {
+      "id": "fc-2026-11-10-ggsb-suspension-extension",
+      "date": "2026-11-10",
+      "forecast": "China will also extend (rather than let lapse) the separate gallium/germanium/antimony/superhard-materials export suspension at its 27 Nov 2026 deadline, consistent with the rare-earth extension pattern.",
+      "horizon": "0-20 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "The 9 Nov rare-earth extension announcement did not explicitly name gallium/germanium/antimony/superhard materials; this forecast tests whether the same broader trade-truce logic extends to the separate 27 Nov checkpoint."
+    },
+    {
+      "id": "fc-2026-11-10-trump-postmidterm-strike-decision",
+      "date": "2026-11-10",
+      "forecast": "Given reporting that Trump is weighing a return to full-scale strikes on Iran now that the midterms have passed, the US will conduct a major overt strike against Iran (beyond the existing blockade/interdiction posture) within 30 days of the 3 Nov midterms.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether reported deliberation converts into an actual decision; VP Vance's public acknowledgment of the war's political cost is a countervailing de-escalation incentive this forecast weighs against."
+    },
+    {
+      "id": "fc-2026-11-10-fortimail-psirt-advisory",
+      "date": "2026-11-10",
+      "forecast": "Fortinet will publish an official PSIRT advisory confirming (or explicitly denying) a committed fix for FortiMail CVE-2026-104286 on the affected 7.2 branch within 14 days, resolving the multi-week sourcing dispute found in this cycle's research.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Secondary sources disagree on whether a fix exists for the 7.2 branch, which reportedly reaches vendor end-of-support today (10 Nov); this forecast tests whether Fortinet resolves the ambiguity directly."
+    },
+    {
+      "id": "fc-2026-11-10-anthropic-pre-thanksgiving-debut",
+      "date": "2026-11-10",
+      "forecast": "Anthropic will complete its Nasdaq IPO debut before Thanksgiving (26 Nov 2026), consistent with press speculation, requiring a price-range S-1/A and roadshow to both occur within the next ~2 weeks.",
+      "horizon": "0-16 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "As of 10 Nov the S-1/A still carries no price range; this forecast tests the full chain (price range -> roadshow -> pricing -> debut) implied by press speculation of a pre-Thanksgiving listing."
     }
   ]
 }
