@@ -72,6 +72,22 @@ def _join_and(items: list[str]) -> str:
     return ", ".join(items[:-1]) + f", and {items[-1]}"
 
 
+def _assert_distinct_assignees(doc: Document) -> None:
+    """Separation of duties (as in an enterprise PAL): the author, reviewer and
+    approver of a controlled document must be three different people. Checked
+    whenever assignees are set and re-checked at the gate out of Concept, so a
+    later change can never quietly collapse the control."""
+    for id_a, id_b, label_a, label_b in (
+        (doc.author_id, doc.reviewer_id, "author", "reviewer"),
+        (doc.author_id, doc.approver_id, "author", "approver"),
+        (doc.reviewer_id, doc.approver_id, "reviewer", "approver"),
+    ):
+        if id_a is not None and id_b is not None and id_a == id_b:
+            raise WorkflowError(
+                f"Separation of duties: the {label_a} and {label_b} must be different people."
+            )
+
+
 @router.get("", response_model=Page[DocumentList])
 def list_documents(
     db: Session = Depends(get_db),
@@ -112,6 +128,7 @@ def create_document(
         created_by=actor.id,
         updated_by=actor.id,
     )
+    _assert_distinct_assignees(doc)
     db.add(doc)
     db.flush()
     audit.record(
@@ -153,6 +170,7 @@ def update_document(
     changes = body.model_dump(exclude_unset=True)
     for key, value in changes.items():
         setattr(doc, key, value)
+    _assert_distinct_assignees(doc)
     # Editing the content of an APPROVED document invalidates the approval and
     # sends it back to Work In Progress for re-review.
     reverted = False
@@ -255,6 +273,7 @@ def transition_document(
             raise WorkflowError(
                 f"Assign {_join_and(missing)} before moving this document to Work In Progress."
             )
+        _assert_distinct_assignees(doc)
 
     doc.status = target
     if target == DocumentStatus.APPROVED:

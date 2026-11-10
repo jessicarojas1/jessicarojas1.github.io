@@ -87,6 +87,37 @@ def test_advance_succeeds_once_all_three_are_assigned(client, seeded, auth_heade
     assert resp.json()["status"] == "work_in_progress"
 
 
+def test_separation_of_duties_rejected_at_creation(client, seeded, auth_headers):
+    h = auth_headers("manager")
+    users = seeded["users"]
+    resp = client.post(
+        "/api/v1/documents",
+        json={
+            "title": "Conflicted",
+            "doc_type": "procedure",
+            "author_id": users["engineer"].id,
+            "reviewer_id": users["engineer"].id,  # same person as author
+        },
+        headers=h,
+    )
+    assert resp.status_code == 409, resp.text
+    assert "author" in resp.json()["error"]["message"]
+    assert "reviewer" in resp.json()["error"]["message"]
+
+
+def test_separation_of_duties_rejected_on_update(client, seeded, auth_headers):
+    h = auth_headers("manager")
+    users = seeded["users"]
+    doc = _create_concept(client, h, author_id=users["engineer"].id)
+    resp = client.patch(
+        f"/api/v1/documents/{doc['id']}",
+        json={"approver_id": users["engineer"].id},  # same as the author
+        headers=h,
+    )
+    assert resp.status_code == 409, resp.text
+    assert "approver" in resp.json()["error"]["message"]
+
+
 def test_assignees_may_be_set_at_creation(client, seeded, auth_headers):
     h = auth_headers("manager")
     users = seeded["users"]
