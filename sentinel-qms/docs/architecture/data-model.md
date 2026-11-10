@@ -108,7 +108,7 @@ erDiagram
 
 | Table | Key columns | Description |
 |-------|-------------|-------------|
-| `documents` | `id`, `record_number` (DOC-…), `title`, `doc_type`, `owner_id`, `status`, `current_revision_id` | Controlled document master. `status` ∈ {draft, in_review, approved, released, obsolete}. |
+| `documents` | `id`, `record_number` (DOC-…), `title`, `doc_type`, `owner_id`, `author_id`, `reviewer_id`, `approver_id`, `approved_by`, `status`, `current_revision_id` | Controlled document master. `status` ∈ {concept, work_in_progress, peer_review, qa_review, approved, obsolete} on a linear advance path. Assignees `author_id`/`reviewer_id`/`approver_id` are optional while a Concept but all three are required to advance Concept → Work In Progress (`approver_id` = expected approver, distinct from `approved_by` = who actually approved). |
 | `document_revisions` | `id`, `document_id`, `revision`, `change_summary`, `effective_date`, `storage_key`, `approved_by`, `approved_at` | Immutable revision history; each release is a new revision approved via e-signature. |
 | `document_acknowledgements` | `id`, `revision_id`, `user_id`, `acknowledged_at` | Read-and-understood acknowledgements for released documents. |
 

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AlertCircle } from 'lucide-react';
 import { documentHooks } from '@/hooks';
+import { useUserLookup } from '@/hooks/useUserLookup';
 import { getErrorMessage } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { Modal } from '@/components/Modal';
@@ -20,6 +21,9 @@ const schema = z.object({
   next_review_date: z.string().optional(),
   acknowledgement_required: z.boolean().optional(),
   owner_id: z.string().optional(),
+  author_id: z.string().optional(),
+  reviewer_id: z.string().optional(),
+  approver_id: z.string().optional(),
   description: z.string().optional(),
   purpose: z.string().optional(),
   scope: z.string().optional(),
@@ -40,6 +44,9 @@ const EMPTY: FormValues = {
   next_review_date: '',
   acknowledgement_required: false,
   owner_id: '',
+  author_id: '',
+  reviewer_id: '',
+  approver_id: '',
   description: '',
   purpose: '',
   scope: '',
@@ -75,6 +82,8 @@ export function DocumentFormModal({
   const { notify } = useToast();
   const create = documentHooks.useCreate();
   const update = documentHooks.useUpdate();
+  const { list: userList } = useUserLookup();
+  const assignees = userList.filter((u) => u.is_active);
   const isEdit = Boolean(doc);
   const pending = create.isPending || update.isPending;
 
@@ -101,6 +110,9 @@ export function DocumentFormModal({
         next_review_date: doc.next_review_date?.slice(0, 10) ?? '',
         acknowledgement_required: doc.acknowledgement_required ?? false,
         owner_id: doc.owner_id != null ? String(doc.owner_id) : '',
+        author_id: doc.author_id != null ? String(doc.author_id) : '',
+        reviewer_id: doc.reviewer_id != null ? String(doc.reviewer_id) : '',
+        approver_id: doc.approver_id != null ? String(doc.approver_id) : '',
         description: doc.description ?? '',
         purpose: doc.purpose ?? '',
         scope: doc.scope ?? '',
@@ -125,6 +137,9 @@ export function DocumentFormModal({
       next_review_date: values.next_review_date || undefined,
       acknowledgement_required: values.acknowledgement_required ?? false,
       owner_id: values.owner_id || undefined,
+      author_id: values.author_id ? Number(values.author_id) : undefined,
+      reviewer_id: values.reviewer_id ? Number(values.reviewer_id) : undefined,
+      approver_id: values.approver_id ? Number(values.approver_id) : undefined,
       description: values.description || undefined,
       purpose: values.purpose || undefined,
       scope: values.scope || undefined,
@@ -214,6 +229,45 @@ export function DocumentFormModal({
           </FormField>
           <FormField label="Owner (user ID)" htmlFor="doc-owner" error={errors.owner_id?.message}>
             <TextInput id="doc-owner" {...register('owner_id')} placeholder="Owner user ID" />
+          </FormField>
+          <FormField
+            label="Author"
+            htmlFor="doc-author"
+            hint="Required to move to Work In Progress."
+            error={errors.author_id?.message}
+          >
+            <Select id="doc-author" {...register('author_id')}>
+              <option value="">— Select —</option>
+              {assignees.map((u) => (
+                <option key={u.id} value={u.id}>{u.full_name || u.email}</option>
+              ))}
+            </Select>
+          </FormField>
+          <FormField
+            label="Reviewer"
+            htmlFor="doc-reviewer"
+            hint="Required to move to Work In Progress."
+            error={errors.reviewer_id?.message}
+          >
+            <Select id="doc-reviewer" {...register('reviewer_id')}>
+              <option value="">— Select —</option>
+              {assignees.map((u) => (
+                <option key={u.id} value={u.id}>{u.full_name || u.email}</option>
+              ))}
+            </Select>
+          </FormField>
+          <FormField
+            label="Approver"
+            htmlFor="doc-approver"
+            hint="Required to move to Work In Progress."
+            error={errors.approver_id?.message}
+          >
+            <Select id="doc-approver" {...register('approver_id')}>
+              <option value="">— Select —</option>
+              {assignees.map((u) => (
+                <option key={u.id} value={u.id}>{u.full_name || u.email}</option>
+              ))}
+            </Select>
           </FormField>
         </div>
         <label className="checkbox-row" style={{ marginTop: 4 }}>

@@ -63,6 +63,15 @@ router = APIRouter(prefix="/documents", tags=["documents"])
 ENTITY = "document"
 
 
+def _join_and(items: list[str]) -> str:
+    """Join labels for a human-readable sentence: 'a', 'a and b', 'a, b, and c'."""
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        return f"{items[0]} and {items[1]}"
+    return ", ".join(items[:-1]) + f", and {items[-1]}"
+
+
 @router.get("", response_model=Page[DocumentList])
 def list_documents(
     db: Session = Depends(get_db),
@@ -229,6 +238,23 @@ def transition_document(
         # Linear forward step only.
         if next_stage(current) != target:
             raise WorkflowError(f"Illegal transition: '{current.value}' -> '{target.value}'.")
+
+    # Leaving Concept for Work In Progress requires the three workflow assignees to
+    # be set. They are optional while the document is still a Concept.
+    if current == DocumentStatus.CONCEPT and target == DocumentStatus.WORK_IN_PROGRESS:
+        missing = [
+            label
+            for field, label in (
+                ("author_id", "an author"),
+                ("reviewer_id", "a reviewer"),
+                ("approver_id", "an approver"),
+            )
+            if getattr(doc, field) is None
+        ]
+        if missing:
+            raise WorkflowError(
+                f"Assign {_join_and(missing)} before moving this document to Work In Progress."
+            )
 
     doc.status = target
     if target == DocumentStatus.APPROVED:

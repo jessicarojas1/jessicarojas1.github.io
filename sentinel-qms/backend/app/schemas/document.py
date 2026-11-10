@@ -16,6 +16,10 @@ class DocumentBase(BaseModel):
     department: Department | None = None
     description: str | None = None
     owner_id: int | None = None
+    # Workflow assignees (optional at Concept; required to advance to Work In Progress).
+    author_id: int | None = None
+    reviewer_id: int | None = None
+    approver_id: int | None = None
     version: str | None = Field(default=None, max_length=16)
     current_revision: str | None = Field(default=None, max_length=16)
     as9100_clause: str | None = Field(default=None, max_length=32)
@@ -42,6 +46,9 @@ class DocumentUpdate(BaseModel):
     department: Department | None = None
     description: str | None = None
     owner_id: int | None = None
+    author_id: int | None = None
+    reviewer_id: int | None = None
+    approver_id: int | None = None
     version: str | None = Field(default=None, max_length=16)
     current_revision: str | None = Field(default=None, max_length=16)
     as9100_clause: str | None = Field(default=None, max_length=32)
@@ -133,6 +140,9 @@ class DocumentRead(ORMModel):
     description: str | None
     owner_id: int | None
     approved_by: int | None
+    author_id: int | None = None
+    reviewer_id: int | None = None
+    approver_id: int | None = None
     version: str | None
     current_revision: str | None
     effective_date: date | None

@@ -58,6 +58,11 @@ export interface ControlledDocument {
   description?: string;
   owner_id?: string;
   approved_by?: string;
+  // Workflow assignees. Optional while Concept; all three are required to advance
+  // the document from Concept to Work In Progress.
+  author_id?: number | null;
+  reviewer_id?: number | null;
+  approver_id?: number | null;
   version?: string;
   current_revision?: string;
   effective_date?: Iso8601;

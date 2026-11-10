@@ -99,6 +99,13 @@ class Document(Base, TimestampMixin, SoftDeleteMixin):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     owner_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     approved_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    # Workflow assignees. Optional while the document is a Concept; all three are
+    # required before it can advance Concept -> Work In Progress (enforced in the
+    # transition endpoint). ``approver_id`` is the person expected to approve it and
+    # is distinct from ``approved_by``, which records who actually approved.
+    author_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    reviewer_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    approver_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     current_revision: Mapped[str | None] = mapped_column(String(16), nullable=True)
     version: Mapped[str | None] = mapped_column(String(16), nullable=True)
     effective_date: Mapped[date | None] = mapped_column(Date, nullable=True)
