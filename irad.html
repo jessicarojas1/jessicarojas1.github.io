@@ -13,6 +13,19 @@
   <title>IRAD Research Lab | Jessica Rojas</title>
   <meta name="description" content="Independent Research and Development — advancing compliance automation, zero trust architecture, and AI-augmented cybersecurity for the defense industrial base." />
   <style>
+    /* ── IRAD Color Tokens ─────────────────────────────────────── */
+    :root {
+      --irad-green: #4ade80;
+      --irad-green-rgb: 74,222,128;
+      --irad-sky: #38bdf8;
+      --irad-sky-rgb: 14,165,233;
+      --irad-sky-bg: #0ea5e9;
+      --irad-purple: #a5b4fc;
+      --irad-purple-rgb: 99,102,241;
+      --irad-orange: #ff9966;
+      --irad-orange-rgb: 255,88,17;
+    }
+
     /* ── IRAD Hero ─────────────────────────────────────────────── */
     .irad-hero {
       padding: 5rem 1rem 4rem;
@@ -366,9 +379,9 @@
       gap: .4rem;
     }
     .terminal-bar .dot { width:10px;height:10px;border-radius:50%; }
-    .terminal-bar .dot:nth-child(1) { background:#ef4444; }
-    .terminal-bar .dot:nth-child(2) { background:#fbbf24; }
-    .terminal-bar .dot:nth-child(3) { background:#22c55e; }
+    .terminal-bar .dot:nth-child(1) { background:var(--bs-danger); }
+    .terminal-bar .dot:nth-child(2) { background:var(--bs-warning); }
+    .terminal-bar .dot:nth-child(3) { background:var(--bs-success); }
     .terminal-bar .title-bar { margin-left:.4rem; font-size:.72rem; color: var(--bs-secondary-color); letter-spacing:.05em; }
     .terminal-body { padding: 1rem 1.25rem; font-size: .82rem; line-height: 1.7; }
     .term-comment  { color: #484f58; }
@@ -894,7 +907,7 @@
                   <span class="tech-tag">Chi-Square</span>
                 </div>
               </div>
-              <a href="cpp-projects.html" class="btn btn-sm mt-3" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80;">View Lab &rarr;</a>
+              <a href="cpp-projects.html" class="btn btn-sm mt-3" style="background:rgba(var(--irad-green-rgb),.1);border:1px solid rgba(var(--irad-green-rgb),.3);color:var(--irad-green);">View Lab &rarr;</a>
             </div>
           </div>
 
@@ -932,7 +945,7 @@
                   <span class="tech-tag">Web Crypto API</span>
                 </div>
               </div>
-              <a href="caclogin.html" class="btn btn-sm mt-3" style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;">View Demo &rarr;</a>
+              <a href="caclogin.html" class="btn btn-sm mt-3" style="background:rgba(var(--irad-purple-rgb),.1);border:1px solid rgba(var(--irad-purple-rgb),.3);color:var(--irad-purple);">View Demo &rarr;</a>
             </div>
           </div>
 
@@ -1099,12 +1112,12 @@
           <!-- C++ Lab embed -->
           <div class="col-lg-6 irad-reveal">
             <div style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);border-radius:16px;overflow:hidden;">
-              <div style="background:rgba(34,197,94,.06);border-bottom:1px solid var(--bs-border-color);padding:.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+              <div style="background:rgba(var(--irad-green-rgb),.06);border-bottom:1px solid var(--bs-border-color);padding:.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
                 <div>
-                  <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4ade80;margin-bottom:.15rem;">PRJ-007 — IRONFORGE</div>
+                  <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--irad-green);margin-bottom:.15rem;">PRJ-007 — IRONFORGE</div>
                   <div style="font-weight:700;font-size:.95rem;">C++ Security Toolchain Lab</div>
                 </div>
-                <a href="cpp-projects.html" target="_blank" rel="noopener" class="btn btn-sm" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80;white-space:nowrap;flex-shrink:0;">Open Full Page ↗</a>
+                <a href="cpp-projects.html" target="_blank" rel="noopener" class="btn btn-sm" style="background:rgba(var(--irad-green-rgb),.1);border:1px solid rgba(var(--irad-green-rgb),.3);color:var(--irad-green);white-space:nowrap;flex-shrink:0;">Open Full Page ↗</a>
               </div>
               <iframe src="cpp-projects.html" title="C++ Security Toolchain Lab" loading="lazy"
                 style="width:100%;height:560px;border:none;display:block;"
@@ -1115,12 +1128,12 @@
           <!-- CAC Login embed -->
           <div class="col-lg-6 irad-reveal">
             <div style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);border-radius:16px;overflow:hidden;">
-              <div style="background:rgba(99,102,241,.06);border-bottom:1px solid var(--bs-border-color);padding:.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+              <div style="background:rgba(var(--irad-purple-rgb),.06);border-bottom:1px solid var(--bs-border-color);padding:.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
                 <div>
-                  <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.15rem;">PRJ-008 — KEYSTONE</div>
+                  <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--irad-purple);margin-bottom:.15rem;">PRJ-008 — KEYSTONE</div>
                   <div style="font-weight:700;font-size:.95rem;">CAC / PIV Smart Card Auth Demo</div>
                 </div>
-                <a href="caclogin.html" target="_blank" rel="noopener" class="btn btn-sm" style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;white-space:nowrap;flex-shrink:0;">Open Full Page ↗</a>
+                <a href="caclogin.html" target="_blank" rel="noopener" class="btn btn-sm" style="background:rgba(var(--irad-purple-rgb),.1);border:1px solid rgba(var(--irad-purple-rgb),.3);color:var(--irad-purple);white-space:nowrap;flex-shrink:0;">Open Full Page ↗</a>
               </div>
               <iframe src="caclogin.html" title="CAC / PIV Smart Card Authentication Demo" loading="lazy"
                 style="width:100%;height:560px;border:none;display:block;"
@@ -1320,19 +1333,19 @@
                   <p class="text-body-secondary small mb-3">Technology Readiness Levels (TRL) per DoD 5000.02 — standard metric for measuring maturity of a technology from basic research through operational deployment.</p>
                   <div style="display:flex;flex-direction:column;gap:.55rem;">
                     <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
-                      <span style="width:28px;height:6px;border-radius:3px;background:#374151;flex-shrink:0;"></span>
+                      <span style="width:28px;height:6px;border-radius:3px;background:var(--bs-secondary-bg);flex-shrink:0;"></span>
                       <span><strong>TRL 1–2</strong> <span class="text-body-secondary">— Basic research &amp; concept</span></span>
                     </div>
                     <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
-                      <span style="width:28px;height:6px;border-radius:3px;background:#8b5cf6;flex-shrink:0;"></span>
+                      <span style="width:28px;height:6px;border-radius:3px;background:var(--irad-purple);flex-shrink:0;"></span>
                       <span><strong>TRL 3</strong> <span class="text-body-secondary">— Proof of concept</span></span>
                     </div>
                     <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
-                      <span style="width:28px;height:6px;border-radius:3px;background:#ff5811;flex-shrink:0;"></span>
+                      <span style="width:28px;height:6px;border-radius:3px;background:var(--bs-warning);flex-shrink:0;"></span>
                       <span><strong>TRL 4</strong> <span class="text-body-secondary">— Lab validated</span></span>
                     </div>
                     <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
-                      <span style="width:28px;height:6px;border-radius:3px;background:#22c55e;flex-shrink:0;"></span>
+                      <span style="width:28px;height:6px;border-radius:3px;background:var(--bs-success);flex-shrink:0;"></span>
                       <span><strong>TRL 5</strong> <span class="text-body-secondary">— Relevant environment</span></span>
                     </div>
                     <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
@@ -1340,7 +1353,7 @@
                       <span><strong>TRL 6</strong> <span class="text-body-secondary">— Demonstrated</span></span>
                     </div>
                     <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
-                      <span style="width:28px;height:6px;border-radius:3px;background:#60a5fa;flex-shrink:0;"></span>
+                      <span style="width:28px;height:6px;border-radius:3px;background:var(--irad-sky);flex-shrink:0;"></span>
                       <span><strong>TRL 7–8</strong> <span class="text-body-secondary">— System prototype / qualified</span></span>
                     </div>
                     <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
@@ -1378,12 +1391,12 @@
           </div>
           <div class="col-lg-4">
             <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
-              <span class="badge rounded-pill" style="background:rgba(14,165,233,.15);color:#38bdf8;border:1px solid rgba(14,165,233,.3);font-size:.72rem;padding:.35rem .8rem;">DO-326A / DO-356A</span>
-              <span class="badge rounded-pill" style="background:rgba(139,92,246,.12);color:#c4b5fd;border:1px solid rgba(139,92,246,.3);font-size:.72rem;padding:.35rem .8rem;">MIL-STD-882E</span>
-              <span class="badge rounded-pill" style="background:rgba(34,211,238,.1);color:var(--cerulean);border:1px solid rgba(34,211,238,.25);font-size:.72rem;padding:.35rem .8rem;">STANAG 4586</span>
-              <span class="badge rounded-pill" style="background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.25);font-size:.72rem;padding:.35rem .8rem;">Space Policy Dir. 5</span>
-              <span class="badge rounded-pill" style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.25);font-size:.72rem;padding:.35rem .8rem;">NIST SP 800-82</span>
-              <span class="badge rounded-pill" style="background:rgba(255,88,17,.1);color:#ff9966;border:1px solid rgba(255,88,17,.25);font-size:.72rem;padding:.35rem .8rem;">ARINC 664 / 429</span>
+              <span class="badge rounded-pill" style="background:rgba(var(--irad-sky-rgb),.15);color:var(--irad-sky);border:1px solid rgba(var(--irad-sky-rgb),.3);font-size:.72rem;padding:.35rem .8rem;">DO-326A / DO-356A</span>
+              <span class="badge rounded-pill" style="background:rgba(var(--irad-purple-rgb),.12);color:var(--irad-purple);border:1px solid rgba(var(--irad-purple-rgb),.3);font-size:.72rem;padding:.35rem .8rem;">MIL-STD-882E</span>
+              <span class="badge rounded-pill" style="background:rgba(var(--cyber-rgb),.1);color:var(--cerulean);border:1px solid rgba(var(--cyber-rgb),.25);font-size:.72rem;padding:.35rem .8rem;">STANAG 4586</span>
+              <span class="badge rounded-pill" style="background:rgba(var(--irad-green-rgb),.1);color:var(--irad-green);border:1px solid rgba(var(--irad-green-rgb),.25);font-size:.72rem;padding:.35rem .8rem;">Space Policy Dir. 5</span>
+              <span class="badge rounded-pill" style="background:rgba(var(--bs-warning-rgb),.1);color:var(--bs-warning);border:1px solid rgba(var(--bs-warning-rgb),.25);font-size:.72rem;padding:.35rem .8rem;">NIST SP 800-82</span>
+              <span class="badge rounded-pill" style="background:rgba(var(--irad-orange-rgb),.1);color:var(--irad-orange);border:1px solid rgba(var(--irad-orange-rgb),.25);font-size:.72rem;padding:.35rem .8rem;">ARINC 664 / 429</span>
             </div>
           </div>
         </div>
@@ -1763,7 +1776,7 @@
     <section class="irad-section">
       <div class="container">
         <h2 class="section-title irad-reveal">IP Portfolio &amp; Methods</h2>
-        <p class="text-body-secondary mb-4 irad-reveal">Proprietary methods, frameworks, and algorithms developed through this IRAD program — spanning both defense IT/cybersecurity and aerospace &amp; defense platform domains. <span style="color:#38bdf8">A&amp;D entries highlighted in blue.</span></p>
+        <p class="text-body-secondary mb-4 irad-reveal">Proprietary methods, frameworks, and algorithms developed through this IRAD program — spanning both defense IT/cybersecurity and aerospace &amp; defense platform domains. <span style="color:var(--irad-sky)">A&amp;D entries highlighted in blue.</span></p>
         <div class="table-responsive irad-reveal">
           <table class="table table-hover align-middle ip-table" style="font-size:.875rem;">
             <thead>
@@ -1812,27 +1825,27 @@
                 <td><span class="ip-status-pill research">In Research</span></td>
               </tr>
               <tr>
-                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:#38bdf8">DO-326A Evidence Automation Model</td>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:var(--irad-sky)">DO-326A Evidence Automation Model</td>
                 <td class="text-body-secondary">Structured method for generating airworthiness security evidence packages — threat conditions, security objectives, and vulnerability analysis — mapped to certification artifacts for FAA/EASA submission.</td>
-                <td><span class="badge" style="background:#0ea5e9">AERO-SHIELD</span></td>
+                <td><span class="badge" style="background:var(--irad-sky-bg)">AERO-SHIELD</span></td>
                 <td><span class="ip-status-pill research">In Research</span></td>
               </tr>
               <tr>
-                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:#38bdf8">Space Link Authentication Protocol</td>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:var(--irad-sky)">Space Link Authentication Protocol</td>
                 <td class="text-body-secondary">Lightweight command authentication scheme for satellite uplink channels that maintains timing and bandwidth constraints of space-ground communication while providing cryptographic command integrity.</td>
-                <td><span class="badge" style="background:#0ea5e9">ORBITAL</span></td>
+                <td><span class="badge" style="background:var(--irad-sky-bg)">ORBITAL</span></td>
                 <td><span class="ip-status-pill research">In Research</span></td>
               </tr>
               <tr>
-                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:#38bdf8">RTOS Hardening Automation Engine</td>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:var(--irad-sky)">RTOS Hardening Automation Engine</td>
                 <td class="text-body-secondary">Automated STIG-to-configuration mapping engine for defense RTOS platforms. Translates DoD STIG requirements into platform-specific hardening scripts for VxWorks, LynxOS, and Green Hills INTEGRITY environments.</td>
-                <td><span class="badge" style="background:#0ea5e9">IRON-CORE</span></td>
+                <td><span class="badge" style="background:var(--irad-sky-bg)">IRON-CORE</span></td>
                 <td><span class="ip-status-pill internal">Internal Method</span></td>
               </tr>
               <tr>
-                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:#38bdf8">UAS RF Threat Assessment Matrix</td>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:var(--irad-sky)">UAS RF Threat Assessment Matrix</td>
                 <td class="text-body-secondary">Structured threat assessment matrix for UAS datalink and RF systems, scoring GPS spoofing/jamming risk, command-link hijack exposure, and spectrum interference vulnerability against STANAG 4586 interface requirements.</td>
-                <td><span class="badge" style="background:#0ea5e9">SPECTRE-UAS</span></td>
+                <td><span class="badge" style="background:var(--irad-sky-bg)">SPECTRE-UAS</span></td>
                 <td><span class="ip-status-pill research">In Research</span></td>
               </tr>
             </tbody>
