@@ -186,7 +186,7 @@
             <h4 class="mb-0 fw-bold">Dashboard</h4>
             <div class="text-secondary small" id="dash-date"></div>
           </div>
-          <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print Report</button>
+          <button class="btn btn-sm btn-outline-secondary" data-action="print-page">Print Report</button>
         </div>
         <div class="row g-3 mb-4" id="kpi-row"></div>
         <div class="row g-3 mb-4">
@@ -205,7 +205,7 @@
       <div class="module" id="mod-risks">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Risk Register</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#riskModal" onclick="openRiskModal()">+ Add Risk</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#riskModal" data-action="open-risk-modal">+ Add Risk</button>
         </div>
         <div class="d-flex flex-wrap gap-2 mb-3">
           <select class="form-select form-select-sm" style="width:auto" id="risk-filter-sev"><option value="">All Severities</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select>
@@ -223,7 +223,7 @@
       <div class="module" id="mod-controls">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Controls Library</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#ctrlModal" onclick="openCtrlModal()">+ Add Control</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#ctrlModal" data-action="open-ctrl-modal">+ Add Control</button>
         </div>
         <div class="d-flex flex-wrap gap-2 mb-3">
           <select class="form-select form-select-sm" style="width:auto" id="ctrl-filter-fw"><option value="">All Frameworks</option><option value="iso27001">ISO 27001:2022</option><option value="nistcsf">NIST CSF 2.0</option><option value="cmmc2">CMMC 2.0</option><option value="iso42001">ISO 42001:2023</option><option value="soc2">SOC 2</option></select>
@@ -237,7 +237,7 @@
       <div class="module" id="mod-policies">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Policy Manager</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#policyModal" onclick="openPolicyModal()">+ Add Policy</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#policyModal" data-action="open-policy-modal">+ Add Policy</button>
         </div>
         <div class="row g-3 mb-3" id="policy-kpis"></div>
         <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>Policy</th><th>Version</th><th>Owner</th><th>Status</th><th>Review Due</th><th>Approved By</th><th></th></tr></thead><tbody id="policy-tbody"></tbody></table></div>
@@ -247,7 +247,7 @@
       <div class="module" id="mod-compliance">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h4 class="mb-0 fw-bold">Compliance Overview</h4>
-          <button class="btn btn-sm btn-outline-secondary" onclick="exportComplianceCSV()">Export CSV</button>
+          <button class="btn btn-sm btn-outline-secondary" data-action="export-compliance-csv">Export CSV</button>
         </div>
         <div class="row g-3 mb-4" id="compliance-fw-cards"></div>
         <h6 class="fw-semibold mb-3">Controls Detail</h6>
@@ -258,7 +258,7 @@
       <div class="module" id="mod-poam">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Plan of Action &amp; Milestones</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#poamModal" onclick="openPoamModal()">+ Add Item</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#poamModal" data-action="open-poam-modal">+ Add Item</button>
         </div>
         <div class="row g-3 mb-3" id="poam-kpis"></div>
         <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>ID</th><th>Item</th><th>Control</th><th>Owner</th><th>Status</th><th>Due</th><th>Cost</th><th></th></tr></thead><tbody id="poam-tbody"></tbody></table></div>
@@ -268,7 +268,7 @@
       <div class="module" id="mod-exceptions">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Exception Register</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#excModal" onclick="openExcModal()">+ Add Exception</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#excModal" data-action="open-exc-modal">+ Add Exception</button>
         </div>
         <div class="alert alert-warning small py-2 mb-3">Control exceptions carry residual risk. All exceptions require management approval and must be reviewed before their expiry date.</div>
         <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>Control</th><th>Justification</th><th>Risk Type</th><th>Approved By</th><th>Expires</th><th>Status</th><th></th></tr></thead><tbody id="exc-tbody"></tbody></table></div>
@@ -278,7 +278,7 @@
       <div class="module" id="mod-incidents">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Incident Management</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#incModal" onclick="openIncModal()">+ Log Incident</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#incModal" data-action="open-inc-modal">+ Log Incident</button>
         </div>
         <div class="row g-3 mb-3" id="inc-kpis"></div>
         <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>ID</th><th>Incident</th><th>Type</th><th>Severity</th><th>Status</th><th>Reported</th><th>Reported By</th><th></th></tr></thead><tbody id="inc-tbody"></tbody></table></div>
@@ -288,7 +288,7 @@
       <div class="module" id="mod-assets">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Asset Inventory</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#assetModal" onclick="openAssetModal()">+ Add Asset</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#assetModal" data-action="open-asset-modal">+ Add Asset</button>
         </div>
         <div class="row g-3 mb-3" id="asset-kpis"></div>
         <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>Name</th><th>Type</th><th>Criticality</th><th>Owner</th><th>Location</th><th>Status</th><th>Linked Risks</th><th></th></tr></thead><tbody id="asset-tbody"></tbody></table></div>
@@ -298,7 +298,7 @@
       <div class="module" id="mod-vendors">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Vendor Risk</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#vendorModal" onclick="openVendorModal()">+ Add Vendor</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#vendorModal" data-action="open-vendor-modal">+ Add Vendor</button>
         </div>
         <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>Vendor</th><th>Service</th><th>Data Access</th><th>Risk</th><th>Review Due</th><th>Status</th><th>Contact</th><th></th></tr></thead><tbody id="vendor-tbody"></tbody></table></div>
       </div>
@@ -343,7 +343,7 @@
         </ul>
         <div id="ai-tab-summary">
           <p class="text-secondary small mb-3">Generates a GRC posture summary based on your live data.</p>
-          <button class="btn btn-primary btn-sm mb-3" onclick="aiGenSummary()">Generate Summary</button>
+          <button class="btn btn-primary btn-sm mb-3" data-action="ai-gen-summary">Generate Summary</button>
           <div class="ai-output" id="ai-out-summary">Click Generate to produce your executive summary…</div>
         </div>
         <div id="ai-tab-policy" style="display:none">
@@ -362,7 +362,7 @@
               </select>
             </div>
             <div class="col-md-2 d-flex align-items-end">
-              <button class="btn btn-primary btn-sm w-100" onclick="aiGenPolicy()">Generate</button>
+              <button class="btn btn-primary btn-sm w-100" data-action="ai-gen-policy">Generate</button>
             </div>
           </div>
           <div class="ai-output" id="ai-out-policy">Select a policy type and click Generate…</div>
@@ -374,7 +374,7 @@
               <select class="form-select form-select-sm" id="ai-risk-select"></select>
             </div>
             <div class="col-md-2 d-flex align-items-end">
-              <button class="btn btn-primary btn-sm w-100" onclick="aiGenRisk()">Analyse</button>
+              <button class="btn btn-primary btn-sm w-100" data-action="ai-gen-risk">Analyse</button>
             </div>
           </div>
           <div class="ai-output" id="ai-out-risk">Select a risk and click Analyse…</div>
@@ -386,7 +386,7 @@
               <select class="form-select form-select-sm" id="ai-ctrl-select"></select>
             </div>
             <div class="col-md-2 d-flex align-items-end">
-              <button class="btn btn-primary btn-sm w-100" onclick="aiGenControl()">Get Guidance</button>
+              <button class="btn btn-primary btn-sm w-100" data-action="ai-gen-control">Get Guidance</button>
             </div>
           </div>
           <div class="ai-output" id="ai-out-control">Select a control and click Get Guidance…</div>
@@ -397,7 +397,7 @@
       <div class="module" id="mod-activity">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Activity Log</h4>
-          <button class="btn btn-sm btn-outline-danger" data-rbac-min="admin" onclick="clearActivity()">Clear Log</button>
+          <button class="btn btn-sm btn-outline-danger" data-rbac-min="admin" data-action="clear-activity">Clear Log</button>
         </div>
         <div id="activity-list"></div>
       </div>
@@ -420,7 +420,7 @@
                   </select>
                 </div>
                 <div class="mb-3"><label class="form-label small fw-semibold">Claude API Key (optional)</label><input type="password" class="form-control" id="settings-apikey" placeholder="sk-ant-…" /><div class="form-text">When set, the AI Assistant will use real Claude responses.</div></div>
-                <button class="btn btn-sm btn-primary" onclick="saveSettings()">Save Settings</button>
+                <button class="btn btn-sm btn-primary" data-action="save-settings">Save Settings</button>
               </div>
             </div>
           </div>
@@ -429,7 +429,7 @@
               <div class="card-header fw-semibold small text-danger">Danger Zone</div>
               <div class="card-body">
                 <p class="small text-secondary mb-2">Reset all GRC data to factory defaults. Cannot be undone.</p>
-                <button class="btn btn-sm btn-outline-danger" onclick="resetData()">Reset All Data</button>
+                <button class="btn btn-sm btn-outline-danger" data-action="reset-data">Reset All Data</button>
               </div>
             </div>
           </div>
@@ -444,8 +444,8 @@
           <h4 class="mb-0 fw-bold me-auto">KPI Metrics</h4>
           <!-- View switcher -->
           <div class="btn-group btn-group-sm" id="metrics-view-btns" role="group">
-            <button class="btn btn-outline-secondary metrics-view-btn active" data-view="grid" onclick="setMetricsView('grid',this)">⊞ Grid</button>
-            <button class="btn btn-outline-secondary metrics-view-btn" data-view="list" onclick="setMetricsView('list',this)">☰ List</button>
+            <button class="btn btn-outline-secondary metrics-view-btn active" data-view="grid" data-action="metrics-view">⊞ Grid</button>
+            <button class="btn btn-outline-secondary metrics-view-btn" data-view="list" data-action="metrics-view">☰ List</button>
           </div>
           <!-- Columns -->
           <select class="form-select form-select-sm" style="width:auto" id="metrics-cols" onchange="renderMetrics()">
@@ -483,7 +483,7 @@
             <option value="doughnut">All — Doughnut</option>
             <option value="gauge">All — Gauge</option>
           </select>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" onclick="openKpiModal()">+ Add KPI</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-action="open-kpi-modal">+ Add KPI</button>
         </div>
 
         <!-- Summary strip -->
@@ -494,7 +494,7 @@
 
         <!-- Focus view (single KPI expanded) -->
         <div id="metrics-focus" style="display:none">
-          <button class="btn btn-sm btn-outline-secondary mb-3" onclick="closeFocus()">← Back</button>
+          <button class="btn btn-sm btn-outline-secondary mb-3" data-action="close-focus">← Back</button>
           <div id="metrics-focus-content"></div>
         </div>
       </div>
@@ -554,7 +554,7 @@
       <div class="module" id="mod-projects">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Remediation Projects</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#projectModal" onclick="openProjectModal()">+ New Project</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#projectModal" data-action="open-project-modal">+ New Project</button>
         </div>
         <div class="row g-3 mb-3" id="project-kpis"></div>
         <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>Project</th><th>Priority</th><th>Status</th><th>Owner</th><th>Progress</th><th>Target Date</th><th>Budget</th><th>Linked</th><th></th></tr></thead><tbody id="project-tbody"></tbody></table></div>
@@ -564,7 +564,7 @@
       <div class="module" id="mod-audits">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Audit Management</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#auditModal" onclick="openAuditModal()">+ New Audit</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#auditModal" data-action="open-audit-modal">+ New Audit</button>
         </div>
         <div class="row g-3 mb-3" id="audit-kpis"></div>
         <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>Audit</th><th>Type</th><th>Scope</th><th>Lead</th><th>Status</th><th>Start</th><th>End</th><th>Findings</th><th></th></tr></thead><tbody id="audit-tbody"></tbody></table></div>
@@ -574,7 +574,7 @@
       <div class="module" id="mod-training">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Training &amp; Awareness</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#trainingModal" onclick="openTrainingModal()">+ Add Training</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#trainingModal" data-action="open-training-modal">+ Add Training</button>
         </div>
         <div class="row g-3 mb-3" id="training-kpis"></div>
         <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>Training Program</th><th>Type</th><th>Required For</th><th>Frequency</th><th>Completion</th><th>Due Date</th><th>Provider</th><th></th></tr></thead><tbody id="training-tbody"></tbody></table></div>
@@ -584,7 +584,7 @@
       <div class="module" id="mod-bcp">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Business Continuity &amp; DR</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#bcpModal" onclick="openBcpModal()">+ Add BCP Item</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#bcpModal" data-action="open-bcp-modal">+ Add BCP Item</button>
         </div>
         <div class="alert alert-info small py-2 mb-3">Track Recovery Time Objectives (RTO) and Recovery Point Objectives (RPO) for critical systems and processes.</div>
         <div class="row g-3 mb-3" id="bcp-kpis"></div>
@@ -595,7 +595,7 @@
       <div class="module" id="mod-regs">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Regulatory Register</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#regModal" onclick="openRegModal()">+ Add Regulation</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#regModal" data-action="open-reg-modal">+ Add Regulation</button>
         </div>
         <div class="row g-3 mb-3" id="reg-kpis"></div>
         <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>Regulation / Standard</th><th>Jurisdiction</th><th>Applicability</th><th>Owner</th><th>Next Review</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody id="reg-tbody"></tbody></table></div>
@@ -605,7 +605,7 @@
       <div class="module" id="mod-kri">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="mb-0 fw-bold">Key Risk Indicators</h4>
-          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#kriModal" onclick="openKriModal()">+ Add KRI</button>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#kriModal" data-action="open-kri-modal">+ Add KRI</button>
         </div>
         <p class="text-secondary small mb-3">KRIs are leading indicators that signal emerging risks before they materialize. Set thresholds to trigger alerts.</p>
         <div class="row g-3 mb-4" id="kri-cards"></div>
@@ -651,7 +651,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Description / Notes</label><textarea class="form-control" id="risk-description" rows="3"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveRisk()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-risk">Save</button></div>
     </div>
   </div>
 </div>
@@ -692,7 +692,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Linked Projects</label><select multiple class="form-select form-select-sm" id="ctrl-linked-projects" size="4"></select></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveCtrl()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-ctrl">Save</button></div>
     </div>
   </div>
 </div>
@@ -718,7 +718,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Summary / Scope</label><textarea class="form-control" id="policy-summary" rows="3"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="savePolicy()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-policy">Save</button></div>
     </div>
   </div>
 </div>
@@ -755,7 +755,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Lessons Learned / Actions Taken</label><textarea class="form-control" id="inc-lessons" rows="2"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveInc()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-inc">Save</button></div>
     </div>
   </div>
 </div>
@@ -791,7 +791,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Notes</label><textarea class="form-control" id="asset-notes" rows="2"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveAsset()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-asset">Save</button></div>
     </div>
   </div>
 </div>
@@ -817,7 +817,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Description / Milestones</label><textarea class="form-control" id="poam-description" rows="3"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="savePoam()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-poam">Save</button></div>
     </div>
   </div>
 </div>
@@ -847,7 +847,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Compensating Controls</label><textarea class="form-control" id="exc-compensating" rows="2"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveExc()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-exc">Save</button></div>
     </div>
   </div>
 </div>
@@ -882,7 +882,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Notes / Certifications</label><textarea class="form-control" id="vendor-notes" rows="2"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveVendor()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-vendor">Save</button></div>
     </div>
   </div>
 </div>
@@ -910,7 +910,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Notes / Objectives</label><textarea class="form-control" id="audit-notes" rows="2"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveAudit()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-audit">Save</button></div>
     </div>
   </div>
 </div>
@@ -939,7 +939,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Notes</label><textarea class="form-control" id="training-notes" rows="2"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveTraining()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-training">Save</button></div>
     </div>
   </div>
 </div>
@@ -969,7 +969,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Notes / Dependencies</label><textarea class="form-control" id="bcp-notes" rows="2"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveBcp()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-bcp">Save</button></div>
     </div>
   </div>
 </div>
@@ -996,7 +996,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Key Obligations / Notes</label><textarea class="form-control" id="reg-notes" rows="2"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveReg()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-reg">Save</button></div>
     </div>
   </div>
 </div>
@@ -1025,7 +1025,7 @@
           <div class="col-12"><label class="form-label small fw-semibold">Description / Measurement Method</label><textarea class="form-control" id="kri-desc" rows="2"></textarea></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveKri()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-kri">Save</button></div>
     </div>
   </div>
 </div>
@@ -1058,7 +1058,7 @@
           <div class="col-md-6"><label class="form-label small fw-semibold">Linked Assets</label><select multiple class="form-select form-select-sm" id="project-linked-assets" size="4"></select></div>
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveProject()">Save</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" data-action="save-project">Save</button></div>
     </div>
   </div>
 </div>
@@ -2482,7 +2482,7 @@ function saveSettings(){
   document.getElementById('sidebar-org').textContent=DB.settings.org||'My Organization';
   applyRBAC();
   log('Settings','Updated organization settings');
-  const btn=document.querySelector('[onclick="saveSettings()"]');
+  const btn=document.querySelector('[data-action="save-settings"]');
   if(btn){const orig=btn.textContent;btn.textContent='✓ Saved';btn.disabled=true;setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},1500);}
 }
 function resetData(){
@@ -2596,6 +2596,65 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // Render first module
   navigate('dashboard');
+
+  // CSP-compliant delegation for data-action buttons
+  document.addEventListener('click', function(e) {
+    // Color swatch picker
+    var sw = e.target.closest('[data-color]');
+    if (sw && sw.classList.contains('kpi-preset-swatch')) {
+      var inp = document.getElementById('kpi-color');
+      if (inp) inp.value = sw.dataset.color;
+      return;
+    }
+    var el = e.target.closest('[data-action]');
+    if (!el) return;
+    var act = el.dataset.action;
+    var ACT = {
+      'print-page':              () => window.print(),
+      'export-compliance-csv':   exportComplianceCSV,
+      'ai-gen-summary':          aiGenSummary,
+      'ai-gen-policy':           aiGenPolicy,
+      'ai-gen-risk':             aiGenRisk,
+      'ai-gen-control':          aiGenControl,
+      'clear-activity':          clearActivity,
+      'save-settings':           saveSettings,
+      'reset-data':              resetData,
+      'close-focus':             closeFocus,
+      'open-risk-modal':         openRiskModal,
+      'open-ctrl-modal':         openCtrlModal,
+      'open-policy-modal':       openPolicyModal,
+      'open-poam-modal':         openPoamModal,
+      'open-exc-modal':          openExcModal,
+      'open-inc-modal':          openIncModal,
+      'open-asset-modal':        openAssetModal,
+      'open-vendor-modal':       openVendorModal,
+      'open-kpi-modal':          openKpiModal,
+      'open-project-modal':      openProjectModal,
+      'open-audit-modal':        openAuditModal,
+      'open-training-modal':     openTrainingModal,
+      'open-bcp-modal':          openBcpModal,
+      'open-reg-modal':          openRegModal,
+      'open-kri-modal':          openKriModal,
+      'save-risk':               saveRisk,
+      'save-ctrl':               saveCtrl,
+      'save-policy':             savePolicy,
+      'save-inc':                saveInc,
+      'save-asset':              saveAsset,
+      'save-poam':               savePoam,
+      'save-exc':                saveExc,
+      'save-vendor':             saveVendor,
+      'save-audit':              saveAudit,
+      'save-training':           saveTraining,
+      'save-bcp':                saveBcp,
+      'save-reg':                saveReg,
+      'save-kri':                saveKri,
+      'save-project':            saveProject,
+      'metrics-view':            () => setMetricsView(el.dataset.view, el),
+      'save-kpi':                saveKpi,
+      'add-data-point':          addDataPoint,
+    };
+    if (ACT[act]) ACT[act]();
+  });
 });
 </script>
 
@@ -3443,7 +3502,7 @@ function focusKpi(id){
   const sorted=[...(k.data||[])].sort((a,b)=>a.date.localeCompare(b.date));
   let tableRows=sorted.map(d=>`<tr><td>${d.date}</td><td>${d.value} ${escHtml(k.unit)}</td></tr>`).join('');
   document.getElementById('metrics-focus-content').innerHTML=`
-    <button class="btn btn-outline-secondary btn-sm mb-3" onclick="closeFocus()">← Back to all KPIs</button>
+    <button class="btn btn-outline-secondary btn-sm mb-3" data-action="close-focus">← Back to all KPIs</button>
     <div class="row g-3">
       <div class="col-md-3">
         <div class="card h-100">
@@ -3663,14 +3722,14 @@ function deleteDataPoint(date){
             <div class="d-flex gap-2 align-items-center">
               <input type="color" class="form-control form-control-color" id="kpi-color" value="#0d6efd" style="width:50px">
               <div class="d-flex flex-wrap gap-1" id="kpi-color-presets">
-                <span class="kpi-preset-swatch" data-color="#0d6efd" style="background:#0d6efd;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Blue" onclick="document.getElementById('kpi-color').value='#0d6efd'"></span>
-                <span class="kpi-preset-swatch" data-color="#dc3545" style="background:#dc3545;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Red" onclick="document.getElementById('kpi-color').value='#dc3545'"></span>
-                <span class="kpi-preset-swatch" data-color="#198754" style="background:#198754;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Green" onclick="document.getElementById('kpi-color').value='#198754'"></span>
-                <span class="kpi-preset-swatch" data-color="#fd7e14" style="background:#fd7e14;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Orange" onclick="document.getElementById('kpi-color').value='#fd7e14'"></span>
-                <span class="kpi-preset-swatch" data-color="#6f42c1" style="background:#6f42c1;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Purple" onclick="document.getElementById('kpi-color').value='#6f42c1'"></span>
-                <span class="kpi-preset-swatch" data-color="#20c997" style="background:#20c997;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Teal" onclick="document.getElementById('kpi-color').value='#20c997'"></span>
-                <span class="kpi-preset-swatch" data-color="#ffc107" style="background:#ffc107;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Yellow" onclick="document.getElementById('kpi-color').value='#ffc107'"></span>
-                <span class="kpi-preset-swatch" data-color="#e83e8c" style="background:#e83e8c;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Pink" onclick="document.getElementById('kpi-color').value='#e83e8c'"></span>
+                <span class="kpi-preset-swatch" data-color="#0d6efd" style="background:#0d6efd;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Blue"></span>
+                <span class="kpi-preset-swatch" data-color="#dc3545" style="background:#dc3545;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Red"></span>
+                <span class="kpi-preset-swatch" data-color="#198754" style="background:#198754;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Green"></span>
+                <span class="kpi-preset-swatch" data-color="#fd7e14" style="background:#fd7e14;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Orange"></span>
+                <span class="kpi-preset-swatch" data-color="#6f42c1" style="background:#6f42c1;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Purple"></span>
+                <span class="kpi-preset-swatch" data-color="#20c997" style="background:#20c997;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Teal"></span>
+                <span class="kpi-preset-swatch" data-color="#ffc107" style="background:#ffc107;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Yellow"></span>
+                <span class="kpi-preset-swatch" data-color="#e83e8c" style="background:#e83e8c;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Pink"></span>
               </div>
             </div>
           </div>
@@ -3678,7 +3737,7 @@ function deleteDataPoint(date){
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveKpi()">Save KPI</button>
+        <button class="btn btn-primary" data-action="save-kpi">Save KPI</button>
       </div>
     </div>
   </div>
@@ -3704,7 +3763,7 @@ function deleteDataPoint(date){
             <input type="number" class="form-control" id="dp-value" placeholder="Enter value" step="any">
           </div>
           <div class="col-md-3">
-            <button class="btn btn-success w-100" onclick="addDataPoint()">+ Add Point</button>
+            <button class="btn btn-success w-100" data-action="add-data-point">+ Add Point</button>
           </div>
         </div>
         <table class="table table-sm table-hover" id="kpi-data-table">
