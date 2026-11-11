@@ -104,9 +104,10 @@ function _scriptInit() {
   /* ── Ambient hero orbs ───────────────────────────────────── */
   document.querySelectorAll('.hero-section').forEach(hero => {
     const orbs = [
-      { size: 280, color: 'rgba(255,88,17,0.55)',  dur: 9,  delay: 0   },
-      { size: 200, color: 'rgba(255,153,102,0.4)', dur: 12, delay: 3   },
-      { size: 160, color: 'rgba(255,88,17,0.3)',   dur: 7,  delay: 1.5 },
+      { size: 320, color: 'rgba(255,88,17,0.45)',  dur: 10, delay: 0   },
+      { size: 220, color: 'rgba(0,229,255,0.20)',  dur: 13, delay: 3.5 },
+      { size: 180, color: 'rgba(255,88,17,0.28)',  dur: 7,  delay: 1.5 },
+      { size: 140, color: 'rgba(0,229,255,0.14)',  dur: 9,  delay: 5   },
     ];
     orbs.forEach(o => {
       const div = document.createElement('div');
@@ -366,17 +367,19 @@ function initMatrixRain() {
     if (ts - last < 55) { raf = requestAnimationFrame(draw); return; }
     last = ts;
 
-    ctx.fillStyle = 'rgba(7,12,16,0.1)';
+    ctx.fillStyle = 'rgba(5,13,26,0.12)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = SIZE + 'px Courier New';
+    ctx.font = SIZE + 'px JetBrains Mono, Courier New';
 
     for (var i = 0; i < cols; i++) {
       var ch = CHARS[Math.floor(Math.random() * CHARS.length)];
       var y  = drops[i] * SIZE;
       var r  = Math.random();
-      ctx.fillStyle = r > 0.97 ? '#ffffff'
-                    : r > 0.80 ? '#ff7a40'
-                    :             'rgba(255,88,17,0.30)';
+      ctx.fillStyle = r > 0.98 ? '#ffffff'
+                    : r > 0.93 ? '#00e5ff'
+                    : r > 0.82 ? '#7ec8e3'
+                    : r > 0.72 ? '#ff7a40'
+                    :             'rgba(255,88,17,0.28)';
       ctx.fillText(ch, i * SIZE, y);
       if (y > canvas.height && Math.random() > 0.975) drops[i] = Math.random() * -20;
       drops[i] += 1;
@@ -668,7 +671,7 @@ function initNodeCanvas() {
   var canvas = document.getElementById('node-canvas');
   if (!canvas) return;
   var ctx    = canvas.getContext('2d');
-  var NODES  = 50, CONNECT = 120;
+  var NODES  = 60, CONNECT = 130;
   var nodes  = [], raf, running = false;
 
   function resize() {
@@ -700,19 +703,23 @@ function initNodeCanvas() {
         var dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
         var d  = Math.sqrt(dx * dx + dy * dy);
         if (d < CONNECT) {
+          var alpha = (1 - d / CONNECT) * 0.5;
           ctx.beginPath();
-          ctx.strokeStyle = 'rgba(255,88,17,' + ((1 - d / CONNECT) * 0.45) + ')';
-          ctx.lineWidth   = 0.75;
+          var useCyan = (i + j) % 3 === 0;
+          ctx.strokeStyle = useCyan
+            ? 'rgba(0,229,255,' + alpha + ')'
+            : 'rgba(255,88,17,' + alpha + ')';
+          ctx.lineWidth   = 0.8;
           ctx.moveTo(nodes[i].x, nodes[i].y);
           ctx.lineTo(nodes[j].x, nodes[j].y);
           ctx.stroke();
         }
       }
     }
-    nodes.forEach(function(n) {
+    nodes.forEach(function(n, idx) {
       ctx.beginPath();
       ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,88,17,0.65)';
+      ctx.fillStyle = idx % 4 === 0 ? 'rgba(0,229,255,0.75)' : 'rgba(255,88,17,0.65)';
       ctx.fill();
     });
     if (running) raf = requestAnimationFrame(draw);
