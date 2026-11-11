@@ -123,7 +123,7 @@ Verified locally (PHP 8.5.10, PostgreSQL `pal_test`): PHPUnit 269 tests OK, PHPS
 
 | Open item | Impact | Suggested action |
 |---|---|---|
-| Frontend ESLint fails in CI (`@typescript-eslint/no-unnecessary-type-assertion`, reported since the native editor change) | PAL CI stays red on the frontend job | Fix the assertion and re-run CI |
+| Frontend ESLint failed in CI (`@typescript-eslint/no-unnecessary-type-assertion` in `RichTextEditor.vue`, since the native editor change) | PAL CI was red on the frontend job, which also skipped the container job (Trivy) | ✅ Done (2026-11-10): removed the redundant cast in `withoutCellLayout()`; lint, vue-tsc and 74 frontend tests pass on a clean `npm ci` |
 | No automated dependency updates | Advisories are noticed only when CI fails | Add Renovate/Dependabot (already listed under L5 / SECURITY.md §1) |
 
 ## Product and UX gaps

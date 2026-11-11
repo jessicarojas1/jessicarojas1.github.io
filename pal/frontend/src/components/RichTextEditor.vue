@@ -33,7 +33,7 @@ function withoutCellLayout<T extends typeof TableCell | typeof TableHeader>(cell
       const attributes: Record<string, unknown> = { ...(this.parent?.() ?? {}) }
       delete attributes.colwidth
       delete attributes.align
-      return attributes as ReturnType<NonNullable<typeof this.parent>>
+      return attributes
     },
   }) as T
 }
