@@ -261,7 +261,7 @@
               </div>
               <div class="col-12 col-md-6 col-xl-3">
                 <div class="card h-100" style="border-color:rgba(13,202,240,.4)">
-                  <div class="card-header fw-bold small" style="color:#0dcaf0">📊 Machine Learning</div>
+                  <div class="card-header fw-bold small" style="color:var(--bs-info)">📊 Machine Learning</div>
                   <div class="card-body small">
                     A subset of AI. Instead of explicit rules, the system <em>learns patterns from data</em>. You feed examples; it finds the underlying function. Requires: data, a model, a training process, and an objective.
                     <div class="mt-2"><span class="tag">Learns from data</span><span class="tag">Statistical patterns</span><span class="tag">Generalises</span></div>
@@ -270,7 +270,7 @@
               </div>
               <div class="col-12 col-md-6 col-xl-3">
                 <div class="card h-100" style="border-color:rgba(111,66,193,.4)">
-                  <div class="card-header fw-bold small" style="color:#c084fc">🕸️ Deep Learning</div>
+                  <div class="card-header fw-bold small" style="color:var(--cyber)">🕸️ Deep Learning</div>
                   <div class="card-body small">
                     A subset of ML using <em>multi-layer neural networks</em>. Excels when data is high-dimensional (images, audio, text). Requires large datasets and GPU compute. Learns its own features automatically.
                     <div class="mt-2"><span class="tag">Neural networks</span><span class="tag">GPU required</span><span class="tag">Feature learning</span></div>
@@ -279,7 +279,7 @@
               </div>
               <div class="col-12 col-md-6 col-xl-3">
                 <div class="card h-100" style="border-color:rgba(253,126,20,.4)">
-                  <div class="card-header fw-bold small" style="color:#fd7e14">⚗️ Data Science</div>
+                  <div class="card-header fw-bold small" style="color:var(--bs-warning)">⚗️ Data Science</div>
                   <div class="card-body small">
                     Overlaps with ML but focuses on <em>extracting insights from data</em> — exploration, visualisation, statistical analysis, and communicating findings. Not always building predictive models.
                     <div class="mt-2"><span class="tag">EDA</span><span class="tag">Visualisation</span><span class="tag">Statistical inference</span></div>
@@ -305,7 +305,7 @@
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small">Artificial Intelligence (AI)</div>
                   <div class="card-body small">
                     <p>The broadest term. Any technique that enables machines to <strong>simulate human-like intelligence</strong> — reasoning, problem-solving, planning, language understanding, perception.</p>
@@ -322,7 +322,7 @@
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Machine Learning (ML)</div>
                   <div class="card-body small">
                     <p>A subset of AI where systems <strong>learn patterns from data</strong> without being explicitly programmed for every case. The model improves as it sees more examples.</p>
@@ -581,7 +581,7 @@
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-6">
-                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small d-flex justify-content-between">
                     <span>Linear Regression</span><span class="badge diff-beginner">Beginner</span>
                   </div>
@@ -604,7 +604,7 @@ model.<span class="fn">fit</span>(X_train, y_train)
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small d-flex justify-content-between">
                     <span>Ridge &amp; Lasso (Regularised Regression)</span><span class="badge diff-beginner">Beginner</span>
                   </div>
@@ -1859,7 +1859,7 @@ times = []
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Class Imbalance</div>
                   <div class="card-body small">
                     <p>When 99% of examples are class 0, a model that predicts class 0 every time scores 99% accuracy — but is useless.</p>
@@ -2153,7 +2153,7 @@ app = <span class="fn">FastAPI</span>()
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-6">
-                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small">Numeric Features</div>
                   <div class="card-body small">
                     <p class="fw-semibold mb-1">Scaling — why it matters:</p>
@@ -2178,7 +2178,7 @@ X_val_sc   = scaler.<span class="fn">transform</span>(X_val)        <span class=
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Categorical Features</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-2 comp-table">
@@ -2472,7 +2472,7 @@ optimizer = torch.optim.<span class="fn">AdamW</span>(
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-4">
-                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small d-flex justify-content-between">
                     <span>Computer Vision</span><span class="badge diff-intermediate">Intermediate</span>
                   </div>
@@ -2493,7 +2493,7 @@ optimizer = torch.optim.<span class="fn">AdamW</span>(
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small d-flex justify-content-between">
                     <span>NLP / Text</span><span class="badge diff-intermediate">Intermediate</span>
                   </div>
@@ -2602,7 +2602,7 @@ model.<span class="fn">print_trainable_parameters</span>()
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-6">
-                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small">Exporting &amp; Serialising Models</div>
                   <div class="card-body small">
                     <p class="fw-semibold mb-1">PyTorch — three options:</p>
@@ -2630,7 +2630,7 @@ pipeline = joblib.<span class="fn">load</span>(<span class="st">'pipeline.joblib
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Serving with FastAPI</div>
                   <div class="card-body small">
                     <p>FastAPI is the standard for wrapping ML models as REST APIs — async, typed, auto-documented, and production-grade.</p>
@@ -2832,7 +2832,7 @@ docker run -p <span class="nm">8000</span>:<span class="nm">8000</span> my-model
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-6">
-                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small d-flex justify-content-between">
                     <span>SHAP — SHapley Additive exPlanations</span>
                     <span class="badge diff-intermediate">Intermediate</span>
@@ -2863,7 +2863,7 @@ explainer = shap.<span class="fn">DeepExplainer</span>(model, X_background)
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small d-flex justify-content-between">
                     <span>LIME &amp; Permutation Importance</span>
                     <span class="badge diff-beginner">Beginner</span>
@@ -2970,7 +2970,7 @@ PartialDependenceDisplay.<span class="fn">from_estimator</span>(
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-4">
-                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small d-flex justify-content-between">
                     <span>Classical Statistical Models</span>
                     <span class="badge diff-beginner">Beginner</span>
@@ -2993,7 +2993,7 @@ forecast = fit.<span class="fn">forecast</span>(steps=<span class="nm">12</span>
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small d-flex justify-content-between">
                     <span>Prophet &amp; Gradient Boosting</span>
                     <span class="badge diff-beginner">Beginner</span>
@@ -3099,7 +3099,7 @@ scores = []
             <div class="row g-3 mb-3">
               <!-- Activation Functions -->
               <div class="col-12 col-md-6 col-xl-4">
-                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small">Activation Functions</div>
                   <div class="card-body small">
                     <label class="form-label fw-semibold">Input x</label>
@@ -3177,7 +3177,7 @@ scores = []
 
               <!-- Softmax + Dot Product + Cosine -->
               <div class="col-12 col-md-6 col-xl-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Softmax &amp; Similarity</div>
                   <div class="card-body small">
                     <label class="form-label fw-semibold">Logits (comma-separated)</label>
@@ -3313,7 +3313,7 @@ scores = []
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small">Vectors &amp; Norms</div>
                   <div class="card-body small">
                     <p>A vector <strong>v ∈ ℝⁿ</strong> is an ordered list of n numbers. In ML, it represents a data point, an embedding, or a gradient.</p>
@@ -3333,7 +3333,7 @@ scores = []
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Matrix Operations</div>
                   <div class="card-body small">
                     <p>A matrix <strong>A ∈ ℝᵐˣⁿ</strong> has m rows and n columns. A dense layer is literally: <strong>y = Wx + b</strong> where W ∈ ℝᵒˣⁱ, x ∈ ℝⁱ, y ∈ ℝᵒ.</p>
@@ -3476,7 +3476,7 @@ output  = weights @ V               <span class="cm"># (seq, d_v)</span>
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small">Key Probability Distributions</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
@@ -3498,7 +3498,7 @@ output  = weights @ V               <span class="cm"># (seq, d_v)</span>
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">MLE vs MAP vs Bayesian Inference</div>
                   <div class="card-body small">
                     <p>Three ways to estimate parameters from data — each makes different assumptions about uncertainty.</p>
@@ -3617,7 +3617,7 @@ ci_lo, ci_hi = <span class="fn">proportion_confint</span>(
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">KL Divergence in Practice</div>
                   <div class="card-body small">
                     <p>KL divergence measures how much one probability distribution differs from another. It shows up everywhere:</p>
@@ -3754,7 +3754,7 @@ ce = F.<span class="fn">cross_entropy</span>(logits, labels)
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small">Text Preprocessing &amp; Tokenisation</div>
                   <div class="card-body small">
                     <p>Before any model can process text, it must be converted to numbers. Tokenisation splits text into units (tokens) and maps each to an integer ID.</p>
@@ -3782,7 +3782,7 @@ enc = tok(<span class="st">"Hello, how are you?"</span>,
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Word Embeddings — From Counts to Dense Vectors</div>
                   <div class="card-body small">
                     <p>Embeddings map tokens to dense vectors capturing semantic meaning. Words with similar meanings are close in embedding space.</p>
@@ -3855,7 +3855,7 @@ enc = tok(<span class="st">"Hello, how are you?"</span>,
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small">BERT — Encoder-Only Transformer</div>
                   <div class="card-body small">
                     <p>BERT (Bidirectional Encoder Representations from Transformers) reads the full sequence in both directions simultaneously.</p>
@@ -3874,7 +3874,7 @@ enc = tok(<span class="st">"Hello, how are you?"</span>,
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">GPT — Decoder-Only Transformer</div>
                   <div class="card-body small">
                     <p>GPT (Generative Pretrained Transformer) uses causal (left-to-right) attention — each token can only attend to past tokens.</p>
@@ -3967,7 +3967,7 @@ PE[pos, 2i+1] = cos(pos / 10000^(2i/d))
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">CNN Architecture Building Blocks</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-2 comp-table">
@@ -4165,7 +4165,7 @@ z = mu + sigma * eps
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small">Bagging — Variance Reduction</div>
                   <div class="card-body small">
                     <p><strong>Bootstrap Aggregating.</strong> Train B models on B different bootstrap samples (drawn with replacement). Average predictions.</p>
@@ -4218,7 +4218,7 @@ model.<span class="fn">fit</span>(X_train, y_train)
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Stacking &amp; Voting</div>
                   <div class="card-body small">
                     <p class="fw-semibold mb-1">Stacking (Stacked Generalisation):</p>
@@ -4360,7 +4360,7 @@ uncertainty = preds.<span class="fn">std</span>(<span class="nm">0</span>) <span
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-primary);">
                   <div class="card-header fw-bold small">Collaborative Filtering</div>
                   <div class="card-body small">
                     <p>Recommendations based purely on user-item interaction patterns — no item content needed. "Users like you also liked…"</p>
@@ -4378,7 +4378,7 @@ uncertainty = preds.<span class="fn">std</span>(<span class="nm">0</span>) <span
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Matrix Factorisation</div>
                   <div class="card-body small">
                     <p>Decompose the user-item rating matrix R (m×n) into two low-rank matrices: R ≈ U·Vᵀ where U ∈ ℝᵐˣᵏ (user factors) and V ∈ ℝⁿˣᵏ (item factors), k ≪ min(m,n).</p>
@@ -4445,7 +4445,7 @@ algo = <span class="fn">SVD</span>(n_factors=<span class="nm">100</span>, n_epoc
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Equalized Odds</div>
                   <div class="card-body small">
                     <p>Equal TPR <em>and</em> FPR across groups:</p>
@@ -4503,7 +4503,7 @@ algo = <span class="fn">SVD</span>(n_factors=<span class="nm">100</span>, n_epoc
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Mechanisms &amp; DP-SGD</div>
                   <div class="card-body small">
                     <p><strong>Gaussian Mechanism:</strong> Add noise σ = Δf·√(2ln(1.25/δ)) / ε where Δf is the L2 sensitivity of query f.</p>
@@ -4561,7 +4561,7 @@ model, optimizer, loader = privacy_engine.<span class="fn">make_private_with_eps
             <h4 class="mt-4 mb-3 fw-semibold">Documentation &amp; Regulation</h4>
             <div class="row g-3 mb-4">
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Model Cards (Mitchell et al. 2019)</div>
                   <div class="card-body small">
                     <p>Standardised documentation accompanying ML models. Required sections:</p>
@@ -4615,7 +4615,7 @@ model, optimizer, loader = privacy_engine.<span class="fn">make_private_with_eps
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">During Development</div>
                   <div class="card-body small">
                     <ul class="ps-3 mb-0">
@@ -4830,7 +4830,7 @@ model, optimizer, loader = privacy_engine.<span class="fn">make_private_with_eps
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Deep Learning</div>
                   <div class="card-body small">
                     <p><strong>Forward pass:</strong> aˡ = f(Wˡaˡ⁻¹ + bˡ)</p>
@@ -4889,7 +4889,7 @@ tokens = enc.<span class="fn">encode</span>(<span class="st">"Hello, world!"</sp
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Transformer Decoder Stack</div>
                   <div class="card-body small">
                     <p>GPT-style (decoder-only) processes tokens autoregressively — each token attends only to past tokens (causal mask).</p>
@@ -4948,7 +4948,7 @@ tokens = enc.<span class="fn">encode</span>(<span class="st">"Hello, world!"</sp
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Prompt Engineering Best Practices</div>
                   <div class="card-body small">
                     <ul class="ps-3 mb-2">
@@ -5026,7 +5026,7 @@ qa = RetrievalQA.<span class="fn">from_chain_type</span>(llm=<span class="fn">Ch
             <h4 class="mt-4 mb-3 fw-semibold">RLHF &amp; Fine-Tuning</h4>
             <div class="row g-3 mb-4">
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">RLHF Pipeline</div>
                   <div class="card-body small">
                     <ol class="ps-3 mb-2">
@@ -5089,7 +5089,7 @@ model.<span class="fn">print_trainable_parameters</span>()
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Hallucination &amp; Grounding</div>
                   <div class="card-body small">
                     <p><strong>Types of hallucination:</strong></p>
@@ -5159,7 +5159,7 @@ model = AutoModelForCausalLM.<span class="fn">from_pretrained</span>(
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Quantization Methods</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-2 comp-table">
@@ -5238,7 +5238,7 @@ distill_loss = F.<span class="fn">kl_div</span>(soft_preds, soft_targets, reduct
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Distillation Variants</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-2 comp-table">
@@ -5290,7 +5290,7 @@ distill_loss = F.<span class="fn">kl_div</span>(soft_preds, soft_targets, reduct
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Mobile &amp; Edge Efficiency</div>
                   <div class="card-body small">
                     <ul class="ps-3 mb-0">
@@ -5335,7 +5335,7 @@ distill_loss = F.<span class="fn">kl_div</span>(soft_preds, soft_targets, reduct
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Memory Reduction Techniques</div>
                   <div class="card-body small">
                     <ul class="ps-3 mb-2">
@@ -5502,7 +5502,7 @@ model = <span class="fn">FSDP</span>(model, sharding_strategy=ShardingStrategy.F
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Causal Graphs (DAGs)</div>
                   <div class="card-body small">
                     <p>Pearl's do-calculus uses Directed Acyclic Graphs to encode causal structure and identify confounders.</p>
@@ -5541,7 +5541,7 @@ n = power_analysis.<span class="fn">solve_power</span>(
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Difference-in-Differences (DiD)</div>
                   <div class="card-body small">
                     <p>Compare the change in outcomes before/after treatment between treated and control groups. Eliminates time-invariant confounders.</p>
@@ -5596,7 +5596,7 @@ propensity = ps_model.<span class="fn">predict_proba</span>(X)[:, <span class="n
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">ML-based Causal Methods</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
@@ -5674,7 +5674,7 @@ propensity = ps_model.<span class="fn">predict_proba</span>(X)[:, <span class="n
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Key AutoML Frameworks</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
@@ -5746,7 +5746,7 @@ study.<span class="fn">optimize</span>(objective, n_trials=<span class="nm">100<
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Neural Architecture Search (NAS)</div>
                   <div class="card-body small">
                     <p>Automate the design of neural network architectures. Three main paradigms:</p>
@@ -5798,7 +5798,7 @@ batch.<span class="fn">expect_column_values_to_be_between</span>(<span class="st
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Model Behaviour Tests</div>
                   <div class="card-body small">
                     <ul class="ps-3 mb-2">
@@ -5862,7 +5862,7 @@ batch.<span class="fn">expect_column_values_to_be_between</span>(<span class="st
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Production Monitoring</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-2 comp-table">
@@ -5957,7 +5957,7 @@ jobs:
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">SSL Families</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
@@ -6015,7 +6015,7 @@ jobs:
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">MoCo &amp; BYOL — No Large Batch Required</div>
                   <div class="card-body small">
                     <p><strong>MoCo (He et al.):</strong> Maintains a queue of negatives from past batches + momentum encoder. Decouples batch size from number of negatives.</p>
@@ -6071,7 +6071,7 @@ jobs:
                 </div>
               </div>
               <div class="col-12 col-md-3">
-                <div class="card h-100 text-center p-3" style="border-top:3px solid #20c997;">
+                <div class="card h-100 text-center p-3" style="border-top:3px solid var(--bs-success);">
                   <div class="fw-bold mb-2 small">CLM (GPT)</div>
                   <div class="small">Predict next token autoregressively. Causal attention mask. Best for generation. Scales to very long contexts.</div>
                 </div>
@@ -6114,7 +6114,7 @@ jobs:
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Message Passing Framework (MPNN)</div>
                   <div class="card-body small">
                     <p>The general GNN recipe — each node aggregates messages from neighbours, then updates its own representation:</p>
@@ -6189,7 +6189,7 @@ data = <span class="fn">Data</span>(x=x, edge_index=edge_index)
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Real-World GNN Applications</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
@@ -6282,7 +6282,7 @@ probs = logits.<span class="fn">softmax</span>(dim=-<span class="nm">1</span>)  
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">CLIP-based Architectures</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
@@ -6339,7 +6339,7 @@ probs = logits.<span class="fn">softmax</span>(dim=-<span class="nm">1</span>)  
             <h4 class="mt-4 mb-3 fw-semibold">Text-to-Image: Stable Diffusion Architecture</h4>
             <div class="row g-3">
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Latent Diffusion (LDM)</div>
                   <div class="card-body small">
                     <p>Stable Diffusion runs diffusion in a <em>latent space</em> (4×64×64) not pixel space (3×512×512) — 48× smaller, 8× faster.</p>
@@ -6414,7 +6414,7 @@ probs = logits.<span class="fn">softmax</span>(dim=-<span class="nm">1</span>)  
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Data Quality Framework</div>
                   <div class="card-body small">
                     <ul class="ps-3 mb-2">
@@ -6468,7 +6468,7 @@ label_issues = cl.<span class="fn">find_label_issues</span>(X_train, y_train)
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Data Versioning &amp; Lineage</div>
                   <div class="card-body small">
                     <ul class="ps-3 mb-2">
@@ -6519,7 +6519,7 @@ outliers = (z_scores &gt; <span class="nm">3</span>).<span class="fn">any</span>
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">ML-based Methods</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-2 comp-table">
@@ -6582,7 +6582,7 @@ score = F.<span class="fn">mse_loss</span>(decoder(encoder(x)), x, reduction=<sp
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Evaluation &amp; Deployment</div>
                   <div class="card-body small">
                     <p><strong>Evaluation challenge:</strong> Anomalies are rare and costly to label. Metrics:</p>
@@ -6626,7 +6626,7 @@ score = F.<span class="fn">mse_loss</span>(decoder(encoder(x)), x, reduction=<sp
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Concept Drift</div>
                   <div class="card-body small">
                     <p>The statistical relationship between features and labels changes over time — model accuracy degrades.</p>
@@ -6691,7 +6691,7 @@ detector = drift.<span class="fn">ADWIN</span>()
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Real-Time Feature Engineering</div>
                   <div class="card-body small">
                     <p><strong>Training-serving skew:</strong> The #1 source of production ML failures — features computed differently at training time vs serving time.</p>
@@ -6735,7 +6735,7 @@ detector = drift.<span class="fn">ADWIN</span>()
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Key Trade-offs to Discuss</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
@@ -6793,7 +6793,7 @@ detector = drift.<span class="fn">ADWIN</span>()
 
             <div class="row g-3">
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Search Ranking</div>
                   <div class="card-body small">
                     <p><strong>Task:</strong> Given query q and candidate documents D, rank D by relevance.</p>
@@ -6874,7 +6874,7 @@ detector = drift.<span class="fn">ADWIN</span>()
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Where to Find Research</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
@@ -6937,7 +6937,7 @@ detector = drift.<span class="fn">ADWIN</span>()
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Staying Current System</div>
                   <div class="card-body small">
                     <p><strong>Weekly routine:</strong></p>
@@ -7000,7 +7000,7 @@ detector = drift.<span class="fn">ADWIN</span>()
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Value Functions</div>
                   <div class="card-body small">
                     <p><strong>State value V^π(s):</strong> Expected return starting from s, following π:</p>
@@ -7058,7 +7058,7 @@ model.<span class="fn">learn</span>(total_timesteps=<span class="nm">100_000</sp
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">PPO (Proximal Policy Optimisation)</div>
                   <div name="card-body small" class="card-body small">
                     <p>The workhorse algorithm for continuous control and LLM alignment. Constrains policy update size to prevent catastrophic collapse.</p>
@@ -7118,7 +7118,7 @@ model.<span class="fn">learn</span>(total_timesteps=<span class="nm">1_000_000</
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Model-Based &amp; Multi-Agent RL</div>
                   <div class="card-body small">
                     <p><strong>Model-based RL:</strong> Learn a world model P(s′,r|s,a); plan inside it (Dyna-Q) or use it for imagination rollouts (Dreamer, MBPO). Far more sample-efficient but sensitive to model errors (compounding).</p>
@@ -7189,7 +7189,7 @@ model.<span class="fn">learn</span>(total_timesteps=<span class="nm">1_000_000</
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Loss Landscape</div>
                   <div class="card-body small">
                     <p><strong>Saddle points:</strong> Gradient = 0 but not a minimum — positive curvature in some directions, negative in others. Common in high-dimensional non-convex losses. SGD noise helps escape them.</p>
@@ -7241,7 +7241,7 @@ model.<span class="fn">learn</span>(total_timesteps=<span class="nm">1_000_000</
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Xavier / He Derivation</div>
                   <div class="card-body small">
                     <p><strong>Goal:</strong> Keep variance of activations and gradients stable across layers.</p>
@@ -7298,7 +7298,7 @@ nn.init.<span class="fn">zeros_</span>(layer.bias)
             <h4 class="mt-4 mb-3 fw-semibold">Normalisation Layers: Theory</h4>
             <div class="row g-3">
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">BatchNorm</div>
                   <div class="card-body small">
                     <p>Normalise each feature across the batch; learnable γ, β restore expressiveness:</p>
@@ -7367,7 +7367,7 @@ nn.init.<span class="fn">zeros_</span>(layer.bias)
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Clinical Data Types &amp; Models</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
@@ -7425,7 +7425,7 @@ nn.init.<span class="fn">zeros_</span>(layer.bias)
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">ML in Finance: Use Cases &amp; Models</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-2 comp-table">
@@ -7471,7 +7471,7 @@ nn.init.<span class="fn">zeros_</span>(layer.bias)
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Safety &amp; Validation</div>
                   <div class="card-body small">
                     <p><strong>Long tail problem:</strong> 99.9% of driving is easy; the remaining 0.1% edge cases (jaywalkers, construction, weather) determine safety. Requires billions of miles of data or simulation.</p>
@@ -7534,7 +7534,7 @@ nn.init.<span class="fn">zeros_</span>(layer.bias)
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Scaled Dot-Product Attention</div>
                   <div class="card-body small">
                     <div class="code-block">
@@ -7637,7 +7637,7 @@ causal_mask = np.<span class="fn">triu</span>(np.<span class="fn">ones</span>((s
             <h4 class="mt-4 mb-3 fw-semibold">Linear Regression &amp; PCA</h4>
             <div class="row g-3">
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Linear Regression: Normal Equation &amp; Gradient Descent</div>
                   <div class="card-body small">
                     <div class="code-block">
@@ -7745,7 +7745,7 @@ causal_mask = np.<span class="fn">triu</span>(np.<span class="fn">ones</span>((s
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Months 4–8: Deep Learning</div>
                   <div class="card-body small">
                     <ol class="ps-3 mb-0">
@@ -7798,7 +7798,7 @@ causal_mask = np.<span class="fn">triu</span>(np.<span class="fn">ones</span>((s
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Interview Types &amp; Prep</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
@@ -7853,7 +7853,7 @@ causal_mask = np.<span class="fn">triu</span>(np.<span class="fn">ones</span>((s
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid #20c997;">
+                <div class="card h-100" style="border-top:3px solid var(--bs-success);">
                   <div class="card-header fw-bold small">Salary Benchmarks (US, 2025)</div>
                   <div class="card-body small">
                     <table class="table table-sm table-bordered small mb-0 comp-table">
