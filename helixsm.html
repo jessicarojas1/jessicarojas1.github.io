@@ -164,7 +164,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
   <a class="nav-link" href="#" data-mod="activity"><i class="bi bi-activity"></i> Activity Log</a>
 
   <div id="sidebar-bottom">
-    <a class="nav-link" href="#" onclick="openPortal();return false"><i class="bi bi-display"></i> Self-Service Portal</a>
+    <a class="nav-link" href="#" data-action="open-portal"><i class="bi bi-display"></i> Self-Service Portal</a>
     <a class="nav-link" href="#" data-mod="settings"><i class="bi bi-gear"></i> Settings</a>
   </div>
 </nav>
@@ -174,13 +174,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
   <div id="major-inc-banner">
     <span class="blink">🚨 MAJOR INCIDENT — </span>
     <span id="major-inc-text"></span>
-    <button class="btn btn-sm btn-outline-light ms-3 py-0" onclick="clearMajorIncident()">Clear</button>
+    <button class="btn btn-sm btn-outline-light ms-3 py-0" data-action="clear-major-incident">Clear</button>
   </div>
   <div id="topbar">
     <div class="page-title" id="page-title">Dashboard</div>
     <div class="topbar-right">
-      <button class="btn btn-sm btn-outline-secondary" onclick="navigate('catalog')"><i class="bi bi-plus-lg"></i> New Request</button>
-      <button class="btn btn-sm btn-primary" onclick="openIncidentModal()"><i class="bi bi-exclamation-triangle"></i> Log Incident</button>
+      <button class="btn btn-sm btn-outline-secondary" data-action="navigate-catalog"><i class="bi bi-plus-lg"></i> New Request</button>
+      <button class="btn btn-sm btn-primary" data-action="open-incident-modal"><i class="bi bi-exclamation-triangle"></i> Log Incident</button>
       <span class="badge bg-secondary" id="topbar-org">HelixCorp</span>
     </div>
   </div>
@@ -197,7 +197,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
       <div class="row g-3 mb-3">
         <div class="col-md-7">
           <div class="stat-card">
-            <div class="sect-hdr"><h5>🔴 Critical &amp; High Incidents</h5><a href="#" class="small text-primary" onclick="navigate('incidents')">View all →</a></div>
+            <div class="sect-hdr"><h5>🔴 Critical &amp; High Incidents</h5><a href="#" class="small text-primary" data-action="navigate-incidents">View all →</a></div>
             <div id="dash-critical-inc"></div>
           </div>
         </div>
@@ -211,13 +211,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
       <div class="row g-3">
         <div class="col-md-4">
           <div class="stat-card h-100">
-            <div class="sect-hdr"><h5>📅 Upcoming Changes</h5><a href="#" class="small text-primary" onclick="navigate('changes')">View all →</a></div>
+            <div class="sect-hdr"><h5>📅 Upcoming Changes</h5><a href="#" class="small text-primary" data-action="navigate-changes">View all →</a></div>
             <div id="dash-upcoming-changes"></div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="stat-card h-100">
-            <div class="sect-hdr"><h5>🔧 Active Maintenance</h5><a href="#" class="small text-primary" onclick="navigate('maintenance')">View all →</a></div>
+            <div class="sect-hdr"><h5>🔧 Active Maintenance</h5><a href="#" class="small text-primary" data-action="navigate-maintenance">View all →</a></div>
             <div id="dash-maintenance"></div>
           </div>
         </div>
@@ -239,7 +239,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
             <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-lightning"></i> Templates</button>
             <ul class="dropdown-menu" id="inc-template-menu"></ul>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="openIncidentModal()"><i class="bi bi-plus-lg"></i> Log Incident</button>
+          <button class="btn btn-primary btn-sm" data-action="open-incident-modal"><i class="bi bi-plus-lg"></i> Log Incident</button>
         </div>
       </div>
       <div id="inc-bulk-bar" class="d-flex">
@@ -247,8 +247,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         <input class="form-control form-control-sm me-2" style="width:160px" id="inc-bulk-assignee" placeholder="Assign to…">
         <select class="form-select form-select-sm me-2" style="width:auto" id="inc-bulk-status"><option value="">— Set Status —</option><option value="in-progress">In Progress</option><option value="pending">Pending</option><option value="resolved">Resolved</option><option value="closed">Closed</option></select>
         <select class="form-select form-select-sm me-2" style="width:auto" id="inc-bulk-priority"><option value="">— Set Priority —</option><option value="P1">P1</option><option value="P2">P2</option><option value="P3">P3</option><option value="P4">P4</option><option value="P5">P5</option></select>
-        <button class="btn btn-sm btn-primary me-2" onclick="applyBulkAction()">Apply</button>
-        <button class="btn btn-sm btn-outline-light" onclick="clearBulkSelection()">Clear</button>
+        <button class="btn btn-sm btn-primary me-2" data-action="apply-bulk-action">Apply</button>
+        <button class="btn btn-sm btn-outline-light" data-action="clear-bulk-selection">Clear</button>
       </div>
       <div class="filter-bar">
         <select class="form-select form-select-sm" style="width:auto" id="inc-filter-status" onchange="renderIncidents()">
@@ -282,7 +282,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-requests">
       <div class="sect-hdr">
         <h5>Service Requests</h5>
-        <button class="btn btn-primary btn-sm" onclick="openRequestModal()"><i class="bi bi-plus-lg"></i> New Request</button>
+        <button class="btn btn-primary btn-sm" data-action="open-request-modal"><i class="bi bi-plus-lg"></i> New Request</button>
       </div>
       <div class="filter-bar">
         <select class="form-select form-select-sm" style="width:auto" id="req-filter-status" onchange="renderRequests()">
@@ -302,7 +302,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-changes">
       <div class="sect-hdr">
         <h5>Change Enablement</h5>
-        <button class="btn btn-primary btn-sm" onclick="openChangeModal()"><i class="bi bi-plus-lg"></i> New RFC</button>
+        <button class="btn btn-primary btn-sm" data-action="open-change-modal"><i class="bi bi-plus-lg"></i> New RFC</button>
       </div>
       <div class="filter-bar">
         <select class="form-select form-select-sm" style="width:auto" id="chg-filter-type" onchange="renderChanges()">
@@ -316,8 +316,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
           <option value="implementing">Implementing</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option>
         </select>
         <div class="btn-group btn-group-sm ms-auto">
-          <button class="btn btn-outline-secondary active" id="chg-view-table" onclick="setChangeView('table',this)"><i class="bi bi-list-ul"></i> List</button>
-          <button class="btn btn-outline-secondary" id="chg-view-pipe" onclick="setChangeView('pipeline',this)"><i class="bi bi-kanban"></i> Pipeline</button>
+          <button class="btn btn-outline-secondary active" id="chg-view-table" data-action="change-view-table"><i class="bi bi-list-ul"></i> List</button>
+          <button class="btn btn-outline-secondary" id="chg-view-pipe" data-action="change-view-pipeline"><i class="bi bi-kanban"></i> Pipeline</button>
         </div>
       </div>
       <div id="chg-table-view">
@@ -335,12 +335,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-problems">
       <div class="sect-hdr">
         <h5>Problem Management</h5>
-        <button class="btn btn-primary btn-sm" onclick="openProblemModal()"><i class="bi bi-plus-lg"></i> New Problem</button>
+        <button class="btn btn-primary btn-sm" data-action="open-problem-modal"><i class="bi bi-plus-lg"></i> New Problem</button>
       </div>
       <ul class="nav nav-tabs mb-3" id="prb-tabs">
-        <li class="nav-item"><a class="nav-link active" href="#" onclick="setPrbTab('all',this)">All Problems</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" onclick="setPrbTab('known-error',this)">Known Error DB</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" onclick="setPrbTab('open',this)">Under Investigation</a></li>
+        <li class="nav-item"><a class="nav-link active" href="#" data-action="prb-tab-all">All Problems</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-action="prb-tab-known-error">Known Error DB</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-action="prb-tab-open">Under Investigation</a></li>
       </ul>
       <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
         <thead><tr><th>PRB#</th><th>Title</th><th>Status</th><th>Priority</th><th>Category</th><th>Related Incidents</th><th>Assignee</th><th>Workaround</th><th></th></tr></thead>
@@ -352,7 +352,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-cmdb">
       <div class="sect-hdr">
         <h5>Configuration Management Database</h5>
-        <button class="btn btn-primary btn-sm" onclick="openCIModal()"><i class="bi bi-plus-lg"></i> Add CI</button>
+        <button class="btn btn-primary btn-sm" data-action="open-ci-modal"><i class="bi bi-plus-lg"></i> Add CI</button>
       </div>
       <div class="filter-bar">
         <select class="form-select form-select-sm" style="width:auto" id="ci-filter-type" onchange="renderCMDB()">
@@ -377,7 +377,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-knowledge">
       <div class="sect-hdr">
         <h5>Knowledge Base</h5>
-        <button class="btn btn-primary btn-sm" onclick="openArticleModal()"><i class="bi bi-plus-lg"></i> New Article</button>
+        <button class="btn btn-primary btn-sm" data-action="open-article-modal"><i class="bi bi-plus-lg"></i> New Article</button>
       </div>
       <div class="filter-bar">
         <input class="form-control form-control-sm" style="width:280px" id="kb-search" placeholder="Search articles..." oninput="renderKnowledge()">
@@ -396,7 +396,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-catalog">
       <div class="sect-hdr">
         <h5>Service Catalog</h5>
-        <button class="btn btn-outline-secondary btn-sm" onclick="openCatalogModal()"><i class="bi bi-plus-lg"></i> Add Service</button>
+        <button class="btn btn-outline-secondary btn-sm" data-action="open-catalog-modal"><i class="bi bi-plus-lg"></i> Add Service</button>
       </div>
       <div class="filter-bar">
         <input class="form-control form-control-sm" style="width:250px" id="cat-search" placeholder="Search services..." oninput="renderCatalog()">
@@ -412,7 +412,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-sla">
       <div class="sect-hdr">
         <h5>SLA Management</h5>
-        <button class="btn btn-primary btn-sm" onclick="openSlaModal()"><i class="bi bi-plus-lg"></i> Add SLA</button>
+        <button class="btn btn-primary btn-sm" data-action="open-sla-modal"><i class="bi bi-plus-lg"></i> Add SLA</button>
       </div>
       <div class="row g-3 mb-3" id="sla-compliance-strip"></div>
       <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
@@ -436,7 +436,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 
     <!-- ── RELEASE MANAGEMENT ── -->
     <div class="module" id="mod-releases">
-      <div class="sect-hdr"><h5>Release Management</h5><button class="btn btn-primary btn-sm" onclick="openReleaseModal()"><i class="bi bi-plus-lg"></i> New Release</button></div>
+      <div class="sect-hdr"><h5>Release Management</h5><button class="btn btn-primary btn-sm" data-action="open-release-modal"><i class="bi bi-plus-lg"></i> New Release</button></div>
       <div class="filter-bar">
         <select class="form-select form-select-sm" style="width:auto" id="rel-filter-status" onchange="renderReleases()">
           <option value="">All Statuses</option><option>Planning</option><option>In Testing</option><option>Approved</option><option>Deploying</option><option>Live</option><option>Rolled Back</option>
@@ -454,7 +454,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 
     <!-- ── MAINTENANCE WINDOWS ── -->
     <div class="module" id="mod-maintenance">
-      <div class="sect-hdr"><h5>Maintenance Windows</h5><button class="btn btn-primary btn-sm" onclick="openMaintenanceModal()"><i class="bi bi-plus-lg"></i> New Window</button></div>
+      <div class="sect-hdr"><h5>Maintenance Windows</h5><button class="btn btn-primary btn-sm" data-action="open-maintenance-modal"><i class="bi bi-plus-lg"></i> New Window</button></div>
       <div class="filter-bar">
         <select class="form-select form-select-sm" style="width:auto" id="mw-filter-status" onchange="renderMaintenance()">
           <option value="">All</option><option>Scheduled</option><option>In Progress</option><option>Completed</option><option>Cancelled</option>
@@ -466,13 +466,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 
     <!-- ── TEAMS & ON-CALL ── -->
     <div class="module" id="mod-teams">
-      <div class="sect-hdr"><h5>Teams &amp; On-Call</h5><button class="btn btn-primary btn-sm" onclick="openTeamModal()"><i class="bi bi-plus-lg"></i> New Team</button></div>
+      <div class="sect-hdr"><h5>Teams &amp; On-Call</h5><button class="btn btn-primary btn-sm" data-action="open-team-modal"><i class="bi bi-plus-lg"></i> New Team</button></div>
       <div class="row g-3" id="teams-grid"></div>
     </div>
 
     <!-- ── CAB MEETINGS ── -->
     <div class="module" id="mod-cab">
-      <div class="sect-hdr"><h5>Change Advisory Board (CAB)</h5><button class="btn btn-primary btn-sm" onclick="openCabModal()"><i class="bi bi-plus-lg"></i> New Meeting</button></div>
+      <div class="sect-hdr"><h5>Change Advisory Board (CAB)</h5><button class="btn btn-primary btn-sm" data-action="open-cab-modal"><i class="bi bi-plus-lg"></i> New Meeting</button></div>
       <div class="filter-bar">
         <select class="form-select form-select-sm" style="width:auto" id="cab-filter-status" onchange="renderCab()">
           <option value="">All</option><option>Scheduled</option><option>In Progress</option><option>Completed</option><option>Cancelled</option>
@@ -483,7 +483,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 
     <!-- ── CHANGE FREEZE ── -->
     <div class="module" id="mod-freeze">
-      <div class="sect-hdr"><h5>Change Freeze Periods</h5><button class="btn btn-primary btn-sm" onclick="openFreezeModal()"><i class="bi bi-plus-lg"></i> Add Freeze</button></div>
+      <div class="sect-hdr"><h5>Change Freeze Periods</h5><button class="btn btn-primary btn-sm" data-action="open-freeze-modal"><i class="bi bi-plus-lg"></i> Add Freeze</button></div>
       <div class="alert alert-info small mb-3" id="freeze-active-alert" style="display:none"><strong>❄️ Active Freeze:</strong> <span id="freeze-active-name"></span> — Changes of the restricted type require emergency authorization.</div>
       <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
         <thead><tr><th>Name</th><th>Start</th><th>End</th><th>Scope</th><th>Reason</th><th>Status</th><th></th></tr></thead>
@@ -493,7 +493,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 
     <!-- ── VENDOR MANAGEMENT ── -->
     <div class="module" id="mod-vendors">
-      <div class="sect-hdr"><h5>Vendor &amp; Contract Management</h5><button class="btn btn-primary btn-sm" onclick="openVendorModal()"><i class="bi bi-plus-lg"></i> Add Vendor</button></div>
+      <div class="sect-hdr"><h5>Vendor &amp; Contract Management</h5><button class="btn btn-primary btn-sm" data-action="open-vendor-modal"><i class="bi bi-plus-lg"></i> Add Vendor</button></div>
       <div class="filter-bar">
         <select class="form-select form-select-sm" style="width:auto" id="vnd-filter-type" onchange="renderVendors()">
           <option value="">All Types</option><option>Software</option><option>Hardware</option><option>Cloud</option><option>Security</option><option>Telecom</option><option>Professional Services</option>
@@ -517,7 +517,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         <input class="form-control form-control-sm" type="date" id="act-filter-from" onchange="renderActivity()" style="width:auto">
         <span class="small text-muted">to</span>
         <input class="form-control form-control-sm" type="date" id="act-filter-to" onchange="renderActivity()" style="width:auto">
-        <button class="btn btn-outline-secondary btn-sm ms-auto" onclick="clearActivityFilters()">Clear</button>
+        <button class="btn btn-outline-secondary btn-sm ms-auto" data-action="clear-activity-filters">Clear</button>
       </div>
       <div class="table-card"><div class="table-responsive"><table class="table table-sm mb-0">
         <thead><tr><th>Time</th><th>Module</th><th>Action</th></tr></thead>
@@ -536,7 +536,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
               <input class="form-control" id="set-org" value="HelixCorp"></div>
             <div class="mb-3"><label class="form-label small fw-semibold">Default Assignee Group</label>
               <input class="form-control" id="set-group" placeholder="e.g. Service Desk"></div>
-            <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Settings</button>
+            <button class="btn btn-primary btn-sm" data-action="save-settings">Save Settings</button>
           </div>
         </div>
         <div class="col-md-6">
@@ -544,8 +544,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
             <h6 class="fw-bold mb-3">Data</h6>
             <p class="small text-muted">All data is stored locally in your browser. Export a backup or reset to default seed data.</p>
             <div class="d-flex gap-2">
-              <button class="btn btn-outline-secondary btn-sm" onclick="exportData()"><i class="bi bi-download"></i> Export JSON</button>
-              <button class="btn btn-outline-danger btn-sm" onclick="resetData()"><i class="bi bi-trash"></i> Reset Data</button>
+              <button class="btn btn-outline-secondary btn-sm" data-action="export-data"><i class="bi bi-download"></i> Export JSON</button>
+              <button class="btn btn-outline-danger btn-sm" data-action="reset-data"><i class="bi bi-trash"></i> Reset Data</button>
             </div>
           </div>
         </div>
@@ -562,7 +562,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
       <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="nxgp" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#0891B2"/><stop offset="1" stop-color="#ff5811"/></linearGradient></defs><path d="M16 1.8L29 9.4V22.6L16 30.2L3 22.6V9.4L16 1.8Z" fill="url(#nxgp)" opacity="0.2" stroke="url(#nxgp)" stroke-width="1.3" stroke-linejoin="round"/><circle cx="16" cy="16" r="4.5" fill="url(#nxgp)"/><line x1="16" y1="11.5" x2="16" y2="4.5" stroke="url(#nxgp)" stroke-width="1.4" stroke-linecap="round"/><line x1="12" y1="18.5" x2="5.5" y2="22.3" stroke="url(#nxgp)" stroke-width="1.4" stroke-linecap="round"/><line x1="20" y1="18.5" x2="26.5" y2="22.3" stroke="url(#nxgp)" stroke-width="1.4" stroke-linecap="round"/><circle cx="16" cy="3.2" r="2.2" fill="#0891B2"/><circle cx="4.8" cy="22.8" r="2.2" fill="#0891B2" opacity="0.75"/><circle cx="27.2" cy="22.8" r="2.2" fill="#ff5811" opacity="0.85"/></svg>
       HELIX <span style="font-size:.8rem;color:rgba(255,255,255,.4);font-weight:400">Self-Service Portal</span>
     </div>
-    <button class="btn btn-sm btn-outline-light" onclick="closePortal()"><i class="bi bi-x-lg"></i> Exit Portal</button>
+    <button class="btn btn-sm btn-outline-light" data-action="close-portal"><i class="bi bi-x-lg"></i> Exit Portal</button>
   </div>
   <div style="padding:32px;max-width:1100px;margin:0 auto">
     <h4 class="fw-bold mb-1">How can we help you today?</h4>
@@ -652,11 +652,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
             <label class="form-label fw-semibold">CSAT Rating (from requester)</label>
             <div class="d-flex align-items-center gap-3">
               <div id="inc-csat-stars">
-                <span class="csat-star" data-v="1" onclick="setCsatStar(1)">★</span>
-                <span class="csat-star" data-v="2" onclick="setCsatStar(2)">★</span>
-                <span class="csat-star" data-v="3" onclick="setCsatStar(3)">★</span>
-                <span class="csat-star" data-v="4" onclick="setCsatStar(4)">★</span>
-                <span class="csat-star" data-v="5" onclick="setCsatStar(5)">★</span>
+                <span class="csat-star" data-v="1" data-action="csat-star" data-star="1">★</span>
+                <span class="csat-star" data-v="2" data-action="csat-star" data-star="2">★</span>
+                <span class="csat-star" data-v="3" data-action="csat-star" data-star="3">★</span>
+                <span class="csat-star" data-v="4" data-action="csat-star" data-star="4">★</span>
+                <span class="csat-star" data-v="5" data-action="csat-star" data-star="5">★</span>
               </div>
               <input type="hidden" id="inc-csat-score" value="0">
               <input class="form-control form-control-sm" id="inc-csat-comment" placeholder="Optional comment" style="max-width:300px">
@@ -667,15 +667,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
             <div id="inc-notes-list" class="mb-2"></div>
             <div class="input-group input-group-sm">
               <input class="form-control" id="inc-note-input" placeholder="Add a timestamped work note…">
-              <button class="btn btn-outline-secondary" onclick="addIncidentNote()">Add Note</button>
+              <button class="btn btn-outline-secondary" data-action="add-incident-note">Add Note</button>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="inc-del-btn" onclick="deleteRecord('incident')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="inc-del-btn" data-action="delete-incident" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveIncident()">Save Incident</button>
+        <button class="btn btn-primary" data-action="save-incident">Save Incident</button>
       </div>
     </div>
   </div>
@@ -714,9 +714,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="req-del-btn" onclick="deleteRecord('request')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="req-del-btn" data-action="delete-request" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveRequest()">Save Request</button>
+        <button class="btn btn-primary" data-action="save-request">Save Request</button>
       </div>
     </div>
   </div>
@@ -776,10 +776,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-success btn-sm me-auto" id="chg-approve-btn" onclick="approveChange()" style="display:none"><i class="bi bi-check-lg"></i> Approve</button>
-        <button class="btn btn-outline-danger btn-sm" id="chg-del-btn" onclick="deleteRecord('change')" style="display:none">Delete</button>
+        <button class="btn btn-outline-success btn-sm me-auto" id="chg-approve-btn" data-action="approve-change" style="display:none"><i class="bi bi-check-lg"></i> Approve</button>
+        <button class="btn btn-outline-danger btn-sm" id="chg-del-btn" data-action="delete-change" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveChange()">Save RFC</button>
+        <button class="btn btn-primary" data-action="save-change">Save RFC</button>
       </div>
     </div>
   </div>
@@ -825,10 +825,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-warning btn-sm me-auto" id="prb-ke-btn" onclick="markKnownError()" style="display:none">Mark Known Error</button>
-        <button class="btn btn-outline-danger btn-sm" id="prb-del-btn" onclick="deleteRecord('problem')" style="display:none">Delete</button>
+        <button class="btn btn-outline-warning btn-sm me-auto" id="prb-ke-btn" data-action="mark-known-error" style="display:none">Mark Known Error</button>
+        <button class="btn btn-outline-danger btn-sm" id="prb-del-btn" data-action="delete-problem" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveProblem()">Save Problem</button>
+        <button class="btn btn-primary" data-action="save-problem">Save Problem</button>
       </div>
     </div>
   </div>
@@ -875,9 +875,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="ci-del-btn" onclick="deleteRecord('ci')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="ci-del-btn" data-action="delete-ci" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveCI()">Save CI</button>
+        <button class="btn btn-primary" data-action="save-ci">Save CI</button>
       </div>
     </div>
   </div>
@@ -908,9 +908,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="art-del-btn" onclick="deleteRecord('article')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="art-del-btn" data-action="delete-article" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveArticle()">Save Article</button>
+        <button class="btn btn-primary" data-action="save-article">Save Article</button>
       </div>
     </div>
   </div>
@@ -943,9 +943,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="cat-del-btn" onclick="deleteRecord('catalog')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="cat-del-btn" data-action="delete-catalog" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveCatalog()">Save Service</button>
+        <button class="btn btn-primary" data-action="save-catalog">Save Service</button>
       </div>
     </div>
   </div>
@@ -981,9 +981,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="sla-del-btn" onclick="deleteRecord('sla')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="sla-del-btn" data-action="delete-sla" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveSla()">Save SLA</button>
+        <button class="btn btn-primary" data-action="save-sla">Save SLA</button>
       </div>
     </div>
   </div>
@@ -1018,9 +1018,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="cab-del-btn" onclick="deleteRecord('cab')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="cab-del-btn" data-action="delete-cab" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveCab()">Save Meeting</button>
+        <button class="btn btn-primary" data-action="save-cab">Save Meeting</button>
       </div>
     </div>
   </div>
@@ -1049,9 +1049,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="frz-del-btn" onclick="deleteRecord('freeze')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="frz-del-btn" data-action="delete-freeze" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveFreeze()">Save Freeze</button>
+        <button class="btn btn-primary" data-action="save-freeze">Save Freeze</button>
       </div>
     </div>
   </div>
@@ -1094,9 +1094,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="vnd-del-btn" onclick="deleteRecord('vendor')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="vnd-del-btn" data-action="delete-vendor" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveVendor()">Save Vendor</button>
+        <button class="btn btn-primary" data-action="save-vendor">Save Vendor</button>
       </div>
     </div>
   </div>
@@ -1142,9 +1142,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="rel-del-btn" onclick="deleteRecord('release')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="rel-del-btn" data-action="delete-release" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveRelease()">Save Release</button>
+        <button class="btn btn-primary" data-action="save-release">Save Release</button>
       </div>
     </div>
   </div>
@@ -1187,9 +1187,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="mw-del-btn" onclick="deleteRecord('maintenance')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="mw-del-btn" data-action="delete-maintenance" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveMaintenance()">Save Window</button>
+        <button class="btn btn-primary" data-action="save-maintenance">Save Window</button>
       </div>
     </div>
   </div>
@@ -1228,9 +1228,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-danger btn-sm me-auto" id="team-del-btn" onclick="deleteRecord('team')" style="display:none">Delete</button>
+        <button class="btn btn-outline-danger btn-sm me-auto" id="team-del-btn" data-action="delete-team" style="display:none">Delete</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" onclick="saveTeam()">Save Team</button>
+        <button class="btn btn-primary" data-action="save-team">Save Team</button>
       </div>
     </div>
   </div>
@@ -2871,6 +2871,80 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
   buildTemplateMenu();
   navigate('dashboard');
+
+  // CSP-compliant delegation for data-action buttons
+  document.addEventListener('click', function(e) {
+    var el = e.target.closest('[data-action]');
+    if (!el) return;
+    var act = el.dataset.action;
+    var ACT = {
+      'add-incident-note':      addIncidentNote,
+      'apply-bulk-action':      applyBulkAction,
+      'approve-change':         approveChange,
+      'clear-activity-filters': clearActivityFilters,
+      'clear-bulk-selection':   clearBulkSelection,
+      'clear-major-incident':   clearMajorIncident,
+      'close-portal':           closePortal,
+      'delete-article':         () => deleteRecord('article'),
+      'delete-cab':             () => deleteRecord('cab'),
+      'delete-catalog':         () => deleteRecord('catalog'),
+      'delete-change':          () => deleteRecord('change'),
+      'delete-ci':              () => deleteRecord('ci'),
+      'delete-freeze':          () => deleteRecord('freeze'),
+      'delete-incident':        () => deleteRecord('incident'),
+      'delete-maintenance':     () => deleteRecord('maintenance'),
+      'delete-problem':         () => deleteRecord('problem'),
+      'delete-release':         () => deleteRecord('release'),
+      'delete-request':         () => deleteRecord('request'),
+      'delete-sla':             () => deleteRecord('sla'),
+      'delete-team':            () => deleteRecord('team'),
+      'delete-vendor':          () => deleteRecord('vendor'),
+      'export-data':            exportData,
+      'mark-known-error':       markKnownError,
+      'navigate-catalog':       () => navigate('catalog'),
+      'navigate-changes':       () => navigate('changes'),
+      'navigate-incidents':     () => navigate('incidents'),
+      'navigate-maintenance':   () => navigate('maintenance'),
+      'open-article-modal':     openArticleModal,
+      'open-ci-modal':          openCIModal,
+      'open-cab-modal':         openCabModal,
+      'open-catalog-modal':     openCatalogModal,
+      'open-change-modal':      openChangeModal,
+      'open-freeze-modal':      openFreezeModal,
+      'open-incident-modal':    openIncidentModal,
+      'open-maintenance-modal': openMaintenanceModal,
+      'open-portal':            openPortal,
+      'open-problem-modal':     openProblemModal,
+      'open-release-modal':     openReleaseModal,
+      'open-request-modal':     openRequestModal,
+      'open-sla-modal':         openSlaModal,
+      'open-team-modal':        openTeamModal,
+      'open-vendor-modal':      openVendorModal,
+      'reset-data':             resetData,
+      'save-article':           saveArticle,
+      'save-ci':                saveCI,
+      'save-cab':               saveCab,
+      'save-catalog':           saveCatalog,
+      'save-change':            saveChange,
+      'save-freeze':            saveFreeze,
+      'save-incident':          saveIncident,
+      'save-maintenance':       saveMaintenance,
+      'save-problem':           saveProblem,
+      'save-release':           saveRelease,
+      'save-request':           saveRequest,
+      'save-settings':          saveSettings,
+      'save-sla':               saveSla,
+      'save-team':              saveTeam,
+      'save-vendor':            saveVendor,
+      'change-view-pipeline':   () => setChangeView('pipeline', el),
+      'change-view-table':      () => setChangeView('table', el),
+      'csat-star':              () => setCsatStar(Number(el.dataset.star)),
+      'prb-tab-all':            () => setPrbTab('all', el),
+      'prb-tab-known-error':    () => setPrbTab('known-error', el),
+      'prb-tab-open':           () => setPrbTab('open', el),
+    };
+    if (ACT[act]) ACT[act]();
+  });
 });
 </script>
 </body>
