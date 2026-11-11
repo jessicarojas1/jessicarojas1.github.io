@@ -11,7 +11,7 @@
 --
 -- Idempotent: safe to run repeatedly against a fresh or existing database.
 -- Requires PostgreSQL 16+ (17 in production). Covers migrations up to
--- Version20261110000001.
+-- Version20261110000002.
 -- =============================================================================
 
 
@@ -554,3 +554,18 @@ CREATE TABLE IF NOT EXISTS document_template (
 );
 
 CREATE INDEX IF NOT EXISTS ix_document_template_type ON document_template (document_type_id) WHERE is_active;
+
+
+-- -----------------------------------------------------------------------------
+-- Native editor: soft checkout presence (Version20261110000002)
+-- Advisory "who is editing" marker per draft, renewed by the editor's heartbeat and
+-- ignored once stale; saves remain protected by revision.row_version.
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS revision_editing (
+    revision_id  uuid PRIMARY KEY REFERENCES revision (id),
+    user_id      uuid NOT NULL REFERENCES app_user (id),
+    started_at   timestamptz NOT NULL DEFAULT now(),
+    heartbeat_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT ck_revision_editing_times CHECK (heartbeat_at >= started_at)
+);

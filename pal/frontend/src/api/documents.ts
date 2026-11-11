@@ -38,11 +38,19 @@ export interface RevisionView {
   manifestHash: string | null
   /** Content written in PAL's editor (canonical JSON), or null when there is none. */
   body: RichTextNode | null
+  /** Who is editing this draft right now (soft checkout), or null. */
+  editing: Editing | null
   file: FileInfo | null
   workflow: WorkflowInfo | null
   actions: string[]
   releasedAt?: string
   effectiveFrom?: string
+}
+
+export interface Editing {
+  userId: string
+  displayName: string
+  since: string
 }
 
 export interface Grant {

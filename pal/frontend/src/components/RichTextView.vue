@@ -50,7 +50,7 @@ export default defineComponent({
         case 'paragraph': return h('p', children(node))
         case 'heading': {
           const level = int(node.attrs?.level, 1, 4) ?? 1
-          return h(`h${Math.min(level + 2, 6)}`, { class: `pal-rt-h${level}` }, children(node))
+          return h(`h${Math.min(level + 2, 6)}`, { class: `pal-rt-h${level}`, 'data-level': level }, children(node))
         }
         case 'bulletList': return h('ul', children(node))
         case 'orderedList': return h('ol', { start: int(node.attrs?.start, 1, 100000) }, children(node))

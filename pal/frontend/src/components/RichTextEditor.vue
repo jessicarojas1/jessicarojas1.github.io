@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch } from 'vue'
+import { computed, onBeforeUnmount, reactive, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
+import { mergeAttributes } from '@tiptap/core'
+import { Heading } from '@tiptap/extension-heading'
 import StarterKit from '@tiptap/starter-kit'
 import { TableCell, TableHeader, TableKit } from '@tiptap/extension-table'
 import { HEADING_LEVELS, isSafeHref, normalizeHref, type RichTextNode } from '@/richText'
@@ -38,6 +40,25 @@ function withoutCellLayout<T extends typeof TableCell | typeof TableHeader>(cell
   }) as T
 }
 
+type Level = (typeof HEADING_LEVELS)[number]
+const isLevel = (value: unknown): value is Level => HEADING_LEVELS.includes(value as Level)
+
+// The page already has <h1> (title) and <h2> (sections), so content heading N is an
+// <h(N+2)> while editing too, matching the read-only view; data-level keeps copy and
+// paste inside the editor from shifting levels.
+const PageHeading = Heading.extend({
+  parseHTML() {
+    return [
+      ...HEADING_LEVELS.map((level) => ({ tag: `h${level + 2}[data-level="${level}"]`, priority: 60, attrs: { level } })),
+      ...HEADING_LEVELS.map((level) => ({ tag: `h${level}`, attrs: { level } })),
+    ]
+  },
+  renderHTML({ node, HTMLAttributes }) {
+    const level = isLevel(node.attrs.level) ? node.attrs.level : 1
+    return [`h${Math.min(level + 2, 6)}`, mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, { class: `pal-rt-h${level}`, 'data-level': String(level) }), 0]
+  },
+}).configure({ levels: [...HEADING_LEVELS] })
+
 const emit = defineEmits<{ change: [doc: RichTextNode] }>()
 const $q = useQuasar()
 
@@ -48,7 +69,7 @@ const editor = useEditor({
   injectCSS: false,
   extensions: [
     StarterKit.configure({
-      heading: { levels: [...HEADING_LEVELS] },
+      heading: false,
       code: false,
       codeBlock: false,
       link: {
@@ -60,6 +81,7 @@ const editor = useEditor({
         HTMLAttributes: { rel: 'noopener noreferrer nofollow', target: '_blank' },
       },
     }),
+    PageHeading,
     // Column resizing stores pixel widths the server does not keep; leave it off.
     TableKit.configure({ table: { resizable: false }, tableCell: false, tableHeader: false }),
     withoutCellLayout(TableCell),
@@ -90,7 +112,7 @@ function chain() {
 
 function setBlock(level: number | null): void {
   if (level === null) chain().setParagraph().run()
-  else chain().setHeading({ level: level as (typeof HEADING_LEVELS)[number] }).run()
+  else chain().setHeading({ level: level as Level }).run()
 }
 
 function editLink(): void {
@@ -133,6 +155,48 @@ const history: ToolButton[] = [
   { icon: 'undo', label: 'Undo', enabled: () => editor.value?.can().undo() ?? false, run: () => chain().undo().run() },
   { icon: 'redo', label: 'Redo', enabled: () => editor.value?.can().redo() ?? false, run: () => chain().redo().run() },
 ]
+const groups = [
+  { tools: marks, offset: 1 },
+  { tools: blocks, offset: 1 + marks.length },
+  { tools: history, offset: 1 + marks.length + blocks.length },
+]
+const allTools = [...marks, ...blocks, ...history]
+
+// WAI-ARIA toolbar pattern: each toolbar is one Tab stop; arrow keys, Home and End move
+// within it. Index 0 of the main toolbar is the text-style menu.
+const roving = reactive<{ main: number; table: number }>({ main: 0, table: 0 })
+const mainStop = computed(() => (roving.main <= allTools.length ? roving.main : 0))
+
+function isOff(tool: ToolButton): boolean {
+  return props.disabled || (tool.enabled ? !tool.enabled() : false)
+}
+
+function runTool(tool: ToolButton): void {
+  if (!isOff(tool)) tool.run()
+}
+
+function onToolbarKeydown(name: 'main' | 'table', event: KeyboardEvent): void {
+  if (event.altKey || event.ctrlKey || event.metaKey || !['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return
+  // Unavailable tools stay focusable (aria-disabled), as the WAI-ARIA toolbar pattern allows,
+  // so focus is never lost when, say, Undo runs out of history under the keyboard.
+  const items = [...(event.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[data-roving]')]
+    .filter((el) => !el.hasAttribute('disabled'))
+  if (items.length === 0) return
+  const current = items.findIndex((el) => el.contains(document.activeElement))
+  const next = event.key === 'Home' ? 0
+    : event.key === 'End' ? items.length - 1
+      : (current + (event.key === 'ArrowRight' ? 1 : -1) + items.length) % items.length
+  event.preventDefault()
+  const target = items[next] as HTMLElement
+  roving[name] = Number(target.dataset.roving)
+  target.focus()
+}
+
+function onToolbarFocusin(name: 'main' | 'table', event: FocusEvent): void {
+  const target = (event.target as HTMLElement).closest<HTMLElement>('[data-roving]')
+  if (target !== null) roving[name] = Number(target.dataset.roving)
+}
+
 const tableActions: { label: string; run: () => void }[] = [
   { label: 'Add row below', run: () => chain().addRowAfter().run() },
   { label: 'Add column right', run: () => chain().addColumnAfter().run() },
@@ -153,6 +217,8 @@ const tableActions: { label: string; run: () => void }[] = [
       class="pal-editor-toolbar"
       role="toolbar"
       :aria-label="`${label} formatting`"
+      @keydown="onToolbarKeydown('main', $event)"
+      @focusin="onToolbarFocusin('main', $event)"
     >
       <q-btn-dropdown
         flat
@@ -162,6 +228,8 @@ const tableActions: { label: string; run: () => void }[] = [
         :aria-label="`Text style: ${blockLabel}`"
         class="pal-editor-block"
         :disable="disabled"
+        data-roving="0"
+        :tabindex="mainStop === 0 ? 0 : -1"
       >
         <q-list dense>
           <q-item
@@ -189,11 +257,11 @@ const tableActions: { label: string; run: () => void }[] = [
         aria-hidden="true"
       />
       <template
-        v-for="(group, gi) in [marks, blocks, history]"
+        v-for="(group, gi) in groups"
         :key="gi"
       >
         <q-btn
-          v-for="tool in group"
+          v-for="(tool, ti) in group.tools"
           :key="tool.label"
           flat
           dense
@@ -201,9 +269,11 @@ const tableActions: { label: string; run: () => void }[] = [
           :icon="tool.icon"
           :aria-label="tool.label"
           :aria-pressed="tool.active ? String(tool.active()) : undefined"
-          :class="{ 'pal-editor-active': tool.active?.() }"
-          :disable="disabled || (tool.enabled ? !tool.enabled() : false)"
-          @click="tool.run"
+          :aria-disabled="isOff(tool) ? 'true' : undefined"
+          :class="{ 'pal-editor-active': tool.active?.(), 'pal-editor-off': isOff(tool) }"
+          :data-roving="group.offset + ti"
+          :tabindex="mainStop === group.offset + ti ? 0 : -1"
+          @click="runTool(tool)"
         >
           <q-tooltip>{{ tool.label }}</q-tooltip>
         </q-btn>
@@ -219,17 +289,22 @@ const tableActions: { label: string; run: () => void }[] = [
       class="pal-editor-toolbar pal-editor-toolbar--table"
       role="toolbar"
       aria-label="Table"
+      @keydown="onToolbarKeydown('table', $event)"
+      @focusin="onToolbarFocusin('table', $event)"
     >
       <q-btn
-        v-for="action in tableActions"
+        v-for="(action, ai) in tableActions"
         :key="action.label"
         flat
         dense
         no-caps
         size="sm"
         :label="action.label"
-        :disable="disabled"
-        @click="action.run"
+        :aria-disabled="disabled ? 'true' : undefined"
+        :class="{ 'pal-editor-off': disabled }"
+        :data-roving="ai"
+        :tabindex="roving.table === ai ? 0 : -1"
+        @click="disabled || action.run()"
       />
     </div>
     <EditorContent

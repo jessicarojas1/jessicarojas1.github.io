@@ -53,6 +53,21 @@ final class RevisionController
         return new JsonResponse(['ok' => true, 'rowVersion' => $this->lifecycle->updateBody($user, $id, $body)]);
     }
 
+    /** Editor heartbeat: claims or renews "who is editing" (soft checkout). */
+    #[Route('/api/revisions/{id}/editing', name: 'api_revision_editing', methods: ['POST'])]
+    public function editing(#[CurrentUser] PalUser $user, string $id): JsonResponse
+    {
+        return new JsonResponse($this->lifecycle->heartbeatEditing($user, $id));
+    }
+
+    #[Route('/api/revisions/{id}/editing', name: 'api_revision_editing_stop', methods: ['DELETE'])]
+    public function stopEditing(#[CurrentUser] PalUser $user, string $id): JsonResponse
+    {
+        $this->lifecycle->stopEditing($user, $id);
+
+        return new JsonResponse(['ok' => true]);
+    }
+
     #[Route('/api/revisions/{id}/file', name: 'api_revision_attach', methods: ['PUT'])]
     public function attach(#[CurrentUser] PalUser $user, string $id, Request $request): JsonResponse
     {

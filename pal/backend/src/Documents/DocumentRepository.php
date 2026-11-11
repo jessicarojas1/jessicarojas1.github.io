@@ -12,8 +12,31 @@ use Doctrine\DBAL\Connection;
  */
 final class DocumentRepository
 {
+    /** How long an editing claim lasts without a heartbeat (the editor renews every 60 s). */
+    public const EDITING_WINDOW_SECONDS = 150;
+
     public function __construct(private readonly Connection $connection)
     {
+    }
+
+    /**
+     * Who is editing this draft right now, if anyone (a fresh soft-checkout claim).
+     *
+     * @return array{userId: string, displayName: string, since: string}|null
+     */
+    public function currentEditor(string $revisionId): ?array
+    {
+        $row = $this->connection->fetchAssociative(
+            'SELECT e.user_id, e.started_at, u.display_name FROM revision_editing e JOIN app_user u ON u.id = e.user_id
+             WHERE e.revision_id = ? AND e.heartbeat_at > now() - make_interval(secs => ?)',
+            [$revisionId, self::EDITING_WINDOW_SECONDS],
+        );
+
+        return false === $row ? null : [
+            'userId' => Row::string($row, 'user_id'),
+            'displayName' => Row::string($row, 'display_name'),
+            'since' => Row::string($row, 'started_at'),
+        ];
     }
 
     /**

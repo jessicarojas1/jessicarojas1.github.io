@@ -319,6 +319,59 @@ final class NativeEditorTest extends WebTestCase
         );
     }
 
+    public function testEditorsSeeWhoElseIsEditingADraft(): void
+    {
+        [$documentId, $revisionId] = $this->createDocument();
+        // A second author on the same document.
+        $this->users['coauthor'] = self::createUser($this->db, 'b0000000-0000-4000-8000-000000000006', 'Cody Coauthor');
+        self::grantRole($this->db, $this->users['coauthor'], 'AUTHOR');
+        $this->call($this->as('author'), 'POST', '/api/documents/'.$documentId.'/grants', ['role' => 'AUTHOR', 'userId' => $this->users['coauthor']]);
+        self::assertResponseStatusCodeSame(201);
+
+        $first = $this->call($this->as('author'), 'POST', '/api/revisions/'.$revisionId.'/editing');
+        self::assertResponseIsSuccessful();
+        self::assertTrue($first['mine']);
+        // A renewal keeps the claim and is not audited again.
+        $this->call($this->as('author'), 'POST', '/api/revisions/'.$revisionId.'/editing');
+        self::assertSame(1, (int) $this->db->fetchOne("SELECT count(*) FROM audit_event WHERE event_type = 'REVISION_EDITING_STARTED'"));
+
+        // The co-author is told who is editing; the claim does not move.
+        $second = $this->call($this->as('coauthor'), 'POST', '/api/revisions/'.$revisionId.'/editing');
+        self::assertFalse($second['mine']);
+        self::assertSame('Ada Author', $second['holder']['displayName']);
+        $this->client->request('GET', '/api/documents/'.$documentId);
+        self::assertSame('Ada Author', $this->json()['openRevision']['editing']['displayName']);
+
+        // Someone else cannot clear the claim; the holder can.
+        $this->call($this->as('coauthor'), 'DELETE', '/api/revisions/'.$revisionId.'/editing');
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM revision_editing'));
+        $this->call($this->as('author'), 'DELETE', '/api/revisions/'.$revisionId.'/editing');
+        self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM revision_editing'));
+        // Releasing and re-claiming in a loop does not flood the audit trail.
+        for ($i = 0; $i < 3; ++$i) {
+            $this->call($this->as('author'), 'POST', '/api/revisions/'.$revisionId.'/editing');
+            $this->call($this->as('author'), 'DELETE', '/api/revisions/'.$revisionId.'/editing');
+        }
+        self::assertSame(1, (int) $this->db->fetchOne("SELECT count(*) FROM audit_event WHERE event_type = 'REVISION_EDITING_STARTED' AND actor_user_id = ?", [$this->users['author']]));
+
+        // A stale claim (closed browser) is ignored and taken over.
+        $this->call($this->as('author'), 'POST', '/api/revisions/'.$revisionId.'/editing');
+        $this->db->executeStatement("UPDATE revision_editing SET started_at = now() - interval '1 hour', heartbeat_at = now() - interval '10 minutes'");
+        $this->client->request('GET', '/api/documents/'.$documentId);
+        self::assertNull($this->json()['openRevision']['editing']);
+        self::assertTrue($this->call($this->as('coauthor'), 'POST', '/api/revisions/'.$revisionId.'/editing')['mine']);
+
+        // Readers cannot claim a draft, and nothing can be claimed once it is submitted.
+        $this->call($this->as('reader'), 'POST', '/api/revisions/'.$revisionId.'/editing');
+        self::assertResponseStatusCodeSame(404);
+        $this->writeBody($revisionId, self::body('Purpose', 'Text.'));
+        $this->call($this->as('author'), 'POST', '/api/revisions/'.$revisionId.'/submit', ['approverId' => $this->users['approver']]);
+        self::assertResponseIsSuccessful();
+        self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM revision_editing'), 'Submitting clears the editing claim.');
+        $this->call($this->as('author'), 'POST', '/api/revisions/'.$revisionId.'/editing');
+        self::assertResponseStatusCodeSame(409);
+    }
+
     public function testReadersCannotSeeTheTemplateAdministration(): void
     {
         $this->as('reader');

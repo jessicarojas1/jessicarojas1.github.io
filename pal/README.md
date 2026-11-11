@@ -41,7 +41,8 @@ One document can now go through its whole life, thinly: create, upload, submit, 
 - **Write documents in PAL** instead of (or as well as) uploading a file: headings, bold/italic/underline/strikethrough, bulleted and numbered lists, quotes, divider lines, links and tables. Drafts save automatically ([ADR-0009](docs/adr/ADR-0009-authoring-native-editor-and-files.md#implementation-status-native-editor-v1-2026-11-10-decision-26), decision #26).
 - **Document templates**: PAL administrators maintain templates per document type under *Administration → Document templates* (new ones start from a seven-section outline: Purpose, Scope, Definitions, Responsibilities, Procedure, Records, References). Authors pick one on *New document* and get their own editable copy.
 - **Same controls as files**: content is validated against a server-side allow-list (no HTML, safe links only), freezes on submit, is covered by the approval fingerprint and re-verified at release, and is searchable. Readers and approvers see it formatted, read-only.
-- **Not yet**: images in the editor, PDF export, comparison between revisions, an editing lock. See [OPEN_ITEMS.md](OPEN_ITEMS.md).
+- **Who's editing**: when someone else is typing in the same draft, you see their name and since when (advisory; saves are still conflict-checked, so nothing is overwritten silently).
+- **Not yet**: images in the editor, PDF export, comparison between revisions. See [OPEN_ITEMS.md](OPEN_ITEMS.md).
 
 ## Supported deployment models
 

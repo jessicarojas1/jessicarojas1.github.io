@@ -4,7 +4,7 @@ import { computed, defineAsyncComponent, onBeforeUnmount, ref, watch } from 'vue
 import { useRoute, useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { api, ApiError } from '@/api/client'
-import { formatBytes, GRANT_ROLE_LABELS, type DocumentDetail, type Grant, type Person, type RevisionView } from '@/api/documents'
+import { formatBytes, GRANT_ROLE_LABELS, type DocumentDetail, type Editing, type Grant, type Person, type RevisionView } from '@/api/documents'
 import FileUploadField from '@/components/FileUploadField.vue'
 import PeoplePicker from '@/components/PeoplePicker.vue'
 import RevisionStateChip from '@/components/RevisionStateChip.vue'
@@ -24,6 +24,8 @@ const session = useSessionStore()
 const doc = ref<DocumentDetail | null>(null)
 const notFound = ref(false)
 const loadError = ref<string | null>(null)
+// A reload that fails after the page is showing keeps the page (and anything being typed).
+const reloadError = ref<string | null>(null)
 const busy = ref(false)
 const sectionError = ref<Record<string, string | null>>({})
 const fieldErrors = ref<Record<string, string>>({})
@@ -45,6 +47,13 @@ const bodySavedJson = ref('')
 const bodyStatus = ref<'saved' | 'dirty' | 'saving' | 'error' | 'conflict'>('saved')
 const bodyError = ref<string | null>(null)
 const AUTOSAVE_MS = 1500
+// Soft checkout: while typing, tell the server at most once a minute (the claim lapses
+// after 150 s without one), and warn when someone else holds the draft.
+const HEARTBEAT_MS = 60_000
+const otherEditor = ref<Editing | null>(null)
+let lastHeartbeat = 0
+let heartbeatRevision: string | null = null
+let claimedRevision: string | null = null
 let autosaveTimer: ReturnType<typeof setTimeout> | null = null
 let draftQueue: Promise<unknown> = Promise.resolve()
 // Submission
@@ -75,22 +84,28 @@ function setError(section: string, e: unknown, fallback: string): void {
   }
 }
 
-async function load(): Promise<void> {
+async function load(): Promise<boolean> {
   loadError.value = null
   try {
     doc.value = await api<DocumentDetail>(`/api/documents/${encodeURIComponent(id.value)}`)
     notFound.value = false
+    reloadError.value = null
     const draft = doc.value.openRevision
+    if (claimedRevision !== null && draft?.id !== claimedRevision) releaseClaim()
     if (draft !== null) {
       draftRowVersion.value = draft.rowVersion
       // The editor is seeded once per draft; later reloads never overwrite what is being typed.
       if (editorKey.value !== draft.id) seedBody(draft)
+      otherEditor.value = draft.editing !== null && draft.editing.userId !== session.me?.user.id ? draft.editing : null
+    } else {
+      otherEditor.value = null
     }
     if (draft === null || !draft.actions.includes('edit')) {
       // Submitted, withdrawn or gone: nothing can be saved any more, so nothing is "unsaved".
       if (autosaveTimer !== null) clearTimeout(autosaveTimer)
       autosaveTimer = null
       bodyDraftJson.value = bodySavedJson.value
+      releaseClaim()
     }
     // Re-seed the edit fields only for a different draft or when nothing is unsaved, so a
     // reload after another action (attaching a file, granting access) never discards edits.
@@ -102,11 +117,15 @@ async function load(): Promise<void> {
       seeded.value = snapshot(draft.id)
     }
   } catch (e) {
+    // The last action may have changed the draft's version; never save against a guess.
+    draftRowVersion.value = null
     if (e instanceof ApiError && e.status === 404) notFound.value = true
+    else if (doc.value !== null && doc.value.id === id.value) reloadError.value = e instanceof ApiError ? e.message : 'The latest state of this document could not be loaded.'
     else loadError.value = e instanceof ApiError ? e.message : 'The document could not be loaded.'
-    return
+    return false
   }
   await loadApprovers()
+  return true
 }
 
 // A failed approver lookup is shown on the submit section, not as a page-level failure.
@@ -160,7 +179,36 @@ function queued<T>(task: () => Promise<T>): Promise<T> {
   return next
 }
 
+async function heartbeat(): Promise<void> {
+  const rev = open.value
+  if (rev === null || !rev.actions.includes('edit')) return
+  // Throttled per draft, so switching or reopening a draft claims it straight away.
+  if (heartbeatRevision === rev.id && Date.now() - lastHeartbeat < HEARTBEAT_MS) return
+  heartbeatRevision = rev.id
+  lastHeartbeat = Date.now()
+  try {
+    const result = await api<{ holder: Editing | null; mine: boolean }>(`/api/revisions/${rev.id}/editing`, { method: 'POST' })
+    if (result.mine) claimedRevision = rev.id
+    otherEditor.value = result.mine ? null : result.holder
+  } catch {
+    // Presence is advisory; a failed heartbeat must never interrupt writing.
+  }
+}
+
+function releaseClaim(keepalive = false): void {
+  if (claimedRevision === null) return
+  const revisionId = claimedRevision
+  claimedRevision = null
+  heartbeatRevision = null
+  lastHeartbeat = 0
+  void api(`/api/revisions/${revisionId}/editing`, { method: 'DELETE', keepalive }).catch(() => undefined)
+}
+
+const onPageHide = (): void => releaseClaim(true)
+window.addEventListener('pagehide', onPageHide)
+
 function onBodyChange(body: RichTextNode): void {
+  void heartbeat()
   bodyDraft.value = body
   bodyDraftJson.value = serializeBody(body)
   if (bodyStatus.value === 'conflict') return
@@ -179,6 +227,12 @@ async function saveBody(): Promise<boolean> {
   return queued(async () => {
     const sending = bodyDraftJson.value
     if (sending === bodySavedJson.value) return true
+    if (draftRowVersion.value === null) await load()
+    if (draftRowVersion.value === null) {
+      bodyStatus.value = 'error'
+      bodyError.value = 'PAL could not reach the server to check this draft, so your latest changes are not saved yet. Keep this page open and use Try again.'
+      return false
+    }
     // The page may have moved on to another draft while this save waited in the queue.
     if (open.value?.id !== rev.id || !open.value.actions.includes('edit')) return false
     bodyStatus.value = 'saving'
@@ -208,9 +262,9 @@ async function saveBody(): Promise<boolean> {
 }
 
 /** After a conflict: drop local edits and load what is saved on the server. */
-function reloadBody(): Promise<void> {
+async function reloadBody(): Promise<void> {
   editorKey.value = ''
-  return load()
+  await load()
 }
 
 /** Only outcomes are announced to screen readers, not every pause in typing. */
@@ -226,6 +280,8 @@ const bodyStatusText = computed(() => ({
 
 onBeforeUnmount(() => {
   if (autosaveTimer !== null) clearTimeout(autosaveTimer)
+  window.removeEventListener('pagehide', onPageHide)
+  releaseClaim()
 })
 
 function goBack(): void {
@@ -242,11 +298,11 @@ async function run(section: string, action: () => Promise<unknown>, success: str
   try {
     // Queued behind any editor autosave, and reloaded inside the queue, so the next save
     // always uses the row version this action produced.
-    await queued(async () => {
+    const reloaded = await queued(async () => {
       await action()
-      await load()
+      return load()
     })
-    $q.notify({ type: 'positive', message: success })
+    $q.notify(reloaded ? { type: 'positive', message: success } : { type: 'warning', message: `${success} The page could not refresh: use Try again before continuing.` })
   } catch (e) {
     setError(section, e, 'That did not work. Try again.')
   } finally {
@@ -340,7 +396,12 @@ function revokeGrant(grant: Grant): void {
   })
 }
 
-watch(id, () => void load(), { immediate: true })
+watch(id, () => {
+  // Moving to another document reuses this page: give up the claim on the previous draft.
+  releaseClaim()
+  otherEditor.value = null
+  void load()
+}, { immediate: true })
 </script>
 
 <template>
@@ -386,6 +447,22 @@ watch(id, () => void load(), { immediate: true })
     </div>
 
     <template v-else>
+      <q-banner
+        v-if="reloadError"
+        class="bg-warning q-mb-md"
+        rounded
+        role="alert"
+      >
+        {{ reloadError }} What you see may be out of date; anything you are typing is kept.
+        <template #action>
+          <q-btn
+            flat
+            no-caps
+            label="Try again"
+            @click="load"
+          />
+        </template>
+      </q-banner>
       <header class="pal-page-header">
         <p class="pal-doc-number q-mb-xs">
           {{ doc.documentNumber }}
@@ -701,6 +778,23 @@ watch(id, () => void load(), { immediate: true })
           <p class="pal-muted q-mb-sm">
             Write the document here, attach a file below, or both. Changes save automatically.
           </p>
+          <span
+            class="pal-visually-hidden"
+            role="status"
+          >{{ otherEditor ? `${otherEditor.displayName} is also editing this draft.` : '' }}</span>
+          <q-banner
+            v-if="otherEditor"
+            class="pal-editing-banner q-mb-sm"
+            rounded
+          >
+            <template #avatar>
+              <q-icon
+                name="group"
+                aria-hidden="true"
+              />
+            </template>
+            {{ otherEditor.displayName }} has been editing this draft since {{ formatDateTime(otherEditor.since, tz) }}. You can keep working, but if you both change the content, whoever saves second will be asked to reload.
+          </q-banner>
           <q-banner
             v-if="bodyError"
             class="bg-negative text-white q-mb-sm"
@@ -717,6 +811,17 @@ watch(id, () => void load(), { immediate: true })
                 no-caps
                 label="Discard my changes and reload"
                 @click="reloadBody"
+              />
+            </template>
+            <template
+              v-else-if="bodyStatus === 'error'"
+              #action
+            >
+              <q-btn
+                flat
+                no-caps
+                label="Try again"
+                @click="saveBody"
               />
             </template>
           </q-banner>

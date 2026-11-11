@@ -35,7 +35,7 @@ export function setUnauthorizedHandler(handler: UnauthorizedHandler | null): voi
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 
-export async function api<T>(path: string, init: { method?: string; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {
+export async function api<T>(path: string, init: { method?: string; body?: unknown; signal?: AbortSignal; keepalive?: boolean } = {}): Promise<T> {
   if (!path.startsWith('/api/')) {
     throw new Error('API paths must start with /api/')
   }
@@ -52,6 +52,8 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
       credentials: 'same-origin',
       body: init.body === undefined ? null : JSON.stringify(init.body),
       signal: init.signal ?? null,
+      // Lets a request finish while the page is closing (e.g. releasing an editing claim).
+      keepalive: init.keepalive ?? false,
     })
   } catch {
     throw new ApiError(0, 'network_error', 'PAL could not be reached. Check your connection and try again.')

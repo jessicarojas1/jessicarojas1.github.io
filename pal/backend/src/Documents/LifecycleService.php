@@ -181,6 +181,68 @@ final class LifecycleService
     }
 
     /**
+     * The editor's heartbeat (soft checkout, ADR-0009). Claims the draft for this user unless
+     * someone else holds a fresh claim, in which case nothing changes and that person is
+     * returned so the UI can warn. Advisory only: saves stay guarded by row_version, so a
+     * second editor is never silently overwritten. A new claim (not a renewal) is audited.
+     *
+     * @return array{holder: array{userId: string, displayName: string, since: string}|null, mine: bool}
+     */
+    public function heartbeatEditing(PalUser $user, string $revisionId): array
+    {
+        return $this->connection->transactional(function () use ($user, $revisionId): array {
+            [$document] = $this->lockForDraftChange($user, $revisionId);
+            $current = $this->connection->fetchAssociative(
+                'SELECT e.user_id, e.started_at, u.display_name, e.heartbeat_at > now() - make_interval(secs => ?) AS fresh
+                 FROM revision_editing e JOIN app_user u ON u.id = e.user_id WHERE e.revision_id = ? FOR UPDATE OF e',
+                [DocumentRepository::EDITING_WINDOW_SECONDS, $revisionId],
+            );
+            if (false !== $current && Row::bool($current, 'fresh') && Row::string($current, 'user_id') !== $user->id) {
+                return ['holder' => [
+                    'userId' => Row::string($current, 'user_id'),
+                    'displayName' => Row::string($current, 'display_name'),
+                    'since' => Row::string($current, 'started_at'),
+                ], 'mine' => false];
+            }
+            $renewal = false !== $current && Row::bool($current, 'fresh');
+            $since = Row::scalarString($this->connection->fetchOne(<<<'SQL'
+                INSERT INTO revision_editing (revision_id, user_id) VALUES (?, ?)
+                ON CONFLICT (revision_id) DO UPDATE SET
+                    user_id = EXCLUDED.user_id,
+                    started_at = CASE WHEN ?::boolean THEN revision_editing.started_at ELSE now() END,
+                    heartbeat_at = now()
+                RETURNING started_at
+                SQL, [$revisionId, $user->id, $renewal ? 'true' : 'false']));
+            // One audit event per editing session: re-claiming after leaving and coming back
+            // within 15 minutes is the same session, so a claim/release loop cannot flood the trail.
+            $recentlyStarted = false !== $this->connection->fetchOne(<<<'SQL'
+                SELECT 1 FROM audit_event
+                WHERE subject_type = 'revision' AND subject_id = ? AND actor_user_id = ?
+                  AND event_type = 'REVISION_EDITING_STARTED' AND occurred_at > now() - interval '15 minutes'
+                LIMIT 1
+                SQL, [$revisionId, $user->id]);
+            if (!$renewal && !$recentlyStarted) {
+                $this->audit->record(new AuditEntry('REVISION_EDITING_STARTED', $this->actor($user), 'revision', $revisionId, [
+                    'document_id' => Row::string($document, 'id'),
+                ]));
+            }
+
+            return ['holder' => ['userId' => $user->id, 'displayName' => $user->displayName, 'since' => $since], 'mine' => true];
+        });
+    }
+
+    /**
+     * Gives up this user's editing claim (leaving the page). Only ever removes the caller's
+     * own claim, so it needs no further authorization; harmless when there is none.
+     */
+    public function stopEditing(PalUser $user, string $revisionId): void
+    {
+        if (Ids::isUuid($revisionId)) {
+            $this->connection->executeStatement('DELETE FROM revision_editing WHERE revision_id = ? AND user_id = ?', [$revisionId, $user->id]);
+        }
+    }
+
+    /**
      * Changed draft fields as {field: {from, to}}, so the audit trail shows every edit.
      *
      * @param array<string, mixed>                                                                         $revision
@@ -244,6 +306,8 @@ final class LifecycleService
                 "UPDATE revision SET state = 'IN_WORKFLOW', content_manifest_hash = ?, submitted_at = now(), updated_at = now(), row_version = row_version + 1 WHERE id = ?",
                 [$hash, $revisionId],
             );
+            // Nobody is editing a submitted draft any more.
+            $this->connection->executeStatement('DELETE FROM revision_editing WHERE revision_id = ?', [$revisionId]);
             $instanceId = Row::scalarString($this->connection->fetchOne(
                 'INSERT INTO workflow_instance (revision_id, bound_manifest_hash, initiated_by) VALUES (?, ?, ?) RETURNING id',
                 [$revisionId, $hash, $user->id],
@@ -365,6 +429,7 @@ final class LifecycleService
                 SQL, [$revisionId]);
             $this->connection->executeStatement("UPDATE workflow_instance SET status = 'CANCELLED', completed_at = now() WHERE revision_id = ? AND status = 'ACTIVE'", [$revisionId]);
             $this->connection->executeStatement("UPDATE revision SET state = 'WITHDRAWN', updated_at = now(), row_version = row_version + 1 WHERE id = ?", [$revisionId]);
+            $this->connection->executeStatement('DELETE FROM revision_editing WHERE revision_id = ?', [$revisionId]);
             $this->audit->record(new AuditEntry('REVISION_WITHDRAWN', $this->actor($user), 'revision', $revisionId, ['document_id' => Row::string($document, 'id')], $reason, Row::string($revision, 'state'), 'WITHDRAWN'));
         });
     }
