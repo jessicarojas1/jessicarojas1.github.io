@@ -122,8 +122,16 @@
   <main id="main-content">
 
     <!-- Hero -->
-    <section class="hero-section reveal">
-      <div class="container text-center">
+    <section class="hero-section reveal" style="position:relative;overflow:hidden;">
+      <div class="hud-corners" aria-hidden="true"></div>
+      <div class="hud-corners-inner" aria-hidden="true"></div>
+      <div class="container text-center hero-content">
+        <div class="d-flex justify-content-center mb-3">
+          <span class="cyber-badge">
+            <span class="status-dot online" aria-hidden="true"></span>
+            AVAILABLE FOR ENGAGEMENT
+          </span>
+        </div>
         <h1>Consulting Services</h1>
         <p class="lead">CMMC, NIST 800-171, and DoD compliance — practical guidance from a practitioner who's done it.</p>
         <!-- Availability indicator (controlled by admin via localStorage) -->

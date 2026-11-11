@@ -101,6 +101,16 @@ function _scriptInit() {
     r.addEventListener('animationend', () => r.remove());
   });
 
+  /* ── data-action delegation (inbox/projects) ─────────────── */
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    if (action === 'mark-read')         { const idx = parseInt(btn.dataset.idx, 10); if (typeof markRead         === 'function') markRead(idx); }
+    else if (action === 'delete-submission') { const idx = parseInt(btn.dataset.idx, 10); if (typeof deleteSubmission === 'function') deleteSubmission(idx); }
+    else if (action === 'delete-project')   { const id  = parseInt(btn.dataset.id,  10); if (typeof deleteDynamicProject === 'function') deleteDynamicProject(id); }
+  });
+
   /* ── Ambient hero orbs ───────────────────────────────────── */
   document.querySelectorAll('.hero-section').forEach(hero => {
     const orbs = [
@@ -243,10 +253,10 @@ function renderInbox(container) {
         <div class="text-secondary small">${escHtml(s.email)}</div>
         ${s.subject ? `<div class="small fw-semibold mt-1">${escHtml(s.subject)}</div>` : ''}
         <p class="mb-1 mt-1 small">${escHtml(s.message)}</p>
-        <button class="btn btn-sm btn-outline-secondary" onclick="markRead(${i})">
+        <button class="btn btn-sm btn-outline-secondary" data-action="mark-read" data-idx="${i}">
           ${s.read ? 'Mark Unread' : 'Mark Read'}
         </button>
-        <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteSubmission(${i})">Delete</button>
+        <button class="btn btn-sm btn-outline-danger ms-1" data-action="delete-submission" data-idx="${i}">Delete</button>
       </div>
     </div>
   `).join('');
@@ -312,7 +322,7 @@ function renderDynamicProjects(grid) {
         </div>
         <div class="card-footer d-flex gap-2 flex-wrap">
           ${p.link ? `<a href="${escHtml(p.link)}" class="btn btn-sm btn-primary">View Project</a>` : ''}
-          ${isAdmin ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteDynamicProject(${p.id})">Delete</button>` : ''}
+          ${isAdmin ? `<button class="btn btn-sm btn-outline-danger" data-action="delete-project" data-id="${p.id}">Delete</button>` : ''}
         </div>
       </div>`;
     grid.appendChild(col);

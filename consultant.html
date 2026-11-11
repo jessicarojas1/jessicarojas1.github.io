@@ -71,23 +71,31 @@
   <main id="main-content">
 
     <!-- Hero -->
-    <section class="hero-section reveal">
-      <div class="container text-center">
+    <section class="hero-section reveal" style="position:relative;overflow:hidden;">
+      <div class="hud-corners" aria-hidden="true"></div>
+      <div class="hud-corners-inner" aria-hidden="true"></div>
+      <div class="container text-center hero-content">
+        <div class="d-flex justify-content-center mb-3">
+          <span class="cyber-badge">
+            <span class="status-dot online" aria-hidden="true"></span>
+            AVAILABLE FOR ENGAGEMENT
+          </span>
+        </div>
         <h1>CMMC Consulting Services</h1>
         <p class="lead">Practical, certified guidance for DoD contractors navigating CMMC Level 2, NIST SP 800-171, and DFARS compliance.</p>
-        <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
-          <span class="badge-cert">CISSP</span>
-          <span class="badge-cert">CEH</span>
-          <span class="badge-cert">ECES</span>
-          <span class="badge-cert">CompTIA Security+</span>
-          <span class="badge-cert">MS Cybersecurity &amp; IA</span>
+        <div class="d-flex justify-content-center gap-2 flex-wrap mt-3" aria-label="Certifications">
+          <span class="cyber-badge">CISSP</span>
+          <span class="cyber-badge">CEH</span>
+          <span class="cyber-badge">ECES</span>
+          <span class="cyber-badge">CompTIA Sec+</span>
+          <span class="cyber-badge">MS Cybersecurity &amp; IA</span>
         </div>
         <!-- Availability badge -->
         <div class="mt-3 mb-2" id="consult-avail-badge"></div>
-        <div class="mt-2">
-          <a href="contact.html" class="btn btn-primary btn-lg me-2">Get In Touch</a>
+        <div class="mt-2 d-flex flex-wrap justify-content-center gap-3">
+          <a href="contact.html" class="btn btn-primary btn-lg">Get In Touch</a>
           <a href="#engagements" class="btn btn-outline-light btn-lg">My Engagements</a>
-          <a href="services.html" class="btn btn-outline-light btn-lg ms-2">View Services</a>
+          <a href="services.html" class="btn btn-outline-light btn-lg">View Services</a>
         </div>
       </div>
     </section>
