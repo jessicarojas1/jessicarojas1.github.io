@@ -347,8 +347,8 @@ code, pre, kbd,
   transition: background-color 0.2s, box-shadow 0.25s, transform 0.15s;
 }
 .btn-cerulean:hover {
-  background-color: #0369a1;
-  border-color:     #0369a1;
+  background-color: rgba(var(--cyber-rgb), 0.75);
+  border-color:     var(--cyber);
   color: #fff;
   box-shadow: var(--glow-cerulean-md);
   transform: translateY(-2px);
@@ -1183,7 +1183,7 @@ code, pre, kbd,
 .dot-green  { background:#28ca41; box-shadow: 0 0 5px rgba(40,202,65,0.5); }
 .terminal-title {
   font-size: 0.72rem;
-  color: #3a5578;
+  color: var(--bs-secondary-color);
   flex: 1;
   text-align: center;
   letter-spacing: 0.06em;

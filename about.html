@@ -93,17 +93,25 @@
   <main id="main-content">
 
     <!-- Hero -->
-    <section class="hero-section reveal">
-      <div class="container text-center">
+    <section class="hero-section reveal" style="position:relative;overflow:hidden;">
+      <div class="hud-corners" aria-hidden="true"></div>
+      <div class="hud-corners-inner" aria-hidden="true"></div>
+      <div class="container text-center hero-content">
+        <div class="d-flex justify-content-center mb-3">
+          <span class="cyber-badge">
+            <span class="status-dot online" aria-hidden="true"></span>
+            IDENTITY RECORD
+          </span>
+        </div>
         <div class="about-photo-wrap">&#128100;</div>
         <h1 class="display-4 fw-bold">Jessica Rojas</h1>
         <p class="lead">Enterprise Systems Manager &middot; CISSP &middot; U.S. Army Veteran</p>
-        <div class="d-flex justify-content-center flex-wrap gap-2 mt-3">
-          <span class="badge bg-primary fs-6">CISSP</span>
-          <span class="badge bg-primary fs-6">CEH</span>
-          <span class="badge bg-primary fs-6">ECES</span>
-          <span class="badge bg-primary fs-6">CompTIA Security+</span>
-          <span class="badge bg-secondary fs-6">Secret Clearance</span>
+        <div class="d-flex justify-content-center flex-wrap gap-2 mt-3" aria-label="Certifications">
+          <span class="cyber-badge">CISSP</span>
+          <span class="cyber-badge">CEH</span>
+          <span class="cyber-badge">ECES</span>
+          <span class="cyber-badge">CompTIA Sec+</span>
+          <span class="cyber-badge">CMMC L2</span>
         </div>
       </div>
     </section>

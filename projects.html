@@ -69,10 +69,18 @@
   <main id="main-content">
 
     <!-- Page Hero -->
-    <section class="hero-section reveal">
-      <div class="container text-center">
-        <h1>Projects</h1>
-        <p class="lead">Tools, apps, and systems I've built.</p>
+    <section class="hero-section reveal" style="position:relative;overflow:hidden;">
+      <div class="hud-corners" aria-hidden="true"></div>
+      <div class="hud-corners-inner" aria-hidden="true"></div>
+      <div class="container text-center hero-content">
+        <div class="d-flex justify-content-center mb-3">
+          <span class="cyber-badge">
+            <span class="status-dot online" aria-hidden="true"></span>
+            PROJECT REGISTRY &nbsp;·&nbsp; OPEN SOURCE
+          </span>
+        </div>
+        <h1 class="display-5 fw-bold">Projects</h1>
+        <p class="lead">Tools, apps, and systems built across cybersecurity, compliance, and software engineering.</p>
         <button class="btn btn-sm btn-warning" data-role-min="editor" data-bs-toggle="modal" data-bs-target="#addProjectModal" style="display:none">+ Add Project</button>
       </div>
     </section>
