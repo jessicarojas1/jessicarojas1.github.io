@@ -924,7 +924,7 @@
     if (comp.length) {
       panel.innerHTML += `<div class="p-2 border-top">
         <div class="small fw-semibold mb-1 text-secondary" style="font-size:.65rem;text-transform:uppercase">Compliance Mapping</div>
-        ${comp.map(c=>`<span class="comp-pill" style="border-color:${c.status==='pass'?'#198754':c.status==='partial'?'#ffc107':'#dc3545'};color:${c.status==='pass'?'#198754':c.status==='partial'?'#ffc107':'#dc3545'}">${c.framework}: ${c.status}</span>`).join('')}
+        ${comp.map(c=>`<span class="comp-pill" style="border-color:${c.status==='pass'?'var(--bs-success)':c.status==='partial'?'var(--bs-warning)':'var(--bs-danger)'};color:${c.status==='pass'?'var(--bs-success)':c.status==='partial'?'var(--bs-warning)':'var(--bs-danger)'}">${c.framework}: ${c.status}</span>`).join('')}
       </div>`;
     }
   });

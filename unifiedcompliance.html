@@ -13,7 +13,17 @@
   <title>Unified Compliance Framework | Jessica Rojas</title>
   <meta name="description" content="Unified Compliance Framework — ISO/IEC 27001:2022, CMMC Level 1 &amp; Level 2 control tracking, cross-mapping, and gap analysis." />
   <style>
-    .ucf-mono { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: .85rem; color: #ff5811; }
+:root {
+      /* Unified Compliance Framework badge palette */
+      --ucf-cmmi:   var(--bs-danger);
+      --ucf-iso42:  #7c3aed;
+      --ucf-csf:    var(--cerulean);
+      --ucf-airf:   var(--bs-success);
+      --ucf-l3:     var(--bs-primary);
+      --ucf-cmmid:  #7e22ce;
+      --ucf-yellow: var(--bs-warning);
+    }
+        .ucf-mono { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: .85rem; color: #ff5811; }
     .ucf-select { font-size: .8rem; padding: 2px 6px; min-width: 130px; }
     .ucf-badge-map { font-size: .7rem; margin: 1px; }
     .status-implemented { color: var(--bs-success); }
@@ -150,8 +160,8 @@
         <div class="col-md-4 col-sm-6">
           <div class="card h-100 ucf-fw-card" style="cursor:pointer" data-ucf-pane="pane-l3" data-ucf-tab="tab-l3" title="View CMMC Level 3 practices">
             <div class="card-body">
-              <h5 class="card-title mb-1">CMMC Level 3 <span class="badge" style="background:#ea580c">24</span></h5>
-              <div class="progress mb-2"><div class="progress-bar" id="prog-l3" role="progressbar" style="width:0%;background:#ea580c">0%</div></div>
+              <h5 class="card-title mb-1">CMMC Level 3 <span class="badge" style="background:var(--bs-warning)">24</span></h5>
+              <div class="progress mb-2"><div class="progress-bar" id="prog-l3" role="progressbar" style="width:0%;background:var(--bs-warning)">0%</div></div>
               <small class="text-body-secondary" id="stats-l3"></small>
             </div>
           </div>
@@ -2125,7 +2135,7 @@
     function iso42Badges(arr) {
       if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
       return arr.map(function(c) {
-        return '<button type="button" class="badge bg-purple ucf-badge-map ucf-link border-0" style="background:#7c3aed!important" data-goto="iso42-'+c+'" title="Jump to ISO 42001 '+c+'">42K '+c+'</button>';
+        return '<button type="button" class="badge bg-purple ucf-badge-map ucf-link border-0" style="background:var(--ucf-iso42)!important" data-goto="iso42-'+c+'" title="Jump to ISO 42001 '+c+'">42K '+c+'</button>';
       }).join(' ');
     }
     function iso42MappingsForISO27k(iso27kId) {
@@ -2141,7 +2151,7 @@
     function csfBadges(arr) {
       if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
       return arr.map(function(c) {
-        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#0891b2!important" data-goto="csf-'+c+'" title="Jump to CSF '+c+'">CSF '+c+'</button>';
+        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-csf)!important" data-goto="csf-'+c+'" title="Jump to CSF '+c+'">CSF '+c+'</button>';
       }).join(' ');
     }
     function csfMappingsForISO27k(iso27kId) {
@@ -2160,7 +2170,7 @@
     function airfBadges(arr) {
       if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
       return arr.map(function(c) {
-        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#059669!important" data-goto="airf-'+c+'" title="Jump to AI RMF '+c+'">RMF '+c+'</button>';
+        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-airf)!important" data-goto="airf-'+c+'" title="Jump to AI RMF '+c+'">RMF '+c+'</button>';
       }).join(' ');
     }
     function airfMappingsForISO27k(iso27kId) {
@@ -2182,7 +2192,7 @@
     function l3Badges(arr) {
       if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
       return arr.map(function(c) {
-        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#ea580c!important" data-goto="l3-'+c+'" title="Jump to CMMC L3 '+c+'">'+c+'</button>';
+        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-l3)!important" data-goto="l3-'+c+'" title="Jump to CMMC L3 '+c+'">'+c+'</button>';
       }).join(' ');
     }
     function l3MappingsForISO27k(iso27kId) {
@@ -2207,7 +2217,7 @@
     function cmmidBadges(arr) {
       if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
       return arr.map(function(c) {
-        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#7e22ce!important" data-goto="cmmid-'+c+'" title="Jump to CMMI Dev L3 '+c+'">'+c+'</button>';
+        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-cmmid)!important" data-goto="cmmid-'+c+'" title="Jump to CMMI Dev L3 '+c+'">'+c+'</button>';
       }).join(' ');
     }
     function cmmidMappingsForISO27k(id) {
@@ -2602,10 +2612,10 @@
             return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+st+'" title="Jump to '+id+'">'+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
-            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'" title="Jump to CMMI '+id+'">'+id+'</button>';
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-cmmi)!important" data-goto="cmmi-'+id+'" title="Jump to CMMI '+id+'">'+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           html += '<tr data-id="'+storeId+'" data-family="'+c.family+'" data-status="'+curStatus+'">'+
-            '<td class="ucf-mono" style="color:#7c3aed">'+c.id+'</td>'+
+            '<td class="ucf-mono" style="color:var(--ucf-iso42)">'+c.id+'</td>'+
             '<td>'+famBadge+'</td>'+
             '<td>'+c.title+'</td>'+
             '<td>'+makeSelect(storeId)+'</td>'+
@@ -2655,13 +2665,13 @@
             return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+st+'">'+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
-            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'">'+id+'</button>';
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-cmmi)!important" data-goto="cmmi-'+id+'">'+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           var iso42Links = c.iso42.length ? c.iso42.map(function(id){
-            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#7c3aed!important" data-goto="iso42-'+id+'">42K '+id+'</button>';
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-iso42)!important" data-goto="iso42-'+id+'">42K '+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           html += '<tr data-id="'+storeId+'" data-fn="'+c.fn+'" data-status="'+curStatus+'">'+
-            '<td class="ucf-mono" style="color:#0891b2;white-space:nowrap">'+c.id+'</td>'+
+            '<td class="ucf-mono" style="color:var(--ucf-csf);white-space:nowrap">'+c.id+'</td>'+
             '<td>'+fnBadge+'</td>'+
             '<td style="font-size:.82rem">'+c.title+'</td>'+
             '<td>'+makeSelect(storeId)+'</td>'+
@@ -2733,16 +2743,16 @@
             return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+st+'">'+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
-            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'">'+id+'</button>';
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-cmmi)!important" data-goto="cmmi-'+id+'">'+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           var iso42Links = c.iso42.length ? c.iso42.map(function(id){
-            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#7c3aed!important" data-goto="iso42-'+id+'">42K '+id+'</button>';
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-iso42)!important" data-goto="iso42-'+id+'">42K '+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           var csfLinks = c.csf.length ? c.csf.map(function(id){
-            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#0891b2!important" data-goto="csf-'+id+'">CSF '+id+'</button>';
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-csf)!important" data-goto="csf-'+id+'">CSF '+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           html += '<tr data-id="'+storeId+'" data-fn="'+c.fn+'" data-status="'+curStatus+'">'+
-            '<td class="ucf-mono" style="color:#059669;white-space:nowrap">'+c.id+'</td>'+
+            '<td class="ucf-mono" style="color:var(--ucf-airf);white-space:nowrap">'+c.id+'</td>'+
             '<td>'+fnBadge+'</td>'+
             '<td style="font-size:.82rem">'+c.title+'</td>'+
             '<td>'+makeSelect(storeId)+'</td>'+
@@ -2808,7 +2818,7 @@
         var curStatus = getStatus(storeId);
         var l2Link = c.l2 ? '<button type="button" class="badge bg-warning text-dark ucf-badge-map ucf-link border-0" data-goto="l2-'+c.l2+'">'+c.l2+'</button>' : '<span class="text-body-secondary small">New</span>';
         html += '<tr data-id="'+storeId+'" data-domain="'+c.domain+'" data-status="'+curStatus+'">'+
-          '<td class="ucf-mono" style="color:#ea580c;white-space:nowrap">'+c.id+'</td>'+
+          '<td class="ucf-mono" style="color:var(--ucf-l3);white-space:nowrap">'+c.id+'</td>'+
           '<td>'+domainBadge(c.domain)+'</td>'+
           '<td style="font-size:.82rem">'+c.title+'</td>'+
           '<td class="ucf-mono" style="font-size:.75rem">'+c.nist+'</td>'+
@@ -2933,11 +2943,11 @@
             return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+st+'">'+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
-            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'">'+id+'</button>';
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:var(--ucf-cmmi)!important" data-goto="cmmi-'+id+'">'+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           html += '<tr data-id="'+storeId+'" data-pa="'+c.pa+'" data-status="'+curStatus+'">'+
-            '<td class="ucf-mono" style="color:#7e22ce"><span class="badge bg-secondary me-1">'+c.paCode+'</span>'+c.id+'</td>'+
-            '<td><span class="badge" style="background:#7e22ce">'+c.pa+'</span></td>'+
+            '<td class="ucf-mono" style="color:var(--ucf-cmmid)"><span class="badge bg-secondary me-1">'+c.paCode+'</span>'+c.id+'</td>'+
+            '<td><span class="badge" style="background:var(--ucf-cmmid)">'+c.pa+'</span></td>'+
             '<td>'+c.title+'</td>'+
             '<td>'+makeSelect(storeId)+'</td>'+
             '<td>'+isoLinks+'</td>'+
@@ -3029,11 +3039,11 @@
         html += '</div>';
 
         // L2-only column
-        html += '<div class="col-md-6"><div class="nexus-col-header" style="color:#ffc107">CMMC Level 2 (Additional)</div>';
+        html += '<div class="col-md-6"><div class="nexus-col-header" style="color:var(--ucf-yellow)">CMMC Level 2 (Additional)</div>';
         if (g.l2.length) {
           g.l2.forEach(function(c) {
             html += '<div class="nexus-item">';
-            html += '<button type="button" class="ucf-mono ucf-link nexus-id bg-transparent border-0 p-0" data-goto="l2-'+c.id+'" style="color:#ffc107">'+c.id+'</button>';
+            html += '<button type="button" class="ucf-mono ucf-link nexus-id bg-transparent border-0 p-0" data-goto="l2-'+c.id+'" style="color:var(--ucf-yellow)">'+c.id+'</button>';
             html += statusDot('l2-'+c.id);
             html += '<div class="nexus-title">'+c.title+'</div>';
             html += '</div>';

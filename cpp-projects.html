@@ -14,6 +14,12 @@
   <title>C++ Projects | Jessica Rojas</title>
   <meta name="description" content="C++ security and aerospace/defense tools — entropy scanner, CUI classifier, ARINC 429 decoder, MIL-STD-1553 simulator, AES vault, and more. With full build and deployment instructions." />
   <style>
+    :root {
+      --cpp-badge-security: var(--bs-danger);
+      --cpp-badge-systems:  var(--bs-purple, #6f42c1);
+      --cpp-badge-and:      var(--bs-info);
+    }
+
     /* ── Page hero ──────────────────────────────────────────────── */
     .cpp-hero {
       padding: 5rem 1rem 3.5rem;
@@ -230,8 +236,8 @@
     <!-- IMPORTANT NOTICE -->
     <div class="container py-3">
       <div class="alert" style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:10px;font-size:.85rem;" role="alert">
-        <strong style="color:#fbbf24">&#9888; C++ Deployment Requirement:</strong>
-        <span class="text-body-secondary"> C++ source code must be compiled before it can run. This is not Python or JavaScript — you cannot execute <code>.cpp</code> files directly. See the <a href="#deploy-guide" style="color:#fbbf24">Deployment Guide</a> below for exact steps per platform and the <a href="#build-matrix" style="color:#fbbf24">Build Matrix</a> for dependencies per project.</span>
+        <strong style="color:var(--bs-warning)">&#9888; C++ Deployment Requirement:</strong>
+        <span class="text-body-secondary"> C++ source code must be compiled before it can run. This is not Python or JavaScript — you cannot execute <code>.cpp</code> files directly. See the <a href="#deploy-guide" style="color:var(--bs-warning)">Deployment Guide</a> below for exact steps per platform and the <a href="#build-matrix" style="color:var(--bs-warning)">Build Matrix</a> for dependencies per project.</span>
       </div>
     </div>
 
@@ -703,18 +709,18 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>Entropy Scanner</td>   <td><span class="badge" style="background:#991b1b;font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
-            <tr><td>CUI Classifier</td>    <td><span class="badge" style="background:#991b1b;font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
-            <tr><td>YARA-Lite</td>         <td><span class="badge" style="background:#991b1b;font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
-            <tr><td>Packet Analyzer</td>   <td><span class="badge" style="background:#991b1b;font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ MinGW</td><td class="compat-no">✗</td><td>None</td><td>C++17</td></tr>
-            <tr><td>AES-256 Vault</td>     <td><span class="badge" style="background:#6d28d9;font-size:.7rem">Systems</span></td>   <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ OpenSSL</td><td class="compat-dep">⚠ Emscripten OpenSSL port</td><td>OpenSSL 3.x</td><td>C++17</td></tr>
-            <tr><td>ZT Policy Engine</td>  <td><span class="badge" style="background:#6d28d9;font-size:.7rem">Systems</span></td>   <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
-            <tr><td>Log Correlator</td>    <td><span class="badge" style="background:#6d28d9;font-size:.7rem">Systems</span></td>   <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ MSVC std::thread</td><td class="compat-no">✗ (pthreads)</td><td>None (pthreads)</td><td>C++17</td></tr>
-            <tr><td>ARINC 429 Decoder</td> <td><span class="badge" style="background:#0369a1;font-size:.7rem">A&amp;D</span></td> <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
-            <tr><td>MIL-STD-1553 Sim</td>  <td><span class="badge" style="background:#0369a1;font-size:.7rem">A&amp;D</span></td> <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
-            <tr><td>GPS Anti-Spoof</td>    <td><span class="badge" style="background:#0369a1;font-size:.7rem">A&amp;D</span></td> <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
-            <tr><td>RF Anomaly Detector</td><td><span class="badge" style="background:#0369a1;font-size:.7rem">A&amp;D</span></td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ no -march=native</td><td class="compat-no">✗ (IQ file I/O)</td><td>None</td><td>C++17</td></tr>
-            <tr><td>Memory Scanner</td>    <td><span class="badge" style="background:#991b1b;font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-no">✗</td><td class="compat-no">✗</td><td class="compat-no">✗</td><td>None (/proc)</td><td>C++17</td></tr>
+            <tr><td>Entropy Scanner</td>   <td><span class="badge" style="background:var(--cpp-badge-security);font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>CUI Classifier</td>    <td><span class="badge" style="background:var(--cpp-badge-security);font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>YARA-Lite</td>         <td><span class="badge" style="background:var(--cpp-badge-security);font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>Packet Analyzer</td>   <td><span class="badge" style="background:var(--cpp-badge-security);font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ MinGW</td><td class="compat-no">✗</td><td>None</td><td>C++17</td></tr>
+            <tr><td>AES-256 Vault</td>     <td><span class="badge" style="background:var(--cpp-badge-systems);font-size:.7rem">Systems</span></td>   <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ OpenSSL</td><td class="compat-dep">⚠ Emscripten OpenSSL port</td><td>OpenSSL 3.x</td><td>C++17</td></tr>
+            <tr><td>ZT Policy Engine</td>  <td><span class="badge" style="background:var(--cpp-badge-systems);font-size:.7rem">Systems</span></td>   <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>Log Correlator</td>    <td><span class="badge" style="background:var(--cpp-badge-systems);font-size:.7rem">Systems</span></td>   <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ MSVC std::thread</td><td class="compat-no">✗ (pthreads)</td><td>None (pthreads)</td><td>C++17</td></tr>
+            <tr><td>ARINC 429 Decoder</td> <td><span class="badge" style="background:var(--cpp-badge-and);font-size:.7rem">A&amp;D</span></td> <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>MIL-STD-1553 Sim</td>  <td><span class="badge" style="background:var(--cpp-badge-and);font-size:.7rem">A&amp;D</span></td> <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>GPS Anti-Spoof</td>    <td><span class="badge" style="background:var(--cpp-badge-and);font-size:.7rem">A&amp;D</span></td> <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>RF Anomaly Detector</td><td><span class="badge" style="background:var(--cpp-badge-and);font-size:.7rem">A&amp;D</span></td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ no -march=native</td><td class="compat-no">✗ (IQ file I/O)</td><td>None</td><td>C++17</td></tr>
+            <tr><td>Memory Scanner</td>    <td><span class="badge" style="background:var(--cpp-badge-security);font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-no">✗</td><td class="compat-no">✗</td><td class="compat-no">✗</td><td>None (/proc)</td><td>C++17</td></tr>
           </tbody>
         </table>
       </div>

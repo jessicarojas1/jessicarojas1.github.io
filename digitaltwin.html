@@ -13,6 +13,23 @@
   <title>Digital Twin — Enterprise Security | Jessica Rojas</title>
   <meta name="description" content="Interactive digital twin of an enterprise security program — navigate assets, systems, controls, risks, and trust boundaries visually."/>
   <style>
+    :root {
+      /* Digital Twin topology palette */
+      --dt-asset-color:    #3b82f6;
+      --dt-risk-color:     #ef4444;
+      --dt-control-color:  #f59e0b;
+      --dt-incident-color: #be123c;
+      --dt-panel-text:     #e2e8f0;
+      --dt-secondary:      #475569;
+      --dt-label:          #334155;
+      /* Zone swatch colors (semi-transparent fill + solid border) */
+      --dt-zone-internet:  rgba(127,29,29,0.33);  --dt-zone-internet-bd: #7f1d1d;
+      --dt-zone-dmz:       rgba(20,83,45,0.33);   --dt-zone-dmz-bd:      #14532d;
+      --dt-zone-corp:      rgba(30,58,95,0.33);   --dt-zone-corp-bd:     #1e3a5f;
+      --dt-zone-cui:       rgba(74,29,150,0.33);  --dt-zone-cui-bd:      #4a1d96;
+      --dt-zone-cloud:     rgba(15,23,42,0.33);   --dt-zone-cloud-bd:    #164e63;
+      --dt-zone-ot:        rgba(59,39,0,0.33);    --dt-zone-ot-bd:       #92400e;
+    }
     html,body{height:100%;margin:0;overflow:hidden;background:#07091299;}
 
     /* ── Canvas shell ───────────────────────────── */
@@ -144,7 +161,7 @@
     <div class="dt-divider"></div>
 
     <!-- Type filters -->
-    <span style="font-size:.68rem;color:#334155;white-space:nowrap">Show:</span>
+    <span style="font-size:.68rem;color:var(--dt-label);white-space:nowrap">Show:</span>
     <button class="filter-btn f-asset  active" data-type="asset">    <span class="dot"></span>Assets</button>
     <button class="filter-btn f-system active" data-type="system">   <span class="dot"></span>Systems</button>
     <button class="filter-btn f-user   active" data-type="user">     <span class="dot"></span>Users</button>
@@ -172,10 +189,10 @@
 
     <!-- Scorecard -->
     <div id="dt-scorecard">
-      <div class="sc-item"><div class="sc-val" id="sc-assets" style="color:#3b82f6">0</div><div class="sc-lbl">Assets</div></div>
-      <div class="sc-item"><div class="sc-val" id="sc-risks"  style="color:#ef4444">0</div><div class="sc-lbl">Open Risks</div></div>
-      <div class="sc-item"><div class="sc-val" id="sc-controls" style="color:#f59e0b">0</div><div class="sc-lbl">Controls</div></div>
-      <div class="sc-item"><div class="sc-val" id="sc-incidents" style="color:#be123c">0</div><div class="sc-lbl">Incidents</div></div>
+      <div class="sc-item"><div class="sc-val" id="sc-assets" style="color:var(--dt-asset-color)">0</div><div class="sc-lbl">Assets</div></div>
+      <div class="sc-item"><div class="sc-val" id="sc-risks"  style="color:var(--dt-risk-color)">0</div><div class="sc-lbl">Open Risks</div></div>
+      <div class="sc-item"><div class="sc-val" id="sc-controls" style="color:var(--dt-control-color)">0</div><div class="sc-lbl">Controls</div></div>
+      <div class="sc-item"><div class="sc-val" id="sc-incidents" style="color:var(--dt-incident-color)">0</div><div class="sc-lbl">Incidents</div></div>
     </div>
   </div>
 
@@ -185,12 +202,12 @@
 
     <!-- Zone legend -->
     <div id="zone-legend">
-      <div class="zone-pill"><div class="zone-swatch" style="background:#7f1d1d55;border:1px solid #7f1d1d"></div>Internet / External</div>
-      <div class="zone-pill"><div class="zone-swatch" style="background:#14532d55;border:1px solid #14532d"></div>DMZ</div>
-      <div class="zone-pill"><div class="zone-swatch" style="background:#1e3a5f55;border:1px solid #1e3a5f"></div>Corporate Network</div>
-      <div class="zone-pill"><div class="zone-swatch" style="background:#4a1d9655;border:1px solid #4a1d96"></div>CUI Enclave</div>
-      <div class="zone-pill"><div class="zone-swatch" style="background:#0f172a55;border:1px solid #164e63"></div>Cloud (Azure/AWS)</div>
-      <div class="zone-pill"><div class="zone-swatch" style="background:#3b270055;border:1px solid #92400e"></div>OT / ICS</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:var(--dt-zone-internet);border:1px solid var(--dt-zone-internet-bd)"></div>Internet / External</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:var(--dt-zone-dmz);border:1px solid var(--dt-zone-dmz-bd)"></div>DMZ</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:var(--dt-zone-corp);border:1px solid var(--dt-zone-corp-bd)"></div>Corporate Network</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:var(--dt-zone-cui);border:1px solid var(--dt-zone-cui-bd)"></div>CUI Enclave</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:var(--dt-zone-cloud);border:1px solid var(--dt-zone-cloud-bd)"></div>Cloud (Azure/AWS)</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:var(--dt-zone-ot);border:1px solid var(--dt-zone-ot-bd)"></div>OT / ICS</div>
     </div>
 
     <!-- Detail panel -->
@@ -198,9 +215,9 @@
       <div id="panel-header">
         <div id="panel-icon">🔷</div>
         <div style="flex:1;min-width:0;">
-          <div id="panel-type-badge" style="font-size:.65rem;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Asset</div>
-          <div id="panel-name" style="font-size:1rem;font-weight:700;color:#e2e8f0;line-height:1.2;"></div>
-          <div id="panel-zone" style="font-size:.72rem;color:#475569;margin-top:2px;"></div>
+          <div id="panel-type-badge" style="font-size:.65rem;color:var(--dt-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Asset</div>
+          <div id="panel-name" style="font-size:1rem;font-weight:700;color:var(--dt-panel-text);line-height:1.2;"></div>
+          <div id="panel-zone" style="font-size:.72rem;color:var(--dt-secondary);margin-top:2px;"></div>
         </div>
         <button id="panel-close">✕</button>
       </div>
@@ -623,8 +640,8 @@ var tooltip = document.getElementById('dt-tooltip');
 cy.on('mouseover', 'node:not(.zone-node)', function(e) {
   var d = e.target.data();
   var pos = e.renderedPosition;
-  tooltip.innerHTML = '<strong style="color:#e2e8f0">' + d.label.replace(/\n/g,' ') + '</strong>'
-    + (d.desc ? '<br><span style="color:#64748b;font-size:.68rem">' + d.desc.slice(0,80) + '…</span>' : '');
+  tooltip.innerHTML = '<strong style="color:var(--dt-panel-text)">' + d.label.replace(/\n/g,' ') + '</strong>'
+    + (d.desc ? '<br><span style="color:var(--bs-secondary-color);font-size:.68rem">' + d.desc.slice(0,80) + '…</span>' : '');
   tooltip.style.left = (pos.x + 20) + 'px';
   tooltip.style.top  = (pos.y - 10) + 'px';
   tooltip.classList.add('show');
@@ -677,7 +694,7 @@ function openPanel(node) {
   // Description
   if (d.desc) {
     html += '<div class="p-section"><div class="p-section-title">Description</div>'
-          + '<p style="font-size:.8rem;color:#94a3b8;line-height:1.5;margin:0">' + d.desc + '</p></div>';
+          + '<p style="font-size:.8rem;color:var(--bs-secondary-color);line-height:1.5;margin:0">' + d.desc + '</p></div>';
   }
 
   // Metrics
@@ -696,7 +713,7 @@ function openPanel(node) {
 
     if (d.coverage !== undefined) {
       var bc = d.coverage>=80?'#10b981':d.coverage>=50?'#f59e0b':'#ef4444';
-      html += '<div style="margin-top:4px"><div style="font-size:.68rem;color:#475569;margin-bottom:3px">Logging Coverage</div>'
+      html += '<div style="margin-top:4px"><div style="font-size:.68rem;color:var(--dt-secondary);margin-bottom:3px">Logging Coverage</div>'
             + '<div class="p-bar-wrap"><div class="p-bar" style="width:'+d.coverage+'%;background:'+bc+'"></div></div></div>';
     }
     html += '</div>';
@@ -709,7 +726,7 @@ function openPanel(node) {
       var nc = TYPE_COLORS[n.type]||'#64748b';
       html += '<span class="p-tag" onclick="focusNode(\''+n.id+'\')" title="'+n.rel+'">'
             + '<span class="dot" style="background:'+nc+'"></span>' + n.label
-            + '<span style="font-size:.6rem;color:#475569;margin-left:4px">'+n.rel+'</span></span>';
+            + '<span style="font-size:.6rem;color:var(--dt-secondary);margin-left:4px">'+n.rel+'</span></span>';
     });
     html += '</div>';
   }
@@ -721,7 +738,7 @@ function openPanel(node) {
       var nc = TYPE_COLORS[n.type]||'#64748b';
       html += '<span class="p-tag" onclick="focusNode(\''+n.id+'\')" title="'+n.rel+'">'
             + '<span class="dot" style="background:'+nc+'"></span>' + n.label
-            + '<span style="font-size:.6rem;color:#475569;margin-left:4px">'+n.rel+'</span></span>';
+            + '<span style="font-size:.6rem;color:var(--dt-secondary);margin-left:4px">'+n.rel+'</span></span>';
     });
     html += '</div>';
   }

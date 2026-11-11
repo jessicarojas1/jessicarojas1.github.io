@@ -2169,7 +2169,7 @@ function renderGaps(){
   });
   const pct=required.length?Math.round((covered+partial*0.5)/required.length*100):0;
   document.getElementById('gap-kpi-row').innerHTML=kpiCard(required.length,'Required Controls')+kpiCard(covered,'Covered','success')+kpiCard(partial,'Partial','warning')+kpiCard(missing,'Missing','danger');
-  document.getElementById('gap-list').innerHTML=`<div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span>Overall coverage for ${FW_LABELS[fw]||fw}</span><strong>${pct}%</strong></div><div class="compliance-bar"><div class="compliance-fill" style="width:${pct}%;background:${pct>=80?'#198754':pct>=50?'#ffc107':'#dc3545'}"></div></div></div>`+rows.join('');
+  document.getElementById('gap-list').innerHTML=`<div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span>Overall coverage for ${FW_LABELS[fw]||fw}</span><strong>${pct}%</strong></div><div class="compliance-bar"><div class="compliance-fill" style="width:${pct}%;background:${pct>=80?'var(--bs-success)':pct>=50?'var(--bs-warning)':'var(--bs-danger)'}"></div></div></div>`+rows.join('');
   document.getElementById('gap-fw-select').onchange=renderGaps;
 }
 
@@ -2191,8 +2191,8 @@ function renderTrends(){
     <div class="col-md-4 col-lg-2-4">
       <div class="card"><div class="card-body py-2 px-3">
         <div class="small text-secondary mb-1">${FW_LABELS[f.fw]||f.fw}</div>
-        <div class="fw-bold" style="font-size:1.4rem;color:${f.pct>=80?'#198754':f.pct>=50?'#ffc107':'#dc3545'}">${f.pct}%</div>
-        <div class="compliance-bar mt-1"><div class="compliance-fill" style="width:${f.pct}%;background:${f.pct>=80?'#198754':f.pct>=50?'#ffc107':'#dc3545'}"></div></div>
+        <div class="fw-bold" style="font-size:1.4rem;color:${f.pct>=80?'var(--bs-success)':f.pct>=50?'var(--bs-warning)':'var(--bs-danger)'}">${f.pct}%</div>
+        <div class="compliance-bar mt-1"><div class="compliance-fill" style="width:${f.pct}%;background:${f.pct>=80?'var(--bs-success)':f.pct>=50?'var(--bs-warning)':'var(--bs-danger)'}"></div></div>
       </div></div>
     </div>`).join('');
 }

@@ -366,13 +366,13 @@
           <div class="card p-3 h-100">
             <div class="fw-semibold small mb-3">Budget Health Score</div>
             <div class="d-flex align-items-center gap-3 mb-2">
-              <div class="health-score-badge" id="healthBadge" style="border-color:#94a3b8;color:#94a3b8">
+              <div class="health-score-badge" id="healthBadge" style="border-color:var(--bs-secondary-color);color:var(--bs-secondary-color)">
                 <div class="health-grade" id="healthGrade">—</div>
                 <div class="health-pts-label" id="healthPtsLabel">Score</div>
               </div>
               <div class="flex-grow-1">
                 <div class="health-bar mb-2"><div class="health-bar-fill" id="healthBarFill" style="width:0%"></div></div>
-                <div class="small fw-semibold" id="healthDesc" style="color:#94a3b8">Add data to calculate</div>
+                <div class="small fw-semibold" id="healthDesc" style="color:var(--bs-secondary-color)">Add data to calculate</div>
               </div>
             </div>
             <div id="healthBreakdown"></div>
@@ -1335,14 +1335,14 @@
         var wW=(wantsPct/barTotal*100).toFixed(1);
         var sW=(savingsPct/barTotal*100).toFixed(1);
         ruleEl.innerHTML=`<div class="rule-bar mb-3">
-          <div style="width:${nW}%;background:#ef4444;border-radius:6px 0 0 6px">${parseFloat(nW)>10?'Needs '+needsPct.toFixed(0)+'%':''}</div>
-          <div style="width:${wW}%;background:#f59e0b">${parseFloat(wW)>10?'Wants '+wantsPct.toFixed(0)+'%':''}</div>
-          <div style="width:${sW}%;background:#22c55e;border-radius:0 6px 6px 0">${parseFloat(sW)>10?'Savings '+savingsPct.toFixed(0)+'%':''}</div>
+          <div style="width:${nW}%;background:var(--bs-danger);border-radius:6px 0 0 6px">${parseFloat(nW)>10?'Needs '+needsPct.toFixed(0)+'%':''}</div>
+          <div style="width:${wW}%;background:var(--bs-warning)">${parseFloat(wW)>10?'Wants '+wantsPct.toFixed(0)+'%':''}</div>
+          <div style="width:${sW}%;background:var(--bs-success);border-radius:0 6px 6px 0">${parseFloat(sW)>10?'Savings '+savingsPct.toFixed(0)+'%':''}</div>
         </div>
         <div class="d-flex gap-4 flex-wrap small">
-          <span><span style="color:#ef4444;font-weight:700">■</span> Needs ${fmt(needsTotal)} <span class="text-secondary">(${needsPct.toFixed(1)}% — target 50%)</span></span>
-          <span><span style="color:#f59e0b;font-weight:700">■</span> Wants ${fmt(wantsTotal)} <span class="text-secondary">(${wantsPct.toFixed(1)}% — target 30%)</span></span>
-          <span><span style="color:#22c55e;font-weight:700">■</span> Savings ${fmt(actualSavings)} <span class="text-secondary">(${savingsPct.toFixed(1)}% — target 20%)</span></span>
+          <span><span style="color:var(--bs-danger);font-weight:700">■</span> Needs ${fmt(needsTotal)} <span class="text-secondary">(${needsPct.toFixed(1)}% — target 50%)</span></span>
+          <span><span style="color:var(--bs-warning);font-weight:700">■</span> Wants ${fmt(wantsTotal)} <span class="text-secondary">(${wantsPct.toFixed(1)}% — target 30%)</span></span>
+          <span><span style="color:var(--bs-success);font-weight:700">■</span> Savings ${fmt(actualSavings)} <span class="text-secondary">(${savingsPct.toFixed(1)}% — target 20%)</span></span>
         </div>`;
       } else if(ruleEl){ ruleEl.innerHTML='<div class="text-secondary small">Add income and bills to see the 50/30/20 breakdown.</div>'; }
 
@@ -1391,7 +1391,7 @@
       fill.style.width=h.score+'%'; fill.style.background=h.color;
       desc.textContent=h.desc; desc.style.color=h.color;
       if(h.breakdown.length){
-        bd.innerHTML=h.breakdown.map(b=>`<div class="d-flex justify-content-between small mb-1"><span class="text-secondary">${b.label} <span class="text-secondary">(${b.val})</span></span><span style="color:${b.pts===b.max?'#22c55e':b.pts>0?'#f59e0b':'#ef4444'};font-weight:600">${b.pts}/${b.max}</span></div>`).join('');
+        bd.innerHTML=h.breakdown.map(b=>`<div class="d-flex justify-content-between small mb-1"><span class="text-secondary">${b.label} <span class="text-secondary">(${b.val})</span></span><span style="color:${b.pts===b.max?'var(--bs-success)':b.pts>0?'var(--bs-warning)':'var(--bs-danger)'};font-weight:600">${b.pts}/${b.max}</span></div>`).join('');
       }
     }
 

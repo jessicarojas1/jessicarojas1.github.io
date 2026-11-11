@@ -8,6 +8,20 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <style>
+    :root {
+      /* ISO 42001 AI Management section palette */
+      --iso42-indigo-bg:  #eef2ff;
+      --iso42-purple-bg:  #faf5ff;
+      --iso42-cyan-bg:    #ecfeff;
+      --iso42-green-bg:   #ecfdf5;
+      --iso42-amber-bg:   #fffbeb;
+      --iso42-indigo-chip-bg: #e0e7ff; --iso42-indigo-chip-text: #4338ca;
+      --iso42-pink-bg:    #fce7f3;    --iso42-pink-text:         #be185d;
+      --iso42-amber-chip-bg: #fef9c3; --iso42-amber-chip-text:   #854d0e;
+      --iso42-green-chip-bg: #dcfce7; --iso42-green-chip-text:   #15803d;
+      --iso42-purple-chip-bg: #f3e8ff; --iso42-purple-chip-text: #7e22ce;
+      --iso42-red-chip-bg: #fee2e2;   --iso42-red-chip-text:     #dc2626;
+    }
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; margin: 0; }
 
     .sidebar {
@@ -156,7 +170,7 @@
     <div class="sidebar-section-label">SOA Progress</div>
     <div class="mb-1">
       <div class="soa-bar-track"><div class="soa-bar-fill" id="soa-bar" style="width:0%"></div></div>
-      <div style="font-size:.68rem;color:#94a3b8" id="soa-stats">0 / 34 assessed</div>
+      <div style="font-size:.68rem;color:var(--bs-secondary-color)" id="soa-stats">0 / 34 assessed</div>
     </div>
     <div class="d-flex flex-column gap-1 mb-4">
       <a href="#" class="nav-link-side" data-soa="Applicable"><span>✅ Applicable</span><span class="sidebar-sub" id="soa-count-app">0</span></a>
@@ -168,7 +182,7 @@
       <button class="btn btn-success btn-sm w-100 mb-2 fw-semibold" data-action="download-excel">⬇ Download Excel</button>
       <button class="btn btn-outline-success btn-sm w-100 mb-2" data-action="export-soa">📋 Export SOA</button>
       <button class="btn btn-outline-secondary btn-sm w-100 mb-3" data-action="reset-soa">↺ Reset SOA</button>
-      <div class="text-center" style="font-size:.63rem;color:#475569">34 controls · evidence · policies · SOA</div>
+      <div class="text-center" style="font-size:.63rem;color:var(--bs-secondary-color)">34 controls · evidence · policies · SOA</div>
     </div>
   </nav>
 
@@ -185,11 +199,11 @@
 
     <!-- Stats -->
     <div class="row g-3 mb-4">
-      <div class="col-6 col-lg" ><div class="stat-pill shadow-sm" style="background:#eef2ff"><div class="fw-bold" style="font-size:1.4rem;color:var(--c-gov)">8</div><div class="small text-secondary">Governance</div></div></div>
-      <div class="col-6 col-lg" ><div class="stat-pill shadow-sm" style="background:#faf5ff"><div class="fw-bold" style="font-size:1.4rem;color:var(--c-lc)">9</div><div class="small text-secondary">Lifecycle</div></div></div>
-      <div class="col-6 col-lg" ><div class="stat-pill shadow-sm" style="background:#ecfeff"><div class="fw-bold" style="font-size:1.4rem;color:var(--c-dat)">6</div><div class="small text-secondary">Data</div></div></div>
-      <div class="col-6 col-lg" ><div class="stat-pill shadow-sm" style="background:#ecfdf5"><div class="fw-bold" style="font-size:1.4rem;color:var(--c-trn)">7</div><div class="small text-secondary">Transparency</div></div></div>
-      <div class="col-6 col-lg" ><div class="stat-pill shadow-sm" style="background:#fffbeb"><div class="fw-bold" style="font-size:1.4rem;color:var(--c-trd)">4</div><div class="small text-secondary">Third-Party</div></div></div>
+      <div class="col-6 col-lg" ><div class="stat-pill shadow-sm" style="background:var(--iso42-indigo-bg)"><div class="fw-bold" style="font-size:1.4rem;color:var(--c-gov)">8</div><div class="small text-secondary">Governance</div></div></div>
+      <div class="col-6 col-lg" ><div class="stat-pill shadow-sm" style="background:var(--iso42-purple-bg)"><div class="fw-bold" style="font-size:1.4rem;color:var(--c-lc)">9</div><div class="small text-secondary">Lifecycle</div></div></div>
+      <div class="col-6 col-lg" ><div class="stat-pill shadow-sm" style="background:var(--iso42-cyan-bg)"><div class="fw-bold" style="font-size:1.4rem;color:var(--c-dat)">6</div><div class="small text-secondary">Data</div></div></div>
+      <div class="col-6 col-lg" ><div class="stat-pill shadow-sm" style="background:var(--iso42-green-bg)"><div class="fw-bold" style="font-size:1.4rem;color:var(--c-trn)">7</div><div class="small text-secondary">Transparency</div></div></div>
+      <div class="col-6 col-lg" ><div class="stat-pill shadow-sm" style="background:var(--iso42-amber-bg)"><div class="fw-bold" style="font-size:1.4rem;color:var(--c-trd)">4</div><div class="small text-secondary">Third-Party</div></div></div>
     </div>
 
     <!-- View tabs -->
@@ -256,9 +270,9 @@
       <div class="doc-card">
         <div class="fw-bold mb-2">AI Impact Assessment — What to Cover</div>
         <div class="row g-3 small">
-          <div class="col-md-4"><div class="p-2 rounded" style="background:#eef2ff"><strong>Intended Use &amp; Context</strong><br>Purpose, scope, affected populations, deployment environment, foreseeable misuse scenarios</div></div>
-          <div class="col-md-4"><div class="p-2 rounded" style="background:#ecfdf5"><strong>Potential Harms</strong><br>Physical, psychological, financial, societal, discriminatory harms; likelihood and severity assessment</div></div>
-          <div class="col-md-4"><div class="p-2 rounded" style="background:#faf5ff"><strong>Risk Treatment</strong><br>Controls to mitigate identified harms; residual risk acceptance; monitoring and review cadence</div></div>
+          <div class="col-md-4"><div class="p-2 rounded" style="background:var(--iso42-indigo-bg)"><strong>Intended Use &amp; Context</strong><br>Purpose, scope, affected populations, deployment environment, foreseeable misuse scenarios</div></div>
+          <div class="col-md-4"><div class="p-2 rounded" style="background:var(--iso42-green-bg)"><strong>Potential Harms</strong><br>Physical, psychological, financial, societal, discriminatory harms; likelihood and severity assessment</div></div>
+          <div class="col-md-4"><div class="p-2 rounded" style="background:var(--iso42-purple-bg)"><strong>Risk Treatment</strong><br>Controls to mitigate identified harms; residual risk acceptance; monitoring and review cadence</div></div>
         </div>
       </div>
     </div>
@@ -268,12 +282,12 @@
       <div class="doc-card mb-3">
         <div class="fw-bold mb-2">ISO 42001 Annex A Controls mapped to Responsible AI Principles</div>
         <div class="d-flex flex-wrap gap-2 mb-3 small">
-          <span class="prin-chip" style="background:#e0e7ff;color:#4338ca">T — Transparency</span>
-          <span class="prin-chip" style="background:#fce7f3;color:#be185d">F — Fairness</span>
-          <span class="prin-chip" style="background:#fef9c3;color:#854d0e">A — Accountability</span>
-          <span class="prin-chip" style="background:#dcfce7;color:#15803d">R — Reliability &amp; Safety</span>
-          <span class="prin-chip" style="background:#f3e8ff;color:#7e22ce">P — Privacy</span>
-          <span class="prin-chip" style="background:#fee2e2;color:#dc2626">S — Security</span>
+          <span class="prin-chip" style="background:var(--iso42-indigo-chip-bg);color:var(--iso42-indigo-chip-text)">T — Transparency</span>
+          <span class="prin-chip" style="background:var(--iso42-pink-bg);color:var(--iso42-pink-text)">F — Fairness</span>
+          <span class="prin-chip" style="background:var(--iso42-amber-chip-bg);color:var(--iso42-amber-chip-text)">A — Accountability</span>
+          <span class="prin-chip" style="background:var(--iso42-green-chip-bg);color:var(--iso42-green-chip-text)">R — Reliability &amp; Safety</span>
+          <span class="prin-chip" style="background:var(--iso42-purple-chip-bg);color:var(--iso42-purple-chip-text)">P — Privacy</span>
+          <span class="prin-chip" style="background:var(--iso42-red-chip-bg);color:var(--iso42-red-chip-text)">S — Security</span>
         </div>
         <div class="table-responsive">
           <table class="table table-sm table-hover" style="font-size:.8rem">
@@ -325,9 +339,9 @@
         <div class="fw-bold mb-1">ISO 42001 &amp; EU AI Act — How they complement each other</div>
         <div class="small text-secondary mb-3">The EU AI Act (in force August 2024) mandates obligations for AI providers and deployers. ISO 42001 provides a management system framework that supports meeting many of those obligations.</div>
         <div class="row g-3 mb-3">
-          <div class="col-md-4"><div class="p-3 rounded h-100" style="background:#eef2ff"><div class="fw-semibold mb-1" style="color:#4338ca">Risk Classification</div><div class="small">EU AI Act classifies AI systems as Unacceptable, High-Risk, Limited-Risk, or Minimal-Risk. ISO 42001's impact assessment process (A.5.2) supports the risk evaluation required before placing a system on the market.</div></div></div>
-          <div class="col-md-4"><div class="p-3 rounded h-100" style="background:#ecfdf5"><div class="fw-semibold mb-1" style="color:#15803d">High-Risk AI Requirements</div><div class="small">High-risk AI systems need risk management (ISO 42001 A.5.x), data governance (A.7.x), technical documentation (A.6.2.3, A.6.2.7), human oversight (A.9.2, A.9.4), accuracy/robustness/cybersecurity controls (A.6.2.4, A.4.4).</div></div></div>
-          <div class="col-md-4"><div class="p-3 rounded h-100" style="background:#faf5ff"><div class="fw-semibold mb-1" style="color:#7e22ce">Transparency Obligations</div><div class="small">EU AI Act requires disclosure when interacting with AI (chatbots, deepfakes). ISO 42001 A.8.2, A.8.4, A.8.5 establish external communication, instructions for use, and limitation disclosure controls.</div></div></div>
+          <div class="col-md-4"><div class="p-3 rounded h-100" style="background:var(--iso42-indigo-bg)"><div class="fw-semibold mb-1" style="color:var(--iso42-indigo-chip-text)">Risk Classification</div><div class="small">EU AI Act classifies AI systems as Unacceptable, High-Risk, Limited-Risk, or Minimal-Risk. ISO 42001's impact assessment process (A.5.2) supports the risk evaluation required before placing a system on the market.</div></div></div>
+          <div class="col-md-4"><div class="p-3 rounded h-100" style="background:var(--iso42-green-bg)"><div class="fw-semibold mb-1" style="color:var(--iso42-green-chip-text)">High-Risk AI Requirements</div><div class="small">High-risk AI systems need risk management (ISO 42001 A.5.x), data governance (A.7.x), technical documentation (A.6.2.3, A.6.2.7), human oversight (A.9.2, A.9.4), accuracy/robustness/cybersecurity controls (A.6.2.4, A.4.4).</div></div></div>
+          <div class="col-md-4"><div class="p-3 rounded h-100" style="background:var(--iso42-purple-bg)"><div class="fw-semibold mb-1" style="color:var(--iso42-purple-chip-text)">Transparency Obligations</div><div class="small">EU AI Act requires disclosure when interacting with AI (chatbots, deepfakes). ISO 42001 A.8.2, A.8.4, A.8.5 establish external communication, instructions for use, and limitation disclosure controls.</div></div></div>
         </div>
       </div>
       <div class="doc-card">

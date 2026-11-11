@@ -338,7 +338,7 @@
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid var(--bs-indigo,#6610f2);">
+                <div class="card h-100" style="border-top:3px solid var(--bs-indigo);">
                   <div class="card-header fw-bold small">Deep Learning (DL)</div>
                   <div class="card-body small">
                     <p>A subset of ML using <strong>multi-layer neural networks</strong> with many parameters (millions to billions). Excels on unstructured data: images, audio, text, video.</p>
@@ -482,7 +482,7 @@
               <div class="col-12 col-lg-6">
                 <div class="card h-100">
                   <div class="card-header d-flex align-items-center gap-2">
-                    <span class="badge" style="background:var(--bs-indigo,#6f42c1)">Transfer Learning</span>
+                    <span class="badge" style="background:var(--bs-indigo)">Transfer Learning</span>
                     <span class="small text-secondary">Reuse pretrained models</span>
                   </div>
                   <div class="card-body small">
@@ -1839,7 +1839,7 @@ times = []
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-indigo,#6610f2);">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-indigo);">
                   <div class="card-header fw-bold small">Vanishing &amp; Exploding Gradients</div>
                   <div class="card-body small">
                     <p>In deep networks, gradients can shrink to zero (vanish) or grow uncontrollably (explode) during backprop, stalling training.</p>
@@ -1926,10 +1926,10 @@ times = []
               </div>
 
               <div class="col-12">
-                <div class="card" style="border-left:4px solid var(--bs-indigo,#6610f2);">
+                <div class="card" style="border-left:4px solid var(--bs-indigo);">
                   <div class="card-body small">
                     <div class="d-flex align-items-start gap-3">
-                      <div class="rounded-circle bg-purple text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;font-weight:700;background:var(--bs-indigo,#6610f2);">2</div>
+                      <div class="rounded-circle bg-purple text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;font-weight:700;background:var(--bs-indigo);">2</div>
                       <div class="w-100">
                         <p class="fw-bold mb-1">Collect &amp; Understand Your Data</p>
                         <div class="row g-2">
@@ -2320,7 +2320,7 @@ model.<span class="fn">predict</span>(X_test)             <span class="cm"># use
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-indigo,#6610f2);">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-indigo);">
                   <div class="card-header fw-bold small">PyTorch Dataset &amp; DataLoader</div>
                   <div class="card-body small">
                     <p>For deep learning, PyTorch separates data loading (<code>Dataset</code>) from batching and shuffling (<code>DataLoader</code>). This enables parallel loading with multiple CPU workers while the GPU trains.</p>
@@ -2428,7 +2428,7 @@ df.<span class="fn">corr</span>()[<span class="st">'target'</span>].<span class=
             <h2 class="h4 fw-bold mb-1">Transfer Learning &amp; Fine-Tuning</h2>
             <p class="text-secondary small mb-3">Training a model from scratch requires millions of labelled examples and days of GPU time. Transfer learning lets you start from a powerful pretrained model and adapt it to your task in hours — sometimes with only a few hundred examples.</p>
 
-            <div class="card mb-4" style="border-left:4px solid var(--bs-indigo,#6610f2);">
+            <div class="card mb-4" style="border-left:4px solid var(--bs-indigo);">
               <div class="card-header fw-bold small">The Core Idea</div>
               <div class="card-body small">
                 <div class="row g-3">
@@ -3024,7 +3024,7 @@ forecast = m.<span class="fn">predict</span>(future)
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-indigo,#6610f2);">
+                <div class="card h-100 model-card" style="border-top:3px solid var(--bs-indigo);">
                   <div class="card-header fw-bold small d-flex justify-content-between">
                     <span>Deep Learning for Time Series</span>
                     <span class="badge diff-advanced">Advanced</span>
@@ -3228,12 +3228,12 @@ scores = []
 
               <!-- Stats Calculator -->
               <div class="col-12 col-md-6 col-xl-4">
-                <div class="card h-100" style="border-top:3px solid var(--bs-indigo,#6610f2);">
+                <div class="card h-100" style="border-top:3px solid var(--bs-indigo);">
                   <div class="card-header fw-bold small">Statistics</div>
                   <div class="card-body small">
                     <label class="form-label fw-semibold">Dataset (comma-separated)</label>
                     <input type="text" id="calc-stats-data" class="form-control form-control-sm mb-2" value="4, 8, 15, 16, 23, 42">
-                    <button class="btn btn-sm w-100 mb-2" style="background:var(--bs-indigo,#6610f2);color:#fff;" data-action="calc-stats">Compute All</button>
+                    <button class="btn btn-sm w-100 mb-2" style="background:var(--bs-indigo);color:#fff;" data-action="calc-stats">Compute All</button>
                     <div class="d-grid gap-1">
                       <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>Mean (μ)</span><strong id="out-mean">—</strong></div>
                       <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>Median</span><strong id="out-median">—</strong></div>
@@ -3378,7 +3378,7 @@ vals, vecs = np.linalg.<span class="fn">eig</span>(A)
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid var(--bs-indigo,#6610f2);">
+                <div class="card h-100" style="border-top:3px solid var(--bs-indigo);">
                   <div class="card-header fw-bold small">SVD — Singular Value Decomposition</div>
                   <div class="card-body small">
                     <p><strong>A = UΣVᵀ</strong> — any matrix decomposes into rotation U, scaling Σ (diagonal), rotation Vᵀ. The diagonal values of Σ are singular values (always ≥ 0).</p>
@@ -3548,7 +3548,7 @@ output  = weights @ V               <span class="cm"># (seq, d_v)</span>
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid var(--bs-indigo,#6610f2);">
+                <div class="card h-100" style="border-top:3px solid var(--bs-indigo);">
                   <div class="card-header fw-bold small">Central Limit Theorem &amp; Confidence Intervals</div>
                   <div class="card-body small">
                     <p><strong>CLT:</strong> The sample mean of n i.i.d. samples converges to a normal distribution as n→∞, regardless of the underlying distribution: x̄ ~ N(μ, σ²/n)</p>
@@ -3669,7 +3669,7 @@ ce = F.<span class="fn">cross_entropy</span>(logits, labels)
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid var(--bs-indigo,#6610f2);">
+                <div class="card h-100" style="border-top:3px solid var(--bs-indigo);">
                   <div class="card-header fw-bold small">VC Dimension &amp; Model Complexity</div>
                   <div class="card-body small">
                     <p>The <strong>VC dimension</strong> (Vapnik-Chervonenkis) of a hypothesis class H is the largest set of points it can shatter (classify in all possible ways).</p>
@@ -3803,7 +3803,7 @@ enc = tok(<span class="st">"Hello, how are you?"</span>,
               </div>
             </div>
 
-            <div class="card mb-3" style="border-left:4px solid var(--bs-indigo,#6610f2);">
+            <div class="card mb-3" style="border-left:4px solid var(--bs-indigo);">
               <div class="card-header fw-bold small">The Transformer — How Attention Works (Math)</div>
               <div class="card-body small">
                 <div class="row g-3">
@@ -4081,7 +4081,7 @@ train_tf = A.<span class="fn">Compose</span>([
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-4">
-                <div class="card h-100" style="border-top:3px solid var(--bs-indigo,#6610f2);">
+                <div class="card h-100" style="border-top:3px solid var(--bs-indigo);">
                   <div class="card-header fw-bold small">VAE — Variational Autoencoder</div>
                   <div class="card-body small">
                     <p>VAE learns a probabilistic latent space — every input maps to a distribution, not a single point. This enables smooth interpolation and generation.</p>
@@ -4286,7 +4286,7 @@ stack = <span class="fn">StackingClassifier</span>(
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <div class="card h-100" style="border-top:3px solid var(--bs-indigo,#6610f2);">
+                <div class="card h-100" style="border-top:3px solid var(--bs-indigo);">
                   <div class="card-header fw-bold small">Gaussian Processes</div>
                   <div class="card-body small">
                     <p>A Gaussian Process (GP) is a distribution over functions. Instead of learning point estimates of parameters, a GP provides a full predictive distribution — mean + uncertainty — at every input point.</p>

@@ -407,10 +407,10 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     <div id="login-err" class="alert alert-danger small py-2" style="display:none;"></div>
     <button class="btn-orange w-100" style="justify-content:center;" data-action="admin-login">Sign In</button>
     <div class="text-center mt-3">
-      <a href="#" data-action="show-booking" style="font-size:.82rem;color:#64748b;text-decoration:none;">← Back to Booking</a>
+      <a href="#" data-action="show-booking" style="font-size:.82rem;color:var(--bs-secondary-color);text-decoration:none;">← Back to Booking</a>
     </div>
     <div class="text-center mt-2">
-      <span style="font-size:.72rem;color:#94a3b8;">Default password: <code>admin123</code></span>
+      <span style="font-size:.72rem;color:var(--bs-secondary-color);">Default password: <code>admin123</code></span>
     </div>
   </div>
 </div>
@@ -487,7 +487,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       </div>
       <div class="d-flex align-items-center gap-2">
         <span class="text-muted" style="font-size:.77rem;" id="live-clock"></span>
-        <span class="badge" style="background:rgba(232,93,4,.15);color:#c44d00;font-size:.68rem;padding:3px 8px;">Admin</span>
+        <span class="badge" style="background:rgba(var(--bs-warning-rgb),.15);color:var(--bs-warning);font-size:.68rem;padding:3px 8px;">Admin</span>
       </div>
     </div>
 
@@ -1468,25 +1468,25 @@ function renderDashboard() {
     <div class="col-6 col-xl-3">
       <div class="stat-card d-flex align-items-start justify-content-between">
         <div><div class="stat-val">${todayApts.length}</div><div class="stat-lbl">Jobs Today</div></div>
-        <div class="stat-ico" style="background:#eff6ff;color:#1d4ed8"><i class="bi bi-calendar-check"></i></div>
+        <div class="stat-ico" style="background:var(--bs-primary-bg-subtle);color:var(--bs-primary)"><i class="bi bi-calendar-check"></i></div>
       </div>
     </div>
     <div class="col-6 col-xl-3">
       <div class="stat-card d-flex align-items-start justify-content-between">
         <div><div class="stat-val">${fmtDur(hrsToday)}</div><div class="stat-lbl">Hours Worked Today</div></div>
-        <div class="stat-ico" style="background:#fff7ed;color:#ea580c"><i class="bi bi-clock-history"></i></div>
+        <div class="stat-ico" style="background:var(--bs-warning-bg-subtle);color:var(--bs-warning)"><i class="bi bi-clock-history"></i></div>
       </div>
     </div>
     <div class="col-6 col-xl-3">
       <div class="stat-card d-flex align-items-start justify-content-between">
-        <div><div class="stat-val" style="color:#16a34a">${fmtMoney(revToday)}</div><div class="stat-lbl">Revenue Today</div></div>
-        <div class="stat-ico" style="background:#f0fdf4;color:#16a34a"><i class="bi bi-cash-stack"></i></div>
+        <div><div class="stat-val" style="color:var(--bs-success)">${fmtMoney(revToday)}</div><div class="stat-lbl">Revenue Today</div></div>
+        <div class="stat-ico" style="background:var(--bs-success-bg-subtle);color:var(--bs-success)"><i class="bi bi-cash-stack"></i></div>
       </div>
     </div>
     <div class="col-6 col-xl-3">
       <div class="stat-card d-flex align-items-start justify-content-between">
-        <div><div class="stat-val" style="color:#c44d00">${openWo}</div><div class="stat-lbl">Open Work Orders</div></div>
-        <div class="stat-ico" style="background:#fff7ed;color:#c44d00"><i class="bi bi-clipboard2-check"></i></div>
+        <div><div class="stat-val" style="color:var(--bs-warning)">${openWo}</div><div class="stat-lbl">Open Work Orders</div></div>
+        <div class="stat-ico" style="background:var(--bs-warning-bg-subtle);color:var(--bs-warning)"><i class="bi bi-clipboard2-check"></i></div>
       </div>
     </div>`;
 
@@ -1547,7 +1547,7 @@ function renderDashboard() {
         <div class="hrs-row">
           <div style="width:80px;font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nm}</div>
           <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(mins/maxH*100)}%"></div></div>
-          <div style="width:46px;text-align:right;font-size:.8rem;color:#64748b">${fmtDur(mins)}</div>
+          <div style="width:46px;text-align:right;font-size:.8rem;color:var(--bs-secondary-color)">${fmtDur(mins)}</div>
         </div>`).join('')
     : '<div class="small text-muted">No sessions completed yet</div>';
 }
@@ -1873,7 +1873,7 @@ function renderTimeReports() {
         <div class="hrs-row">
           <div style="width:80px;font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nm}</div>
           <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(mins/maxM*100)}%"></div></div>
-          <div style="width:46px;text-align:right;font-size:.8rem;color:#64748b">${fmtDur(mins)}</div>
+          <div style="width:46px;text-align:right;font-size:.8rem;color:var(--bs-secondary-color)">${fmtDur(mins)}</div>
         </div>`).join('')
     : '<div class="small text-muted">No data for this period</div>';
 
@@ -1886,7 +1886,7 @@ function renderTimeReports() {
         <div class="hrs-row">
           <div style="width:86px;font-size:.82rem;font-weight:600">${fmtDate(d)}</div>
           <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(mins/maxD*100)}%;background:var(--slate)"></div></div>
-          <div style="width:46px;text-align:right;font-size:.8rem;color:#64748b">${fmtDur(mins)}</div>
+          <div style="width:46px;text-align:right;font-size:.8rem;color:var(--bs-secondary-color)">${fmtDur(mins)}</div>
         </div>`).join('')
     : '<div class="small text-muted">No data for this period</div>';
 
@@ -1950,7 +1950,7 @@ function renderRevenue() {
 
   document.getElementById('rev-stat-cards').innerHTML = `
     <div class="col-6 col-xl-3">
-      <div class="stat-card"><div class="stat-val" style="color:#16a34a">${fmtMoney(totalRev)}</div><div class="stat-lbl">Total Revenue</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--bs-success)">${fmtMoney(totalRev)}</div><div class="stat-lbl">Total Revenue</div></div>
     </div>
     <div class="col-6 col-xl-3">
       <div class="stat-card"><div class="stat-val">${fmtMoney(totalLabor)}</div><div class="stat-lbl">Labor Revenue</div></div>
@@ -1971,7 +1971,7 @@ function renderRevenue() {
         <div class="hrs-row">
           <div style="width:80px;font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nm}</div>
           <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(rev/maxM*100)}%"></div></div>
-          <div style="width:64px;text-align:right;font-size:.8rem;color:#64748b">${fmtMoney(rev)}</div>
+          <div style="width:64px;text-align:right;font-size:.8rem;color:var(--bs-secondary-color)">${fmtMoney(rev)}</div>
         </div>`).join('')
     : '<div class="small text-muted">No data</div>';
 
@@ -1984,7 +1984,7 @@ function renderRevenue() {
         <div class="hrs-row">
           <div style="width:120px;font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nm}</div>
           <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(rev/maxS*100)}%;background:var(--slate)"></div></div>
-          <div style="width:64px;text-align:right;font-size:.8rem;color:#64748b">${fmtMoney(rev)}</div>
+          <div style="width:64px;text-align:right;font-size:.8rem;color:var(--bs-secondary-color)">${fmtMoney(rev)}</div>
         </div>`).join('')
     : '<div class="small text-muted">No data</div>';
 
@@ -1999,7 +1999,7 @@ function renderRevenue() {
         <td>${appt.mechName}</td>
         <td>${fmtMoney(woLaborTotal(wo))}</td>
         <td>${fmtMoney(woPartsTotal(wo))}</td>
-        <td><strong style="color:#16a34a">${fmtMoney(woTotal(wo))}</strong></td>
+        <td><strong style="color:var(--bs-success)">${fmtMoney(woTotal(wo))}</strong></td>
       </tr>`).join('')
     : '<tr><td colspan="8" class="text-center text-muted py-3">No completed work orders</td></tr>';
 }

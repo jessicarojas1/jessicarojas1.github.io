@@ -153,7 +153,7 @@
           <div class="section-label mt-1">Labs Completed</div>
         </div></div>
         <div class="col-6 col-md-3"><div class="card p-3 text-center">
-          <div class="h3 fw-bold" id="dash-salary-gap" style="color:#22c55e">—</div>
+          <div class="h3 fw-bold" id="dash-salary-gap" style="color:var(--bs-success)">—</div>
           <div class="section-label mt-1">Salary Potential</div>
         </div></div>
       </div>
@@ -664,7 +664,7 @@
           <div class="step-num">${i+1}</div>
           <div class="flex-grow-1">
             <div class="fw-semibold">${r.label}
-              <span class="badge ms-2" style="background:#6c757d;font-size:.7rem">L${r.level} · ${levelLabel(r.level)}</span>
+              <span class="badge ms-2" style="background:var(--bs-secondary);font-size:.7rem">L${r.level} · ${levelLabel(r.level)}</span>
             </div>
             <div class="small text-secondary mt-1">${fmtSalary(r.salary[0])} – ${fmtSalary(r.salary[1])}</div>
             <div class="small mt-2">
@@ -673,7 +673,7 @@
             </div>
             ${stepCerts.length ? `<div class="small mt-2">
               <span class="fw-semibold">Suggested certs:</span>
-              ${stepCerts.map(c=>`<span class="badge" style="background:#e8f4fd;color:#0d6efd;margin:2px">${c.name}</span>`).join('')}
+              ${stepCerts.map(c=>`<span class="badge" style="background:var(--bs-primary-bg-subtle);color:var(--bs-primary);margin:2px">${c.name}</span>`).join('')}
             </div>`:''}
           </div>
         </div>`;
@@ -856,7 +856,7 @@
           <div class="fw-bold">${fmtSalary(r.salary[0])}</div>
           <div class="small text-secondary">to</div>
           <div class="fw-bold text-success">${fmtSalary(r.salary[1])}</div>
-          <span class="badge mt-2" style="background:#e8f4fd;color:#0d6efd">L${r.level}</span>
+          <span class="badge mt-2" style="background:var(--bs-primary-bg-subtle);color:var(--bs-primary)">L${r.level}</span>
         </div>
       </div>`).join('');
   }
@@ -887,7 +887,7 @@
           </div>
           <div class="small mb-3">
             <span class="fw-semibold">Skills:</span>
-            ${l.skills.map(s=>{const sk=SKILLS.find(x=>x.id===s);return `<span class="badge" style="background:#e8f4fd;color:#0d6efd;margin:2px">${sk?.label||s}</span>`;}).join('')}
+            ${l.skills.map(s=>{const sk=SKILLS.find(x=>x.id===s);return `<span class="badge" style="background:var(--bs-primary-bg-subtle);color:var(--bs-primary);margin:2px">${sk?.label||s}</span>`;}).join('')}
           </div>
           <div class="d-flex justify-content-between align-items-center mt-auto">
             <span class="small text-secondary">~${l.hours}h</span>

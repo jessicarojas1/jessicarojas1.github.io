@@ -11,6 +11,13 @@
   <title>CAC / Smart Card Login | Jessica Rojas</title>
   <meta name="description" content="DoD Common Access Card (CAC) and PIV smart card authentication simulation using ECDSA P-256 and Web Crypto API. Demonstrates PKI chain, challenge-response signing, and PIN lockout." />
   <style>
+    :root {
+      /* CAC/PIV auth visualization palette — dark terminal aesthetic */
+      --cac-cyan:  #22d3ee;
+      --cac-green: #4ade80;
+      --cac-muted: #6b7280;
+      --cac-purple: #c4b5fd;
+    }
     /* ── Hero ──────────────────────────────────────────────────────── */
     .cac-hero {
       padding: 5rem 1rem 3.5rem;
@@ -592,7 +599,7 @@
     <!-- PROFILE SELECTOR -->
     <div class="container py-3" id="auth-demo">
       <div class="alert" style="background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.25);border-radius:10px;font-size:.84rem;" role="note">
-        <strong style="color:#22d3ee">ℹ Demo Mode:</strong>
+        <strong style="color:var(--cac-cyan)">ℹ Demo Mode:</strong>
         <span class="text-body-secondary"> This simulates DoD CAC/PIV authentication in-browser using real Web Crypto API operations. No server, no actual card hardware required. Select an identity below, then follow the steps.</span>
       </div>
 
@@ -698,8 +705,8 @@
                 <p class="text-body-secondary" style="font-size:.84rem">Insert your DoD Common Access Card (CAC) or PIV card into the reader. The reader will establish contact, read the card's ATR (Answer To Reset), and enumerate available certificates.</p>
               </div>
               <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background:rgba(0,0,0,.15);border:1px solid var(--bs-border-color);font-size:.78rem;font-family:monospace;">
-                <span style="color:#4ade80">▶</span>
-                <span class="text-body-secondary">Waiting for card insertion... <span id="atrWait" style="color:#6b7280">ATR pending</span></span>
+                <span style="color:var(--cac-green)">▶</span>
+                <span class="text-body-secondary">Waiting for card insertion... <span id="atrWait" style="color:var(--cac-muted)">ATR pending</span></span>
               </div>
               <div>
                 <button class="btn btn-success btn-lg w-100" id="insertBtn">
@@ -764,7 +771,7 @@
                 </div>
                 <div class="crypto-line">
                   <span class="crypto-key">Private Key</span>
-                  <span class="crypto-val" style="color:#6b7280">HARDWARE BOUND · non-extractable · secure element</span>
+                  <span class="crypto-val" style="color:var(--cac-muted)">HARDWARE BOUND · non-extractable · secure element</span>
                 </div>
                 <div class="crypto-line" style="flex-direction:column;gap:.3rem">
                   <div class="d-flex gap-2 align-items-center">
@@ -794,8 +801,8 @@
             <!-- STEP 4: Success -->
             <div class="step-panel" id="panel-success">
               <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="pulse-green" style="width:12px;height:12px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>
-                <h5 class="fw-bold mb-0" style="color:#4ade80">Authentication Successful</h5>
+                <span class="pulse-green" style="width:12px;height:12px;border-radius:50%;background:var(--bs-success);flex-shrink:0"></span>
+                <h5 class="fw-bold mb-0" style="color:var(--cac-green)">Authentication Successful</h5>
               </div>
               <div class="session-box" id="sessionBox">
                 <!-- Populated by JS -->
@@ -825,7 +832,7 @@
                 <div class="lock-title">Card Locked — PIN Blocked</div>
                 <div class="lock-desc">After 3 consecutive incorrect PIN attempts the card's secure element blocks PIN verification. This matches actual CAC/PIV behavior per FIPS 201-3.</div>
                 <div class="puk-box">
-                  <strong style="color:#f87171">Recovery:</strong> Contact your RAPIDS/DEERS site or unit S6 to unlock using the Card Management System (CMS) and your 8-digit PUK (PIN Unlock Key).
+                  <strong style="color:var(--bs-danger)">Recovery:</strong> Contact your RAPIDS/DEERS site or unit S6 to unlock using the Card Management System (CMS) and your 8-digit PUK (PIN Unlock Key).
                 </div>
                 <button class="btn btn-outline-danger btn-sm mt-2" id="unlockBtn">↺ Reset Demo</button>
               </div>
@@ -841,7 +848,7 @@
       <div class="live-log-panel">
         <div class="live-log-header">
           <div class="d-flex align-items-center gap-2">
-            <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse-green 2s ease infinite;display:inline-block;flex-shrink:0"></span>
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--bs-success);animation:pulse-green 2s ease infinite;display:inline-block;flex-shrink:0"></span>
             <span>Live Authentication Events</span>
           </div>
           <div class="d-flex align-items-center gap-2">
@@ -881,7 +888,7 @@
         <div class="col-lg-6">
           <div class="pki-chain">
             <div class="pki-node root">
-              <div class="pki-node-label" style="color:#fbbf24">🏛 Root CA · Trust Anchor</div>
+              <div class="pki-node-label" style="color:var(--bs-warning)">🏛 Root CA · Trust Anchor</div>
               <div class="pki-node-cn">DoD Root CA 3</div>
               <div class="pki-node-meta">O=U.S. Government · OU=DoD · OU=PKI<br>4096-bit RSA · SHA-384 · Self-Signed<br>Valid: 2012–2029</div>
             </div>
@@ -891,7 +898,7 @@
               <div class="pki-conn-line"></div>
             </div>
             <div class="pki-node inter">
-              <div class="pki-node-label" style="color:#22d3ee">🔑 Intermediate CA · Subordinate</div>
+              <div class="pki-node-label" style="color:var(--cac-cyan)">🔑 Intermediate CA · Subordinate</div>
               <div class="pki-node-cn">DOD ID SW CA-73</div>
               <div class="pki-node-meta">O=U.S. Government · OU=DoD · OU=PKI<br>2048-bit RSA · SHA-256 · Cross-Certified<br>Valid: 2019–2025 · CRL: crl.disa.mil</div>
             </div>
@@ -901,7 +908,7 @@
               <div class="pki-conn-line"></div>
             </div>
             <div class="pki-node entity">
-              <div class="pki-node-label" style="color:#4ade80">👤 End Entity · PIV Authentication Cert</div>
+              <div class="pki-node-label" style="color:var(--cac-green)">👤 End Entity · PIV Authentication Cert</div>
               <div class="pki-node-cn" id="pkiEntityCN">ROJAS.JESSICA.M.1234567890</div>
               <div class="pki-node-meta">
                 C=US · O=U.S. Government · OU=DoD · OU=PKI · OU=USA<br>
@@ -916,15 +923,15 @@
           <h6 class="fw-bold mb-3">The Three CAC Certificates</h6>
           <div class="d-flex flex-column gap-3">
             <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:1rem;">
-              <div style="font-size:.72rem;font-weight:700;color:#4ade80;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">PIV Authentication Certificate</div>
+              <div style="font-size:.72rem;font-weight:700;color:var(--cac-green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">PIV Authentication Certificate</div>
               <div style="font-size:.8rem;color:var(--bs-body-color)">Used for card-based login (TLS client auth). Key Usage: Digital Signature. The private key never leaves the card's hardware security module.</div>
             </div>
             <div style="background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:1rem;">
-              <div style="font-size:.72rem;font-weight:700;color:#22d3ee;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Email Signing Certificate</div>
+              <div style="font-size:.72rem;font-weight:700;color:var(--cac-cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Email Signing Certificate</div>
               <div style="font-size:.8rem;color:var(--bs-body-color)">Used for S/MIME digital signatures on .mil email. Non-Repudiation key usage. Required for classified email on SIPRNet/NIPRNet.</div>
             </div>
             <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:1rem;">
-              <div style="font-size:.72rem;font-weight:700;color:#c4b5fd;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Key Management Certificate</div>
+              <div style="font-size:.72rem;font-weight:700;color:var(--cac-purple);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Key Management Certificate</div>
               <div style="font-size:.8rem;color:var(--bs-body-color)">Used for email encryption (key escrow). Backed up by Key Recovery Authority (KRA) — the only CAC cert with escrowed private key.</div>
             </div>
           </div>
@@ -972,19 +979,19 @@
           <div class="row g-3" style="font-size:.75rem;font-family:monospace;">
             <div class="col-md-6">
               <div style="color:var(--bs-secondary-color);margin-bottom:.3rem;font-family:inherit;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Key APDU Commands (ISO 7816-4)</div>
-              <div style="color:#4ade80">00 A4 04 00 09 A0 00 00 03 08 00 00 10 00</div>
-              <div style="color:#6b7280;margin-bottom:.4rem">  → SELECT PIV Application (AID)</div>
-              <div style="color:#4ade80">00 20 00 80 08 [PIN padded to 8]</div>
-              <div style="color:#6b7280;margin-bottom:.4rem">  → VERIFY PIN (reference data 0x80)</div>
-              <div style="color:#4ade80">00 87 11 9A [Lc] [challenge hash bytes]</div>
-              <div style="color:#6b7280">  → GENERAL AUTHENTICATE (key ref 0x9A)</div>
+              <div style="color:var(--cac-green)">00 A4 04 00 09 A0 00 00 03 08 00 00 10 00</div>
+              <div style="color:var(--cac-muted);margin-bottom:.4rem">  → SELECT PIV Application (AID)</div>
+              <div style="color:var(--cac-green)">00 20 00 80 08 [PIN padded to 8]</div>
+              <div style="color:var(--cac-muted);margin-bottom:.4rem">  → VERIFY PIN (reference data 0x80)</div>
+              <div style="color:var(--cac-green)">00 87 11 9A [Lc] [challenge hash bytes]</div>
+              <div style="color:var(--cac-muted)">  → GENERAL AUTHENTICATE (key ref 0x9A)</div>
             </div>
             <div class="col-md-6">
               <div style="color:var(--bs-secondary-color);margin-bottom:.3rem;font-family:inherit;font-weight:600;text-transform:uppercase;letter-spacing:.06em">CAC Data Object Slots</div>
-              <div style="color:#22d3ee">0x9A</div><div style="color:#6b7280;margin-bottom:.3rem">  PIV Authentication Key (non-exportable)</div>
-              <div style="color:#22d3ee">0x9C</div><div style="color:#6b7280;margin-bottom:.3rem">  Digital Signature Key (non-exportable)</div>
-              <div style="color:#22d3ee">0x9D</div><div style="color:#6b7280;margin-bottom:.3rem">  Key Management Key (escrowed)</div>
-              <div style="color:#22d3ee">0x9E</div><div style="color:#6b7280">  Card Authentication Key (PIN-free)</div>
+              <div style="color:var(--cac-cyan)">0x9A</div><div style="color:var(--cac-muted);margin-bottom:.3rem">  PIV Authentication Key (non-exportable)</div>
+              <div style="color:var(--cac-cyan)">0x9C</div><div style="color:var(--cac-muted);margin-bottom:.3rem">  Digital Signature Key (non-exportable)</div>
+              <div style="color:var(--cac-cyan)">0x9D</div><div style="color:var(--cac-muted);margin-bottom:.3rem">  Key Management Key (escrowed)</div>
+              <div style="color:var(--cac-cyan)">0x9E</div><div style="color:var(--cac-muted)">  Card Authentication Key (PIN-free)</div>
             </div>
           </div>
         </div>
@@ -996,7 +1003,7 @@
       <div class="row g-3">
         <div class="col-md-6">
           <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:1.25rem;">
-            <div style="font-weight:700;color:#fbbf24;margin-bottom:.5rem">⚠ Simulated vs. Production</div>
+            <div style="font-weight:700;color:var(--bs-warning);margin-bottom:.5rem">⚠ Simulated vs. Production</div>
             <div style="font-size:.8rem;color:var(--bs-secondary-color);line-height:1.7">
               This demo generates an <em>ephemeral</em> ECDSA key pair in the browser on each run. In production, the key lives in the CAC's hardware secure element and can never be extracted. The cryptographic operations (signing, verification) are real — the key material is not persistent.
             </div>
@@ -1004,7 +1011,7 @@
         </div>
         <div class="col-md-6">
           <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:1.25rem;">
-            <div style="font-weight:700;color:#4ade80;margin-bottom:.5rem">✓ Production Requirements</div>
+            <div style="font-weight:700;color:var(--cac-green);margin-bottom:.5rem">✓ Production Requirements</div>
             <div style="font-size:.8rem;color:var(--bs-secondary-color);line-height:1.7">
               Real CAC auth requires: server-side mTLS (Nginx/Apache with <code>ssl_verify_client on</code>), OCSP/CRL validation against DoD CA endpoints, LDAP lookup against DEERS, and DoD-issued server certificate. GitHub Pages cannot host this — requires a DoD-approved hosting environment.
             </div>
@@ -1038,7 +1045,7 @@
 
           <!-- Auto-detected card info -->
           <div class="mb-4 p-3 rounded-3" style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2)">
-            <div style="font-size:.7rem;font-weight:700;color:#4ade80;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">🪪 Card Information (Auto-detected)</div>
+            <div style="font-size:.7rem;font-weight:700;color:var(--cac-green);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">🪪 Card Information (Auto-detected)</div>
             <div class="row g-2" style="font-size:.83rem">
               <div class="col-sm-6 d-flex gap-2">
                 <span class="text-body-secondary" style="white-space:nowrap">Cardholder:</span>
@@ -1538,7 +1545,7 @@
       addAudit('ACCESS_GRANTED', 'Session established · Role=' + d.role + ' · Clearance=' + d.clearance);
       const auditEl = $('auditLog');
       auditEl.innerHTML = state.auditLog.map(e =>
-        `<div><span style="color:#4ade80">[${e.ts}]</span> <span style="color:#22d3ee">${e.event}</span> <span style="color:var(--bs-secondary-color)">${e.detail}</span></div>`
+        `<div><span style="color:var(--cac-green)">[${e.ts}]</span> <span style="color:var(--cac-cyan)">${e.event}</span> <span style="color:var(--bs-secondary-color)">${e.detail}</span></div>`
       ).join('');
     }
 
