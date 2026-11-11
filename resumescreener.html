@@ -63,14 +63,18 @@
   </nav>
 
   <main id="main-content">
-    <section class="hero-section reveal">
-      <div class="container text-center">
+    <section class="hero-section reveal" style="position:relative;overflow:hidden;">
+      <div class="hud-corners" aria-hidden="true"></div>
+      <div class="hud-corners-inner" aria-hidden="true"></div>
+      <div class="container text-center hero-content">
+        <div class="d-flex justify-content-center mb-3">
+          <span class="cyber-badge">
+            <span class="status-dot online" aria-hidden="true"></span>
+            LOCAL PROCESSING &nbsp;·&nbsp; ZERO DATA SENT
+          </span>
+        </div>
         <h1>ATS Resume Screener</h1>
         <p class="lead">Upload your resume and paste a job description for an instant ATS compatibility score.</p>
-        <div class="d-flex justify-content-center gap-2 flex-wrap mt-2">
-          <span class="badge bg-secondary">100% Private — processed in your browser</span>
-          <span class="badge bg-secondary">No data sent to any server</span>
-        </div>
       </div>
     </section>
 

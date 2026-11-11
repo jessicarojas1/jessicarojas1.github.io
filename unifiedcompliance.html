@@ -105,16 +105,24 @@
 
   <main id="main-content">
     <!-- Page Header -->
-    <section class="hero-section reveal">
-      <div class="container text-center py-4">
-        <div class="d-flex justify-content-center gap-2 flex-wrap mb-3">
-          <span class="badge bg-success">CMMC Level 1</span>
-          <span class="badge bg-warning text-dark">CMMC Level 2</span>
-          <span class="badge" style="background:#ea580c">CMMC Level 3</span>
-          <span class="badge bg-secondary">17 + 110 + 24 practices</span>
+    <section class="hero-section reveal" style="position:relative;overflow:hidden;">
+      <div class="hud-corners" aria-hidden="true"></div>
+      <div class="hud-corners-inner" aria-hidden="true"></div>
+      <div class="container text-center hero-content">
+        <div class="d-flex justify-content-center mb-3">
+          <span class="cyber-badge">
+            <span class="status-dot online" aria-hidden="true"></span>
+            CMMC TRACKER &nbsp;·&nbsp; LIVE
+          </span>
         </div>
         <h1 class="fw-bold">CMMC Compliance Tracker</h1>
         <p class="lead text-body-secondary">CMMC Level 1 &middot; CMMC Level 2 &middot; CMMC Level 3 &mdash; Practice tracking and gap analysis</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
+          <span class="cyber-badge">CMMC Level 1</span>
+          <span class="cyber-badge">CMMC Level 2</span>
+          <span class="cyber-badge">CMMC Level 3</span>
+          <span class="cyber-badge">17 + 110 + 24 practices</span>
+        </div>
       </div>
     </section>
 
