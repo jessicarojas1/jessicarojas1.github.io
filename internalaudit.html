@@ -171,7 +171,7 @@
       <div class="d-flex justify-content-between align-items-start mb-4 no-print">
         <button class="btn btn-sm btn-outline-secondary" id="back-btn">← Back to Audit</button>
         <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-outline-primary" onclick="window.print()">Print / Save PDF</button>
+          <button class="btn btn-sm btn-outline-primary" data-action="print-page">Print / Save PDF</button>
           <button class="btn btn-sm btn-primary" id="export-csv-btn">Export CSV</button>
           <a href="grc.html#iaudit" class="btn btn-sm btn-outline-success">View in GRC Pro →</a>
         </div>
@@ -882,6 +882,13 @@
       });
     });
   });
-  </script>
+  
+/* ── CSP-compliant action delegation ─────────────────────────────── */
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-action]');
+  if (!el) return;
+  if (el.dataset.action === 'print-page') window.print();
+});
+</script>
 </body>
 </html>

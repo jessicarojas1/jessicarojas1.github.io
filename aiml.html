@@ -3130,7 +3130,7 @@ scores = []
                         <strong id="out-leaky">—</strong>
                       </div>
                     </div>
-                    <button class="btn btn-sm btn-primary w-100 mt-2" onclick="calcActivations()">Calculate</button>
+                    <button class="btn btn-sm btn-primary w-100 mt-2" data-action="calc-activations">Calculate</button>
                   </div>
                 </div>
               </div>
@@ -3170,7 +3170,7 @@ scores = []
                         <strong id="out-huber">—</strong>
                       </div>
                     </div>
-                    <button class="btn btn-sm btn-danger w-100 mt-2" onclick="calcLoss()">Calculate</button>
+                    <button class="btn btn-sm btn-danger w-100 mt-2" data-action="calc-loss">Calculate</button>
                   </div>
                 </div>
               </div>
@@ -3182,14 +3182,14 @@ scores = []
                   <div class="card-body small">
                     <label class="form-label fw-semibold">Logits (comma-separated)</label>
                     <input type="text" id="calc-softmax-in" class="form-control form-control-sm mb-1" value="2.0, 1.0, 0.1">
-                    <button class="btn btn-sm btn-success w-100 mb-2" onclick="calcSoftmax()">Softmax →</button>
+                    <button class="btn btn-sm btn-success w-100 mb-2" data-action="calc-softmax">Softmax →</button>
                     <div id="out-softmax" class="code-block mb-3" style="min-height:36px;font-size:.75rem;">—</div>
 
                     <label class="form-label fw-semibold">Vector A (comma-separated)</label>
                     <input type="text" id="calc-va" class="form-control form-control-sm mb-1" value="1, 2, 3">
                     <label class="form-label fw-semibold">Vector B</label>
                     <input type="text" id="calc-vb" class="form-control form-control-sm mb-2" value="4, 5, 6">
-                    <button class="btn btn-sm btn-success w-100 mb-2" onclick="calcVectors()">Compute →</button>
+                    <button class="btn btn-sm btn-success w-100 mb-2" data-action="calc-vectors">Compute →</button>
                     <div class="d-grid gap-1">
                       <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(13,110,253,.08)">
                         <span>Dot product A·B</span><strong id="out-dot">—</strong>
@@ -3217,7 +3217,7 @@ scores = []
                     <input type="number" id="calc-bayes-pba" class="form-control form-control-sm mb-1" value="0.9" step="0.01" min="0" max="1">
                     <label class="form-label fw-semibold">P(B) — Evidence</label>
                     <input type="number" id="calc-bayes-pb" class="form-control form-control-sm mb-2" value="0.05" step="0.01" min="0.0001" max="1">
-                    <button class="btn btn-sm btn-warning text-dark w-100 mb-2" onclick="calcBayes()">Calculate P(A|B)</button>
+                    <button class="btn btn-sm btn-warning text-dark w-100 mb-2" data-action="calc-bayes">Calculate P(A|B)</button>
                     <div class="d-flex justify-content-between p-2 rounded" style="background:rgba(255,193,7,.12)">
                       <span>Posterior P(A|B)</span><strong id="out-bayes">—</strong>
                     </div>
@@ -3233,7 +3233,7 @@ scores = []
                   <div class="card-body small">
                     <label class="form-label fw-semibold">Dataset (comma-separated)</label>
                     <input type="text" id="calc-stats-data" class="form-control form-control-sm mb-2" value="4, 8, 15, 16, 23, 42">
-                    <button class="btn btn-sm w-100 mb-2" style="background:#6610f2;color:#fff;" onclick="calcStats()">Compute All</button>
+                    <button class="btn btn-sm w-100 mb-2" style="background:#6610f2;color:#fff;" data-action="calc-stats">Compute All</button>
                     <div class="d-grid gap-1">
                       <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>Mean (μ)</span><strong id="out-mean">—</strong></div>
                       <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>Median</span><strong id="out-median">—</strong></div>
@@ -3263,7 +3263,7 @@ scores = []
                     <input type="number" id="calc-gd-beta" class="form-control form-control-sm mb-1" value="0.9" step="0.1" min="0" max="0.999">
                     <label class="form-label fw-semibold">Previous velocity v</label>
                     <input type="number" id="calc-gd-v" class="form-control form-control-sm mb-2" value="0" step="0.01">
-                    <button class="btn btn-sm w-100 mb-2" style="background:#fd7e14;color:#fff;" onclick="calcGD()">Compute Step</button>
+                    <button class="btn btn-sm w-100 mb-2" style="background:#fd7e14;color:#fff;" data-action="calc-gd">Compute Step</button>
                     <div class="d-grid gap-1">
                       <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(253,126,20,.1)"><span>New θ</span><strong id="out-theta-new">—</strong></div>
                       <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(253,126,20,.1)"><span>New velocity v</span><strong id="out-v-new">—</strong></div>
@@ -3286,7 +3286,7 @@ scores = []
                       <div class="col-6"><label class="form-label fw-semibold text-warning">False Negatives (FN)</label><input type="number" id="calc-fn" class="form-control form-control-sm" value="5" min="0"></div>
                       <div class="col-6"><label class="form-label fw-semibold text-secondary">True Negatives (TN)</label><input type="number" id="calc-tn" class="form-control form-control-sm" value="900" min="0"></div>
                     </div>
-                    <button class="btn btn-sm btn-primary w-100 mt-2" onclick="calcConfusion()">Calculate All Metrics</button>
+                    <button class="btn btn-sm btn-primary w-100 mt-2" data-action="calc-confusion">Calculate All Metrics</button>
                   </div>
                   <div class="col-12 col-md-8">
                     <div class="row g-1" id="out-confusion">
@@ -8027,6 +8027,24 @@ causal_mask = np.<span class="fn">triu</span>(np.<span class="fn">ones</span>((s
         localStorage.setItem('bsTheme', next);
       });
     }
-  </script>
+  
+/* ── CSP-compliant calculator delegation ─────────────────────────────── */
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-action]');
+  if (!el) return;
+  var act = el.dataset.action;
+  var fns = {
+    'calc-activations': typeof calcActivations === 'function' ? calcActivations : null,
+    'calc-loss':        typeof calcLoss        === 'function' ? calcLoss        : null,
+    'calc-softmax':     typeof calcSoftmax     === 'function' ? calcSoftmax     : null,
+    'calc-vectors':     typeof calcVectors     === 'function' ? calcVectors     : null,
+    'calc-bayes':       typeof calcBayes       === 'function' ? calcBayes       : null,
+    'calc-stats':       typeof calcStats       === 'function' ? calcStats       : null,
+    'calc-gd':          typeof calcGD          === 'function' ? calcGD          : null,
+    'calc-confusion':   typeof calcConfusion   === 'function' ? calcConfusion   : null,
+  };
+  if (fns[act]) fns[act]();
+});
+</script>
 </body>
 </html>

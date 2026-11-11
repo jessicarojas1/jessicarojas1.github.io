@@ -299,7 +299,7 @@
           </div>
           <div class="exec-meta d-flex align-items-center gap-2 flex-wrap">
             <span id="exec-updated" class="text-secondary small"></span>
-            <button class="btn btn-sm btn-outline-secondary" onclick="window.print()" title="Print / Save as PDF">&#128438; Print</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="print-page" title="Print / Save as PDF">&#128438; Print</button>
             <span class="badge bg-secondary" style="font-size:.65rem">Data stays local</span>
           </div>
         </div>
@@ -1470,7 +1470,13 @@
 
   })();
   </script>
-  <script src="analytics.js" defer></script>
+  <script src="analytics.js" defer>
+/* ── CSP-compliant print delegation ──────────────────────────────── */
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-action="print-page"]');
+  if (el) window.print();
+});
+</script>
 
 <!-- bot-trap: hidden off-screen link, invisible to humans -->
 <div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">

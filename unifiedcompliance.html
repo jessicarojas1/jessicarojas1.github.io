@@ -130,7 +130,7 @@
       <!-- Framework Progress Cards -->
       <div class="row g-3 mb-4" id="progress-cards">
         <div class="col-md-4 col-sm-6">
-          <div class="card h-100 ucf-fw-card" style="cursor:pointer" onclick="ucfSwitchTab('pane-l1',document.getElementById('tab-l1'))" title="View CMMC Level 1 practices">
+          <div class="card h-100 ucf-fw-card" style="cursor:pointer" data-ucf-pane="pane-l1" data-ucf-tab="tab-l1" title="View CMMC Level 1 practices">
             <div class="card-body">
               <h5 class="card-title mb-1">CMMC Level 1 <span class="badge bg-success">17</span></h5>
               <div class="progress mb-2"><div class="progress-bar bg-success" id="prog-l1" role="progressbar" style="width:0%">0%</div></div>
@@ -139,7 +139,7 @@
           </div>
         </div>
         <div class="col-md-4 col-sm-6">
-          <div class="card h-100 ucf-fw-card" style="cursor:pointer" onclick="ucfSwitchTab('pane-l2',document.getElementById('tab-l2'))" title="View CMMC Level 2 practices">
+          <div class="card h-100 ucf-fw-card" style="cursor:pointer" data-ucf-pane="pane-l2" data-ucf-tab="tab-l2" title="View CMMC Level 2 practices">
             <div class="card-body">
               <h5 class="card-title mb-1">CMMC Level 2 <span class="badge bg-warning text-dark">110</span></h5>
               <div class="progress mb-2"><div class="progress-bar bg-success" id="prog-l2" role="progressbar" style="width:0%">0%</div></div>
@@ -148,7 +148,7 @@
           </div>
         </div>
         <div class="col-md-4 col-sm-6">
-          <div class="card h-100 ucf-fw-card" style="cursor:pointer" onclick="ucfSwitchTab('pane-l3',document.getElementById('tab-l3'))" title="View CMMC Level 3 practices">
+          <div class="card h-100 ucf-fw-card" style="cursor:pointer" data-ucf-pane="pane-l3" data-ucf-tab="tab-l3" title="View CMMC Level 3 practices">
             <div class="card-body">
               <h5 class="card-title mb-1">CMMC Level 3 <span class="badge" style="background:#ea580c">24</span></h5>
               <div class="progress mb-2"><div class="progress-bar" id="prog-l3" role="progressbar" style="width:0%;background:#ea580c">0%</div></div>
@@ -160,12 +160,12 @@
 
       <!-- Navigation Tabs -->
       <ul class="nav nav-tabs mb-3" id="ucfTabs" role="tablist">
-        <li class="nav-item" role="presentation"><button class="nav-link active" id="tab-dashboard" type="button" onclick="ucfSwitchTab('pane-dashboard',this)">Dashboard</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l1" type="button" onclick="ucfSwitchTab('pane-l1',this)">CMMC Level 1</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l2" type="button" onclick="ucfSwitchTab('pane-l2',this)">CMMC Level 2</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l3" type="button" onclick="ucfSwitchTab('pane-l3',this)">CMMC Level 3</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-mapping" type="button" onclick="ucfSwitchTab('pane-mapping',this)">Domain Nexus</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-gap" type="button" onclick="ucfSwitchTab('pane-gap',this)">Gap Analysis</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link active" id="tab-dashboard" type="button" data-ucf-pane="pane-dashboard">Dashboard</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l1" type="button" data-ucf-pane="pane-l1">CMMC Level 1</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l2" type="button" data-ucf-pane="pane-l2">CMMC Level 2</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l3" type="button" data-ucf-pane="pane-l3">CMMC Level 3</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-mapping" type="button" data-ucf-pane="pane-mapping">Domain Nexus</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-gap" type="button" data-ucf-pane="pane-gap">Gap Analysis</button></li>
       </ul>
 
       <!-- Tab Content -->
@@ -3260,7 +3260,16 @@
 
   })();
   </script>
-  <script src="analytics.js" defer></script>
+  <script src="analytics.js" defer>
+/* ── CSP-compliant tab delegation ────────────────────────────────── */
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-ucf-pane]');
+  if (!el) return;
+  var pane = el.dataset.ucfPane;
+  var btn  = el.dataset.ucfTab ? document.getElementById(el.dataset.ucfTab) : el;
+  ucfSwitchTab(pane, btn);
+});
+</script>
 
 <!-- bot-trap: hidden off-screen link, invisible to humans -->
 <div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">

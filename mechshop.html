@@ -252,7 +252,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
      ============================================================ -->
 <div id="booking-view">
   <div class="bk-hero">
-    <a class="bk-admin-link" href="#" onclick="showAdminLogin();return false;">
+    <a class="bk-admin-link" href="#" data-action="show-admin-login">
       <i class="bi bi-gear-fill"></i> Admin
     </a>
     <h1 id="hero-name">🔧 <span>MechPro</span></h1>
@@ -373,7 +373,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
 
       <div id="bk-error" class="alert alert-danger" style="display:none;border-radius:10px;"></div>
 
-      <button class="btn-orange w-100" style="justify-content:center;" onclick="submitBooking()">
+      <button class="btn-orange w-100" style="justify-content:center;" data-action="submit-booking">
         <i class="bi bi-calendar-check-fill"></i> Confirm Appointment
       </button>
     </div>
@@ -384,7 +384,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       <h3 style="color:var(--slate);font-weight:800;">You're booked!</h3>
       <p class="text-muted" id="confirm-msg"></p>
       <div class="confirm-ref" id="confirm-ref"></div>
-      <button class="btn-orange mt-4" onclick="resetBooking()">Book Another Appointment</button>
+      <button class="btn-orange mt-4" data-action="reset-booking">Book Another Appointment</button>
     </div>
   </div>
 </div>
@@ -404,9 +404,9 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
              onkeydown="if(event.key==='Enter')adminLogin()">
     </div>
     <div id="login-err" class="alert alert-danger small py-2" style="display:none;"></div>
-    <button class="btn-orange w-100" style="justify-content:center;" onclick="adminLogin()">Sign In</button>
+    <button class="btn-orange w-100" style="justify-content:center;" data-action="admin-login">Sign In</button>
     <div class="text-center mt-3">
-      <a href="#" onclick="showBooking();return false;" style="font-size:.82rem;color:#64748b;text-decoration:none;">← Back to Booking</a>
+      <a href="#" data-action="show-booking" style="font-size:.82rem;color:#64748b;text-decoration:none;">← Back to Booking</a>
     </div>
     <div class="text-center mt-2">
       <span style="font-size:.72rem;color:#94a3b8;">Default password: <code>admin123</code></span>
@@ -427,49 +427,49 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     </div>
 
     <div class="adm-sect">Overview</div>
-    <button class="adm-link active" data-mod="dashboard" onclick="showMod('dashboard',this)">
+    <button class="adm-link active" data-mod="dashboard">
       <i class="bi bi-grid-1x2-fill"></i> Dashboard
     </button>
 
     <div class="adm-sect">Appointments</div>
-    <button class="adm-link" data-mod="appointments" onclick="showMod('appointments',this)">
+    <button class="adm-link" data-mod="appointments">
       <i class="bi bi-calendar3"></i> All Appointments
       <span class="badge bg-warning text-dark" id="sb-pending-badge" style="display:none"></span>
     </button>
-    <button class="adm-link" data-mod="add-appt" onclick="showMod('add-appt',this)">
+    <button class="adm-link" data-mod="add-appt">
       <i class="bi bi-plus-circle-fill"></i> Add Appointment
     </button>
 
     <div class="adm-sect">Work Orders</div>
-    <button class="adm-link" data-mod="work-orders" onclick="showMod('work-orders',this)">
+    <button class="adm-link" data-mod="work-orders">
       <i class="bi bi-clipboard2-check-fill"></i> Work Orders
       <span class="badge bg-danger" id="sb-open-wo-badge" style="display:none"></span>
     </button>
 
     <div class="adm-sect">Reports</div>
-    <button class="adm-link" data-mod="time-reports" onclick="showMod('time-reports',this)">
+    <button class="adm-link" data-mod="time-reports">
       <i class="bi bi-clock-history"></i> Time Reports
     </button>
-    <button class="adm-link" data-mod="revenue" onclick="showMod('revenue',this)">
+    <button class="adm-link" data-mod="revenue">
       <i class="bi bi-cash-stack"></i> Revenue
     </button>
 
     <div class="adm-sect">Configuration</div>
-    <button class="adm-link" data-mod="services-mgmt" onclick="showMod('services-mgmt',this)">
+    <button class="adm-link" data-mod="services-mgmt">
       <i class="bi bi-tools"></i> Services
     </button>
-    <button class="adm-link" data-mod="mechanics-mgmt" onclick="showMod('mechanics-mgmt',this)">
+    <button class="adm-link" data-mod="mechanics-mgmt">
       <i class="bi bi-person-badge-fill"></i> Mechanics
     </button>
-    <button class="adm-link" data-mod="settings" onclick="showMod('settings',this)">
+    <button class="adm-link" data-mod="settings">
       <i class="bi bi-gear-fill"></i> Settings
     </button>
 
     <div class="adm-sidebar-btm">
-      <button class="adm-link" onclick="showBooking()">
+      <button class="adm-link" data-action="show-booking">
         <i class="bi bi-arrow-left-circle"></i> Booking Page
       </button>
-      <button class="adm-link" onclick="adminLogout()">
+      <button class="adm-link" data-action="admin-logout">
         <i class="bi bi-box-arrow-left"></i> Sign Out
       </button>
     </div>
@@ -479,7 +479,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
   <div id="adm-main">
     <div id="adm-topbar">
       <div class="d-flex align-items-center gap-3">
-        <button class="btn btn-sm btn-light d-md-none" onclick="toggleSidebar()">
+        <button class="btn btn-sm btn-light d-md-none" data-action="toggle-sidebar">
           <i class="bi bi-list fs-5"></i>
         </button>
         <div class="page-title" id="adm-page-title">Dashboard</div>
@@ -543,7 +543,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
             <option value="cancelled">Cancelled</option>
             <option value="no_show">No Show</option>
           </select>
-          <button class="btn btn-sm btn-outline-secondary" onclick="clearApptFilters()">Clear</button>
+          <button class="btn btn-sm btn-outline-secondary" data-action="clear-appt-filters">Clear</button>
           <div class="ms-auto small text-muted" id="af-count"></div>
         </div>
         <div class="tbl-card">
@@ -637,7 +637,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
               </div>
             </div>
             <div id="aa-msg" class="alert mt-3" style="display:none;font-size:.85rem;"></div>
-            <button class="btn-orange mt-4 w-100" style="justify-content:center;" onclick="adminAddAppt()">
+            <button class="btn-orange mt-4 w-100" style="justify-content:center;" data-action="admin-add-appt">
               <i class="bi bi-calendar-plus-fill"></i> Add Appointment
             </button>
           </div>
@@ -698,7 +698,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
         <div class="tbl-card">
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
             <div class="fw-bold" style="color:var(--slate);">Session Log</div>
-            <button class="btn btn-sm btn-outline-secondary" onclick="exportTrCsv()"><i class="bi bi-download"></i> CSV</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="export-tr-csv"><i class="bi bi-download"></i> CSV</button>
           </div>
           <div class="table-responsive">
             <table class="table mb-0">
@@ -740,7 +740,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
         <div class="tbl-card">
           <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
             <div class="fw-bold" style="color:var(--slate);">Completed Work Orders</div>
-            <button class="btn btn-sm btn-outline-secondary" onclick="exportRevCsv()"><i class="bi bi-download"></i> CSV</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="export-rev-csv"><i class="bi bi-download"></i> CSV</button>
           </div>
           <div class="table-responsive">
             <table class="table mb-0">
@@ -773,8 +773,8 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
                 </div>
               </div>
               <div class="d-flex gap-2">
-                <button class="btn-orange flex-fill" style="justify-content:center;" onclick="saveService()">Save</button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="clearSvcForm()">Clear</button>
+                <button class="btn-orange flex-fill" style="justify-content:center;" data-action="save-service">Save</button>
+                <button class="btn btn-outline-secondary btn-sm" data-action="clear-svc-form">Clear</button>
               </div>
             </div>
           </div>
@@ -811,8 +811,8 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
                 <input type="number" id="mech-rate-inp" class="form-control" placeholder="85" min="0" step="5">
               </div>
               <div class="d-flex gap-2">
-                <button class="btn-orange flex-fill" style="justify-content:center;" onclick="saveMech()">Save</button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="clearMechForm()">Clear</button>
+                <button class="btn-orange flex-fill" style="justify-content:center;" data-action="save-mech">Save</button>
+                <button class="btn btn-outline-secondary btn-sm" data-action="clear-mech-form">Clear</button>
               </div>
             </div>
           </div>
@@ -876,7 +876,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
               </div>
             </div>
             <div id="set-msg" class="alert mt-3" style="display:none;font-size:.85rem;"></div>
-            <button class="btn-orange mt-3 w-100" style="justify-content:center;" onclick="saveSettings()">
+            <button class="btn-orange mt-3 w-100" style="justify-content:center;" data-action="save-settings">
               <i class="bi bi-floppy-fill"></i> Save Settings
             </button>
           </div>
@@ -909,14 +909,14 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
         <!-- Labor -->
         <div class="wo-section-title"><i class="bi bi-person-gear" style="color:var(--orange)"></i> Labor</div>
         <div id="wo-labor-rows"></div>
-        <button class="btn btn-sm btn-outline-secondary mb-3" onclick="woAddLabor()">
+        <button class="btn btn-sm btn-outline-secondary mb-3" data-action="wo-add-labor">
           <i class="bi bi-plus"></i> Add Labor Line
         </button>
 
         <!-- Parts -->
         <div class="wo-section-title mt-2"><i class="bi bi-box-seam" style="color:var(--orange)"></i> Parts & Materials</div>
         <div id="wo-parts-rows"></div>
-        <button class="btn btn-sm btn-outline-secondary mb-3" onclick="woAddPart()">
+        <button class="btn btn-sm btn-outline-secondary mb-3" data-action="wo-add-part">
           <i class="bi bi-plus"></i> Add Part / Material
         </button>
 
@@ -942,8 +942,8 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-        <button class="btn btn-primary" onclick="saveWorkOrder(false)"><i class="bi bi-floppy"></i> Save</button>
-        <button class="btn btn-success" onclick="saveWorkOrder(true)"><i class="bi bi-check-circle-fill"></i> Save & Mark Complete</button>
+        <button class="btn btn-primary" data-action="save-work-order"><i class="bi bi-floppy"></i> Save</button>
+        <button class="btn btn-success" data-action="save-work-order-complete"><i class="bi bi-check-circle-fill"></i> Save & Mark Complete</button>
       </div>
     </div>
   </div>
@@ -1226,7 +1226,7 @@ function populateBookingForm() {
   const grid = document.getElementById('svc-grid');
   grid.innerHTML = S.services.length
     ? S.services.map(s => `
-        <div class="svc-card" onclick="selectSvc('${s.id}',this)">
+        <div class="svc-card" data-action="select-svc" data-id="${s.id}">
           <i class="bi bi-check-circle-fill svc-chk"></i>
           <div class="svc-name">${s.name}</div>
           <div class="svc-meta"><i class="bi bi-clock"></i> ${fmtDur(s.duration)} est.</div>
@@ -1239,7 +1239,7 @@ function populateBookingForm() {
   const mg = document.getElementById('bk-mech-grid');
   mg.innerHTML = active.length
     ? active.map(m => `
-        <div class="mech-card" onclick="selectMech('${m.id}',this)">
+        <div class="mech-card" data-action="select-mech" data-id="${m.id}">
           <div class="mech-avatar">${m.name[0]}</div>
           <div class="mech-nm">${m.name}</div>
           ${m.specialty ? `<div class="mech-sp">${m.specialty}</div>` : ''}
@@ -1281,8 +1281,7 @@ function updateTimeSlots() {
     const busy = taken.has(slot);
     const unav = past || busy;
     const sel  = !unav && slot === bk.time;
-    return `<div class="time-slot${unav?' unavail':''}${sel?' selected':''}"
-      ${unav?'':` onclick="pickTime('${slot}',this)"`}>${fmtTime(slot)}</div>`;
+    return `<div class="time-slot${unav?' unavail':''}${sel?' selected':''}" data-slot="${slot}">${fmtTime(slot)}</div>`;
   }).join('');
 }
 function pickTime(t, el) {
@@ -1374,26 +1373,26 @@ function resetBooking() {
 function apptActions(a) {
   let h = '';
   if (a.status === 'pending') {
-    h += `<button class="btn btn-success btn-sm" onclick="updateAppt('${a.id}',{status:'confirmed'})"><i class="bi bi-check-lg"></i> Confirm</button>`;
-    h += `<button class="btn btn-outline-danger btn-sm" onclick="cancelAppt('${a.id}')">Cancel</button>`;
+    h += `<button class="btn btn-success btn-sm" data-action="update-appt" data-id="${a.id}" data-status="confirmed"><i class="bi bi-check-lg"></i> Confirm</button>`;
+    h += `<button class="btn btn-outline-danger btn-sm" data-action="cancel-appt" data-id="${a.id}">Cancel</button>`;
   }
   if (a.status === 'confirmed') {
-    h += `<button class="btn btn-primary btn-sm" onclick="startAppt('${a.id}')"><i class="bi bi-play-fill"></i> Start</button>`;
-    h += `<button class="btn btn-outline-secondary btn-sm" onclick="noShowAppt('${a.id}')">No Show</button>`;
-    h += `<button class="btn btn-outline-danger btn-sm" onclick="cancelAppt('${a.id}')">Cancel</button>`;
+    h += `<button class="btn btn-primary btn-sm" data-action="start-appt" data-id="${a.id}"><i class="bi bi-play-fill"></i> Start</button>`;
+    h += `<button class="btn btn-outline-secondary btn-sm" data-action="no-show-appt" data-id="${a.id}">No Show</button>`;
+    h += `<button class="btn btn-outline-danger btn-sm" data-action="cancel-appt" data-id="${a.id}">Cancel</button>`;
   }
   if (a.status === 'in_progress') {
     h += `<span class="timer-txt" id="timer-${a.id}">${fmtDur(elapsedMin(a.startedAt))}</span>`;
-    h += `<button class="btn btn-warning btn-sm" onclick="openWoModal('${a.id}')"><i class="bi bi-clipboard2-check"></i> Work Order</button>`;
-    h += `<button class="btn btn-success btn-sm" onclick="completeAppt('${a.id}')"><i class="bi bi-stop-fill"></i> Complete</button>`;
+    h += `<button class="btn btn-warning btn-sm" data-action="open-wo-modal" data-id="${a.id}"><i class="bi bi-clipboard2-check"></i> Work Order</button>`;
+    h += `<button class="btn btn-success btn-sm" data-action="complete-appt" data-id="${a.id}"><i class="bi bi-stop-fill"></i> Complete</button>`;
     startTimer(a.id, a.startedAt);
   }
   if (a.status === 'completed') {
     h += `<span class="text-muted small">${fmtDur(a.actualDuration)} actual</span>`;
-    h += `<button class="btn btn-outline-secondary btn-sm" onclick="openWoModal('${a.id}')"><i class="bi bi-receipt"></i> Work Order</button>`;
+    h += `<button class="btn btn-outline-secondary btn-sm" data-action="open-wo-modal" data-id="${a.id}"><i class="bi bi-receipt"></i> Work Order</button>`;
   }
   if (['completed','cancelled','no_show'].includes(a.status)) {
-    h += `<button class="btn btn-outline-danger btn-sm" onclick="deleteAppt('${a.id}')" title="Delete"><i class="bi bi-trash"></i></button>`;
+    h += `<button class="btn btn-outline-danger btn-sm" data-action="delete-appt" data-id="${a.id}" title="Delete"><i class="bi bi-trash"></i></button>`;
   }
   return h;
 }
@@ -1515,9 +1514,9 @@ function renderDashboard() {
           </div>
           <div class="d-flex gap-1">
             <button class="btn btn-success btn-sm" style="font-size:.7rem;padding:2px 8px"
-              onclick="updateAppt('${a.id}',{status:'confirmed'})">✓</button>
+              data-action="update-appt" data-id="${a.id}" data-status="confirmed">✓</button>
             <button class="btn btn-outline-danger btn-sm" style="font-size:.7rem;padding:2px 6px"
-              onclick="cancelAppt('${a.id}')">✕</button>
+              data-action="cancel-appt" data-id="${a.id}">✕</button>
           </div>
         </div>`).join('')
       + (pending.length>5 ? `<div class="small text-muted">+${pending.length-5} more</div>` : '')
@@ -1533,7 +1532,7 @@ function renderDashboard() {
             <div class="fw-semibold" style="font-size:.84rem">${appt.clientName}</div>
             <div class="text-muted" style="font-size:.73rem">${vehicleLabel(appt.vehicle)} · ${appt.serviceName}</div>
           </div>
-          <button class="btn btn-sm btn-outline-warning" style="font-size:.7rem" onclick="openWoModal('${appt.id}')">Open</button>
+          <button class="btn btn-sm btn-outline-warning" style="font-size:.7rem" data-action="open-wo-modal" data-id="${appt.id}">Open</button>
         </div>`;
       }).join('')
     : '<div class="small text-muted">No open work orders</div>';
@@ -1739,7 +1738,7 @@ function renderWoLabor(defaultRate) {
       <div style="width:74px;font-size:.82rem;font-weight:600;padding-top:6px;text-align:right;white-space:nowrap">
         ${fmtMoney((parseFloat(l.hours)||0)*(parseFloat(l.rate)||0))}
       </div>
-      <button class="btn btn-sm btn-outline-danger" onclick="woRemoveLabor(${i})"><i class="bi bi-x"></i></button>
+      <button class="btn btn-sm btn-outline-danger" data-action="wo-remove-labor" data-idx="${i}"><i class="bi bi-x"></i></button>
     </div>`).join('');
 }
 function renderWoParts() {
@@ -1757,7 +1756,7 @@ function renderWoParts() {
       <div style="width:74px;font-size:.82rem;font-weight:600;padding-top:6px;text-align:right;white-space:nowrap">
         ${fmtMoney((parseFloat(p.qty)||0)*(parseFloat(p.unitCost)||0))}
       </div>
-      <button class="btn btn-sm btn-outline-danger" onclick="woRemovePart(${i})"><i class="bi bi-x"></i></button>
+      <button class="btn btn-sm btn-outline-danger" data-action="wo-remove-part" data-idx="${i}"><i class="bi bi-x"></i></button>
     </div>`).join('');
 }
 function recalcWoTotals() {
@@ -1826,7 +1825,7 @@ function renderWorkOrders() {
           <td>${fmtMoney(pt)}</td>
           <td><strong>${fmtMoney(lt+pt)}</strong></td>
           <td>${woBadge}</td>
-          <td><button class="btn btn-sm btn-outline-warning" onclick="openWoModal('${appt.id}')"><i class="bi bi-pencil"></i></button></td>
+          <td><button class="btn btn-sm btn-outline-warning" data-action="open-wo-modal" data-id="${appt.id}"><i class="bi bi-pencil"></i></button></td>
         </tr>`;
       }).join('')
     : '<tr><td colspan="10" class="text-center text-muted py-4">No work orders found</td></tr>';
@@ -2034,8 +2033,8 @@ function renderSvcTable() {
         <td>${fmtDur(s.duration)}</td>
         <td>${fmtMoney(s.price)}</td>
         <td>
-          <button class="btn btn-sm btn-outline-secondary" onclick="editSvc('${s.id}')"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteSvc('${s.id}')"><i class="bi bi-trash"></i></button>
+          <button class="btn btn-sm btn-outline-secondary" data-action="edit-svc" data-id="${s.id}"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-outline-danger ms-1" data-action="delete-svc" data-id="${s.id}"><i class="bi bi-trash"></i></button>
         </td>
       </tr>`).join('')
     : '<tr><td colspan="4" class="text-center text-muted py-3">No services configured</td></tr>';
@@ -2085,9 +2084,9 @@ function renderMechTable() {
         <td>${fmtMoney(m.laborRate||0)}/hr</td>
         <td>${m.active?'<span class="bconfirmed">Active</span>':'<span class="bcancelled">Inactive</span>'}</td>
         <td>
-          <button class="btn btn-sm btn-outline-secondary" onclick="editMech('${m.id}')"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm ${m.active?'btn-outline-warning':'btn-outline-success'} ms-1" onclick="toggleMech('${m.id}')">${m.active?'Deactivate':'Activate'}</button>
-          <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteMech('${m.id}')"><i class="bi bi-trash"></i></button>
+          <button class="btn btn-sm btn-outline-secondary" data-action="edit-mech" data-id="${m.id}"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm ${m.active?'btn-outline-warning':'btn-outline-success'} ms-1" data-action="toggle-mech" data-id="${m.id}">${m.active?'Deactivate':'Activate'}</button>
+          <button class="btn btn-sm btn-outline-danger ms-1" data-action="delete-mech" data-id="${m.id}"><i class="bi bi-trash"></i></button>
         </td>
       </tr>`).join('')
     : '<tr><td colspan="5" class="text-center text-muted py-3">No mechanics configured</td></tr>';
@@ -2132,6 +2131,78 @@ function clearMechForm() {
 load();
 applySettings();
 showBooking();
+
+/* ── CSP-compliant booking app delegation ──────────────────────────── */
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-action]');
+  if (!el) return;
+  var act = el.dataset.action, id = el.dataset.id, fn;
+  var fns = {
+    'submit-booking':    function(){ if(typeof submitBooking   ==='function') submitBooking(); },
+    'reset-booking':     function(){ if(typeof resetBooking    ==='function') resetBooking(); },
+    'admin-login':       function(){ if(typeof adminLogin      ==='function') adminLogin(); },
+    'show-booking':      function(){ if(typeof showBooking     ==='function') showBooking(); },
+    'show-admin-login':  function(){ if(typeof showAdminLogin  ==='function') showAdminLogin(); },
+    'admin-logout':      function(){ if(typeof adminLogout     ==='function') adminLogout(); },
+    'toggle-sidebar':    function(){ if(typeof toggleSidebar   ==='function') toggleSidebar(); },
+    'clear-appt-filters':function(){ if(typeof clearApptFilters==='function') clearApptFilters(); },
+    'admin-add-appt':    function(){ if(typeof adminAddAppt    ==='function') adminAddAppt(); },
+    'export-tr-csv':     function(){ if(typeof exportTrCsv     ==='function') exportTrCsv(); },
+    'export-rev-csv':    function(){ if(typeof exportRevCsv    ==='function') exportRevCsv(); },
+    'save-service':      function(){ if(typeof saveService     ==='function') saveService(); },
+    'clear-svc-form':    function(){ if(typeof clearSvcForm    ==='function') clearSvcForm(); },
+    'save-staff':        function(){ if(typeof saveStaff       ==='function') saveStaff(); },
+    'clear-staff-form':  function(){ if(typeof clearStaffForm  ==='function') clearStaffForm(); },
+    'save-settings':     function(){ if(typeof saveSettings    ==='function') saveSettings(); },
+    'edit-svc':          function(){ if(typeof editSvc         ==='function') editSvc(id); },
+    'delete-svc':        function(){ if(typeof deleteSvc       ==='function') deleteSvc(id); },
+    'edit-staff':        function(){ if(typeof editStaff       ==='function') editStaff(id); },
+    'toggle-staff':      function(){ if(typeof toggleStaff     ==='function') toggleStaff(id); },
+    'delete-staff':      function(){ if(typeof deleteStaff     ==='function') deleteStaff(id); },
+    'delete-appt':       function(){ if(typeof deleteAppt      ==='function') deleteAppt(id); },
+    'start-appt':        function(){ if(typeof startAppt       ==='function') startAppt(id); },
+    'no-show-appt':      function(){ if(typeof noShowAppt      ==='function') noShowAppt(id); },
+    'cancel-appt':       function(){ if(typeof cancelAppt      ==='function') cancelAppt(id); },
+    'complete-appt':     function(){ if(typeof completeAppt    ==='function') completeAppt(id); },
+    'update-appt':       function(){ if(typeof updateAppt      ==='function') updateAppt(id,{status:el.dataset.status}); },
+    'select-svc':        function(){ if(typeof selectSvc       ==='function') selectSvc(id,el); },
+    'select-barber':     function(){ if(typeof selectBarber    ==='function') selectBarber(id,el); },
+  };
+  if (fns[act]) fns[act]();
+});
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-slot]');
+  if (!el || el.classList.contains('unavail')) return;
+  if (typeof pickTime === 'function') pickTime(el.dataset.slot, el);
+});
+
+/* ── CSP-compliant mechshop extra delegation ───────────────────────── */
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-action]');
+  if (!el) return;
+  var act = el.dataset.action, id = el.dataset.id, idx = el.dataset.idx !== undefined ? parseInt(el.dataset.idx,10) : undefined;
+  var fns = {
+    'save-mech':              function(){ if(typeof saveMech              ==='function') saveMech(); },
+    'clear-mech-form':        function(){ if(typeof clearMechForm         ==='function') clearMechForm(); },
+    'wo-add-labor':           function(){ if(typeof woAddLabor            ==='function') woAddLabor(); },
+    'wo-add-part':            function(){ if(typeof woAddPart             ==='function') woAddPart(); },
+    'save-work-order':        function(){ if(typeof saveWorkOrder         ==='function') saveWorkOrder(false); },
+    'save-work-order-complete':function(){ if(typeof saveWorkOrder        ==='function') saveWorkOrder(true); },
+    'select-mech':            function(){ if(typeof selectMech            ==='function') selectMech(id,el); },
+    'open-wo-modal':          function(){ if(typeof openWoModal           ==='function') openWoModal(id); },
+    'edit-mech':              function(){ if(typeof editMech              ==='function') editMech(id); },
+    'toggle-mech':            function(){ if(typeof toggleMech            ==='function') toggleMech(id); },
+    'delete-mech':            function(){ if(typeof deleteMech            ==='function') deleteMech(id); },
+    'wo-remove-labor':        function(){ if(typeof woRemoveLabor         ==='function') woRemoveLabor(idx); },
+    'wo-remove-part':         function(){ if(typeof woRemovePart          ==='function') woRemovePart(idx); },
+  };
+  if (fns[act]) fns[act]();
+});
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-slot]');
+  if (!el || el.classList.contains('unavail')) return;
+  if (typeof pickTime === 'function') pickTime(el.dataset.slot, el);
+});
 </script>
 </body>
 </html>

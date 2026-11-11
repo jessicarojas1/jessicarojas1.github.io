@@ -109,14 +109,14 @@
         <!-- ── Users tab ─────────────────────────────────────────── -->
         <div class="tab-pane fade show active" id="admin-tab-users" role="tabpanel">
           <div class="d-flex mb-4">
-            <button class="btn btn-primary ms-auto" id="show-add-user-btn" onclick="toggleAddUser()">+ Add User</button>
+            <button class="btn btn-primary ms-auto" id="show-add-user-btn" data-action="toggle-add-user">+ Add User</button>
           </div>
 
         <!-- ── Inline Add User Panel ───────────────────────────────── -->
         <div class="card mb-4" id="add-user-panel" style="display:none">
           <div class="card-header d-flex justify-content-between align-items-center">
             <strong>New User</strong>
-            <button type="button" class="btn-close" onclick="toggleAddUser()" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-action="toggle-add-user" aria-label="Close"></button>
           </div>
           <div class="card-body">
             <div class="row g-4">
@@ -142,8 +142,8 @@
                 </div>
                 <div class="alert alert-danger d-none py-2 small" id="add-user-error" role="alert"></div>
                 <div class="d-flex gap-2">
-                  <button type="button" class="btn btn-primary flex-grow-1" id="create-user-btn" onclick="doAddUser()">Create User</button>
-                  <button type="button" class="btn btn-outline-secondary" onclick="toggleAddUser()">Cancel</button>
+                  <button type="button" class="btn btn-primary flex-grow-1" id="create-user-btn" data-action="do-add-user">Create User</button>
+                  <button type="button" class="btn btn-outline-secondary" data-action="toggle-add-user">Cancel</button>
                 </div>
               </div>
 
@@ -466,7 +466,7 @@
                 <option value="admin">Admin</option>
               </select>
               <div class="alert alert-danger d-none py-2 small mt-3" id="approve-error" role="alert"></div>
-              <button type="button" class="btn btn-success w-100 mt-3" onclick="doApproveRequest()">Approve &amp; Create Account</button>
+              <button type="button" class="btn btn-success w-100 mt-3" data-action="approve-request">Approve &amp; Create Account</button>
             </div>
             <div class="col-md-8">
               <div class="table-responsive">
@@ -517,7 +517,7 @@
             <input type="password" class="form-control" id="changepw-confirm" autocomplete="new-password" />
           </div>
           <div class="alert alert-danger d-none py-2 small" id="changepw-error" role="alert"></div>
-          <button type="button" class="btn btn-primary w-100" onclick="doChangePassword()">Update Password</button>
+          <button type="button" class="btn btn-primary w-100" data-action="change-password">Update Password</button>
         </div>
       </div>
     </div>
@@ -543,7 +543,7 @@
                 <option value="admin">Admin</option>
               </select>
               <div class="alert alert-danger d-none py-2 small mt-3" id="changerole-error" role="alert"></div>
-              <button type="button" class="btn btn-primary w-100 mt-3" onclick="doChangeRole()">Update Role</button>
+              <button type="button" class="btn btn-primary w-100 mt-3" data-action="change-role">Update Role</button>
             </div>
             <div class="col-md-8">
               <div class="table-responsive">
@@ -1394,6 +1394,18 @@
       });
     }
   });
-  </script>
+  
+/* ── CSP-compliant admin delegation ──────────────────────────────── */
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-action]');
+  if (!el) return;
+  var act = el.dataset.action;
+  if      (act === 'toggle-add-user'  && typeof toggleAddUser    === 'function') toggleAddUser();
+  else if (act === 'do-add-user'      && typeof doAddUser        === 'function') doAddUser();
+  else if (act === 'approve-request'  && typeof doApproveRequest === 'function') doApproveRequest();
+  else if (act === 'change-password'  && typeof doChangePassword === 'function') doChangePassword();
+  else if (act === 'change-role'      && typeof doChangeRole     === 'function') doChangeRole();
+});
+</script>
 </body>
 </html>

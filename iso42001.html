@@ -136,20 +136,20 @@
 
     <div class="sidebar-section-label">Families</div>
     <div class="d-flex flex-column gap-1 mb-4">
-      <a href="#" class="nav-link-side active" data-family="all" onclick="return filterFamily('all',this)">All Controls <span class="sidebar-sub">34</span></a>
-      <a href="#" class="nav-link-side" data-family="Governance" onclick="return filterFamily('Governance',this)"><span>🔵 Governance &amp; Policies</span><span class="sidebar-sub">8</span></a>
-      <a href="#" class="nav-link-side" data-family="Lifecycle"  onclick="return filterFamily('Lifecycle',this)"><span>🟣 AI System Lifecycle</span><span class="sidebar-sub">9</span></a>
-      <a href="#" class="nav-link-side" data-family="Data"       onclick="return filterFamily('Data',this)"><span>🩵 Data for AI</span><span class="sidebar-sub">6</span></a>
-      <a href="#" class="nav-link-side" data-family="Transparency" onclick="return filterFamily('Transparency',this)"><span>🟢 Transparency &amp; Use</span><span class="sidebar-sub">7</span></a>
-      <a href="#" class="nav-link-side" data-family="ThirdParty" onclick="return filterFamily('ThirdParty',this)"><span>🟡 Third-Party &amp; Supply Chain</span><span class="sidebar-sub">4</span></a>
+      <a href="#" class="nav-link-side active" data-family="all">All Controls <span class="sidebar-sub">34</span></a>
+      <a href="#" class="nav-link-side" data-family="Governance"><span>🔵 Governance &amp; Policies</span><span class="sidebar-sub">8</span></a>
+      <a href="#" class="nav-link-side" data-family="Lifecycle"><span>🟣 AI System Lifecycle</span><span class="sidebar-sub">9</span></a>
+      <a href="#" class="nav-link-side" data-family="Data"><span>🩵 Data for AI</span><span class="sidebar-sub">6</span></a>
+      <a href="#" class="nav-link-side" data-family="Transparency"><span>🟢 Transparency &amp; Use</span><span class="sidebar-sub">7</span></a>
+      <a href="#" class="nav-link-side" data-family="ThirdParty"><span>🟡 Third-Party &amp; Supply Chain</span><span class="sidebar-sub">4</span></a>
     </div>
 
     <div class="sidebar-section-label">Control Type</div>
     <div class="d-flex flex-column gap-1 mb-3">
-      <a href="#" class="nav-link-side active" data-ctype="all"        onclick="return filterType('',this)">All Types</a>
-      <a href="#" class="nav-link-side" data-ctype="Preventive"        onclick="return filterType('Preventive',this)">🛡 Preventive</a>
-      <a href="#" class="nav-link-side" data-ctype="Detective"         onclick="return filterType('Detective',this)">🔍 Detective</a>
-      <a href="#" class="nav-link-side" data-ctype="Corrective"        onclick="return filterType('Corrective',this)">🔧 Corrective</a>
+      <a href="#" class="nav-link-side active" data-ctype="all">All Types</a>
+      <a href="#" class="nav-link-side" data-ctype="Preventive">🛡 Preventive</a>
+      <a href="#" class="nav-link-side" data-ctype="Detective">🔍 Detective</a>
+      <a href="#" class="nav-link-side" data-ctype="Corrective">🔧 Corrective</a>
     </div>
 
     <div class="sidebar-section-label">SOA Progress</div>
@@ -158,15 +158,15 @@
       <div style="font-size:.68rem;color:#94a3b8" id="soa-stats">0 / 34 assessed</div>
     </div>
     <div class="d-flex flex-column gap-1 mb-4">
-      <a href="#" class="nav-link-side" data-soa="Applicable"     onclick="return filterSOA('Applicable',this)"><span>✅ Applicable</span><span class="sidebar-sub" id="soa-count-app">0</span></a>
-      <a href="#" class="nav-link-side" data-soa="Partial"        onclick="return filterSOA('Partial',this)"><span>🔶 Partial</span><span class="sidebar-sub" id="soa-count-par">0</span></a>
-      <a href="#" class="nav-link-side" data-soa="Not Applicable" onclick="return filterSOA('Not Applicable',this)"><span>⬜ Not Applicable</span><span class="sidebar-sub" id="soa-count-na">0</span></a>
+      <a href="#" class="nav-link-side" data-soa="Applicable"><span>✅ Applicable</span><span class="sidebar-sub" id="soa-count-app">0</span></a>
+      <a href="#" class="nav-link-side" data-soa="Partial"><span>🔶 Partial</span><span class="sidebar-sub" id="soa-count-par">0</span></a>
+      <a href="#" class="nav-link-side" data-soa="Not Applicable"><span>⬜ Not Applicable</span><span class="sidebar-sub" id="soa-count-na">0</span></a>
     </div>
 
     <div class="mt-auto">
-      <button class="btn btn-success btn-sm w-100 mb-2 fw-semibold" onclick="downloadExcel()">⬇ Download Excel</button>
-      <button class="btn btn-outline-success btn-sm w-100 mb-2" onclick="exportSOA()">📋 Export SOA</button>
-      <button class="btn btn-outline-secondary btn-sm w-100 mb-3" onclick="resetSOA()">↺ Reset SOA</button>
+      <button class="btn btn-success btn-sm w-100 mb-2 fw-semibold" data-action="download-excel">⬇ Download Excel</button>
+      <button class="btn btn-outline-success btn-sm w-100 mb-2" data-action="export-soa">📋 Export SOA</button>
+      <button class="btn btn-outline-secondary btn-sm w-100 mb-3" data-action="reset-soa">↺ Reset SOA</button>
       <div class="text-center" style="font-size:.63rem;color:#475569">34 controls · evidence · policies · SOA</div>
     </div>
   </nav>
@@ -179,7 +179,7 @@
         <h1 class="h4 fw-bold mb-1">ISO/IEC 42001:2023 — AI Management System</h1>
         <p class="text-secondary small mb-0">34 Annex A controls across 5 domains — evidence examples, required policies, implementation tips, and SOA tracker.</p>
       </div>
-      <button class="btn btn-success fw-semibold" onclick="downloadExcel()">⬇ Download Excel</button>
+      <button class="btn btn-success fw-semibold" data-action="download-excel">⬇ Download Excel</button>
     </div>
 
     <!-- Stats -->
@@ -193,10 +193,10 @@
 
     <!-- View tabs -->
     <div class="d-flex gap-2 mb-4 flex-wrap">
-      <button class="view-tab active" id="tab-controls"   onclick="showView('controls')">🤖 Controls</button>
-      <button class="view-tab"        id="tab-docs"       onclick="showView('docs')">📋 AIMS Documents</button>
-      <button class="view-tab"        id="tab-principles" onclick="showView('principles')">⚖️ AI Principles</button>
-      <button class="view-tab"        id="tab-euai"       onclick="showView('euai')">🇪🇺 EU AI Act Alignment</button>
+      <button class="view-tab active" id="tab-controls"   data-view="controls">🤖 Controls</button>
+      <button class="view-tab"        id="tab-docs"       data-view="docs">📋 AIMS Documents</button>
+      <button class="view-tab"        id="tab-principles" data-view="principles">⚖️ AI Principles</button>
+      <button class="view-tab"        id="tab-euai"       data-view="euai">🇪🇺 EU AI Act Alignment</button>
     </div>
 
     <!-- ── AIMS Documents ── -->
@@ -361,7 +361,7 @@
             placeholder="Search by control ID, name, evidence type, or policy keyword…"
             oninput="applyFilters()">
         </div>
-        <button class="btn btn-outline-secondary btn-sm" id="expand-all-btn" onclick="toggleExpandAll()">Expand All</button>
+        <button class="btn btn-outline-secondary btn-sm" id="expand-all-btn" data-action="expand-all">Expand All</button>
       </div>
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div class="small text-secondary" id="results-count">Loading controls…</div>
@@ -606,6 +606,25 @@ function exportSOA(){
 }
 
 soaLoad();updateSoaBar();renderControls(CONTROLS);
+
+/* ── CSP-compliant event delegation ──────────────────────────────────── */
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-family]');
+  if (el && el.tagName === 'A') { e.preventDefault(); filterFamily(el.dataset.family, el); return; }
+  el = e.target.closest('[data-ctype]');
+  if (el && el.tagName === 'A') { e.preventDefault(); filterType(el.dataset.ctype, el); return; }
+  el = e.target.closest('[data-soa]');
+  if (el && el.tagName === 'A') { e.preventDefault(); filterSOA(el.dataset.soa, el); return; }
+  el = e.target.closest('[data-view]');
+  if (el) { e.preventDefault(); showView(el.dataset.view); return; }
+  el = e.target.closest('[data-action]');
+  if (!el) return;
+  var act = el.dataset.action;
+  if (act === 'download-excel') downloadExcel();
+  else if (act === 'export-soa') exportSOA();
+  else if (act === 'reset-soa') resetSOA();
+  else if (act === 'expand-all') toggleExpandAll();
+});
 </script>
 </body>
 </html>
