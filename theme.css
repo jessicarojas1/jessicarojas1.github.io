@@ -1191,6 +1191,13 @@ code, pre, kbd,
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+.terminal-hint {
+  font-size: 0.68rem;
+  color: var(--bs-secondary-color);
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.7;
+}
+.terminal-hint strong { color: var(--bs-primary); font-weight: 600; }
 
 .terminal-body {
   padding: 1.1rem 1.4rem 0.5rem;
