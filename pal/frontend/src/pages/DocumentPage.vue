@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useLeaveGuard } from '@/composables/useLeaveGuard'
-import { computed, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { api, ApiError } from '@/api/client'
@@ -8,8 +8,13 @@ import { formatBytes, GRANT_ROLE_LABELS, type DocumentDetail, type Grant, type P
 import FileUploadField from '@/components/FileUploadField.vue'
 import PeoplePicker from '@/components/PeoplePicker.vue'
 import RevisionStateChip from '@/components/RevisionStateChip.vue'
+import RichTextView from '@/components/RichTextView.vue'
+import { isEmptyDocument, type RichTextNode } from '@/richText'
 import { formatDateTime } from '@/format'
 import { useSessionStore } from '@/stores/session'
+
+// The editor is large; only people editing a draft download it.
+const RichTextEditor = defineAsyncComponent(() => import('@/components/RichTextEditor.vue'))
 
 const route = useRoute()
 const router = useRouter()
@@ -28,6 +33,20 @@ const editTitle = ref('')
 const editDescription = ref('')
 const editKeywords = ref<string[]>([])
 const editSummary = ref('')
+// Editor content of the draft. Saved on its own endpoint (autosave), so it tracks the
+// draft's row version itself; every draft change goes through one queue so two saves
+// never race on the same version.
+const draftRowVersion = ref<number | null>(null)
+const editorKey = ref('')
+const bodyInitial = ref<RichTextNode | null>(null)
+const bodyDraft = ref<RichTextNode | null>(null)
+const bodyDraftJson = ref('')
+const bodySavedJson = ref('')
+const bodyStatus = ref<'saved' | 'dirty' | 'saving' | 'error' | 'conflict'>('saved')
+const bodyError = ref<string | null>(null)
+const AUTOSAVE_MS = 1500
+let autosaveTimer: ReturnType<typeof setTimeout> | null = null
+let draftQueue: Promise<unknown> = Promise.resolve()
 // Submission
 const approvers = ref<Person[]>([])
 const approversError = ref<string | null>(null)
@@ -62,6 +81,17 @@ async function load(): Promise<void> {
     doc.value = await api<DocumentDetail>(`/api/documents/${encodeURIComponent(id.value)}`)
     notFound.value = false
     const draft = doc.value.openRevision
+    if (draft !== null) {
+      draftRowVersion.value = draft.rowVersion
+      // The editor is seeded once per draft; later reloads never overwrite what is being typed.
+      if (editorKey.value !== draft.id) seedBody(draft)
+    }
+    if (draft === null || !draft.actions.includes('edit')) {
+      // Submitted, withdrawn or gone: nothing can be saved any more, so nothing is "unsaved".
+      if (autosaveTimer !== null) clearTimeout(autosaveTimer)
+      autosaveTimer = null
+      bodyDraftJson.value = bodySavedJson.value
+    }
     // Re-seed the edit fields only for a different draft or when nothing is unsaved, so a
     // reload after another action (attaching a file, granting access) never discards edits.
     if (draft !== null && (seeded.value === null || seeded.value.id !== draft.id || !draftDirty.value)) {
@@ -106,7 +136,97 @@ const draftDirty = computed(() => {
   return now.title !== base.title || now.description !== base.description || now.keywords !== base.keywords || now.summary !== base.summary
 })
 
-useLeaveGuard(draftDirty)
+const bodyUnsaved = computed(() => bodyDraftJson.value !== bodySavedJson.value)
+useLeaveGuard(computed(() => draftDirty.value || bodyUnsaved.value))
+
+function serializeBody(body: RichTextNode | null): string {
+  return body === null || isEmptyDocument(body) ? '' : JSON.stringify(body)
+}
+
+function seedBody(draft: RevisionView): void {
+  editorKey.value = draft.id
+  bodyInitial.value = draft.body
+  bodyDraft.value = draft.body
+  bodySavedJson.value = serializeBody(draft.body)
+  bodyDraftJson.value = bodySavedJson.value
+  bodyStatus.value = 'saved'
+  bodyError.value = null
+}
+
+/** Runs draft changes one after another, in the order they were asked for. */
+function queued<T>(task: () => Promise<T>): Promise<T> {
+  const next = draftQueue.then(task, task)
+  draftQueue = next.catch(() => undefined)
+  return next
+}
+
+function onBodyChange(body: RichTextNode): void {
+  bodyDraft.value = body
+  bodyDraftJson.value = serializeBody(body)
+  if (bodyStatus.value === 'conflict') return
+  // A save in flight reports its own outcome and reschedules if more was typed meanwhile.
+  if (bodyStatus.value !== 'saving') bodyStatus.value = bodyUnsaved.value ? 'dirty' : 'saved'
+  if (autosaveTimer !== null) clearTimeout(autosaveTimer)
+  if (bodyUnsaved.value) autosaveTimer = setTimeout(() => void saveBody(), AUTOSAVE_MS)
+}
+
+/** Saves the editor content if it changed. Resolves false when it could not be saved. */
+async function saveBody(): Promise<boolean> {
+  if (autosaveTimer !== null) clearTimeout(autosaveTimer)
+  autosaveTimer = null
+  const rev = open.value
+  if (rev === null || !rev.actions.includes('edit') || bodyStatus.value === 'conflict') return !bodyUnsaved.value
+  return queued(async () => {
+    const sending = bodyDraftJson.value
+    if (sending === bodySavedJson.value) return true
+    // The page may have moved on to another draft while this save waited in the queue.
+    if (open.value?.id !== rev.id || !open.value.actions.includes('edit')) return false
+    bodyStatus.value = 'saving'
+    try {
+      const result = await api<{ rowVersion: number }>(`/api/revisions/${rev.id}/body`, {
+        method: 'PUT',
+        body: { body: sending === '' ? null : bodyDraft.value, rowVersion: draftRowVersion.value },
+      })
+      if (open.value?.id !== rev.id) return false
+      draftRowVersion.value = result.rowVersion
+      bodySavedJson.value = sending
+      bodyError.value = null
+      bodyStatus.value = bodyUnsaved.value ? 'dirty' : 'saved'
+      if (bodyUnsaved.value) autosaveTimer = setTimeout(() => void saveBody(), AUTOSAVE_MS)
+      return true
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 409) {
+        bodyStatus.value = 'conflict'
+        bodyError.value = e.message
+      } else {
+        bodyStatus.value = 'error'
+        bodyError.value = e instanceof ApiError ? (e.fields.body ?? e.message) : 'Your changes could not be saved. PAL will try again when you keep typing.'
+      }
+      return false
+    }
+  })
+}
+
+/** After a conflict: drop local edits and load what is saved on the server. */
+function reloadBody(): Promise<void> {
+  editorKey.value = ''
+  return load()
+}
+
+/** Only outcomes are announced to screen readers, not every pause in typing. */
+const bodyAnnouncement = computed(() => (bodyStatus.value === 'saved' || bodyStatus.value === 'error' || bodyStatus.value === 'conflict') ? bodyStatusText.value : '')
+
+const bodyStatusText = computed(() => ({
+  saved: bodySavedJson.value === '' ? 'No content yet.' : 'All changes saved.',
+  dirty: 'Unsaved changes…',
+  saving: 'Saving…',
+  error: 'Not saved.',
+  conflict: 'Not saved: this draft was changed elsewhere.',
+}[bodyStatus.value]))
+
+onBeforeUnmount(() => {
+  if (autosaveTimer !== null) clearTimeout(autosaveTimer)
+})
 
 function goBack(): void {
   // A deep-linked visitor has no in-app history; going "back" would leave PAL.
@@ -120,9 +240,13 @@ async function run(section: string, action: () => Promise<unknown>, success: str
   sectionError.value = { ...sectionError.value, [section]: null }
   fieldErrors.value = {}
   try {
-    await action()
+    // Queued behind any editor autosave, and reloaded inside the queue, so the next save
+    // always uses the row version this action produced.
+    await queued(async () => {
+      await action()
+      await load()
+    })
     $q.notify({ type: 'positive', message: success })
-    await load()
   } catch (e) {
     setError(section, e, 'That did not work. Try again.')
   } finally {
@@ -132,7 +256,7 @@ async function run(section: string, action: () => Promise<unknown>, success: str
 
 function saveDraft(rev: RevisionView): Promise<void> {
   return run('draft', async () => {
-    await api(`/api/revisions/${rev.id}`, { method: 'PATCH', body: { title: editTitle.value, description: editDescription.value, keywords: editKeywords.value, changeSummary: editSummary.value, rowVersion: rev.rowVersion } })
+    await api(`/api/revisions/${rev.id}`, { method: 'PATCH', body: { title: editTitle.value, description: editDescription.value, keywords: editKeywords.value, changeSummary: editSummary.value, rowVersion: draftRowVersion.value ?? rev.rowVersion } })
     // Saved: the reload below takes the server's values as the new baseline.
     seeded.value = null
   }, 'Draft saved.')
@@ -142,10 +266,14 @@ function attach(rev: RevisionView, uploadId: string): Promise<void> {
   return run('draft', () => api(`/api/revisions/${rev.id}/file`, { method: 'PUT', body: { uploadId } }), 'File attached to the draft.')
 }
 
-function submit(rev: RevisionView): Promise<void> {
+async function submit(rev: RevisionView): Promise<void> {
   if (draftDirty.value) {
     sectionError.value = { ...sectionError.value, draft: 'Save your changes to the draft before submitting it.' }
-    return Promise.resolve()
+    return
+  }
+  if (bodyUnsaved.value && !(await saveBody())) {
+    sectionError.value = { ...sectionError.value, draft: 'The document content could not be saved, so it was not submitted.' }
+    return
   }
   return run('draft', () => api(`/api/revisions/${rev.id}/submit`, { method: 'POST', body: { approverId: approverId.value, comment: submitComment.value } }), 'Submitted for approval.')
 }
@@ -157,7 +285,7 @@ function reopen(rev: RevisionView): Promise<void> {
 function withdraw(rev: RevisionView): void {
   $q.dialog({
     title: 'Withdraw this revision?',
-    message: 'It will be closed and kept in the record. The published version (if any) is not affected.',
+    message: `It will be closed and kept in the record. The published version (if any) is not affected.${bodyUnsaved.value ? ' Content you typed in the last few seconds has not been saved and will be discarded.' : ''}`,
     prompt: { model: '', type: 'text', label: 'Reason (required)', isValid: (v: string) => v.trim().length > 0 },
     cancel: { flat: true, noCaps: true, label: 'Cancel' },
     ok: { color: 'negative', unelevated: true, noCaps: true, label: 'Withdraw' },
@@ -311,6 +439,12 @@ watch(id, () => void load(), { immediate: true })
               {{ k }}
             </q-chip>
           </div>
+          <RichTextView
+            v-if="doc.current.body"
+            :doc="doc.current.body"
+            :label="`Content of revision ${doc.current.label}`"
+            class="q-my-md"
+          />
           <p
             v-if="doc.current.file && !doc.current.file.available"
             class="pal-text-danger q-mb-none"
@@ -389,6 +523,12 @@ watch(id, () => void load(), { immediate: true })
             {{ open.manifestHash?.slice(0, 16) }}…
           </dd>
         </dl>
+        <RichTextView
+          v-if="open.body"
+          :doc="open.body"
+          :label="`Content of revision ${open.label} to review`"
+          class="q-mb-md pal-card"
+        />
         <q-btn
           v-if="open.file?.available"
           outline
@@ -538,6 +678,74 @@ watch(id, () => void load(), { immediate: true })
         </form>
 
         <div
+          v-if="open.actions.includes('edit')"
+          class="q-mt-lg"
+        >
+          <div class="row items-baseline justify-between q-mb-xs">
+            <h3
+              id="content-heading"
+              class="text-subtitle1 text-weight-medium q-my-none"
+            >
+              Document content
+            </h3>
+            <span
+              class="pal-save-status"
+              aria-hidden="true"
+            >{{ bodyStatusText }}</span>
+            <span
+              class="pal-visually-hidden"
+              role="status"
+              aria-live="polite"
+            >{{ bodyAnnouncement }}</span>
+          </div>
+          <p class="pal-muted q-mb-sm">
+            Write the document here, attach a file below, or both. Changes save automatically.
+          </p>
+          <q-banner
+            v-if="bodyError"
+            class="bg-negative text-white q-mb-sm"
+            rounded
+            role="alert"
+          >
+            {{ bodyError }}
+            <template
+              v-if="bodyStatus === 'conflict'"
+              #action
+            >
+              <q-btn
+                flat
+                no-caps
+                label="Discard my changes and reload"
+                @click="reloadBody"
+              />
+            </template>
+          </q-banner>
+          <RichTextEditor
+            :key="editorKey"
+            :initial="bodyInitial"
+            :disabled="busy"
+            label="Document content"
+            @change="onBodyChange"
+          />
+          <div class="row justify-end q-mt-sm">
+            <q-btn
+              outline
+              no-caps
+              label="Save content now"
+              :disable="!bodyUnsaved || bodyStatus === 'conflict'"
+              :loading="bodyStatus === 'saving'"
+              @click="saveBody"
+            />
+          </div>
+        </div>
+        <RichTextView
+          v-else-if="open.body"
+          :doc="open.body"
+          :label="`Content of revision ${open.label}`"
+          class="q-mt-md"
+        />
+
+        <div
           v-if="open.actions.includes('attachFile')"
           class="q-mt-md"
         >
@@ -639,6 +847,12 @@ watch(id, () => void load(), { immediate: true })
         >
           Revision {{ doc.awaitingRelease.label }} approved, awaiting release
         </h2>
+        <RichTextView
+          v-if="doc.awaitingRelease.body"
+          :doc="doc.awaitingRelease.body"
+          :label="`Content of revision ${doc.awaitingRelease.label}`"
+          class="q-mb-md"
+        />
         <p v-if="doc.awaitingRelease.workflow">
           Approved by {{ doc.awaitingRelease.workflow.approver }}<span v-if="doc.awaitingRelease.workflow.decidedAt">, {{ formatDateTime(doc.awaitingRelease.workflow.decidedAt, tz) }}</span>.
         </p>

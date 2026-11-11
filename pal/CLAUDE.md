@@ -4,7 +4,7 @@ Inherits the repository root `CLAUDE.md` and global rules. Where the root rules 
 
 ## Scope and phases
 - **DMS only.** Refuse scope creep into training, CAPA, NCR, risk, audit management, acknowledgements, ERP or PM.
-- Phase 1 (foundation) is done. **Phase 2 (repository + walking skeleton) is delivered** (documents, immutable revisions, scanned uploads, single-approver approval bound to a manifest hash, immediate publication, library search) together with local username/password accounts alongside Entra ID (ADR-0014). Its remaining verification items (Render deploy, Compose stack with real ClamAV) are tracked in `OPEN_ITEMS.md`. Each later phase exits only when its criteria in `docs/PHASE0_ARCHITECTURE_PROPOSAL.md` §16 are verified.
+- Phase 1 (foundation) is done. **Phase 2 (repository + walking skeleton) is delivered** (documents, immutable revisions, scanned uploads, single-approver approval bound to a manifest hash, immediate publication, library search) together with local username/password accounts alongside Entra ID (ADR-0014). Its remaining verification items (Render deploy, Compose stack with real ClamAV) are tracked in `OPEN_ITEMS.md`. **Phase 3 has started** with native editor v1 and per-type templates (decision #26, ADR-0009 status section): editor content is canonical JSON validated by `Documents/RichTextDocument` — extend that allow-list (and `RichTextView.vue`) together, never render editor content as HTML. Each later phase exits only when its criteria in `docs/PHASE0_ARCHITECTURE_PROPOSAL.md` §16 are verified.
 
 ## Invariants that must never regress
 - Approved revisions are immutable; approvals bind to a manifest hash (Phase 3+).

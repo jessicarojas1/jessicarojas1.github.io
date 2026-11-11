@@ -7,6 +7,7 @@ namespace App\Documents\Controller;
 use App\Documents\DocumentAccess;
 use App\Documents\DocumentRepository;
 use App\Documents\LifecycleService;
+use App\Documents\RichTextDocument;
 use App\Identity\User\PalUser;
 use App\Platform\Database\Row;
 use App\Platform\Http\ApiProblem;
@@ -37,6 +38,19 @@ final class RevisionController
     public function update(#[CurrentUser] PalUser $user, string $id, Request $request): JsonResponse
     {
         return new JsonResponse(['ok' => true, 'rowVersion' => $this->lifecycle->updateDraft($user, $id, JsonBody::decode($request))]);
+    }
+
+    /**
+     * Saves the editor content of a draft (autosave and explicit save). The body is larger and
+     * deeper than other JSON requests, so it gets its own bounds; RichTextDocument enforces
+     * the real schema limits.
+     */
+    #[Route('/api/revisions/{id}/body', name: 'api_revision_body', methods: ['PUT'])]
+    public function body(#[CurrentUser] PalUser $user, string $id, Request $request): JsonResponse
+    {
+        $body = JsonBody::decode($request, 2 * RichTextDocument::MAX_BYTES, 128);
+
+        return new JsonResponse(['ok' => true, 'rowVersion' => $this->lifecycle->updateBody($user, $id, $body)]);
     }
 
     #[Route('/api/revisions/{id}/file', name: 'api_revision_attach', methods: ['PUT'])]

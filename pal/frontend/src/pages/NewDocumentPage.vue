@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useLeaveGuard } from '@/composables/useLeaveGuard'
 import { useRouter } from 'vue-router'
 import { api, ApiError } from '@/api/client'
-import type { ReferenceItem } from '@/api/documents'
+import type { ReferenceItem, TemplateOption } from '@/api/documents'
 import FileUploadField from '@/components/FileUploadField.vue'
 
 const router = useRouter()
@@ -16,6 +16,11 @@ const description = ref('')
 const keywords = ref<string[]>([])
 const restricted = ref(false)
 const uploadId = ref<string | null>(null)
+const templates = ref<TemplateOption[]>([])
+const templateId = ref<string | null>(null)
+const templatesError = ref<string | null>(null)
+const templatesLoading = ref(false)
+const selectedTemplate = computed(() => templates.value.find((t) => t.id === templateId.value) ?? null)
 const uploading = ref(false)
 const fieldErrors = ref<Record<string, string>>({})
 const formError = ref<string | null>(null)
@@ -34,6 +39,25 @@ onMounted(async () => {
   }
 })
 
+// Templates belong to a document type, so the list follows the chosen type.
+let templateRequest = 0
+watch(typeId, async (type) => {
+  templateId.value = null
+  templates.value = []
+  templatesError.value = null
+  if (type === null) return
+  const request = ++templateRequest
+  templatesLoading.value = true
+  try {
+    const data = await api<{ templates: TemplateOption[] }>(`/api/document-types/${encodeURIComponent(type)}/templates`)
+    if (request === templateRequest) templates.value = data.templates
+  } catch {
+    if (request === templateRequest) templatesError.value = 'Templates could not be loaded. You can still create the document and write it from scratch.'
+  } finally {
+    if (request === templateRequest) templatesLoading.value = false
+  }
+})
+
 async function create(): Promise<void> {
   if (saving.value || uploading.value) return
   saving.value = true
@@ -42,7 +66,7 @@ async function create(): Promise<void> {
   try {
     const result = await api<{ id: string }>('/api/documents', {
       method: 'POST',
-      body: { typeId: typeId.value, departmentId: departmentId.value, title: title.value, description: description.value, keywords: keywords.value, restricted: restricted.value, uploadId: uploadId.value },
+      body: { typeId: typeId.value, departmentId: departmentId.value, title: title.value, description: description.value, keywords: keywords.value, restricted: restricted.value, uploadId: uploadId.value, templateId: templateId.value },
     })
     created.value = true
     await router.push(`/documents/${result.id}`)
@@ -104,6 +128,20 @@ async function create(): Promise<void> {
           :error-message="fieldErrors.departmentId"
         />
       </div>
+      <q-select
+        v-if="typeId !== null"
+        v-model="templateId"
+        outlined
+        clearable
+        emit-value
+        map-options
+        :options="templates.map((t) => ({ value: t.id, label: t.name }))"
+        label="Start from a template (optional)"
+        :loading="templatesLoading"
+        :hint="templatesLoading ? 'Loading templates…' : templatesError ?? (templates.length === 0 ? 'No templates for this document type: you start with a blank page.' : selectedTemplate?.description ?? 'The template\'s headings and text are copied into your draft, where you can edit them.')"
+        :error="fieldErrors.templateId !== undefined"
+        :error-message="fieldErrors.templateId"
+      />
       <q-input
         v-model="title"
         outlined
@@ -142,7 +180,7 @@ async function create(): Promise<void> {
       />
       <FileUploadField
         id="new-doc-file"
-        label="Document file (you can also add it later)"
+        label="Document file (optional: you can also write the content in PAL after creating the draft)"
         @uploaded="uploadId = $event.id"
         @cleared="uploadId = null"
         @uploading="uploading = $event"

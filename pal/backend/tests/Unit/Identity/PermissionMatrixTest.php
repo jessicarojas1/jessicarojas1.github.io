@@ -27,7 +27,7 @@ final class PermissionMatrixTest extends TestCase
         'AUTHOR' => [Permission::DOCUMENT_CREATE],
         'PUBLISHER' => [Permission::PUBLICATION_RELEASE, Permission::PUBLICATION_SCHEDULE],
         'PAL_ADMINISTRATOR' => [
-            Permission::ADMIN_DEPARTMENTS, Permission::ADMIN_NUMBERING, Permission::ADMIN_RETENTION, Permission::ADMIN_TYPES, Permission::AUDIT_EXPORT,
+            Permission::ADMIN_DEPARTMENTS, Permission::ADMIN_NUMBERING, Permission::ADMIN_TEMPLATES, Permission::ADMIN_RETENTION, Permission::ADMIN_TYPES, Permission::AUDIT_EXPORT,
             Permission::AUDIT_READ, Permission::DOCUMENT_ARCHIVE, Permission::DOCUMENT_CHANGE_OWNER, Permission::DOCUMENT_CREATE,
             Permission::DOCUMENT_LEGAL_HOLD, Permission::DOCUMENT_MANAGE_ACCESS, Permission::DOCUMENT_OBSOLETE, Permission::DOCUMENT_READ_ALL, Permission::PUBLICATION_EMERGENCY,
             Permission::REPORT_EXPORT, Permission::WORKFLOW_CANCEL, Permission::WORKFLOW_REASSIGN,

@@ -11,7 +11,7 @@
 --
 -- Idempotent: safe to run repeatedly against a fresh or existing database.
 -- Requires PostgreSQL 16+ (17 in production). Covers migrations up to
--- Version20261026000003.
+-- Version20261110000001.
 -- =============================================================================
 
 
@@ -480,3 +480,77 @@ CREATE TABLE IF NOT EXISTS user_role (
     -- ck_global_role_mapping_role so a directory group can never confer god mode.
     CONSTRAINT ck_user_role_role CHECK (role IN ('OWNER', 'SYSTEM_ADMINISTRATOR', 'PAL_ADMINISTRATOR', 'PUBLISHER', 'AUTHOR'))
 );
+
+
+-- -----------------------------------------------------------------------------
+-- Native editor v1: revision body and document templates (Version20261110000001)
+-- Body content is canonical, schema-validated ProseMirror JSON (never HTML); the
+-- approval manifest hash covers SHA-256(body_json) when a body exists (ADR-0009).
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE revision ADD COLUMN IF NOT EXISTS body_json text NULL;
+ALTER TABLE revision ADD COLUMN IF NOT EXISTS body_text text NULL;
+ALTER TABLE revision DROP CONSTRAINT IF EXISTS ck_revision_body_size;
+ALTER TABLE revision ADD CONSTRAINT ck_revision_body_size CHECK (body_json IS NULL OR octet_length(body_json) <= 1048576);
+ALTER TABLE revision DROP CONSTRAINT IF EXISTS ck_revision_body_pair;
+ALTER TABLE revision ADD CONSTRAINT ck_revision_body_pair CHECK ((body_json IS NULL) = (body_text IS NULL));
+
+-- Supersedes the Phase 2 definition above: adds body text at the lowest weight.
+CREATE OR REPLACE FUNCTION pal_revision_search_vector() RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+    NEW.search_vector :=
+        setweight(to_tsvector('simple', coalesce((SELECT document_number FROM document WHERE id = NEW.document_id), '')), 'A') ||
+        setweight(to_tsvector('english', coalesce(NEW.title, '')), 'A') ||
+        setweight(to_tsvector('english', array_to_string(NEW.keywords, ' ')), 'B') ||
+        setweight(to_tsvector('english', coalesce(NEW.description, '')), 'C') ||
+        setweight(to_tsvector('english', left(coalesce(NEW.body_text, ''), 200000)), 'D');
+    RETURN NEW;
+END
+$$;
+
+CREATE OR REPLACE TRIGGER trg_revision_search_vector BEFORE INSERT OR UPDATE OF title, description, keywords, body_text ON revision FOR EACH ROW EXECUTE FUNCTION pal_revision_search_vector();
+
+-- Supersedes the Phase 2 definition above: the body is content and freezes with it.
+CREATE OR REPLACE FUNCTION pal_revision_immutable() RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+    IF OLD.state = 'APPROVED' AND (NEW.state <> OLD.state
+        OR NEW.title IS DISTINCT FROM OLD.title OR NEW.description IS DISTINCT FROM OLD.description
+        OR NEW.keywords IS DISTINCT FROM OLD.keywords OR NEW.change_summary IS DISTINCT FROM OLD.change_summary
+        OR NEW.body_json IS DISTINCT FROM OLD.body_json OR NEW.body_text IS DISTINCT FROM OLD.body_text
+        OR NEW.content_manifest_hash IS DISTINCT FROM OLD.content_manifest_hash
+        OR NEW.major <> OLD.major OR NEW.minor <> OLD.minor) THEN
+        RAISE EXCEPTION 'approved revision % is immutable', OLD.id USING ERRCODE = 'insufficient_privilege';
+    END IF;
+    IF OLD.state <> 'DRAFT' AND NOT (NEW.state = 'DRAFT' AND OLD.state IN ('CHANGES_REQUESTED', 'REJECTED'))
+        AND (NEW.title IS DISTINCT FROM OLD.title OR NEW.description IS DISTINCT FROM OLD.description
+             OR NEW.keywords IS DISTINCT FROM OLD.keywords OR NEW.change_summary IS DISTINCT FROM OLD.change_summary
+             OR NEW.body_json IS DISTINCT FROM OLD.body_json OR NEW.body_text IS DISTINCT FROM OLD.body_text) THEN
+        RAISE EXCEPTION 'revision % content can only change while DRAFT', OLD.id USING ERRCODE = 'insufficient_privilege';
+    END IF;
+    RETURN NEW;
+END
+$$;
+
+-- Controlled templates, maintained by PAL administrators per document type. Never
+-- deleted (deactivated instead) so the audit trail always resolves.
+CREATE TABLE IF NOT EXISTS document_template (
+    id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_type_id uuid NOT NULL REFERENCES document_type (id),
+    name             text NOT NULL,
+    description      text NULL,
+    body_json        text NOT NULL,
+    is_active        boolean NOT NULL DEFAULT true,
+    created_by       uuid NOT NULL REFERENCES app_user (id),
+    updated_by       uuid NOT NULL REFERENCES app_user (id),
+    created_at       timestamptz NOT NULL DEFAULT now(),
+    updated_at       timestamptz NOT NULL DEFAULT now(),
+    row_version      integer NOT NULL DEFAULT 1,
+    CONSTRAINT uq_document_template_name UNIQUE (document_type_id, name),
+    CONSTRAINT ck_document_template_name CHECK (char_length(name) BETWEEN 1 AND 120),
+    CONSTRAINT ck_document_template_description CHECK (description IS NULL OR char_length(description) <= 1000),
+    CONSTRAINT ck_document_template_body CHECK (octet_length(body_json) BETWEEN 1 AND 1048576)
+);
+
+CREATE INDEX IF NOT EXISTS ix_document_template_type ON document_template (document_type_id) WHERE is_active;

@@ -17,7 +17,7 @@ final class RolePermissionMap
             Permission::DOCUMENT_CREATE, Permission::DOCUMENT_READ_ALL, Permission::DOCUMENT_MANAGE_ACCESS,
             Permission::DOCUMENT_CHANGE_OWNER, Permission::DOCUMENT_OBSOLETE,
             Permission::DOCUMENT_ARCHIVE, Permission::DOCUMENT_LEGAL_HOLD, Permission::WORKFLOW_REASSIGN,
-            Permission::WORKFLOW_CANCEL, Permission::PUBLICATION_EMERGENCY, Permission::ADMIN_TYPES, Permission::ADMIN_DEPARTMENTS,
+            Permission::WORKFLOW_CANCEL, Permission::PUBLICATION_EMERGENCY, Permission::ADMIN_TYPES, Permission::ADMIN_DEPARTMENTS, Permission::ADMIN_TEMPLATES,
             Permission::ADMIN_NUMBERING, Permission::ADMIN_RETENTION, Permission::AUDIT_READ,
             Permission::AUDIT_EXPORT, Permission::REPORT_EXPORT,
         ],

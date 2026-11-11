@@ -40,6 +40,7 @@ const sections = computed(() => {
         { label: 'Users', icon: 'manage_accounts', to: '/admin/users', permission: 'admin.users' },
         { label: 'Role mappings', icon: 'admin_panel_settings', to: '/admin/roles', permission: 'admin.roles' },
         { label: 'Types and departments', icon: 'category', to: '/admin/reference', permission: 'admin.types' },
+        { label: 'Document templates', icon: 'article', to: '/admin/templates', permission: 'admin.templates' },
       ],
     },
     {

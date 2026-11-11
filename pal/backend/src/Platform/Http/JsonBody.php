@@ -12,9 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
 final class JsonBody
 {
     /**
+     * @param int<1, max> $maxDepth
+     *
      * @return array<string, mixed>
      */
-    public static function decode(Request $request, int $maxBytes = 65_536): array
+    public static function decode(Request $request, int $maxBytes = 65_536, int $maxDepth = 32): array
     {
         $contentType = (string) $request->headers->get('Content-Type', '');
         if (!str_starts_with(strtolower($contentType), 'application/json')) {
@@ -25,7 +27,7 @@ final class JsonBody
             throw new ApiProblem(413, 'payload_too_large', 'The request body is too large.');
         }
         try {
-            $decoded = json_decode($raw, true, 32, \JSON_THROW_ON_ERROR);
+            $decoded = json_decode($raw, true, $maxDepth, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             throw new ApiProblem(400, 'invalid_json', 'The request body is not valid JSON.');
         }

@@ -127,6 +127,7 @@ final class DocumentPresenter
             'changeSummary' => Row::nullableString($revision, 'change_summary'),
             'rowVersion' => Row::int($revision, 'row_version'),
             'manifestHash' => Row::nullableString($revision, 'content_manifest_hash'),
+            'body' => RichTextDocument::decodeStored(Row::nullableString($revision, 'body_json')),
             'file' => null === $file ? null : [
                 'filename' => Row::string($file, 'original_filename'),
                 'sizeBytes' => Row::int($file, 'size_bytes'),

@@ -26,6 +26,7 @@ final class Permission
     public const PUBLICATION_EMERGENCY = 'publication.emergency';
     public const ADMIN_TYPES = 'admin.types';
     public const ADMIN_DEPARTMENTS = 'admin.departments';
+    public const ADMIN_TEMPLATES = 'admin.templates';
     public const ADMIN_NUMBERING = 'admin.numbering';
     public const ADMIN_RETENTION = 'admin.retention';
     public const ADMIN_WORKFLOWS = 'admin.workflows';
@@ -40,7 +41,7 @@ final class Permission
     public const ALL = [
         self::LIBRARY_READ, self::DOCUMENT_CREATE, self::DOCUMENT_READ_ALL, self::DOCUMENT_MANAGE_ACCESS, self::DOCUMENT_CHANGE_OWNER, self::DOCUMENT_OBSOLETE,
         self::DOCUMENT_ARCHIVE, self::DOCUMENT_LEGAL_HOLD, self::WORKFLOW_REASSIGN, self::WORKFLOW_CANCEL,
-        self::PUBLICATION_SCHEDULE, self::PUBLICATION_RELEASE, self::PUBLICATION_EMERGENCY, self::ADMIN_TYPES, self::ADMIN_DEPARTMENTS,
+        self::PUBLICATION_SCHEDULE, self::PUBLICATION_RELEASE, self::PUBLICATION_EMERGENCY, self::ADMIN_TYPES, self::ADMIN_DEPARTMENTS, self::ADMIN_TEMPLATES,
         self::ADMIN_NUMBERING, self::ADMIN_RETENTION, self::ADMIN_WORKFLOWS, self::ADMIN_ROLES,
         self::ADMIN_USERS, self::ADMIN_DIRECTORY, self::AUDIT_READ, self::AUDIT_EXPORT, self::REPORT_EXPORT, self::SYSTEM_CONFIG,
     ];

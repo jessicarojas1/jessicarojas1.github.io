@@ -1,6 +1,7 @@
 // Shapes returned by the documents API (see backend DocumentPresenter / LibraryQuery).
 
 import { api } from '@/api/client'
+import type { RichTextNode } from '@/richText'
 
 export interface Named {
   code: string
@@ -35,6 +36,8 @@ export interface RevisionView {
   changeSummary: string | null
   rowVersion: number
   manifestHash: string | null
+  /** Content written in PAL's editor (canonical JSON), or null when there is none. */
+  body: RichTextNode | null
   file: FileInfo | null
   workflow: WorkflowInfo | null
   actions: string[]
@@ -139,4 +142,22 @@ export function loadReference(): Promise<ReferenceData> {
     throw e
   })
   return referencePromise
+}
+
+export interface TemplateOption {
+  id: string
+  name: string
+  description: string | null
+}
+
+export interface TemplateSummary extends TemplateOption {
+  isActive: boolean
+  documentType: { id: string; code: string; name: string }
+  updatedAt: string
+  updatedBy: string
+  rowVersion: number
+}
+
+export interface TemplateDetail extends TemplateSummary {
+  body: RichTextNode
 }

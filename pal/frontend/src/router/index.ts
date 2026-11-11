@@ -33,6 +33,7 @@ export const router = createRouter({
         { path: 'documents/:id', name: 'document', component: () => import('@/pages/DocumentPage.vue'), meta: { title: 'Document', parent: LIBRARY } },
         { path: 'admin/users', name: 'users-admin', component: () => import('@/pages/UsersAdminPage.vue'), meta: { permission: 'admin.users', title: 'Users', parent: ADMIN } },
         { path: 'settings/sign-in', name: 'sign-in-methods', component: () => import('@/pages/SignInMethodsPage.vue'), meta: { permission: 'system.config', title: 'Sign-in methods', parent: SETTINGS } },
+        { path: 'admin/templates', name: 'templates-admin', component: () => import('@/pages/TemplatesAdminPage.vue'), meta: { permission: 'admin.templates', title: 'Document templates', parent: ADMIN } },
         { path: 'admin/reference', name: 'reference-admin', component: () => import('@/pages/ReferenceAdminPage.vue'), meta: { permission: 'admin.types', title: 'Types and departments', parent: ADMIN } },
         { path: 'settings/preferences', name: 'preferences', component: () => import('@/pages/PreferencesPage.vue'), meta: { title: 'Preferences', parent: SETTINGS } },
         { path: 'settings/branding', name: 'branding', component: () => import('@/pages/BrandingPage.vue'), meta: { permission: 'system.config', title: 'Branding', parent: SETTINGS } },

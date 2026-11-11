@@ -32,6 +32,15 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | Accessibility | ✅ axe: 0 violations on all pages, both themes (run before the latest UI fixes). A manual screen-reader pass is still due (below) |
 | Docs | ✅ Doc set updated for Phase 2; ADR-0014; decision log #21–22; traceability Phase 2 status |
 
+## Done: native editor v1 and templates (2026-11-10, decision #26)
+| Area | What is in place |
+|---|---|
+| Authoring | ✅ Write documents in PAL: headings 1–4, bold/italic/underline/strike, lists, quotes, divider, links, tables. Autosave with optimistic concurrency; a revision can have editor content, a file, or both |
+| Integrity | ✅ Canonical, schema-validated body; immutable once submitted (DB trigger); approvals bind to its SHA-256; release re-verifies it |
+| Templates | ✅ Administrators (`admin.templates`) create, edit, deactivate per-type templates (new ones start from a 7-section outline); authors pick one on New document; the content is copied into the draft |
+| Reading | ✅ Readers, approvers and publishers see the formatted content read-only; the editor bundle is loaded only for people editing a draft; body text is searchable |
+| Tests | ✅ Backend 269 tests OK, frontend 74 passed; security and UI audits run and their findings fixed (remaining Lows listed below); browser check on local dev (template create, create-from-template, autosave, metadata save after autosave, approver view in dark and light themes) |
+
 ## Not verified (must be confirmed before go-live)
 | Item | Impact | Action |
 |---|---|---|
@@ -44,6 +53,8 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | **Compose stack with ClamAV not run locally** (no Docker on the development machine): `clamdcheck.sh` healthcheck, `pal-blobs` volume ownership on first use, `web` waiting on `clamd` healthy, real EICAR scan | The ClamAV integration is tested only against an in-process protocol stand-in (`tests/Support/fake-clamd.php`) | Run `docker compose -f deploy/compose.yaml --profile bundled-db up -d`, then the upload checks in [SINGLE_LINUX_SERVER.md §7](deployments/SINGLE_LINUX_SERVER.md#7-verification) |
 | Scheme-less `PAL_CLAMD_ADDRESS` (`clamd:3310`, Render `hostport`) | ✅ Covered by a unit test (`StoragePrimitivesTest::testSchemelessHostPortAddressConnectsOverTcp`, 2026-11-07): a scheme-less `host:port` connects over TCP and scans clean | — |
 | Audit chain under concurrent writers | ✅ **Done (2026-11-08):** `AuditConcurrencyTest` proves against real PostgreSQL the guarantee the single chain rests on — the `pg_advisory_xact_lock` chain lock is exclusive and held until commit (a second session's `pg_try_advisory_xact_lock` fails while a writer's transaction is open and succeeds after it commits), so no concurrent writer can read a stale latest-hash and fork — and that a run of writes yields one linear chain (distinct `prev_hash` = row count, i.e. no fork) that the verifier accepts. It proves the serialization mechanism deterministically rather than spawning OS-parallel writers (avoids a flaky process-racing harness) | — |
+| **Editor under the production CSP not checked** (dev server has no CSP; nginx sets `style-src 'self'`) | TipTap's `<style>` injection is disabled and tables use CSSOM, but a blocked inline style would only show in the browser console | Open a draft on the Compose stack or Render, check the console for CSP violations while editing a table |
+| **Editor accessibility not audited** (axe, keyboard-only, screen reader) | Toolbar has labels, `aria-pressed` and a `role="toolbar"`; arrow-key roving focus is not implemented | Run axe on the document page with a draft open and on Document templates; do a keyboard-only pass |
 | Manual screen-reader pass (NVDA, VoiceOver) not done | Automated checks miss some issues | Do it at the Phase 6/7 accessibility audit |
 | `init-roles.sh` password setting not fully tested (local PostgreSQL trusts local logins) | Bundled-DB passwords unproven | Test on a host with `scram-sha-256` auth |
 | Phase 1 exit criterion "restore of an empty DB from backup demonstrated" | Required by the plan | Run the DISASTER_RECOVERY runbook once on staging |
@@ -90,6 +101,11 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 ## Product and UX gaps
 | Item | Impact | Action |
 |---|---|---|
+| Editor v1 scope: no images, callouts, cross-references or section numbering; no PDF rendition; no comparison between revisions | Authors needing images still attach a file | Remaining ADR-0009 Phase 3 items |
+| No soft checkout lock | Two people editing one draft: the second save gets "changed elsewhere" and must reload (no silent overwrite, but lost typing) | Add the checkout indicator from ADR-0009 |
+| Templates are not versioned documents | The audit trail keeps only hashes of earlier template bodies, so an old template's wording cannot be shown | Decide (below) whether templates must be controlled documents themselves |
+| Editor UI audit leftovers (Low): headings inside the editor are real `<h1>`–`<h4>` while editing (the read-only view maps them to `<h3>`–`<h6>`); the toolbar has no arrow-key roving focus; a failed reload after an action can leave a stale row version (next autosave shows a false conflict) | Heading outline is off only while editing; toolbar is a long Tab sequence | Custom heading `renderHTML` keeping the visual classes; roving tabindex; reset the row version when a reload fails |
+| Editor bundle is ~140 KB gzipped | Slower first open of a draft on slow links | Loaded only when editing; acceptable for v1 |
 | No warning before idle session expiry (WCAG 2.2.1) | Users lose unsaved input | A 401 now redirects to sign-in with "session expired". Add a warning plus "stay signed in" in Phase 6 |
 | Branding not yet in print/PDF output (repo branding standard) | Standard incomplete until reports exist | Add with reports/print styles (Phase 6). The "printed output" claim was removed from the UI |
 | Breadcrumbs (repo UI standard) | Not added in Phase 2 (the library has a filter toggle; no breadcrumbs anywhere) | Add with categories (Phase 3) |
@@ -126,5 +142,6 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | D16 | Graph read-only consent | Entra admin grants it (certificate credential) |
 | D17 | Sentinel collector and uptime monitor | SOC confirms |
 | D19 | Confluence inventory | Needed before Phase 6b |
+| — | Must templates be controlled (versioned, approved) like documents? | v1: administrator-maintained and audited by hash. If ISO/CMMI auditors require template history, keep each template's prior bodies or manage templates as `TPL` documents |
 | D20 | Second control on document-role mappings | Separate permission (`admin.roles.document`) held by a different group |
 | — | Record the "no CUI" constraint formally | Add to requirements and the decision log |

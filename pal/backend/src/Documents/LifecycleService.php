@@ -31,6 +31,7 @@ final class LifecycleService
         private readonly DocumentRepository $documents,
         private readonly DocumentAccess $access,
         private readonly ReferenceRepository $reference,
+        private readonly TemplateRepository $templates,
         private readonly UploadService $uploads,
         private readonly BlobStore $blobs,
         private readonly AuditLogger $audit,
@@ -59,6 +60,17 @@ final class LifecycleService
         }
         $content = $this->validateContent($input, $errors);
         $restricted = true === ($input['restricted'] ?? false);
+        $template = null;
+        $body = null;
+        $templateId = $input['templateId'] ?? null;
+        if (null !== $templateId && '' !== $templateId) {
+            $template = null === $type ? null : $this->templates->findActiveForType(\is_string($templateId) ? $templateId : '', Row::string($type, 'id'));
+            if (null === $template) {
+                $errors['templateId'] = 'Choose one of the templates for this document type, or none.';
+            } else {
+                $body = RichTextDocument::normalize(RichTextDocument::decodeStored(Row::string($template, 'body_json')), 'templateId');
+            }
+        }
         $upload = null;
         if (isset($input['uploadId'])) {
             $upload = $this->uploads->claim(\is_string($input['uploadId']) ? $input['uploadId'] : '', $user);
@@ -67,13 +79,13 @@ final class LifecycleService
             throw ApiProblem::validation($errors);
         }
 
-        return $this->connection->transactional(function () use ($user, $type, $department, $content, $restricted, $upload): array {
+        return $this->connection->transactional(function () use ($user, $type, $department, $content, $restricted, $upload, $template, $body): array {
             $number = $this->allocateNumber(Row::string($type, 'id'), Row::string($type, 'code'), Row::string($department, 'id'), Row::string($department, 'code'));
             $documentId = Row::scalarString($this->connection->fetchOne(
                 'INSERT INTO document (document_number, document_type_id, org_unit_id, owner_user_id, audience, created_by) VALUES (?, ?, ?, ?, ?, ?) RETURNING id',
                 [$number, Row::string($type, 'id'), Row::string($department, 'id'), $user->id, $restricted ? 'RESTRICTED' : 'ALL_EMPLOYEES', $user->id],
             ));
-            $revisionId = $this->insertDraft($documentId, 1, $content, $user, null);
+            $revisionId = $this->insertDraft($documentId, 1, $content, $user, null, $body);
             if (null !== $upload) {
                 $this->setPrimaryFile($revisionId, $upload['sha256'], $upload['filename']);
             }
@@ -82,7 +94,13 @@ final class LifecycleService
                 'document_number' => $number, 'type' => Row::string($type, 'code'), 'department' => Row::string($department, 'code'),
                 'audience' => $restricted ? 'RESTRICTED' : 'ALL_EMPLOYEES', 'title' => $content['title'],
             ]));
-            $this->audit->record(new AuditEntry('REVISION_CREATED', $actor, 'revision', $revisionId, ['document_id' => $documentId, 'proposed_label' => '1.0'], toState: 'DRAFT'));
+            $created = ['document_id' => $documentId, 'proposed_label' => '1.0'];
+            if (null !== $template) {
+                $created['template_id'] = Row::string($template, 'id');
+                $created['template_name'] = Row::string($template, 'name');
+                $created['body_sha256'] = $body['sha256'] ?? null;
+            }
+            $this->audit->record(new AuditEntry('REVISION_CREATED', $actor, 'revision', $revisionId, $created, toState: 'DRAFT'));
 
             return ['id' => $documentId, 'documentNumber' => $number, 'revisionId' => $revisionId];
         });
@@ -115,6 +133,47 @@ final class LifecycleService
             $this->audit->record(new AuditEntry('REVISION_EDITED', $this->actor($user), 'revision', $revisionId, [
                 'document_id' => Row::string($document, 'id'),
                 ...$this->contentDiff($revision, $content),
+            ]));
+
+            return $rowVersion + 1;
+        });
+    }
+
+    /**
+     * Replaces the editor content of a draft. The content is validated and canonicalized
+     * by RichTextDocument; an empty editor clears the body. Saving identical content is a
+     * no-op (no version bump, no audit event), so autosave never inflates the trail.
+     *
+     * @param array<string, mixed> $input {body: ProseMirror JSON|null, rowVersion: int}
+     */
+    public function updateBody(PalUser $user, string $revisionId, array $input): int
+    {
+        $rowVersion = $input['rowVersion'] ?? null;
+        if (!\is_int($rowVersion)) {
+            throw ApiProblem::validation(['rowVersion' => 'Reload the page and try again.']);
+        }
+        return $this->connection->transactional(function () use ($user, $revisionId, $input, $rowVersion): int {
+            // Access and state first, so only an editor of this draft makes PAL parse the body.
+            [$document, $revision] = $this->lockForDraftChange($user, $revisionId);
+            $body = RichTextDocument::normalize($input['body'] ?? null);
+            if (Row::int($revision, 'row_version') !== $rowVersion) {
+                throw new ApiProblem(409, 'edit_conflict', 'Someone else changed this draft. Reload to see their changes.');
+            }
+            $before = Row::nullableString($revision, 'body_json');
+            if ($before === ($body['json'] ?? null)) {
+                return $rowVersion;
+            }
+            $this->connection->executeStatement(
+                'UPDATE revision SET body_json = ?, body_text = ?, updated_at = now(), row_version = row_version + 1 WHERE id = ? AND row_version = ?',
+                [$body['json'] ?? null, $body['text'] ?? null, $revisionId, $rowVersion],
+            );
+            $this->audit->record(new AuditEntry('REVISION_EDITED', $this->actor($user), 'revision', $revisionId, [
+                'document_id' => Row::string($document, 'id'),
+                'body' => [
+                    'from_sha256' => null === $before ? null : hash('sha256', $before),
+                    'to_sha256' => $body['sha256'] ?? null,
+                    'characters' => null === $body ? 0 : mb_strlen($body['text']),
+                ],
             ]));
 
             return $rowVersion + 1;
@@ -167,8 +226,8 @@ final class LifecycleService
             [$document, $revision] = $this->lockForDraftChange($user, $revisionId);
             $documentId = Row::string($document, 'id');
             $files = $this->documents->manifestFiles($revisionId);
-            if ([] === $files) {
-                throw ApiProblem::validation(['file' => 'Attach the document file before submitting.']);
+            if ([] === $files && null === Row::nullableString($revision, 'body_json')) {
+                throw ApiProblem::validation(['file' => 'Write the document content or attach its file before submitting.']);
             }
             if (!Ids::isUuid($approverId) || $approverId === $user->id || $approverId === Row::string($revision, 'created_by')) {
                 throw ApiProblem::validation(['approverId' => 'Choose an approver other than the author or yourself.']);
@@ -180,13 +239,7 @@ final class LifecycleService
                 throw ApiProblem::validation(['approverId' => 'That person is not an approver for this document. The owner can add approvers under Access.']);
             }
 
-            $hash = ManifestHasher::hash(
-                Row::string($revision, 'title'),
-                Row::nullableString($revision, 'description'),
-                DocumentRepository::keywords($revision['keywords']),
-                Row::nullableString($revision, 'change_summary'),
-                $files,
-            );
+            $hash = $this->manifestHash($revision, $files);
             $this->connection->executeStatement(
                 "UPDATE revision SET state = 'IN_WORKFLOW', content_manifest_hash = ?, submitted_at = now(), updated_at = now(), row_version = row_version + 1 WHERE id = ?",
                 [$hash, $revisionId],
@@ -239,13 +292,7 @@ final class LifecycleService
             if (!$this->isEligibleApprover(Row::string($document, 'id'), $user->id)) {
                 throw new ApiProblem(403, 'approver_revoked', 'You are no longer an approver for this document.');
             }
-            $currentHash = ManifestHasher::hash(
-                Row::string($revision, 'title'),
-                Row::nullableString($revision, 'description'),
-                DocumentRepository::keywords($revision['keywords']),
-                Row::nullableString($revision, 'change_summary'),
-                $this->documents->manifestFiles(Row::string($revision, 'id')),
-            );
+            $currentHash = $this->manifestHash($revision, $this->documents->manifestFiles(Row::string($revision, 'id')));
             $boundHash = Row::string($task, 'bound_manifest_hash');
             if (!hash_equals($boundHash, $currentHash)) {
                 throw new ApiProblem(409, 'content_changed', 'The revision content no longer matches what was submitted. It must be resubmitted.');
@@ -350,7 +397,9 @@ final class LifecycleService
                 'changeSummary' => null,
             ];
             $major = $this->documents->nextMajor($documentId);
-            $revisionId = $this->insertDraft($documentId, $major, $content, $user, Row::string($published, 'id'));
+            $publishedBody = Row::nullableString($published, 'body_json');
+            $body = null === $publishedBody ? null : ['json' => $publishedBody, 'text' => Row::string($published, 'body_text')];
+            $revisionId = $this->insertDraft($documentId, $major, $content, $user, Row::string($published, 'id'), $body);
             $file = $this->documents->primaryFile(Row::string($published, 'id'));
             if (null !== $file) {
                 $this->setPrimaryFile($revisionId, Row::string($file, 'sha256'), Row::string($file, 'original_filename'));
@@ -436,13 +485,7 @@ final class LifecycleService
         $revisionId = Row::string($revision, 'id');
         $approvedHash = $this->connection->fetchOne("SELECT manifest_hash_at_decision FROM approval_decision WHERE revision_id = ? AND decision = 'APPROVE' ORDER BY decided_at DESC LIMIT 1", [$revisionId]);
         $files = $this->documents->manifestFiles($revisionId);
-        $recomputed = ManifestHasher::hash(
-            Row::string($revision, 'title'),
-            Row::nullableString($revision, 'description'),
-            DocumentRepository::keywords($revision['keywords']),
-            Row::nullableString($revision, 'change_summary'),
-            $files,
-        );
+        $recomputed = $this->manifestHash($revision, $files);
         $recorded = Row::nullableString($revision, 'content_manifest_hash');
         if (!\is_string($approvedHash) || null === $recorded || !hash_equals($approvedHash, $recorded) || !hash_equals($recorded, $recomputed)) {
             throw new ApiProblem(409, 'approval_integrity_failed', 'The approved content could not be verified, so the revision was not released.');
@@ -459,6 +502,27 @@ final class LifecycleService
                 throw new ApiProblem(409, 'approval_integrity_failed', 'A stored file no longer matches the approved content, so the revision was not released.');
             }
         }
+    }
+
+    /**
+     * The manifest hash of a revision row as stored now: metadata, files and, when present,
+     * the SHA-256 of the exact stored body bytes.
+     *
+     * @param array<string, mixed>                                        $revision
+     * @param list<array{role: string, sha256: string, filename: string}> $files
+     */
+    private function manifestHash(array $revision, array $files): string
+    {
+        $body = Row::nullableString($revision, 'body_json');
+
+        return ManifestHasher::hash(
+            Row::string($revision, 'title'),
+            Row::nullableString($revision, 'description'),
+            DocumentRepository::keywords($revision['keywords']),
+            Row::nullableString($revision, 'change_summary'),
+            $files,
+            null === $body ? null : hash('sha256', $body),
+        );
     }
 
     /**
@@ -549,12 +613,13 @@ final class LifecycleService
 
     /**
      * @param array{title: string, description: string|null, keywords: list<string>, changeSummary: string|null} $content
+     * @param array{json: string, text: string}|null                                                          $body
      */
-    private function insertDraft(string $documentId, int $major, array $content, PalUser $user, ?string $previousRevisionId): string
+    private function insertDraft(string $documentId, int $major, array $content, PalUser $user, ?string $previousRevisionId, ?array $body = null): string
     {
         return Row::scalarString($this->connection->fetchOne(
-            'INSERT INTO revision (document_id, major, title, description, keywords, change_summary, previous_revision_id, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id',
-            [$documentId, $major, $content['title'], $content['description'], DocumentRepository::toPgArray($content['keywords']), $content['changeSummary'], $previousRevisionId, $user->id],
+            'INSERT INTO revision (document_id, major, title, description, keywords, change_summary, body_json, body_text, previous_revision_id, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id',
+            [$documentId, $major, $content['title'], $content['description'], DocumentRepository::toPgArray($content['keywords']), $content['changeSummary'], $body['json'] ?? null, $body['text'] ?? null, $previousRevisionId, $user->id],
         ));
     }
 

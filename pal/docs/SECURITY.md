@@ -258,6 +258,23 @@ Bytes enter PAL only through `UploadService` (`POST /api/uploads`). Order: per-u
 
 **Limits, stated openly:** a clean scan means no *known* signature matched; signature freshness depends on the operator's `freshclam` or offline mirror. The real clamd has not yet been exercised in tests (a protocol-level stand-in is used; see [OPEN_ITEMS.md](../OPEN_ITEMS.md)). The code never deletes or overwrites blobs, but the application user owns them, so true immutability needs the storage to deny it deletion (§10). Blobs are not re-scanned when signatures update. Stored files are not encrypted by PAL. A clean upload that is never attached to a revision keeps its blob (quota bounds growth but does not free it). `pal:storage:unattached` reports how much space these occupy (read-only, with `--fail-over-bytes` for alerting) and, with `--delete`, reclaims them after a retention window (default 30 days, decision #24): it deletes the `upload` and `stored_file` rows in one transaction per blob — re-checking under a row lock that the blob is still unattached — and audits `UPLOAD_RECLAIMED`; the `audit_event` trail is kept. The blob file itself is left unreferenced for `pal:storage:gc --delete`, which frees disk race-safely against a concurrent re-upload of the same content.
 
+### 5.2 Editor content (native editor v1, threat T16: stored XSS)
+
+Content typed in PAL's editor arrives from the browser as ProseMirror JSON and is treated as untrusted (decision #26, [ADR-0009](adr/ADR-0009-authoring-native-editor-and-files.md)).
+
+| Control | Behaviour |
+|---|---|
+| Server allow-list | `RichTextDocument` rebuilds the JSON from an allow-list: nodes `doc, paragraph, heading (1–4), bulletList, orderedList, listItem, blockquote, horizontalRule, hardBreak, table, tableRow, tableHeader, tableCell, text`; marks `bold, italic, underline, strike, link`; attributes `level`, `start`, `colspan`, `rowspan`, `href` only. Unknown node or mark types are refused (422), unknown attributes are dropped (the editor does not offer cell widths or alignment, which would need inline styles), list start and cell spans are clamped into range, control characters are removed from text and text left empty is dropped |
+| Links | `http://`, `https://` (with a host and no `user@`/`user:pass@` part, which could disguise the destination) and `mailto:` only; no whitespace, quotes, angle brackets or backslashes; ≤ 2048 characters. `javascript:`, `data:`, relative and protocol-relative URLs are refused. Rendered with `rel="noopener noreferrer nofollow"` and `target="_blank"` |
+| Limits | ≤ 1 MiB canonical JSON (DB check constraint too), ≤ 20 000 nodes, nesting ≤ 40, ≤ 100 000 characters per text node; request bodies ≤ 2 MiB (the editor's JSON carries attributes the canonical form drops; nginx allows 2 MiB on `/api`), JSON depth ≤ 128. The body is parsed only after the caller is confirmed as an editor of a `DRAFT` |
+| No HTML anywhere | The server stores and returns JSON only. The browser renders it with `RichTextView` (fixed element mapping, no `v-html`/`innerHTML`, links re-checked client-side) or with the TipTap editor, whose schema has the same nodes. Images are not supported in v1, so editor content cannot make the browser fetch anything |
+| CSP | TipTap's `<style>` injection is disabled (`injectCSS: false`); editor styles are in the app stylesheet, so the SPA CSP (`style-src 'self'`) is unchanged. **Not yet checked under the production nginx CSP** ([OPEN_ITEMS.md](../OPEN_ITEMS.md)) |
+| Integrity | The body freezes with the revision (`trg_revision_immutable`) and is in the manifest hash; release recomputes `SHA-256(body_json)` from the stored bytes |
+| Authorization | Body edits: owner or author of a `DRAFT` (404 otherwise). Templates: `admin.templates` (PAL Administrator, Owner); listing a type's templates: `document.create`. A template can only seed a document of its own type and only while active |
+| Audit | Body edits are `REVISION_EDITED` with from/to SHA-256 (not the text, so earlier draft wording is not recoverable from the trail; the approved and every released body is kept on its revision), which also bars the editor from approving the revision. Templates: `TEMPLATE_CREATED` / `TEMPLATE_UPDATED` with field diffs and body hashes |
+
+Tests: `RichTextDocumentTest` (XSS and malformed-content corpus), `NativeEditorTest`, `frontend/src/richText.spec.ts`.
+
 ## 6. Auditability
 
 ### 6.1 What is recorded
@@ -363,6 +380,8 @@ PAL's controls assume the operator:
 | Real ClamAV not exercised in tests | Integration proven only against a protocol stand-in | Run the Compose stack and an EICAR upload |
 | Blobs not re-scanned; app user can delete at filesystem level | A file clean at upload may later match a new signature; immutability is partly an operator control | Periodic re-scan; storage-level delete denial |
 | ASVS L2 checklist not started | No evidence-backed compliance claim | Start the checklist (planned from Phase 1) |
+| Editor content under the production CSP not verified; editor not accessibility-audited | A blocked inline style could degrade table layout; a11y defects possible | Check on the Compose stack; run axe and a keyboard pass ([OPEN_ITEMS.md](../OPEN_ITEMS.md)) |
+| Template history kept as hashes only | Earlier template wording cannot be produced for an auditor | Owner decision: version templates or manage them as `TPL` documents |
 | SBOM and automated dependency update PRs absent | Slower response to new CVEs | Add CycloneDX and Renovate/Dependabot |
 
 ## 12. Reporting a vulnerability

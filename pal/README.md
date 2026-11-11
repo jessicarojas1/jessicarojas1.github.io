@@ -13,7 +13,8 @@ PAL is an enterprise **document management and document control** system for an 
 | 0: Discovery & architecture | **Approved** (rev 2, 2026-10-25) |
 | 1: Foundation | **Implemented**. See [what Phase 1 delivers](#what-phase-1-delivers) |
 | 2: Repository + walking skeleton | **Implemented** (2026-10-26). See [what Phase 2 delivers](#what-phase-2-delivers) and [OPEN_ITEMS.md](OPEN_ITEMS.md) for what is still unverified |
-| 3–8: Versioning + editor, workflow engine, publication, experience, hardening, go-live | Not started ([plan](docs/PHASE0_ARCHITECTURE_PROPOSAL.md#16-phased-delivery-plan)) |
+| 3: Versioning + editor | **Started**: native editor v1 and document templates (2026-11-10). See [what the editor delivers](#what-the-native-editor-v1-delivers) |
+| 4–8: Workflow engine, publication, experience, hardening, go-live | Not started ([plan](docs/PHASE0_ARCHITECTURE_PROPOSAL.md#16-phased-delivery-plan)) |
 
 One document can now go through its whole life, thinly: create, upload, submit, approve, publish 1.0, find and download. Multi-stage workflows, scheduled publication, the native editor and previews come in later phases.
 
@@ -35,6 +36,12 @@ One document can now go through its whole life, thinly: create, upload, submit, 
 - **Library**: full-text search over metadata and document numbers, filters, a document page with history, authorized download.
 - **Local accounts** alongside Entra ID ([ADR-0014](docs/adr/ADR-0014-local-accounts.md)): username/password with argon2id, lockout for 15 minutes after 5 failures, throttling, forced change of temporary passwords, a Users admin page, and a first administrator created from environment variables at migrate time. Okta, Google Workspace and SAML appear on the sign-in page as "Not connected"; they are not implemented.
 - **Operations**: `/health/ready` also checks that the blob directory is writable; Compose adds a ClamAV service and a blob volume; `render.yaml` deploys the full Phase 2 stack for demos.
+
+### What the native editor v1 delivers
+- **Write documents in PAL** instead of (or as well as) uploading a file: headings, bold/italic/underline/strikethrough, bulleted and numbered lists, quotes, divider lines, links and tables. Drafts save automatically ([ADR-0009](docs/adr/ADR-0009-authoring-native-editor-and-files.md#implementation-status-native-editor-v1-2026-11-10-decision-26), decision #26).
+- **Document templates**: PAL administrators maintain templates per document type under *Administration → Document templates* (new ones start from a seven-section outline: Purpose, Scope, Definitions, Responsibilities, Procedure, Records, References). Authors pick one on *New document* and get their own editable copy.
+- **Same controls as files**: content is validated against a server-side allow-list (no HTML, safe links only), freezes on submit, is covered by the approval fingerprint and re-verified at release, and is searchable. Readers and approvers see it formatted, read-only.
+- **Not yet**: images in the editor, PDF export, comparison between revisions, an editing lock. See [OPEN_ITEMS.md](OPEN_ITEMS.md).
 
 ## Supported deployment models
 
@@ -174,7 +181,7 @@ Sign in at `http://localhost:5173` and choose a new password when asked, then re
 
 **Backend runtime** (`backend/composer.json`): `symfony/*` 7.4 (framework-bundle, security-bundle, security-csrf, messenger, doctrine-messenger, scheduler, monolog-bundle, http-client, validator, rate-limiter, uid, lock, clock, console, dotenv, runtime, yaml), `doctrine/dbal` 4, `doctrine/doctrine-bundle`, `doctrine/doctrine-migrations-bundle`, `firebase/php-jwt` 7.
 **Backend dev:** `phpunit/phpunit` 13, `phpstan/phpstan` 2 + `phpstan/phpstan-symfony`, `deptrac/deptrac` 4, `symfony/browser-kit`, `symfony/css-selector`.
-**Frontend runtime** (`frontend/package.json`, exact versions pinned): `vue`, `quasar`, `@quasar/extras`, `pinia`, `vue-router`.
+**Frontend runtime** (`frontend/package.json`, exact versions pinned): `vue`, `quasar`, `@quasar/extras`, `pinia`, `vue-router`, and the editor packages `@tiptap/vue-3`, `@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`, `@tiptap/extension-table` (3.32.0, MIT; `@floating-ui/dom` arrives as their peer).
 **Frontend dev:** `vite`, `@vitejs/plugin-vue`, `@quasar/vite-plugin`, `typescript` 6.0, `vue-tsc`, `eslint` + `eslint-plugin-vue` + `@vue/eslint-config-typescript` + `typescript-eslint`, `vitest`, `@vue/test-utils`, `jsdom`, `sass-embedded`, `axe-core`, `@types/node`.
 **PHP extensions in the image:** `pdo_pgsql`, `intl`, `opcache` (plus the PHP image defaults, which include `fileinfo`).
 **PostgreSQL extensions:** `btree_gist`, `pg_trgm` (created by migration `Version20261026000002`; trusted extensions, so the database owner can create them).

@@ -457,3 +457,214 @@ body {
     list-style-position: inside;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Editor content (ADR-0009): shared by the read-only view and the editor.
+// TipTap's injected CSS is disabled (CSP), so ProseMirror's essentials live here.
+// ---------------------------------------------------------------------------
+.pal-richtext {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  p {
+    margin: 0 0 var(--pal-space-3);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: var(--pal-space-6) 0 var(--pal-space-2);
+    font-weight: 600;
+    letter-spacing: normal;
+  }
+
+  ul, ol {
+    margin: 0 0 var(--pal-space-3);
+    padding-left: var(--pal-space-6);
+  }
+
+  li > p {
+    margin-bottom: var(--pal-space-1);
+  }
+
+  blockquote {
+    margin: 0 0 var(--pal-space-3);
+    padding-left: var(--pal-space-4);
+    border-left: 4px solid var(--pal-border);
+    color: var(--pal-text-muted);
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--pal-border);
+    margin: var(--pal-space-6) 0;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0 0 var(--pal-space-3);
+    table-layout: fixed;
+  }
+
+  th, td {
+    border: 1px solid var(--pal-border);
+    padding: var(--pal-space-2) var(--pal-space-3);
+    vertical-align: top;
+    text-align: left;
+    position: relative;
+
+    > :last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  th {
+    background: var(--pal-surface-sunken);
+    font-weight: 600;
+  }
+}
+
+// Visual heading sizes, independent of the semantic level used on the page.
+.pal-rt-h1 { font-size: 1.6rem; line-height: 1.25; }
+.pal-rt-h2 { font-size: 1.35rem; line-height: 1.3; }
+.pal-rt-h3 { font-size: 1.15rem; line-height: 1.35; }
+.pal-rt-h4 { font-size: 1rem; line-height: 1.4; }
+
+.pal-richtext h1 { font-size: 1.6rem; line-height: 1.25; }
+.pal-richtext h2 { font-size: 1.35rem; line-height: 1.3; }
+.pal-richtext--editing h3 { font-size: 1.15rem; line-height: 1.35; }
+.pal-richtext--editing h4 { font-size: 1rem; line-height: 1.4; }
+
+.pal-rt-table-wrap {
+  overflow-x: auto;
+}
+
+.pal-editor {
+  border: 1px solid var(--pal-border);
+  border-radius: var(--pal-radius-sm);
+  background: var(--pal-surface);
+
+  // The text area hides its own outline, so the whole editor shows the focus ring (WCAG 2.4.7).
+  &:focus-within {
+    border-color: var(--pal-focus);
+    outline: 3px solid var(--pal-focus);
+    outline-offset: 2px;
+  }
+}
+
+.pal-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: var(--pal-space-1) var(--pal-space-2);
+  border-bottom: 1px solid var(--pal-border);
+  background: var(--pal-surface-sunken);
+  border-radius: var(--pal-radius-sm) var(--pal-radius-sm) 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.pal-editor-toolbar--table {
+  border-radius: 0;
+}
+
+.pal-editor-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: var(--pal-space-1) var(--pal-space-1);
+  background: var(--pal-border);
+}
+
+.pal-editor-block {
+  min-width: 140px;
+}
+
+.pal-editor-active {
+  background: var(--pal-border);
+  color: var(--pal-primary-text);
+}
+
+.pal-editor-content .ProseMirror {
+  min-height: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: var(--pal-space-4);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  outline: none;
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  .selectedCell::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--pal-focus);
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  .tableWrapper {
+    overflow-x: auto;
+  }
+}
+
+.pal-editor--disabled .pal-editor-content .ProseMirror {
+  min-height: 0;
+  background: var(--pal-surface-sunken);
+}
+
+.ProseMirror-gapcursor {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: -2px;
+    width: 20px;
+    border-top: 1px solid var(--pal-text);
+  }
+}
+
+.ProseMirror-focused .ProseMirror-gapcursor {
+  display: block;
+}
+
+.ProseMirror-hideselection *::selection {
+  background: transparent;
+}
+
+.pal-save-status {
+  font-size: 0.85rem;
+  color: var(--pal-text-muted);
+}
+
+.pal-template-item {
+  display: block;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: var(--pal-radius-sm);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--pal-surface-sunken);
+  }
+}
+
+.pal-template-item--active {
+  background: var(--pal-surface-sunken);
+  box-shadow: inset 3px 0 0 var(--pal-primary-text);
+}

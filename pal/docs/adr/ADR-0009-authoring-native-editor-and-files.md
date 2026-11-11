@@ -30,3 +30,19 @@ Native documents also get an **accurate structural comparison** between revision
 - Authoring scope roughly doubles Phase 3. The phase plan adds an editor milestone.
 - The Confluence import targets native documents (storage-format XHTML → ProseMirror JSON), which keeps migrated pages editable (see ADR-0012).
 - Stored XSS is the main new threat. It is mitigated by schema-only rendering, the sanitizer, strict CSP with nonces, and no `v-html` with user data.
+
+## Implementation status: native editor v1 (2026-11-10, decision #26)
+
+**Implemented** (owner request 2026-11-10: write text inline in PAL, and create templates with headings):
+- TipTap 3 editor in the browser (`frontend/src/components/RichTextEditor.vue`) with headings 1–4, bold, italic, underline, strikethrough, bulleted and numbered lists, quotes, divider lines, links and tables. Drafts autosave (debounced, optimistic concurrency on the revision row version, no-op when unchanged).
+- Server-side schema (`backend/src/Documents/RichTextDocument.php`): the allow-list of nodes, marks and attributes; anything else is refused with 422. Accepted content is rebuilt **canonically** (fixed key order, no unknown attributes) so equal content always has equal bytes. Links: `http(s)://` and `mailto:` only.
+- Approvals bind to the body: the manifest hash includes `SHA-256(body_json)` when a body exists. Revisions without a body hash exactly as before, so existing approvals still verify.
+- Per-type **templates** maintained by PAL administrators (`admin.templates`), chosen by authors when creating a document; the template body is copied into the draft (later template edits never change existing documents).
+- Body text is indexed for library search (weight D).
+- A revision may have editor content, a file, or both; submission needs at least one.
+
+**Deviations from the decision above** (accepted for v1; see decision log #26):
+1. **Storage.** The canonical JSON is stored in `revision.body_json` (PostgreSQL) instead of as a content-addressed blob. Integrity is equivalent: it freezes under the same `trg_revision_immutable` trigger as the rest of the content, and release recomputes its SHA-256 against the approved manifest. It also keeps autosave from writing a new blob per keystroke burst.
+2. **Rendering.** The browser renders the validated JSON node by node into a fixed set of elements (`RichTextView.vue`; no `v-html`, no `innerHTML`, link addresses re-checked). Server-side HTML rendering, and `symfony/html-sanitizer` as its second layer, arrive with the PDF rendition, which is the first consumer that needs server HTML.
+
+**Deferred** (still part of this ADR, not built yet): images in the editor (must use the upload/scan pipeline), callouts, cross-references and section numbering, Gotenberg PDF rendition, the soft checkout lock (v1 relies on optimistic concurrency: a second editor gets a 409 and is offered a reload), structural comparison between revisions, and versioning/approval of templates themselves (template changes are audited by hash only).
