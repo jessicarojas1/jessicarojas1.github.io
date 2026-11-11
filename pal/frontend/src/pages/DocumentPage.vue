@@ -7,6 +7,7 @@ import { api, ApiError } from '@/api/client'
 import { formatBytes, GRANT_ROLE_LABELS, type DocumentDetail, type Editing, type Grant, type Person, type RevisionView } from '@/api/documents'
 import FileUploadField from '@/components/FileUploadField.vue'
 import PeoplePicker from '@/components/PeoplePicker.vue'
+import RevisionCompare from '@/components/RevisionCompare.vue'
 import RevisionStateChip from '@/components/RevisionStateChip.vue'
 import RichTextView from '@/components/RichTextView.vue'
 import { isEmptyDocument, type RichTextNode } from '@/richText'
@@ -520,6 +521,7 @@ watch(id, () => {
             v-if="doc.current.body"
             :doc="doc.current.body"
             :label="`Content of revision ${doc.current.label}`"
+            heading="Content"
             class="q-my-md"
           />
           <p
@@ -600,10 +602,18 @@ watch(id, () => {
             {{ open.manifestHash?.slice(0, 16) }}…
           </dd>
         </dl>
+        <RevisionCompare
+          v-if="open.previousLabel"
+          :revision-id="open.id"
+          :revision-label="open.label"
+          :previous-label="open.previousLabel"
+          class="q-mb-md"
+        />
         <RichTextView
           v-if="open.body"
           :doc="open.body"
           :label="`Content of revision ${open.label} to review`"
+          heading="Content"
           class="q-mb-md pal-card"
         />
         <q-btn
@@ -687,6 +697,14 @@ watch(id, () => {
         >
           Started from template “{{ open.template.name }}”, version {{ open.template.version }}.
         </p>
+        <RevisionCompare
+          v-if="open.previousLabel"
+          :revision-id="open.id"
+          :revision-label="open.label"
+          :previous-label="open.previousLabel"
+          :version="draftRowVersion ?? open.rowVersion"
+          class="q-mt-md"
+        />
         <div
           v-if="open.workflow && open.workflow.decision"
           class="q-mt-md"
@@ -958,10 +976,18 @@ watch(id, () => {
         >
           Revision {{ doc.awaitingRelease.label }} approved, awaiting release
         </h2>
+        <RevisionCompare
+          v-if="doc.awaitingRelease.previousLabel"
+          :revision-id="doc.awaitingRelease.id"
+          :revision-label="doc.awaitingRelease.label"
+          :previous-label="doc.awaitingRelease.previousLabel"
+          class="q-mb-md"
+        />
         <RichTextView
           v-if="doc.awaitingRelease.body"
           :doc="doc.awaitingRelease.body"
           :label="`Content of revision ${doc.awaitingRelease.label}`"
+          heading="Content"
           class="q-mb-md"
         />
         <p v-if="doc.awaitingRelease.workflow">

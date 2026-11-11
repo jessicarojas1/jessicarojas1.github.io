@@ -149,6 +149,7 @@ Allowed dependencies (`deptrac.yaml`): Platform → Audit, Identity (only so the
 | POST | `/api/documents/{id}/revisions` | Owner or author + CSRF, else 404 | Starts the next revision of a published document |
 | POST / DELETE | `/api/documents/{id}/grants`, `…/grants/{grantId}` | Owner or `document.manage_access` + CSRF | Adds or revokes a grant to a person or directory group |
 | PUT | `/api/revisions/{id}/body` | Owner or author + CSRF, `DRAFT` only, else 404/409 | Saves editor content `{body, rowVersion}` (request ≤ 2 MiB, canonical body ≤ 1 MiB, JSON depth ≤ 128; access and state are checked before the body is parsed). Validated by `RichTextDocument` (422 with `fields.body`); `null` or an empty document clears it; identical content is a no-op; 409 `edit_conflict` on a stale `rowVersion` |
+| GET | `/api/revisions/{id}/compare` | Read access to both revisions by the download rule, else 404; logged `revision_compared` | What changed since the revision it was based on: `{before, after, fields[], file, body: {blocks[], truncated}}`; blocks are `same`/`added`/`removed`/`changed` (with a word diff). 404 `nothing_to_compare` for a first revision. Decision #28 |
 | POST / DELETE | `/api/revisions/{id}/editing` | POST: owner or author + CSRF, `DRAFT` only (404/409 otherwise); DELETE: CSRF, removes only the caller's own claim | Soft checkout heartbeat: returns `{holder, mine}`; a fresh claim by someone else is reported, not taken over. Claims lapse after 150 s (`DocumentRepository::EDITING_WINDOW_SECONDS`); new claims audited `REVISION_EDITING_STARTED` |
 | GET | `/api/document-types/{id}/templates` | `document.create` | Active templates of an active type (id, name, description) for the create form |
 | GET | `/api/admin/templates`, `/api/admin/templates/{id}` | `admin.templates` | All templates (without bodies) / one template with its body; both include the current `version` |
@@ -336,7 +337,8 @@ The selected production target is **on-premises Linux with Docker Compose** (`de
 | Native editor v1 (headings, emphasis, lists, quotes, links, tables, autosave) and administrator-maintained per-type templates ([ADR-0009 status](adr/ADR-0009-authoring-native-editor-and-files.md#implementation-status-native-editor-v1-2026-11-10-decision-26)) | Implemented (decision #26) |
 | Soft checkout ("who is editing", advisory) | Implemented (2026-11-10) |
 | Template version history (immutable versions, view/restore, revision records its template version) | Implemented (decision #27) |
-| Editor images, callouts, cross-references, PDF rendition, configurable numbering, minor versions, comparison, rollback, category grants | *Planned — Phase 3* |
+| Revision comparison (metadata, file, content blocks with word diff) for authors, approvers and publishers | Implemented (decision #28) |
+| Editor images, callouts, cross-references, PDF rendition, configurable numbering, minor versions, rollback, category grants | *Planned — Phase 3* |
 | Multi-stage workflow engine, delegation, escalation, re-authentication for approvals | *Planned — Phase 4* |
 | Scheduled publication, separate effective dates, emergency publish, obsolete/archive, legal hold | *Planned — Phase 5* |
 | Previews (PDF.js, Gotenberg), notifications (SMTP), reports, audit export, as-of view, `/admin/audit/verify` UI | *Planned — Phase 6* |

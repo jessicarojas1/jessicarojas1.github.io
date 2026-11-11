@@ -15,6 +15,13 @@ export default defineComponent({
   props: {
     doc: { type: Object as PropType<RichTextNode>, required: true },
     label: { type: String, default: 'Document content' },
+    /**
+     * When set, a visually hidden <h3> with this text comes first, so content headings
+     * (<h3>–<h6>) keep a valid outline when the view sits directly under a section <h2>.
+     */
+    heading: { type: String, default: null },
+    /** Content heading N renders as <h(N+offset)>, capped at <h6>. */
+    levelOffset: { type: Number, default: 2 },
   },
   setup(props) {
     const children = (node: RichTextNode): VNodeArrayChildren => (node.content ?? []).map(render)
@@ -50,7 +57,7 @@ export default defineComponent({
         case 'paragraph': return h('p', children(node))
         case 'heading': {
           const level = int(node.attrs?.level, 1, 4) ?? 1
-          return h(`h${Math.min(level + 2, 6)}`, { class: `pal-rt-h${level}`, 'data-level': level }, children(node))
+          return h(`h${Math.min(level + props.levelOffset, 6)}`, { class: `pal-rt-h${level}`, 'data-level': level }, children(node))
         }
         case 'bulletList': return h('ul', children(node))
         case 'orderedList': return h('ol', { start: int(node.attrs?.start, 1, 100000) }, children(node))
@@ -71,7 +78,10 @@ export default defineComponent({
       }
     }
 
-    return () => h('div', { class: 'pal-richtext', role: 'region', 'aria-label': props.label }, children(props.doc))
+    return () => h('div', { class: 'pal-richtext', role: 'region', 'aria-label': props.label }, [
+      ...(props.heading === null ? [] : [h('h3', { class: 'pal-visually-hidden' }, props.heading)]),
+      ...children(props.doc),
+    ])
   },
 })
 </script>

@@ -42,6 +42,8 @@ export interface RevisionView {
   editing: Editing | null
   /** The template version this revision was started from, if any. */
   template: { id: string; name: string; version: number } | null
+  /** Label of the revision this one was based on (offers "compare"), or null for the first. */
+  previousLabel: string | null
   file: FileInfo | null
   workflow: WorkflowInfo | null
   actions: string[]
@@ -190,4 +192,21 @@ export interface TemplateVersionDetail {
 
 export interface TemplateDetail extends TemplateSummary {
   body: RichTextNode
+}
+
+export interface WordRun {
+  op: 'same' | 'added' | 'removed'
+  text: string
+}
+
+export type ComparedBlock =
+  | { op: 'same' | 'added' | 'removed'; node: RichTextNode }
+  | { op: 'changed'; node: RichTextNode; before: RichTextNode; words: WordRun[]; links?: { before: string[]; after: string[] } }
+
+export interface RevisionComparison {
+  before: { id: string; label: string }
+  after: { id: string; label: string; labelConfirmed: boolean }
+  fields: { field: string; before: unknown; after: unknown }[]
+  file: { changed: boolean; before: { sha256: string; filename: string } | null; after: { sha256: string; filename: string } | null }
+  body: { blocks: ComparedBlock[]; truncated: boolean }
 }

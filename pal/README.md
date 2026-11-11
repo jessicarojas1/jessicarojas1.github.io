@@ -42,7 +42,8 @@ One document can now go through its whole life, thinly: create, upload, submit, 
 - **Document templates**: PAL administrators maintain templates per document type under *Administration → Document templates* (new ones start from a seven-section outline: Purpose, Scope, Definitions, Responsibilities, Procedure, Records, References). Authors pick one on *New document* and get their own editable copy. Every saved change to a template is kept as a numbered version that administrators can view and restore, and each document shows which template version it started from.
 - **Same controls as files**: content is validated against a server-side allow-list (no HTML, safe links only), freezes on submit, is covered by the approval fingerprint and re-verified at release, and is searchable. Readers and approvers see it formatted, read-only.
 - **Who's editing**: when someone else is typing in the same draft, you see their name and since when (advisory; saves are still conflict-checked, so nothing is overwritten silently).
-- **Not yet**: images in the editor, PDF export, comparison between revisions. See [OPEN_ITEMS.md](OPEN_ITEMS.md).
+- **What changed**: authors, approvers and publishers can compare a new revision with the published one it replaces — changed fields, a replaced file, and the content section by section with the exact words added and removed.
+- **Not yet**: images in the editor, PDF export. See [OPEN_ITEMS.md](OPEN_ITEMS.md).
 
 ## Supported deployment models
 

@@ -130,6 +130,8 @@ final class DocumentPresenter
             'body' => RichTextDocument::decodeStored(Row::nullableString($revision, 'body_json')),
             'editing' => 'DRAFT' === $state ? $this->documents->currentEditor($revisionId) : null,
             'template' => $this->documents->templateOrigin($revisionId),
+            // The revision this one was based on, so the UI can offer "compare".
+            'previousLabel' => $this->documents->previousLabel(Row::nullableString($revision, 'previous_revision_id')),
             'file' => null === $file ? null : [
                 'filename' => Row::string($file, 'original_filename'),
                 'sizeBytes' => Row::int($file, 'size_bytes'),

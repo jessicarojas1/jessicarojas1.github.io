@@ -7,6 +7,7 @@ namespace App\Documents\Controller;
 use App\Documents\DocumentAccess;
 use App\Documents\DocumentRepository;
 use App\Documents\LifecycleService;
+use App\Documents\RevisionComparer;
 use App\Documents\RichTextDocument;
 use App\Identity\User\PalUser;
 use App\Platform\Database\Row;
@@ -51,6 +52,65 @@ final class RevisionController
         $body = JsonBody::decode($request, 2 * RichTextDocument::MAX_BYTES, 128);
 
         return new JsonResponse(['ok' => true, 'rowVersion' => $this->lifecycle->updateBody($user, $id, $body)]);
+    }
+
+    /**
+     * What changed in this revision compared with the revision it was based on. Same access
+     * rule as reading the revision's work in progress (authors, assigned approver, publisher
+     * of an approved revision, document.read_all); anything else is a 404.
+     */
+    #[Route('/api/revisions/{id}/compare', name: 'api_revision_compare', methods: ['GET'])]
+    public function compare(#[CurrentUser] PalUser $user, string $id): JsonResponse
+    {
+        $revision = $this->documents->findRevision($id);
+        $document = null === $revision ? null : $this->documents->findDocument(Row::string($revision, 'document_id'));
+        if (null === $revision || null === $document || !$this->access->canReadWorkInProgress($user, $document, $id)) {
+            throw new ApiProblem(404, 'not_found', 'Revision not found.');
+        }
+        $previousId = Row::nullableString($revision, 'previous_revision_id');
+        $previous = null === $previousId ? null : $this->documents->findRevision($previousId);
+        if (null === $previous) {
+            throw new ApiProblem(404, 'nothing_to_compare', 'This is the first revision, so there is nothing to compare it with.');
+        }
+        // The earlier revision is disclosed too, so it needs the same right as downloading it:
+        // readable as the current version, or as work in progress (e.g. once superseded).
+        $visible = $this->documents->visibleRevision(Row::string($document, 'id'));
+        $previousIsCurrent = null !== $visible && Row::string($visible, 'id') === $previousId;
+        $mayReadPrevious = $previousIsCurrent
+            ? $this->access->canReadPublished($user, $document)
+            : $this->access->canReadWorkInProgress($user, $document, $previousId);
+        if (!$mayReadPrevious) {
+            throw new ApiProblem(404, 'not_found', 'Revision not found.');
+        }
+        $this->auditLog->info('revision_compared', [
+            'user_id' => $user->id, 'document_id' => Row::string($document, 'id'), 'document_number' => Row::string($document, 'document_number'),
+            'revision_id' => $id, 'previous_revision_id' => $previousId,
+        ]);
+
+        return new JsonResponse([
+            'before' => ['id' => Row::string($previous, 'id'), 'label' => Row::int($previous, 'major').'.'.Row::int($previous, 'minor')],
+            'after' => ['id' => $id, 'label' => Row::int($revision, 'major').'.'.Row::int($revision, 'minor'), 'labelConfirmed' => Row::bool($revision, 'label_confirmed')],
+            ...RevisionComparer::compare($this->comparable($previous), $this->comparable($revision)),
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $revision
+     *
+     * @return array{title: string, description: ?string, keywords: list<string>, changeSummary: ?string, file: ?array{sha256: string, filename: string}, body: ?array<string, mixed>}
+     */
+    private function comparable(array $revision): array
+    {
+        $file = $this->documents->primaryFile(Row::string($revision, 'id'));
+
+        return [
+            'title' => Row::string($revision, 'title'),
+            'description' => Row::nullableString($revision, 'description'),
+            'keywords' => DocumentRepository::keywords($revision['keywords']),
+            'changeSummary' => Row::nullableString($revision, 'change_summary'),
+            'file' => null === $file ? null : ['sha256' => Row::string($file, 'sha256'), 'filename' => Row::string($file, 'original_filename')],
+            'body' => RichTextDocument::decodeStored(Row::nullableString($revision, 'body_json')),
+        ];
     }
 
     /** Editor heartbeat: claims or renews "who is editing" (soft checkout). */

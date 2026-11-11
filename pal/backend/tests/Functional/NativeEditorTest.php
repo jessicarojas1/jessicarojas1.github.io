@@ -422,6 +422,66 @@ final class NativeEditorTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    public function testTheNextRevisionCanBeComparedWithThePublishedOneByThoseWhoMayReadIt(): void
+    {
+        [$documentId, $revisionId] = $this->createDocument();
+        $this->writeBody($revisionId, self::body('Purpose', 'Calibrate yearly.'));
+        // The first revision has nothing to compare with.
+        $this->as('author');
+        $this->client->request('GET', '/api/revisions/'.$revisionId.'/compare');
+        self::assertResponseStatusCodeSame(404);
+        self::assertSame('nothing_to_compare', $this->json()['error']);
+
+        $this->approve($revisionId);
+        $this->call($this->as('publisher'), 'POST', '/api/revisions/'.$revisionId.'/release');
+        $next = $this->call($this->as('author'), 'POST', '/api/documents/'.$documentId.'/revisions');
+        $nextId = (string) ($next['revisionId'] ?? $next['id'] ?? '');
+        $this->writeBody($nextId, self::body('Purpose', 'Calibrate quarterly.'));
+        $this->call($this->as('author'), 'PATCH', '/api/revisions/'.$nextId, ['title' => 'Calibration of torque tools (rev)', 'rowVersion' => $this->rowVersion($nextId)]);
+        self::assertResponseIsSuccessful();
+
+        $this->client->request('GET', '/api/documents/'.$documentId);
+        self::assertSame('1.0', $this->json()['openRevision']['previousLabel']);
+        $this->client->request('GET', '/api/revisions/'.$nextId.'/compare');
+        self::assertResponseIsSuccessful();
+        $diff = $this->json();
+        self::assertSame('1.0', $diff['before']['label']);
+        self::assertSame(['title'], array_column($diff['fields'], 'field'));
+        self::assertSame(['same', 'changed'], array_column($diff['body']['blocks'], 'op'));
+        self::assertContains(['op' => 'added', 'text' => 'quarterly.'], $diff['body']['blocks'][1]['words']);
+
+        // Readers of the published version may not see draft changes or superseded wording.
+        $this->as('reader');
+        $this->client->request('GET', '/api/revisions/'.$nextId.'/compare');
+        self::assertResponseStatusCodeSame(404);
+        // The assigned approver can, once it is submitted to them. A second approver, who had
+        // nothing to do with 1.0, approves 2.0.
+        $this->users['approver2'] = self::createUser($this->db, 'b0000000-0000-4000-8000-000000000007', 'Ann Second Approver');
+        $this->call($this->as('author'), 'POST', '/api/documents/'.$documentId.'/grants', ['role' => 'APPROVER', 'userId' => $this->users['approver2']]);
+        self::assertResponseStatusCodeSame(201);
+        $this->call($this->as('author'), 'POST', '/api/revisions/'.$nextId.'/submit', ['approverId' => $this->users['approver2']]);
+        self::assertResponseIsSuccessful();
+        $this->as('approver2');
+        $this->client->request('GET', '/api/revisions/'.$nextId.'/compare');
+        self::assertResponseIsSuccessful();
+
+        // Once 2.0 is released, 1.0 is superseded: the approver of 2.0 had no task on 1.0, so
+        // (as for downloads) they no longer get its wording through a comparison.
+        $csrf = $this->as('approver2');
+        $this->client->request('GET', '/api/workspace');
+        $this->call($csrf, 'POST', '/api/tasks/'.$this->json()['tasks'][0]['taskId'].'/decision', ['decision' => 'APPROVE']);
+        self::assertResponseIsSuccessful();
+        $this->call($this->as('publisher'), 'POST', '/api/revisions/'.$nextId.'/release');
+        self::assertResponseIsSuccessful();
+        $this->as('approver2');
+        $this->client->request('GET', '/api/revisions/'.$nextId.'/compare');
+        self::assertResponseStatusCodeSame(404);
+        // The author still can.
+        $this->as('author');
+        $this->client->request('GET', '/api/revisions/'.$nextId.'/compare');
+        self::assertResponseIsSuccessful();
+    }
+
     public function testReadersCannotSeeTheTemplateAdministration(): void
     {
         $this->as('reader');

@@ -20,6 +20,16 @@ final class DocumentRepository
     }
 
     /**
+     * The confirmed label (e.g. "1.0") of a revision, or null.
+     */
+    public function previousLabel(?string $revisionId): ?string
+    {
+        $row = null === $revisionId ? null : $this->findRevision($revisionId);
+
+        return null === $row ? null : Row::int($row, 'major').'.'.Row::int($row, 'minor');
+    }
+
+    /**
      * The template (and its version) a revision was started from, if any.
      *
      * @return array{id: string, name: string, version: int}|null

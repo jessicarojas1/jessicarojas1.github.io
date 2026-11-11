@@ -129,7 +129,7 @@ Verified locally (PHP 8.5.10, PostgreSQL `pal_test`): PHPUnit 269 tests OK, PHPS
 ## Product and UX gaps
 | Item | Impact | Action |
 |---|---|---|
-| Editor v1 scope: no images, callouts, cross-references or section numbering; no PDF rendition; no comparison between revisions (owner scoped v1 to text + templates, decision #26) | Authors needing images still attach a file | Remaining ADR-0009 Phase 3 items |
+| Editor v1 scope: no images, callouts, cross-references or section numbering; no PDF rendition (owner scoped v1 to text + templates, decision #26). Revision comparison ✅ done 2026-11-11 (decision #28) | Authors needing images still attach a file | Remaining ADR-0009 Phase 3 items |
 | Soft checkout | ✅ **Done (2026-11-10):** while someone types in a draft, PAL records them as its editor (heartbeat at most once a minute, lapses after 150 s, released on leaving the page); other editors see "X has been editing this draft since …". Advisory by design: saves are still protected by the row version, so concurrent edits are never silently overwritten | — |
 | Template version history | ✅ **Done (2026-11-11, decision #27):** every content change is an immutable numbered version (DB trigger refuses edits and deletes); administrators list, view and restore versions (restoring saves a new version); each document records and shows the template version it started from | — |
 | Editor UI audit leftovers | ✅ **Fixed (2026-11-10):** editor headings render as `<h3>`–`<h6>` (with `data-level` so copy/paste keeps levels); roving-tabindex toolbars; autosave refuses to guess a row version after a failed reload and says so; the sticky toolbar no longer slides under the app header | — |
