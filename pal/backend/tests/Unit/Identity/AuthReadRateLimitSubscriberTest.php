@@ -22,6 +22,11 @@ final class AuthReadRateLimitSubscriberTest extends TestCase
         );
     }
 
+    /**
+     * Consumes limiter budget, so repeated identical calls can return different results.
+     *
+     * @phpstan-impure
+     */
     private function hit(AuthReadRateLimitSubscriber $s, string $path, string $method = 'GET', string $ip = '198.51.100.7'): ?Response
     {
         $kernel = $this->createStub(HttpKernelInterface::class);

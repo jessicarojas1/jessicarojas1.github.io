@@ -38,6 +38,7 @@ final class GrantOwnerCommandTest extends KernelTestCase
         return $tester;
     }
 
+    /** @return list<mixed> */
     private function roles(string $userId): array
     {
         return $this->db->fetchFirstColumn('SELECT role FROM user_role WHERE user_id = ?', [$userId]);

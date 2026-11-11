@@ -150,6 +150,7 @@ All limiters are active. Separately, `PAL_UPLOAD_DAILY_BYTES` caps clean uploade
 
 - `TRUSTED_HOSTS` (regex) rejects requests with any other `Host` header, preventing host-header injection into generated URLs.
 - `TRUSTED_PROXIES` lists who may set `X-Forwarded-For`, `-Proto`, `-Port` (`X-Forwarded-Host` is deliberately not trusted). In production set the **exact** reverse-proxy IP(s), and configure the proxy to **overwrite** `X-Forwarded-For` rather than append to it. The image default `private_ranges` allows client-IP spoofing from internal networks: any internal host that can reach the container can choose the IP that rate limiting, logs and audit events see ([DEPLOYMENT.md §11.2](DEPLOYMENT.md#112-transport--exposure)).
+- `private_ranges` requires Symfony **≥ 7.4.23** (`symfony/http-foundation`, `symfony/framework-bundle`). Earlier 7.4 releases also trusted a client whose address is an IPv4-mapped, 6to4, Teredo or NAT64 IPv6 address embedding a private IPv4 address ([GHSA-xg2q-4rrq-657q](https://github.com/symfony/symfony/security/advisories/GHSA-xg2q-4rrq-657q)), so an IPv6 client on the internet could act as a "proxy" and choose its own client IP. PAL locks 7.4.23 since 2026-11-10; do not downgrade below it.
 - A well-formed `X-Request-Id` sent by the client is accepted as the correlation ID (by nginx and Symfony). Correlation IDs are therefore caller-influenced: use them for tracing, not as unique or trusted identifiers. Strip the header at the proxy if that matters.
 - The OIDC redirect URI is built from `PAL_BASE_URL`, never from request headers.
 
@@ -368,6 +369,7 @@ PAL's controls assume the operator:
 | Single-role deployments (Render) | Audit trail tamper-evident, not tamper-resistant | Use the owner/app role split in production |
 | Rate-limit and OIDC metadata caches are per container (tmpfs) | Limits multiply with replicas and reset on restart | Accept for one web instance; use a shared cache pool before scaling out |
 | `TRUSTED_PROXIES=private_ranges` default | Client-IP spoofing from internal networks | Exact proxy IPs; proxy overwrites `X-Forwarded-For` |
+| Symfony advisories published 2026-11-04 (15 across 10 packages) | Resolved by upgrading to 7.4.23; per-advisory exposure assessment in [OPEN_ITEMS.md](../OPEN_ITEMS.md#dependency-advisories) | ✅ Resolved 2026-11-10. Keep `composer audit` blocking in CI |
 | Entra **Assignment required** not enforced by PAL | Every tenant account, guests included, becomes a Reader if unset | Mandatory operator setting (§2.5) |
 | Database TLS not configured by default | Credentials and data in clear on the network if the DB is remote | Set `sslmode=verify-full` + `sslrootcert` ([DEPLOYMENT.md §4.4](DEPLOYMENT.md#44-database-tls)) |
 | Anchoring off by default; Compose mounts no anchor directory | Whole-chain rewrite by a DBA would go undetected | Mount write-once storage, set `PAL_AUDIT_ANCHOR_DIR` |

@@ -14,3 +14,10 @@ parameters:
     symfony:
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
     tmpDir: var/phpstan-tests
+    ignoreErrors:
+        # This handler exists only in the test container (config/packages/monolog.yaml, when@test);
+        # PHPStan reads the dev container, so it cannot see it. The test asserts its type at runtime.
+        -
+            identifier: symfonyContainer.serviceNotFound
+            path: tests/Integration/AuditForwardTest.php
+            count: 1

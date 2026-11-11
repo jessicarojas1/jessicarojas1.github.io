@@ -88,7 +88,7 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 |---|---|---|
 | Sysadmin could self-grant document authority (M2) | Medium | 🟡 Self-grant now refused (403 `self_grant_forbidden`, audited). Collusion between two admins is still possible. **Decision D20:** separate permission or second approver for document-role mappings |
 | Junk callbacks could flood the audit trail (M1) | Medium | ✅ Callback rate-limited; only failures with a real pending sign-in are audited |
-| Client IP spoofable with `TRUSTED_PROXIES=private_ranges` (L1) | Low | 🟡 Guidance and env example changed to exact proxy IPs plus overwriting X-Forwarded-For. The image default is still broad |
+| Client IP spoofable with `TRUSTED_PROXIES=private_ranges` (L1) | Low | 🟡 Guidance and env example changed to exact proxy IPs plus overwriting X-Forwarded-For. The image default is still broad. The separate Symfony defect that let IPv4-mapped/6to4/Teredo/NAT64 client addresses count as `private_ranges` proxies is fixed by the 7.4.23 upgrade (see Dependency advisories) |
 | Every account that can sign in becomes a Reader (L3) | Low | 🟡 Documented as mandatory: Entra "Assignment required = Yes". Optional: require a PAL-users group in code (Phase 2) |
 | Single-role deployments (Render, local) are tamper-evident only (L4) | Low | 🟡 Documented. Use separate owner/app roles in production |
 | Base images pinned by tag, not digest (L5) | Low | ⛔ Pin digests in the registry mirror; add Renovate |
@@ -97,6 +97,34 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | Revocation latency up to the sync interval or session limits (I7) | Info | Documented; inherent to the BFF design |
 | Large-group role mapping syncs synchronously and may time out (I8) | Info | ✅ Done (2026-11-08): adding a mapping dispatches `SyncDirectoryGroup` to the `async` transport (consumed by the existing `messenger:consume async` worker), so a large group's initial membership pull runs off-request. The handler is idempotent and, on a Graph failure, records `sync_error` and defers to the 15-min scheduled sync (mirrors `syncAll`). **Exception:** mapping a group to a *document-authority* role still syncs membership synchronously first — the separation-of-duties self-grant check requires fresh membership before the grant, so that one path cannot be deferred. Covered by two `ApiAuthorizationTest` cases |
 | GitHub Pages serves the `pal/` source publicly (I9) | Info | No secrets committed. Moves to a private repo at handover |
+
+## Dependency advisories
+
+**2026-11-10:** `composer audit` reported 15 Symfony advisories (published 2026-11-04) across 10 packages. Every PAL CI run from then on failed at the audit step, which also skipped PHPStan, Deptrac and PHPUnit in CI. Fixed by `composer update 'symfony/*' --with-dependencies` within the existing `7.4.*` constraints (7.4.21 → **7.4.23**; contracts 3.7 → 3.8; `symfony/flex` 2.11 → 2.12 with its constraint bumped to `^2.12` by `bump-after-update`). `composer audit` is now clean. Exposure before the upgrade, assessed against PAL's code and config:
+
+| Advisory | Package | Was PAL exposed? |
+|---|---|---|
+| `private_ranges` trusts IPv4-mapped / 6to4 / Teredo / NAT64 clients as proxies (GHSA-xg2q-4rrq-657q) | framework-bundle, http-foundation | **Yes, where `private_ranges` is used** (image default, Render) and the container is reachable over IPv6: a client could spoof the IP used for rate limits, logs and audit `client_ip`. Not reachable with an exact `TRUSTED_PROXIES` IP. No host or scheme impact (`X-Forwarded-Host` is not trusted; `TRUSTED_HOSTS` is set) |
+| Generated URLs can point to a client-chosen host (GHSA-5mx8-mwrp-5693) | http-foundation | Mitigated: `TRUSTED_HOSTS` is required by the `web` role and `X-Forwarded-Host` is not trusted; OIDC redirect URI comes from `PAL_BASE_URL` |
+| HEAD bypasses `methods` in access_control (CVE-2026-118514) | http-foundation | Negligible: the only `methods` rule makes `GET /api/branding` public (public data). Every other rule is method-independent |
+| Path rules in front of PHP bypassed via script name + path (GHSA-3h27-hjv7-fqjx) | http-foundation | No: nginx does no path-based access control before PHP and pins `SCRIPT_NAME` to `/index.php`; `/index.php/...` falls to the SPA location, not PHP |
+| Inline fragments trust forwarded headers (CVE-2026-123339) | http-kernel | No: fragments/ESI/SSI are not enabled |
+| Host placeholders match the start of the path (CVE-2026-118516) | routing | No: no route uses a `host` requirement |
+| ScopingHttpClient credential leak (CVE-2026-121971) | http-client | No: no scoped clients; OIDC and Graph clients use the default client with `max_redirects: 0` |
+| NoPrivateNetworkHttpClient DNS-rebinding (CVE-2026-123119) | http-client | No: not used (outbound targets are fixed Entra/Graph endpoints) |
+| X509 authenticator DN parsing (CVE-2026-118513) | security-http | No: no X.509 authenticator |
+| Programmatic logins skip `checkPostAuth()` (CVE-2026-123746) | security-http | No: no `Security::login()` calls and no custom user checker |
+| Ip constraint public/private accepts mapped IPv6 (CVE-2026-123125) | validator | No: the `Ip` constraint is not used |
+| XmlUtils XXE (CVE-2026-123824) | config | No: configuration is YAML/PHP only; no XML is parsed from users |
+| Path treats `scheme://` prefixes as roots | filesystem | No: `Path` is not used by PAL code |
+| YAML parser exponential time (CVE-2026-123792) | yaml | No: YAML is parsed only from trusted repo config, never from requests |
+
+Verified locally (PHP 8.5.10, PostgreSQL `pal_test`): PHPUnit 269 tests OK, PHPStan (src at max, tests at level 6) clean, Deptrac 0 violations, `lint:container` dev and prod OK. Three test-only PHPStan findings that the failing audit had been hiding in CI were fixed in the same change.
+
+| Open item | Impact | Suggested action |
+|---|---|---|
+| Frontend ESLint fails in CI (`@typescript-eslint/no-unnecessary-type-assertion`, reported since the native editor change) | PAL CI stays red on the frontend job | Fix the assertion and re-run CI |
+| No automated dependency updates | Advisories are noticed only when CI fails | Add Renovate/Dependabot (already listed under L5 / SECURITY.md §1) |
 
 ## Product and UX gaps
 | Item | Impact | Action |
