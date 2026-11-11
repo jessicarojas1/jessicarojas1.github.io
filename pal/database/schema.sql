@@ -11,7 +11,7 @@
 --
 -- Idempotent: safe to run repeatedly against a fresh or existing database.
 -- Requires PostgreSQL 16+ (17 in production). Covers migrations up to
--- Version20261111000001.
+-- Version20261111000002.
 -- =============================================================================
 
 
@@ -607,6 +607,8 @@ END
 $$;
 
 CREATE OR REPLACE TRIGGER trg_template_version_immutable BEFORE UPDATE OR DELETE ON document_template_version FOR EACH ROW EXECUTE FUNCTION pal_template_version_immutable();
+-- Version20261111000002: TRUNCATE is refused too (roles.sql also revokes UPDATE/DELETE/TRUNCATE).
+CREATE OR REPLACE TRIGGER trg_template_version_no_truncate BEFORE TRUNCATE ON document_template_version FOR EACH STATEMENT EXECUTE FUNCTION pal_template_version_immutable();
 
 ALTER TABLE revision ADD COLUMN IF NOT EXISTS template_id uuid NULL;
 ALTER TABLE revision ADD COLUMN IF NOT EXISTS template_version integer NULL;

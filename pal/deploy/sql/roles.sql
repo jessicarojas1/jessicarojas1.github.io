@@ -57,6 +57,10 @@ SELECT format('ALTER DEFAULT PRIVILEGES FOR ROLE %I IN SCHEMA public GRANT USAGE
 -- The audit trail is append-only for the application.
 SELECT format('REVOKE UPDATE, DELETE, TRUNCATE ON public.audit_event FROM %I', :'app_role')
 WHERE EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'audit_event') \gexec
+-- Template version history is write-once evidence too (decision #27); its triggers are the
+-- second layer.
+SELECT format('REVOKE UPDATE, DELETE, TRUNCATE ON public.document_template_version FROM %I', :'app_role')
+WHERE EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'document_template_version') \gexec
 
 -- Migration bookkeeping is the owner's business only.
 SELECT format('REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.doctrine_migration_versions FROM %I', :'app_role')

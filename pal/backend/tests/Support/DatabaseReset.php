@@ -15,6 +15,7 @@ trait DatabaseReset
     protected static function resetTables(Connection $connection): void
     {
         $connection->executeStatement('ALTER TABLE audit_event DISABLE TRIGGER trg_audit_event_no_truncate');
+        $connection->executeStatement('ALTER TABLE document_template_version DISABLE TRIGGER trg_template_version_no_truncate');
         try {
             $connection->executeStatement('ALTER TABLE revision DISABLE TRIGGER trg_revision_immutable');
             $connection->executeStatement('ALTER TABLE revision_file DISABLE TRIGGER trg_revision_file_draft_only');
@@ -22,6 +23,7 @@ trait DatabaseReset
             $connection->executeStatement("DELETE FROM org_setting WHERE key <> 'default_timezone'");
         } finally {
             $connection->executeStatement('ALTER TABLE audit_event ENABLE TRIGGER trg_audit_event_no_truncate');
+            $connection->executeStatement('ALTER TABLE document_template_version ENABLE TRIGGER trg_template_version_no_truncate');
             $connection->executeStatement('ALTER TABLE revision ENABLE TRIGGER trg_revision_immutable');
             $connection->executeStatement('ALTER TABLE revision_file ENABLE TRIGGER trg_revision_file_draft_only');
         }

@@ -2,8 +2,9 @@
 import { computed, onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { api, ApiError } from '@/api/client'
-import { loadReference, type ReferenceItem, type TemplateDetail, type TemplateSummary } from '@/api/documents'
+import { loadReference, type ReferenceItem, type TemplateDetail, type TemplateSummary, type TemplateVersionDetail, type TemplateVersionSummary } from '@/api/documents'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import RichTextView from '@/components/RichTextView.vue'
 import { useLeaveGuard } from '@/composables/useLeaveGuard'
 import { formatDateTime } from '@/format'
 import { isEmptyDocument, type RichTextNode } from '@/richText'
@@ -27,6 +28,14 @@ const formDescription = ref('')
 const formBody = ref<RichTextNode | null>(null)
 const formInitial = ref<RichTextNode | null>(null)
 const formRowVersion = ref(0)
+const formVersion = ref(0)
+// Version history of the open template (decision #27).
+const history = ref<TemplateVersionSummary[]>([])
+const historyError = ref<string | null>(null)
+const viewing = ref<TemplateVersionDetail | null>(null)
+const viewingOpen = ref(false)
+const historyLoading = ref(false)
+const viewingVersion = ref<number | null>(null)
 const formActive = ref(true)
 const baseline = ref('')
 const fieldErrors = ref<Record<string, string>>({})
@@ -99,7 +108,68 @@ function confirmDiscard(then: () => void): void {
   }).onOk(then)
 }
 
-function fill(id: string, typeId: string | null, name: string, description: string, body: RichTextNode | null, rowVersion: number, active: boolean): void {
+async function loadHistory(): Promise<void> {
+  const id = editingId.value
+  history.value = []
+  historyError.value = null
+  if (id === null || id === 'new') return
+  historyLoading.value = true
+  try {
+    const data = await api<{ versions: TemplateVersionSummary[] }>(`/api/admin/templates/${encodeURIComponent(id)}/versions`)
+    if (editingId.value === id) history.value = data.versions
+  } catch (e) {
+    if (editingId.value === id) historyError.value = e instanceof ApiError ? e.message : 'The version history could not be loaded.'
+  } finally {
+    if (editingId.value === id) historyLoading.value = false
+  }
+}
+
+async function viewVersion(v: TemplateVersionSummary): Promise<void> {
+  const id = editingId.value
+  if (id === null || id === 'new' || viewingVersion.value !== null) return
+  viewingVersion.value = v.version
+  try {
+    const detail = await api<TemplateVersionDetail>(`/api/admin/templates/${encodeURIComponent(id)}/versions/${v.version}`)
+    // Another template may have been opened while this loaded: never restore across templates.
+    if (editingId.value !== id) return
+    viewing.value = detail
+    viewingOpen.value = true
+  } catch (e) {
+    $q.notify({ type: 'negative', message: e instanceof ApiError ? e.message : `Version ${v.version} could not be opened. Try again.` })
+  } finally {
+    viewingVersion.value = null
+  }
+}
+
+/** Copies an earlier version into the form; saving it makes it the newest version. */
+function restoreVersion(): void {
+  const v = viewing.value
+  if (v === null) return
+  viewingOpen.value = false
+  if (!dirty.value) {
+    applyVersion(v)
+    return
+  }
+  $q.dialog({
+    title: 'Replace your unsaved changes?',
+    message: `The template has changes you have not saved. Restoring version ${v.version} replaces them.`,
+    cancel: { flat: true, noCaps: true, label: 'Keep my changes' },
+    ok: { color: 'negative', unelevated: true, noCaps: true, label: `Restore version ${v.version}` },
+    focus: 'cancel',
+    persistent: true,
+  }).onOk(() => applyVersion(v))
+}
+
+function applyVersion(v: TemplateVersionDetail): void {
+  formName.value = v.name
+  formDescription.value = v.description ?? ''
+  formInitial.value = v.body
+  formBody.value = v.body
+  editorKey.value++
+  $q.notify({ type: 'info', message: `Version ${v.version} copied into the editor. Save the template to make it the current version.` })
+}
+
+function fill(id: string, typeId: string | null, name: string, description: string, body: RichTextNode | null, rowVersion: number, active: boolean, version = 0): void {
   editingId.value = id
   formTypeId.value = typeId
   formName.value = name
@@ -107,7 +177,10 @@ function fill(id: string, typeId: string | null, name: string, description: stri
   formInitial.value = body
   formBody.value = body
   formRowVersion.value = rowVersion
+  formVersion.value = version
   formActive.value = active
+  history.value = []
+  historyError.value = null
   fieldErrors.value = {}
   formError.value = null
   editorKey.value++
@@ -133,7 +206,8 @@ async function openNow(t: TemplateSummary): Promise<void> {
   formError.value = null
   try {
     const detail = await api<TemplateDetail>(`/api/admin/templates/${encodeURIComponent(t.id)}`)
-    fill(detail.id, detail.documentType.id, detail.name, detail.description ?? '', detail.body, detail.rowVersion, detail.isActive)
+    fill(detail.id, detail.documentType.id, detail.name, detail.description ?? '', detail.body, detail.rowVersion, detail.isActive, detail.version)
+    await loadHistory()
   } catch (e) {
     formError.value = e instanceof ApiError ? e.message : 'The template could not be opened.'
   } finally {
@@ -156,24 +230,28 @@ async function save(): Promise<void> {
   const target = editingId.value
   try {
     if (editingId.value === 'new') {
-      const created = await api<{ id: string; rowVersion: number }>('/api/admin/templates', {
+      const created = await api<{ id: string; rowVersion: number; version: number }>('/api/admin/templates', {
         method: 'POST',
         body: { documentTypeId: formTypeId.value, name: formName.value, description: formDescription.value, body },
       })
       if (editingId.value === target) {
         editingId.value = created.id
         formRowVersion.value = created.rowVersion
+        formVersion.value = created.version
       }
     } else {
-      const updated = await api<{ rowVersion: number }>(`/api/admin/templates/${encodeURIComponent(editingId.value)}`, {
+      const updated = await api<{ rowVersion: number; version: number }>(`/api/admin/templates/${encodeURIComponent(editingId.value)}`, {
         method: 'PATCH',
         body: { name: formName.value, description: formDescription.value, body, rowVersion: formRowVersion.value },
       })
-      if (editingId.value === target) formRowVersion.value = updated.rowVersion
+      if (editingId.value === target) {
+        formRowVersion.value = updated.rowVersion
+        formVersion.value = updated.version
+      }
     }
     if (editingId.value === target || target === 'new') baseline.value = snapshot()
-    $q.notify({ type: 'positive', message: 'Template saved. Documents already started from it are not changed.' })
-    await load()
+    $q.notify({ type: 'positive', message: `Template saved as version ${formVersion.value}. Documents already started from it are not changed.` })
+    await Promise.all([load(), loadHistory()])
   } catch (e) {
     if (e instanceof ApiError) {
       fieldErrors.value = e.fields
@@ -329,7 +407,7 @@ onMounted(load)
                 @click="open(t)"
               >
                 <span class="text-weight-medium">{{ t.name }}</span>
-                <span class="pal-muted"> · {{ t.documentType.name }}<span v-if="!t.isActive"> · inactive</span></span>
+                <span class="pal-muted"> · {{ t.documentType.name }} · v{{ t.version }}<span v-if="!t.isActive"> · inactive</span></span>
                 <span class="block pal-muted text-caption">Updated {{ formatDateTime(t.updatedAt, session.effectiveTimezone) }} by {{ t.updatedBy }}</span>
               </button>
             </li>
@@ -367,6 +445,12 @@ onMounted(load)
                 class="text-h6 q-my-none"
               >
                 {{ editingId === 'new' ? 'New template' : formName || 'Template' }}
+                <q-chip
+                  v-if="editingId !== 'new' && formVersion > 0"
+                  dense
+                >
+                  Version {{ formVersion }}
+                </q-chip>
                 <q-chip
                   v-if="editingId !== 'new' && !formActive"
                   dense
@@ -437,9 +521,9 @@ onMounted(load)
               :error-message="fieldErrors.description"
             />
             <div>
-              <p class="text-weight-medium q-mb-xs">
+              <h3 class="text-body1 text-weight-medium q-mt-none q-mb-xs">
                 Content
-              </p>
+              </h3>
               <RichTextEditor
                 :key="editorKey"
                 :initial="formInitial"
@@ -487,8 +571,170 @@ onMounted(load)
               </div>
             </div>
           </form>
+
+          <section
+            v-if="editingId !== null && editingId !== 'new'"
+            class="q-mt-lg"
+            aria-labelledby="template-history-heading"
+          >
+            <h3
+              id="template-history-heading"
+              class="text-subtitle1 text-weight-medium q-mb-xs"
+            >
+              Version history
+            </h3>
+            <p class="pal-muted q-mb-sm">
+              Every saved change to the name, description or content is kept as a version and can never be changed. Documents record the version they started from.
+            </p>
+            <q-banner
+              v-if="historyError"
+              class="bg-negative text-white q-mb-sm"
+              rounded
+              role="alert"
+            >
+              {{ historyError }}
+              <template #action>
+                <q-btn
+                  flat
+                  no-caps
+                  label="Try again"
+                  @click="loadHistory"
+                />
+              </template>
+            </q-banner>
+            <div
+              v-if="historyLoading"
+              class="q-pa-sm"
+              role="status"
+            >
+              <q-spinner size="20px" /> Loading versions…
+            </div>
+            <q-markup-table
+              v-else-if="history.length > 0"
+              flat
+              bordered
+              wrap-cells
+              class="pal-card q-pa-none"
+            >
+              <thead>
+                <tr>
+                  <th
+                    class="text-left"
+                    scope="col"
+                  >
+                    Version
+                  </th>
+                  <th
+                    class="text-left"
+                    scope="col"
+                  >
+                    Saved
+                  </th>
+                  <th
+                    class="text-left"
+                    scope="col"
+                  >
+                    Name
+                  </th>
+                  <th
+                    class="text-right"
+                    scope="col"
+                  >
+                    <span class="pal-visually-hidden">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="v in history"
+                  :key="v.version"
+                >
+                  <td>
+                    v{{ v.version }}<span
+                      v-if="v.version === formVersion"
+                      class="pal-muted"
+                    > (current)</span>
+                  </td>
+                  <td>{{ formatDateTime(v.createdAt, session.effectiveTimezone) }} by {{ v.createdBy }}</td>
+                  <td>{{ v.name }}</td>
+                  <td class="text-right">
+                    <q-btn
+                      flat
+                      dense
+                      no-caps
+                      label="View"
+                      :aria-label="`View version ${v.version}`"
+                      :loading="viewingVersion === v.version"
+                      @click="viewVersion(v)"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </q-markup-table>
+            <p
+              v-else-if="!historyError"
+              class="empty-state-sm"
+            >
+              No saved versions yet.
+            </p>
+          </section>
         </div>
       </section>
     </div>
+
+    <q-dialog
+      v-model="viewingOpen"
+      aria-labelledby="template-version-title"
+    >
+      <q-card
+        v-if="viewing"
+        class="pal-version-dialog"
+      >
+        <q-card-section class="row items-center justify-between q-pb-none">
+          <h2
+            id="template-version-title"
+            class="text-h6 q-my-none"
+          >
+            {{ viewing.name }} · version {{ viewing.version }}
+          </h2>
+          <q-btn
+            v-close-popup
+            flat
+            round
+            dense
+            icon="close"
+            aria-label="Close"
+          />
+        </q-card-section>
+        <q-card-section>
+          <p class="pal-muted q-mb-sm">
+            Saved {{ formatDateTime(viewing.createdAt, session.effectiveTimezone) }} by {{ viewing.createdBy }}<span v-if="viewing.description">. {{ viewing.description }}</span>
+          </p>
+          <h3 class="pal-visually-hidden">
+            Content
+          </h3>
+          <RichTextView
+            :doc="viewing.body"
+            :label="`Content of version ${viewing.version}`"
+          />
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn
+            v-close-popup
+            flat
+            no-caps
+            label="Close"
+          />
+          <q-btn
+            v-if="canEdit && viewing.version !== formVersion"
+            color="primary"
+            unelevated
+            no-caps
+            label="Restore into the editor"
+            @click="restoreVersion"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>

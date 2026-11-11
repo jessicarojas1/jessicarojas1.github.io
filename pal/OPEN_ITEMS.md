@@ -131,7 +131,7 @@ Verified locally (PHP 8.5.10, PostgreSQL `pal_test`): PHPUnit 269 tests OK, PHPS
 |---|---|---|
 | Editor v1 scope: no images, callouts, cross-references or section numbering; no PDF rendition; no comparison between revisions (owner scoped v1 to text + templates, decision #26) | Authors needing images still attach a file | Remaining ADR-0009 Phase 3 items |
 | Soft checkout | ✅ **Done (2026-11-10):** while someone types in a draft, PAL records them as its editor (heartbeat at most once a minute, lapses after 150 s, released on leaving the page); other editors see "X has been editing this draft since …". Advisory by design: saves are still protected by the row version, so concurrent edits are never silently overwritten | — |
-| Templates are not versioned documents | The audit trail keeps only hashes of earlier template bodies, so an old template's wording cannot be shown | Decide (below) whether templates must be controlled documents themselves |
+| Template version history | ✅ **Done (2026-11-11, decision #27):** every content change is an immutable numbered version (DB trigger refuses edits and deletes); administrators list, view and restore versions (restoring saves a new version); each document records and shows the template version it started from | — |
 | Editor UI audit leftovers | ✅ **Fixed (2026-11-10):** editor headings render as `<h3>`–`<h6>` (with `data-level` so copy/paste keeps levels); roving-tabindex toolbars; autosave refuses to guess a row version after a failed reload and says so; the sticky toolbar no longer slides under the app header | — |
 | Soft checkout limits (accepted for v1) | Only typing claims a draft (opening or reading it does not); the "someone else is editing" banner refreshes on reload or on your next keystroke, so it can briefly outlive the other person's session; the same person in two tabs is not warned | Revisit if users report confusion |
 | Editor bundle is ~140 KB gzipped | Slower first open of a draft on slow links | Loaded only when editing; acceptable for v1 |
@@ -171,7 +171,6 @@ Verified locally (PHP 8.5.10, PostgreSQL `pal_test`): PHPUnit 269 tests OK, PHPS
 | D16 | Graph read-only consent | Entra admin grants it (certificate credential) |
 | D17 | Sentinel collector and uptime monitor | SOC confirms |
 | D19 | Confluence inventory | Needed before Phase 6b |
-| ✅ #27 | Templates keep full version history (backend + API done 2026-11-11) | **Outstanding:** template-page history panel (list, view, restore) and "started from template X vN" on the document page; update ARCHITECTURE/SECURITY/DR docs for `document_template_version` |
-| — | (Superseded by #27) Must templates be controlled (versioned, approved) like documents? | v1: administrator-maintained and audited by hash. If ISO/CMMI auditors require template history, keep each template's prior bodies or manage templates as `TPL` documents |
+| ✅ #27 | Templates keep full version history | Done 2026-11-11 (backend, API, history panel, document-page origin line). Templates are still administrator-controlled rather than approved like documents; revisit only if auditors require template approval |
 | D20 | Second control on document-role mappings | Separate permission (`admin.roles.document`) held by a different group |
 | — | Record the "no CUI" constraint formally | Add to requirements and the decision log |

@@ -40,6 +40,8 @@ export interface RevisionView {
   body: RichTextNode | null
   /** Who is editing this draft right now (soft checkout), or null. */
   editing: Editing | null
+  /** The template version this revision was started from, if any. */
+  template: { id: string; name: string; version: number } | null
   file: FileInfo | null
   workflow: WorkflowInfo | null
   actions: string[]
@@ -164,6 +166,26 @@ export interface TemplateSummary extends TemplateOption {
   updatedAt: string
   updatedBy: string
   rowVersion: number
+  /** Current content version; every content change adds one (decision #27). */
+  version: number
+}
+
+export interface TemplateVersionSummary {
+  version: number
+  name: string
+  description: string | null
+  createdBy: string
+  createdAt: string
+  bodySha256: string
+}
+
+export interface TemplateVersionDetail {
+  version: number
+  name: string
+  description: string | null
+  body: RichTextNode
+  createdBy: string
+  createdAt: string
 }
 
 export interface TemplateDetail extends TemplateSummary {

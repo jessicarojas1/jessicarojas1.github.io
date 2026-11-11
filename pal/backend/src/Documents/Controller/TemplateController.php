@@ -95,8 +95,8 @@ final class TemplateController
 
                 return $id;
             });
-        } catch (UniqueConstraintViolationException) {
-            throw ApiProblem::validation(['name' => 'This document type already has a template with that name.']);
+        } catch (UniqueConstraintViolationException $e) {
+            throw self::uniqueViolation($e);
         }
 
         return new JsonResponse(['id' => $id, 'rowVersion' => 1, 'version' => 1], 201);
@@ -164,8 +164,8 @@ final class TemplateController
 
                 return [$rowVersion + 1, $version];
             });
-        } catch (UniqueConstraintViolationException) {
-            throw ApiProblem::validation(['name' => 'This document type already has a template with that name.']);
+        } catch (UniqueConstraintViolationException $e) {
+            throw self::uniqueViolation($e);
         }
 
         return new JsonResponse(['ok' => true, 'rowVersion' => $next[0], 'version' => $next[1]]);
@@ -199,6 +199,17 @@ final class TemplateController
             'createdBy' => Row::string($row, 'display_name'),
             'createdAt' => Row::string($row, 'created_at'),
         ]);
+    }
+
+    /**
+     * A duplicate name is the author's to fix; anything else (e.g. a version-number clash)
+     * is a conflict to retry, not a naming problem.
+     */
+    private static function uniqueViolation(UniqueConstraintViolationException $e): ApiProblem
+    {
+        return str_contains($e->getMessage(), 'uq_document_template_name')
+            ? ApiProblem::validation(['name' => 'This document type already has a template with that name.'])
+            : new ApiProblem(409, 'edit_conflict', 'Someone else changed this template at the same time. Reload and try again.');
     }
 
     /**

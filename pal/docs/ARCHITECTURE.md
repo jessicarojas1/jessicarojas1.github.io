@@ -151,8 +151,9 @@ Allowed dependencies (`deptrac.yaml`): Platform → Audit, Identity (only so the
 | PUT | `/api/revisions/{id}/body` | Owner or author + CSRF, `DRAFT` only, else 404/409 | Saves editor content `{body, rowVersion}` (request ≤ 2 MiB, canonical body ≤ 1 MiB, JSON depth ≤ 128; access and state are checked before the body is parsed). Validated by `RichTextDocument` (422 with `fields.body`); `null` or an empty document clears it; identical content is a no-op; 409 `edit_conflict` on a stale `rowVersion` |
 | POST / DELETE | `/api/revisions/{id}/editing` | POST: owner or author + CSRF, `DRAFT` only (404/409 otherwise); DELETE: CSRF, removes only the caller's own claim | Soft checkout heartbeat: returns `{holder, mine}`; a fresh claim by someone else is reported, not taken over. Claims lapse after 150 s (`DocumentRepository::EDITING_WINDOW_SECONDS`); new claims audited `REVISION_EDITING_STARTED` |
 | GET | `/api/document-types/{id}/templates` | `document.create` | Active templates of an active type (id, name, description) for the create form |
-| GET | `/api/admin/templates`, `/api/admin/templates/{id}` | `admin.templates` | All templates (without bodies) / one template with its body |
-| POST / PATCH | `/api/admin/templates[/{id}]` | `admin.templates` + CSRF | Create (`documentTypeId`, `name`, `description`, `body`) / update (`name`, `description`, `body`, `isActive`, `rowVersion`; type is fixed). 422 on duplicate name per type or empty body; 409 `edit_conflict` |
+| GET | `/api/admin/templates`, `/api/admin/templates/{id}` | `admin.templates` | All templates (without bodies) / one template with its body; both include the current `version` |
+| GET | `/api/admin/templates/{id}/versions`, `/api/admin/templates/{id}/versions/{n}` | `admin.templates` | Version history newest first (name, author, time, body SHA-256) / one version with its body (decision #27) |
+| POST / PATCH | `/api/admin/templates[/{id}]` | `admin.templates` + CSRF | Create (`documentTypeId`, `name`, `description`, `body`) / update (`name`, `description`, `body`, `isActive`, `rowVersion`; type is fixed). A change to name, description or body writes a new immutable version and returns it as `version`; activation alone does not. 422 on duplicate name per type or empty body; 409 `edit_conflict` |
 | PATCH / PUT | `/api/revisions/{id}`, `/api/revisions/{id}/file` | Owner or author + CSRF, `DRAFT` only | Edits draft metadata (optimistic `row_version`, 409 `edit_conflict`); attaches a clean upload by its uploader |
 | POST | `/api/revisions/{id}/submit`, `/reopen`, `/withdraw` | Owner or author + CSRF | Submit to one eligible approver (freezes the manifest hash); reopen a returned revision; withdraw with a reason |
 | POST | `/api/tasks/{id}/decision` | Assignee + CSRF, else 404 | `APPROVE`, `REJECT` or `REQUEST_CHANGES`; re-checks SoD, eligibility and the manifest hash |
@@ -334,6 +335,7 @@ The selected production target is **on-premises Linux with Docker Compose** (`de
 | S3 blob backend, full-text of file content | *Planned — Phase 6* |
 | Native editor v1 (headings, emphasis, lists, quotes, links, tables, autosave) and administrator-maintained per-type templates ([ADR-0009 status](adr/ADR-0009-authoring-native-editor-and-files.md#implementation-status-native-editor-v1-2026-11-10-decision-26)) | Implemented (decision #26) |
 | Soft checkout ("who is editing", advisory) | Implemented (2026-11-10) |
+| Template version history (immutable versions, view/restore, revision records its template version) | Implemented (decision #27) |
 | Editor images, callouts, cross-references, PDF rendition, configurable numbering, minor versions, comparison, rollback, category grants | *Planned — Phase 3* |
 | Multi-stage workflow engine, delegation, escalation, re-authentication for approvals | *Planned — Phase 4* |
 | Scheduled publication, separate effective dates, emergency publish, obsolete/archive, legal hold | *Planned — Phase 5* |

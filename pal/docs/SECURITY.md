@@ -273,7 +273,7 @@ Content typed in PAL's editor arrives from the browser as ProseMirror JSON and i
 | Integrity | The body freezes with the revision (`trg_revision_immutable`) and is in the manifest hash; release recomputes `SHA-256(body_json)` from the stored bytes |
 | Authorization | Body edits: owner or author of a `DRAFT` (404 otherwise). Templates: `admin.templates` (PAL Administrator, Owner); listing a type's templates: `document.create`. A template can only seed a document of its own type and only while active |
 | Soft checkout | `revision_editing` (who is typing in a draft) is advisory only: authorization and `row_version` still govern every save. Only an owner/author of a `DRAFT` can claim; a claim is never taken from someone holding a fresh one; `DELETE` removes only the caller's own claim. The editor's name is shown only inside `openRevision`, which already requires work-in-progress access. New claims are audited `REVISION_EDITING_STARTED` at most once per user and draft per 15 minutes (so a claim/release loop cannot flood the append-only trail), which is not a contribution event, so it does not bar approval |
-| Audit | Body edits are `REVISION_EDITED` with from/to SHA-256 (not the text, so earlier draft wording is not recoverable from the trail; the approved and every released body is kept on its revision), which also bars the editor from approving the revision. Templates: `TEMPLATE_CREATED` / `TEMPLATE_UPDATED` with field diffs and body hashes |
+| Audit | Body edits are `REVISION_EDITED` with from/to SHA-256 (not the text, so earlier draft wording is not recoverable from the trail; the approved and every released body is kept on its revision), which also bars the editor from approving the revision. Templates: `TEMPLATE_CREATED` / `TEMPLATE_UPDATED` with field diffs, body hashes and version numbers. Every content version is also kept in full in `document_template_version`, which a trigger makes write-once (UPDATE and DELETE refused), and each revision records the template version it started from (decision #27). Only the first revision of a document carries the link (later revisions start from the previous revision); revisions created before the migration have none, and templates that existed then were backfilled as version 1 with their content at migration time. Template names and versions are shown to anyone who can read the draft |
 
 Tests: `RichTextDocumentTest` (XSS and malformed-content corpus), `NativeEditorTest`, `frontend/src/richText.spec.ts`.
 
@@ -383,7 +383,6 @@ PAL's controls assume the operator:
 | Real ClamAV not exercised in tests | Integration proven only against a protocol stand-in | Run the Compose stack and an EICAR upload |
 | Blobs not re-scanned; app user can delete at filesystem level | A file clean at upload may later match a new signature; immutability is partly an operator control | Periodic re-scan; storage-level delete denial |
 | ASVS L2 checklist not started | No evidence-backed compliance claim | Start the checklist (planned from Phase 1) |
-| Template history kept as hashes only | Earlier template wording cannot be produced for an auditor | Owner decision: version templates or manage them as `TPL` documents |
 | SBOM and automated dependency update PRs absent | Slower response to new CVEs | Add CycloneDX and Renovate/Dependabot |
 
 ## 12. Reporting a vulnerability

@@ -681,6 +681,12 @@ watch(id, () => {
         >
           {{ sectionError.draft }}
         </q-banner>
+        <p
+          v-if="open.template"
+          class="pal-muted q-mt-sm q-mb-none"
+        >
+          Started from template “{{ open.template.name }}”, version {{ open.template.version }}.
+        </p>
         <div
           v-if="open.workflow && open.workflow.decision"
           class="q-mt-md"

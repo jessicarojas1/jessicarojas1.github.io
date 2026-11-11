@@ -407,9 +407,9 @@ final class NativeEditorTest extends WebTestCase
         self::assertSame(['id' => $templateId, 'name' => 'Standard SOP', 'version' => 3], $this->json()['openRevision']['template']);
 
         // History is evidence: the database refuses to change or remove a version.
-        foreach (["UPDATE document_template_version SET name = 'x' WHERE template_id = ?", 'DELETE FROM document_template_version WHERE template_id = ?'] as $sql) {
+        foreach (["UPDATE document_template_version SET name = 'x' WHERE template_id = ?", 'DELETE FROM document_template_version WHERE template_id = ?', 'TRUNCATE document_template_version CASCADE'] as $sql) {
             try {
-                $this->db->executeStatement($sql, [$templateId]);
+                $this->db->executeStatement($sql, str_contains($sql, '?') ? [$templateId] : []);
                 self::fail('Template versions must be immutable.');
             } catch (\Doctrine\DBAL\Exception $e) {
                 self::assertStringContainsString('immutable', $e->getMessage());

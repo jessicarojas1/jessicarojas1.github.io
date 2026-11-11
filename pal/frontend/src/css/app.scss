@@ -683,3 +683,12 @@ body {
   opacity: 0.45;
   cursor: default;
 }
+
+.pal-version-dialog {
+  width: 100%;
+  max-width: 820px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--pal-surface);
+  color: var(--pal-text);
+}
