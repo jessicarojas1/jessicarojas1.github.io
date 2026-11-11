@@ -1,11 +1,12 @@
 {
   "updated": "2026-11-10",
   "summary": {
-    "correct": 42,
-    "incorrect": 36,
+    "correct": 47,
+    "incorrect": 37,
     "partial": 12,
-    "pending": 85,
-    "note": "2026-11-10: fc-2026-11-09-rareearth-extension-primary-confirm graded CORRECT after four-plus independent mainstream outlets (ThePrint, The National, The Star Malaysia, The News International) corroborated the 9 Nov MOFCOM statement extending the rare-earth suspension to 10 Jan 2027 (primary MOFCOM/GACC text still not independently reached). fc-2026-11-05-iran-emboldened-escalation graded CORRECT on continued Hormuz/Gulf of Oman attack tempo (8+ incidents since 1 Nov) and the now-confirmed Velos Sapphire fatality. Lead findings this cycle: (1) CENTCOM stood up Task Force Iron Gate (7 Nov) to interdict Iran's land/Caspian smuggling routes and struck the cargo ship M/V Huda (7 Nov), widening the pressure campaign even as VP Vance publicly said the Iran war was 'the reason we lost' the midterms and Trump is reported to be weighing a post-midterm return to full-scale strikes. (2) Russia struck Ukraine's energy grid again 7-8 Nov (~850,000 without power) four days before the fourth US-Russia-Ukraine trilateral round opened in Abu Dhabi today, 10 Nov; no outcome yet reported. (3) The Ivanti Connect Secure chain and FortiMail remain unresolved with no named DIB victim; FortiMail's unpatched 7.2 branch reportedly reaches vendor end-of-support today. (4) Anthropic's IPO remains priced at zero: the 2 Nov S-1/A added Q3 financials but still no price range. Five new forecasts added: an Iron Gate interdiction result, the gallium/germanium/antimony/superhard-materials 27 Nov suspension outcome, a Trump post-midterm Iran-strike decision, a FortiMail PSIRT advisory, and an Anthropic pre-Thanksgiving debut test."
+    "pending": 84,
+    "note": "2026-11-11: fc-2026-11-09-abudhabi-talks-outcome graded CORRECT after the fourth US-Russia-Ukraine trilateral round (Abu Dhabi, 10-11 Nov) produced a reported prisoner-exchange agreement, its first confirmed deliverable since February 2026; fc-2026-10-23-ukraine-trilateral-talks and fc-2026-10-26-trilateral-date-confirmed also graded CORRECT on the round's convening and prior date/venue confirmation. fc-2026-11-05-anthropic-s1-amendment and fc-2026-11-06-anthropic-pricerange graded CORRECT after Anthropic filed a $70-78/share IPO price range (10 Nov), implying up to a ~$1.4T valuation with a Nasdaq debut (ANT) expected 19 Nov. fc-2026-10-12-houthi-counteroffensive graded INCORRECT on its window's lapse with no independent confirmation of a Mocha territorial gain. Lead findings this cycle: (1) Trump said 10 Nov the Iran war could end 'fairly soon' and new strikes 'won't be necessary,' a sharp de-escalatory shift from the 'locked and loaded' framing tracked days earlier, while Rubio said no strike decision has been made and Task Force Iron Gate/the naval blockade/continued Hormuz attacks (Navig8 Messi) remain unchanged. (2) China's rare-earth-suspension extension gained scope detail (processing equipment, heavy rare earths, battery/superhard materials) and a reported matching US Commerce extension, but a specific trade-press report (Rare Earth Exchanges) disputes the extension's timing, newly flagged this cycle. (3) CISA KEV-listed four more products (9 Nov), including GPUStack -- the wave's first GPU/AI-orchestration-platform entry -- with Ivanti's second federal deadline (13 Nov) nearing and still no named DIB victim. Five new forecasts added: the Anthropic IPO debut outcome, a US-Iran negotiated-outcome test, an Abu Dhabi joint-statement test, rare-earth primary-source reconciliation, and a continued Ivanti no-victim test.",
+    "updated": "2026-11-11"
   },
   "forecasts": [
     {
@@ -814,9 +815,9 @@
       "date": "2026-10-12",
       "forecast": "The Saudi-backed Yemeni government counteroffensive ('battle of liberation') will achieve at least one independently confirmed territorial gain on the Red Sea coast near Mocha within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "New info this cycle: Yemen's government (via Saba, 5-8 Oct) claims it already recaptured Mocha/Dhubab and 'neutralised' 1,860 Houthi fighters, but the Houthis dispute the Mocha claim and say they captured At Turbah in Taiz the same week -- the front is contested and fragmented rather than resolved either way; no independent (non-government, non-Houthi) confirmation identified. Remains PENDING. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-11",
+      "note": "The 30-day window (from 12 Oct) closes today, 11 Nov, with no independent (non-Yemeni-government, non-Houthi) confirmation of a Mocha territorial gain identified across any tracked cycle's research. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-10-12-fortimail-named-victim",
@@ -1165,9 +1166,9 @@
       "date": "2026-10-23",
       "forecast": "A trilateral (US-Russia-Ukraine) negotiator-level meeting, following the reported Witkoff-Putin 'agreement in principle,' will be confirmed convened within 30 days (by ~22 Nov), despite continued Russian strikes on Kyiv the same week the agreement was announced.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this cycle's diplomatic opening converts into an actually-convened meeting, or stalls as prior 2026 overtures (the September energy-halt dispute, Iran's rejected roadmap) have. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-11",
+      "note": "The fourth trilateral round convened in Abu Dhabi 10-11 Nov, within the 30-day window from 23 Oct (closing ~22 Nov), despite continued Russian strikes on Kyiv in the intervening weeks."
     },
     {
       "id": "fc-2026-10-23-beyondtrust-persistence-evidence",
@@ -1228,9 +1229,9 @@
       "date": "2026-10-26",
       "forecast": "A confirmed date and venue for the Witkoff-floated US-Russia-Ukraine trilateral talks (previously cited as mid-November, possibly Abu Dhabi) will be announced within 21 days, given Russia's accompanying goodwill gesture (the release of US citizen Stephen Hubbard).",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "A narrower, nearer-term complement to the standing fc-2026-10-23-ukraine-trilateral-talks (30-day, convened-meeting) forecast -- tests specifically whether a date/venue (not yet a convened meeting) is confirmed within three weeks. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-11",
+      "note": "Witkoff confirmed the Abu Dhabi, 10-11 Nov date/venue by ~2 Nov, within the 21-day window from 26 Oct (closing ~16 Nov)."
     },
     {
       "id": "fc-2026-10-27-php-core-dib-victim",
@@ -1453,9 +1454,9 @@
       "date": "2026-11-05",
       "forecast": "Anthropic will file an amended S-1 (S-1/A) with a specific price range on SEC EDGAR within 10 days, consistent with reporting that its IPO roadshow cannot begin until that filing occurs.",
       "horizon": "0-10 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No price-range amendment identified as of 10 Nov; the 2 Nov S-1/A added only Q3 financials. Window remains open through ~15 Nov."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-11",
+      "note": "Anthropic filed an S-1/A on 10 Nov setting a $70-78/share price range for 825M Class A shares, within the 10-day window from 5 Nov."
     },
     {
       "id": "fc-2026-11-05-kev-apple-wordpress-named-victim",
@@ -1480,9 +1481,9 @@
       "date": "2026-11-06",
       "forecast": "Anthropic will file a price-range S-1/A amendment on SEC EDGAR within 10 days, enabling an investor roadshow consistent with reported timing toward a week-of-16-Nov Nasdaq debut.",
       "horizon": "0-10 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No price-range amendment identified as of 10 Nov. Window remains open through ~16 Nov."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-11",
+      "note": "Same 10 Nov filing resolves this narrower-window forecast as well, well within the 10-day window from 6 Nov."
     },
     {
       "id": "fc-2026-11-06-hormuz-centcom-response",
@@ -1507,9 +1508,9 @@
       "date": "2026-11-09",
       "forecast": "The 10-11 Nov Abu Dhabi US-Russia-Ukraine trilateral talks will produce at least one concrete, independently confirmed deliverable (a renewed energy-strike halt, a prisoner/captive exchange, or a confirmed further round date) within 5 days of their conclusion, rather than ending with no confirmed outcome.",
       "horizon": "2-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Talks opened on schedule 10 Nov with an upgraded Russian delegation; no outcome has yet been reported as the round was still underway at compilation. Window remains open (2-7 days from 9 Nov)."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-11",
+      "note": "A prisoner-exchange agreement is reported as an outcome of the talks via TASS and APA (citing Russian media); Zelensky ('constructive and quite substantive') and Rubio ('very productive') both characterized day one positively. Graded CORRECT on the reported prisoner exchange satisfying the 'at least one concrete deliverable' test, with the caveat that independent/Ukrainian-government confirmation of specific exchange terms and a formal joint statement were not yet available at compilation."
     },
     {
       "id": "fc-2026-11-09-sylvia-doj-outcome",
@@ -1582,6 +1583,51 @@
       "outcome": "PENDING",
       "resolvedDate": "",
       "note": "As of 10 Nov the S-1/A still carries no price range; this forecast tests the full chain (price range -> roadshow -> pricing -> debut) implied by press speculation of a pre-Thanksgiving listing."
+    },
+    {
+      "id": "fc-2026-11-11-anthropic-ipo-debut",
+      "date": "2026-11-11",
+      "forecast": "Anthropic will complete its Nasdaq IPO debut (ticker ANT) on or near 19 Nov 2026, with final pricing landing within the filed $70-78/share range, consistent with the reported already-covered order book.",
+      "horizon": "0-10 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the dated timeline (pricing ~18 Nov, trading ~19 Nov) announced 10 Nov actually holds, and whether final pricing lands within versus outside the filed range."
+    },
+    {
+      "id": "fc-2026-11-11-trump-iran-negotiated-outcome",
+      "date": "2026-11-11",
+      "forecast": "Given Trump's 10 Nov comments that the Iran war could end 'fairly soon' and Rubio's statement that no strike decision has been made, a confirmed negotiated US-Iran outcome (a Qatari-mediated deal or formal de-escalation statement) will be announced within 30 days, rather than a reversal to full-scale strikes.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this cycle's de-escalatory rhetoric converts into an actual negotiated outcome, as against the standing fc-2026-11-10-trump-postmidterm-strike-decision forecast testing the opposite (a major strike) within the same window."
+    },
+    {
+      "id": "fc-2026-11-11-abudhabi-joint-statement",
+      "date": "2026-11-11",
+      "forecast": "A formal joint statement or confirmed detailed outcome list (beyond the reported prisoner-exchange agreement) from the 10-11 Nov Abu Dhabi talks will be publicly released within 5 days.",
+      "horizon": "0-5 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this round produces a formal readout beyond the single reported deliverable, given the second day reportedly concluded in under two hours with a statement still pending at compilation."
+    },
+    {
+      "id": "fc-2026-11-11-rareearth-primary-text",
+      "date": "2026-11-11",
+      "forecast": "A primary MOFCOM/GACC published text (not secondary press) confirming the rare-earth suspension extension to 10 Jan 2027, and reconciling the conflicting Rare Earth Exchanges lapse-date report, will be independently reached within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the persistent primary-source verification gap on this thread closes, and specifically whether the new conflicting lapse-date report is resolved."
+    },
+    {
+      "id": "fc-2026-11-11-ivanti-nov13-no-victim",
+      "date": "2026-11-11",
+      "forecast": "No specifically named DIB/federal-contractor victim organization of the Ivanti Connect Secure chain will be publicly identified within 14 days of the 13 Nov federal remediation deadline, consistent with this wave's pattern of sector-level-only disclosure across every other tracked CVE family.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the Ivanti chain breaks this wave's now months-long pattern of producing no named DIB victim despite confirmed defense-sector targeting."
     }
   ]
 }
