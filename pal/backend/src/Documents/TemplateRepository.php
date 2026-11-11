@@ -25,7 +25,7 @@ final class TemplateRepository
     public function listAll(): array
     {
         return array_map(fn (array $r): array => $this->summary($r), $this->connection->fetchAllAssociative(<<<'SQL'
-            SELECT t.id, t.name, t.description, t.is_active, t.updated_at, t.row_version, t.document_type_id,
+            SELECT t.id, t.name, t.description, t.is_active, t.updated_at, t.row_version, t.version, t.document_type_id,
                    dt.code AS type_code, dt.name AS type_name, u.display_name AS updated_by_name
             FROM document_template t
             JOIN document_type dt ON dt.id = t.document_type_id
@@ -107,6 +107,62 @@ final class TemplateRepository
             'updatedAt' => Row::string($row, 'updated_at'),
             'updatedBy' => Row::string($row, 'updated_by_name'),
             'rowVersion' => Row::int($row, 'row_version'),
+            'version' => Row::int($row, 'version'),
         ];
+    }
+
+    /**
+     * Every saved version of a template, newest first (bodies omitted).
+     *
+     * @return list<array{version: int, name: string, description: string|null, createdBy: string, createdAt: string, bodySha256: string}>
+     */
+    public function versions(string $templateId): array
+    {
+        if (!Ids::isUuid($templateId)) {
+            return [];
+        }
+
+        return array_map(fn (array $r): array => [
+            'version' => Row::int($r, 'version'),
+            'name' => Row::string($r, 'name'),
+            'description' => Row::nullableString($r, 'description'),
+            'createdBy' => Row::string($r, 'display_name'),
+            'createdAt' => Row::string($r, 'created_at'),
+            'bodySha256' => hash('sha256', Row::string($r, 'body_json')),
+        ], $this->connection->fetchAllAssociative(<<<'SQL'
+            SELECT v.version, v.name, v.description, v.body_json, v.created_at, u.display_name
+            FROM document_template_version v JOIN app_user u ON u.id = v.created_by
+            WHERE v.template_id = ?
+            ORDER BY v.version DESC
+            SQL, [$templateId]));
+    }
+
+    /**
+     * One saved version, including its body.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function version(string $templateId, int $version): ?array
+    {
+        if (!Ids::isUuid($templateId)) {
+            return null;
+        }
+        $row = $this->connection->fetchAssociative(<<<'SQL'
+            SELECT v.*, u.display_name FROM document_template_version v JOIN app_user u ON u.id = v.created_by
+            WHERE v.template_id = ? AND v.version = ?
+            SQL, [$templateId, $version]);
+
+        return false === $row ? null : $row;
+    }
+
+    /**
+     * Records the template's current content as an immutable version.
+     */
+    public function recordVersion(string $templateId, int $version, string $name, ?string $description, string $bodyJson, string $userId): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO document_template_version (template_id, version, name, description, body_json, created_by) VALUES (?, ?, ?, ?, ?, ?)',
+            [$templateId, $version, $name, $description, $bodyJson, $userId],
+        );
     }
 }

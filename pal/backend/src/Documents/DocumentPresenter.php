@@ -129,6 +129,7 @@ final class DocumentPresenter
             'manifestHash' => Row::nullableString($revision, 'content_manifest_hash'),
             'body' => RichTextDocument::decodeStored(Row::nullableString($revision, 'body_json')),
             'editing' => 'DRAFT' === $state ? $this->documents->currentEditor($revisionId) : null,
+            'template' => $this->documents->templateOrigin($revisionId),
             'file' => null === $file ? null : [
                 'filename' => Row::string($file, 'original_filename'),
                 'sizeBytes' => Row::int($file, 'size_bytes'),

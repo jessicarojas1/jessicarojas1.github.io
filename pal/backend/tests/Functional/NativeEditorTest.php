@@ -372,6 +372,56 @@ final class NativeEditorTest extends WebTestCase
         self::assertResponseStatusCodeSame(409);
     }
 
+    public function testTemplatesKeepEveryVersionAndDocumentsRecordWhichOneTheyStartedFrom(): void
+    {
+        $csrf = $this->as('admin');
+        $created = $this->call($csrf, 'POST', '/api/admin/templates', ['documentTypeId' => $this->typeId, 'name' => 'SOP', 'body' => self::body('Purpose', 'Wording one.')]);
+        self::assertSame(1, $created['version']);
+        $templateId = (string) $created['id'];
+
+        [, $firstRevision] = $this->createDocument(['templateId' => $templateId]);
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT template_version FROM revision WHERE id = ?', [$firstRevision]));
+
+        // A content change is a new version; activation alone is not.
+        $csrf = $this->as('admin');
+        $updated = $this->call($csrf, 'PATCH', '/api/admin/templates/'.$templateId, ['body' => self::body('Purpose', 'Wording two.'), 'rowVersion' => 1]);
+        self::assertSame(2, $updated['version']);
+        $toggled = $this->call($csrf, 'PATCH', '/api/admin/templates/'.$templateId, ['isActive' => false, 'rowVersion' => 2]);
+        self::assertSame(2, $toggled['version']);
+        $this->call($csrf, 'PATCH', '/api/admin/templates/'.$templateId, ['isActive' => true, 'name' => 'Standard SOP', 'rowVersion' => 3]);
+
+        $this->client->request('GET', '/api/admin/templates/'.$templateId.'/versions');
+        $versions = $this->json()['versions'];
+        self::assertSame([3, 2, 1], array_column($versions, 'version'));
+        self::assertSame(['Standard SOP', 'SOP', 'SOP'], array_column($versions, 'name'));
+        $this->client->request('GET', '/api/admin/templates/'.$templateId.'/versions/1');
+        self::assertSame('Wording one.', $this->json()['body']['content'][1]['content'][0]['text']);
+        $this->client->request('GET', '/api/admin/templates/'.$templateId.'/versions/9');
+        self::assertResponseStatusCodeSame(404);
+
+        // New documents start from the current version and say so.
+        [$documentId, $secondRevision] = $this->createDocument(['templateId' => $templateId]);
+        self::assertSame(3, (int) $this->db->fetchOne('SELECT template_version FROM revision WHERE id = ?', [$secondRevision]));
+        $this->as('author');
+        $this->client->request('GET', '/api/documents/'.$documentId);
+        self::assertSame(['id' => $templateId, 'name' => 'Standard SOP', 'version' => 3], $this->json()['openRevision']['template']);
+
+        // History is evidence: the database refuses to change or remove a version.
+        foreach (["UPDATE document_template_version SET name = 'x' WHERE template_id = ?", 'DELETE FROM document_template_version WHERE template_id = ?'] as $sql) {
+            try {
+                $this->db->executeStatement($sql, [$templateId]);
+                self::fail('Template versions must be immutable.');
+            } catch (\Doctrine\DBAL\Exception $e) {
+                self::assertStringContainsString('immutable', $e->getMessage());
+            }
+        }
+
+        // Only template administrators can read the history.
+        $this->as('author');
+        $this->client->request('GET', '/api/admin/templates/'.$templateId.'/versions');
+        self::assertResponseStatusCodeSame(403);
+    }
+
     public function testReadersCannotSeeTheTemplateAdministration(): void
     {
         $this->as('reader');

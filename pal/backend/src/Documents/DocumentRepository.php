@@ -20,6 +20,23 @@ final class DocumentRepository
     }
 
     /**
+     * The template (and its version) a revision was started from, if any.
+     *
+     * @return array{id: string, name: string, version: int}|null
+     */
+    public function templateOrigin(string $revisionId): ?array
+    {
+        $row = $this->connection->fetchAssociative(
+            'SELECT v.template_id, v.version, v.name FROM revision r
+             JOIN document_template_version v ON v.template_id = r.template_id AND v.version = r.template_version
+             WHERE r.id = ?',
+            [$revisionId],
+        );
+
+        return false === $row ? null : ['id' => Row::string($row, 'template_id'), 'name' => Row::string($row, 'name'), 'version' => Row::int($row, 'version')];
+    }
+
+    /**
      * Who is editing this draft right now, if anyone (a fresh soft-checkout claim).
      *
      * @return array{userId: string, displayName: string, since: string}|null

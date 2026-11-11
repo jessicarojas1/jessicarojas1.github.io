@@ -171,6 +171,7 @@ Verified locally (PHP 8.5.10, PostgreSQL `pal_test`): PHPUnit 269 tests OK, PHPS
 | D16 | Graph read-only consent | Entra admin grants it (certificate credential) |
 | D17 | Sentinel collector and uptime monitor | SOC confirms |
 | D19 | Confluence inventory | Needed before Phase 6b |
-| — | Must templates be controlled (versioned, approved) like documents? | v1: administrator-maintained and audited by hash. If ISO/CMMI auditors require template history, keep each template's prior bodies or manage templates as `TPL` documents |
+| ✅ #27 | Templates keep full version history (backend + API done 2026-11-11) | **Outstanding:** template-page history panel (list, view, restore) and "started from template X vN" on the document page; update ARCHITECTURE/SECURITY/DR docs for `document_template_version` |
+| — | (Superseded by #27) Must templates be controlled (versioned, approved) like documents? | v1: administrator-maintained and audited by hash. If ISO/CMMI auditors require template history, keep each template's prior bodies or manage templates as `TPL` documents |
 | D20 | Second control on document-role mappings | Separate permission (`admin.roles.document`) held by a different group |
 | — | Record the "no CUI" constraint formally | Add to requirements and the decision log |

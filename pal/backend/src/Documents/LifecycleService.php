@@ -86,6 +86,12 @@ final class LifecycleService
                 [$number, Row::string($type, 'id'), Row::string($department, 'id'), $user->id, $restricted ? 'RESTRICTED' : 'ALL_EMPLOYEES', $user->id],
             ));
             $revisionId = $this->insertDraft($documentId, 1, $content, $user, null, $body);
+            if (null !== $template) {
+                $this->connection->executeStatement(
+                    'UPDATE revision SET template_id = ?, template_version = ? WHERE id = ?',
+                    [Row::string($template, 'id'), Row::int($template, 'version'), $revisionId],
+                );
+            }
             if (null !== $upload) {
                 $this->setPrimaryFile($revisionId, $upload['sha256'], $upload['filename']);
             }
@@ -98,6 +104,7 @@ final class LifecycleService
             if (null !== $template) {
                 $created['template_id'] = Row::string($template, 'id');
                 $created['template_name'] = Row::string($template, 'name');
+                $created['template_version'] = Row::int($template, 'version');
                 $created['body_sha256'] = $body['sha256'] ?? null;
             }
             $this->audit->record(new AuditEntry('REVISION_CREATED', $actor, 'revision', $revisionId, $created, toState: 'DRAFT'));

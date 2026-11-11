@@ -11,7 +11,7 @@
 --
 -- Idempotent: safe to run repeatedly against a fresh or existing database.
 -- Requires PostgreSQL 16+ (17 in production). Covers migrations up to
--- Version20261110000002.
+-- Version20261111000001.
 -- =============================================================================
 
 
@@ -569,3 +569,48 @@ CREATE TABLE IF NOT EXISTS revision_editing (
     heartbeat_at timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT ck_revision_editing_times CHECK (heartbeat_at >= started_at)
 );
+
+
+-- -----------------------------------------------------------------------------
+-- Template version history (Version20261111000001, decision #27)
+-- Every change to a template's name, description or content is an immutable,
+-- numbered version; each revision records the template version it started from.
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE document_template ADD COLUMN IF NOT EXISTS version integer NOT NULL DEFAULT 1;
+ALTER TABLE document_template DROP CONSTRAINT IF EXISTS ck_document_template_version;
+ALTER TABLE document_template ADD CONSTRAINT ck_document_template_version CHECK (version >= 1);
+
+CREATE TABLE IF NOT EXISTS document_template_version (
+    template_id uuid NOT NULL REFERENCES document_template (id),
+    version     integer NOT NULL,
+    name        text NOT NULL,
+    description text NULL,
+    body_json   text NOT NULL,
+    created_by  uuid NOT NULL REFERENCES app_user (id),
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (template_id, version),
+    CONSTRAINT ck_document_template_version_number CHECK (version >= 1),
+    CONSTRAINT ck_document_template_version_body CHECK (octet_length(body_json) BETWEEN 1 AND 1048576)
+);
+
+-- Backfill: templates created before history existed become version 1.
+INSERT INTO document_template_version (template_id, version, name, description, body_json, created_by, created_at)
+SELECT id, version, name, description, body_json, updated_by, updated_at FROM document_template
+ON CONFLICT DO NOTHING;
+
+CREATE OR REPLACE FUNCTION pal_template_version_immutable() RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+    RAISE EXCEPTION 'template versions are immutable' USING ERRCODE = 'insufficient_privilege';
+END
+$$;
+
+CREATE OR REPLACE TRIGGER trg_template_version_immutable BEFORE UPDATE OR DELETE ON document_template_version FOR EACH ROW EXECUTE FUNCTION pal_template_version_immutable();
+
+ALTER TABLE revision ADD COLUMN IF NOT EXISTS template_id uuid NULL;
+ALTER TABLE revision ADD COLUMN IF NOT EXISTS template_version integer NULL;
+ALTER TABLE revision DROP CONSTRAINT IF EXISTS fk_revision_template_version;
+ALTER TABLE revision ADD CONSTRAINT fk_revision_template_version FOREIGN KEY (template_id, template_version) REFERENCES document_template_version (template_id, version);
+ALTER TABLE revision DROP CONSTRAINT IF EXISTS ck_revision_template_pair;
+ALTER TABLE revision ADD CONSTRAINT ck_revision_template_pair CHECK ((template_id IS NULL) = (template_version IS NULL));

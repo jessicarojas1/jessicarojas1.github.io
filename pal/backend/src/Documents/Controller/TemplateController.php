@@ -88,8 +88,9 @@ final class TemplateController
                     'INSERT INTO document_template (document_type_id, name, description, body_json, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?) RETURNING id',
                     [Row::string($type, 'id'), $name, $description, $body['json'], $user->id, $user->id],
                 ));
+                $this->templates->recordVersion($id, 1, $name, $description, $body['json'], $user->id);
                 $this->audit->record(new AuditEntry('TEMPLATE_CREATED', $user->auditActor(), 'document_template', $id, [
-                    'document_type' => Row::string($type, 'code'), 'name' => $name, 'description' => $description, 'body_sha256' => $body['sha256'],
+                    'document_type' => Row::string($type, 'code'), 'name' => $name, 'description' => $description, 'body_sha256' => $body['sha256'], 'version' => 1,
                 ]));
 
                 return $id;
@@ -98,7 +99,7 @@ final class TemplateController
             throw ApiProblem::validation(['name' => 'This document type already has a template with that name.']);
         }
 
-        return new JsonResponse(['id' => $id, 'rowVersion' => 1], 201);
+        return new JsonResponse(['id' => $id, 'rowVersion' => 1, 'version' => 1], 201);
     }
 
     /**
@@ -116,7 +117,7 @@ final class TemplateController
         }
 
         try {
-            $next = $this->connection->transactional(function () use ($user, $id, $input, $rowVersion): int {
+            $next = $this->connection->transactional(function () use ($user, $id, $input, $rowVersion): array {
                 $current = $this->templates->find($id, true);
                 if (null === $current) {
                     throw new ApiProblem(404, 'not_found', 'Template not found.');
@@ -142,24 +143,62 @@ final class TemplateController
                 if ($bodyJson !== Row::string($current, 'body_json')) {
                     $changes['body'] = ['from_sha256' => hash('sha256', Row::string($current, 'body_json')), 'to_sha256' => hash('sha256', $bodyJson)];
                 }
+                $version = Row::int($current, 'version');
                 if ([] === $changes) {
-                    return $rowVersion;
+                    return [$rowVersion, $version];
+                }
+                // Content changes (not activation) become a new immutable version.
+                $contentChanged = [] !== array_diff_key($changes, ['is_active' => true]);
+                if ($contentChanged) {
+                    ++$version;
+                    $this->templates->recordVersion($id, $version, $name, $description, $bodyJson, $user->id);
+                    $changes['version'] = ['from' => $version - 1, 'to' => $version];
                 }
                 $this->connection->executeStatement(
-                    'UPDATE document_template SET name = ?, description = ?, body_json = ?, is_active = ?, updated_by = ?, updated_at = now(), row_version = row_version + 1 WHERE id = ?',
-                    [$name, $description, $bodyJson, $active ? 'true' : 'false', $user->id, $id],
+                    'UPDATE document_template SET name = ?, description = ?, body_json = ?, is_active = ?, version = ?, updated_by = ?, updated_at = now(), row_version = row_version + 1 WHERE id = ?',
+                    [$name, $description, $bodyJson, $active ? 'true' : 'false', $version, $user->id, $id],
                 );
                 $this->audit->record(new AuditEntry('TEMPLATE_UPDATED', $user->auditActor(), 'document_template', $id, [
                     'document_type' => Row::string($current, 'type_code'), ...$changes,
                 ]));
 
-                return $rowVersion + 1;
+                return [$rowVersion + 1, $version];
             });
         } catch (UniqueConstraintViolationException) {
             throw ApiProblem::validation(['name' => 'This document type already has a template with that name.']);
         }
 
-        return new JsonResponse(['ok' => true, 'rowVersion' => $next]);
+        return new JsonResponse(['ok' => true, 'rowVersion' => $next[0], 'version' => $next[1]]);
+    }
+
+    #[Route('/api/admin/templates/{id}/versions', name: 'api_admin_template_versions', methods: ['GET'])]
+    #[IsGranted(Permission::ADMIN_TEMPLATES)]
+    public function versions(string $id): JsonResponse
+    {
+        if (null === $this->templates->find($id)) {
+            throw new ApiProblem(404, 'not_found', 'Template not found.');
+        }
+
+        return new JsonResponse(['versions' => $this->templates->versions($id)]);
+    }
+
+    #[Route('/api/admin/templates/{id}/versions/{version}', name: 'api_admin_template_version', methods: ['GET'], requirements: ['version' => '\\d{1,9}'])]
+    #[IsGranted(Permission::ADMIN_TEMPLATES)]
+    public function version(string $id, int $version): JsonResponse
+    {
+        $row = $this->templates->version($id, $version);
+        if (null === $row) {
+            throw new ApiProblem(404, 'not_found', 'Template version not found.');
+        }
+
+        return new JsonResponse([
+            'version' => Row::int($row, 'version'),
+            'name' => Row::string($row, 'name'),
+            'description' => Row::nullableString($row, 'description'),
+            'body' => RichTextDocument::decodeStored(Row::string($row, 'body_json')),
+            'createdBy' => Row::string($row, 'display_name'),
+            'createdAt' => Row::string($row, 'created_at'),
+        ]);
     }
 
     /**

@@ -18,7 +18,7 @@ trait DatabaseReset
         try {
             $connection->executeStatement('ALTER TABLE revision DISABLE TRIGGER trg_revision_immutable');
             $connection->executeStatement('ALTER TABLE revision_file DISABLE TRIGGER trg_revision_file_draft_only');
-            $connection->executeStatement('TRUNCATE audit_event, local_credential, user_role, document_template, revision_editing, publication, approval_decision, workflow_task, workflow_instance, revision_file, revision, document_grant, document, upload, stored_file, numbering_counter, org_unit, global_role_mapping, group_membership, directory_group, app_user, sessions, messenger_messages RESTART IDENTITY CASCADE');
+            $connection->executeStatement('TRUNCATE audit_event, local_credential, user_role, document_template_version, document_template, revision_editing, publication, approval_decision, workflow_task, workflow_instance, revision_file, revision, document_grant, document, upload, stored_file, numbering_counter, org_unit, global_role_mapping, group_membership, directory_group, app_user, sessions, messenger_messages RESTART IDENTITY CASCADE');
             $connection->executeStatement("DELETE FROM org_setting WHERE key <> 'default_timezone'");
         } finally {
             $connection->executeStatement('ALTER TABLE audit_event ENABLE TRIGGER trg_audit_event_no_truncate');
