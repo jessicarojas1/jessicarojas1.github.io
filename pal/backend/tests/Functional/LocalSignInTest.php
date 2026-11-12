@@ -145,32 +145,27 @@ final class LocalSignInTest extends WebTestCase
         self::assertNull($this->db->fetchOne('SELECT last_login_at FROM app_user WHERE id = ?', [$id]));
     }
 
-    public function testSystemAdministratorsAloneCannotObtainDocumentAuthority(): void
+    public function testASystemAdministratorMayAssignDocumentAuthority(): void
     {
+        // Decision #30: a System Administrator is the instance's role manager and may assign
+        // any role, including document authority, directly or to an account they control.
         $this->account('root', [GlobalRole::SystemAdministrator]);
-        $this->account('other', [GlobalRole::SystemAdministrator]);
         $publisherId = $this->account('pat', [GlobalRole::Publisher]);
         $plainId = $this->account('plain');
         $this->signIn('root', self::PASSWORD);
         $csrf = $this->apiCsrf();
         $send = fn (string $method, string $uri, array $body = []) => $this->client->request($method, $uri, server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf], content: json_encode($body));
 
-        // Creating an account they would hold the password for.
+        // Creating a document-authority account.
         $send('POST', '/api/admin/users', ['username' => 'sock', 'displayName' => 'Sock', 'roles' => ['PUBLISHER']]);
-        self::assertResponseStatusCodeSame(403);
-        self::assertSame('role_escalation_forbidden', $this->json()['error']);
-        self::assertFalse($this->db->fetchOne("SELECT 1 FROM app_user WHERE username = 'sock'"));
-        // Promoting an account they control.
-        $send('PUT', '/api/admin/users/'.$plainId.'/roles', ['roles' => ['AUTHOR']]);
-        self::assertResponseStatusCodeSame(403);
-        // Taking over an account that already has authority.
-        $send('POST', '/api/admin/users/'.$publisherId.'/reset-password');
-        self::assertResponseStatusCodeSame(403);
-
-        // Non-document administration still works.
-        $send('POST', '/api/admin/users', ['username' => 'ops', 'displayName' => 'Ops', 'roles' => ['SYSTEM_ADMINISTRATOR']]);
         self::assertResponseStatusCodeSame(201);
-        $send('POST', '/api/admin/users/'.$plainId.'/reset-password');
+        self::assertNotFalse($this->db->fetchOne("SELECT 1 FROM app_user WHERE username = 'sock'"));
+        // Promoting an existing account.
+        $send('PUT', '/api/admin/users/'.$plainId.'/roles', ['roles' => ['AUTHOR']]);
+        self::assertResponseIsSuccessful();
+        self::assertSame(['AUTHOR'], $this->db->fetchFirstColumn('SELECT role FROM user_role WHERE user_id = ?', [$plainId]));
+        // Resetting an account that already has authority.
+        $send('POST', '/api/admin/users/'.$publisherId.'/reset-password');
         self::assertResponseIsSuccessful();
     }
 
@@ -320,9 +315,10 @@ final class LocalSignInTest extends WebTestCase
         $send('POST', '/api/admin/users', ['username' => 'bea', 'displayName' => 'Duplicate']);
         self::assertResponseStatusCodeSame(422);
 
-        // Separation of duties: no granting yourself document authority.
+        // Decision #30: a System Administrator may grant themselves document authority.
         $send('PUT', '/api/admin/users/'.$adminId.'/roles', ['roles' => ['SYSTEM_ADMINISTRATOR', 'PUBLISHER']]);
-        self::assertResponseStatusCodeSame(403);
+        self::assertResponseIsSuccessful();
+        self::assertContains('PUBLISHER', $this->db->fetchFirstColumn('SELECT role FROM user_role WHERE user_id = ?', [$adminId]));
         $send('PUT', '/api/admin/users/'.$created['id'].'/roles', ['roles' => ['AUTHOR', 'PUBLISHER']]);
         self::assertResponseIsSuccessful();
         self::assertEqualsCanonicalizing(['AUTHOR', 'PUBLISHER'], $this->db->fetchFirstColumn('SELECT role FROM user_role WHERE user_id = ?', [$created['id']]));

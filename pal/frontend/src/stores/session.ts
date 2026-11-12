@@ -36,6 +36,9 @@ export const useSessionStore = defineStore('session', {
     // The Owner (superuser) is the only role that may grant or revoke Owner; the UI uses this
     // to gate the Owner option. The server enforces it regardless.
     isOwner: (state): boolean => state.me?.roles.includes('OWNER') ?? false,
+    // An Owner or System Administrator may assign the Owner role (and any other role).
+    canGrantOwner: (state): boolean =>
+      !!state.me && (state.me.roles.includes('OWNER') || state.me.roles.includes('SYSTEM_ADMINISTRATOR')),
   },
   actions: {
     can(permission: string): boolean {

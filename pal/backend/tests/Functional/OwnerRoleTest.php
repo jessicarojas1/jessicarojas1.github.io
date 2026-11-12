@@ -78,14 +78,24 @@ final class OwnerRoleTest extends WebTestCase
         self::assertSame($all, $permissions, 'god mode grants every permission');
     }
 
-    public function testOnlyAnOwnerCanCreateAnotherOwner(): void
+    public function testASystemAdministratorCanCreateAnOwner(): void
     {
         $this->signInWithRole('a0000000-0000-4000-8000-000000000002', 'SYSTEM_ADMINISTRATOR');
         $this->sendJson('POST', '/api/admin/users', ['username' => 'newowner', 'displayName' => 'New Owner', 'roles' => ['OWNER']], $this->csrf());
 
-        self::assertResponseStatusCodeSame(403);
-        self::assertSame('owner_grant_forbidden', $this->body()['error']);
-        self::assertSame(0, (int) $this->db->fetchOne("SELECT count(*) FROM user_role WHERE role = 'OWNER'"));
+        self::assertResponseStatusCodeSame(201);
+        $created = $this->body();
+        self::assertTrue($created['ok']);
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM user_role WHERE user_id = ? AND role = ?', [$created['id'], 'OWNER']));
+    }
+
+    public function testASystemAdministratorCanGrantThemselvesTheOwnerRole(): void
+    {
+        $adminId = $this->signInWithRole('a0000000-0000-4000-8000-000000000007', 'SYSTEM_ADMINISTRATOR');
+        $this->sendJson('PUT', '/api/admin/users/'.$adminId.'/roles', ['roles' => ['SYSTEM_ADMINISTRATOR', 'OWNER']], $this->csrf());
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM user_role WHERE user_id = ? AND role = ?', [$adminId, 'OWNER']));
     }
 
     public function testAnOwnerCanCreateAndGrantAnotherOwner(): void
@@ -100,17 +110,17 @@ final class OwnerRoleTest extends WebTestCase
         self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM user_role WHERE user_id = ? AND role = ?', [$created['id'], 'OWNER']));
     }
 
-    public function testASystemAdministratorCannotRevokeAnOwner(): void
+    public function testASystemAdministratorCanRevokeAnOwner(): void
     {
         $ownerId = self::createUser($this->db, 'a0000000-0000-4000-8000-000000000004', 'Existing Owner');
         $this->db->executeStatement('INSERT INTO user_role (user_id, role) VALUES (?, ?)', [$ownerId, 'OWNER']);
+        // The acting System Administrator remains an administrator, so the last-admin guard holds.
         $this->signInWithRole('a0000000-0000-4000-8000-000000000005', 'SYSTEM_ADMINISTRATOR');
 
         $this->sendJson('PUT', '/api/admin/users/'.$ownerId.'/roles', ['roles' => []], $this->csrf());
 
-        self::assertResponseStatusCodeSame(403);
-        self::assertSame('owner_grant_forbidden', $this->body()['error']);
-        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM user_role WHERE user_id = ? AND role = ?', [$ownerId, 'OWNER']));
+        self::assertResponseIsSuccessful();
+        self::assertSame(0, (int) $this->db->fetchOne('SELECT count(*) FROM user_role WHERE user_id = ? AND role = ?', [$ownerId, 'OWNER']));
     }
 
     public function testTheOwnerRoleCannotBeMappedToADirectoryGroup(): void

@@ -78,7 +78,7 @@ const modules = computed(() => {
 const totalGranted = computed(() => effective.value.size)
 // Only an Owner may confer the Owner role, so a non-Owner never sees it as a create option.
 // The server enforces this regardless (owner_grant_forbidden).
-const createRoles = computed(() => roles.value.filter((r) => r.value !== 'OWNER' || session.isOwner))
+const createRoles = computed(() => roles.value.filter((r) => r.value !== 'OWNER' || session.canGrantOwner))
 
 function initials(name: string): string {
   return name.split(/\s+/).map((p) => p[0] ?? '').join('').slice(0, 2).toUpperCase()
@@ -95,7 +95,7 @@ function slugifyUsername(name: string): string {
 }
 
 function canToggleRole(role: string): boolean {
-  return role !== 'OWNER' || session.isOwner
+  return role !== 'OWNER' || session.canGrantOwner
 }
 
 function roleState(role: string): 'group' | 'explicit' | 'none' {

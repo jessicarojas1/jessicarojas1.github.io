@@ -86,7 +86,7 @@ final class UserAdminController
     {
         $body = JsonBody::decode($request);
         $roles = $this->parseRoles($body['roles'] ?? []);
-        // Only an Owner may create another Owner (god mode is conferred solely by god mode).
+        // An Owner or System Administrator may create another Owner.
         $this->assertOwnerGrant($admin, $roles);
         // The new account's temporary password is shown to this administrator, so they could act as it.
         $this->assertNoEscalation($admin, $roles);
@@ -114,14 +114,15 @@ final class UserAdminController
             sort($after);
             $added = array_values(array_diff($after, $before));
             $removed = array_values(array_diff($before, $after));
-            // Only an Owner may grant or revoke the Owner role (god mode manages god mode); a
-            // lesser administrator can neither create an Owner nor strip an existing one.
-            if ((\in_array(GlobalRole::Owner->value, $added, true) || \in_array(GlobalRole::Owner->value, $removed, true)) && !$admin->hasRole(GlobalRole::Owner)) {
-                throw new ApiProblem(403, 'owner_grant_forbidden', 'Only an Owner can grant or revoke the Owner role.');
+            // An Owner or System Administrator may grant or revoke the Owner role; any lesser
+            // administrator (e.g. PAL Administrator) can neither create an Owner nor strip one.
+            if ((\in_array(GlobalRole::Owner->value, $added, true) || \in_array(GlobalRole::Owner->value, $removed, true)) && !$this->managesAllRoles($admin)) {
+                throw new ApiProblem(403, 'owner_grant_forbidden', 'Only an Owner or System Administrator can grant or revoke the Owner role.');
             }
-            // Separation of duties: nobody grants themselves document authority. An Owner is
-            // already god mode, so the self-grant rule does not constrain them.
-            if ($id === $admin->id && !$admin->hasRole(GlobalRole::Owner)) {
+            // Separation of duties: a PAL Administrator cannot grant themselves document
+            // authority. An Owner or System Administrator manages all roles, so the self-grant
+            // rule does not constrain them.
+            if ($id === $admin->id && !$this->managesAllRoles($admin)) {
                 foreach ($added as $value) {
                     if (GlobalRole::from($value)->hasDocumentAuthority()) {
                         throw new ApiProblem(403, 'self_grant_forbidden', 'Another administrator must grant you a role with document authority.');
@@ -175,15 +176,15 @@ final class UserAdminController
     }
 
     /**
-     * Separation of duties without a second approver (see D20): a System Administrator alone
-     * can never obtain document authority, directly or through an account they control.
-     * Conferring it, or taking over an account that has it, requires PAL Administrator.
+     * A PAL Administrator cannot confer document authority, or take over an account that has
+     * it, unless they are also an Owner or System Administrator. An Owner and a System
+     * Administrator are the instance's role managers (decision #30) and are exempt.
      *
      * @param list<GlobalRole> $roles
      */
     private function assertNoEscalation(PalUser $admin, array $roles): void
     {
-        if ($admin->hasRole(GlobalRole::Owner) || $admin->hasRole(GlobalRole::PalAdministrator)) {
+        if ($this->managesAllRoles($admin) || $admin->hasRole(GlobalRole::PalAdministrator)) {
             return;
         }
         foreach ($roles as $role) {
@@ -202,9 +203,21 @@ final class UserAdminController
      */
     private function assertOwnerGrant(PalUser $admin, array $roles): void
     {
-        if (\in_array(GlobalRole::Owner, $roles, true) && !$admin->hasRole(GlobalRole::Owner)) {
-            throw new ApiProblem(403, 'owner_grant_forbidden', 'Only an Owner can grant or revoke the Owner role.');
+        if (\in_array(GlobalRole::Owner, $roles, true) && !$this->managesAllRoles($admin)) {
+            throw new ApiProblem(403, 'owner_grant_forbidden', 'Only an Owner or System Administrator can grant or revoke the Owner role.');
         }
+    }
+
+    /**
+     * Full role authority: an Owner (god mode) or a System Administrator may assign any role,
+     * including Owner, to anyone including themselves. A System Administrator is the operator
+     * of record for this instance, so (by decision #30) they are not bound by the separation
+     * of duties that constrains a PAL Administrator. The "an administrator must remain" guard
+     * still applies.
+     */
+    private function managesAllRoles(PalUser $admin): bool
+    {
+        return $admin->hasRole(GlobalRole::Owner) || $admin->hasRole(GlobalRole::SystemAdministrator);
     }
 
     /**
