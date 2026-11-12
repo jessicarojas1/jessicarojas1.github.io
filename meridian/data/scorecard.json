@@ -1,14 +1,50 @@
 {
-  "updated": "2026-11-10",
+  "updated": "2026-11-12",
   "summary": {
-    "correct": 47,
-    "incorrect": 37,
+    "correct": 48,
+    "incorrect": 43,
     "partial": 12,
-    "pending": 84,
-    "note": "2026-11-11: fc-2026-11-09-abudhabi-talks-outcome graded CORRECT after the fourth US-Russia-Ukraine trilateral round (Abu Dhabi, 10-11 Nov) produced a reported prisoner-exchange agreement, its first confirmed deliverable since February 2026; fc-2026-10-23-ukraine-trilateral-talks and fc-2026-10-26-trilateral-date-confirmed also graded CORRECT on the round's convening and prior date/venue confirmation. fc-2026-11-05-anthropic-s1-amendment and fc-2026-11-06-anthropic-pricerange graded CORRECT after Anthropic filed a $70-78/share IPO price range (10 Nov), implying up to a ~$1.4T valuation with a Nasdaq debut (ANT) expected 19 Nov. fc-2026-10-12-houthi-counteroffensive graded INCORRECT on its window's lapse with no independent confirmation of a Mocha territorial gain. Lead findings this cycle: (1) Trump said 10 Nov the Iran war could end 'fairly soon' and new strikes 'won't be necessary,' a sharp de-escalatory shift from the 'locked and loaded' framing tracked days earlier, while Rubio said no strike decision has been made and Task Force Iron Gate/the naval blockade/continued Hormuz attacks (Navig8 Messi) remain unchanged. (2) China's rare-earth-suspension extension gained scope detail (processing equipment, heavy rare earths, battery/superhard materials) and a reported matching US Commerce extension, but a specific trade-press report (Rare Earth Exchanges) disputes the extension's timing, newly flagged this cycle. (3) CISA KEV-listed four more products (9 Nov), including GPUStack -- the wave's first GPU/AI-orchestration-platform entry -- with Ivanti's second federal deadline (13 Nov) nearing and still no named DIB victim. Five new forecasts added: the Anthropic IPO debut outcome, a US-Iran negotiated-outcome test, an Abu Dhabi joint-statement test, rare-earth primary-source reconciliation, and a continued Ivanti no-victim test.",
-    "updated": "2026-11-11"
+    "pending": 81,
+    "note": "2026-11-12: six standing forecasts lapsed INCORRECT on window closure with no resolving event -- fc-2026-10-22-cmmc-new-target (no new CMMC Reform Task Force target date; fourteenth-plus consecutive non-public cycle), fc-2026-10-12-reconciliation-floor-action (no Senate/House floor action on Golden Dome reconciliation funding), fc-2026-10-21-nato-blacksea-asset-named (no named NATO Black Sea asset), fc-2026-10-28-hormuz-portwatch-reconciliation (no fresher IMF PortWatch Hormuz transit figure), fc-2026-10-22-plex2shell-wider-confirm (no independent Plex2Shell exploitation confirmation beyond the original honeypot), and fc-2026-10-22-nato-blacksea-casualty-reconciliation (Black Sea casualty figures still unreconciled). fc-2026-11-10-fortimail-psirt-advisory graded CORRECT after multiple outlets confirmed Fortinet's own FG-IR-26-175 advisory explicitly denies a FortiMail 7.2-specific fix. Lead findings this cycle: (1) Trump's rhetoric on Iran swung sharply back hawkish -- 'total victory' vowed at a Veterans Day address on 11 Nov, one day after 'fairly soon'/'won't be necessary,' with CENTCOM's operational posture unchanged throughout. (2) Yesterday's conflicting rare-earth-suspension reports are resolved: MOFCOM/GACC Announcement No. 70 of 2025 lapsed on schedule 10 Nov exactly as one outlet reported, while a new Announcement No. 58 of 2026 (adopted 9 Nov) immediately re-suspended the same measures through 10 Jan 2027 -- both prior reports were correct about different instruments. (3) Anthropic's IPO order book is REPORTED several times oversubscribed with underwriters weighing pricing above the filed $70-78/share range toward ~$1.5T. (4) A newly-surfaced ISW-CDOT assessment (6 Nov) describes a 100+ vessel PLA/CCG concentration near Taiwan simulating isolation operations, exceeding Justice Mission 2025's scale. Four new forecasts added: Anthropic above-range pricing, a Taiwan named-exercise test, an Iran no-major-strike test, and a Black Sea NATO-attribution corroboration test.",
+    "updated": "2026-11-12"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-12-anthropic-price-above-range",
+      "date": "2026-11-12",
+      "forecast": "Anthropic's final IPO price will land above the top of its filed $70-78/share range, given reported several-times order-book oversubscription and underwriters reportedly weighing a higher price.",
+      "horizon": "0-8 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-12-taiwan-plaexercise-announcement",
+      "date": "2026-11-12",
+      "forecast": "China will NOT publicly name or announce a large-scale PLA exercise around Taiwan within 14 days, despite ISW-CDOT's 6 Nov assessment of a 100+ vessel concentration simulating isolation operations.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-12-iran-no-major-strike",
+      "date": "2026-11-12",
+      "forecast": "Despite Trump's 11 Nov 'total victory' Veterans Day remarks, the US will not conduct a major overt strike against Iran within 14 days, consistent with reporting that Trump and Rubio continue to avoid actual re-escalation.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-12-blacksea-nato-attribution-confirm",
+      "date": "2026-11-12",
+      "forecast": "NATO or a member-state government will issue a further, corroborating on-record attribution of the 28 Oct Contship Jet sinking to Russian forces within 21 days, beyond the single Newsweek-sourced NATO-official quote.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
     {
       "id": "fc-2026-09-06-cmmc",
       "date": "2026-09-06",
@@ -142,7 +178,7 @@
       "horizon": "0-14 days",
       "outcome": "PARTIAL",
       "resolvedDate": "2026-09-11",
-      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range — but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range \u2014 but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-10-kev-networkedge",
@@ -151,7 +187,7 @@
       "horizon": "0-30 days",
       "outcome": "CORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate — well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
+      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate \u2014 well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-11-bahrain-basing",
@@ -169,7 +205,7 @@
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "The meeting was postponed entirely rather than held — it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "The meeting was postponed entirely rather than held \u2014 it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-11-pipeline",
@@ -705,11 +741,11 @@
     {
       "id": "fc-2026-10-06-moldova-nato-commitment",
       "date": "2026-10-06",
-      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chișinau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
+      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chi\u0219inau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-10-14",
-      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~€50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~\u20ac50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-06-flydubai-reversal-effect",
@@ -851,9 +887,9 @@
       "date": "2026-10-12",
       "forecast": "Given Senate Majority Leader Thune's reported openness to a third ('reconciliation 3.0') defense-funding package tied to the Iran-war context, the House or Senate will take some floor action (committee markup, vote, or formal introduction) on a defense-reconciliation package within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No confirmed floor action identified this cycle; window remains open (~18 days left). Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-12",
+      "note": "The 30-day window closed 11 Nov with no committee markup, vote, or formal introduction of a defense-reconciliation package identified; Guetlein's public no-funding-mechanism statement remained the most recent data point throughout. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-10-13-blockade-vessel-strike-reaction",
@@ -1094,9 +1130,9 @@
       "date": "2026-10-21",
       "forecast": "A specifically named NATO (not national) asset will be confirmed physically on station in the Black Sea within 21 days, following the 20 Oct North Atlantic Council's commitment of patrol aircraft, radar, EOD teams, intelligence personnel and drones.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the Council's commitment converts into a confirmed, named alliance-level deployment rather than remaining a general statement of intent. Tracked on the Black Sea Maritime Attack Campaign thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-12",
+      "note": "The 21-day window closed 11 Nov with no specifically named NATO (as opposed to national) asset confirmed on station identified. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-10-21-ftc-third-lab-cid",
@@ -1139,27 +1175,27 @@
       "date": "2026-10-22",
       "forecast": "DoD will publicly offer a new, specific target date for the CMMC Reform Task Force report's release within 21 days, given the third consecutive missed informal target.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether DoD re-anchors expectations with a new date or continues offering no timeline at all. Tracked on the CMMC Implementation thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-12",
+      "note": "The 21-day window closed 12 Nov with no new target date identified across any tracked cycle -- the fourteenth-plus consecutive cycle with no timing signal. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-10-22-plex2shell-wider-confirm",
       "date": "2026-10-22",
       "forecast": "Independent confirmation of Plex2Shell exploitation beyond the single researcher's honeypot (e.g., a security vendor's telemetry or an ISP/CDN-level report) will be publicly reported within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this newly KEV-listed chain's exploitation evidence generalizes beyond one honeypot's data. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-12",
+      "note": "The 21-day window closed 12 Nov with no independent confirmation beyond the original researcher's honeypot finding identified. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-10-22-nato-blacksea-casualty-reconciliation",
       "date": "2026-10-22",
       "forecast": "A single authoritative source (a flag-state, the IMO, or a marine insurer) will reconcile the Black Sea campaign's diverging casualty figures (over 20 dead vs. 2 dead/25 missing) within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the campaign's casualty toll, which has diverged further rather than converged across successive cycles, is ever authoritatively settled. Tracked on the Black Sea Maritime Attack Campaign thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-12",
+      "note": "The 21-day window closed 12 Nov with no single authoritative reconciliation of the campaign's diverging casualty figures identified; a new single-sourced NATO-official attribution claim surfaced for one incident (Contship Jet) but does not reconcile the casualty figures. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-10-23-ukraine-trilateral-talks",
@@ -1292,9 +1328,9 @@
       "date": "2026-10-28",
       "forecast": "A fresher (post-18 Oct) IMF PortWatch Hormuz transit figure will be published and reconciled with other sourcing (UKMTO/CENTCOM/named wire services) within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this program's improved sourcing on the transit-collapse figure's provenance (IMF PortWatch) is followed by a timelier, reconciled data point given the dataset's known ~1-week-plus lag. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-12",
+      "note": "The 14-day window closed 11 Nov with no fresher IMF PortWatch figure or reconciliation identified. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-10-29-php2shell-prod-victim",
@@ -1571,9 +1607,9 @@
       "date": "2026-11-10",
       "forecast": "Fortinet will publish an official PSIRT advisory confirming (or explicitly denying) a committed fix for FortiMail CVE-2026-104286 on the affected 7.2 branch within 14 days, resolving the multi-week sourcing dispute found in this cycle's research.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Secondary sources disagree on whether a fix exists for the 7.2 branch, which reportedly reaches vendor end-of-support today (10 Nov); this forecast tests whether Fortinet resolves the ambiguity directly."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-12",
+      "note": "Multiple security-research outlets (Rescana, endoflife.ai, and others) confirm Fortinet's own PSIRT advisory FG-IR-26-175 explicitly directs the 7.2 branch to upgrade to 7.4.9/7.6.7/8.0.2 with no 7.2-specific fix planned -- an explicit denial of a committed fix, well within the 14-day window. Graded CORRECT."
     },
     {
       "id": "fc-2026-11-10-anthropic-pre-thanksgiving-debut",
