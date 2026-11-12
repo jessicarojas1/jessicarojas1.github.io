@@ -437,7 +437,7 @@
 
         <!-- Error state -->
         <div id="load-error" style="display:none" class="alert alert-danger">
-          <strong>Failed to load practice data.</strong> Please ensure <code>cmmc_l1_data.json</code> and <code>cmmc_l2_data.json</code> are accessible. <button class="btn btn-sm btn-danger ms-2" onclick="loadData()">Retry</button>
+          <strong>Failed to load practice data.</strong> Please ensure <code>cmmc_l1_data.json</code> and <code>cmmc_l2_data.json</code> are accessible. <button class="btn btn-sm btn-danger ms-2" data-action="load-data">Retry</button>
         </div>
 
         <!-- Main content (hidden until loaded) -->
@@ -445,7 +445,7 @@
 
           <!-- ── Company Profile Panel ── -->
           <div id="profile-panel" class="no-print">
-            <div id="profile-summary-bar" onclick="toggleProfile()" aria-expanded="false" aria-controls="profile-form-body">
+            <div id="profile-summary-bar" data-action="toggle-profile" aria-expanded="false" aria-controls="profile-form-body">
               <span class="bi bi-building me-1" style="color:var(--bs-primary)"></span>
               <strong style="font-size:.75rem;color:var(--bs-primary)">Company Profile</strong>
               <span class="bi bi-chevron-right ms-1" id="profile-chevron" style="font-size:.7rem;transition:transform .2s;color:var(--bs-secondary-color)"></span>
@@ -492,7 +492,7 @@
                   <input type="text" class="profile-input" id="p-assessor" placeholder="Jane Smith">
                 </div>
                 <div class="col-12">
-                  <button class="btn btn-primary btn-sm" onclick="saveProfile()">Save Profile</button>
+                  <button class="btn btn-primary btn-sm" data-action="save-profile">Save Profile</button>
                   <span class="saved-flash ms-2" id="profile-saved">Saved ✓</span>
                 </div>
               </div>
@@ -551,9 +551,9 @@
                 <i class="bi bi-upload me-1"></i>Import JSON
                 <input type="file" id="import-json-input" accept=".json" style="display:none">
               </label>
-              <button class="btn btn-sm btn-outline-secondary" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#sspModal" onclick="renderSSP()"><i class="bi bi-file-text me-1"></i>SSP</button>
-              <button class="btn btn-sm btn-outline-warning" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#snapshotModal" onclick="renderSnapshotList()"><i class="bi bi-clock-history me-1"></i>Snapshots</button>
-              <button class="btn btn-sm btn-outline-info" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#execSummaryModal" onclick="renderExecSummary()"><i class="bi bi-file-earmark-bar-graph me-1"></i>Exec Summary</button>
+              <button class="btn btn-sm btn-outline-secondary" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#sspModal" data-action="render-ssp"><i class="bi bi-file-text me-1"></i>SSP</button>
+              <button class="btn btn-sm btn-outline-warning" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#snapshotModal" data-action="render-snapshot-list"><i class="bi bi-clock-history me-1"></i>Snapshots</button>
+              <button class="btn btn-sm btn-outline-info" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#execSummaryModal" data-action="render-exec-summary"><i class="bi bi-file-earmark-bar-graph me-1"></i>Exec Summary</button>
               <button class="btn btn-sm btn-outline-secondary ms-auto" title="Keyboard shortcuts ?" data-bs-toggle="modal" data-bs-target="#shortcutsModal"><kbd style="font-size:.68rem;pointer-events:none">?</kbd></button>
             </div>
           </div>
@@ -649,7 +649,7 @@
 
           <!-- ── Heat Map Panel ── -->
           <div id="heat-map-panel" class="no-print">
-            <button class="hm-toggle" onclick="toggleHeatMap(this)">
+            <button class="hm-toggle" data-action="toggle-heat-map">
               <i class="bi bi-grid-3x3-gap me-1" style="color:var(--bs-primary)"></i>Status Heat Map
               <span class="badge bg-secondary ms-1" id="hm-badge" style="font-size:.6rem"></span>
               <i class="bi bi-chevron-right ms-auto" style="font-size:.65rem;transition:transform .2s" id="hm-chevron"></i>
@@ -670,7 +670,7 @@
 
           <!-- ── What's Next Panel ── -->
           <div id="whatsnext-panel" class="no-print">
-            <button class="wn-toggle" onclick="toggleWhatNext(this)">
+            <button class="wn-toggle" data-action="toggle-what-next">
               <i class="bi bi-lightbulb me-1" style="color:var(--bs-primary)"></i>What's Next — Priority Actions
               <span class="badge bg-primary ms-1" id="wn-count-badge" style="font-size:.6rem">0</span>
               <i class="bi bi-chevron-right ms-auto" style="font-size:.65rem;transition:transform .2s" id="wn-chevron"></i>
@@ -713,7 +713,7 @@
           </div>
           <div id="no-results">
             <i class="bi bi-search fs-2 d-block mb-2"></i>
-            No practices match your filters. <button class="btn btn-sm btn-link" onclick="clearFilters()">Clear filters</button>
+            No practices match your filters. <button class="btn btn-sm btn-link" data-action="clear-filters">Clear filters</button>
           </div>
 
         </div><!-- /main-loaded -->
@@ -872,7 +872,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h2 class="modal-title fs-6 fw-bold" id="sspModalLabel"><i class="bi bi-file-text me-2"></i>System Security Plan (SSP) — Generated Template</h2>
-          <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="printSSP()"><i class="bi bi-printer me-1"></i>Print / Export</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary me-2" data-action="print-ssp"><i class="bi bi-printer me-1"></i>Print / Export</button>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-0" id="ssp-body" style="max-height:78vh;overflow-y:auto;padding:1.25rem !important"></div>
@@ -892,7 +892,7 @@
           <p class="text-secondary small mb-3">Save named snapshots of your SPRS score and domain progress. Compare snapshots to track improvement over time. Up to 20 snapshots are stored.</p>
           <div class="d-flex gap-2 mb-3">
             <input type="text" class="form-control form-control-sm" id="snapshot-label-input" placeholder="Snapshot name (e.g. Initial Gap Assessment, Post-Remediation Q1)">
-            <button class="btn btn-sm btn-primary text-nowrap" onclick="saveSnapshot()"><i class="bi bi-save me-1"></i>Save</button>
+            <button class="btn btn-sm btn-primary text-nowrap" data-action="save-snapshot"><i class="bi bi-save me-1"></i>Save</button>
           </div>
           <div id="snapshot-list">
             <p class="text-secondary text-center py-3 mb-0">No snapshots saved yet.</p>
@@ -908,7 +908,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h2 class="modal-title fs-6 fw-bold" id="execSummaryModalLabel"><i class="bi bi-file-earmark-bar-graph me-2"></i>Executive Assessment Summary</h2>
-          <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="printExecSummary()"><i class="bi bi-printer me-1"></i>Print / Save PDF</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary me-2" data-action="print-exec-summary"><i class="bi bi-printer me-1"></i>Print / Save PDF</button>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" id="exec-summary-body" style="max-height:75vh;overflow-y:auto"></div>
@@ -1396,21 +1396,21 @@
     var barColor = domPct >= 100 ? '#198754' : domPct >= 50 ? '#ffc107' : domPct > 0 ? '#fd7e14' : 'rgba(128,128,128,.2)';
 
     var html = '<div class="mb-3" id="domain-block-' + domId + '">' +
-      '<div class="domain-header d-flex align-items-center gap-2" onclick="toggleDomain(this,\'dc-'+domId+'\')" aria-expanded="true" aria-controls="dc-'+domId+'" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){this.click();event.preventDefault();}">' +
+      '<div class="domain-header d-flex align-items-center gap-2" data-toggle-domain="'+domId+'" aria-expanded="true" aria-controls="dc-'+domId+'" role="button" tabindex="0" data-kb-activate>' +
         '<i class="bi bi-chevron-right d-chevron"></i>' +
         '<span class="ctrl-id">' + esc(domId) + '</span>' +
         '<span class="domain-name">' + esc(domain.domain_name) + '</span>' +
         '<span class="pa-progress-frac ms-2 ' + fracCls + '">' + metCount + '/' + allPracs.length + ' met</span>' +
         '<div style="flex:1;margin-left:.5rem;max-width:180px;height:4px;background:rgba(128,128,128,.15);border-radius:2px;overflow:hidden"><div style="height:100%;border-radius:2px;background:'+barColor+';width:'+domPct+'%;transition:width .4s"></div></div>' +
-        '<div class="domain-bulk-wrap" onclick="event.stopPropagation()">' +
-          '<button class="domain-bulk-btn" onclick="toggleBulkDropdown(\''+esc(domId)+'\',event)" title="Bulk actions"><i class="bi bi-three-dots-vertical"></i></button>' +
+        '<div class="domain-bulk-wrap" data-stop-propagation>' +
+          '<button class="domain-bulk-btn" data-toggle-bulk="'+esc(domId)+'" title="Bulk actions"><i class="bi bi-three-dots-vertical"></i></button>' +
           '<div class="bulk-dropdown" id="bulk-dd-'+esc(domId)+'">' +
-            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'met\',event)"><i class="bi bi-check-all me-2 text-success"></i>Mark All Met</button>' +
-            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'planned\',event)"><i class="bi bi-arrow-right me-2 text-info"></i>Mark All Planned</button>' +
-            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'not-met\',event)"><i class="bi bi-x-circle me-2 text-danger"></i>Mark All Not Met</button>' +
-            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'not-assessed\',event)"><i class="bi bi-circle me-2"></i>Mark All Not Assessed</button>' +
+            '<button class="bulk-dd-item" data-bulk-action="met" data-domain-id="'+esc(domId)+'"><i class="bi bi-check-all me-2 text-success"></i>Mark All Met</button>' +
+            '<button class="bulk-dd-item" data-bulk-action="planned" data-domain-id="'+esc(domId)+'"><i class="bi bi-arrow-right me-2 text-info"></i>Mark All Planned</button>' +
+            '<button class="bulk-dd-item" data-bulk-action="not-met" data-domain-id="'+esc(domId)+'"><i class="bi bi-x-circle me-2 text-danger"></i>Mark All Not Met</button>' +
+            '<button class="bulk-dd-item" data-bulk-action="not-assessed" data-domain-id="'+esc(domId)+'"><i class="bi bi-circle me-2"></i>Mark All Not Assessed</button>' +
             '<hr class="bulk-dd-sep">' +
-            '<button class="bulk-dd-item" style="color:#dc3545" onclick="bulkDomainAction(\''+esc(domId)+'\',\'reset\',event)"><i class="bi bi-arrow-counterclockwise me-2"></i>Reset Domain</button>' +
+            '<button class="bulk-dd-item" style="color:var(--bs-danger)" data-bulk-action="reset" data-domain-id="'+esc(domId)+'"><i class="bi bi-arrow-counterclockwise me-2"></i>Reset Domain</button>' +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -1420,7 +1420,7 @@
     var qList = ASSESSMENT_QUESTIONS[domId] || [];
     if (qList.length) {
       html += '<div class="qa-panel mb-2 no-print">' +
-        '<button class="qa-toggle" onclick="toggleQA(this,\'qa-body-'+esc(domId)+'\')">' +
+        '<button class="qa-toggle" data-toggle-qa="'+esc(domId)+'">' +
           '<i class="bi bi-question-circle me-1" style="color:var(--bs-info)"></i>C3PAO Assessor Questions (' + qList.length + ')' +
           '<i class="bi bi-chevron-right ms-auto" style="font-size:.65rem"></i>' +
         '</button>' +
@@ -1466,7 +1466,7 @@
     var sm = STATUS_META[status] || STATUS_META['not-assessed'];
 
     var html = '<div class="control-row" id="' + rowId + '">' +
-      '<div class="control-trigger" onclick="toggleControl(this,\'' + detailId + '\')" aria-expanded="false" aria-controls="' + detailId + '" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){this.click();event.preventDefault();}">' +
+      '<div class="control-trigger" data-toggle-control="' + detailId + '" aria-expanded="false" aria-controls="' + detailId + '" role="button" tabindex="0" data-kb-activate>' +
         '<i class="bi bi-chevron-right c-chevron"></i>' +
         '<span class="' + idBadgeCls + '">' + esc(domId) + ' ' + esc(p.id) + '</span>' + l1Tag + l3Tag +
         (objCount ? '<span class="obj-count">' + objCount + ' obj</span>' : '') +
@@ -1519,7 +1519,7 @@
     var evList = EVIDENCE[domId] || [];
     if (evList.length) {
       html += '<div class="evidence-panel">' +
-        '<button class="ev-toggle-btn" onclick="toggleEv(this,\'ev-body-'+esc(idSlug)+'\')">' +
+        '<button class="ev-toggle-btn" data-toggle-ev="'+esc(idSlug)+'">' +
           '<i class="bi bi-folder2-open me-1"></i>Evidence Artifacts (' + evList.length + ')' +
           '<i class="bi bi-chevron-right ms-auto" style="font-size:.65rem"></i>' +
         '</button>' +
@@ -1527,7 +1527,7 @@
       evList.forEach(function(artifact, idx) {
         var checked = getEvidence(domId, idx) ? 'checked' : '';
         html += '<div class="ev-item">' +
-          '<input type="checkbox" ' + checked + ' onchange="saveEvidence(this,\''+esc(domId)+'\','+idx+')" id="ev-'+esc(idSlug)+'-'+idx+'">' +
+          '<input type="checkbox" ' + checked + ' data-ev-domain="'+esc(domId)+'" data-ev-idx="'+idx+'" id="ev-'+esc(idSlug)+'-'+idx+'">' +
           '<label for="ev-' + esc(idSlug) + '-' + idx + '">' + esc(artifact) + '</label>' +
         '</div>';
       });
@@ -1543,20 +1543,20 @@
     html += '<div class="row g-2 mt-2">' +
       '<div class="col-12">' +
         '<div class="detail-label">Assessment Notes / Weakness Description</div>' +
-        '<textarea class="notes-textarea" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" placeholder="Document implementation evidence, weaknesses, or remediation plan…" oninput="saveNoteDebounced(this)">' + esc(note) + '</textarea>' +
+        '<textarea class="notes-textarea" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" placeholder="Document implementation evidence, weaknesses, or remediation plan…">' + esc(note) + '</textarea>' +
         '<span class="saved-flash" id="nf-'+esc(idSlug)+'"></span>' +
       '</div>' +
       '<div class="col-md-4">' +
         '<div class="detail-label">Control Owner</div>' +
-        '<input type="text" class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" value="'+esc(owner)+'" placeholder="Name or team" oninput="saveOwnerDebounced(this)">' +
+        '<input type="text" class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" value="'+esc(owner)+'" placeholder="Name or team">' +
       '</div>' +
       '<div class="col-md-3">' +
         '<div class="detail-label">Target Date</div>' +
-        '<input type="date" class="date-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" value="'+esc(date)+'" onchange="saveDateField(this)">' +
+        '<input type="date" class="date-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" value="'+esc(date)+'">' +
       '</div>' +
       '<div class="col-md-3">' +
         '<div class="detail-label">Risk Rating</div>' +
-        '<select class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" onchange="saveRiskField(this)" style="font-size:.78rem">' +
+        '<select class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" style="font-size:.78rem">' +
           '<option value="">— Not Rated</option>' +
           '<option value="high"'  + (risk==='high'   ? ' selected':'')+'>High</option>' +
           '<option value="medium"'+ (risk==='medium' ? ' selected':'')+'>Medium</option>' +
@@ -1565,7 +1565,7 @@
       '</div>' +
       '<div class="col-md-2">' +
         '<div class="detail-label">Effort</div>' +
-        '<select class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" onchange="saveEffortField(this)" style="font-size:.78rem">' +
+        '<select class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" style="font-size:.78rem">' +
           '<option value="">—</option>' +
           '<option value="sm"'+(effort==='sm'?' selected':'')+'>Small &lt;8h</option>' +
           '<option value="md"'+(effort==='md'?' selected':'')+'>Medium 1-5d</option>' +
@@ -1689,10 +1689,10 @@
         '<td><span class="ctrl-id' + (r.p.level1 ? ' ctrl-id-l1' : '') + '">' + esc(dom) + ' ' + esc(id) + '</span></td>' +
         '<td style="font-size:.77rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(r.p.title)+'">' + esc(r.p.title) + '</td>' +
         '<td><span class="status-btn ' + sm.cls + ' no-cycle">' + sm.short + ' ' + esc(r.status.replace(/-/g,' ')) + '</span></td>' +
-        '<td><input class="owner-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'" value="'+esc(owner)+'" placeholder="Owner" oninput="saveOwnerDebounced(this)"></td>' +
-        '<td><input type="date" class="date-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'" value="'+esc(date)+'" onchange="saveDateField(this)"></td>' +
-        '<td><input class="owner-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'-note" value="'+esc(note)+'" placeholder="Weakness / notes" oninput="savePoamNote(this,\''+esc(dom)+'\',\''+esc(id)+'\')"></td>' +
-        '<td><input class="milestone-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'" value="'+esc(milestone)+'" placeholder="Milestone / action" oninput="saveMilestoneDebounced(this)"></td>' +
+        '<td><input class="owner-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'" value="'+esc(owner)+'" placeholder="Owner"></td>' +
+        '<td><input type="date" class="date-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'" value="'+esc(date)+'"></td>' +
+        '<td><input class="owner-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'-note" data-poam-note-domain="'+esc(dom)+'" data-poam-note-id="'+esc(id)+'" value="'+esc(note)+'" placeholder="Weakness / notes"></td>' +
+        '<td><input class="milestone-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'" value="'+esc(milestone)+'" placeholder="Milestone / action"></td>' +
       '</tr>';
     });
     tbody.innerHTML = html;
@@ -2154,7 +2154,7 @@
         else if (s === 'na')       cellCls += 'hm-cell-na';
         else                       cellCls += 'hm-cell-ns';
         var tip = domain.domain_id + ' ' + p.id + ' — ' + p.title.slice(0, 65) + (p.title.length > 65 ? '…' : '');
-        html += '<div class="' + cellCls + '" title="' + esc(tip) + '" onclick="jumpToControl(\'' + esc(domain.domain_id) + '\',\'' + esc(p.id) + '\')"></div>';
+        html += '<div class="' + cellCls + '" title="' + esc(tip) + '" data-jump-domain="' + esc(domain.domain_id) + '" data-jump-id="' + esc(p.id) + '" style="cursor:pointer"></div>';
       });
       html += '</div></div>';
     });
@@ -2246,7 +2246,7 @@
     var shown = items.slice(0, 10);
     var html = shown.map(function(item) {
       var domId = item.domain.domain_id;
-      return '<div class="wn-item" onclick="jumpToControl(\'' + esc(domId) + '\',\'' + esc(item.p.id) + '\')">' +
+      return '<div class="wn-item" data-jump-domain="' + esc(domId) + '" data-jump-id="' + esc(item.p.id) + '" style="cursor:pointer">' +
         '<span class="wn-priority ' + item.priorityCls + '">' + esc(item.priorityLabel) + '</span>' +
         '<span class="ctrl-id' + (item.p.level1 ? ' ctrl-id-l1' : '') + '" style="font-size:.68rem;padding:1px 6px">' + esc(domId) + ' ' + esc(item.p.id) + '</span>' +
         '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.79rem">' + esc(item.p.title.slice(0, 65)) + '</span>' +
@@ -2319,7 +2319,7 @@
           '<span class="text-warning fw-semibold">' + (snap.partial||0) + ' partial</span> · ' +
           '<span class="text-danger fw-semibold">' + (snap.notMet||0) + ' not-met</span>' +
         '</div>' +
-        '<button class="snap-del-btn" onclick="deleteSnapshot(' + snap.id + ')" title="Delete snapshot">×</button>' +
+        '<button class="snap-del-btn" data-delete-snapshot="' + snap.id + '" title="Delete snapshot">×</button>' +
       '</div>';
     });
     container.innerHTML = html;
@@ -2792,6 +2792,131 @@
     // Year
     document.querySelectorAll('[data-year]').forEach(function(el){ el.textContent = new Date().getFullYear(); });
   });
+
+  /* ── CSP-compliant delegation — data-action + template-literal buttons ── */
+  (function(){
+    var ACT = {
+      'load-data':            function(){ if(typeof loadData==='function') loadData(); },
+      'toggle-profile':       function(){ if(typeof toggleProfile==='function') toggleProfile(); },
+      'save-profile':         function(){ if(typeof saveProfile==='function') saveProfile(); },
+      'render-ssp':           function(){ if(typeof renderSSP==='function') renderSSP(); },
+      'render-snapshot-list': function(){ if(typeof renderSnapshotList==='function') renderSnapshotList(); },
+      'render-exec-summary':  function(){ if(typeof renderExecSummary==='function') renderExecSummary(); },
+      'toggle-heat-map':      function(el){ if(typeof toggleHeatMap==='function') toggleHeatMap(el); },
+      'toggle-what-next':     function(el){ if(typeof toggleWhatNext==='function') toggleWhatNext(el); },
+      'clear-filters':        function(){ if(typeof clearFilters==='function') clearFilters(); },
+      'print-ssp':            function(){ if(typeof printSSP==='function') printSSP(); },
+      'save-snapshot':        function(){ if(typeof saveSnapshot==='function') saveSnapshot(); },
+      'print-exec-summary':   function(){ if(typeof printExecSummary==='function') printExecSummary(); },
+    };
+
+    document.addEventListener('click', function(e){
+      /* data-action buttons */
+      var act = e.target.closest('[data-action]');
+      if(act){ var fn=ACT[act.dataset.action]; if(fn) fn(act); return; }
+
+      /* data-kb-activate — keyboard activation (Enter / Space) already handled by keydown below */
+
+      /* data-stop-propagation shim (for domain-bulk-wrap) */
+      if(e.target.closest('[data-stop-propagation]')){
+        var wrap=e.target.closest('[data-stop-propagation]');
+        if(wrap && e.target!==wrap && !e.target.closest('[data-toggle-bulk],[data-bulk-action]'))
+          e.stopPropagation();
+      }
+
+      /* data-toggle-domain */
+      var td=e.target.closest('[data-toggle-domain]');
+      if(td && !e.target.closest('[data-toggle-bulk],[data-bulk-action]')){
+        if(typeof toggleDomain==='function') toggleDomain(td, 'dc-'+td.dataset.toggleDomain); return;
+      }
+
+      /* data-toggle-bulk (three-dots button) */
+      var tb=e.target.closest('[data-toggle-bulk]');
+      if(tb){ if(typeof toggleBulkDropdown==='function') toggleBulkDropdown(tb.dataset.toggleBulk, e); return; }
+
+      /* data-bulk-action buttons */
+      var ba=e.target.closest('[data-bulk-action]');
+      if(ba){ if(typeof bulkDomainAction==='function') bulkDomainAction(ba.dataset.domainId, ba.dataset.bulkAction, e); return; }
+
+      /* data-toggle-qa */
+      var tq=e.target.closest('[data-toggle-qa]');
+      if(tq){ if(typeof toggleQA==='function') toggleQA(tq, 'qa-body-'+tq.dataset.toggleQa); return; }
+
+      /* data-toggle-control */
+      var tc=e.target.closest('[data-toggle-control]');
+      if(tc && !e.target.closest('[data-toggle-ev],[data-ev-domain],[data-ev-idx]')){
+        if(typeof toggleControl==='function') toggleControl(tc, tc.dataset.toggleControl); return;
+      }
+
+      /* data-toggle-ev */
+      var te=e.target.closest('[data-toggle-ev]');
+      if(te){ if(typeof toggleEv==='function') toggleEv(te, 'ev-body-'+te.dataset.toggleEv); return; }
+
+      /* data-jump-domain / data-jump-id */
+      var jd=e.target.closest('[data-jump-domain]');
+      if(jd){ if(typeof jumpToControl==='function') jumpToControl(jd.dataset.jumpDomain, jd.dataset.jumpId); return; }
+
+      /* data-delete-snapshot */
+      var ds=e.target.closest('[data-delete-snapshot]');
+      if(ds){ if(typeof deleteSnapshot==='function') deleteSnapshot(+ds.dataset.deleteSnapshot); return; }
+    });
+
+    /* Keyboard activation for data-kb-activate elements */
+    document.addEventListener('keydown', function(e){
+      if(e.key!=='Enter' && e.key!==' ') return;
+      var el=e.target.closest('[data-kb-activate]');
+      if(!el) return;
+      e.preventDefault();
+      el.click();
+    });
+
+    /* Change delegation — evidence checkboxes */
+    document.addEventListener('change', function(e){
+      var cb=e.target.closest('[data-ev-domain][data-ev-idx]');
+      if(cb && typeof saveEvidence==='function'){
+        saveEvidence(cb, cb.dataset.evDomain, +cb.dataset.evIdx); return;
+      }
+    });
+
+    /* Input delegation — notes, owner, date, risk, effort, POAM fields */
+    document.addEventListener('input', function(e){
+      var el=e.target;
+      if(el.dataset.poamNoteDomain){
+        if(typeof savePoamNote==='function') savePoamNote(el, el.dataset.poamNoteDomain, el.dataset.poamNoteId);
+        return;
+      }
+      if(el.classList.contains('notes-textarea') && el.dataset.domain){
+        if(typeof saveNoteDebounced==='function') saveNoteDebounced(el); return;
+      }
+      if((el.classList.contains('owner-input')||el.classList.contains('milestone-input')) && el.dataset.domain){
+        if(el.classList.contains('milestone-input')){
+          if(typeof saveMilestoneDebounced==='function') saveMilestoneDebounced(el);
+        } else {
+          if(typeof saveOwnerDebounced==='function') saveOwnerDebounced(el);
+        }
+        return;
+      }
+    });
+
+    /* Change delegation — date, risk, effort selects/inputs */
+    document.addEventListener('change', function(e){
+      var el=e.target;
+      if(el.classList.contains('date-input') && el.dataset.domain){
+        if(typeof saveDateField==='function') saveDateField(el); return;
+      }
+      if(el.classList.contains('owner-input') && el.tagName==='SELECT' && el.dataset.domain){
+        /* risk or effort select — distinguish by id or position: check if it has a risk-related value */
+        var opts=[...el.options].map(o=>o.value);
+        var riskVals=['low','medium','high','critical','none'];
+        if(opts.some(o=>riskVals.includes(o))){
+          if(typeof saveRiskField==='function') saveRiskField(el);
+        } else {
+          if(typeof saveEffortField==='function') saveEffortField(el);
+        }
+        return;
+      }
+    });
+  })();
   </script>
 </body>
 </html>
