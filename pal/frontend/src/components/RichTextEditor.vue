@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, reactive, watch } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
-import { mergeAttributes } from '@tiptap/core'
+import { mergeAttributes, Node } from '@tiptap/core'
 import { Heading } from '@tiptap/extension-heading'
 import StarterKit from '@tiptap/starter-kit'
 import { TableCell, TableHeader, TableKit } from '@tiptap/extension-table'
-import { HEADING_LEVELS, isSafeHref, normalizeHref, type RichTextNode } from '@/richText'
+import { ApiError, uploadFile } from '@/api/client'
+import { HEADING_LEVELS, IMAGE_ACCEPT, imageUrl, isImageRef, isSafeHref, normalizeHref, type ImageContext, type RichTextNode } from '@/richText'
 
 /**
  * PAL's in-browser editor (ADR-0009, native editor v1): headings, emphasis, lists, quotes,
- * rules, links and tables. Only what the server schema accepts is offered; code, images and
+ * rules, links, tables and images. Only what the server schema accepts is offered; code and
  * colours are deliberately absent. Emits the ProseMirror JSON on every change; saving is the
  * parent's job. `initial` is read once: remount the component (with a new key) to reload.
  */
@@ -18,7 +19,9 @@ const props = withDefaults(defineProps<{
   initial: RichTextNode | null
   label: string
   disabled?: boolean
-}>(), { disabled: false })
+  /** Where this content lives, so its images load through the right access check. */
+  imageContext?: ImageContext
+}>(), { disabled: false, imageContext: undefined })
 
 const editorAttributes = {
   class: 'pal-richtext pal-richtext--editing',
@@ -59,6 +62,32 @@ const PageHeading = Heading.extend({
   },
 }).configure({ levels: [...HEADING_LEVELS] })
 
+// Images are stored files referenced by SHA-256 (decision #29); there is no URL attribute,
+// and only images PAL rendered itself (img[data-sha256]) are recognised when pasting, so
+// pasted content can never pull in an outside image.
+const ContentImage = Node.create({
+  name: 'image',
+  group: 'block',
+  atom: true,
+  draggable: true,
+  addAttributes() {
+    return {
+      sha256: { default: null, parseHTML: (el) => el.getAttribute('data-sha256'), renderHTML: () => ({}) },
+      alt: { default: '', parseHTML: (el) => el.getAttribute('alt') ?? '', renderHTML: () => ({}) },
+    }
+  },
+  parseHTML() {
+    return [{ tag: 'img[data-sha256]' }]
+  },
+  renderHTML({ node }) {
+    const sha = node.attrs.sha256 as unknown
+    const alt = typeof node.attrs.alt === 'string' ? node.attrs.alt : ''
+    return ['img', isImageRef(sha)
+      ? { src: imageUrl(sha, props.imageContext), alt, 'data-sha256': sha, class: 'pal-rt-image' }
+      : { alt, class: 'pal-rt-image' }]
+  },
+})
+
 const emit = defineEmits<{ change: [doc: RichTextNode] }>()
 const $q = useQuasar()
 
@@ -82,6 +111,7 @@ const editor = useEditor({
       },
     }),
     PageHeading,
+    ContentImage,
     // Column resizing stores pixel widths the server does not keep; leave it off.
     TableKit.configure({ table: { resizable: false }, tableCell: false, tableHeader: false }),
     withoutCellLayout(TableCell),
@@ -98,6 +128,9 @@ watch(() => props.disabled, (disabled) => {
 onBeforeUnmount(() => editor.value?.destroy())
 
 const inTable = computed(() => editor.value?.isActive('table') ?? false)
+const onImage = computed(() => editor.value?.isActive('image') ?? false)
+const uploadingImage = ref(false)
+const imageInput = ref<HTMLInputElement | null>(null)
 const blockLabel = computed(() => {
   for (const level of HEADING_LEVELS) {
     if (editor.value?.isActive('heading', { level })) return `Heading ${level}`
@@ -113,6 +146,45 @@ function chain() {
 function setBlock(level: number | null): void {
   if (level === null) chain().setParagraph().run()
   else chain().setHeading({ level: level as Level }).run()
+}
+
+function askImageDescription(current: string, onOk: (alt: string) => void): void {
+  $q.dialog({
+    title: 'Image description',
+    message: 'Describe what the image shows for people who cannot see it. Leave it empty only if the image is purely decorative. (PAL removes hidden photo data such as location; animated GIFs become still images.)',
+    prompt: { model: current, type: 'text', label: 'Description (up to 250 characters)', isValid: (v: string) => v.length <= 250 },
+    cancel: { flat: true, noCaps: true, label: 'Cancel' },
+    ok: { color: 'primary', unelevated: true, noCaps: true, label: 'Save description' },
+  }).onOk((alt: string) => onOk(alt.trim()))
+}
+
+function pickImage(): void {
+  if (!uploadingImage.value) imageInput.value?.click()
+}
+
+async function onImageChosen(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (file === undefined) return
+  uploadingImage.value = true
+  try {
+    const uploaded = await uploadFile(file, 'image')
+    askImageDescription('', (alt) => {
+      chain().insertContent({ type: 'image', attrs: { sha256: uploaded.sha256, alt } }).run()
+    })
+  } catch (e) {
+    $q.notify({ type: 'negative', message: e instanceof ApiError ? e.message : 'The image could not be uploaded.' })
+  } finally {
+    uploadingImage.value = false
+  }
+}
+
+function editImageDescription(): void {
+  const current = editor.value?.getAttributes('image').alt
+  askImageDescription(typeof current === 'string' ? current : '', (alt) => {
+    chain().updateAttributes('image', { alt }).run()
+  })
 }
 
 function editLink(): void {
@@ -150,6 +222,8 @@ const blocks: ToolButton[] = [
   { icon: 'format_quote', label: 'Quote', active: () => editor.value?.isActive('blockquote') ?? false, run: () => chain().toggleBlockquote().run() },
   { icon: 'horizontal_rule', label: 'Divider line', run: () => chain().setHorizontalRule().run() },
   { icon: 'table_chart', label: 'Insert table', enabled: () => !inTable.value, run: () => chain().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() },
+  { icon: 'image', label: 'Insert image', enabled: () => !uploadingImage.value, run: pickImage },
+  { icon: 'notes', label: 'Image description', enabled: () => onImage.value, run: editImageDescription },
 ]
 const history: ToolButton[] = [
   { icon: 'undo', label: 'Undo', enabled: () => editor.value?.can().undo() ?? false, run: () => chain().undo().run() },
@@ -307,6 +381,22 @@ const tableActions: { label: string; run: () => void }[] = [
         @click="disabled || action.run()"
       />
     </div>
+    <input
+      ref="imageInput"
+      type="file"
+      :accept="IMAGE_ACCEPT"
+      class="pal-visually-hidden"
+      tabindex="-1"
+      aria-hidden="true"
+      @change="onImageChosen"
+    >
+    <p
+      v-if="uploadingImage"
+      class="pal-muted q-ma-sm"
+      role="status"
+    >
+      <q-spinner size="16px" /> Uploading and checking the image…
+    </p>
     <EditorContent
       :editor="editor"
       class="pal-editor-content"

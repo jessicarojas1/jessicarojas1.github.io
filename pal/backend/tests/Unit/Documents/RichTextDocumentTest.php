@@ -113,7 +113,10 @@ final class RichTextDocumentTest extends TestCase
         yield 'top level is not a doc' => [self::p([])];
         yield 'raw html node' => [self::doc([['type' => 'html', 'content' => [['type' => 'text', 'text' => '<script>alert(1)</script>']]]])];
         yield 'iframe node' => [self::doc([['type' => 'iframe']])];
-        yield 'image node (not in v1)' => [self::doc([['type' => 'image', 'attrs' => ['src' => 'https://evil.test/x.png']]])];
+        yield 'image by URL instead of stored file' => [self::doc([['type' => 'image', 'attrs' => ['src' => 'https://evil.test/x.png']]])];
+        yield 'image with a malformed reference' => [self::doc([['type' => 'image', 'attrs' => ['sha256' => '../../etc/passwd']]])];
+        yield 'image with an overlong description' => [self::doc([['type' => 'image', 'attrs' => ['sha256' => str_repeat('a', 64), 'alt' => str_repeat('x', 251)]]])];
+        yield 'image inside a paragraph' => [self::doc([self::p([['type' => 'image', 'attrs' => ['sha256' => str_repeat('a', 64)]]])])];
         yield 'text at block level' => [self::doc([['type' => 'text', 'text' => 'loose']])];
         yield 'block inside paragraph' => [self::doc([self::p([['type' => 'heading', 'attrs' => ['level' => 1]]])])];
         yield 'unknown mark' => [self::doc([self::p([['type' => 'text', 'text' => 'x', 'marks' => [['type' => 'textStyle', 'attrs' => ['style' => 'x']]]]])])];
@@ -170,6 +173,18 @@ final class RichTextDocumentTest extends TestCase
         self::assertStringContainsString('{"type":"paragraph","content":[{"type":"text","text":"kept"}]}', $body['json']);
         self::assertStringContainsString('{"type":"orderedList","content"', $body['json']);
         self::assertStringContainsString('"attrs":{"colspan":20}', $body['json']);
+    }
+
+    public function testImagesAreStoredReferencesWithADescription(): void
+    {
+        $sha = str_repeat('b', 64);
+        $body = RichTextDocument::normalize(self::doc([['type' => 'image', 'attrs' => ['sha256' => $sha, 'alt' => " Wrench\non bench ", 'src' => 'https://evil.test/', 'width' => 99]]]));
+
+        self::assertNotNull($body, 'An image alone is content.');
+        self::assertSame('{"type":"doc","content":[{"type":"image","attrs":{"sha256":"'.$sha.'","alt":"Wrench on bench"}}]}', $body['json']);
+        self::assertSame([$sha], $body['images']);
+        self::assertStringContainsString('Wrench on bench', $body['text']);
+        self::assertSame([$sha], RichTextDocument::imagesIn($body['json']));
     }
 
     public function testMailtoAndHttpLinksAreAllowed(): void

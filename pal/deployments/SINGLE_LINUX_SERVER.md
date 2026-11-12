@@ -234,6 +234,7 @@ Set in `deploy/pal.env` (Compose `env_file`). Values not set fall back to the im
 | `PAL_BLOB_DIR` | `/srv/pal/data/blobs` | Blob store root (image default). Must be writable by uid 10001; `/health/ready` reports `"storage":"fail"` otherwise | web | |
 | `PAL_MAX_UPLOAD_BYTES` | `26214400` | Largest accepted file. App default is `52428800` (`backend/.env.example`); `pal.env.example` sets this to stay within clamd's default `StreamMaxLength` (25 MiB) | web | |
 | `PAL_UPLOAD_DAILY_BYTES` | `524288000` | Per-user limit on clean uploaded bytes in any 24 hours (429 `upload_quota_exceeded`) | web | |
+| `PAL_MAX_IMAGE_BYTES` | `10485760` (default) | Largest image for document content (images are re-encoded without metadata; never above `PAL_MAX_UPLOAD_BYTES`; 413 `file_too_large`) | web |  |
 | `PAL_CLAMD_ADDRESS` | `clamd:3310` | ClamAV daemon. Empty or unreachable: uploads are refused (503 `scanner_unavailable`). `tcp://clamd:3310` also works | web | Uploads |
 | `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0` and run ClamAV. `1` is an explicit opt-out honoured in any environment when `PAL_CLAMD_ADDRESS` is empty (logged as error, recorded `none (unscanned)` in prod) — not for a server with real documents | web | |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` | `admin` | First local administrator, created by `migrate` only if no local account exists. Delete after first sign-in | migrate | |

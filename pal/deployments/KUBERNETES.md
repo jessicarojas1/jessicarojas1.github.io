@@ -136,6 +136,7 @@ Same set as the Linux guide (full descriptions: [SINGLE_LINUX_SERVER.md §5](SIN
 | `PAL_BLOB_DIR` | `/srv/pal/data/blobs` | Blob store root (image default). Must be writable by uid 10001; `/health/ready` reports `"storage":"fail"` otherwise | Image default |
 | `PAL_MAX_UPLOAD_BYTES` | `26214400` | Largest accepted file. App default is `52428800`; set this to stay within clamd's default `StreamMaxLength` (25 MiB) | ConfigMap |
 | `PAL_UPLOAD_DAILY_BYTES` | `524288000` | Per-user limit on clean uploaded bytes in any 24 hours | ConfigMap |
+| `PAL_MAX_IMAGE_BYTES` | `10485760` (default) | Largest image for document content (images are re-encoded without metadata; never above `PAL_MAX_UPLOAD_BYTES`; 413 `file_too_large`) | ConfigMap |
 | `PAL_CLAMD_ADDRESS` | `tcp://pal-clamav:3310` | ClamAV daemon. Empty or unreachable: uploads are refused | ConfigMap |
 | `PAL_ALLOW_UNSCANNED_UPLOADS` | `0` | Leave `0` and run ClamAV. `1` is an explicit opt-out honoured in any environment (logged as error, recorded `none (unscanned)` in prod) — not for a cluster holding real documents | ConfigMap |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` / `PAL_BOOTSTRAP_LOCAL_ADMIN_PASSWORD` | `admin` / 12+ characters, one-off | First local administrator; temporary password. Delete after first sign-in | Secret `pal-bootstrap`, migrate Job only |
@@ -203,6 +204,7 @@ data:
   LOG_LEVEL: "info"
   PAL_MAX_UPLOAD_BYTES: "26214400"
   PAL_UPLOAD_DAILY_BYTES: "524288000"
+  PAL_MAX_IMAGE_BYTES: "10485760"
   PAL_CLAMD_ADDRESS: "tcp://pal-clamav:3310"
   PAL_ALLOW_UNSCANNED_UPLOADS: "0"
 ---

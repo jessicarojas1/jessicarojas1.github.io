@@ -30,9 +30,11 @@ FROM ${PHP_IMAGE} AS runtime
 # Apply OS security updates published after the base image was built (Trivy gates HIGH/CRITICAL).
 # hadolint ignore=DL3017
 RUN apk upgrade --no-cache
-RUN apk add --no-cache --virtual .build-deps postgresql-dev icu-dev $PHPIZE_DEPS \
-    && docker-php-ext-install -j"$(nproc)" pdo_pgsql intl opcache \
-    && apk add --no-cache libpq icu-libs nginx supervisor tini \
+# gd + exif: images in editor content are re-encoded without metadata, upright (decision #29).
+RUN apk add --no-cache --virtual .build-deps postgresql-dev icu-dev libpng-dev libjpeg-turbo-dev libwebp-dev $PHPIZE_DEPS \
+    && docker-php-ext-configure gd --with-jpeg --with-webp \
+    && docker-php-ext-install -j"$(nproc)" pdo_pgsql intl opcache gd exif \
+    && apk add --no-cache libpq icu-libs libpng libjpeg-turbo libwebp nginx supervisor tini \
     && apk del .build-deps \
     && rm -rf /var/cache/apk/* /tmp/*
 COPY deploy/php/php.ini /usr/local/etc/php/conf.d/zz-pal.ini

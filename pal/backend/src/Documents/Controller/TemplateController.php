@@ -6,6 +6,7 @@ namespace App\Documents\Controller;
 
 use App\Audit\AuditEntry;
 use App\Audit\AuditLogger;
+use App\Documents\ContentImages;
 use App\Documents\ReferenceRepository;
 use App\Documents\RichTextDocument;
 use App\Documents\TemplateRepository;
@@ -34,6 +35,7 @@ final class TemplateController
         private readonly ReferenceRepository $reference,
         private readonly Connection $connection,
         private readonly AuditLogger $audit,
+        private readonly ContentImages $images,
     ) {
     }
 
@@ -81,6 +83,7 @@ final class TemplateController
         if ([] !== $errors || null === $type || null === $body) {
             throw ApiProblem::validation($errors);
         }
+        $this->images->assertMayUse($user, $body['images'], []);
 
         try {
             $id = $this->connection->transactional(function () use ($user, $type, $name, $description, $body): string {
@@ -89,6 +92,7 @@ final class TemplateController
                     [Row::string($type, 'id'), $name, $description, $body['json'], $user->id, $user->id],
                 ));
                 $this->templates->recordVersion($id, 1, $name, $description, $body['json'], $user->id);
+                $this->images->recordTemplateVersion($id, 1, $body['images']);
                 $this->audit->record(new AuditEntry('TEMPLATE_CREATED', $user->auditActor(), 'document_template', $id, [
                     'document_type' => Row::string($type, 'code'), 'name' => $name, 'description' => $description, 'body_sha256' => $body['sha256'], 'version' => 1,
                 ]));
@@ -132,6 +136,10 @@ final class TemplateController
                 if ([] !== $errors) {
                     throw ApiProblem::validation($errors);
                 }
+                if (null !== $body) {
+                    // Any version's images may be reused (restoring an older version).
+                    $this->images->assertMayUse($user, $body['images'], $this->images->ofTemplate($id));
+                }
                 $bodyJson = $body['json'] ?? Row::string($current, 'body_json');
 
                 $changes = [];
@@ -152,6 +160,7 @@ final class TemplateController
                 if ($contentChanged) {
                     ++$version;
                     $this->templates->recordVersion($id, $version, $name, $description, $bodyJson, $user->id);
+                    $this->images->recordTemplateVersion($id, $version, RichTextDocument::imagesIn($bodyJson));
                     $changes['version'] = ['from' => $version - 1, 'to' => $version];
                 }
                 $this->connection->executeStatement(
@@ -243,7 +252,7 @@ final class TemplateController
      * @param array<string, mixed>  $input
      * @param array<string, string> $errors
      *
-     * @return array{json: string, text: string, sha256: string}|null
+     * @return array{json: string, text: string, sha256: string, images: list<string>}|null
      */
     private function validateBody(array $input, array &$errors): ?array
     {

@@ -104,6 +104,7 @@ Mode A reads `backend/.env` (copy of `.env.example`) then `backend/.env.local` (
 | `PAL_BLOB_DIR` | `/absolute/path/to/pal/backend/var/blobs` | Blob store. `.env.example` has the relative `var/blobs`, which resolves against the PHP process's working directory; use an absolute path so web and console agree |
 | `PAL_MAX_UPLOAD_BYTES` | `52428800` | App default. `php -S` uses your local `php.ini` limits, not the image's: `upload_max_filesize` and `post_max_size` may need raising |
 | `PAL_UPLOAD_DAILY_BYTES` | `524288000` | Per-user daily limit |
+| `PAL_MAX_IMAGE_BYTES` | `10485760` (default) | Largest image for document content (images are re-encoded without metadata; never above `PAL_MAX_UPLOAD_BYTES`; 413 `file_too_large`) |
 | `PAL_CLAMD_ADDRESS` | *(empty)* or `tcp://127.0.0.1:3310` | ClamAV daemon. Bare `host:port` also works (PHP assumes TCP) |
 | `PAL_ALLOW_UNSCANNED_UPLOADS` | `1` | **Development only**, with an empty `PAL_CLAMD_ADDRESS`. Ignored when `APP_ENV=prod`. Files record scan engine `none (development)` |
 | `PAL_BOOTSTRAP_LOCAL_ADMIN_USERNAME` | `admin` | First local administrator; used by `pal:users:bootstrap-admin` |

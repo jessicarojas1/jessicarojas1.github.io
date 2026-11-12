@@ -26,6 +26,7 @@ final class UploadService
         private readonly BlobStore $blobs,
         private readonly MalwareScanner $scanner,
         private readonly FileTypePolicy $types,
+        private readonly ImageSanitizer $images,
         private readonly AuditLogger $audit,
         private readonly Connection $connection,
         private readonly ClockInterface $clock,
@@ -33,7 +34,15 @@ final class UploadService
         private readonly int $maxBytes,
         #[Autowire(env: 'int:default:pal.upload_daily_bytes_default:PAL_UPLOAD_DAILY_BYTES')]
         private readonly int $dailyBytes = 524_288_000,
+        #[Autowire(env: 'int:default:pal.max_image_bytes_default:PAL_MAX_IMAGE_BYTES')]
+        private readonly int $maxImageBytes = 10_485_760,
     ) {
+    }
+
+    /** The configured image limit (PAL_MAX_IMAGE_BYTES). */
+    public function maxImageBytes(): int
+    {
+        return min($this->maxImageBytes, $this->maxBytes);
     }
 
     /** The configured upload limit (PAL_MAX_UPLOAD_BYTES), shown to users before they upload. */
@@ -43,9 +52,20 @@ final class UploadService
     }
 
     /**
+     * An image for document content: the same pipeline as files, with the image allow-list
+     * and size limit, and the stored bytes are a metadata-free re-encoding (decision #29).
+     *
      * @return array{id: string, filename: string, sizeBytes: int, mime: string, sha256: string}
      */
-    public function accept(UploadedFile $file, PalUser $user): array
+    public function acceptImage(UploadedFile $file, PalUser $user): array
+    {
+        return $this->accept($file, $user, true);
+    }
+
+    /**
+     * @return array{id: string, filename: string, sizeBytes: int, mime: string, sha256: string}
+     */
+    public function accept(UploadedFile $file, PalUser $user, bool $image = false): array
     {
         if (!$file->isValid()) {
             if (\in_array($file->getError(), [\UPLOAD_ERR_INI_SIZE, \UPLOAD_ERR_FORM_SIZE], true)) {
@@ -62,14 +82,15 @@ final class UploadService
             throw new ApiProblem(422, 'file_empty', 'The file is empty.');
         }
         $this->assertWithinDailyQuota($user, $size);
-        if ($size > $this->maxBytes) {
+        $limit = $image ? $this->maxImageBytes() : $this->maxBytes;
+        if ($size > $limit) {
             $this->record($user, $actor, $filename, $size, null, null, 'REJECTED', 'too large');
-            throw new ApiProblem(413, 'file_too_large', $this->tooLargeMessage());
+            throw new ApiProblem(413, 'file_too_large', $this->tooLargeMessage($limit));
         }
 
         $sha256 = (string) hash_file('sha256', $path);
         $mime = $this->types->detect($path);
-        $reason = $this->types->rejectionReason($mime, $filename);
+        $reason = $image ? $this->images->rejectionReason($mime, $filename) : $this->types->rejectionReason($mime, $filename);
         if (null !== $reason) {
             $this->record($user, $actor, $filename, $size, $sha256, $mime, 'REJECTED', $reason);
             throw new ApiProblem(422, 'file_type_not_allowed', $reason);
@@ -85,20 +106,38 @@ final class UploadService
             throw new ApiProblem(503, 'scanner_unavailable', 'Files cannot be checked for malware right now, so the upload was not accepted. Try again later.');
         }
 
-        // Content-addressed and idempotent: storing before the DB write can only leave an
-        // unreferenced blob behind (harmless; collected later), never a dangling reference.
-        $this->blobs->put($path, $sha256);
+        // Images are stored as a metadata-free re-encoding of the scanned original.
+        $storedPath = $path;
+        if ($image) {
+            try {
+                $storedPath = $this->images->sanitize($path, $mime);
+            } catch (ApiProblem $problem) {
+                $this->record($user, $actor, $filename, $size, $sha256, $mime, 'REJECTED', $problem->getMessage());
+                throw $problem;
+            }
+        }
+        try {
+            $storedSha = $storedPath === $path ? $sha256 : (string) hash_file('sha256', $storedPath);
+            $storedSize = (int) filesize($storedPath);
+            // Content-addressed and idempotent: storing before the DB write can only leave an
+            // unreferenced blob behind (harmless; collected later), never a dangling reference.
+            $this->blobs->put($storedPath, $storedSha);
+        } finally {
+            if ($storedPath !== $path) {
+                @unlink($storedPath);
+            }
+        }
 
-        $id = $this->connection->transactional(function () use ($user, $actor, $filename, $size, $sha256, $mime, $scan): string {
+        $id = $this->connection->transactional(function () use ($user, $actor, $filename, $size, $sha256, $mime, $scan, $storedSha, $storedSize): string {
             $this->connection->executeStatement(
                 'INSERT INTO stored_file (sha256, size_bytes, detected_mime, scan_engine, scanned_at, storage_backend) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (sha256) DO NOTHING',
-                [$sha256, $size, $mime, $scan->engine, $this->clock->now()->format('Y-m-d H:i:s.uP'), $this->blobs->backendName()],
+                [$storedSha, $storedSize, $mime, $scan->engine, $this->clock->now()->format('Y-m-d H:i:s.uP'), $this->blobs->backendName()],
             );
 
-            return $this->record($user, $actor, $filename, $size, $sha256, $mime, 'CLEAN', null, $sha256);
+            return $this->record($user, $actor, $filename, $size, $sha256, $mime, 'CLEAN', null, $storedSha);
         });
 
-        return ['id' => $id, 'filename' => $filename, 'sizeBytes' => $size, 'mime' => $mime, 'sha256' => $sha256];
+        return ['id' => $id, 'filename' => $filename, 'sizeBytes' => $storedSize, 'mime' => $mime, 'sha256' => $storedSha];
     }
 
     /**
@@ -156,8 +195,8 @@ final class UploadService
         }
     }
 
-    private function tooLargeMessage(): string
+    private function tooLargeMessage(?int $limit = null): string
     {
-        return \sprintf('Files can be up to %d MB.', intdiv($this->maxBytes, 1_048_576));
+        return \sprintf('Files can be up to %d MB.', intdiv($limit ?? $this->maxBytes, 1_048_576));
     }
 }

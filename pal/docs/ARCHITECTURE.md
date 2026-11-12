@@ -142,13 +142,14 @@ Allowed dependencies (`deptrac.yaml`): Platform → Audit, Identity (only so the
 | GET | `/api/reference` | Authenticated | Active document types and departments, plus `maxUploadBytes` (the configured `PAL_MAX_UPLOAD_BYTES`) |
 | GET | `/api/library` | Authenticated | Published documents the user may see (`q`, `type`, `department`, `page`; page size 25; authorization in SQL) |
 | GET | `/api/workspace` | Authenticated | My documents, my open tasks; documents awaiting release for holders of `publication.release` |
-| POST | `/api/uploads` | Authenticated + CSRF, 30/hour per user + daily quota | Multipart field `file`; runs the upload pipeline (§3.4). The only endpoint accepting large bodies |
+| POST | `/api/uploads` | Authenticated + CSRF, 30/hour per user + daily quota | Multipart field `file`; runs the upload pipeline (§3.4). With `purpose=image`: image allow-list (PNG, JPEG, WebP, GIF), `PAL_MAX_IMAGE_BYTES`, then re-encoded without metadata before storing. The only endpoint accepting large bodies |
 | POST | `/api/documents` | `document.create` + CSRF | Creates a document and its first draft; optional `templateId` (an active template of the chosen type) seeds the draft body |
 | GET | `/api/documents/{id}` | Visibility check, else 404 | Document, revisions, available actions |
 | GET | `/api/documents/{id}/approvers` | Owner or author, else 404 | Eligible approvers (excludes the owner and anyone who contributed to the draft) |
 | POST | `/api/documents/{id}/revisions` | Owner or author + CSRF, else 404 | Starts the next revision of a published document |
 | POST / DELETE | `/api/documents/{id}/grants`, `…/grants/{grantId}` | Owner or `document.manage_access` + CSRF | Adds or revokes a grant to a person or directory group |
 | PUT | `/api/revisions/{id}/body` | Owner or author + CSRF, `DRAFT` only, else 404/409 | Saves editor content `{body, rowVersion}` (request ≤ 2 MiB, canonical body ≤ 1 MiB, JSON depth ≤ 128; access and state are checked before the body is parsed). Validated by `RichTextDocument` (422 with `fields.body`); `null` or an empty document clears it; identical content is a no-op; 409 `edit_conflict` on a stale `rowVersion` |
+| GET | `/api/images/{sha256}?revision=ID` \| `?template=ID` | Read access to that revision (published or work in progress) and the revision shows the image; or `admin.templates` and a template version shows it; or the caller uploaded it. Else 404 | Image bytes for editor content (`nosniff`, sandbox CSP, `Cache-Control: private, immutable`). Decision #29 |
 | GET | `/api/revisions/{id}/compare` | Read access to both revisions by the download rule, else 404; logged `revision_compared` | What changed since the revision it was based on: `{before, after, fields[], file, body: {blocks[], truncated}}`; blocks are `same`/`added`/`removed`/`changed` (with a word diff). 404 `nothing_to_compare` for a first revision. Decision #28 |
 | POST / DELETE | `/api/revisions/{id}/editing` | POST: owner or author + CSRF, `DRAFT` only (404/409 otherwise); DELETE: CSRF, removes only the caller's own claim | Soft checkout heartbeat: returns `{holder, mine}`; a fresh claim by someone else is reported, not taken over. Claims lapse after 150 s (`DocumentRepository::EDITING_WINDOW_SECONDS`); new claims audited `REVISION_EDITING_STARTED` |
 | GET | `/api/document-types/{id}/templates` | `document.create` | Active templates of an active type (id, name, description) for the create form |
@@ -338,7 +339,8 @@ The selected production target is **on-premises Linux with Docker Compose** (`de
 | Soft checkout ("who is editing", advisory) | Implemented (2026-11-10) |
 | Template version history (immutable versions, view/restore, revision records its template version) | Implemented (decision #27) |
 | Revision comparison (metadata, file, content blocks with word diff) for authors, approvers and publishers | Implemented (decision #28) |
-| Editor images, callouts, cross-references, PDF rendition, configurable numbering, minor versions, rollback, category grants | *Planned — Phase 3* |
+| Images in editor content (scanned, metadata stripped, access-checked) | Implemented (decision #29) |
+| Editor callouts, cross-references, PDF rendition, configurable numbering, minor versions, rollback, category grants | *Planned — Phase 3* |
 | Multi-stage workflow engine, delegation, escalation, re-authentication for approvals | *Planned — Phase 4* |
 | Scheduled publication, separate effective dates, emergency publish, obsolete/archive, legal hold | *Planned — Phase 5* |
 | Previews (PDF.js, Gotenberg), notifications (SMTP), reports, audit export, as-of view, `/admin/audit/verify` UI | *Planned — Phase 6* |

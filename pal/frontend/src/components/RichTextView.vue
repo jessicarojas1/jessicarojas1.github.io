@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, h, type PropType, type VNode, type VNodeArrayChildren } from 'vue'
-import { isSafeHref, type RichTextNode } from '@/richText'
+import { imageUrl, isImageRef, isSafeHref, type ImageContext, type RichTextNode } from '@/richText'
 
 /**
  * Read-only rendering of editor content. Every node becomes a Vue element chosen from a
@@ -22,6 +22,8 @@ export default defineComponent({
     heading: { type: String, default: null },
     /** Content heading N renders as <h(N+offset)>, capped at <h6>. */
     levelOffset: { type: Number, default: 2 },
+    /** Where the content is shown, so its images load through the right access check. */
+    imageContext: { type: Object as PropType<ImageContext>, default: undefined },
   },
   setup(props) {
     const children = (node: RichTextNode): VNodeArrayChildren => (node.content ?? []).map(render)
@@ -64,6 +66,14 @@ export default defineComponent({
         case 'listItem': return h('li', children(node))
         case 'blockquote': return h('blockquote', children(node))
         case 'horizontalRule': return h('hr')
+        case 'image': {
+          const sha = node.attrs?.sha256
+          if (!isImageRef(sha)) return null
+          const alt = typeof node.attrs?.alt === 'string' ? node.attrs.alt : ''
+          return h('figure', { class: 'pal-rt-figure' }, [
+            h('img', { src: imageUrl(sha, props.imageContext), alt, loading: 'lazy', decoding: 'async', class: 'pal-rt-image' }),
+          ])
+        }
         case 'hardBreak': return h('br')
         case 'table': return h('div', { class: 'pal-rt-table-wrap' }, [h('table', [h('tbody', children(node))])])
         case 'tableRow': return h('tr', children(node))

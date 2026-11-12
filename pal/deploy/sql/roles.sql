@@ -61,6 +61,8 @@ WHERE EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename 
 -- second layer.
 SELECT format('REVOKE UPDATE, DELETE, TRUNCATE ON public.document_template_version FROM %I', :'app_role')
 WHERE EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'document_template_version') \gexec
+SELECT format('REVOKE UPDATE, DELETE, TRUNCATE ON public.template_version_image FROM %I', :'app_role')
+WHERE EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'template_version_image') \gexec
 
 -- Migration bookkeeping is the owner's business only.
 SELECT format('REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.doctrine_migration_versions FROM %I', :'app_role')

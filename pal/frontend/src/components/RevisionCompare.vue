@@ -266,6 +266,7 @@ const OP_LABELS = { added: 'Added', removed: 'Removed', changed: 'Edited' } as c
               <RichTextView
                 v-if="showUnchanged"
                 :doc="{ type: 'doc', content: item.nodes }"
+                :image-context="{ revision: revisionId }"
                 label="Unchanged content"
                 :level-offset="3"
               />
@@ -351,6 +352,7 @@ const OP_LABELS = { added: 'Added', removed: 'Removed', changed: 'Edited' } as c
                     </p>
                     <RichTextView
                       :doc="asDoc(item.before)"
+                      :image-context="{ revision: result.before.id }"
                       :label="`Before, revision ${result.before.label}`"
                       :level-offset="3"
                     />
@@ -361,6 +363,7 @@ const OP_LABELS = { added: 'Added', removed: 'Removed', changed: 'Edited' } as c
                     </p>
                     <RichTextView
                       :doc="asDoc(item.node)"
+                      :image-context="{ revision: revisionId }"
                       label="After, this revision"
                       :level-offset="3"
                     />
@@ -370,6 +373,7 @@ const OP_LABELS = { added: 'Added', removed: 'Removed', changed: 'Edited' } as c
               <RichTextView
                 v-else
                 :doc="asDoc(item.node)"
+                :image-context="{ revision: item.op === 'removed' ? result.before.id : revisionId }"
                 :label="`${OP_LABELS[item.op]} content`"
                 :level-offset="3"
               />

@@ -92,10 +92,14 @@ export interface UploadResult {
   sha256: string
 }
 
-/** Uploads one file (multipart) to the scanning pipeline. */
-export async function uploadFile(file: File): Promise<UploadResult> {
+/**
+ * Uploads one file (multipart) to the scanning pipeline. purpose 'image' is an image for
+ * document content: image allow-list and size limit, stored without metadata.
+ */
+export async function uploadFile(file: File, purpose: 'file' | 'image' = 'file'): Promise<UploadResult> {
   const form = new FormData()
   form.append('file', file)
+  if (purpose === 'image') form.append('purpose', 'image')
   const headers: Record<string, string> = { Accept: 'application/json' }
   if (csrfToken !== null) headers['X-CSRF-Token'] = csrfToken
   let response: Response

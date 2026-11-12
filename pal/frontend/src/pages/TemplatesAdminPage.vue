@@ -528,6 +528,7 @@ onMounted(load)
                 :key="editorKey"
                 :initial="formInitial"
                 :disabled="!canEdit"
+                :image-context="editingId && editingId !== 'new' ? { template: editingId } : undefined"
                 label="Template content"
                 @change="formBody = $event"
               />
@@ -715,6 +716,7 @@ onMounted(load)
           </h3>
           <RichTextView
             :doc="viewing.body"
+            :image-context="editingId && editingId !== 'new' ? { template: editingId } : undefined"
             :label="`Content of version ${viewing.version}`"
           />
         </q-card-section>

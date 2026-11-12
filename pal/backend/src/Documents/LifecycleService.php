@@ -32,6 +32,7 @@ final class LifecycleService
         private readonly DocumentAccess $access,
         private readonly ReferenceRepository $reference,
         private readonly TemplateRepository $templates,
+        private readonly ContentImages $images,
         private readonly UploadService $uploads,
         private readonly BlobStore $blobs,
         private readonly AuditLogger $audit,
@@ -86,6 +87,8 @@ final class LifecycleService
                 [$number, Row::string($type, 'id'), Row::string($department, 'id'), $user->id, $restricted ? 'RESTRICTED' : 'ALL_EMPLOYEES', $user->id],
             ));
             $revisionId = $this->insertDraft($documentId, 1, $content, $user, null, $body);
+            // Images come with the template version (already vetted when the template was saved).
+            $this->images->syncRevision($revisionId, $body['images'] ?? []);
             if (null !== $template) {
                 $this->connection->executeStatement(
                     'UPDATE revision SET template_id = ?, template_version = ? WHERE id = ?',
@@ -163,6 +166,7 @@ final class LifecycleService
             // Access and state first, so only an editor of this draft makes PAL parse the body.
             [$document, $revision] = $this->lockForDraftChange($user, $revisionId);
             $body = RichTextDocument::normalize($input['body'] ?? null);
+            $this->images->assertMayUse($user, $body['images'] ?? [], $this->images->ofRevision($revisionId));
             if (Row::int($revision, 'row_version') !== $rowVersion) {
                 throw new ApiProblem(409, 'edit_conflict', 'Someone else changed this draft. Reload to see their changes.');
             }
@@ -174,6 +178,7 @@ final class LifecycleService
                 'UPDATE revision SET body_json = ?, body_text = ?, updated_at = now(), row_version = row_version + 1 WHERE id = ? AND row_version = ?',
                 [$body['json'] ?? null, $body['text'] ?? null, $revisionId, $rowVersion],
             );
+            $this->images->syncRevision($revisionId, $body['images'] ?? []);
             $this->audit->record(new AuditEntry('REVISION_EDITED', $this->actor($user), 'revision', $revisionId, [
                 'document_id' => Row::string($document, 'id'),
                 'body' => [
@@ -472,6 +477,7 @@ final class LifecycleService
             $publishedBody = Row::nullableString($published, 'body_json');
             $body = null === $publishedBody ? null : ['json' => $publishedBody, 'text' => Row::string($published, 'body_text')];
             $revisionId = $this->insertDraft($documentId, $major, $content, $user, Row::string($published, 'id'), $body);
+            $this->images->syncRevision($revisionId, RichTextDocument::imagesIn($publishedBody));
             $file = $this->documents->primaryFile(Row::string($published, 'id'));
             if (null !== $file) {
                 $this->setPrimaryFile($revisionId, Row::string($file, 'sha256'), Row::string($file, 'original_filename'));
@@ -561,6 +567,11 @@ final class LifecycleService
         $recorded = Row::nullableString($revision, 'content_manifest_hash');
         if (!\is_string($approvedHash) || null === $recorded || !hash_equals($approvedHash, $recorded) || !hash_equals($recorded, $recomputed)) {
             throw new ApiProblem(409, 'approval_integrity_failed', 'The approved content could not be verified, so the revision was not released.');
+        }
+        // Images in the content are covered by the body hash (by SHA-256); their bytes must
+        // still match too.
+        foreach ($this->images->ofRevision($revisionId) as $imageSha) {
+            $files[] = ['role' => 'IMAGE', 'sha256' => $imageSha, 'filename' => $imageSha];
         }
         foreach ($files as $file) {
             if (!$this->blobs->exists($file['sha256'])) {

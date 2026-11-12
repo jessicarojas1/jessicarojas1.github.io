@@ -39,6 +39,9 @@ final class UploadController
             throw ApiProblem::validation(['file' => 'Choose a file to upload.']);
         }
 
-        return new JsonResponse($this->uploads->accept($file, $user), 201);
+        // purpose=image: an image for document content (allow-list, size limit, metadata stripped).
+        $image = 'image' === $request->request->get('purpose');
+
+        return new JsonResponse($image ? $this->uploads->acceptImage($file, $user) : $this->uploads->accept($file, $user), 201);
     }
 }

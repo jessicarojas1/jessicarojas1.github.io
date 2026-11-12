@@ -759,3 +759,21 @@ body {
 .pal-compare {
   overflow-wrap: anywhere;
 }
+
+// Images in content (decision #29).
+.pal-rt-figure {
+  margin: 0 0 var(--pal-space-3);
+}
+
+.pal-rt-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--pal-radius-sm);
+}
+
+.pal-editor-content .ProseMirror .ProseMirror-selectednode.pal-rt-image,
+.pal-editor-content .ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid var(--pal-focus);
+  outline-offset: 2px;
+}

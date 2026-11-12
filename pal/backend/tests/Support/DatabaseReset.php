@@ -16,17 +16,49 @@ trait DatabaseReset
     {
         $connection->executeStatement('ALTER TABLE audit_event DISABLE TRIGGER trg_audit_event_no_truncate');
         $connection->executeStatement('ALTER TABLE document_template_version DISABLE TRIGGER trg_template_version_no_truncate');
+        $connection->executeStatement('ALTER TABLE template_version_image DISABLE TRIGGER trg_template_version_image_no_truncate');
         try {
             $connection->executeStatement('ALTER TABLE revision DISABLE TRIGGER trg_revision_immutable');
             $connection->executeStatement('ALTER TABLE revision_file DISABLE TRIGGER trg_revision_file_draft_only');
-            $connection->executeStatement('TRUNCATE audit_event, local_credential, user_role, document_template_version, document_template, revision_editing, publication, approval_decision, workflow_task, workflow_instance, revision_file, revision, document_grant, document, upload, stored_file, numbering_counter, org_unit, global_role_mapping, group_membership, directory_group, app_user, sessions, messenger_messages RESTART IDENTITY CASCADE');
+            $connection->executeStatement('TRUNCATE audit_event, local_credential, user_role, template_version_image, revision_image, document_template_version, document_template, revision_editing, publication, approval_decision, workflow_task, workflow_instance, revision_file, revision, document_grant, document, upload, stored_file, numbering_counter, org_unit, global_role_mapping, group_membership, directory_group, app_user, sessions, messenger_messages RESTART IDENTITY CASCADE');
             $connection->executeStatement("DELETE FROM org_setting WHERE key <> 'default_timezone'");
         } finally {
             $connection->executeStatement('ALTER TABLE audit_event ENABLE TRIGGER trg_audit_event_no_truncate');
             $connection->executeStatement('ALTER TABLE document_template_version ENABLE TRIGGER trg_template_version_no_truncate');
+            $connection->executeStatement('ALTER TABLE template_version_image ENABLE TRIGGER trg_template_version_image_no_truncate');
             $connection->executeStatement('ALTER TABLE revision ENABLE TRIGGER trg_revision_immutable');
             $connection->executeStatement('ALTER TABLE revision_file ENABLE TRIGGER trg_revision_file_draft_only');
         }
+        self::clearBlobStorage();
+    }
+
+    /**
+     * Removes stored blobs so the content-addressed store stays consistent with the freshly
+     * truncated stored_file table. Blobs are write-once: a blob left on disk by an earlier run
+     * makes put() skip, and a later run then reads stale bytes under a reused SHA — which
+     * surfaces as spurious approval-integrity failures (a stored file no longer matching the
+     * approved content). Clearing per reset keeps each test isolated.
+     */
+    private static function clearBlobStorage(): void
+    {
+        $root = (string) ($_ENV['PAL_BLOB_DIR'] ?? $_SERVER['PAL_BLOB_DIR'] ?? '');
+        $sha = '' === trim($root) ? '' : rtrim($root, '/').'/sha256';
+        if ('' === $sha || !is_dir($sha)) {
+            return;
+        }
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($sha, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST,
+        );
+        foreach ($items as $item) {
+            if ($item->isDir()) {
+                @rmdir($item->getPathname());
+            } else {
+                @chmod($item->getPathname(), 0o600);
+                @unlink($item->getPathname());
+            }
+        }
+        @rmdir($sha);
     }
 
     /**

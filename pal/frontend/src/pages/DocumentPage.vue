@@ -520,6 +520,7 @@ watch(id, () => {
           <RichTextView
             v-if="doc.current.body"
             :doc="doc.current.body"
+            :image-context="{ revision: doc.current.id }"
             :label="`Content of revision ${doc.current.label}`"
             heading="Content"
             class="q-my-md"
@@ -612,6 +613,7 @@ watch(id, () => {
         <RichTextView
           v-if="open.body"
           :doc="open.body"
+          :image-context="{ revision: open.id }"
           :label="`Content of revision ${open.label} to review`"
           heading="Content"
           class="q-mb-md pal-card"
@@ -853,6 +855,7 @@ watch(id, () => {
             :key="editorKey"
             :initial="bodyInitial"
             :disabled="busy"
+            :image-context="{ revision: open.id }"
             label="Document content"
             @change="onBodyChange"
           />
@@ -870,6 +873,7 @@ watch(id, () => {
         <RichTextView
           v-else-if="open.body"
           :doc="open.body"
+          :image-context="{ revision: open.id }"
           :label="`Content of revision ${open.label}`"
           class="q-mt-md"
         />
@@ -986,6 +990,7 @@ watch(id, () => {
         <RichTextView
           v-if="doc.awaitingRelease.body"
           :doc="doc.awaitingRelease.body"
+          :image-context="{ revision: doc.awaitingRelease.id }"
           :label="`Content of revision ${doc.awaitingRelease.label}`"
           heading="Content"
           class="q-mb-md"

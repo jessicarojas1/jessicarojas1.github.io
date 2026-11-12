@@ -11,7 +11,7 @@
 --
 -- Idempotent: safe to run repeatedly against a fresh or existing database.
 -- Requires PostgreSQL 16+ (17 in production). Covers migrations up to
--- Version20261111000002.
+-- Version20261111000003.
 -- =============================================================================
 
 
@@ -616,3 +616,35 @@ ALTER TABLE revision DROP CONSTRAINT IF EXISTS fk_revision_template_version;
 ALTER TABLE revision ADD CONSTRAINT fk_revision_template_version FOREIGN KEY (template_id, template_version) REFERENCES document_template_version (template_id, version);
 ALTER TABLE revision DROP CONSTRAINT IF EXISTS ck_revision_template_pair;
 ALTER TABLE revision ADD CONSTRAINT ck_revision_template_pair CHECK ((template_id IS NULL) = (template_version IS NULL));
+
+
+-- -----------------------------------------------------------------------------
+-- Images in editor content (Version20261111000003, decision #29)
+-- Which stored (scanned, metadata-free) images each revision and template version
+-- shows: keeps them out of storage clean-up, scopes the image endpoint, and lets
+-- release re-verify their bytes.
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS revision_image (
+    revision_id uuid NOT NULL REFERENCES revision (id),
+    sha256      char(64) NOT NULL REFERENCES stored_file (sha256),
+    PRIMARY KEY (revision_id, sha256)
+);
+
+CREATE INDEX IF NOT EXISTS ix_revision_image_sha ON revision_image (sha256);
+
+CREATE OR REPLACE TRIGGER trg_revision_image_draft_only BEFORE INSERT OR UPDATE OR DELETE ON revision_image FOR EACH ROW EXECUTE FUNCTION pal_revision_file_draft_only();
+
+CREATE TABLE IF NOT EXISTS template_version_image (
+    template_id uuid NOT NULL,
+    version     integer NOT NULL,
+    sha256      char(64) NOT NULL REFERENCES stored_file (sha256),
+    PRIMARY KEY (template_id, version, sha256),
+    FOREIGN KEY (template_id, version) REFERENCES document_template_version (template_id, version)
+);
+
+CREATE INDEX IF NOT EXISTS ix_template_version_image_sha ON template_version_image (sha256);
+
+CREATE OR REPLACE TRIGGER trg_template_version_image_immutable BEFORE UPDATE OR DELETE ON template_version_image FOR EACH ROW EXECUTE FUNCTION pal_template_version_immutable();
+
+CREATE OR REPLACE TRIGGER trg_template_version_image_no_truncate BEFORE TRUNCATE ON template_version_image FOR EACH STATEMENT EXECUTE FUNCTION pal_template_version_immutable();

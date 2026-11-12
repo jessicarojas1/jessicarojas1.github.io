@@ -66,3 +66,24 @@ export function isEmptyDocument(node: RichTextNode | null | undefined): boolean 
   }
   return true
 }
+
+/** Where an image is shown; the server checks the reader may see it in that context. */
+export interface ImageContext {
+  revision?: string
+  template?: string
+}
+
+const SHA256 = /^[0-9a-f]{64}$/
+
+export function isImageRef(value: unknown): value is string {
+  return typeof value === 'string' && SHA256.test(value)
+}
+
+/** URL of a stored image (only PAL's own endpoint; content never carries URLs for images). */
+export function imageUrl(sha256: string, context?: ImageContext): string {
+  const query = context?.revision ? `?revision=${encodeURIComponent(context.revision)}` : context?.template ? `?template=${encodeURIComponent(context.template)}` : ''
+  return `/api/images/${sha256}${query}`
+}
+
+/** Image formats the editor accepts (the server re-checks from the bytes). */
+export const IMAGE_ACCEPT = 'image/png,image/jpeg,image/webp,image/gif'

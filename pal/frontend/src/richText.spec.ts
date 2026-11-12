@@ -73,6 +73,20 @@ describe('RichTextView', () => {
     expect(wrapper.find('[role="region"]').attributes('aria-label')).toBe('Content')
   })
 
+  it('renders images only from PAL by fingerprint, with their description', () => {
+    const sha = 'a'.repeat(64)
+    const doc: RichTextNode = { type: 'doc', content: [
+      { type: 'image', attrs: { sha256: sha, alt: 'Torque wrench' } },
+      { type: 'image', attrs: { sha256: 'https://evil.test/x.png', alt: 'outside' } },
+      { type: 'image', attrs: { src: 'https://evil.test/y.png' } },
+    ] }
+    const wrapper = mount(RichTextView, { props: { doc, imageContext: { revision: 'r-1' } } })
+    const images = wrapper.findAll('img')
+    expect(images).toHaveLength(1)
+    expect(images[0]?.attributes('src')).toBe(`/api/images/${sha}?revision=r-1`)
+    expect(images[0]?.attributes('alt')).toBe('Torque wrench')
+  })
+
   it('never turns content into markup, script or unsafe links', () => {
     const doc: RichTextNode = {
       type: 'doc',

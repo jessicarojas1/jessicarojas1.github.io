@@ -43,7 +43,8 @@ One document can now go through its whole life, thinly: create, upload, submit, 
 - **Same controls as files**: content is validated against a server-side allow-list (no HTML, safe links only), freezes on submit, is covered by the approval fingerprint and re-verified at release, and is searchable. Readers and approvers see it formatted, read-only.
 - **Who's editing**: when someone else is typing in the same draft, you see their name and since when (advisory; saves are still conflict-checked, so nothing is overwritten silently).
 - **What changed**: authors, approvers and publishers can compare a new revision with the published one it replaces — changed fields, a replaced file, and the content section by section with the exact words added and removed.
-- **Not yet**: images in the editor, PDF export. See [OPEN_ITEMS.md](OPEN_ITEMS.md).
+- **Images**: insert PNG, JPEG, WebP or GIF images with a description. PAL virus-scans them and removes hidden photo data such as location before storing them; readers see an image only if they can read the document.
+- **Not yet**: PDF export. See [OPEN_ITEMS.md](OPEN_ITEMS.md).
 
 ## Supported deployment models
 
@@ -111,7 +112,7 @@ pal/
 
 ## Prerequisites (development)
 
-- **PHP 8.4+** with extensions `pdo_pgsql`, `intl`, `ctype`, `iconv`, `openssl`, `sodium`, `mbstring`, `xml`
+- **PHP 8.4+** with extensions `pdo_pgsql`, `intl`, `ctype`, `iconv`, `openssl`, `sodium`, `mbstring`, `xml`, `gd` (JPEG, PNG, WebP, GIF support) and `exif` (images in content)
 - **Composer 2**
 - **Node.js 22+** (24 LTS recommended) and npm
 - **PostgreSQL 16+** (migration 2 creates the `btree_gist` and `pg_trgm` extensions; both ship with standard PostgreSQL builds)
@@ -185,7 +186,7 @@ Sign in at `http://localhost:5173` and choose a new password when asked, then re
 **Backend dev:** `phpunit/phpunit` 13, `phpstan/phpstan` 2 + `phpstan/phpstan-symfony`, `deptrac/deptrac` 4, `symfony/browser-kit`, `symfony/css-selector`.
 **Frontend runtime** (`frontend/package.json`, exact versions pinned): `vue`, `quasar`, `@quasar/extras`, `pinia`, `vue-router`, and the editor packages `@tiptap/vue-3`, `@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`, `@tiptap/extension-table` (3.32.0, MIT; `@floating-ui/dom` arrives as their peer).
 **Frontend dev:** `vite`, `@vitejs/plugin-vue`, `@quasar/vite-plugin`, `typescript` 6.0, `vue-tsc`, `eslint` + `eslint-plugin-vue` + `@vue/eslint-config-typescript` + `typescript-eslint`, `vitest`, `@vue/test-utils`, `jsdom`, `sass-embedded`, `axe-core`, `@types/node`.
-**PHP extensions in the image:** `pdo_pgsql`, `intl`, `opcache` (plus the PHP image defaults, which include `fileinfo`).
+**PHP extensions in the image:** `pdo_pgsql`, `intl`, `opcache`, `gd` (with JPEG and WebP), `exif` (plus the PHP image defaults, which include `fileinfo`).
 **PostgreSQL extensions:** `btree_gist`, `pg_trgm` (created by migration `Version20261026000002`; trusted extensions, so the database owner can create them).
 **Companion containers:** `clamav/clamav:1.5.4` (malware scanning; Compose and Render), `postgres:17-alpine` (optional bundled database).
 **Container packages:** `nginx`, `supervisor`, `tini`, `libpq`, `icu-libs` (Alpine).

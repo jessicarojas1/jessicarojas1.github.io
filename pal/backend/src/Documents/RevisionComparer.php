@@ -139,6 +139,12 @@ final class RevisionComparer
         if ('hardBreak' === ($node['type'] ?? null)) {
             return "\n";
         }
+        if ('image' === ($node['type'] ?? null)) {
+            $attrs = \is_array($node['attrs'] ?? null) ? $node['attrs'] : [];
+            $alt = \is_string($attrs['alt'] ?? null) && '' !== $attrs['alt'] ? $attrs['alt'] : 'no description';
+
+            return '[Image: '.$alt.']';
+        }
         $parts = [];
         foreach (\is_array($node['content'] ?? null) ? $node['content'] : [] as $child) {
             if (\is_array($child)) {

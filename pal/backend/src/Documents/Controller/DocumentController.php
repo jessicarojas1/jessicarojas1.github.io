@@ -42,6 +42,7 @@ final class DocumentController
             'documentTypes' => $this->reference->documentTypes(true),
             'departments' => $this->reference->departments(true),
             'maxUploadBytes' => $this->uploads->maxBytes(),
+            'maxImageBytes' => $this->uploads->maxImageBytes(),
         ]);
     }
 

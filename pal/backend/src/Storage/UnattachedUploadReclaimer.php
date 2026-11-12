@@ -40,6 +40,8 @@ final class UnattachedUploadReclaimer
             SELECT sf.sha256 FROM stored_file sf
             WHERE EXISTS (SELECT 1 FROM upload u WHERE u.stored_sha256 = sf.sha256)
               AND NOT EXISTS (SELECT 1 FROM revision_file rf WHERE rf.sha256 = sf.sha256)
+              AND NOT EXISTS (SELECT 1 FROM revision_image ri WHERE ri.sha256 = sf.sha256)
+              AND NOT EXISTS (SELECT 1 FROM template_version_image ti WHERE ti.sha256 = sf.sha256)
               AND sf.created_at <= now() - make_interval(secs => ?)
             ORDER BY sf.size_bytes DESC
             SQL;
@@ -69,7 +71,10 @@ final class UnattachedUploadReclaimer
             }
             // Never reclaim a blob a revision now references (attached since it was listed).
             // fetchOne returns false when there is no such row.
-            if (false !== $this->connection->fetchOne('SELECT 1 FROM revision_file WHERE sha256 = ? LIMIT 1', [$sha256])) {
+            if (false !== $this->connection->fetchOne(
+                'SELECT 1 FROM revision_file WHERE sha256 = :s UNION ALL SELECT 1 FROM revision_image WHERE sha256 = :s UNION ALL SELECT 1 FROM template_version_image WHERE sha256 = :s LIMIT 1',
+                ['s' => $sha256],
+            )) {
                 return null;
             }
             $countRow = $this->connection->fetchAssociative('SELECT count(*) AS n FROM upload WHERE stored_sha256 = ?', [$sha256]);

@@ -25,12 +25,15 @@ final class RichTextDocument
     private const MAX_HREF = 2_048;
 
     /** Block nodes allowed wherever the schema says "block". */
-    private const BLOCKS = ['paragraph', 'heading', 'bulletList', 'orderedList', 'blockquote', 'horizontalRule', 'table'];
+    private const BLOCKS = ['paragraph', 'heading', 'bulletList', 'orderedList', 'blockquote', 'horizontalRule', 'table', 'image'];
+    private const MAX_ALT = 250;
     private const INLINE = ['text', 'hardBreak'];
     private const MARKS = ['bold', 'italic', 'underline', 'strike', 'link'];
 
     private int $nodes = 0;
     private string $plainText = '';
+    /** @var array<string, true> SHA-256 of every image the content shows */
+    private array $images = [];
 
     private function __construct()
     {
@@ -40,7 +43,7 @@ final class RichTextDocument
      * Validates and canonicalizes editor JSON. Returns null for an empty document (no text,
      * table or rule), so an untouched editor never changes a revision's content.
      *
-     * @return array{json: string, text: string, sha256: string}|null
+     * @return array{json: string, text: string, sha256: string, images: list<string>}|null
      *
      * @throws ApiProblem 422 when the content does not fit the schema
      */
@@ -63,7 +66,7 @@ final class RichTextDocument
             throw ApiProblem::validation([$field => 'The content is too long. Split it into several documents.']);
         }
 
-        return ['json' => $json, 'text' => trim($builder->plainText), 'sha256' => hash('sha256', $json)];
+        return ['json' => $json, 'text' => trim($builder->plainText), 'sha256' => hash('sha256', $json), 'images' => array_keys($builder->images)];
     }
 
     /**
@@ -125,6 +128,7 @@ final class RichTextDocument
             'tableRow' => $this->container('tableRow', [], $raw, ['tableHeader', 'tableCell'], $depth, true),
             'tableHeader', 'tableCell' => $this->container($type, $this->cellAttrs($attrs), $raw, self::BLOCKS, $depth, true),
             'hardBreak' => $this->leaf('hardBreak', $raw),
+            'image' => $this->image($raw, $attrs),
             default => $this->text($raw),
         };
     }
@@ -210,6 +214,65 @@ final class RichTextDocument
         $this->plainText .= 'hardBreak' === $type ? "\n" : '';
 
         return ['type' => $type];
+    }
+
+    /**
+     * An image is a reference to a stored, scanned, metadata-free file by its SHA-256 plus a
+     * text description. There is no URL: content can never make a browser fetch anything but
+     * PAL's own image endpoint, which checks access. Whether the user may use that file is
+     * checked by the caller (ContentImages).
+     *
+     * @param array<mixed> $raw
+     * @param array<mixed> $attrs
+     *
+     * @return array<string, mixed>
+     */
+    private function image(array $raw, array $attrs): array
+    {
+        if ([] !== $this->rawContent($raw)) {
+            throw new \InvalidArgumentException('an image cannot contain anything.');
+        }
+        $sha = $attrs['sha256'] ?? null;
+        if (!\is_string($sha) || 1 !== preg_match('/^[0-9a-f]{64}$/', $sha)) {
+            throw new \InvalidArgumentException('an image reference is not valid.');
+        }
+        $alt = \is_string($attrs['alt'] ?? null) ? $attrs['alt'] : '';
+        $alt = trim((string) preg_replace(['/[\t\n\r]/u', '/[\x00-\x1F\x7F]/u'], [' ', ''], $alt));
+        if (!mb_check_encoding($alt, 'UTF-8') || mb_strlen($alt) > self::MAX_ALT) {
+            throw new \InvalidArgumentException('an image description is too long (250 characters at most).');
+        }
+        $this->images[$sha] = true;
+        $this->plainText .= $alt."\n";
+
+        return ['type' => 'image', 'attrs' => ['sha256' => $sha, 'alt' => $alt]];
+    }
+
+    /**
+     * The images referenced by stored canonical JSON.
+     *
+     * @return list<string>
+     */
+    public static function imagesIn(?string $json): array
+    {
+        if (null === $json || !str_contains($json, '"image"')) {
+            return [];
+        }
+        $found = [];
+        $stack = [self::decodeStored($json) ?? []];
+        while ([] !== $stack) {
+            $node = array_pop($stack);
+            $attrs = $node['attrs'] ?? null;
+            if ('image' === ($node['type'] ?? null) && \is_array($attrs) && \is_string($attrs['sha256'] ?? null)) {
+                $found[$attrs['sha256']] = true;
+            }
+            foreach (\is_array($node['content'] ?? null) ? $node['content'] : [] as $child) {
+                if (\is_array($child)) {
+                    $stack[] = $child;
+                }
+            }
+        }
+
+        return array_keys($found);
     }
 
     /**
@@ -381,7 +444,7 @@ final class RichTextDocument
         $stack = [$node];
         while ([] !== $stack) {
             $current = array_pop($stack);
-            if (\in_array($current['type'] ?? null, ['table', 'horizontalRule'], true)) {
+            if (\in_array($current['type'] ?? null, ['table', 'horizontalRule', 'image'], true)) {
                 return true;
             }
             foreach (\is_array($current['content'] ?? null) ? $current['content'] : [] as $child) {

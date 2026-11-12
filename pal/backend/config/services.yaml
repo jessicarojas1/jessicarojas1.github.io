@@ -1,5 +1,6 @@
 parameters:
     pal.upload_daily_bytes_default: 524288000
+    pal.max_image_bytes_default: 10485760
     # Temporary (must-change) password lifetime in hours. 0 disables expiry (the default, so an
     # upgrade never starts locking anyone out); operators opt in per policy. See SECURITY.md.
     pal.temp_password_max_age_hours_default: 0
