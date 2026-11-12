@@ -325,7 +325,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       <div class="step-card">
         <div class="step-hdr"><span class="step-num">4</span> Pick a Date</div>
         <div class="step-body">
-          <input type="date" id="bk-date" class="form-control" style="max-width:220px;" oninput="updateTimeSlots()">
+          <input type="date" id="bk-date" class="form-control" style="max-width:220px;">
         </div>
       </div>
 
@@ -402,7 +402,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     <div class="mb-3">
       <label class="form-label fw-semibold small">Password</label>
       <input type="password" id="adm-pw" class="form-control" placeholder="Enter admin password"
-             onkeydown="if(event.key==='Enter')adminLogin()">
+            >
     </div>
     <div id="login-err" class="alert alert-danger small py-2" style="display:none;"></div>
     <button class="btn-orange w-100" style="justify-content:center;" data-action="admin-login">Sign In</button>
@@ -531,11 +531,11 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       <!-- ── ALL APPOINTMENTS ──────────────────────────── -->
       <div class="adm-mod" id="mod-appointments">
         <div class="filter-bar">
-          <input type="date" id="af-date" class="form-control form-control-sm" style="width:160px;" onchange="renderAppointments()">
-          <select id="af-mech" class="form-select form-select-sm" style="width:155px;" onchange="renderAppointments()">
+          <input type="date" id="af-date" class="form-control form-control-sm" style="width:160px;">
+          <select id="af-mech" class="form-select form-select-sm" style="width:155px;">
             <option value="">All Mechanics</option>
           </select>
-          <select id="af-status" class="form-select form-select-sm" style="width:155px;" onchange="renderAppointments()">
+          <select id="af-status" class="form-select form-select-sm" style="width:155px;">
             <option value="">All Statuses</option>
             <option value="pending">Pending</option>
             <option value="confirmed">Confirmed</option>
@@ -619,11 +619,11 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
               </div>
               <div class="col-sm-6">
                 <label class="form-label fw-semibold small">Mechanic *</label>
-                <select id="aa-mech" class="form-select" onchange="aaRefreshSlots()"></select>
+                <select id="aa-mech" class="form-select"></select>
               </div>
               <div class="col-sm-6">
                 <label class="form-label fw-semibold small">Date *</label>
-                <input type="date" id="aa-date" class="form-control" oninput="aaRefreshSlots()">
+                <input type="date" id="aa-date" class="form-control">
               </div>
               <div class="col-sm-6">
                 <label class="form-label fw-semibold small">Time *</label>
@@ -648,12 +648,12 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       <!-- ── WORK ORDERS ───────────────────────────────── -->
       <div class="adm-mod" id="mod-work-orders">
         <div class="filter-bar">
-          <select id="wo-filter-status" class="form-select form-select-sm" style="width:155px;" onchange="renderWorkOrders()">
+          <select id="wo-filter-status" class="form-select form-select-sm" style="width:155px;">
             <option value="">All Work Orders</option>
             <option value="open">Open</option>
             <option value="completed">Completed</option>
           </select>
-          <select id="wo-filter-mech" class="form-select form-select-sm" style="width:155px;" onchange="renderWorkOrders()">
+          <select id="wo-filter-mech" class="form-select form-select-sm" style="width:155px;">
             <option value="">All Mechanics</option>
           </select>
           <div class="ms-auto small text-muted" id="wo-count"></div>
@@ -671,13 +671,13 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       <!-- ── TIME REPORTS ──────────────────────────────── -->
       <div class="adm-mod" id="mod-time-reports">
         <div class="filter-bar">
-          <select id="tr-period" class="form-select form-select-sm" style="width:155px;" onchange="renderTimeReports()">
+          <select id="tr-period" class="form-select form-select-sm" style="width:155px;">
             <option value="today">Today</option>
             <option value="week">This Week</option>
             <option value="month" selected>This Month</option>
             <option value="all">All Time</option>
           </select>
-          <select id="tr-mech" class="form-select form-select-sm" style="width:155px;" onchange="renderTimeReports()">
+          <select id="tr-mech" class="form-select form-select-sm" style="width:155px;">
             <option value="">All Mechanics</option>
           </select>
         </div>
@@ -713,13 +713,13 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       <!-- ── REVENUE ────────────────────────────────────── -->
       <div class="adm-mod" id="mod-revenue">
         <div class="filter-bar">
-          <select id="rev-period" class="form-select form-select-sm" style="width:155px;" onchange="renderRevenue()">
+          <select id="rev-period" class="form-select form-select-sm" style="width:155px;">
             <option value="today">Today</option>
             <option value="week">This Week</option>
             <option value="month" selected>This Month</option>
             <option value="all">All Time</option>
           </select>
-          <select id="rev-mech" class="form-select form-select-sm" style="width:155px;" onchange="renderRevenue()">
+          <select id="rev-mech" class="form-select form-select-sm" style="width:155px;">
             <option value="">All Mechanics</option>
           </select>
         </div>
@@ -1728,13 +1728,13 @@ function renderWoLabor(defaultRate) {
   document.getElementById('wo-labor-rows').innerHTML = _woLaborRows.map((l,i) => `
     <div class="wo-line-row">
       <input class="form-control form-control-sm" style="flex:3" placeholder="Description"
-        value="${(l.description||'').replace(/"/g,'&quot;')}" oninput="_woLaborRows[${i}].description=this.value">
+        value="${(l.description||'').replace(/"/g,'&quot;')}" data-wo-labor-field="description" data-wo-row-idx="${i}">
       <input class="form-control form-control-sm" style="width:72px" type="number" placeholder="Hrs" min="0" step="0.25"
-        value="${l.hours||''}" oninput="_woLaborRows[${i}].hours=this.value;recalcWoTotals()">
+        value="${l.hours||''}" data-wo-labor-field="hours" data-wo-row-idx="${i}">
       <div class="input-group input-group-sm" style="width:110px">
         <span class="input-group-text">$</span>
         <input class="form-control" type="number" placeholder="Rate/hr" min="0" step="5"
-          value="${l.rate||defaultRate||''}" oninput="_woLaborRows[${i}].rate=this.value;recalcWoTotals()">
+          value="${l.rate||defaultRate||''}" data-wo-labor-field="rate" data-wo-row-idx="${i}">
       </div>
       <div style="width:74px;font-size:.82rem;font-weight:600;padding-top:6px;text-align:right;white-space:nowrap">
         ${fmtMoney((parseFloat(l.hours)||0)*(parseFloat(l.rate)||0))}
@@ -1746,13 +1746,13 @@ function renderWoParts() {
   document.getElementById('wo-parts-rows').innerHTML = _woPartsRows.map((p,i) => `
     <div class="wo-line-row">
       <input class="form-control form-control-sm" style="flex:3" placeholder="Part / material name"
-        value="${(p.name||'').replace(/"/g,'&quot;')}" oninput="_woPartsRows[${i}].name=this.value">
+        value="${(p.name||'').replace(/"/g,'&quot;')}" data-wo-parts-field="name" data-wo-parts-idx="${i}">
       <input class="form-control form-control-sm" style="width:72px" type="number" placeholder="Qty" min="1" step="1"
-        value="${p.qty||''}" oninput="_woPartsRows[${i}].qty=this.value;recalcWoTotals()">
+        value="${p.qty||''}" data-wo-parts-field="qty" data-wo-parts-idx="${i}">
       <div class="input-group input-group-sm" style="width:115px">
         <span class="input-group-text">$</span>
         <input class="form-control" type="number" placeholder="Unit cost" min="0" step="0.01"
-          value="${p.unitCost||''}" oninput="_woPartsRows[${i}].unitCost=this.value;recalcWoTotals()">
+          value="${p.unitCost||''}" data-wo-parts-field="unitCost" data-wo-parts-idx="${i}">
       </div>
       <div style="width:74px;font-size:.82rem;font-weight:600;padding-top:6px;text-align:right;white-space:nowrap">
         ${fmtMoney((parseFloat(p.qty)||0)*(parseFloat(p.unitCost)||0))}
@@ -2171,6 +2171,42 @@ document.addEventListener('click', function(e){
   };
   if (fns[act]) fns[act]();
 });
+/* ── CSP-compliant event wiring for filter/booking/WO controls ─────── */
+(function(){
+  var byId = document.getElementById.bind(document);
+  var on   = function(id, evt, fn){ var el=byId(id); if(el) el.addEventListener(evt, fn); };
+  on('bk-date',        'input',  updateTimeSlots);
+  on('af-date',        'change', renderAppointments);
+  on('af-mech',        'change', renderAppointments);
+  on('af-status',      'change', renderAppointments);
+  on('aa-mech',        'change', aaRefreshSlots);
+  on('aa-date',        'input',  aaRefreshSlots);
+  on('wo-filter-status','change',renderWorkOrders);
+  on('wo-filter-mech', 'change', renderWorkOrders);
+  on('tr-period',      'change', renderTimeReports);
+  on('tr-mech',        'change', renderTimeReports);
+  on('rev-period',     'change', renderRevenue);
+  on('rev-mech',       'change', renderRevenue);
+  on('adm-pw',         'keydown',function(e){ if(e.key==='Enter') adminLogin(); });
+  /* Work-order row input delegation */
+  document.addEventListener('input', function(e){
+    var el = e.target;
+    if(el.dataset.woLaborField && el.dataset.woRowIdx !== undefined){
+      var i = +el.dataset.woRowIdx, f = el.dataset.woLaborField;
+      if(window._woLaborRows && window._woLaborRows[i]){
+        window._woLaborRows[i][f] = el.value;
+        if(f==='hours'||f==='rate') recalcWoTotals();
+      }
+    }
+    if(el.dataset.woPartsField && el.dataset.woPartsIdx !== undefined){
+      var i = +el.dataset.woPartsIdx, f = el.dataset.woPartsField;
+      if(window._woPartsRows && window._woPartsRows[i]){
+        window._woPartsRows[i][f] = el.value;
+        if(f==='qty'||f==='unitCost') recalcWoTotals();
+      }
+    }
+  });
+})();
 document.addEventListener('click', function(e){
   var el = e.target.closest('[data-slot]');
   if (!el || el.classList.contains('unavail')) return;

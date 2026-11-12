@@ -374,7 +374,7 @@
           <span class="search-icon">🔍</span>
           <input type="text" class="form-control" id="search-input"
             placeholder="Search by control ID, name, evidence type, or policy keyword…"
-            oninput="applyFilters()">
+            >
         </div>
         <button class="btn btn-outline-secondary btn-sm" id="expand-all-btn" data-action="expand-all">Expand All</button>
       </div>
@@ -493,7 +493,7 @@ function renderControls(controls){
       ctrl.type.forEach(function(t){html+=typeBadge(t);});
       (ctrl.principles||[]).forEach(function(p){html+=princBadge(p);});
       html+='</span></button>';
-      html+='<div class="soa-wrap"><select id="soa-sel-'+cid+'" class="soa-select '+soaCls+'" onclick="event.stopPropagation()" onchange="soaSet(\''+ctrl.id+'\',this.value)">';
+      html+='<div class="soa-wrap"><select id="soa-sel-'+cid+'" class="soa-select '+soaCls+'" data-soa-id="'+ctrl.id+'">';
       ['Not Assessed','Applicable','Partial','Not Applicable'].forEach(function(s){html+='<option'+(s===soa.status?' selected':'')+'>'+s+'</option>';});
       html+='</select></div>';
       html+='</h2>';
@@ -518,7 +518,7 @@ function renderControls(controls){
 
       html+='<div class="col-12"><div class="border-top pt-2 d-flex align-items-start gap-2">';
       html+='<span class="section-label mt-1" style="white-space:nowrap">SOA Notes</span>';
-      html+='<textarea rows="2" class="form-control form-control-sm" style="font-size:.8rem" placeholder="Justification for inclusion/exclusion…" onclick="event.stopPropagation()" onchange="soaSet(\''+ctrl.id+'\',undefined,this.value)">'+escHtml(soa.notes)+'</textarea>';
+      html+='<textarea rows="2" class="form-control form-control-sm" style="font-size:.8rem" placeholder="Justification for inclusion/exclusion…" data-soa-notes-id="'+ctrl.id+'">'+escHtml(soa.notes)+'</textarea>';
       html+='</div></div>';
       html+='</div></div></div></div></div>';
     });
@@ -623,6 +623,18 @@ function exportSOA(){
 soaLoad();updateSoaBar();renderControls(CONTROLS);
 
 /* ── CSP-compliant event delegation ──────────────────────────────────── */
+  /* ── CSP-compliant delegated handlers ───────────────────────────── */
+  document.getElementById('search-input').addEventListener('input', applyFilters);
+  document.addEventListener('change', function(e){
+    var sel = e.target.closest('select[data-soa-id]');
+    if(sel){ e.stopPropagation(); soaSet(sel.dataset.soaId, sel.value); return; }
+    var ta = e.target.closest('textarea[data-soa-notes-id]');
+    if(ta){ e.stopPropagation(); soaSet(ta.dataset.soaNotesId, undefined, ta.value); }
+  });
+  document.addEventListener('click', function(e){
+    if(e.target.closest('select[data-soa-id], textarea[data-soa-notes-id]')) e.stopPropagation();
+  });
+  /* ── Existing action delegation ─────────────────────────────────── */
 document.addEventListener('click', function(e){
   var el = e.target.closest('[data-family]');
   if (el && el.tagName === 'A') { e.preventDefault(); filterFamily(el.dataset.family, el); return; }

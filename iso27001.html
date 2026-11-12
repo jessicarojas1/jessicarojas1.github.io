@@ -369,7 +369,7 @@
       <div class="doc-card">
         <div class="fw-bold mb-2">Full 2022 → 2013 Control Mapping</div>
         <div class="search-wrap mb-2"><span class="search-icon">🔍</span>
-          <input type="text" class="form-control form-control-sm" id="map-search" style="padding-left:2.2rem" placeholder="Filter mapping table…" oninput="filterMapping()">
+          <input type="text" class="form-control form-control-sm" id="map-search" style="padding-left:2.2rem" placeholder="Filter mapping table…">
         </div>
         <div class="table-responsive" style="max-height:520px;overflow-y:auto">
           <table class="table table-sm table-hover" style="font-size:.8rem" id="map-table">
@@ -391,7 +391,7 @@
         <span class="search-icon">🔍</span>
         <input type="text" class="form-control" id="search-input"
           placeholder="Search by ID, control name, evidence type, or policy keyword…"
-          oninput="applyFilters()">
+          >
       </div>
       <button class="btn btn-outline-secondary btn-sm" id="expand-all-btn" data-action="expand-all">Expand All</button>
     </div>
@@ -541,7 +541,7 @@ function renderControls(controls) {
       /* SOA select lives outside the button to avoid click bubbling */
       html += '<div class="soa-wrap">';
       html += '<select id="soa-sel-'+cid+'" class="soa-select '+soaCls+'" ';
-      html += 'onclick="event.stopPropagation()" onchange="soaSet(\''+ctrl.id+'\',this.value)">';
+      html += 'data-soa-id="'+ctrl.id+'">';
       ['Not Assessed','Applicable','Partial','Not Applicable'].forEach(function(s){
         html += '<option'+(s===soa.status?' selected':'')+'>'+s+'</option>';
       });
@@ -583,8 +583,7 @@ function renderControls(controls) {
       html += '<span class="section-label mt-1" style="white-space:nowrap">SOA Notes</span>';
       html += '<textarea rows="2" class="form-control form-control-sm" style="font-size:.8rem" ';
       html += 'placeholder="Justification for inclusion/exclusion…" ';
-      html += 'onclick="event.stopPropagation()" ';
-      html += 'onchange="soaSet(\''+ctrl.id+'\',undefined,this.value)">'+escHtml(soa.notes)+'</textarea>';
+      html += 'data-soa-notes-id="'+ctrl.id+'">'+escHtml(soa.notes)+'</textarea>';
       html += '</div></div>';
 
       html += '</div></div></div></div></div>';
@@ -814,6 +813,19 @@ renderControls(CONTROLS);
 renderMapping(MAPPING);
 
 /* ── CSP-compliant event delegation ──────────────────────────────────── */
+  /* ── CSP-compliant delegated handlers ───────────────────────────── */
+  document.getElementById('map-search').addEventListener('input', filterMapping);
+  document.getElementById('search-input').addEventListener('input', applyFilters);
+  document.addEventListener('change', function(e){
+    var sel = e.target.closest('select[data-soa-id]');
+    if(sel){ e.stopPropagation(); soaSet(sel.dataset.soaId, sel.value); return; }
+    var ta = e.target.closest('textarea[data-soa-notes-id]');
+    if(ta){ e.stopPropagation(); soaSet(ta.dataset.soaNotesId, undefined, ta.value); }
+  });
+  document.addEventListener('click', function(e){
+    if(e.target.closest('select[data-soa-id], textarea[data-soa-notes-id]')) e.stopPropagation();
+  });
+  /* ── Existing action delegation ─────────────────────────────────── */
 document.addEventListener('click', function(e){
   var el = e.target.closest('[data-family]');
   if (el && el.tagName === 'A') { e.preventDefault(); filterFamily(el.dataset.family, el); return; }

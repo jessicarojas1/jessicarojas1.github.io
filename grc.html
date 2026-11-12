@@ -448,14 +448,14 @@
             <button class="btn btn-outline-secondary metrics-view-btn" data-view="list" data-action="metrics-view">☰ List</button>
           </div>
           <!-- Columns -->
-          <select class="form-select form-select-sm" style="width:auto" id="metrics-cols" onchange="renderMetrics()">
+          <select class="form-select form-select-sm" style="width:auto" id="metrics-cols">
             <option value="2">2 Columns</option>
             <option value="3" selected>3 Columns</option>
             <option value="4">4 Columns</option>
             <option value="6">6 Columns</option>
           </select>
           <!-- Card style -->
-          <select class="form-select form-select-sm" style="width:auto" id="metrics-card-style" onchange="renderMetrics()">
+          <select class="form-select form-select-sm" style="width:auto" id="metrics-card-style">
             <option value="flat">Flat</option>
             <option value="bordered">Bordered</option>
             <option value="gradient">Gradient</option>
@@ -464,7 +464,7 @@
             <option value="glass">Glass</option>
           </select>
           <!-- Color theme -->
-          <select class="form-select form-select-sm" style="width:auto" id="metrics-theme" onchange="renderMetrics()">
+          <select class="form-select form-select-sm" style="width:auto" id="metrics-theme">
             <option value="custom">Custom Colors</option>
             <option value="corporate">Corporate Blue</option>
             <option value="security">Security Red</option>
@@ -475,7 +475,7 @@
             <option value="neon">Neon</option>
           </select>
           <!-- Chart type override -->
-          <select class="form-select form-select-sm" style="width:auto" id="metrics-chart-override" onchange="renderMetrics()">
+          <select class="form-select form-select-sm" style="width:auto" id="metrics-chart-override">
             <option value="">Per-KPI Chart</option>
             <option value="line">All — Line</option>
             <option value="bar">All — Bar</option>
@@ -1049,7 +1049,7 @@
           <div class="col-md-4"><label class="form-label small fw-semibold">Start Date</label><input type="date" class="form-control" id="project-start" /></div>
           <div class="col-md-4"><label class="form-label small fw-semibold">Target Date</label><input type="date" class="form-control" id="project-target" /></div>
           <div class="col-md-4"><label class="form-label small fw-semibold">Budget ($)</label><input type="number" class="form-control" id="project-budget" min="0" /></div>
-          <div class="col-12"><label class="form-label small fw-semibold">Progress (0–100%)</label><input type="range" class="form-range" id="project-progress" min="0" max="100" step="5" oninput="document.getElementById('project-progress-val').textContent=this.value+'%'" /><span id="project-progress-val" class="small text-secondary">0%</span></div>
+          <div class="col-12"><label class="form-label small fw-semibold">Progress (0–100%)</label><input type="range" class="form-range" id="project-progress" min="0" max="100" step="5" /><span id="project-progress-val" class="small text-secondary">0%</span></div>
           <div class="col-12"><label class="form-label small fw-semibold">Description</label><textarea class="form-control" id="project-desc" rows="2"></textarea></div>
           <div class="col-12"><hr class="my-1"/><div class="fw-semibold small mb-2">Link to GRC Entities</div></div>
           <div class="col-md-6"><label class="form-label small fw-semibold">Linked Controls</label><select multiple class="form-select form-select-sm" id="project-linked-controls" size="4"></select></div>
@@ -1539,7 +1539,7 @@ function buildHeatMap(){
     for(let i=1;i<=5;i++){
       const s=l*i;const cls=s>=20?'h-red':s>=10?'h-orange':s>=5?'h-yellow':'h-green';
       const cnt=(DB.risks||[]).filter(r=>r.likelihood==l&&r.impact==i).length;
-      html+=`<td class="${cls}" onclick="heatClick(${l},${i})" title="Score ${s}">${cnt||''}</td>`;
+      html+=`<td class="${cls}" data-heat-l="${l}" data-heat-i="${i}" title="Score ${s}">${cnt||''}</td>`;
     }
     html+='</tr>';
   }
@@ -1565,7 +1565,7 @@ function renderRiskTable(){
   }
   document.getElementById('risk-tbody').innerHTML=rows.length?rows.map((r,i)=>{
     const sc=riskScore(r);const sv=riskSevFromScore(sc);
-    return`<tr><td class="text-secondary small">${i+1}</td><td><div class="fw-semibold small">${escHtml(r.title)}</div><div class="text-secondary" style="font-size:.72rem">${escHtml(r.description||'')}</div></td><td><span class="badge bg-secondary">${escHtml(r.category)}</span></td><td><span class="badge ${sevClass(sv)}">${sv}</span></td><td class="fw-bold">${sc}</td><td><span class="badge ${treatClass(r.treatment)}">${escHtml(r.treatment)}</span></td><td><span class="badge bg-secondary">${escHtml(r.status)}</span></td><td class="small">${escHtml(r.owner||'–')}</td><td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openRiskModal('${r.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteRisk('${r.id}')">🗑</button>`:''}</td></tr>`;
+    return`<tr><td class="text-secondary small">${i+1}</td><td><div class="fw-semibold small">${escHtml(r.title)}</div><div class="text-secondary" style="font-size:.72rem">${escHtml(r.description||'')}</div></td><td><span class="badge bg-secondary">${escHtml(r.category)}</span></td><td><span class="badge ${sevClass(sv)}">${sv}</span></td><td class="fw-bold">${sc}</td><td><span class="badge ${treatClass(r.treatment)}">${escHtml(r.treatment)}</span></td><td><span class="badge bg-secondary">${escHtml(r.status)}</span></td><td class="small">${escHtml(r.owner||'–')}</td><td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="risk" data-id="${r.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="risk" data-id="${r.id}">🗑</button>`:''}</td></tr>`;
   }).join(''):'<tr><td colspan="9" class="text-center text-secondary py-3">No risks match filters.</td></tr>';
 }
 function renderRisks(){
@@ -1643,10 +1643,10 @@ function renderControls(){
     <td><div class="fw-semibold small">${escHtml(c.name)}</div><div class="text-secondary" style="font-size:.72rem">${escHtml(c.desc||'')}</div>${ctrlLinksHtml(c)}</td>
     <td>${(c.frameworks||[]).map(fwTag).join('')}</td>
     <td><span class="badge ${ctrlStatusClass(c.status)}">${escHtml(c.status)}</span></td>
-    <td>${canEdit()?`<span style="cursor:pointer" onclick="toggleMet('${c.id}')" title="Click to cycle Met status">${metBadge(c.met)}</span>`:metBadge(c.met)}</td>
+    <td>${canEdit()?`<span style="cursor:pointer" data-toggle-met="${c.id}" title="Click to cycle Met status">${metBadge(c.met)}</span>`:metBadge(c.met)}</td>
     <td class="small">${escHtml(c.owner||'–')}</td>
     <td class="small">${fmtDate(c.lastTested)}</td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openCtrlModal('${c.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteCtrl('${c.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="ctrl" data-id="${c.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="ctrl" data-id="${c.id}">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="8" class="text-center text-secondary py-3">No controls match filters.</td></tr>';
   // Also update table header to include Met column
   const thead=document.querySelector('#mod-controls thead tr');
@@ -1749,7 +1749,7 @@ function renderPolicies(){
     <td><span class="badge ${stBadge(p.status)}">${escHtml(p.status)}</span></td>
     <td class="small ${p.reviewDue&&p.reviewDue<TODAY?'text-danger fw-semibold':''}">${fmtDate(p.reviewDue)}</td>
     <td class="small">${escHtml(p.approvedBy||'–')}</td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openPolicyModal('${p.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deletePolicy('${p.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="policy" data-id="${p.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="policy" data-id="${p.id}">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="7" class="text-center text-secondary py-3">No policies yet.</td></tr>';
 }
 let policyModalBS;
@@ -1836,7 +1836,7 @@ function renderPoam(){
     <td><span class="badge ${poamClass(item.status)}">${escHtml(item.status)}</span></td>
     <td class="small ${item.due&&item.due<TODAY&&item.status!=='completed'?'text-danger fw-semibold':''}">${fmtDate(item.due)}</td>
     <td class="small">${item.cost?'$'+Number(item.cost).toLocaleString():'–'}</td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openPoamModal('${item.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deletePoam('${item.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="poam" data-id="${item.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="poam" data-id="${item.id}">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="8" class="text-center text-secondary py-3">No POA&M items.</td></tr>';
 }
 let poamModalBS;
@@ -1882,7 +1882,7 @@ function renderExceptions(){
     <td class="small">${escHtml(ex.approver||'–')}</td>
     <td class="small ${ex.expiry&&ex.expiry<TODAY?'text-danger fw-semibold':''}">${fmtDate(ex.expiry)}</td>
     <td><span class="badge ${excClass(ex.status)}">${escHtml(ex.status)}</span></td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openExcModal('${ex.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteExc('${ex.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="exc" data-id="${ex.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="exc" data-id="${ex.id}">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="7" class="text-center text-secondary py-3">No exceptions logged.</td></tr>';
 }
 let excModalBS;
@@ -1940,7 +1940,7 @@ function renderIncidents(){
     <td><span class="badge ${incClass(inc.status)}">${escHtml(inc.status)}</span></td>
     <td class="small">${fmtDate(inc.date)}</td>
     <td class="small">${escHtml(inc.reportedBy||'–')}</td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openIncModal('${inc.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteInc('${inc.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="inc" data-id="${inc.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="inc" data-id="${inc.id}">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="8" class="text-center text-secondary py-3">No incidents logged.</td></tr>';
 }
 let incModalBS;
@@ -1994,7 +1994,7 @@ function renderAssets(){
     <td class="small">${escHtml(a.location||'–')}</td>
     <td><span class="badge ${a.status==='Active'?'bg-success':a.status==='Inactive'?'bg-secondary':'bg-dark'}">${escHtml(a.status)}</span></td>
     <td class="small">${escHtml(a.risks||'–')}</td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openAssetModal('${a.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteAsset('${a.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="asset" data-id="${a.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="asset" data-id="${a.id}">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="8" class="text-center text-secondary py-3">No assets.</td></tr>';
 }
 let assetModalBS;
@@ -2045,7 +2045,7 @@ function renderVendors(){
     <td class="small ${v.reviewDue&&v.reviewDue<TODAY?'text-danger fw-semibold':''}">${fmtDate(v.reviewDue)}</td>
     <td><span class="badge ${stBadge(v.status)}">${escHtml(v.status)}</span></td>
     <td class="small">${escHtml(v.contact||'–')}</td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openVendorModal('${v.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteVendor('${v.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="vendor" data-id="${v.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="vendor" data-id="${v.id}">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="8" class="text-center text-secondary py-3">No vendors.</td></tr>';
 }
 let vendorModalBS;
@@ -2681,7 +2681,7 @@ function renderAudits(){
     <td class="small">${fmtDate(a.start)}</td>
     <td class="small">${fmtDate(a.end)}</td>
     <td class="text-center"><span class="badge ${Number(a.findings)>5?'sev-high':Number(a.findings)>2?'sev-medium':'bg-secondary'}">${a.findings||0}</span></td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openAuditModal('${a.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteAudit('${a.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="audit" data-id="${a.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="audit" data-id="${a.id}">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="9" class="text-center text-secondary py-3">No audits yet.</td></tr>';
 }
 let auditModalBS;
@@ -2736,7 +2736,7 @@ function renderTraining(){
     <td style="min-width:120px"><div class="d-flex align-items-center gap-2"><div class="compliance-bar flex-grow-1"><div class="compliance-fill" style="width:${pct}%;background:${barColor}"></div></div><span class="small">${pct}%</span></div></td>
     <td class="small ${t.due&&t.due<TODAY&&pct<100?'text-danger fw-semibold':''}">${fmtDate(t.due)}</td>
     <td class="small">${escHtml(t.provider||'–')}</td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openTrainingModal('${t.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteTraining('${t.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="training" data-id="${t.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="training" data-id="${t.id}">🗑</button>`:''}</td>
   </tr>`;}).join(''):'<tr><td colspan="8" class="text-center text-secondary py-3">No training programs.</td></tr>';
 }
 let trainingModalBS;
@@ -2789,7 +2789,7 @@ function renderBcp(){
     <td class="small">${escHtml(b.owner||'–')}</td>
     <td class="small ${!b.lastTested?'text-danger':''}">${fmtDate(b.lastTested)||'Never'}</td>
     <td>${b.testResult?`<span class="badge ${resultBadge(b.testResult)}">${b.testResult}</span>`:'<span class="badge bg-secondary">Untested</span>'}</td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openBcpModal('${b.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteBcp('${b.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="bcp" data-id="${b.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="bcp" data-id="${b.id}">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="9" class="text-center text-secondary py-3">No BCP items.</td></tr>';
 }
 let bcpModalBS;
@@ -2842,7 +2842,7 @@ function renderRegs(){
     <td class="small ${r.review&&r.review<TODAY?'text-danger fw-semibold':''}">${fmtDate(r.review)}</td>
     <td><span class="badge ${stClass(r.status)}">${escHtml(r.status)}</span></td>
     <td class="small" style="max-width:200px;white-space:normal">${escHtml(r.notes||'–')}</td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openRegModal('${r.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteReg('${r.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="reg" data-id="${r.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="reg" data-id="${r.id}">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="8" class="text-center text-secondary py-3">No regulations added.</td></tr>';
 }
 let regModalBS;
@@ -2924,7 +2924,7 @@ function renderKri(){
     <td class="small text-secondary">${escHtml(k.unit||'–')}</td>
     <td>${trendIcon(k.trend)} ${escHtml(k.trend||'–')}</td>
     <td class="small">${escHtml(k.owner||'–')}</td>
-    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openKriModal('${k.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteKri('${k.id}')">🗑</button>`:''}</td>
+    <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="kri" data-id="${k.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="kri" data-id="${k.id}">🗑</button>`:''}</td>
   </tr>`;}).join(''):'<tr><td colspan="9" class="text-center text-secondary py-3">No KRIs defined.</td></tr>';
 }
 let kriModalBS;
@@ -3099,7 +3099,7 @@ function renderIAudit(){
         </div>
         <div class="d-flex gap-2 align-items-center">
           <span class="small text-secondary">${fmtDate(s.date)}</span>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteAuditSession('${s.id}')">🗑</button>
+          <button class="btn btn-sm btn-outline-danger" data-delete="audit-session" data-id="${s.id}">🗑</button>
         </div>
       </div>
       <div class="card-body">
@@ -3154,7 +3154,7 @@ function renderProjects(){
       <td class="small ${p.target&&p.target<TODAY&&p.status!=='completed'?'text-danger fw-semibold':''}">${fmtDate(p.target)}</td>
       <td class="small">${p.budget?'$'+Number(p.budget).toLocaleString():'–'}</td>
       <td>${totalLinks?`<span class="badge bg-secondary">${totalLinks} links</span>`:'–'}</td>
-      <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openProjectModal('${p.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteProject('${p.id}')">🗑</button>`:''}</td>
+      <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" data-open="project" data-id="${p.id}">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" data-delete="project" data-id="${p.id}">🗑</button>`:''}</td>
     </tr>`;}).join(''):'<tr><td colspan="9" class="text-center text-secondary py-3">No projects yet.</td></tr>';
 }
 function populateProjectLinkSelects(p){
@@ -3363,7 +3363,7 @@ function renderMetricsGrid(){
     const color=getKpiColor(k);
     const chartId='kpic_'+k.id;
     html+=`<div class="${colCls}">
-      <div class="card kpi-m-card h-100 ${cardCls}" style="--kpi-color:${color}" onclick="focusKpi('${k.id}')">
+      <div class="card kpi-m-card h-100 ${cardCls}" style="--kpi-color:${color}" data-focus-kpi="${k.id}">
         <div class="card-body p-3">
           <div class="d-flex justify-content-between align-items-start mb-1">
             <div class="fw-semibold small text-truncate me-2" title="${escHtml(k.name)}">${escHtml(k.name)}</div>
@@ -3376,10 +3376,10 @@ function renderMetricsGrid(){
           </div>
           <div class="text-muted small mb-2">Target: ${k.target} ${escHtml(k.unit)} &nbsp;·&nbsp; <span class="text-muted">${escHtml(k.category||'')}</span></div>
           <div class="kpi-sparkline"><canvas id="${chartId}"></canvas></div>
-          <div class="d-flex gap-1 mt-2" onclick="event.stopPropagation()">
-            <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="openKpiDataModal('${k.id}')">+ Data</button>
-            <button class="btn btn-outline-primary btn-sm flex-fill" onclick="openKpiModal('${k.id}')">Edit</button>
-            <button class="btn btn-outline-danger btn-sm" onclick="deleteKpi('${k.id}')"><i class="bi bi-trash"></i></button>
+          <div class="d-flex gap-1 mt-2" data-stop-propagation>
+            <button class="btn btn-outline-secondary btn-sm flex-fill" data-open-kpi-data="${k.id}">+ Data</button>
+            <button class="btn btn-outline-primary btn-sm flex-fill" data-open="kpi" data-id="${k.id}">Edit</button>
+            <button class="btn btn-outline-danger btn-sm" data-delete="kpi" data-id="${k.id}"><i class="bi bi-trash"></i></button>
           </div>
         </div>
       </div>
@@ -3412,9 +3412,9 @@ function renderMetricsList(){
       <td><span class="${tr.cls} fs-5">${tr.arrow}</span></td>
       <td style="width:120px"><canvas id="${sparkId}" height="40"></canvas></td>
       <td>
-        <button class="btn btn-outline-secondary btn-sm me-1" onclick="openKpiDataModal('${k.id}')">Data</button>
-        <button class="btn btn-outline-primary btn-sm me-1" onclick="openKpiModal('${k.id}')">Edit</button>
-        <button class="btn btn-outline-danger btn-sm" onclick="deleteKpi('${k.id}')">Del</button>
+        <button class="btn btn-outline-secondary btn-sm me-1" data-open-kpi-data="${k.id}">Data</button>
+        <button class="btn btn-outline-primary btn-sm me-1" data-open="kpi" data-id="${k.id}">Edit</button>
+        <button class="btn btn-outline-danger btn-sm" data-delete="kpi" data-id="${k.id}">Del</button>
       </td>
     </tr>`;
   });
@@ -3520,8 +3520,8 @@ function focusKpi(id){
             <div class="d-flex justify-content-between small mt-1"><span>Direction:</span><strong>${k.targetDir==='higher'?'↑ Higher better':'↓ Lower better'}</strong></div>
             <div class="d-flex justify-content-between small"><span>Trend:</span><strong class="${tr.cls}">${tr.arrow}</strong></div>
             <div class="mt-3 d-flex gap-2 flex-column">
-              <button class="btn btn-outline-secondary btn-sm" onclick="openKpiDataModal('${k.id}')">Manage Data Points</button>
-              <button class="btn btn-outline-primary btn-sm" onclick="openKpiModal('${k.id}')">Edit KPI</button>
+              <button class="btn btn-outline-secondary btn-sm" data-open-kpi-data="${k.id}">Manage Data Points</button>
+              <button class="btn btn-outline-primary btn-sm" data-open="kpi" data-id="${k.id}">Edit KPI</button>
             </div>
           </div>
         </div>
@@ -3631,7 +3631,7 @@ function refreshDataModalTable(k){
   if(!k) return;
   const sorted=[...(k.data||[])].sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById('kpi-data-tbody').innerHTML=sorted.length
-    ?sorted.map(d=>`<tr><td>${d.date}</td><td>${d.value} ${escHtml(k.unit)}</td><td><button class="btn btn-outline-danger btn-sm py-0" onclick="deleteDataPoint('${d.date}')">×</button></td></tr>`).join('')
+    ?sorted.map(d=>`<tr><td>${d.date}</td><td>${d.value} ${escHtml(k.unit)}</td><td><button class="btn btn-outline-danger btn-sm py-0" data-delete-dp="${d.date}">×</button></td></tr>`).join('')
     :'<tr><td colspan="3" class="text-muted text-center">No data points yet</td></tr>';
 }
 
@@ -3659,6 +3659,80 @@ function deleteDataPoint(date){
   dbSave(DB);
   refreshDataModalTable(k);
 }
+
+/* ── CSP-compliant delegation — ID-wired controls + template-literal buttons ── */
+(function(){
+  /* Static filter controls wired by ID */
+  var byId = document.getElementById.bind(document);
+  var on   = function(id, evt, fn){ var el=byId(id); if(el) el.addEventListener(evt, fn); };
+  ['metrics-cols','metrics-card-style','metrics-theme','metrics-chart-override']
+    .forEach(function(id){ on(id,'change',function(){ if(typeof renderMetrics==='function') renderMetrics(); }); });
+  on('project-progress','input',function(){
+    var v=byId('project-progress-val');
+    if(v) v.textContent=this.value+'%';
+  });
+
+  /* Heatmap cell clicks */
+  document.addEventListener('click', function(e){
+    /* Stop-propagation shim */
+    if(e.target.closest('[data-stop-propagation]')){
+      var wrap=e.target.closest('[data-stop-propagation]');
+      if(wrap && wrap!==e.target && !e.target.closest('[data-open],[data-delete],[data-focus-kpi],[data-open-kpi-data],[data-toggle-met]'))
+        e.stopPropagation();
+    }
+
+    /* Heatmap */
+    var hm=e.target.closest('[data-heat-l]');
+    if(hm && typeof heatClick==='function'){
+      heatClick(+hm.dataset.heatL, +hm.dataset.heatI); return;
+    }
+
+    /* Toggle-met */
+    var tm=e.target.closest('[data-toggle-met]');
+    if(tm && typeof toggleMet==='function'){ toggleMet(tm.dataset.toggleMet); return; }
+
+    /* Focus KPI card */
+    var fk=e.target.closest('[data-focus-kpi]');
+    if(fk && !e.target.closest('[data-open],[data-delete],[data-open-kpi-data]')){
+      if(typeof focusKpi==='function') focusKpi(fk.dataset.focusKpi); return;
+    }
+
+    /* Open KPI data modal */
+    var kd=e.target.closest('[data-open-kpi-data]');
+    if(kd){ if(typeof openKpiDataModal==='function') openKpiDataModal(kd.dataset.openKpiData); return; }
+
+    /* Delete data point */
+    var dp=e.target.closest('[data-delete-dp]');
+    if(dp){ if(typeof deleteDataPoint==='function') deleteDataPoint(dp.dataset.deleteDp); return; }
+
+    /* Generic open modal with ID */
+    var openEl=e.target.closest('[data-open][data-id]');
+    if(openEl){
+      var t=openEl.dataset.open, id=openEl.dataset.id;
+      var OPEN={
+        risk:openRiskModal,ctrl:openCtrlModal,policy:openPolicyModal,poam:openPoamModal,
+        exc:openExcModal,inc:openIncModal,asset:openAssetModal,vendor:openVendorModal,
+        kpi:openKpiModal,project:openProjectModal,audit:openAuditModal,
+        training:openTrainingModal,bcp:openBcpModal,reg:openRegModal,kri:openKriModal
+      };
+      if(OPEN[t] && typeof OPEN[t]==='function') OPEN[t](id); return;
+    }
+
+    /* Generic delete with ID */
+    var delEl=e.target.closest('[data-delete][data-id]');
+    if(delEl){
+      var t=delEl.dataset.delete, id=delEl.dataset.id;
+      var DEL={
+        risk:deleteRisk,ctrl:deleteCtrl,policy:deletePolicy,poam:deletePoam,
+        exc:deleteExc,inc:deleteInc,asset:deleteAsset,vendor:deleteVendor,
+        kpi:deleteKpi,project:deleteProject,audit:deleteAudit,
+        training:deleteTraining,bcp:deleteBcp,reg:deleteReg,kri:deleteKri,
+        'audit-session':deleteAuditSession
+      };
+      if(DEL[t] && typeof DEL[t]==='function') DEL[t](id); return;
+    }
+  }, true); /* capture=true so stop-propagation works correctly */
+})();
 </script>
 
 <!-- KPI Define/Edit Modal -->

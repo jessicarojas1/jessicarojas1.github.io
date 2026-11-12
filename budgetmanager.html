@@ -1123,7 +1123,7 @@
             ${DB.distMode==='manual'?`<div class="mt-2 d-flex align-items-center gap-2">
               <label class="small text-secondary mb-0">Override %:</label>
               <div class="input-group input-group-sm alloc-input">
-                <input type="number" class="form-control" min="0" max="100" step="1" value="${m.pct||0}" oninput="updateManualPct('${m.id}',this.value)"/>
+                <input type="number" class="form-control" min="0" max="100" step="1" value="${m.pct||0}" data-alloc-id="${m.id}"/>
                 <span class="input-group-text">%</span>
               </div></div>`:''}
           </div>
@@ -1568,6 +1568,11 @@
   </script>
   <script src="analytics.js" defer>
 /* ── CSP-compliant budget delegation ───────────────────────────────── */
+  /* ── CSP-compliant input delegation for manual allocation ──────────── */
+  document.addEventListener('input', function(e){
+    var el = e.target.closest('[data-alloc-id]');
+    if(el && typeof updateManualPct === 'function') updateManualPct(el.dataset.allocId, el.value);
+  });
 document.addEventListener('click', function(e){
   var el = e.target.closest('[data-action]');
   if (!el) return;

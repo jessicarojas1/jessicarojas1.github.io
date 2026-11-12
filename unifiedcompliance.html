@@ -2331,7 +2331,7 @@
       ].forEach(function(fw) {
         var s = fw.s;
         var t = s.total || 1;
-        barsHtml += '<div class="mb-3 ucf-fw-card" style="cursor:pointer" onclick="ucfSwitchTab(\''+fw.pane+'\',document.getElementById(\''+fw.tab+'\'))" title="Click to view '+fw.name+'">'+
+        barsHtml += '<div class="mb-3 ucf-fw-card" style="cursor:pointer" data-ucf-pane="'+fw.pane+'" data-ucf-tab="'+fw.tab+'" title="Click to view '+fw.name+'">'+
           '<div class="d-flex justify-content-between mb-1"><strong>'+fw.name+'</strong><span>'+s.pct+'% complete &rsaquo;</span></div>'+
           '<div class="progress" style="height:1.4rem;">'+
           '<div class="progress-bar bg-success" style="width:'+(s.implemented/t*100)+'%">'+s.implemented+'</div>'+

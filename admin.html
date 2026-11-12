@@ -134,7 +134,7 @@
                 </div>
                 <div class="mb-3">
                   <label for="new-role" class="form-label">Role <span class="text-danger">*</span></label>
-                  <select class="form-select" id="new-role" onchange="highlightPermCol(this.value)">
+                  <select class="form-select" id="new-role">
                     <option value="viewer">Viewer</option>
                     <option value="reader">Reader</option>
                     <option value="editor">Editor</option>
@@ -460,7 +460,7 @@
           <div class="row g-4">
             <div class="col-md-4">
               <label for="approve-role" class="form-label">Assign Role</label>
-              <select class="form-select" id="approve-role" onchange="highlightApprovePermCol(this.value)">
+              <select class="form-select" id="approve-role">
                 <option value="viewer">Viewer</option>
                 <option value="reader">Reader</option>
                 <option value="editor">Editor</option>
@@ -537,7 +537,7 @@
           <div class="row g-4">
             <div class="col-md-4">
               <label for="changerole-select" class="form-label">New Role</label>
-              <select class="form-select" id="changerole-select" onchange="highlightRolePermCol(this.value)">
+              <select class="form-select" id="changerole-select">
                 <option value="viewer">Viewer</option>
                 <option value="reader">Reader</option>
                 <option value="editor">Editor</option>
@@ -1396,6 +1396,18 @@
     }
   });
   
+  /* ── Wired by ID: role select handlers (CSP-compliant) ─────────── */
+  (function(){
+    var selectors = [
+      ['new-role',           function(v){ if(typeof highlightPermCol       ==='function') highlightPermCol(v); }],
+      ['approve-role',       function(v){ if(typeof highlightApprovePermCol==='function') highlightApprovePermCol(v); }],
+      ['changerole-select',  function(v){ if(typeof highlightRolePermCol   ==='function') highlightRolePermCol(v); }],
+    ];
+    selectors.forEach(function(pair){
+      var el = document.getElementById(pair[0]);
+      if(el) el.addEventListener('change', function(e){ pair[1](e.target.value); });
+    });
+  })();
 /* ── CSP-compliant admin delegation ──────────────────────────────── */
 document.addEventListener('click', function(e){
   var el = e.target.closest('[data-action]');

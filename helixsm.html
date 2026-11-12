@@ -266,21 +266,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         <button class="btn btn-sm btn-outline-light" data-action="clear-bulk-selection">Clear</button>
       </div>
       <div class="filter-bar">
-        <select class="form-select form-select-sm" style="width:auto" id="inc-filter-status" onchange="renderIncidents()">
+        <select class="form-select form-select-sm" style="width:auto" id="inc-filter-status">
           <option value="">All Statuses</option>
           <option value="new">New</option><option value="in-progress">In Progress</option>
           <option value="pending">Pending</option><option value="resolved">Resolved</option><option value="closed">Closed</option>
         </select>
-        <select class="form-select form-select-sm" style="width:auto" id="inc-filter-pri" onchange="renderIncidents()">
+        <select class="form-select form-select-sm" style="width:auto" id="inc-filter-pri">
           <option value="">All Priorities</option>
           <option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option>
         </select>
-        <select class="form-select form-select-sm" style="width:auto" id="inc-filter-cat" onchange="renderIncidents()">
+        <select class="form-select form-select-sm" style="width:auto" id="inc-filter-cat">
           <option value="">All Categories</option>
           <option>Network</option><option>Server</option><option>Application</option><option>Hardware</option><option>Security</option><option>Access</option><option>Email</option><option>Other</option>
         </select>
-        <input class="form-control form-control-sm" style="width:200px" id="inc-search" placeholder="Search..." oninput="renderIncidents()">
-        <select class="form-select form-select-sm ms-auto" style="width:auto" id="inc-sort" onchange="renderIncidents()">
+        <input class="form-control form-control-sm" style="width:200px" id="inc-search" placeholder="Search...">
+        <select class="form-select form-select-sm ms-auto" style="width:auto" id="inc-sort">
           <option value="created-desc">Newest first</option>
           <option value="created-asc">Oldest first</option>
           <option value="priority">Priority</option>
@@ -288,7 +288,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </select>
       </div>
       <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0" id="inc-table">
-        <thead><tr><th style="width:32px"><input type="checkbox" id="inc-select-all" onchange="toggleSelectAllInc(this)"></th><th>ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Category</th><th>Assignee</th><th>SLA</th><th>Created</th><th></th></tr></thead>
+        <thead><tr><th style="width:32px"><input type="checkbox" id="inc-select-all" data-inc-select-all></th><th>ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Category</th><th>Assignee</th><th>SLA</th><th>Created</th><th></th></tr></thead>
         <tbody id="inc-tbody"></tbody>
       </table></div></div>
     </div>
@@ -300,12 +300,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         <button class="btn btn-primary btn-sm" data-action="open-request-modal"><i class="bi bi-plus-lg"></i> New Request</button>
       </div>
       <div class="filter-bar">
-        <select class="form-select form-select-sm" style="width:auto" id="req-filter-status" onchange="renderRequests()">
+        <select class="form-select form-select-sm" style="width:auto" id="req-filter-status">
           <option value="">All Statuses</option>
           <option value="pending-approval">Pending Approval</option><option value="approved">Approved</option>
           <option value="in-progress">In Progress</option><option value="fulfilled">Fulfilled</option><option value="rejected">Rejected</option><option value="cancelled">Cancelled</option>
         </select>
-        <input class="form-control form-control-sm" style="width:220px" id="req-search" placeholder="Search..." oninput="renderRequests()">
+        <input class="form-control form-control-sm" style="width:220px" id="req-search" placeholder="Search...">
       </div>
       <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
         <thead><tr><th>ID</th><th>Request</th><th>Type</th><th>Requester</th><th>Assignee</th><th>Status</th><th>Approval</th><th>Submitted</th><th></th></tr></thead>
@@ -320,10 +320,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         <button class="btn btn-primary btn-sm" data-action="open-change-modal"><i class="bi bi-plus-lg"></i> New RFC</button>
       </div>
       <div class="filter-bar">
-        <select class="form-select form-select-sm" style="width:auto" id="chg-filter-type" onchange="renderChanges()">
+        <select class="form-select form-select-sm" style="width:auto" id="chg-filter-type">
           <option value="">All Types</option><option>Standard</option><option>Normal</option><option>Emergency</option>
         </select>
-        <select class="form-select form-select-sm" style="width:auto" id="chg-filter-status" onchange="renderChanges()">
+        <select class="form-select form-select-sm" style="width:auto" id="chg-filter-status">
           <option value="">All Statuses</option>
           <option value="draft">Draft</option><option value="submitted">Submitted</option>
           <option value="pending-cab">Pending CAB</option><option value="approved">Approved</option>
@@ -370,17 +370,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         <button class="btn btn-primary btn-sm" data-action="open-ci-modal"><i class="bi bi-plus-lg"></i> Add CI</button>
       </div>
       <div class="filter-bar">
-        <select class="form-select form-select-sm" style="width:auto" id="ci-filter-type" onchange="renderCMDB()">
+        <select class="form-select form-select-sm" style="width:auto" id="ci-filter-type">
           <option value="">All Types</option>
           <option>Server</option><option>Network</option><option>Workstation</option><option>Software</option><option>Service</option><option>Database</option><option>Storage</option><option>Cloud</option>
         </select>
-        <select class="form-select form-select-sm" style="width:auto" id="ci-filter-env" onchange="renderCMDB()">
+        <select class="form-select form-select-sm" style="width:auto" id="ci-filter-env">
           <option value="">All Environments</option><option>Production</option><option>Staging</option><option>Development</option><option>DR</option>
         </select>
-        <select class="form-select form-select-sm" style="width:auto" id="ci-filter-status" onchange="renderCMDB()">
+        <select class="form-select form-select-sm" style="width:auto" id="ci-filter-status">
           <option value="">All Statuses</option><option>Active</option><option>Inactive</option><option>Retired</option><option>In Maintenance</option>
         </select>
-        <input class="form-control form-control-sm" style="width:200px" id="ci-search" placeholder="Search CIs..." oninput="renderCMDB()">
+        <input class="form-control form-control-sm" style="width:200px" id="ci-search" placeholder="Search CIs...">
       </div>
       <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
         <thead><tr><th>CI</th><th>Name</th><th>Type</th><th>Environment</th><th>Status</th><th>Owner</th><th>IP / Version</th><th>Location</th><th>Open Inc.</th><th></th></tr></thead>
@@ -395,12 +395,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         <button class="btn btn-primary btn-sm" data-action="open-article-modal"><i class="bi bi-plus-lg"></i> New Article</button>
       </div>
       <div class="filter-bar">
-        <input class="form-control form-control-sm" style="width:280px" id="kb-search" placeholder="Search articles..." oninput="renderKnowledge()">
-        <select class="form-select form-select-sm" style="width:auto" id="kb-filter-cat" onchange="renderKnowledge()">
+        <input class="form-control form-control-sm" style="width:280px" id="kb-search" placeholder="Search articles...">
+        <select class="form-select form-select-sm" style="width:auto" id="kb-filter-cat">
           <option value="">All Categories</option>
           <option>Network</option><option>Access &amp; Identity</option><option>Email</option><option>Hardware</option><option>Applications</option><option>Security</option><option>Onboarding</option><option>How-To</option>
         </select>
-        <select class="form-select form-select-sm" style="width:auto" id="kb-filter-status" onchange="renderKnowledge()">
+        <select class="form-select form-select-sm" style="width:auto" id="kb-filter-status">
           <option value="">All</option><option value="published">Published</option><option value="draft">Draft</option>
         </select>
       </div>
@@ -414,8 +414,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         <button class="btn btn-outline-secondary btn-sm" data-action="open-catalog-modal"><i class="bi bi-plus-lg"></i> Add Service</button>
       </div>
       <div class="filter-bar">
-        <input class="form-control form-control-sm" style="width:250px" id="cat-search" placeholder="Search services..." oninput="renderCatalog()">
-        <select class="form-select form-select-sm" style="width:auto" id="cat-filter-cat" onchange="renderCatalog()">
+        <input class="form-control form-control-sm" style="width:250px" id="cat-search" placeholder="Search services...">
+        <select class="form-select form-select-sm" style="width:auto" id="cat-filter-cat">
           <option value="">All Categories</option>
           <option>IT Infrastructure</option><option>Access &amp; Identity</option><option>Hardware &amp; Devices</option><option>Software</option><option>Communication</option><option>Security</option>
         </select>
@@ -453,13 +453,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-releases">
       <div class="sect-hdr"><h5>Release Management</h5><button class="btn btn-primary btn-sm" data-action="open-release-modal"><i class="bi bi-plus-lg"></i> New Release</button></div>
       <div class="filter-bar">
-        <select class="form-select form-select-sm" style="width:auto" id="rel-filter-status" onchange="renderReleases()">
+        <select class="form-select form-select-sm" style="width:auto" id="rel-filter-status">
           <option value="">All Statuses</option><option>Planning</option><option>In Testing</option><option>Approved</option><option>Deploying</option><option>Live</option><option>Rolled Back</option>
         </select>
-        <select class="form-select form-select-sm" style="width:auto" id="rel-filter-type" onchange="renderReleases()">
+        <select class="form-select form-select-sm" style="width:auto" id="rel-filter-type">
           <option value="">All Types</option><option>Major</option><option>Minor</option><option>Patch</option><option>Hotfix</option>
         </select>
-        <input class="form-control form-control-sm" style="width:200px" id="rel-search" placeholder="Search releases..." oninput="renderReleases()">
+        <input class="form-control form-control-sm" style="width:200px" id="rel-search" placeholder="Search releases...">
       </div>
       <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
         <thead><tr><th>ID</th><th>Release</th><th>Version</th><th>Type</th><th>Status</th><th>Planned Go-Live</th><th>Actual Go-Live</th><th>Lead</th><th>Linked Changes</th><th></th></tr></thead>
@@ -471,10 +471,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-maintenance">
       <div class="sect-hdr"><h5>Maintenance Windows</h5><button class="btn btn-primary btn-sm" data-action="open-maintenance-modal"><i class="bi bi-plus-lg"></i> New Window</button></div>
       <div class="filter-bar">
-        <select class="form-select form-select-sm" style="width:auto" id="mw-filter-status" onchange="renderMaintenance()">
+        <select class="form-select form-select-sm" style="width:auto" id="mw-filter-status">
           <option value="">All</option><option>Scheduled</option><option>In Progress</option><option>Completed</option><option>Cancelled</option>
         </select>
-        <input class="form-control form-control-sm" style="width:200px" id="mw-search" placeholder="Search..." oninput="renderMaintenance()">
+        <input class="form-control form-control-sm" style="width:200px" id="mw-search" placeholder="Search...">
       </div>
       <div class="row g-3" id="mw-grid"></div>
     </div>
@@ -489,7 +489,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-cab">
       <div class="sect-hdr"><h5>Change Advisory Board (CAB)</h5><button class="btn btn-primary btn-sm" data-action="open-cab-modal"><i class="bi bi-plus-lg"></i> New Meeting</button></div>
       <div class="filter-bar">
-        <select class="form-select form-select-sm" style="width:auto" id="cab-filter-status" onchange="renderCab()">
+        <select class="form-select form-select-sm" style="width:auto" id="cab-filter-status">
           <option value="">All</option><option>Scheduled</option><option>In Progress</option><option>Completed</option><option>Cancelled</option>
         </select>
       </div>
@@ -510,13 +510,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-vendors">
       <div class="sect-hdr"><h5>Vendor &amp; Contract Management</h5><button class="btn btn-primary btn-sm" data-action="open-vendor-modal"><i class="bi bi-plus-lg"></i> Add Vendor</button></div>
       <div class="filter-bar">
-        <select class="form-select form-select-sm" style="width:auto" id="vnd-filter-type" onchange="renderVendors()">
+        <select class="form-select form-select-sm" style="width:auto" id="vnd-filter-type">
           <option value="">All Types</option><option>Software</option><option>Hardware</option><option>Cloud</option><option>Security</option><option>Telecom</option><option>Professional Services</option>
         </select>
-        <select class="form-select form-select-sm" style="width:auto" id="vnd-filter-status" onchange="renderVendors()">
+        <select class="form-select form-select-sm" style="width:auto" id="vnd-filter-status">
           <option value="">All</option><option>Active</option><option>Expiring Soon</option><option>Expired</option><option>Inactive</option>
         </select>
-        <input class="form-control form-control-sm" style="width:200px" id="vnd-search" placeholder="Search vendors..." oninput="renderVendors()">
+        <input class="form-control form-control-sm" style="width:200px" id="vnd-search" placeholder="Search vendors...">
       </div>
       <div class="row g-3" id="vnd-grid"></div>
     </div>
@@ -525,13 +525,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-activity">
       <div class="sect-hdr"><h5>Activity Log</h5></div>
       <div class="filter-bar">
-        <input class="form-control form-control-sm" style="width:240px" id="act-search" placeholder="Search log…" oninput="renderActivity()">
-        <select class="form-select form-select-sm" style="width:auto" id="act-filter-mod" onchange="renderActivity()">
+        <input class="form-control form-control-sm" style="width:240px" id="act-search" placeholder="Search log…">
+        <select class="form-select form-select-sm" style="width:auto" id="act-filter-mod">
           <option value="">All Modules</option><option>Incidents</option><option>Requests</option><option>Changes</option><option>Problems</option><option>CMDB</option><option>Releases</option><option>Maintenance</option><option>Teams</option><option>Vendors</option><option>CAB</option><option>Knowledge</option><option>Catalog</option><option>SLA</option>
         </select>
-        <input class="form-control form-control-sm" type="date" id="act-filter-from" onchange="renderActivity()" style="width:auto">
+        <input class="form-control form-control-sm" type="date" id="act-filter-from" style="width:auto">
         <span class="small text-muted">to</span>
-        <input class="form-control form-control-sm" type="date" id="act-filter-to" onchange="renderActivity()" style="width:auto">
+        <input class="form-control form-control-sm" type="date" id="act-filter-to" style="width:auto">
         <button class="btn btn-outline-secondary btn-sm ms-auto" data-action="clear-activity-filters">Clear</button>
       </div>
       <div class="table-card"><div class="table-responsive"><table class="table table-sm mb-0">
@@ -1573,7 +1573,7 @@ function renderCriticalInc(){
   const inc=(DB.incidents||[]).filter(i=>['P1','P2'].includes(i.priority)&&!['resolved','closed'].includes(i.status));
   if(!inc.length){document.getElementById('dash-critical-inc').innerHTML='<p class="text-muted small py-2">No open P1/P2 incidents. ✅</p>';return;}
   document.getElementById('dash-critical-inc').innerHTML=`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>SLA</th><th>Assignee</th></tr></thead><tbody>`
-    +inc.map(i=>{const sla=getSlaInfo(i);return`<tr style="cursor:pointer" onclick="openIncidentModal('${i.id}')"><td class="fw-semibold">${i.id}</td><td>${escHtml(i.title)}</td><td>${priBadge(i.priority)}</td><td class="${sla?sla.cls:''}">${sla?sla.label:'—'}</td><td>${escHtml(i.assignee||'Unassigned')}</td></tr>`;}).join('')
+    +inc.map(i=>{const sla=getSlaInfo(i);return`<tr style="cursor:pointer" data-open-row="incident" data-id="${i.id}"><td class="fw-semibold">${i.id}</td><td>${escHtml(i.title)}</td><td>${priBadge(i.priority)}</td><td class="${sla?sla.cls:''}">${sla?sla.label:'—'}</td><td>${escHtml(i.assignee||'Unassigned')}</td></tr>`;}).join('')
     +`</tbody></table></div>`;
 }
 function renderDashActivity(){
@@ -1600,7 +1600,7 @@ function renderIncidents(){
   else if(sort==='sla'){items.sort((a,b)=>{const sa=getSlaInfo(a);const sb=getSlaInfo(b);const ord={breached:0,'at-risk':1,ok:2,met:3,'no-sla':4};return(ord[sa?.status]||9)-(ord[sb?.status]||9);});}
   document.getElementById('inc-tbody').innerHTML=items.length?items.map(i=>{
     const sla=getSlaInfo(i);
-    return`<tr style="cursor:pointer" onclick="openIncidentModal('${i.id}')">
+    return`<tr style="cursor:pointer" data-open-row="incident" data-id="${i.id}">
       <td class="fw-semibold text-primary">${i.id}</td>
       <td><div class="fw-semibold">${escHtml(i.title)}</div><div class="text-muted small">${escHtml(i.subcategory||'')}${i.group?` · ${escHtml(i.group)}`:''}</div></td>
       <td>${priBadge(i.priority)}</td>
@@ -1609,7 +1609,7 @@ function renderIncidents(){
       <td>${escHtml(i.assignee||'—')}</td>
       <td class="${sla?sla.cls:''} small">${sla?sla.label:'—'}</td>
       <td class="small text-muted">${fmtDate(i.created)}</td>
-      <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openIncidentModal('${i.id}')">Edit</button></td>
+      <td><button class="btn btn-outline-secondary btn-sm py-0" data-open="incident" data-id="${i.id}">Edit</button></td>
     </tr>`;}).join(''):'<tr><td colspan="9" class="text-center text-muted py-4">No incidents match your filters.</td></tr>';
   updateSidebarBadges();
 }
@@ -1684,7 +1684,7 @@ function renderRequests(){
   if(fs)items=items.filter(r=>r.status===fs);
   if(q)items=items.filter(r=>(r.title+r.type+r.requester).toLowerCase().includes(q));
   items.sort((a,b)=>b.created.localeCompare(a.created));
-  document.getElementById('req-tbody').innerHTML=items.length?items.map(r=>`<tr style="cursor:pointer" onclick="openRequestModal('${r.id}')">
+  document.getElementById('req-tbody').innerHTML=items.length?items.map(r=>`<tr style="cursor:pointer" data-open-row="request" data-id="${r.id}">
     <td class="fw-semibold text-primary">${r.id}</td>
     <td><div class="fw-semibold">${escHtml(r.title)}</div>${r.due?`<div class="text-muted small">Due: ${fmtDate(r.due)}</div>`:''}</td>
     <td>${escHtml(r.type||'—')}</td>
@@ -1693,7 +1693,7 @@ function renderRequests(){
     <td>${statusBadge(r.status)}</td>
     <td><span class="badge bg-${r.approval==='approved'?'success':r.approval==='rejected'?'danger':'secondary'}">${escHtml(r.approval||'pending')}</span></td>
     <td class="small text-muted">${fmtDate(r.created)}</td>
-    <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openRequestModal('${r.id}')">Edit</button></td>
+    <td><button class="btn btn-outline-secondary btn-sm py-0" data-open="request" data-id="${r.id}">Edit</button></td>
   </tr>`).join(''):'<tr><td colspan="9" class="text-center text-muted py-4">No requests found.</td></tr>';
   updateSidebarBadges();
 }
@@ -1748,7 +1748,7 @@ function renderChanges(){
   items.sort((a,b)=>b.created.localeCompare(a.created));
   if(_chgView==='pipeline'){renderChangePipeline(items);return;}
   const typeColor={Standard:'success',Normal:'primary',Emergency:'danger'};
-  document.getElementById('chg-tbody').innerHTML=items.length?items.map(c=>`<tr style="cursor:pointer" onclick="openChangeModal('${c.id}')">
+  document.getElementById('chg-tbody').innerHTML=items.length?items.map(c=>`<tr style="cursor:pointer" data-open-row="change" data-id="${c.id}">
     <td class="fw-semibold text-primary">${c.id}</td>
     <td><div class="fw-semibold">${escHtml(c.title)}</div>${c.planned_start?`<div class="text-muted small">Planned: ${fmtDate(c.planned_start)}</div>`:''}</td>
     <td><span class="badge bg-${typeColor[c.type]||'secondary'}">${c.type||'—'}</span></td>
@@ -1757,14 +1757,14 @@ function renderChanges(){
     <td class="small">${c.planned_start?fmtDate(c.planned_start):'—'}</td>
     <td class="small">${escHtml(c.cab||'—')}</td>
     <td class="small">${escHtml(c.assignee||'—')}</td>
-    <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openChangeModal('${c.id}')">Edit</button></td>
+    <td><button class="btn btn-outline-secondary btn-sm py-0" data-open="change" data-id="${c.id}">Edit</button></td>
   </tr>`).join(''):'<tr><td colspan="9" class="text-center text-muted py-4">No changes found.</td></tr>';
 }
 function renderChangePipeline(items){
   const stages=[{key:'draft',label:'Draft'},{key:'submitted',label:'Submitted'},{key:'pending-cab',label:'Pending CAB'},{key:'approved',label:'Approved'},{key:'scheduled',label:'Scheduled'},{key:'implementing',label:'Implementing'},{key:'completed',label:'Completed'}];
   document.getElementById('chg-pipeline').innerHTML=stages.map(s=>{
     const cols=items.filter(c=>c.status===s.key);
-    return`<div class="col"><div class="pipe-col"><div class="pipe-header">${s.label} <span class="badge bg-secondary">${cols.length}</span></div>${cols.map(c=>`<div class="pipe-item" onclick="openChangeModal('${c.id}')"><div class="small fw-semibold mb-1">${escHtml(c.title)}</div><div class="d-flex gap-1 flex-wrap"><span class="badge bg-${{'Standard':'success','Normal':'primary','Emergency':'danger'}[c.type]||'secondary'} small">${c.type}</span>${riskBadge(c.risk)}</div></div>`).join('')||'<div class="text-muted small px-3 py-2">—</div>'}</div></div>`;
+    return`<div class="col"><div class="pipe-col"><div class="pipe-header">${s.label} <span class="badge bg-secondary">${cols.length}</span></div>${cols.map(c=>`<div class="pipe-item" data-open-row="change" data-id="${c.id}" style="cursor:pointer"><div class="small fw-semibold mb-1">${escHtml(c.title)}</div><div class="d-flex gap-1 flex-wrap"><span class="badge bg-${{'Standard':'success','Normal':'primary','Emergency':'danger'}[c.type]||'secondary'} small">${c.type}</span>${riskBadge(c.risk)}</div></div>`).join('')||'<div class="text-muted small px-3 py-2">—</div>'}</div></div>`;
   }).join('');
 }
 let _chgModalBS=null;
@@ -1831,7 +1831,7 @@ function renderProblems(){
   else if(_prbTab==='open')items=items.filter(p=>['open','under-investigation'].includes(p.status));
   const priOrder={P1:1,P2:2,P3:3,P4:4};
   items.sort((a,b)=>(priOrder[a.priority]||9)-(priOrder[b.priority]||9));
-  document.getElementById('prb-tbody').innerHTML=items.length?items.map(p=>`<tr style="cursor:pointer" onclick="openProblemModal('${p.id}')">
+  document.getElementById('prb-tbody').innerHTML=items.length?items.map(p=>`<tr style="cursor:pointer" data-open-row="problem" data-id="${p.id}">
     <td class="fw-semibold text-primary">${p.id}</td>
     <td><div class="fw-semibold">${escHtml(p.title)}</div><div class="text-muted small">${escHtml(p.description||'').slice(0,60)}…</div></td>
     <td>${statusBadge(p.status)}</td>
@@ -1840,7 +1840,7 @@ function renderProblems(){
     <td class="small">${escHtml(p.related_incidents||'—')}</td>
     <td>${escHtml(p.assignee||'—')}</td>
     <td>${p.workaround?'<span class="badge bg-success">Yes</span>':'<span class="badge bg-secondary">No</span>'}</td>
-    <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openProblemModal('${p.id}')">Edit</button></td>
+    <td><button class="btn btn-outline-secondary btn-sm py-0" data-open="problem" data-id="${p.id}">Edit</button></td>
   </tr>`).join(''):'<tr><td colspan="9" class="text-center text-muted py-4">No problems found.</td></tr>';
 }
 let _prbModalBS=null;
@@ -1896,7 +1896,7 @@ function renderCMDB(){
   if(q)items=items.filter(c=>(c.name+c.owner+c.ip+c.os).toLowerCase().includes(q));
   document.getElementById('ci-tbody').innerHTML=items.length?items.map(c=>{
     const openInc=(DB.incidents||[]).filter(i=>i.ci===c.id&&!['resolved','closed'].includes(i.status)).length;
-    return`<tr style="cursor:pointer" onclick="openCIModal('${c.id}')">
+    return`<tr style="cursor:pointer" data-open-row="ci" data-id="${c.id}">
       <td>${ciTypeIcon(c.type)}</td>
       <td><div class="fw-semibold">${escHtml(c.name)}</div><div class="text-muted small">${escHtml(c.notes||'').slice(0,50)}</div></td>
       <td><span class="badge bg-secondary">${c.type}</span></td>
@@ -1906,7 +1906,7 @@ function renderCMDB(){
       <td class="small">${escHtml(c.ip||'—')}</td>
       <td class="small">${escHtml(c.location||'—')}</td>
       <td>${openInc?`<span class="badge bg-danger">${openInc}</span>`:'<span class="text-muted">—</span>'}</td>
-      <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openCIModal('${c.id}')">Edit</button></td>
+      <td><button class="btn btn-outline-secondary btn-sm py-0" data-open="ci" data-id="${c.id}">Edit</button></td>
     </tr>`;}).join(''):'<tr><td colspan="10" class="text-center text-muted py-4">No CIs found.</td></tr>';
 }
 let _ciModalBS=null;
@@ -1956,7 +1956,7 @@ function renderKnowledge(){
   const catColors={Network:'#dbeafe','Access & Identity':'#fce7f3',Email:'#d1fae5',Hardware:'#fef3c7',Applications:'#ede9fe',Security:'#fee2e2',Onboarding:'#e0f2fe','How-To':'#f0fdf4'};
   document.getElementById('kb-grid').innerHTML=items.length?items.map(a=>`
     <div class="col-md-6 col-lg-4">
-      <div class="kb-card h-100" onclick="viewArticle('${a.id}')">
+      <div class="kb-card h-100" data-view-article="${a.id}" style="cursor:pointer">
         <div class="d-flex align-items-start justify-content-between mb-2">
           <span class="badge rounded-pill" style="background:${catColors[a.category]||'var(--hx-ci-other)'};color:var(--hx-badge-dark)">${escHtml(a.category)}</span>
           ${a.status==='draft'?'<span class="badge bg-secondary">Draft</span>':''}
@@ -2033,8 +2033,8 @@ function renderCatalog(){
           <span>👤 ${escHtml(s.owner||'IT')}</span>
         </div>
         <div class="d-flex gap-2">
-          <button class="btn btn-primary btn-sm flex-grow-1" onclick="raiseRequest('${s.id}')">Request Now</button>
-          <button class="btn btn-outline-secondary btn-sm" onclick="openCatalogModal('${s.id}')"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-primary btn-sm flex-grow-1" data-raise-request="${s.id}">Request Now</button>
+          <button class="btn btn-outline-secondary btn-sm" data-open="catalog" data-id="${s.id}"><i class="bi bi-pencil"></i></button>
         </div>
       </div>
     </div>`).join(''):'<div class="col-12 text-center text-muted py-5">No services found.</div>';
@@ -2093,7 +2093,7 @@ function renderSLA(){
     let met=0;resolved.forEach(i=>{const si=getSlaInfo(i);if(si&&si.status==='met')met++;});
     const pct=resolved.length?Math.round(met/resolved.length*100):100;
     const color=pct>=s.target_pct?'success':pct>=s.target_pct-10?'warning':'danger';
-    return`<tr onclick="openSlaModal('${s.id}')" style="cursor:pointer">
+    return`<tr style="cursor:pointer" data-open-row="sla" data-id="${s.id}">
       <td class="fw-semibold">${escHtml(s.name)}</td>
       <td>${priBadge(s.priority)}</td>
       <td>${s.response_hours<1?Math.round(s.response_hours*60)+' min':s.response_hours+'h'}</td>
@@ -2102,7 +2102,7 @@ function renderSLA(){
       <td class="text-${color} fw-bold">${pct}%</td>
       <td><div class="sla-bar" style="width:100px"><div class="sla-bar-fill bg-${color}" style="width:${pct}%"></div></div></td>
       <td><span class="badge bg-${s.active?'success':'secondary'}">${s.active?'Active':'Inactive'}</span></td>
-      <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openSlaModal('${s.id}')">Edit</button></td>
+      <td><button class="btn btn-outline-secondary btn-sm py-0" data-open="sla" data-id="${s.id}">Edit</button></td>
     </tr>`;}).join(''):'<tr><td colspan="9" class="text-center text-muted py-4">No SLAs defined.</td></tr>';
 }
 let _slaModalBS=null;
@@ -2325,7 +2325,7 @@ function renderReleases(){
   items.sort((a,b)=>(b.planned||'').localeCompare(a.planned||''));
   const typeColor={Major:'danger',Minor:'primary',Patch:'success',Hotfix:'warning'};
   const statusColor={Planning:'secondary','In Testing':'info',Approved:'primary',Deploying:'warning',Live:'success','Rolled Back':'danger'};
-  document.getElementById('rel-tbody').innerHTML=items.length?items.map(r=>`<tr style="cursor:pointer" onclick="openReleaseModal('${r.id}')">
+  document.getElementById('rel-tbody').innerHTML=items.length?items.map(r=>`<tr style="cursor:pointer" data-open-row="release" data-id="${r.id}">
     <td class="fw-semibold text-primary">${r.id}</td>
     <td><div class="fw-semibold">${escHtml(r.title)}</div><div class="text-muted small">${escHtml(r.description||'').slice(0,70)}</div></td>
     <td><span class="rel-version">${escHtml(r.version||'—')}</span></td>
@@ -2335,7 +2335,7 @@ function renderReleases(){
     <td class="small">${r.actual?fmtDate(r.actual):'<span class="text-muted">—</span>'}</td>
     <td class="small">${escHtml(r.lead||'—')}</td>
     <td class="small">${escHtml(r.linked_changes||'—')}</td>
-    <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openReleaseModal('${r.id}')">Edit</button></td>
+    <td><button class="btn btn-outline-secondary btn-sm py-0" data-open="release" data-id="${r.id}">Edit</button></td>
   </tr>`).join(''):'<tr><td colspan="10" class="text-center text-muted py-4">No releases found.</td></tr>';
 }
 let _relModalBS=null;
@@ -2388,7 +2388,7 @@ function renderMaintenance(){
   const statusColor={'In Progress':'danger',Scheduled:'warning',Completed:'success',Cancelled:'secondary'};
   document.getElementById('mw-grid').innerHTML=items.length?items.map(m=>`
     <div class="col-md-6">
-      <div class="team-card" onclick="openMaintenanceModal('${m.id}')" style="cursor:pointer">
+      <div class="team-card" data-open-row="maintenance" data-id="${m.id}" style="cursor:pointer">
         <div class="d-flex justify-content-between align-items-start mb-2">
           <div class="fw-bold">${escHtml(m.title)}</div>
           <span class="badge bg-${statusColor[m.status]||'secondary'}">${m.status}</span>
@@ -2450,7 +2450,7 @@ function renderTeams(){
             <div class="fw-bold fs-6">${escHtml(t.name)}</div>
             <div class="text-muted small">${escHtml(t.specialty||'')}</div>
           </div>
-          <button class="btn btn-outline-secondary btn-sm py-0" onclick="openTeamModal('${t.id}')">Edit</button>
+          <button class="btn btn-outline-secondary btn-sm py-0" data-open="team" data-id="${t.id}">Edit</button>
         </div>
         <div class="d-flex gap-2 align-items-center mb-2">
           <span class="oncall-badge">🟢 On-Call: ${escHtml(t.oncall||'—')}</span>
@@ -2463,7 +2463,7 @@ function renderTeams(){
         <div class="small mb-2"><span class="fw-semibold">Members:</span> ${escHtml(t.members||'—')}</div>
         <div class="small text-muted border-top pt-2 mt-1"><strong>Escalation:</strong> ${escHtml(t.escalation||'—')} · ${escHtml(t.esc_phone||'—')}</div>
         <div class="mt-2">
-          <a href="#" class="small text-primary me-2" onclick="navigate('incidents');document.getElementById('inc-filter-status').value='';document.getElementById('inc-search').value='${escHtml(t.name)}';renderIncidents();return false">View incidents →</a>
+          <a href="#" class="small text-primary me-2" data-view-team-inc="${escHtml(t.name)}">View incidents →</a>
         </div>
       </div>
     </div>`).join(''):'<div class="col-12 text-center text-muted py-5">No teams defined yet.</div>';
@@ -2584,7 +2584,7 @@ function clearBulkSelection(){_selectedIncs.clear();document.querySelectorAll('.
 function buildTemplateMenu(){
   const menu=document.getElementById('inc-template-menu');
   if(!menu)return;
-  menu.innerHTML=(DB.templates||[]).map(t=>`<li><a class="dropdown-item tpl-item" href="#" onclick="applyTemplate('${t.id}');return false">${priBadge(t.priority)} ${escHtml(t.name)}</a></li>`).join('');
+  menu.innerHTML=(DB.templates||[]).map(t=>`<li><a class="dropdown-item tpl-item" href="#" data-apply-template="${t.id}">${priBadge(t.priority)} ${escHtml(t.name)}</a></li>`).join('');
 }
 function applyTemplate(id){
   const t=(DB.templates||[]).find(x=>x.id===id);if(!t)return;
@@ -2615,7 +2615,7 @@ function renderIncidents(){
     if(!idCell)return;
     const id=row.getAttribute('data-inc-id')||idCell.textContent.trim();
     const cb=document.createElement('td');
-    cb.innerHTML=`<input type="checkbox" class="inc-row-cb" data-id="${id}" onchange="toggleIncRow('${id}',this)" onclick="event.stopPropagation()">`;
+    cb.innerHTML=`<input type="checkbox" class="inc-row-cb" data-id="${id}" data-inc-row-id="${id}">`;
     row.insertBefore(cb,row.firstChild);
   });
   buildTemplateMenu();
@@ -2655,7 +2655,7 @@ function renderCab(){
   const statusColor={Scheduled:'primary','In Progress':'warning',Completed:'success',Cancelled:'secondary'};
   document.getElementById('cab-grid').innerHTML=items.length?items.map(c=>{
     const agenda=(c.agenda||'').split(',').map(s=>s.trim()).filter(Boolean);
-    return`<div class="col-md-6"><div class="team-card" style="cursor:pointer" onclick="openCabModal('${c.id}')">
+    return`<div class="col-md-6"><div class="team-card" style="cursor:pointer" data-open-row="cab" data-id="${c.id}">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <div><div class="fw-bold">${escHtml(c.title)}</div><div class="text-muted small">🕐 ${fmtDate(c.datetime)} ${c.datetime.slice(11,16)} · 👤 ${escHtml(c.chair||'')}</div></div>
         <span class="badge bg-${statusColor[c.status]||'secondary'}">${c.status}</span>
@@ -2708,14 +2708,14 @@ function renderFreeze(){
   document.getElementById('freeze-tbody').innerHTML=items.length?[...items].sort((a,b)=>b.start.localeCompare(a.start)).map(f=>{
     const isActive=f.start<=now&&f.end>=now;
     const isPast=f.end<now;
-    return`<tr class="${isActive?'freeze-active':''}" style="cursor:pointer" onclick="openFreezeModal('${f.id}')">
+    return`<tr class="${isActive?'freeze-active':''}" style="cursor:pointer" data-open-row="freeze" data-id="${f.id}">
       <td><span class="${isActive?'freeze-badge':''}">${escHtml(f.name)}</span>${isActive?'<span class="badge bg-danger ms-2">ACTIVE</span>':isPast?'<span class="badge bg-secondary ms-2">Past</span>':'<span class="badge bg-warning text-dark ms-2">Upcoming</span>'}</td>
       <td class="small">${fmtDate(f.start)} ${f.start.slice(11,16)}</td>
       <td class="small">${fmtDate(f.end)} ${f.end.slice(11,16)}</td>
       <td><span class="badge bg-${f.scope==='all'?'danger':'warning'} text-${f.scope==='all'?'white':'dark'}">${f.scope==='all'?'All Changes':f.scope+' blocked'}</span></td>
       <td class="small text-muted">${escHtml(f.reason||'')}</td>
       <td>${isActive?'<span class="badge bg-danger">Active ❄️</span>':isPast?'<span class="badge bg-secondary">Expired</span>':'<span class="badge bg-info">Scheduled</span>'}</td>
-      <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openFreezeModal('${f.id}')">Edit</button></td>
+      <td><button class="btn btn-outline-secondary btn-sm py-0" data-open="freeze" data-id="${f.id}">Edit</button></td>
     </tr>`;}).join(''):'<tr><td colspan="7" class="text-center text-muted py-4">No freeze periods defined.</td></tr>';
 }
 let _frzModalBS=null;
@@ -2771,12 +2771,12 @@ function renderVendors(){
   const typeIcon={Software:'📦',Hardware:'🖥️',Cloud:'☁️',Security:'🛡️',Telecom:'📡','Professional Services':'🤝'};
   document.getElementById('vnd-grid').innerHTML=items.length?items.map(v=>{
     const exp=vendorExpiryStatus(v);
-    return`<div class="col-md-6 col-lg-4"><div class="vendor-card ${exp.cls} h-100" style="cursor:pointer" onclick="openVendorModal('${v.id}')">
+    return`<div class="col-md-6 col-lg-4"><div class="vendor-card ${exp.cls} h-100" style="cursor:pointer" data-open-row="vendor" data-id="${v.id}">
       <div class="d-flex align-items-start gap-3 mb-2">
         <div style="font-size:1.8rem;background:${typeColor[v.type]||'var(--hx-ci-other)'};border-radius:8px;width:44px;height:44px;display:flex;align-items:center;justify-content:center">${typeIcon[v.type]||'🏢'}</div>
         <div class="flex-grow-1"><div class="fw-bold">${escHtml(v.name)}</div><div class="d-flex gap-1"><span class="badge bg-secondary">${v.type}</span><span class="badge bg-${exp.color} ${exp.color==='warning'?'text-dark':''}">${exp.label}</span></div></div>
       </div>
-      <div class="small mb-1">👤 ${escHtml(v.contact||'—')} · <a href="mailto:${escHtml(v.email||'')}" onclick="event.stopPropagation()">${escHtml(v.email||'—')}</a></div>
+      <div class="small mb-1">👤 ${escHtml(v.contact||'—')} · <a href="mailto:${escHtml(v.email||'')}" data-stop-propagation>${escHtml(v.email||'—')}</a></div>
       <div class="small mb-2">📞 ${escHtml(v.phone||'—')}</div>
       <div class="small mb-2 text-muted">${escHtml((v.services||'').slice(0,120))}${(v.services||'').length>120?'…':''}</div>
       <div class="d-flex justify-content-between small">
@@ -2833,7 +2833,7 @@ function renderPortalCatalog(){
   const items=(DB.catalog||[]).filter(s=>s.status==='active').slice(0,6);
   document.getElementById('portal-catalog').innerHTML=items.map(s=>`
     <div class="col-md-6 col-lg-4">
-      <div class="portal-card" onclick="closePortal();openRequestModal(null,'${escHtml(s.name).replace(/'/g,"\\'")}')">
+      <div class="portal-card" data-portal-service="${escHtml(s.name)}" style="cursor:pointer">
         <div class="d-flex align-items-center gap-3"><div style="font-size:2.2rem">${s.icon||'📋'}</div>
         <div><div class="fw-bold">${escHtml(s.name)}</div><div class="text-muted small">⏱ ${escHtml(s.sla||'')}</div></div></div>
         <div class="text-muted small mt-2">${escHtml(s.desc||'')}</div>
@@ -2961,6 +2961,138 @@ document.addEventListener('DOMContentLoaded',()=>{
     if (ACT[act]) ACT[act]();
   });
 });
+
+/* ── CSP-compliant event wiring — static filters + template-literal handlers ── */
+(function(){
+  /* ── Static filter controls wired by ID ── */
+  var byId = document.getElementById.bind(document);
+  var on   = function(id, evt, fn){ var el=byId(id); if(el) el.addEventListener(evt, fn); };
+
+  // Incident filters
+  ['inc-filter-status','inc-filter-pri','inc-filter-cat','inc-sort'].forEach(function(id){
+    on(id,'change',function(){ if(typeof renderIncidents==='function') renderIncidents(); });
+  });
+  on('inc-search','input',function(){ if(typeof renderIncidents==='function') renderIncidents(); });
+
+  // inc-select-all checkbox
+  on('inc-select-all','change',function(){ if(typeof toggleSelectAllInc==='function') toggleSelectAllInc(this); });
+
+  // Request filters
+  on('req-filter-status','change',function(){ if(typeof renderRequests==='function') renderRequests(); });
+  on('req-search','input',function(){ if(typeof renderRequests==='function') renderRequests(); });
+
+  // Change filters
+  ['chg-filter-type','chg-filter-status'].forEach(function(id){
+    on(id,'change',function(){ if(typeof renderChanges==='function') renderChanges(); });
+  });
+
+  // CMDB filters
+  ['ci-filter-type','ci-filter-env','ci-filter-status'].forEach(function(id){
+    on(id,'change',function(){ if(typeof renderCMDB==='function') renderCMDB(); });
+  });
+  on('ci-search','input',function(){ if(typeof renderCMDB==='function') renderCMDB(); });
+
+  // KB filters
+  on('kb-search','input',function(){ if(typeof renderKnowledge==='function') renderKnowledge(); });
+  ['kb-filter-cat','kb-filter-status'].forEach(function(id){
+    on(id,'change',function(){ if(typeof renderKnowledge==='function') renderKnowledge(); });
+  });
+
+  // Catalog filters
+  on('cat-search','input',function(){ if(typeof renderCatalog==='function') renderCatalog(); });
+  on('cat-filter-cat','change',function(){ if(typeof renderCatalog==='function') renderCatalog(); });
+
+  // Release filters
+  ['rel-filter-status','rel-filter-type'].forEach(function(id){
+    on(id,'change',function(){ if(typeof renderReleases==='function') renderReleases(); });
+  });
+  on('rel-search','input',function(){ if(typeof renderReleases==='function') renderReleases(); });
+
+  // Maintenance filters
+  on('mw-filter-status','change',function(){ if(typeof renderMaintenance==='function') renderMaintenance(); });
+  on('mw-search','input',function(){ if(typeof renderMaintenance==='function') renderMaintenance(); });
+
+  // CAB filter
+  on('cab-filter-status','change',function(){ if(typeof renderCab==='function') renderCab(); });
+
+  // Vendor filters
+  ['vnd-filter-type','vnd-filter-status'].forEach(function(id){
+    on(id,'change',function(){ if(typeof renderVendors==='function') renderVendors(); });
+  });
+  on('vnd-search','input',function(){ if(typeof renderVendors==='function') renderVendors(); });
+
+  // Activity filters
+  on('act-search','input',function(){ if(typeof renderActivity==='function') renderActivity(); });
+  ['act-filter-mod','act-filter-from','act-filter-to'].forEach(function(id){
+    on(id,'change',function(){ if(typeof renderActivity==='function') renderActivity(); });
+  });
+
+  /* ── Change delegation for inc-row checkboxes ── */
+  document.addEventListener('change', function(e){
+    var cb=e.target.closest('[data-inc-row-id]');
+    if(cb && typeof toggleIncRow==='function'){ e.stopPropagation(); toggleIncRow(cb.dataset.incRowId,cb); return; }
+    var sa=e.target.closest('[data-inc-select-all]');
+    if(sa && typeof toggleSelectAllInc==='function'){ toggleSelectAllInc(sa); return; }
+  });
+
+  /* ── Click delegation for template-literal buttons and rows ── */
+  var OPEN = {
+    incident:openIncidentModal,request:openRequestModal,change:openChangeModal,
+    problem:openProblemModal,ci:openCIModal,sla:openSlaModal,release:openReleaseModal,
+    freeze:openFreezeModal,team:openTeamModal,maintenance:openMaintenanceModal,
+    cab:openCabModal,vendor:openVendorModal,catalog:openCatalogModal
+  };
+  document.addEventListener('click', function(e){
+    if(e.target.closest('[data-stop-propagation]')){
+      e.stopPropagation();
+    }
+
+    /* Apply template */
+    var tpl=e.target.closest('[data-apply-template]');
+    if(tpl){ if(typeof applyTemplate==='function') applyTemplate(tpl.dataset.applyTemplate); e.preventDefault(); return; }
+
+    /* Raise service request from portal */
+    var ps=e.target.closest('[data-portal-service]');
+    if(ps){
+      if(typeof closePortal==='function') closePortal();
+      if(typeof openRequestModal==='function') openRequestModal(null,ps.dataset.portalService);
+      return;
+    }
+
+    /* View KB article */
+    var ka=e.target.closest('[data-view-article]');
+    if(ka){ if(typeof viewArticle==='function') viewArticle(ka.dataset.viewArticle); return; }
+
+    /* Raise request from catalog */
+    var rr=e.target.closest('[data-raise-request]');
+    if(rr){ if(typeof raiseRequest==='function') raiseRequest(rr.dataset.raiseRequest); return; }
+
+    /* View incidents for team */
+    var vt=e.target.closest('[data-view-team-inc]');
+    if(vt){
+      e.preventDefault();
+      if(typeof navigate==='function') navigate('incidents');
+      var fs=byId('inc-filter-status'); if(fs) fs.value='';
+      var is=byId('inc-search'); if(is) is.value=vt.dataset.viewTeamInc;
+      if(typeof renderIncidents==='function') renderIncidents();
+      return;
+    }
+
+    /* Button data-open (edit buttons, innermost — catches before row) */
+    var btn=e.target.closest('[data-open][data-id]');
+    if(btn){
+      var t=btn.dataset.open, id=btn.dataset.id;
+      if(OPEN[t] && typeof OPEN[t]==='function'){ e.stopPropagation(); OPEN[t](id); return; }
+    }
+
+    /* Row / card data-open-row */
+    var row=e.target.closest('[data-open-row][data-id]');
+    if(row && !e.target.closest('[data-open][data-id]')){
+      var t=row.dataset.openRow, id=row.dataset.id;
+      if(OPEN[t] && typeof OPEN[t]==='function') OPEN[t](id);
+    }
+  });
+})();
 </script>
 </body>
 </html>

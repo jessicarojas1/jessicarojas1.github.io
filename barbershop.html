@@ -267,7 +267,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       <div class="step-card">
         <div class="step-hdr"><span class="step-num">3</span> Pick a Date</div>
         <div class="step-body">
-          <input type="date" id="bk-date" class="form-control" style="max-width:220px;" oninput="updateTimeSlots()">
+          <input type="date" id="bk-date" class="form-control" style="max-width:220px;">
         </div>
       </div>
 
@@ -343,7 +343,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     <div class="mb-3">
       <label class="form-label fw-semibold small">Password</label>
       <input type="password" id="adm-pw" class="form-control" placeholder="Enter admin password"
-             onkeydown="if(event.key==='Enter')adminLogin()">
+            >
     </div>
     <div id="login-err" class="alert alert-danger small py-2" style="display:none;"></div>
     <button class="btn-gold w-100" style="justify-content:center;" data-action="admin-login">Sign In</button>
@@ -464,11 +464,11 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       <!-- ── ALL APPOINTMENTS ──────────────────────────── -->
       <div class="adm-mod" id="mod-appointments">
         <div class="filter-bar">
-          <input type="date" id="af-date" class="form-control form-control-sm" style="width:160px;" onchange="renderAppointments()">
-          <select id="af-barber" class="form-select form-select-sm" style="width:155px;" onchange="renderAppointments()">
+          <input type="date" id="af-date" class="form-control form-control-sm" style="width:160px;">
+          <select id="af-barber" class="form-select form-select-sm" style="width:155px;">
             <option value="">All Barbers</option>
           </select>
-          <select id="af-status" class="form-select form-select-sm" style="width:155px;" onchange="renderAppointments()">
+          <select id="af-status" class="form-select form-select-sm" style="width:155px;">
             <option value="">All Statuses</option>
             <option value="pending">Pending</option>
             <option value="confirmed">Confirmed</option>
@@ -514,11 +514,11 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
               </div>
               <div class="col-sm-6">
                 <label class="form-label fw-semibold small">Barber *</label>
-                <select id="aa-barber" class="form-select" onchange="aaRefreshSlots()"></select>
+                <select id="aa-barber" class="form-select"></select>
               </div>
               <div class="col-sm-6">
                 <label class="form-label fw-semibold small">Date *</label>
-                <input type="date" id="aa-date" class="form-control" oninput="aaRefreshSlots()">
+                <input type="date" id="aa-date" class="form-control">
               </div>
               <div class="col-sm-6">
                 <label class="form-label fw-semibold small">Time *</label>
@@ -547,13 +547,13 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       <!-- ── TIME REPORTS ──────────────────────────────── -->
       <div class="adm-mod" id="mod-time-reports">
         <div class="filter-bar">
-          <select id="tr-period" class="form-select form-select-sm" style="width:155px;" onchange="renderTimeReports()">
+          <select id="tr-period" class="form-select form-select-sm" style="width:155px;">
             <option value="today">Today</option>
             <option value="week">This Week</option>
             <option value="month" selected>This Month</option>
             <option value="all">All Time</option>
           </select>
-          <select id="tr-barber" class="form-select form-select-sm" style="width:155px;" onchange="renderTimeReports()">
+          <select id="tr-barber" class="form-select form-select-sm" style="width:155px;">
             <option value="">All Barbers</option>
           </select>
         </div>
@@ -589,7 +589,7 @@ body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
       <!-- ── REVENUE ────────────────────────────────────── -->
       <div class="adm-mod" id="mod-revenue">
         <div class="filter-bar">
-          <select id="rev-period" class="form-select form-select-sm" style="width:155px;" onchange="renderRevenue()">
+          <select id="rev-period" class="form-select form-select-sm" style="width:155px;">
             <option value="today">Today</option>
             <option value="week">This Week</option>
             <option value="month" selected>This Month</option>
@@ -1751,6 +1751,21 @@ document.addEventListener('click', function(e){
   };
   if (fns[act]) fns[act]();
 });
+/* ── CSP-compliant event wiring for filter/booking controls ─────── */
+(function(){
+  var byId = document.getElementById.bind(document);
+  var on   = function(id, evt, fn){ var el=byId(id); if(el) el.addEventListener(evt, fn); };
+  on('bk-date',   'input',  updateTimeSlots);
+  on('af-date',   'change', renderAppointments);
+  on('af-barber', 'change', renderAppointments);
+  on('af-status', 'change', renderAppointments);
+  on('aa-barber', 'change', aaRefreshSlots);
+  on('aa-date',   'input',  aaRefreshSlots);
+  on('tr-period', 'change', renderTimeReports);
+  on('tr-barber', 'change', renderTimeReports);
+  on('rev-period','change', renderRevenue);
+  on('adm-pw',    'keydown',function(e){ if(e.key==='Enter') adminLogin(); });
+})();
 document.addEventListener('click', function(e){
   var el = e.target.closest('[data-slot]');
   if (!el || el.classList.contains('unavail')) return;

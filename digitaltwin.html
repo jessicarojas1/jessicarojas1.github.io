@@ -724,7 +724,7 @@ function openPanel(node) {
     html += '<div class="p-section"><div class="p-section-title">Incoming Relationships (' + connected.upstream.length + ')</div>';
     connected.upstream.forEach(function(n) {
       var nc = TYPE_COLORS[n.type]||'#64748b';
-      html += '<span class="p-tag" onclick="focusNode(\''+n.id+'\')" title="'+n.rel+'">'
+      html += '<span class="p-tag" data-focus-id="'+n.id+'" title="'+n.rel+'">'
             + '<span class="dot" style="background:'+nc+'"></span>' + n.label
             + '<span style="font-size:.6rem;color:var(--dt-secondary);margin-left:4px">'+n.rel+'</span></span>';
     });
@@ -736,7 +736,7 @@ function openPanel(node) {
     html += '<div class="p-section"><div class="p-section-title">Outgoing Relationships (' + connected.downstream.length + ')</div>';
     connected.downstream.forEach(function(n) {
       var nc = TYPE_COLORS[n.type]||'#64748b';
-      html += '<span class="p-tag" onclick="focusNode(\''+n.id+'\')" title="'+n.rel+'">'
+      html += '<span class="p-tag" data-focus-id="'+n.id+'" title="'+n.rel+'">'
             + '<span class="dot" style="background:'+nc+'"></span>' + n.label
             + '<span style="font-size:.6rem;color:var(--dt-secondary);margin-left:4px">'+n.rel+'</span></span>';
     });
@@ -746,8 +746,8 @@ function openPanel(node) {
   // Quick actions
   html += '<div class="p-section" style="margin-top:16px"><div class="p-section-title">Actions</div>'
         + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
-        + '<button class="dt-btn" onclick="focusNode(\''+d.id+'\')">◎ Focus</button>'
-        + '<button class="dt-btn" onclick="cy.getElementById(\''+d.id+'\').neighborhood().select()">⎇ Select Neighbors</button>'
+        + '<button class="dt-btn" data-focus-id="'+d.id+'">◎ Focus</button>'
+        + '<button class="dt-btn" data-select-neighbors-id="'+d.id+'">⎇ Select Neighbors</button>'
         + '</div></div>';
 
   panelBody.innerHTML = html;
@@ -840,6 +840,17 @@ cy.ready(function() { cy.fit(60); });
 cy.on('tap', function(e) { if (e.target === cy) { cy.elements().removeClass('faded'); } });
 
 })(); // end IIFE
+
+/* ── CSP-compliant delegation for panel p-tags and action buttons ──────── */
+document.addEventListener('click', function(e) {
+  var focusEl = e.target.closest('[data-focus-id]');
+  if (focusEl) { focusNode(focusEl.dataset.focusId); return; }
+  var neighborEl = e.target.closest('[data-select-neighbors-id]');
+  if (neighborEl) {
+    var cyEl = typeof cy !== 'undefined' && cy.getElementById(neighborEl.dataset.selectNeighborsId);
+    if (cyEl) cyEl.neighborhood().select();
+  }
+});
 </script>
 
   <footer class="site-footer">
