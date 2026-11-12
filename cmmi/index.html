@@ -807,7 +807,7 @@
           <p class="text-secondary p-4">Generating report…</p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-sm btn-outline-secondary" onclick="window.print()"><span class="bi bi-printer me-1"></span>Print</button>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-print-report"><span class="bi bi-printer me-1"></span>Print</button>
           <button class="btn btn-sm btn-outline-secondary" id="btn-copy-report"><span class="bi bi-clipboard me-1"></span>Copy as Text</button>
           <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
@@ -1193,7 +1193,7 @@
 
     /* Bulk action dropdown HTML */
     var bulkHtml = [
-      '<div class="dropdown" onclick="event.stopPropagation()">',
+      '<div class="dropdown" data-stop-prop>',
       '  <button class="pa-bulk-btn dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" title="Bulk status actions for ' + escHtml(meta.full) + '" data-bulk-pa="' + pa + '">⋯</button>',
       '  <ul class="dropdown-menu dropdown-menu-end pa-bulk-menu">',
       '    <li><h6 class="dropdown-header" style="font-size:.68rem">' + escHtml(pa) + ' — Bulk Actions</h6></li>',
@@ -1307,6 +1307,16 @@
 
   /* ── Attach events after DOM rebuild ───────────────────────────────────── */
   function attachEvents() {
+    /* Dropdown stop-propagation (prevents accordion collapse on dropdown click) */
+    document.querySelectorAll('.dropdown[data-stop-prop]').forEach(function(el) {
+      el.addEventListener('click', function(e) { e.stopPropagation(); });
+    });
+
+    /* What's Next items */
+    document.querySelectorAll('.what-next-item[data-jump-practice]').forEach(function(el) {
+      el.addEventListener('click', function() { jumpToPractice(el.dataset.jumpPractice); });
+    });
+
     /* PA header toggle */
     document.querySelectorAll('.pa-header').forEach(function(hdr) {
       hdr.addEventListener('click', togglePA);
@@ -1914,7 +1924,7 @@
         /* Fix priority 2 reason to include the PA name */
         var reason = item.reason.replace("('')", '(' + p.pa + ')').replace("('')", '(' + p.pa + ')');
         if (item.cls === 'wn-p2') reason = 'Next in active PA ' + p.pa + ' — keep the momentum';
-        html += '<div class="what-next-item ' + item.cls + '" onclick="jumpToPractice(\'' + escHtml(p.practiceNum) + '\')">';
+        html += '<div class="what-next-item ' + item.cls + '" data-jump-practice="' + escHtml(p.practiceNum) + '">';
         html += '<div class="d-flex align-items-start gap-2">';
         html += '<span class="p-num" style="min-width:4.5rem;flex-shrink:0">' + escHtml(p.practiceNum) + '</span>';
         html += '<span style="font-size:.81rem;line-height:1.5;flex:1">' + escHtml((p.practiceStatement || '').slice(0, 120)) + (p.practiceStatement && p.practiceStatement.length > 120 ? '…' : '') + '</span>';
@@ -2139,6 +2149,7 @@
     document.getElementById('readinessReportModal').addEventListener('show.bs.modal', function() {
       generateReadinessReport();
     });
+    document.getElementById('btn-print-report').addEventListener('click', function() { window.print(); });
     document.getElementById('btn-copy-report').addEventListener('click', function() {
       var el = document.getElementById('readiness-report-body');
       if (!el) return;
