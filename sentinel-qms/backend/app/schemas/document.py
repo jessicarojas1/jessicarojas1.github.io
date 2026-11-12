@@ -88,11 +88,15 @@ class TransitionRequest(BaseModel):
     """Workflow transition request.
 
     Provide either ``action`` (preferred) or an explicit ``to_status``.
-    Actions: ``advance`` (next stage), ``approve``, ``obsolete``, ``revise``.
+    Actions: ``advance`` (next stage), ``approve``, ``obsolete``, ``revise``,
+    ``reject`` (send a document under review back to Work In Progress; requires a
+    ``reason``).
     """
 
-    action: str | None = Field(default=None, pattern="^(advance|approve|obsolete|revise)$")
+    action: str | None = Field(default=None, pattern="^(advance|approve|obsolete|revise|reject)$")
     to_status: DocumentStatus | None = None
+    # Required when action is ``reject``: why the document is being sent back.
+    reason: str | None = Field(default=None, max_length=2000)
 
 
 class RevisionCreate(BaseModel):

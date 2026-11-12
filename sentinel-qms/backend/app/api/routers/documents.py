@@ -20,6 +20,8 @@ from app.api.deps import (
 from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError, WorkflowError
+from app.core.iam import has_permission
+from app.core.rbac import Role
 from app.models.document import (
     Department,
     Document,
@@ -86,6 +88,19 @@ def _assert_distinct_assignees(doc: Document) -> None:
             raise WorkflowError(
                 f"Separation of duties: the {label_a} and {label_b} must be different people."
             )
+
+
+# A Quality Manager or Admin may perform any workflow transition (override), so an
+# operator is never locked out when assignees are absent or on leave.
+_PRIVILEGED_ROLES = frozenset({Role.ADMIN.value, Role.QUALITY_MANAGER.value})
+
+
+def _is_privileged(actor: CurrentUser) -> bool:
+    return not _PRIVILEGED_ROLES.isdisjoint(actor.role_names)
+
+
+def _stage_label(s: DocumentStatus) -> str:
+    return s.value.replace("_", " ")
 
 
 @router.get("", response_model=Page[DocumentList])
@@ -226,7 +241,7 @@ def transition_document(
         target = DocumentStatus.OBSOLETE
     elif action == "approve":
         target = DocumentStatus.APPROVED
-    elif action == "revise":
+    elif action in ("revise", "reject"):
         target = DocumentStatus.WORK_IN_PROGRESS
     elif action == "advance":
         nxt = next_stage(current)
@@ -240,9 +255,20 @@ def transition_document(
     if current == DocumentStatus.OBSOLETE:
         raise WorkflowError("Obsolete documents are terminal and cannot transition.")
 
+    reason = (body.reason or "").strip()
+
     # Validate the transition.
     if target == DocumentStatus.OBSOLETE:
         pass  # any active doc may be made obsolete
+    elif action == "reject":
+        # Send a document under review back to Work In Progress, with a reason.
+        if current not in (DocumentStatus.PEER_REVIEW, DocumentStatus.QA_REVIEW):
+            raise WorkflowError("Only a document in Peer Review or QA Review can be sent back.")
+        if not reason:
+            raise WorkflowError(
+                "A reason is required to send a document back to Work In Progress."
+            )
+        target = DocumentStatus.WORK_IN_PROGRESS
     elif action == "revise" or (
         current == DocumentStatus.APPROVED and target == DocumentStatus.WORK_IN_PROGRESS
     ):
@@ -275,6 +301,37 @@ def transition_document(
             )
         _assert_distinct_assignees(doc)
 
+    # Stage authority (enterprise PAL, option A): the assigned person for a review
+    # transition must be the one to perform it; a Quality Manager or Admin may always
+    # act. Keyed by (stage left, stage entered).
+    privileged = _is_privileged(actor)
+    stage_owner: dict[tuple[DocumentStatus, DocumentStatus], tuple[int | None, str]] = {
+        (DocumentStatus.WORK_IN_PROGRESS, DocumentStatus.PEER_REVIEW): (doc.author_id, "author"),
+        (DocumentStatus.PEER_REVIEW, DocumentStatus.QA_REVIEW): (doc.reviewer_id, "reviewer"),
+        (DocumentStatus.QA_REVIEW, DocumentStatus.APPROVED): (doc.approver_id, "approver"),
+    }
+    owner = stage_owner.get((current, target))
+    if owner is not None and not privileged:
+        assignee_id, role_label = owner
+        if assignee_id is None or assignee_id != actor.id:
+            raise WorkflowError(
+                f"Only the assigned {role_label} (or a Quality Manager) can move this document "
+                f"from {_stage_label(current)} to {_stage_label(target)}."
+            )
+
+    # Sending a document back to WIP is the review stage's owner (reviewer / approver).
+    if action == "reject" and not privileged:
+        back_owner_id = doc.reviewer_id if current == DocumentStatus.PEER_REVIEW else doc.approver_id
+        back_role = "reviewer" if current == DocumentStatus.PEER_REVIEW else "approver"
+        if back_owner_id is None or back_owner_id != actor.id:
+            raise WorkflowError(
+                f"Only the assigned {back_role} (or a Quality Manager) can send this document back."
+            )
+
+    # Final approval additionally requires the approve permission.
+    if target == DocumentStatus.APPROVED and not has_permission(db, actor, "documents.approve"):
+        raise WorkflowError("Approving a document requires the documents.approve permission.")
+
     doc.status = target
     if target == DocumentStatus.APPROVED:
         doc.approved_by = actor.id
@@ -296,7 +353,7 @@ def transition_document(
         entity_type=ENTITY,
         entity_id=doc.id,
         before=before,
-        after=doc,
+        after=({**audit.snapshot(doc), "reject_reason": reason} if action == "reject" else doc),
         **request_context(request),
     )
     db.commit()
@@ -362,6 +419,14 @@ def approve_revision(
     if revision.status in (DocumentStatus.APPROVED, DocumentStatus.OBSOLETE):
         raise WorkflowError("This revision has already been finalized.")
 
+    doc = db.get(Document, revision.document_id)
+    # Enterprise PAL, option A: only the assigned approver (or a Quality Manager /
+    # Admin) may finalize approval — checked before any e-signature is created.
+    if not _is_privileged(actor) and (doc is None or doc.approver_id != actor.id):
+        raise WorkflowError(
+            "Only the assigned approver (or a Quality Manager) can decide this document's approval."
+        )
+
     sig = create_signature(
         db,
         actor=actor,
@@ -379,7 +444,6 @@ def approve_revision(
     )
     db.add(approval)
 
-    doc = db.get(Document, revision.document_id)
     if body.decision == "approved":
         revision.status = DocumentStatus.APPROVED
         revision.effective_date = body.effective_date

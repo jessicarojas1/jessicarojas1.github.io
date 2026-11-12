@@ -35,7 +35,7 @@ export type DocumentDepartment =
   | 'ops';
 
 /** Workflow action accepted by POST /documents/{id}/transition. */
-export type DocumentTransitionAction = 'advance' | 'approve' | 'obsolete' | 'revise';
+export type DocumentTransitionAction = 'advance' | 'approve' | 'obsolete' | 'revise' | 'reject';
 
 export interface DocumentRevision {
   id: string;

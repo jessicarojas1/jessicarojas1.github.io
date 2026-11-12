@@ -7,12 +7,15 @@ import {
   FileText,
   PencilLine,
   RotateCcw,
+  Undo2,
 } from 'lucide-react';
 import { documentHooks } from '@/hooks';
 import { usePagePerms } from '@/lib/permissions';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { useToast } from '@/lib/toast';
+import { Modal } from '@/components/Modal';
+import { TextArea } from '@/components/FormField';
 import { PrintButton } from '@/components/PrintButton';
 import { DataList, DetailState } from '@/components/detail';
 import { RecordDetailHeader } from '@/components/RecordDetailHeader';
@@ -69,25 +72,39 @@ export default function DocumentDetailPage() {
   const { notify } = useToast();
   const { canEdit } = usePagePerms();
   const { data: doc, isLoading, error } = documentHooks.useDetail(id);
-  const transition = documentHooks.useAction<{ action: DocumentTransitionAction }>('transition');
+  const transition = documentHooks.useAction<{
+    action: DocumentTransitionAction;
+    reason?: string;
+  }>('transition');
   const [editOpen, setEditOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
 
   const mayEdit = canEdit('documents');
   const status = doc?.status;
   const canAdvance =
     status === 'concept' || status === 'work_in_progress' || status === 'peer_review';
   const canApprove = status === 'qa_review';
+  const canReject = status === 'peer_review' || status === 'qa_review';
   const canRevise = status === 'approved';
   const isTerminal = status === 'obsolete';
 
-  const runTransition = async (action: DocumentTransitionAction, msg: string) => {
+  const runTransition = async (action: DocumentTransitionAction, msg: string, reason?: string) => {
     if (!id) return;
     try {
-      await transition.mutateAsync({ id, payload: { action } });
+      await transition.mutateAsync({ id, payload: { action, reason } });
       notify(msg, 'success');
     } catch (err) {
       notify(getErrorMessage(err), 'danger');
     }
+  };
+
+  const submitReject = async () => {
+    const reason = rejectReason.trim();
+    if (!reason) return;
+    await runTransition('reject', 'Document sent back to Work In Progress', reason);
+    setRejectOpen(false);
+    setRejectReason('');
   };
 
   return (
@@ -131,6 +148,16 @@ export default function DocumentDetailPage() {
                     onClick={() => runTransition('approve', 'Document approved')}
                   >
                     <CheckCircle2 size={16} /> Approve
+                  </button>
+                )}
+                {mayEdit && canReject && (
+                  <button
+                    type="button"
+                    className="btn"
+                    disabled={transition.isPending}
+                    onClick={() => setRejectOpen(true)}
+                  >
+                    <Undo2 size={16} /> Send Back
                   </button>
                 )}
                 {mayEdit && canRevise && (
@@ -225,6 +252,39 @@ export default function DocumentDetailPage() {
             onSaved={() => setEditOpen(false)}
             document={doc}
           />
+
+          <Modal
+            open={rejectOpen}
+            onClose={() => setRejectOpen(false)}
+            title="Send back to Work In Progress"
+            footer={
+              <>
+                <button type="button" className="btn" onClick={() => setRejectOpen(false)}>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  disabled={transition.isPending || rejectReason.trim() === ''}
+                  onClick={submitReject}
+                >
+                  Send Back
+                </button>
+              </>
+            }
+          >
+            <p>
+              This returns the document to Work In Progress for revision. A reason is required and
+              is recorded in the audit trail.
+            </p>
+            <TextArea
+              aria-label="Reason"
+              rows={3}
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Why is this being sent back?"
+            />
+          </Modal>
         </>
       )}
     </DetailState>
