@@ -1,14 +1,32 @@
 {
-  "updated": "2026-11-12",
+  "updated": "2026-11-13",
   "summary": {
     "correct": 48,
-    "incorrect": 43,
+    "incorrect": 44,
     "partial": 12,
-    "pending": 81,
-    "note": "2026-11-12: six standing forecasts lapsed INCORRECT on window closure with no resolving event -- fc-2026-10-22-cmmc-new-target (no new CMMC Reform Task Force target date; fourteenth-plus consecutive non-public cycle), fc-2026-10-12-reconciliation-floor-action (no Senate/House floor action on Golden Dome reconciliation funding), fc-2026-10-21-nato-blacksea-asset-named (no named NATO Black Sea asset), fc-2026-10-28-hormuz-portwatch-reconciliation (no fresher IMF PortWatch Hormuz transit figure), fc-2026-10-22-plex2shell-wider-confirm (no independent Plex2Shell exploitation confirmation beyond the original honeypot), and fc-2026-10-22-nato-blacksea-casualty-reconciliation (Black Sea casualty figures still unreconciled). fc-2026-11-10-fortimail-psirt-advisory graded CORRECT after multiple outlets confirmed Fortinet's own FG-IR-26-175 advisory explicitly denies a FortiMail 7.2-specific fix. Lead findings this cycle: (1) Trump's rhetoric on Iran swung sharply back hawkish -- 'total victory' vowed at a Veterans Day address on 11 Nov, one day after 'fairly soon'/'won't be necessary,' with CENTCOM's operational posture unchanged throughout. (2) Yesterday's conflicting rare-earth-suspension reports are resolved: MOFCOM/GACC Announcement No. 70 of 2025 lapsed on schedule 10 Nov exactly as one outlet reported, while a new Announcement No. 58 of 2026 (adopted 9 Nov) immediately re-suspended the same measures through 10 Jan 2027 -- both prior reports were correct about different instruments. (3) Anthropic's IPO order book is REPORTED several times oversubscribed with underwriters weighing pricing above the filed $70-78/share range toward ~$1.5T. (4) A newly-surfaced ISW-CDOT assessment (6 Nov) describes a 100+ vessel PLA/CCG concentration near Taiwan simulating isolation operations, exceeding Justice Mission 2025's scale. Four new forecasts added: Anthropic above-range pricing, a Taiwan named-exercise test, an Iran no-major-strike test, and a Black Sea NATO-attribution corroboration test.",
-    "updated": "2026-11-12"
+    "pending": 82,
+    "note": "2026-11-13: Lead findings this cycle: (1) Iran's FM spokesperson Baghaei confirmed NPT withdrawal 'remains under discussion' with parliament's national-security committee saying a withdrawal bill is procedurally ready, a new structural escalation input layered on continued Trump rhetorical whiplash (CENTCOM reaffirms blockade enforcement even as Trump swings back to 'no hesitation' strike threats). (2) CISA's second Ivanti Connect Secure federal deadline (CVE-2026-118527) landed today with still no named DIB victim across 18+ tracked CVE vendor families since September -- assessed as more likely under-disclosure than under-exploitation. (3) SDA's first Golden Dome tracking-satellite launches are reported slipping from 2026 to spring 2027, compounding the program's pre-existing FY27 reconciliation funding-gap risk. (4) Anthropic's IPO order book remains several-times oversubscribed with a reported Amodei-Dimon investor livestream today ahead of expected 18 Nov pricing. Two forecasts graded this cycle: fc-2026-10-14-taiwan-letter-response (INCORRECT -- no Rubio/Hegseth response to the senators' letter found within its 30-day window) and fc-2026-11-03-midterm-chamber-call (CORRECT -- already resolved per thread history but not yet formally graded; graded on review). Two new forecasts added: an Iran NPT-withdrawal floor-vote test and a Taiwan vessel-count-reconciliation test.",
+    "updated": "2026-11-13"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-13-iran-npt-withdrawal-vote",
+      "date": "2026-11-13",
+      "forecast": "Iran's parliament will NOT hold an actual floor vote on NPT withdrawal within 30 days, despite the national-security committee's confirmation that a withdrawal bill is procedurally ready, given continued SNSC lack of consensus and reformist/centrist domestic opposition.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-13-taiwan-vesselcount-reconciliation",
+      "date": "2026-11-13",
+      "forecast": "An independent, authoritative source (Taiwan MND, a named wire service, or a maritime-tracking firm) will reconcile the unreconciled 50-vs-100+ PLA/CCG vessel-count figures near Taiwan within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
     {
       "id": "fc-2026-11-12-anthropic-price-above-range",
       "date": "2026-11-12",
@@ -968,9 +986,9 @@
       "date": "2026-10-14",
       "forecast": "A confirmed Rubio or Hegseth response to the McConnell-led senators' letter on the stalled $14B Taiwan arms package will be publicly reported within 30 days, given the letter is now roughly three weeks old with no reply identified.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether continued silence on the letter persists or whether the administration formally addresses the senators' concerns. Tracked on the China-Taiwan Pressure / Trump-Xi Summit thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-13",
+      "note": "The 30-day window closes today, 13 Nov, with no confirmed Rubio or Hegseth response to the McConnell-led senators' letter on the stalled $14B Taiwan arms package identified across a dedicated search this cycle. Graded INCORRECT on the window's lapse. Tracked on the China-Taiwan Pressure / Trump-Xi Summit thread."
     },
     {
       "id": "fc-2026-10-15-trump-kim-meeting",
