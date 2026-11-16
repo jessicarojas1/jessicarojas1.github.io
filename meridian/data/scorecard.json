@@ -1,14 +1,32 @@
 {
-  "updated": "2026-11-13",
+  "updated": "2026-11-16",
   "summary": {
-    "correct": 48,
-    "incorrect": 44,
+    "correct": 50,
+    "incorrect": 48,
     "partial": 12,
-    "pending": 82,
-    "note": "2026-11-13: Lead findings this cycle: (1) Iran's FM spokesperson Baghaei confirmed NPT withdrawal 'remains under discussion' with parliament's national-security committee saying a withdrawal bill is procedurally ready, a new structural escalation input layered on continued Trump rhetorical whiplash (CENTCOM reaffirms blockade enforcement even as Trump swings back to 'no hesitation' strike threats). (2) CISA's second Ivanti Connect Secure federal deadline (CVE-2026-118527) landed today with still no named DIB victim across 18+ tracked CVE vendor families since September -- assessed as more likely under-disclosure than under-exploitation. (3) SDA's first Golden Dome tracking-satellite launches are reported slipping from 2026 to spring 2027, compounding the program's pre-existing FY27 reconciliation funding-gap risk. (4) Anthropic's IPO order book remains several-times oversubscribed with a reported Amodei-Dimon investor livestream today ahead of expected 18 Nov pricing. Two forecasts graded this cycle: fc-2026-10-14-taiwan-letter-response (INCORRECT -- no Rubio/Hegseth response to the senators' letter found within its 30-day window) and fc-2026-11-03-midterm-chamber-call (CORRECT -- already resolved per thread history but not yet formally graded; graded on review). Two new forecasts added: an Iran NPT-withdrawal floor-vote test and a Taiwan vessel-count-reconciliation test.",
-    "updated": "2026-11-13"
+    "pending": 78,
+    "note": "2026-11-16: Lead findings this cycle: (1) Iran's IRGC struck a US early-warning radar at Riffa Air Base, Bahrain (15 Nov) -- intercepted, no damage -- three days after Rubio told G7 allies major combat operations are not currently needed given economic pressure; GCC/Qatar/Saudi/UAE/Jordan/Egypt condemned the attack. (2) CISA's second Ivanti Connect Secure federal deadline passed (13 Nov) with still no named DIB victim across 18+ tracked CVE families since September, and this program's own direct CISA access remained blocked this cycle. (3) Anthropic confirmed Wednesday 18 Nov IPO pricing and Thursday 19 Nov Nasdaq debut amid several-times-oversubscribed demand. (4) Taiwan Defense Minister Koo gave the first official Taiwan-government characterization (A2AD drills, Liaoning carrier group) of the previously analyst-sourced PLA naval concentration; Taiwan's 28 Nov elections add context. Six forecasts graded this cycle: fc-2026-09-16-exitcontrol-enforcement, fc-2026-10-15-pixelleak-dib-exposure, fc-2026-10-30-hormuz-mine-verification and fc-2026-11-06-hormuz-centcom-response all closed INCORRECT; fc-2026-11-03-qeshm-strike-aftermath and fc-2026-11-11-abudhabi-joint-statement both closed CORRECT. Two new forecasts added testing a further Bahrain-area attack and a named Ivanti/DIB victim.",
+    "updated": "2026-11-16"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-16-bahrain-further-attack",
+      "date": "2026-11-16",
+      "forecast": "Iran or an Iran-aligned actor will conduct at least one further attack attempt against Bahrain or another GCC host-nation asset within 14 days, following the 15 Nov drone attack on Riffa Air Base despite unified GCC/Qatar condemnation.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-16-ivanti-dib-victim-named",
+      "date": "2026-11-16",
+      "forecast": "A named DIB or federal-contractor victim tied to the Ivanti Connect Secure chain, or any of the 18+ tracked CVE vendor families since September, will be publicly identified within 21 days, now that the second federal deadline has passed.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
     {
       "id": "fc-2026-11-13-iran-npt-withdrawal-vote",
       "date": "2026-11-13",
@@ -320,9 +338,9 @@
       "date": "2026-09-16",
       "forecast": "A specific, publicly reported exit-ban enforcement case under China's new exit-control regulation (rare earths/batteries/semiconductors) will surface within 60 days.",
       "horizon": "0-60 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Still no publicly reported exit-ban enforcement case under Decree No. 841. A different restrictive mechanism became visible instead: Chinese suppliers reportedly refusing U.S.-bound shipments despite valid licences, which achieves a comparable effect with no enforcement action and therefore may reduce the need for a visible exit-ban case at all."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-16",
+      "note": "The 60-day window closed ~15 Nov with no exit-ban enforcement case under Decree No. 841 ever publicly reported across any tracked cycle."
     },
     {
       "id": "fc-2026-09-16-energy-dispute",
@@ -1022,9 +1040,9 @@
       "date": "2026-10-15",
       "forecast": "At least one DIB/federal-contractor organization will be named among the 300+ firms affected by Glow Labs' 'PixelLeak' AI-coding-agent GitHub-screenshot exposure within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this retroactively-discovered incident's affected-organization list, when more fully disclosed, includes a defense-sector victim -- which would be a first across all tracked agentic-AI and edge-CVE incidents this program has followed. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-16",
+      "note": "The 30-day window closed ~14 Nov with no DIB/federal-contractor organization named among the 300+ firms affected by the PixelLeak exposure."
     },
     {
       "id": "fc-2026-10-16-blacksea-nato-deployment",
@@ -1391,9 +1409,9 @@
       "date": "2026-10-30",
       "forecast": "Independent (non-Iranian, non-CENTCOM-denial-only) technical/forensic verification of actual mine damage -- as opposed to limpet-device or projectile damage -- on any of the claimed 27-29 Oct Hormuz tanker incidents will emerge within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this cycle's central Hormuz factual dispute (Iran's mine claims vs. CENTCOM's explicit denial) resolves toward either side's account, or remains unreconciled like several prior single-source Hormuz claims. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-16",
+      "note": "The 14-day window closed ~13 Nov with no independent forensic verification of mine damage found; Iran's claims vs. CENTCOM's denial remain unresolved."
     },
     {
       "id": "fc-2026-10-30-nk-cadence-resumes",
@@ -1445,9 +1463,9 @@
       "date": "2026-11-03",
       "forecast": "Within 14 days of the 2 Nov Qeshm Island strikes, either a further publicly reported US/Israeli kinetic action against Iran will occur, or a confirmed, independently corroborated step toward Iran's offered 2-day Hormuz reopening will be reported.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tracks whether the Qeshm Island action was an isolated defensive incident or the opening move of a broader post-election track, and whether Iran's reopening offer is substantive. This cycle: no further strike confirmed, but Iran is reported 'playing down hope' for a deal -- a cooling signal short of either clause resolving; window remains open to ~16 Nov."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-16",
+      "note": "Trump confirmed further US 'minor strikes' on Qeshm Island (~6-7 Nov), satisfying the forecast's further-US-kinetic-action clause well within the 14-day window."
     },
     {
       "id": "fc-2026-11-03-midterm-chamber-call",
@@ -1544,9 +1562,9 @@
       "date": "2026-11-06",
       "forecast": "CENTCOM will issue an on-the-record response (confirmation or denial) specifically addressing Iran's 5 Nov IRGC mine-strike claim within 7 days.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No response identified this cycle, even as CENTCOM was otherwise highly active and vocal (Task Force Iron Gate, M/V Huda strike). Window remains open through ~13 Nov."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-16",
+      "note": "The 7-day window closed ~13 Nov with no CENTCOM on-the-record response to the specific 5 Nov IRGC mine-strike claim identified."
     },
     {
       "id": "fc-2026-11-09-rareearth-extension-primary-confirm",
@@ -1661,9 +1679,9 @@
       "date": "2026-11-11",
       "forecast": "A formal joint statement or confirmed detailed outcome list (beyond the reported prisoner-exchange agreement) from the 10-11 Nov Abu Dhabi talks will be publicly released within 5 days.",
       "horizon": "0-5 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this round produces a formal readout beyond the single reported deliverable, given the second day reportedly concluded in under two hours with a statement still pending at compilation."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-16",
+      "note": "A joint statement on Ukraine security guarantees was issued via Witkoff (10 Nov) on behalf of the US, Ukraine, the EU and NATO -- from the preparatory US-Ukraine-Europe session rather than a Russia-inclusive trilateral readout, but satisfying the forecast's test within the 5-day window."
     },
     {
       "id": "fc-2026-11-11-rareearth-primary-text",
