@@ -1,14 +1,32 @@
 {
-  "updated": "2026-11-16",
+  "updated": "2026-11-17",
   "summary": {
     "correct": 50,
     "incorrect": 48,
     "partial": 12,
-    "pending": 78,
-    "note": "2026-11-16: Lead findings this cycle: (1) Iran's IRGC struck a US early-warning radar at Riffa Air Base, Bahrain (15 Nov) -- intercepted, no damage -- three days after Rubio told G7 allies major combat operations are not currently needed given economic pressure; GCC/Qatar/Saudi/UAE/Jordan/Egypt condemned the attack. (2) CISA's second Ivanti Connect Secure federal deadline passed (13 Nov) with still no named DIB victim across 18+ tracked CVE families since September, and this program's own direct CISA access remained blocked this cycle. (3) Anthropic confirmed Wednesday 18 Nov IPO pricing and Thursday 19 Nov Nasdaq debut amid several-times-oversubscribed demand. (4) Taiwan Defense Minister Koo gave the first official Taiwan-government characterization (A2AD drills, Liaoning carrier group) of the previously analyst-sourced PLA naval concentration; Taiwan's 28 Nov elections add context. Six forecasts graded this cycle: fc-2026-09-16-exitcontrol-enforcement, fc-2026-10-15-pixelleak-dib-exposure, fc-2026-10-30-hormuz-mine-verification and fc-2026-11-06-hormuz-centcom-response all closed INCORRECT; fc-2026-11-03-qeshm-strike-aftermath and fc-2026-11-11-abudhabi-joint-statement both closed CORRECT. Two new forecasts added testing a further Bahrain-area attack and a named Ivanti/DIB victim.",
-    "updated": "2026-11-16"
+    "pending": 80,
+    "note": "2026-11-17: Lead findings this cycle: (1) A preceding 13 Nov Iranian drone-strike attempt on Bahrain's Riffa Air Base surfaced alongside the already-tracked 15 Nov attack, establishing a repeated two-strikes-in-three-days pattern and Bahrain's first nationwide threat alert in months. (2) A 14 Nov drone strike hit commercial vessels inside Romania's own territorial waters near the Sulina channel -- the Black Sea campaign's first confirmed strike inside a NATO member's waters; NATO's own tally stands at 442 vessel attacks/40 deaths since the start of 2026, with Article 5 applicability reportedly unresolved internally. (3) Anthropic's IPO order book is now reported ~6x oversubscribed (up from ~2x), with pricing still confirmed for 18 Nov and trading 19 Nov. (4) Taiwanese security officials now cite ~70 PLA/CCG vessels within the first island chain as of 13 Nov (down from a 100+ peak), a partial step toward reconciling the standing vessel-count discrepancy; a single-sourced, unconfirmed claim of a submarine ICBM launch during the exercise period was also surfaced. (5) A statutory appropriations rider confirmed barring OMB from finalizing a specific FAR Overhaul proposal through 11 Dec 2026. No forecasts resolved definitively this cycle; several PENDING forecasts gained interim notes reflecting partial movement. Two new forecasts added testing NATO Article 4/5 non-invocation over the Black Sea campaign and formal establishment of the ASC-BAE SSN-AUKUS joint venture.",
+    "updated": "2026-11-17"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-17-blacksea-article5-noninvocation",
+      "date": "2026-11-17",
+      "forecast": "NATO or a member government will NOT formally invoke, or explicitly debate invoking, Article 4/5 consultations over the Black Sea tanker-attack campaign within 21 days, despite the 14 Nov strike landing inside Romania's own territorial waters and Reuters reporting the question remains internally unresolved.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-17-aukus-jv-established",
+      "date": "2026-11-17",
+      "forecast": "The ASC-BAE Systems joint venture to oversee SSN-AUKUS submarine construction, flagged in the 13 Nov mobilisation accord as needing further time to stand up, will be formally established within 90 days.",
+      "horizon": "0-90 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
     {
       "id": "fc-2026-11-16-bahrain-further-attack",
       "date": "2026-11-16",
@@ -16,7 +34,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": ""
+      "note": "A preceding 13 Nov strike attempt surfaced this cycle but predates the forecast's 16 Nov anchor date and does not resolve it; no confirmed attack after 16 Nov identified yet."
     },
     {
       "id": "fc-2026-11-16-ivanti-dib-victim-named",
@@ -43,7 +61,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": ""
+      "note": "Partial movement: Taiwanese security officials now cite ~70 vessels within the first island chain as of 13 Nov, a figure between the two previously cited ranges, but this does not fully reconcile ISW's and Taiwan NSC's differently sourced figures."
     },
     {
       "id": "fc-2026-11-12-anthropic-price-above-range",
@@ -61,7 +79,7 @@
       "horizon": "0-14 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": ""
+      "note": "Trending CORRECT: no PRC naming of the drills identified this cycle either; the concentration is reported scaling down to ~70 vessels by 13 Nov from a 100+ peak, consistent with the no-announcement thesis."
     },
     {
       "id": "fc-2026-11-12-iran-no-major-strike",
@@ -79,7 +97,7 @@
       "horizon": "0-21 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": ""
+      "note": "A new, separate 14 Nov incident inside Romanian waters surfaced this cycle, but it does not corroborate attribution of the specific 28 Oct Contship Jet sinking this forecast tests."
     },
     {
       "id": "fc-2026-09-06-cmmc",
