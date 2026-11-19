@@ -1,14 +1,41 @@
 {
-  "updated": "2026-11-18",
+  "updated": "2026-11-19",
   "summary": {
-    "correct": 51,
-    "incorrect": 48,
+    "correct": 53,
+    "incorrect": 49,
     "partial": 12,
     "pending": 81,
-    "note": "2026-11-18: Lead findings this cycle: (1) Commerce's Bureau of Industry and Security closed an AI-chip 'remote access' export loophole, requiring a US license before offshore data centers in Singapore, Thailand, Malaysia, Indonesia, or Brazil may serve compute to Chinese-controlled customers, with a 90-day compliance window -- a structural extension of export control to compute-access services, prompted by chip-routing allegations (incl. a reported ~$12B Megaspeed claim). (2) Anthropic's IPO order book grew to ~7x oversubscribed (from ~6x) with WSJ reporting of possible above-range pricing ahead of the 18 Nov print and 19 Nov Nasdaq debut; fc-2026-10-29-anthropic-ipo-roadshow graded CORRECT (roadshow confirmed launched week of 9-10 Nov). (3) No third Iranian strike on Bahrain was identified in the 72h since the 15 Nov attack; Bahrain's Foreign Ministry formally cited UNSC Resolution 2817. (4) A precursor Black Sea drone strike on the tanker Larissa 1 (13 Nov) surfaced this cycle, preceding the already-tracked 14 Nov Sulina-channel strike, and France relocated a maritime patrol aircraft to Romania in response; this program flags a structurally similar reporting-lag pattern across both the Bahrain and Black Sea threads this cycle. (5) A previously untracked ~10 Nov CISA KEV batch (incl. Cisco BroadWorks CVE-2026-20320) surfaced, expanding the tracked target-class list into carrier/UC infrastructure. Two new forecasts added testing AI-chip-rule enforcement and independent Black Sea attribution.",
-    "updated": "2026-11-18"
+    "note": "2026-11-19: Lead findings this cycle: (1) Anthropic priced its IPO at $83.00/share, above the filed $70-78 range -- the largest IPO on record (~$81.3B raised, ~$1.5T valuation); Nasdaq trading (ANT) begins today; fc-2026-11-12-anthropic-price-above-range graded CORRECT. (2) A ULA Vulcan Centaur failed in flight 15 Nov, destroying all 40 Amazon Leo satellites -- ULA's first failure in 20 years -- compounding its existing NSSL-eligibility hold since 26 Feb; a new forecast tests Space Force's reassignment response. (3) A third Iran-claimed strike hit Bahrain's Sheikh Isa Air Base radar (17 Nov), explicitly denied by CENTCOM; this resolves fc-2026-11-16-bahrain-further-attack CORRECT. A fourth, uncorroborated tanker-mine claim also surfaced, alongside Bahrain's sentencing of 64 people to life in prison over an alleged IRGC-linked plot. (4) The 18-19 Nov Trump-Kim APEC meeting window closed with no meeting held or firmly scheduled; fc-2026-10-15-trump-kim-meeting graded INCORRECT. (5) BIS's Affiliates Rule suspension extension to 10 Jan 2027 (previously reported 11-11) is now corroborated as a final rule, converging with the rare-earth suspension and tariff truce on the same date. A Taiwan criminal case names an Nvidia Taipei manager in an alleged chip-smuggling scheme to China, adjacent context for AI-chip export enforcement. Three new forecasts added testing Vulcan/NSSL reassignment, independent corroboration of the Sheikh Isa claim, and ANT's first-week trading performance.",
+    "updated": "2026-11-19"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-19-vulcan-nssl-reassignment",
+      "date": "2026-11-19",
+      "forecast": "Space Force will formally reassign or publicly flag at least one additional NSSL mission away from ULA Vulcan within 30 days, given the 15 Nov in-flight failure that destroyed 40 Amazon Leo satellites -- ULA's first failure in 20 years -- building on the six missions already reassigned to SpaceX since 1 Oct over the unrelated solid-rocket-motor issue.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-19-centcom-sheikhisa-corroboration",
+      "date": "2026-11-19",
+      "forecast": "Independent, non-US-government and non-Iranian-government corroboration (satellite imagery, a neutral maritime/security tracker, or a reversal by either side) of the 17 Nov Sheikh Isa Air Base radar-strike claim -- which CENTCOM explicitly denied as 'FALSE' -- will emerge within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-19-ant-firstweek-close",
+      "date": "2026-11-19",
+      "forecast": "Anthropic's ANT shares will close their first week of trading (through ~26 Nov) above the $83 IPO price, consistent with the ~7x oversubscription demand pattern observed through the roadshow.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
     {
       "id": "fc-2026-11-17-blacksea-article5-noninvocation",
       "date": "2026-11-17",
@@ -32,9 +59,9 @@
       "date": "2026-11-16",
       "forecast": "Iran or an Iran-aligned actor will conduct at least one further attack attempt against Bahrain or another GCC host-nation asset within 14 days, following the 15 Nov drone attack on Riffa Air Base despite unified GCC/Qatar condemnation.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "A preceding 13 Nov strike attempt surfaced this cycle but predates the forecast's 16 Nov anchor date and does not resolve it; no confirmed attack after 16 Nov identified yet. No further attack identified in the 72h since 15 Nov (through 18 Nov); window remains open through ~30 Nov."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-19",
+      "note": "Iran's IRGC claimed a third drone attack on a Bahrain facility (Sheikh Isa Air Base radar) on 17 Nov, well within the 14-day window; Bahrain's Defence Force reported interceptions. CENTCOM explicitly denied the claim's success, but the forecast's test is an attack attempt, not independent confirmation of a successful strike."
     },
     {
       "id": "fc-2026-11-16-ivanti-dib-victim-named",
@@ -68,9 +95,9 @@
       "date": "2026-11-12",
       "forecast": "Anthropic's final IPO price will land above the top of its filed $70-78/share range, given reported several-times order-book oversubscription and underwriters reportedly weighing a higher price.",
       "horizon": "0-8 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": " Trending toward CORRECT: oversubscription grew to ~7x and WSJ reports Anthropic could price above $80, above the filed $70-78 range; resolves on the 18 Nov print."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-18",
+      "note": "Anthropic priced its IPO at $83.00/share on 18 Nov, confirmed above the filed $70-78 range -- the largest IPO on record (~$81.3B raised, ~$1.5T valuation); Nasdaq trading (ANT) began 19 Nov."
     },
     {
       "id": "fc-2026-11-12-taiwan-plaexercise-announcement",
@@ -1031,9 +1058,9 @@
       "date": "2026-10-15",
       "forecast": "Trump and Kim Jong Un will hold or firmly schedule a bilateral meeting around the 18-19 Nov APEC summit in Shenzhen, despite Kim Yo Jong's 13 Oct denial of any current Trump-Kim communications.",
       "horizon": "0-35 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether Trump's 13 Oct 'I might' remark develops into an actual meeting or firm scheduling by the APEC date, or remains unrealized rhetoric as with his earlier 2026 comments about seeing Kim 'later this year.' Tracked on the Korean Peninsula Missile-Testing Cadence thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-19",
+      "note": "The 18-19 Nov APEC window closed with no Trump-Kim meeting held or firmly scheduled identified in any cycle's research; Trump's 13 Oct 'I might' remark did not develop into an actual meeting, consistent with his earlier 2026 comments about seeing Kim 'later this year.' Tracked on the Korean Peninsula Missile-Testing Cadence thread."
     },
     {
       "id": "fc-2026-10-15-patch-tuesday-kev-confirm",

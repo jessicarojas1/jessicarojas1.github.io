@@ -2,15 +2,15 @@
   {
     "name": "U.S.-Iran Conflict / Strait of Hormuz",
     "firstDetected": "2026-09-07",
-    "status": "No third Iranian strike on Bahrain or another GCC host-nation asset was identified in the 72 hours since the 15 Nov Riffa Air Base attack. Bahrain's Foreign Ministry formally cited UN Security Council Resolution 2817 (2026) in its condemnation of the 13/15 Nov strikes. No new NPT-withdrawal floor-vote movement identified; the most recent primary-adjacent detail remains Al Jazeera's 31 Oct report of roughly ten registered withdrawal proposals under National Security Committee member Ebrahim Rezaei.",
-    "importance": "Critical -- a compressed, repeated two-strikes-in-three-days pattern against the same Gulf host-nation facility is a materially different risk profile than a single isolated incident, layered on the standing NPT-withdrawal legislative track and an unchanged operational posture.",
-    "direction": "UNCERTAIN",
-    "indicatorLevel": "ORANGE",
-    "assessment": "ASSESSED, MODERATE confidence: a second strike on the same target within 72 hours, serious enough to trigger Bahrain's first nationwide alert in months, is better read as a sustained campaign to test Gulf host-nation defenses and US red lines repeatedly than as a one-off signaling event; this program is widening its own working hypothesis accordingly. CENTCOM's own operational statements remain the more reliable indicator than rhetoric from either Washington or Tehran, which has reversed direction multiple times within days this month.",
+    "status": "A third Iran-claimed strike hit Bahrain's Sheikh Isa Air Base radar (17 Nov); CENTCOM explicitly denied it ('This is FALSE'). A fourth, uncorroborated Iranian tanker-mine claim also surfaced (17 Nov). Bahrain sentenced 64 people, mostly Shia clerics, to life in prison (16 Nov) over an alleged IRGC-linked plot. Iran-Oman maritime-security talks continued (17 Nov, Muscat). No new NPT-withdrawal floor-vote movement identified.",
+    "importance": "Critical -- a third claimed strike within five days against the same Gulf host-nation target class, now disputed by CENTCOM, confirms a sustained campaign rather than an isolated incident, compounded by Bahrain's own hardening domestic-security response.",
+    "direction": "ESCALATING",
+    "indicatorLevel": "RED",
+    "assessment": "ASSESSED, MODERATE confidence: a third claimed strike within five days, this time against a radar site rather than the earlier air base, continues the pattern of testing Gulf host-nation defenses; CENTCOM's explicit, named denial ('FALSE') is a harder public rebuttal than its prior silence on earlier claims, keeping the claim-vs-reality gap genuinely contested. CENTCOM's own operational statements remain the more reliable indicator than rhetoric from either Washington or Tehran.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-18 -- No new Iranian strike on Bahrain identified this cycle; direction downgraded ESCALATING to UNCERTAIN and indicator lowered RED to ORANGE given the quiet 72h window, though this program flags (via the Black Sea thread's precursor-incident finding this same cycle) that a quiet window may reflect reporting lag rather than genuine de-escalation. fc-2026-11-16-bahrain-further-attack remains PENDING with its 14-day window open through ~30 Nov.",
+    "lastChange": "2026-11-19 -- NEW: a third Iran-claimed strike hit Bahrain's Sheikh Isa Air Base radar (17 Nov); CENTCOM explicitly denied it. This confirms the prior cycle's quiet-window caveat was reporting lag, not de-escalation -- fc-2026-11-16-bahrain-further-attack resolves CORRECT. Also NEW: a fourth, uncorroborated tanker-mine claim (17 Nov); Bahrain sentenced 64 people to life in prison (16 Nov) over an alleged IRGC-linked plot; Iran-Oman maritime-security talks continued (17 Nov). Direction raised UNCERTAIN to ESCALATING; indicator raised ORANGE to RED.",
     "orgRelevance": "Treat Gulf-adjacent logistics/energy-price/air-defense exposure as elevated and repeating, not a single transient event; the US Embassy in Bahrain has warned of possible flight cancellations and airspace closures.",
-    "nextIndicator": "A third Iranian attack on a GCC host-nation asset; any US kinetic response departing from Rubio's economic-pressure framing; the NPT bill reaching an open parliamentary session; independent verification of the reported war-ending-arrangement uncertainty.",
+    "nextIndicator": "Independent corroboration or a CENTCOM reversal on the 17 Nov Sheikh Isa claim; a fourth attack attempt within the forecast's remaining window (through ~30 Nov); the NPT bill reaching an open parliamentary session; independent verification of the reported war-ending-arrangement uncertainty.",
     "history": [
       {
         "date": "2026-02-28",
@@ -235,20 +235,24 @@
       {
         "date": "2026-11-18",
         "note": "No third Iranian strike on Bahrain or another GCC host-nation asset identified in the 72h since the 15 Nov attack; fc-2026-11-16-bahrain-further-attack remains PENDING (window open through ~30 Nov). Bahrain's Foreign Ministry cited UNSC Resolution 2817 (2026) in its condemnation. No new NPT-withdrawal floor-vote movement identified. Direction downgraded ESCALATING to UNCERTAIN; indicator lowered RED to ORANGE, with an explicit caveat that this may reflect reporting lag rather than real de-escalation, given the same cycle's Black Sea precursor-incident finding."
+      },
+      {
+        "date": "2026-11-19",
+        "note": "Third Iran-claimed strike on Bahrain (Sheikh Isa Air Base radar, 17 Nov) denied by CENTCOM; resolves fc-2026-11-16-bahrain-further-attack CORRECT. Fourth, uncorroborated tanker-mine claim (17 Nov). Bahrain sentenced 64 people to life in prison (16 Nov) over an alleged IRGC-linked plot. Iran-Oman maritime-security talks continued (17 Nov, Muscat). No NPT floor-vote movement identified."
       }
     ]
   },
   {
     "name": "CMMC Implementation",
     "firstDetected": "2026-09-06",
-    "status": "The Reform Task Force report remains non-public for a fourteenth-plus consecutive tracked cycle, with no new informal timing signal, Federal Register notice, DFARS class deviation, or FAR Overhaul rule publication identified. The standing forecast testing whether DoD would offer a new specific target date within 21 days of 22 Oct lapsed INCORRECT on 12 Nov. DFARS Class Deviation 2026-O0025 Rev 3 (self-assessment through 2028) remains the only operative instrument. The FAR Overhaul remains at the proposed-rule stage; a comment deadline for FAR Case 2026-006 closed 2 Nov with no final rule identified since.",
+    "status": "The Reform Task Force report remains non-public for a sixteenth-plus consecutive tracked cycle, with no new informal timing signal, Federal Register notice, DFARS class deviation, or FAR Overhaul final rule identified. DFARS Class Deviation 2026-O0025 Rev 3 (self-assessment through 2028) remains the only operative instrument. The FAR Overhaul remains at 8 of 12 proposed rules published. NEW, narrower items: an ITAR-to-EAR firearm-suppressor jurisdiction transfer takes effect 20 Nov; a separate DDTC ITAR omnibus proposed rule's comment period closes 30 Nov.",
     "importance": "High -- a third consecutive slipped informal CMMC deadline, now with no replacement date at all, compounds planning uncertainty already deepened by the FAR Overhaul's closed, unextended comment window, still-unpublished final-rule batch, and a changed post-midterm congressional-oversight landscape.",
     "direction": "UNCERTAIN",
     "indicatorLevel": "YELLOW",
     "assessment": "Policy pause, not repeal, remains the leading read on CMMC. No evidence of a scope change behind the delay -- continued deliberation is the more likely explanation than an active decision to abandon the report. On FAR Overhaul: a deliberate staged rewrite that has reached operative buying mechanics (Parts 12/15 competitive positioning, Parts 9/27 qualification/IP risk); a countervailing signal is that June-batch final rules reportedly stalled while OMB weighed changes, so proposed-stage publication does not guarantee timely finalization.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-18 -- No material change; the CMMC Reform Task Force report remains non-public for a fifteenth-plus consecutive tracked cycle with no new timing signal, Federal Register notice, DFARS class deviation, or FAR Overhaul final rule identified. No new Senate floor or conference action on the FY27 NDAA identified either.",
-    "orgRelevance": "Anchor compliance planning to DFARS Class Deviation 2026-O0025 Rev 3's confirmed terms rather than any informal CMMC timing signal, which has now failed to produce news for eleven straight cycles.",
+    "lastChange": "2026-11-19 -- Sixteenth-plus consecutive cycle with no new CMMC timing signal, Federal Register notice, DFARS class deviation, or FAR Overhaul final rule identified. No new FY27 NDAA floor/conference action identified. NEW, narrower regulatory items tracked: an ITAR-to-EAR suppressor-jurisdiction transfer takes effect tomorrow (20 Nov); a DDTC ITAR omnibus proposed rule's comment period closes 30 Nov.",
+    "orgRelevance": "Anchor compliance planning to DFARS Class Deviation 2026-O0025 Rev 3's confirmed terms rather than any informal CMMC timing signal, which has now failed to produce news for twelve straight cycles.",
     "nextIndicator": "A Federal Register notice, DFARS class deviation, or 32 CFR Part 170 amendment with a firm release date; any DoD-sourced statement naming a successor timing target.",
     "history": [
       {
@@ -450,6 +454,10 @@
       {
         "date": "2026-11-18",
         "note": "Fifteenth-plus consecutive cycle with no new CMMC timing signal, Federal Register notice, DFARS class deviation, or FAR Overhaul final rule identified. No new FY27 NDAA Senate floor or conference action identified."
+      },
+      {
+        "date": "2026-11-19",
+        "note": "Sixteenth-plus consecutive cycle with no new CMMC timing signal, Federal Register notice, DFARS class deviation, or FAR Overhaul final rule identified; FY27 NDAA remains unenacted. NEW, narrower items tracked: an ITAR-to-EAR suppressor-jurisdiction transfer takes effect 20 Nov; a DDTC ITAR omnibus proposed rule's comment period closes 30 Nov."
       }
     ]
   },
@@ -462,7 +470,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "REPORTED with MODERATE confidence (upgraded from LOW): the specific announcement numbers and dates from a specialist trade-measures database (Global Trade Alert) explain yesterday's apparent conflict as two correct reports about two different instruments, materially raising confidence that relief is continuous through 10 Jan 2027. ASSESSED that this remains a tactical, trade-truce-linked easing, not a resolution of the underlying military-affiliated license denial.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-18 -- No new PRC action; the 27 Nov gallium/germanium/antimony/superhard-materials deadline is now ~9 days out with no renewal or lapse signal. New parallel context: the US tightened its own AI-chip export-control regime this cycle (remote-access rule for offshore data centers), a distinct but simultaneous US-China technology-trade-control front.",
+    "lastChange": "2026-11-19 -- No new PRC action; the 27 Nov gallium/germanium/antimony/superhard-materials deadline is now ~8 days out. CONFIRMED via additional legal-tracker corroboration (Reed Smith, Baker McKenzie, Thompson Hine): the previously reported (11-11) US Commerce Affiliates-Rule extension was a final rule issued ~5 Nov, effective 9 Nov, extending the suspension to 10 Jan 2027 -- the same date as the rare-earth suspension and the tariff truce, now a confirmed three-instrument compound checkpoint.",
     "orgRelevance": "Continue BOM-exposure mapping and second-sourcing work at reduced, not zero, urgency; calendar the 27 Nov gallium/germanium/antimony/superhard-materials deadline as the next concrete test.",
     "nextIndicator": "The 27 Nov gallium/germanium/antimony/superhard-materials suspension deadline outcome; a primary MOFCOM/GACC text for Announcement No. 58 of 2026.",
     "history": [
@@ -677,6 +685,10 @@
       {
         "date": "2026-11-18",
         "note": "No new PRC action; the 27 Nov gallium/germanium/antimony/superhard-materials deadline is now ~9 days out. New parallel context (tracked in depth on the DoD/Federal AI Governance thread): Commerce closed an AI-chip 'remote access' export loophole for offshore data centers tied to Chinese firms, a distinct but simultaneous US-China technology-trade-control front."
+      },
+      {
+        "date": "2026-11-19",
+        "note": "No new PRC action; the 27 Nov gallium/germanium/antimony/superhard-materials deadline is ~8 days out. The previously reported (11-11) US Commerce Affiliates-Rule extension is now corroborated via multiple legal trackers as a final rule (issued ~5 Nov, effective 9 Nov) extending the suspension to 10 Jan 2027 -- the same date as the rare-earth suspension and tariff truce, confirming a three-instrument compound checkpoint."
       }
     ]
   },
@@ -689,7 +701,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the verification gap now spans two consecutive cycles of blocked direct CISA access, converting what was flagged on 4 Nov as a one-off into a standing pattern; this should lower confidence in any secondary-sourced finding, including the reported APT29 attribution, until independently checked against a primary source. KNOWN (Fortinet's FG-IR-26-175 advisory, CISA KEV listing) for the underlying FortiMail vulnerability and its initial disclosure; UNKNOWN whether other KEV entries beyond the two identified via secondary sourcing were added this cycle.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-18 -- NEW: a previously untracked ~10 Nov KEV batch (incl. Cisco BroadWorks CVE-2026-20320) surfaced, expanding the tracked target-class list into carrier/UC infrastructure for the first time. Still no named DIB/federal victim for any tracked family; direct CISA catalog access remained blocked for a further consecutive cycle.",
+    "lastChange": "2026-11-19 -- No new KEV batch identified beyond the already-tracked ~10 Nov six-entry batch. The Ivanti Connect Secure wave's second federal deadline (13 Nov) has now passed with still no named DIB/federal victim across 18+ tracked vendor families; direct CISA catalog access remained blocked for a further consecutive cycle.",
     "orgRelevance": "Any organization running Ivanti Connect Secure should patch ahead of the 13 Nov deadline and complete forensic triage; any organization running FortiMail should independently verify its actual patch/EOL status directly against Fortinet's own advisory.",
     "nextIndicator": "Today's Ivanti deadline compliance outcome; a named DIB/federal victim tied to the Ivanti chain, GPUStack, or any other tracked family; any new KEV addition.",
     "history": [
@@ -908,6 +920,10 @@
       {
         "date": "2026-11-18",
         "note": "NEW: a previously untracked ~10 Nov CISA KEV batch (six entries, incl. Cisco BroadWorks CVE-2026-20320, Barracuda, Openwave, Microsoft, Google) surfaced this cycle via secondary sourcing, confirmed in addition to (not replacing) the already-tracked 9 Nov batch. This expands the tracked target-class list into carrier/unified-communications infrastructure for the first time. Still no named DIB/federal victim across any of 18+ tracked vendor families; this program's direct CISA catalog access remained blocked for a further consecutive cycle."
+      },
+      {
+        "date": "2026-11-19",
+        "note": "No new KEV batch identified beyond the already-tracked ~10 Nov six-entry batch. Ivanti Connect Secure's second federal deadline has now passed with still no named DIB/federal victim across 18+ tracked vendor families; direct CISA catalog access remained blocked for a further consecutive cycle."
       }
     ]
   },
@@ -920,7 +936,7 @@
     "indicatorLevel": "RED",
     "assessment": "Procurement mechanics and now organizational/mission build-out continue advancing largely independent of the confirmed FY27 funding gap; near-term opportunity (cyber-defense-of-missile-defense-systems, support-unit sustainment) may open before major new procurement funding clears. ASSESSED (29 Oct): the funding-timing risk pattern now appears broader than a single program; award volume across missile defense and munitions remains strong, but execution funding is the binding near-term constraint across multiple vehicles simultaneously, not only Golden Dome.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-18 -- No material change on Golden Dome specifically; no new SHIELD task order, reconciliation floor action, or launch-schedule update identified. A classified USSF-266 Falcon 9 launch is listed for today by a third-party tracker; this program could not independently confirm its payload or relevance to Golden Dome/SDA from a primary source this cycle. The FY27 NDAA remains unenacted with no new Senate floor or conference action identified.",
+    "lastChange": "2026-11-19 -- NEW, CRITICAL: a ULA Vulcan Centaur failed in flight 15 Nov, destroying all 40 Amazon Leo satellites aboard -- ULA's first failure in 20 years -- compounding its existing NSSL-eligibility hold since 26 Feb. This is a distinct but additive national-security launch-capacity risk alongside Golden Dome's own SDA Tranche 1 launch slip to spring 2027. No new SHIELD task order or reconciliation floor action identified; the USSF-266 launch flagged last cycle remains unconfirmed by a primary source.",
     "orgRelevance": "Firms on SDA/MDA vehicles should plan around a spring-2027, not late-2026, sensing-layer launch date and continue scenario-planning for the unresolved FY27 reconciliation funding gap.",
     "nextIndicator": "Confirmation of a firm spring-2027 launch date; Senate floor action on a reconciliation package; a new SHIELD task order.",
     "history": [
@@ -1127,6 +1143,10 @@
       {
         "date": "2026-11-18",
         "note": "No material change on Golden Dome's schedule/funding risk; no new SHIELD task order or reconciliation action identified. A classified USSF-266 Falcon 9 launch is listed for today by a third-party tracker, unconfirmed by a primary DoD source as Golden-Dome-relevant. FY27 NDAA remains unenacted with no new Senate floor or conference action identified."
+      },
+      {
+        "date": "2026-11-19",
+        "note": "A ULA Vulcan Centaur failed in flight (15 Nov), destroying all 40 Amazon Leo satellites -- ULA's first failure in 20 years -- compounding the existing NSSL-eligibility hold since 26 Feb under which Space Force had already reassigned six NSSL missions to SpaceX since 1 Oct. No new SHIELD task order or reconciliation floor action identified; USSF-266 launch status remains unconfirmed by a primary source."
       }
     ]
   },
@@ -1366,7 +1386,7 @@
     "indicatorLevel": "ORANGE",
     "assessment": "ASSESSED: China's minimal-commitment approach preserves its rare-earth leverage into the 10/27 Nov suspension-expiry windows. The Taiwan arms delay, per available reporting, looks like a genuine US-side capacity constraint rather than a policy signal, though this should be held with some caution given the issue's political sensitivity and the difficulty of independently verifying motive.",
     "confidence": "LOW",
-    "lastChange": "2026-11-18 -- No new PLA vessel-count data or exercise announcement identified this cycle; the ~70-vessel figure (13 Nov) and the unconfirmed submarine-ICBM claim stand as previously assessed. NEW context: Taiwan's nine-in-one local elections are now 10 days out (28 Nov), with standing reporting of elevated Chinese cyberattack/disinformation activity ahead of the vote.",
+    "lastChange": "2026-11-19 -- No new PLA vessel-count data or exercise announcement identified this cycle. Incremental detail consolidated from Reuters/ISW's 6 Nov assessment: the unannounced early-November exercise spanned multiple PLA theater commands (eastern/northern/southern) and reportedly included simulated strikes on opposing forces and cities, including Taiwan -- detail not previously fully captured on this thread. Taiwan's elections are now ~9 days out.",
     "orgRelevance": "Treat the absence of new data as a collection gap, not evidence of reduced PLA activity; reinforces maritime ISR, undersea, counter-amphibious, and resilient PNT/comms demand context regardless.",
     "nextIndicator": "A named PLA exercise announcement (or its confirmed absence within 14 days, per the standing forecast); reconciliation of the 50-vs-100+ vessel-count discrepancy; any Rubio/Hegseth response to the senators' letter.",
     "history": [
@@ -1561,6 +1581,10 @@
       {
         "date": "2026-11-18",
         "note": "No new PLA vessel-count or exercise data identified this cycle. NEW context: Taiwan's 28 Nov local elections are now 10 days out, raising the near-term stakes of the standing PLA-exercise-announcement forecast window (through ~26 Nov) and the vessel-count-reconciliation forecast window (through ~27 Nov)."
+      },
+      {
+        "date": "2026-11-19",
+        "note": "No new PLA vessel-count or exercise data identified. Consolidated additional detail on the already-tracked early-November exercise (ISW 6 Nov assessment): it spanned multiple PLA theater commands and reportedly included simulated strikes on opposing forces and cities, including Taiwan -- larger in structure than previously captured, though the 100+-vessel peak and subsequent scale-down to ~70 by 13 Nov were already tracked. Taiwan's elections are now ~9 days out."
       }
     ]
   },
@@ -1573,7 +1597,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "The original window's lapse without either a nomination or an explicit withdrawal most plausibly reflects genuine Senate-confirmation math friction specific to Parnell, not a deliberate broader delay; no evidence of an alternative candidate being actively advanced. The cyber-strategy item remains 'still pending per trade press, ambiguity resolved via secondary reconciliation.'",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-18 -- No material change; Adam Telle remains acting Army Secretary with no new nomination news or Sylvia-case DOJ update identified this cycle.",
+    "lastChange": "2026-11-19 -- No material change; Adam Telle remains acting Army Secretary with no new nomination news or Sylvia-case DOJ update identified this cycle.",
     "orgRelevance": "Continuity/leadership-risk context only; no organization-specific action.",
     "nextIndicator": "A DOJ charging decision or formal declination in the Sylvia matter (fc-2026-11-09-sylvia-doj-outcome); an Army Secretary nomination.",
     "history": [
@@ -1776,6 +1800,10 @@
       {
         "date": "2026-11-18",
         "note": "No material change; Adam Telle remains acting Army Secretary with no new nomination news or Sylvia-case DOJ update identified this cycle."
+      },
+      {
+        "date": "2026-11-19",
+        "note": "No material change; Adam Telle remains acting Army Secretary with no new nomination news or Sylvia-case DOJ update identified this cycle."
       }
     ]
   },
@@ -1788,7 +1816,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the FTC's consumer-protection track is a distinct policy interest from its AI-safety-incident CID and is being pursued in parallel, not as a substitute. KNOWN (on-the-record FTC confirmation to Axios; multi-outlet-corroborated S-1 filing details); IPO oversubscription/valuation figures remain press estimates (Bloomberg/Reuters), not company guidance, pending Wednesday's final print.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-18 -- NEW: Commerce closed an AI-chip 'remote access' export loophole for offshore data centers tied to Chinese firms, a structural extension of export control to compute-access services rather than only physical chip shipment; confidence raised LOW to MODERATE given multiple corroborating outlets. Anthropic's oversubscription grew further (6x to ~7x) with WSJ reporting of possible above-range pricing.",
+    "lastChange": "2026-11-19 -- RESOLVED: Anthropic priced at $83/share (above the $70-78 range), raising ~$81.3B in the largest IPO on record (~$1.5T valuation); ANT begins Nasdaq trading today. fc-2026-11-12-anthropic-price-above-range graded CORRECT. NEW: a Taiwan criminal case names an Nvidia Taipei manager in an alleged chip-smuggling scheme to China, adjacent corroborating context for AI-chip export-control enforcement; no action under the Commerce remote-access rule itself identified yet.",
     "orgRelevance": "Track Anthropic's price-range S-1/A filing as the concrete next IPO milestone rather than press valuation figures; GSA's discount terms may be directly relevant to federal AI-procurement planning.",
     "nextIndicator": "Confirmed final IPO pricing (~18 Nov) and first-trade outcome (~19 Nov).",
     "history": [
@@ -1991,6 +2019,10 @@
       {
         "date": "2026-11-18",
         "note": "NEW: Commerce (BIS) issued a rule closing the AI-chip 'remote access' export loophole -- requiring a US export license before chips physically located in Singapore, Thailand, Malaysia, Indonesia, or Brazil may serve compute to Chinese-controlled customers, with a 90-day license window for existing operators. This follows chip-routing allegations including a reported ~$12B Megaspeed-to-China routing claim; Nvidia/AMD shares reportedly fell in premarket trading on the news. Separately, Anthropic's IPO order book grew to ~7x oversubscribed (from ~6x) with WSJ reporting of possible above-range pricing ahead of tonight's (18 Nov) print and tomorrow's (19 Nov) Nasdaq debut. Confidence raised LOW to MODERATE given multiple corroborating outlets on the Commerce rule."
+      },
+      {
+        "date": "2026-11-19",
+        "note": "Anthropic priced its IPO at $83.00/share, above the $70-78 range -- the largest IPO on record (~$81.3B raised, ~$1.5T valuation); Nasdaq trading (ANT) begins today. fc-2026-11-12-anthropic-price-above-range graded CORRECT. A Taiwan criminal case (Keelung prosecutors) names an Nvidia Taipei manager as a 'core figure' in an alleged 74-server chip-smuggling scheme to China via Japan/Indonesia; Nvidia disputes the allegation. No enforcement action under the Commerce remote-access rule itself has been identified."
       }
     ]
   },
@@ -2003,7 +2035,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the resumption after the cluster's longest pause, now confirmed by a further early-November test, reads as continued and renewed capability signaling rather than a confirmed step toward imminent conflict -- consistent with PACOM's own 'no immediate threat' characterization. CAPABILITY vs. INTENT: the SRBM and new-system demonstrations are demonstrated; broader strategic intent (leverage ahead of APEC vs. routine cadence vs. defiance of the new sanctions) remains ASSESSED, not confirmed.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-18 -- No material change; no new North Korean launch identified since the 31 Oct-5 Nov test cluster. No confirmation or denial of movement on a Trump-Kim meeting around the 18-19 Nov window (fc-2026-10-15-trump-kim-meeting) identified this cycle.",
+    "lastChange": "2026-11-19 -- No material change; no new North Korean launch identified since the 31 Oct-5 Nov test cluster. The 18-19 Nov Trump-Kim APEC meeting window closed today with no meeting held or firmly scheduled; fc-2026-10-15-trump-kim-meeting graded INCORRECT.",
     "orgRelevance": "Reinforces missile-warning/PNT and regional missile-defense demand context; no organization-specific action.",
     "nextIndicator": "Further missile events; any confirmed new DPRK naval-combatant capability; movement on a Trump-Kim meeting around the 18-19 Nov window (fc-2026-10-15-trump-kim-meeting).",
     "history": [
@@ -2126,6 +2158,10 @@
       {
         "date": "2026-11-18",
         "note": "No material change; no new North Korean launch identified since the 31 Oct-5 Nov test cluster. No confirmation or denial of movement on a Trump-Kim meeting around the 18-19 Nov window (fc-2026-10-15-trump-kim-meeting) identified this cycle, despite today falling inside that window."
+      },
+      {
+        "date": "2026-11-19",
+        "note": "No new North Korean launch identified. The 18-19 Nov Trump-Kim APEC meeting window closed today with no meeting held or firmly scheduled; fc-2026-10-15-trump-kim-meeting graded INCORRECT."
       }
     ]
   },
@@ -2138,7 +2174,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED, MODERATE confidence: NATO continues to respond with calibrated reinforcement (radar, drones, patrol aircraft, intelligence teams) rather than treating the Romanian-waters strike as an Article 5 trigger. The alliance's own acknowledged ambiguity on Black Sea Article 4/5 applicability is a notable, previously unconfirmed-at-this-explicitness finding in its own right, not merely a restatement of calibrated reinforcement.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-18 -- NEW: the precursor 13 Nov Larissa 1 strike surfaced this cycle, confirming a two-strikes-in-two-days sequence rather than the single 14 Nov incident previously tracked -- a reporting-lag pattern structurally similar to the one this program separately identified this cycle on the Iran/Bahrain thread. France's Atlantique 2 relocation is a new, concrete NATO member-state reinforcement step. Direction and confidence held at ESCALATING/MODERATE.",
+    "lastChange": "2026-11-19 -- No new strike identified this cycle. NEW reinforcement-posture detail: Romania reportedly proposes a joint NATO Black Sea command; Bulgaria requests additional combat aircraft/anti-drone systems. No Article 4 request or Article 5 statement identified.",
     "orgRelevance": "Treat Black Sea/Danube-adjacent shipping, insurance, and energy-logistics exposure as rising, not stable; firms with Romanian, Bulgarian, or Ukrainian grain/energy supply-chain touchpoints should review exposure.",
     "nextIndicator": "A formal Article 4 consultation request or explicit NATO statement on Article 5 applicability; any further strike inside a NATO member's territorial waters.",
     "history": [
@@ -2257,6 +2293,10 @@
       {
         "date": "2026-11-18",
         "note": "NEW: a precursor drone strike on the tanker Larissa 1 (13 Nov) was confirmed, preceding the already-tracked 14 Nov three-vessel Sulina-channel strike -- a two-strikes-in-two-days sequence, not a single incident. Romania's PM Luca Niculescu called the attacks a violation of international law; France relocated an Atlantique 2 maritime patrol aircraft to Romania in response. No Article 4 request or Article 5 statement identified. This program flags the Larissa 1 disclosure lag as structurally similar to the Bahrain 13-Nov-strike disclosure lag identified on the Iran/Hormuz thread, suggesting a general open-source maritime-incident reporting-lag risk across theaters."
+      },
+      {
+        "date": "2026-11-19",
+        "note": "No new Black Sea strike identified since the 13-14 Nov Larissa 1/Sulina-channel incidents. Romania reportedly proposes a joint NATO Black Sea command structure; Bulgaria requests additional combat aircraft and anti-drone systems. No Article 4 consultation request or Article 5 statement identified."
       }
     ]
   }
