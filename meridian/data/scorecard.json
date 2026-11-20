@@ -1,14 +1,41 @@
 {
-  "updated": "2026-11-19",
+  "updated": "2026-11-20",
   "summary": {
-    "correct": 53,
-    "incorrect": 49,
-    "partial": 12,
-    "pending": 81,
-    "note": "2026-11-19: Lead findings this cycle: (1) Anthropic priced its IPO at $83.00/share, above the filed $70-78 range -- the largest IPO on record (~$81.3B raised, ~$1.5T valuation); Nasdaq trading (ANT) begins today; fc-2026-11-12-anthropic-price-above-range graded CORRECT. (2) A ULA Vulcan Centaur failed in flight 15 Nov, destroying all 40 Amazon Leo satellites -- ULA's first failure in 20 years -- compounding its existing NSSL-eligibility hold since 26 Feb; a new forecast tests Space Force's reassignment response. (3) A third Iran-claimed strike hit Bahrain's Sheikh Isa Air Base radar (17 Nov), explicitly denied by CENTCOM; this resolves fc-2026-11-16-bahrain-further-attack CORRECT. A fourth, uncorroborated tanker-mine claim also surfaced, alongside Bahrain's sentencing of 64 people to life in prison over an alleged IRGC-linked plot. (4) The 18-19 Nov Trump-Kim APEC meeting window closed with no meeting held or firmly scheduled; fc-2026-10-15-trump-kim-meeting graded INCORRECT. (5) BIS's Affiliates Rule suspension extension to 10 Jan 2027 (previously reported 11-11) is now corroborated as a final rule, converging with the rare-earth suspension and tariff truce on the same date. A Taiwan criminal case names an Nvidia Taipei manager in an alleged chip-smuggling scheme to China, adjacent context for AI-chip export enforcement. Three new forecasts added testing Vulcan/NSSL reassignment, independent corroboration of the Sheikh Isa claim, and ANT's first-week trading performance.",
-    "updated": "2026-11-19"
+    "correct": 56,
+    "incorrect": 56,
+    "partial": 13,
+    "pending": 73,
+    "note": "2026-11-20: Lead findings this cycle: (1) ULA stated (~18 Nov) that preliminary indications trace the 15 Nov Vulcan Centaur failure to inadequate first-stage fuel supply, with solid rocket booster performance assessed nominal -- a possible decoupling from the pre-existing GEM 63XL motor NSSL-eligibility hold, not yet confirmed by a final FAA-approved report; Falcon 9/Falcon Heavy remain the only NSSL Phase 3 Lane 2-certified providers. Two new forecasts added testing this root-cause finding and Vulcan's return-to-flight timeline. (2) Anthropic's ANT began Nasdaq trading as scheduled on 19 Nov; no confirmed first-day or first-week closing price was located in open sources this cycle, a genuine research gap. fc-2026-11-04-anthropic-ipo-roadshow and fc-2026-11-10-anthropic-pre-thanksgiving-debut both graded CORRECT; fc-2026-11-11-anthropic-ipo-debut graded PARTIAL (debut date correct, but final pricing landed above, not within, the filed range). (3) No fourth Iran-claimed strike on Bahrain has followed the 17 Nov claim -- a roughly three-day pause -- but this program treats the quiet with caution given its own documented reporting-lag pattern on this campaign; direction downgraded to UNCERTAIN. (4) A backlog cleanup graded several lapsed-window forecasts: fc-2026-10-26-hormuz-newincident-attribution CORRECT; fc-2026-10-27-ukraine-energy-response, fc-2026-10-27-hormuz-closure-confirm, fc-2026-10-29-php2shell-prod-victim, fc-2026-11-04-blacksea-oct29-incident-confirm, fc-2026-10-20-ivanti-dib-victim, fc-2026-10-05-zammad-dib-victim, and fc-2026-10-05-netscaler-saml-victim all graded INCORRECT on window lapse with no resolution found. A new forecast tests an anticipated mid-December PLA naval deployment near Taiwan involving the carrier Shandong.",
+    "updated": "2026-11-20"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-20-vulcan-fuelsupply-rootcause",
+      "date": "2026-11-20",
+      "forecast": "The FAA-approved final Vulcan mishap report will confirm ULA's preliminary (~18 Nov) finding that the 15 Nov failure stemmed from inadequate first-stage fuel supply, independent of the pre-existing GEM 63XL solid-rocket-motor nozzle issue that triggered the NSSL-eligibility hold since 26 Feb 2026, within 120 days.",
+      "horizon": "0-120 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-20-vulcan-no-return-90days",
+      "date": "2026-11-20",
+      "forecast": "ULA will NOT return Vulcan to flight within 90 days of the 15 Nov failure, consistent with Breaking Defense's reporting that the investigation could ground the rocket for months.",
+      "horizon": "0-90 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-20-taiwan-shandong-deployment",
+      "date": "2026-11-20",
+      "forecast": "The long-range PLA naval deployment potentially involving the carrier Shandong, anticipated by Taiwanese defense reporting for mid-December, will be confirmed by Taiwan's MND or an independent tracker within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
     {
       "id": "fc-2026-11-19-vulcan-nssl-reassignment",
       "date": "2026-11-19",
@@ -779,18 +806,18 @@
       "date": "2026-10-05",
       "forecast": "A named DIB or federal-contractor victim organization of the Zammad CVE-2026-102489/102490 exploitation chain will be publicly reported within 30 days, given the novel AI-agent-driven tradecraft and the CVEs' KEV listing.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Only DIVD (a Dutch nonprofit, not DIB) has been named as a victim so far. Tests whether this specific incident's novelty accelerates discovery of a named DIB victim faster than the eight prior tracked edge-vendor CVE families. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-20",
+      "note": "The 30-day window closed ~4 Nov with no named DIB/federal-contractor victim beyond DIVD (a Dutch nonprofit, not DIB) ever identified across any subsequent cycle's research. Graded INCORRECT on the window's lapse, a backlog correction. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-05-netscaler-saml-victim",
       "date": "2026-10-05",
       "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to CVE-2026-88779 (NetScaler SAML overflow) will be publicly reported within 21 days, given confirmed exploitation even against already-patched systems.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this ninth vendor-family CVE in the ongoing wave produces a named victim faster than prior tracked CVEs, none of which has yet yielded one. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-20",
+      "note": "The 21-day window closed ~26 Oct with no named victim organization ever identified across any subsequent cycle's research. Graded INCORRECT on the window's lapse, a backlog correction. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-05-cyberstrategy-reconciliation",
@@ -1184,9 +1211,9 @@
       "date": "2026-10-20",
       "forecast": "At least one confirmed enterprise or DIB-sector victim organization tied to CVE-2026-104935 (Ivanti Connect Secure) will be publicly reported within 30 days, given confirmed pre-disclosure exploitation by UTA0576 chained to root-level code execution.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this 10th vendor family, with a named actor and a confirmed pre-disclosure exploitation timeline, produces a named victim faster than the nine prior tracked CVE families, none of which has yet yielded a named DIB victim. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-20",
+      "note": "The 30-day window closed ~19 Nov with no named DIB/federal-contractor victim ever identified for this CVE despite extensive tracking through two federal remediation deadlines. Graded INCORRECT on the window's lapse, consistent with this wave's near-universal pattern. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-20-goldendome-no-premidterm-reconciliation",
@@ -1328,9 +1355,9 @@
       "date": "2026-10-26",
       "forecast": "Formal attribution (a named actor, e.g. Iran/IRGC, or an official vessel-identity confirmation) for the 23 Oct Hormuz-area tanker strike -- surfaced only via a multi-day-delayed UKMTO report -- will remain unestablished within 14 days, consistent with the pattern for prior unattributed incidents in this wave.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No attribution for the specific 23 Oct Hormuz-area tanker strike has surfaced this cycle, trending toward CORRECT, though the broader Hormuz picture has been overtaken by a new, more consequential 27-29 Oct mine-claim dispute between Iran and CENTCOM tracked separately. Window remains open."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-20",
+      "note": "The 14-day window closed ~9 Nov with no formal attribution for the 23 Oct Hormuz-area tanker strike ever identified in any subsequent cycle's research. Graded CORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-10-26-collabora-dib-victim",
@@ -1364,18 +1391,18 @@
       "date": "2026-10-27",
       "forecast": "A primary source (CENTCOM, a UKMTO/NAVTEX notice, or a named wire service) will confirm or explicitly deny the 26 Oct single-aggregator claim of a renewed IRGC Strait of Hormuz closure and the accompanying Houthi East-West-pipeline strike claim within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "CENTCOM's 28 Oct denial addresses related but distinct mine-strike claims (27-29 Oct), not specifically the 26 Oct closure/pipeline-strike claim this forecast tests; treated as partial, non-resolving movement. Window remains open."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-20",
+      "note": "The 14-day window closed ~10 Nov with no primary source ever confirming or explicitly denying the specific 26 Oct closure/pipeline-strike claim; CENTCOM's 28 Oct denial addressed a related but distinct set of mine-strike claims. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-10-27-ukraine-energy-response",
       "date": "2026-10-27",
       "forecast": "Russia will issue some public response (accept, reject, or counter) to Witkoff's security-guarantees document within 14 days, distinct from its already-reported rejection of the narrower mutual energy-strike-halt proposal.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the broader security-guarantees track moves at all following Russia's rejection of the narrower, bounded energy-halt proposal. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-20",
+      "note": "The 14-day window closed ~10 Nov with no confirmed Russian response specifically to Witkoff's security-guarantees document identified; the 10 Nov joint statement was a US/Ukraine/Europe document, not a Russian reply to it. Graded INCORRECT on the window's lapse. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-28-agentic-ai-exploitation-spread",
@@ -1418,9 +1445,9 @@
       "date": "2026-10-29",
       "forecast": "Given Amazon's confirmation of pre-disclosure PHP2Shell exploitation and SOCRadar's discovery of weaponized exploitation tooling in the wild, at least one confirmed production (non-honeypot) intrusion -- distinct from the already-documented agentic-AI and suspected-DPRK cases -- attributable to that or comparable weaponized tooling will be publicly reported within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "New supporting evidence this cycle: researchers (Dream) report PHP2Shell chained with a kernel privilege-escalation exploit rooted 25 servers including three in a US government-affiliated environment, but the organization/vendor remains unnamed and this may be a distinct exploitation chain from the SOCRadar-observed tooling this forecast specifically tests. Window remains open."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-20",
+      "note": "The 21-day window closed ~19 Nov with no new confirmed production intrusion, beyond the already-documented Dream/kernel-chain case (itself unnamed and possibly a distinct chain), identified in any subsequent cycle. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-10-29-anthropic-ftc-testimony-date",
@@ -1535,9 +1562,9 @@
       "date": "2026-11-04",
       "forecast": "Anthropic's IPO roadshow will begin during the week of 9 Nov 2026, and the company will debut on Nasdaq (ticker ANT) before Thanksgiving (26 Nov 2026).",
       "horizon": "0-22 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests Bloomberg's reported timing signal (via secondary outlets) against an amended S-1 filing and the actual roadshow/debut dates. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-20",
+      "note": "Both clauses confirmed: the roadshow began the week of 9-10 Nov (per fc-2026-10-29-anthropic-ipo-roadshow), and Anthropic debuted on Nasdaq as ANT on 19 Nov 2026, well before Thanksgiving (26 Nov). Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
     },
     {
       "id": "fc-2026-11-04-dem-congress-goldendome-priority",
@@ -1553,9 +1580,9 @@
       "date": "2026-11-04",
       "forecast": "An independent, authoritative source (flag-state, IMO, or marine-insurer) will confirm the reported 29 Oct Liberian-flagged container-ship sinking in Bulgaria's Black Sea EEZ within 14 days, given this program's own prior-cycle tracking gap in capturing it contemporaneously.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests both the incident's veracity and this program's ability to self-correct a tracking gap. Tracked on the Black Sea Maritime Attack Campaign thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-20",
+      "note": "The 14-day window closed ~18 Nov with no independent, authoritative (flag-state, IMO, or marine-insurer) confirmation of the reported 29 Oct sinking identified in any subsequent cycle. Graded INCORRECT on the window's lapse. Tracked on the Black Sea Maritime Attack Campaign thread."
     },
     {
       "id": "fc-2026-11-05-iran-emboldened-escalation",
@@ -1697,18 +1724,18 @@
       "date": "2026-11-10",
       "forecast": "Anthropic will complete its Nasdaq IPO debut before Thanksgiving (26 Nov 2026), consistent with press speculation, requiring a price-range S-1/A and roadshow to both occur within the next ~2 weeks.",
       "horizon": "0-16 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "As of 10 Nov the S-1/A still carries no price range; this forecast tests the full chain (price range -> roadshow -> pricing -> debut) implied by press speculation of a pre-Thanksgiving listing."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-20",
+      "note": "The full chain confirmed: the price-range S-1/A was filed 10 Nov, the roadshow ran the week of 9-10 Nov, pricing landed 18 Nov, and Nasdaq trading (ANT) began 19 Nov -- well before Thanksgiving (26 Nov)."
     },
     {
       "id": "fc-2026-11-11-anthropic-ipo-debut",
       "date": "2026-11-11",
       "forecast": "Anthropic will complete its Nasdaq IPO debut (ticker ANT) on or near 19 Nov 2026, with final pricing landing within the filed $70-78/share range, consistent with the reported already-covered order book.",
       "horizon": "0-10 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the dated timeline (pricing ~18 Nov, trading ~19 Nov) announced 10 Nov actually holds, and whether final pricing lands within versus outside the filed range."
+      "outcome": "PARTIAL",
+      "resolvedDate": "2026-11-20",
+      "note": "The debut-date clause held exactly (ANT began trading 19 Nov), but the pricing clause did not: Anthropic priced at $83.00/share, above, not within, the filed $70-78 range. Graded PARTIAL given the compound forecast's split outcome."
     },
     {
       "id": "fc-2026-11-11-trump-iran-negotiated-outcome",
