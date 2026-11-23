@@ -1,14 +1,41 @@
 {
-  "updated": "2026-11-20",
+  "updated": "2026-11-23",
   "summary": {
     "correct": 56,
     "incorrect": 56,
     "partial": 13,
-    "pending": 73,
-    "note": "2026-11-20: Lead findings this cycle: (1) ULA stated (~18 Nov) that preliminary indications trace the 15 Nov Vulcan Centaur failure to inadequate first-stage fuel supply, with solid rocket booster performance assessed nominal -- a possible decoupling from the pre-existing GEM 63XL motor NSSL-eligibility hold, not yet confirmed by a final FAA-approved report; Falcon 9/Falcon Heavy remain the only NSSL Phase 3 Lane 2-certified providers. Two new forecasts added testing this root-cause finding and Vulcan's return-to-flight timeline. (2) Anthropic's ANT began Nasdaq trading as scheduled on 19 Nov; no confirmed first-day or first-week closing price was located in open sources this cycle, a genuine research gap. fc-2026-11-04-anthropic-ipo-roadshow and fc-2026-11-10-anthropic-pre-thanksgiving-debut both graded CORRECT; fc-2026-11-11-anthropic-ipo-debut graded PARTIAL (debut date correct, but final pricing landed above, not within, the filed range). (3) No fourth Iran-claimed strike on Bahrain has followed the 17 Nov claim -- a roughly three-day pause -- but this program treats the quiet with caution given its own documented reporting-lag pattern on this campaign; direction downgraded to UNCERTAIN. (4) A backlog cleanup graded several lapsed-window forecasts: fc-2026-10-26-hormuz-newincident-attribution CORRECT; fc-2026-10-27-ukraine-energy-response, fc-2026-10-27-hormuz-closure-confirm, fc-2026-10-29-php2shell-prod-victim, fc-2026-11-04-blacksea-oct29-incident-confirm, fc-2026-10-20-ivanti-dib-victim, fc-2026-10-05-zammad-dib-victim, and fc-2026-10-05-netscaler-saml-victim all graded INCORRECT on window lapse with no resolution found. A new forecast tests an anticipated mid-December PLA naval deployment near Taiwan involving the carrier Shandong.",
-    "updated": "2026-11-20"
+    "pending": 76,
+    "note": "2026-11-23: Lead finding this cycle is a correction/catch-up, not a new event: Nvidia's board accepted CEO Jensen Huang's resignation effective 11 Nov 2026 (confirmed via Nvidia's own SEC 8-K), naming CFO Colette Kress interim CEO, amid an unresolved FBI-linked counterintelligence inquiry tied to Megaspeed -- a firm this program had already been tracking for an unrelated chip-smuggling allegation without connecting the two. This program never surfaced the resignation itself in any 11-20 Nov cycle, a 12-day gap now corrected. (2) Anthropic's ANT closed its first trading week at $88.91 (20 Nov), down sharply from its $111.50 open and $97.17 first-day close but still above the $83 IPO price; fc-2026-11-19-ant-firstweek-close remains PENDING and trending CORRECT. (3) No fourth Iran-claimed strike on Bahrain has followed the 17 Nov claim -- now roughly a six-day pause, longer than the three days noted on 20 Nov -- still treated as inconclusive given this program's documented reporting-lag pattern; Hormuz thread indicator eased RED to ORANGE. (4) The Zaporizhzhia NPP's 8 Nov loss of its last external power line (running on diesel backup since) was surfaced this cycle as a previously untracked status update. Three new forecasts added testing Nvidia's permanent-CEO timeline, a Chinese countermeasure to the BIS remote-access rule, and avoidance of a government shutdown at the 11 Dec CR deadline. No forecasts were force-graded this cycle; several (Taiwan vessel-count reconciliation, Taiwan PLA-exercise non-announcement, Iran no-major-strike) remain within their open windows and trending toward their stated outcomes.",
+    "updated": "2026-11-23"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-23-nvidia-permanent-ceo",
+      "date": "2026-11-23",
+      "forecast": "Nvidia's board will name a permanent CEO (distinct from interim CEO Colette Kress) within 180 days of Jensen Huang's 11 Nov 2026 resignation.",
+      "horizon": "0-180 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-23-china-bis-retaliation",
+      "date": "2026-11-23",
+      "forecast": "China will announce or implement at least one concrete retaliatory trade/export-control measure (beyond rhetorical opposition) in response to BIS's ~16 Nov 2026 remote-access chip rule within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
+    {
+      "id": "fc-2026-11-23-cr-shutdown-avoided",
+      "date": "2026-11-23",
+      "forecast": "Congress will avoid a lapse in federal funding at the 11 Dec 2026 CR deadline, via either a full-year FY27 appropriations deal or a further continuing resolution, rather than a shutdown.",
+      "horizon": "0-18 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": ""
+    },
     {
       "id": "fc-2026-11-20-vulcan-fuelsupply-rootcause",
       "date": "2026-11-20",
@@ -61,7 +88,7 @@
       "horizon": "0-7 days",
       "outcome": "PENDING",
       "resolvedDate": "",
-      "note": ""
+      "note": "Trending CORRECT: confirmed 20 Nov close of $88.91 remains above the $83 IPO price, though down sharply from the $97.17 first-day close; window remains open through ~26 Nov."
     },
     {
       "id": "fc-2026-11-17-blacksea-article5-noninvocation",
@@ -286,7 +313,7 @@
       "horizon": "0-14 days",
       "outcome": "PARTIAL",
       "resolvedDate": "2026-09-11",
-      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range \u2014 but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range — but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-10-kev-networkedge",
@@ -295,7 +322,7 @@
       "horizon": "0-30 days",
       "outcome": "CORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate \u2014 well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
+      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate — well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-11-bahrain-basing",
@@ -313,7 +340,7 @@
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "The meeting was postponed entirely rather than held \u2014 it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "The meeting was postponed entirely rather than held — it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-11-pipeline",
@@ -849,11 +876,11 @@
     {
       "id": "fc-2026-10-06-moldova-nato-commitment",
       "date": "2026-10-06",
-      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chi\u0219inau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
+      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chișinau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-10-14",
-      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~\u20ac50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~€50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-06-flydubai-reversal-effect",
