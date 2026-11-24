@@ -2,15 +2,15 @@
   {
     "name": "U.S.-Iran Conflict / Strait of Hormuz",
     "firstDetected": "2026-09-07",
-    "status": "No fourth Iran-claimed strike on Bahrain or another GCC host-nation asset has been identified since the 17 Nov Sheikh Isa Air Base radar claim -- now roughly a six-day pause, the longest since the current run began 13 Nov. No independent corroboration or CENTCOM reversal of the 17 Nov claim has surfaced either.",
+    "status": "No new Iran-claimed strike on Bahrain or another GCC host-nation asset has been identified since the 17 Nov Sheikh Isa Air Base radar claim -- now roughly a full week, the longest pause since the current run began 13 Nov. No independent corroboration or CENTCOM reversal of the 17 Nov claim has surfaced either.",
     "importance": "Critical -- a six-day pause after a three-strikes-in-five-days run is more notable than the three-day pause flagged on 20 Nov, but given this program's own documented reporting-lag pattern on this exact campaign, should still not be read as confirmed de-escalation.",
     "direction": "UNCERTAIN",
     "indicatorLevel": "ORANGE",
-    "assessment": "ASSESSED, LOW-MODERATE confidence: a six-day pause modestly raises the plausibility of a genuine lull over a reporting-collection gap, but CENTCOM's continued silence on the specific 17 Nov claim leaves this program unable to distinguish the two. CENTCOM's own operational statements remain the more reliable indicator than rhetoric from either Washington or Tehran.",
+    "assessment": "ASSESSED, LOW-MODERATE confidence (unchanged from 23 Nov): a week-long pause further raises the plausibility of a genuine lull over a reporting-collection gap, but CENTCOM's continued silence on the specific 17 Nov claim leaves this program unable to distinguish the two.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-23 -- No new strike attempt identified since 17 Nov (now roughly six days); no independent corroboration or CENTCOM reversal of the Sheikh Isa claim found. Indicator eased RED to ORANGE to reflect the longer pause while still withholding a de-escalation call given CENTCOM's continued silence on the specific claim.",
+    "lastChange": "2026-11-24 -- No new strike attempt identified since 17 Nov (now roughly one week); no independent corroboration or CENTCOM reversal of the Sheikh Isa claim found. Indicator held at ORANGE; a week is more notable than six days but still not read as confirmed de-escalation.",
     "orgRelevance": "Treat Gulf-adjacent logistics/energy-price/air-defense exposure as elevated and repeating, not a single transient event; the US Embassy in Bahrain has warned of possible flight cancellations and airspace closures.",
-    "nextIndicator": "Independent corroboration or a CENTCOM reversal on the 17 Nov Sheikh Isa claim (through ~3 Dec); a fourth attack attempt within the forecast's remaining window (through ~30 Nov).",
+    "nextIndicator": "Independent corroboration or a CENTCOM reversal on the 17 Nov Sheikh Isa claim (through ~3 Dec); a further attack attempt within the forecast's remaining window (through ~30 Nov).",
     "history": [
       {
         "date": "2026-02-28",
@@ -42,7 +42,7 @@
       },
       {
         "date": "2026-09-13",
-        "note": "A new attack near Qeshm Island strikes an Iranian commercial vessel (IRIB: 1 killed, 4 injured) and UKMTO reports a separate vessel hit by an unidentified projectile; Abu Dhabi's Crown Prince meets Iranian President Pezeshkian at the BRICS summit in New Delhi — first top-level Iran-UAE contact of the war; Iran's nuclear chief is barred from traveling to the IAEA Vienna conference."
+        "note": "A new attack near Qeshm Island strikes an Iranian commercial vessel (IRIB: 1 killed, 4 injured) and UKMTO reports a separate vessel hit by an unidentified projectile; Abu Dhabi's Crown Prince meets Iranian President Pezeshkian at the BRICS summit in New Delhi \u2014 first top-level Iran-UAE contact of the war; Iran's nuclear chief is barred from traveling to the IAEA Vienna conference."
       },
       {
         "date": "2026-09-14",
@@ -247,6 +247,10 @@
       {
         "date": "2026-11-23",
         "note": "No fourth strike attempt identified across the 21-23 Nov weekend gap (now roughly six days since 17 Nov); still no independent corroboration or CENTCOM reversal of the Sheikh Isa claim. Indicator eased ORANGE given the longer pause, though still not read as confirmed de-escalation. Both standing forecasts remain PENDING."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "No fourth/further strike attempt identified since 17 Nov (now roughly a full week); no independent corroboration or CENTCOM reversal of the Sheikh Isa claim found. Indicator held at ORANGE."
       }
     ]
   },
@@ -259,7 +263,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "Policy pause, not repeal, remains the leading read on CMMC. No evidence of a scope change behind the delay -- continued deliberation is the more likely explanation than an active decision to abandon the report. On FAR Overhaul: a deliberate staged rewrite that has reached operative buying mechanics (Parts 12/15 competitive positioning, Parts 9/27 qualification/IP risk); a countervailing signal is that June-batch final rules reportedly stalled while OMB weighed changes, so proposed-stage publication does not guarantee timely finalization.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-23 -- No new CMMC timing signal, Federal Register notice, DFARS class deviation, or FAR Overhaul final rule identified since 20 Nov; no new FY27 NDAA floor or conference action found. The federal government funding CR expires 11 Dec 2026 (18 days out), newly flagged as a concrete forcing function that could compress or bundle late-year action on CMMC, the FAR Overhaul, and the NDAA.",
+    "lastChange": "2026-11-24 -- No new CMMC, FAR Overhaul, or NDAA development identified since 20 Nov. The 11 Dec government-funding CR deadline is now 17 days out.",
     "orgRelevance": "Anchor compliance planning to DFARS Class Deviation 2026-O0025 Rev 3's confirmed terms rather than any informal CMMC timing signal, which has now failed to produce news for twelve straight cycles.",
     "nextIndicator": "A Federal Register notice, DFARS class deviation, or 32 CFR Part 170 amendment with a firm release date; any DoD-sourced statement naming a successor timing target.",
     "history": [
@@ -474,19 +478,23 @@
       {
         "date": "2026-11-23",
         "note": "No new CMMC, FAR Overhaul, or NDAA development since 20 Nov. The 11 Dec government-funding CR deadline is newly flagged as a concrete forcing function for a compressed lame-duck legislative/regulatory window."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "No new CMMC timing signal, Federal Register notice, DFARS class deviation, or FAR Overhaul final rule identified since 20 Nov; no new FY27 NDAA floor or conference action found. The 11 Dec CR deadline is now 17 days out."
       }
     ]
   },
   {
     "name": "Critical Minerals / Rare-Earth Magnets",
     "firstDetected": "2026-09-06",
-    "status": "The separate gallium/germanium/antimony/superhard-materials suspension's 27 Nov 2026 deadline is now roughly 4 days out with no renewal or lapse signal identified; the broader rare-earth suspension continues to hold through 10 Jan 2027 per prior cycles' multiply-corroborated finding.",
+    "status": "The separate gallium/germanium/antimony/superhard-materials suspension's 27 Nov 2026 deadline is now roughly 3 days out with no renewal or lapse signal identified; the broader rare-earth suspension continues to hold through 10 Jan 2027 per prior cycles' finding.",
     "importance": "High -- a well-corroborated, now largely reconciled easing of the thread's central near-term deadline; the underlying military-affiliated-firm license denial and April 2025 heavy-rare-earth licensing requirement are unaffected.",
     "direction": "DEESCALATING",
     "indicatorLevel": "YELLOW",
     "assessment": "REPORTED with MODERATE confidence (upgraded from LOW): the specific announcement numbers and dates from a specialist trade-measures database (Global Trade Alert) explain yesterday's apparent conflict as two correct reports about two different instruments, materially raising confidence that relief is continuous through 10 Jan 2027. ASSESSED that this remains a tactical, trade-truce-linked easing, not a resolution of the underlying military-affiliated license denial.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-23 -- No new PRC action; the 27 Nov gallium/germanium/antimony/superhard-materials deadline is now ~4 days out with no renewal or lapse signal identified. The rare-earth suspension and BIS Affiliates Rule both remain unchanged, holding through 10 Jan 2027.",
+    "lastChange": "2026-11-24 -- No new PRC action; the 27 Nov gallium/germanium/antimony/superhard-materials deadline is now ~3 days out with no renewal or lapse signal identified. The rare-earth suspension and BIS Affiliates Rule both remain unchanged, holding through 10 Jan 2027.",
     "orgRelevance": "Continue BOM-exposure mapping and second-sourcing work at reduced, not zero, urgency; calendar the 27 Nov gallium/germanium/antimony/superhard-materials deadline as the next concrete test.",
     "nextIndicator": "The 27 Nov gallium/germanium/antimony/superhard-materials suspension deadline outcome; a primary MOFCOM/GACC text for Announcement No. 58 of 2026.",
     "history": [
@@ -713,6 +721,10 @@
       {
         "date": "2026-11-23",
         "note": "No new PRC action; the 27 Nov gallium/germanium/antimony/superhard-materials suspension deadline is now ~4 days out with no renewal or lapse signal identified. The broader rare-earth suspension and BIS Affiliates Rule remain unchanged, holding through 10 Jan 2027."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "No new PRC action; the 27 Nov gallium/germanium/antimony/superhard-materials deadline is now ~3 days out with no renewal or lapse signal identified."
       }
     ]
   },
@@ -725,7 +737,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the verification gap now spans two consecutive cycles of blocked direct CISA access, converting what was flagged on 4 Nov as a one-off into a standing pattern; this should lower confidence in any secondary-sourced finding, including the reported APT29 attribution, until independently checked against a primary source. KNOWN (Fortinet's FG-IR-26-175 advisory, CISA KEV listing) for the underlying FortiMail vulnerability and its initial disclosure; UNKNOWN whether other KEV entries beyond the two identified via secondary sourcing were added this cycle.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-20 -- No new KEV batch identified beyond the already-tracked ~9-10 Nov batches. The Ivanti Connect Secure wave continues to produce no named DIB/federal victim across 18+ tracked vendor families. A narrower CISA ICS advisory (ICSA-26-321-01, Dorsett Controls InfoScan, 17 Nov) was identified but is a lower-severity item outside this thread's main vendor-family tracking.",
+    "lastChange": "2026-11-24 -- No new CISA KEV batch identified since the 18 Nov additions (Synology DSM, a second LiteLLM entry, Apache Axis, REDCap). The Ivanti Connect Secure wave continues to produce no named DIB/federal victim.",
     "orgRelevance": "Any organization running Ivanti Connect Secure should patch ahead of the 13 Nov deadline and complete forensic triage; any organization running FortiMail should independently verify its actual patch/EOL status directly against Fortinet's own advisory.",
     "nextIndicator": "Today's Ivanti deadline compliance outcome; a named DIB/federal victim tied to the Ivanti chain, GPUStack, or any other tracked family; any new KEV addition.",
     "history": [
@@ -739,7 +751,7 @@
       },
       {
         "date": "2026-09-10",
-        "note": "CISA adds MikroTik CVE-2026-67277/CVE-2026-86060 to KEV, closing an 8-day gap; Cisco FMC and Citrix NetScaler carry a 12 Sep federal patch deadline — sixth vendor family in three weeks."
+        "note": "CISA adds MikroTik CVE-2026-67277/CVE-2026-86060 to KEV, closing an 8-day gap; Cisco FMC and Citrix NetScaler carry a 12 Sep federal patch deadline \u2014 sixth vendor family in three weeks."
       },
       {
         "date": "2026-09-11",
@@ -751,7 +763,7 @@
       },
       {
         "date": "2026-09-14",
-        "note": "Cisco Talos attribution — Sandworm-linked and Qilin-ransomware clusters exploiting Cisco FMC — confirmed as the most consequential development of this cycle; ~700 FMC instances remain internet-exposed industry-wide."
+        "note": "Cisco Talos attribution \u2014 Sandworm-linked and Qilin-ransomware clusters exploiting Cisco FMC \u2014 confirmed as the most consequential development of this cycle; ~700 FMC instances remain internet-exposed industry-wide."
       },
       {
         "date": "2026-09-15",
@@ -956,6 +968,10 @@
       {
         "date": "2026-11-23",
         "note": "A new KEV batch (~18 Nov) added Synology DSM, a second BerriAI LiteLLM entry, Apache Axis, and Vanderbilt REDCap, with 21 Nov/2 Dec federal deadlines. The Ivanti Connect Secure wave's zero-named-DIB-victim pattern persists past two federal deadlines despite NSA-confirmed defense-sector targeting."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "No new KEV addition identified this cycle; the Ivanti Connect Secure zero-named-victim pattern persists past two federal deadlines."
       }
     ]
   },
@@ -968,7 +984,7 @@
     "indicatorLevel": "RED",
     "assessment": "Procurement mechanics and organizational/mission build-out continue advancing largely independent of the confirmed FY27 funding gap. ASSESSED, MODERATE confidence: ULA's preliminary fuel-supply finding, if it holds through the final report, would mean the Nov failure and the Feb motor hold are two independent reliability problems rather than one compounding fault -- a different technical picture, though the practical single-certified-provider dependency is unchanged either way.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-23 -- No final FAA report yet. This cycle's research surfaced an unreconciled discrepancy in secondary-source characterization of ULA's preliminary finding: The Register frames it as core-stage/booster underperformance, while Space.com/Aerospace America frame it as a fuel-supply-specific fault distinct from the booster system -- not a new primary-source development, but a reminder the preliminary picture is less settled than a single-outlet read would suggest. No new SHIELD task order or reconciliation floor action identified.",
+    "lastChange": "2026-11-24 -- No new dated SDA/MDA award or FAA/Vulcan development identified since ULA's 18 Nov preliminary fuel-supply finding; Falcon 9/Heavy remain the only NSSL Phase 3 Lane 2-certified vehicles.",
     "orgRelevance": "Firms on SDA/MDA vehicles should plan around a spring-2027, not late-2026, sensing-layer launch date and continue scenario-planning for the unresolved FY27 reconciliation funding gap.",
     "nextIndicator": "Confirmation of a firm spring-2027 launch date; Senate floor action on a reconciliation package; a new SHIELD task order.",
     "history": [
@@ -1187,6 +1203,10 @@
       {
         "date": "2026-11-23",
         "note": "No final FAA report yet; no new SHIELD task order or reconciliation action identified. This cycle's research found secondary sources framing ULA's preliminary finding inconsistently (core-stage/booster vs. fuel-supply-specific), an unresolved characterization gap rather than a new substantive development."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "No new dated Golden Dome award or Vulcan/FAA development identified this cycle; status unchanged since 18-20 Nov."
       }
     ]
   },
@@ -1199,7 +1219,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the Witkoff-Putin 'in principle' agreement to resume trilateral talks is a genuine opening but rests entirely on interested-party (Russian- and Ukrainian-official) statements, with Russia framing the agenda around a postwar security architecture rather than an immediate ceasefire; the unaffected strike tempo argues against reading this as imminent de-escalation. Direction changed from ESCALATING to UNCERTAIN to reflect this new, countervailing diplomatic signal running alongside continued lethal strikes.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-23 -- NEW: the Zaporizhzhia NPP lost its last external power line on 8 Nov (Energoatom's 16th full blackout of 2026; IAEA's 27th cumulative count) and has run on diesel backup since, with no confirmed restoration located -- a previously untracked status update to the plant's nuclear-safety posture. No confirmed further Russia-inclusive trilateral round has been scheduled since a 16 Nov Kremlin-aide statement that more rounds would likely be needed.",
+    "lastChange": "2026-11-24 -- Catch-up: surfaced the 19 Nov Berlin 'Coalition of the Willing' summit (~40 nations, Zelensky, Kushner, Witkoff), where Kushner claimed Russia agreed to a broader US-Russia-Ukraine-Europe negotiating format, directly in tension with Putin's own same-day comment in China that there is no prospect of immediate Ukraine talks. No confirmed ZNPP external-power restoration identified this cycle.",
     "orgRelevance": "Treat the Abu Dhabi round as a test of the negotiating track, not a turning point; sustained demand for air-defense, counter-UAS, and munitions replenishment remains the base case regardless of the talks' outcome. Prolonged ZNPP backup-power reliance is now a standing nuclear-safety risk to track independently of the diplomatic track.",
     "nextIndicator": "IAEA confirmation of ZNPP external-power restoration; a confirmed next round of Russia-Ukraine-US talks; any further large-scale strike or diplomatic development.",
     "history": [
@@ -1285,7 +1305,7 @@
       },
       {
         "date": "2026-10-06",
-        "note": "Northern Bridge struck again 10/4 during Merz's Kyiv visit (4th consecutive day of bridge strikes). NATO Deputy SecGen Shekerinska schedules a Chișinau visit (10/8-9) in response to the Moldova incursions. ZNPP data gap resolved -- stable external power since 9/7. Turkey/UN brokering a separate, narrower Black Sea ceasefire track."
+        "note": "Northern Bridge struck again 10/4 during Merz's Kyiv visit (4th consecutive day of bridge strikes). NATO Deputy SecGen Shekerinska schedules a Chi\u0219inau visit (10/8-9) in response to the Moldova incursions. ZNPP data gap resolved -- stable external power since 9/7. Turkey/UN brokering a separate, narrower Black Sea ceasefire track."
       },
       {
         "date": "2026-10-07",
@@ -1305,7 +1325,7 @@
       },
       {
         "date": "2026-10-13",
-        "note": "NATO's Chisinau visit (8-9 Oct) concluded: reaffirmed the existing ~€50M Defence Capacity Building package and cyber-defense cooperation, no new commitment identified. No Western statement citing the 6-7 Oct strike specifically found. Resolves the standing forecast on the visit's outcome toward no-new-commitment."
+        "note": "NATO's Chisinau visit (8-9 Oct) concluded: reaffirmed the existing ~\u20ac50M Defence Capacity Building package and cyber-defense cooperation, no new commitment identified. No Western statement citing the 6-7 Oct strike specifically found. Resolves the standing forecast on the visit's outcome toward no-new-commitment."
       },
       {
         "date": "2026-10-14",
@@ -1422,21 +1442,25 @@
       {
         "date": "2026-11-23",
         "note": "NEW: Zaporizhzhia NPP lost its last external power line on 8 Nov and has run on diesel backup since, per Energoatom/IAEA reporting; no confirmed restoration located this cycle -- a previously untracked status update. No confirmed next round of Russia-Ukraine-US talks since the 16 Nov Kremlin-aide statement."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "CORRECTION: surfaced the 19 Nov Berlin Coalition of the Willing summit (~40 nations) held the same day as the Shenzhen trilateral; Kushner claimed Russia agreed to a broader negotiating format including Europe, citing a recent prisoner-exchange breakthrough, while Putin separately told reporters in China there was no prospect of immediate Ukraine talks -- an unreconciled tension between two senior sources in the same news cycle."
       }
     ]
   },
   {
     "name": "China-Taiwan Pressure / Trump-Xi Summit",
     "firstDetected": "2026-09-06",
-    "status": "Taiwan Defense Minister Wellington Koo stated on 10 Nov that the large PLA naval concentration includes anti-access/area-denial drills involving the Liaoning carrier group in the western Pacific -- the first on-the-record Taiwan-government characterization, corroborating and sharpening the prior cycle's ISW-sourced assessment. Taiwan's NSC separately reports 100+ PLA/CCG vessels near Taiwan, the South China Sea and the wider Pacific; the underlying vessel-count discrepancy remains unreconciled. No PRC exercise name identified. Taiwan's own local elections are scheduled for 28 Nov, adding domestic political sensitivity.",
+    "status": "CORRECTION/CATCH-UP: Presidents Trump, Xi, and Putin held the first-ever trilateral summit at APEC Shenzhen on 19 Nov 2026, producing a thin joint 'peace declaration' with no Ukraine/Iran specifics; per Chinese state media, Trump repeated that the US 'does not support Taiwan independence' and Xi urged avoiding 'major disruptions.' This program did not surface the trilateral for 5 cycles. Taiwan's local elections are 4 days out (28 Nov); no PLA exercise has been named around either event.",
     "importance": "High -- a larger, deliberately unannounced gray-zone vessel concentration than this thread's prior baseline framing, harder for Taiwan and allies to plan against than a declared exercise.",
     "direction": "ESCALATING",
-    "indicatorLevel": "ORANGE",
-    "assessment": "ASSESSED: China's minimal-commitment approach preserves its rare-earth leverage into the 10/27 Nov suspension-expiry windows. The Taiwan arms delay, per available reporting, looks like a genuine US-side capacity constraint rather than a policy signal, though this should be held with some caution given the issue's political sensitivity and the difficulty of independently verifying motive.",
-    "confidence": "LOW",
-    "lastChange": "2026-11-23 -- No new PLA exercise naming identified; the anticipated Shandong mid-December deployment remains unconfirmed. Taiwan's local elections are now 5 days out (28 Nov), the nearest concrete inflection point on this thread.",
+    "indicatorLevel": "YELLOW",
+    "assessment": "ASSESSED, MODERATE confidence: this is the third instance of the same Taiwan-wording exchange pattern (May and Sep 2026 predecessors) with no apparent US policy shift -- continuity, not escalation, on substance. ASSESSED, separately: this program's own 5-day coverage gap on a primary-source-confirmed leader-level event is itself significant and is tracked as a cross-cutting process finding (see 24 Nov brief weakSignals/crossDomain).",
+    "confidence": "MODERATE",
+    "lastChange": "2026-11-24 -- Catch-up: surfaced the 19 Nov Shenzhen Trump-Xi-Putin trilateral and its Taiwan-wording exchange, missed in the 19-23 Nov cycles. Taiwan's election is now 4 days out with no new PLA exercise identified.",
     "orgRelevance": "Treat the absence of new data as a collection gap, not evidence of reduced PLA activity; reinforces maritime ISR, undersea, counter-amphibious, and resilient PNT/comms demand context regardless.",
-    "nextIndicator": "A named PLA exercise announcement (or its confirmed absence within 14 days, per the standing forecast); reconciliation of the 50-vs-100+ vessel-count discrepancy; any Rubio/Hegseth response to the senators' letter.",
+    "nextIndicator": "Taiwan's 28 Nov election results; any PLA exercise or Shandong-carrier deployment; any US readout clarifying the Shenzhen Taiwan exchange.",
     "history": [
       {
         "date": "2026-09-02",
@@ -1641,6 +1665,10 @@
       {
         "date": "2026-11-23",
         "note": "No new PLA exercise naming identified; the anticipated Shandong mid-December deployment remains unconfirmed. Taiwan's local elections are now 5 days out (28 Nov), the nearest concrete inflection point on this thread."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "CORRECTION: surfaced (5 days late) the first-ever Trump-Xi-Putin trilateral at APEC Shenzhen (19 Nov), which produced a thin peace declaration omitting Ukraine/Iran and a repeat of Trump's standard non-support-for-Taiwan-independence language to Xi; Taiwan's MAC downplayed Taiwan's role in the talks. Taiwan's 28 Nov election is now 4 days out."
       }
     ]
   },
@@ -1653,7 +1681,7 @@
     "indicatorLevel": "YELLOW",
     "assessment": "The original window's lapse without either a nomination or an explicit withdrawal most plausibly reflects genuine Senate-confirmation math friction specific to Parnell, not a deliberate broader delay; no evidence of an alternative candidate being actively advanced. The cyber-strategy item remains 'still pending per trade press, ambiguity resolved via secondary reconciliation.'",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-23 -- No material change; Adam Telle remains acting Army Secretary with no new nomination news or Sylvia-case DOJ update identified this cycle. The 11 Dec government-funding CR deadline is newly noted as additional context compressing the lame-duck window in which any leadership or oversight action might occur.",
+    "lastChange": "2026-11-24 -- No new development; Adam Telle continues as acting Army Secretary with no new nomination identified.",
     "orgRelevance": "Continuity/leadership-risk context only; no organization-specific action.",
     "nextIndicator": "A DOJ charging decision or formal declination in the Sylvia matter (fc-2026-11-09-sylvia-doj-outcome); an Army Secretary nomination.",
     "history": [
@@ -1868,6 +1896,10 @@
       {
         "date": "2026-11-23",
         "note": "No material change; Adam Telle remains acting Army Secretary with no new nomination news or Sylvia-case DOJ update identified this cycle. The 11 Dec government-funding CR deadline is newly noted as additional lame-duck-calendar context."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "No new development; status unchanged."
       }
     ]
   },
@@ -1880,7 +1912,7 @@
     "indicatorLevel": "RED",
     "assessment": "KNOWN (Nvidia's own SEC 8-K): the resignation and interim-CEO appointment. REPORTED/CLAIMED, LOW-MODERATE confidence: the foreign-intelligence-targeting and affair allegations, resting on press sourcing and a presidential statement, not a charged case; Nvidia's board says it found no evidence of compromised secrets, and Beijing has denied the espionage claim. ASSESSED: the BIS remote-access rule, the Megaspeed chip-routing allegation, and Huang's resignation are three facets of one broader Nvidia/China-compute-security story this program had been tracking only in disconnected pieces.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-23 -- Catch-up correction: surfaced Huang's 11 Nov resignation and its Megaspeed connection to this thread's already-tracked chip-smuggling item; confirmed ANT's first-week close at $88.91. No new development on BIS remote-access rule enforcement or the Taiwan Nvidia chip-smuggling case this cycle.",
+    "lastChange": "2026-11-24 -- Congress has set concrete Dec 1-3 dates for Jensen Huang/Nvidia GC Tim Teter testimony (House closed-door ~1-2 Dec; Senate Banking public hearing ~3 Dec) with subpoena threats from both chambers, arriving ahead of the January 2027 House committee-control change. No concrete Chinese countermeasure to the BIS remote-access chip rule identified; Anthropic's ANT remains near its 20 Nov $88.91 close (no newer confirmed price located).",
     "orgRelevance": "Revisit AI/GPU-compute vendor-concentration risk assumptions in light of Nvidia's leadership change; do not assume pre-11 Nov vendor-stability baselines still hold. GSA's discount terms may be directly relevant to federal AI-procurement planning.",
     "nextIndicator": "Nvidia's permanent-CEO announcement; any FBI charging decision or official statement on the underlying inquiry; ANT's performance through its December lock-up events.",
     "history": [
@@ -2095,6 +2127,10 @@
       {
         "date": "2026-11-23",
         "note": "CATCH-UP: Nvidia's board accepted Jensen Huang's resignation effective 11 Nov 2026 (SEC 8-K), naming CFO Colette Kress interim CEO; press reporting ties this to a board inquiry into a personal relationship linked to Megaspeed -- the same firm this thread already tracked for an unrelated chip-smuggling allegation -- and an FBI review per a 9 Nov presidential statement. No charges identified; Nvidia's board reports no evidence of compromised secrets; Beijing denies the espionage framing. This program never surfaced the resignation in any 11-20 Nov cycle despite having Megaspeed already on its radar -- flagged explicitly as a tracking-process gap. Separately, ANT's first confirmed weekly close is $88.91 (20 Nov), down sharply from its $111.50 open but still above the $83 IPO price; fc-2026-11-19-ant-firstweek-close trending CORRECT with the window open through ~26 Nov."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "Congressional scrutiny of Nvidia's Huang converted from an open-ended inquiry to a dated calendar: House committees want closed-door interviews ~1-2 Dec, Senate Banking wants a public hearing ~3 Dec, both with subpoena threats; House GOP's subpoena leverage lapses when Democrats take committee control in January 2027. No new confirmed Anthropic ANT price or Chinese BIS-rule countermeasure this cycle."
       }
     ]
   },
@@ -2107,7 +2143,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED: the resumption after the cluster's longest pause, now confirmed by a further early-November test, reads as continued and renewed capability signaling rather than a confirmed step toward imminent conflict -- consistent with PACOM's own 'no immediate threat' characterization. CAPABILITY vs. INTENT: the SRBM and new-system demonstrations are demonstrated; broader strategic intent (leverage ahead of APEC vs. routine cadence vs. defiance of the new sanctions) remains ASSESSED, not confirmed.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-23 -- No material change; no new North Korean missile or weapons test identified since the 2-5 Nov cluster.",
+    "lastChange": "2026-11-24 -- No new North Korean missile launch identified since the 3-4 Nov test cluster (short-range missiles, a new air-defense system, a submarine-launched strategic cruise missile); the pause has now extended roughly three weeks.",
     "orgRelevance": "Reinforces missile-warning/PNT and regional missile-defense demand context; no organization-specific action.",
     "nextIndicator": "Further missile events; any confirmed new DPRK naval-combatant capability; movement on a Trump-Kim meeting around the 18-19 Nov window (fc-2026-10-15-trump-kim-meeting).",
     "history": [
@@ -2242,6 +2278,10 @@
       {
         "date": "2026-11-23",
         "note": "No material change; no new North Korean missile or weapons test identified since the 2-5 Nov cluster."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "No new launch identified since 3-4 Nov; a roughly three-week pause, not yet long enough to draw a conclusion from."
       }
     ]
   },
@@ -2254,7 +2294,7 @@
     "indicatorLevel": "RED",
     "assessment": "ASSESSED, MODERATE confidence: NATO continues to respond with calibrated reinforcement (radar, drones, patrol aircraft, intelligence teams) rather than treating the Romanian-waters strike as an Article 5 trigger. The alliance's own acknowledged ambiguity on Black Sea Article 4/5 applicability is a notable, previously unconfirmed-at-this-explicitness finding in its own right, not merely a restatement of calibrated reinforcement.",
     "confidence": "MODERATE",
-    "lastChange": "2026-11-23 -- No new strike identified since the 13-15 Nov Larissa 1/Sulina-channel incidents. No Article 4 request or Article 5 statement identified. Held at MODERATE confidence given this program's own documented reporting-lag pattern on this campaign; the standing non-invocation forecast window remains open through ~8 Dec.",
+    "lastChange": "2026-11-24 -- No new Black Sea incident, attribution, or NATO asset-deployment development identified this cycle; this program did not run a dedicated Black Sea sweep today and treats this as a research gap, not a confirmed lull.",
     "orgRelevance": "Treat Black Sea/Danube-adjacent shipping, insurance, and energy-logistics exposure as rising, not stable; firms with Romanian, Bulgarian, or Ukrainian grain/energy supply-chain touchpoints should review exposure.",
     "nextIndicator": "A formal Article 4 consultation request or explicit NATO statement on Article 5 applicability; any further strike inside a NATO member's territorial waters.",
     "history": [
@@ -2292,7 +2332,7 @@
       },
       {
         "date": "2026-10-21",
-        "note": "NATO's North Atlantic Council (20 Oct) committed maritime patrol aircraft, radar, EOD teams, intelligence personnel and drones to the Black Sea -- the campaign's first confirmed alliance-level asset commitment. Bulgaria/Romania/Türkiye agreed to expand the NATO Mine Countermeasures Group to cover undersea-infrastructure protection (Turkish ratification pending). Vessel-identity/casualty reconciliation still outstanding."
+        "note": "NATO's North Atlantic Council (20 Oct) committed maritime patrol aircraft, radar, EOD teams, intelligence personnel and drones to the Black Sea -- the campaign's first confirmed alliance-level asset commitment. Bulgaria/Romania/T\u00fcrkiye agreed to expand the NATO Mine Countermeasures Group to cover undersea-infrastructure protection (Turkish ratification pending). Vessel-identity/casualty reconciliation still outstanding."
       },
       {
         "date": "2026-10-22",
@@ -2385,6 +2425,10 @@
       {
         "date": "2026-11-23",
         "note": "No new strike identified since the 13-15 Nov Larissa 1/Sulina-channel incidents; no Article 4 request or Article 5 statement identified. The standing non-invocation forecast window remains open through ~8 Dec."
+      },
+      {
+        "date": "2026-11-24",
+        "note": "No dedicated research conducted this cycle; status carried forward from 18 Nov without independent confirmation."
       }
     ]
   }

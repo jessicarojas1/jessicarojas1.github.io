@@ -1,14 +1,50 @@
 {
-  "updated": "2026-11-23",
+  "updated": "2026-11-24",
   "summary": {
     "correct": 56,
     "incorrect": 56,
     "partial": 13,
-    "pending": 76,
-    "note": "2026-11-23: Lead finding this cycle is a correction/catch-up, not a new event: Nvidia's board accepted CEO Jensen Huang's resignation effective 11 Nov 2026 (confirmed via Nvidia's own SEC 8-K), naming CFO Colette Kress interim CEO, amid an unresolved FBI-linked counterintelligence inquiry tied to Megaspeed -- a firm this program had already been tracking for an unrelated chip-smuggling allegation without connecting the two. This program never surfaced the resignation itself in any 11-20 Nov cycle, a 12-day gap now corrected. (2) Anthropic's ANT closed its first trading week at $88.91 (20 Nov), down sharply from its $111.50 open and $97.17 first-day close but still above the $83 IPO price; fc-2026-11-19-ant-firstweek-close remains PENDING and trending CORRECT. (3) No fourth Iran-claimed strike on Bahrain has followed the 17 Nov claim -- now roughly a six-day pause, longer than the three days noted on 20 Nov -- still treated as inconclusive given this program's documented reporting-lag pattern; Hormuz thread indicator eased RED to ORANGE. (4) The Zaporizhzhia NPP's 8 Nov loss of its last external power line (running on diesel backup since) was surfaced this cycle as a previously untracked status update. Three new forecasts added testing Nvidia's permanent-CEO timeline, a Chinese countermeasure to the BIS remote-access rule, and avoidance of a government shutdown at the 11 Dec CR deadline. No forecasts were force-graded this cycle; several (Taiwan vessel-count reconciliation, Taiwan PLA-exercise non-announcement, Iran no-major-strike) remain within their open windows and trending toward their stated outcomes.",
-    "updated": "2026-11-23"
+    "pending": 80,
+    "note": "2026-11-24: Lead finding this cycle is a correction/catch-up, not a new event: Presidents Trump, Xi, and Putin held the first-ever trilateral summit at APEC Shenzhen on 19 Nov 2026, producing a largely symbolic 'peace declaration' that omitted Ukraine and Iran, plus a repeat of Trump's standard non-support-for-Taiwan-independence language to Xi -- this program did not surface the trilateral for 5 consecutive cycles (19-23 Nov), a second consecutive multi-day coverage gap after the Nvidia CEO-resignation miss flagged on 23 Nov. (2) A same-day, previously untracked Berlin 'Coalition of the Willing' summit (~40 nations) saw Kushner claim Russia agreed to a broader US-Russia-Ukraine-Europe negotiating format, directly in tension with Putin's own comment in China that no immediate Ukraine talks are in prospect. (3) Congressional scrutiny of Nvidia's ousted CEO Jensen Huang has converted to a dated calendar: House closed-door interviews ~1-2 Dec and a Senate Banking public hearing ~3 Dec, both carrying subpoena threats, arriving just ahead of the January 2027 House committee-control change. (4) No fourth/fifth Iran-claimed strike on Bahrain has followed the 17 Nov claim -- now roughly a full week, the longest pause of the current run -- still treated as inconclusive. (5) China's narrower gallium/germanium/antimony/superhard-materials suspension deadline (27 Nov) is now 3 days out with no renewal signal. Four new forecasts added testing Nvidia's hearing-appearance timeline, Russian corroboration of the Berlin negotiating-format claim, a further Bahrain attack within the standing window, and operational follow-through on the Shenzhen peace declaration. No forecasts were force-graded this cycle; fc-2026-11-19-ant-firstweek-close, fc-2026-11-23-china-bis-retaliation, and fc-2026-11-19-centcom-sheikhisa-corroboration remain PENDING and open within their windows.",
+    "updated": "2026-11-24"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-24-nvidia-hearing-dates-held",
+      "date": "2026-11-24",
+      "forecast": "Jensen Huang will appear (voluntarily or under subpoena) for at least one of the reported House closed-door interviews (~1-2 Dec) or the Senate Banking public hearing (~3 Dec) within 14 days, rather than all of them slipping or being avoided entirely.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether reported congressional dates and subpoena leverage actually produce an appearance before the January 2027 House committee-control change. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-11-24-berlin-format-corroborated",
+      "date": "2026-11-24",
+      "forecast": "Russia will NOT issue a direct government statement corroborating Kushner's claim of an agreed 'broader' US-Russia-Ukraine-Europe negotiating format within 21 days, consistent with Putin's own 19 Nov comment that there is no prospect of immediate Ukraine talks.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests the tension between Kushner's and Putin's same-day, conflicting characterizations of the Ukraine negotiating track. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+    },
+    {
+      "id": "fc-2026-11-24-bahrain-further-attack-30nov",
+      "date": "2026-11-24",
+      "forecast": "Iran or an Iran-aligned actor will conduct at least one further attack attempt against Bahrain or another GCC host-nation asset within the remainder of the standing window (by ~30 Nov), given the week-long pause since the 17 Nov Sheikh Isa claim.",
+      "horizon": "0-6 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Narrower restatement of the standing further-attack question as its window nears close. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-11-24-shenzhen-declaration-followthrough",
+      "date": "2026-11-24",
+      "forecast": "No concrete, operational follow-through (a specific joint initiative, mechanism, or further leader-level meeting) on the 19 Nov Shenzhen 'peace declaration' will be publicly confirmed within 30 days, consistent with analyst characterizations of the summit as largely symbolic.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the Trump-Xi-Putin trilateral acquires substance beyond its initial symbolic statement. Tracked on the China-Taiwan Pressure / Trump-Xi Summit thread."
+    },
     {
       "id": "fc-2026-11-23-nvidia-permanent-ceo",
       "date": "2026-11-23",
@@ -313,7 +349,7 @@
       "horizon": "0-14 days",
       "outcome": "PARTIAL",
       "resolvedDate": "2026-09-11",
-      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range — but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range \u2014 but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-10-kev-networkedge",
@@ -322,7 +358,7 @@
       "horizon": "0-30 days",
       "outcome": "CORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate — well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
+      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate \u2014 well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-11-bahrain-basing",
@@ -340,7 +376,7 @@
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "The meeting was postponed entirely rather than held — it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "The meeting was postponed entirely rather than held \u2014 it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-11-pipeline",
@@ -876,11 +912,11 @@
     {
       "id": "fc-2026-10-06-moldova-nato-commitment",
       "date": "2026-10-06",
-      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chișinau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
+      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chi\u0219inau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-10-14",
-      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~€50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~\u20ac50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-06-flydubai-reversal-effect",
