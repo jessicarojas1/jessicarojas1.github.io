@@ -1,14 +1,50 @@
 {
-  "updated": "2026-11-24",
+  "updated": "2026-11-25",
   "summary": {
-    "correct": 56,
-    "incorrect": 56,
+    "correct": 57,
+    "incorrect": 58,
     "partial": 13,
-    "pending": 80,
-    "note": "2026-11-24: Lead finding this cycle is a correction/catch-up, not a new event: Presidents Trump, Xi, and Putin held the first-ever trilateral summit at APEC Shenzhen on 19 Nov 2026, producing a largely symbolic 'peace declaration' that omitted Ukraine and Iran, plus a repeat of Trump's standard non-support-for-Taiwan-independence language to Xi -- this program did not surface the trilateral for 5 consecutive cycles (19-23 Nov), a second consecutive multi-day coverage gap after the Nvidia CEO-resignation miss flagged on 23 Nov. (2) A same-day, previously untracked Berlin 'Coalition of the Willing' summit (~40 nations) saw Kushner claim Russia agreed to a broader US-Russia-Ukraine-Europe negotiating format, directly in tension with Putin's own comment in China that no immediate Ukraine talks are in prospect. (3) Congressional scrutiny of Nvidia's ousted CEO Jensen Huang has converted to a dated calendar: House closed-door interviews ~1-2 Dec and a Senate Banking public hearing ~3 Dec, both carrying subpoena threats, arriving just ahead of the January 2027 House committee-control change. (4) No fourth/fifth Iran-claimed strike on Bahrain has followed the 17 Nov claim -- now roughly a full week, the longest pause of the current run -- still treated as inconclusive. (5) China's narrower gallium/germanium/antimony/superhard-materials suspension deadline (27 Nov) is now 3 days out with no renewal signal. Four new forecasts added testing Nvidia's hearing-appearance timeline, Russian corroboration of the Berlin negotiating-format claim, a further Bahrain attack within the standing window, and operational follow-through on the Shenzhen peace declaration. No forecasts were force-graded this cycle; fc-2026-11-19-ant-firstweek-close, fc-2026-11-23-china-bis-retaliation, and fc-2026-11-19-centcom-sheikhisa-corroboration remain PENDING and open within their windows.",
-    "updated": "2026-11-24"
+    "pending": 81,
+    "note": "2026-11-25: Lead finding this cycle is a reversal, not a continuation: Nvidia's board unanimously reinstated Jensen Huang as CEO on 23 Nov 2026, just 11-12 days after forcing him out over a national-security-tinged inquiry, citing input from unnamed senior officials that his return poses 'no national security risk' while the board's own independent investigation continues; House Minority Leader Jeffries says Democrats will pursue a new inquiry into the reinstatement itself, layered on the already-scheduled Dec 1-10 congressional calendar (Huang, Nvidia GC Teter, and Commerce Secretary Lutnick). This program grades fc-2026-11-23-nvidia-permanent-ceo CORRECT on the letter of its test: a permanent CEO distinct from interim CEO Kress was named, even though the specific outcome (Huang's own reinstatement) was not the one most readers likely anticipated. (2) CATCH-UP, and a third consecutive cycle in which this program missed a major event for several days: Ukrainian strikes collapsed a span of the Kerch Strait/Crimean Bridge on 16-17 Nov, and Putin responded on 19 Nov by ruling out a Black Sea/energy-infrastructure truce and threatening a 'far more painful' response -- directly explaining, rather than merely restating, the Kushner/Putin tension this program flagged on 24 Nov without having identified the triggering event. (3) No Bahrain-specific strike has followed the 17 Nov claim -- now roughly eight days, the longest pause of the current run -- but Iran separately claims (24 Nov) three further tanker-mine strikes elsewhere in the Strait of Hormuz, showing the campaign's two axes can move independently. (4) China's narrower gallium/germanium/antimony/superhard-materials suspension deadline (27 Nov) is now 2 days out with no renewal signal. Two standing forecasts lapsed their windows today and are graded INCORRECT (fc-2026-10-26-collabora-dib-victim, no named DIB victim ever identified; fc-2026-11-11-rareearth-primary-text, no primary MOFCOM/GACC text ever independently reached). Four new forecasts were added testing a Jeffries-led inquiry into the Nvidia reinstatement, a CENTCOM response to the 24 Nov Hormuz mine claims, an explicitly-linked Russian reprisal for the Kerch Bridge strikes, and PLA activity around Taiwan's 28 Nov election.",
+    "updated": "2026-11-25"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-25-nvidia-reinstatement-inquiry",
+      "date": "2026-11-25",
+      "forecast": "House Democratic leadership (Jeffries or a committee ranking member) will issue at least one formal document request, letter, or hearing announcement specifically targeting Nvidia's board process for reinstating Jensen Huang, within 21 days.",
+      "horizon": "0-21 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether Jeffries' 23 Nov statement that Democrats will pursue a new inquiry into the reinstatement converts into a concrete oversight action. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-11-25-centcom-hormuz-mine-response",
+      "date": "2026-11-25",
+      "forecast": "CENTCOM or another US official will issue an on-the-record confirmation or denial specifically addressing Iran's 24 Nov claim of three tankers hit by mines in the Strait of Hormuz, within 7 days.",
+      "horizon": "0-7 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "This program could not directly access the full underlying 24 Nov CNBC reporting (network-restricted); this forecast tests whether a primary US response clarifies the claim. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+    },
+    {
+      "id": "fc-2026-11-25-kerch-bridge-reprisal",
+      "date": "2026-11-25",
+      "forecast": "Russia will conduct a large-scale strike on Ukrainian energy or transport infrastructure that Russian officials explicitly describe as retaliation for the 16-17 Nov Kerch Bridge strikes, within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether Putin's 19 Nov promise of a 'far more painful' response materializes as an explicitly-linked reprisal, as opposed to continued undifferentiated strikes. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+    },
+    {
+      "id": "fc-2026-11-25-taiwan-election-pla-response",
+      "date": "2026-11-25",
+      "forecast": "Within 7 days of Taiwan's 28 Nov local elections, China will NOT name or announce a large-scale PLA exercise explicitly tied to the results, consistent with the pattern of unannounced gray-zone pressure rather than declared exercises tracked on this thread since early November.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the election itself becomes a discrete PLA-activity trigger or whether the existing gray-zone pattern continues unchanged. Tracked on the China-Taiwan Pressure / Trump-Xi Summit thread."
+    },
     {
       "id": "fc-2026-11-24-nvidia-hearing-dates-held",
       "date": "2026-11-24",
@@ -50,9 +86,9 @@
       "date": "2026-11-23",
       "forecast": "Nvidia's board will name a permanent CEO (distinct from interim CEO Colette Kress) within 180 days of Jensen Huang's 11 Nov 2026 resignation.",
       "horizon": "0-180 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": ""
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-23",
+      "note": "The board reinstated Jensen Huang himself as permanent President/CEO/Board director effective 23 Nov 2026 (SEC Form 8-K), just 12 days into the 180-day window -- a different outcome than most readers likely anticipated (a new successor), but one that satisfies the forecast's literal test: a permanent CEO distinct from interim CEO Kress was named well within the window."
     },
     {
       "id": "fc-2026-11-23-china-bis-retaliation",
@@ -1427,9 +1463,9 @@
       "date": "2026-10-26",
       "forecast": "A named DIB/federal-contractor victim organization tied to CVE-2026-110447 (Collabora/Nextcloud built-in CODE server) will be publicly reported within 30 days, given confirmed pre-disclosure exploitation running a full month before the CVE existed.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether this 13th-plus vendor family, and the first in a collaboration/file-sharing platform rather than a remote-access/identity appliance, produces a named victim faster than the dozen-plus prior tracked CVE families, none of which has yet yielded one. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-25",
+      "note": "The 30-day window closes today with no named DIB/federal-contractor victim ever identified for this CVE in any tracked cycle, consistent with this wave's near-universal zero-named-victim pattern. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-10-26-trilateral-date-confirmed",
@@ -1823,9 +1859,9 @@
       "date": "2026-11-11",
       "forecast": "A primary MOFCOM/GACC published text (not secondary press) confirming the rare-earth suspension extension to 10 Jan 2027, and reconciling the conflicting Rare Earth Exchanges lapse-date report, will be independently reached within 14 days.",
       "horizon": "0-14 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the persistent primary-source verification gap on this thread closes, and specifically whether the new conflicting lapse-date report is resolved."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-25",
+      "note": "The 14-day window closes today with no primary MOFCOM/GACC text ever independently reached in any cycle's research, despite strong multi-outlet secondary corroboration of the underlying extension itself. The persistent primary-source verification gap on this thread remains unresolved."
     },
     {
       "id": "fc-2026-11-11-ivanti-nov13-no-victim",
