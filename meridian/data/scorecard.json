@@ -1,22 +1,49 @@
 {
-  "updated": "2026-11-25",
+  "updated": "2026-11-26",
   "summary": {
-    "correct": 57,
-    "incorrect": 58,
+    "correct": 61,
+    "incorrect": 62,
     "partial": 13,
-    "pending": 81,
-    "note": "2026-11-25: Lead finding this cycle is a reversal, not a continuation: Nvidia's board unanimously reinstated Jensen Huang as CEO on 23 Nov 2026, just 11-12 days after forcing him out over a national-security-tinged inquiry, citing input from unnamed senior officials that his return poses 'no national security risk' while the board's own independent investigation continues; House Minority Leader Jeffries says Democrats will pursue a new inquiry into the reinstatement itself, layered on the already-scheduled Dec 1-10 congressional calendar (Huang, Nvidia GC Teter, and Commerce Secretary Lutnick). This program grades fc-2026-11-23-nvidia-permanent-ceo CORRECT on the letter of its test: a permanent CEO distinct from interim CEO Kress was named, even though the specific outcome (Huang's own reinstatement) was not the one most readers likely anticipated. (2) CATCH-UP, and a third consecutive cycle in which this program missed a major event for several days: Ukrainian strikes collapsed a span of the Kerch Strait/Crimean Bridge on 16-17 Nov, and Putin responded on 19 Nov by ruling out a Black Sea/energy-infrastructure truce and threatening a 'far more painful' response -- directly explaining, rather than merely restating, the Kushner/Putin tension this program flagged on 24 Nov without having identified the triggering event. (3) No Bahrain-specific strike has followed the 17 Nov claim -- now roughly eight days, the longest pause of the current run -- but Iran separately claims (24 Nov) three further tanker-mine strikes elsewhere in the Strait of Hormuz, showing the campaign's two axes can move independently. (4) China's narrower gallium/germanium/antimony/superhard-materials suspension deadline (27 Nov) is now 2 days out with no renewal signal. Two standing forecasts lapsed their windows today and are graded INCORRECT (fc-2026-10-26-collabora-dib-victim, no named DIB victim ever identified; fc-2026-11-11-rareearth-primary-text, no primary MOFCOM/GACC text ever independently reached). Four new forecasts were added testing a Jeffries-led inquiry into the Nvidia reinstatement, a CENTCOM response to the 24 Nov Hormuz mine claims, an explicitly-linked Russian reprisal for the Kerch Bridge strikes, and PLA activity around Taiwan's 28 Nov election.",
-    "updated": "2026-11-25"
+    "pending": 76,
+    "note": "2026-11-26: Congress hardened two separate oversight/funding tracks into concrete action this cycle, each resolving a standing forecast same-day or within days: (1) four House committees' Democratic leaders sent a joint document-seeking letter to Trump (24 Nov) demanding he explain Huang's Nvidia reinstatement and turn over USG-Nvidia board communications, resolving fc-2026-11-25-nvidia-reinstatement-inquiry CORRECT just one day after it was written; Jeffries separately pledged a probe of Nvidia and Commerce Secretary Lutnick, and Schumer accused Nvidia of violating the export ban. (2) The Senate Appropriations Committee's FY27 defense draft cuts the Golden Dome request ~46% (to ~$9.4B) and bars new sole-source contracts >$100M on two SpaceX-linked programs (SB-AMTI, Space Data Network) worth ~$6.45B combined -- not yet enacted, but the most concrete legislative signal yet against this program's 6 Sep 2026 forecast that Golden Dome award tempo would accelerate; a new forecast tests whether the cut survives conference. (3) China's narrower gallium/germanium/antimony/superhard-materials suspension was extended through 27 Jan 2027 rather than lapsing at its 27 Nov deadline, resolving fc-2026-11-10-ggsb-suspension-extension CORRECT; separately, TSMC/Samsung/Nvidia compliance actions under the 16 Nov chip rule resolve fc-2026-11-18-chiprule-enforcement CORRECT well ahead of its window. (4) Iran's Hormuz mine claims multiplied to a fourth and fifth in 48 hours (24-25 Nov) with zero CENTCOM claim-specific engagement, widening an already-tracked corroboration gap; the Bahrain-specific pause separately extends to ~9 days. (5) CISA added 15 KEV entries across three alerts (23-25 Nov), widening the tracked edge-exploitation pattern into industrial controllers (Danfoss) and virtualization orchestration (Xen Orchestra); a newly-confirmed actively-exploited Cisco Expressway flaw (CVE-2026-76466) extends the same pattern into collaboration infrastructure, with a new forecast testing whether it breaks the persistent zero-named-DIB-victim pattern. (6) BACKLOG CATCH-UP: a dedicated audit of long-pending forecasts found four whose windows had lapsed months ago without being graded in intervening cycles (fc-2026-09-14-ciscofmc-dib-victim, fc-2026-09-15-gitlab-downstream, fc-2026-09-17-cisco-ise-kev-exploit, fc-2026-09-18-vulcan-review, all graded INCORRECT on the window's lapse) and one correctly-resolving negative forecast (fc-2026-09-21-linux-kev-no-dib-victim, graded CORRECT). Three new forecasts were added testing the Golden Dome cut's durability through conference, a named DIB victim from the Cisco Expressway exploitation, and the CR's likely stopgap mechanism.",
+    "updated": "2026-11-26"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-26-goldendome-senate-cut-survives",
+      "date": "2026-11-26",
+      "forecast": "The Senate Appropriations Committee's ~46% cut to the Golden Dome FY27 request (to ~$9.4B) and Section 8127's bar on new sole-source DoD contracts >$100M for the SB-AMTI satellite constellation and Space Data Network will substantially survive House conference and enactment, rather than being restored toward the original $17.5B request or having the SpaceX-targeted restriction stripped, within 60 days.",
+      "horizon": "0-60 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Directly tests fc-2026-09-06-goldendome's acceleration thesis, which this draft currently contradicts. Tracked on the Golden Dome Procurement & FY27 Reconciliation Funding Risk thread."
+    },
+    {
+      "id": "fc-2026-11-26-expressway-dib-victim",
+      "date": "2026-11-26",
+      "forecast": "A named U.S. defense-industrial-base or federal-contractor victim of the actively-exploited Cisco Expressway flaw (CVE-2026-76466), used to pivot from internet-facing Expressway Edge nodes into internal collaboration infrastructure per Russian security firm F6, will be publicly identified within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether this newest edge-exploitation entry breaks the persistent zero-named-DIB-victim pattern tracked on the Actively Exploited Edge/DevOps/Identity/AI-Infra CVEs thread since September."
+    },
+    {
+      "id": "fc-2026-11-26-cr-stopgap-mechanism",
+      "date": "2026-11-26",
+      "forecast": "Given the House Appropriations Chair's statement that there is not enough time for full-year FY27 appropriations bills, Congress will pass a further continuing resolution (stopgap), rather than a full-year omnibus or a funding lapse, at or before the 11 Dec 2026 deadline.",
+      "horizon": "0-15 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "A mechanism-specific refinement of fc-2026-11-23-cr-shutdown-avoided. Tracked on the CMMC Implementation thread given its coverage of the broader year-end regulatory/funding calendar."
+    },
     {
       "id": "fc-2026-11-25-nvidia-reinstatement-inquiry",
       "date": "2026-11-25",
       "forecast": "House Democratic leadership (Jeffries or a committee ranking member) will issue at least one formal document request, letter, or hearing announcement specifically targeting Nvidia's board process for reinstating Jensen Huang, within 21 days.",
       "horizon": "0-21 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether Jeffries' 23 Nov statement that Democrats will pursue a new inquiry into the reinstatement converts into a concrete oversight action. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-24",
+      "note": "Four House committees' Democratic leaders sent a joint letter to Trump on 24 Nov demanding he explain Huang's reinstatement and requesting all USG-Nvidia board communications -- a formal document request within one day of the forecast being written."
     },
     {
       "id": "fc-2026-11-25-centcom-hormuz-mine-response",
@@ -385,7 +412,7 @@
       "horizon": "0-14 days",
       "outcome": "PARTIAL",
       "resolvedDate": "2026-09-11",
-      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range \u2014 but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "Kpler (10-day average ~13/day) and Lloyd's List Intelligence (~12/day, 26 Aug-1 Sep) converge closely with each other on day 1 of the window, meaningfully narrowing the range — but a lower single-day operational figure (7 transits on 9 Sep) and the war-risk-insurance-based 'effectively closed' framing remain unreconciled with the AIS-tracker consensus, so this is a partial rather than full reconciliation. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-10-kev-networkedge",
@@ -394,7 +421,7 @@
       "horizon": "0-30 days",
       "outcome": "CORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate \u2014 well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
+      "note": "Cisco Talos publicly attributed active FMC exploitation to three clusters, including one assessed high-confidence to overlap with Russian GRU-linked Sandworm tooling and one assessed high-confidence as a Qilin ransomware affiliate — well within the 30-day window. Tracked on the Actively Exploited Edge / DevOps / AI-Infra CVEs thread."
     },
     {
       "id": "fc-2026-09-11-bahrain-basing",
@@ -412,7 +439,7 @@
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-09-14",
-      "note": "The meeting was postponed entirely rather than held \u2014 it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
+      "note": "The meeting was postponed entirely rather than held — it produced no arrangement of any kind, informal or otherwise. A narrower bilateral Iran-Oman shipping-lane track and a newly opened Iran-UAE channel (BRICS summit, 13 Sep) continue separately. Tracked on the U.S.-Iran Conflict / Strait of Hormuz thread."
     },
     {
       "id": "fc-2026-09-11-pipeline",
@@ -446,9 +473,9 @@
       "date": "2026-09-14",
       "forecast": "At least one U.S. defense-industrial-base or federal-contractor victim of the Cisco FMC exploitation (the Sandworm-linked or Qilin clusters) will be publicly confirmed within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No DIB victim named across the gap. Related evidence surfaced on an adjacent CVE: Cisco confirmed it discovered the ISE flaw while resolving a customer TAC support case, so at least one enterprise was compromised pre-disclosure, but the organization is unnamed. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-26",
+      "note": "The 30-day window closed ~2026-10-14 without being graded in intervening cycles. Through the present cycle, no DIB/federal-contractor victim of the Cisco FMC exploitation has ever been publicly named. Graded INCORRECT on the window's lapse, consistent with this program's convention for ungraded lapsed forecasts."
     },
     {
       "id": "fc-2026-09-14-xisummit-outcome",
@@ -473,9 +500,9 @@
       "date": "2026-09-15",
       "forecast": "A confirmed downstream compromise or intrusion attributable to secrets/credentials exfiltrated via the GitLab CVE-2026-85706 exploitation will be publicly reported within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No downstream-compromise reporting tied to the GitLab exfiltration across the gap. A structurally similar incident did surface separately -- CrowdSec disclosed roughly 170 private GitHub repositories copied after a former employee's account was compromised via the May TanStack npm supply-chain attack -- but it is a different origin and does not resolve this forecast."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-26",
+      "note": "The 30-day window closed ~2026-10-15. No downstream compromise attributable to the GitLab CVE-2026-85706 exfiltration has ever been publicly reported across any tracked cycle. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-09-15-cyberstrategy-release",
@@ -545,9 +572,9 @@
       "date": "2026-09-17",
       "forecast": "A confirmed enterprise or DIB-sector intrusion attributable to the newly KEV-listed Cisco ISE (CVE-2026-76460) or Secure Email Gateway (CVE-2026-76461) vulnerabilities will be publicly reported within 30 days.",
       "horizon": "0-30 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Partial supporting evidence surfaced: Cisco confirmed it found CVE-2026-76460 while resolving a customer TAC support case, meaning at least one enterprise was compromised before disclosure -- but no victim has been named, which is what this forecast requires. The 19 Sep federal remediation deadline has now passed and patches span 3.1 Patch 12 to 3.5 Patch 4."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-26",
+      "note": "The 30-day window closed ~2026-10-17. No named victim of the Cisco ISE or Secure Email Gateway KEV exploitation has ever been publicly reported, only an unnamed pre-disclosure TAC-case compromise. Graded INCORRECT on the window's lapse."
     },
     {
       "id": "fc-2026-09-18-trump-iran-decision",
@@ -572,9 +599,9 @@
       "date": "2026-09-18",
       "forecast": "Space Force's review of ULA Vulcan's Amazon Leo commercial missions will conclude without blocking Vulcan's return to national-security launches within 60 days.",
       "horizon": "0-60 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "No public update identified during 18-21 Sep. This is an absence of reporting, not evidence that the review has concluded. Window closes ~17 Nov."
+      "outcome": "INCORRECT",
+      "resolvedDate": "2026-11-26",
+      "note": "The 60-day window closed ~2026-11-17 with no public confirmation the Space Force review ever concluded. Graded INCORRECT on the window's lapse; the underlying question was subsequently overtaken by the 15 Nov in-flight failure and the FAA mishap investigation."
     },
     {
       "id": "fc-2026-09-21-xi-summit-outcome",
@@ -617,9 +644,9 @@
       "date": "2026-09-21",
       "forecast": "No confirmed U.S. defense-industrial-base or federal-contractor intrusion will be publicly attributed to the three Linux kernel KEV entries (CVE-2025-39682, CVE-2025-39964, CVE-2026-53266) within 60 days, because all three are local-privilege-escalation rather than initial-access vectors.",
       "horizon": "0-60 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "A deliberate test of this cycle's central cyber judgment -- that the exploited class has moved to the escalation half of the intrusion chain. That underlying judgment was itself reversed on 22 Sep by two new network-facing KEV entries (Zyxel GS1900, Exchange zero-click RCE), though this forecast's specific test (a Linux-kernel-attributed victim) is unaffected since the new CVEs are a different class. If a named DIB victim is attributed to one of these kernel flaws it would more likely appear as part of a chained campaign from an edge CVE. Tracked on the Actively Exploited Edge / DevOps / Identity / AI-Infra CVEs thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-26",
+      "note": "The 60-day window closed ~2026-11-20. No DIB/federal-contractor victim was ever publicly attributed to CVE-2025-39682, CVE-2025-39964, or CVE-2026-53266 across any tracked cycle, confirming the forecast's negative prediction."
     },
     {
       "id": "fc-2026-09-22-cyber-edge-reversal",
@@ -948,11 +975,11 @@
     {
       "id": "fc-2026-10-06-moldova-nato-commitment",
       "date": "2026-10-06",
-      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chi\u0219inau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
+      "forecast": "NATO Deputy Secretary General Shekerinska's visit to Chișinau (10/8-9) will produce a concrete new support commitment to Moldova (funding, air-defense assets, or a formal statement beyond reaffirming solidarity) within 14 days.",
       "horizon": "0-14 days",
       "outcome": "INCORRECT",
       "resolvedDate": "2026-10-14",
-      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~\u20ac50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
+      "note": "The visit occurred as scheduled 8-9 Oct and, per available reporting (NATO's own release, Brussels Times), produced reaffirmation of the existing ~€50M Defence Capacity Building package and cyber-defense cooperation rather than any new, concrete commitment. Graded on the triggering event's own already-decided outcome rather than waiting out the remainder of the 14-day window. Tracked on the Ukraine Ceasefire Diplomacy / Zaporizhzhia thread."
     },
     {
       "id": "fc-2026-10-06-flydubai-reversal-effect",
@@ -1796,9 +1823,9 @@
       "date": "2026-11-10",
       "forecast": "China will also extend (rather than let lapse) the separate gallium/germanium/antimony/superhard-materials export suspension at its 27 Nov 2026 deadline, consistent with the rare-earth extension pattern.",
       "horizon": "0-20 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "The 9 Nov rare-earth extension announcement did not explicitly name gallium/germanium/antimony/superhard materials; this forecast tests whether the same broader trade-truce logic extends to the separate 27 Nov checkpoint. The 27 Nov deadline is now ~9 days out with no new PRC signal either way this cycle."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-25",
+      "note": "REPORTED (Procyon Metals, BBN Times, energynews.pro and other trade-press outlets, 24-25 Nov): the suspension was extended for a new window (28 Nov 2026-27 Jan 2027) rather than lapsing at its 27 Nov deadline. No primary MOFCOM/GACC text independently located; graded on convergent secondary sourcing."
     },
     {
       "id": "fc-2026-11-10-trump-postmidterm-strike-decision",
@@ -1877,9 +1904,9 @@
       "date": "2026-11-18",
       "forecast": "Commerce's new AI-chip remote-access export rule (requiring a license before offshore data centers in Singapore, Thailand, Malaysia, Indonesia, or Brazil may serve compute to Chinese-controlled customers) will produce at least one confirmed enforcement action, license denial, or named-company compliance finding within 90 days of the rule's ~15-16 Nov issuance.",
       "horizon": "0-90 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Tests whether the rule's 90-day compliance window produces a concrete enforcement data point or remains unenforced/circumvented via new intermediary jurisdictions. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-26",
+      "note": "TSMC and Samsung reportedly suspended some China-bound chip shipments pending license applications under the rule, and Nvidia halted H200/Hopper shipments to China -- named-company compliance findings within roughly 10 days of the rule's issuance, well ahead of its 90-day window."
     },
     {
       "id": "fc-2026-11-18-blacksea-larissa1-attribution",
