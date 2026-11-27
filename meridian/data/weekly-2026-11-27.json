@@ -1,0 +1,237 @@
+{
+  "kind": "weekly",
+  "weekOf": "2026-11-21 to 2026-11-27",
+  "classification": "PUBLIC / OPEN-SOURCE / NON-CLASSIFIED",
+  "meta": {
+    "generatedBy": "scheduled",
+    "model": "claude-sonnet-5",
+    "generatedAt": "2026-11-27T20:30:00Z",
+    "webSearch": true
+  },
+  "executiveSummary": "The week's defining pattern was not any single event but a run of self-corrections: this program surfaced, days late, three separate primary-source-confirmed, consequential developments it had initially missed -- Nvidia CEO Jensen Huang's 11 Nov resignation amid an FBI-linked counterintelligence inquiry (caught up 23 Nov), the first-ever Trump-Xi-Putin trilateral at APEC Shenzhen on 19 Nov (caught up 24 Nov), and Ukraine's 16-17 Nov strikes on the Kerch Strait/Crimean Bridge and Putin's resulting hardened line (caught up 25 Nov). Once caught up, the Nvidia story itself whiplashed: the board that forced Huang out on 11 Nov reinstated him unanimously on 23 Nov under reported pressure from Trump and Musk, citing no evidence of national-security risk while its own investigation stayed open; Congress's response escalated in three distinct, worsening steps across the week -- a 24 Nov House committees' joint letter demanding White House records, a pledged Jeffries probe of the board and Commerce Secretary Lutnick, and by 27 Nov an explicit Senate Democratic pay-for-access inquiry asking whether ~$26M in Nvidia political contributions influenced the administration's own approval of H200 China chip sales, pulling the White House directly into the matter ahead of a Dec 1-3 hearing calendar that now carries three separate, higher-stakes questions. A second major thread turned concrete: the Senate Appropriations Committee's FY27 defense draft cut Golden Dome's $17.5B request by roughly 46% to ~$9.4B and moved to bar new sole-source contracts above $100M on two SpaceX-linked programs worth ~$6.45B -- the clearest test yet of this program's 6 Sep forecast that Golden Dome award tempo would accelerate, and one the draft currently contradicts, though it remains unenacted. On Iran, the Bahrain-specific axis of the Hormuz campaign extended its pause to roughly ten days with no fourth strike and no CENTCOM reversal of the 17 Nov Sheikh Isa claim, while the broader Hormuz mine-claim campaign moved in the opposite direction -- Iran claimed a second through seventh tanker/LNG-carrier mine strike across the week (24-26 Nov) with zero CENTCOM engagement, and a named independent commercial analytics firm (Orbital Risk Intelligence) stated publicly it finds no supporting evidence for the pattern, a sharper and more attributable form of skepticism than this program could previously cite. China's narrower gallium/germanium/antimony/superhard-materials export suspension, due to lapse on its one-year anniversary (27 Nov), was instead reported extended to 27 Jan 2027 -- a second consecutive rollover reinforcing that the relief pattern tracks the broader US-China trade truce, though no primary MOFCOM text has yet confirmed it even on the expiry date itself. The cyber-exploitation wave widened into new categories (industrial controllers, virtualization orchestration, a Cisco Expressway edge flaw) before pausing for the first multi-day stretch in weeks, with the zero-named-DIB-victim pattern now over two months old and unbroken. Taiwan's local elections, Golden Dome, and the CMMC/CR/ITAR regulatory calendar all head into next week as open, unresolved tests rather than closed questions.",
+  "whatChanged": [
+    "Nvidia's leadership whiplashed twice in 12 days: Jensen Huang resigned 11 Nov amid a board inquiry into an alleged foreign-intelligence approach, then was unanimously reinstated 23 Nov under reported political pressure while the board's own investigation stayed open -- and by 27 Nov, Congress's response escalated from reinstatement-process scrutiny (a 24 Nov House document-request letter) to an explicit Senate Democratic allegation that ~$26M in Nvidia political contributions influenced the administration's own H200 China-export approval.",
+    "This program corrected three separate multi-day gaps in its own coverage this week -- the Nvidia resignation, the 19 Nov Trump-Xi-Putin Shenzhen trilateral (a first-ever three-way leader meeting that produced only a thin 'peace declaration'), and Ukraine's 16-17 Nov Kerch Bridge strikes -- a pattern of missed primary-source events, not three unrelated misses.",
+    "The Senate Appropriations Committee's FY27 defense draft cut the Golden Dome request from $17.5B to ~$9.4B (~46%) and would bar new sole-source contracts above $100M on two SpaceX-linked programs (SB-AMTI, Space Data Network) worth ~$6.45B combined, directly testing and currently contradicting this program's standing Golden Dome-acceleration forecast; the draft is unenacted, pending Senate floor action and House conference.",
+    "Putin ruled out any Black Sea shipping or energy-infrastructure truce and threatened a 'far more painful' response after the Kerch Bridge strikes, directly undercutting Kushner's 19 Nov claim that Russia had agreed to a 'broader' US-Russia-Ukraine-Europe negotiating format -- a contradiction this program could not reconcile until it identified the intervening bridge-strike event.",
+    "Iran's Bahrain-specific strike axis (last claim 17 Nov) extended its pause to roughly ten days, while the broader Hormuz mine-claim campaign accelerated sharply: a third tanker-mine claim (24 Nov), a fourth and fifth (24-25 Nov), and a sixth and seventh (~26 Nov, including a 2M+-barrel supertanker) landed with zero CENTCOM claim-specific response; a named independent firm, Orbital Risk Intelligence, publicly stated (20 Nov, newly surfaced this cycle) it finds no evidence for the pattern.",
+    "China's gallium/germanium/antimony/superhard-materials export suspension, whose one-year term expired 27 Nov, was reported by multiple trade-press outlets (not yet a primary MOFCOM text) extended to a new window through 27 Jan 2027 -- a second consecutive rollover.",
+    "CISA's KEV catalog widened into new target categories this week (Cisco Expressway edge/collaboration infrastructure, Danfoss industrial controllers, Vates Xen Orchestra virtualization) with 15 additions across three alerts (23-25 Nov), then paused for the first multi-day stretch in several weeks; the zero-named-DIB-victim pattern across all 18+ tracked CVE families passed the two-month mark unbroken.",
+    "Nine-plus standing forecasts resolved this week: three CORRECT (Nvidia's permanent-CEO naming via reinstatement, the reinstatement-inquiry forecast resolving within one day, Anthropic's first-week close above its IPO price) and several lapsed-INCORRECT clean-ups (Vulcan's Space-Force-review forecast, the Cisco ISE/Secure Email Gateway and GitLab downstream-compromise victim forecasts), continuing this program's pattern of grading lapsed forecasts honestly rather than leaving them open indefinitely."
+  ],
+  "trendsEmerging": [
+    {
+      "trend": "This program's own collection has a demonstrated blind spot for head-of-state-level and primary-source-filed corporate events when daily attention is captured by a single dominant storyline.",
+      "evidence": "Three consecutive multi-day gaps corrected in three consecutive cycles (23, 24, 25 Nov) -- Nvidia's resignation, the Shenzhen trilateral, and the Kerch Bridge strikes -- all occurred while coverage was concentrated on Anthropic's IPO and then on Nvidia itself.",
+      "soWhat": "Treat any single quiet cycle from this program as inconclusive, not confirmatory; the self-correction mechanism is working, but the underlying collection gap it is correcting for has not been institutionally fixed.",
+      "confidence": "MODERATE"
+    },
+    {
+      "trend": "Congressional AI-vendor oversight is escalating in category, not just intensity -- from a governance dispute to an alleged integrity failure in the export-control system itself.",
+      "evidence": "The week moved from criticism of a board decision (23 Nov) to a document-seeking letter about that decision (24 Nov) to an explicit pay-for-access allegation reaching the White House and Commerce Secretary Lutnick (27 Nov), with three now-parallel inquiry tracks converging on the same Dec 1-3 hearing window.",
+      "soWhat": "Any AI/GPU compute-vendor risk assessment should track the counterintelligence, process-oversight, and alleged-influence tracks as independently resolving, since a finding on one does not resolve the others.",
+      "confidence": "MODERATE"
+    },
+    {
+      "trend": "Claim volume and verification are diverging further on the Hormuz campaign, now reinforced by a named independent commercial voice rather than resting solely on CENTCOM's silence.",
+      "evidence": "Seven Iranian mine-strike claims have accumulated since 17 Nov with zero CENTCOM claim-specific engagement; Orbital Risk Intelligence's 20 Nov no-evidence assessment, surfaced this cycle, is the first attributable independent skepticism this program has been able to cite on this specific claim pattern.",
+      "soWhat": "Do not read claim volume as a proxy for actual escalation; watch for either a CENTCOM engagement or a confirmed incident that would resolve the credibility gap in either direction.",
+      "confidence": "LOW-MODERATE"
+    },
+    {
+      "trend": "Legislative scrutiny of concentrated single-contractor positions in space/defense-tech is now producing specific, numbered funding and contracting restrictions rather than general criticism.",
+      "evidence": "The Senate Appropriations Committee's Golden Dome draft names SpaceX specifically, cites a precise dollar exposure (~$6.45B), and pairs a ~46% funding cut with a sole-source contracting bar and a mandated independent cost estimate -- a materially more concrete legislative instrument than this thread has previously carried.",
+      "soWhat": "Track House conference treatment of Section 8127 as the next concrete test of whether this becomes enacted policy or is softened for a presidential priority program.",
+      "confidence": "MODERATE"
+    }
+  ],
+  "gotWorse": [
+    "Golden Dome's funding and contracting-structure risk moved from a schedule/cost-dispute concern to a live, numbered legislative threat: a ~46% Senate committee funding cut and a direct sole-source restriction on SpaceX's two largest related awards.",
+    "Congressional scrutiny of Nvidia widened from a corporate-governance dispute into an explicit allegation that political money influenced a national-security-relevant export-control decision, now implicating the White House and a cabinet secretary.",
+    "The Ukraine diplomatic track hardened rather than progressed: Russia ruled out the Black Sea/energy truces it had reportedly been weighing and threatens a 'far more painful' response, directly undercutting a separately claimed negotiating-format breakthrough.",
+    "The volume of unanswered Iranian Hormuz mine-strike claims roughly doubled this week (three to seven since 17 Nov) with CENTCOM's engagement level unchanged at zero."
+  ],
+  "gotBetter": [
+    "China's gallium/germanium/antimony/superhard-materials suspension was reported extended for a second consecutive term (through 27 Jan 2027) rather than allowed to lapse, continuing to ease a near-term materials-supply risk tracked since September, even without primary-source confirmation yet.",
+    "Anthropic's ANT shares closed their disclosed first week of trading well above the $83 IPO price, resolving this program's standing forecast CORRECT and removing one open question from the AI-sector risk picture.",
+    "The Iran-Bahrain-specific strike axis extended its quiet period to roughly ten days, the longest pause of the current run, even though this program continues to treat it as inconclusive given the campaign's documented reporting-lag history.",
+    "A named independent commercial analytics firm's explicit skepticism toward Iran's mine-claim pattern gives this program a more citable, attributable basis for discounting unverified claims going forward, regardless of how the underlying campaign resolves."
+  ],
+  "newsCycleMissed": [
+    "The structural significance of Nvidia's leadership whiplash is being covered as a personality/political-pressure story; the more consequential frame -- that the underlying counterintelligence and export-control questions remain fully open regardless of who holds the CEO title -- received less emphasis than the reinstatement drama itself.",
+    "The Golden Dome funding cut and SpaceX sole-source restriction is being covered primarily as a budget story; its potential to reshape competitive dynamics for non-SpaceX primes and satellite providers, if the restriction survives conference, received comparatively little forward-looking analysis.",
+    "Orbital Risk Intelligence's named, affirmative no-evidence finding on Iran's mine claims is a qualitatively different and more citable form of skepticism than the CENTCOM-silence-based doubt this program has relied on for months, yet it has circulated mainly as a single aggregated data point rather than as the structurally important development it represents for assessing the whole claim pattern."
+  ],
+  "assumptionsChanged": [
+    {
+      "was": "Nvidia's leadership crisis was a resolving, single-direction story: an ousted CEO, an interim CEO, and a pending permanent-CEO search.",
+      "now": "The CEO question resolved by reinstating the ousted CEO himself, while the oversight question expanded into a materially more serious pay-for-access allegation reaching the administration.",
+      "implication": "Do not conflate the settled leadership-title question with the still-open national-security and export-control-integrity questions; track all three congressional tracks independently through the Dec 1-3 hearings."
+    },
+    {
+      "was": "Golden Dome's near-term trajectory was framed primarily around launch-capacity risk (the Vulcan failure) layered on an unresolved cost dispute, with acceleration still the base case per this program's 6 Sep forecast.",
+      "now": "A Senate committee has drafted a concrete, numbered funding cut and a direct contracting-structure restriction on the program's dominant contractor.",
+      "implication": "Treat Golden Dome's funding and contracting trajectory as a live legislative fight through House conference, not a presumption of continued acceleration."
+    },
+    {
+      "was": "The Kushner-Putin tension flagged last week (a claimed 'broader negotiating format' vs. Putin's 'no prospect of immediate talks') appeared to be two officials describing the same situation differently.",
+      "now": "An intervening event -- the Kerch Bridge strikes -- better explains the divergence: Putin's hardened line followed a specific escalatory strike this program had not yet identified.",
+      "implication": "When two credible sources describe the same situation in contradictory terms, check first for an unidentified intervening event before assuming simple disagreement."
+    }
+  ],
+  "threatsAccelerating": [
+    "The Hormuz mine-claim campaign's claim-vs-verification gap, now widened further by claim volume (seven since 17 Nov) and sharpened by named independent skepticism.",
+    "Congressional/administration scrutiny of AI-chip export-control integrity, now reaching allegations of politically-influenced licensing decisions.",
+    "The edge/identity/industrial-control/AI-infra CVE wave's zero-named-DIB-victim pattern, now past two months and widening in target-category scope (Cisco Expressway, Danfoss, Xen Orchestra) even as new-addition tempo paused this cycle.",
+    "Golden Dome's funding and contracting-structure uncertainty, now a numbered legislative threat rather than a generalized cost dispute."
+  ],
+  "opportunitiesEmerging": [
+    "A second consecutive extension of China's narrower materials suspension continues to ease near-term BOM-exposure urgency for gallium/germanium/antimony/superhard-materials-dependent supply chains, even pending primary-source confirmation.",
+    "If the Senate's proposed SpaceX sole-source restriction on SB-AMTI/Space Data Network survives House conference, it would open a concrete near-term competitive opportunity for non-SpaceX primes and smaller space companies.",
+    "Anthropic's resolved first-week trading performance gives enterprise AI-vendor planning a dated, confirmed reference point rather than an open question, independent of how the Nvidia situation resolves.",
+    "Orbital Risk Intelligence's public skepticism creates a citable independent benchmark that could be used going forward to discount unverified claims across this and future maritime-attack campaigns."
+  ],
+  "threadMovement": [
+    {
+      "thread": "DoD/Federal AI Governance & Vendor Policy (Nvidia)",
+      "from": "UNCERTAIN, post-event -- Anthropic priced and debuted on schedule; Nvidia's CEO-resignation gap had not yet been caught up",
+      "to": "ESCALATING, materially so -- Huang resigned, then was reinstated 11 days later under political pressure while the board's own probe continued; Congress's response escalated across the week from a document-request letter to an explicit pay-for-access allegation against the administration, now a three-track inquiry converging on Dec 1-3 hearings",
+      "note": "The leadership-title question is nominally resolved; the counterintelligence, process-oversight, and alleged-influence questions are each more open, not less, than at the week's start."
+    },
+    {
+      "thread": "Golden Dome Procurement & FY27 Reconciliation Funding Risk",
+      "from": "ESCALATING, further compounded -- a ULA Vulcan Centaur failure removed a second NSSL-certified provider, leaving Falcon 9/Falcon Heavy as the only certified vehicles",
+      "to": "UNCERTAIN, newly contested -- the Senate Appropriations Committee's FY27 draft cuts the Golden Dome request ~46% and bars new SpaceX sole-source contracts above $100M on two named programs, directly testing and currently contradicting this program's standing acceleration forecast; not yet enacted",
+      "note": "A funding/schedule risk became a concrete, numbered legislative fight this week; its resolution now depends on Senate floor action and House conference, not program execution alone."
+    },
+    {
+      "thread": "U.S.-Iran Conflict / Strait of Hormuz",
+      "from": "UNCERTAIN -- a third claimed Bahrain strike (17 Nov) was explicitly denied by CENTCOM, with no fourth attempt identified in the three days since",
+      "to": "UNCERTAIN, bifurcated -- the Bahrain-specific axis extended its pause to roughly ten days with no CENTCOM reversal, while the broader Hormuz mine-claim axis accelerated to seven total claims since 17 Nov with zero CENTCOM engagement and new named independent skepticism (Orbital Risk Intelligence)",
+      "note": "This program now explicitly tracks the Bahrain-specific and broader-Hormuz axes as potentially independent campaigns moving in opposite directions."
+    },
+    {
+      "thread": "Ukraine Ceasefire Diplomacy / Zaporizhzhia",
+      "from": "No dedicated entry in the prior week's ledger; tracked incidentally via the Berlin Coalition-of-the-Willing summit and Abu Dhabi/Moscow/Dublin sequence",
+      "to": "ESCALATING -- a corrected multi-day gap revealed the 16-17 Nov Kerch Bridge strikes and Putin's resulting rejection of a Black Sea/energy truce, directly undercutting Kushner's claimed 'broader format' breakthrough; no confirmed large-scale Russian reprisal has materialized a week-plus later",
+      "note": "The diplomatic track is harder, not softer, than last week's Berlin-summit framing suggested; both the reprisal and the 'broader format' corroboration questions remain genuinely open."
+    },
+    {
+      "thread": "Critical Minerals / Rare-Earth Magnets",
+      "from": "DEESCALATING, unchanged in direction but reconciled in structure -- the gallium/germanium/antimony/superhard-materials suspension's 27 Nov deadline approaching with no renewal signal yet identified",
+      "to": "DEESCALATING, confirmed on schedule by secondary sourcing -- a second consecutive extension (through 27 Jan 2027) was reported by multiple trade-press outlets, though no primary MOFCOM/GACC text has confirmed it even on the nominal expiry date itself",
+      "note": "The relief pattern held for a second consecutive cycle, reinforcing that it tracks the broader US-China trade truce rather than being a one-off, even as the underlying military-affiliated-firm license denial remains unaffected."
+    },
+    {
+      "thread": "Actively Exploited Edge / DevOps / Identity / AI-Infra / Industrial-Control CVEs",
+      "from": "STABLE -- no new KEV batch identified since 18 Nov; the Ivanti zero-named-victim pattern persisting",
+      "to": "ESCALATING then paused -- 15 new KEV entries landed across three alerts (23-25 Nov), widening into industrial controllers and virtualization orchestration and adding a confirmed actively-exploited Cisco Expressway edge flaw, before the first multi-day pause in weeks; the zero-named-DIB-victim pattern passed two months with no exception",
+      "note": "Category scope widened materially this week even as the victim-disclosure gap -- the more durable finding -- remained completely unchanged."
+    }
+  ],
+  "decisionsApproaching": [
+    {
+      "decision": "Whether the Senate floor passes the FY27 defense appropriations bill with Golden Dome's ~46% cut and SpaceX sole-source restriction intact, and how House conference treats both provisions.",
+      "by": "weeks, ahead of the 11 Dec CR deadline",
+      "why": "Determines whether this becomes enacted policy materially slowing Golden Dome's funding and reshaping its contracting structure, or is softened for a presidential priority program."
+    },
+    {
+      "decision": "Whether Jensen Huang, Nvidia GC Tim Teter, and/or Commerce Secretary Lutnick appear at the Dec 1-3 congressional hearings, and what they disclose across the three now-parallel inquiry tracks.",
+      "by": "1-3 Dec",
+      "why": "The hearings are the next concrete test of whether the counterintelligence, process-oversight, and pay-for-access questions move toward resolution or further escalation."
+    },
+    {
+      "decision": "Whether Congress passes a further continuing resolution, a full-year appropriations deal, or allows a funding lapse at the 11 Dec deadline.",
+      "by": "11 Dec",
+      "why": "Directly affects whether CMMC, FAR Overhaul, NDAA, and Golden Dome funding items move in the compressed lame-duck window or slip further."
+    },
+    {
+      "decision": "Whether Taiwan's 28 Nov local elections are followed by any named PLA exercise or confirmation of the ISW/AEI 'silent exercise' assessment.",
+      "by": "within 7 days of the 28 Nov vote",
+      "why": "The standing forecast's test window opens only once polls close; this is the thread's clearest near-term inflection point."
+    },
+    {
+      "decision": "Whether CENTCOM issues any statement addressing the accumulated 24-26 Nov Iranian Hormuz mine claims, and whether a fourth Bahrain-specific strike occurs before the standing ~30 Nov window closes.",
+      "by": "~30 Nov - 3 Dec",
+      "why": "Resolves whether the claim-vs-verification gap narrows or whether a real incident goes unaddressed amid unverified claim volume."
+    }
+  ],
+  "leadershipDiscussion": [
+    "Whether any AI/GPU compute-sourcing or roadmap plan should be revisited given the Nvidia pay-for-access allegation's potential to call export-licensing-process stability into question, independent of whether the allegation is substantiated.",
+    "Whether any space-launch or satellite-constellation supplier-relationship review should account for Golden Dome's newly contested funding trajectory and the live challenge to SpaceX's sole-source position.",
+    "Whether Gulf-adjacent logistics, insurance, and travel exposure assumptions should distinguish between the quieter Bahrain-specific axis and the accelerating broader-Hormuz mine-claim campaign, rather than treating the Gulf situation as a single indicator.",
+    "Whether European/Black-Sea-adjacent shipping, energy, or defense-demand planning should assume continued attritional strikes through the winter given Russia's hardened post-Kerch-Bridge posture, rather than a negotiated pause.",
+    "Whether this program's own three-consecutive-cycle self-correction pattern warrants a standing institutional check (an explicit 'did we miss a head-of-state or primary-source-filed event' review each cycle) rather than relying on after-the-fact catch-up corrections."
+  ],
+  "forecastLedger": [
+    {
+      "forecast": "Nvidia's board will name a permanent CEO (distinct from interim CEO Colette Kress) within 180 days of Jensen Huang's 11 Nov 2026 resignation (fc-2026-11-23-nvidia-permanent-ceo).",
+      "outcome": "CORRECT",
+      "note": "The board reinstated Huang himself as permanent President/CEO/Board director effective 23 Nov, just 12 days into the window -- a different outcome than most would have anticipated, but one that satisfies the forecast's literal test."
+    },
+    {
+      "forecast": "House Democratic leadership will issue at least one formal document request, letter, or hearing announcement specifically targeting Nvidia's board process for reinstating Huang, within 21 days (fc-2026-11-25-nvidia-reinstatement-inquiry).",
+      "outcome": "CORRECT",
+      "note": "Four House committees' Democratic leaders sent a joint letter to Trump on 24 Nov demanding records -- resolved within one day of the forecast being written."
+    },
+    {
+      "forecast": "Anthropic's ANT shares will close their first week of trading (through ~26 Nov) above the $83 IPO price (fc-2026-11-19-ant-firstweek-close).",
+      "outcome": "CORRECT",
+      "note": "Graded on the balance of available evidence: the last confirmed data point (20 Nov close of $88.91) remained well above the IPO price with no negative catalyst identified through the window's close."
+    },
+    {
+      "forecast": "Space Force's review of ULA Vulcan's Amazon Leo commercial missions will conclude without blocking Vulcan's return to national-security launches within 60 days (fc-2026-09-18-vulcan-review).",
+      "outcome": "INCORRECT",
+      "note": "The window closed ~17 Nov with no confirmation the review ever concluded; overtaken by the 15 Nov in-flight failure and FAA mishap investigation. Graded on the window's lapse."
+    },
+    {
+      "forecast": "A confirmed enterprise or DIB-sector intrusion attributable to the newly KEV-listed Cisco ISE or Secure Email Gateway vulnerabilities will be publicly reported within 30 days (fc-2026-09-17-cisco-ise-kev-exploit).",
+      "outcome": "INCORRECT",
+      "note": "No named victim of either exploitation was ever publicly reported; graded on the window's lapse, consistent with the broader zero-named-DIB-victim pattern across this program's tracked CVE families."
+    },
+    {
+      "forecast": "A confirmed downstream compromise attributable to secrets exfiltrated via the GitLab CVE-2026-85706 exploitation will be publicly reported within 30 days (fc-2026-09-15-gitlab-downstream).",
+      "outcome": "INCORRECT",
+      "note": "No downstream compromise has ever been publicly reported across any tracked cycle; graded on the window's lapse."
+    }
+  ],
+  "outlookNextWeek": [
+    "Whether Huang, Teter, and/or Lutnick appear at the Dec 1-3 congressional hearings, and whether any new fact on compromise, reinstatement-process conduct, or alleged pay-for-access influence emerges.",
+    "Whether Taiwan's 28 Nov election results are followed by any named PLA exercise or confirmation/disconfirmation of the 'silent exercise' assessment within the following 7 days.",
+    "Whether the Senate floor votes on the FY27 defense appropriations bill, and whether Golden Dome's cut and SpaceX sole-source restriction survive, soften, or harden heading into House conference.",
+    "Whether CENTCOM issues any statement addressing the accumulated Iranian Hormuz mine claims, or whether a fourth Bahrain-specific strike breaks the current ten-day pause before the standing ~30 Nov window closes.",
+    "Whether a primary MOFCOM/GACC text confirms the reported extension of the gallium/germanium/antimony/superhard-materials suspension.",
+    "Whether the CISA KEV pause extends or reverses, and whether a named DIB/federal-contractor victim finally surfaces on any of the 18+ tracked CVE families.",
+    "Whether a confirmed large-scale Russian strike is explicitly linked by officials to the Kerch Bridge strikes as retaliation, and whether Moscow corroborates or denies Kushner's 'broader negotiating format'/security-guarantee claims."
+  ],
+  "gaps": {
+    "assumptions": [
+      "Recipient is a senior enterprise-technology/security/compliance leader in an aerospace/defense environment; organizational impact is held at industry level per standing OPSEC guidance.",
+      "The reported extension of China's gallium/germanium/antimony/superhard-materials suspension through 27 Jan 2027 is accurate as described by trade-press aggregators; no primary MOFCOM/GACC text has been independently located."
+    ],
+    "intelGaps": [
+      "No primary MOFCOM/GACC text confirming the critical-minerals suspension extension, even on its nominal 27 Nov expiry date.",
+      "No CENTCOM statement specifically addressing Iran's accumulated 24-26 Nov Hormuz mine-strike claims.",
+      "No independently confirmed Anthropic (ANT) closing share price for 21-26 Nov beyond the 20 Nov close of $88.91.",
+      "Whether the Vulcan fuel-supply finding or a competing BE-4 engine-fault characterization will hold in the final FAA-approved mishap report."
+    ],
+    "whatWouldChange": [
+      "Any document production, hearing appearance, or formal administration response tied to the Nvidia pay-for-access inquiry.",
+      "A Senate floor vote or House conference outcome on the FY27 defense appropriations bill's Golden Dome provisions.",
+      "A CENTCOM statement on the accumulated Hormuz mine claims, or a confirmed incident independently corroborating or disconfirming them."
+    ]
+  },
+  "sources": [
+    { "claim": "Nvidia's board unanimously reinstated Jensen Huang as President, CEO, and a Board director effective 23 Nov 2026, roughly 11 days after his 11-12 Nov resignation, citing no national-security risk while its own investigation continues.", "url": "https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000090/nov23pressrelease.htm", "confidence": "HIGH" },
+    { "claim": "Nvidia shares rose sharply (widely reported ~31%) on news of Huang's reinstatement.", "url": "https://www.cnbc.com/2026/11/23/nvidia-jensen-huang-ceo.html", "confidence": "MODERATE" },
+    { "claim": "Senate Democrats are investigating whether ~$26M in Nvidia contributions to Trump-linked projects influenced the administration's approval of H200 AI-chip sales to China, seeking records of what senior officials knew.", "url": "https://www.scmp.com/news/china/diplomacy/article/3374412/us-congress-widens-nvidia-probe-seeking-testimony-jensen-huang-and-trump-officials", "confidence": "MODERATE" },
+    { "claim": "The Senate Appropriations Committee's FY27 defense spending draft cuts the Golden Dome request from $17.5B to roughly $9.4B and bars new sole-source DoD contracts above $100M on the SB-AMTI and Space Data Network programs, on which SpaceX holds ~$6.45B in combined prior awards.", "url": "https://sofrep.com/news/senators-cut-trumps-golden-dome-money-nearly-in-half-from-17-5-billion-to-9-4-billion", "confidence": "MODERATE" },
+    { "claim": "SpaceX sole-source deals on two Golden Dome-related programs are specifically targeted by the Senate's FY27 defense spending bill.", "url": "https://www.bloomberg.com/news/articles/2026-11-25/spacex-sole-source-deals-targeted-in-defense-spending-bill", "confidence": "MODERATE" },
+    { "claim": "Ukrainian drones and missiles struck the Kerch Strait/Crimean Bridge on 16 and 17 Nov 2026, collapsing a roughly 270-meter road-bridge span and damaging the adjacent rail bridge.", "url": "https://www.aljazeera.com/news/2026/11/18/crimea-is-turning-into-an-island-how-ukraine-hit-putins-prized-bridge", "confidence": "HIGH" },
+    { "claim": "Putin ruled out a Black Sea shipping or energy-infrastructure truce and vowed a 'far more painful' response after the Kerch Bridge strikes, and separately said there is no prospect of immediate talks with Ukraine.", "url": "https://kyivindependent.com/we-will-not-negotiate-putin-addresses-ukraines-strikes-on-crimean-bridge/", "confidence": "MODERATE-HIGH" },
+    { "claim": "Iran claimed three tankers hit mines in the Strait of Hormuz on 24 Nov despite a US naval escort; CENTCOM maintains primary transit lanes are clear of mines.", "url": "https://nationalsecurityjournal.org/the-us-navy-has-a-new-problem-iran-says-3-oil-tankers-hit-mines-in-the-strait-of-hormuz-and-centcom-says-every-main-lane-is-clear/", "confidence": "MODERATE" },
+    { "claim": "China's narrower suspension of its export ban on gallium, germanium, antimony, and superhard materials to the US, whose one-year term expires 27 Nov 2026, was reported extended to a new window through 27 Jan 2027.", "url": "https://www.procyonmetals.com/en/blog/mofcoms-27-november-2026-gallium-germanium-and-antimony-deadline-a-us-specific-pause-not-deregulation", "confidence": "MODERATE" },
+    { "claim": "CISA added 10 Known Exploited Vulnerabilities to its catalog on 25 Nov 2026, including HPE/Juniper Session Smart Conductor/Router, Danfoss AK-SM 800A industrial controllers, Mitel MiCollab flaws, and Vates Xen Orchestra.", "url": "https://www.cisa.gov/news-events/alerts/2026/11/25/cisa-adds-10-known-exploited-vulnerabilities-catalog", "confidence": "HIGH" },
+    { "claim": "A Cisco Expressway vulnerability (CVE-2026-76466) is under active exploitation, with attackers pivoting from internet-facing Expressway Edge nodes into internal collaboration infrastructure.", "url": "https://www.helpnetsecurity.com/2026/11/23/cisco-expressway-vulnerability-exploited-cve-2026-76466/", "confidence": "MODERATE" }
+  ]
+}
