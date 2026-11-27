@@ -11,7 +11,7 @@
 --
 -- Idempotent: safe to run repeatedly against a fresh or existing database.
 -- Requires PostgreSQL 16+ (17 in production). Covers migrations up to
--- Version20261111000003.
+-- Version20261127000001.
 -- =============================================================================
 
 
@@ -648,3 +648,31 @@ CREATE INDEX IF NOT EXISTS ix_template_version_image_sha ON template_version_ima
 CREATE OR REPLACE TRIGGER trg_template_version_image_immutable BEFORE UPDATE OR DELETE ON template_version_image FOR EACH ROW EXECUTE FUNCTION pal_template_version_immutable();
 
 CREATE OR REPLACE TRIGGER trg_template_version_image_no_truncate BEFORE TRUNCATE ON template_version_image FOR EACH STATEMENT EXECUTE FUNCTION pal_template_version_immutable();
+
+
+-- -----------------------------------------------------------------------------
+-- Two-person rule for powerful role changes (Version20261127000001, decision #31)
+-- Granting Owner, removing it from someone else, and self-grants of System
+-- Administrator or document authority wait for a different Owner/System Administrator.
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS role_change_request (
+    id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    target_user_id uuid NOT NULL REFERENCES app_user (id),
+    requested_by   uuid NOT NULL REFERENCES app_user (id),
+    roles_from     text[] NOT NULL,
+    roles_to       text[] NOT NULL,
+    reason         text NULL,
+    status         text NOT NULL DEFAULT 'PENDING',
+    decided_by     uuid NULL REFERENCES app_user (id),
+    decided_at     timestamptz NULL,
+    decision_note  text NULL,
+    created_at     timestamptz NOT NULL DEFAULT now(),
+    expires_at     timestamptz NOT NULL DEFAULT now() + interval '7 days',
+    CONSTRAINT ck_role_change_request_status CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED')),
+    CONSTRAINT ck_role_change_request_decided CHECK ((status = 'PENDING') = (decided_at IS NULL)),
+    CONSTRAINT ck_role_change_request_other_approver CHECK (decided_by IS NULL OR status = 'CANCELLED' OR (decided_by <> requested_by AND decided_by <> target_user_id)),
+    CONSTRAINT ck_role_change_request_reason CHECK (reason IS NULL OR char_length(reason) <= 500)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_role_change_request_open ON role_change_request (target_user_id) WHERE status = 'PENDING';

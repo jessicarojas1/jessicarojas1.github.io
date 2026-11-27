@@ -288,6 +288,8 @@ The remaining variables from §5.2 go into `environment`. The worker task defini
 
 ## 7. Verification
 
+
+**Automated check:** after deploying, run `deploy/smoke-test.sh <base-url>` from `pal/` (bash + curl; add `PAL_SMOKE_USERNAME`/`PAL_SMOKE_PASSWORD` for a dedicated test account and `PAL_SMOKE_EICAR=1` with real ClamAV). It covers liveness, readiness, Host-header protection, CSP and security headers, no stored files under the web root, anonymous API refusal, sign-in, a scanned upload and an image upload (proves PHP `gd`). See [DEPLOYMENT §5.2a](../docs/DEPLOYMENT.md#52a-smoke-test-after-every-deploy). The manual checks below remain the reference.
 ```sh
 # Run migrations (one-off task) and check the exit code
 TASK=$(aws ecs run-task --cluster pal --launch-type FARGATE --task-definition pal-migrate \

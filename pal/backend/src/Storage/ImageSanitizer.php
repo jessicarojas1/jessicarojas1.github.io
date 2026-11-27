@@ -56,8 +56,15 @@ final class ImageSanitizer
             throw new ApiProblem(422, 'image_unreadable', 'The image could not be read. Save it again as PNG or JPEG and retry.');
         }
         [$width, $height] = $info;
-        if ($width > self::MAX_SIDE || $height > self::MAX_SIDE || $width * $height > self::MAX_PIXELS) {
-            throw new ApiProblem(422, 'image_too_large', 'The image has too many pixels. Resize it to at most 12,000 pixels on a side and 40 megapixels.');
+        $orientation = 'image/jpeg' === $mime ? $this->orientation($source) : 1;
+        // Rotating needs a second full-size copy of the pixels in memory.
+        $copies = \in_array($orientation, [3, 4, 5, 6, 7, 8], true) ? 2 : 1;
+        $maxPixels = min(self::MAX_PIXELS, self::pixelBudget($copies));
+        if ($width > self::MAX_SIDE || $height > self::MAX_SIDE || $width * $height > $maxPixels) {
+            throw new ApiProblem(422, 'image_too_large', \sprintf(
+                'The image has too many pixels. Resize it to at most 12,000 pixels on a side and %d megapixels.',
+                intdiv($maxPixels, 1_000_000),
+            ));
         }
         $bytes = file_get_contents($source);
         $image = false === $bytes ? false : @imagecreatefromstring($bytes);
@@ -65,8 +72,8 @@ final class ImageSanitizer
             throw new ApiProblem(422, 'image_unreadable', 'The image could not be read. Save it again as PNG or JPEG and retry.');
         }
 
-        if ('image/jpeg' === $mime) {
-            $image = $this->orient($image, $source);
+        if (1 !== $orientation) {
+            $image = $this->orient($image, $orientation);
         }
         $target = tempnam(sys_get_temp_dir(), 'pal-img-');
         if (false === $target) {
@@ -94,16 +101,54 @@ final class ImageSanitizer
     }
 
     /**
+     * Pixels that fit in the PHP memory still available, at about 5 bytes per pixel per copy
+     * (4 for a truecolor buffer plus encoder overhead), keeping a safety margin. With the
+     * bundled GD these buffers count against memory_limit, so exceeding it would be a fatal
+     * error (500, no audit record) instead of a clean refusal.
+     */
+    private static function pixelBudget(int $copies): int
+    {
+        $limit = self::bytes((string) ini_get('memory_limit'));
+        if ($limit <= 0) {
+            return self::MAX_PIXELS;
+        }
+        $available = $limit - memory_get_usage(true) - 48 * 1_048_576;
+
+        return max(0, intdiv(max(0, $available), 5 * $copies));
+    }
+
+    private static function bytes(string $value): int
+    {
+        $value = trim($value);
+        if ('' === $value || '-1' === $value) {
+            return -1;
+        }
+        $number = (int) $value;
+
+        return match (strtolower(substr($value, -1))) {
+            'g' => $number * 1_073_741_824,
+            'm' => $number * 1_048_576,
+            'k' => $number * 1_024,
+            default => $number,
+        };
+    }
+
+    private function orientation(string $source): int
+    {
+        if (!\function_exists('exif_read_data')) {
+            return 1;
+        }
+        $exif = @exif_read_data($source);
+
+        return \is_array($exif) && \is_int($exif['Orientation'] ?? null) && $exif['Orientation'] >= 1 && $exif['Orientation'] <= 8 ? $exif['Orientation'] : 1;
+    }
+
+    /**
      * Applies EXIF orientation (values 3, 6, 8 and their mirrored forms) to the pixels, since
      * the EXIF block that carried it is about to be removed.
      */
-    private function orient(\GdImage $image, string $source): \GdImage
+    private function orient(\GdImage $image, int $orientation): \GdImage
     {
-        if (!\function_exists('exif_read_data')) {
-            return $image;
-        }
-        $exif = @exif_read_data($source);
-        $orientation = \is_array($exif) && \is_int($exif['Orientation'] ?? null) ? $exif['Orientation'] : 1;
         if (\in_array($orientation, [2, 4, 5, 7], true)) {
             imageflip($image, \IMG_FLIP_HORIZONTAL);
         }

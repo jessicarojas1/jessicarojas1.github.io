@@ -202,6 +202,8 @@ No other egress is needed by PAL at runtime. In Situation B, drop the Entra and 
 
 ## 7. Verification
 
+
+**Automated check:** after deploying, run `deploy/smoke-test.sh <base-url>` from `pal/` (bash + curl; add `PAL_SMOKE_USERNAME`/`PAL_SMOKE_PASSWORD` for a dedicated test account and `PAL_SMOKE_EICAR=1` with real ClamAV). It covers liveness, readiness, Host-header protection, CSP and security headers, no stored files under the web root, anonymous API refusal, sign-in, a scanned upload and an image upload (proves PHP `gd`). See [DEPLOYMENT §5.2a](../docs/DEPLOYMENT.md#52a-smoke-test-after-every-deploy). The manual checks below remain the reference.
 As in [SINGLE_LINUX_SERVER.md §7](SINGLE_LINUX_SERVER.md#7-verification), plus:
 
 | # | Check | Command | Expected |

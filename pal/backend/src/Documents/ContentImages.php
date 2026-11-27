@@ -34,6 +34,11 @@ final class ContentImages
         if ([] === $new) {
             return;
         }
+        foreach ($new as $sha) {
+            if (1 !== preg_match('/^[0-9a-f]{64}$/', $sha)) {
+                throw ApiProblem::validation(['body' => 'An image reference is not valid.']);
+            }
+        }
         $owned = Row::strings($this->connection->fetchFirstColumn(<<<'SQL'
             SELECT DISTINCT u.stored_sha256 FROM upload u JOIN stored_file sf ON sf.sha256 = u.stored_sha256
             WHERE u.uploaded_by = ? AND u.status = 'CLEAN' AND sf.detected_mime LIKE 'image/%' AND u.stored_sha256 = ANY(?::char(64)[])

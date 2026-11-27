@@ -119,6 +119,21 @@ final class UploadService
         try {
             $storedSha = $storedPath === $path ? $sha256 : (string) hash_file('sha256', $storedPath);
             $storedSize = (int) filesize($storedPath);
+            if ($storedPath !== $path) {
+                // The bytes PAL stores are scanned too: a re-encoding could in theory carry a
+                // payload the original did not, and stored_file.scan_engine must be true of them.
+                $storedScan = $this->scanner->scan($storedPath);
+                if (!$storedScan->isClean()) {
+                    $this->record($user, $actor, $filename, $size, $sha256, $mime, $storedScan->isInfected() ? 'INFECTED' : 'ERROR', 'stored image: '.(string) $storedScan->detail);
+                    throw $storedScan->isInfected()
+                        ? new ApiProblem(422, 'malware_detected', 'The file was blocked because the malware scanner flagged it.')
+                        : new ApiProblem(503, 'scanner_unavailable', 'Files cannot be checked for malware right now, so the upload was not accepted. Try again later.');
+                }
+                // Re-encoding can make an image larger; the quota counts what is stored.
+                if ($storedSize > $size) {
+                    $this->assertWithinDailyQuota($user, $storedSize);
+                }
+            }
             // Content-addressed and idempotent: storing before the DB write can only leave an
             // unreferenced blob behind (harmless; collected later), never a dangling reference.
             $this->blobs->put($storedPath, $storedSha);
@@ -187,7 +202,7 @@ final class UploadService
     private function assertWithinDailyQuota(PalUser $user, int $size): void
     {
         $used = $this->connection->fetchOne(
-            "SELECT COALESCE(sum(size_bytes), 0) FROM upload WHERE uploaded_by = ? AND status = 'CLEAN' AND created_at > now() - interval '24 hours'",
+            "SELECT COALESCE(sum(GREATEST(u.size_bytes, COALESCE(sf.size_bytes, 0))), 0) FROM upload u LEFT JOIN stored_file sf ON sf.sha256 = u.stored_sha256 WHERE u.uploaded_by = ? AND u.status = 'CLEAN' AND u.created_at > now() - interval '24 hours'",
             [$user->id],
         );
         if (is_numeric($used) && (int) $used + $size > $this->dailyBytes) {

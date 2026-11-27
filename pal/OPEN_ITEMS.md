@@ -41,6 +41,14 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | Reading | ✅ Readers, approvers and publishers see the formatted content read-only; the editor bundle is loaded only for people editing a draft; body text is searchable |
 | Tests | ✅ Backend 270 tests OK, frontend 74 passed (after the follow-up: soft checkout, toolbar keyboard pattern, non-destructive reload errors; delta security + UI audits run, findings fixed); security and UI audits run and their findings fixed (remaining Lows listed below); browser check on local dev (template create, create-from-template, autosave, metadata save after autosave, approver view in dark and light themes) |
 
+## Done: High-priority fixes (2026-11-27)
+| Item | What changed |
+|---|---|
+| Separation of duties (decision #31, amends #30) | ✅ Two-person rule: Owner grants/removals and self-grants of System Administrator or document authority wait for a different, **independent** Owner/System Administrator (not an account the requester created or password-reset); only an Owner resets an Owner's password; sole-administrator changes are applied but audited and flagged, and refused for 30 days after removing another administrator (`TwoPersonRuleTest`, 10 tests incl. sock-puppet, reset-takeover and field-clearing attempts). Residual: collusion, Entra-side puppets (D20), shell access |
+| Stored files under the web root | ✅ A relative `PAL_BLOB_DIR` now resolves against the backend project, not the working directory (which `php -S` sets to `public/`, making blobs downloadable without an access check). Two test-stub PDFs committed under `public/var/blobs/` in Phase 2 were removed from the repo (no real content) and `/public/var/` is git-ignored |
+| Image security review | ✅ Completed; fixed: memory-aware pixel limit (rotation needs two copies), re-encoded bytes rescanned, quota by stored size, release checks image references against the body, hash re-validation, `BlobDirectory` `../` handling, test helpers resolve the blob path like the app |
+| Deployment smoke test | ✅ `deploy/smoke-test.sh` automates the read-only and signed-in checks for any environment (see DEPLOYMENT §5.2a). **Not yet run against Render or the Compose stack** |
+
 ## Not verified (must be confirmed before go-live)
 | Item | Impact | Action |
 |---|---|---|
@@ -57,7 +65,7 @@ Status key: ✅ done · 🟡 partial · ⛔ not started / blocked
 | Editor accessibility | ✅ **Automated check done (2026-11-10):** axe (WCAG 2.0–2.2 A/AA + best practice) **0 violations** on the document page with the editor open (incl. table toolbar), Document templates with a template open, and New document, in dark and light themes; no horizontal scroll at 375 px; keyboard: one Tab stop per toolbar, arrows/Home/End move within it. A screen-reader pass is still due (row below) | — |
 | Manual screen-reader pass (NVDA, VoiceOver) not done | Automated checks miss some issues | Do it at the Phase 6/7 accessibility audit |
 | `init-roles.sh` password setting not fully tested (local PostgreSQL trusts local logins) | Bundled-DB passwords unproven | Test on a host with `scram-sha-256` auth |
-| Phase 1 exit criterion "restore of an empty DB from backup demonstrated" | Required by the plan | Run the DISASTER_RECOVERY runbook once on staging |
+| Restore drill | 🟡 **Logical restore demonstrated locally (2026-11-27):** dump → restore into a new database → migrations current, audit chain valid with an identical head, stored files verified, row counts identical ([DISASTER_RECOVERY §5](docs/DISASTER_RECOVERY.md#5-verification-cadence)). **Still due:** physical/PITR restore, blobs from their own backup, anchor comparison, timed at production size | Run the full runbook on staging and record RPO/RTO |
 
 ## Security (Phase 2 and local accounts)
 | Item | Severity | Status / action |

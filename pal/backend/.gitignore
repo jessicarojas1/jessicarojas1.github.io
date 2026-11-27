@@ -22,3 +22,6 @@
 # Tool caches
 /.deptrac.cache
 /.phpunit.cache/
+
+# Stored blobs must never be under the web root or in git (see Storage/BlobDirectory).
+/public/var/

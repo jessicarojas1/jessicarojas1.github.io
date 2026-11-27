@@ -371,10 +371,7 @@ final class DocumentLifecycleTest extends WebTestCase
 
     private static function blobPath(string $sha): string
     {
-        $root = (string) ($_ENV['PAL_BLOB_DIR'] ?? $_SERVER['PAL_BLOB_DIR']);
-        if (!str_starts_with($root, '/')) {
-            $root = \dirname(__DIR__, 2).'/'.$root;
-        }
+        $root = \App\Storage\BlobDirectory::resolve((string) ($_ENV['PAL_BLOB_DIR'] ?? $_SERVER['PAL_BLOB_DIR']), \dirname(__DIR__, 2));
 
         return rtrim($root, '/').'/sha256/'.substr($sha, 0, 2).'/'.substr($sha, 2, 2).'/'.$sha;
     }

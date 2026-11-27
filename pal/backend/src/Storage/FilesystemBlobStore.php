@@ -14,10 +14,15 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final class FilesystemBlobStore implements BlobStore
 {
+    private readonly string $root;
+
     public function __construct(
         #[Autowire(env: 'PAL_BLOB_DIR')]
-        private readonly string $root,
+        string $root,
+        #[Autowire('%kernel.project_dir%')]
+        string $projectDir = '',
     ) {
+        $this->root = '' === $projectDir ? $root : BlobDirectory::resolve($root, $projectDir);
     }
 
     public function put(string $sourcePath, string $sha256): void

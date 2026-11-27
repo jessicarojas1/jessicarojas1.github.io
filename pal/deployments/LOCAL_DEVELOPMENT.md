@@ -21,7 +21,7 @@ Shared material (Entra app registration, database roles, full variable reference
 | PHP backend | `php -S 127.0.0.1:8000 -t public` in `backend/` (or `symfony serve`) | `127.0.0.1:8000` |
 | Worker (optional) | `php bin/console messenger:consume async scheduler_default -vv` | — |
 | PostgreSQL | container `postgres:17` | `127.0.0.1:5432` |
-| Blob store | directory `PAL_BLOB_DIR` on your disk | — |
+| Blob store | directory `PAL_BLOB_DIR` on your disk; a relative value (default `var/blobs`) resolves against `pal/backend/`, never the server's working directory, so files never land in the web root `public/` | — |
 | ClamAV (optional in Mode A) | container `clamav/clamav:1.5.4` | `127.0.0.1:3310` |
 
 Vite proxies `/api`, `/auth` and `/health` to the backend (`frontend/vite.config.ts`, target `PAL_BACKEND_URL`, default `http://127.0.0.1:8000`, `changeOrigin: false`). The browser sees a single origin, `http://localhost:5173`, as it would behind nginx in production (BFF model: the session cookie is the only credential in the browser).
@@ -124,6 +124,8 @@ For Mode B, the variable set is the production one ([SINGLE_LINUX_SERVER.md §5]
 
 ## 7. Verification
 
+
+**Automated check:** after deploying, run `deploy/smoke-test.sh <base-url>` from `pal/` (bash + curl; add `PAL_SMOKE_USERNAME`/`PAL_SMOKE_PASSWORD` for a dedicated test account and `PAL_SMOKE_EICAR=1` with real ClamAV). It covers liveness, readiness, Host-header protection, CSP and security headers, no stored files under the web root, anonymous API refusal, sign-in, a scanned upload and an image upload (proves PHP `gd`). See [DEPLOYMENT §5.2a](../docs/DEPLOYMENT.md#52a-smoke-test-after-every-deploy). The manual checks below remain the reference.
 ### 7.1 Mode A setup
 
 ```sh

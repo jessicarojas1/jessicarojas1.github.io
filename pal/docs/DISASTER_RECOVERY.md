@@ -233,7 +233,7 @@ Assumes the single-host Compose deployment with an **external** PostgreSQL 17 ma
 | Every release with a migration | Backup before `migrate`; spot-restore it in staging | Release checklist |
 | Phase 7 | DR drill meeting RPO ≤ 15 min and RTO ≤ 4 h is a production-readiness criterion ([Proposal §17](PHASE0_ARCHITECTURE_PROPOSAL.md#17-production-readiness-acceptance-criteria)) | Phase 7 evidence pack |
 
-The Phase 1 exit criterion "restore of empty DB from backup demonstrated" ([Proposal §16](PHASE0_ARCHITECTURE_PROPOSAL.md#16-phased-delivery-plan)) has no recorded evidence in this repository yet.
+**Drill record — 2026-11-27 (logical restore, local development, PostgreSQL 17):** `pg_dump -Fc` of the development database, restored with `pg_restore --no-owner` into a newly created database, then runbook steps 6–8a against it: `doctrine:migrations:status` (current, 0 new), `pal:audit:verify` ("Audit chain valid: 57 events"), chain head **identical** to the source (event 57, same hash), `pal:storage:verify` (3 files present and intact), row counts identical for `audit_event`, `document`, `revision`, `revision_image`, `document_template_version`, `stored_file`, `user_role`, `role_change_request`. Dump and restore took under a second for this data size. This demonstrates the Phase 1 criterion "restore of an empty DB from backup" for the logical path. **Not covered:** a physical pgBackRest restore, point-in-time recovery, restoring blobs from their own backup (the drill reused the live blob directory), the external anchor comparison (step 8, no anchor directory locally), RPO/RTO at production size, and steps 9–12 on a running stack. Repeat on staging quarterly (table above).
 
 ## 6. High availability
 

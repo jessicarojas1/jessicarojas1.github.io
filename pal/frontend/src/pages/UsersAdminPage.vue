@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useLeaveGuard } from '@/composables/useLeaveGuard'
 import { computed, onMounted, ref, watch } from 'vue'
+import RoleRequestsPanel from '@/components/RoleRequestsPanel.vue'
 import { useQuasar } from 'quasar'
 import { api, ApiError } from '@/api/client'
 import { formatDateTime, roleLabel } from '@/format'
@@ -147,9 +148,18 @@ async function saveRoles(): Promise<void> {
   saving.value = true
   actionError.value = null
   try {
-    await api(`/api/admin/users/${selected.value.id}/roles`, { method: 'PUT', body: { roles: draftRoles.value } })
-    $q.notify({ type: 'positive', message: 'Roles saved.' })
+    const result = await api<{ pending?: boolean; soleAdministrator?: boolean }>(`/api/admin/users/${selected.value.id}/roles`, { method: 'PUT', body: { roles: draftRoles.value } })
+    if (result.pending === true) {
+      $q.notify({ type: 'info', message: 'Sent for approval: another Owner or System Administrator must confirm this change. Nothing has changed yet.', timeout: 0, actions: [{ label: 'Dismiss', color: 'white' }] })
+    } else if (result.soleAdministrator === true) {
+      $q.notify({ type: 'warning', message: 'Roles saved without a second approver, because you are the only administrator. The change is flagged for review.', timeout: 0, actions: [{ label: 'Dismiss' }] })
+    } else {
+      $q.notify({ type: 'positive', message: 'Roles saved.' })
+    }
     await load()
+    // A held change has not happened: show the person's real roles, not the request.
+    if (result.pending === true && selected.value !== null) draftRoles.value = [...selected.value.explicitRoles]
+    void requestsPanel.value?.load()
   } catch (e) {
     actionError.value = e instanceof ApiError ? e.message : 'Roles could not be saved.'
   } finally {
@@ -157,7 +167,18 @@ async function saveRoles(): Promise<void> {
   }
 }
 
+const requestsPanel = ref<InstanceType<typeof RoleRequestsPanel> | null>(null)
+// Pending two-person-rule requests by target user id, for the editor and the user list.
+const pendingByUser = ref<Record<string, { from: string[]; to: string[]; requestedBy: string }>>({})
+// Extra explanation shown in the temporary-password dialog after creating an account.
+const tempNote = ref<string | null>(null)
+
+function onRequestsLoaded(requests: { target: { id: string }; from: string[]; to: string[]; requestedBy: { displayName: string } }[]): void {
+  pendingByUser.value = Object.fromEntries(requests.map((r) => [r.target.id, { from: r.from, to: r.to, requestedBy: r.requestedBy.displayName }]))
+}
+
 function showTemporary(name: string, password: string): void {
+  tempNote.value = null
   tempPasswordName.value = name
   tempPassword.value = password
 }
@@ -230,9 +251,16 @@ async function createUser(): Promise<void> {
   saving.value = true
   createErrors.value = {}
   try {
-    const result = await api<{ id: string; temporaryPassword: string }>('/api/admin/users', { method: 'POST', body: newUser.value })
+    const result = await api<{ id: string; temporaryPassword: string; pendingRoleRequest?: string; soleAdministrator?: boolean }>('/api/admin/users', { method: 'POST', body: newUser.value })
     creating.value = false
     showTemporary(newUser.value.displayName, result.temporaryPassword)
+    if (result.pendingRoleRequest !== undefined) {
+      tempNote.value = 'The Owner role is waiting for a second Owner or System Administrator, who can approve it only after this person has signed in and chosen their own password.'
+      void requestsPanel.value?.load()
+    } else if (result.soleAdministrator === true) {
+      tempNote.value = 'Owner was granted without a second approver because you are the only administrator. The change is flagged for review on this page.'
+      void requestsPanel.value?.load()
+    }
     newUser.value = { username: '', displayName: '', email: '', roles: [] }
     usernameEdited.value = false
     await load()
@@ -271,6 +299,12 @@ onMounted(load)
     >
       {{ loadError }}
     </q-banner>
+
+    <RoleRequestsPanel
+      ref="requestsPanel"
+      @changed="load"
+      @loaded="onRequestsLoaded"
+    />
 
     <div class="pal-iam">
       <!-- User list -->
@@ -338,7 +372,10 @@ onMounted(load)
                   class="pal-muted"
                 > (inactive)</span></span>
                 <span class="pal-muted text-caption">{{ user.signInMethod === 'password' ? `Password · ${user.username}` : `Entra · ${user.email ?? ''}` }}</span>
-                <span class="text-caption">{{ [...new Set([...user.explicitRoles, ...user.groupRoles])].map(roleLabel).join(', ') || 'Reader' }}</span>
+                <span class="text-caption">{{ [...new Set([...user.explicitRoles, ...user.groupRoles])].map(roleLabel).join(', ') || 'Reader' }}<span
+                  v-if="pendingByUser[user.id]"
+                  class="pal-muted"
+                > · change pending</span></span>
               </span>
             </button>
           </li>
@@ -364,6 +401,13 @@ onMounted(load)
             <span v-if="selected.lockedUntil && new Date(selected.lockedUntil) > new Date()"> · Locked until {{ formatDateTime(selected.lockedUntil, session.effectiveTimezone) }}</span>
             <span v-if="selected.mustChangePassword"> · Must change password</span>
           </p>
+          <q-banner
+            v-if="pendingByUser[selected.id]"
+            class="pal-editing-banner q-mb-md"
+            rounded
+          >
+            A change is waiting for a second approver: {{ (pendingByUser[selected.id]?.from ?? []).map(roleLabel).join(', ') || 'Reader only' }} → <strong>{{ (pendingByUser[selected.id]?.to ?? []).map(roleLabel).join(', ') || 'Reader only' }}</strong>, requested by {{ pendingByUser[selected.id]?.requestedBy }}. The roles below are the current ones.
+          </q-banner>
           <q-banner
             v-if="actionError"
             class="bg-negative text-white q-mb-md"
@@ -602,6 +646,13 @@ onMounted(load)
           </h2>
           <p class="pal-muted q-mb-none">
             Give this to {{ tempPasswordName }} through a secure channel. It is shown only once, and they must change it when they sign in.
+          </p>
+          <p
+            v-if="tempNote"
+            class="q-mt-sm q-mb-none"
+            role="status"
+          >
+            {{ tempNote }}
           </p>
         </q-card-section>
         <q-card-section>

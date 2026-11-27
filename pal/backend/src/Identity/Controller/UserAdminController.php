@@ -8,6 +8,7 @@ use App\Audit\AuditEntry;
 use App\Audit\AuditLogger;
 use App\Identity\Authorization\GlobalRole;
 use App\Identity\Authorization\Permission;
+use App\Identity\Authorization\RoleAssignments;
 use App\Identity\Authorization\RolePermissionMap;
 use App\Identity\Local\LocalAccountService;
 use App\Identity\User\PalUser;
@@ -34,6 +35,7 @@ final class UserAdminController
         private readonly Connection $connection,
         private readonly LocalAccountService $accounts,
         private readonly AuditLogger $audit,
+        private readonly RoleAssignments $assignments,
     ) {
     }
 
@@ -88,41 +90,68 @@ final class UserAdminController
         $roles = $this->parseRoles($body['roles'] ?? []);
         // An Owner or System Administrator may create another Owner.
         $this->assertOwnerGrant($admin, $roles);
+        // Two-person rule (#31): the Owner role of a new account waits for a second approver.
+        $holdOwner = \in_array(GlobalRole::Owner, $roles, true) && $this->assignments->otherApproverExists([$admin->id], $admin->id);
+        $requested = $roles;
+        if ($holdOwner) {
+            $roles = array_values(array_filter($roles, fn (GlobalRole $r): bool => GlobalRole::Owner !== $r));
+        }
         // The new account's temporary password is shown to this administrator, so they could act as it.
         $this->assertNoEscalation($admin, $roles);
-        $created = $this->accounts->create(
-            $admin->auditActor(),
-            $admin->id,
-            \is_string($body['username'] ?? null) ? $body['username'] : '',
-            \is_string($body['displayName'] ?? null) ? $body['displayName'] : '',
-            \is_string($body['email'] ?? null) ? $body['email'] : null,
-            $roles,
-        );
+        $displayName = \is_string($body['displayName'] ?? null) ? $body['displayName'] : '';
+        $soleOwner = !$holdOwner && \in_array(GlobalRole::Owner, $roles, true);
+        if ($soleOwner) {
+            $this->assignments->assertSoleAdministratorAllowed($admin->id);
+        }
+        // Account, request and audit events commit together or not at all.
+        [$created, $extra] = $this->connection->transactional(function () use ($admin, $body, $displayName, $roles, $requested, $holdOwner, $soleOwner): array {
+            $created = $this->accounts->create(
+                $admin->auditActor(),
+                $admin->id,
+                \is_string($body['username'] ?? null) ? $body['username'] : '',
+                $displayName,
+                \is_string($body['email'] ?? null) ? $body['email'] : null,
+                $roles,
+            );
+            $extra = [];
+            if ($holdOwner) {
+                $extra['pendingRoleRequest'] = $this->assignments->openRequest(
+                    $admin, $created['id'], $displayName, self::roleValues($roles), self::roleValues($requested), 'Owner role for a new account',
+                );
+            } elseif ($soleOwner) {
+                $this->audit->record(new AuditEntry('ROLE_CHANGE_SOLE_ADMINISTRATOR', $admin->auditActor(), 'app_user', $created['id'], ['user' => $displayName, 'from' => [], 'to' => self::roleValues($roles)],
+                    'Owner granted to a new account without a second approver because no other active Owner or System Administrator exists.'));
+                $extra['soleAdministrator'] = true;
+            }
 
-        return new JsonResponse(['ok' => true, ...$created], 201);
+            return [$created, $extra];
+        });
+
+        return new JsonResponse(['ok' => true, ...$created, ...$extra], 201);
     }
 
     #[Route('/api/admin/users/{id}/roles', name: 'api_admin_user_roles', methods: ['PUT'])]
     public function setRoles(#[CurrentUser] PalUser $admin, string $id, Request $request): JsonResponse
     {
-        $roles = $this->parseRoles(JsonBody::decode($request)['roles'] ?? []);
+        $body = JsonBody::decode($request);
+        $roles = $this->parseRoles($body['roles'] ?? []);
+        $reason = \is_string($body['reason'] ?? null) ? mb_substr(trim((string) preg_replace('/[\x00-\x1F\x7F]/u', ' ', $body['reason'])), 0, 500) : null;
         $target = $this->requireUser($id);
 
-        $this->connection->transactional(function () use ($admin, $id, $roles, $target): void {
-            $before = Row::strings($this->connection->fetchFirstColumn('SELECT role FROM user_role WHERE user_id = ? ORDER BY role FOR UPDATE', [$id]));
+        $result = $this->connection->transactional(function () use ($admin, $id, $roles, $target, $reason): array {
+            $before = $this->assignments->explicitRolesForUpdate($id);
             $after = array_map(fn (GlobalRole $r): string => $r->value, $roles);
             sort($after);
             $added = array_values(array_diff($after, $before));
             $removed = array_values(array_diff($before, $after));
+            $managesAll = RoleAssignments::managesAllRoles($admin);
             // An Owner or System Administrator may grant or revoke the Owner role; any lesser
             // administrator (e.g. PAL Administrator) can neither create an Owner nor strip one.
-            if ((\in_array(GlobalRole::Owner->value, $added, true) || \in_array(GlobalRole::Owner->value, $removed, true)) && !$this->managesAllRoles($admin)) {
+            if ((\in_array(GlobalRole::Owner->value, $added, true) || \in_array(GlobalRole::Owner->value, $removed, true)) && !$managesAll) {
                 throw new ApiProblem(403, 'owner_grant_forbidden', 'Only an Owner or System Administrator can grant or revoke the Owner role.');
             }
-            // Separation of duties: a PAL Administrator cannot grant themselves document
-            // authority. An Owner or System Administrator manages all roles, so the self-grant
-            // rule does not constrain them.
-            if ($id === $admin->id && !$this->managesAllRoles($admin)) {
+            // Separation of duties: a PAL Administrator cannot grant themselves document authority.
+            if ($id === $admin->id && !$managesAll) {
                 foreach ($added as $value) {
                     if (GlobalRole::from($value)->hasDocumentAuthority()) {
                         throw new ApiProblem(403, 'self_grant_forbidden', 'Another administrator must grant you a role with document authority.');
@@ -130,19 +159,24 @@ final class UserAdminController
                 }
             }
             $this->assertNoEscalation($admin, array_map(GlobalRole::from(...), $added));
-            $this->connection->executeStatement('DELETE FROM user_role WHERE user_id = ?', [$id]);
-            foreach ($after as $value) {
-                $this->connection->executeStatement('INSERT INTO user_role (user_id, role, granted_by) VALUES (?, ?, ?)', [$id, $value, $admin->id]);
+            $displayName = Row::string($target, 'display_name');
+
+            // Two-person rule (#31): the most powerful changes wait for a second Owner or
+            // System Administrator, unless nobody else could approve them.
+            $sole = false;
+            if ($managesAll && RoleAssignments::needsSecondPerson($admin->id, $id, $added, $removed)) {
+                if ($this->assignments->otherApproverExists([$admin->id, $id], $admin->id)) {
+                    return ['ok' => true, 'pending' => true, 'requestId' => $this->assignments->openRequest($admin, $id, $displayName, $before, $after, $reason)];
+                }
+                $this->assignments->assertSoleAdministratorAllowed($admin->id);
+                $sole = true;
             }
-            $this->assertAdministratorRemains();
-            if ($before !== $after) {
-                $this->audit->record(new AuditEntry('USER_ROLES_CHANGED', $admin->auditActor(), 'app_user', $id, [
-                    'user' => Row::string($target, 'display_name'), 'from' => $before, 'to' => $after,
-                ]));
-            }
+            $this->assignments->apply($admin, $id, $displayName, $before, $after, null, $sole);
+
+            return $sole ? ['ok' => true, 'soleAdministrator' => true] : ['ok' => true];
         });
 
-        return new JsonResponse(['ok' => true]);
+        return new JsonResponse($result, true === ($result['pending'] ?? false) ? 202 : 200);
     }
 
     #[Route('/api/admin/users/{id}/active', name: 'api_admin_user_active', methods: ['PUT'])]
@@ -158,7 +192,7 @@ final class UserAdminController
         $target = $this->requireUser($id);
         $this->connection->transactional(function () use ($admin, $id, $active, $target): void {
             $this->connection->executeStatement('UPDATE app_user SET is_active = ?, updated_at = now() WHERE id = ?', [$active ? 'true' : 'false', $id]);
-            $this->assertAdministratorRemains();
+            $this->assignments->assertAdministratorRemains();
             $this->audit->record(new AuditEntry($active ? 'USER_ACTIVATED' : 'USER_DEACTIVATED', $admin->auditActor(), 'app_user', $id, ['user' => Row::string($target, 'display_name')]));
         });
 
@@ -170,7 +204,13 @@ final class UserAdminController
     {
         $this->requireUser($id);
         // A reset hands this administrator a working password for the account.
-        $this->assertNoEscalation($admin, $this->effectiveRoles($id));
+        $targetRoles = $this->effectiveRoles($id);
+        $this->assertNoEscalation($admin, $targetRoles);
+        // Taking over an Owner account would be god mode by one person (decision #31): only
+        // another Owner (who already holds every permission) may reset an Owner's password.
+        if ($id !== $admin->id && \in_array(GlobalRole::Owner, $targetRoles, true) && !$admin->hasRole(GlobalRole::Owner)) {
+            throw new ApiProblem(403, 'owner_reset_forbidden', 'Only another Owner can reset an Owner\'s password.');
+        }
 
         return new JsonResponse(['ok' => true, 'temporaryPassword' => $this->accounts->resetPassword($admin, $id)]);
     }
@@ -184,7 +224,7 @@ final class UserAdminController
      */
     private function assertNoEscalation(PalUser $admin, array $roles): void
     {
-        if ($this->managesAllRoles($admin) || $admin->hasRole(GlobalRole::PalAdministrator)) {
+        if (RoleAssignments::managesAllRoles($admin) || $admin->hasRole(GlobalRole::PalAdministrator)) {
             return;
         }
         foreach ($roles as $role) {
@@ -203,21 +243,22 @@ final class UserAdminController
      */
     private function assertOwnerGrant(PalUser $admin, array $roles): void
     {
-        if (\in_array(GlobalRole::Owner, $roles, true) && !$this->managesAllRoles($admin)) {
+        if (\in_array(GlobalRole::Owner, $roles, true) && !RoleAssignments::managesAllRoles($admin)) {
             throw new ApiProblem(403, 'owner_grant_forbidden', 'Only an Owner or System Administrator can grant or revoke the Owner role.');
         }
     }
 
     /**
-     * Full role authority: an Owner (god mode) or a System Administrator may assign any role,
-     * including Owner, to anyone including themselves. A System Administrator is the operator
-     * of record for this instance, so (by decision #30) they are not bound by the separation
-     * of duties that constrains a PAL Administrator. The "an administrator must remain" guard
-     * still applies.
+     * @param list<GlobalRole> $roles
+     *
+     * @return list<string> sorted role values
      */
-    private function managesAllRoles(PalUser $admin): bool
+    private static function roleValues(array $roles): array
     {
-        return $admin->hasRole(GlobalRole::Owner) || $admin->hasRole(GlobalRole::SystemAdministrator);
+        $values = array_map(fn (GlobalRole $r): string => $r->value, $roles);
+        sort($values);
+
+        return $values;
     }
 
     /**
@@ -236,27 +277,6 @@ final class UserAdminController
             SQL, ['id' => $userId]));
 
         return array_values(array_filter(array_map(GlobalRole::tryFrom(...), $values)));
-    }
-
-    /**
-     * Refuses (and so rolls back) a change that would leave no active administrator. An Owner
-     * (god mode) counts: it holds every System Administrator permission, so the system still
-     * has someone who can administer it. Owner is an explicit grant only, so the directory-group
-     * branch considers System Administrator alone.
-     */
-    private function assertAdministratorRemains(): void
-    {
-        $remains = $this->connection->fetchOne(<<<'SQL'
-            SELECT count(*) > 0 FROM app_user u
-            WHERE u.is_active AND (
-                EXISTS (SELECT 1 FROM user_role ur WHERE ur.user_id = u.id AND ur.role IN (:sysadmin, :owner))
-                OR EXISTS (SELECT 1 FROM global_role_mapping m
-                           JOIN group_membership gm ON gm.group_id = m.group_id AND gm.valid_to IS NULL
-                           WHERE gm.user_id = u.id AND m.role = :sysadmin))
-            SQL, ['sysadmin' => GlobalRole::SystemAdministrator->value, 'owner' => GlobalRole::Owner->value]);
-        if (true !== $remains) {
-            throw new ApiProblem(409, 'last_administrator', 'At least one active System Administrator or Owner must remain.');
-        }
     }
 
     /**

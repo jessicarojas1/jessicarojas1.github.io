@@ -508,6 +508,8 @@ kubectl -n pal create secret tls pal-oidc --cert=oidc_cert.pem --key=oidc_key.pe
 
 ## 7. Verification
 
+
+**Automated check:** after deploying, run `deploy/smoke-test.sh <base-url>` from `pal/` (bash + curl; add `PAL_SMOKE_USERNAME`/`PAL_SMOKE_PASSWORD` for a dedicated test account and `PAL_SMOKE_EICAR=1` with real ClamAV). It covers liveness, readiness, Host-header protection, CSP and security headers, no stored files under the web root, anonymous API refusal, sign-in, a scanned upload and an image upload (proves PHP `gd`). See [DEPLOYMENT §5.2a](../docs/DEPLOYMENT.md#52a-smoke-test-after-every-deploy). The manual checks below remain the reference.
 ```sh
 kubectl -n pal apply -f pal-base.yaml              # namespace, SA, ConfigMap, secrets
 kubectl -n pal apply -f pal-migrate-1-0-0.yaml

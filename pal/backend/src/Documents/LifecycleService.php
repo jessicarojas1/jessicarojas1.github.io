@@ -568,9 +568,16 @@ final class LifecycleService
         if (!\is_string($approvedHash) || null === $recorded || !hash_equals($approvedHash, $recorded) || !hash_equals($recorded, $recomputed)) {
             throw new ApiProblem(409, 'approval_integrity_failed', 'The approved content could not be verified, so the revision was not released.');
         }
-        // Images in the content are covered by the body hash (by SHA-256); their bytes must
-        // still match too.
-        foreach ($this->images->ofRevision($revisionId) as $imageSha) {
+        // Images in the content are covered by the body hash (by SHA-256); the reference rows
+        // must agree with the body, and the bytes must still match.
+        $inBody = RichTextDocument::imagesIn(Row::nullableString($revision, 'body_json'));
+        $referenced = $this->images->ofRevision($revisionId);
+        sort($inBody);
+        sort($referenced);
+        if ($inBody !== $referenced) {
+            throw new ApiProblem(409, 'approval_integrity_failed', 'The images of the approved content could not be verified, so the revision was not released.');
+        }
+        foreach ($inBody as $imageSha) {
             $files[] = ['role' => 'IMAGE', 'sha256' => $imageSha, 'filename' => $imageSha];
         }
         foreach ($files as $file) {
