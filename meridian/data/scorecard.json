@@ -1,14 +1,32 @@
 {
-  "updated": "2026-11-26",
+  "updated": "2026-11-27",
   "summary": {
-    "correct": 61,
+    "correct": 62,
     "incorrect": 62,
     "partial": 13,
-    "pending": 76,
-    "note": "2026-11-26: Congress hardened two separate oversight/funding tracks into concrete action this cycle, each resolving a standing forecast same-day or within days: (1) four House committees' Democratic leaders sent a joint document-seeking letter to Trump (24 Nov) demanding he explain Huang's Nvidia reinstatement and turn over USG-Nvidia board communications, resolving fc-2026-11-25-nvidia-reinstatement-inquiry CORRECT just one day after it was written; Jeffries separately pledged a probe of Nvidia and Commerce Secretary Lutnick, and Schumer accused Nvidia of violating the export ban. (2) The Senate Appropriations Committee's FY27 defense draft cuts the Golden Dome request ~46% (to ~$9.4B) and bars new sole-source contracts >$100M on two SpaceX-linked programs (SB-AMTI, Space Data Network) worth ~$6.45B combined -- not yet enacted, but the most concrete legislative signal yet against this program's 6 Sep 2026 forecast that Golden Dome award tempo would accelerate; a new forecast tests whether the cut survives conference. (3) China's narrower gallium/germanium/antimony/superhard-materials suspension was extended through 27 Jan 2027 rather than lapsing at its 27 Nov deadline, resolving fc-2026-11-10-ggsb-suspension-extension CORRECT; separately, TSMC/Samsung/Nvidia compliance actions under the 16 Nov chip rule resolve fc-2026-11-18-chiprule-enforcement CORRECT well ahead of its window. (4) Iran's Hormuz mine claims multiplied to a fourth and fifth in 48 hours (24-25 Nov) with zero CENTCOM claim-specific engagement, widening an already-tracked corroboration gap; the Bahrain-specific pause separately extends to ~9 days. (5) CISA added 15 KEV entries across three alerts (23-25 Nov), widening the tracked edge-exploitation pattern into industrial controllers (Danfoss) and virtualization orchestration (Xen Orchestra); a newly-confirmed actively-exploited Cisco Expressway flaw (CVE-2026-76466) extends the same pattern into collaboration infrastructure, with a new forecast testing whether it breaks the persistent zero-named-DIB-victim pattern. (6) BACKLOG CATCH-UP: a dedicated audit of long-pending forecasts found four whose windows had lapsed months ago without being graded in intervening cycles (fc-2026-09-14-ciscofmc-dib-victim, fc-2026-09-15-gitlab-downstream, fc-2026-09-17-cisco-ise-kev-exploit, fc-2026-09-18-vulcan-review, all graded INCORRECT on the window's lapse) and one correctly-resolving negative forecast (fc-2026-09-21-linux-kev-no-dib-victim, graded CORRECT). Three new forecasts were added testing the Golden Dome cut's durability through conference, a named DIB victim from the Cisco Expressway exploitation, and the CR's likely stopgap mechanism.",
-    "updated": "2026-11-26"
+    "pending": 77,
+    "note": "2026-11-27: Congress's Nvidia inquiry widened from a corporate-governance question into an explicit pay-for-access allegation: Senate Democrats (reportedly Warren/Coons) opened an investigation into whether ~$26M in Nvidia contributions to Trump-linked projects influenced the administration's approval of H200 China chip sales, seeking records of what senior officials knew ahead of Trump's May 2026 China visit -- a third, independent track alongside the counterintelligence inquiry and the 24 Nov document-request letter; a new forecast tests whether this produces a concrete follow-up within 30 days. Iran's Hormuz mine claims multiplied again to a sixth and seventh in the current run (~26 Nov, near Khasab, Oman), still with zero CENTCOM claim-specific engagement, while a named independent analytics firm (Orbital Risk Intelligence) stated on 20 Nov it finds no supporting evidence for the claim pattern -- a new, more explicit form of independent skepticism than this program has previously been able to cite. Taiwan's local elections are now 1 day out with the PLA-posture assessment still unresolved. One standing forecast resolved this cycle: fc-2026-11-19-ant-firstweek-close graded CORRECT on the balance of available evidence (last confirmed close of $88.91 on 20 Nov, well above the $83 IPO price, with no negative catalyst identified through the window's close, though an exact 26 Nov closing print could not be independently confirmed). CISA KEV additions paused for the first multi-day stretch in this wave in several weeks (no new entry since the 25 Nov batch of 10); the zero-named-DIB-victim pattern persists unchanged. China's gallium/germanium/antimony/superhard-materials suspension's original one-year term expired today with still no primary MOFCOM/GACC text confirming the reported extension; a new forecast tests whether primary-source confirmation emerges within 14 days. The Senate Appropriations Committee's Golden Dome funding draft has not yet advanced to a floor vote or House conference.",
+    "updated": "2026-11-27"
   },
   "forecasts": [
+    {
+      "id": "fc-2026-11-27-nvidia-payforaccess-followup",
+      "date": "2026-11-27",
+      "forecast": "Senate Democrats' inquiry into whether Nvidia's ~$26M in contributions to Trump-linked projects influenced the administration's H200 China-export approval will produce at least one additional concrete document request, finding, or on-record administration response within 30 days.",
+      "horizon": "0-30 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether today's pay-for-access allegation develops into a substantiated track or remains a minority-party inquiry with limited near-term traction. Tracked on the DoD/Federal AI Governance & Vendor Policy thread."
+    },
+    {
+      "id": "fc-2026-11-27-ggsb-suspension-primary-source",
+      "date": "2026-11-27",
+      "forecast": "A primary MOFCOM/GACC text confirming the exact terms of the reported 28 Nov 2026-27 Jan 2027 extension of the gallium/germanium/antimony/superhard-materials suspension will be identified within 14 days.",
+      "horizon": "0-14 days",
+      "outcome": "PENDING",
+      "resolvedDate": "",
+      "note": "Tests whether the persistent primary-source gap on this extension, unresolved even on the suspension's nominal 27 Nov expiry date, closes. Tracked on the Critical Minerals / Rare-Earth Magnets thread."
+    },
     {
       "id": "fc-2026-11-26-goldendome-senate-cut-survives",
       "date": "2026-11-26",
@@ -185,9 +203,9 @@
       "date": "2026-11-19",
       "forecast": "Anthropic's ANT shares will close their first week of trading (through ~26 Nov) above the $83 IPO price, consistent with the ~7x oversubscription demand pattern observed through the roadshow.",
       "horizon": "0-7 days",
-      "outcome": "PENDING",
-      "resolvedDate": "",
-      "note": "Trending CORRECT: confirmed 20 Nov close of $88.91 remains above the $83 IPO price, though down sharply from the $97.17 first-day close; window remains open through ~26 Nov."
+      "outcome": "CORRECT",
+      "resolvedDate": "2026-11-27",
+      "note": "Graded on the balance of available evidence: the last independently confirmed data point (20 Nov close of $88.91) remained well above the $83 IPO price with no negative catalyst identified through the window's close; an exact 26 Nov closing print could not be independently confirmed this cycle."
     },
     {
       "id": "fc-2026-11-17-blacksea-article5-noninvocation",
